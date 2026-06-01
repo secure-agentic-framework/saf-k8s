@@ -13,6 +13,15 @@ This repository publishes the public SAF-K8S security control catalog for Kubern
 - YAML source files for domains, knowledge areas, controls, and crosswalks
 - Generated markdown pages for controls and reverse mappings by framework
 
+## License
+
+This project uses a split license, finalized at the 2026-05-18 SAF meeting:
+
+- **Specification content** — the control catalog, crosswalks, knowledge areas, domains, and generated documentation (the `SAF-K8S-*` materials) — is licensed under the **Community Specification License 1.0** (see [`LICENSE-CSL-1.0.md`](LICENSE-CSL-1.0.md)). The Working Group scope is described in [`SCOPE.md`](SCOPE.md).
+- **Code** — the catalog generation tooling (`generate_markdown.py`) — is licensed under the **Apache License, Version 2.0** (see [`LICENSE-APACHE-2.0`](LICENSE-APACHE-2.0)).
+
+See [`LICENSE`](LICENSE) for the summary.
+
 ## Basic Info
 
 - Domains: 10
