@@ -7,9 +7,9 @@
 
 Inference request validation and response filtering enforce operational boundaries. Adversarial example defenses help define system reliability limits.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0902-003 - Inference request validation and input sanitization](../../controls/SAFE-K8S-0902-003.md)
+### [SAF-K8S-0902-003 - Inference request validation and input sanitization](../../controls/SAF-K8S-0902-003.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.2
@@ -18,7 +18,7 @@ Inference request validation and response filtering enforce operational boundari
 - Applicability: required
 - Strength Reason Code: partial-control-coverage
 
-### [SAFE-K8S-0903-001 - Adversarial example defenses at the serving layer](../../controls/SAFE-K8S-0903-001.md)
+### [SAF-K8S-0903-001 - Adversarial example defenses at the serving layer](../../controls/SAF-K8S-0903-001.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.3

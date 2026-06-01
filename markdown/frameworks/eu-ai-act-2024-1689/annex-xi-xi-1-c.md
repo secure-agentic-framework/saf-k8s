@@ -7,11 +7,11 @@
 
 Information on the resources used during the development of the model, including information on the type and amount of computational resources used, the training time, and other relevant information related to how the model was trained.
 
-SAFE-K8S GPU resource tracking (D8), Kubernetes resource quota management, job scheduling records, and training pipeline telemetry (D9/D10) directly capture computational resource usage, training duration, and infrastructure configuration.
+SAF-K8S GPU resource tracking (D8), Kubernetes resource quota management, job scheduling records, and training pipeline telemetry (D9/D10) directly capture computational resource usage, training duration, and infrastructure configuration.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0801-001 - GPU device plugin security configuration and hardening](../../controls/SAFE-K8S-0801-001.md)
+### [SAF-K8S-0801-001 - GPU device plugin security configuration and hardening](../../controls/SAF-K8S-0801-001.md)
 
 - Domain: D08 - GPU, Accelerator, and Confidential Computing
 - Knowledge Area: 8.1
@@ -20,7 +20,7 @@ SAFE-K8S GPU resource tracking (D8), Kubernetes resource quota management, job s
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0805-001 - GPU telemetry collection and anomaly detection](../../controls/SAFE-K8S-0805-001.md)
+### [SAF-K8S-0805-001 - GPU telemetry collection and anomaly detection](../../controls/SAF-K8S-0805-001.md)
 
 - Domain: D08 - GPU, Accelerator, and Confidential Computing
 - Knowledge Area: 8.5
@@ -29,7 +29,7 @@ SAFE-K8S GPU resource tracking (D8), Kubernetes resource quota management, job s
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0805-002 - GPU allocation audit trail and workload identity tracking](../../controls/SAFE-K8S-0805-002.md)
+### [SAF-K8S-0805-002 - GPU allocation audit trail and workload identity tracking](../../controls/SAF-K8S-0805-002.md)
 
 - Domain: D08 - GPU, Accelerator, and Confidential Computing
 - Knowledge Area: 8.5
@@ -38,7 +38,7 @@ SAFE-K8S GPU resource tracking (D8), Kubernetes resource quota management, job s
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0901-006 - Gang scheduling security (Volcano, Kueue)](../../controls/SAFE-K8S-0901-006.md)
+### [SAF-K8S-0901-006 - Gang scheduling security (Volcano, Kueue)](../../controls/SAF-K8S-0901-006.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.1

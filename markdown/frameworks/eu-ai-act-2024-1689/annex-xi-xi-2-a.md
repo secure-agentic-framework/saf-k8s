@@ -7,11 +7,11 @@
 
 A description of the training approach and methodology, including any specific training techniques used, and information on the training data used and how it was collected and processed.
 
-SAFE-K8S captures training job configurations, pipeline DAGs, data ingestion controls, and processing infrastructure. Training methodology documentation is application-layer, but SAFE-K8S provides reproducible training infrastructure records.
+SAF-K8S captures training job configurations, pipeline DAGs, data ingestion controls, and processing infrastructure. Training methodology documentation is application-layer, but SAF-K8S provides reproducible training infrastructure records.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0904-001 - Pipeline orchestrator hardening](../../controls/SAFE-K8S-0904-001.md)
+### [SAF-K8S-0904-001 - Pipeline orchestrator hardening](../../controls/SAF-K8S-0904-001.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.4

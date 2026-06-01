@@ -7,11 +7,11 @@
 
 Where appropriate, implementation of adequate mitigation and control measures addressing risks that cannot be eliminated.
 
-SAFE-K8S controls serve as mitigation and control measures for residual risks: monitoring, detection, incident response, and containment controls address risks that cannot be eliminated by design.
+SAF-K8S controls serve as mitigation and control measures for residual risks: monitoring, detection, incident response, and containment controls address risks that cannot be eliminated by design.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0204-001 - Runtime security tool deployment for syscall and network monitoring](../../controls/SAFE-K8S-0204-001.md)
+### [SAF-K8S-0204-001 - Runtime security tool deployment for syscall and network monitoring](../../controls/SAF-K8S-0204-001.md)
 
 - Domain: D02 - Node, Runtime, and OS Security
 - Knowledge Area: 2.4
@@ -20,7 +20,7 @@ SAFE-K8S controls serve as mitigation and control measures for residual risks: m
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-1001-016 - Audit policy coverage for AI-specific resource and workflow events](../../controls/SAFE-K8S-1001-016.md)
+### [SAF-K8S-1001-016 - Audit policy coverage for AI-specific resource and workflow events](../../controls/SAF-K8S-1001-016.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1
@@ -29,7 +29,7 @@ SAFE-K8S controls serve as mitigation and control measures for residual risks: m
 - Applicability: required
 - Strength Reason Code: exact-text-match
 
-### [SAFE-K8S-1005-001 - Kubernetes incident response lifecycle](../../controls/SAFE-K8S-1005-001.md)
+### [SAF-K8S-1005-001 - Kubernetes incident response lifecycle](../../controls/SAF-K8S-1005-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.5

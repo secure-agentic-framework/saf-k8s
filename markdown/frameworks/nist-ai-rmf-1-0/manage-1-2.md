@@ -7,9 +7,9 @@
 
 OCTAVE risk assessment prioritizes treatment by business impact and organizational risk tolerance. Vulnerability prioritization for AI workloads provides risk-ranked remediation guidance.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0604-008 - AI workload vulnerability exposure classification](../../controls/SAFE-K8S-0604-008.md)
+### [SAF-K8S-0604-008 - AI workload vulnerability exposure classification](../../controls/SAF-K8S-0604-008.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.4
@@ -18,7 +18,7 @@ OCTAVE risk assessment prioritizes treatment by business impact and organization
 - Applicability: required
 - Strength Reason Code: depends-on-adjacent-control
 
-### [SAFE-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAFE-K8S-1003-002.md)
+### [SAF-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAF-K8S-1003-002.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.3

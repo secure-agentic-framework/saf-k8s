@@ -7,11 +7,11 @@
 
 For general-purpose AI models with systemic risk, information about the computational resources used for training the model, the amount of training data, and the total compute used.
 
-SAFE-K8S GPU tracking (D8), resource quota management, and training pipeline telemetry (D9/D10) directly capture compute resources, training data volumes, and total FLOPS consumed during training on Kubernetes infrastructure.
+SAF-K8S GPU tracking (D8), resource quota management, and training pipeline telemetry (D9/D10) directly capture compute resources, training data volumes, and total FLOPS consumed during training on Kubernetes infrastructure.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0801-001 - GPU device plugin security configuration and hardening](../../controls/SAFE-K8S-0801-001.md)
+### [SAF-K8S-0801-001 - GPU device plugin security configuration and hardening](../../controls/SAF-K8S-0801-001.md)
 
 - Domain: D08 - GPU, Accelerator, and Confidential Computing
 - Knowledge Area: 8.1
@@ -20,7 +20,7 @@ SAFE-K8S GPU tracking (D8), resource quota management, and training pipeline tel
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0805-001 - GPU telemetry collection and anomaly detection](../../controls/SAFE-K8S-0805-001.md)
+### [SAF-K8S-0805-001 - GPU telemetry collection and anomaly detection](../../controls/SAF-K8S-0805-001.md)
 
 - Domain: D08 - GPU, Accelerator, and Confidential Computing
 - Knowledge Area: 8.5
@@ -29,7 +29,7 @@ SAFE-K8S GPU tracking (D8), resource quota management, and training pipeline tel
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0805-002 - GPU allocation audit trail and workload identity tracking](../../controls/SAFE-K8S-0805-002.md)
+### [SAF-K8S-0805-002 - GPU allocation audit trail and workload identity tracking](../../controls/SAF-K8S-0805-002.md)
 
 - Domain: D08 - GPU, Accelerator, and Confidential Computing
 - Knowledge Area: 8.5

@@ -9,9 +9,9 @@ Security engineering principles guide secure design of agentic AI architectures
 
 5.4 - Zero trust architecture principles; 3.4 - Cloud Native 8 secure defaults (engineering principles)
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0302-001 - Pod and container security context enforcement](../../controls/SAFE-K8S-0302-001.md)
+### [SAF-K8S-0302-001 - Pod and container security context enforcement](../../controls/SAF-K8S-0302-001.md)
 
 - Domain: D03 - Workload and Pod Security
 - Knowledge Area: 3.2
@@ -20,7 +20,7 @@ Security engineering principles guide secure design of agentic AI architectures
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0304-003 - QoS class assignment for workload stability](../../controls/SAFE-K8S-0304-003.md)
+### [SAF-K8S-0304-003 - QoS class assignment for workload stability](../../controls/SAF-K8S-0304-003.md)
 
 - Domain: D03 - Workload and Pod Security
 - Knowledge Area: 3.4
@@ -29,7 +29,7 @@ Security engineering principles guide secure design of agentic AI architectures
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0304-004 - Ephemeral container security context enforcement](../../controls/SAFE-K8S-0304-004.md)
+### [SAF-K8S-0304-004 - Ephemeral container security context enforcement](../../controls/SAF-K8S-0304-004.md)
 
 - Domain: D03 - Workload and Pod Security
 - Knowledge Area: 3.4
@@ -38,7 +38,7 @@ Security engineering principles guide secure design of agentic AI architectures
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0304-006 - Host volume mount restriction](../../controls/SAFE-K8S-0304-006.md)
+### [SAF-K8S-0304-006 - Host volume mount restriction](../../controls/SAF-K8S-0304-006.md)
 
 - Domain: D03 - Workload and Pod Security
 - Knowledge Area: 3.4
@@ -47,7 +47,7 @@ Security engineering principles guide secure design of agentic AI architectures
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0304-007 - Service account token automount opt-out](../../controls/SAFE-K8S-0304-007.md)
+### [SAF-K8S-0304-007 - Service account token automount opt-out](../../controls/SAF-K8S-0304-007.md)
 
 - Domain: D03 - Workload and Pod Security
 - Knowledge Area: 3.4
@@ -56,7 +56,7 @@ Security engineering principles guide secure design of agentic AI architectures
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0504-001 - Zero trust networking principles for Kubernetes](../../controls/SAFE-K8S-0504-001.md)
+### [SAF-K8S-0504-001 - Zero trust networking principles for Kubernetes](../../controls/SAF-K8S-0504-001.md)
 
 - Domain: D05 - Network Security and Communication
 - Knowledge Area: 5.4
@@ -65,7 +65,7 @@ Security engineering principles guide secure design of agentic AI architectures
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0504-002 - Service mesh mTLS and authorization policies](../../controls/SAFE-K8S-0504-002.md)
+### [SAF-K8S-0504-002 - Service mesh mTLS and authorization policies](../../controls/SAF-K8S-0504-002.md)
 
 - Domain: D05 - Network Security and Communication
 - Knowledge Area: 5.4
@@ -74,7 +74,7 @@ Security engineering principles guide secure design of agentic AI architectures
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0504-005 - Service mesh tuning for AI workloads](../../controls/SAFE-K8S-0504-005.md)
+### [SAF-K8S-0504-005 - Service mesh tuning for AI workloads](../../controls/SAF-K8S-0504-005.md)
 
 - Domain: D05 - Network Security and Communication
 - Knowledge Area: 5.4

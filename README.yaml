@@ -1,19 +1,19 @@
-package_name: SAFE-K8S Public Donation Export
+package_name: SAF-K8S Public Donation Export
 id_policy:
-  public_control_id_prefix: SAFE-K8S
+  public_control_id_prefix: SAF-K8S
   public_control_id_rule: Preserve the middle 4-digit block and assign a dense 3-digit sequence within that block.
 files:
-- safe_k8s_domains.yaml
-- safe_k8s_knowledge_areas.yaml
-- safe_k8s_controls.yaml
-- safe_k8s_controls_deprecated.yaml
-- safe_k8s_crosswalks.yaml
-- safe_k8s_crosswalks_deprecated.yaml
+- saf_k8s_domains.yaml
+- saf_k8s_knowledge_areas.yaml
+- saf_k8s_controls.yaml
+- saf_k8s_controls_deprecated.yaml
+- saf_k8s_crosswalks.yaml
+- saf_k8s_crosswalks_deprecated.yaml
 crosswalk_export_notes:
   control_reference_field: control_id
   strength_reason_note_published: false
 control_export_policy:
-  safe_k8s_controls_yaml: active controls only
-  safe_k8s_controls_deprecated_yaml: historical deprecated controls
-  safe_k8s_crosswalks_yaml: crosswalk rows for active controls only
-  safe_k8s_crosswalks_deprecated_yaml: crosswalk rows for deprecated controls only
+  saf_k8s_controls_yaml: active controls only
+  saf_k8s_controls_deprecated_yaml: historical deprecated controls
+  saf_k8s_crosswalks_yaml: crosswalk rows for active controls only
+  saf_k8s_crosswalks_deprecated_yaml: crosswalk rows for deprecated controls only

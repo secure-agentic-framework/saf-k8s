@@ -7,9 +7,9 @@
 
 Training data privacy controls enforce data handling policies. Differential privacy and output perturbation mitigate inference privacy risks. Centralized logging with PII redaction prevents sensitive data exposure in observability systems.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0907-002 - Training data privacy controls](../../controls/SAFE-K8S-0907-002.md)
+### [SAF-K8S-0907-002 - Training data privacy controls](../../controls/SAF-K8S-0907-002.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.7

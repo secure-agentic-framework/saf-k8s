@@ -5,11 +5,11 @@
 
 ## Mapping Notes
 
-SAFE-K8S requires secure decommissioning procedures including cleanup of data, artifacts, reservations, secrets, and access grants. Change management enforces approval workflows for model deployment lifecycle transitions.
+SAF-K8S requires secure decommissioning procedures including cleanup of data, artifacts, reservations, secrets, and access grants. Change management enforces approval workflows for model deployment lifecycle transitions.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0905-006 - Model artifact lifecycle management](../../controls/SAFE-K8S-0905-006.md)
+### [SAF-K8S-0905-006 - Model artifact lifecycle management](../../controls/SAF-K8S-0905-006.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5
@@ -18,7 +18,7 @@ SAFE-K8S requires secure decommissioning procedures including cleanup of data, a
 - Applicability: required
 - Strength Reason Code: partial-control-coverage
 
-### [SAFE-K8S-1007-005 - Change management for production AI model deployments](../../controls/SAFE-K8S-1007-005.md)
+### [SAF-K8S-1007-005 - Change management for production AI model deployments](../../controls/SAF-K8S-1007-005.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.7

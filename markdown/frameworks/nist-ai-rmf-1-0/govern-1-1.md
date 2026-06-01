@@ -5,11 +5,11 @@
 
 ## Mapping Notes
 
-SAFE-K8S regulatory compliance mapping (KA 10.6) maintains documented mappings of platform controls to NIST AI RMF, EU AI Act, and SOC 2. OCTAVE risk assessment captures regulatory exposure as part of threat analysis.
+SAF-K8S regulatory compliance mapping (KA 10.6) maintains documented mappings of platform controls to NIST AI RMF, EU AI Act, and SOC 2. OCTAVE risk assessment captures regulatory exposure as part of threat analysis.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAFE-K8S-1003-002.md)
+### [SAF-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAF-K8S-1003-002.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.3
@@ -18,7 +18,7 @@ SAFE-K8S regulatory compliance mapping (KA 10.6) maintains documented mappings o
 - Applicability: required
 - Strength Reason Code: framework-language-interpretation
 
-### [SAFE-K8S-1006-001 - Regulatory compliance mapping for Kubernetes AI platforms](../../controls/SAFE-K8S-1006-001.md)
+### [SAF-K8S-1006-001 - Regulatory compliance mapping for Kubernetes AI platforms](../../controls/SAF-K8S-1006-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.6

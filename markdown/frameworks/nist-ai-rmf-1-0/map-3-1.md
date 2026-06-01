@@ -7,9 +7,9 @@
 
 STRIDE threat modeling systematically identifies threats across spoofing, tampering, repudiation, information disclosure, DoS, and elevation of privilege. OCTAVE assessment includes business impact analysis for identified risks.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1003-001 - STRIDE threat modeling for Kubernetes AI systems](../../controls/SAFE-K8S-1003-001.md)
+### [SAF-K8S-1003-001 - STRIDE threat modeling for Kubernetes AI systems](../../controls/SAF-K8S-1003-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.3
@@ -18,7 +18,7 @@ STRIDE threat modeling systematically identifies threats across spoofing, tamper
 - Applicability: required
 - Strength Reason Code: framework-language-interpretation
 
-### [SAFE-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAFE-K8S-1003-002.md)
+### [SAF-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAF-K8S-1003-002.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.3

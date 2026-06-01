@@ -9,9 +9,9 @@ Security alerts and advisories inform operators of threats to agentic AI systems
 
 1.4 - CVE response (monitoring security announcements); 10.2 - Threat intelligence (consuming advisories)
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0104-005 - Control plane configuration file permissions](../../controls/SAFE-K8S-0104-005.md)
+### [SAF-K8S-0104-005 - Control plane configuration file permissions](../../controls/SAF-K8S-0104-005.md)
 
 - Domain: D01 - Control Plane and Cluster Hardening
 - Knowledge Area: 1.4
@@ -20,7 +20,7 @@ Security alerts and advisories inform operators of threats to agentic AI systems
 - Applicability: required
 - Strength Reason Code: exact-text-match
 
-### [SAFE-K8S-0104-018 - Kubernetes security advisory and provider bulletin monitoring](../../controls/SAFE-K8S-0104-018.md)
+### [SAF-K8S-0104-018 - Kubernetes security advisory and provider bulletin monitoring](../../controls/SAF-K8S-0104-018.md)
 
 - Domain: D01 - Control Plane and Cluster Hardening
 - Knowledge Area: 1.4
@@ -29,7 +29,7 @@ Security alerts and advisories inform operators of threats to agentic AI systems
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-1002-001 - Metric endpoint authentication](../../controls/SAFE-K8S-1002-001.md)
+### [SAF-K8S-1002-001 - Metric endpoint authentication](../../controls/SAF-K8S-1002-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.2
@@ -38,7 +38,7 @@ Security alerts and advisories inform operators of threats to agentic AI systems
 - Applicability: required
 - Strength Reason Code: exact-text-match
 
-### [SAFE-K8S-1002-002 - Distributed tracing for ML pipelines](../../controls/SAFE-K8S-1002-002.md)
+### [SAF-K8S-1002-002 - Distributed tracing for ML pipelines](../../controls/SAF-K8S-1002-002.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.2
@@ -47,7 +47,7 @@ Security alerts and advisories inform operators of threats to agentic AI systems
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAFE-K8S-1002-003.md)
+### [SAF-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAF-K8S-1002-003.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.2
@@ -56,7 +56,7 @@ Security alerts and advisories inform operators of threats to agentic AI systems
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-1002-004 - AI-specific alerting and failure mode detection](../../controls/SAFE-K8S-1002-004.md)
+### [SAF-K8S-1002-004 - AI-specific alerting and failure mode detection](../../controls/SAF-K8S-1002-004.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.2

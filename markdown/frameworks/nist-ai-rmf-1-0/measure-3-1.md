@@ -7,9 +7,9 @@
 
 Threat intelligence integration consumes CVE feeds, runtime threat intelligence, and adversarial ML attack pattern libraries. Security posture management provides continuous risk assessment with drift detection.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1004-004 - Kubernetes AI threat intelligence feed ingestion and detection enrichment](../../controls/SAFE-K8S-1004-004.md)
+### [SAF-K8S-1004-004 - Kubernetes AI threat intelligence feed ingestion and detection enrichment](../../controls/SAF-K8S-1004-004.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.4
@@ -18,7 +18,7 @@ Threat intelligence integration consumes CVE feeds, runtime threat intelligence,
 - Applicability: required
 - Strength Reason Code: compound-control-split-required
 
-### [SAFE-K8S-1007-004 - Continuous security posture management for AI clusters](../../controls/SAFE-K8S-1007-004.md)
+### [SAF-K8S-1007-004 - Continuous security posture management for AI clusters](../../controls/SAF-K8S-1007-004.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.7

@@ -7,11 +7,11 @@
 
 The provider verifies that the established quality management system is in compliance with the requirements of Article 17.
 
-SAFE-K8S provides infrastructure evidence for QMS compliance: CI/CD pipeline configurations (D6), change management audit trails, and automated security gate enforcement. The QMS itself is an organizational system, but SAFE-K8S supplies verifiable technical artifacts.
+SAF-K8S provides infrastructure evidence for QMS compliance: CI/CD pipeline configurations (D6), change management audit trails, and automated security gate enforcement. The QMS itself is an organizational system, but SAF-K8S supplies verifiable technical artifacts.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1001-016 - Audit policy coverage for AI-specific resource and workflow events](../../controls/SAFE-K8S-1001-016.md)
+### [SAF-K8S-1001-016 - Audit policy coverage for AI-specific resource and workflow events](../../controls/SAF-K8S-1001-016.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1

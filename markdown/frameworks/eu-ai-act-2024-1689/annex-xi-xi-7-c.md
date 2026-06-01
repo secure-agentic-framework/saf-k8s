@@ -7,11 +7,11 @@
 
 For general-purpose AI models with systemic risk, the results of any red-teaming or adversarial testing conducted to identify and address systemic risks, including information on any measures taken to mitigate the risks identified.
 
-SAFE-K8S provides infrastructure for running adversarial tests: workload isolation for test environments, network controls for test boundaries, and D9 adversarial defense controls (KA 9.3). The testing methodology, results analysis, and mitigation strategy are application-layer and organizational concerns.
+SAF-K8S provides infrastructure for running adversarial tests: workload isolation for test environments, network controls for test boundaries, and D9 adversarial defense controls (KA 9.3). The testing methodology, results analysis, and mitigation strategy are application-layer and organizational concerns.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0903-001 - Adversarial example defenses at the serving layer](../../controls/SAFE-K8S-0903-001.md)
+### [SAF-K8S-0903-001 - Adversarial example defenses at the serving layer](../../controls/SAF-K8S-0903-001.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.3

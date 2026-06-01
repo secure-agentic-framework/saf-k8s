@@ -9,9 +9,9 @@ Reporting agent security incidents
 
 10.5 - IR lifecycle (incident reporting procedures, escalation paths for K8s AI incidents)
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1005-001 - Kubernetes incident response lifecycle](../../controls/SAFE-K8S-1005-001.md)
+### [SAF-K8S-1005-001 - Kubernetes incident response lifecycle](../../controls/SAF-K8S-1005-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.5

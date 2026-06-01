@@ -7,9 +7,9 @@
 
 OCTAVE risk assessment framework accommodates qualitative risk assessment where quantitative metrics are unavailable, prioritizing based on organizational risk tolerance. CTA-2114 provides an AI-specific risk taxonomy for classifying hard-to-measure AI harms and failure modes.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAFE-K8S-1003-002.md)
+### [SAF-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAF-K8S-1003-002.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.3

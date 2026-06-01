@@ -7,9 +7,9 @@
 
 ML threat taxonomy (CTA-2114) characterizes AI-specific harms including data poisoning, model disclosure, and evasion attacks. MITRE ATT&CK mapping documents infrastructure attack surfaces and potential harms.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1003-004 - MITRE ATT&CK for Containers coverage mapping and gap analysis](../../controls/SAFE-K8S-1003-004.md)
+### [SAF-K8S-1003-004 - MITRE ATT&CK for Containers coverage mapping and gap analysis](../../controls/SAF-K8S-1003-004.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.3
@@ -18,7 +18,7 @@ ML threat taxonomy (CTA-2114) characterizes AI-specific harms including data poi
 - Applicability: required
 - Strength Reason Code: framework-language-interpretation
 
-### [SAFE-K8S-1004-001 - ML threat taxonomy per CTA-2114 mapped to Kubernetes](../../controls/SAFE-K8S-1004-001.md)
+### [SAF-K8S-1004-001 - ML threat taxonomy per CTA-2114 mapped to Kubernetes](../../controls/SAF-K8S-1004-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.4

@@ -7,9 +7,9 @@
 
 Change management and decommissioning controls enable safe AI workload deactivation. Containment strategies define mechanisms for isolating or suspending AI workloads (node draining, namespace isolation, inference service quarantine, pipeline suspension).
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1007-005 - Change management for production AI model deployments](../../controls/SAFE-K8S-1007-005.md)
+### [SAF-K8S-1007-005 - Change management for production AI model deployments](../../controls/SAF-K8S-1007-005.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.7

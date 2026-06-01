@@ -7,11 +7,11 @@
 
 A description of the processes used for the evaluation and testing of the model, including the results thereof and any measures taken to address any identified risk.
 
-SAFE-K8S CI/CD pipeline controls (D6) enforce security testing gates, vulnerability scanning, and automated evaluation pipelines. However, model evaluation processes (accuracy, fairness, robustness testing) go beyond security scanning and require application-layer test design and analysis.
+SAF-K8S CI/CD pipeline controls (D6) enforce security testing gates, vulnerability scanning, and automated evaluation pipelines. However, model evaluation processes (accuracy, fairness, robustness testing) go beyond security scanning and require application-layer test design and analysis.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0601-008 - CI/CD build-time container image vulnerability scanning](../../controls/SAFE-K8S-0601-008.md)
+### [SAF-K8S-0601-008 - CI/CD build-time container image vulnerability scanning](../../controls/SAF-K8S-0601-008.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.1
@@ -20,7 +20,7 @@ SAFE-K8S CI/CD pipeline controls (D6) enforce security testing gates, vulnerabil
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0606-011 - CI build-time security gate enforcement](../../controls/SAFE-K8S-0606-011.md)
+### [SAF-K8S-0606-011 - CI build-time security gate enforcement](../../controls/SAF-K8S-0606-011.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.6

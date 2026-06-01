@@ -7,9 +7,9 @@
 
 AI system classification defines expected control profiles. Model promotion gates enforce go/no-go decisions before production deployment based on validation criteria.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0905-001 - AI system lifecycle classification](../../controls/SAFE-K8S-0905-001.md)
+### [SAF-K8S-0905-001 - AI system lifecycle classification](../../controls/SAF-K8S-0905-001.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5
@@ -18,7 +18,7 @@ AI system classification defines expected control profiles. Model promotion gate
 - Applicability: required
 - Strength Reason Code: compound-control-split-required
 
-### [SAFE-K8S-0905-005 - Automated model promotion gates](../../controls/SAFE-K8S-0905-005.md)
+### [SAF-K8S-0905-005 - Automated model promotion gates](../../controls/SAF-K8S-0905-005.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5
@@ -27,7 +27,7 @@ AI system classification defines expected control profiles. Model promotion gate
 - Applicability: required
 - Strength Reason Code: partial-coverage
 
-### [SAFE-K8S-0905-015 - AI system control profile enforcement](../../controls/SAFE-K8S-0905-015.md)
+### [SAF-K8S-0905-015 - AI system control profile enforcement](../../controls/SAF-K8S-0905-015.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5
@@ -36,7 +36,7 @@ AI system classification defines expected control profiles. Model promotion gate
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0606-017 - CNCF lifecycle phase security coverage](../../controls/SAFE-K8S-0606-017.md)
+### [SAF-K8S-0606-017 - CNCF lifecycle phase security coverage](../../controls/SAF-K8S-0606-017.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.6
@@ -45,7 +45,7 @@ AI system classification defines expected control profiles. Model promotion gate
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0606-018 - Zero-trust CI/CD handoff verification and independent evidence generation](../../controls/SAFE-K8S-0606-018.md)
+### [SAF-K8S-0606-018 - Zero-trust CI/CD handoff verification and independent evidence generation](../../controls/SAF-K8S-0606-018.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.6
@@ -54,7 +54,7 @@ AI system classification defines expected control profiles. Model promotion gate
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0910-018 - Security-aware target-cluster posture verification before multi-cluster placement](../../controls/SAFE-K8S-0910-018.md)
+### [SAF-K8S-0910-018 - Security-aware target-cluster posture verification before multi-cluster placement](../../controls/SAF-K8S-0910-018.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.10

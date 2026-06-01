@@ -9,9 +9,9 @@ Agents rely heavily on external services (APIs, models, tools) requiring securit
 
 7.4 - Cloud provider security (managing external K8s services: EKS, GKE, AKS)
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0704-002 - VPC and security group integration with Kubernetes network policies](../../controls/SAFE-K8S-0704-002.md)
+### [SAF-K8S-0704-002 - VPC and security group integration with Kubernetes network policies](../../controls/SAF-K8S-0704-002.md)
 
 - Domain: D07 - Storage, Multi-tenancy, and Resource Governance
 - Knowledge Area: 7.4
@@ -20,7 +20,7 @@ Agents rely heavily on external services (APIs, models, tools) requiring securit
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0704-005 - Restricted use policies for non-organizationally owned systems and external AI services](../../controls/SAFE-K8S-0704-005.md)
+### [SAF-K8S-0704-005 - Restricted use policies for non-organizationally owned systems and external AI services](../../controls/SAF-K8S-0704-005.md)
 
 - Domain: D07 - Storage, Multi-tenancy, and Resource Governance
 - Knowledge Area: 7.4

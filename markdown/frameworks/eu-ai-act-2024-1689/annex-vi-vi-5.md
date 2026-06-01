@@ -7,11 +7,11 @@
 
 The provider keeps the documentation referred to in Article 18 at the disposal of the national competent authorities for the period referred to in that Article.
 
-SAFE-K8S audit log retention controls (D10) and artifact storage policies support long-term documentation retention. The organizational obligation to maintain availability for authorities is outside platform scope, but SAFE-K8S provides the storage and retention infrastructure.
+SAF-K8S audit log retention controls (D10) and artifact storage policies support long-term documentation retention. The organizational obligation to maintain availability for authorities is outside platform scope, but SAF-K8S provides the storage and retention infrastructure.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0601-010 - Artifact retention period and lifecycle enforcement](../../controls/SAFE-K8S-0601-010.md)
+### [SAF-K8S-0601-010 - Artifact retention period and lifecycle enforcement](../../controls/SAF-K8S-0601-010.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.1

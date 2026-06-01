@@ -7,11 +7,11 @@
 
 When appropriate, the instructions shall provide specifications for the input data, or any other relevant information in terms of the training, validation and testing data sets used, taking into account the intended purpose.
 
-SAFE-K8S ML-BOM (SAFE-K8S-0604-002) and training data provenance controls (SAFE-K8S-0906-001) capture dataset specifications at the infrastructure level. The obligation to include them in instructions is organizational.
+SAF-K8S ML-BOM (SAF-K8S-0604-002) and training data provenance controls (SAF-K8S-0906-001) capture dataset specifications at the infrastructure level. The obligation to include them in instructions is organizational.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0604-002 - ML-BOM (ML Bill of Materials) generation](../../controls/SAFE-K8S-0604-002.md)
+### [SAF-K8S-0604-002 - ML-BOM (ML Bill of Materials) generation](../../controls/SAF-K8S-0604-002.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.4

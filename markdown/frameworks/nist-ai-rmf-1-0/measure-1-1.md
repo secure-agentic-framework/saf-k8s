@@ -7,9 +7,9 @@
 
 AI workload telemetry and metrics endpoint security provide the measurement infrastructure. Distributed tracing enables quantitative measurement of AI pipeline behavior.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1002-001 - Metric endpoint authentication](../../controls/SAFE-K8S-1002-001.md)
+### [SAF-K8S-1002-001 - Metric endpoint authentication](../../controls/SAF-K8S-1002-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.2
@@ -18,7 +18,7 @@ AI workload telemetry and metrics endpoint security provide the measurement infr
 - Applicability: required
 - Strength Reason Code: partial-control-coverage
 
-### [SAFE-K8S-1002-002 - Distributed tracing for ML pipelines](../../controls/SAFE-K8S-1002-002.md)
+### [SAF-K8S-1002-002 - Distributed tracing for ML pipelines](../../controls/SAF-K8S-1002-002.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.2

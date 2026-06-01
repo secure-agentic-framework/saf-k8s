@@ -7,18 +7,9 @@
 
 STRIDE and OCTAVE assessments produce documented risk analysis. ML threat taxonomy mapping documents AI-specific risks. Compliance mapping workbooks communicate risk posture.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1003-001 - STRIDE threat modeling for Kubernetes AI systems](../../controls/SAFE-K8S-1003-001.md)
-
-- Domain: D10 - Observability, Incident Response, and Governance
-- Knowledge Area: 10.3
-- Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
-
-### [SAFE-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAFE-K8S-1003-002.md)
+### [SAF-K8S-1003-001 - STRIDE threat modeling for Kubernetes AI systems](../../controls/SAF-K8S-1003-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.3
@@ -27,7 +18,16 @@ STRIDE and OCTAVE assessments produce documented risk analysis. ML threat taxono
 - Applicability: required
 - Strength Reason Code: framework-language-interpretation
 
-### [SAFE-K8S-1004-001 - ML threat taxonomy per CTA-2114 mapped to Kubernetes](../../controls/SAFE-K8S-1004-001.md)
+### [SAF-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAF-K8S-1003-002.md)
+
+- Domain: D10 - Observability, Incident Response, and Governance
+- Knowledge Area: 10.3
+- Relation Type: supports
+- Strength: moderate
+- Applicability: required
+- Strength Reason Code: framework-language-interpretation
+
+### [SAF-K8S-1004-001 - ML threat taxonomy per CTA-2114 mapped to Kubernetes](../../controls/SAF-K8S-1004-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.4

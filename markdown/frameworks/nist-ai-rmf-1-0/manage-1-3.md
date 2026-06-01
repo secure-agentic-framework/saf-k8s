@@ -7,9 +7,9 @@
 
 IR lifecycle playbooks define response procedures for AI-specific incidents (compromised training, model poisoning, GPU cryptomining). Containment strategies document specific mitigation actions.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1005-001 - Kubernetes incident response lifecycle](../../controls/SAFE-K8S-1005-001.md)
+### [SAF-K8S-1005-001 - Kubernetes incident response lifecycle](../../controls/SAF-K8S-1005-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.5
@@ -18,7 +18,7 @@ IR lifecycle playbooks define response procedures for AI-specific incidents (com
 - Applicability: required
 - Strength Reason Code: depends-on-adjacent-control
 
-### [SAFE-K8S-1005-008 - AI-specific incident response playbooks for Kubernetes](../../controls/SAFE-K8S-1005-008.md)
+### [SAF-K8S-1005-008 - AI-specific incident response playbooks for Kubernetes](../../controls/SAF-K8S-1005-008.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.5
@@ -27,7 +27,7 @@ IR lifecycle playbooks define response procedures for AI-specific incidents (com
 - Applicability: required
 - Strength Reason Code: framework-language-interpretation
 
-### [SAFE-K8S-0910-033 - Investigation of anomalous cross-cluster AI communication](../../controls/SAFE-K8S-0910-033.md)
+### [SAF-K8S-0910-033 - Investigation of anomalous cross-cluster AI communication](../../controls/SAF-K8S-0910-033.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.10

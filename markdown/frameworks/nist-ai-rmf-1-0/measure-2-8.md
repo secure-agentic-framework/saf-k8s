@@ -7,9 +7,9 @@
 
 Audit policy configuration ensures all AI-relevant operations are logged. Audit log protection with dual authorization prevents tampering with accountability records. GPU allocation audit trails track resource usage attribution.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0805-002 - GPU allocation audit trail and workload identity tracking](../../controls/SAFE-K8S-0805-002.md)
+### [SAF-K8S-0805-002 - GPU allocation audit trail and workload identity tracking](../../controls/SAF-K8S-0805-002.md)
 
 - Domain: D08 - GPU, Accelerator, and Confidential Computing
 - Knowledge Area: 8.5

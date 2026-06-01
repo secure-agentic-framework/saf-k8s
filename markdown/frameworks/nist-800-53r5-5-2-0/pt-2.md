@@ -9,9 +9,9 @@ Authority to process PII must be established for agentic AI systems accessing pe
 
 9.7 - Privacy controls (authority to process PII in training and feature engineering workflows)
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0907-002 - Training data privacy controls](../../controls/SAFE-K8S-0907-002.md)
+### [SAF-K8S-0907-002 - Training data privacy controls](../../controls/SAF-K8S-0907-002.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.7

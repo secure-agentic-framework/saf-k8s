@@ -7,9 +7,9 @@
 
 Model signing and provenance verification ensures pre-trained model integrity. Model registry hardening protects stored models. ML dependency vulnerability management tracks vulnerabilities in model dependencies.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0905-056 - External model publisher identity and provenance metadata verification](../../controls/SAFE-K8S-0905-056.md)
+### [SAF-K8S-0905-056 - External model publisher identity and provenance metadata verification](../../controls/SAF-K8S-0905-056.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5

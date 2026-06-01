@@ -9,9 +9,9 @@ Security performance metrics track effectiveness of agentic AI security controls
 
 10.2 - Metrics security (security performance metrics and KPIs for K8s AI infrastructure)
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1002-001 - Metric endpoint authentication](../../controls/SAFE-K8S-1002-001.md)
+### [SAF-K8S-1002-001 - Metric endpoint authentication](../../controls/SAF-K8S-1002-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.2
@@ -20,7 +20,7 @@ Security performance metrics track effectiveness of agentic AI security controls
 - Applicability: required
 - Strength Reason Code: exact-text-match
 
-### [SAFE-K8S-1002-002 - Distributed tracing for ML pipelines](../../controls/SAFE-K8S-1002-002.md)
+### [SAF-K8S-1002-002 - Distributed tracing for ML pipelines](../../controls/SAF-K8S-1002-002.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.2
@@ -29,7 +29,7 @@ Security performance metrics track effectiveness of agentic AI security controls
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAFE-K8S-1002-003.md)
+### [SAF-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAF-K8S-1002-003.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.2
@@ -38,7 +38,7 @@ Security performance metrics track effectiveness of agentic AI security controls
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-1002-004 - AI-specific alerting and failure mode detection](../../controls/SAFE-K8S-1002-004.md)
+### [SAF-K8S-1002-004 - AI-specific alerting and failure mode detection](../../controls/SAF-K8S-1002-004.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.2

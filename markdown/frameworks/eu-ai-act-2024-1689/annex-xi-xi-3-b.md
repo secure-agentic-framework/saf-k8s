@@ -7,11 +7,11 @@
 
 A description of the measures taken to address the limitations referred to in point (a), including information on the safety measures put in place.
 
-SAFE-K8S provides infrastructure-level safety measures: workload isolation (D3), resource limits (D8), network segmentation (D5), and monitoring (D10). Application-layer safety measures (guardrails, content filtering) are outside SAFE-K8S scope but run on SAFE-K8S-managed infrastructure.
+SAF-K8S provides infrastructure-level safety measures: workload isolation (D3), resource limits (D8), network segmentation (D5), and monitoring (D10). Application-layer safety measures (guardrails, content filtering) are outside SAF-K8S scope but run on SAF-K8S-managed infrastructure.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0302-001 - Pod and container security context enforcement](../../controls/SAFE-K8S-0302-001.md)
+### [SAF-K8S-0302-001 - Pod and container security context enforcement](../../controls/SAF-K8S-0302-001.md)
 
 - Domain: D03 - Workload and Pod Security
 - Knowledge Area: 3.2
@@ -20,7 +20,7 @@ SAFE-K8S provides infrastructure-level safety measures: workload isolation (D3),
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0304-011 - Namespace LimitRange and ResourceQuota enforcement](../../controls/SAFE-K8S-0304-011.md)
+### [SAF-K8S-0304-011 - Namespace LimitRange and ResourceQuota enforcement](../../controls/SAF-K8S-0304-011.md)
 
 - Domain: D03 - Workload and Pod Security
 - Knowledge Area: 3.4
@@ -29,7 +29,7 @@ SAFE-K8S provides infrastructure-level safety measures: workload isolation (D3),
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAFE-K8S-1002-003.md)
+### [SAF-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAF-K8S-1002-003.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.2

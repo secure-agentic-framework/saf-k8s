@@ -9,18 +9,9 @@ Capacity planning for agent telemetry/logs
 
 10.1 - Cluster-level logging architecture (log retention policies, audit log storage capacity planning)
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1001-004 - Audit volume management for AI workloads](../../controls/SAFE-K8S-1001-004.md)
-
-- Domain: D10 - Observability, Incident Response, and Governance
-- Knowledge Area: 10.1
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
-### [SAFE-K8S-1001-007 - Supplemental application-level telemetry for AI workload events](../../controls/SAFE-K8S-1001-007.md)
+### [SAF-K8S-1001-004 - Audit volume management for AI workloads](../../controls/SAF-K8S-1001-004.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1
@@ -29,7 +20,7 @@ Capacity planning for agent telemetry/logs
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-1001-008 - Permitted responses to audit findings](../../controls/SAFE-K8S-1001-008.md)
+### [SAF-K8S-1001-007 - Supplemental application-level telemetry for AI workload events](../../controls/SAF-K8S-1001-007.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1
@@ -38,7 +29,16 @@ Capacity planning for agent telemetry/logs
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-1001-027 - Tamper-resistant retention for Kubernetes AI audit backends](../../controls/SAFE-K8S-1001-027.md)
+### [SAF-K8S-1001-008 - Permitted responses to audit findings](../../controls/SAF-K8S-1001-008.md)
+
+- Domain: D10 - Observability, Incident Response, and Governance
+- Knowledge Area: 10.1
+- Relation Type: supports
+- Strength: strong
+- Applicability: required
+- Strength Reason Code: n/a
+
+### [SAF-K8S-1001-027 - Tamper-resistant retention for Kubernetes AI audit backends](../../controls/SAF-K8S-1001-027.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1
