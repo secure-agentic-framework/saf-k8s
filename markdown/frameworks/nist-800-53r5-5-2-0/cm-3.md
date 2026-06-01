@@ -9,9 +9,9 @@ Change control for agent system configs
 
 6.6 - GitOps security (signed commits, branch protection, reconciliation integrity for change control)
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0606-002 - CI/CD build environment hardening](../../controls/SAFE-K8S-0606-002.md)
+### [SAF-K8S-0606-002 - CI/CD build environment hardening](../../controls/SAF-K8S-0606-002.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.6
@@ -20,7 +20,7 @@ Change control for agent system configs
 - Applicability: required
 - Strength Reason Code: exact-text-match
 
-### [SAFE-K8S-0606-007 - CI/CD build activity monitoring](../../controls/SAFE-K8S-0606-007.md)
+### [SAF-K8S-0606-007 - CI/CD build activity monitoring](../../controls/SAF-K8S-0606-007.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.6
@@ -29,7 +29,7 @@ Change control for agent system configs
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0606-009 - SSDF v1.1 alignment for secure development practices](../../controls/SAFE-K8S-0606-009.md)
+### [SAF-K8S-0606-009 - SSDF v1.1 alignment for secure development practices](../../controls/SAF-K8S-0606-009.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.6

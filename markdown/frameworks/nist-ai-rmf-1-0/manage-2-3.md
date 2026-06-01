@@ -7,9 +7,9 @@
 
 IR lifecycle playbooks include procedures for unknown/novel incidents. Forensic evidence collection supports investigation of previously unknown attacks. Post-incident model validation verifies integrity after compromise.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1005-001 - Kubernetes incident response lifecycle](../../controls/SAFE-K8S-1005-001.md)
+### [SAF-K8S-1005-001 - Kubernetes incident response lifecycle](../../controls/SAF-K8S-1005-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.5

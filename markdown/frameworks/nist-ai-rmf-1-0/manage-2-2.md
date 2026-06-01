@@ -7,9 +7,9 @@
 
 Upgrade planning maintains AI infrastructure currency. Security posture management detects configuration drift. API deprecation tracking prevents breaking changes.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1007-004 - Continuous security posture management for AI clusters](../../controls/SAFE-K8S-1007-004.md)
+### [SAF-K8S-1007-004 - Continuous security posture management for AI clusters](../../controls/SAF-K8S-1007-004.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.7

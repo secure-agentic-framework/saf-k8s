@@ -9,18 +9,9 @@ Monitoring agent incidents across the ecosystem
 
 10.1 - Logging and Audit (continuous incident monitoring for K8s AI clusters)
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1001-004 - Audit volume management for AI workloads](../../controls/SAFE-K8S-1001-004.md)
-
-- Domain: D10 - Observability, Incident Response, and Governance
-- Knowledge Area: 10.1
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
-### [SAFE-K8S-1001-007 - Supplemental application-level telemetry for AI workload events](../../controls/SAFE-K8S-1001-007.md)
+### [SAF-K8S-1001-004 - Audit volume management for AI workloads](../../controls/SAF-K8S-1001-004.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1
@@ -29,7 +20,7 @@ Monitoring agent incidents across the ecosystem
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-1001-008 - Permitted responses to audit findings](../../controls/SAFE-K8S-1001-008.md)
+### [SAF-K8S-1001-007 - Supplemental application-level telemetry for AI workload events](../../controls/SAF-K8S-1001-007.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1
@@ -38,7 +29,16 @@ Monitoring agent incidents across the ecosystem
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-1001-012 - SIEM correlation rules for AI-specific attack patterns](../../controls/SAFE-K8S-1001-012.md)
+### [SAF-K8S-1001-008 - Permitted responses to audit findings](../../controls/SAF-K8S-1001-008.md)
+
+- Domain: D10 - Observability, Incident Response, and Governance
+- Knowledge Area: 10.1
+- Relation Type: direct
+- Strength: strong
+- Applicability: required
+- Strength Reason Code: n/a
+
+### [SAF-K8S-1001-012 - SIEM correlation rules for AI-specific attack patterns](../../controls/SAF-K8S-1001-012.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1

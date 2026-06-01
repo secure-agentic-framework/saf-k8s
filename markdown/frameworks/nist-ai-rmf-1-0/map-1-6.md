@@ -7,9 +7,9 @@
 
 AI system classification captures security requirements per system type. Training data privacy controls and differential privacy mechanisms enforce privacy requirements at the infrastructure level.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0905-001 - AI system lifecycle classification](../../controls/SAFE-K8S-0905-001.md)
+### [SAF-K8S-0905-001 - AI system lifecycle classification](../../controls/SAF-K8S-0905-001.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5
@@ -18,7 +18,7 @@ AI system classification captures security requirements per system type. Trainin
 - Applicability: required
 - Strength Reason Code: partial-control-coverage
 
-### [SAFE-K8S-0907-002 - Training data privacy controls](../../controls/SAFE-K8S-0907-002.md)
+### [SAF-K8S-0907-002 - Training data privacy controls](../../controls/SAF-K8S-0907-002.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.7

@@ -7,11 +7,11 @@
 
 The provider institutes and documents a post-market monitoring system in accordance with Article 72.
 
-SAFE-K8S observability controls (D10) provide the monitoring infrastructure that is a critical component of any post-market monitoring system on Kubernetes: telemetry collection, anomaly detection, alerting, and audit logging. The system design, documentation, and organizational processes are out of scope.
+SAF-K8S observability controls (D10) provide the monitoring infrastructure that is a critical component of any post-market monitoring system on Kubernetes: telemetry collection, anomaly detection, alerting, and audit logging. The system design, documentation, and organizational processes are out of scope.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1002-002 - Distributed tracing for ML pipelines](../../controls/SAFE-K8S-1002-002.md)
+### [SAF-K8S-1002-002 - Distributed tracing for ML pipelines](../../controls/SAF-K8S-1002-002.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.2
@@ -20,7 +20,7 @@ SAFE-K8S observability controls (D10) provide the monitoring infrastructure that
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAFE-K8S-1002-003.md)
+### [SAF-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAF-K8S-1002-003.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.2

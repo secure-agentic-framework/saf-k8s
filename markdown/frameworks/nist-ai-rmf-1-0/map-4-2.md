@@ -7,18 +7,9 @@
 
 Compliance mapping maintains documented control-to-framework mappings. Automated audit readiness generates continuous compliance evidence showing control coverage.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1006-001 - Regulatory compliance mapping for Kubernetes AI platforms](../../controls/SAFE-K8S-1006-001.md)
-
-- Domain: D10 - Observability, Incident Response, and Governance
-- Knowledge Area: 10.6
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
-
-### [SAFE-K8S-1006-004 - Automated audit readiness for Kubernetes AI platforms](../../controls/SAFE-K8S-1006-004.md)
+### [SAF-K8S-1006-001 - Regulatory compliance mapping for Kubernetes AI platforms](../../controls/SAF-K8S-1006-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.6
@@ -27,7 +18,16 @@ Compliance mapping maintains documented control-to-framework mappings. Automated
 - Applicability: required
 - Strength Reason Code: exact-text-match
 
-### [SAFE-K8S-0910-028 - Unified multi-cluster compliance reporting](../../controls/SAFE-K8S-0910-028.md)
+### [SAF-K8S-1006-004 - Automated audit readiness for Kubernetes AI platforms](../../controls/SAF-K8S-1006-004.md)
+
+- Domain: D10 - Observability, Incident Response, and Governance
+- Knowledge Area: 10.6
+- Relation Type: direct
+- Strength: strong
+- Applicability: required
+- Strength Reason Code: exact-text-match
+
+### [SAF-K8S-0910-028 - Unified multi-cluster compliance reporting](../../controls/SAF-K8S-0910-028.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.10

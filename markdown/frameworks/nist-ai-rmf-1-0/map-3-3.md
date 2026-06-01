@@ -7,9 +7,9 @@
 
 Training data provenance and pipeline integrity controls establish data lineage. Data poisoning and label attack detection identifies data quality issues that may affect representativeness.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0906-004 - Statistical drift, outlier, and input validation for training data poisoning detection](../../controls/SAFE-K8S-0906-004.md)
+### [SAF-K8S-0906-004 - Statistical drift, outlier, and input validation for training data poisoning detection](../../controls/SAF-K8S-0906-004.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.6

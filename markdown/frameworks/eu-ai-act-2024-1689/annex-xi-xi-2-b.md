@@ -7,11 +7,11 @@
 
 A description of the evaluation and testing approaches used during the development of the model, including the evaluation metrics and testing datasets used.
 
-SAFE-K8S supports evaluation infrastructure through experiment tracking integration (D9), test pipeline automation (D6), and metrics collection (D10). Evaluation methodology and metric selection are application-layer concerns.
+SAF-K8S supports evaluation infrastructure through experiment tracking integration (D9), test pipeline automation (D6), and metrics collection (D10). Evaluation methodology and metric selection are application-layer concerns.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAFE-K8S-1002-003.md)
+### [SAF-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAF-K8S-1002-003.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.2

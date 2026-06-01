@@ -7,11 +7,11 @@
 
 A model card providing information necessary for the downstream providers to comply with their obligations under this Regulation.
 
-SAFE-K8S ML-BOM controls (D6) support model card generation through structured metadata capture: model provenance, training data lineage, resource requirements, and version tracking. However, a complete model card requires substantial application-layer content (intended use descriptions, ethical considerations, bias analysis, per-group performance data) beyond what SAFE-K8S metadata captures.
+SAF-K8S ML-BOM controls (D6) support model card generation through structured metadata capture: model provenance, training data lineage, resource requirements, and version tracking. However, a complete model card requires substantial application-layer content (intended use descriptions, ethical considerations, bias analysis, per-group performance data) beyond what SAF-K8S metadata captures.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0604-002 - ML-BOM (ML Bill of Materials) generation](../../controls/SAFE-K8S-0604-002.md)
+### [SAF-K8S-0604-002 - ML-BOM (ML Bill of Materials) generation](../../controls/SAF-K8S-0604-002.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.4
@@ -20,7 +20,7 @@ SAFE-K8S ML-BOM controls (D6) support model card generation through structured m
 - Applicability: required
 - Strength Reason Code: framework-language-interpretation
 
-### [SAFE-K8S-0905-006 - Model artifact lifecycle management](../../controls/SAFE-K8S-0905-006.md)
+### [SAF-K8S-0905-006 - Model artifact lifecycle management](../../controls/SAF-K8S-0905-006.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5

@@ -7,11 +7,11 @@
 
 The notified body shall examine the technical documentation referred to in Annex IV.
 
-SAFE-K8S-generated technical artifacts (system architecture, cybersecurity measures, logging capabilities, change tracking) form part of the Annex IV documentation examined by the notified body.
+SAF-K8S-generated technical artifacts (system architecture, cybersecurity measures, logging capabilities, change tracking) form part of the Annex IV documentation examined by the notified body.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0604-001 - SBOM generation for container and AI artifacts](../../controls/SAFE-K8S-0604-001.md)
+### [SAF-K8S-0604-001 - SBOM generation for container and AI artifacts](../../controls/SAF-K8S-0604-001.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.4
@@ -20,7 +20,7 @@ SAFE-K8S-generated technical artifacts (system architecture, cybersecurity measu
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-1001-016 - Audit policy coverage for AI-specific resource and workflow events](../../controls/SAFE-K8S-1001-016.md)
+### [SAF-K8S-1001-016 - Audit policy coverage for AI-specific resource and workflow events](../../controls/SAF-K8S-1001-016.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1
@@ -29,7 +29,7 @@ SAFE-K8S-generated technical artifacts (system architecture, cybersecurity measu
 - Applicability: required
 - Strength Reason Code: framework-language-interpretation
 
-### [SAFE-K8S-1007-005 - Change management for production AI model deployments](../../controls/SAFE-K8S-1007-005.md)
+### [SAF-K8S-1007-005 - Change management for production AI model deployments](../../controls/SAF-K8S-1007-005.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.7

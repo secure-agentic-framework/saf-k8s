@@ -7,11 +7,11 @@
 
 Where applicable, a description of the fine-tuning procedures that were applied, including the fine-tuning data used and how the fine-tuning affected the model's performance on the specific tasks.
 
-SAFE-K8S tracks fine-tuning job execution, resource consumption, and model versioning through ML-BOM lineage. Fine-tuning methodology documentation is application-layer, but SAFE-K8S provides the infrastructure audit trail.
+SAF-K8S tracks fine-tuning job execution, resource consumption, and model versioning through ML-BOM lineage. Fine-tuning methodology documentation is application-layer, but SAF-K8S provides the infrastructure audit trail.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0604-002 - ML-BOM (ML Bill of Materials) generation](../../controls/SAFE-K8S-0604-002.md)
+### [SAF-K8S-0604-002 - ML-BOM (ML Bill of Materials) generation](../../controls/SAF-K8S-0604-002.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.4
@@ -20,7 +20,7 @@ SAFE-K8S tracks fine-tuning job execution, resource consumption, and model versi
 - Applicability: required
 - Strength Reason Code: framework-language-interpretation
 
-### [SAFE-K8S-0905-006 - Model artifact lifecycle management](../../controls/SAFE-K8S-0905-006.md)
+### [SAF-K8S-0905-006 - Model artifact lifecycle management](../../controls/SAF-K8S-0905-006.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5

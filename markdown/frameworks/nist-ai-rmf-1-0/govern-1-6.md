@@ -5,11 +5,11 @@
 
 ## Mapping Notes
 
-SAFE-K8S mandates automated, continuously updated AI infrastructure asset inventory classified by sensitivity, business criticality, and regulatory exposure. Label and annotation standards support workload classification.
+SAF-K8S mandates automated, continuously updated AI infrastructure asset inventory classified by sensitivity, business criticality, and regulatory exposure. Label and annotation standards support workload classification.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0702-005 - Label and annotation schema definition for AI workload classification](../../controls/SAFE-K8S-0702-005.md)
+### [SAF-K8S-0702-005 - Label and annotation schema definition for AI workload classification](../../controls/SAF-K8S-0702-005.md)
 
 - Domain: D07 - Storage, Multi-tenancy, and Resource Governance
 - Knowledge Area: 7.2

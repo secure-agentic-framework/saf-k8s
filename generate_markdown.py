@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate markdown pages for the SAFE-K8S public security control catalog."""
+"""Generate markdown pages for the SAF-K8S public security control catalog."""
 
 from __future__ import annotations
 
@@ -70,13 +70,13 @@ def render_top_readme(domains, knowledge_areas, controls, crosswalks, framework_
         controls_by_knowledge_area[control["knowledge_area"]].append(control)
 
     lines = [
-        "# SAFE-K8S Public Security Control Catalog",
+        "# SAF-K8S Public Security Control Catalog",
         "",
-        "This repository publishes the public SAFE-K8S security control catalog for Kubernetes and AI systems. It includes the public control set, knowledge area structure, and framework crosswalks under `SAFE-K8S-*` identifiers.",
+        "This repository publishes the public SAF-K8S security control catalog for Kubernetes and AI systems. It includes the public control set, knowledge area structure, and framework crosswalks under `SAF-K8S-*` identifiers.",
         "",
         "## Purpose",
         "",
-        "- Publish a public SAFE-K8S control catalog for external use",
+        "- Publish a public SAF-K8S control catalog for external use",
         "- Preserve traceability between controls and mapped frameworks",
         "- Support review, reuse, and downstream publication without internal-only fields",
         "",
@@ -94,10 +94,10 @@ def render_top_readme(domains, knowledge_areas, controls, crosswalks, framework_
         "",
         "## YAML Files",
         "",
-        "- `safe_k8s_domains.yaml`",
-        "- `safe_k8s_knowledge_areas.yaml`",
-        "- `safe_k8s_controls.yaml`",
-        "- `safe_k8s_crosswalks.yaml`",
+        "- `saf_k8s_domains.yaml`",
+        "- `saf_k8s_knowledge_areas.yaml`",
+        "- `saf_k8s_controls.yaml`",
+        "- `saf_k8s_crosswalks.yaml`",
         "",
         "## Markdown Pages",
         "",
@@ -155,10 +155,10 @@ def render_top_readme(domains, knowledge_areas, controls, crosswalks, framework_
 
 
 def main() -> int:
-    domains = load_yaml("safe_k8s_domains.yaml")
-    knowledge_areas = load_yaml("safe_k8s_knowledge_areas.yaml")
-    controls = load_yaml("safe_k8s_controls.yaml")
-    crosswalks = load_yaml("safe_k8s_crosswalks.yaml")
+    domains = load_yaml("saf_k8s_domains.yaml")
+    knowledge_areas = load_yaml("saf_k8s_knowledge_areas.yaml")
+    controls = load_yaml("saf_k8s_controls.yaml")
+    crosswalks = load_yaml("saf_k8s_crosswalks.yaml")
 
     knowledge_by_id = {item["knowledge_area"]: item for item in knowledge_areas}
     control_by_id = {item["control_id"]: item for item in controls}
@@ -289,7 +289,7 @@ def main() -> int:
                 "",
                 md_escape(req_rows[0].get("framework_mapping_notes")) or "None.",
                 "",
-                "## SAFE-K8S Controls",
+                "## SAF-K8S Controls",
                 "",
             ]
             for row in req_rows:

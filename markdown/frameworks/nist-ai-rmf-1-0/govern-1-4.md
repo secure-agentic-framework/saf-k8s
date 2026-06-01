@@ -7,18 +7,9 @@
 
 STRIDE and OCTAVE threat modeling establish risk management processes. Automated audit readiness dashboards provide transparency into risk posture and control status.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1003-001 - STRIDE threat modeling for Kubernetes AI systems](../../controls/SAFE-K8S-1003-001.md)
-
-- Domain: D10 - Observability, Incident Response, and Governance
-- Knowledge Area: 10.3
-- Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
-
-### [SAFE-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAFE-K8S-1003-002.md)
+### [SAF-K8S-1003-001 - STRIDE threat modeling for Kubernetes AI systems](../../controls/SAF-K8S-1003-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.3
@@ -27,7 +18,16 @@ STRIDE and OCTAVE threat modeling establish risk management processes. Automated
 - Applicability: required
 - Strength Reason Code: framework-language-interpretation
 
-### [SAFE-K8S-1006-004 - Automated audit readiness for Kubernetes AI platforms](../../controls/SAFE-K8S-1006-004.md)
+### [SAF-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAF-K8S-1003-002.md)
+
+- Domain: D10 - Observability, Incident Response, and Governance
+- Knowledge Area: 10.3
+- Relation Type: supports
+- Strength: moderate
+- Applicability: required
+- Strength Reason Code: framework-language-interpretation
+
+### [SAF-K8S-1006-004 - Automated audit readiness for Kubernetes AI platforms](../../controls/SAF-K8S-1006-004.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.6

@@ -7,9 +7,9 @@
 
 OCTAVE risk assessment includes likelihood and impact scoring. Threat intelligence integration consumes external incident data and adversarial ML attack pattern libraries.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAFE-K8S-1003-002.md)
+### [SAF-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAF-K8S-1003-002.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.3
@@ -18,7 +18,7 @@ OCTAVE risk assessment includes likelihood and impact scoring. Threat intelligen
 - Applicability: required
 - Strength Reason Code: exact-text-match
 
-### [SAFE-K8S-1004-005 - Adversarial ML threat taxonomy and structured classification](../../controls/SAFE-K8S-1004-005.md)
+### [SAF-K8S-1004-005 - Adversarial ML threat taxonomy and structured classification](../../controls/SAF-K8S-1004-005.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.4

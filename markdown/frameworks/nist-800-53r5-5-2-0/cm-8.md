@@ -9,9 +9,9 @@ Inventory of agent components (models, tools, plugins)
 
 10.7 - AI infrastructure asset inventory (models, datasets, pipelines, inference endpoints, GPU allocations)
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0905-059 - External-origin annotation and internal registry enrollment for approved external models](../../controls/SAFE-K8S-0905-059.md)
+### [SAF-K8S-0905-059 - External-origin annotation and internal registry enrollment for approved external models](../../controls/SAF-K8S-0905-059.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5
@@ -20,7 +20,7 @@ Inventory of agent components (models, tools, plugins)
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-1007-004 - Continuous security posture management for AI clusters](../../controls/SAFE-K8S-1007-004.md)
+### [SAF-K8S-1007-004 - Continuous security posture management for AI clusters](../../controls/SAF-K8S-1007-004.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.7
@@ -29,7 +29,7 @@ Inventory of agent components (models, tools, plugins)
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-1007-005 - Change management for production AI model deployments](../../controls/SAFE-K8S-1007-005.md)
+### [SAF-K8S-1007-005 - Change management for production AI model deployments](../../controls/SAF-K8S-1007-005.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.7
@@ -38,7 +38,7 @@ Inventory of agent components (models, tools, plugins)
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-1007-006 - Secure AI workload decommissioning](../../controls/SAFE-K8S-1007-006.md)
+### [SAF-K8S-1007-006 - Secure AI workload decommissioning](../../controls/SAF-K8S-1007-006.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.7
@@ -47,7 +47,7 @@ Inventory of agent components (models, tools, plugins)
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-1007-007 - Cluster service protection from AI training resource exhaustion](../../controls/SAFE-K8S-1007-007.md)
+### [SAF-K8S-1007-007 - Cluster service protection from AI training resource exhaustion](../../controls/SAF-K8S-1007-007.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.7

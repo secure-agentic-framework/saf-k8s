@@ -9,9 +9,9 @@ SCRM plan for agentic AI addresses model provenance, tool integrity, and vendor 
 
 6.6 - Supply chain security (CNCF lifecycle, SLSA, SSDF); 9.4 - AI supply chain and model lifecycle
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0606-002 - CI/CD build environment hardening](../../controls/SAFE-K8S-0606-002.md)
+### [SAF-K8S-0606-002 - CI/CD build environment hardening](../../controls/SAF-K8S-0606-002.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.6
@@ -20,7 +20,7 @@ SCRM plan for agentic AI addresses model provenance, tool integrity, and vendor 
 - Applicability: required
 - Strength Reason Code: exact-text-match
 
-### [SAFE-K8S-0606-007 - CI/CD build activity monitoring](../../controls/SAFE-K8S-0606-007.md)
+### [SAF-K8S-0606-007 - CI/CD build activity monitoring](../../controls/SAF-K8S-0606-007.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.6
@@ -29,7 +29,7 @@ SCRM plan for agentic AI addresses model provenance, tool integrity, and vendor 
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0606-009 - SSDF v1.1 alignment for secure development practices](../../controls/SAFE-K8S-0606-009.md)
+### [SAF-K8S-0606-009 - SSDF v1.1 alignment for secure development practices](../../controls/SAF-K8S-0606-009.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.6
@@ -38,7 +38,7 @@ SCRM plan for agentic AI addresses model provenance, tool integrity, and vendor 
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0904-001 - Pipeline orchestrator hardening](../../controls/SAFE-K8S-0904-001.md)
+### [SAF-K8S-0904-001 - Pipeline orchestrator hardening](../../controls/SAF-K8S-0904-001.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.4
@@ -47,7 +47,7 @@ SCRM plan for agentic AI addresses model provenance, tool integrity, and vendor 
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0904-003 - Notebook and experimentation environment security](../../controls/SAFE-K8S-0904-003.md)
+### [SAF-K8S-0904-003 - Notebook and experimentation environment security](../../controls/SAF-K8S-0904-003.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.4

@@ -9,18 +9,9 @@ Agent communications must be protected for confidentiality and integrity in tran
 
 5.2 - Pod-to-pod encryption; 5.4 - mTLS (transmission confidentiality and integrity)
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0502-001 - CNI plugin security selection criteria](../../controls/SAFE-K8S-0502-001.md)
-
-- Domain: D05 - Network Security and Communication
-- Knowledge Area: 5.2
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
-### [SAFE-K8S-0502-002 - Pod-to-pod traffic encryption](../../controls/SAFE-K8S-0502-002.md)
+### [SAF-K8S-0502-001 - CNI plugin security selection criteria](../../controls/SAF-K8S-0502-001.md)
 
 - Domain: D05 - Network Security and Communication
 - Knowledge Area: 5.2
@@ -29,7 +20,7 @@ Agent communications must be protected for confidentiality and integrity in tran
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0502-004 - CNI plugin hardening and lifecycle management](../../controls/SAFE-K8S-0502-004.md)
+### [SAF-K8S-0502-002 - Pod-to-pod traffic encryption](../../controls/SAF-K8S-0502-002.md)
 
 - Domain: D05 - Network Security and Communication
 - Knowledge Area: 5.2
@@ -38,7 +29,7 @@ Agent communications must be protected for confidentiality and integrity in tran
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0502-005 - AI workload data path encryption in transit](../../controls/SAFE-K8S-0502-005.md)
+### [SAF-K8S-0502-004 - CNI plugin hardening and lifecycle management](../../controls/SAF-K8S-0502-004.md)
 
 - Domain: D05 - Network Security and Communication
 - Knowledge Area: 5.2
@@ -47,7 +38,16 @@ Agent communications must be protected for confidentiality and integrity in tran
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0504-001 - Zero trust networking principles for Kubernetes](../../controls/SAFE-K8S-0504-001.md)
+### [SAF-K8S-0502-005 - AI workload data path encryption in transit](../../controls/SAF-K8S-0502-005.md)
+
+- Domain: D05 - Network Security and Communication
+- Knowledge Area: 5.2
+- Relation Type: direct
+- Strength: strong
+- Applicability: required
+- Strength Reason Code: n/a
+
+### [SAF-K8S-0504-001 - Zero trust networking principles for Kubernetes](../../controls/SAF-K8S-0504-001.md)
 
 - Domain: D05 - Network Security and Communication
 - Knowledge Area: 5.4
@@ -56,7 +56,7 @@ Agent communications must be protected for confidentiality and integrity in tran
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0504-002 - Service mesh mTLS and authorization policies](../../controls/SAFE-K8S-0504-002.md)
+### [SAF-K8S-0504-002 - Service mesh mTLS and authorization policies](../../controls/SAF-K8S-0504-002.md)
 
 - Domain: D05 - Network Security and Communication
 - Knowledge Area: 5.4
@@ -65,7 +65,7 @@ Agent communications must be protected for confidentiality and integrity in tran
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0504-005 - Service mesh tuning for AI workloads](../../controls/SAFE-K8S-0504-005.md)
+### [SAF-K8S-0504-005 - Service mesh tuning for AI workloads](../../controls/SAF-K8S-0504-005.md)
 
 - Domain: D05 - Network Security and Communication
 - Knowledge Area: 5.4
@@ -74,7 +74,7 @@ Agent communications must be protected for confidentiality and integrity in tran
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0910-004 - Federated learning cross-cluster coordination security](../../controls/SAFE-K8S-0910-004.md)
+### [SAF-K8S-0910-004 - Federated learning cross-cluster coordination security](../../controls/SAF-K8S-0910-004.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.10
@@ -83,7 +83,7 @@ Agent communications must be protected for confidentiality and integrity in tran
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0910-020 - Cross-cluster transport encryption for distributed AI traffic](../../controls/SAFE-K8S-0910-020.md)
+### [SAF-K8S-0910-020 - Cross-cluster transport encryption for distributed AI traffic](../../controls/SAF-K8S-0910-020.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.10
@@ -92,7 +92,7 @@ Agent communications must be protected for confidentiality and integrity in tran
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0910-030 - Cross-cluster registry replication channel mutual authentication](../../controls/SAFE-K8S-0910-030.md)
+### [SAF-K8S-0910-030 - Cross-cluster registry replication channel mutual authentication](../../controls/SAF-K8S-0910-030.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.10

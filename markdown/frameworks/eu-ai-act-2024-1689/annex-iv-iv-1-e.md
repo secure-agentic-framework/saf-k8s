@@ -7,11 +7,11 @@
 
 Where relevant, the data requirements in terms of datasheets describing the training methodologies and techniques and the training data sets used, including a general description of these data sets, information about their provenance, scope and main characteristics; how the data was obtained and selected; labelling procedures and data-cleaning methodologies.
 
-SAFE-K8S D9 controls cover training data integrity, data pipeline provenance, and storage access controls for datasets. Dataset documentation (datasheets) is an application-layer responsibility, but SAFE-K8S enforces access controls and audit trails on data stores.
+SAF-K8S D9 controls cover training data integrity, data pipeline provenance, and storage access controls for datasets. Dataset documentation (datasheets) is an application-layer responsibility, but SAF-K8S enforces access controls and audit trails on data stores.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0906-002 - Large-scale data integrity verification](../../controls/SAFE-K8S-0906-002.md)
+### [SAF-K8S-0906-002 - Large-scale data integrity verification](../../controls/SAF-K8S-0906-002.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.6

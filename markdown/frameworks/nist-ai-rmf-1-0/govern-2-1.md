@@ -5,11 +5,11 @@
 
 ## Mapping Notes
 
-SAFE-K8S separation-of-duties controls define distinct roles for ML engineers, platform engineers, and security teams. RBAC least-privilege design enforces role boundaries technically.
+SAF-K8S separation-of-duties controls define distinct roles for ML engineers, platform engineers, and security teams. RBAC least-privilege design enforces role boundaries technically.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0401-001 - RBAC least-privilege design](../../controls/SAFE-K8S-0401-001.md)
+### [SAF-K8S-0401-001 - RBAC least-privilege design](../../controls/SAF-K8S-0401-001.md)
 
 - Domain: D04 - Identity, Access, and Secrets Management
 - Knowledge Area: 4.1
@@ -18,7 +18,7 @@ SAFE-K8S separation-of-duties controls define distinct roles for ML engineers, p
 - Applicability: required
 - Strength Reason Code: framework-language-interpretation
 
-### [SAFE-K8S-0401-006 - Organizational role separation for ML, platform, and security functions](../../controls/SAFE-K8S-0401-006.md)
+### [SAF-K8S-0401-006 - Organizational role separation for ML, platform, and security functions](../../controls/SAF-K8S-0401-006.md)
 
 - Domain: D04 - Identity, Access, and Secrets Management
 - Knowledge Area: 4.1

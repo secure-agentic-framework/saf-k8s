@@ -9,9 +9,9 @@ Agent system baseline configs
 
 1.4 - Apply CIS benchmarks (baseline configuration); 3.2 - AI workload security context patterns as baseline
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0104-005 - Control plane configuration file permissions](../../controls/SAFE-K8S-0104-005.md)
+### [SAF-K8S-0104-005 - Control plane configuration file permissions](../../controls/SAF-K8S-0104-005.md)
 
 - Domain: D01 - Control Plane and Cluster Hardening
 - Knowledge Area: 1.4
@@ -20,7 +20,7 @@ Agent system baseline configs
 - Applicability: required
 - Strength Reason Code: exact-text-match
 
-### [SAFE-K8S-0302-001 - Pod and container security context enforcement](../../controls/SAFE-K8S-0302-001.md)
+### [SAF-K8S-0302-001 - Pod and container security context enforcement](../../controls/SAF-K8S-0302-001.md)
 
 - Domain: D03 - Workload and Pod Security
 - Knowledge Area: 3.2
@@ -29,7 +29,7 @@ Agent system baseline configs
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0302-002 - Linux capability drop-all and least-privilege add-back](../../controls/SAFE-K8S-0302-002.md)
+### [SAF-K8S-0302-002 - Linux capability drop-all and least-privilege add-back](../../controls/SAF-K8S-0302-002.md)
 
 - Domain: D03 - Workload and Pod Security
 - Knowledge Area: 3.2
@@ -38,7 +38,7 @@ Agent system baseline configs
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0302-004 - Host namespace isolation enforcement](../../controls/SAFE-K8S-0302-004.md)
+### [SAF-K8S-0302-004 - Host namespace isolation enforcement](../../controls/SAF-K8S-0302-004.md)
 
 - Domain: D03 - Workload and Pod Security
 - Knowledge Area: 3.2
@@ -47,7 +47,7 @@ Agent system baseline configs
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0302-005 - AI workload security context hardening profiles](../../controls/SAFE-K8S-0302-005.md)
+### [SAF-K8S-0302-005 - AI workload security context hardening profiles](../../controls/SAF-K8S-0302-005.md)
 
 - Domain: D03 - Workload and Pod Security
 - Knowledge Area: 3.2
@@ -56,7 +56,7 @@ Agent system baseline configs
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAFE-K8S-0910-026 - Multi-cluster security policy baseline federation](../../controls/SAFE-K8S-0910-026.md)
+### [SAF-K8S-0910-026 - Multi-cluster security policy baseline federation](../../controls/SAF-K8S-0910-026.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.10

@@ -5,11 +5,11 @@
 
 ## Mapping Notes
 
-SAFE-K8S requires security awareness training for Kubernetes and GPU administrators covering platform-specific risks.
+SAF-K8S requires security awareness training for Kubernetes and GPU administrators covering platform-specific risks.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0405-004 - Security awareness for Kubernetes and GPU administrators](../../controls/SAFE-K8S-0405-004.md)
+### [SAF-K8S-0405-004 - Security awareness for Kubernetes and GPU administrators](../../controls/SAF-K8S-0405-004.md)
 
 - Domain: D04 - Identity, Access, and Secrets Management
 - Knowledge Area: 4.5

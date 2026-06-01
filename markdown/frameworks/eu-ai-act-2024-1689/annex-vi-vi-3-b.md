@@ -7,11 +7,11 @@
 
 The provider also examines whether the design, design control and development process of the AI system and the post-market monitoring thereof have been applied consistently and in compliance with the technical documentation.
 
-SAFE-K8S GitOps controls (D6) enforce consistent application of design and development processes through policy-as-code, admission controllers, and automated compliance checks. Post-market monitoring consistency is verified through observability stack configuration management (D10).
+SAF-K8S GitOps controls (D6) enforce consistent application of design and development processes through policy-as-code, admission controllers, and automated compliance checks. Post-market monitoring consistency is verified through observability stack configuration management (D10).
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAFE-K8S-1002-003.md)
+### [SAF-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAF-K8S-1002-003.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.2

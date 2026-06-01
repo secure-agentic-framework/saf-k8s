@@ -7,11 +7,11 @@
 
 The name and version of the general-purpose AI model, including, where applicable, its code name or acronym.
 
-SAFE-K8S ML-BOM controls (D6) track model names, versions, and identifiers. Container image tagging and model registry integration provide version tracking on Kubernetes.
+SAF-K8S ML-BOM controls (D6) track model names, versions, and identifiers. Container image tagging and model registry integration provide version tracking on Kubernetes.
 
-## SAFE-K8S Controls
+## SAF-K8S Controls
 
-### [SAFE-K8S-0604-002 - ML-BOM (ML Bill of Materials) generation](../../controls/SAFE-K8S-0604-002.md)
+### [SAF-K8S-0604-002 - ML-BOM (ML Bill of Materials) generation](../../controls/SAF-K8S-0604-002.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.4
@@ -20,7 +20,7 @@ SAFE-K8S ML-BOM controls (D6) track model names, versions, and identifiers. Cont
 - Applicability: required
 - Strength Reason Code: exact-text-match
 
-### [SAFE-K8S-0702-005 - Label and annotation schema definition for AI workload classification](../../controls/SAFE-K8S-0702-005.md)
+### [SAF-K8S-0702-005 - Label and annotation schema definition for AI workload classification](../../controls/SAF-K8S-0702-005.md)
 
 - Domain: D07 - Storage, Multi-tenancy, and Resource Governance
 - Knowledge Area: 7.2
