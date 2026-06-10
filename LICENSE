@@ -1,0 +1,24 @@
+SAF-K8S Split License
+
+This project uses a split licensing structure, finalized at the 2026-05-18
+Secure Agentic Framework (SAF) meeting:
+
+1. Specification License
+   All specification content — including the security control catalog, framework
+   crosswalks, knowledge area structure, domain taxonomy (the YAML source files and
+   the generated markdown pages), and the accompanying written documentation, published
+   under the `SAF-K8S-*` identifiers — is licensed under the Community Specification
+   License 1.0 (CSL 1.0).
+
+   License file: LICENSE-CSL-1.0.md
+   Working Group scope (patent-commitment bounds): SCOPE.md
+
+2. Code License
+   All code, including the catalog generation tooling (generate_markdown.py), is
+   licensed under the Apache License, Version 2.0. The Community Specification License
+   is, by its own terms, not intended for source code.
+
+   Full license text: https://www.apache.org/licenses/LICENSE-2.0
+   License file: LICENSE-APACHE-2.0
+
+The full text of each license is provided in the respective files within this repository.
