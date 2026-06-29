@@ -1,0 +1,30 @@
+# EU AI Act 2024/1689 - Article-14.4.d
+
+- Framework Code: EU-AI-ACT
+- Requirement Title: Human oversight
+
+## Mapping Notes
+
+to decide, in any particular situation, not to use the high-risk AI system or to otherwise disregard, override or reverse the output of the high-risk AI system;
+
+SAF-K8S provides infrastructure mechanisms for overriding AI system outputs: inference endpoint controls (SAF-K8S-0902-008), admission control policies, and deployment rollback capabilities (SAF-K8S-0905-011). The decision authority is an organizational concern.
+
+## SAF-K8S Controls
+
+### [SAF-K8S-0902-003 - Inference request validation and input sanitization](../../controls/SAF-K8S-0902-003.md)
+
+- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
+- Knowledge Area: 9.2
+- Relation Type: partial
+- Strength: moderate
+- Applicability: required
+- Strength Reason Code: n/a
+
+### [SAF-K8S-0902-008 - Inference endpoint authentication and authorization](../../controls/SAF-K8S-0902-008.md)
+
+- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
+- Knowledge Area: 9.2
+- Relation Type: partial
+- Strength: moderate
+- Applicability: required
+- Strength Reason Code: n/a

@@ -1,0 +1,39 @@
+# EU AI Act 2024/1689 - Article-14.4.a
+
+- Framework Code: EU-AI-ACT
+- Requirement Title: Human oversight
+
+## Mapping Notes
+
+to properly understand the relevant capacities and limitations of the high-risk AI system and be able to duly monitor its operation, including in view of detecting and addressing anomalies, dysfunctions and unexpected performance;
+
+SAF-K8S observability controls (D10) provide the monitoring infrastructure for detecting anomalies and dysfunctions: AI workload telemetry, accuracy drift alerts, GPU anomaly detection. Understanding system capabilities is an organizational/training concern.
+
+## SAF-K8S Controls
+
+### [SAF-K8S-0805-001 - GPU telemetry collection and anomaly detection](../../controls/SAF-K8S-0805-001.md)
+
+- Domain: D08 - GPU, Accelerator, and Confidential Computing
+- Knowledge Area: 8.5
+- Relation Type: partial
+- Strength: moderate
+- Applicability: required
+- Strength Reason Code: n/a
+
+### [SAF-K8S-1002-002 - Distributed tracing for ML pipelines](../../controls/SAF-K8S-1002-002.md)
+
+- Domain: D10 - Observability, Incident Response, and Governance
+- Knowledge Area: 10.2
+- Relation Type: partial
+- Strength: moderate
+- Applicability: required
+- Strength Reason Code: n/a
+
+### [SAF-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAF-K8S-1002-003.md)
+
+- Domain: D10 - Observability, Incident Response, and Governance
+- Knowledge Area: 10.2
+- Relation Type: partial
+- Strength: moderate
+- Applicability: required
+- Strength Reason Code: n/a

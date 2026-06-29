@@ -1,0 +1,30 @@
+# EU AI Act 2024/1689 - Article-14.3.a
+
+- Framework Code: EU-AI-ACT
+- Requirement Title: Human oversight
+
+## Mapping Notes
+
+measures identified and built, when technically feasible, into the high-risk AI system by the provider before it is placed on the market or put into service;
+
+SAF-K8S admission control (D6 KA 6.5), model promotion gates (SAF-K8S-0905-005, SAF-K8S-0905-010), and pipeline approval controls (D9 KA 9.4) are infrastructure-level oversight measures built into the deployment process. Application-level oversight measures are out of scope.
+
+## SAF-K8S Controls
+
+### [SAF-K8S-0605-001 - OPA/Gatekeeper policies for Kubernetes and AI workloads](../../controls/SAF-K8S-0605-001.md)
+
+- Domain: D06 - Supply Chain, Images, and Admission Control
+- Knowledge Area: 6.5
+- Relation Type: partial
+- Strength: moderate
+- Applicability: required
+- Strength Reason Code: n/a
+
+### [SAF-K8S-0905-005 - Automated model promotion gates](../../controls/SAF-K8S-0905-005.md)
+
+- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
+- Knowledge Area: 9.5
+- Relation Type: partial
+- Strength: moderate
+- Applicability: required
+- Strength Reason Code: n/a
