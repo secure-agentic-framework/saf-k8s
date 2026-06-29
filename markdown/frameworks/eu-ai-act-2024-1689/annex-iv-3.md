@@ -1,0 +1,57 @@
+# EU AI Act 2024/1689 - Annex-IV.3
+
+- Framework Code: EU-AI-ACT
+- Requirement Title: Technical documentation referred to in Article 11(1)
+
+## Mapping Notes
+
+Detailed information about the monitoring, functioning and control of the AI system, in particular with regard to: its capabilities and limitations in performance, including the degrees of accuracy for specific persons or groups of persons on which the system is intended to be used and the overall expected level of accuracy in relation to its intended purpose; the foreseeable unintended outcomes and sources of risks to health and safety, fundamental rights and discrimination in view of the intended purpose of the AI system; the human oversight measures needed in accordance with Article 14, including the technical measures put in place to facilitate the interpretation of the outputs of AI systems by the deployers; specifications on input data, as appropriate;
+
+SAF-K8S observability stack (D10) provides performance monitoring, anomaly detection, and audit logging. Human oversight tooling integration and input data specifications require application-layer implementation, but SAF-K8S provides the infrastructure backbone.
+
+## SAF-K8S Controls
+
+### [SAF-K8S-0401-001 - RBAC least-privilege design](../../controls/SAF-K8S-0401-001.md)
+
+- Domain: D04 - Identity, Access, and Secrets Management
+- Knowledge Area: 4.1
+- Relation Type: partial
+- Strength: moderate
+- Applicability: required
+- Strength Reason Code: n/a
+
+### [SAF-K8S-0805-001 - GPU telemetry collection and anomaly detection](../../controls/SAF-K8S-0805-001.md)
+
+- Domain: D08 - GPU, Accelerator, and Confidential Computing
+- Knowledge Area: 8.5
+- Relation Type: partial
+- Strength: moderate
+- Applicability: required
+- Strength Reason Code: n/a
+
+### [SAF-K8S-1001-017 - Audit capture of admission, authorization, and privileged API decisions for AI workloads](../../controls/SAF-K8S-1001-017.md)
+
+- Domain: D10 - Observability, Incident Response, and Governance
+- Knowledge Area: 10.1
+- Relation Type: partial
+- Strength: moderate
+- Applicability: required
+- Strength Reason Code: framework-language-interpretation
+
+### [SAF-K8S-1002-002 - Distributed tracing for ML pipelines](../../controls/SAF-K8S-1002-002.md)
+
+- Domain: D10 - Observability, Incident Response, and Governance
+- Knowledge Area: 10.2
+- Relation Type: partial
+- Strength: moderate
+- Applicability: required
+- Strength Reason Code: n/a
+
+### [SAF-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAF-K8S-1002-003.md)
+
+- Domain: D10 - Observability, Incident Response, and Governance
+- Knowledge Area: 10.2
+- Relation Type: partial
+- Strength: moderate
+- Applicability: required
+- Strength Reason Code: n/a

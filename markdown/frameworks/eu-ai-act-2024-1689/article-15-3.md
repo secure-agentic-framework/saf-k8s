@@ -1,0 +1,30 @@
+# EU AI Act 2024/1689 - Article-15.3
+
+- Framework Code: EU-AI-ACT
+- Requirement Title: Accuracy, robustness and cybersecurity
+
+## Mapping Notes
+
+The levels of accuracy and the relevant accuracy metrics of high-risk AI systems shall be declared in the accompanying instructions of use.
+
+SAF-K8S ML-BOM controls (SAF-K8S-0604-002) capture accuracy metrics as infrastructure metadata, providing the data source for this declaration. The obligation to include them in instructions of use is an organizational concern, but SAF-K8S provides the technical infrastructure to store and retrieve accuracy metrics.
+
+## SAF-K8S Controls
+
+### [SAF-K8S-0604-002 - ML-BOM (ML Bill of Materials) generation](../../controls/SAF-K8S-0604-002.md)
+
+- Domain: D06 - Supply Chain, Images, and Admission Control
+- Knowledge Area: 6.4
+- Relation Type: partial
+- Strength: moderate
+- Applicability: required
+- Strength Reason Code: framework-language-interpretation
+
+### [SAF-K8S-0905-005 - Automated model promotion gates](../../controls/SAF-K8S-0905-005.md)
+
+- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
+- Knowledge Area: 9.5
+- Relation Type: partial
+- Strength: moderate
+- Applicability: required
+- Strength Reason Code: n/a

@@ -1,0 +1,30 @@
+# EU AI Act 2024/1689 - Article-10.5.e
+
+- Framework Code: EU-AI-ACT
+- Requirement Title: Data and data governance
+
+## Mapping Notes
+
+the special categories of personal data are deleted once the bias has been corrected or the personal data has reached the end of its retention period, whichever comes first;
+
+SAF-K8S PV reclaim policy enforcement (SAF-K8S-0701-004), data lifecycle controls, and secure decommissioning (SAF-K8S-1007-006) support data deletion enforcement at the infrastructure level. Determining when bias correction is complete is an application-layer concern.
+
+## SAF-K8S Controls
+
+### [SAF-K8S-0701-004 - PV reclaim policy enforcement for AI data volumes](../../controls/SAF-K8S-0701-004.md)
+
+- Domain: D07 - Storage, Multi-tenancy, and Resource Governance
+- Knowledge Area: 7.1
+- Relation Type: partial
+- Strength: moderate
+- Applicability: required
+- Strength Reason Code: framework-language-interpretation
+
+### [SAF-K8S-1007-006 - Secure AI workload decommissioning](../../controls/SAF-K8S-1007-006.md)
+
+- Domain: D10 - Observability, Incident Response, and Governance
+- Knowledge Area: 10.7
+- Relation Type: partial
+- Strength: moderate
+- Applicability: required
+- Strength Reason Code: n/a

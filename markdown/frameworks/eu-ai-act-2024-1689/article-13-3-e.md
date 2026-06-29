@@ -1,0 +1,30 @@
+# EU AI Act 2024/1689 - Article-13.3.e
+
+- Framework Code: EU-AI-ACT
+- Requirement Title: Transparency and provision of information to deployers
+
+## Mapping Notes
+
+the computational and hardware resources needed, the expected lifetime of the high-risk AI system and any necessary maintenance and care measures, including their frequency, to ensure the proper functioning of that AI system, including as regards software updates;
+
+SAF-K8S ML-BOM captures computational resource requirements, framework versions, and infrastructure dependencies. Kubernetes resource specifications (requests/limits) and upgrade planning (SAF-K8S-1007-001) provide the infrastructure data for this documentation requirement.
+
+## SAF-K8S Controls
+
+### [SAF-K8S-0304-010 - Pod resource requests and limits specification](../../controls/SAF-K8S-0304-010.md)
+
+- Domain: D03 - Workload and Pod Security
+- Knowledge Area: 3.4
+- Relation Type: partial
+- Strength: moderate
+- Applicability: required
+- Strength Reason Code: n/a
+
+### [SAF-K8S-0604-002 - ML-BOM (ML Bill of Materials) generation](../../controls/SAF-K8S-0604-002.md)
+
+- Domain: D06 - Supply Chain, Images, and Admission Control
+- Knowledge Area: 6.4
+- Relation Type: partial
+- Strength: moderate
+- Applicability: required
+- Strength Reason Code: framework-language-interpretation

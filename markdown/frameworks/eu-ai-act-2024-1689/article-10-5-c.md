@@ -1,0 +1,39 @@
+# EU AI Act 2024/1689 - Article-10.5.c
+
+- Framework Code: EU-AI-ACT
+- Requirement Title: Data and data governance
+
+## Mapping Notes
+
+the special categories of personal data are subject to measures to ensure that the personal data processed are secured, protected, subject to suitable safeguards, including strict controls and documentation of the access, to avoid misuse and ensure that only authorised persons have access to those personal data with appropriate confidentiality obligations;
+
+Access controls, audit logging, RBAC, and encryption are core SAF-K8S capabilities (D4, D7, D10) that directly enforce these safeguards.
+
+## SAF-K8S Controls
+
+### [SAF-K8S-0401-001 - RBAC least-privilege design](../../controls/SAF-K8S-0401-001.md)
+
+- Domain: D04 - Identity, Access, and Secrets Management
+- Knowledge Area: 4.1
+- Relation Type: direct
+- Strength: strong
+- Applicability: required
+- Strength Reason Code: n/a
+
+### [SAF-K8S-0401-002 - RBAC permission audit and analysis](../../controls/SAF-K8S-0401-002.md)
+
+- Domain: D04 - Identity, Access, and Secrets Management
+- Knowledge Area: 4.1
+- Relation Type: direct
+- Strength: strong
+- Applicability: required
+- Strength Reason Code: n/a
+
+### [SAF-K8S-0701-003 - Encryption at rest for persistent volumes](../../controls/SAF-K8S-0701-003.md)
+
+- Domain: D07 - Storage, Multi-tenancy, and Resource Governance
+- Knowledge Area: 7.1
+- Relation Type: direct
+- Strength: strong
+- Applicability: required
+- Strength Reason Code: n/a
