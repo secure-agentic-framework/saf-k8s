@@ -22,6 +22,10 @@ This project uses a split license, finalized at the 2026-05-18 SAF meeting:
 
 See [`LICENSE`](LICENSE) for the summary.
 
+## Governance
+
+The control catalog is developed as a Community Specification Working Group under the [Community Specification Governance Policy 1.0](GOVERNANCE.md). License acceptance, withdrawals, and patent exclusion notices are recorded in [`NOTICES.md`](NOTICES.md). Participation is subject to the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md).
+
 ## Basic Info
 
 - Domains: 10
@@ -1583,3 +1587,9 @@ This knowledge area focuses on: Continuous security posture management for AI cl
 | [SAF-K8S-1007-016](markdown/controls/SAF-K8S-1007-016.md) | GPU node hardware attestation, driver integrity, and taint verification | Advanced | ai-specific |
 | [SAF-K8S-1007-017](markdown/controls/SAF-K8S-1007-017.md) | Kubernetes release-channel and changelog monitoring for API deprecations | Practitioner | ai-specific |
 | [SAF-K8S-1007-018](markdown/controls/SAF-K8S-1007-018.md) | Deprecated Kubernetes API usage inventory and migration tracking for AI workloads | Practitioner | ai-specific |
+
+---
+
+Copyright © Secure Agentic Framework a Series of LF Projects, LLC
+
+For web site terms of use, trademark policy and other project policies please see https://lfprojects.org.

@@ -26,3 +26,8 @@ These materials are published under the `SAF-K8S-*` identifier prefix.
 - Any specification, standard, or other material developed outside this Working Group.
 
 Any changes of Scope are not retroactive.
+
+This Working Group is governed by the
+[Community Specification Governance Policy 1.0](GOVERNANCE.md). Notices,
+including license acceptance, withdrawals, and patent exclusions, are recorded
+in [NOTICES.md](NOTICES.md).
