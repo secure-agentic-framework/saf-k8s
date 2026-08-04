@@ -94,6 +94,10 @@ def render_top_readme(domains, knowledge_areas, controls, crosswalks, framework_
         "",
         "See [`LICENSE`](LICENSE) for the summary.",
         "",
+        "## Governance",
+        "",
+        "The control catalog is developed as a Community Specification Working Group under the [Community Specification Governance Policy 1.0](GOVERNANCE.md). License acceptance, withdrawals, and patent exclusion notices are recorded in [`NOTICES.md`](NOTICES.md). Participation is subject to the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md).",
+        "",
         "## Basic Info",
         "",
         f"- Domains: {len(domains)}",
@@ -160,6 +164,16 @@ def render_top_readme(domains, knowledge_areas, controls, crosswalks, framework_
             lines.append(
                 f"| [{control['control_id']}]({control_link}) | {control['control_title']} | {control['maturity']} | {control['baseline_or_ai_specific']} |"
             )
+    lines.extend(
+        [
+            "",
+            "---",
+            "",
+            "Copyright © Secure Agentic Framework a Series of LF Projects, LLC",
+            "",
+            "For web site terms of use, trademark policy and other project policies please see https://lfprojects.org.",
+        ]
+    )
     return "\n".join(lines)
 
 
