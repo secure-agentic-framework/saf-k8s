@@ -1,0 +1,132 @@
+{
+  "control_id": "SAF-K8S-0101-003",
+  "catalog_revision": "510d20738720ad3b44c5f20e7fa14c0df8cdf359",
+  "catalog_sha256": "f90ef69f5a08246aa7796cd8c80f8790550643639edcb0194605a3a8db2ac6bb",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "bc0a29d53f622ca04868f6c8131e41a01925e91e5afbe98bd9c1085812f72787",
+  "scope": "Kubernetes v1.36.1 kind. Compare stock storage and two Secretbox configuration profiles using the core-group and all-group wildcards. Inspect only an exact synthetic Secret key and an exact synthetic apps Deployment key. Existing object rewrite, external KMS and managed control planes require separate evidence.",
+  "cluster": "saf-lab-1fa29ef817c7",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "stock storage for the exact secrets fixture",
+      "matched": true,
+      "observed": {
+        "secretbox_prefix": false,
+        "marker_present": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "stock still permits an authorized read of the secrets fixture",
+      "matched": true,
+      "observed": true
+    },
+    {
+      "phase": "red",
+      "claim": "stock storage for the exact deployments fixture",
+      "matched": true,
+      "observed": {
+        "secretbox_prefix": false,
+        "marker_present": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "stock still permits an authorized read of the deployments fixture",
+      "matched": true,
+      "observed": true
+    },
+    {
+      "phase": "green",
+      "claim": "*. storage for the exact secrets fixture",
+      "matched": true,
+      "observed": {
+        "secretbox_prefix": true,
+        "marker_present": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "*. still permits an authorized read of the secrets fixture",
+      "matched": true,
+      "observed": true
+    },
+    {
+      "phase": "red",
+      "claim": "*. storage for the exact deployments fixture",
+      "matched": true,
+      "observed": {
+        "secretbox_prefix": false,
+        "marker_present": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "*. still permits an authorized read of the deployments fixture",
+      "matched": true,
+      "observed": true
+    },
+    {
+      "phase": "green",
+      "claim": "*.* storage for the exact secrets fixture",
+      "matched": true,
+      "observed": {
+        "secretbox_prefix": true,
+        "marker_present": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "*.* still permits an authorized read of the secrets fixture",
+      "matched": true,
+      "observed": true
+    },
+    {
+      "phase": "green",
+      "claim": "*.* storage for the exact deployments fixture",
+      "matched": true,
+      "observed": {
+        "secretbox_prefix": true,
+        "marker_present": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "*.* still permits an authorized read of the deployments fixture",
+      "matched": true,
+      "observed": true
+    }
+  ]
+}

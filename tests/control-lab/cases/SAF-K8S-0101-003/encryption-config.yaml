@@ -1,0 +1,11 @@
+apiVersion: apiserver.config.k8s.io/v1
+kind: EncryptionConfiguration
+resources:
+  - resources:
+      - "__RESOURCE_WILDCARD__"
+    providers:
+      - secretbox:
+          keys:
+            - name: lab-key
+              # Replaced in a mode-0600 temporary copy at runtime. Never commit key material.
+              secret: __EPHEMERAL_BASE64_KEY__
