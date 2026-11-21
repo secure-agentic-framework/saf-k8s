@@ -138,6 +138,12 @@
       "sha256": "775c222b9f0d7176731e4939c205846805c278649a8da37fec48c8aa6a9677b2",
       "title": "Kubelet webhook authentication and authorization enforcement"
     },
+    "SAF-K8S-0202-002": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "1a68ae75c3d3245117cde6b1bfd4b0b66f09165dc997a096a061d939b7a05687",
+      "title": "RuntimeClass configuration for workload-appropriate isolation"
+    },
     "SAF-K8S-0202-004": {
       "catalog_status": "draft",
       "domain": "D02",

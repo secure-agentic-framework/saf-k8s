@@ -1,0 +1,82 @@
+{
+  "control_id": "SAF-K8S-0202-002",
+  "catalog_revision": "bf8e642cb9a3645b004f58c455de8f21cfd5de11",
+  "catalog_sha256": "ba0b2931e7d453d96fcd4ed42df45db6ef15052d35f1baa2141f65bfd1363036",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "1a68ae75c3d3245117cde6b1bfd4b0b66f09165dc997a096a061d939b7a05687",
+  "scope": "One-node local kind cluster using the repository-pinned Kubernetes 1.36.1 node image and containerd CRI. A kind containerd config patch registers the explicit saf-runc handler as io.containerd.runc.v2; RuntimeClass scheduling selects the node labeled for that handler. A ValidatingAdmissionPolicy requires protected Pods to name that RuntimeClass. Tests use a digest-pinned, network-idle BusyBox fixture and observe the exact ready sandbox ID at the runc shim state root. This validates handler selection with runc. Stronger sandbox and GPU profiles require their own tests.",
+  "cluster": "saf-lab-4b90f16cbc16",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Unassigned protected workload reaches API admission before validation",
+      "matched": true,
+      "observed": "server dry-run admitted"
+    },
+    {
+      "phase": "red",
+      "claim": "Ready baseline sandbox has no state under the explicit handler root",
+      "matched": true,
+      "observed": {
+        "pod_running": true,
+        "custom_handler_state_exists": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission denies protected workload without explicit RuntimeClass",
+      "matched": true,
+      "observed": {
+        "exact_policy_denial": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "RuntimeClass rollout runs Ready with the selector on its supported node",
+      "matched": true,
+      "observed": {
+        "pod_running": true,
+        "runtimeclass_selector_matches_node": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native runc state confirms handler selection for the exact CRI sandbox",
+      "matched": true,
+      "observed": {
+        "custom_handler_state_exists": true
+      }
+    }
+  ]
+}

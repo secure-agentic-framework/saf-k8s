@@ -1,0 +1,33 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-0202-require-runtimeclass
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - apiGroups: [""]
+      apiVersions: ["v1"]
+      operations: ["CREATE", "UPDATE"]
+      resources: ["pods"]
+      scope: Namespaced
+  validations:
+  - expression: >-
+      !has(object.metadata.labels) ||
+      !('saf-k8s-0202-002.protected' in object.metadata.labels) ||
+      object.metadata.labels['saf-k8s-0202-002.protected'] != 'true' ||
+      (has(object.spec.runtimeClassName) && object.spec.runtimeClassName == 'saf-runc')
+    message: "protected workloads must select RuntimeClass saf-runc"
+    reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-0202-require-runtimeclass
+spec:
+  policyName: saf-0202-require-runtimeclass
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s-0202-002.case: enabled

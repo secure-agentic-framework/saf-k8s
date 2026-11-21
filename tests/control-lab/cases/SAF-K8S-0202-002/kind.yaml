@@ -1,0 +1,13 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  labels:
+    saf-k8s-0202-002.runtime-handler: saf-runc
+containerdConfigPatches:
+- |-
+  [plugins."io.containerd.cri.v1.runtime".containerd.runtimes.saf-runc]
+    runtime_type = "io.containerd.runc.v2"
+    [plugins."io.containerd.cri.v1.runtime".containerd.runtimes.saf-runc.options]
+      SystemdCgroup = false
+      Root = "/run/saf-runtimeclass-runc"
