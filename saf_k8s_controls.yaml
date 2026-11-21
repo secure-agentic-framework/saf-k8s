@@ -650,12 +650,12 @@
   knowledge_area: '1.3'
   control_seq: '006'
   control_title: Profiling endpoint disablement for controller-manager and scheduler
-  control_statement: Production Kubernetes clusters must disable profiling endpoints on the controller-manager and scheduler by setting --profiling=false on each component, ensuring that debug endpoints are not exposed on any control-plane component.
-  objective: Eliminate profiling debug surface on controller-manager and scheduler processes, complementing API server profiling disablement (SAF-K8S-0101-001) to achieve consistent control-plane hardening.
-  rationale: The controller-manager and scheduler each expose /debug/pprof/ profiling endpoints by default. These endpoints leak internal runtime state, including CPU profiles, heap dumps, and goroutine traces, and they can be abused for denial-of-service by triggering expensive profiling operations. SAF-K8S-0101-001 covers the API server. This control ensures the same hardening is applied to the remaining control-plane components.
+  control_statement: "Production Kubernetes clusters must disable HTTP profiling on the kube-controller-manager and kube-scheduler. Set --profiling=false on the controller-manager. For the scheduler, set enableProfiling to false in the effective KubeSchedulerConfiguration when --config is used, or set --profiling=false when started without a configuration file. Verify that the profiling index is unavailable and authenticated health checks remain functional."
+  objective: "Remove the HTTP profiling surface on the controller-manager and scheduler and complement the API-server profiling control SAF-K8S-0101-020."
+  rationale: "Where enabled, profiling handlers expose internal runtime information and can trigger costly diagnostics. The scheduler command reference states that the profiling flag is ignored when a component configuration file is supplied. Other debug interfaces require separate review."
   scope: Applies to all production Kubernetes clusters. For managed Kubernetes services, verify through provider documentation that profiling is disabled on provider-managed controller-manager and scheduler processes, or document as a provider-managed control.
-  primary_enforcement_point: Controller-Manager Configuration
-  implementation_surface: Controller-manager and scheduler static pod manifests or flag configuration (--profiling=false on both components), CIS Benchmark checks for profiling flags.
+  primary_enforcement_point: "Effective controller-manager and scheduler configuration."
+  implementation_surface: "Controller-manager flag, scheduler component configuration or applicable flag, and authenticated HTTP availability checks for profiling and health."
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering
   baseline_or_ai_specific: baseline
@@ -663,7 +663,7 @@
   status: draft
   superseded_by_control_id: null
   date_created: '2026-03-01'
-  date_modified: '2026-03-17'
+  date_modified: "2026-11-21"
 - control_id: SAF-K8S-0103-008
   domain_code: D01
   domain_name: Control Plane and Cluster Hardening
