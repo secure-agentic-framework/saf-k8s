@@ -36,6 +36,12 @@
       "sha256": "a727d093a55e0600eaa43a62c3c801d601d2dd3b9aa2e6e59a170e8cbc53776f",
       "title": "Pod garbage collection threshold configuration"
     },
+    "SAF-K8S-0103-006": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "4275274216b123df460b9d6c90f2ad9cc64989a2d35a4b44dc139548ccda8a53",
+      "title": "Profiling endpoint disablement for controller-manager and scheduler"
+    },
     "SAF-K8S-0202-004": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -152,7 +158,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "36ea84feb1a6cb08ac8a6cc50ffa8ceae4adc37a",
-  "sha256": "2c70172c35b1fe4b8e098ce6bc7d086c5ac997fc1f3846ea12659d691074ce6b",
+  "revision": "84a32cfb7d342a31e86bdd3ccf88a41018aeab7e",
+  "sha256": "b20ca75f54b83e09118278fd5e031b850dc5a8f07c9034344f2449fdc398fa43",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

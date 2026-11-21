@@ -1,0 +1,216 @@
+{
+  "control_id": "SAF-K8S-0103-006",
+  "catalog_revision": "32e7acd3741bfcb96a1e89edc61274c181afb173",
+  "catalog_sha256": "b20ca75f54b83e09118278fd5e031b850dc5a8f07c9034344f2449fdc398fa43",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "4275274216b123df460b9d6c90f2ad9cc64989a2d35a4b44dc139548ccda8a53",
+  "scope": "Kube-controller-manager and kube-scheduler HTTP profiling index and health on the loopback listeners of disposable kind nodes. Verify default presence, both flags disabled, and scheduler enableProfiling=false taking precedence over its command-line flag. A temporary scoped kubeconfig identity supplies a bearer token; only HTTP status is recorded.",
+  "cluster": "saf-lab-804716b37454",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "kube-controller-manager requires an authorized caller for the profiling index",
+      "matched": true,
+      "observed": {
+        "anonymous_http_status": 403
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "kube-controller-manager uses the expected default settings",
+      "matched": true,
+      "observed": {
+        "profiling_flags": [],
+        "scheduler_config_profile": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Authorized kube-controller-manager profiling index returns 200 in the default profile",
+      "matched": true,
+      "observed": {
+        "index_http_status": 200
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Authenticated kube-controller-manager health succeeds in the default profile",
+      "matched": true,
+      "observed": {
+        "health_http_status": 200
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "kube-scheduler requires an authorized caller for the profiling index",
+      "matched": true,
+      "observed": {
+        "anonymous_http_status": 403
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "kube-scheduler uses the expected default settings",
+      "matched": true,
+      "observed": {
+        "profiling_flags": [],
+        "scheduler_config_profile": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Authorized kube-scheduler profiling index returns 200 in the default profile",
+      "matched": true,
+      "observed": {
+        "index_http_status": 200
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Authenticated kube-scheduler health succeeds in the default profile",
+      "matched": true,
+      "observed": {
+        "health_http_status": 200
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "kube-controller-manager uses the expected flag settings",
+      "matched": true,
+      "observed": {
+        "profiling_flags": [
+          "false"
+        ],
+        "scheduler_config_profile": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Authorized kube-controller-manager profiling index returns 404 in the flag profile",
+      "matched": true,
+      "observed": {
+        "index_http_status": 404
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Authenticated kube-controller-manager health succeeds in the flag profile",
+      "matched": true,
+      "observed": {
+        "health_http_status": 200
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "kube-scheduler uses the expected flag settings",
+      "matched": true,
+      "observed": {
+        "profiling_flags": [
+          "false"
+        ],
+        "scheduler_config_profile": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Authorized kube-scheduler profiling index returns 404 in the flag profile",
+      "matched": true,
+      "observed": {
+        "index_http_status": 404
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Authenticated kube-scheduler health succeeds in the flag profile",
+      "matched": true,
+      "observed": {
+        "health_http_status": 200
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "kube-controller-manager uses the expected config settings",
+      "matched": true,
+      "observed": {
+        "profiling_flags": [
+          "false"
+        ],
+        "scheduler_config_profile": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Authorized kube-controller-manager profiling index returns 404 in the config profile",
+      "matched": true,
+      "observed": {
+        "index_http_status": 404
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Authenticated kube-controller-manager health succeeds in the config profile",
+      "matched": true,
+      "observed": {
+        "health_http_status": 200
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "kube-scheduler uses the expected config settings",
+      "matched": true,
+      "observed": {
+        "profiling_flags": [
+          "true"
+        ],
+        "scheduler_config_profile": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Authorized kube-scheduler profiling index returns 404 in the config profile",
+      "matched": true,
+      "observed": {
+        "index_http_status": 404
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Authenticated kube-scheduler health succeeds in the config profile",
+      "matched": true,
+      "observed": {
+        "health_http_status": 200
+      }
+    }
+  ]
+}
