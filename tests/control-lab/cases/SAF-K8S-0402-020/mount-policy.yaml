@@ -1,0 +1,35 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-approved-mounted-secret-references
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["pods"]
+  validations:
+    - expression: >-
+        !has(object.spec.volumes) || object.spec.volumes.all(volume,
+          (!has(volume.secret) ||
+            volume.secret.secretName == 'saf-approved-ordinary-secret') &&
+          (!has(volume.projected) ||
+            volume.projected.sources.all(source,
+              !has(source.secret) ||
+              source.secret.name == 'saf-approved-ordinary-secret')))
+      message: "Pod Secret volume references must use an approved ordinary Secret"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-approved-mounted-secret-references-disposable-namespace
+spec:
+  policyName: saf-k8s-approved-mounted-secret-references
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/legacy-token-mount-policy: "enabled"

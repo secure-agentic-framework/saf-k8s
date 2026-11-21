@@ -89,6 +89,12 @@
       "domain": "D04",
       "sha256": "f9e7d19988c54161513c37825c56a961fff1e09eaa0a133286714e3f7ebf15ff",
       "title": "Dedicated workload service accounts and least-privilege assignment"
+    },
+    "SAF-K8S-0402-020": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "b87962fa5a04184144478bf39016a4d2908db8b7c598e8dd85f8be4ec7df2d1a",
+      "title": "Projected service account token issuance path enforcement"
     }
   },
   "path": "saf_k8s_controls.yaml",
