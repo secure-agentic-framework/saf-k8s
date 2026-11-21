@@ -95,6 +95,12 @@
       "domain": "D04",
       "sha256": "b87962fa5a04184144478bf39016a4d2908db8b7c598e8dd85f8be4ec7df2d1a",
       "title": "Projected service account token issuance path enforcement"
+    },
+    "SAF-K8S-0402-021": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "1050e8dbb4ea3918f94a1d4e0f6209929246631cc8f8e9fbace8e3cf537c1be0",
+      "title": "Workload token explicit audience binding"
     }
   },
   "path": "saf_k8s_controls.yaml",
