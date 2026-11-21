@@ -18,6 +18,12 @@
       "sha256": "3e5adeb40e9baa500ce92aae2cf579de9dfd513c5e12007b145ab9decce894ec",
       "title": "API server TLS enforcement"
     },
+    "SAF-K8S-0103-005": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "a727d093a55e0600eaa43a62c3c801d601d2dd3b9aa2e6e59a170e8cbc53776f",
+      "title": "Pod garbage collection threshold configuration"
+    },
     "SAF-K8S-0202-004": {
       "catalog_status": "draft",
       "domain": "D02",
