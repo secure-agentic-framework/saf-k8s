@@ -626,12 +626,14 @@
   knowledge_area: '1.3'
   control_seq: '005'
   control_title: Pod garbage collection threshold configuration
-  control_statement: Production Kubernetes clusters must configure the controller-manager terminated pod garbage collection threshold (--terminated-pod-gc-threshold) to limit the accumulation of terminated pods. This reduces the window during which terminated pod metadata, including environment variable references, volume mounts, and container status, remains queryable via the API server.
-  objective: Minimize the exposure window for sensitive metadata retained in terminated pod objects by ensuring timely garbage collection of completed and failed pods.
-  rationale: Terminated pods persist in the API server until the pod GC controller removes them. These objects retain environment variable references (which may point to Secrets), volume mount specifications, container image references, and exit status details. In AI clusters, large distributed training jobs can create thousands of worker pods per run, and the default threshold of 12500 allows a large backlog of terminated pods to accumulate. A lower threshold reduces the queryable metadata surface and limits the forensic value available to an attacker with read access to the namespace.
+  control_statement: >-
+    Production Kubernetes clusters must configure or verify a positive controller-manager terminated Pod garbage collection threshold (--terminated-pod-gc-threshold) appropriate to the cluster's batch workload and diagnostic retention needs. Verify that PodGC removes excess Succeeded and Failed Pod objects when their cluster-wide count exceeds the effective threshold. If a workload requires a maximum retention age, define and verify it through a separate lifecycle policy.
+  objective: Bound the accumulation of terminated Pod objects and the associated metadata retained in the API server.
+  rationale: >-
+    Terminated Pod objects can retain environment variable references, volume mounts, image references, and exit status. PodGC uses a cluster-wide count instead of a per-namespace count or a deadline. The Kubernetes v1.36 default is 12500; a nonpositive threshold disables count-based terminated Pod collection. Batch-heavy clusters can choose a smaller positive threshold while retaining enough diagnostic history.
   scope: Applies to all production Kubernetes clusters. Particularly relevant for clusters running batch AI workloads (distributed training, pipeline jobs) that create large numbers of short-lived pods. For managed Kubernetes services, verify whether the provider exposes this setting or applies a default threshold.
   primary_enforcement_point: Controller-Manager Configuration
-  implementation_surface: Controller-manager static pod manifest or flag configuration (--terminated-pod-gc-threshold), monitoring for terminated pod accumulation per namespace.
+  implementation_surface: Effective controller-manager flag or provider documentation, and cluster-wide observation of terminated Pod counts and collection behavior.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; AI/ML Engineering
   baseline_or_ai_specific: ai-specific
@@ -639,7 +641,7 @@
   status: draft
   superseded_by_control_id: null
   date_created: '2026-03-01'
-  date_modified: '2026-03-17'
+  date_modified: '2026-11-21'
 - control_id: SAF-K8S-0103-006
   domain_code: D01
   domain_name: Control Plane and Cluster Hardening
