@@ -78,6 +78,12 @@
       "sha256": "c23366274e0b20d81e494950b016e19bf4dfb7b74a70171e786fe1afde420231",
       "title": "etcd health monitoring and alerting"
     },
+    "SAF-K8S-0102-013": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "aafa570f4a87f5fdb9d353e4ee2ca123f3cdd771c35d787bb787480673e7fb4a",
+      "title": "etcd compaction and periodic defragmentation"
+    },
     "SAF-K8S-0103-001": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -224,7 +230,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "3d3cea14eda636f5ad556c8ff0dbb2963274844d",
+  "revision": "81d1459aca4f4ed4c97b1fe2179190b93e680927",
   "sha256": "9016d7b3fc2177b36fffa2f5f2c4f6d10cc96ef3da95c40591947745c5d43579",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
