@@ -24,6 +24,12 @@
       "sha256": "cd481bc49f01fd1fa918d1f60861f7f73c8232486fa98235de29712bf033712f",
       "title": "API server anonymous authentication disablement"
     },
+    "SAF-K8S-0101-020": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "f35aa7a64ceb9e6c4cfbf14ca785527152602ac5d0dfcc9ac9d4798e00a9d330",
+      "title": "API server profiling and debug exposure disablement"
+    },
     "SAF-K8S-0103-005": {
       "catalog_status": "draft",
       "domain": "D01",

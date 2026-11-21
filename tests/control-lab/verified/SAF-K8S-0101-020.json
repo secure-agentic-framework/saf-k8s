@@ -1,0 +1,124 @@
+{
+  "control_id": "SAF-K8S-0101-020",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "f35aa7a64ceb9e6c4cfbf14ca785527152602ac5d0dfcc9ac9d4798e00a9d330",
+  "scope": "Only authenticated HTTPS GET requests to /debug/pprof/ and /livez on two case-owned Kubernetes v1.36.1 kind API-server localhost endpoints, comparing explicit --profiling=true with --profiling=false. Index response bodies are discarded. The exact effective profiling argument and configured --debug-socket-path value are inspected in each static API-server Pod command; no socket is opened or queried. Other debug routes, component endpoints, managed providers, and production configurations are outside scope.",
+  "cluster": "saf-lab-0cbd34315eb0",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Effective kube-apiserver command has exactly --profiling=true",
+      "matched": true,
+      "observed": {
+        "profiling": "true",
+        "debug_socket": "not-configured"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "No nonempty --debug-socket-path is configured (independent of profiling)",
+      "matched": true,
+      "observed": {
+        "debug_socket": "not-configured"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Authenticated GET /debug/pprof/ returns HTTP 200 with profiling=true",
+      "matched": true,
+      "observed": {
+        "method": "GET",
+        "path": "/debug/pprof/",
+        "status": 200,
+        "client": "selected kind kubeconfig mTLS",
+        "response_body": "discarded"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Authorized GET /livez remains HTTP 200 with profiling=true",
+      "matched": true,
+      "observed": {
+        "method": "GET",
+        "path": "/livez",
+        "status": 200,
+        "client": "selected kind kubeconfig mTLS",
+        "response_body": "discarded"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Effective kube-apiserver command has exactly --profiling=false",
+      "matched": true,
+      "observed": {
+        "profiling": "false",
+        "debug_socket": "not-configured"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "No nonempty --debug-socket-path is configured (independent of profiling)",
+      "matched": true,
+      "observed": {
+        "debug_socket": "not-configured"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Authenticated GET /debug/pprof/ returns HTTP 404 with profiling=false",
+      "matched": true,
+      "observed": {
+        "method": "GET",
+        "path": "/debug/pprof/",
+        "status": 404,
+        "client": "selected kind kubeconfig mTLS",
+        "response_body": "discarded"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Authorized GET /livez remains HTTP 200 with profiling=false",
+      "matched": true,
+      "observed": {
+        "method": "GET",
+        "path": "/livez",
+        "status": 200,
+        "client": "selected kind kubeconfig mTLS",
+        "response_body": "discarded"
+      }
+    }
+  ]
+}
