@@ -206,12 +206,14 @@
   knowledge_area: '1.1'
   control_seq: 018
   control_title: API server anonymous authentication disablement
-  control_statement: Production Kubernetes clusters must disable anonymous authentication on the API server.
+  control_statement: >-
+    Production Kubernetes clusters must disable anonymous authentication on the API server. Replace control-plane health checks that depend on anonymous access with authenticated health checks before applying the change. Verify that requests without credentials are rejected and that the control plane remains healthy with authenticated probes and clients.
   objective: Prevent unauthenticated access attempts from reaching the Kubernetes API server as anonymous requests.
-  rationale: Anonymous API access bypasses the identity controls that protect the control plane and can expose discovery paths or weakly guarded endpoints to unauthenticated callers. Disabling anonymous authentication forces all API access through authenticated identities.
+  rationale: >-
+    When anonymous authentication is enabled, Kubernetes can assign requests without credentials the system:anonymous identity, which remains subject to authorization. Default or configured authorization rules can permit anonymous access to public endpoints. Disabling anonymous authentication removes this request path and also rejects unauthenticated health probes, which may prevent the API server from becoming or remaining Ready.
   scope: Applies to all production Kubernetes clusters and to non-production clusters that host sensitive data, shared workloads, or provide a path to production. For managed services, applies to all customer-exposed API server authentication settings and compensating controls when provider-managed settings are fixed.
   primary_enforcement_point: API server authentication configuration.
-  implementation_surface: API server manifest flags, managed Kubernetes security settings, cluster provisioning templates, and periodic configuration assessment for anonymous authentication status.
+  implementation_surface: API server manifest flags or authentication configuration, authenticated control-plane probes, managed Kubernetes security settings, and tests of unauthenticated rejection and authenticated availability.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Cloud Platform Engineering
   baseline_or_ai_specific: baseline
