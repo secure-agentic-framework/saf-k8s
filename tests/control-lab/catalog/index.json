@@ -36,6 +36,12 @@
       "sha256": "dd1569d6095848684ea5f392d0e03b50b88a493c339ea534d8bfa5c422917eee",
       "title": "API server authorization mode baseline enforcement"
     },
+    "SAF-K8S-0101-016": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "6f44b4b5bec15350e936d811058ad75b95d8b1d30137c6b7ee834a5f08d49553",
+      "title": "API server audit log backend delivery and durable storage"
+    },
     "SAF-K8S-0101-017": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -236,7 +242,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "81d1459aca4f4ed4c97b1fe2179190b93e680927",
-  "sha256": "9016d7b3fc2177b36fffa2f5f2c4f6d10cc96ef3da95c40591947745c5d43579",
+  "revision": "cad6d04e38dbf5d9b10e132db9c002ce06ed3a16",
+  "sha256": "84059ed85131d0153bb153008cedec76dcd757fbcee95dd30abdca488a39e443",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
