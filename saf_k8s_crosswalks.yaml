@@ -5867,7 +5867,7 @@
   framework_mapping_notes: 'Terminating idle or expired agent sessions
 
 
-    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Streaming connection idle timeout for exec, attach, and port-forward sessions (--streaming-connection-idle-timeout)'
+    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-0101-003
   relation_type: supports
   strength_level: strong
@@ -5883,7 +5883,7 @@
   framework_mapping_notes: 'Terminating idle or expired agent sessions
 
 
-    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Streaming connection idle timeout for exec, attach, and port-forward sessions (--streaming-connection-idle-timeout)'
+    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-0101-005
   relation_type: supports
   strength_level: strong
@@ -5899,7 +5899,7 @@
   framework_mapping_notes: 'Terminating idle or expired agent sessions
 
 
-    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Streaming connection idle timeout for exec, attach, and port-forward sessions (--streaming-connection-idle-timeout)'
+    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-0101-007
   relation_type: supports
   strength_level: strong
@@ -5915,7 +5915,7 @@
   framework_mapping_notes: 'Terminating idle or expired agent sessions
 
 
-    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Streaming connection idle timeout for exec, attach, and port-forward sessions (--streaming-connection-idle-timeout)'
+    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-0402-002
   relation_type: supports
   strength_level: strong
@@ -5931,7 +5931,7 @@
   framework_mapping_notes: 'Terminating idle or expired agent sessions
 
 
-    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Streaming connection idle timeout for exec, attach, and port-forward sessions (--streaming-connection-idle-timeout)'
+    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-0402-003
   relation_type: supports
   strength_level: strong
@@ -5947,7 +5947,7 @@
   framework_mapping_notes: 'Terminating idle or expired agent sessions
 
 
-    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Streaming connection idle timeout for exec, attach, and port-forward sessions (--streaming-connection-idle-timeout)'
+    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-0402-004
   relation_type: supports
   strength_level: strong
@@ -5963,7 +5963,7 @@
   framework_mapping_notes: 'Terminating idle or expired agent sessions
 
 
-    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Streaming connection idle timeout for exec, attach, and port-forward sessions (--streaming-connection-idle-timeout)'
+    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-0402-006
   relation_type: supports
   strength_level: strong
@@ -5979,7 +5979,7 @@
   framework_mapping_notes: 'Terminating idle or expired agent sessions
 
 
-    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Streaming connection idle timeout for exec, attach, and port-forward sessions (--streaming-connection-idle-timeout)'
+    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-0402-007
   relation_type: supports
   strength_level: strong
@@ -5995,7 +5995,7 @@
   framework_mapping_notes: 'Terminating idle or expired agent sessions
 
 
-    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Streaming connection idle timeout for exec, attach, and port-forward sessions (--streaming-connection-idle-timeout)'
+    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-0402-008
   relation_type: supports
   strength_level: strong
@@ -6011,7 +6011,7 @@
   framework_mapping_notes: 'Terminating idle or expired agent sessions
 
 
-    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Streaming connection idle timeout for exec, attach, and port-forward sessions (--streaming-connection-idle-timeout)'
+    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-0402-010
   relation_type: supports
   strength_level: strong
@@ -6027,7 +6027,7 @@
   framework_mapping_notes: 'Terminating idle or expired agent sessions
 
 
-    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Streaming connection idle timeout for exec, attach, and port-forward sessions (--streaming-connection-idle-timeout)'
+    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-0402-014
   relation_type: supports
   strength_level: strong
@@ -6043,7 +6043,7 @@
   framework_mapping_notes: 'Terminating idle or expired agent sessions
 
 
-    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Streaming connection idle timeout for exec, attach, and port-forward sessions (--streaming-connection-idle-timeout)'
+    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-0904-001
   relation_type: supports
   strength_level: strong
@@ -6059,7 +6059,7 @@
   framework_mapping_notes: 'Terminating idle or expired agent sessions
 
 
-    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Streaming connection idle timeout for exec, attach, and port-forward sessions (--streaming-connection-idle-timeout)'
+    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-0904-003
   relation_type: supports
   strength_level: strong
@@ -50363,7 +50363,7 @@
   framework_mapping_notes: 'Automatic session disconnect for inactive agent connections prevents unauthorized reuse
 
 
-    10.5 - Containment (network disconnect/isolation during incidents); 9.4 - Notebook environment session termination; 1.1 - API server streaming connection idle timeout enforcement (--streaming-connection-idle-timeout)'
+    10.5 - Containment (network disconnect/isolation during incidents); 9.4 - Notebook environment session termination; 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-0101-003
   relation_type: direct
   strength_level: strong
@@ -50379,7 +50379,7 @@
   framework_mapping_notes: 'Automatic session disconnect for inactive agent connections prevents unauthorized reuse
 
 
-    10.5 - Containment (network disconnect/isolation during incidents); 9.4 - Notebook environment session termination; 1.1 - API server streaming connection idle timeout enforcement (--streaming-connection-idle-timeout)'
+    10.5 - Containment (network disconnect/isolation during incidents); 9.4 - Notebook environment session termination; 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-0101-005
   relation_type: direct
   strength_level: strong
@@ -50395,7 +50395,7 @@
   framework_mapping_notes: 'Automatic session disconnect for inactive agent connections prevents unauthorized reuse
 
 
-    10.5 - Containment (network disconnect/isolation during incidents); 9.4 - Notebook environment session termination; 1.1 - API server streaming connection idle timeout enforcement (--streaming-connection-idle-timeout)'
+    10.5 - Containment (network disconnect/isolation during incidents); 9.4 - Notebook environment session termination; 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-0101-007
   relation_type: direct
   strength_level: strong
@@ -50411,7 +50411,7 @@
   framework_mapping_notes: 'Automatic session disconnect for inactive agent connections prevents unauthorized reuse
 
 
-    10.5 - Containment (network disconnect/isolation during incidents); 9.4 - Notebook environment session termination; 1.1 - API server streaming connection idle timeout enforcement (--streaming-connection-idle-timeout)'
+    10.5 - Containment (network disconnect/isolation during incidents); 9.4 - Notebook environment session termination; 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-0904-001
   relation_type: direct
   strength_level: strong
@@ -50427,7 +50427,7 @@
   framework_mapping_notes: 'Automatic session disconnect for inactive agent connections prevents unauthorized reuse
 
 
-    10.5 - Containment (network disconnect/isolation during incidents); 9.4 - Notebook environment session termination; 1.1 - API server streaming connection idle timeout enforcement (--streaming-connection-idle-timeout)'
+    10.5 - Containment (network disconnect/isolation during incidents); 9.4 - Notebook environment session termination; 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-0904-003
   relation_type: direct
   strength_level: strong
@@ -50443,7 +50443,7 @@
   framework_mapping_notes: 'Automatic session disconnect for inactive agent connections prevents unauthorized reuse
 
 
-    10.5 - Containment (network disconnect/isolation during incidents); 9.4 - Notebook environment session termination; 1.1 - API server streaming connection idle timeout enforcement (--streaming-connection-idle-timeout)'
+    10.5 - Containment (network disconnect/isolation during incidents); 9.4 - Notebook environment session termination; 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-1005-001
   relation_type: direct
   strength_level: strong

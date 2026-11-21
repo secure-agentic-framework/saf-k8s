@@ -24,12 +24,12 @@
   knowledge_area: '1.1'
   control_seq: '005'
   control_title: Streaming connection idle timeout enforcement
-  control_statement: Production Kubernetes clusters must configure the API server streaming connection idle timeout (--streaming-connection-idle-timeout) to automatically terminate idle streaming connections, including exec, attach, and port-forward sessions, within an organization-defined maximum idle period.
+  control_statement: Production Kubernetes clusters must define a maximum application-idle period for enabled Pod exec, attach, and port-forward sessions. Enforce and verify the limit for each deployed stream path and protocol at the runtime, provider, or controlled access intermediary. Where a path lacks verified timeout enforcement, remove routine access to that path. Any emergency access exception must be approved, time-bound, and logged.
   objective: Limit the window during which abandoned or forgotten interactive sessions remain open to the cluster, reducing the risk of session hijacking, credential reuse, and unmonitored privileged access through stale exec or port-forward tunnels.
-  rationale: Streaming connections (kubectl exec, attach, port-forward) create long-lived authenticated channels into pods. An idle session left open by an administrator or CI pipeline can be hijacked if the client workstation or runner is compromised. The default timeout of 4 hours is excessive for most operational patterns. A shorter idle timeout forces re-authentication and reduces the exposure window. This is especially important for AI clusters where exec sessions into training pods or notebook servers may carry access to model weights, training data, or GPU resources.
-  scope: Applies to all production Kubernetes clusters. Covers the API server --streaming-connection-idle-timeout flag. For managed Kubernetes services, verify whether the provider exposes this setting or applies a default timeout, and document as a provider-managed control if not configurable.
-  primary_enforcement_point: API Server Configuration
-  implementation_surface: API server manifest or managed-service configuration (--streaming-connection-idle-timeout flag), audit log monitoring for long-lived streaming connections.
+  rationale: Interactive streams can remain connected after use stops. A shorter verified idle period reduces the time an abandoned stream stays available. The enforcement component and observed behavior can differ across operations and protocols. On Kubernetes 1.36.1 with containerd 2.3.1, the CRI stream_idle_timeout repeatedly closed idle port-forward data streams in the reference tests. Idle attach closure varied between runs, and idle exec stayed open beyond the test window. The reference restricts routine attach and exec through authorization.
+  scope: Applies to all production Kubernetes clusters and to each enabled Pod exec, attach, or port-forward path. For managed Kubernetes, verify provider timeout behavior or enforce the same access restriction where evidence is unavailable.
+  primary_enforcement_point: The component enforcing the specific stream limit and Kubernetes authorization for paths with unverified enforcement.
+  implementation_surface: Effective runtime, provider, or intermediary timeout configuration, paired healthy and idle session tests for each path, and authorization evidence for restricted paths and any approved emergency access.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering
   baseline_or_ai_specific: baseline
@@ -37,7 +37,7 @@
   status: draft
   superseded_by_control_id: null
   date_created: '2026-03-01'
-  date_modified: '2026-03-17'
+  date_modified: '2026-11-21'
 - control_id: SAF-K8S-0101-007
   domain_code: D01
   domain_name: Control Plane and Cluster Hardening
