@@ -5,6 +5,12 @@
       "domain": "D01",
       "sha256": "1b41f61c63728fcb7627b6f525c71002da908044bbbee6e244fcbe901a35f633",
       "title": "Streaming connection idle timeout enforcement"
+    },
+    "SAF-K8S-0101-008": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "458c8c57ff578034754d25d5cafa43eea8a171d6ab3a12bdb510f307a58678c4",
+      "title": "API server audit policy coverage and event detail"
     }
   },
   "path": "saf_k8s_controls.yaml",
