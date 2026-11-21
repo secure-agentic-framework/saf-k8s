@@ -1,0 +1,392 @@
+{
+  "control_id": "SAF-K8S-0101-021",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "c1659147b41eac1553d7e44507621d4ba31fe04234f66fd0b7f8757557e73199",
+  "scope": "A local Kubernetes v1.36.1 kind API server only. Compare the runtime startup-reported native admission plugin names and API-server command/config identity against a versioned synthetic approved profile, inventory served API-based webhook/policy objects, and compare the same harmless server-side dry-run Pod request with only LimitRanger disabled in a disposable before cluster. The profile is illustrative and does not evidence organizational approval, production configuration, or managed-service scope.",
+  "cluster": "saf-lab-d8d1ea723d21",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Runtime Pod command/image identifies kube-apiserver v1.36.1 and no uninspected admission config file",
+      "matched": true,
+      "observed": {
+        "image": "registry.k8s.io/kube-apiserver:v1.36.1",
+        "admission_control_config_file": "not-configured"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Startup-loaded native plugins match saf-k8s-synthetic-approved-admission-v1 required/disabled names",
+      "matched": true,
+      "observed": {
+        "profile": "saf-k8s-synthetic-approved-admission-v1",
+        "plugins": [
+          "CertificateApproval",
+          "CertificateSigning",
+          "CertificateSubjectRestriction",
+          "ClusterTrustBundleAttest",
+          "DefaultIngressClass",
+          "DefaultStorageClass",
+          "DefaultTolerationSeconds",
+          "JobValidation",
+          "MutatingAdmissionPolicy",
+          "MutatingAdmissionWebhook",
+          "NamespaceLifecycle",
+          "NodeDeclaredFeatureValidator",
+          "NodeRestriction",
+          "PersistentVolumeClaimResize",
+          "PodGroupProtection",
+          "PodGroupWorkloadExists",
+          "PodResizeValidator",
+          "PodSecurity",
+          "PodTopologyLabels",
+          "Priority",
+          "ResourceQuota",
+          "RuntimeClass",
+          "ServiceAccount",
+          "StorageObjectInUseProtection",
+          "TaintNodesByCondition",
+          "ValidatingAdmissionPolicy",
+          "ValidatingAdmissionWebhook"
+        ],
+        "mutating": [
+          "NamespaceLifecycle",
+          "ServiceAccount",
+          "NodeRestriction",
+          "TaintNodesByCondition",
+          "Priority",
+          "DefaultTolerationSeconds",
+          "DefaultStorageClass",
+          "StorageObjectInUseProtection",
+          "PodGroupProtection",
+          "RuntimeClass",
+          "DefaultIngressClass",
+          "PodTopologyLabels",
+          "MutatingAdmissionPolicy",
+          "MutatingAdmissionWebhook"
+        ],
+        "validating": [
+          "ServiceAccount",
+          "PodSecurity",
+          "Priority",
+          "PersistentVolumeClaimResize",
+          "RuntimeClass",
+          "CertificateApproval",
+          "CertificateSigning",
+          "ClusterTrustBundleAttest",
+          "CertificateSubjectRestriction",
+          "PodGroupWorkloadExists",
+          "NodeDeclaredFeatureValidator",
+          "JobValidation",
+          "PodResizeValidator",
+          "ValidatingAdmissionPolicy",
+          "ValidatingAdmissionWebhook",
+          "ResourceQuota"
+        ],
+        "enable_flags": [
+          "NodeRestriction"
+        ],
+        "disable_flags": [
+          "LimitRanger"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Served API-based webhook/policy configuration objects are inventoried and empty in this synthetic profile",
+      "matched": true,
+      "observed": {
+        "mutatingwebhookconfigurations": {
+          "served": true,
+          "items": []
+        },
+        "validatingwebhookconfigurations": {
+          "served": true,
+          "items": []
+        },
+        "validatingadmissionpolicies": {
+          "served": true,
+          "items": []
+        },
+        "validatingadmissionpolicybindings": {
+          "served": true,
+          "items": []
+        },
+        "mutatingadmissionpolicies": {
+          "served": true,
+          "items": []
+        },
+        "mutatingadmissionpolicybindings": {
+          "served": true,
+          "items": []
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "With only LimitRanger disabled, the namespace-bounded oversized request reaches admission and is accepted by the server-side dry-run",
+      "matched": true,
+      "observed": {
+        "returncode": 0,
+        "accepted": true,
+        "object_created": false,
+        "stderr": ""
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Runtime Pod command/image identifies kube-apiserver v1.36.1 and no uninspected admission config file",
+      "matched": true,
+      "observed": {
+        "image": "registry.k8s.io/kube-apiserver:v1.36.1",
+        "admission_control_config_file": "not-configured"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Startup-loaded native plugins match saf-k8s-synthetic-approved-admission-v1 required/disabled names",
+      "matched": true,
+      "observed": {
+        "profile": "saf-k8s-synthetic-approved-admission-v1",
+        "plugins": [
+          "CertificateApproval",
+          "CertificateSigning",
+          "CertificateSubjectRestriction",
+          "ClusterTrustBundleAttest",
+          "DefaultIngressClass",
+          "DefaultStorageClass",
+          "DefaultTolerationSeconds",
+          "JobValidation",
+          "LimitRanger",
+          "MutatingAdmissionPolicy",
+          "MutatingAdmissionWebhook",
+          "NamespaceLifecycle",
+          "NodeDeclaredFeatureValidator",
+          "NodeRestriction",
+          "PersistentVolumeClaimResize",
+          "PodGroupProtection",
+          "PodGroupWorkloadExists",
+          "PodResizeValidator",
+          "PodSecurity",
+          "PodTopologyLabels",
+          "Priority",
+          "ResourceQuota",
+          "RuntimeClass",
+          "ServiceAccount",
+          "StorageObjectInUseProtection",
+          "TaintNodesByCondition",
+          "ValidatingAdmissionPolicy",
+          "ValidatingAdmissionWebhook"
+        ],
+        "mutating": [
+          "NamespaceLifecycle",
+          "LimitRanger",
+          "ServiceAccount",
+          "NodeRestriction",
+          "TaintNodesByCondition",
+          "Priority",
+          "DefaultTolerationSeconds",
+          "DefaultStorageClass",
+          "StorageObjectInUseProtection",
+          "PodGroupProtection",
+          "RuntimeClass",
+          "DefaultIngressClass",
+          "PodTopologyLabels",
+          "MutatingAdmissionPolicy",
+          "MutatingAdmissionWebhook"
+        ],
+        "validating": [
+          "LimitRanger",
+          "ServiceAccount",
+          "PodSecurity",
+          "Priority",
+          "PersistentVolumeClaimResize",
+          "RuntimeClass",
+          "CertificateApproval",
+          "CertificateSigning",
+          "ClusterTrustBundleAttest",
+          "CertificateSubjectRestriction",
+          "PodGroupWorkloadExists",
+          "NodeDeclaredFeatureValidator",
+          "JobValidation",
+          "PodResizeValidator",
+          "ValidatingAdmissionPolicy",
+          "ValidatingAdmissionWebhook",
+          "ResourceQuota"
+        ],
+        "enable_flags": [
+          "NodeRestriction"
+        ],
+        "disable_flags": []
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Served API-based webhook/policy configuration objects are inventoried and empty in this synthetic profile",
+      "matched": true,
+      "observed": {
+        "mutatingwebhookconfigurations": {
+          "served": true,
+          "items": []
+        },
+        "validatingwebhookconfigurations": {
+          "served": true,
+          "items": []
+        },
+        "validatingadmissionpolicies": {
+          "served": true,
+          "items": []
+        },
+        "validatingadmissionpolicybindings": {
+          "served": true,
+          "items": []
+        },
+        "mutatingadmissionpolicies": {
+          "served": true,
+          "items": []
+        },
+        "mutatingadmissionpolicybindings": {
+          "served": true,
+          "items": []
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The comparison changes only LimitRanger in the runtime admission order",
+      "matched": true,
+      "observed": {
+        "before": {
+          "mutating": [
+            "NamespaceLifecycle",
+            "ServiceAccount",
+            "NodeRestriction",
+            "TaintNodesByCondition",
+            "Priority",
+            "DefaultTolerationSeconds",
+            "DefaultStorageClass",
+            "StorageObjectInUseProtection",
+            "PodGroupProtection",
+            "RuntimeClass",
+            "DefaultIngressClass",
+            "PodTopologyLabels",
+            "MutatingAdmissionPolicy",
+            "MutatingAdmissionWebhook"
+          ],
+          "validating": [
+            "ServiceAccount",
+            "PodSecurity",
+            "Priority",
+            "PersistentVolumeClaimResize",
+            "RuntimeClass",
+            "CertificateApproval",
+            "CertificateSigning",
+            "ClusterTrustBundleAttest",
+            "CertificateSubjectRestriction",
+            "PodGroupWorkloadExists",
+            "NodeDeclaredFeatureValidator",
+            "JobValidation",
+            "PodResizeValidator",
+            "ValidatingAdmissionPolicy",
+            "ValidatingAdmissionWebhook",
+            "ResourceQuota"
+          ]
+        },
+        "after": {
+          "mutating": [
+            "NamespaceLifecycle",
+            "LimitRanger",
+            "ServiceAccount",
+            "NodeRestriction",
+            "TaintNodesByCondition",
+            "Priority",
+            "DefaultTolerationSeconds",
+            "DefaultStorageClass",
+            "StorageObjectInUseProtection",
+            "PodGroupProtection",
+            "RuntimeClass",
+            "DefaultIngressClass",
+            "PodTopologyLabels",
+            "MutatingAdmissionPolicy",
+            "MutatingAdmissionWebhook"
+          ],
+          "validating": [
+            "LimitRanger",
+            "ServiceAccount",
+            "PodSecurity",
+            "Priority",
+            "PersistentVolumeClaimResize",
+            "RuntimeClass",
+            "CertificateApproval",
+            "CertificateSigning",
+            "ClusterTrustBundleAttest",
+            "CertificateSubjectRestriction",
+            "PodGroupWorkloadExists",
+            "NodeDeclaredFeatureValidator",
+            "JobValidation",
+            "PodResizeValidator",
+            "ValidatingAdmissionPolicy",
+            "ValidatingAdmissionWebhook",
+            "ResourceQuota"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "With the approved-profile LimitRanger loaded, the identical oversized request is denied at admission",
+      "matched": true,
+      "observed": {
+        "returncode": 1,
+        "accepted": false,
+        "forbidden": true,
+        "message": "Error from server (Forbidden): error when creating \"STDIN\": pods \"same-benign-oversized-request\" is forbidden: maximum cpu usage per Container is 100m, but limit is 200m",
+        "object_created": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A bounded benign workload remains permitted by server-side dry-run",
+      "matched": true,
+      "observed": {
+        "returncode": 0,
+        "accepted": true,
+        "object_created": false,
+        "stderr": ""
+      }
+    }
+  ]
+}

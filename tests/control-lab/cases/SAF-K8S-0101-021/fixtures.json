@@ -1,0 +1,111 @@
+{
+  "profile": {
+    "id": "saf-k8s-synthetic-approved-admission-v1",
+    "kubernetes_version": "v1.36.1",
+    "basis": "Kubernetes v1.36.1 compiled native admission plugins and default-on set, with kubeadm's explicit NodeRestriction addition",
+    "required_native_plugins": [
+      "LimitRanger",
+      "MutatingAdmissionWebhook",
+      "NamespaceLifecycle",
+      "NodeRestriction",
+      "ServiceAccount",
+      "ValidatingAdmissionWebhook"
+    ],
+    "allowed_native_plugins": [
+      "CertificateApproval",
+      "CertificateSigning",
+      "CertificateSubjectRestriction",
+      "ClusterTrustBundleAttest",
+      "DefaultIngressClass",
+      "DefaultStorageClass",
+      "DefaultTolerationSeconds",
+      "JobValidation",
+      "LimitRanger",
+      "MutatingAdmissionPolicy",
+      "MutatingAdmissionWebhook",
+      "NamespaceLifecycle",
+      "NodeDeclaredFeatureValidator",
+      "NodeRestriction",
+      "OwnerReferencesPermissionEnforcement",
+      "PersistentVolumeClaimResize",
+      "PodGroupProtection",
+      "PodGroupWorkloadExists",
+      "PodResizeValidator",
+      "PodSecurity",
+      "PodTopologyLabels",
+      "Priority",
+      "ResourceQuota",
+      "RuntimeClass",
+      "ServiceAccount",
+      "StorageObjectInUseProtection",
+      "TaintNodesByCondition",
+      "ValidatingAdmissionPolicy",
+      "ValidatingAdmissionWebhook"
+    ],
+    "custom_admission_api_objects": "empty-for-served-types",
+    "admission_configuration_file": "not-configured"
+  },
+  "limit_range": {
+    "apiVersion": "v1",
+    "kind": "LimitRange",
+    "metadata": {
+      "name": "saf-admission-bounds"
+    },
+    "spec": {
+      "limits": [
+        {
+          "type": "Container",
+          "max": {
+            "cpu": "100m"
+          }
+        }
+      ]
+    }
+  },
+  "oversized_pod": {
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+      "name": "same-benign-oversized-request"
+    },
+    "spec": {
+      "containers": [
+        {
+          "name": "work",
+          "image": "registry.k8s.io/pause:3.10.1",
+          "resources": {
+            "requests": {
+              "cpu": "200m"
+            },
+            "limits": {
+              "cpu": "200m"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "valid_pod": {
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+      "name": "permitted-small-request"
+    },
+    "spec": {
+      "containers": [
+        {
+          "name": "work",
+          "image": "registry.k8s.io/pause:3.10.1",
+          "resources": {
+            "requests": {
+              "cpu": "50m"
+            },
+            "limits": {
+              "cpu": "50m"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
