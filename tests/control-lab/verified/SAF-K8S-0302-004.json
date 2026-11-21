@@ -1,0 +1,150 @@
+{
+  "control_id": "SAF-K8S-0302-004",
+  "catalog_revision": "32e7acd3741bfcb96a1e89edc61274c181afb173",
+  "catalog_sha256": "b20ca75f54b83e09118278fd5e031b850dc5a8f07c9034344f2449fdc398fa43",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "78e98adf6e04701adc979e116d88b77c56415b87e1252a0627ccb738c4ecccd9",
+  "scope": "Server-side dry-run admission of hostPID, hostIPC, and hostNetwork independently under namespace-enforced, Kubernetes-v1.36-pinned Pod Security Admission Baseline and Restricted. A separate ValidatingAdmissionPolicy demonstrates one exact, non-persisted hostNetwork-only synthetic exception. One ordinary isolated Pod is run to Ready. No host-namespace Pod is created or run; host state and sensitive endpoints are never queried.",
+  "cluster": "saf-lab-134d4d3e10e7",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Unenforced API accepts inert hostPID dry-run",
+      "matched": true,
+      "observed": "server dry-run admitted"
+    },
+    {
+      "phase": "red",
+      "claim": "Unenforced API accepts inert hostIPC dry-run",
+      "matched": true,
+      "observed": "server dry-run admitted"
+    },
+    {
+      "phase": "red",
+      "claim": "Unenforced API accepts inert hostNetwork dry-run",
+      "matched": true,
+      "observed": "server dry-run admitted"
+    },
+    {
+      "phase": "green",
+      "claim": "Pinned PSA baseline denies hostPID independently",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"deny-hostpid\" is forbidden: violates PodSecurity \"baseline:v1.36\": host namespaces (hostPID=true)"
+    },
+    {
+      "phase": "green",
+      "claim": "Pinned PSA baseline denies hostIPC independently",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"deny-hostipc\" is forbidden: violates PodSecurity \"baseline:v1.36\": host namespaces (hostIPC=true)"
+    },
+    {
+      "phase": "green",
+      "claim": "Pinned PSA baseline denies hostNetwork independently",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"deny-hostnetwork\" is forbidden: violates PodSecurity \"baseline:v1.36\": host namespaces (hostNetwork=true)"
+    },
+    {
+      "phase": "green",
+      "claim": "Pinned PSA restricted denies hostPID independently",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"deny-hostpid\" is forbidden: violates PodSecurity \"restricted:v1.36\": host namespaces (hostPID=true)"
+    },
+    {
+      "phase": "green",
+      "claim": "Pinned PSA restricted denies hostIPC independently",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"deny-hostipc\" is forbidden: violates PodSecurity \"restricted:v1.36\": host namespaces (hostIPC=true)"
+    },
+    {
+      "phase": "green",
+      "claim": "Pinned PSA restricted denies hostNetwork independently",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"deny-hostnetwork\" is forbidden: violates PodSecurity \"restricted:v1.36\": host namespaces (hostNetwork=true)"
+    },
+    {
+      "phase": "green",
+      "claim": "Exception policy denies the exact shape under wrong identity",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0302-approved-hostnetwork-probe\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-004-hostns-exception' with binding 'saf-k8s-0302-004-hostns-exception' denied request: host namespace use is limited to the exact synthetic hostNetwork probe"
+    },
+    {
+      "phase": "green",
+      "claim": "Exception rule never permits hostPID",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0302-approved-hostnetwork-probe\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-004-hostns-exception' with binding 'saf-k8s-0302-004-hostns-exception' denied request: host namespace use is limited to the exact synthetic hostNetwork probe"
+    },
+    {
+      "phase": "green",
+      "claim": "Exception rule never permits hostIPC",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0302-approved-hostnetwork-probe\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-004-hostns-exception' with binding 'saf-k8s-0302-004-hostns-exception' denied request: host namespace use is limited to the exact synthetic hostNetwork probe"
+    },
+    {
+      "phase": "green",
+      "claim": "Exception rule denies a different named synthetic workload",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"near-match-hostnetwork\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-004-hostns-exception' with binding 'saf-k8s-0302-004-hostns-exception' denied request: host namespace use is limited to the exact synthetic hostNetwork probe"
+    },
+    {
+      "phase": "green",
+      "claim": "Exception rule denies an unapproved synthetic configuration",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0302-approved-hostnetwork-probe\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-004-hostns-exception' with binding 'saf-k8s-0302-004-hostns-exception' denied request: host namespace use is limited to the exact synthetic hostNetwork probe"
+    },
+    {
+      "phase": "green",
+      "claim": "Exception-shaped hostNetwork request is denied outside exception namespace",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0302-approved-hostnetwork-probe\" is forbidden: violates PodSecurity \"baseline:v1.36\": host namespaces (hostNetwork=true)"
+    },
+    {
+      "phase": "green",
+      "claim": "Exception-shaped request is denied for a different authenticated submitter",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0302-approved-hostnetwork-probe\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-004-hostns-exception' with binding 'saf-k8s-0302-004-hostns-exception' denied request: host namespace use is limited to the exact synthetic hostNetwork probe"
+    },
+    {
+      "phase": "positive",
+      "claim": "Only exact synthetic hostNetwork exception passes server dry-run",
+      "matched": true,
+      "observed": "server dry-run admitted"
+    },
+    {
+      "phase": "positive",
+      "claim": "Normal isolated workload reaches Ready",
+      "matched": true,
+      "observed": "Ready condition observed"
+    }
+  ]
+}

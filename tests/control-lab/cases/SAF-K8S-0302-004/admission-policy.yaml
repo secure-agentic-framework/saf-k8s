@@ -1,0 +1,55 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0302-004-hostns-exception
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: [CREATE, UPDATE]
+        resources: ["pods"]
+  validations:
+    - expression: >-
+        ((!has(object.spec.hostPID) || !object.spec.hostPID) &&
+         (!has(object.spec.hostIPC) || !object.spec.hostIPC) &&
+         (!has(object.spec.hostNetwork) || !object.spec.hostNetwork)) ||
+        (object.metadata.namespace == 'saf-0302-hostnetwork-exception' &&
+         request.userInfo.username == 'saf-0302-operator' &&
+         object.metadata.name == 'saf-0302-approved-hostnetwork-probe' &&
+         has(object.metadata.annotations) &&
+         'saf-k8s.example/hostns-exception' in object.metadata.annotations &&
+         object.metadata.annotations['saf-k8s.example/hostns-exception'] == 'synthetic-hostnetwork-probe-v1' &&
+         has(object.spec.serviceAccountName) &&
+         object.spec.serviceAccountName == 'saf-0302-approved' &&
+         (!has(object.spec.hostPID) || !object.spec.hostPID) &&
+         (!has(object.spec.hostIPC) || !object.spec.hostIPC) &&
+         has(object.spec.hostNetwork) && object.spec.hostNetwork &&
+         has(object.spec.automountServiceAccountToken) && !object.spec.automountServiceAccountToken &&
+         (!has(object.spec.volumes) || object.spec.volumes.size() == 0) &&
+         (!has(object.spec.initContainers) || object.spec.initContainers.size() == 0) &&
+         (!has(object.spec.ephemeralContainers) || object.spec.ephemeralContainers.size() == 0) &&
+         object.spec.containers.size() == 1 &&
+         object.spec.containers[0].name == 'probe' &&
+         object.spec.containers[0].image == 'docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec' &&
+         object.spec.containers[0].command == ['sh', '-c', 'sleep 3600'] &&
+         (!has(object.spec.containers[0].args) || object.spec.containers[0].args.size() == 0) &&
+         (!has(object.spec.containers[0].env) || object.spec.containers[0].env.size() == 0) &&
+         has(object.spec.containers[0].securityContext) &&
+         has(object.spec.containers[0].securityContext.readOnlyRootFilesystem) &&
+         object.spec.containers[0].securityContext.readOnlyRootFilesystem)
+      message: "host namespace use is limited to the exact synthetic hostNetwork probe"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0302-004-hostns-exception
+spec:
+  policyName: saf-k8s-0302-004-hostns-exception
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/hostns-exception: approved-synthetic

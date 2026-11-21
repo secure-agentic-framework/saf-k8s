@@ -72,6 +72,12 @@
       "sha256": "ab6df141e7ac81f8c8642a2b79c588bc120b20b1074fb0093a21c3b547d5d253",
       "title": "Linux capability drop-all and least-privilege add-back"
     },
+    "SAF-K8S-0302-004": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "78e98adf6e04701adc979e116d88b77c56415b87e1252a0627ccb738c4ecccd9",
+      "title": "Host namespace isolation enforcement"
+    },
     "SAF-K8S-0302-006": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -140,7 +146,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "0370ff430dd59cb30c5352d1eb26e50955c99a60",
-  "sha256": "a6c125e965f97df08de85d09fc9013aab730db7c46ece9b29a50560134c1a7d6",
+  "revision": "36ea84feb1a6cb08ac8a6cc50ffa8ceae4adc37a",
+  "sha256": "2c70172c35b1fe4b8e098ce6bc7d086c5ac997fc1f3846ea12659d691074ce6b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
