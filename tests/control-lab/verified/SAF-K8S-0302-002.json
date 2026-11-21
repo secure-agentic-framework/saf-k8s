@@ -1,0 +1,90 @@
+{
+  "control_id": "SAF-K8S-0302-002",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "ab6df141e7ac81f8c8642a2b79c588bc120b20b1074fb0093a21c3b547d5d253",
+  "scope": "Admission of Pod regular, init, and ephemeral container capability settings, plus a harmless compliant Pod reporting its effective capability mask. This case does not establish GPU approval, GPU policy integration, real-device coverage, or provider behavior.",
+  "cluster": "saf-lab-4f52e9618a98",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "API accepts out-of-set regular capability before policy",
+      "matched": true,
+      "observed": "server dry-run accepted"
+    },
+    {
+      "phase": "red",
+      "claim": "API accepts out-of-set init capability before policy",
+      "matched": true,
+      "observed": "server dry-run accepted"
+    },
+    {
+      "phase": "green",
+      "claim": "Admission denies out-of-set regular capability",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0302-002-bad-regular\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-002-capability-boundary' with binding 'saf-k8s-0302-002-capability-boundary' denied request: every regular, init, and ephemeral container must drop ALL and may add only CHOWN or NET_BIND_SERVICE"
+    },
+    {
+      "phase": "green",
+      "claim": "Admission denies out-of-set init capability",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0302-002-bad-init\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-002-capability-boundary' with binding 'saf-k8s-0302-002-capability-boundary' denied request: every regular, init, and ephemeral container must drop ALL and may add only CHOWN or NET_BIND_SERVICE"
+    },
+    {
+      "phase": "green",
+      "claim": "Admission denies omission of the drop-all rule",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0302-002-missing-drop\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-002-capability-boundary' with binding 'saf-k8s-0302-002-capability-boundary' denied request: every regular, init, and ephemeral container must drop ALL and may add only CHOWN or NET_BIND_SERVICE"
+    },
+    {
+      "phase": "positive",
+      "claim": "Admission accepts an explicit approved capability",
+      "matched": true,
+      "observed": "server dry-run admitted"
+    },
+    {
+      "phase": "positive",
+      "claim": "Harmless compliant workload has CapEff zero",
+      "matched": true,
+      "observed": "CapEff=0000000000000000"
+    },
+    {
+      "phase": "green",
+      "claim": "Ephemeral-container subresource denies out-of-set capability",
+      "matched": true,
+      "observed": "Error from server (Forbidden): pods \"saf-0302-002-cap-eff\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-002-capability-boundary' with binding 'saf-k8s-0302-002-capability-boundary' denied request: every regular, init, and ephemeral container must drop ALL and may add only CHOWN or NET_BIND_SERVICE"
+    }
+  ]
+}
