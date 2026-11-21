@@ -1,0 +1,8 @@
+{
+  "safe_mode_chain": ["Node", "RBAC"],
+  "unsafe_static_only_examples": [
+    ["AlwaysAllow", "Node", "RBAC"],
+    ["Node", "ABAC", "RBAC"]
+  ],
+  "note": "Unsafe examples are inert data and are never passed to kind or kube-apiserver."
+}
