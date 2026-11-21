@@ -264,6 +264,12 @@
       "sha256": "5bceccd60b9178d97b15c75e0b0ab8874bd0fe7e9ce0a6665c6e8868efa96e41",
       "title": "AI pipeline secret leakage prevention"
     },
+    "SAF-K8S-0601-014": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "e4dc965e387cb747b237eab489ef048bec599a46a49ad5f90e5a2907099b4254",
+      "title": "Container image runtime hardening with non-root and read-only filesystem"
+    },
     "SAF-K8S-0702-003": {
       "catalog_status": "draft",
       "domain": "D07",
