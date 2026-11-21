@@ -84,6 +84,12 @@
       "sha256": "aafa570f4a87f5fdb9d353e4ee2ca123f3cdd771c35d787bb787480673e7fb4a",
       "title": "etcd compaction and periodic defragmentation"
     },
+    "SAF-K8S-0102-020": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "6d22374ca673326f9057b09641ccd114c0b0f90930f0836142a0163779b82faf",
+      "title": "etcd certificate maximum validity period enforcement"
+    },
     "SAF-K8S-0103-001": {
       "catalog_status": "draft",
       "domain": "D01",
