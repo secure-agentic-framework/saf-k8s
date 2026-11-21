@@ -810,12 +810,12 @@
   knowledge_area: '1.3'
   control_seq: '017'
   control_title: Controller-manager and scheduler insecure-port disablement and non-public health-metrics exposure
-  control_statement: Production Kubernetes clusters must disable insecure serving ports for the controller-manager and scheduler, and must not expose health or metrics endpoints on network-accessible interfaces unless explicitly required and protected by authentication and approved access controls.
+  control_statement: Production Kubernetes clusters must disable legacy insecure serving on component versions that implement it and verify its absence on current versions. Keep controller-manager and scheduler health and metrics endpoints on local or approved protected paths. Remote access requires explicit authorization, network controls and authentication at the component or a trusted intermediary.
   objective: Eliminate unauthenticated control-plane exposure by disabling insecure ports and constraining health and metrics endpoints to non-public or explicitly protected access paths.
   rationale: Historically, controller-manager and scheduler components exposed insecure or weakly protected HTTP endpoints for health checks, metrics, and diagnostics. If these endpoints are reachable on network-accessible interfaces, attackers can harvest operational data, probe control-plane health, or exploit misconfigured monitoring paths. Disabling insecure ports and restricting health or metrics exposure reduces this risk.
-  scope: Applies to all self-managed Kubernetes clusters. Covers deprecated `--port` / `--address` handling, secure health and metrics exposure configuration, and any approved authenticated path used for monitoring integration. For managed Kubernetes services, this is provider-managed and should be documented in the shared responsibility model.
+  scope: Applies to all self-managed Kubernetes clusters. Covers legacy serving on versions that support it, secure health and metrics listener configuration, and approved monitoring paths. Upstream Kubernetes v1.24 removed the legacy `--port` and `--address` flags for both components. Current verification checks live listeners and effective bind addresses. For managed Kubernetes services, this is provider-managed and should be documented in the shared responsibility model.
   primary_enforcement_point: Controller-manager and scheduler endpoint exposure hardening
-  implementation_surface: Controller-manager and scheduler static pod manifests or systemd unit configurations, metrics and health endpoint exposure settings, CIS Benchmark scanning, and network reachability assessment.
+  implementation_surface: Effective component flags or configuration, including secure port and bind address, live socket inventory, and reachability from approved and disallowed networks. Verify the applicable benchmark version and check authorization exemptions on health routes separately from transport security.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering
   baseline_or_ai_specific: baseline
