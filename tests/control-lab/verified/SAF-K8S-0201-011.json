@@ -1,0 +1,120 @@
+{
+  "control_id": "SAF-K8S-0201-011",
+  "catalog_revision": "2c07cc6081856aabec99bafc1317d6b7a0c3f52e",
+  "catalog_sha256": "0bfe1fdf09831b32339763e180351a97ec18aa7b89bf6d4d85abb0e1aff15022",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "775c222b9f0d7176731e4939c205846805c278649a8da37fec48c8aa6a9677b2",
+  "scope": "Direct kubelet HTTPS on one owned Kubernetes v1.36.1 kind node. Test no credential, an authenticated service account without grants, and the same identity with node-specific health, statistics and metrics permissions. Provider-managed node settings and managed network controls require separate evidence.",
+  "cluster": "saf-lab-86c7f89da3a2",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The kubelet rejects a request without a credential",
+      "matched": true,
+      "observed": 401
+    },
+    {
+      "phase": "red",
+      "claim": "An authenticated monitor without a grant is denied at /healthz",
+      "matched": true,
+      "observed": 403
+    },
+    {
+      "phase": "red",
+      "claim": "An authenticated monitor without a grant is denied at /metrics",
+      "matched": true,
+      "observed": 403
+    },
+    {
+      "phase": "red",
+      "claim": "An authenticated monitor without a grant is denied at /stats/summary",
+      "matched": true,
+      "observed": 403
+    },
+    {
+      "phase": "positive",
+      "claim": "The monitor can read its approved /healthz endpoint",
+      "matched": true,
+      "observed": 200
+    },
+    {
+      "phase": "positive",
+      "claim": "The monitor can read its approved /metrics endpoint",
+      "matched": true,
+      "observed": 200
+    },
+    {
+      "phase": "positive",
+      "claim": "The monitor can read its approved /stats/summary endpoint",
+      "matched": true,
+      "observed": 200
+    },
+    {
+      "phase": "green",
+      "claim": "The same monitor cannot read the unused /configz endpoint",
+      "matched": true,
+      "observed": 403
+    },
+    {
+      "phase": "green",
+      "claim": "Authorization still denies nodes/proxy",
+      "matched": true,
+      "observed": false
+    },
+    {
+      "phase": "green",
+      "claim": "Authorization still denies nodes/pods",
+      "matched": true,
+      "observed": false
+    },
+    {
+      "phase": "green",
+      "claim": "Authorization still denies nodes/configz",
+      "matched": true,
+      "observed": false
+    },
+    {
+      "phase": "green",
+      "claim": "Authorization still denies nodes/log",
+      "matched": true,
+      "observed": false
+    },
+    {
+      "phase": "green",
+      "claim": "The metrics grant is restricted to its named node",
+      "matched": true,
+      "observed": false
+    }
+  ]
+}
