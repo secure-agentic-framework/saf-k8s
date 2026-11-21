@@ -6274,8 +6274,8 @@
   objective: Ensure that all AI workloads entering the cluster carry required classification labels by using admission control as a mandatory enforcement gate that rejects non-compliant workloads before scheduling.
   rationale: Admission control enforcement prevents unlabeled workloads from bypassing governance policies. Without admission control, the labeling schema defined in SAF-K8S-0702-005 cannot be reliably enforced, as workloads may be submitted without the required classification labels and still run, undermining policy enforcement, cost attribution, and security controls. Admission control provides the mechanism that makes the labeling schema operationally binding.
   scope: Applies to all pods, jobs, deployments, and statefulsets in namespaces designated for AI workloads where admission control enforcement of classification labels is required.
-  primary_enforcement_point: Admission control policies (OPA Gatekeeper, Kyverno) that validate required labels on pod creation, and namespace-level label enforcement through validating webhooks.
-  implementation_surface: Kubernetes admission control policy engines (Kyverno ClusterPolicy, OPA/Gatekeeper ConstraintTemplates) configured to validate required label presence on pods in AI namespaces, validating webhooks that reject pod creation when required classification labels are absent or carry invalid values.
+  primary_enforcement_point: Namespace-scoped validating admission policies or webhooks for Pods and in-scope workload controllers when creating or updating objects.
+  implementation_surface: Validate required label keys and values on Pod metadata and on the Pod templates of Jobs, Deployments and StatefulSets. Keep the Pod check for directly submitted and controller-created Pods. Enforce the same values on parent workload metadata when the classification schema requires it. Test CREATE and UPDATE, namespace scope and the policy denial for missing or invalid classifications.
   owner_primary: Platform Engineering
   owner_supporting: ML Engineering; Security Engineering
   baseline_or_ai_specific: ai-specific
