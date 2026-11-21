@@ -1,0 +1,122 @@
+{
+  "control_id": "SAF-K8S-0101-018",
+  "catalog_revision": "e3a376ad55ad40c387ccc401699d871e1d86fe9e",
+  "catalog_sha256": "a6c125e965f97df08de85d09fc9013aab730db7c46ece9b29a50560134c1a7d6",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "cd481bc49f01fd1fa918d1f60861f7f73c8232486fa98235de29712bf033712f",
+  "scope": "Pinned single-node kind/kubeadm. Check anonymous HTTP rejection, real kubelet probe failure with an anonymous probe, then sustained Ready with a temporary RBAC-scoped authenticated probe. Managed control-plane coverage is separate.",
+  "cluster": "saf-lab-aee4d523b6e3",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Default API server answers an unauthenticated health request",
+      "matched": true,
+      "observed": {
+        "method": "GET",
+        "path": "/livez",
+        "status": 200,
+        "client_certificate": "none",
+        "authorization_header": "none",
+        "tls_server_ca": "case kubeconfig CA"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Scoped identity can read health and receives Forbidden for namespace data",
+      "matched": true,
+      "observed": {
+        "health": [
+          "ok",
+          "ok"
+        ],
+        "namespace_forbidden": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Kubelet's unauthenticated probes receive 401 and the static Pod is unready",
+      "matched": true,
+      "observed": {
+        "ready": false,
+        "warnings": [
+          "Startup probe failed: HTTP probe failed with statuscode: 401"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Authenticated kubelet probes restore Ready while anonymous health returns 401",
+      "matched": true,
+      "observed": {
+        "method": "GET",
+        "path": "/livez",
+        "status": 401,
+        "client_certificate": "none",
+        "authorization_header": "none",
+        "tls_server_ca": "case kubeconfig CA"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The API server stays Ready with the same container across all probe intervals",
+      "matched": true,
+      "observed": {
+        "ready": [
+          true,
+          true,
+          true
+        ],
+        "interval_seconds": 10
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Scoped identity can read health and receives Forbidden for namespace data",
+      "matched": true,
+      "observed": {
+        "health": [
+          "ok",
+          "ok"
+        ],
+        "namespace_forbidden": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Authenticated ordinary API access still works",
+      "matched": true,
+      "observed": "namespace/saf-test"
+    }
+  ]
+}
