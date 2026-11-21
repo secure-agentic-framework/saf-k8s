@@ -348,9 +348,9 @@
   knowledge_area: '1.2'
   control_seq: 008
   control_title: etcd backup integrity verification and restore assurance
-  control_statement: Production Kubernetes clusters must generate and verify integrity evidence for every etcd backup, using checksums or digital signatures at snapshot creation time, verifying that evidence before committing the backup to storage, and re-verifying it before any restore operation.
-  objective: Ensure that restored etcd state is demonstrably authentic and untampered before backup media is trusted for recovery.
-  rationale: Backup confidentiality does not prevent restoration of corrupted or malicious state. This control isolates the integrity-verification and restore-readiness obligation so operators can independently test checksum generation, signature validation, and pre-restore verification procedures.
+  control_statement: Production Kubernetes clusters must generate and verify integrity evidence for every etcd backup, recording a cryptographic digest in a protected manifest or signing the snapshot or its manifest at creation time. Verify the snapshot before committing it to storage and again before restore against the trusted digest or verified signature.
+  objective: Verify backup integrity and provenance before trusting an etcd snapshot for recovery.
+  rationale: Backup confidentiality does not prevent restoration of corrupted or malicious state. The embedded etcd snapshot hash or a separately computed checksum detects corruption. A trusted expected digest or a validated signature is required to distinguish an authorized backup from a substituted snapshot. Rehearse restoration in isolation with the revision bump and compaction appropriate for Kubernetes watcher caches.
   scope: Applies to all production clusters and managed service backup exports where the customer can validate backup artifacts or restore packages.
   primary_enforcement_point: Backup / Restore Validation
   implementation_surface: Backup automation, checksum or signature generation tooling, restore runbooks, and recovery test evidence.
