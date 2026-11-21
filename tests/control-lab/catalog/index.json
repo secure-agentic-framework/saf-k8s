@@ -51,7 +51,7 @@
     "SAF-K8S-0101-021": {
       "catalog_status": "draft",
       "domain": "D01",
-      "sha256": "c1659147b41eac1553d7e44507621d4ba31fe04234f66fd0b7f8757557e73199",
+      "sha256": "32fee529548d9131bc18e1ce761f29e1dcd9249d6ecefcc21347d649b534cbbf",
       "title": "API server approved admission controller chain configuration"
     },
     "SAF-K8S-0102-008": {
@@ -206,7 +206,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "06118d7e74c1c82dcc8ad55643893da48f698650",
-  "sha256": "f90ef69f5a08246aa7796cd8c80f8790550643639edcb0194605a3a8db2ac6bb",
+  "revision": "e028993f516107b63b15d75ab491d895588a4442",
+  "sha256": "67df268920c5bc79b942d6aa35c7aa6d4d739f1d68046a9333bc5b5a3f65acfb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

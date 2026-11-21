@@ -23,6 +23,18 @@ list, deviations, configuration inventory and review evidence. Production
 replicas, custom webhook policy and managed settings require separate
 assessment.
 
+The `static_admission_case.py` release-review wrapper first runs this v1.36.1
+case, then provisions separate stock and manifest-policy Kubernetes v1.37.0
+kind profiles. It uses digest-pinned `kindest/node:v1.37.0`, temporary
+configuration directories, and read-only bind mounts for the admission
+configuration and policy manifests. The synthetic probes check a specifically
+named ConfigMap, a specifically named disposable dynamic policy, and a
+separately named expendable policy. The static rules are scoped to those names
+and the release-review namespace; the case does not call webhooks or external
+targets.
+
 - [Kubernetes v1.36 admission controllers](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/admission-controllers/)
 - [Kubernetes v1.36.1 admission plugin defaults](https://github.com/kubernetes/kubernetes/blob/v1.36.1/pkg/kubeapiserver/options/plugins.go)
 - [Kubernetes v1.36.1 LimitRanger implementation](https://github.com/kubernetes/kubernetes/blob/v1.36.1/plugin/pkg/admission/limitranger/admission.go)
+- [Kubernetes manifest-based admission control](https://kubernetes.io/docs/reference/access-authn-authz/manifest-admission-control/)
+- [Kubernetes ValidatingAdmissionPolicy](https://kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)

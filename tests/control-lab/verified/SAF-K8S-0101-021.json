@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0101-021",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "3042ca2df76c432c1be67bfe1bc06ba2bdcb6a2c",
+  "catalog_sha256": "e86f223bf11231b0d4f16a3813901f556937c6f0a5386f63eb972da9db162351",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "c1659147b41eac1553d7e44507621d4ba31fe04234f66fd0b7f8757557e73199",
-  "scope": "A local Kubernetes v1.36.1 kind API server only. Compare the runtime startup-reported native admission plugin names and API-server command/config identity against a versioned synthetic approved profile, inventory served API-based webhook/policy objects, and compare the same harmless server-side dry-run Pod request with only LimitRanger disabled in a disposable before cluster. The profile is illustrative and does not evidence organizational approval, production configuration, or managed-service scope.",
-  "cluster": "saf-lab-d8d1ea723d21",
+  "control_sha256": "32fee529548d9131bc18e1ce761f29e1dcd9249d6ecefcc21347d649b534cbbf",
+  "scope": "A local Kubernetes v1.36.1 kind API server only. Compare the runtime startup-reported native admission plugin names and API-server command/config identity against a versioned synthetic approved profile, inventory served API-based webhook/policy objects, and compare the same harmless server-side dry-run Pod request with only LimitRanger disabled in a disposable before cluster. The profile is illustrative and does not evidence organizational approval, production configuration, or managed-service scope. This release-review wrapper also compares stock and manifest-based Kubernetes v1.37.0 admission using the exact pinned kind node image. Its probes are limited to two named synthetic ConfigMaps and two named disposable ValidatingAdmissionPolicy API objects. No webhooks or external targets are contacted.",
+  "cluster": "saf-lab-f18960ac1a6a",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -386,6 +386,174 @@
         "accepted": true,
         "object_created": false,
         "stderr": ""
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The v1.37 API server starts with the expected manifest admission configuration",
+      "matched": true,
+      "observed": {
+        "image": "kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5",
+        "server": "v1.37.0",
+        "admission_control_config_file": []
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Stock v1.37.0 accepts a server-side dry-run of the exact synthetic ConfigMap",
+      "matched": true,
+      "observed": {
+        "name": "saf-release-denied-configmap",
+        "returncode": 0,
+        "accepted": true,
+        "message": ""
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Stock v1.37.0 also permits a separately named ordinary synthetic ConfigMap",
+      "matched": true,
+      "observed": {
+        "name": "saf-release-allowed-configmap",
+        "returncode": 0,
+        "accepted": true,
+        "message": ""
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Stock v1.37.0 permits an administrator to update the disposable dynamic policy",
+      "matched": true,
+      "observed": {
+        "name": "saf-release-protected-dynamic",
+        "operation": "annotate",
+        "returncode": 0,
+        "allowed": true,
+        "message": ""
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Stock v1.37.0 permits an administrator to delete the disposable dynamic policy",
+      "matched": true,
+      "observed": {
+        "name": "saf-release-protected-dynamic",
+        "operation": "delete",
+        "returncode": 0,
+        "allowed": true,
+        "message": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The v1.37 API server starts with the expected manifest admission configuration",
+      "matched": true,
+      "observed": {
+        "image": "kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5",
+        "server": "v1.37.0",
+        "admission_control_config_file": [
+          "/etc/kubernetes/saf-admission-config.yaml"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Startup profile has no API-hosted validating policy before the denial probe",
+      "matched": true,
+      "observed": {
+        "api_hosted_policies": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Startup-loaded file policy denies the exact synthetic ConfigMap",
+      "matched": true,
+      "observed": {
+        "name": "saf-release-denied-configmap",
+        "returncode": 1,
+        "accepted": false,
+        "message": "Error from server (Forbidden): error when creating \"STDIN\": configmaps \"saf-release-denied-configmap\" is forbidden: ValidatingAdmissionPolicy 'saf-release-configmap.static.k8s.io' with binding 'saf-release-configmap-binding.static.k8s.io' denied request: the named release-review ConfigMap is denied"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same file policy permits a separately named ordinary synthetic ConfigMap",
+      "matched": true,
+      "observed": {
+        "name": "saf-release-allowed-configmap",
+        "returncode": 0,
+        "accepted": true,
+        "message": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Static protection denies update of the specifically named dynamic policy",
+      "matched": true,
+      "observed": {
+        "name": "saf-release-protected-dynamic",
+        "operation": "annotate",
+        "returncode": 1,
+        "allowed": false,
+        "message": "Error from server (Forbidden): validatingadmissionpolicies.admissionregistration.k8s.io \"saf-release-protected-dynamic\" is forbidden: ValidatingAdmissionPolicy 'saf-release-policy-protection.static.k8s.io' with binding 'saf-release-policy-protection-binding.static.k8s.io' denied request: the named release-review policy is protected"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Static protection denies deletion of the specifically named dynamic policy",
+      "matched": true,
+      "observed": {
+        "name": "saf-release-protected-dynamic",
+        "operation": "delete",
+        "returncode": 1,
+        "allowed": false,
+        "message": "Error from server (Forbidden): validatingadmissionpolicies.admissionregistration.k8s.io \"saf-release-protected-dynamic\" is forbidden: ValidatingAdmissionPolicy 'saf-release-policy-protection.static.k8s.io' with binding 'saf-release-policy-protection-binding.static.k8s.io' denied request: the named release-review policy is protected"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The static protection rule permits update of a separately named expendable API policy",
+      "matched": true,
+      "observed": {
+        "name": "saf-release-ordinary-dynamic",
+        "operation": "annotate",
+        "returncode": 0,
+        "allowed": true,
+        "message": ""
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The static protection rule permits deletion of the separately named expendable API policy",
+      "matched": true,
+      "observed": {
+        "name": "saf-release-ordinary-dynamic",
+        "operation": "delete",
+        "returncode": 0,
+        "allowed": true,
+        "message": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The named ConfigMap remains denied after ordinary API policy changes",
+      "matched": true,
+      "observed": {
+        "name": "saf-release-denied-configmap",
+        "returncode": 1,
+        "accepted": false,
+        "message": "Error from server (Forbidden): error when creating \"STDIN\": configmaps \"saf-release-denied-configmap\" is forbidden: ValidatingAdmissionPolicy 'saf-release-configmap.static.k8s.io' with binding 'saf-release-configmap-binding.static.k8s.io' denied request: the named release-review ConfigMap is denied"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An ordinary ConfigMap remains permitted after ordinary API policy changes",
+      "matched": true,
+      "observed": {
+        "name": "saf-release-allowed-configmap",
+        "returncode": 0,
+        "accepted": true,
+        "message": ""
       }
     }
   ]
