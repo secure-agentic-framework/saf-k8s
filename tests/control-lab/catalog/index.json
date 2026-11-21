@@ -53,6 +53,12 @@
       "domain": "D03",
       "sha256": "ab6df141e7ac81f8c8642a2b79c588bc120b20b1074fb0093a21c3b547d5d253",
       "title": "Linux capability drop-all and least-privilege add-back"
+    },
+    "SAF-K8S-0302-006": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "c209f5f24a88d39ccf110646b7a7ae175cc8e3e076e5186e671a53312aa31e9c",
+      "title": "No-new-privileges execution enforcement"
     }
   },
   "path": "saf_k8s_controls.yaml",

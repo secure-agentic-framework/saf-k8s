@@ -1,0 +1,37 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0302-006-no-new-privileges
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: [CREATE, UPDATE]
+        resources: ["pods", "pods/ephemeralcontainers"]
+  validations:
+    - expression: >-
+        object.spec.containers.all(c,
+          has(c.securityContext) && has(c.securityContext.allowPrivilegeEscalation) &&
+          c.securityContext.allowPrivilegeEscalation == false) &&
+        (!has(object.spec.initContainers) || object.spec.initContainers.all(c,
+          has(c.securityContext) && has(c.securityContext.allowPrivilegeEscalation) &&
+          c.securityContext.allowPrivilegeEscalation == false)) &&
+        (!has(object.spec.ephemeralContainers) || object.spec.ephemeralContainers.all(c,
+          has(c.securityContext) && has(c.securityContext.allowPrivilegeEscalation) &&
+          c.securityContext.allowPrivilegeEscalation == false))
+      message: "allowPrivilegeEscalation must be explicitly false for every regular, init, and ephemeral container"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0302-006-no-new-privileges
+spec:
+  policyName: saf-k8s-0302-006-no-new-privileges
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/no-new-privileges: enforced
