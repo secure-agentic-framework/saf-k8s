@@ -11,6 +11,12 @@
       "domain": "D01",
       "sha256": "458c8c57ff578034754d25d5cafa43eea8a171d6ab3a12bdb510f307a58678c4",
       "title": "API server audit policy coverage and event detail"
+    },
+    "SAF-K8S-0101-012": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "3e5adeb40e9baa500ce92aae2cf579de9dfd513c5e12007b145ab9decce894ec",
+      "title": "API server TLS enforcement"
     }
   },
   "path": "saf_k8s_controls.yaml",
