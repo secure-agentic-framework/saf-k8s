@@ -35,6 +35,12 @@
       "domain": "D03",
       "sha256": "ccac07222eed502366483347db58feda3aca77703246f3d8136fa11c42a1161a",
       "title": "Pod Security Standards level assignment"
+    },
+    "SAF-K8S-0301-002": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "cb2182819d0df02b2795af527692b6934bfbeada40f03774c105131657f8652d",
+      "title": "Pod Security Admission configuration and version pinning"
     }
   },
   "path": "saf_k8s_controls.yaml",

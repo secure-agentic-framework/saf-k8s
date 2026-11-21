@@ -1,0 +1,49 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0301-002-psa-version-pins
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: [CREATE, UPDATE]
+        resources: [namespaces]
+  variables:
+    - name: managedKey
+      expression: "'saf-k8s.example/managed-production-like'"
+    - name: managed
+      expression: >-
+        (has(object.metadata.labels) && variables.managedKey in object.metadata.labels &&
+          object.metadata.labels[variables.managedKey] == 'true') ||
+        (oldObject != null && has(oldObject.metadata.labels) &&
+          variables.managedKey in oldObject.metadata.labels &&
+          oldObject.metadata.labels[variables.managedKey] == 'true')
+  validations:
+    - expression: >-
+        !variables.managed ||
+        (has(object.metadata.labels) && variables.managedKey in object.metadata.labels &&
+        object.metadata.labels[variables.managedKey] == 'true' &&
+        "pod-security.kubernetes.io/enforce" in object.metadata.labels &&
+        "pod-security.kubernetes.io/enforce-version" in object.metadata.labels &&
+        "pod-security.kubernetes.io/audit" in object.metadata.labels &&
+        "pod-security.kubernetes.io/audit-version" in object.metadata.labels &&
+        "pod-security.kubernetes.io/warn" in object.metadata.labels &&
+        "pod-security.kubernetes.io/warn-version" in object.metadata.labels &&
+        object.metadata.labels["pod-security.kubernetes.io/enforce"] in ['baseline', 'restricted'] &&
+        object.metadata.labels["pod-security.kubernetes.io/audit"] in ['baseline', 'restricted'] &&
+        object.metadata.labels["pod-security.kubernetes.io/warn"] in ['baseline', 'restricted'] &&
+        object.metadata.labels["pod-security.kubernetes.io/enforce-version"] in ['v1.36'] &&
+        object.metadata.labels["pod-security.kubernetes.io/audit-version"] in ['v1.36'] &&
+        object.metadata.labels["pod-security.kubernetes.io/warn-version"] in ['v1.36'])
+      message: "managed production-like Namespaces must set enforce, audit, and warn levels and explicit Kubernetes minor version pins (v1.NN)"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0301-002-psa-version-pins
+spec:
+  policyName: saf-k8s-0301-002-psa-version-pins
+  validationActions: [Deny]
