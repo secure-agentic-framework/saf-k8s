@@ -1,0 +1,44 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0401-003-approved-aggregate-input
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["rbac.authorization.k8s.io"]
+        apiVersions: ["v1"]
+        operations: [CREATE, UPDATE]
+        resources: [clusterroles]
+  validations:
+    - expression: >-
+        !((has(object.metadata.labels) &&
+           'saf-k8s.example/aggregate-to-case' in object.metadata.labels &&
+           object.metadata.labels['saf-k8s.example/aggregate-to-case'] == 'approved') ||
+          (oldObject != null && has(oldObject.metadata.labels) &&
+           'saf-k8s.example/aggregate-to-case' in oldObject.metadata.labels &&
+           oldObject.metadata.labels['saf-k8s.example/aggregate-to-case'] == 'approved') ||
+          object.metadata.name == 'saf-0401-003-synthetic-source') ||
+        (oldObject != null && object.rules == oldObject.rules &&
+         object.metadata.name == 'saf-0401-003-synthetic-source' &&
+         has(object.metadata.labels) &&
+         'saf-k8s.example/control-case' in object.metadata.labels &&
+         object.metadata.labels['saf-k8s.example/control-case'] == 'SAF-K8S-0401-003' &&
+         'saf-k8s.example/aggregate-to-case' in object.metadata.labels &&
+         object.metadata.labels['saf-k8s.example/aggregate-to-case'] == 'approved' &&
+         has(object.metadata.annotations) &&
+         'saf-k8s.example/owner' in object.metadata.annotations &&
+         object.metadata.annotations['saf-k8s.example/owner'] == 'SAF-K8S-0401-003' &&
+         'saf-k8s.example/approval' in object.metadata.annotations &&
+         object.metadata.annotations['saf-k8s.example/approval'] == 'reviewed-2026-11-21' &&
+         request.userInfo.username == 'system:serviceaccount:saf-0401-003:saf-0401-003-subject')
+      message: "synthetic aggregate input requires the exact SAF-K8S-0401-003 owner, signed-off metadata, and subject"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0401-003-approved-aggregate-input
+spec:
+  policyName: saf-k8s-0401-003-approved-aggregate-input
+  validationActions: [Deny]

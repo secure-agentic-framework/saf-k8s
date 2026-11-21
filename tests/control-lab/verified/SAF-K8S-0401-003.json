@@ -1,0 +1,116 @@
+{
+  "control_id": "SAF-K8S-0401-003",
+  "catalog_revision": "3e55e75211d64e0b66762ad2930127f06d59fa0f",
+  "catalog_sha256": "aefc685b3b821305b42ce28f3c1614edc0bed7ccef3e0ffa1004fa9e0cfc902c",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "26b47cbc081758ddd3c9d0d93e26293a119c2390a4e33ca013970c0e33b10f9e",
+  "scope": "Kubernetes v1.36.1 validating admission for fixture ClusterRole updates and matching contributors, followed by live ClusterRole aggregation into a case-owned aggregate role. Only get on a case-owned ConfigMap is exercised by an independent consumer through a namespace RoleBinding. A labeled CRD alone does not contribute rules. Built-in roles, other aggregate selectors, deployments, and production policy are not tested.",
+  "cluster": "saf-lab-98c190b8ccce",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A labeled custom resource definition contributes no RBAC rule",
+      "matched": true,
+      "observed": {
+        "aggregate_empty": true,
+        "consumer_denied_before_approved_role": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before admission policy, the exact synthetic subject can submit unapproved aggregation metadata",
+      "matched": true,
+      "observed": "server dry-run accepted the unapproved metadata change"
+    },
+    {
+      "phase": "green",
+      "claim": "Policy denies the same subject's unapproved metadata update",
+      "matched": true,
+      "observed": {
+        "exact_policy_denial": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Policy accepts the exact signed-off metadata from the exact synthetic subject and owner",
+      "matched": true,
+      "observed": "approved metadata persisted with exact case owner and approval"
+    },
+    {
+      "phase": "green",
+      "claim": "Live aggregation controller matches the approved synthetic source role",
+      "matched": true,
+      "observed": {
+        "aggregate_role": "saf-0401-003-synthetic-aggregate",
+        "rules": [
+          {
+            "apiGroups": [
+              ""
+            ],
+            "resourceNames": [
+              "saf-0401-003-owned-fixture"
+            ],
+            "resources": [
+              "configmaps"
+            ],
+            "verbs": [
+              "get"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The separate consumer reads the exact named fixture through its aggregate binding",
+      "matched": true,
+      "observed": {
+        "exact_fixture_read": true,
+        "other_fixture_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Policy denies a metadata change that substitutes another synthetic owner",
+      "matched": true,
+      "observed": "Error from server (Forbidden): clusterroles.rbac.authorization.k8s.io \"saf-0401-003-synthetic-source\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0401-003-approved-aggregate-input' with binding 'saf-k8s-0401-003-approved-aggregate-input' denied request: synthetic aggregate input requires the exact SAF-K8S-0401-003 owner, signed-off metadata, and subject"
+    },
+    {
+      "phase": "positive",
+      "claim": "The same subject can update an unmarked case-owned ClusterRole outside policy scope",
+      "matched": true,
+      "observed": "unmarked ClusterRole update accepted"
+    }
+  ]
+}

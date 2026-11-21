@@ -1,0 +1,135 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: saf-0401-003
+  labels:
+    saf-k8s.example/control-case: SAF-K8S-0401-003
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: saf-0401-003
+  name: saf-0401-003-subject
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: saf-0401-003-synthetic-source
+  labels:
+    saf-k8s.example/control-case: SAF-K8S-0401-003
+    saf-k8s.example/aggregate-to-case: pending
+  annotations:
+    saf-k8s.example/owner: SAF-K8S-0401-003
+    saf-k8s.example/approval: pending
+rules:
+  - apiGroups: [""]
+    resources: [configmaps]
+    resourceNames: [saf-0401-003-owned-fixture]
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: saf-0401-003-synthetic-aggregate
+  labels:
+    saf-k8s.example/control-case: SAF-K8S-0401-003
+aggregationRule:
+  clusterRoleSelectors:
+    - matchLabels:
+        saf-k8s.example/aggregate-to-case: approved
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: saf-0401-003-synthetic-reviewer
+rules:
+  - apiGroups: [rbac.authorization.k8s.io]
+    resources: [clusterroles]
+    resourceNames:
+      - saf-0401-003-synthetic-source
+      - saf-0401-003-unmarked-role
+    verbs: [get, patch, update]
+  - apiGroups: [""]
+    resources: [configmaps]
+    resourceNames: [saf-0401-003-owned-fixture]
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: saf-0401-003-synthetic-reviewer
+subjects:
+  - kind: ServiceAccount
+    name: saf-0401-003-subject
+    namespace: saf-0401-003
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: saf-0401-003-synthetic-reviewer
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0401-003-consumer
+  namespace: saf-0401-003
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0401-003-synthetic-aggregate
+  namespace: saf-0401-003
+subjects:
+  - kind: ServiceAccount
+    name: saf-0401-003-consumer
+    namespace: saf-0401-003
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: saf-0401-003-synthetic-aggregate
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: saf-0401-003-unmarked-role
+  annotations:
+    saf-k8s.example/owner: SAF-K8S-0401-003
+rules: []
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: saf-0401-003
+  name: saf-0401-003-owned-fixture
+  labels:
+    saf-k8s.example/control-case: SAF-K8S-0401-003
+data:
+  marker: saf-0401-003-owned-fixture
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: saf-0401-003
+  name: saf-0401-003-other-fixture
+data:
+  marker: public-other-fixture
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: markers.saf-0401-003.example
+  labels:
+    saf-k8s.example/aggregate-to-case: approved
+spec:
+  group: saf-0401-003.example
+  scope: Namespaced
+  names:
+    plural: markers
+    singular: marker
+    kind: Marker
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object

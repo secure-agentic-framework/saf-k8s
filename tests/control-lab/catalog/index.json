@@ -228,6 +228,12 @@
       "sha256": "991d1055d1a416b802a4a2def609fc1bfdd3e40f8754e4504e18a81f5ee3b252",
       "title": "Tmpfs-backed handling for sensitive training intermediates"
     },
+    "SAF-K8S-0401-003": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "26b47cbc081758ddd3c9d0d93e26293a119c2390a4e33ca013970c0e33b10f9e",
+      "title": "Aggregated ClusterRole governance"
+    },
     "SAF-K8S-0402-018": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -284,7 +290,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "50181b57c941090a189523d2f9022cb0b8f707d8",
-  "sha256": "f439c8715299aa11850764f2d50eeab39af0662fb147acc1653f6d2e499194b4",
+  "revision": "1282741b42d1de603d1678ab9e5b8dd197e7451c",
+  "sha256": "aefc685b3b821305b42ce28f3c1614edc0bed7ccef3e0ffa1004fa9e0cfc902c",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
