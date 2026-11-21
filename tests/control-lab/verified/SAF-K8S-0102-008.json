@@ -1,0 +1,94 @@
+{
+  "control_id": "SAF-K8S-0102-008",
+  "catalog_revision": "37034ddbba9f4625e5eb8e70199252709b8babb6",
+  "catalog_sha256": "a5934b5ab1bbc78eab30866af7e007083d3f432260692fb405d3e51ea78c8630",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "9de85f348b60cbc8a95f8e148a4f2047cb64033903e42d8bb9797b35d35196f9",
+  "scope": "One synthetic ConfigMap on kind v1.36.1 with etcd v3.6.8. Use a detached local integrity manifest, reject a truncated artifact and a different valid snapshot, then restore with revision bump into a Docker container with no network. Read only the exact synthetic marker. Deployed backup custody and controller recovery require separate evidence.",
+  "cluster": "saf-lab-ec2234ee43ff",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "green",
+      "claim": "The original snapshot matches its trusted digest before staging",
+      "matched": true,
+      "observed": {
+        "matches": true,
+        "native_snapshot_readable": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Offline truncation fails the trusted digest check before restore",
+      "matched": true,
+      "observed": {
+        "mismatch": true,
+        "restore_attempted": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A different valid snapshot still fails the trusted digest check",
+      "matched": true,
+      "observed": {
+        "native_snapshot_readable": true,
+        "digest_mismatch": true,
+        "restore_attempted": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The staged snapshot passes the trusted reference and native inspection before restore",
+      "matched": true,
+      "observed": {
+        "matches": true,
+        "same_revision": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Restored etcd returns the unchanged synthetic fixture",
+      "matched": true,
+      "observed": true
+    },
+    {
+      "phase": "positive",
+      "claim": "The restored revision advances and the pre-restore revision is compacted",
+      "matched": true,
+      "observed": {
+        "revision_bumped": true,
+        "old_revision_compacted": true
+      }
+    }
+  ]
+}

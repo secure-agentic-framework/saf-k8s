@@ -48,6 +48,12 @@
       "sha256": "c1659147b41eac1553d7e44507621d4ba31fe04234f66fd0b7f8757557e73199",
       "title": "API server approved admission controller chain configuration"
     },
+    "SAF-K8S-0102-008": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "9de85f348b60cbc8a95f8e148a4f2047cb64033903e42d8bb9797b35d35196f9",
+      "title": "etcd backup integrity verification and restore assurance"
+    },
     "SAF-K8S-0103-001": {
       "catalog_status": "draft",
       "domain": "D01",

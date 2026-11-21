@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-etcd-integrity-fixture
+  namespace: saf-test
+  labels:
+    app.kubernetes.io/part-of: saf-k8s-control-lab
+data:
+  marker: synthetic-non-sensitive-etcd-restore-fixture
