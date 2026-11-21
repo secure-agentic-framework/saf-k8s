@@ -328,12 +328,12 @@
   knowledge_area: '1.2'
   control_seq: '007'
   control_title: etcd backup storage encryption
-  control_statement: Production Kubernetes clusters must ensure that etcd backups and snapshot files inherit equivalent encryption protections to the live etcd volumes, with backup storage using separate encryption keys from the primary etcd volume encryption.
+  control_statement: Production Kubernetes clusters must protect etcd snapshots and backup archives with encryption at rest across staging and retention, using backup keys managed separately from the live etcd volume encryption keys.
   objective: Prevent exposure of cluster state through etcd backup exfiltration by requiring that backup storage is encrypted with separately managed keys, providing protection even if the primary etcd volume key is compromised.
-  rationale: etcd backups contain the complete cluster state including all Secrets. A backup encrypted only with the source volume key provides no incremental protection if that key is compromised. Requiring separate key management for backup storage ensures a node-level key compromise does not simultaneously expose both live etcd data and backup archives. Backup encryption is a distinct audit obligation from live-volume encryption (SAF-K8S-0102-001).
-  scope: Applies to all etcd snapshot files and backup archives from production clusters, regardless of storage destination. Backup integrity requirements are governed by SAF-K8S-0102-003.
+  rationale: etcd snapshots contain persisted cluster state, including Kubernetes Secret records as stored in etcd. A backup encrypted only with the source volume key provides no incremental protection if that key is compromised. Requiring separate key management for backup storage ensures a node-level key compromise does not simultaneously expose both live etcd data and backup archives. Backup encryption is a distinct audit obligation from live-volume encryption (SAF-K8S-0102-001).
+  scope: Applies to all etcd snapshot files and backup archives from production clusters, regardless of storage destination. Backup integrity and restore assurance are governed by SAF-K8S-0102-008.
   primary_enforcement_point: Backup Storage Configuration
-  implementation_surface: Backup storage encryption configuration and backup encryption key management separate from primary etcd volume keys.
+  implementation_surface: Encrypted staging and backup storage or authenticated archive encryption, with backup key management separate from primary etcd volume keys. Verify separate key access and exercise recovery with the approved backup key.
   owner_primary: Platform Engineering
   owner_supporting: null
   baseline_or_ai_specific: baseline
