@@ -6,6 +6,12 @@
       "sha256": "1b41f61c63728fcb7627b6f525c71002da908044bbbee6e244fcbe901a35f633",
       "title": "Streaming connection idle timeout enforcement"
     },
+    "SAF-K8S-0101-007": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "9e91a4a4da90aab976daf650908e4480fe967688bf2e5c70b7a495b4fc83836f",
+      "title": "API server request rate limiting and API Priority and Fairness"
+    },
     "SAF-K8S-0101-008": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -188,7 +194,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "2e125497b723482fcb05b3f117844eaaa740183d",
-  "sha256": "76854bbfc69139ba12642c096d049ca9c3f48c6465cd5d08988d852ef646cf17",
+  "revision": "4739f9665972a299a2b3dbdecc4fb94f21feab26",
+  "sha256": "2c401f6d8212d66b0dd0594a68448227d24adabb4a764a8fa419b84994547614",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

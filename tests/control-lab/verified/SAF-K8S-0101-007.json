@@ -1,0 +1,110 @@
+{
+  "control_id": "SAF-K8S-0101-007",
+  "catalog_revision": "37034ddbba9f4625e5eb8e70199252709b8babb6",
+  "catalog_sha256": "a5934b5ab1bbc78eab30866af7e007083d3f432260692fb405d3e51ea78c8630",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "9e91a4a4da90aab976daf650908e4480fe967688bf2e5c70b7a495b4fc83836f",
+  "scope": "A local Kubernetes v1.36.1 kind API server only. Use four ordinary GET /version requests and two named kube-scheduler Lease requests total, before and after a narrow FlowSchema. Capture only APF classification response headers and bounded response identity. No contention, load, rejection, or queue behavior is induced. This does not assess production or managed control planes, traffic under load, tenant fairness, or provider defaults.",
+  "cluster": "saf-lab-b97654e895f1",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Kubernetes v1.36 serves the stable APF API; effective flags follow APF capacity semantics",
+      "matched": true,
+      "observed": {
+        "flowcontrol_api_served": true,
+        "enable_priority_and_fairness_flag": null,
+        "apf_enabled_by_v1_36_default_when_flag_omitted": true,
+        "max_requests_inflight": 451,
+        "max_mutating_requests_inflight": 217,
+        "apf_total_concurrency_limit": 668,
+        "capacity_semantics": "summed under APF; separate limits only when APF is disabled"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before narrow configuration, the synthetic ServiceAccount follows the built-in broad service-accounts FlowSchema",
+      "matched": true,
+      "observed": {
+        "flow_schema": "service-accounts",
+        "priority_level": "workload-low"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The ordinary runner administrator request follows the built-in global default",
+      "matched": true,
+      "observed": {
+        "flow_schema": "global-default",
+        "priority_level": "global-default"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An ordinary read of the scheduler lease keeps its leader-election priority",
+      "matched": true,
+      "observed": {
+        "flow_schema": "system-leader-election",
+        "priority_level": "leader-election"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The exact ServiceAccount and GET /version request route to the dedicated limited priority",
+      "matched": true,
+      "observed": {
+        "flow_schema": "saf-apf-exact-subject",
+        "priority_level": "saf-apf-limited"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The narrow identity rule leaves ordinary administrator classification unchanged",
+      "matched": true,
+      "observed": {
+        "flow_schema": "global-default",
+        "priority_level": "global-default"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact synthetic-subject schema does not change kube-scheduler leader-election routing",
+      "matched": true,
+      "observed": {
+        "flow_schema": "system-leader-election",
+        "priority_level": "leader-election"
+      }
+    }
+  ]
+}
