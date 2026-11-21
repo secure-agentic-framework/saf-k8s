@@ -101,6 +101,12 @@
       "domain": "D04",
       "sha256": "1050e8dbb4ea3918f94a1d4e0f6209929246631cc8f8e9fbace8e3cf537c1be0",
       "title": "Workload token explicit audience binding"
+    },
+    "SAF-K8S-0402-022": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "ae619e2acf3f449ead88c2cd738d814119dfc596460c7ac378a51413de16684a",
+      "title": "Projected service account token lifetime bounds enforcement"
     }
   },
   "path": "saf_k8s_controls.yaml",

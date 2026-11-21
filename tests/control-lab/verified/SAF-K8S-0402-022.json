@@ -1,0 +1,110 @@
+{
+  "control_id": "SAF-K8S-0402-022",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "ae619e2acf3f449ead88c2cd738d814119dfc596460c7ac378a51413de16684a",
+  "scope": "Namespace policy for projected token requests and actual lifetimes from the configured Kubernetes issuer for Pod projections, default automount, and direct TokenRequest issuance for API and sample relying-party audiences.",
+  "cluster": "saf-lab-e77fb598aea7",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The issuer caps an actual auto-injected token without extension",
+      "matched": true,
+      "observed": {
+        "lifetime": 3600
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Excessive explicit projection is admitted before policy",
+      "matched": true,
+      "observed": "expirationSeconds=7200"
+    },
+    {
+      "phase": "green",
+      "claim": "Admission denies excessive projection with the exact policy reason",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"excessive-lifetime\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0402-022-token-lifetime' with binding 'saf-k8s-0402-022-token-lifetime' denied request: serviceAccountToken expirationSeconds must be between 600 and 3600 inclusive"
+    },
+    {
+      "phase": "positive",
+      "claim": "Kubernetes minimum compliant projection is admitted",
+      "matched": true,
+      "observed": "expirationSeconds=600"
+    },
+    {
+      "phase": "positive",
+      "claim": "Ready Pod token JWT claims show the requested lifetime",
+      "matched": true,
+      "observed": "{\"iat\": 1795292576, \"exp\": 1795293176, \"lifetime\": 600}"
+    },
+    {
+      "phase": "green",
+      "claim": "Direct TokenRequest duration 600 is bounded for the API",
+      "matched": true,
+      "observed": {
+        "requested": 600,
+        "issued": 600,
+        "audiences": [
+          "https://kubernetes.default.svc.cluster.local"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Direct TokenRequest duration 7200 is bounded for the API",
+      "matched": true,
+      "observed": {
+        "requested": 7200,
+        "issued": 3600,
+        "audiences": [
+          "https://kubernetes.default.svc.cluster.local"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Direct TokenRequest duration 7200 is bounded for saf-synthetic-relying-party",
+      "matched": true,
+      "observed": {
+        "requested": 7200,
+        "issued": 3600,
+        "audiences": [
+          "saf-synthetic-relying-party"
+        ]
+      }
+    }
+  ]
+}

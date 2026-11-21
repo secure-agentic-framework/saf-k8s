@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: saf-test
+  labels:
+    saf-k8s.example/token-lifetime-scope: enforced
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0402-022
+  namespace: saf-test
+automountServiceAccountToken: false
