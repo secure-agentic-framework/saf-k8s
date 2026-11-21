@@ -268,12 +268,12 @@
   knowledge_area: '1.1'
   control_seq: '021'
   control_title: API server approved admission controller chain configuration
-  control_statement: Production Kubernetes clusters must restrict the API server admission controller chain to approved components and must document and govern any deviations from the approved admission baseline.
+  control_statement: Production Kubernetes clusters must restrict the API server admission controller chain to approved components and govern deviations from the approved baseline. Where Kubernetes v1.37 manifest-based admission is used, review the approved on-disk policies, bindings and kube-apiserver configuration as part of that baseline. Verify that startup enforcement is effective before installing API-hosted policies and that any rules protecting named API-hosted admission resources permit approved changes.
   objective: Reduce API server policy bypass risk by ensuring only approved admission controllers are enabled and that deviations are explicitly governed.
-  rationale: Unapproved or weakly governed admission controllers can disable, weaken, or bypass policy enforcement at the API server entry point. Constraining the admission chain to approved components preserves centralized enforcement of validation and policy decisions for cluster access and workload admission.
+  rationale: Unapproved or weakly governed admission controllers can disable, weaken, or bypass policy enforcement at the API server entry point. Constraining the admission chain to approved components preserves centralized enforcement for cluster and workload requests. Kubernetes v1.37 enables the manifest-based admission feature gate by default, but file-backed enforcement requires explicit plugin configuration and valid manifests. File-backed policies can enforce startup checks independently of API-hosted admission objects. CEL-only policies have no webhook callout; webhook failure behavior is covered by SAF-K8S-0605-007.
   scope: Applies to all production Kubernetes clusters and to non-production clusters that host sensitive data, shared workloads, or provide a path to production. For managed Kubernetes services, this control applies to all customer-exposed API server admission controller settings and to compensating controls where provider-managed settings are not directly configurable.
   primary_enforcement_point: Admission Control Baseline Enforcement
-  implementation_surface: Cluster provisioning templates, API server configuration management, managed Kubernetes security settings, and periodic configuration assessment.
+  implementation_surface: Cluster provisioning templates, API server configuration and admission plugin inventory, managed Kubernetes security settings, and periodic configuration assessment. When using manifest-based admission, inventory the approved static directories on every applicable API server and verify both allowed and denied behavior.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Cloud Platform Engineering
   baseline_or_ai_specific: baseline
