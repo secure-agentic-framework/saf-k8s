@@ -41,6 +41,12 @@
       "domain": "D03",
       "sha256": "cb2182819d0df02b2795af527692b6934bfbeada40f03774c105131657f8652d",
       "title": "Pod Security Admission configuration and version pinning"
+    },
+    "SAF-K8S-0302-001": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "ebbaae576ecacc2d79550c58be91c7d83f62cad85af1f8a521aa503f49d66a99",
+      "title": "Pod and container security context enforcement"
     }
   },
   "path": "saf_k8s_controls.yaml",

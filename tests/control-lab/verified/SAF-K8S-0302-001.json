@@ -1,0 +1,138 @@
+{
+  "control_id": "SAF-K8S-0302-001",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "ebbaae576ecacc2d79550c58be91c7d83f62cad85af1f8a521aa503f49d66a99",
+  "scope": "Pods in the synthetic saf-k8s.example/enforce-container-context namespace: explicit per-container runAsNonRoot=true, positive runAsUser, readOnlyRootFilesystem=true, and allowPrivilegeEscalation=false for app and init containers on Pod CREATE/UPDATE, plus separately added ephemeral debug containers on the ephemeralcontainers subresource. No exception is configured.",
+  "cluster": "saf-lab-6c2e7a66cc7c",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The scoped API accepts a missing container context before policy",
+      "matched": true,
+      "observed": "server dry-run accepted"
+    },
+    {
+      "phase": "green",
+      "claim": "The policy rejects the missing context with its specific reason",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"missing-context-after-policy\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-001-container-context' with binding 'saf-k8s-0302-001-container-context' denied request: every app, init, and ephemeral container must explicitly set runAsNonRoot=true, runAsUser to a positive UID, readOnlyRootFilesystem=true, and allowPrivilegeEscalation=false"
+    },
+    {
+      "phase": "green",
+      "claim": "The policy rejects omitted runAsNonRoot on app containers",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"missing-app-runasnonroot\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-001-container-context' with binding 'saf-k8s-0302-001-container-context' denied request: every app, init, and ephemeral container must explicitly set runAsNonRoot=true, runAsUser to a positive UID, readOnlyRootFilesystem=true, and allowPrivilegeEscalation=false"
+    },
+    {
+      "phase": "green",
+      "claim": "The policy rejects omitted runAsUser on app containers",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"missing-app-runasuser\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-001-container-context' with binding 'saf-k8s-0302-001-container-context' denied request: every app, init, and ephemeral container must explicitly set runAsNonRoot=true, runAsUser to a positive UID, readOnlyRootFilesystem=true, and allowPrivilegeEscalation=false"
+    },
+    {
+      "phase": "green",
+      "claim": "The policy rejects omitted readOnlyRootFilesystem on app containers",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"missing-app-readonlyrootfilesystem\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-001-container-context' with binding 'saf-k8s-0302-001-container-context' denied request: every app, init, and ephemeral container must explicitly set runAsNonRoot=true, runAsUser to a positive UID, readOnlyRootFilesystem=true, and allowPrivilegeEscalation=false"
+    },
+    {
+      "phase": "green",
+      "claim": "The policy rejects omitted allowPrivilegeEscalation on app containers",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"missing-app-allowprivilegeescalation\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-001-container-context' with binding 'saf-k8s-0302-001-container-context' denied request: every app, init, and ephemeral container must explicitly set runAsNonRoot=true, runAsUser to a positive UID, readOnlyRootFilesystem=true, and allowPrivilegeEscalation=false"
+    },
+    {
+      "phase": "green",
+      "claim": "The policy rejects omitted runAsNonRoot on init containers",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"missing-init-runasnonroot\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-001-container-context' with binding 'saf-k8s-0302-001-container-context' denied request: every app, init, and ephemeral container must explicitly set runAsNonRoot=true, runAsUser to a positive UID, readOnlyRootFilesystem=true, and allowPrivilegeEscalation=false"
+    },
+    {
+      "phase": "green",
+      "claim": "The policy rejects omitted runAsUser on init containers",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"missing-init-runasuser\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-001-container-context' with binding 'saf-k8s-0302-001-container-context' denied request: every app, init, and ephemeral container must explicitly set runAsNonRoot=true, runAsUser to a positive UID, readOnlyRootFilesystem=true, and allowPrivilegeEscalation=false"
+    },
+    {
+      "phase": "green",
+      "claim": "The policy rejects omitted readOnlyRootFilesystem on init containers",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"missing-init-readonlyrootfilesystem\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-001-container-context' with binding 'saf-k8s-0302-001-container-context' denied request: every app, init, and ephemeral container must explicitly set runAsNonRoot=true, runAsUser to a positive UID, readOnlyRootFilesystem=true, and allowPrivilegeEscalation=false"
+    },
+    {
+      "phase": "green",
+      "claim": "The policy rejects omitted allowPrivilegeEscalation on init containers",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"missing-init-allowprivilegeescalation\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-001-container-context' with binding 'saf-k8s-0302-001-container-context' denied request: every app, init, and ephemeral container must explicitly set runAsNonRoot=true, runAsUser to a positive UID, readOnlyRootFilesystem=true, and allowPrivilegeEscalation=false"
+    },
+    {
+      "phase": "positive",
+      "claim": "The app runs as UID 65534 with read-only root and writable temp",
+      "matched": true,
+      "observed": "uid=65534 root_mount=ro,relatime,lowerdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/108/fs,upperdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/110/fs,workdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/110/work,uuid=on,nouserxattr root_write=denied tmp_write=ok"
+    },
+    {
+      "phase": "positive",
+      "claim": "A separately added compliant ephemeral container is admitted",
+      "matched": true,
+      "observed": "dry-run accepted"
+    },
+    {
+      "phase": "green",
+      "claim": "The policy rejects debug containers missing runAsNonRoot",
+      "matched": true,
+      "observed": "Error from server (Forbidden): pods \"secure-reference\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-001-container-context' with binding 'saf-k8s-0302-001-container-context' denied request: every app, init, and ephemeral container must explicitly set runAsNonRoot=true, runAsUser to a positive UID, readOnlyRootFilesystem=true, and allowPrivilegeEscalation=false"
+    },
+    {
+      "phase": "green",
+      "claim": "The policy rejects debug containers missing runAsUser",
+      "matched": true,
+      "observed": "Error from server (Forbidden): pods \"secure-reference\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-001-container-context' with binding 'saf-k8s-0302-001-container-context' denied request: every app, init, and ephemeral container must explicitly set runAsNonRoot=true, runAsUser to a positive UID, readOnlyRootFilesystem=true, and allowPrivilegeEscalation=false"
+    },
+    {
+      "phase": "green",
+      "claim": "The policy rejects debug containers missing readOnlyRootFilesystem",
+      "matched": true,
+      "observed": "Error from server (Forbidden): pods \"secure-reference\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-001-container-context' with binding 'saf-k8s-0302-001-container-context' denied request: every app, init, and ephemeral container must explicitly set runAsNonRoot=true, runAsUser to a positive UID, readOnlyRootFilesystem=true, and allowPrivilegeEscalation=false"
+    },
+    {
+      "phase": "green",
+      "claim": "The policy rejects debug containers missing allowPrivilegeEscalation",
+      "matched": true,
+      "observed": "Error from server (Forbidden): pods \"secure-reference\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-001-container-context' with binding 'saf-k8s-0302-001-container-context' denied request: every app, init, and ephemeral container must explicitly set runAsNonRoot=true, runAsUser to a positive UID, readOnlyRootFilesystem=true, and allowPrivilegeEscalation=false"
+    }
+  ]
+}
