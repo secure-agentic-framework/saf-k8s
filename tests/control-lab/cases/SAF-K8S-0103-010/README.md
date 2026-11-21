@@ -1,0 +1,31 @@
+# SAF-K8S-0103-010 — Leader election and Lease authorization
+
+```sh
+python3 lab.py test SAF-K8S-0103-010 --docker-context desktop-linux
+```
+
+In disposable kubeadm kind on Kubernetes v1.36.1, check the controller-manager
+and scheduler's effective leader election settings and advancing Lease renewal
+times. Derive each client certificate's public subject and compare it with the
+stock User role binding. Only the certificate's public field leaves the
+owned node for parsing. The case never modifies the actual leader Leases.
+
+Use impersonated case-owned service account identities to get and update their
+own fixture Lease and verify explicit Forbidden responses for the other exact
+Lease name. With a synthetic Role whose create rule contains a resource name,
+attempt server-side dry-run creation for both the listed and unlisted fixture
+name. Both fail because a top-level create request has no name at RBAC
+authorization. Granting collection-level create to the same synthetic identity
+lets both dry-run requests proceed. Cleanup removes all synthetic bindings,
+subjects and Leases.
+
+The component bootstrap roles reference named get and update, and grant create
+separately. Effective access can include other bindings, privileged identities,
+and list/watch. Deployment-specific principal, timing and failover validation,
+cloud controller-manager, administrative exceptions, and creation recovery
+remain separate obligations.
+
+- [Kubernetes v1.36 RBAC resource names](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/#referring-to-resources)
+- [Kubernetes v1.36.1 bootstrap RBAC source](https://github.com/kubernetes/kubernetes/blob/v1.36.1/plugin/pkg/auth/authorizer/rbac/bootstrappolicy/policy.go)
+- [Kubernetes v1.36 controller-manager flags](https://v1-36.docs.kubernetes.io/docs/reference/command-line-tools-reference/kube-controller-manager/)
+- [Kubernetes v1.36 scheduler flags](https://v1-36.docs.kubernetes.io/docs/reference/command-line-tools-reference/kube-scheduler/)

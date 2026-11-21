@@ -114,6 +114,12 @@
       "sha256": "4275274216b123df460b9d6c90f2ad9cc64989a2d35a4b44dc139548ccda8a53",
       "title": "Profiling endpoint disablement for controller-manager and scheduler"
     },
+    "SAF-K8S-0103-010": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "f2fea64a263d1f7fb1f58387e99482328d3221ae8df9e727b48877c49628b887",
+      "title": "Leader election configuration and lease object RBAC"
+    },
     "SAF-K8S-0103-016": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -254,7 +260,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "b889f1c34e3669bef2c49791cf7eda31eeb710da",
-  "sha256": "84059ed85131d0153bb153008cedec76dcd757fbcee95dd30abdca488a39e443",
+  "revision": "ba76e9838471254054229225a7a5c1b0ef6b750c",
+  "sha256": "ba0b2931e7d453d96fcd4ed42df45db6ef15052d35f1baa2141f65bfd1363036",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
