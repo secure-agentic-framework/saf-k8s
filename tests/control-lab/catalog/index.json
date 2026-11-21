@@ -77,6 +77,12 @@
       "domain": "D03",
       "sha256": "991d1055d1a416b802a4a2def609fc1bfdd3e40f8754e4504e18a81f5ee3b252",
       "title": "Tmpfs-backed handling for sensitive training intermediates"
+    },
+    "SAF-K8S-0402-018": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "8ed8bcee092d7335591d868389d3b20b89644747fac8f5a63d5415fb15b80209",
+      "title": "Default service account disablement and token automount hardening"
     }
   },
   "path": "saf_k8s_controls.yaml",

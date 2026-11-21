@@ -1,0 +1,30 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-no-default-serviceaccount
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["pods"]
+  validations:
+    - expression: "has(object.spec.serviceAccountName) && object.spec.serviceAccountName != 'default'"
+      message: "application Pods must use a dedicated ServiceAccount; default ServiceAccount is prohibited"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-no-default-serviceaccount-applications
+spec:
+  policyName: saf-k8s-no-default-serviceaccount
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchExpressions:
+        - key: saf-k8s.example/class
+          operator: NotIn
+          values: [platform-managed-system]
