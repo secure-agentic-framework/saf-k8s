@@ -1,0 +1,174 @@
+{
+  "control_id": "SAF-K8S-0304-010",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "cdb0b886591eee425910bc51be18aa0c6d69799441ccfc94ba57d1f0f3103ebd",
+  "scope": "Explicit CPU, memory and ephemeral-storage declarations for regular and init containers. The source check sees the raw manifest. Admission sees defaulted resource values. The test runs without GPU hardware or device plugins.",
+  "cluster": "saf-lab-a673429b6bbf",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "API admits an unbounded regular container before policy",
+      "matched": true,
+      "observed": [
+        {},
+        {
+          "limits": {
+            "cpu": "500m",
+            "ephemeral-storage": "512Mi",
+            "memory": "256Mi"
+          },
+          "requests": {
+            "cpu": "100m",
+            "ephemeral-storage": "128Mi",
+            "memory": "64Mi"
+          }
+        }
+      ]
+    },
+    {
+      "phase": "red",
+      "claim": "API admits an unbounded init container before policy",
+      "matched": true,
+      "observed": [
+        {
+          "limits": {
+            "cpu": "500m",
+            "ephemeral-storage": "512Mi",
+            "memory": "256Mi"
+          },
+          "requests": {
+            "cpu": "100m",
+            "ephemeral-storage": "128Mi",
+            "memory": "64Mi"
+          }
+        },
+        {}
+      ]
+    },
+    {
+      "phase": "red",
+      "claim": "Kubernetes copies limits to requests before validating admission",
+      "matched": true,
+      "observed": [
+        {
+          "limits": {
+            "cpu": "500m",
+            "ephemeral-storage": "512Mi",
+            "memory": "256Mi"
+          },
+          "requests": {
+            "cpu": "500m",
+            "ephemeral-storage": "512Mi",
+            "memory": "256Mi"
+          }
+        },
+        {
+          "limits": {
+            "cpu": "500m",
+            "ephemeral-storage": "512Mi",
+            "memory": "256Mi"
+          },
+          "requests": {
+            "cpu": "500m",
+            "ephemeral-storage": "512Mi",
+            "memory": "256Mi"
+          }
+        }
+      ]
+    },
+    {
+      "phase": "green",
+      "claim": "Source checker catches omitted requests for both container classes",
+      "matched": true,
+      "observed": "containers/regular missing requests.cpu\ncontainers/regular missing requests.memory\ncontainers/regular missing requests.ephemeral-storage\ninitContainers/initializer missing requests.cpu\ninitContainers/initializer missing requests.memory\ninitContainers/initializer missing requests.ephemeral-storage"
+    },
+    {
+      "phase": "green",
+      "claim": "Admission rejects an unbounded regular container",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"omit-regular\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0304-010-bounded-resources' with binding 'saf-k8s-0304-010-bounded-resources' denied request: each regular container must declare CPU, memory, and ephemeral-storage requests and limits"
+    },
+    {
+      "phase": "green",
+      "claim": "Admission rejects an unbounded init container",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"omit-init\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0304-010-bounded-resources' with binding 'saf-k8s-0304-010-bounded-resources' denied request: each init container must declare CPU, memory, and ephemeral-storage requests and limits"
+    },
+    {
+      "phase": "green",
+      "claim": "Admission still accepts the API-defaulted requests",
+      "matched": true,
+      "observed": [
+        {
+          "limits": {
+            "cpu": "500m",
+            "ephemeral-storage": "512Mi",
+            "memory": "256Mi"
+          },
+          "requests": {
+            "cpu": "500m",
+            "ephemeral-storage": "512Mi",
+            "memory": "256Mi"
+          }
+        },
+        {
+          "limits": {
+            "cpu": "500m",
+            "ephemeral-storage": "512Mi",
+            "memory": "256Mi"
+          },
+          "requests": {
+            "cpu": "500m",
+            "ephemeral-storage": "512Mi",
+            "memory": "256Mi"
+          }
+        }
+      ]
+    },
+    {
+      "phase": "positive",
+      "claim": "Source checker accepts explicit regular and init declarations",
+      "matched": true,
+      "observed": "all regular and init containers declare CPU, memory, and ephemeral-storage requests and limits"
+    },
+    {
+      "phase": "positive",
+      "claim": "A Pod with explicit declarations reaches Ready",
+      "matched": true,
+      "observed": "Ready"
+    }
+  ]
+}
