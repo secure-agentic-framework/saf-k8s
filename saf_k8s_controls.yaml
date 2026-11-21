@@ -166,12 +166,12 @@
   knowledge_area: '1.1'
   control_seq: '016'
   control_title: API server audit log backend delivery and durable storage
-  control_statement: Production Kubernetes clusters must direct API server audit logs to a durable backend, either a rotated log file or an approved webhook destination such as a SIEM, so audit events remain available and searchable after restart or backend disruption.
+  control_statement: Production Kubernetes clusters must retain API server audit events in a durable backend, using rotated files on persistent storage or forwarding to an approved destination that durably ingests the events. Verify retained events remain retrievable across API server restarts and exercise the documented delivery and recovery behavior for backend disruption.
   objective: Ensure API server audit records are delivered to a durable storage or forwarding destination that preserves availability for investigation and monitoring.
-  rationale: Audit event selection is ineffective if records are lost during restart, disk pressure, or forwarding failure. Durable local rotation or approved webhook delivery to downstream log infrastructure preserves the audit trail through control-plane failures and operational churn.
+  rationale: Audit event selection is ineffective if records are lost during restart, disk pressure, or forwarding failure. Retention depends on persistent storage and end-to-end ingestion. Audit webhook buffering and retries can still lose events during delivery failure, so verify destination retention and monitor delivery failures and dropped events.
   scope: Applies to all production Kubernetes clusters, including managed services exposing customer-configurable audit export settings. Covers kube-apiserver audit log path, rotation settings, webhook export configuration, and downstream durable ingestion.
   primary_enforcement_point: API server audit backend configuration and downstream durable ingestion path.
-  implementation_surface: API server manifest or managed-service audit export settings, log rotation configuration, webhook destination configuration, and SIEM or log platform ingestion controls.
+  implementation_surface: API server manifest or managed-service audit export settings, audit file persistence and rotation, webhook delivery settings, and downstream ingestion, retention, and retrieval checks.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; Compliance
   baseline_or_ai_specific: baseline
