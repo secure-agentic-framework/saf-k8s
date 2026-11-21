@@ -36,6 +36,12 @@
       "sha256": "dd1569d6095848684ea5f392d0e03b50b88a493c339ea534d8bfa5c422917eee",
       "title": "API server authorization mode baseline enforcement"
     },
+    "SAF-K8S-0101-017": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "507921e2b329b1ada4a8ddf51b4a7fba4c48c5d4d213facfe91ce726fcba195b",
+      "title": "API server audit log retention enforcement"
+    },
     "SAF-K8S-0101-018": {
       "catalog_status": "draft",
       "domain": "D01",
