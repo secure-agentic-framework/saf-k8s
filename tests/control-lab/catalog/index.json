@@ -78,6 +78,12 @@
       "sha256": "c209f5f24a88d39ccf110646b7a7ae175cc8e3e076e5186e671a53312aa31e9c",
       "title": "No-new-privileges execution enforcement"
     },
+    "SAF-K8S-0303-001": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "44ec63bc8f618058b65b879db5b3e626e8104ca8f0b2fbe373b3e823b8837eb1",
+      "title": "Seccomp profile enforcement"
+    },
     "SAF-K8S-0304-007": {
       "catalog_status": "draft",
       "domain": "D03",
