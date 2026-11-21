@@ -4,8 +4,8 @@
   "catalog_sha256": "76854bbfc69139ba12642c096d049ca9c3f48c6465cd5d08988d852ef646cf17",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e60efc25ad9367dcc7c02518bc3de51cffb45fe823efb7dc1ac706fafd0c396e",
-  "scope": "Synthetic namespace admission and one nonprivileged Linux Pod: exact fsGroup 2000, supplementalGroups [3000], writable emptyDir or a case-owned local PVC at /fixture-data, and a read-only synthetic ConfigMap at /protected-data. Inert server dry-runs challenge unsafe group IDs, a forbidden mount path, and hostPath before the sole compliant Pod is created. The case exercises one local persistent-volume mechanism; CSI drivers, external providers, and real platform volumes remain separate. Also compare Linux disk-backed emptyDir on Kubernetes v1.37.0 using two kubelets with opposite EmptyDirVolumeMode gates, then verify the effects of fsGroup on the enabled node.",
-  "cluster": "saf-lab-7f04fdb463d3",
+  "scope": "Synthetic namespace admission and one nonprivileged Linux Pod: exact fsGroup 2000, supplementalGroups [3000], writable emptyDir or a case-owned local PVC at /fixture-data, and a read-only synthetic ConfigMap at /protected-data. Inert server dry-runs challenge unsafe group IDs, a forbidden mount path, and hostPath before the sole compliant Pod is created. The case exercises one local persistent-volume mechanism; CSI drivers, external providers, and real platform volumes remain separate. The report's top-level version and image describe the v1.36.1 base cluster. Supplemental Linux disk-backed emptyDir profiles use v1.37.0. Compare matching and mismatched API-server and kubelet feature gates, then verify fsGroup on the enabled node.",
+  "cluster": "saf-lab-0b0321d71b6b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -130,15 +130,29 @@
     },
     {
       "phase": "positive",
-      "claim": "The separate API server and both kubelets run Kubernetes v1.37.0",
+      "claim": "Supplemental profile records v1.37.0 versions and configured gates (API True, worker False)",
       "matched": true,
       "observed": {
-        "server": "v1.37.0",
-        "kubelets": [
-          "v1.37.0",
-          "v1.37.0"
-        ],
-        "image": "kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5"
+        "server_version": "v1.37.0",
+        "kubelet_versions": {
+          "control-plane": "v1.37.0",
+          "worker": "v1.37.0"
+        },
+        "node_image": "kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5",
+        "kind_version": "kind v0.33.0 go1.26.7 darwin/arm64",
+        "configured_gates": {
+          "kube-apiserver": {
+            "EmptyDirVolumeMode": true
+          },
+          "kubelet": {
+            "control-plane": {
+              "EmptyDirVolumeMode": true
+            },
+            "worker": {
+              "EmptyDirVolumeMode": false
+            }
+          }
+        }
       }
     },
     {
@@ -146,7 +160,8 @@
       "claim": "An implicit disk emptyDir is writable at the default mode",
       "matched": true,
       "observed": {
-        "declared": null,
+        "create_mode": null,
+        "stored_mode": null,
         "mounted": "777",
         "group": 0,
         "write": "writable"
@@ -157,7 +172,8 @@
       "claim": "The API retains 0700 when the worker ignores it and mounts 0777",
       "matched": true,
       "observed": {
-        "declared": "700",
+        "create_mode": "700",
+        "stored_mode": "700",
         "mounted": "777",
         "group": 0,
         "write": "writable"
@@ -168,7 +184,8 @@
       "claim": "The enabled kubelet mounts 0700 and denies an unrelated nonroot writer",
       "matched": true,
       "observed": {
-        "declared": "700",
+        "create_mode": "700",
+        "stored_mode": "700",
         "mounted": "700",
         "group": 0,
         "write": "denied"
@@ -179,7 +196,8 @@
       "claim": "fsGroup changes effective mode and permits the approved group to write",
       "matched": true,
       "observed": {
-        "declared": "700",
+        "create_mode": "700",
+        "stored_mode": "700",
         "mounted": "2770",
         "group": 2000,
         "write": "writable"
@@ -190,6 +208,45 @@
       "claim": "The API validates explicit mode within its supported bit range",
       "matched": true,
       "observed": true
+    },
+    {
+      "phase": "positive",
+      "claim": "Supplemental profile records v1.37.0 versions and configured gates (API False, worker True)",
+      "matched": true,
+      "observed": {
+        "server_version": "v1.37.0",
+        "kubelet_versions": {
+          "control-plane": "v1.37.0",
+          "worker": "v1.37.0"
+        },
+        "node_image": "kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5",
+        "kind_version": "kind v0.33.0 go1.26.7 darwin/arm64",
+        "configured_gates": {
+          "kube-apiserver": {
+            "EmptyDirVolumeMode": false
+          },
+          "kubelet": {
+            "control-plane": {
+              "EmptyDirVolumeMode": true
+            },
+            "worker": {
+              "EmptyDirVolumeMode": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The API gate prunes requested 0700 before an enabled kubelet mounts the Pod",
+      "matched": true,
+      "observed": {
+        "create_mode": null,
+        "stored_mode": null,
+        "mounted": "777",
+        "group": 0,
+        "write": "writable"
+      }
     }
   ]
 }
