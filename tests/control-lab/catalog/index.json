@@ -138,6 +138,12 @@
       "sha256": "ae619e2acf3f449ead88c2cd738d814119dfc596460c7ac378a51413de16684a",
       "title": "Projected service account token lifetime bounds enforcement"
     },
+    "SAF-K8S-0403-005": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "5bceccd60b9178d97b15c75e0b0ab8874bd0fe7e9ce0a6665c6e8868efa96e41",
+      "title": "AI pipeline secret leakage prevention"
+    },
     "SAF-K8S-0702-003": {
       "catalog_status": "draft",
       "domain": "D07",

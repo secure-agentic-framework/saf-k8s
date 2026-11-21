@@ -1,0 +1,103 @@
+{
+  "control_id": "SAF-K8S-0403-005",
+  "catalog_revision": "32e7acd3741bfcb96a1e89edc61274c181afb173",
+  "catalog_sha256": "b20ca75f54b83e09118278fd5e031b850dc5a8f07c9034344f2449fdc398fa43",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "5bceccd60b9178d97b15c75e0b0ab8874bd0fe7e9ce0a6665c6e8868efa96e41",
+  "scope": "AI deployment manifest diff subcase. A case-owned Kubernetes Secret object contains only two public synthetic marker strings. kubectl v1.36.1 is exercised against a disposable kind cluster; ordinary diff output keeps the data masked. No raw values or diff content are retained.",
+  "cluster": "saf-lab-34f66a3aec07",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The synthetic fixture object was accepted",
+      "matched": true,
+      "observed": {
+        "accepted": true,
+        "client": "v1.36.1"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The fixture has a persisted resource version",
+      "matched": true,
+      "observed": {
+        "resource_version_present": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Client reports a diff with marker values visible",
+      "matched": true,
+      "observed": {
+        "diff_detected": true,
+        "before_visible": true,
+        "after_visible": true,
+        "plain_values_visible": false,
+        "masked_change": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Client reports a diff with marker values masked",
+      "matched": true,
+      "observed": {
+        "diff_detected": true,
+        "before_visible": false,
+        "after_visible": false,
+        "plain_values_visible": false,
+        "masked_change": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Client reports a diff with marker values masked",
+      "matched": true,
+      "observed": {
+        "diff_detected": true,
+        "before_visible": false,
+        "after_visible": false,
+        "plain_values_visible": false,
+        "masked_change": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Comparisons leave the fixture resource version unchanged",
+      "matched": true,
+      "observed": {
+        "same_revision": true
+      }
+    }
+  ]
+}
