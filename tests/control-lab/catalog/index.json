@@ -107,6 +107,12 @@
       "domain": "D04",
       "sha256": "ae619e2acf3f449ead88c2cd738d814119dfc596460c7ac378a51413de16684a",
       "title": "Projected service account token lifetime bounds enforcement"
+    },
+    "SAF-K8S-0702-003": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "743ba4dc1ccb2d103c65e896df107dd37bce0d4a00147058205f7dcfa56c494f",
+      "title": "LimitRange enforcement for containers and pods"
     }
   },
   "path": "saf_k8s_controls.yaml",

@@ -1,0 +1,516 @@
+{
+  "control_id": "SAF-K8S-0702-003",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "743ba4dc1ccb2d103c65e896df107dd37bce0d4a00147058205f7dcfa56c494f",
+  "scope": "Namespace inventory, LimitRange defaults and maxima for CPU, memory and ephemeral storage.",
+  "cluster": "saf-lab-774a1d55e132",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Inventory identifies all unconfigured namespaces before provisioning",
+      "matched": true,
+      "observed": [
+        "default",
+        "kube-node-lease",
+        "kube-public",
+        "kube-system",
+        "local-path-storage",
+        "saf-test",
+        "system-sample"
+      ]
+    },
+    {
+      "phase": "red",
+      "claim": "A running pre-policy Pod has no resource constraints",
+      "matched": true,
+      "observed": {}
+    },
+    {
+      "phase": "red",
+      "claim": "Pod with omitted resources receives no defaults",
+      "matched": true,
+      "observed": {}
+    },
+    {
+      "phase": "red",
+      "claim": "Container over cpu max is admitted without LimitRange",
+      "matched": true,
+      "observed": "server accepted"
+    },
+    {
+      "phase": "red",
+      "claim": "Pod over cpu max is admitted without LimitRange",
+      "matched": true,
+      "observed": "server accepted"
+    },
+    {
+      "phase": "red",
+      "claim": "Container over memory max is admitted without LimitRange",
+      "matched": true,
+      "observed": "server accepted"
+    },
+    {
+      "phase": "red",
+      "claim": "Pod over memory max is admitted without LimitRange",
+      "matched": true,
+      "observed": "server accepted"
+    },
+    {
+      "phase": "red",
+      "claim": "Container over ephemeral-storage max is admitted without LimitRange",
+      "matched": true,
+      "observed": "server accepted"
+    },
+    {
+      "phase": "red",
+      "claim": "Pod over ephemeral-storage max is admitted without LimitRange",
+      "matched": true,
+      "observed": "server accepted"
+    },
+    {
+      "phase": "red",
+      "claim": "Inventory detects the new namespace before its policy is installed",
+      "matched": true,
+      "observed": [
+        "app-new"
+      ]
+    },
+    {
+      "phase": "green",
+      "claim": "Every lab cluster namespace has the intended LimitRange",
+      "matched": true,
+      "observed": [
+        "app-new",
+        "default",
+        "kube-node-lease",
+        "kube-public",
+        "kube-system",
+        "local-path-storage",
+        "saf-test",
+        "system-sample"
+      ]
+    },
+    {
+      "phase": "green",
+      "claim": "app-new has the intended defaults and maxima",
+      "matched": true,
+      "observed": {
+        "Container": {
+          "default": {
+            "cpu": "100m",
+            "ephemeral-storage": "32Mi",
+            "memory": "64Mi"
+          },
+          "defaultRequest": {
+            "cpu": "50m",
+            "ephemeral-storage": "16Mi",
+            "memory": "32Mi"
+          },
+          "max": {
+            "cpu": "200m",
+            "ephemeral-storage": "64Mi",
+            "memory": "128Mi"
+          },
+          "type": "Container"
+        },
+        "Pod": {
+          "max": {
+            "cpu": "300m",
+            "ephemeral-storage": "96Mi",
+            "memory": "192Mi"
+          },
+          "type": "Pod"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "default has the intended defaults and maxima",
+      "matched": true,
+      "observed": {
+        "Container": {
+          "default": {
+            "cpu": "100m",
+            "ephemeral-storage": "32Mi",
+            "memory": "64Mi"
+          },
+          "defaultRequest": {
+            "cpu": "50m",
+            "ephemeral-storage": "16Mi",
+            "memory": "32Mi"
+          },
+          "max": {
+            "cpu": "200m",
+            "ephemeral-storage": "64Mi",
+            "memory": "128Mi"
+          },
+          "type": "Container"
+        },
+        "Pod": {
+          "max": {
+            "cpu": "300m",
+            "ephemeral-storage": "96Mi",
+            "memory": "192Mi"
+          },
+          "type": "Pod"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "kube-node-lease has the intended defaults and maxima",
+      "matched": true,
+      "observed": {
+        "Container": {
+          "default": {
+            "cpu": "100m",
+            "ephemeral-storage": "32Mi",
+            "memory": "64Mi"
+          },
+          "defaultRequest": {
+            "cpu": "50m",
+            "ephemeral-storage": "16Mi",
+            "memory": "32Mi"
+          },
+          "max": {
+            "cpu": "200m",
+            "ephemeral-storage": "64Mi",
+            "memory": "128Mi"
+          },
+          "type": "Container"
+        },
+        "Pod": {
+          "max": {
+            "cpu": "300m",
+            "ephemeral-storage": "96Mi",
+            "memory": "192Mi"
+          },
+          "type": "Pod"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "kube-public has the intended defaults and maxima",
+      "matched": true,
+      "observed": {
+        "Container": {
+          "default": {
+            "cpu": "100m",
+            "ephemeral-storage": "32Mi",
+            "memory": "64Mi"
+          },
+          "defaultRequest": {
+            "cpu": "50m",
+            "ephemeral-storage": "16Mi",
+            "memory": "32Mi"
+          },
+          "max": {
+            "cpu": "200m",
+            "ephemeral-storage": "64Mi",
+            "memory": "128Mi"
+          },
+          "type": "Container"
+        },
+        "Pod": {
+          "max": {
+            "cpu": "300m",
+            "ephemeral-storage": "96Mi",
+            "memory": "192Mi"
+          },
+          "type": "Pod"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "kube-system has the intended defaults and maxima",
+      "matched": true,
+      "observed": {
+        "Container": {
+          "default": {
+            "cpu": "100m",
+            "ephemeral-storage": "32Mi",
+            "memory": "64Mi"
+          },
+          "defaultRequest": {
+            "cpu": "50m",
+            "ephemeral-storage": "16Mi",
+            "memory": "32Mi"
+          },
+          "max": {
+            "cpu": "200m",
+            "ephemeral-storage": "64Mi",
+            "memory": "128Mi"
+          },
+          "type": "Container"
+        },
+        "Pod": {
+          "max": {
+            "cpu": "300m",
+            "ephemeral-storage": "96Mi",
+            "memory": "192Mi"
+          },
+          "type": "Pod"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "local-path-storage has the intended defaults and maxima",
+      "matched": true,
+      "observed": {
+        "Container": {
+          "default": {
+            "cpu": "100m",
+            "ephemeral-storage": "32Mi",
+            "memory": "64Mi"
+          },
+          "defaultRequest": {
+            "cpu": "50m",
+            "ephemeral-storage": "16Mi",
+            "memory": "32Mi"
+          },
+          "max": {
+            "cpu": "200m",
+            "ephemeral-storage": "64Mi",
+            "memory": "128Mi"
+          },
+          "type": "Container"
+        },
+        "Pod": {
+          "max": {
+            "cpu": "300m",
+            "ephemeral-storage": "96Mi",
+            "memory": "192Mi"
+          },
+          "type": "Pod"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "saf-test has the intended defaults and maxima",
+      "matched": true,
+      "observed": {
+        "Container": {
+          "default": {
+            "cpu": "100m",
+            "ephemeral-storage": "32Mi",
+            "memory": "64Mi"
+          },
+          "defaultRequest": {
+            "cpu": "50m",
+            "ephemeral-storage": "16Mi",
+            "memory": "32Mi"
+          },
+          "max": {
+            "cpu": "200m",
+            "ephemeral-storage": "64Mi",
+            "memory": "128Mi"
+          },
+          "type": "Container"
+        },
+        "Pod": {
+          "max": {
+            "cpu": "300m",
+            "ephemeral-storage": "96Mi",
+            "memory": "192Mi"
+          },
+          "type": "Pod"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "system-sample has the intended defaults and maxima",
+      "matched": true,
+      "observed": {
+        "Container": {
+          "default": {
+            "cpu": "100m",
+            "ephemeral-storage": "32Mi",
+            "memory": "64Mi"
+          },
+          "defaultRequest": {
+            "cpu": "50m",
+            "ephemeral-storage": "16Mi",
+            "memory": "32Mi"
+          },
+          "max": {
+            "cpu": "500m",
+            "ephemeral-storage": "128Mi",
+            "memory": "256Mi"
+          },
+          "type": "Container"
+        },
+        "Pod": {
+          "max": {
+            "cpu": "750m",
+            "ephemeral-storage": "192Mi",
+            "memory": "384Mi"
+          },
+          "type": "Pod"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The relaxed system limits have documented justification",
+      "matched": true,
+      "observed": "The sample system namespace allows larger bounded batches for node-level maintenance; defaults remain enforced and maxima remain finite."
+    },
+    {
+      "phase": "green",
+      "claim": "Installing LimitRange leaves already-running pre-policy Pod unchanged",
+      "matched": true,
+      "observed": {
+        "before": {},
+        "after": {}
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission defaults all three requests and limits in saf-test",
+      "matched": true,
+      "observed": {
+        "limits": {
+          "cpu": "100m",
+          "ephemeral-storage": "32Mi",
+          "memory": "64Mi"
+        },
+        "requests": {
+          "cpu": "50m",
+          "ephemeral-storage": "16Mi",
+          "memory": "32Mi"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission defaults all three requests and limits in app-new",
+      "matched": true,
+      "observed": {
+        "limits": {
+          "cpu": "100m",
+          "ephemeral-storage": "32Mi",
+          "memory": "64Mi"
+        },
+        "requests": {
+          "cpu": "50m",
+          "ephemeral-storage": "16Mi",
+          "memory": "32Mi"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission defaults all three requests and limits in system-sample",
+      "matched": true,
+      "observed": {
+        "limits": {
+          "cpu": "100m",
+          "ephemeral-storage": "32Mi",
+          "memory": "64Mi"
+        },
+        "requests": {
+          "cpu": "50m",
+          "ephemeral-storage": "16Mi",
+          "memory": "32Mi"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The documented relaxation admits a CPU request above the standard maximum",
+      "matched": true,
+      "observed": {
+        "limits": {
+          "cpu": "250m",
+          "ephemeral-storage": "32Mi",
+          "memory": "64Mi"
+        },
+        "requests": {
+          "cpu": "250m",
+          "ephemeral-storage": "16Mi",
+          "memory": "32Mi"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Container over cpu max is denied by LimitRange",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"oversized-container-cpu\" is forbidden: maximum cpu usage per Container is 200m, but limit is 250m"
+    },
+    {
+      "phase": "green",
+      "claim": "Pod over cpu max is denied by LimitRange",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"oversized-pod-cpu\" is forbidden: maximum cpu usage per Pod is 300m, but limit is 350m"
+    },
+    {
+      "phase": "green",
+      "claim": "Container over memory max is denied by LimitRange",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"oversized-container-memory\" is forbidden: maximum memory usage per Container is 128Mi, but limit is 160Mi"
+    },
+    {
+      "phase": "green",
+      "claim": "Pod over memory max is denied by LimitRange",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"oversized-pod-memory\" is forbidden: maximum memory usage per Pod is 192Mi, but limit is 224Mi"
+    },
+    {
+      "phase": "green",
+      "claim": "Container over ephemeral-storage max is denied by LimitRange",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"oversized-container-ephemeral-storage\" is forbidden: maximum ephemeral-storage usage per Container is 64Mi, but limit is 80Mi"
+    },
+    {
+      "phase": "green",
+      "claim": "Pod over ephemeral-storage max is denied by LimitRange",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"oversized-pod-ephemeral-storage\" is forbidden: maximum ephemeral-storage usage per Pod is 96Mi, but limit is 112Mi"
+    },
+    {
+      "phase": "positive",
+      "claim": "Pod with defaults is admitted and reaches Ready",
+      "matched": true,
+      "observed": "Ready"
+    }
+  ]
+}
