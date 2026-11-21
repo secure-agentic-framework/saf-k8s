@@ -1,0 +1,7 @@
+{
+  "controls": {},
+  "path": "saf_k8s_controls.yaml",
+  "revision": "9b7fa41e26cd829e3204d1c91b4e85f63622fce4",
+  "sha256": "c7cbff94a78d5b801132ea392557035b3a6e6c56f920c48a07bbc6326ad975aa",
+  "source": "https://github.com/secure-agentic-framework/saf-k8s"
+}
