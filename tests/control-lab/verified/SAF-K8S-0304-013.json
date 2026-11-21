@@ -1,0 +1,75 @@
+{
+  "control_id": "SAF-K8S-0304-013",
+  "catalog_revision": "0a55af74af21d86bf3337f68104969514d8dde3c",
+  "catalog_sha256": "11a99ad06c57596610b31a49fd75c411fbd4ac43d2f8993fde4af70b86d0e3d1",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "991d1055d1a416b802a4a2def609fc1bfdd3e40f8754e4504e18a81f5ee3b252",
+  "scope": "Linux emptyDir backing filesystem, Pod replacement, and visibility of node swap and the tmpfs noswap option. Workload writes to other storage, crash dumps and hibernation are outside this fixture.",
+  "cluster": "saf-lab-96aeb2f0e89a",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "mounted emptyDir is not-tmpfs and marker is write",
+      "matched": true,
+      "observed": "fs=ext4 marker=written options=rw,relatime,discard"
+    },
+    {
+      "phase": "green",
+      "claim": "mounted emptyDir is tmpfs and marker is write",
+      "matched": true,
+      "observed": "fs=tmpfs marker=written options=rw,relatime,size=24827420k,noswap"
+    },
+    {
+      "phase": "green",
+      "claim": "Node swap is disabled or the actual tmpfs mount has noswap",
+      "matched": true,
+      "observed": {
+        "active_swap": true,
+        "noswap": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "replacement Pod has the same name and a different UID",
+      "matched": true,
+      "observed": "old=98a17b86-1c7d-441a-8a27-f1e9a05222b0 new=18868324-0eb0-48a7-bf6f-bff1744c883c"
+    },
+    {
+      "phase": "positive",
+      "claim": "mounted emptyDir is tmpfs and marker is check",
+      "matched": true,
+      "observed": "fs=tmpfs marker=absent options=rw,relatime,size=24827420k,noswap"
+    }
+  ]
+}

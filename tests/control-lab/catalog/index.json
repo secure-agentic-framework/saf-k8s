@@ -71,6 +71,12 @@
       "domain": "D03",
       "sha256": "cdb0b886591eee425910bc51be18aa0c6d69799441ccfc94ba57d1f0f3103ebd",
       "title": "Pod resource requests and limits specification"
+    },
+    "SAF-K8S-0304-013": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "991d1055d1a416b802a4a2def609fc1bfdd3e40f8754e4504e18a81f5ee3b252",
+      "title": "Tmpfs-backed handling for sensitive training intermediates"
     }
   },
   "path": "saf_k8s_controls.yaml",
