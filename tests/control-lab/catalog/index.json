@@ -275,6 +275,12 @@
       "domain": "D07",
       "sha256": "743ba4dc1ccb2d103c65e896df107dd37bce0d4a00147058205f7dcfa56c494f",
       "title": "LimitRange enforcement for containers and pods"
+    },
+    "SAF-K8S-0702-009": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "688e3eff7e674662fb6e50487c571f5ce9c9888d3aa16ddb8669db1b861e231f",
+      "title": "Admission control enforcement of workload classification label requirements"
     }
   },
   "path": "saf_k8s_controls.yaml",

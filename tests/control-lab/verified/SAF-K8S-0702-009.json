@@ -1,0 +1,256 @@
+{
+  "control_id": "SAF-K8S-0702-009",
+  "catalog_revision": "3e55e75211d64e0b66762ad2930127f06d59fa0f",
+  "catalog_sha256": "aefc685b3b821305b42ce28f3c1614edc0bed7ccef3e0ffa1004fa9e0cfc902c",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "688e3eff7e674662fb6e50487c571f5ce9c9888d3aa16ddb8669db1b861e231f",
+  "scope": "Native Kubernetes ValidatingAdmissionPolicy CREATE and UPDATE enforcement of the SAF-K8S-0702-005 AI classification labels on Pods and Job, Deployment, and StatefulSet templates in one synthetic namespace. Includes absent and ungoverned values, exact denials, namespace separation and an admitted Deployment rollout. Namespace enrollment governance, exceptions, CronJobs, DaemonSets, existing objects, and production policy rollout are separate.",
+  "cluster": "saf-lab-7e61d2d85f6e",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Inactive admission permits absent or wrong labels on all tested CREATE shapes",
+      "matched": true,
+      "observed": [
+        {
+          "kind": "Pod",
+          "variant": "missing",
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "kind": "Pod",
+          "variant": "wrong",
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "kind": "Deployment",
+          "variant": "missing",
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "kind": "Deployment",
+          "variant": "wrong",
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "kind": "StatefulSet",
+          "variant": "missing",
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "kind": "StatefulSet",
+          "variant": "wrong",
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "kind": "Job",
+          "variant": "missing",
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "kind": "Job",
+          "variant": "wrong",
+          "accepted": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "phase": "red",
+      "claim": "Compliant Pod baseline is created before policy",
+      "matched": true,
+      "observed": "created"
+    },
+    {
+      "phase": "red",
+      "claim": "Compliant Deployment baseline is created before policy",
+      "matched": true,
+      "observed": "created"
+    },
+    {
+      "phase": "red",
+      "claim": "Compliant StatefulSet baseline is created before policy",
+      "matched": true,
+      "observed": "created"
+    },
+    {
+      "phase": "red",
+      "claim": "Compliant Job baseline is created before policy",
+      "matched": true,
+      "observed": "created"
+    },
+    {
+      "phase": "red",
+      "claim": "Inactive admission permits wrong labels on tested UPDATE shapes",
+      "matched": true,
+      "observed": [
+        {
+          "kind": "Pod",
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "kind": "Deployment",
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "kind": "Job",
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "kind": "StatefulSet",
+          "accepted": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "phase": "green",
+      "claim": "CREATE rejects missing and wrong labels with the exact policy denial",
+      "matched": true,
+      "observed": [
+        {
+          "kind": "Pod",
+          "variant": "missing",
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": pods \"pod-missing\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-009-pod-classification' with binding 'saf-k8s-0702-009-pod-classification' denied request: all three AI workload classification labels must be present and use governed values"
+        },
+        {
+          "kind": "Pod",
+          "variant": "wrong",
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": pods \"pod-wrong\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-009-pod-classification' with binding 'saf-k8s-0702-009-pod-classification' denied request: all three AI workload classification labels must be present and use governed values"
+        },
+        {
+          "kind": "Deployment",
+          "variant": "missing",
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": deployments.apps \"deployment-missing\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-009-deployment-template-classification' with binding 'saf-k8s-0702-009-deployment-template-classification' denied request: all three AI workload classification labels must be present and use governed values"
+        },
+        {
+          "kind": "Deployment",
+          "variant": "wrong",
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": deployments.apps \"deployment-wrong\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-009-deployment-template-classification' with binding 'saf-k8s-0702-009-deployment-template-classification' denied request: all three AI workload classification labels must be present and use governed values"
+        },
+        {
+          "kind": "StatefulSet",
+          "variant": "missing",
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": statefulsets.apps \"statefulset-missing\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-009-statefulset-template-classification' with binding 'saf-k8s-0702-009-statefulset-template-classification' denied request: all three AI workload classification labels must be present and use governed values"
+        },
+        {
+          "kind": "StatefulSet",
+          "variant": "wrong",
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": statefulsets.apps \"statefulset-wrong\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-009-statefulset-template-classification' with binding 'saf-k8s-0702-009-statefulset-template-classification' denied request: all three AI workload classification labels must be present and use governed values"
+        },
+        {
+          "kind": "Job",
+          "variant": "missing",
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": jobs.batch \"job-missing\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-009-job-template-classification' with binding 'saf-k8s-0702-009-job-template-classification' denied request: all three AI workload classification labels must be present and use governed values"
+        },
+        {
+          "kind": "Job",
+          "variant": "wrong",
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": jobs.batch \"job-wrong\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-009-job-template-classification' with binding 'saf-k8s-0702-009-job-template-classification' denied request: all three AI workload classification labels must be present and use governed values"
+        }
+      ]
+    },
+    {
+      "phase": "green",
+      "claim": "UPDATE rejects wrong labels with the exact policy denial",
+      "matched": true,
+      "observed": [
+        {
+          "kind": "Pod",
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): pods \"update-pod\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-009-pod-classification' with binding 'saf-k8s-0702-009-pod-classification' denied request: all three AI workload classification labels must be present and use governed values"
+        },
+        {
+          "kind": "Deployment",
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): deployments.apps \"update-deployment\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-009-deployment-template-classification' with binding 'saf-k8s-0702-009-deployment-template-classification' denied request: all three AI workload classification labels must be present and use governed values"
+        },
+        {
+          "kind": "Job",
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): jobs.batch \"update-job\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-009-job-template-classification' with binding 'saf-k8s-0702-009-job-template-classification' denied request: all three AI workload classification labels must be present and use governed values"
+        },
+        {
+          "kind": "StatefulSet",
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): statefulsets.apps \"update-statefulset\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-009-statefulset-template-classification' with binding 'saf-k8s-0702-009-statefulset-template-classification' denied request: all three AI workload classification labels must be present and use governed values"
+        }
+      ]
+    },
+    {
+      "phase": "positive",
+      "claim": "Permitted governed class succeeds for Pod and Deployment template dry-runs",
+      "matched": true,
+      "observed": {
+        "pod": "admitted",
+        "deployment": "admitted"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An unlabeled fixture in the unselected namespace remains admissible",
+      "matched": true,
+      "observed": {
+        "outside_scope_admitted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The admitted Deployment produces a Ready Pod with governed labels",
+      "matched": true,
+      "observed": {
+        "deployment_ready": true,
+        "labels_match": true
+      }
+    }
+  ]
+}

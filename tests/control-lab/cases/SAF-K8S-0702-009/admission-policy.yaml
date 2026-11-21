@@ -1,0 +1,155 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0702-009-pod-classification
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: [CREATE, UPDATE]
+        resources: ["pods"]
+  validations:
+    - expression: >-
+        has(object.metadata.labels) &&
+        "ai.kais.io/workload-type" in object.metadata.labels &&
+        object.metadata.labels["ai.kais.io/workload-type"] in
+          ["training", "inference", "preprocessing", "evaluation", "notebook"] &&
+        "ai.kais.io/data-sensitivity" in object.metadata.labels &&
+        object.metadata.labels["ai.kais.io/data-sensitivity"] in
+          ["public", "internal", "confidential", "restricted"] &&
+        "ai.kais.io/model-tier" in object.metadata.labels &&
+        object.metadata.labels["ai.kais.io/model-tier"] in
+          ["experimental", "staging", "production"]
+      message: "all three AI workload classification labels must be present and use governed values"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0702-009-pod-classification
+spec:
+  policyName: saf-k8s-0702-009-pod-classification
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/classification-enforcement: required
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0702-009-deployment-template-classification
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        operations: [CREATE, UPDATE]
+        resources: ["deployments"]
+  validations:
+    - expression: >-
+        has(object.spec.template.metadata.labels) &&
+        "ai.kais.io/workload-type" in object.spec.template.metadata.labels &&
+        object.spec.template.metadata.labels["ai.kais.io/workload-type"] in
+          ["training", "inference", "preprocessing", "evaluation", "notebook"] &&
+        "ai.kais.io/data-sensitivity" in object.spec.template.metadata.labels &&
+        object.spec.template.metadata.labels["ai.kais.io/data-sensitivity"] in
+          ["public", "internal", "confidential", "restricted"] &&
+        "ai.kais.io/model-tier" in object.spec.template.metadata.labels &&
+        object.spec.template.metadata.labels["ai.kais.io/model-tier"] in
+          ["experimental", "staging", "production"]
+      message: "all three AI workload classification labels must be present and use governed values"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0702-009-deployment-template-classification
+spec:
+  policyName: saf-k8s-0702-009-deployment-template-classification
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/classification-enforcement: required
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0702-009-statefulset-template-classification
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        operations: [CREATE, UPDATE]
+        resources: ["statefulsets"]
+  validations:
+    - expression: >-
+        has(object.spec.template.metadata.labels) &&
+        "ai.kais.io/workload-type" in object.spec.template.metadata.labels &&
+        object.spec.template.metadata.labels["ai.kais.io/workload-type"] in
+          ["training", "inference", "preprocessing", "evaluation", "notebook"] &&
+        "ai.kais.io/data-sensitivity" in object.spec.template.metadata.labels &&
+        object.spec.template.metadata.labels["ai.kais.io/data-sensitivity"] in
+          ["public", "internal", "confidential", "restricted"] &&
+        "ai.kais.io/model-tier" in object.spec.template.metadata.labels &&
+        object.spec.template.metadata.labels["ai.kais.io/model-tier"] in
+          ["experimental", "staging", "production"]
+      message: "all three AI workload classification labels must be present and use governed values"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0702-009-statefulset-template-classification
+spec:
+  policyName: saf-k8s-0702-009-statefulset-template-classification
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/classification-enforcement: required
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0702-009-job-template-classification
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["batch"]
+        apiVersions: ["v1"]
+        operations: [CREATE, UPDATE]
+        resources: ["jobs"]
+  validations:
+    - expression: >-
+        has(object.spec.template.metadata.labels) &&
+        "ai.kais.io/workload-type" in object.spec.template.metadata.labels &&
+        object.spec.template.metadata.labels["ai.kais.io/workload-type"] in
+          ["training", "inference", "preprocessing", "evaluation", "notebook"] &&
+        "ai.kais.io/data-sensitivity" in object.spec.template.metadata.labels &&
+        object.spec.template.metadata.labels["ai.kais.io/data-sensitivity"] in
+          ["public", "internal", "confidential", "restricted"] &&
+        "ai.kais.io/model-tier" in object.spec.template.metadata.labels &&
+        object.spec.template.metadata.labels["ai.kais.io/model-tier"] in
+          ["experimental", "staging", "production"]
+      message: "all three AI workload classification labels must be present and use governed values"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0702-009-job-template-classification
+spec:
+  policyName: saf-k8s-0702-009-job-template-classification
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/classification-enforcement: required
