@@ -1,0 +1,136 @@
+{
+  "control_id": "SAF-K8S-0301-001",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "ccac07222eed502366483347db58feda3aca77703246f3d8136fa11c42a1161a",
+  "scope": "Namespace classification and exception governance for fixture namespaces, with pinned Restricted, documented Baseline and Privileged cases, and live PSA.",
+  "cluster": "saf-lab-c4f086979b18",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Before Restricted assignment, the harmless Restricted-specific probe is admitted",
+      "matched": true,
+      "observed": "server dry-run accepted in explicitly Baseline-classified namespace"
+    },
+    {
+      "phase": "red",
+      "claim": "The API admits an unclassified fixture namespace before policy",
+      "matched": true,
+      "observed": "admitted"
+    },
+    {
+      "phase": "green",
+      "claim": "Governance rejects an unclassified fixture namespace",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": namespaces \"saf-0301-unclassified\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-001-explicit-namespace-security-level' with binding 'saf-k8s-0301-001-explicit-namespace-security-level' denied request: use Restricted or record an approved namespace security exception"
+    },
+    {
+      "phase": "green",
+      "claim": "Governance rejects baseline without a documented exception",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": namespaces \"saf-0301-unapproved-baseline\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-001-explicit-namespace-security-level' with binding 'saf-k8s-0301-001-explicit-namespace-security-level' denied request: use Restricted or record an approved namespace security exception"
+    },
+    {
+      "phase": "green",
+      "claim": "Governance rejects privileged without a documented exception",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": namespaces \"saf-0301-unapproved-privileged\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-001-explicit-namespace-security-level' with binding 'saf-k8s-0301-001-explicit-namespace-security-level' denied request: use Restricted or record an approved namespace security exception"
+    },
+    {
+      "phase": "positive",
+      "claim": "A documented Privileged namespace admits the harmless dry-run",
+      "matched": true,
+      "observed": "server dry-run accepted"
+    },
+    {
+      "phase": "green",
+      "claim": "Synthetic namespace inventory shows explicit pinned PSA levels",
+      "matched": true,
+      "observed": {
+        "saf-0301-baseline": {
+          "enforce": "baseline",
+          "version": "v1.36"
+        },
+        "saf-0301-restricted": {
+          "enforce": "restricted",
+          "version": "v1.36"
+        },
+        "saf-0301-system": {
+          "enforce": "privileged",
+          "version": "v1.36"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Restricted dry-run denies the same probe with a PSA reason",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"restricted-context-probe\" is forbidden: violates PodSecurity \"restricted:v1.36\": allowPrivilegeEscalation != false (container \"probe\" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container \"probe\" must set securityContext.capabilities.drop=[\"ALL\"])"
+    },
+    {
+      "phase": "positive",
+      "claim": "Documented Baseline comparison admits the dry-run probe",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "exception": "Synthetic compatibility namespace demonstrates the separately classified Baseline profile; it is not a production or system namespace."
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Compliant Restricted manifest is admitted by server dry-run",
+      "matched": true,
+      "observed": {
+        "allowPrivilegeEscalation": false,
+        "capabilities": {
+          "drop": [
+            "ALL"
+          ]
+        },
+        "runAsNonRoot": true,
+        "runAsUser": 65534,
+        "seccompProfile": {
+          "type": "RuntimeDefault"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Compliant Pod reaches Ready in the Restricted namespace",
+      "matched": true,
+      "observed": "Ready"
+    }
+  ]
+}

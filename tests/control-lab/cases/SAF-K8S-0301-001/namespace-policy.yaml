@@ -1,0 +1,34 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0301-001-explicit-namespace-security-level
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: [CREATE, UPDATE]
+        resources: [namespaces]
+  matchConditions:
+    - name: managed-fixtures
+      expression: "object.metadata.name.startsWith('saf-0301-')"
+  validations:
+    - expression: >-
+        has(object.metadata.labels) &&
+        'pod-security.kubernetes.io/enforce' in object.metadata.labels &&
+        (object.metadata.labels['pod-security.kubernetes.io/enforce'] == 'restricted' ||
+          (object.metadata.labels['pod-security.kubernetes.io/enforce'] in ['baseline', 'privileged'] &&
+           has(object.metadata.annotations) &&
+           'saf-lab.example/exception' in object.metadata.annotations &&
+           size(object.metadata.annotations['saf-lab.example/exception']) > 0))
+      message: "use Restricted or record an approved namespace security exception"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0301-001-explicit-namespace-security-level
+spec:
+  policyName: saf-k8s-0301-001-explicit-namespace-security-level
+  validationActions: [Deny]

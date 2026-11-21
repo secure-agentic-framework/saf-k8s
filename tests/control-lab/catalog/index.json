@@ -29,6 +29,12 @@
       "domain": "D02",
       "sha256": "ce9f391b6deb0898b643e115837b2db527f9f4bd9208224ba43fcb9ca0c594b7",
       "title": "Container runtime user namespace isolation"
+    },
+    "SAF-K8S-0301-001": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "ccac07222eed502366483347db58feda3aca77703246f3d8136fa11c42a1161a",
+      "title": "Pod Security Standards level assignment"
     }
   },
   "path": "saf_k8s_controls.yaml",
