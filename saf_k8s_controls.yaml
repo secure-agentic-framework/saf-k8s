@@ -3070,12 +3070,12 @@
   knowledge_area: '4.3'
   control_seq: '005'
   control_title: AI pipeline secret leakage prevention
-  control_statement: Organizations must prevent secret leakage through training logs, model artifacts, checkpoint files, and pipeline metadata by implementing output filtering, artifact scanning, and dedicated secrets management for model registry credentials, training data access tokens, and API keys used by inference endpoints.
+  control_statement: "Organizations must prevent secret leakage through training logs, model artifacts, checkpoint files, and pipeline metadata by implementing output filtering, artifact scanning, and dedicated secrets management for model registry credentials, training data access tokens, and API keys used by inference endpoints. AI pipeline deployment comparisons must keep Secret values masked before diff output is logged or retained."
   objective: Ensure that secrets used by AI/ML pipelines are not inadvertently persisted in training outputs, model artifacts, or pipeline logs where they could be extracted by anyone with access to those artifacts.
   rationale: AI/ML pipelines present unique secret leakage vectors beyond traditional application workloads. Training jobs may log environment variables including credentials to experiment tracking systems. Model checkpoint files can embed configuration objects containing API keys. Pipeline metadata in orchestrators like Kubeflow or Argo may persist secret values in workflow status fields. Inference endpoints with hardcoded API keys bake credentials into serving containers that may be widely distributed.
   scope: Applies to all AI/ML pipeline components including training jobs, experiment tracking systems, model registries, checkpoint storage, and inference serving infrastructure. Covers secrets for model registry authentication, training data access, feature store connections, GPU cluster access, and external API keys used by inference endpoints.
   primary_enforcement_point: Training log sanitization filters, model artifact scanning in CI/CD pipelines, pipeline metadata redaction in workflow orchestrators, and container image scanning for hardcoded credentials in inference containers.
-  implementation_surface: Training log sanitization filters and structured logging with secret redaction, model artifact and checkpoint file scanning in CI/CD pipelines for embedded credentials, pipeline orchestrator metadata redaction (Kubeflow, Argo Workflow status field sanitization), container image scanning for hardcoded API keys in inference serving containers, experiment tracking client configuration (MLflow, Weights & Biases) with parameter filtering, and dedicated secret injection for model registry credentials, training data access tokens, and inference endpoint API keys.
+  implementation_surface: "Training log sanitization, model and checkpoint scanning, orchestrator metadata redaction, inference container scanning, experiment tracker parameter filtering, and dedicated secret injection. Where deployment automation uses kubectl diff, preserve default Secret masking and prevent enabling unmasked output in retained logs. Verify the selected client and output path with noncredential synthetic data."
   owner_primary: ML Engineering
   owner_supporting: Security Engineering; Platform Engineering
   baseline_or_ai_specific: ai-specific
@@ -3083,7 +3083,7 @@
   status: draft
   superseded_by_control_id: null
   date_created: '2026-02-28'
-  date_modified: '2026-03-17'
+  date_modified: "2026-11-21"
 - control_id: SAF-K8S-0403-006
   domain_code: D04
   domain_name: Identity, Access, and Secrets Management
