@@ -64,12 +64,14 @@
   knowledge_area: '1.1'
   control_seq: 008
   control_title: API server audit policy coverage and event detail
-  control_statement: Production Kubernetes clusters must enable API server audit logging with an audit policy that captures at least Metadata-level events for all resource types, Request-level events for sensitive resources (including Secrets, ConfigMaps, RBAC bindings, and TokenReviews), and RequestResponse-level events for authentication and authorization decisions.
-  objective: Ensure that API server activity is captured at the right audit verbosity so investigators can reconstruct sensitive requests and decision points without blind spots.
-  rationale: Audit logging fails as a forensic control when the policy omits high-value resources or records them at insufficient detail. This control isolates the audit policy design obligation from backend storage so teams can separately verify event coverage and verbosity tuning.
+  control_statement: >-
+    Production Kubernetes clusters must enable API server auditing with Metadata as the default for all resource types. Audit Secrets, TokenReviews, and service-account token issuance at Metadata, with rules ordered before any rule that could capture their bodies. Limit Request or RequestResponse recording to explicitly approved resource, verb, and scope rules whose captured fields have been reviewed for credential exposure. Verify that audit events retain the request target, verb, response status, identity when available, and authorization decision annotations where the API server supplies them.
+  objective: Preserve enough API server audit evidence to reconstruct security-relevant requests and decisions while keeping credential-bearing bodies out of audit records.
+  rationale: >-
+    Kubernetes uses the first matching audit rule. An early Metadata rule protects credential-bearing endpoints from later body-level rules. Request can retain a submitted body such as a TokenReview bearer token, and RequestResponse can also retain a response such as an issued service-account token. Metadata events can retain request and decision context without either body.
   scope: Applies to all production Kubernetes clusters, including managed services where the customer controls or can verify API server audit policy settings.
   primary_enforcement_point: Audit Policy Definition
-  implementation_surface: Audit policy YAML file, kube-apiserver audit policy configuration, and managed service audit policy settings.
+  implementation_surface: Ordered audit policy YAML rules, effective kube-apiserver or managed-service audit settings, and sampled event metadata for permitted and denied requests.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; Compliance
   baseline_or_ai_specific: baseline
@@ -77,7 +79,7 @@
   status: draft
   superseded_by_control_id: null
   date_created: '2026-03-15'
-  date_modified: '2026-03-17'
+  date_modified: '2026-11-21'
 - control_id: SAF-K8S-0101-012
   domain_code: D01
   domain_name: Control Plane and Cluster Hardening
