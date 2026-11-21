@@ -1,0 +1,4 @@
+# Synthetic public fixture; not copied from any cluster.
+kind: Pod
+metadata:
+  name: fixture-controller-manager

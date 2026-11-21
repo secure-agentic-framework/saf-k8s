@@ -120,6 +120,12 @@
       "sha256": "054d3b40a4bf405840b99a0ccc6af418f0dc90808684050bbb21436fec102d61",
       "title": "Controller-manager and scheduler loopback bind-address enforcement"
     },
+    "SAF-K8S-0104-005": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "d42e824e15a3f427c69a62bd108a0bce53b5faf1040cc9b51ef2875440939a50",
+      "title": "Control plane configuration file permissions"
+    },
     "SAF-K8S-0201-011": {
       "catalog_status": "draft",
       "domain": "D02",
