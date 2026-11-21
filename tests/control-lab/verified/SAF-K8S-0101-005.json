@@ -1,0 +1,186 @@
+{
+  "control_id": "SAF-K8S-0101-005",
+  "catalog_revision": "80be4b6c224eaba540d4aee40ab9b4fd9f4e1b7a",
+  "catalog_sha256": "c7cbff94a78d5b801132ea392557035b3a6e6c56f920c48a07bbc6326ad975aa",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "1b41f61c63728fcb7627b6f525c71002da908044bbbee6e244fcbe901a35f633",
+  "scope": "Containerd port-forward idle timing and namespace RBAC restrictions on routine exec and attach, with each stream path measured independently.",
+  "cluster": "saf-lab-99f6b721ef2f",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Established default runtime streams stay open beyond the lab limit",
+      "matched": true,
+      "observed": {
+        "config": {
+          "version": "containerd github.com/containerd/containerd/v2 v2.3.1 64b425cf570b3b8dd1d4cc46da7c1fce65c6651a",
+          "timeout": "4h0m0s"
+        },
+        "observations": {
+          "exec": {
+            "established": true,
+            "active_survived": null,
+            "idle_closed": false,
+            "idle_duration_s": 9.01
+          },
+          "attach": {
+            "established": true,
+            "active_survived": null,
+            "idle_closed": false,
+            "idle_duration_s": 9.01
+          },
+          "port-forward": {
+            "established": true,
+            "active_survived": null,
+            "idle_closed": false,
+            "idle_duration_s": 9.0
+          }
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The runtime's effective configured timeout matches the profile",
+      "matched": true,
+      "observed": {
+        "version": "containerd github.com/containerd/containerd/v2 v2.3.1 64b425cf570b3b8dd1d4cc46da7c1fce65c6651a",
+        "timeout": "5s"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The timeout closes each allowed idle path after active traffic stops",
+      "matched": true,
+      "observed": {
+        "verified_operations": [
+          "attach",
+          "port-forward"
+        ],
+        "observations": {
+          "exec": {
+            "established": true,
+            "active_survived": true,
+            "idle_closed": false,
+            "idle_duration_s": 9.01
+          },
+          "attach": {
+            "established": true,
+            "active_survived": true,
+            "idle_closed": true,
+            "idle_duration_s": 5.96
+          },
+          "port-forward": {
+            "established": true,
+            "active_survived": true,
+            "idle_closed": true,
+            "idle_duration_s": 5.94
+          }
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Paths requiring authorization restrictions were individually measured",
+      "matched": true,
+      "observed": {
+        "exec": {
+          "established": true,
+          "active_survived": true,
+          "idle_closed": false,
+          "idle_duration_s": 9.01
+        },
+        "attach": {
+          "established": true,
+          "active_survived": true,
+          "idle_closed": true,
+          "idle_duration_s": 5.96
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Routine exec is available before the access restriction",
+      "matched": true,
+      "observed": "routine-fixture"
+    },
+    {
+      "phase": "green",
+      "claim": "Routine exec is denied by Kubernetes authorization",
+      "matched": true,
+      "observed": "error: unable to upgrade connection: pods \"echo-shell\" is forbidden: User \"saf-stream-routine-operator\" cannot create resource \"pods/exec\" in API group \"\" in the namespace \"saf-test\""
+    },
+    {
+      "phase": "green",
+      "claim": "Routine attach is denied by Kubernetes authorization",
+      "matched": true,
+      "observed": "All commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.\nIf you don't see a command prompt, try pressing enter.\nerror: unable to upgrade connection: pods \"echo-shell\" is forbidden: User \"saf-stream-routine-operator\" cannot create resource \"pods/attach\" in API group \"\" in the namespace \"saf-test\""
+    },
+    {
+      "phase": "green",
+      "claim": "Routine authorization for get pods/exec is correctly scoped",
+      "matched": true,
+      "observed": "no"
+    },
+    {
+      "phase": "green",
+      "claim": "Routine authorization for create pods/exec is correctly scoped",
+      "matched": true,
+      "observed": "no"
+    },
+    {
+      "phase": "green",
+      "claim": "Routine authorization for get pods/attach is correctly scoped",
+      "matched": true,
+      "observed": "no"
+    },
+    {
+      "phase": "green",
+      "claim": "Routine authorization for create pods/attach is correctly scoped",
+      "matched": true,
+      "observed": "no"
+    },
+    {
+      "phase": "positive",
+      "claim": "Routine authorization for get pods/portforward is correctly scoped",
+      "matched": true,
+      "observed": "yes"
+    },
+    {
+      "phase": "positive",
+      "claim": "Routine authorization for create pods/portforward is correctly scoped",
+      "matched": true,
+      "observed": "yes"
+    }
+  ]
+}
