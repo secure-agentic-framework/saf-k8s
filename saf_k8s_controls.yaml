@@ -368,12 +368,12 @@
   knowledge_area: '1.2'
   control_seq: '012'
   control_title: etcd health monitoring and alerting
-  control_statement: Production Kubernetes clusters must implement continuous etcd health monitoring with alerts for quorum loss, storage quota pressure, replication lag, and disk or peer latency degradation so control-plane availability threats are detected before they cause write outages.
+  control_statement: Production Kubernetes clusters must continuously monitor etcd and alert on lost quorum or leadership, storage quota pressure, delayed replication or application, and disk or peer latency degradation. Use early-warning thresholds for progressive faults and report a quorum-loss alert as an availability incident when quorum has already been lost.
   objective: Detect etcd degradation early enough to preserve control-plane availability and prevent operational faults from becoming security-impacting outages.
   rationale: An unhealthy etcd cluster directly undermines Kubernetes control-plane availability. Without explicit monitoring and alerting, quorum loss, latency spikes, or storage pressure can progress into write outages that block security-critical actions such as certificate rotation, policy updates, and incident response.
   scope: Applies to all production clusters running self-managed etcd and to managed services where provider-exposed etcd or control-plane health telemetry is available. Covers health endpoints, quorum status, latency, and storage pressure alerting. Excludes compaction and defragmentation maintenance operations.
   primary_enforcement_point: Audit / Telemetry
-  implementation_surface: Monitoring and alerting infrastructure for etcd health endpoints, quorum metrics, storage quota metrics, disk latency, and peer latency.
+  implementation_surface: Monitoring and alerting for etcd health and readiness, leadership and quorum symptoms, database size versus backend quota, Raft progress across members, per-member progress from committed to applied proposals, disk latency, and peer round-trip latency. Treat unavailable telemetry as a distinct condition. Validate alert rules against an available healthy profile and clearly labeled unhealthy fixtures.
   owner_primary: Platform Engineering
   owner_supporting: Site Reliability Engineering; Security Operations
   baseline_or_ai_specific: baseline
