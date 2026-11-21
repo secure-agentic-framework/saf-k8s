@@ -2132,10 +2132,10 @@
   control_title: Host namespace isolation enforcement
   control_statement: Workloads must not use hostPID, hostIPC, or hostNetwork unless a documented exception with compensating controls is approved, and clusters must enforce this restriction through admission control that denies host namespace access by default.
   objective: Prevent containers from sharing the host's PID, IPC, and network namespaces, maintaining the isolation boundary between container workloads and the underlying node.
-  rationale: Host PID namespace access allows a container to see and signal all host processes, enabling process injection and credential harvesting. Host IPC namespace access permits shared memory manipulation of host processes. Host network namespace access bypasses network policies and exposes the container to the node's network interfaces, including the kubelet API and metadata services. These capabilities collectively enable container escape, lateral movement, and cloud credential theft.
+  rationale: "Host namespace sharing removes isolation for the selected process, IPC, or network namespace. The operations available to a workload still depend on its identity, capabilities, and other controls. NetworkPolicy behavior for hostNetwork workloads depends on the network implementation, so verify their containment before relying on it as an exception control."
   scope: Applies to all workloads in production clusters. Infrastructure components that legitimately require host namespace access (e.g., CNI plugins, node monitoring agents) must be isolated in dedicated namespaces with formal exemptions. Host namespace restrictions are enforced at both Baseline and Restricted PSS levels.
   primary_enforcement_point: Pod Security Admission (Baseline and Restricted levels), policy engine rules denying hostPID, hostIPC, and hostNetwork except for explicitly exempted workloads.
-  implementation_surface: Pod spec fields (hostPID, hostIPC, hostNetwork), Pod Security Admission (Baseline and Restricted levels), policy engine rules denying host namespace access with scoped exemptions, Kubernetes audit log queries for host namespace admission events, exemption register for infrastructure components (CNI plugins, node monitoring agents, NVIDIA MPS daemon), network policies for compensating controls on exempted pods, and AppArmor/seccomp profiles limiting exempted pods to required operations.
+  implementation_surface: "Pod hostPID, hostIPC, and hostNetwork fields, Baseline or Restricted Pod Security Admission, admission checks for scoped exemptions, and audit and exception records. Verify effective compensating controls for each exception, including whether the network implementation constrains hostNetwork traffic."
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Application Development teams
   baseline_or_ai_specific: baseline
@@ -2143,7 +2143,7 @@
   status: draft
   superseded_by_control_id: null
   date_created: '2026-02-28'
-  date_modified: '2026-03-17'
+  date_modified: "2026-11-21"
 - control_id: SAF-K8S-0302-005
   domain_code: D03
   domain_name: Workload and Pod Security
