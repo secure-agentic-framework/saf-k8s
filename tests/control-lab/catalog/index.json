@@ -60,6 +60,12 @@
       "sha256": "9de85f348b60cbc8a95f8e148a4f2047cb64033903e42d8bb9797b35d35196f9",
       "title": "etcd backup integrity verification and restore assurance"
     },
+    "SAF-K8S-0102-012": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "c23366274e0b20d81e494950b016e19bf4dfb7b74a70171e786fe1afde420231",
+      "title": "etcd health monitoring and alerting"
+    },
     "SAF-K8S-0103-001": {
       "catalog_status": "draft",
       "domain": "D01",

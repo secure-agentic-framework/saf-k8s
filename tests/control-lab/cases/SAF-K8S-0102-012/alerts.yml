@@ -1,0 +1,27 @@
+groups:
+  - name: saf-etcd-health
+    rules:
+      - alert: EtcdTelemetryUnavailable
+        expr: up{job="etcd"} == 0 or absent(up{job="etcd"})
+        for: 2m
+      - alert: EtcdNoLeader
+        expr: etcd_server_has_leader{job="etcd"} == 0
+        for: 2m
+      - alert: EtcdStorageQuotaPressure
+        expr: etcd_mvcc_db_total_size_in_bytes{job="etcd"} / etcd_server_quota_backend_bytes{job="etcd"} > 0.90
+        for: 3m
+      - alert: EtcdMemberApplyLag
+        expr: etcd_server_proposals_committed_total{job="etcd"} - etcd_server_proposals_applied_total{job="etcd"} > 1000
+        for: 2m
+      - alert: EtcdMemberReplicationLag
+        expr: max by (cluster) (etcd_server_proposals_committed_total{job="etcd"}) - on (cluster) group_right etcd_server_proposals_committed_total{job="etcd"} > 1000
+        for: 2m
+      - alert: EtcdHighWalLatency
+        expr: histogram_quantile(0.99, sum by (le, instance, cluster) (rate(etcd_disk_wal_fsync_duration_seconds_bucket{job="etcd"}[5m]))) > 0.5
+        for: 2m
+      - alert: EtcdHighBackendLatency
+        expr: histogram_quantile(0.99, sum by (le, instance, cluster) (rate(etcd_disk_backend_commit_duration_seconds_bucket{job="etcd"}[5m]))) > 0.25
+        for: 2m
+      - alert: EtcdSlowPeer
+        expr: histogram_quantile(0.99, sum by (le, instance, cluster, To) (rate(etcd_network_peer_round_trip_time_seconds_bucket{job="etcd"}[5m]))) > 0.15
+        for: 2m

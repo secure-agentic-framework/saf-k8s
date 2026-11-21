@@ -1,0 +1,74 @@
+{
+  "control_id": "SAF-K8S-0102-012",
+  "catalog_revision": "862b83a0676cdf1ca5cb025080012d1e14e1e453",
+  "catalog_sha256": "67df268920c5bc79b942d6aa35c7aa6d4d739f1d68046a9333bc5b5a3f65acfb",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "c23366274e0b20d81e494950b016e19bf4dfb7b74a70171e786fe1afde420231",
+  "scope": "Native readiness, endpoint status and passive metrics on one healthy v1.36.1 kind etcd member. Prometheus evaluates the actual sample for leadership and quota and separately checks labeled synthetic lag, missing telemetry and latency. No live outage or load is induced.",
+  "cluster": "saf-lab-cc35353899c4",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The passive member exposes real readiness, leader, quota, progress and disk metrics",
+      "matched": true,
+      "observed": {
+        "ready": true,
+        "leader_present": true,
+        "db_below_quota": true,
+        "apply_progress_available": true,
+        "disk_histograms": {
+          "wal": true,
+          "backend": true
+        },
+        "peer_samples_present": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Expected leader-loss alert is absent with no rules loaded",
+      "matched": true,
+      "observed": true
+    },
+    {
+      "phase": "green",
+      "claim": "Promtool distinguishes all eight labeled fault fixtures from the passive healthy input",
+      "matched": true,
+      "observed": {
+        "healthy_inputs": 1,
+        "synthetic_faults": 8,
+        "rule_engine_passed": true
+      }
+    }
+  ]
+}
