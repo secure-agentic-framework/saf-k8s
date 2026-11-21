@@ -2504,12 +2504,12 @@
   knowledge_area: '3.4'
   control_seq: '013'
   control_title: Tmpfs-backed handling for sensitive training intermediates
-  control_statement: Sensitive intermediate training data that does not require durable persistence must use tmpfs-backed emptyDir or equivalent memory-backed ephemeral storage so those artifacts are not written to node-local disk and are removed with pod lifecycle termination.
+  control_statement: Sensitive intermediate training data that does not require durable persistence must be written only to memory-backed ephemeral scratch space that is discarded when the Pod is removed. For tmpfs-backed emptyDir, set medium to Memory and verify either that node swap is disabled or that the mounted filesystem uses noswap. Verify equivalent swap protection and lifecycle behavior for other memory-backed implementations.
   objective: Reduce exposure of sensitive temporary training data by keeping qualifying intermediate artifacts in memory-backed ephemeral storage rather than on node-local disks.
-  rationale: Sensitive training intermediates can contain fragments of training data, embeddings, or model state that should not persist on node-local SSD or host filesystems after job completion. tmpfs-backed storage limits that exposure window by keeping qualifying data in memory and removing it with pod termination.
+  rationale: Sensitive training intermediates can contain fragments of training data, embeddings, or model state. A memory-backed volume gives that data a Pod-scoped filesystem. Linux can move tmpfs pages to disk when node swap is enabled and the mount permits swapping. Kubelet can continue without the noswap option on a kernel that does not support it. Verify the effective mount or disable node swap, and review any other paths the workload uses to write sensitive scratch data.
   scope: Applies to AI and ML training workloads that stage sensitive intermediate data, tokenized samples, gradients, or temporary outputs that do not require durable persistence.
-  primary_enforcement_point: Pod specification validation for emptyDir.medium=Memory and workload design reviews for sensitive intermediate-data handling.
-  implementation_surface: Pod spec emptyDir medium selections and workload manifests showing which sensitive intermediate datasets use memory-backed scratch space.
+  primary_enforcement_point: Pod specification validation, verification of node swap and effective mount options, and workload design review for sensitive scratch data.
+  implementation_surface: Workload manifests mapping sensitive temporary data to memory-backed scratch volumes, node swap configuration or observed tmpfs noswap mount options, and a Pod replacement check.
   owner_primary: AI/ML Platform team
   owner_supporting: Platform Engineering; Security Engineering
   baseline_or_ai_specific: baseline
@@ -2517,7 +2517,7 @@
   status: draft
   superseded_by_control_id: null
   date_created: '2026-03-16'
-  date_modified: '2026-03-17'
+  date_modified: '2026-11-21'
 - control_id: SAF-K8S-0401-001
   domain_code: D04
   domain_name: Identity, Access, and Secrets Management
