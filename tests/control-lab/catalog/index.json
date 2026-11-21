@@ -9,7 +9,7 @@
     "SAF-K8S-0101-008": {
       "catalog_status": "draft",
       "domain": "D01",
-      "sha256": "458c8c57ff578034754d25d5cafa43eea8a171d6ab3a12bdb510f307a58678c4",
+      "sha256": "808148332641116e89465b96fbe1f089a81bc63d4b2344e6494bde1b06638ae8",
       "title": "API server audit policy coverage and event detail"
     },
     "SAF-K8S-0101-012": {
@@ -116,7 +116,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "9b7fa41e26cd829e3204d1c91b4e85f63622fce4",
-  "sha256": "c7cbff94a78d5b801132ea392557035b3a6e6c56f920c48a07bbc6326ad975aa",
+  "revision": "4c21cbb52a730d06752529c7c93f2fef792571f2",
+  "sha256": "9391332ee0db464f87144b25065e1f0762473db8806f648732451728d05c92e5",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

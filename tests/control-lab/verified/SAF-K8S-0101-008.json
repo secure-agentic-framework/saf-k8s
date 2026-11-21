@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0101-008",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "2e441a0ee2053970768ae63dfec6042271eff0e6",
+  "catalog_sha256": "a29674a79b324ba57c2a8cfef55cdd0eed64e64a41443c823a42bce7a0cb41c1",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "458c8c57ff578034754d25d5cafa43eea8a171d6ab3a12bdb510f307a58678c4",
-  "scope": "One harmless ConfigMap create in the runner-owned default kind cluster, where the static API server manifest has no audit flags and the known audit file is absent, compared with the same create in a disposable v1.36.1 kind cluster using a catch-all Metadata policy; the audited ResponseComplete event must omit both body fields.",
-  "cluster": "saf-lab-373573e852bc",
+  "control_sha256": "808148332641116e89465b96fbe1f089a81bc63d4b2344e6494bde1b06638ae8",
+  "scope": "The same synthetic ConfigMap and Secret creates, allowed and denied reads, inert TokenReview, and ordinary Pod token projection use default and audited kind profiles. Audit events are filtered in-node to fixed metadata and body-presence booleans. Only the noncredential ConfigMap canary may record a request body; Secret, TokenReview, and service-account token policies are metadata-only.",
+  "cluster": "saf-lab-5abe3c3f0220",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -40,27 +40,33 @@
   "checks": [
     {
       "phase": "positive",
-      "claim": "The harmless ConfigMap create succeeds against the unaudited baseline API",
+      "claim": "Policy source keeps credential classes Metadata-only ahead of the canary rule",
       "matched": true,
-      "observed": "created saf-test/saf-audit-metadata-marker"
+      "observed": "credential metadata rules precede scoped Request rule; Metadata catch-all is last"
+    },
+    {
+      "phase": "positive",
+      "claim": "Same-named synthetic requests retain their outcomes on the no-audit profile",
+      "matched": true,
+      "observed": "canary=pass, secret=pass, allowed=pass, denied=pass, token_review=pass, projection=pass"
     },
     {
       "phase": "red",
-      "claim": "The runner-owned default API server has no configured audit backend",
+      "claim": "Default comparison cluster has no configured audit backend",
       "matched": true,
       "observed": "audit_flags=absent audit_log=absent"
     },
     {
       "phase": "positive",
-      "claim": "The same harmless ConfigMap create succeeds against the audited API",
+      "claim": "Synthetic requests retain the intended allow and forbid outcomes",
       "matched": true,
-      "observed": "created saf-test/saf-audit-metadata-marker"
+      "observed": "canary=pass, secret=pass, allowed=pass, denied=pass, token_review=pass, projection=pass"
     },
     {
       "phase": "green",
-      "claim": "The matching API create has a Metadata completion event without either body",
+      "claim": "Audit records exact identity, decisions, targets, status, and canary body boundary",
       "matched": true,
-      "observed": "verb=create level=Metadata namespace=saf-test stage=ResponseComplete requestObject=absent responseObject=absent"
+      "observed": "[{\"decision\": \"allow\", \"identity\": \"saf-audit-probe\", \"level\": \"Request\", \"name\": \"saf-audit-noncredential-canary\", \"namespace\": \"saf-test\", \"requestObject\": true, \"resource\": \"configmaps\", \"responseObject\": false, \"stage\": \"ResponseComplete\", \"status\": 201, \"subresource\": \"\", \"username\": \"kubernetes-admin\", \"verb\": \"create\"}, {\"decision\": \"allow\", \"identity\": \"saf-audit-probe\", \"level\": \"Metadata\", \"name\": \"saf-audit-noncredential-canary\", \"namespace\": \"saf-test\", \"requestObject\": false, \"resource\": \"configmaps\", \"responseObject\": false, \"stage\": \"ResponseComplete\", \"status\": 200, \"subresource\": \"\", \"username\": \"kubernetes-admin\", \"verb\": \"get\"}, {\"decision\": \"forbid\", \"identity\": \"saf-audit-probe\", \"level\": \"Metadata\", \"name\": \"saf-audit-forbidden-pod-probe\", \"namespace\": \"saf-test\", \"requestObject\": false, \"resource\": \"pods\", \"responseObject\": false, \"stage\": \"ResponseComplete\", \"status\": 403, \"subresource\": \"\", \"username\": \"kubernetes-admin\", \"verb\": \"get\"}, {\"decision\": \"allow\", \"identity\": \"saf-audit-probe\", \"level\": \"Metadata\", \"name\": \"saf-audit-empty-secret-probe\", \"namespace\": \"saf-test\", \"requestObject\": false, \"resource\": \"secrets\", \"responseObject\": false, \"stage\": \"ResponseComplete\", \"status\": 201, \"subresource\": \"\", \"username\": \"kubernetes-admin\", \"verb\": \"create\"}, {\"decision\": \"allow\", \"identity\": \"fixture-kubelet\", \"level\": \"Metadata\", \"name\": \"saf-audit-projected-fixture\", \"namespace\": \"saf-test\", \"requestObject\": false, \"resource\": \"serviceaccounts\", \"responseObject\": false, \"stage\": \"ResponseComplete\", \"status\": 201, \"subresource\": \"token\", \"username\": \"fixture-kubelet\", \"verb\": \"create\"}, {\"decision\": \"allow\", \"identity\": \"kubernetes-admin\", \"level\": \"Metadata\", \"name\": \"\", \"namespace\": \"\", \"requestObject\": false, \"resource\": \"tokenreviews\", \"responseObject\": false, \"stage\": \"ResponseComplete\", \"status\": 201, \"subresource\": \"\", \"username\": \"kubernetes-admin\", \"verb\": \"create\"}]"
     }
   ]
 }

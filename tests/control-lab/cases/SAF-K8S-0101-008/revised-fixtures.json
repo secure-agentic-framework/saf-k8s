@@ -1,0 +1,55 @@
+{
+  "namespace": "saf-test",
+  "identity": "saf-audit-probe",
+  "authenticatedIdentity": "kubernetes-admin",
+  "canary": {
+    "name": "saf-audit-noncredential-canary",
+    "data": {
+      "marker": "synthetic-noncredential-audit-canary"
+    },
+    "request": {
+      "verb": "create",
+      "resource": "configmaps",
+      "status": 201,
+      "decision": "allow",
+      "level": "Request",
+      "requestObject": true,
+      "responseObject": false
+    }
+  },
+  "secret": {
+    "name": "saf-audit-empty-secret-probe",
+    "verb": "create",
+    "resource": "secrets",
+    "status": 201,
+    "decision": "allow",
+    "level": "Metadata",
+    "requestObject": false,
+    "responseObject": false
+  },
+  "allowed": {
+    "name": "saf-audit-noncredential-canary",
+    "verb": "get",
+    "resource": "configmaps",
+    "status": 200,
+    "decision": "allow",
+    "level": "Metadata",
+    "requestObject": false,
+    "responseObject": false
+  },
+  "denied": {
+    "name": "saf-audit-forbidden-pod-probe",
+    "verb": "get",
+    "resource": "pods",
+    "status": 403,
+    "decision": "forbid",
+    "level": "Metadata",
+    "requestObject": false,
+    "responseObject": false
+  },
+  "credentialPolicy": [
+    {"group": "", "resource": "secrets", "level": "Metadata"},
+    {"group": "", "resource": "serviceaccounts/token", "level": "Metadata"},
+    {"group": "authentication.k8s.io", "resource": "tokenreviews", "level": "Metadata"}
+  ]
+}

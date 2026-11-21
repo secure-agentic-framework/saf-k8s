@@ -1,0 +1,31 @@
+apiVersion: audit.k8s.io/v1
+kind: Policy
+omitStages:
+  - RequestReceived
+rules:
+  # Credential-bearing objects and endpoints must remain metadata-only before
+  # the explicitly reviewed ConfigMap request-body rule below.
+  - level: Metadata
+    resources:
+      - group: ""
+        resources:
+          - secrets
+          - serviceaccounts/token
+      - group: authentication.k8s.io
+        resources:
+          - tokenreviews
+  # Limit request-body capture to the case admin, isolated namespace, and
+  # synthetic ConfigMap create. Responses are never recorded.
+  - level: Request
+    users:
+      - kubernetes-admin
+    verbs:
+      - create
+    namespaces:
+      - saf-test
+    resources:
+      - group: ""
+        resources:
+          - configmaps
+  # Keep audit coverage for all remaining API requests without recording bodies.
+  - level: Metadata
