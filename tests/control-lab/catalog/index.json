@@ -83,6 +83,12 @@
       "domain": "D04",
       "sha256": "8ed8bcee092d7335591d868389d3b20b89644747fac8f5a63d5415fb15b80209",
       "title": "Default service account disablement and token automount hardening"
+    },
+    "SAF-K8S-0402-019": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "f9e7d19988c54161513c37825c56a961fff1e09eaa0a133286714e3f7ebf15ff",
+      "title": "Dedicated workload service accounts and least-privilege assignment"
     }
   },
   "path": "saf_k8s_controls.yaml",

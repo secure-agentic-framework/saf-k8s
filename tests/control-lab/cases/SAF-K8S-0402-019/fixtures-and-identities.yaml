@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0402-019-alpha
+  namespace: saf-test
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0402-019-beta
+  namespace: saf-test
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-0402-019-alpha-fixture
+  namespace: saf-test
+data:
+  marker: alpha-marker
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-0402-019-beta-fixture
+  namespace: saf-test
+data:
+  marker: beta-marker
