@@ -1,0 +1,84 @@
+{
+  "control_id": "SAF-K8S-0202-004",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "d69147271330bea0d5959f40f6d8850dec72d2bcafb6ce2ea5db44dffc1fa85c",
+  "scope": "Local kind with the repository's pinned Kubernetes 1.36.1 node image. Checks namespace Pod Security Admission Baseline rejection of Pod hostPath volumes using inert, nonexistent socket and runtime-parent fixtures, plus admission and readiness of a benign Pod without hostPath, and a pinned daemonless Kaniko build with a synthetic build context and no runtime socket.",
+  "cluster": "saf-lab-a7eaadac5368",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "socket-path-probe is admitted before PSA enforcement",
+      "matched": true,
+      "observed": "server dry-run admitted"
+    },
+    {
+      "phase": "red",
+      "claim": "socket-parent-path-probe is admitted before PSA enforcement",
+      "matched": true,
+      "observed": "server dry-run admitted"
+    },
+    {
+      "phase": "green",
+      "claim": "socket-path-probe is denied by PSA Baseline",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"socket-path-probe\" is forbidden: violates PodSecurity \"baseline:v1.36\": hostPath volumes (volume \"runtime\")"
+    },
+    {
+      "phase": "green",
+      "claim": "socket-parent-path-probe is denied by PSA Baseline",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"socket-parent-path-probe\" is forbidden: violates PodSecurity \"baseline:v1.36\": hostPath volumes (volume \"runtime-parent\")"
+    },
+    {
+      "phase": "positive",
+      "claim": "A benign no-hostPath Pod passes server admission dry-run",
+      "matched": true,
+      "observed": "server dry-run admitted"
+    },
+    {
+      "phase": "positive",
+      "claim": "The benign no-hostPath Pod reaches Ready",
+      "matched": true,
+      "observed": "Pod/compliant-no-hostpath Ready"
+    },
+    {
+      "phase": "positive",
+      "claim": "Daemonless CI build without hostPath produces a verifiable image archive",
+      "matched": true,
+      "observed": "Verified image payload and digest: sha256:1739c12e240534645420a50c041a1e605a34f61c1a6a61b7dd7194ee44b8b73f"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+[
+  {
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {"name": "socket-path-probe"},
+    "spec": {
+      "restartPolicy": "Never",
+      "containers": [{
+        "name": "probe",
+        "image": "docker.io/library/busybox:1.37.0",
+        "command": ["sh", "-c", "true"],
+        "volumeMounts": [{"name": "runtime", "mountPath": "/probe/runtime.sock"}]
+      }],
+      "volumes": [{
+        "name": "runtime",
+        "hostPath": {
+          "path": "/var/run/containerd/saf-k8s-0202-004-nonexistent.sock",
+          "type": "Socket"
+        }
+      }]
+    }
+  },
+  {
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {"name": "socket-parent-path-probe"},
+    "spec": {
+      "restartPolicy": "Never",
+      "containers": [{
+        "name": "probe",
+        "image": "docker.io/library/busybox:1.37.0",
+        "command": ["sh", "-c", "true"],
+        "volumeMounts": [{"name": "runtime-parent", "mountPath": "/probe/runtime"}]
+      }],
+      "volumes": [{
+        "name": "runtime-parent",
+        "hostPath": {
+          "path": "/var/run/containerd/saf-k8s-0202-004-nonexistent-parent",
+          "type": "Directory"
+        }
+      }]
+    }
+  }
+]

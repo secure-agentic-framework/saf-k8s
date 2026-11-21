@@ -17,6 +17,12 @@
       "domain": "D01",
       "sha256": "3e5adeb40e9baa500ce92aae2cf579de9dfd513c5e12007b145ab9decce894ec",
       "title": "API server TLS enforcement"
+    },
+    "SAF-K8S-0202-004": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "d69147271330bea0d5959f40f6d8850dec72d2bcafb6ce2ea5db44dffc1fa85c",
+      "title": "Runtime socket mount prevention"
     }
   },
   "path": "saf_k8s_controls.yaml",
