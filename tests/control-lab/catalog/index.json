@@ -42,6 +42,12 @@
       "sha256": "c1659147b41eac1553d7e44507621d4ba31fe04234f66fd0b7f8757557e73199",
       "title": "API server approved admission controller chain configuration"
     },
+    "SAF-K8S-0103-001": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "1dd40c5b1b9ef0e9b4936119f383608006504cdfce9c2700c3ec911defbc8375",
+      "title": "Controller-manager service account token hardening"
+    },
     "SAF-K8S-0103-005": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -182,7 +188,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "9cbd303b231231c01b413f01600f743bf97b1e23",
-  "sha256": "0bfe1fdf09831b32339763e180351a97ec18aa7b89bf6d4d85abb0e1aff15022",
+  "revision": "ddbbf7c1d67aac66feb0b88bce3965205d98d2b9",
+  "sha256": "3092bf14626aef6e258b11d35bdddf9e8193d44db6468a4491b05e2d53649c7c",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

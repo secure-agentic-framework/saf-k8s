@@ -1,0 +1,75 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "name": "saf-projected-token-probe",
+    "namespace": "saf-token-controller",
+    "labels": {
+      "app.kubernetes.io/name": "saf-projected-token-probe"
+    }
+  },
+  "spec": {
+    "restartPolicy": "Never",
+    "serviceAccountName": "saf-token-probe",
+    "automountServiceAccountToken": false,
+    "volumes": [
+      {
+        "name": "api-identity",
+        "projected": {
+          "sources": [
+            {
+              "serviceAccountToken": {
+                "path": "token",
+                "expirationSeconds": 600,
+                "audience": "saf-token-probe.identity.invalid"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "containers": [
+      {
+        "name": "claim-observer",
+        "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+        "imagePullPolicy": "IfNotPresent",
+        "command": [
+          "/bin/sh",
+          "-c",
+          "sleep 3600"
+        ],
+        "volumeMounts": [
+          {
+            "name": "api-identity",
+            "mountPath": "/var/run/saf-projected",
+            "readOnly": true
+          }
+        ],
+        "securityContext": {
+          "allowPrivilegeEscalation": false,
+          "capabilities": {
+            "drop": [
+              "ALL"
+            ]
+          },
+          "readOnlyRootFilesystem": true,
+          "runAsNonRoot": true,
+          "runAsUser": 65532,
+          "seccompProfile": {
+            "type": "RuntimeDefault"
+          }
+        },
+        "env": [
+          {
+            "name": "POD_UID",
+            "valueFrom": {
+              "fieldRef": {
+                "fieldPath": "metadata.uid"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

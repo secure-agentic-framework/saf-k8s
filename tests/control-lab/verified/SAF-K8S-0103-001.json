@@ -1,0 +1,141 @@
+{
+  "control_id": "SAF-K8S-0103-001",
+  "catalog_revision": "9650733d79c28f4786e099ef91c8ea941db02054",
+  "catalog_sha256": "3092bf14626aef6e258b11d35bdddf9e8193d44db6468a4491b05e2d53649c7c",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "1dd40c5b1b9ef0e9b4936119f383608006504cdfce9c2700c3ec911defbc8375",
+  "scope": "Kubernetes v1.36.1 on disposable local kind clusters. Compare the stock kube-controller-manager with a profile that sets the legacy controller exclusion flag. Observe that no legacy token Secret is auto-generated and both profiles still populate an explicitly requested fixture. Apply namespace-scoped admission and confirm it rejects the same request while a harmless Pod still receives a projected, expiring bound token. Only boolean field-presence and boolean JWT-claim observations are retained; no token or Secret data is emitted. This does not assess production or managed-provider configuration.",
+  "cluster": "saf-lab-dfdad9016762",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Stock kubeadm controller-manager has the legacy token controller enabled",
+      "matched": true,
+      "observed": {
+        "controller_selection": [
+          "*,bootstrapsigner,tokencleaner"
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The ServiceAccount has no auto-generated long-lived token Secret reference",
+      "matched": true,
+      "observed": {
+        "secret_references_present": false,
+        "observed_secret_types": []
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "With the stock controller, an explicitly requested legacy Secret is populated",
+      "matched": true,
+      "observed": {
+        "legacy_secret_field_presence": {
+          "token": "true",
+          "namespace": "true",
+          "ca": "true"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Projected token is present, time bounded, audience-bearing, and bound to Pod and ServiceAccount claims",
+      "matched": true,
+      "observed": {
+        "claims_exp": "true",
+        "claims_aud": "true",
+        "claims_pod": "true",
+        "claims_serviceaccount": "true"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The live kube-controller-manager process has the controller exclusion flag",
+      "matched": true,
+      "observed": {
+        "controller_selection": [
+          "*,bootstrapsigner,tokencleaner,-serviceaccount-token-controller"
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The ServiceAccount has no auto-generated long-lived token Secret reference",
+      "matched": true,
+      "observed": {
+        "secret_references_present": false,
+        "observed_secret_types": []
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "With the exclusion flag present, an explicitly requested legacy Secret is populated",
+      "matched": true,
+      "observed": {
+        "legacy_secret_field_presence": {
+          "token": "true",
+          "namespace": "true",
+          "ca": "true"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission rejects the identical explicit legacy Secret create",
+      "matched": true,
+      "observed": {
+        "policy": "saf-k8s-no-legacy-token-secrets",
+        "message": "Error from server (Forbidden): error when creating \"STDIN\": secrets \"saf-explicit-legacy-token-probe\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-no-legacy-token-secrets' with binding 'saf-k8s-no-legacy-token-secrets-disposable-namespace' denied request: legacy service account token Secrets are prohibited"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The policy still accepts a harmless non-token Secret",
+      "matched": true,
+      "observed": 0
+    },
+    {
+      "phase": "positive",
+      "claim": "Projected token is present, time bounded, audience-bearing, and bound to Pod and ServiceAccount claims",
+      "matched": true,
+      "observed": {
+        "claims_exp": "true",
+        "claims_aud": "true",
+        "claims_pod": "true",
+        "claims_serviceaccount": "true"
+      }
+    }
+  ]
+}
