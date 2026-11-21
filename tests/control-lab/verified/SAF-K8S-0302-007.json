@@ -1,0 +1,132 @@
+{
+  "control_id": "SAF-K8S-0302-007",
+  "catalog_revision": "32e7acd3741bfcb96a1e89edc61274c181afb173",
+  "catalog_sha256": "b20ca75f54b83e09118278fd5e031b850dc5a8f07c9034344f2449fdc398fa43",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "cc241aaddac4e71a37af3f4b93062d8c94d2bb8b0a7bcb2825e00f8c718f927b",
+  "scope": "Synthetic namespace admission and one nonprivileged Linux Pod: exact fsGroup 2000, supplementalGroups [3000], writable emptyDir or a case-owned local PVC at /fixture-data, and a read-only synthetic ConfigMap at /protected-data. Inert server dry-runs challenge unsafe group IDs, a forbidden mount path, and hostPath before the sole compliant Pod is created. The case exercises one local persistent-volume mechanism; CSI drivers, external providers, and real platform volumes remain separate.",
+  "cluster": "saf-lab-013a3a02406c",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "API accepts inert out-of-set fsGroup probe before policy",
+      "matched": true,
+      "observed": "server dry-run accepted; no Pod persisted"
+    },
+    {
+      "phase": "red",
+      "claim": "API accepts inert out-of-set supplementalGroups probe before policy",
+      "matched": true,
+      "observed": "server dry-run accepted; no Pod persisted"
+    },
+    {
+      "phase": "red",
+      "claim": "API accepts inert forbidden mount path probe before policy",
+      "matched": true,
+      "observed": "server dry-run accepted; no Pod persisted"
+    },
+    {
+      "phase": "red",
+      "claim": "API accepts inert host-backed volume source probe before policy",
+      "matched": true,
+      "observed": "server dry-run accepted; no Pod persisted"
+    },
+    {
+      "phase": "red",
+      "claim": "API accepts inert unapproved PVC reference probe before policy",
+      "matched": true,
+      "observed": "server dry-run accepted; no Pod persisted"
+    },
+    {
+      "phase": "red",
+      "claim": "API accepts exact approved group and mount values before policy",
+      "matched": true,
+      "observed": "server dry-run accepted"
+    },
+    {
+      "phase": "green",
+      "claim": "Policy rejects unsafe fsGroup with its exact reason",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0302-007-bad-fsgroup\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-007-group-storage-boundary' with binding 'saf-k8s-0302-007-group-storage-boundary' denied request: Pod groups must be fsGroup 2000 and supplementalGroups exactly [3000]"
+    },
+    {
+      "phase": "green",
+      "claim": "Policy rejects out-of-set supplementalGroups with its exact reason",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0302-007-bad-supplemental\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-007-group-storage-boundary' with binding 'saf-k8s-0302-007-group-storage-boundary' denied request: Pod groups must be fsGroup 2000 and supplementalGroups exactly [3000]"
+    },
+    {
+      "phase": "green",
+      "claim": "Policy rejects forbidden mount path with its exact reason",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0302-007-bad-mount\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-007-group-storage-boundary' with binding 'saf-k8s-0302-007-group-storage-boundary' denied request: Containers may mount only /fixture-data writable and /protected-data read-only"
+    },
+    {
+      "phase": "green",
+      "claim": "Policy rejects host-backed volume source with its exact reason",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0302-007-hostpath\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-007-group-storage-boundary' with binding 'saf-k8s-0302-007-group-storage-boundary' denied request: Only the named workload storage and protected ConfigMap volumes are allowed"
+    },
+    {
+      "phase": "green",
+      "claim": "Policy rejects unapproved PVC reference with its exact reason",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0302-007-bad-pvc\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-007-group-storage-boundary' with binding 'saf-k8s-0302-007-group-storage-boundary' denied request: Only the named workload storage and protected ConfigMap volumes are allowed"
+    },
+    {
+      "phase": "positive",
+      "claim": "Policy admits the approved groups and named mounts for saf-0302-007-groups",
+      "matched": true,
+      "observed": "server dry-run admitted"
+    },
+    {
+      "phase": "positive",
+      "claim": "Exact nonroot groups and scoped shared writes for saf-0302-007-groups",
+      "matched": true,
+      "observed": "uid=10001 groups=10001,2000,3000 fixture_gid=2000 writable=ok protected_write=denied sentinel=unchanged peer_shared_read='benign marker for SAF-K8S-0302-007'"
+    },
+    {
+      "phase": "positive",
+      "claim": "Policy admits the approved groups and named mounts for saf-0302-007-persistent",
+      "matched": true,
+      "observed": "server dry-run admitted"
+    },
+    {
+      "phase": "positive",
+      "claim": "Exact nonroot groups and scoped shared writes for saf-0302-007-persistent",
+      "matched": true,
+      "observed": "uid=10001 groups=10001,2000,3000 fixture_gid=2000 writable=ok protected_write=denied sentinel=unchanged peer_shared_read='benign marker for SAF-K8S-0302-007'"
+    }
+  ]
+}

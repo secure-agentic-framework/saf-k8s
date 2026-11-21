@@ -1,0 +1,75 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0302-007-group-storage-boundary
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: [CREATE, UPDATE]
+        resources: ["pods"]
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: [UPDATE]
+        resources: ["pods/ephemeralcontainers"]
+  validations:
+    - expression: >-
+        has(object.spec.securityContext) &&
+        has(object.spec.securityContext.fsGroup) &&
+        object.spec.securityContext.fsGroup == 2000 &&
+        has(object.spec.securityContext.supplementalGroupsPolicy) &&
+        object.spec.securityContext.supplementalGroupsPolicy == 'Strict' &&
+        has(object.spec.securityContext.supplementalGroups) &&
+        object.spec.securityContext.supplementalGroups == [3000]
+      message: "Pod groups must be fsGroup 2000 and supplementalGroups exactly [3000]"
+      reason: Forbidden
+    - expression: >-
+        has(object.spec.volumes) && object.spec.volumes.size() == 2 &&
+        object.spec.volumes.all(v,
+          (v.name == 'benign-data' && (has(v.emptyDir) ||
+            (has(v.persistentVolumeClaim) && v.persistentVolumeClaim.claimName == 'saf-0302-007-private'))) ||
+          (v.name == 'protected-data' && has(v.configMap) &&
+            v.configMap.name == 'saf-0302-007-protected'))
+      message: "Only the named workload storage and protected ConfigMap volumes are allowed"
+      reason: Forbidden
+    - expression: >-
+        object.spec.containers.all(c,
+          has(c.volumeMounts) && c.volumeMounts.size() == 2 &&
+          c.volumeMounts.exists(m,
+            m.name == 'benign-data' && m.mountPath == '/fixture-data' &&
+            (!has(m.readOnly) || m.readOnly == false)) &&
+          c.volumeMounts.exists(m,
+            m.name == 'protected-data' && m.mountPath == '/protected-data' &&
+            has(m.readOnly) && m.readOnly == true)) &&
+        (!has(object.spec.initContainers) || object.spec.initContainers.all(c,
+          has(c.volumeMounts) && c.volumeMounts.size() == 2 &&
+          c.volumeMounts.exists(m,
+            m.name == 'benign-data' && m.mountPath == '/fixture-data' &&
+            (!has(m.readOnly) || m.readOnly == false)) &&
+          c.volumeMounts.exists(m,
+            m.name == 'protected-data' && m.mountPath == '/protected-data' &&
+            has(m.readOnly) && m.readOnly == true))) &&
+        (!has(object.spec.ephemeralContainers) || object.spec.ephemeralContainers.all(c,
+          has(c.volumeMounts) && c.volumeMounts.size() == 2 &&
+          c.volumeMounts.exists(m,
+            m.name == 'benign-data' && m.mountPath == '/fixture-data' &&
+            (!has(m.readOnly) || m.readOnly == false)) &&
+          c.volumeMounts.exists(m,
+            m.name == 'protected-data' && m.mountPath == '/protected-data' &&
+            has(m.readOnly) && m.readOnly == true)))
+      message: "Containers may mount only /fixture-data writable and /protected-data read-only"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0302-007-group-storage-boundary
+spec:
+  policyName: saf-k8s-0302-007-group-storage-boundary
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/group-storage-fixture: enforced

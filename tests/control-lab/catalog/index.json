@@ -90,6 +90,12 @@
       "sha256": "c209f5f24a88d39ccf110646b7a7ae175cc8e3e076e5186e671a53312aa31e9c",
       "title": "No-new-privileges execution enforcement"
     },
+    "SAF-K8S-0302-007": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "cc241aaddac4e71a37af3f4b93062d8c94d2bb8b0a7bcb2825e00f8c718f927b",
+      "title": "Safe fsGroup and supplementalGroups volume ownership"
+    },
     "SAF-K8S-0303-001": {
       "catalog_status": "draft",
       "domain": "D03",
