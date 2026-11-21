@@ -1,0 +1,15 @@
+groups:
+  - name: saf-etcd-certificate-expiry
+    rules:
+      - alert: EtcdCertificateExpirySoon
+        expr: saf_etcd_certificate_time_to_expiry_seconds{certificate=~"etcd-server|etcd-peer|apiserver-etcd-client"} <= 2592000
+        labels:
+          severity: warning
+      - alert: EtcdCertificateTelemetryMissing
+        expr: >-
+          absent(saf_etcd_certificate_time_to_expiry_seconds{cluster="synthetic-kind",certificate="etcd-server"})
+          or absent(saf_etcd_certificate_time_to_expiry_seconds{cluster="synthetic-kind",certificate="etcd-peer"})
+          or absent(saf_etcd_certificate_time_to_expiry_seconds{cluster="synthetic-kind",certificate="apiserver-etcd-client"})
+        for: 5m
+        labels:
+          severity: warning

@@ -96,6 +96,12 @@
       "sha256": "6d22374ca673326f9057b09641ccd114c0b0f90930f0836142a0163779b82faf",
       "title": "etcd certificate maximum validity period enforcement"
     },
+    "SAF-K8S-0102-021": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "c95e66f3b19cc2dc0d05702b830ba638ee104c0d8cc03bb5dfc368b45aa19f82",
+      "title": "etcd certificate expiration monitoring and lead-time alerting"
+    },
     "SAF-K8S-0103-001": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -266,7 +272,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ba76e9838471254054229225a7a5c1b0ef6b750c",
-  "sha256": "ba0b2931e7d453d96fcd4ed42df45db6ef15052d35f1baa2141f65bfd1363036",
+  "revision": "50181b57c941090a189523d2f9022cb0b8f707d8",
+  "sha256": "f439c8715299aa11850764f2d50eeab39af0662fb147acc1653f6d2e499194b4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
