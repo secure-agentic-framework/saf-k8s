@@ -19,3 +19,16 @@ storage need separate deployment evidence.
 
 - [Kubernetes v1.36 security context](https://v1-36.docs.kubernetes.io/docs/tasks/configure-pod-container/security-context/)
 - [Kubernetes v1.36 volume types](https://v1-36.docs.kubernetes.io/docs/concepts/storage/volumes/#local)
+
+The revised catalog also runs a separate v1.37.0 kind profile. Use kind
+v0.33.0 or compatible for that profile. Its Linux kubelets use opposite
+`EmptyDirVolumeMode` gate values while the v1.37 API server retains the
+`emptyDir.mode` field. The probe compares mounted modes and checks actual
+write decisions from nonroot Pods. It also checks how `fsGroup` changes
+(emptyDir) ownership and effective permission bits on an enabled kubelet.
+The alpha gate is disabled by default and the field is Linux-only. This
+case checks disk-backed emptyDir and does not infer Kubernetes defaults
+for storage driver or provider volumes.
+
+- [Kubernetes v1.37 emptyDir volume permissions](https://kubernetes.io/docs/tasks/configure-pod-container/configure-emptydir-volume-mode/)
+- [kind v0.33.0 pinned v1.37 node image](https://github.com/kubernetes-sigs/kind/releases/tag/v0.33.0)

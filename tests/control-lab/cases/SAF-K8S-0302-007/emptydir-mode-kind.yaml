@@ -1,0 +1,29 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+kubeadmConfigPatches:
+  - |
+    apiVersion: kubeadm.k8s.io/v1beta4
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        - name: feature-gates
+          value: EmptyDirVolumeMode=true
+nodes:
+  - role: control-plane
+    kubeadmConfigPatches:
+      - |
+        apiVersion: kubeadm.k8s.io/v1beta4
+        kind: InitConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            - name: feature-gates
+              value: EmptyDirVolumeMode=true
+  - role: worker
+    kubeadmConfigPatches:
+      - |
+        apiVersion: kubeadm.k8s.io/v1beta4
+        kind: JoinConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            - name: feature-gates
+              value: EmptyDirVolumeMode=false

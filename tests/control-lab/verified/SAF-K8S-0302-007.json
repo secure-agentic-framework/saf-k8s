@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0302-007",
-  "catalog_revision": "32e7acd3741bfcb96a1e89edc61274c181afb173",
-  "catalog_sha256": "b20ca75f54b83e09118278fd5e031b850dc5a8f07c9034344f2449fdc398fa43",
+  "catalog_revision": "f4252960721626705bc699e2bd070a0b83bc9a66",
+  "catalog_sha256": "76854bbfc69139ba12642c096d049ca9c3f48c6465cd5d08988d852ef646cf17",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "cc241aaddac4e71a37af3f4b93062d8c94d2bb8b0a7bcb2825e00f8c718f927b",
-  "scope": "Synthetic namespace admission and one nonprivileged Linux Pod: exact fsGroup 2000, supplementalGroups [3000], writable emptyDir or a case-owned local PVC at /fixture-data, and a read-only synthetic ConfigMap at /protected-data. Inert server dry-runs challenge unsafe group IDs, a forbidden mount path, and hostPath before the sole compliant Pod is created. The case exercises one local persistent-volume mechanism; CSI drivers, external providers, and real platform volumes remain separate.",
-  "cluster": "saf-lab-013a3a02406c",
+  "control_sha256": "e60efc25ad9367dcc7c02518bc3de51cffb45fe823efb7dc1ac706fafd0c396e",
+  "scope": "Synthetic namespace admission and one nonprivileged Linux Pod: exact fsGroup 2000, supplementalGroups [3000], writable emptyDir or a case-owned local PVC at /fixture-data, and a read-only synthetic ConfigMap at /protected-data. Inert server dry-runs challenge unsafe group IDs, a forbidden mount path, and hostPath before the sole compliant Pod is created. The case exercises one local persistent-volume mechanism; CSI drivers, external providers, and real platform volumes remain separate. Also compare Linux disk-backed emptyDir on Kubernetes v1.37.0 using two kubelets with opposite EmptyDirVolumeMode gates, then verify the effects of fsGroup on the enabled node.",
+  "cluster": "saf-lab-7f04fdb463d3",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -127,6 +127,69 @@
       "claim": "Exact nonroot groups and scoped shared writes for saf-0302-007-persistent",
       "matched": true,
       "observed": "uid=10001 groups=10001,2000,3000 fixture_gid=2000 writable=ok protected_write=denied sentinel=unchanged peer_shared_read='benign marker for SAF-K8S-0302-007'"
+    },
+    {
+      "phase": "positive",
+      "claim": "The separate API server and both kubelets run Kubernetes v1.37.0",
+      "matched": true,
+      "observed": {
+        "server": "v1.37.0",
+        "kubelets": [
+          "v1.37.0",
+          "v1.37.0"
+        ],
+        "image": "kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "An implicit disk emptyDir is writable at the default mode",
+      "matched": true,
+      "observed": {
+        "declared": null,
+        "mounted": "777",
+        "group": 0,
+        "write": "writable"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The API retains 0700 when the worker ignores it and mounts 0777",
+      "matched": true,
+      "observed": {
+        "declared": "700",
+        "mounted": "777",
+        "group": 0,
+        "write": "writable"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enabled kubelet mounts 0700 and denies an unrelated nonroot writer",
+      "matched": true,
+      "observed": {
+        "declared": "700",
+        "mounted": "700",
+        "group": 0,
+        "write": "denied"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "fsGroup changes effective mode and permits the approved group to write",
+      "matched": true,
+      "observed": {
+        "declared": "700",
+        "mounted": "2770",
+        "group": 2000,
+        "write": "writable"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The API validates explicit mode within its supported bit range",
+      "matched": true,
+      "observed": true
     }
   ]
 }

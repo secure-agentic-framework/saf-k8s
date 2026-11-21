@@ -117,7 +117,7 @@
     "SAF-K8S-0302-007": {
       "catalog_status": "draft",
       "domain": "D03",
-      "sha256": "cc241aaddac4e71a37af3f4b93062d8c94d2bb8b0a7bcb2825e00f8c718f927b",
+      "sha256": "e60efc25ad9367dcc7c02518bc3de51cffb45fe823efb7dc1ac706fafd0c396e",
       "title": "Safe fsGroup and supplementalGroups volume ownership"
     },
     "SAF-K8S-0303-001": {
@@ -188,7 +188,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ddbbf7c1d67aac66feb0b88bce3965205d98d2b9",
-  "sha256": "3092bf14626aef6e258b11d35bdddf9e8193d44db6468a4491b05e2d53649c7c",
+  "revision": "2e125497b723482fcb05b3f117844eaaa740183d",
+  "sha256": "76854bbfc69139ba12642c096d049ca9c3f48c6465cd5d08988d852ef646cf17",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
