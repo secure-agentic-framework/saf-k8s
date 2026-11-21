@@ -23,6 +23,12 @@
       "domain": "D02",
       "sha256": "d69147271330bea0d5959f40f6d8850dec72d2bcafb6ce2ea5db44dffc1fa85c",
       "title": "Runtime socket mount prevention"
+    },
+    "SAF-K8S-0202-007": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "ce9f391b6deb0898b643e115837b2db527f9f4bd9208224ba43fcb9ca0c594b7",
+      "title": "Container runtime user namespace isolation"
     }
   },
   "path": "saf_k8s_controls.yaml",

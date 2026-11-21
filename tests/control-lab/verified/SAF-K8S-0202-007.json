@@ -1,0 +1,90 @@
+{
+  "control_id": "SAF-K8S-0202-007",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "ce9f391b6deb0898b643e115837b2db527f9f4bd9208224ba43fcb9ca0c594b7",
+  "scope": "Local kind with its pinned Kubernetes 1.36.1 node image and containerd CRI; compares /proc/self/uid_map for a default Pod and a Pod explicitly setting hostUsers: false. Establishes kernel UID mapping and basic BusyBox operation only when the host kernel and runtime support Pod user namespaces. Does not establish escape resistance, host filesystem isolation, or production support.",
+  "cluster": "saf-lab-ea2bfba13125",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A workload omitting hostUsers is admitted before the guard",
+      "matched": true,
+      "observed": "server dry-run admitted"
+    },
+    {
+      "phase": "green",
+      "claim": "The namespace guard rejects workloads without hostUsers false",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"admission-guard-probe\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-require-pod-userns' with binding 'saf-k8s-require-pod-userns-saf-test' denied request: hostUsers must be false for workloads in this namespace"
+    },
+    {
+      "phase": "red",
+      "claim": "Vanilla container UID zero maps to host UID zero",
+      "matched": true,
+      "observed": [
+        [
+          0,
+          0,
+          4294967295
+        ]
+      ]
+    },
+    {
+      "phase": "green",
+      "claim": "Pod user namespace maps container UID zero to an unprivileged host range",
+      "matched": true,
+      "observed": [
+        [
+          0,
+          898564096,
+          65536
+        ]
+      ]
+    },
+    {
+      "phase": "positive",
+      "claim": "Benign BusyBox command works in vanilla",
+      "matched": true,
+      "observed": "busybox-ok"
+    },
+    {
+      "phase": "positive",
+      "claim": "Benign BusyBox command works in userns",
+      "matched": true,
+      "observed": "busybox-ok"
+    }
+  ]
+}
