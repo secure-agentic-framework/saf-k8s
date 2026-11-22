@@ -1134,6 +1134,12 @@
       "sha256": "17dc2843caf5bda45734a88ebcec476c3d1d8cf66980796a4fd471a399eb613a",
       "title": "Inference request validation and input sanitization"
     },
+    "SAF-K8S-0902-006": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "b38eea1e6699b39b8978480602f6122c198a289f723e55e3864069d45cfca006",
+      "title": "LLM serving configuration security"
+    },
     "SAF-K8S-0902-008": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1634,7 +1640,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "63f49b984a35f94292dab494f9443b2ea988f235",
+  "revision": "c62829a926683ca7c635a43d9402cbe1a0138e26",
   "sha256": "28e2e795c3d0eee859ba13f7c7c1e62c33d93955ba867c40a0060d1dfd1984cb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

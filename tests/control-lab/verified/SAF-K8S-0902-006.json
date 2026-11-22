@@ -1,0 +1,198 @@
+{
+  "control_id": "SAF-K8S-0902-006",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "b38eea1e6699b39b8978480602f6122c198a289f723e55e3864069d45cfca006",
+  "scope": "One disposable Kind v1.36.1 cluster runs one case-owned Python mock serving process from a digest-pinned Docker Official Python image. The fixture maps one fixed public content string to a synthetic prefix digest, maintains bounded in-memory cache and accounting state and returns a fixed mock marker without per-request cache telemetry. Red demonstrates the unscoped comparator; green demonstrates a tenant-scoped synthetic key; positive demonstrates exact same-tenant/same-prefix reuse. Two ordinary requests occupy one active and one queued slot, and an additional fixed request is refused by the fixture's depth cap. Raw observations omit content, salts, and credentials. No LLM, model, GPU, inference framework, real prompt, secret, feed, target, or attack is present. This does not establish vLLM/TGI/Triton behavior, KV-memory zeroing, tenant isolation, production queue limits, or framework-level scheduling.",
+  "cluster": "saf-lab-0b97276831ad",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Case-owned fixture reports unscoped red-comparator mode",
+      "matched": true,
+      "observed": {
+        "tenant_scope": false,
+        "cache_entries": 0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The comparator responds normally to the two known fixture tenants",
+      "matched": true,
+      "observed": {
+        "status": 200,
+        "exact_fixture_response": true,
+        "tenant": "tenant-a",
+        "event_id": "red-a"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The second comparator response omits per-request cache state",
+      "matched": true,
+      "observed": {
+        "status": 200,
+        "exact_fixture_response": true,
+        "tenant": "tenant-b",
+        "event_id": "red-b"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Independent fixture accounting observes one unscoped cross-tenant reuse",
+      "matched": true,
+      "observed": {
+        "tenant_scope": false,
+        "cache_entries": 1,
+        "hits": 1,
+        "misses": 1,
+        "cross_tenant_reuse_count": 1
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Fresh enforced fixture starts with tenant-scoped cache accounting",
+      "matched": true,
+      "observed": {
+        "cache_entries": 0,
+        "cache_hits": 0,
+        "cache_misses": 0,
+        "cross_tenant_reuse_count": 0,
+        "queue_active": 0,
+        "queue_depth": 0,
+        "queue_max_active": 1,
+        "queue_max_depth": 1,
+        "queue_peak_depth": 0,
+        "tenant_scope": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A scoped fixture reply returns the fixed result without exposing cache state",
+      "matched": true,
+      "observed": {
+        "status": 200,
+        "exact_fixture_response": true,
+        "tenant": "tenant-a",
+        "event_id": "green-a1"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A scoped fixture reply returns the fixed result without exposing cache state",
+      "matched": true,
+      "observed": {
+        "status": 200,
+        "exact_fixture_response": true,
+        "tenant": "tenant-b",
+        "event_id": "green-b1"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A scoped fixture reply returns the fixed result without exposing cache state",
+      "matched": true,
+      "observed": {
+        "status": 200,
+        "exact_fixture_response": true,
+        "tenant": "tenant-b",
+        "event_id": "positive-b2"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Independent accounting records distinct misses for the same prefix in two tenants",
+      "matched": true,
+      "observed": {
+        "first_scoped_entry_count": 1,
+        "second_scoped_entry_count": 2,
+        "both_scoped_requests_missed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Independent scoped cache accounting shows isolated misses and same-tenant reuse",
+      "matched": true,
+      "observed": {
+        "tenant_scope": true,
+        "cache_entries": 2,
+        "hits": 1,
+        "misses": 2,
+        "cross_tenant_reuse_count": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Two-request fixture observes one active and one queued request within declared bounds",
+      "matched": true,
+      "observed": {
+        "active": 1,
+        "depth": 1,
+        "peak_depth": 1,
+        "max_active": 1,
+        "max_depth": 1
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "One additional normal fixture request is rejected when queue capacity is occupied",
+      "matched": true,
+      "observed": {
+        "status": 429,
+        "occupancy_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Fixture-only release lets both normal requests complete",
+      "matched": true,
+      "observed": {
+        "status": 200,
+        "released": {
+          "released": true
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both bounded normal queue requests complete with mock results",
+      "matched": true,
+      "observed": {
+        "completed": true,
+        "request_count": 2
+      }
+    }
+  ]
+}
