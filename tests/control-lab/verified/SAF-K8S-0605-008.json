@@ -1,0 +1,154 @@
+{
+  "control_id": "SAF-K8S-0605-008",
+  "catalog_revision": "619c1478dc53b82ee7825214d7a3dd81af588371",
+  "catalog_sha256": "ba2c83990b7e8dabd3521401627a287dc143c1661a28469381ebabfdcef4730b",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "13c6dfcfef99dab1abfd0f36a2bd508e3cbec437ff52c5336a24755220a314c0",
+  "scope": "One disposable Kubernetes v1.36.1 kind cluster, one ValidatingWebhookConfiguration, two separately addressable case-owned HTTPS backends on distinct workers behind one ClusterIP Service, and short-lived synthetic CA and server certificates. Only CREATE requests for named ConfigMaps in saf-test are matched, and all probes use server dry-run. The case checks an untrusted CA rejection with ordinary API continuity, staged CA overlap while rotating each backend certificate, direct API-server verification of each backend identity, and admission through the shared Service after one backend leaves its endpoints, a PodDisruptionBudget for the last healthy backend, and native latency instrumentation. It does not establish production automated renewal, secret distribution, topology governance, managed control-plane behavior, sustained availability, or production change controls.",
+  "cluster": "saf-lab-f6f450515ffe",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The live admission comparison runs on Kubernetes v1.36.1",
+      "matched": true,
+      "observed": {
+        "kubernetes": "v1.36.1"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Two ready webhook backends run on distinct workers",
+      "matched": true,
+      "observed": {
+        "ready_endpoints": 2,
+        "workers_are_distinct": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The originally trusted webhook serves the selected admission request",
+      "matched": true,
+      "observed": {
+        "matching_old_certificate_served_probe": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Untrusted webhook CA rejects matching dry-run at TLS",
+      "matched": true,
+      "observed": {
+        "x509_unknown_authority": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Ordinary API reads continue while matching webhook trust is wrong",
+      "matched": true,
+      "observed": {
+        "namespace_read_succeeded": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "During trust overlap the old and renewed endpoints both serve admission",
+      "matched": true,
+      "observed": {
+        "new_a_served": true,
+        "old_b_served": true,
+        "new_b_served": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A trusted certificate for the other Service DNS name is rejected",
+      "matched": true,
+      "observed": {
+        "x509_service_identity_error": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Renewed backend a serves admission with only the new CA",
+      "matched": true,
+      "observed": {
+        "exact_renewed_leaf_served": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Renewed backend b serves admission with only the new CA",
+      "matched": true,
+      "observed": {
+        "exact_renewed_leaf_served": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The shared Service admits after the old CA is retired",
+      "matched": true,
+      "observed": {
+        "sample_reached_shared_backend": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission continues through the shared Service after one endpoint leaves",
+      "matched": true,
+      "observed": {
+        "initial_ready_endpoints": 2,
+        "remaining_ready_endpoints": 1,
+        "surviving_backend_served_probe": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The budget rejects a dry-run eviction of the last webhook endpoint",
+      "matched": true,
+      "observed": {
+        "one_healthy_backend": true,
+        "zero_disruptions_allowed": true,
+        "eviction_rejected_by_budget": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "API server exports a sampled latency histogram for the owned webhook",
+      "matched": true,
+      "observed": {
+        "metric": "apiserver_admission_webhook_admission_duration_seconds_count",
+        "owned_webhook_series_has_samples": true
+      }
+    }
+  ]
+}

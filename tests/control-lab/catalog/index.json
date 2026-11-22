@@ -684,6 +684,12 @@
       "sha256": "841be1aa807a1dd607e81bd40fc81bcc7ab9d902f7594b59edcfa0f1b27755b3",
       "title": "Admission webhook fail-closed enforcement and timeout bounds"
     },
+    "SAF-K8S-0605-008": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "13c6dfcfef99dab1abfd0f36a2bd508e3cbec437ff52c5336a24755220a314c0",
+      "title": "Admission webhook TLS rotation and high-availability resilience"
+    },
     "SAF-K8S-0701-001": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -926,7 +932,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "a84cdaa1af0f20dff1791b0f219555bfbf0094f8",
+  "revision": "ad7db58e8605c41809d0c3302b32dd277eca264a",
   "sha256": "ba2c83990b7e8dabd3521401627a287dc143c1661a28469381ebabfdcef4730b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
