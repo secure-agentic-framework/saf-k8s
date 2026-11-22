@@ -1080,6 +1080,12 @@
       "sha256": "05c37c86fb548a4aa59553ec79fc57a571ec469ec81a0f36069edfad2816fa6d",
       "title": "AI operator privilege management"
     },
+    "SAF-K8S-0901-008": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "1e78718de78fd4cb8e61eaccfe339d400d96a3ba2c1799ea93ad01a836960282",
+      "title": "Training job network isolation"
+    },
     "SAF-K8S-0907-007": {
       "catalog_status": "draft",
       "domain": "D09",
