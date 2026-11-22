@@ -1194,6 +1194,12 @@
       "sha256": "7d142bc02c1d75e974ef8bef9130e2c09ba4a97c454ea3473c43495b6e6484d4",
       "title": "Centralized AI log retention lifecycle enforcement"
     },
+    "SAF-K8S-1001-039": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "4af250dc620dfb8bc3bb2d1168d5eb4d7b0b33abdc562d8f41a62b9907928ac0",
+      "title": "Durable retrieval validation for centralized AI logs"
+    },
     "SAF-K8S-1006-004": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1226,7 +1232,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "56c133a98267d2f6516cc393c0e03a4672302873",
+  "revision": "2cbfe8dd61c5f3b4057f40c1402681eaa6784a25",
   "sha256": "872822531716b059a05f969b9bdb15559fa3dd850de26945615e595c3d8e018e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
