@@ -1,0 +1,15 @@
+#!/bin/sh
+set -eu
+
+reject() {
+    echo 'SAF policy gate: protected files differ from the approved tree' >&2
+    exit 1
+}
+
+while read -r old new ref; do
+    if [ "$ref" != refs/heads/main ]; then continue; fi
+    git merge-base --is-ancestor "$old" "$new" || reject
+    expected=$(git config --local --get saf.approvedPolicyTree)
+    actual=$(git rev-parse "$new^{tree}" 2>/dev/null) || reject
+    [ "$actual" = "$expected" ] || reject
+done

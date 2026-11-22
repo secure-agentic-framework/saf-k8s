@@ -750,6 +750,12 @@
       "sha256": "be4b4a1ea2b23b06251712540cff29734e6050a004041ba78eaf028669abd653",
       "title": "IaC security scanning gate enforcement for deployment platforms"
     },
+    "SAF-K8S-0606-024": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "6206d048f801ff4d5a7dc6837da9cc1ee3fee9fb54fe306367a88299315f2cbc",
+      "title": "Policy-as-code and runtime configuration integrity governance"
+    },
     "SAF-K8S-0606-025": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -1130,7 +1136,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "5c417e60af4789308dddc70114455ce30ad3785a",
+  "revision": "1faf7f7b3a58d6a01f40b8c4359132fb718fad8e",
   "sha256": "5468afd7544aceb8f79e434b7d58a52fc41eeee0b3084837f4dc587efc72cace",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

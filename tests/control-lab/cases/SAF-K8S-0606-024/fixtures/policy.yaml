@@ -1,0 +1,19 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf0606024-role-scope
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [rbac.authorization.k8s.io]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [roles]
+  validations:
+    - expression: >-
+        object.rules.all(rule,
+          rule.apiGroups.all(group, group == '') &&
+          rule.resources.all(resource, resource == 'pods') &&
+          rule.verbs.all(verb, verb in ['get', 'list', 'watch']))
+      message: 'fixture Roles may only read pods in the core API group'
