@@ -522,6 +522,12 @@
       "sha256": "b20869ae66008c46764765b04833f35873c9ef422375bb2f0c29fa43d23c0df7",
       "title": "PersistentVolume and PersistentVolumeClaim access mode enforcement"
     },
+    "SAF-K8S-0701-002": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "d980b46abb69296bfc92d75227112e1ee1408ba580fcd9498a24092f8310d8c1",
+      "title": "CSI driver security and privilege restriction"
+    },
     "SAF-K8S-0702-003": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -662,7 +668,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6057924aa48b87b8c0e7877c0362aa2534d728a5",
+  "revision": "3a28f7342a8b5d15625f2d3237d7da9113a84667",
   "sha256": "d0505b3cef6e27ac3451a0998acf0350819409280331edf48be9cfacfd4f73a7",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
