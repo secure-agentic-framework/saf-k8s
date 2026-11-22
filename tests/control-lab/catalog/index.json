@@ -504,6 +504,12 @@
       "sha256": "bda2105ab4570360022cc935e83bd91e62228051aa13ef24a674520b298fb48a",
       "title": "Supplementary namespace isolation control enforcement for multi-tenant AI clusters"
     },
+    "SAF-K8S-0702-020": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "a062cd95f6a93938db8ffb4752b79e2f884041ca690bfa156e4088fcdd841c36",
+      "title": "Namespace ResourceQuota enforcement for GPU and AI workloads"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -518,7 +524,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "8735fdc639055af5182792d46d7f270632880784",
-  "sha256": "10a6e1cfd2ac83172c1f20daf07f5fffce1468094455723a57c2eb56aa139bc7",
+  "revision": "47b6ac3568c1c85f4755212afbd3076f2c626c95",
+  "sha256": "4683013a252ee376b5b4290af4175ff5c3d03259413411e866ab1b4ebb8b1664",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

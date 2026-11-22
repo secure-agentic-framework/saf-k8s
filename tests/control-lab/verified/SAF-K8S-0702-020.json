@@ -1,0 +1,171 @@
+{
+  "control_id": "SAF-K8S-0702-020",
+  "catalog_revision": "948824b695442ac07ffd3bfcc0b84a66ef9c79de",
+  "catalog_sha256": "4683013a252ee376b5b4290af4175ff5c3d03259413411e866ab1b4ebb8b1664",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "a062cd95f6a93938db8ffb4752b79e2f884041ca690bfa156e4088fcdd841c36",
+  "scope": "Kubernetes v1.36.1 server-side admission for synthetic accelerator, CPU, memory, PVC storage, and Pod, PVC and Service count quotas. The accelerator probes are dry-runs.",
+  "cluster": "saf-lab-8c10d956cb38",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A limits-prefixed accelerator quota entry leaves the synthetic request unaccounted",
+      "matched": true,
+      "observed": {
+        "pod_dry_run_admitted": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Quota rejects the isolated requests.gpu.vendor.example/units overage",
+      "matched": true,
+      "observed": {
+        "quota_key": "requests.gpu.vendor.example/units",
+        "quota_denial": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Quota rejects the isolated requests.nvidia.com/gpu overage",
+      "matched": true,
+      "observed": {
+        "quota_key": "requests.nvidia.com/gpu",
+        "quota_denial": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Quota rejects the isolated requests.cpu overage",
+      "matched": true,
+      "observed": {
+        "quota_key": "requests.cpu",
+        "quota_denial": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Quota rejects the isolated limits.cpu overage",
+      "matched": true,
+      "observed": {
+        "quota_key": "limits.cpu",
+        "quota_denial": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Quota rejects the isolated requests.memory overage",
+      "matched": true,
+      "observed": {
+        "quota_key": "requests.memory",
+        "quota_denial": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Quota rejects the isolated limits.memory overage",
+      "matched": true,
+      "observed": {
+        "quota_key": "limits.memory",
+        "quota_denial": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Quota rejects the isolated requests.storage overage",
+      "matched": true,
+      "observed": {
+        "quota_key": "requests.storage",
+        "quota_denial": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The API admits an accelerator declaration at the quota boundary",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Quota rejects the isolated pods overage",
+      "matched": true,
+      "observed": {
+        "quota_key": "pods",
+        "quota_denial": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Quota rejects the isolated persistentvolumeclaims overage",
+      "matched": true,
+      "observed": {
+        "quota_key": "persistentvolumeclaims",
+        "quota_denial": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Quota rejects the isolated services overage",
+      "matched": true,
+      "observed": {
+        "quota_key": "services",
+        "quota_denial": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The sole admitted Pod remains Ready after quota denials",
+      "matched": true,
+      "observed": {
+        "pod_count": 1,
+        "ready_pods": [
+          "bounded-pod"
+        ]
+      }
+    }
+  ]
+}
