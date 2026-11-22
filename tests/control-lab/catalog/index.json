@@ -456,6 +456,12 @@
       "sha256": "514d8d6226656695e57e314b954a968bf062575cf8d8786b01cea44cb4afe74b",
       "title": "Multi-stage build and stripped runtime image minimization"
     },
+    "SAF-K8S-0601-022": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "3e31eda1e256e7c2fddbfaaadfe8a7ff787fc8f8cdf1c8fe2fbb6922bca0d3b3",
+      "title": "Kubernetes image pull secret distribution and external secret integration"
+    },
     "SAF-K8S-0702-003": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -512,7 +518,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "b4d308f7e793bbbac6135e869472ea002274aeec",
+  "revision": "8735fdc639055af5182792d46d7f270632880784",
   "sha256": "10a6e1cfd2ac83172c1f20daf07f5fffce1468094455723a57c2eb56aa139bc7",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

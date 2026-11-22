@@ -1,0 +1,6 @@
+[
+  {"surface": "Pod workload", "form": "direct-value", "marker": "SYNTHETIC_NON_SECRET_MARKER"},
+  {"surface": "Dockerfile", "form": "direct-value", "marker": "SYNTHETIC_NON_SECRET_MARKER"},
+  {"surface": "CI environment", "form": "direct-value", "marker": "SYNTHETIC_NON_SECRET_MARKER"},
+  {"surface": "Pod imagePullSecrets reference", "form": "name-only-reference", "marker": "SYNTHETIC_NON_SECRET_MARKER"}
+]
