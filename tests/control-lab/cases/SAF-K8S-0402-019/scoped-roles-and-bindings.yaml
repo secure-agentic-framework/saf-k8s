@@ -3,6 +3,10 @@ kind: Role
 metadata:
   name: saf-0402-019-alpha-fixture-reader
   namespace: saf-test
+  labels:
+    app.kubernetes.io/managed-by: saf-k8s-control-lab
+  annotations:
+    saf-k8s.example/fixture: synthetic-only
 rules:
   - apiGroups: [""]
     resources: ["configmaps"]
@@ -14,6 +18,10 @@ kind: Role
 metadata:
   name: saf-0402-019-beta-fixture-reader
   namespace: saf-test
+  labels:
+    app.kubernetes.io/managed-by: saf-k8s-control-lab
+  annotations:
+    saf-k8s.example/fixture: synthetic-only
 rules:
   - apiGroups: [""]
     resources: ["configmaps"]
@@ -25,10 +33,15 @@ kind: RoleBinding
 metadata:
   name: saf-0402-019-alpha-fixture-reader
   namespace: saf-test
+  labels:
+    app.kubernetes.io/managed-by: saf-k8s-control-lab
+  annotations:
+    saf-k8s.example/fixture: synthetic-only
 subjects:
   - kind: ServiceAccount
     name: saf-0402-019-alpha
     namespace: saf-test
+    apiGroup: ""
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -39,10 +52,15 @@ kind: RoleBinding
 metadata:
   name: saf-0402-019-beta-fixture-reader
   namespace: saf-test
+  labels:
+    app.kubernetes.io/managed-by: saf-k8s-control-lab
+  annotations:
+    saf-k8s.example/fixture: synthetic-only
 subjects:
   - kind: ServiceAccount
     name: saf-0402-019-beta
     namespace: saf-test
+    apiGroup: ""
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role

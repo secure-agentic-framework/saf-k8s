@@ -3,6 +3,11 @@ kind: ServiceAccount
 metadata:
   name: saf-0402-019-alpha
   namespace: saf-test
+  labels:
+    app.kubernetes.io/name: workload-alpha
+    app.kubernetes.io/part-of: saf-0402-019
+  annotations:
+    saf-k8s.example/fixture: synthetic-only
 automountServiceAccountToken: true
 ---
 apiVersion: v1
@@ -10,6 +15,11 @@ kind: ServiceAccount
 metadata:
   name: saf-0402-019-beta
   namespace: saf-test
+  labels:
+    app.kubernetes.io/name: workload-beta
+    app.kubernetes.io/part-of: saf-0402-019
+  annotations:
+    saf-k8s.example/fixture: synthetic-only
 automountServiceAccountToken: true
 ---
 apiVersion: v1
@@ -17,6 +27,11 @@ kind: ConfigMap
 metadata:
   name: saf-0402-019-alpha-fixture
   namespace: saf-test
+  labels:
+    app.kubernetes.io/managed-by: saf-k8s-control-lab
+    saf-k8s.example/workload: workload-alpha
+  annotations:
+    saf-k8s.example/data-class: inert-synthetic-marker
 data:
   marker: alpha-marker
 ---
@@ -25,5 +40,10 @@ kind: ConfigMap
 metadata:
   name: saf-0402-019-beta-fixture
   namespace: saf-test
+  labels:
+    app.kubernetes.io/managed-by: saf-k8s-control-lab
+    saf-k8s.example/workload: workload-beta
+  annotations:
+    saf-k8s.example/data-class: inert-synthetic-marker
 data:
   marker: beta-marker

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0402-019",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "7e2e05c327f54bcc2c6aefd64c255880a81ce7c9",
+  "catalog_sha256": "df105e4d2453b18902086552ec1bae50b698ff889053abd168a340c3f200169b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "f9e7d19988c54161513c37825c56a961fff1e09eaa0a133286714e3f7ebf15ff",
-  "scope": "Two workloads with explicitly provisioned Kubernetes ServiceAccounts and separate namespace Roles; projected Kubernetes API tokens and local synthetic fixtures. External cloud identity federation and cloud IAM permissions are outside this lab.",
-  "cluster": "saf-lab-37753a7f3299",
+  "scope": "Two synthetic application Pods and one defaulting control Pod in the runner's disposable Kubernetes v1.36.1 kind cluster. Tests the Pod default ServiceAccount, explicit per-workload ServiceAccount assignment, namespaced ConfigMap get permission, and cross-fixture denial by SelfSubjectAccessReview. Synthetic marker data only. Does not validate native X.509 identities, cloud workload identity federation, or cloud IAM authorization; the release review must assess those separately.",
+  "cluster": "saf-lab-3d67381bf96d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -40,45 +40,69 @@
   "checks": [
     {
       "phase": "positive",
-      "claim": "Running Pods have distinct explicitly assigned ServiceAccount identities",
+      "claim": "Case is running against Kubernetes v1.36.1",
       "matched": true,
-      "observed": "alpha=system:serviceaccount:saf-test:saf-0402-019-alpha; beta=system:serviceaccount:saf-test:saf-0402-019-beta"
-    },
-    {
-      "phase": "red",
-      "claim": "workload-alpha cannot read its fixture before its intended binding",
-      "matched": true,
-      "observed": "403 no-expected-marker"
-    },
-    {
-      "phase": "red",
-      "claim": "workload-beta cannot read its fixture before its intended binding",
-      "matched": true,
-      "observed": "403 no-expected-marker"
+      "observed": "v1.36.1"
     },
     {
       "phase": "positive",
-      "claim": "workload-alpha reads its own fixture over verified TLS",
+      "claim": "An omitted Pod serviceAccountName defaults to namespace default",
       "matched": true,
-      "observed": "200 expected-marker"
+      "observed": "observed=default"
     },
     {
       "phase": "positive",
-      "claim": "workload-beta reads its own fixture over verified TLS",
+      "claim": "Running application Pods retain distinct explicit ServiceAccount assignments",
+      "matched": true,
+      "observed": "default=default; dedicated={'workload-alpha': 'saf-0402-019-alpha', 'workload-beta': 'saf-0402-019-beta'}"
+    },
+    {
+      "phase": "red",
+      "claim": "workload-alpha lacks its fixture permission before its RoleBinding",
+      "matched": true,
+      "observed": "201 denied"
+    },
+    {
+      "phase": "red",
+      "claim": "workload-beta lacks its fixture permission before its RoleBinding",
+      "matched": true,
+      "observed": "201 denied"
+    },
+    {
+      "phase": "green",
+      "claim": "workload-alpha self-review allows only its bound fixture get",
+      "matched": true,
+      "observed": "201 allowed"
+    },
+    {
+      "phase": "positive",
+      "claim": "workload-alpha completes permitted read of inert own fixture",
       "matched": true,
       "observed": "200 expected-marker"
     },
     {
       "phase": "green",
-      "claim": "workload-alpha is denied the other workload fixture",
+      "claim": "workload-alpha self-review denies the other workload fixture",
       "matched": true,
-      "observed": "403 no-expected-marker"
+      "observed": "201 denied"
     },
     {
       "phase": "green",
-      "claim": "workload-beta is denied the other workload fixture",
+      "claim": "workload-beta self-review allows only its bound fixture get",
       "matched": true,
-      "observed": "403 no-expected-marker"
+      "observed": "201 allowed"
+    },
+    {
+      "phase": "positive",
+      "claim": "workload-beta completes permitted read of inert own fixture",
+      "matched": true,
+      "observed": "200 expected-marker"
+    },
+    {
+      "phase": "green",
+      "claim": "workload-beta self-review denies the other workload fixture",
+      "matched": true,
+      "observed": "201 denied"
     }
   ]
 }
