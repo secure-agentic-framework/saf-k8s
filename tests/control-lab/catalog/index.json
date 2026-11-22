@@ -1344,6 +1344,12 @@
       "sha256": "b2944b38e69104e1dd786ab515490a3cdc848cef071f1df5aae5723aa8670d63",
       "title": "Vulnerability response ownership and multi-party coordination governance for Kubernetes AI infrastructure"
     },
+    "SAF-K8S-1005-021": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "3a49bed9d0d87e1340e485a596d83937819646e4986594796ec21ebb7cb3ffdf",
+      "title": "Kubernetes containment runbooks for node draining, namespace isolation, and workload suspension"
+    },
     "SAF-K8S-1005-022": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1400,7 +1406,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "5d57438047d7ed4be0c3029890dbd9d42bbfb202",
+  "revision": "06e9183e730b36822d9d1d650c890b37834ada1e",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

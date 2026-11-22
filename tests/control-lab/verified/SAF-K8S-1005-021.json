@@ -1,0 +1,107 @@
+{
+  "control_id": "SAF-K8S-1005-021",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "3a49bed9d0d87e1340e485a596d83937819646e4986594796ec21ebb7cb3ffdf",
+  "scope": "Disposable two-node Kubernetes v1.36.1 Kind only. The case observes eviction of one owned Deployment Pod, placement on the control-plane node, ingress and egress isolation of its namespace using the bundled CNI, scale-to-zero, and retention of an unrelated ready Pod and its HTTP path. Production authorization, incident procedures, CNI and tenant coverage, disruption budgets, and production workloads require independent review.",
+  "cluster": "saf-lab-2e74a641b4b6",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Before containment the maintenance mock is reachable in both directions",
+      "matched": true,
+      "observed": {
+        "ingress": "maintenance-mock",
+        "egress": "independent-mock",
+        "maintenance_on_worker": true,
+        "independent_http": "independent-mock"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The scoped drain cordons only the worker and replaces its mock on the other node",
+      "matched": true,
+      "observed": {
+        "worker_cordoned": true,
+        "control_plane_cordoned": false,
+        "replacement_on_control_plane": true,
+        "pod_uid_changed": true,
+        "deployment_generation_unchanged": true,
+        "independent_http": "independent-mock"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "After rescheduling both directions still carry the exact fixture markers",
+      "matched": true,
+      "observed": {
+        "ingress": "maintenance-mock",
+        "egress": "independent-mock"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Namespace default-deny blocks both paths while both mock Pods stay Ready",
+      "matched": true,
+      "observed": {
+        "policy_namespace": "saf-1005-maintenance",
+        "ingress": "blocked",
+        "egress": "blocked",
+        "same_isolated_pod_ready": true,
+        "independent_http": "independent-mock"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Scaling to zero removes the mock Pod and retains its Deployment",
+      "matched": true,
+      "observed": {
+        "deployment_retained": true,
+        "desired_replicas": 0,
+        "matching_pods": 0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same independent Pod stayed Ready and returned its marker at all checkpoints",
+      "matched": true,
+      "observed": {
+        "same_pod": true,
+        "no_restart": true,
+        "final_http": "independent-mock"
+      }
+    }
+  ]
+}
