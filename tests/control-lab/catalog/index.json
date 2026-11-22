@@ -744,6 +744,12 @@
       "sha256": "6916f9e9d11135b125473a4bba78e9ca49fb2043d935089d772f5b5e71d40e1d",
       "title": "GitOps deployed package and version metadata retention"
     },
+    "SAF-K8S-0606-030": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "e68b35e45a4d41cb5cf9eabb16501a0214cbe0e8ab3b421e71fedd2a304956fd",
+      "title": "GitOps configuration revision and deployment history traceability"
+    },
     "SAF-K8S-0606-031": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -1034,7 +1040,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "9adb4190a7591d2481b0410fe195762591989e5b",
+  "revision": "24683802fd03d4e4cd9d207405b34724adb3536a",
   "sha256": "ddeb6cd8a0c19f388ae9ef9e35085987a44668dbcc5d1557792bf8a3b1b5799c",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
