@@ -1140,6 +1140,12 @@
       "sha256": "ccfe058c28b3b973ae18fa6c8ab890022ce47206bea66c45fafad42f772ef93f",
       "title": "Inference endpoint authentication and authorization"
     },
+    "SAF-K8S-0902-009": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "bb2fae2ae77bfbc0cc3932a32715c7149aa17f377686513cadafe1fe7079865a",
+      "title": "Inference response filtering and output controls"
+    },
     "SAF-K8S-0902-011": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1628,7 +1634,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "9252120208d8ca913027ae45bbf10d3bdaed6ab9",
+  "revision": "63f49b984a35f94292dab494f9443b2ea988f235",
   "sha256": "28e2e795c3d0eee859ba13f7c7c1e62c33d93955ba867c40a0060d1dfd1984cb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
