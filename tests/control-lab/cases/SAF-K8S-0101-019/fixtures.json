@@ -1,0 +1,19 @@
+{
+  "approved_chain": ["Node", "RBAC"],
+  "inert_disallowed_chains": [
+    {
+      "source": "legacy --authorization-mode value",
+      "chain": ["AlwaysAllow", "Node", "RBAC"]
+    },
+    {
+      "source": "legacy order with AlwaysAllow after Node",
+      "chain": ["Node", "AlwaysAllow", "RBAC"]
+    },
+    {
+      "source": "structured AuthorizationConfiguration authorizers[].type values",
+      "chain": ["AlwaysAllow", "Node", "RBAC"]
+    }
+  ],
+  "inert_only": true,
+  "note": "These strings are policy fixtures only. They are submitted only as data in dry-run ConfigMaps; they are never passed to kube-apiserver, Kind, or an authorization configuration file."
+}
