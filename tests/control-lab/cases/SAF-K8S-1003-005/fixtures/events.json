@@ -1,0 +1,56 @@
+[
+  {
+    "event_id": "evt-synthetic-privileged-ai-pod",
+    "namespace": "ai-inference",
+    "verb": "create",
+    "resource": "pods",
+    "privileged": "true",
+    "synthetic": true,
+    "description": "Inert normalized audit-event record; no Kubernetes request is issued."
+  },
+  {
+    "event_id": "evt-synthetic-ai-pod-exec",
+    "namespace": "ai-inference",
+    "verb": "create",
+    "resource": "pods/exec",
+    "privileged": "false",
+    "synthetic": true,
+    "description": "Inert normalized audit-event record; no process is executed."
+  },
+  {
+    "event_id": "evt-synthetic-safe-ai-pod",
+    "namespace": "ai-inference",
+    "verb": "create",
+    "resource": "pods",
+    "privileged": "false",
+    "synthetic": true,
+    "description": "Permitted baseline comparator for an ordinary nonprivileged AI Pod request."
+  },
+  {
+    "event_id": "evt-synthetic-read-ai-pod",
+    "namespace": "ai-inference",
+    "verb": "get",
+    "resource": "pods",
+    "privileged": "false",
+    "synthetic": true,
+    "description": "Near-miss comparator: read-only Pod access, not a container administration request."
+  },
+  {
+    "event_id": "evt-synthetic-privileged-ai-pod-outside",
+    "namespace": "platform-fixture",
+    "verb": "create",
+    "resource": "pods",
+    "privileged": "true",
+    "synthetic": true,
+    "description": "Inert comparison from a namespace outside the fixture AI scope."
+  },
+  {
+    "event_id": "evt-synthetic-ai-pod-exec-outside",
+    "namespace": "platform-fixture",
+    "verb": "create",
+    "resource": "pods/exec",
+    "privileged": "false",
+    "synthetic": true,
+    "description": "Inert comparison from a namespace outside the fixture AI scope."
+  }
+]

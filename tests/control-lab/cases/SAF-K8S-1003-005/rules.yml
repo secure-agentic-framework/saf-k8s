@@ -1,0 +1,23 @@
+groups:
+  - name: saf-k8s-ai-prioritized
+    rules:
+      - alert: PrivilegedAIWorkloadRequest
+        expr: saf_k8s_audit_event{verb="create",resource="pods",privileged="true",namespace=~"ai-.*"} > 0
+        labels:
+          rule_id: SAF-K8S-RULE-1003-005-01
+          technique_id: T1610
+          severity: warning
+        annotations:
+          summary: "Privileged AI namespace Pod request observed"
+          action: "Review the Kubernetes audit record, workload owner, exception approval, and node exposure; follow the local response procedure."
+          runbook: "RB-IR-K8S-AI-PRIVILEGED-WORKLOAD"
+      - alert: AIContainerExecRequest
+        expr: saf_k8s_audit_event{verb="create",resource="pods/exec",namespace=~"ai-.*"} > 0
+        labels:
+          rule_id: SAF-K8S-RULE-1003-005-02
+          technique_id: T1609
+          severity: warning
+        annotations:
+          summary: "Container administration request targets an AI namespace Pod"
+          action: "Check the authenticated principal, approval context, target workload, and related audit events; follow the local response procedure."
+          runbook: "RB-IR-K8S-AI-CONTAINER-ADMIN"

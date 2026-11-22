@@ -1,0 +1,18 @@
+{
+  "RB-IR-K8S-AI-PRIVILEGED-WORKLOAD": {
+    "owner": "Platform Security",
+    "triage": [
+      "Confirm the exact audit event and workload owner.",
+      "Review the authorized exception record and determine affected environment.",
+      "Escalate unexpected privileges to the incident owner."
+    ]
+  },
+  "RB-IR-K8S-AI-CONTAINER-ADMIN": {
+    "owner": "Security Operations",
+    "triage": [
+      "Confirm the request identity and target workload.",
+      "Check the change or break-glass approval for the request.",
+      "Preserve the audit event and open the incident workflow if approval is absent."
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "control_id": "SAF-K8S-1003-005",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "ec4d26b3ae76623533a3d4822d86de61b5df13bd2b586dbf1e0cb2f8135493f2",
+  "scope": "Kubernetes v1.36.1 Kind runs the pinned Prometheus 3.16.0 promtool rule evaluator on inert synthetic audit-event records. Two case-owned rules cover only privileged AI-namespace Pod creation (T1610) and Pod exec requests (T1609); unit-rule tests include positive matches, safe near misses, and a no-rule red comparator. A reviewed change record is checked against the rule IDs and versioned ATT&CK metadata. Production telemetry, alert delivery and analyst response require deployment evidence.",
+  "cluster": "saf-lab-a0d07a1005e2",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "green",
+      "claim": "The versioned ATT&CK change review matches rule labels and both IDs",
+      "matched": true,
+      "observed": {
+        "review_id": "DR-1003-005-01",
+        "review_rules_present": true,
+        "actionable_fields_present": true,
+        "attack_release": "v20.1"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Both synthetic request signals lack actionable matches when the rule file is absent",
+      "matched": true,
+      "observed": {
+        "job": "saf-1003-005-red",
+        "expected_missing-alert": true,
+        "rule_evaluator_exit": "Failed"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Prometheus matches both prioritized synthetic behaviors and leaves safe near misses quiet",
+      "matched": true,
+      "observed": {
+        "job": "saf-1003-005-rules",
+        "rule_engine_passed": true,
+        "expected_rule_ids": [
+          "SAF-K8S-RULE-1003-005-01",
+          "SAF-K8S-RULE-1003-005-02"
+        ],
+        "groups": [
+          "positive-privileged-workload",
+          "positive-container-exec-request",
+          "near-miss-safe-workload-and-read"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Safe in-scope requests and identical outside-scope signals produce no alert",
+      "matched": true,
+      "observed": {
+        "safe_near_misses": 4,
+        "unexpected_alerts": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "review_id": "DR-1003-005-01",
+  "status": "example-reviewed",
+  "reviewer_role": "Detection Engineering",
+  "review_date": "2026-11-22",
+  "change": "Initial prioritized rule set; explicit ATT&CK metadata version pin and synthetic comparator coverage.",
+  "rule_ids": [
+    "SAF-K8S-RULE-1003-005-01",
+    "SAF-K8S-RULE-1003-005-02"
+  ],
+  "technique_ids": [
+    "T1609",
+    "T1610"
+  ],
+  "attack_release": "v20.1",
+  "required_checks": [
+    "positive-match",
+    "near-miss",
+    "ATT&CK-version-check"
+  ],
+  "response_review": "Alert annotations provide an action prompt and local runbook identifier; actual analyst ownership, runbook content, paging, and response performance require separate review.",
+  "rules_sha256": "7594256492b50b858d8db3efed270129799d2f6683dee45f9eee4b3c672b3788"
+}
