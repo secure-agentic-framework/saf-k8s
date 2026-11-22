@@ -1,0 +1,156 @@
+{
+  "control_id": "SAF-K8S-0504-002",
+  "catalog_revision": "da35972a15cb3951c2b70d9126bfb646068eddb3",
+  "catalog_sha256": "189962c3e5a31f6eb8fdbac0b12bd14c79f1ff1ef27182d4c8195ff3c9ff0d65",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "9d1058e3b9f3454c71a630599fe3e67ba1a312d06fc71168e6c3a72a408839cb",
+  "scope": "Fresh disposable Kubernetes v1.36.1 Kind cluster with pinned Istio 1.32.0 sidecar mode. Two case-owned clients with distinct Kubernetes service accounts send the same ordinary HTTP GET to one case-owned backend. The case compares plain baseline behavior with injected workload behavior, verifies automatic mTLS through the backend's observed XFCC SPIFFE identity, then applies one exact service-account AuthorizationPolicy and checks allowed 200 versus denied 403. It queries backend proxy request metrics and Jaeger for one generated trace. Only these fixtures and this in-cluster request are in scope.",
+  "cluster": "saf-lab-83217d9a80eb",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Pinned Kubernetes v1.36.1 Kind control plane",
+      "matched": true,
+      "observed": {
+        "server_version": "v1.36.1",
+        "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Istio 1.32.0 and Jaeger sample are ready",
+      "matched": true,
+      "observed": {
+        "istio_version": "1.32.0",
+        "archive_sha256_verified": true,
+        "kubernetes_version": "v1.36.1"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Unmeshed saf-0504-002-approved-client reaches the same owned backend request",
+      "matched": true,
+      "observed": {
+        "status": 200,
+        "xfcc_present": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Unmeshed saf-0504-002-comparison-client reaches the same owned backend request",
+      "matched": true,
+      "observed": {
+        "status": 200,
+        "xfcc_present": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Unmeshed saf-0504-002-unmeshed-client reaches the same owned backend request",
+      "matched": true,
+      "observed": {
+        "status": 200,
+        "xfcc_present": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Injected request carries authenticated saf-0504-002-approved-client identity",
+      "matched": true,
+      "observed": {
+        "status": 200,
+        "peer_principal_matches": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Injected request carries authenticated saf-0504-002-comparison-client identity",
+      "matched": true,
+      "observed": {
+        "status": 200,
+        "peer_principal_matches": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The reachable unmeshed client is rejected at the STRICT transport boundary",
+      "matched": true,
+      "observed": {
+        "plaintext_transport_rejected": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Authorized service-account identity receives the same GET",
+      "matched": true,
+      "observed": {
+        "status": 200,
+        "trace_context_matches": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Same request from the other service account is denied by policy",
+      "matched": true,
+      "observed": {
+        "status": 403,
+        "policy": "approved-client-only"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Backend proxy exposes request metrics for allowed and denied requests",
+      "matched": true,
+      "observed": {
+        "request_metrics_present": true,
+        "response_codes_observed": {
+          "200": true,
+          "403": true
+        },
+        "successful_mutual_tls_metric": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Jaeger stores client and backend spans for the same traced request",
+      "matched": true,
+      "observed": {
+        "trace_found": true,
+        "client_span": true,
+        "backend_span": true,
+        "exact_fixture_marker": true
+      }
+    }
+  ]
+}

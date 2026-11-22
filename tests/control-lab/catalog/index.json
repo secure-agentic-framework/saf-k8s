@@ -630,6 +630,12 @@
       "sha256": "9dab11d4efd2ef04577368bfdb6e5610d74411f6d2223c8aa48b85309ba4905c",
       "title": "Namespace-scoped DNS service discovery restriction"
     },
+    "SAF-K8S-0504-002": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "9d1058e3b9f3454c71a630599fe3e67ba1a312d06fc71168e6c3a72a408839cb",
+      "title": "Service mesh mTLS and authorization policies"
+    },
     "SAF-K8S-0505-002": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -968,7 +974,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "57bf278e54bbba4b4e3fcf79058770db5702ddf3",
-  "sha256": "fc842ab4d46fdce83225faef0975a8e44f736b300242218bc44d9e709727ce55",
+  "revision": "f7fd4eb3e2d439815e89ab89c229542c7a21c7f7",
+  "sha256": "0264e66c6532b9cabd3d3301582d0dad604e98d0619e96179371fc65ec016af9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
