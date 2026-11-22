@@ -112,3 +112,11 @@ public Kueue release artifact and the pinned container images.
 
 - [Kueue v0.17 installation](https://kueue.sigs.k8s.io/v0.17/docs/installation/)
 - [Kueue v0.17 Jobs](https://kueue.sigs.k8s.io/v0.17/docs/tasks/run/jobs/)
+
+The controller also uses a 15-second all-Pod readiness timeout. A healthy batch
+reaches the Kueue PodsReady condition. In an indexed two-worker comparator,
+both Pods run and exactly one reaches Ready. The Workload then reports
+PodsReadyTimeout, the Job is suspended, its Pods are removed, and its quota is
+released. These observations cover Kueue's timeout-based mechanism in the lab.
+
+- [Kueue v0.17 all-Pod readiness](https://kueue.sigs.k8s.io/v0.17/docs/tasks/manage/setup_wait_for_pods_ready/)

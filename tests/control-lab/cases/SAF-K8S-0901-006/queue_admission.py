@@ -91,6 +91,7 @@ def _job(namespace: str, name: str, image: str, cpu: str) -> dict[str, Any]:
                 "spec": {
                     "restartPolicy": "Never",
                     "automountServiceAccountToken": False,
+                    "terminationGracePeriodSeconds": 1,
                     "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
                                         "seccompProfile": {"type": "RuntimeDefault"}},
                     "containers": [{
@@ -121,7 +122,17 @@ def run(lab):
     if original.count(KUEUE_TAG_IMAGE) != 1:
         lab.block("The Kueue release did not contain exactly one expected controller image")
     installed = source.with_name("kueue-pinned.yaml")
-    installed.write_text(original.replace(KUEUE_TAG_IMAGE, CONTROLLER_IMAGE, 1))
+    config_marker = "    #waitForPodsReady:"
+    if original.count(config_marker) != 1:
+        lab.block("Pinned Kueue manifest lacks the expected readiness configuration anchor")
+    readiness_config = """    waitForPodsReady:
+      timeout: 15s
+      blockAdmission: true
+      requeuingStrategy:
+        backoffBaseSeconds: 60
+        backoffMaxSeconds: 60"""
+    manifest = original.replace(KUEUE_TAG_IMAGE, CONTROLLER_IMAGE, 1)
+    installed.write_text(manifest.replace(config_marker, readiness_config, 1))
     _kubectl(lab, "apply", "--server-side", "-f", str(installed), timeout=110)
     _kubectl(lab, "rollout", "status", "deployment/kueue-controller-manager",
              "-n", "kueue-system", "--timeout=110s", timeout=120)
@@ -244,6 +255,8 @@ def run(lab):
     }
 
     admissible = _job(namespace, "admissible-two-pod", image, "100m")
+    worker = admissible["spec"]["template"]["spec"]["containers"][0]
+    worker["command"][-1] = "sleep 8; " + worker["command"][-1]
     _apply(lab, admissible)
     admissible_job = _wait(lab, lambda: _json(
         lab, "get", "job", admissible["metadata"]["name"], "-n", namespace),
@@ -258,6 +271,10 @@ def run(lab):
     admitted = admitted_workload["status"].get("admission") or {}
     if admitted.get("clusterQueue") != cluster_queue:
         lab.block("Kueue did not reserve the admissible workload from the expected ClusterQueue")
+    all_ready = _wait(lab, lambda: (
+        condition if (workload := _owned_workload(lab, namespace, admissible_job))
+        and (condition := _condition(workload, "PodsReady")) and condition["status"] == "True" else None
+    ), "Kueue all-Pod readiness for the healthy job")
     completed = _wait(lab, lambda: (
         job if (job := _json(lab, "get", "job", admissible["metadata"]["name"], "-n", namespace))
         and any(c.get("type") == "Complete" and c.get("status") == "True"
@@ -286,5 +303,66 @@ def run(lab):
         "succeeded_pods": 2,
         "receipts": receipts,
         "exact_mock_receipt": RECEIPT,
+        "all_pods_ready": all_ready,
     }
+    evidence["readiness_timeout"] = verify_readiness_timeout(lab, namespace, image)
     (lab.evidence / "kueue-admission.json").write_text(json.dumps(evidence, indent=2) + "\n")
+
+def verify_readiness_timeout(lab, namespace, image):
+    fixture = _job(namespace, "one-worker-not-ready", image, "100m")
+    fixture["spec"]["completionMode"] = "Indexed"
+    pod_spec = fixture["spec"]["template"]["spec"]
+    worker = pod_spec["containers"][0]
+    worker["command"] = ["/bin/sh", "-c", "sleep 45"]
+    worker["readinessProbe"] = {
+        "exec": {"command": ["/bin/sh", "-c", 'test "$JOB_COMPLETION_INDEX" = 0']},
+        "periodSeconds": 1, "failureThreshold": 1,
+    }
+    name = fixture["metadata"]["name"]
+    _apply(lab, fixture)
+    job = _json(lab, "get", "job", name, "-n", namespace)
+
+    def one_ready():
+        workload = _owned_workload(lab, namespace, job)
+        if not workload:
+            return None
+        ready = _condition(workload, "PodsReady")
+        quota = _condition(workload, "QuotaReserved")
+        pods = _json(lab, "get", "pods", "-n", namespace, "-l", f"app={name}")["items"]
+        if len(pods) != 2 or not all(pod["status"].get("phase") == "Running" for pod in pods):
+            return None
+        states = {pod["metadata"]["annotations"]["batch.kubernetes.io/job-completion-index"]:
+                  next(c["status"] for c in pod["status"]["conditions"] if c["type"] == "Ready")
+                  for pod in pods}
+        if states != {"0": "True", "1": "False"}:
+            return None
+        if ready and ready["status"] == "False" and quota and quota["status"] == "True":
+            return {"workers": states, "pods_ready": ready, "quota_reserved": quota}
+        return None
+
+    before = _wait(lab, one_ready, "a quota-reserved batch with one of two workers Ready", seconds=25)
+    lab.check("red", "Kueue observes that the admitted batch never reaches all-Pod readiness",
+              before["workers"] == {"0": "True", "1": "False"},
+              {"ready_workers": 1, "running_workers": 2, "quota_was_reserved": True})
+
+    def released():
+        workload = _owned_workload(lab, namespace, job)
+        if not workload:
+            return None
+        evicted = _condition(workload, "Evicted")
+        reservation = _condition(workload, "QuotaReserved")
+        current = _json(lab, "get", "job", name, "-n", namespace)
+        pods = _json(lab, "get", "pods", "-n", namespace, "-l", f"app={name}")["items"]
+        if (evicted and evicted["status"] == "True" and evicted["reason"] == "PodsReadyTimeout"
+                and reservation and reservation["status"] == "False"
+                and current["spec"].get("suspend") is True and not pods):
+            return {"evicted": evicted, "quota_reserved": reservation, "job_suspended": True,
+                    "remaining_pods": 0}
+        return None
+
+    after = _wait(lab, released, "readiness timeout eviction, suspension and quota release", seconds=30)
+    lab.check("green", "Kueue evicts the unready batch, suspends it, removes its Pods and releases quota",
+              after["remaining_pods"] == 0 and after["job_suspended"],
+              {"reason": after["evicted"]["reason"], "remaining_owned_pods": after["remaining_pods"],
+               "quota_released": after["quota_reserved"]["status"] == "False", "job_suspended": True})
+    return {"before": before, "after": after}

@@ -4,8 +4,8 @@
   "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "0b1d02acd0d623612be51764643d1d762fb5a4c57b2c257968cde0799925db4d",
-  "scope": "One fresh Kubernetes v1.36.1 kind cluster. The case compares admission of one synthetic 600m CPU / 128Mi Pod request before and after an ordinary 500m CPU / 256Mi memory namespace ResourceQuota, verifies a low-request Pod remains admissible, and checks projected ServiceAccount authorization for creating Pods and ResourceQuota objects. A synthetic platform identity gets only ResourceQuota create permission. A pinned Kueue v0.17.7 controller also compares held and admitted two-Pod batches against a local queue's nominal CPU quota and checks queue-admin authorization. Volcano and production fairness, priority, preemption and accelerator quotas require separate evidence.",
-  "cluster": "saf-lab-196c36f07088",
+  "scope": "One fresh Kubernetes v1.36.1 kind cluster. The case compares admission of one synthetic 600m CPU / 128Mi Pod request before and after an ordinary 500m CPU / 256Mi memory namespace ResourceQuota, verifies a low-request Pod remains admissible, and checks projected ServiceAccount authorization for creating Pods and ResourceQuota objects. A synthetic platform identity gets only ResourceQuota create permission. A pinned Kueue v0.17.7 controller also compares held and admitted two-Pod batches against a local queue's nominal CPU quota and checks queue-admin authorization. Its readiness timeout also releases a reserved batch when one of two workers remains unready. Volcano and production fairness, priority, preemption and accelerator quotas require separate evidence.",
+  "cluster": "saf-lab-0fb3d4283983",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -165,6 +165,27 @@
         "quota_reserved_from_expected_cluster_queue": true,
         "succeeded_child_pods": 2,
         "exact_mock_receipts": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Kueue observes that the admitted batch never reaches all-Pod readiness",
+      "matched": true,
+      "observed": {
+        "ready_workers": 1,
+        "running_workers": 2,
+        "quota_was_reserved": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Kueue evicts the unready batch, suspends it, removes its Pods and releases quota",
+      "matched": true,
+      "observed": {
+        "reason": "PodsReadyTimeout",
+        "remaining_owned_pods": 0,
+        "quota_released": true,
+        "job_suspended": true
       }
     }
   ]

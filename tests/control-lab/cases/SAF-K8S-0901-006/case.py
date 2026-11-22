@@ -27,7 +27,8 @@ SCOPE = (
     "for creating Pods and ResourceQuota objects. A synthetic platform identity "
     "gets only ResourceQuota create permission. A pinned Kueue v0.17.7 controller "
     "also compares held and admitted two-Pod batches against a local queue's nominal CPU quota "
-    "and checks queue-admin authorization. Volcano and production fairness, priority, preemption and "
+    "and checks queue-admin authorization. Its readiness timeout also releases a reserved batch "
+    "when one of two workers remains unready. Volcano and production fairness, priority, preemption and "
     "accelerator quotas require separate evidence."
 )
 
