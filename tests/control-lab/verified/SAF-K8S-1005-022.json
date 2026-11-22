@@ -1,0 +1,150 @@
+{
+  "control_id": "SAF-K8S-1005-022",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "57c74e217282e6c71bb95d935f03bb8c498d770e13bf2743845a277bcfc1bf6e",
+  "scope": "One disposable single-node Kind cluster using the digest-pinned Kubernetes v1.36.1 node image. The native check creates one ServiceAccount and case-owned empty marker Secrets, issues two short-lived Secret-bound tokens, and observes them only through Kubernetes TokenReview before and after marker retirement/replacement. External access is modeled by an offline fictional provider fixture with inert identity labels and no credential values or network calls. This does not prove production runbook authorization, token discovery/inventory, production workload adoption, provider-side enforcement or revocation latency, or behavior of other credential kinds.",
+  "cluster": "saf-lab-d794dda2fbc2",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Before retirement both independently issued fixture credentials authenticate",
+      "matched": true,
+      "observed": {
+        "retired_candidate": {
+          "authenticated": true,
+          "username_matches_case_service_account": true,
+          "audience_matches": true
+        },
+        "replacement": {
+          "authenticated": true,
+          "username_matches_case_service_account": true,
+          "audience_matches": true
+        },
+        "audience": "urn:example:saf-k8s-1005-022:verification",
+        "credential_values_recorded": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Deleting the old bound marker makes its token fail TokenReview while replacement stays valid",
+      "matched": true,
+      "observed": {
+        "retired_candidate": {
+          "authenticated": false,
+          "username_matches_case_service_account": false,
+          "audience_matches": false
+        },
+        "replacement": {
+          "authenticated": true,
+          "username_matches_case_service_account": true,
+          "audience_matches": true
+        },
+        "retirement_action": "deleted case-owned Secret marker",
+        "credential_values_recorded": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A same-name marker replacement does not revive the retired token",
+      "matched": true,
+      "observed": {
+        "same_name_recreated": true,
+        "uid_changed": true,
+        "retired_candidate": {
+          "authenticated": false,
+          "username_matches_case_service_account": false,
+          "audience_matches": false
+        },
+        "replacement": {
+          "authenticated": true,
+          "username_matches_case_service_account": true,
+          "audience_matches": true
+        },
+        "credential_values_recorded": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Offline fictional provider verifier accepts old, replacement and unrelated labels before rotation",
+      "matched": true,
+      "observed": {
+        "provider_mode": "offline-fictional-fixture",
+        "accepted": {
+          "fictional-label-001": true,
+          "fictional-label-002": true,
+          "fictional-label-003": true
+        },
+        "labels_are_credentials": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Retiring the old provider label denies it while replacement remains accepted",
+      "matched": true,
+      "observed": {
+        "provider_mode": "offline-fictional-fixture",
+        "retired_identity": {
+          "label": "fictional-label-001",
+          "state": "retired",
+          "accepted": false
+        },
+        "replacement_identity": {
+          "label": "fictional-label-002",
+          "state": "active",
+          "accepted": true
+        },
+        "retire_and_replace": true,
+        "credential_values_recorded": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Provider fixture transition leaves unrelated identity accepted and retired identity denied",
+      "matched": true,
+      "observed": {
+        "unrelated_identity": {
+          "label": "fictional-label-003",
+          "accepted": true
+        },
+        "retired_identity": {
+          "label": "fictional-label-001",
+          "accepted": false
+        },
+        "external_service_contacted": false
+      }
+    }
+  ]
+}

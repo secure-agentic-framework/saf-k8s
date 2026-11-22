@@ -1,0 +1,12 @@
+{
+  "fixture_id": "saf-1005-022-fictional-provider-v1",
+  "provider": "Offline Fictional Credentials Service",
+  "mode": "in-memory verifier fixture; no network client or endpoint",
+  "identities": {
+    "fictional-label-001": {"state": "active"},
+    "fictional-label-002": {"state": "active"},
+    "fictional-label-003": {"state": "active"}
+  },
+  "allowed_states": ["active"],
+  "labels_are_credentials": false
+}

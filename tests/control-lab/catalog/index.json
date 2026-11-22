@@ -1338,6 +1338,12 @@
       "sha256": "63126aa79ee6952eec03f1a5024bc2328f69e43ad1a190e60fd5e00f7ee88238",
       "title": "Vulnerability disclosure policy, intake channels, and triage SLAs for Kubernetes AI infrastructure"
     },
+    "SAF-K8S-1005-022": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "57c74e217282e6c71bb95d935f03bb8c498d770e13bf2743845a277bcfc1bf6e",
+      "title": "Kubernetes incident credential revocation procedures for ServiceAccounts and external access"
+    },
     "SAF-K8S-1006-001": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1388,7 +1394,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "1ab3a2fcfa06ccc7ffb50502305029f87fe892ee",
+  "revision": "349f57199369e677bc7c259e991ca4efa2f79fe2",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
