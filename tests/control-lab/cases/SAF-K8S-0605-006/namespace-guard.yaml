@@ -1,0 +1,50 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0605-006-ai-namespace-psa
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: [CREATE, UPDATE]
+        resources: [namespaces]
+  matchConditions:
+    - name: ai-namespace-create-or-existing-ai-namespace
+      expression: >-
+        (has(object.metadata.labels) &&
+          'saf-k8s.example/workload-class' in object.metadata.labels &&
+          object.metadata.labels['saf-k8s.example/workload-class'] == 'ai') ||
+        (oldObject != null && has(oldObject.metadata.labels) &&
+          'saf-k8s.example/workload-class' in oldObject.metadata.labels &&
+          oldObject.metadata.labels['saf-k8s.example/workload-class'] == 'ai')
+  validations:
+    - expression: >-
+        has(object.metadata.labels) &&
+        'pod-security.kubernetes.io/enforce' in object.metadata.labels &&
+        'saf-k8s.example/workload-class' in object.metadata.labels &&
+        object.metadata.labels['saf-k8s.example/workload-class'] == 'ai' &&
+        object.metadata.labels['pod-security.kubernetes.io/enforce'] == 'restricted' &&
+        'pod-security.kubernetes.io/enforce-version' in object.metadata.labels &&
+        object.metadata.labels['pod-security.kubernetes.io/enforce-version'] == 'v1.36' &&
+        'pod-security.kubernetes.io/audit' in object.metadata.labels &&
+        object.metadata.labels['pod-security.kubernetes.io/audit'] == 'restricted' &&
+        'pod-security.kubernetes.io/audit-version' in object.metadata.labels &&
+        object.metadata.labels['pod-security.kubernetes.io/audit-version'] == 'v1.36' &&
+        'pod-security.kubernetes.io/warn' in object.metadata.labels &&
+        object.metadata.labels['pod-security.kubernetes.io/warn'] == 'restricted' &&
+        'pod-security.kubernetes.io/warn-version' in object.metadata.labels &&
+        object.metadata.labels['pod-security.kubernetes.io/warn-version'] == 'v1.36'
+      message: >-
+        AI namespaces require restricted Pod Security Admission labels pinned to v1.36
+        for enforce, audit, and warn; the AI classification and labels cannot be downgraded
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0605-006-ai-namespace-psa
+spec:
+  policyName: saf-k8s-0605-006-ai-namespace-psa
+  validationActions: [Audit]

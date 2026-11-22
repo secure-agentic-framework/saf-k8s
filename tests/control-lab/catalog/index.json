@@ -666,6 +666,12 @@
       "sha256": "ff47361e188d8ba90439351dc0aea68fad4f40f6edeb660c5e8b8705a048317f",
       "title": "Kubelet authorization for cached private images"
     },
+    "SAF-K8S-0605-006": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "804bd486bad4f21d2077d8c894816580205f04657ea3d5a3d2cf6280d90dde87",
+      "title": "Pod Security Admission enforcement for AI workload namespaces"
+    },
     "SAF-K8S-0605-007": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -914,7 +920,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "7cab6742d732b0d623fdf85a5701a5b75d65a192",
+  "revision": "d80f4913defa323be2e806fab0dd0aef7f66406a",
   "sha256": "ba2c83990b7e8dabd3521401627a287dc143c1661a28469381ebabfdcef4730b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

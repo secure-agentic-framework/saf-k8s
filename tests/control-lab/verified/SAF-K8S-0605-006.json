@@ -1,0 +1,153 @@
+{
+  "control_id": "SAF-K8S-0605-006",
+  "catalog_revision": "619c1478dc53b82ee7825214d7a3dd81af588371",
+  "catalog_sha256": "ba2c83990b7e8dabd3521401627a287dc143c1661a28469381ebabfdcef4730b",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "804bd486bad4f21d2077d8c894816580205f04657ea3d5a3d2cf6280d90dde87",
+  "scope": "One fresh Kubernetes v1.36.1 kind cluster. Server-side dry-run compares the same schema-valid, inert pause Pod with only runAsNonRoot changed, before and after Restricted PSA labels are applied to one typed synthetic AI namespace. A ValidatingAdmissionPolicy requires immutable AI classification and Restricted enforce/audit/warn labels pinned to v1.36. A separate ordinary namespace checks namespace matching. Native metadata audit events record the proposed Baseline AI namespace and its Pod-level Restricted violation. All Pod requests are server-side dry-run. Production coverage and central audit delivery require deployment evidence.",
+  "cluster": "saf-lab-8730c903a9b6",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Disposable API server is Kubernetes v1.36.1",
+      "matched": true,
+      "observed": {
+        "server": "v1.36.1"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Same Restricted-only deviation is admitted before namespace policy",
+      "matched": true,
+      "observed": "server-side dry-run admitted; no Pod persisted"
+    },
+    {
+      "phase": "positive",
+      "claim": "Restricted-compatible baseline is admitted before namespace policy",
+      "matched": true,
+      "observed": "server-side dry-run admitted; no Pod persisted"
+    },
+    {
+      "phase": "positive",
+      "claim": "The metadata audit log identifies the AI namespace proposed below Restricted",
+      "matched": true,
+      "observed": {
+        "exact_policy_binding_and_reason": true,
+        "namespace_dry_run_admitted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Baseline policy admits the inert Pod while Restricted audit and warning identify the deviation",
+      "matched": true,
+      "observed": {
+        "dry_run_admitted": true,
+        "restricted_warning_observed": true,
+        "restricted_audit_violation_observed": true,
+        "metadata_only": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Restricted-compatible comparison has no PSA violation audit entry",
+      "matched": true,
+      "observed": {
+        "dry_run_admitted": true,
+        "violation_annotation_absent": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Namespace policy denies a dry-run downgrade with its exact reason",
+      "matched": true,
+      "observed": "Error from server (Forbidden): namespaces \"saf-0605-006-ai\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0605-006-ai-namespace-psa' with binding 'saf-k8s-0605-006-ai-namespace-psa' denied request: AI namespaces require restricted Pod Security Admission labels pinned to v1.36 for enforce, audit, and warn; the AI classification and labels cannot be downgraded"
+    },
+    {
+      "phase": "green",
+      "claim": "Namespace policy denies removal of an existing AI classification",
+      "matched": true,
+      "observed": {
+        "expected_policy_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Namespace policy denies a new AI namespace without pinned PSA labels",
+      "matched": true,
+      "observed": {
+        "expected_policy_denial": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A complete AI namespace and an independent unclassified namespace are admitted",
+      "matched": true,
+      "observed": {
+        "complete_ai_namespace_admitted": true,
+        "ordinary_namespace_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Same Restricted-only deviation is rejected by PSA with the exact message",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0605-006-restricted-deviation\" is forbidden: violates PodSecurity \"restricted:v1.36\": runAsNonRoot != true (container \"probe\" must not set securityContext.runAsNonRoot=false)"
+    },
+    {
+      "phase": "positive",
+      "claim": "Restricted-compatible baseline remains admitted in the AI namespace",
+      "matched": true,
+      "observed": "server-side dry-run admitted; no Pod persisted"
+    },
+    {
+      "phase": "positive",
+      "claim": "Identical schema-valid probe is outside the AI namespace policy scope",
+      "matched": true,
+      "observed": "server-side dry-run admitted; no Pod persisted"
+    },
+    {
+      "phase": "positive",
+      "claim": "AI namespace retains all six Restricted PSA labels pinned to v1.36",
+      "matched": true,
+      "observed": {
+        "pod-security.kubernetes.io/enforce": "restricted",
+        "pod-security.kubernetes.io/enforce-version": "v1.36",
+        "pod-security.kubernetes.io/audit": "restricted",
+        "pod-security.kubernetes.io/audit-version": "v1.36",
+        "pod-security.kubernetes.io/warn": "restricted",
+        "pod-security.kubernetes.io/warn-version": "v1.36"
+      }
+    }
+  ]
+}
