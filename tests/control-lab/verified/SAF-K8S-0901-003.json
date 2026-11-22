@@ -1,0 +1,100 @@
+{
+  "control_id": "SAF-K8S-0901-003",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "e6b3a8574b6f684eb897dd28253ff710f9671a03723f2eb90c4fb3b27cb8cd90",
+  "scope": "One disposable Kind Kubernetes v1.36.1 cluster with an ephemeral Secretbox EncryptionConfiguration for core Secret API objects, one small synthetic checkpoint, synthetic optimizer metadata, and one unencrypted ConfigMap comparator. Exact etcd records are checked inside the case cluster. Namespaced Roles grant named GET/UPDATE only for the mock trainer's restore Secret, and named GET for checkpoint inputs and the digest manifest; a separate observer can GET only the restore Secret. An ordinary mock Pod demonstrates denied Secret GET/PATCH. This does not test filesystem/PV or cloud object-store encryption, KMS/key custody or rotation, production identities, human authorization, distributed storage, or actual ML training.",
+  "cluster": "saf-lab-ac8e855a5a1f",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The synthetic ConfigMap comparator is stored in cleartext",
+      "matched": true,
+      "observed": {
+        "secretbox_prefix": false,
+        "checkpoint_marker_present": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The checkpoint Secret is ciphertext in etcd and hides its fixture bytes",
+      "matched": true,
+      "observed": {
+        "secretbox_prefix": true,
+        "checkpoint_marker_present": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A changed checkpoint fails its detached digest check before restore",
+      "matched": true,
+      "observed": {
+        "rejected": true,
+        "restore_attempted": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An unbound workload identity is denied checkpoint read and restore write",
+      "matched": true,
+      "observed": {
+        "checkpoint_get_status": 403,
+        "restore_patch_status": 403
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The authorized mock trainer restores validated bytes for an independent exact-content read",
+      "matched": true,
+      "observed": {
+        "trainer_validation": true,
+        "restore_update_status": 200,
+        "observer_get_status": 200,
+        "observer_exact_restore": true,
+        "checkpoint_sha256_matches": true,
+        "optimizer_sha256_matches": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Trainer RBAC grants only named API operations in the owned namespace",
+      "matched": true,
+      "observed": {
+        "trainer_role_matches_expected_rules": true,
+        "trainer_rolebinding_matches_expected_subject": true
+      }
+    }
+  ]
+}

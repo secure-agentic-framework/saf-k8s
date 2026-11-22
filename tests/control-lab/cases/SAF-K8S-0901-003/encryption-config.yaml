@@ -1,0 +1,12 @@
+apiVersion: apiserver.config.k8s.io/v1
+kind: EncryptionConfiguration
+resources:
+  - resources:
+      - secrets
+    providers:
+      - secretbox:
+          keys:
+            - name: saf-lab-ephemeral
+              # Replaced in a mode-0600 temporary file before Kind starts.
+              # Never commit or emit the generated value.
+              secret: __EPHEMERAL_BASE64_KEY__

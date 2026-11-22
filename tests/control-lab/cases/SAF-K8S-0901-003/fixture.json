@@ -1,0 +1,13 @@
+{
+  "checkpoint_name": "saf-0901-003-checkpoint",
+  "tampered_name": "saf-0901-003-checkpoint-tampered",
+  "restore_name": "saf-0901-003-restore",
+  "manifest_name": "saf-0901-003-manifest",
+  "checkpoint_bytes": "SYNTHETIC CHECKPOINT FIXTURE 0901-003\nstep=7\n",
+  "optimizer": {
+    "fixture": "synthetic-only",
+    "step": 7,
+    "learning_rate": "0.001",
+    "momentum": "0.9"
+  }
+}

@@ -1062,6 +1062,12 @@
       "sha256": "2a7a809c996cf911ed223c74d4a219605f537eb3990669b12d4e00fc467bbe76",
       "title": "GPU device plugin security configuration and hardening"
     },
+    "SAF-K8S-0901-003": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "e6b3a8574b6f684eb897dd28253ff710f9671a03723f2eb90c4fb3b27cb8cd90",
+      "title": "Checkpoint security"
+    },
     "SAF-K8S-0901-007": {
       "catalog_status": "draft",
       "domain": "D09",
