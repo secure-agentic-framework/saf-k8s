@@ -1,0 +1,224 @@
+{
+  "control_id": "SAF-K8S-0605-007",
+  "catalog_revision": "de3b0460b40e4f293bf83975a37fe4243504b192",
+  "catalog_sha256": "e49cf10ac7e0e6cdfa7c6edb5e9221c7365257496c7df4c6f2e760056cb53a97",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "841be1aa807a1dd607e81bd40fc81bcc7ab9d902f7594b59edcfa0f1b27755b3",
+  "scope": "One disposable Kubernetes v1.36.1 kind cluster and one case-owned HTTPS AdmissionReview service using a digest-pinned Python image. Validating and mutating admission configurations match CREATE requests for ConfigMaps only in the case namespace. The fixture permits healthy requests, delays marked requests by six seconds, and adds one inert label in mutating mode. The case compares Fail and Ignore on the same deliberate timeout, checks persisted ConfigMap state, and exercises an excluded namespace and GET path. Results cover this v1.36.1 kind setup, not production topology, complete admission chain latency, workload impact, or operational policy appropriateness.",
+  "cluster": "saf-lab-206ffee1d309",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Without the case webhook, a marked ConfigMap is admitted",
+      "matched": true,
+      "observed": {
+        "classification": "admitted_without_webhook",
+        "persisted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "validating webhook defaults both timeoutSeconds and failurePolicy",
+      "matched": true,
+      "observed": {
+        "timeout_seconds": 10,
+        "failure_policy": "Fail"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "validating API applies its timeoutSeconds bounds to 0",
+      "matched": true,
+      "observed": {
+        "requested_seconds": 0,
+        "accepted": false,
+        "field_rejection": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "validating API applies its timeoutSeconds bounds to 1",
+      "matched": true,
+      "observed": {
+        "requested_seconds": 1,
+        "accepted": true,
+        "field_rejection": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "validating API applies its timeoutSeconds bounds to 30",
+      "matched": true,
+      "observed": {
+        "requested_seconds": 30,
+        "accepted": true,
+        "field_rejection": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "validating API applies its timeoutSeconds bounds to 31",
+      "matched": true,
+      "observed": {
+        "requested_seconds": 31,
+        "accepted": false,
+        "field_rejection": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "mutating webhook defaults both timeoutSeconds and failurePolicy",
+      "matched": true,
+      "observed": {
+        "timeout_seconds": 10,
+        "failure_policy": "Fail"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "mutating API applies its timeoutSeconds bounds to 0",
+      "matched": true,
+      "observed": {
+        "requested_seconds": 0,
+        "accepted": false,
+        "field_rejection": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "mutating API applies its timeoutSeconds bounds to 1",
+      "matched": true,
+      "observed": {
+        "requested_seconds": 1,
+        "accepted": true,
+        "field_rejection": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "mutating API applies its timeoutSeconds bounds to 30",
+      "matched": true,
+      "observed": {
+        "requested_seconds": 30,
+        "accepted": true,
+        "field_rejection": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "mutating API applies its timeoutSeconds bounds to 31",
+      "matched": true,
+      "observed": {
+        "requested_seconds": 31,
+        "accepted": false,
+        "field_rejection": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Validating webhook permits a healthy synthetic ConfigMap",
+      "matched": true,
+      "observed": {
+        "classification": "permitted",
+        "persisted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "validating Fail rejects the observed timeout and persists no ConfigMap",
+      "matched": true,
+      "observed": {
+        "timeout_rejected": true,
+        "within_fixture_budget": true,
+        "request_seen_by_fixture": true,
+        "not_persisted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "validating Ignore admits the identical slow request within the fixture budget",
+      "matched": true,
+      "observed": {
+        "admitted_after_timeout": true,
+        "persisted": true,
+        "timed_out_mutation_not_applied": true,
+        "request_seen_by_fixture": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Mutating webhook permits and adds only its inert label",
+      "matched": true,
+      "observed": {
+        "classification": "permitted_and_patched",
+        "persisted": true,
+        "inert_label": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "mutating Fail rejects the observed timeout and persists no ConfigMap",
+      "matched": true,
+      "observed": {
+        "timeout_rejected": true,
+        "within_fixture_budget": true,
+        "request_seen_by_fixture": true,
+        "not_persisted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "mutating Ignore admits the identical slow request within the fixture budget",
+      "matched": true,
+      "observed": {
+        "admitted_after_timeout": true,
+        "persisted": true,
+        "timed_out_mutation_not_applied": true,
+        "request_seen_by_fixture": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Unmatched GET and excluded-namespace CREATE work with the Fail webhook unavailable",
+      "matched": true,
+      "observed": {
+        "classification": "scope_exemptions_work",
+        "selected_create_rejected": true,
+        "unmatched_get_permitted": true,
+        "excluded_namespace_create_permitted": true,
+        "backend_state": "no_endpoints"
+      }
+    }
+  ]
+}

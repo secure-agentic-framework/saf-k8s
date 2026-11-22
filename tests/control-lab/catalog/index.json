@@ -606,6 +606,12 @@
       "sha256": "ff47361e188d8ba90439351dc0aea68fad4f40f6edeb660c5e8b8705a048317f",
       "title": "Kubelet authorization for cached private images"
     },
+    "SAF-K8S-0605-007": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "841be1aa807a1dd607e81bd40fc81bcc7ab9d902f7594b59edcfa0f1b27755b3",
+      "title": "Admission webhook fail-closed enforcement and timeout bounds"
+    },
     "SAF-K8S-0701-001": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -848,7 +854,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "96873d9d80580f7826ff8ba1edc9ee4ccc82e633",
-  "sha256": "115d55b7443aed0213c5b909968f35b73439c1376fb56857836f63c2b08ce322",
+  "revision": "f579f3911d513b5a6890038a62ad5f625e73f9bb",
+  "sha256": "e49cf10ac7e0e6cdfa7c6edb5e9221c7365257496c7df4c6f2e760056cb53a97",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
