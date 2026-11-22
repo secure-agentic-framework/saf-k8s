@@ -1,0 +1,101 @@
+{
+  "control_id": "SAF-K8S-1007-013",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "562f1209a46b1d9d61f5407b9bf659d9da4e4d3232060e52133c316f477aa57a",
+  "scope": "Disposable Kind v1.36.1 cluster. Creates a case-owned namespace, a read-only service account Role/RoleBinding for ConfigMap list/watch in that namespace, synthetic ConfigMap records for model, dataset, pipeline, inference endpoint and GPU allocation metadata. Uses the service-account identity for an actual Kubernetes LIST and persistent WATCH, observes create/update/delete events, filters records by a synthetic ownership label, and confirms the identity is denied access to a separate namespace. No feeds, targets, credentials, or real model/data content are read. This does not prove discovery of arbitrary custom resources, PVC/object storage contents, GPU device-plugin state, registry metadata, asset completeness, production freshness SLAs, alert delivery, ownership correctness, or production inventory coverage.",
+  "review_timing": {
+    "queued_at": "2026-11-22T19:15:41.213422+00:00",
+    "cluster_ready_at": "2026-11-22T19:16:17.361138+00:00",
+    "approval_at": "2026-11-22T19:16:10.247773+00:00",
+    "case_loaded_at": "2026-11-22T19:16:17.366324+00:00"
+  },
+  "cluster": "saf-lab-36ebf7910fa2",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "fcdcde900ac8757a019c72449e0f126ee029b6abaa1e2e662fd22fd1a54515ba",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "green",
+      "claim": "Authorized LIST discovers each labeled synthetic AI asset class",
+      "matched": true,
+      "observed": {
+        "expected_asset_kinds": [
+          "dataset",
+          "gpu-allocation",
+          "inference-endpoint",
+          "model",
+          "pipeline"
+        ],
+        "observed_asset_kinds": [
+          "dataset",
+          "gpu-allocation",
+          "inference-endpoint",
+          "model",
+          "pipeline"
+        ],
+        "unlabeled_record_excluded": true,
+        "resource_versions_present": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The inventory identity is denied LIST access to an unrelated namespace",
+      "matched": true,
+      "observed": {
+        "request_denied": true,
+        "exit_code": 1,
+        "namespace": "saf-1007-013-neighbor"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Persistent Kubernetes WATCH observes create, update, delete and converges to current inventory",
+      "matched": true,
+      "observed": {
+        "event_types": [
+          "ADDED",
+          "MODIFIED",
+          "DELETED"
+        ],
+        "observed_revisions": [
+          "SYNTH-REVISION-001",
+          "SYNTH-REVISION-002",
+          "SYNTH-REVISION-002"
+        ],
+        "deleted_asset_absent_from_final_list": true,
+        "event_objects_are_synthetic_fixture_metadata": true
+      }
+    }
+  ]
+}

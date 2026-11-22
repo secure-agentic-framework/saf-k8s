@@ -1464,6 +1464,12 @@
       "sha256": "dcaefe65c2663a9b42c4470449e71507352c420e2959d0af446d8333585b2b45",
       "title": "Pre-upgrade Kubernetes API compatibility testing for AI workloads"
     },
+    "SAF-K8S-1007-013": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "562f1209a46b1d9d61f5407b9bf659d9da4e4d3232060e52133c316f477aa57a",
+      "title": "Automated AI infrastructure asset discovery and continuously updated inventory"
+    },
     "SAF-K8S-1007-017": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1472,7 +1478,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "8d4eb21656382539f864e38e9f9f03e94887bb88",
+  "revision": "0c4682a51b34070885db37d9f6cb04864844d2b7",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

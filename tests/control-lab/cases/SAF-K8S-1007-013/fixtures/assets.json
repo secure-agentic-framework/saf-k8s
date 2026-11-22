@@ -1,0 +1,47 @@
+{
+  "notice": "Synthetic defensive inventory fixture. Names, labels, digests, ownership, and metadata are reserved placeholders. No credentials, feeds, targets, real model/data content, or production assets are represented.",
+  "asset_selector": "saf-k8s.example/control-1007-013=synthetic-owned",
+  "assets": [
+    {
+      "name": "mock-model",
+      "kind": "model",
+      "display_name": "SYNTH-MODEL-001",
+      "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "mock-dataset",
+      "kind": "dataset",
+      "display_name": "SYNTH-DATASET-001",
+      "digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    {
+      "name": "mock-pipeline",
+      "kind": "pipeline",
+      "display_name": "SYNTH-PIPELINE-001",
+      "digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    {
+      "name": "mock-endpoint",
+      "kind": "inference-endpoint",
+      "display_name": "SYNTH-ENDPOINT-001",
+      "digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    },
+    {
+      "name": "mock-gpu-allocation",
+      "kind": "gpu-allocation",
+      "display_name": "SYNTH-GPU-ALLOCATION-001",
+      "digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    }
+  ],
+  "mock_workload_image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90",
+  "unrelated_record": {
+    "name": "unrelated-record",
+    "namespace": "saf-1007-013-neighbor",
+    "label": "saf-k8s.example/control-1007-013=unrelated"
+  },
+  "change_fixture": {
+    "name": "mock-model",
+    "initial_revision": "SYNTH-REVISION-001",
+    "updated_revision": "SYNTH-REVISION-002"
+  }
+}
