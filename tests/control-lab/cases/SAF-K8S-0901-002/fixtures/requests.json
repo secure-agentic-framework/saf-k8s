@@ -1,0 +1,67 @@
+{
+  "wrong_assignment": {
+    "request_id": "synthetic-assignment-check-01",
+    "worker_id": "worker-a",
+    "round_id": "round-8",
+    "schema_version": "v1",
+    "vector": [
+      0.01,
+      -0.01,
+      0.02
+    ]
+  },
+  "wrong_schema": {
+    "request_id": "synthetic-schema-check-01",
+    "worker_id": "worker-a",
+    "round_id": "round-7",
+    "schema_version": "v1",
+    "vector": [
+      0.01,
+      -0.01
+    ]
+  },
+  "worker_a_valid": {
+    "request_id": "synthetic-valid-worker-a-01",
+    "worker_id": "worker-a",
+    "round_id": "round-7",
+    "schema_version": "v1",
+    "vector": [
+      0.01,
+      -0.02,
+      0.03
+    ]
+  },
+  "worker_b_valid": {
+    "request_id": "synthetic-valid-worker-b-01",
+    "worker_id": "worker-b",
+    "round_id": "round-7",
+    "schema_version": "v1",
+    "vector": [
+      0.02,
+      0.0,
+      -0.01
+    ]
+  },
+  "outside_range": {
+    "request_id": "synthetic-range-check-01",
+    "worker_id": "worker-a",
+    "round_id": "round-7",
+    "schema_version": "v1",
+    "vector": [
+      0.01,
+      0.06,
+      -0.01
+    ]
+  },
+  "unenrolled_observer": {
+    "request_id": "synthetic-unassigned-observer-01",
+    "worker_id": "observer",
+    "round_id": "round-7",
+    "schema_version": "v1",
+    "vector": [
+      0.01,
+      0.02,
+      -0.01
+    ]
+  }
+}

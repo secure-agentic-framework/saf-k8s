@@ -1,0 +1,289 @@
+{
+  "control_id": "SAF-K8S-0901-002",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "99fd8f8252893c374f47ba9d471938a06124fc31f6d216990beaf7547f310a1c",
+  "scope": "One disposable Kind cluster on Kubernetes v1.36.1 hosts two synthetic worker Pods, one observer Pod, and one case-owned ClusterIP aggregation mock. The mock has an Kubernetes TokenReview verification of audience-scoped Pod identities, an enrollment-to-round table, and accepts only a fixed v1 JSON schema with three finite numeric entries in [-0.05, 0.05] when enforcement is enabled. Red sends only harmless synthetic metadata and small numeric values: one enrolled worker on the wrong assigned round and one short numeric vector. Green repeats those requests after enforcement is enabled, then two assigned workers submit ordinary fixed vectors. An independent observer reads stable counters and the exact mock aggregate. No real model, training framework, external service, real identity, external credential, feed, or target is used. A separate authenticated observer can read counters and is refused ordinary contribution access.",
+  "cluster": "saf-lab-270403195ed6",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The API server is Kubernetes v1.36.1",
+      "matched": true,
+      "observed": {
+        "kind_version": "kind v0.32.0 go1.26.3 darwin/arm64",
+        "kubernetes_version": "v1.36.1"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "wrong_assignment has the expected mock aggregation outcome",
+      "matched": true,
+      "observed": {
+        "request_key": "wrong_assignment",
+        "http_status": 200,
+        "response": {
+          "status": "accepted"
+        },
+        "expected_status": 200,
+        "expected_response": {
+          "status": "accepted"
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "wrong_schema has the expected mock aggregation outcome",
+      "matched": true,
+      "observed": {
+        "request_key": "wrong_schema",
+        "http_status": 200,
+        "response": {
+          "status": "accepted"
+        },
+        "expected_status": 200,
+        "expected_response": {
+          "status": "accepted"
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "outside_range has the expected mock aggregation outcome",
+      "matched": true,
+      "observed": {
+        "request_key": "outside_range",
+        "http_status": 200,
+        "response": {
+          "status": "accepted"
+        },
+        "expected_status": 200,
+        "expected_response": {
+          "status": "accepted"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same case-owned Service reaches the replacement mock Pod",
+      "matched": true,
+      "observed": {
+        "cluster_ip_unchanged": true,
+        "one_ready_endpoint_is_current_mock": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "wrong_assignment has the expected mock aggregation outcome",
+      "matched": true,
+      "observed": {
+        "request_key": "wrong_assignment",
+        "http_status": 422,
+        "response": {
+          "reason": "assignment",
+          "status": "rejected"
+        },
+        "expected_status": 422,
+        "expected_response": {
+          "reason": "assignment",
+          "status": "rejected"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "wrong_schema has the expected mock aggregation outcome",
+      "matched": true,
+      "observed": {
+        "request_key": "wrong_schema",
+        "http_status": 422,
+        "response": {
+          "reason": "schema",
+          "status": "rejected"
+        },
+        "expected_status": 422,
+        "expected_response": {
+          "reason": "schema",
+          "status": "rejected"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "outside_range has the expected mock aggregation outcome",
+      "matched": true,
+      "observed": {
+        "request_key": "outside_range",
+        "http_status": 422,
+        "response": {
+          "reason": "schema",
+          "status": "rejected"
+        },
+        "expected_status": 422,
+        "expected_response": {
+          "reason": "schema",
+          "status": "rejected"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "unenrolled_observer has the expected mock aggregation outcome",
+      "matched": true,
+      "observed": {
+        "request_key": "unenrolled_observer",
+        "http_status": 403,
+        "response": {
+          "reason": "not_enrolled",
+          "status": "rejected"
+        },
+        "expected_status": 403,
+        "expected_response": {
+          "reason": "not_enrolled",
+          "status": "rejected"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "worker_a_valid has the expected mock aggregation outcome",
+      "matched": true,
+      "observed": {
+        "request_key": "worker_a_valid",
+        "http_status": 200,
+        "response": {
+          "status": "accepted"
+        },
+        "expected_status": 200,
+        "expected_response": {
+          "status": "accepted"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "worker_b_valid has the expected mock aggregation outcome",
+      "matched": true,
+      "observed": {
+        "request_key": "worker_b_valid",
+        "http_status": 200,
+        "response": {
+          "status": "accepted"
+        },
+        "expected_status": 200,
+        "expected_response": {
+          "status": "accepted"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Independent status reads show stable accepted and rejected accounting",
+      "matched": true,
+      "observed": {
+        "first": {
+          "accepted_count": 2,
+          "received_count": 5,
+          "rejected_by_reason": {
+            "assignment": 1,
+            "schema": 2
+          },
+          "rejected_count": 3
+        },
+        "second": {
+          "accepted_count": 2,
+          "received_count": 5,
+          "rejected_by_reason": {
+            "assignment": 1,
+            "schema": 2
+          },
+          "rejected_count": 3
+        },
+        "expected": {
+          "received_count": 5,
+          "accepted_count": 2,
+          "rejected_count": 3,
+          "rejected_by_reason": {
+            "assignment": 1,
+            "schema": 2
+          }
+        },
+        "reads_match": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Observer reads exact aggregate independently of worker receipts",
+      "matched": true,
+      "observed": {
+        "observer_result": {
+          "accepted_count": 2,
+          "mean": [
+            0.015,
+            -0.01,
+            0.01
+          ]
+        },
+        "expected_result": {
+          "accepted_count": 2,
+          "mean": [
+            0.015,
+            -0.01,
+            0.01
+          ]
+        },
+        "read_by_observer_pod": true,
+        "derived_from_submit_responses": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Accepted workers and rejected unassigned observer have verified Kubernetes identities",
+      "matched": true,
+      "observed": {
+        "accepted_principals": {
+          "synthetic-valid-worker-a-01": "worker-a",
+          "synthetic-valid-worker-b-01": "worker-b"
+        },
+        "unenrolled_principals": [
+          {
+            "authenticated_identity": "observer",
+            "outcome": "not_enrolled"
+          }
+        ]
+      }
+    }
+  ]
+}

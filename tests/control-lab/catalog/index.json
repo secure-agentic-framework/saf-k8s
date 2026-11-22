@@ -1062,6 +1062,12 @@
       "sha256": "2a7a809c996cf911ed223c74d4a219605f537eb3990669b12d4e00fc467bbe76",
       "title": "GPU device plugin security configuration and hardening"
     },
+    "SAF-K8S-0901-002": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "99fd8f8252893c374f47ba9d471938a06124fc31f6d216990beaf7547f310a1c",
+      "title": "Parameter server and all-reduce security"
+    },
     "SAF-K8S-0901-003": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1622,7 +1628,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "23de35f90ee4f7c7e8e088db29361cafdb86435c",
+  "revision": "9252120208d8ca913027ae45bbf10d3bdaed6ab9",
   "sha256": "28e2e795c3d0eee859ba13f7c7c1e62c33d93955ba867c40a0060d1dfd1984cb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
