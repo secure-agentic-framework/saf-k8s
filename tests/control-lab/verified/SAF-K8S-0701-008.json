@@ -1,0 +1,102 @@
+{
+  "control_id": "SAF-K8S-0701-008",
+  "catalog_revision": "6838d59c8941c27b2188821ee381e6cd7a852036",
+  "catalog_sha256": "a686bfbe52cded89985495c3a14f05eb580c3499b772f2473beb3accc1c99e38",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "1514a8153f622cbfc007e770f18e1ccd88a03c30cbc300462e807d125b8616fe",
+  "scope": "Kubernetes v1.36.1 kind, immutable versioned ConfigMaps, two inert artifact and dataset byte snapshots, and independent real Jobs verifying both content digests. The previous version is retained after revision v2. Production artifact storage, authentic lineage, actual training determinism, checkpoints and retrieval permissions require separate evidence.",
+  "cluster": "saf-lab-e2995ed64ef1",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "An ordinary mutable metadata record accepts a replacement",
+      "matched": true,
+      "observed": {
+        "mutable_replacement_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The API rejects replacement of the immutable versioned record",
+      "matched": true,
+      "observed": {
+        "immutable_update_refused": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Independent Jobs verify retained v1, changed v2 and reuse tied to v1",
+      "matched": true,
+      "observed": {
+        "v1": {
+          "verified": true,
+          "dataset_revision": "synthetic-dataset-r1",
+          "artifact_sha256": "2d7ee3793a92e01df98ea8474b7e40b69dff065e99714e2c4234f982d7e0c2f6",
+          "dataset_sha256": "8046911d1f583b568813f85b17505fec772fe66e7e3d79197d34871959420a2e",
+          "record_version": "training-run-record-v1",
+          "mismatches": []
+        },
+        "v2": {
+          "verified": true,
+          "dataset_revision": "synthetic-dataset-r2",
+          "artifact_sha256": "5685425b2a34fd1a460bc7adb9508f16638c1f3623cb139e9de849cb64cf2fba",
+          "dataset_sha256": "fcd03103c78cb9f723d2c2bfeac8f4b4f51eaeebe44155ea53a0a1f68b7fbbd1",
+          "record_version": "training-run-record-v2",
+          "mismatches": []
+        },
+        "v1_reuse": {
+          "verified": true,
+          "dataset_revision": "synthetic-dataset-r1",
+          "artifact_sha256": "2d7ee3793a92e01df98ea8474b7e40b69dff065e99714e2c4234f982d7e0c2f6",
+          "dataset_sha256": "8046911d1f583b568813f85b17505fec772fe66e7e3d79197d34871959420a2e",
+          "record_version": "training-run-record-v1-reuse",
+          "mismatches": []
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Both substituted artifact and substituted dataset bytes fail the retrieval gate",
+      "matched": true,
+      "observed": {
+        "artifact": [
+          "artifact"
+        ],
+        "dataset": [
+          "dataset"
+        ]
+      }
+    }
+  ]
+}
