@@ -1,0 +1,55 @@
+{
+  "format": "saf-k8s-0603-007-fixtures-v1",
+  "payload_type": "application/vnd.in-toto+json",
+  "statement_type": "https://in-toto.io/Statement/v1",
+  "subjects": {
+    "primary": {
+      "name": "saf-lab://0603-007/build/primary",
+      "artifact_bytes": "SAF-K8S-0603-007 inert synthetic build artifact primary v1\n",
+      "artifact_sha256": "86a919a9faea450768f0506dacf17bed5ef96e2edb53d6985e014082c4929405",
+      "environment": {
+        "expected_payload_sha256": "366fa1ff1d96471089d997eeb8d694a3c7a6e35b7d22864b2e8fcff03ce0ff0a",
+        "predicateType": "https://saf-k8s.example.test/attestation/build-environment/v1",
+        "predicate": {
+          "platform": "kind-test-runner",
+          "runner_image": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "compiler": "synthetic-compiler 1.0",
+          "isolation": "disposable-local-fixture"
+        }
+      },
+      "process": {
+        "expected_payload_sha256": "b27a9316b7677e02d7b74a9886f41d9da6ffe3c97e5cccc1de696438ce2eadb8",
+        "predicateType": "https://saf-k8s.example.test/attestation/build-process/v1",
+        "predicate": {
+          "steps": ["synthetic-compile", "synthetic-package"],
+          "tools": ["synthetic-compiler 1.0", "synthetic-packager 1.0"],
+          "transformations": ["source fixture -> inert artifact fixture"]
+        }
+      }
+    },
+    "independent": {
+      "name": "saf-lab://0603-007/build/independent",
+      "artifact_bytes": "SAF-K8S-0603-007 inert synthetic build artifact independent v1\n",
+      "artifact_sha256": "c3f0f0d15df2340695185f7de3d7f06aeb82dd0964006a04a9b364d85b0da693",
+      "environment": {
+        "expected_payload_sha256": "45bd7bbd085bb6b5ec5355cedc46f8c781ea184e7bd663aff6c210c11fcb5d17",
+        "predicateType": "https://saf-k8s.example.test/attestation/build-environment/v1",
+        "predicate": {
+          "platform": "kind-test-runner-independent",
+          "runner_image": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "compiler": "synthetic-compiler 1.0",
+          "isolation": "disposable-local-fixture"
+        }
+      },
+      "process": {
+        "expected_payload_sha256": "d15fae45aecdf32ba00bfb770fb3506e6fc8988e9c6acd9b689a7eeca549c865",
+        "predicateType": "https://saf-k8s.example.test/attestation/build-process/v1",
+        "predicate": {
+          "steps": ["synthetic-compile", "synthetic-package"],
+          "tools": ["synthetic-compiler 1.0", "synthetic-packager 1.0"],
+          "transformations": ["independent source fixture -> inert artifact fixture"]
+        }
+      }
+    }
+  }
+}

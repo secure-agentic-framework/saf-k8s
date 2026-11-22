@@ -1,0 +1,121 @@
+{
+  "control_id": "SAF-K8S-0603-007",
+  "catalog_revision": "7d1fdcdd7edce611056e1271cad57f505ab4ecf3",
+  "catalog_sha256": "1c3e887718db72c39815b9f3a4dc584599be17811f60780fda5744bdf21de8ea",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "61aa06e22bf3ff24752dc5ad98ea2c3da841db9893153ec159d5551eafba0145",
+  "scope": "One fresh local Kubernetes v1.36.1 Kind cluster. Two separate in-toto Statement JSON payloads model environment inventory and process/tool execution for the same inert synthetic artifact digest. Each payload is independently DSSE-pre-authenticated and signed with a distinct ephemeral local RSA key; Kubernetes Jobs verify the signatures, payload hashes and expected subject. Counterfactual Jobs reject a corrupted signature and a valid signature whose statement names the wrong subject. A second synthetic build subject has its own valid environment and process pair. This does not exercise or establish coverage of any production CI/CD system, builder identity, key custody, attestation generation, registry storage, or admission enforcement.",
+  "cluster": "saf-lab-53b5eeb2bae3",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Disposable API server is Kubernetes v1.36.1",
+      "matched": true,
+      "observed": {
+        "server": "v1.36.1"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Pinned primary inert artifact bytes match their fixture digest",
+      "matched": true,
+      "observed": {
+        "sha256": "86a919a9faea450768f0506dacf17bed5ef96e2edb53d6985e014082c4929405"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Pinned independent inert artifact bytes match their fixture digest",
+      "matched": true,
+      "observed": {
+        "sha256": "c3f0f0d15df2340695185f7de3d7f06aeb82dd0964006a04a9b364d85b0da693"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Primary build environment claim has an independently valid signature, exact expected contents, and subject",
+      "matched": true,
+      "observed": {
+        "job": "complete",
+        "expected_payload_verified": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Primary build process claim has an independently valid signature, exact expected contents, and subject",
+      "matched": true,
+      "observed": {
+        "job": "complete",
+        "expected_payload_verified": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Corrupted environment signature is rejected by cryptographic verification",
+      "matched": true,
+      "observed": {
+        "job": "failed",
+        "signature_rejected": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Validly signed claim for another subject is rejected against the expected build subject",
+      "matched": true,
+      "observed": {
+        "job": "failed",
+        "same_trusted_fixture_signer": true,
+        "expected_payload_mismatch": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Independent compliant environment claim verifies for its own build subject",
+      "matched": true,
+      "observed": {
+        "job": "complete",
+        "expected_payload_verified": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Independent compliant process claim verifies for its own build subject",
+      "matched": true,
+      "observed": {
+        "job": "complete",
+        "expected_payload_verified": true
+      }
+    }
+  ]
+}
