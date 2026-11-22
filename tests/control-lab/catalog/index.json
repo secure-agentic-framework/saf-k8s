@@ -1392,6 +1392,12 @@
       "sha256": "41e8cee036853887143e588d87d54d5d4ff34bae719a59d39803564468487da2",
       "title": "Forensic chain-of-custody and evidence handling for Kubernetes AI incidents"
     },
+    "SAF-K8S-1005-027": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "000be3040d38e83709ee6a02d8690e1669ee98decaff1da412830707c8817893",
+      "title": "GPU and accelerator forensic evidence preservation for Kubernetes AI incidents"
+    },
     "SAF-K8S-1005-028": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1532,7 +1538,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "d57b9dc265aa0ce1534d13524e3eb1a4078a6c52",
+  "revision": "ce180e14717c39a21aca140eb5b13a46c4a93cc6",
   "sha256": "28e2e795c3d0eee859ba13f7c7c1e62c33d93955ba867c40a0060d1dfd1984cb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

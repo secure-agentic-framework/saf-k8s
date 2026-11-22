@@ -1,0 +1,27 @@
+{
+  "fixture_id": "SYNTH-1005-027-ACCELERATOR-001",
+  "evidence_class": "synthetic_fixture",
+  "notice": "Reserved example-domain metadata only; no physical device, driver, incident, customer, or feed data.",
+  "driver": {
+    "identity": "mock.saf-lab.example",
+    "version": "0.0.0-fixture",
+    "collection_method": "fixture readback; no driver collection"
+  },
+  "device": {
+    "identifier": "urn:example:saf:device:mock-accelerator-001",
+    "model": "synthetic-accelerator",
+    "serial": "urn:example:saf:serial:reserved-placeholder",
+    "state": "simulated-idle"
+  },
+  "telemetry": [
+    {
+      "event": "synthetic_accelerator_snapshot",
+      "observed_at": "2030-01-01T00:00:00Z",
+      "temperature_celsius": 31,
+      "memory_used_bytes": 0,
+      "utilization_percent": 0,
+      "source": "case-owned-fixture",
+      "actual_measurement": false
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "control_id": "SAF-K8S-1005-027",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "000be3040d38e83709ee6a02d8690e1669ee98decaff1da412830707c8817893",
+  "scope": "One disposable Kubernetes v1.36.1 Kind cluster. Captures authorized Kubernetes API reads of one scheduler-allocated v1 ResourceClaim, its case-owned v1 ResourceSlice and DeviceClass, case-owned Pod and node identity, plus explicitly synthetic accelerator state and telemetry. The cluster has no accelerator hardware or DRA driver; the slice and device are inert mock metadata and no GPU calls, device load, attacks, host inspection, external targets, or real feeds are used. Proves scoped API evidence hashing, identity binding, and retained exact evidence after deletion of owned fixture sources. Does not prove forensic collection on a hardware node, actual driver telemetry, volatile hardware state, memory or disk acquisition, production authorization, external custody, retention, or incident reconstruction.",
+  "review_timing": {
+    "queued_at": "2026-11-22T19:52:04.560700+00:00",
+    "cluster_ready_at": "2026-11-22T19:52:33.190739+00:00",
+    "approval_at": "2026-11-22T19:54:37.762998+00:00",
+    "case_loaded_at": "2026-11-22T19:54:37.796899+00:00"
+  },
+  "cluster": "saf-lab-a4407d237baf",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "c42f13c798abbcf25a0dc3a3a078e6a9131ea68f0169a4dcac77151e035214b6",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Evidence validation rejects a missing synthetic telemetry artifact",
+      "matched": true,
+      "observed": {
+        "validator": {
+          "accepted": false,
+          "reason": "required_scoped_artifact_set_incomplete"
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Evidence validation rejects changed native allocation evidence",
+      "matched": true,
+      "observed": {
+        "validator": {
+          "accepted": false,
+          "reason": "artifact_digest_mismatch"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Complete scoped evidence passes case identity, allocation and digest checks",
+      "matched": true,
+      "observed": {
+        "validator": {
+          "accepted": true,
+          "reason": "scoped_evidence_identity_and_digests_verified"
+        },
+        "artifact_count": 7,
+        "all_artifact_digests_verified": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Exact immutable evidence remains readable after owned fixture sources are removed",
+      "matched": true,
+      "observed": {
+        "retained_evidence_uid_matches": true,
+        "retained_bytes_exact": true,
+        "retained_digest_matches": true,
+        "removed_owned_sources": [
+          {
+            "kind": "Pod",
+            "name": "saf-1005-027-mock-workload"
+          },
+          {
+            "kind": "Pod",
+            "name": "saf-1005-027-allocation-observer"
+          },
+          {
+            "kind": "ConfigMap",
+            "name": "saf-1005-027-accelerator-fixtures"
+          },
+          {
+            "kind": "ResourceClaim",
+            "name": "saf-1005-027-mock-claim"
+          },
+          {
+            "kind": "ResourceSlice",
+            "name": "saf-1005-027-mock-slice"
+          },
+          {
+            "kind": "DeviceClass",
+            "name": "saf-1005-027-mock-accelerator"
+          }
+        ],
+        "artifact_count": 7
+      }
+    }
+  ]
+}
