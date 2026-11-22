@@ -4,8 +4,8 @@
   "catalog_sha256": "eb09f73c734ce9fb61334c4114a1c97b53636c859a90ae5fa9dc4148d220bfa8",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b3b589d90ccaa1051053396388688d80df81c18895935a9c76e3c474efa4a1f2",
-  "scope": "Fresh disposable three-node Kind cluster (one control-plane and two workers), Kubernetes v1.36.1, Cilium 1.20.5 with chart-pinned SPIRE 1.15.5. Only three case-owned Pods exchange ordinary HTTP GETs: one client and one server on the same worker, plus a server on the other worker. Baseline and authenticated requests use direct owned Pod IPs. Independent Cilium agent authentication logs and WireGuard peer/device state are retained as signals. No packet capture, traffic interception, unrelated workload access, or production inference.",
-  "cluster": "saf-lab-358c20ad7b03",
+  "scope": "Fresh disposable three-node Kind cluster (one control-plane and two workers), Kubernetes v1.36.1, Cilium 1.20.5 with chart-pinned SPIRE 1.15.5. Only three case-owned Pods exchange ordinary HTTP GETs: one client and one server on the same worker, plus a server on the other worker. Baseline and authenticated requests use direct owned Pod IPs. Independent Cilium agent authentication logs and per-flow WireGuard counters on native routing are retained as signals. No packet capture, traffic interception, unrelated workload access, or production inference.",
+  "cluster": "saf-lab-65a79d997bb4",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -125,6 +125,30 @@
         "same_node_exact_identity_pair": true,
         "cross_node_exact_identity_pair": true,
         "log_match": "Successfully authenticated; authType=spire; module=agent.controlplane.auth"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "WireGuard interface counters show the expected owned path to owned-server-local",
+      "matched": true,
+      "observed": {
+        "request_fulfilled": true,
+        "initial_counters_zero": true,
+        "cross_node": false,
+        "request_on_server_wireguard_ingress": false,
+        "response_on_client_wireguard_ingress": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "WireGuard interface counters show the expected owned path to owned-server-remote",
+      "matched": true,
+      "observed": {
+        "request_fulfilled": true,
+        "initial_counters_zero": true,
+        "cross_node": true,
+        "request_on_server_wireguard_ingress": true,
+        "response_on_client_wireguard_ingress": true
       }
     },
     {

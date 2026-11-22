@@ -1,5 +1,5 @@
 # Pinned to the Cilium 1.20.5 Helm chart. Chart archive digest and component
-# image digests are verified by case.py / Cilium's versioned Helm reference.
+# default component image references come from the pinned chart archive.
 ipam:
   mode: kubernetes
 kubeProxyReplacement: false
@@ -10,6 +10,9 @@ enableIPv4Masquerade: true
 ipv6:
   enabled: false
 l7Proxy: true
+routingMode: native
+ipv4NativeRoutingCIDR: 10.244.0.0/16
+autoDirectNodeRoutes: true
 debug:
   enabled: true
 operator:

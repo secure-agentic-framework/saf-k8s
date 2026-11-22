@@ -32,7 +32,7 @@ SCOPE = (
     "case-owned Pods exchange ordinary HTTP GETs: one client and one server on the "
     "same worker, plus a server on the other worker. Baseline and authenticated "
     "requests use direct owned Pod IPs. Independent Cilium agent authentication "
-    "logs and WireGuard peer/device state are retained as signals. No packet capture, "
+    "logs and per-flow WireGuard counters on native routing are retained as signals. No packet capture, "
     "traffic interception, unrelated workload access, or production inference."
 )
 
@@ -41,6 +41,8 @@ def prepare_kind(lab, temporary):
     config = temporary / "kind.yaml"
     config.write_text("""kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  podSubnet: 10.244.0.0/16
 nodes:
   - role: control-plane
   - role: worker
@@ -211,6 +213,80 @@ def wireguard_state(lab, node):
     return data.get("encryption", {}).get("wireguard", {})
 
 
+def scoped_flow_request(lab, target, source_port):
+    code = r"""import http.client,json,sys
+connection = http.client.HTTPConnection(sys.argv[1], 8080, timeout=8,
+                                        source_address=("0.0.0.0", int(sys.argv[2])))
+connection.request("GET", "/owned/wireguard-proof")
+response = connection.getresponse()
+print(json.dumps({"status": response.status, "body": response.read().decode()}))
+connection.close()
+"""
+    result = kubectl(lab, "-n", NAMESPACE, "exec", f"pod/{CLIENT}", "-c", "fixture", "--",
+                     "python", "-c", code, target, str(source_port), timeout=20)
+    return json.loads(result.stdout)
+
+
+def wireguard_ingress_counter(lab, node, sender, receiver, source_port, target_port):
+    device = "cilium_wg0"
+    links = json.loads(lab.command("docker", "exec", node, "ip", "-j", "-details",
+                                    "link", "show", "dev", device).stdout)
+    if len(links) != 1 or links[0].get("linkinfo", {}).get("info_kind") != "wireguard":
+        lab.block(f"Owned fixture node {node} did not expose a WireGuard device")
+    table = f"saf_owned_{source_port}_{target_port}"
+    source = ip_address(sender["ip"])
+    destination = ip_address(receiver["ip"])
+    rules = f"""
+table netdev {table} {{
+  counter matched {{}}
+  chain fixture {{
+    type filter hook ingress device "{device}" priority 0; policy accept;
+    ip saddr {source} ip daddr {destination} tcp sport {source_port} tcp dport {target_port} counter name "matched"
+  }}
+}}
+"""
+    lab.command("docker", "exec", "-i", node, "nft", "-f", "-", payload=rules)
+
+    def count():
+        result = lab.command("docker", "exec", node, "nft", "-j", "list", "counter",
+                             "netdev", table, "matched")
+        entry = next((item["counter"] for item in json.loads(result.stdout)["nftables"]
+                      if "counter" in item), None)
+        if entry is None or not isinstance(entry.get("packets"), int):
+            lab.block(f"WireGuard counter did not report integer packets on {node} ingress")
+        return entry["packets"]
+    return count
+
+
+def compare_wireguard_flows(lab, fixture):
+    observations = {}
+    client = fixture[CLIENT]
+    for name, source_port in ((SERVER_LOCAL, 38081), (SERVER_REMOTE, 38082)):
+        target = fixture[name]
+        request_ingress = wireguard_ingress_counter(lab, target["node"], client, target, source_port, PORT)
+        response_ingress = wireguard_ingress_counter(lab, client["node"], target, client, PORT, source_port)
+        before = [request_ingress(), response_ingress()]
+        response = scoped_flow_request(lab, target["ip"], source_port)
+        fulfilled = (response.get("status") == 200
+                     and response.get("body") == MARKER + "|/owned/wireguard-proof")
+        after = [request_ingress(), response_ingress()]
+        cross_node = target["node"] != client["node"]
+        seen = [count > 0 for count in after]
+        observations[name] = {
+            "source_ip": client["ip"], "target_ip": target["ip"],
+            "source_port": source_port, "target_port": PORT,
+            "request_and_response_before": before, "request_and_response_after": after,
+            "cross_node": cross_node,
+        }
+        (lab.evidence / "fixture-wireguard-paths.json").write_text(
+            json.dumps(observations, indent=2) + "\n")
+        lab.check("positive", f"WireGuard interface counters show the expected owned path to {name}",
+                  fulfilled and before == [0, 0] and seen == [cross_node, cross_node],
+                  {"request_fulfilled": fulfilled, "initial_counters_zero": before == [0, 0],
+                   "cross_node": cross_node, "request_on_server_wireguard_ingress": seen[0],
+                   "response_on_client_wireguard_ingress": seen[1]})
+
+
 def wg_peer_for_path(state, pod_ip, node_ip):
     matches = []
     for interface in state.get("interfaces", []):
@@ -276,6 +352,7 @@ def run(lab):
         "--all", "-o", "json").stdout)
     configured = (installed.get("encryption", {}).get("enabled") is True and
                   installed.get("encryption", {}).get("type") == "wireguard" and
+                  installed.get("routingMode") == "native" and installed.get("autoDirectNodeRoutes") is True and
                   installed.get("authentication", {}).get("enabled") is True and
                   installed.get("authentication", {}).get("mutual", {}).get("spire", {}).get("enabled") is True)
     if not configured:
@@ -355,6 +432,8 @@ def run(lab):
               {"same_node_exact_identity_pair": local_seen,
                "cross_node_exact_identity_pair": remote_seen,
                "log_match": "Successfully authenticated; authType=spire; module=agent.controlplane.auth"})
+
+    compare_wireguard_flows(lab, fixture)
 
     source_wg = wireguard_state(lab, fixture[CLIENT]["node"])
     target_wg = wireguard_state(lab, fixture[SERVER_REMOTE]["node"])

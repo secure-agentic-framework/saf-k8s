@@ -5,7 +5,7 @@
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b3b589d90ccaa1051053396388688d80df81c18895935a9c76e3c474efa4a1f2",
   "scope": "Fresh disposable Kubernetes v1.36.1 Kind cluster with pinned Istio 1.32.0 sidecar mode. Two case-owned clients with distinct Kubernetes service accounts send the same ordinary HTTP GET to one case-owned backend. The case compares plain baseline behavior with injected workload behavior, verifies automatic mTLS through the backend's observed XFCC SPIFFE identity, then applies one exact service-account AuthorizationPolicy and checks allowed 200 versus denied 403. It queries backend proxy request metrics and Jaeger for one generated trace. A separate Helm render comparison checks the Cilium 1.20.5 mutual-auth switch against the 1.21.0-pre.4 chart using identical legacy values.",
-  "cluster": "saf-lab-92204e42d505",
+  "cluster": "saf-lab-3e427f33a8a6",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
