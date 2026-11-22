@@ -1,0 +1,182 @@
+{
+  "control_id": "SAF-K8S-0402-002",
+  "catalog_revision": "1c6a4fd046794883c99475122e9c111e0d02745d",
+  "catalog_sha256": "31490639f973d1f95ee1465812ef6775f786dc53b54c2e4adc2fb8807bb12799",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "c574a5222762f11530f98107361c9708fb28bcac0126e2ff123be62b65d37c53",
+  "scope": "Kubernetes v1.36.1 in the runner-owned fresh kind cluster. Four genuine, case-owned ServiceAccounts receive manually provisioned legacy token Secrets. A case-local Metadata audit policy covers the entire fixture namespace from cluster startup. One identity is eligible only when the explicit approval fixture selects it and no audit event for its principal exists from its credential creation time to selection. A separate credential proves direct API-read authorization before and denial after its Secret is deleted. Another credential is invalidated without deleting the Secret. An unaffected identity retains access. The fixture does not establish production inactivity windows, history before this cluster, external identity revocation, managed cluster audit coverage, or year-scale cleanup timing. Credentials are held in memory and omitted from command transcripts and results; no impersonation is used.",
+  "cluster": "saf-lab-3d3072069774",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A case-owned static credential reaches an authorized direct API read before retirement",
+      "matched": true,
+      "observed": {
+        "matched": true,
+        "principal": "system:serviceaccount:saf-test:saf-0402-002-revocation-probe",
+        "timestamp_within_request_window": true,
+        "audit_id_matched": true,
+        "status": 200,
+        "level": "Metadata",
+        "stage": "ResponseComplete",
+        "impersonated": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The separate unaffected ServiceAccount has normal authorized direct-read access",
+      "matched": true,
+      "observed": {
+        "matched": true,
+        "principal": "system:serviceaccount:saf-test:saf-0402-002-unaffected",
+        "timestamp_within_request_window": true,
+        "audit_id_matched": true,
+        "status": 200,
+        "level": "Metadata",
+        "stage": "ResponseComplete",
+        "impersonated": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Incomplete audit history, observed use and missing approval each prevent retirement",
+      "matched": true,
+      "observed": {
+        "unknown": "unknown",
+        "active": "active",
+        "unapproved": "approval-required"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Only the explicitly approved case identity with no authenticated use in the complete fixture-local credential window is eligible",
+      "matched": true,
+      "observed": {
+        "approval_id": "saf-lab-0402-002-approval-001",
+        "selected": [
+          "saf-test/saf-0402-002-unused"
+        ],
+        "eligible": true,
+        "authenticated_events_in_window": 0,
+        "creation_and_selection_covered": true,
+        "unselected_identities": [
+          "saf-test/saf-0402-002-revocation-probe",
+          "saf-test/saf-0402-002-invalidation-probe",
+          "saf-test/saf-0402-002-unaffected"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Approved unused identity's legacy credential is removed while its ServiceAccount remains for controlled follow-up",
+      "matched": true,
+      "observed": {
+        "credential_secret_present": false,
+        "service_account_present": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Approved retirement also removes the unused identity and its dedicated RBAC binding",
+      "matched": true,
+      "observed": {
+        "service_account_removed": true,
+        "binding_removed": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Kubernetes identifies the bidirectionally referenced legacy token and still accepts it before marking",
+      "matched": true,
+      "observed": {
+        "matched": true,
+        "principal": "system:serviceaccount:saf-test:saf-0402-002-invalidation-probe",
+        "timestamp_within_request_window": true,
+        "audit_id_matched": true,
+        "status": 200,
+        "level": "Metadata",
+        "stage": "ResponseComplete",
+        "impersonated": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The native legacy invalidation marker rejects a previously accepted credential before Secret deletion",
+      "matched": true,
+      "observed": {
+        "secret_present_and_marked": true,
+        "audit": {
+          "matched": true,
+          "principal": "unauthenticated",
+          "timestamp_within_request_window": true,
+          "audit_id_matched": true,
+          "status": 401,
+          "level": "Metadata",
+          "stage": "ResponseStarted",
+          "impersonated": false
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Deleting the case-owned legacy token Secret makes its previously working credential fail authentication",
+      "matched": true,
+      "observed": {
+        "matched": true,
+        "principal": "unauthenticated",
+        "timestamp_within_request_window": true,
+        "audit_id_matched": true,
+        "status": 401,
+        "level": "Metadata",
+        "stage": "ResponseStarted",
+        "impersonated": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Credential revocation leaves the unselected ServiceAccount's direct API access working",
+      "matched": true,
+      "observed": {
+        "matched": true,
+        "principal": "system:serviceaccount:saf-test:saf-0402-002-unaffected",
+        "timestamp_within_request_window": true,
+        "audit_id_matched": true,
+        "status": 200,
+        "level": "Metadata",
+        "stage": "ResponseComplete",
+        "impersonated": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "approval_id": "saf-lab-0402-002-approval-001",
+  "approver": "synthetic-identity-owner@example.invalid",
+  "decision": "approved",
+  "selected_service_accounts": [
+    "saf-test/saf-0402-002-unused"
+  ],
+  "reason": "Fixture-local audit coverage starts before identity and credential creation; no request authenticated as this principal during the credential's observed lifetime.",
+  "scope": "This disposable case run only. No production account is selected."
+}

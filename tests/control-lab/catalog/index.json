@@ -444,6 +444,12 @@
       "sha256": "d1ec6c0eaba96c02cc177fb515c1f9826767f212333994b958421c07f227942e",
       "title": "GPU resource governance permission boundaries"
     },
+    "SAF-K8S-0402-002": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "c574a5222762f11530f98107361c9708fb28bcac0126e2ff123be62b65d37c53",
+      "title": "Inactive service account and stale credential remediation"
+    },
     "SAF-K8S-0402-003": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -818,7 +824,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c2be3cf384a9414d5696124e93a1fb508238201d",
-  "sha256": "4155548c831c8d59e531d7763a40a78a7bd4f509cc9fe8441b72891a0bbb496c",
+  "revision": "e298918a19acfd9b1f63128f80316ef6da9fc6be",
+  "sha256": "31490639f973d1f95ee1465812ef6775f786dc53b54c2e4adc2fb8807bb12799",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
