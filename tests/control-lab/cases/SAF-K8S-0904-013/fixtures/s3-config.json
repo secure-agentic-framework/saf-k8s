@@ -1,0 +1,24 @@
+{
+  "identities": [
+    {
+      "name": "saf-0904-013-admin-fixture",
+      "credentials": [{
+        "accessKey": "SAF0904013FIXTUREADMIN",
+        "secretKey": "saf-0904-013-public-fixture-admin-key-never-for-production"
+      }],
+      "actions": ["Admin"]
+    },
+    {
+      "name": "saf-0904-013-approved-pipeline-fixture",
+      "credentials": [{
+        "accessKey": "SAF0904013PIPELINE",
+        "secretKey": "saf-0904-013-public-fixture-pipeline-key-never-for-production"
+      }],
+      "actions": [
+        "Read:saf-artifacts-0904",
+        "Write:saf-artifacts-0904",
+        "List:saf-artifacts-0904"
+      ]
+    }
+  ]
+}
