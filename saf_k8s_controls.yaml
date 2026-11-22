@@ -1333,7 +1333,7 @@
   control_statement: Each cluster node must configure Linux audit rules or equivalent host audit telemetry to detect read and write access to kubelet configuration files, kubeconfig files, and PKI material, and recurring verification must confirm those audit rules remain active.
   objective: Detect access to or modification of kubelet configuration and credential material directly on cluster nodes.
   rationale: Host-level audit rule coverage provides a node-local detection record when privileged users, escaped workloads, or local compromise access kubelet configuration and credential paths. Verifying the rules remain active makes this detection control independently auditable from forwarding or retention workflows.
-  scope: Applies to all cluster nodes. Covers auditd or equivalent host audit rules for kubelet configuration and credential paths, audit pipeline forwarding, and recurring validation that those rules remain active. Managed Kubernetes services may satisfy this through provider-documented equivalent node audit telemetry.
+  scope: Applies to all cluster nodes. Covers auditd or equivalent host audit rules for kubelet configuration and credential paths and recurring validation that those rules remain active. Managed Kubernetes services may satisfy this through provider-documented equivalent node audit telemetry. SAF-K8S-0201-016 covers retention, forwarding, and centralized review.
   primary_enforcement_point: Node audit rule configuration and periodic verification of monitored kubelet paths.
   implementation_surface: Linux audit rules or equivalent host telemetry for kubelet configuration files, kubeconfig files, and PKI paths, plus recurring rule validation.
   owner_primary: Platform Engineering
