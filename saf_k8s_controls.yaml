@@ -4911,11 +4911,11 @@
   control_seq: '022'
   control_title: Kubernetes image pull secret distribution and external secret integration
   control_statement: Image pull credentials for authenticated registries must be distributed through Kubernetes Secrets or synchronized from an approved external secrets manager rather than embedded directly in workloads, Dockerfiles, or CI environment variables.
-  objective: Prevent unauthorized registry pulls and uncontrolled credential sprawl by managing image pull credential distribution through approved secret delivery paths.
+  objective: Reduce registry credential sprawl and support controlled access to pull credentials through approved delivery paths.
   rationale: How image pull credentials are stored and delivered is an independently auditable control claim from rotation. Centralized secret distribution through Kubernetes Secrets or external secret integrations prevents ad hoc credential embedding and supports controlled access to registry credentials.
-  scope: Applies to Kubernetes clusters and CI/CD workflows that use authenticated registries for pulling images. Covers image pull secret storage, synchronization from external secret managers, and automatic credential rotation.
+  scope: Applies to Kubernetes clusters and CI/CD workflows that pull from authenticated registries. Covers image pull Secret delivery, approved external Secret synchronization and consumer references. Track automatic credential rotation under SAF-K8S-0601-023.
   primary_enforcement_point: Kubernetes cluster image pull secret distribution and external secret synchronization configuration.
-  implementation_surface: Image pull secret resources, External Secrets Operator or equivalent integration, secret synchronization workflows, service account references, and controls preventing embedded registry credentials in build or deployment configuration.
+  implementation_surface: Namespace-local image pull Secret references in Pod or ServiceAccount specifications, approved external Secret synchronization, and build or deployment checks for embedded registry credentials. Verify authorized private-image pulls and registry access controls with independent evidence.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; DevSecOps / Release Engineering
   baseline_or_ai_specific: baseline
