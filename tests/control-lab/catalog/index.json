@@ -465,7 +465,7 @@
     "SAF-K8S-0601-022": {
       "catalog_status": "draft",
       "domain": "D06",
-      "sha256": "3e31eda1e256e7c2fddbfaaadfe8a7ff787fc8f8cdf1c8fe2fbb6922bca0d3b3",
+      "sha256": "2f506ffb92b7d54c3b26adb1480a96e32cc235e541fc3207f1f3d225f8758c4b",
       "title": "Kubernetes image pull secret distribution and external secret integration"
     },
     "SAF-K8S-0702-003": {
@@ -530,7 +530,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "355bb43c434bf8c2c61100c8aa79ade3522b9179",
-  "sha256": "4683013a252ee376b5b4290af4175ff5c3d03259413411e866ab1b4ebb8b1664",
+  "revision": "09e47f195c856375c35e8ee988dcedcf0b1ae518",
+  "sha256": "957795ca0841a48dd97f65d6a691d642bc38d11bbf391056ec5ea9b34e1a131b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

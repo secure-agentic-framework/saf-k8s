@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0601-022",
-  "catalog_revision": "0f37d5ff538bcac32ae725750f687e2c95f38d97",
-  "catalog_sha256": "10a6e1cfd2ac83172c1f20daf07f5fffce1468094455723a57c2eb56aa139bc7",
+  "catalog_revision": "36d67fc68b5176566299ebffa1c448bea0a6dc2c",
+  "catalog_sha256": "957795ca0841a48dd97f65d6a691d642bc38d11bbf391056ec5ea9b34e1a131b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "3e31eda1e256e7c2fddbfaaadfe8a7ff787fc8f8cdf1c8fe2fbb6922bca0d3b3",
+  "control_sha256": "2f506ffb92b7d54c3b26adb1480a96e32cc235e541fc3207f1f3d225f8758c4b",
   "scope": "One disposable namespace, an empty dockerconfigjson Secret and normal ServiceAccount admission. Reference injection and an ordinary public-image workload are verified. Actual private-registry authentication, external Secret managers and CI delivery need separate evidence.",
-  "cluster": "saf-lab-edd8571f0e7f",
+  "cluster": "saf-lab-94e6cc9ff2c0",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
