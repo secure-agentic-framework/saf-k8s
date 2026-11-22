@@ -306,6 +306,12 @@
       "sha256": "cdb0b886591eee425910bc51be18aa0c6d69799441ccfc94ba57d1f0f3103ebd",
       "title": "Pod resource requests and limits specification"
     },
+    "SAF-K8S-0304-011": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "17e68373f9c3afd71ce662a5bb89e68b51a7f6f38590383ed9132c1dc4f1ba79",
+      "title": "Namespace LimitRange and ResourceQuota enforcement"
+    },
     "SAF-K8S-0304-013": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -464,7 +470,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "805c36824dc4feca10dad12441727b32abf9ade8",
+  "revision": "23578635896feefc9a32e220f290e11042c7264e",
   "sha256": "d7d28292b8acff5a66248c6cc45657bf790264e652dc2045ccd63a055e692998",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

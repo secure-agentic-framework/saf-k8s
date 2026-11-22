@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: saf-0304-resource-bounds
+  namespace: saf-test
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: 10m
+        memory: 8Mi
+        ephemeral-storage: 8Mi
+      default:
+        cpu: 20m
+        memory: 16Mi
+        ephemeral-storage: 16Mi
+      max:
+        cpu: 200m
+        memory: 128Mi
+        ephemeral-storage: 128Mi
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: saf-0304-request-budget
+  namespace: saf-test
+spec:
+  hard:
+    requests.cpu: 100m
+    requests.memory: 64Mi
+    requests.ephemeral-storage: 64Mi

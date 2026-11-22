@@ -1,0 +1,156 @@
+{
+  "control_id": "SAF-K8S-0304-011",
+  "catalog_revision": "11088e58e64a537472c1fce0cf50a66e86edf7c6",
+  "catalog_sha256": "d7d28292b8acff5a66248c6cc45657bf790264e652dc2045ccd63a055e692998",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "17e68373f9c3afd71ce662a5bb89e68b51a7f6f38590383ed9132c1dc4f1ba79",
+  "scope": "One saf-test namespace on the lab's pinned kind Kubernetes v1.36.1: server-side Pod admission applies LimitRange default requests and limits and denies per-container CPU, memory, or ephemeral-storage limits above configured maxima; two harmless, small Pods consume aggregate requests.cpu, requests.memory, and requests.ephemeral-storage quota, and separate dry-run candidates exceed each quota. This demonstrates API admission and declared-request accounting only. It does not measure live CPU, memory, or disk consumption, provide GPU hardware or device-plugin evidence, validate policy governance, or establish namespace-wide rollout.",
+  "cluster": "saf-lab-1997b6094282",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Without a LimitRange, an omitted-resource Pod remains un-defaulted",
+      "matched": true,
+      "observed": {}
+    },
+    {
+      "phase": "red",
+      "claim": "Without a LimitRange, the cpu over-maximum candidate reaches admission",
+      "matched": true,
+      "observed": "server dry-run admitted candidate"
+    },
+    {
+      "phase": "red",
+      "claim": "Without a LimitRange, the memory over-maximum candidate reaches admission",
+      "matched": true,
+      "observed": "server dry-run admitted candidate"
+    },
+    {
+      "phase": "red",
+      "claim": "Without a LimitRange, the ephemeral-storage over-maximum candidate reaches admission",
+      "matched": true,
+      "observed": "server dry-run admitted candidate"
+    },
+    {
+      "phase": "red",
+      "claim": "Without a ResourceQuota, the cpu aggregate-overage candidate reaches admission",
+      "matched": true,
+      "observed": "server dry-run admitted candidate"
+    },
+    {
+      "phase": "red",
+      "claim": "Without a ResourceQuota, the memory aggregate-overage candidate reaches admission",
+      "matched": true,
+      "observed": "server dry-run admitted candidate"
+    },
+    {
+      "phase": "red",
+      "claim": "Without a ResourceQuota, the ephemeral-storage aggregate-overage candidate reaches admission",
+      "matched": true,
+      "observed": "server dry-run admitted candidate"
+    },
+    {
+      "phase": "green",
+      "claim": "LimitRange admission injects the configured CPU, memory, and ephemeral-storage requests and limits",
+      "matched": true,
+      "observed": {
+        "limits": {
+          "cpu": "20m",
+          "ephemeral-storage": "16Mi",
+          "memory": "16Mi"
+        },
+        "requests": {
+          "cpu": "10m",
+          "ephemeral-storage": "8Mi",
+          "memory": "8Mi"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "LimitRange rejects only the cpu per-container maximum violation",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0304-max-cpu\" is forbidden: maximum cpu usage per Container is 200m, but limit is 201m"
+    },
+    {
+      "phase": "green",
+      "claim": "LimitRange rejects only the memory per-container maximum violation",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0304-max-memory\" is forbidden: maximum memory usage per Container is 128Mi, but limit is 129Mi"
+    },
+    {
+      "phase": "green",
+      "claim": "LimitRange rejects only the ephemeral-storage per-container maximum violation",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0304-max-ephemeral\" is forbidden: maximum ephemeral-storage usage per Container is 128Mi, but limit is 129Mi"
+    },
+    {
+      "phase": "positive",
+      "claim": "ResourceQuota status accounts both admitted Pods' aggregate requests for CPU, memory, and ephemeral-storage",
+      "matched": true,
+      "observed": {
+        "requests.cpu": "50m",
+        "requests.ephemeral-storage": "24Mi",
+        "requests.memory": "24Mi"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "ResourceQuota rejects the aggregate requests.cpu overage",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0304-quota-cpu\" is forbidden: exceeded quota: saf-0304-request-budget, requested: requests.cpu=60m, used: requests.cpu=50m, limited: requests.cpu=100m"
+    },
+    {
+      "phase": "green",
+      "claim": "ResourceQuota rejects the aggregate requests.memory overage",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0304-quota-memory\" is forbidden: exceeded quota: saf-0304-request-budget, requested: requests.memory=48Mi, used: requests.memory=24Mi, limited: requests.memory=64Mi"
+    },
+    {
+      "phase": "green",
+      "claim": "ResourceQuota rejects the aggregate requests.ephemeral-storage overage",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0304-quota-ephemeral\" is forbidden: exceeded quota: saf-0304-request-budget, requested: requests.ephemeral-storage=48Mi, used: requests.ephemeral-storage=24Mi, limited: requests.ephemeral-storage=64Mi"
+    },
+    {
+      "phase": "positive",
+      "claim": "Dry-run max and quota denials persisted no candidate Pods",
+      "matched": true,
+      "observed": [
+        "saf-0304-aggregate-base",
+        "saf-0304-defaulted"
+      ]
+    }
+  ]
+}
