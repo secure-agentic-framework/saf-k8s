@@ -1,0 +1,247 @@
+{
+  "control_id": "SAF-K8S-0606-029",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "6916f9e9d11135b125473a4bba78e9ca49fb2043d935089d772f5b5e71d40e1d",
+  "scope": "One disposable kind cluster and saf-test namespace; Argo CD v3.6.1 renders two valid Helm v2 charts (1.0.0 and 1.1.0) from a case-owned, read-only Git source. The case observes the tagged Argo CD controller, resolved Git commit, Deployment, and Ready Pod, then compares those observations with independent immutable release records containing chart version, Git chart-tree identity, runtime image digest, cluster, and namespace. The fixture covers source Helm charts rendered by Argo CD.",
+  "cluster": "saf-lab-ee03471e6613",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The live Argo CD controller stack uses the digest-pinned v3.6.1 release",
+      "matched": true,
+      "observed": {
+        "argocd-repo-server": [
+          "quay.io/argoproj/argocd:v3.6.1@sha256:296e3d74f449b2ce45265613fcb68c18ed7366488360c8ea32f5f2a93d2e5c54"
+        ],
+        "argocd-server": [
+          "quay.io/argoproj/argocd:v3.6.1@sha256:296e3d74f449b2ce45265613fcb68c18ed7366488360c8ea32f5f2a93d2e5c54"
+        ],
+        "argocd-application-controller": [
+          "quay.io/argoproj/argocd:v3.6.1@sha256:296e3d74f449b2ce45265613fcb68c18ed7366488360c8ea32f5f2a93d2e5c54"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The pinned Argo CD application rendered chart 1.0.0 into a Ready workload",
+      "matched": true,
+      "observed": {
+        "application_sync": "Synced",
+        "application_revision": "e8271da2b1f9f792b9e9cd7d6ca45a833141f3b5",
+        "chart_label": "release-fixture-1.0.0",
+        "app_version_label": "1.0.0",
+        "package_version_env": "1.0.0",
+        "available_replicas": 1,
+        "ready_pods": [
+          {
+            "version": "1.0.0",
+            "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+            "runtime_digest": "sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
+          }
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Argo CD renders the live chart with neither a fixture record nor Helm release storage",
+      "matched": true,
+      "observed": {
+        "deployed": {
+          "application_sync": "Synced",
+          "application_revision": "e8271da2b1f9f792b9e9cd7d6ca45a833141f3b5",
+          "chart_label": "release-fixture-1.0.0",
+          "app_version_label": "1.0.0",
+          "package_version_env": "1.0.0",
+          "available_replicas": 1,
+          "ready_pods": [
+            {
+              "version": "1.0.0",
+              "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+              "runtime_digest": "sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
+            }
+          ]
+        },
+        "release_record": null,
+        "helm_release_secrets": []
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The retained 1.0.0 record binds package version, chart tree, and environment",
+      "matched": true,
+      "observed": {
+        "record": {
+          "artifact": {
+            "git_commit": "e8271da2b1f9f792b9e9cd7d6ca45a833141f3b5",
+            "git_tree_oid": "10f4bf4bb65e6c0f3a134983ae20695da0d0008e",
+            "identity_type": "git-chart-tree-object",
+            "path": "chart",
+            "repository": "http://saf-package-git.saf-test.svc.cluster.local:8080/repo.git"
+          },
+          "environment": {
+            "namespace": "saf-test"
+          },
+          "package": {
+            "name": "release-fixture",
+            "type": "helm-chart",
+            "version": "1.0.0"
+          },
+          "workload_image": {
+            "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+            "runtime_digest": "sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+            "version": "1.0.0"
+          }
+        },
+        "deployed": {
+          "application_sync": "Synced",
+          "application_revision": "e8271da2b1f9f792b9e9cd7d6ca45a833141f3b5",
+          "chart_label": "release-fixture-1.0.0",
+          "app_version_label": "1.0.0",
+          "package_version_env": "1.0.0",
+          "available_replicas": 1,
+          "ready_pods": [
+            {
+              "version": "1.0.0",
+              "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+              "runtime_digest": "sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "After promotion, the old release record does not identify deployed chart 1.1.0",
+      "matched": true,
+      "observed": {
+        "deployed": {
+          "application_sync": "Synced",
+          "application_revision": "a726f13f7554c304562a00cae33c42da82a228d6",
+          "chart_label": "release-fixture-1.1.0",
+          "app_version_label": "1.1.0",
+          "package_version_env": "1.1.0",
+          "available_replicas": 1,
+          "ready_pods": [
+            {
+              "version": "1.1.0",
+              "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+              "runtime_digest": "sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
+            }
+          ]
+        },
+        "old_record_present": true,
+        "new_record": null
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Separate immutable records retain both deployed versions and exact chart identities",
+      "matched": true,
+      "observed": {
+        "records": [
+          {
+            "artifact": {
+              "git_commit": "e8271da2b1f9f792b9e9cd7d6ca45a833141f3b5",
+              "git_tree_oid": "10f4bf4bb65e6c0f3a134983ae20695da0d0008e",
+              "identity_type": "git-chart-tree-object",
+              "path": "chart",
+              "repository": "http://saf-package-git.saf-test.svc.cluster.local:8080/repo.git"
+            },
+            "environment": {
+              "namespace": "saf-test"
+            },
+            "package": {
+              "name": "release-fixture",
+              "type": "helm-chart",
+              "version": "1.0.0"
+            },
+            "workload_image": {
+              "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+              "runtime_digest": "sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+              "version": "1.0.0"
+            }
+          },
+          {
+            "artifact": {
+              "git_commit": "a726f13f7554c304562a00cae33c42da82a228d6",
+              "git_tree_oid": "52d6534e2910e9f1912878ea3be595cb7963796f",
+              "identity_type": "git-chart-tree-object",
+              "path": "chart",
+              "repository": "http://saf-package-git.saf-test.svc.cluster.local:8080/repo.git"
+            },
+            "environment": {
+              "namespace": "saf-test"
+            },
+            "package": {
+              "name": "release-fixture",
+              "type": "helm-chart",
+              "version": "1.1.0"
+            },
+            "workload_image": {
+              "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+              "runtime_digest": "sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+              "version": "1.1.0"
+            }
+          }
+        ],
+        "deployed": {
+          "application_sync": "Synced",
+          "application_revision": "a726f13f7554c304562a00cae33c42da82a228d6",
+          "chart_label": "release-fixture-1.1.0",
+          "app_version_label": "1.1.0",
+          "package_version_env": "1.1.0",
+          "available_replicas": 1,
+          "ready_pods": [
+            {
+              "version": "1.1.0",
+              "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+              "runtime_digest": "sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The Kubernetes API refuses a data change to the retained prior release record",
+      "matched": true,
+      "observed": {
+        "immutable_data_rejected": true,
+        "prior_record_preserved": true
+      }
+    }
+  ]
+}

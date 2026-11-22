@@ -1,0 +1,6 @@
+apiVersion: v2
+name: release-fixture
+description: Disposable SAF package-version retention fixture
+type: application
+version: 1.1.0
+appVersion: "1.1.0"

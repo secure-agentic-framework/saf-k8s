@@ -738,6 +738,12 @@
       "sha256": "1c5c3ed8623fb4fe89e05e2d878f1862dd915c0525abce67b71bd15b2f94182c",
       "title": "AI custom resource validation and policy constraint enforcement"
     },
+    "SAF-K8S-0606-029": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "6916f9e9d11135b125473a4bba78e9ca49fb2043d935089d772f5b5e71d40e1d",
+      "title": "GitOps deployed package and version metadata retention"
+    },
     "SAF-K8S-0606-032": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -1010,7 +1016,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "38ce2b07ce7d996655f36ab0e2ad97a2fa7d0b04",
+  "revision": "2248665d32bad97c5d2d82bc01616673e083285d",
   "sha256": "eb09f73c734ce9fb61334c4114a1c97b53636c859a90ae5fa9dc4148d220bfa8",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
