@@ -1254,6 +1254,12 @@
       "sha256": "83b58f488ebb0d373f3a7818c9faaa8828daf1d3eb25c976aeaf58984b9deabb",
       "title": "Pipeline stage-scoped artifact access and retention governance"
     },
+    "SAF-K8S-0904-015": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "462a2cbf69844501cbff2ca5e42ae91ec7c9a4dbaf0e76927062a60053c531c4",
+      "title": "Experiment tracking metadata access control and tenant visibility enforcement"
+    },
     "SAF-K8S-0904-017": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1748,7 +1754,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "8646347c5783e3eedaeddb1de68e8962b6c1e383",
+  "revision": "48c7ca2484b8658062e76fb4cfc16b7d1c071b8d",
   "sha256": "4095f032054cac7a78a6134ea809e50d9fbf12e0cdfc58a22716db451d7619b2",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
