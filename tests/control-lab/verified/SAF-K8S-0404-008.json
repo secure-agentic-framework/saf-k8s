@@ -1,0 +1,93 @@
+{
+  "control_id": "SAF-K8S-0404-008",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "ad1f6bb96814a2d9b61ef9dc3fdd3859add09049569400cd840a123da2acc5de",
+  "scope": "Kubernetes v1.36.1. Two fixture HTTPS certificates are signed by the local CA and served by actual TLS endpoints. Blackbox Exporter verifies trust and reports leaf expiry. Prometheus independently scrapes both endpoints with the rule disabled and enabled, and Alertmanager routes the exact near-expiry notification to a disposable in-cluster receiver.",
+  "cluster": "saf-lab-4ae966845daf",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "TLS-verified expiry metrics match both certificate notAfter values",
+      "matched": true,
+      "observed": {
+        "expected_subjects": [
+          "healthy",
+          "near-expiry"
+        ],
+        "exact_expiries_matched": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Expiry metrics are present and no alert is produced without a rule",
+      "matched": true,
+      "observed": {
+        "no_alert_or_notification": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The rule fires for near expiry and keeps the observed healthy certificate clear",
+      "matched": true,
+      "observed": {
+        "alerts": [
+          [
+            "near-expiry",
+            "firing"
+          ]
+        ],
+        "both_certificates_still_measured": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Alertmanager delivers the exact firing certificate and route fields",
+      "matched": true,
+      "observed": {
+        "webhook_notifications": [
+          [
+            "local-fixture",
+            "FixtureCertificateNearExpiry",
+            "near-expiry",
+            "warning",
+            "firing",
+            "Owned fixture certificate approaches expiry"
+          ]
+        ]
+      }
+    }
+  ]
+}

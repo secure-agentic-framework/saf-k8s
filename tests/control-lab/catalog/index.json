@@ -558,6 +558,12 @@
       "sha256": "9c312947f021dbe7357a9f8b66dbe39d8f3d877d44ddfda487bf6827b8eaa97a",
       "title": "Environment variable secret injection prohibition enforcement"
     },
+    "SAF-K8S-0404-008": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "ad1f6bb96814a2d9b61ef9dc3fdd3859add09049569400cd840a123da2acc5de",
+      "title": "Certificate expiry monitoring and alerting"
+    },
     "SAF-K8S-0501-001": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -992,7 +998,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "fa7e1b58a7d23e2b9dc6c43c908fa698be0e9494",
+  "revision": "104c01580c408ad28e4fb39aaf87d6cf37fadb20",
   "sha256": "0264e66c6532b9cabd3d3301582d0dad604e98d0619e96179371fc65ec016af9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
