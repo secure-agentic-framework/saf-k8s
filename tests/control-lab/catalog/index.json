@@ -174,6 +174,12 @@
       "sha256": "d9a64ab86b1056dd558975dead43d1fb854182358bba2d9916ef0b69fc643f2b",
       "title": "Kubelet hostname override governance"
     },
+    "SAF-K8S-0201-006": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "ed9a72dfd7fba791f1628bcaf9da4f51862c09cfca5b9bc65873942b8b7d9bdb",
+      "title": "Node system and kube reserved resource allocations"
+    },
     "SAF-K8S-0201-008": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -452,7 +458,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "54c9086dd98a54b8610cec46598ff92cf4af9886",
+  "revision": "805c36824dc4feca10dad12441727b32abf9ade8",
   "sha256": "d7d28292b8acff5a66248c6cc45657bf790264e652dc2045ccd63a055e692998",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
