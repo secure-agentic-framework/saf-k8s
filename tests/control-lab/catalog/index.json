@@ -264,6 +264,12 @@
       "sha256": "0c8bc46353756c942a2a80e064a862e6c45694cc12e85ddef19bf534eb89a536",
       "title": "RBAC least-privilege design"
     },
+    "SAF-K8S-0401-002": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "87ef1438b413241e96856e0762c6ed6a130b1e980467187a92a0968688f19aae",
+      "title": "RBAC permission audit and analysis"
+    },
     "SAF-K8S-0401-003": {
       "catalog_status": "draft",
       "domain": "D04",
