@@ -1,0 +1,131 @@
+{
+  "control_id": "SAF-K8S-0403-011",
+  "catalog_revision": "58d32d0620d30017a773ef8c68a16b135af2698a",
+  "catalog_sha256": "fd59c6f494f19e72c2c9f756d2481292195dcc71d5d6f5aa774426a49cbc8063",
+  "node_image": "kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5",
+  "control_sha256": "f0f7ebe6a67f123f4eb36aa66a0a9d13a9fa0fabac762495e98cdda9e866262e",
+  "scope": "Kubernetes v1.37.0 kind; two named inert synthetic core Secrets in the case-owned namespace plus one synthetic write sentinel. A resource-scoped secrets StorageVersionMigration runs only on the disposable case cluster. The test does not establish production KMS scheduling, audit, inventory, or retirement.",
+  "cluster": "saf-lab-203ac98ea1e3",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "37",
+      "emulationMajor": "1",
+      "emulationMinor": "37",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "36",
+      "gitVersion": "v1.37.0",
+      "gitCommit": "f54c212e3a2f75d674b717a9b29052b20b60aefc",
+      "gitTreeState": "clean",
+      "buildDate": "2026-08-26T10:44:25Z",
+      "goVersion": "go1.26.6",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Pinned Kubernetes v1.37.0 serves StorageVersionMigration v1",
+      "matched": true,
+      "observed": {
+        "kubernetes_v1_37": true,
+        "svm_v1_discovered": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Both named fixture Secrets initially use the old encrypted envelope",
+      "matched": true,
+      "observed": [
+        {
+          "key_label": "saf-old",
+          "marker_visible": false
+        },
+        {
+          "key_label": "saf-old",
+          "marker_visible": false
+        }
+      ]
+    },
+    {
+      "phase": "positive",
+      "claim": "Both named fixture reads match their original inert markers",
+      "matched": true,
+      "observed": {
+        "both_markers_match": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A fresh Secret write uses the new key after config reload",
+      "matched": true,
+      "observed": {
+        "key_label": "saf-new",
+        "marker_visible": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Both previously existing records retain the old envelope after reload",
+      "matched": true,
+      "observed": [
+        {
+          "key_label": "saf-old",
+          "marker_visible": false
+        },
+        {
+          "key_label": "saf-old",
+          "marker_visible": false
+        }
+      ]
+    },
+    {
+      "phase": "green",
+      "claim": "Native core Secret StorageVersionMigration reports success",
+      "matched": true,
+      "observed": {
+        "succeeded": true,
+        "failed": false,
+        "expected_reason": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Both named fixture records now use the new encrypted envelope",
+      "matched": true,
+      "observed": [
+        {
+          "key_label": "saf-new",
+          "marker_visible": false
+        },
+        {
+          "key_label": "saf-new",
+          "marker_visible": false
+        }
+      ]
+    },
+    {
+      "phase": "positive",
+      "claim": "Both fixture reads preserve their original inert markers",
+      "matched": true,
+      "observed": {
+        "both_original_markers_match": true
+      }
+    }
+  ]
+}

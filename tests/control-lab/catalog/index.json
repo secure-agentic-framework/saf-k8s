@@ -402,6 +402,12 @@
       "sha256": "5bceccd60b9178d97b15c75e0b0ab8874bd0fe7e9ce0a6665c6e8868efa96e41",
       "title": "AI pipeline secret leakage prevention"
     },
+    "SAF-K8S-0403-011": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "f0f7ebe6a67f123f4eb36aa66a0a9d13a9fa0fabac762495e98cdda9e866262e",
+      "title": "Secrets KMS key rotation and re-encryption verification"
+    },
     "SAF-K8S-0601-011": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -482,7 +488,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "79dc62c4f53e3fffeeb9024fac06e8588209cf54",
-  "sha256": "d7d28292b8acff5a66248c6cc45657bf790264e652dc2045ccd63a055e692998",
+  "revision": "194e800b53771bcf7d54039b3cf75aea1d81df55",
+  "sha256": "fd59c6f494f19e72c2c9f756d2481292195dcc71d5d6f5aa774426a49cbc8063",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

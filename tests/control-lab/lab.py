@@ -5,6 +5,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import shlex
 import subprocess
 import tempfile
@@ -97,15 +98,20 @@ def run(control_id, control_case, index, docker_context):
     evidence = ROOT / "evidence" / control_id / (
         datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8]
     )
+    prepare_kind = getattr(control_case, "prepare_kind", None)
+    node_image = control_case.NODE_IMAGE if prepare_kind else NODE_IMAGE
+    if not re.fullmatch(r"kindest/node:v\d+\.\d+\.\d+@sha256:[0-9a-f]{64}", node_image):
+        raise ValueError(f"Invalid digest-pinned kind image for {control_id}")
     evidence.mkdir(parents=True, mode=0o700)
     report = {
         "control_id": control_id, "catalog_revision": index["revision"],
-        "catalog_sha256": index["sha256"], "node_image": NODE_IMAGE,
+        "catalog_sha256": index["sha256"], "node_image": node_image,
         "control_sha256": index["controls"][control_id]["sha256"],
         "scope": control_case.SCOPE,
     }
     with tempfile.TemporaryDirectory(prefix="saf-lab-") as temp:
-        lab = Lab(evidence, docker_context, Path(temp) / "kubeconfig")
+        temporary = Path(temp).resolve()
+        lab = Lab(evidence, docker_context, temporary / "kubeconfig")
         owned = False
         report["cluster"] = lab.cluster
         try:
@@ -118,11 +124,15 @@ def run(control_id, control_case, index, docker_context):
             clusters = lab.command("kind", "get", "clusters")
             if lab.cluster in clusters.stdout.splitlines():
                 raise InfrastructureError(f"Cluster already exists: {lab.cluster}")
-            owned = True
             config = Path(control_case.__file__).with_name("kind.yaml")
+            if prepare_kind:
+                config = Path(prepare_kind(lab, temporary)).resolve()
+                if not config.is_relative_to(temporary) or not config.is_file():
+                    raise InfrastructureError("Generated kind config must be inside the temporary workspace")
             config_args = ["--config", str(config)] if config.is_file() else []
             print(f"Starting {lab.cluster} on Docker context {docker_context}", flush=True)
-            lab.command("kind", "create", "cluster", "--name", lab.cluster, "--image", NODE_IMAGE,
+            owned = True
+            lab.command("kind", "create", "cluster", "--name", lab.cluster, "--image", node_image,
                         "--kubeconfig", str(lab.kubeconfig), "--wait", "90s",
                         *config_args, timeout=480)
             report["kubernetes"] = json.loads(lab.kubectl("version", "-o", "json").stdout)
