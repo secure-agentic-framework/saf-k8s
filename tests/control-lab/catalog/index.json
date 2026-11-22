@@ -468,6 +468,12 @@
       "sha256": "2f506ffb92b7d54c3b26adb1480a96e32cc235e541fc3207f1f3d225f8758c4b",
       "title": "Kubernetes image pull secret distribution and external secret integration"
     },
+    "SAF-K8S-0601-023": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "04cc778ba6819ddff6fcfc42bfb116483847023a8acbd316aeb46c631377fa2a",
+      "title": "Image pull credential automatic rotation and expiry reduction"
+    },
     "SAF-K8S-0702-003": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -530,7 +536,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "09e47f195c856375c35e8ee988dcedcf0b1ae518",
+  "revision": "401d3d7b57812e0dc33fabe7c89ef889f3b435ad",
   "sha256": "957795ca0841a48dd97f65d6a691d642bc38d11bbf391056ec5ea9b34e1a131b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
