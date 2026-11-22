@@ -1224,6 +1224,12 @@
       "sha256": "c4e5c40da35a9bc80a1d5689dc30ebac3884eb9693ab14b696429308b3597b25",
       "title": "AI-specific alerting and failure mode detection"
     },
+    "SAF-K8S-1002-005": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "141aed48af81b281621e5902cfbbf6e3211803e147769351ec2b7c86852b4ead",
+      "title": "Metric endpoint authorization and RBAC"
+    },
     "SAF-K8S-1002-006": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1262,7 +1268,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "04e09bdef5af76f0225d61bb1d179fb016d55719",
+  "revision": "6132587be3f3a310d46b527f2f2801d4e41a913a",
   "sha256": "372d09cd795dff2d873dc51ba9b3ac4085a372b623b11680a6f2cfac07505df6",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

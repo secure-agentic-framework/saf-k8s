@@ -1,0 +1,190 @@
+{
+  "control_id": "SAF-K8S-1002-005",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "141aed48af81b281621e5902cfbbf6e3211803e147769351ec2b7c86852b4ead",
+  "scope": "Fresh Kind v1.36.1. A digest-pinned Prometheus Adapter v0.12.0 serves real aggregated custom and external metrics APIs from synthetic Prometheus series. Two namespace-owned ServiceAccount tokens exercise live API-server authorization and compare exact synthetic samples, cross-namespace and cluster-scope denials, and the explicit external-rule exception. Prometheus Kubernetes pod discovery is separately scoped to the two fixture namespaces. A narrow API-server audit policy demonstrates that coverage depends on configured policy/backend. No production endpoint or identity is used.",
+  "cluster": "saf-lab-b46429f589ae",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Prometheus discovery identity reads pods in both owned namespaces and is denied cluster resources",
+      "matched": true,
+      "observed": {
+        "list pods saf-1002-alpha": true,
+        "list nodes <cluster>": false,
+        "list pods saf-1002-beta": true,
+        "list pods default": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Prometheus discovers and scrapes exactly one synthetic target in each owned namespace",
+      "matched": true,
+      "observed": {
+        "saf-1002-beta": "1",
+        "saf-1002-alpha": "1"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Authenticated namespace identity without a metrics RoleBinding is denied at the real API",
+      "matched": true,
+      "observed": {
+        "http_status": 403
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Custom metric reads return only the exact sample for each token's owned namespace",
+      "matched": true,
+      "observed": {
+        "saf-1002-alpha": {
+          "custom": {
+            "saf-1002-alpha-metrics": "11"
+          },
+          "external": {
+            "saf-1002-alpha": "5"
+          },
+          "shared_external": {
+            "saf-1002-beta": "9",
+            "saf-1002-alpha": "5"
+          }
+        },
+        "saf-1002-beta": {
+          "custom": {
+            "saf-1002-beta-metrics": "22"
+          },
+          "external": {
+            "saf-1002-beta": "9"
+          },
+          "shared_external": {
+            "saf-1002-beta": "9",
+            "saf-1002-alpha": "5"
+          }
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The namespaced external rule restricts the same underlying input to each authorized namespace",
+      "matched": true,
+      "observed": {
+        "saf-1002-alpha": {
+          "custom": {
+            "saf-1002-alpha-metrics": "11"
+          },
+          "external": {
+            "saf-1002-alpha": "5"
+          },
+          "shared_external": {
+            "saf-1002-beta": "9",
+            "saf-1002-alpha": "5"
+          }
+        },
+        "saf-1002-beta": {
+          "custom": {
+            "saf-1002-beta-metrics": "22"
+          },
+          "external": {
+            "saf-1002-beta": "9"
+          },
+          "shared_external": {
+            "saf-1002-beta": "9",
+            "saf-1002-alpha": "5"
+          }
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The intentionally shared rule returns both fixture namespaces to authorized readers",
+      "matched": true,
+      "observed": {
+        "saf-1002-alpha": {
+          "custom": {
+            "saf-1002-alpha-metrics": "11"
+          },
+          "external": {
+            "saf-1002-alpha": "5"
+          },
+          "shared_external": {
+            "saf-1002-beta": "9",
+            "saf-1002-alpha": "5"
+          }
+        },
+        "saf-1002-beta": {
+          "custom": {
+            "saf-1002-beta-metrics": "22"
+          },
+          "external": {
+            "saf-1002-beta": "9"
+          },
+          "shared_external": {
+            "saf-1002-beta": "9",
+            "saf-1002-alpha": "5"
+          }
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The scoped readers are denied cross-namespace requests and a cluster-scope custom request",
+      "matched": true,
+      "observed": {
+        "saf-1002-alpha": {
+          "cross_custom": 403,
+          "cross_external": 403,
+          "cluster_scope_custom": 403
+        },
+        "saf-1002-beta": {
+          "cross_custom": 403,
+          "cross_external": 403,
+          "cluster_scope_custom": 403
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Audit events follow the configured policy: custom reads logged, external reads omitted",
+      "matched": true,
+      "observed": {
+        "custom_event_seen": true,
+        "external_event_seen": false,
+        "policy_file_configured": true
+      }
+    }
+  ]
+}
