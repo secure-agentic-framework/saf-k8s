@@ -37,8 +37,10 @@ SCOPE = (
     "effective default and the second API server enables one alpha gate. The test inventories "
     "that component and gate. A separate pinned Kubernetes v1.37.0 peer cluster checks kubelet "
     "declared-feature reporting and default-scheduler placement for one opted-in and one explicitly "
-    "disabled worker. This is an upgrade-compatibility observation, not an authorization control. "
-    "Full production component inventory and governance need separate evidence."
+    "disabled worker, then changes only the opted-in worker's provisioned gate and checks "
+    "restart-driven report refresh, scheduling, and ordinary Pod viability. This is an "
+    "upgrade-compatibility observation, not an authorization control. Full production component "
+    "inventory and declared-feature expiration governance need separate evidence."
 )
 
 _spec = importlib.util.spec_from_file_location(
@@ -309,6 +311,165 @@ def pending_feature_event(lab, kubeconfig, cluster, name):
     lab.block("Feature workload lacked the expected scheduler declared-feature filter event")
 
 
+def kubelet_ready_snapshot(lab, kubeconfig, cluster, node_name):
+    """Return only stable, non-identifying fields used to prove a kubelet refresh."""
+    node = json.loads(peer_kubectl(
+        lab, kubeconfig, cluster, "get", "node", node_name, "-o", "json",
+    ).stdout)
+    ready = next((condition for condition in node.get("status", {}).get("conditions", [])
+                  if condition.get("type") == "Ready"), {})
+    return {
+        "resource_version": node.get("metadata", {}).get("resourceVersion", ""),
+        "ready": ready.get("status") == "True",
+        "ready_heartbeat": ready.get("lastHeartbeatTime", ""),
+        "declares_feature": DECLARED_FEATURE in node.get("status", {}).get(
+            "declaredFeatures", []),
+    }
+
+
+def disable_provisioned_worker_gate(lab, worker):
+    """Change only the kubeadm-managed feature gate token in the exact worker node."""
+    script = (
+        "set -eu; f=/var/lib/kubelet/kubeadm-flags.env; "
+        f"old='--feature-gates={DECLARED_FEATURE}=true'; "
+        f"new='--feature-gates={DECLARED_FEATURE}=false'; "
+        "test -f \"$f\"; "
+        "test \"$(grep -oF -- \"$old\" \"$f\" | wc -l | tr -d ' ')\" = 1; "
+        "sed -i \"s/${old}/${new}/\" \"$f\"; "
+        "test \"$(grep -oF -- \"$old\" \"$f\" | wc -l | tr -d ' ')\" = 0; "
+        "test \"$(grep -oF -- \"$new\" \"$f\" | wc -l | tr -d ' ')\" = 1; "
+        "printf '%s\\n' '{\"old_gate_once\":true,\"new_gate_once\":true}'"
+    )
+    result = lab.command(
+        "docker", "--context", lab.context, "exec", worker, "sh", "-ec", script,
+        timeout=30,
+    )
+    return json.loads(result.stdout) == {"old_gate_once": True, "new_gate_once": True}
+
+
+def run_kubelet_refresh_followup(lab, kubeconfig, cluster, docker_nodes,
+                                  worker_names, reporting_worker, ordinary_probe, feature_on):
+    """Run saf-lab-0104-022.2 on the same disposable peer after the paired probes."""
+    # Remove the only running feature-dependent probe before changing its worker.
+    peer_kubectl(lab, kubeconfig, cluster, "delete", "pod", feature_on["metadata"]["name"],
+                 "--wait=true", "--timeout=60s", timeout=70)
+    remaining_probes = []
+    for probe in (ordinary_probe, feature_on):
+        result = peer_kubectl(
+            lab, kubeconfig, cluster, "get", "pod", probe["metadata"]["name"],
+            "-o", "json", allow_failure=True,
+        )
+        if result.returncode == 0:
+            remaining_probes.append(probe["metadata"]["name"])
+    lab.check(
+        "positive", "Original synthetic probes are removed before the gate change",
+        not remaining_probes,
+        {"original_probes_absent": not remaining_probes},
+    )
+
+    worker_name = reporting_worker["metadata"]["name"]
+    exact_worker = f"{cluster}-worker2"
+    node_entries = {item["name"]: item for item in docker_nodes}
+    worker_entry = node_entries.get(exact_worker, {})
+    exact_owned_worker = (
+        worker_name == exact_worker
+        and exact_worker in worker_names
+        and worker_entry.get("cluster_label") == cluster
+        and worker_entry.get("role") == "worker"
+    )
+    lab.check(
+        "positive", "The published worker maps to its exact cluster-labeled Kind node",
+        exact_owned_worker,
+        {"one_exact_worker_selected": exact_owned_worker,
+         "exact_label_and_role_match": exact_owned_worker},
+    )
+    if not exact_owned_worker:
+        lab.block("Published worker did not map to the exact owned Kind worker")
+
+    before = kubelet_ready_snapshot(lab, kubeconfig, cluster, worker_name)
+    lab.check(
+        "positive", "Pre-change snapshot is Ready and reports the enabled feature",
+        before["ready"] and before["declares_feature"] and bool(before["resource_version"])
+        and bool(before["ready_heartbeat"]),
+        {"ready": before["ready"], "feature_reported": before["declares_feature"],
+         "version_present": bool(before["resource_version"]),
+         "heartbeat_present": bool(before["ready_heartbeat"])},
+    )
+
+    changed = disable_provisioned_worker_gate(lab, exact_worker)
+    lab.check(
+        "positive", "Only the kubeadm-managed worker gate value changes true to false",
+        changed,
+        {"single_old_gate_replaced": changed, "single_new_gate_present": changed},
+    )
+    worker_command = ("docker", "--context", lab.context, "exec", exact_worker, "systemctl")
+    process_query = (*worker_command, "show", "kubelet", "--property=MainPID", "--value")
+    old_pid = int(lab.command(*process_query, timeout=15).stdout.strip())
+    lab.command(*worker_command, "restart", "kubelet", timeout=45)
+    new_pid = int(lab.command(*process_query, timeout=15).stdout.strip())
+    restarted = old_pid > 0 and new_pid > 0 and old_pid != new_pid
+    lab.check("positive", "The exact owned worker started a new kubelet process",
+              restarted, {"old_and_new_pid_present_and_distinct": restarted})
+
+    deadline = time.monotonic() + 150
+    after = None
+    while time.monotonic() < deadline:
+        snapshot = kubelet_ready_snapshot(lab, kubeconfig, cluster, worker_name)
+        if (snapshot["ready"] and not snapshot["declares_feature"]
+                and snapshot["resource_version"] != before["resource_version"]
+                and snapshot["ready_heartbeat"] > before["ready_heartbeat"]):
+            after = snapshot
+            break
+        time.sleep(2)
+    refreshed = after is not None
+    lab.check(
+        "green", "Restarted kubelet refreshes Node status and removes its declaration",
+        refreshed,
+        {"ready": bool(after and after["ready"]),
+         "feature_removed": bool(after and not after["declares_feature"]),
+         "resource_version_advanced": bool(after and after["resource_version"]
+                                            != before["resource_version"]),
+         "ready_heartbeat_advanced": bool(after and after["ready_heartbeat"]
+                                          > before["ready_heartbeat"])},
+    )
+    if not refreshed:
+        lab.block("Restarted worker did not publish a fresh Ready Node status without the feature")
+
+    ordinary = test_pod("ordinary-after-refresh", "enabled", feature_required=False)
+    peer_kubectl(lab, kubeconfig, cluster, "create", "-f", "-",
+                 payload=json.dumps(ordinary))
+    ordinary_observed = wait_pod_ready(lab, kubeconfig, cluster, ordinary["metadata"]["name"])
+    ordinary_node = ordinary_observed.get("spec", {}).get("nodeName")
+    ordinary_ok = (
+        ordinary_observed.get("status", {}).get("phase") == "Running"
+        and ordinary_node == worker_name
+    )
+    lab.check(
+        "positive", "An ordinary supported Pod remains viable on the refreshed worker",
+        ordinary_ok,
+        {"running_on_refreshed_worker": ordinary_ok,
+         "phase_is_running": ordinary_observed.get("status", {}).get("phase") == "Running"},
+    )
+
+    feature = test_pod("feature-after-refresh", "enabled", feature_required=True)
+    peer_kubectl(lab, kubeconfig, cluster, "create", "-f", "-",
+                 payload=json.dumps(feature))
+    pending, message = pending_feature_event(lab, kubeconfig, cluster,
+                                              feature["metadata"]["name"])
+    blocked = (
+        pending.get("status", {}).get("phase") == "Pending"
+        and not pending.get("spec", {}).get("nodeName")
+        and PLUGIN_REASON in message
+    )
+    lab.check(
+        "red", "A new matching feature Pod stays Pending for the exact scheduler reason",
+        blocked,
+        {"pending_without_node": blocked,
+         "exact_scheduler_reason_present": PLUGIN_REASON in message,
+         "reason_value": PLUGIN_REASON},
+    )
+
+
 def run_declared_feature_peer(lab):
     """Observe v1.37 kubelet publication and default-scheduler filtering on a fresh peer."""
     env_docker_endpoint = lab.command(
@@ -449,22 +610,33 @@ def run_declared_feature_peer(lab):
                  "image": SLEEP_IMAGE,
                  "exit_42_policy_configured_but_not_exercised": True},
             )
+
+            run_kubelet_refresh_followup(
+                lab, kubeconfig, cluster, docker_nodes, expected_node_names,
+                workers["enabled"], ordinary, feature_on,
+            )
         finally:
             if owned:
                 # Delete exactly the named peer; do not infer ownership from context alone.
-                deletion = lab.command(
-                    "kind", "delete", "cluster", "--name", cluster,
-                    "--kubeconfig", str(kubeconfig), timeout=120, allow_failure=True,
-                )
-                remaining = docker_peer_nodes(lab, cluster)
-                after = lab.command("kind", "get", "clusters").stdout.splitlines()
-                deleted = deletion.returncode == 0 and cluster not in after and not remaining
+                deleted = False
+                delete_succeeded = False
+                for _attempt in range(3):
+                    deletion = lab.command(
+                        "kind", "delete", "cluster", "--name", cluster,
+                        "--kubeconfig", str(kubeconfig), timeout=120, allow_failure=True,
+                    )
+                    delete_succeeded = delete_succeeded or deletion.returncode == 0
+                    remaining = docker_peer_nodes(lab, cluster)
+                    after = lab.command("kind", "get", "clusters").stdout.splitlines()
+                    deleted = cluster not in after and not remaining
+                    if deleted:
+                        break
                 lab.check(
                     "positive", "The owned declared-feature peer cluster was deleted",
                     deleted,
                     {"owned_peer_absent_from_kind": cluster not in after,
                      "exact_label_scoped_containers_remaining": len(remaining),
-                     "delete_command_succeeded": deletion.returncode == 0},
+                     "delete_command_succeeded": delete_succeeded},
                 )
 
 

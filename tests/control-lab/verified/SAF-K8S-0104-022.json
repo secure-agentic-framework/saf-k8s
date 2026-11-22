@@ -4,8 +4,8 @@
   "catalog_sha256": "f8e0cf1e01bc0de4b00f018afbbd50ede74ea9107afc25c95416adf9c3533f88",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "667a3f66058fbfb4411207022bda3990f9bcf036178b3a06e1544c828256f917",
-  "scope": "Paired disposable Kubernetes v1.36.1 clusters. The stock API server supplies the effective default and the second API server enables one alpha gate. The test inventories that component and gate. A separate pinned Kubernetes v1.37.0 peer cluster checks kubelet declared-feature reporting and default-scheduler placement for one opted-in and one explicitly disabled worker. This is an upgrade-compatibility observation, not an authorization control. Full production component inventory and governance need separate evidence.",
-  "cluster": "saf-lab-7657349bf430",
+  "scope": "Paired disposable Kubernetes v1.36.1 clusters. The stock API server supplies the effective default and the second API server enables one alpha gate. The test inventories that component and gate. A separate pinned Kubernetes v1.37.0 peer cluster checks kubelet declared-feature reporting and default-scheduler placement for one opted-in and one explicitly disabled worker, then changes only the opted-in worker's provisioned gate and checks restart-driven report refresh, scheduling, and ordinary Pod viability. This is an upgrade-compatibility observation, not an authorization control. Full production component inventory and declared-feature expiration governance need separate evidence.",
+  "cluster": "saf-lab-97f78bd0bc64",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -184,6 +184,81 @@
         "on_expected_reporting_worker": true,
         "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
         "exit_42_policy_configured_but_not_exercised": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Original synthetic probes are removed before the gate change",
+      "matched": true,
+      "observed": {
+        "original_probes_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The published worker maps to its exact cluster-labeled Kind node",
+      "matched": true,
+      "observed": {
+        "one_exact_worker_selected": true,
+        "exact_label_and_role_match": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Pre-change snapshot is Ready and reports the enabled feature",
+      "matched": true,
+      "observed": {
+        "ready": true,
+        "feature_reported": true,
+        "version_present": true,
+        "heartbeat_present": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Only the kubeadm-managed worker gate value changes true to false",
+      "matched": true,
+      "observed": {
+        "single_old_gate_replaced": true,
+        "single_new_gate_present": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact owned worker started a new kubelet process",
+      "matched": true,
+      "observed": {
+        "old_and_new_pid_present_and_distinct": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Restarted kubelet refreshes Node status and removes its declaration",
+      "matched": true,
+      "observed": {
+        "ready": true,
+        "feature_removed": true,
+        "resource_version_advanced": true,
+        "ready_heartbeat_advanced": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An ordinary supported Pod remains viable on the refreshed worker",
+      "matched": true,
+      "observed": {
+        "running_on_refreshed_worker": true,
+        "phase_is_running": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A new matching feature Pod stays Pending for the exact scheduler reason",
+      "matched": true,
+      "observed": {
+        "pending_without_node": true,
+        "exact_scheduler_reason_present": true,
+        "reason_value": "node(s) didn't match Pod's required features"
       }
     },
     {
