@@ -5,9 +5,10 @@
 
 ## Mapping Notes
 
-monitoring the operation of high-risk AI systems referred to in Article 26(5).
+Article 12(2)(c) concerns event recording that supports monitoring of high-risk AI systems under Article 26(5). Relevant events depend on the system's intended purpose.
 
-SAF-K8S provides operational monitoring infrastructure through cluster monitoring, workload telemetry, and SIEM integration. Full operational monitoring of AI systems also requires application-layer event generation for AI-specific operational events (input/output logging, decision auditing).
+SAF-K8S telemetry forwarding can help make those events available for review. SIEM onboarding and the listed source classes are SAF implementation choices. Assess system-specific event generation and the deployer's monitoring procedure separately.
+[Consolidated EU AI Act](https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:02024R1689-20260727)
 
 ## SAF-K8S Controls
 
