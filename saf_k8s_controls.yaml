@@ -2490,12 +2490,12 @@
   knowledge_area: '3.4'
   control_seq: '012'
   control_title: Training scratch volume size limits and ephemeral-storage quotas
-  control_statement: AI training workloads that use scratch volumes must enforce emptyDir sizeLimit constraints, and training namespaces must enforce ephemeral-storage quota or equivalent policy boundaries so scratch-space growth cannot exhaust node or namespace storage capacity.
-  objective: Prevent disk exhaustion and training job runaway behavior by bounding scratch-volume size and aggregate ephemeral-storage consumption.
-  rationale: Training jobs generate large caches, tokenized samples, and intermediate artifacts that can rapidly consume local disk. emptyDir size limits bound individual scratch volumes, while namespace ephemeral-storage quotas prevent a team or job set from consuming all available storage across the cluster.
+  control_statement: AI training workloads using disk-backed emptyDir scratch volumes must declare sizeLimit constraints and ephemeral-storage requests and limits. Training namespaces must enforce ephemeral-storage ResourceQuota or an equivalent admission policy. Node operators must monitor storage capacity and ensure kubelet measures local ephemeral storage on the deployed filesystem layout.
+  objective: Reduce the risk of node disk exhaustion and runaway training jobs through admission limits, kubelet usage enforcement, and capacity monitoring.
+  rationale: Training jobs can rapidly consume local disk. ResourceQuota caps declared aggregate ephemeral-storage requests and limits at admission. On supported filesystem layouts, kubelet evicts a Pod after detecting that disk-backed emptyDir usage exceeds its sizeLimit. Writes can exceed the limit before eviction.
   scope: Applies to AI and ML training workloads that use emptyDir or equivalent ephemeral scratch space for staging data, caches, gradients, or intermediate outputs.
-  primary_enforcement_point: Pod specification validation and namespace quota enforcement for emptyDir size limits and ephemeral-storage ceilings.
-  implementation_surface: Pod spec emptyDir sizeLimit settings, ephemeral-storage requests and limits, and namespace quota or policy objects governing scratch-space consumption.
+  primary_enforcement_point: Pod specification validation, namespace ResourceQuota admission, kubelet local storage measurement and eviction, and node capacity monitoring.
+  implementation_surface: Require disk-backed emptyDir sizeLimit and per-container ephemeral-storage declarations. Apply namespace quotas to declared requests and limits. Verify node filesystem accounting and observe the expected volume-specific eviction using a bounded test. Use separate memory accounting or storage-provider evidence for alternative scratch volumes.
   owner_primary: AI/ML Platform team
   owner_supporting: Platform Engineering; Security Engineering
   baseline_or_ai_specific: baseline
