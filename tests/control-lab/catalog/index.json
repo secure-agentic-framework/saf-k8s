@@ -672,6 +672,12 @@
       "sha256": "af079df34c0017c17d4a8664bcc9a63ec0c6dcce4b906f9ec4510c207c99acc7",
       "title": "AI workload resource exhaustion guardrails"
     },
+    "SAF-K8S-0703-007": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "5de6399d8efc138f2a9f36c76a526537296fde2f9ea0d0aa4a4f1522a3dd98bc",
+      "title": "Fair-share GPU queue management for multi-tenant clusters"
+    },
     "SAF-K8S-0703-008": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -698,7 +704,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "cd9fa8d5a2e6116064af0c2837da31ef6b0b9a3d",
+  "revision": "ad7d65f831f15a9439283dcec101c81e146e150c",
   "sha256": "a686bfbe52cded89985495c3a14f05eb580c3499b772f2473beb3accc1c99e38",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

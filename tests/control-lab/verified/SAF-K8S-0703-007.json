@@ -1,0 +1,85 @@
+{
+  "control_id": "SAF-K8S-0703-007",
+  "catalog_revision": "a9eef518e77909c0a258d716a4a0a1b50be8f10d",
+  "catalog_sha256": "d0505b3cef6e27ac3451a0998acf0350819409280331edf48be9cfacfd4f73a7",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "5de6399d8efc138f2a9f36c76a526537296fde2f9ea0d0aa4a4f1522a3dd98bc",
+  "scope": "Kueue v0.20.6 controller with Fair Sharing and two single-unit quotas, on disposable kind Kubernetes v1.36.1. Three owned Kubernetes Jobs request only an unallocated synthetic resource. Kueue admission and reclamation are inspected, including the recovered nominal unit and queued overage. Actual devices and placement, broad fairness, access control and production integrations require separate evidence.",
+  "cluster": "saf-lab-41acecbb0a64",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The release manifest digest and pinned controller image are retained",
+      "matched": true,
+      "observed": {
+        "release": "v0.20.6",
+        "manifest_digest": "b5f643595cfe4799b47acd3499f535fb7137af1dd734a5a66ed67a4fe9f9e466",
+        "image_digest": "20465f0e56a4eed90ec07fa7838866a90f7b6890c0adc84be86aaee307a6744a"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "At full quota with reclamation disabled, team B remains pending while team A borrows",
+      "matched": true,
+      "observed": {
+        "team_a": {
+          "reservations": 2,
+          "borrowed_units": "1",
+          "weighted_share_positive": true
+        },
+        "team_b_quota_pending": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Enabling reclamation admits the same waiting Job and releases the borrowed unit",
+      "matched": true,
+      "observed": {
+        "a-baseline": true,
+        "a-borrowed": false,
+        "b-demand": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both queues keep one admission while no synthetic Pod has a bound node",
+      "matched": true,
+      "observed": {
+        "team_a_retained_nominal": true,
+        "team_b_reclaimed_nominal": true,
+        "bound_pods": 0
+      }
+    }
+  ]
+}
