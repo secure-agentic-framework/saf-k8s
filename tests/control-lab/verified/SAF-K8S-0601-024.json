@@ -1,0 +1,103 @@
+{
+  "control_id": "SAF-K8S-0601-024",
+  "catalog_revision": "0daee82318101a0222e69db536bfbfabf8d0dd02",
+  "catalog_sha256": "0413020e18d66946895828d49eadcf20c43b72150355a385006f2541fb7f03c9",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "ff47361e188d8ba90439351dc0aea68fad4f40f6edeb660c5e8b8705a048317f",
+  "scope": "One fresh Kubernetes v1.36.1 kind node and a dedicated Docker network attached only to that node and the fixture registry. A digest-pinned synthetic BusyBox image is pushed to a temporary authenticated loopback registry, pulled by kubelet into that node's cache, then challenged with imagePullPolicy Never under effective KubeletEnsureSecretPulledImages=true and AlwaysVerify. The no-identity Pod must remain container-free with ErrImageNeverPull; a Pod with the exact same synthetic registry identity must reuse the cached digest without registry manifest/blob access. Does not test provider configuration, rotation, revocation, multi-node behavior, preloaded images, or weaker policies.",
+  "cluster": "saf-lab-1ba2f1c07e14",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The owned node does not already cache the exact seeded registry digest",
+      "matched": true,
+      "observed": {
+        "exact_digest_already_cached": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Authenticated kubelet pull fetches and starts the exact pinned fixture",
+      "matched": true,
+      "observed": {
+        "pod_ready": true,
+        "image_id_matches_digest": true,
+        "registry_manifest_get_200": true,
+        "registry_blob_get_200": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact immutable registry digest is present in the owned node cache",
+      "matched": true,
+      "observed": {
+        "digest_cached": true,
+        "digest_format": "sha256"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Strict cached-only request without the required synthetic identity stays container-free",
+      "matched": true,
+      "observed": {
+        "phase": "Pending",
+        "expected_kubelet_event": true,
+        "expected_waiting_reason": true,
+        "container_started": false,
+        "registry_manifest_or_blob_request": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same authorized identity starts the exact cached digest without a registry pull",
+      "matched": true,
+      "observed": {
+        "pod_ready": true,
+        "image_id_matches_digest": true,
+        "image_id_unchanged_since_initial_pull": true,
+        "registry_manifest_or_blob_request": false,
+        "image_pull_policy": "Never"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The case removes its temporary authenticated registry and bridge",
+      "matched": true,
+      "observed": {
+        "registry_removed": true,
+        "network_removed": true
+      }
+    }
+  ]
+}

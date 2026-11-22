@@ -546,6 +546,12 @@
       "sha256": "04cc778ba6819ddff6fcfc42bfb116483847023a8acbd316aeb46c631377fa2a",
       "title": "Image pull credential automatic rotation and expiry reduction"
     },
+    "SAF-K8S-0601-024": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "ff47361e188d8ba90439351dc0aea68fad4f40f6edeb660c5e8b8705a048317f",
+      "title": "Kubelet authorization for cached private images"
+    },
     "SAF-K8S-0701-001": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -782,7 +788,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "91c386e080013e96545d181b06ab6627a28efe49",
-  "sha256": "55d11d8e8dc02459415206ace46a423bd1a0cc8fc11c2a17ddda6bffda944ead",
+  "revision": "2df64cdcd3257678cd66334301ac6c8b5f087af7",
+  "sha256": "4f3af75103b61d50fe765d3e9d09c52723867f4f4190370ee68a390ba14fad90",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
