@@ -1,0 +1,191 @@
+{
+  "control_id": "SAF-K8S-0702-005",
+  "catalog_revision": "d3578710406221046942a7437b7726308c7015b3",
+  "catalog_sha256": "2c939594d57db831d028cf98022701e2580ed633aed4608b27bfb82196524934",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "0db14d0091bd6b67693376abbd7542ed4acf756af8cef861aaa6b72a15cacc8a",
+  "scope": "Kubernetes v1.36.1 ValidatingAdmissionPolicy CREATE enforcement on synthetic Pods for presence and enumerated values of the three minimum SAF-K8S-0702-005 labels; native label-selector inventory of benign classified Pods; and an actual ResourceQuota API request verifying supported scopeSelector names. Does not test annotations, controller templates, namespace enrollment, scheduling, NetworkPolicy traffic, audit backend filtering, or organizational governance.",
+  "cluster": "saf-lab-db93a9b17144",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Without the policy the API accepts each absent and wrong category probe",
+      "matched": true,
+      "observed": [
+        {
+          "category": "ai.kais.io/workload-type",
+          "variant": "absent",
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "category": "ai.kais.io/workload-type",
+          "variant": "wrong",
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "category": "ai.kais.io/data-sensitivity",
+          "variant": "absent",
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "category": "ai.kais.io/data-sensitivity",
+          "variant": "wrong",
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "category": "ai.kais.io/model-tier",
+          "variant": "absent",
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "category": "ai.kais.io/model-tier",
+          "variant": "wrong",
+          "accepted": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "phase": "green",
+      "claim": "The policy denies each absent and wrong category with its exact message",
+      "matched": true,
+      "observed": [
+        {
+          "category": "ai.kais.io/workload-type",
+          "variant": "absent",
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": pods \"red-absent-0\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-005-classification' with binding 'saf-k8s-0702-005-classification' denied request: all three AI workload classification labels must be present and use governed values"
+        },
+        {
+          "category": "ai.kais.io/workload-type",
+          "variant": "wrong",
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": pods \"red-wrong-1\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-005-classification' with binding 'saf-k8s-0702-005-classification' denied request: all three AI workload classification labels must be present and use governed values"
+        },
+        {
+          "category": "ai.kais.io/data-sensitivity",
+          "variant": "absent",
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": pods \"red-absent-2\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-005-classification' with binding 'saf-k8s-0702-005-classification' denied request: all three AI workload classification labels must be present and use governed values"
+        },
+        {
+          "category": "ai.kais.io/data-sensitivity",
+          "variant": "wrong",
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": pods \"red-wrong-3\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-005-classification' with binding 'saf-k8s-0702-005-classification' denied request: all three AI workload classification labels must be present and use governed values"
+        },
+        {
+          "category": "ai.kais.io/model-tier",
+          "variant": "absent",
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": pods \"red-absent-4\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-005-classification' with binding 'saf-k8s-0702-005-classification' denied request: all three AI workload classification labels must be present and use governed values"
+        },
+        {
+          "category": "ai.kais.io/model-tier",
+          "variant": "wrong",
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": pods \"red-wrong-5\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-005-classification' with binding 'saf-k8s-0702-005-classification' denied request: all three AI workload classification labels must be present and use governed values"
+        }
+      ]
+    },
+    {
+      "phase": "positive",
+      "claim": "Every enumerated value remains admissible in its own category",
+      "matched": true,
+      "observed": {
+        "ai.kais.io/workload-type": [
+          "training",
+          "inference",
+          "preprocessing",
+          "evaluation",
+          "notebook"
+        ],
+        "ai.kais.io/data-sensitivity": [
+          "public",
+          "internal",
+          "confidential",
+          "restricted"
+        ],
+        "ai.kais.io/model-tier": [
+          "experimental",
+          "staging",
+          "production"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A permitted governed inference Pod is admitted",
+      "matched": true,
+      "observed": "created"
+    },
+    {
+      "phase": "positive",
+      "claim": "A second benign governed class is admitted",
+      "matched": true,
+      "observed": "created"
+    },
+    {
+      "phase": "positive",
+      "claim": "A native label selector supports benign classification inventory",
+      "matched": true,
+      "observed": {
+        "selector": "ai.kais.io/workload-type=inference",
+        "selected": [
+          "permitted-inference"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The API rejects a custom classification label as a ResourceQuota scope",
+      "matched": true,
+      "observed": {
+        "rejected": true,
+        "detail": "The ResourceQuota \"classification-quota\" is invalid: spec.scopeSelector.matchExpressions.scopeName: Invalid value: \"ai.kais.io/workload-type\": unsupported scope"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same API accepts a built-in PriorityClass quota scope",
+      "matched": true,
+      "observed": "created"
+    }
+  ]
+}

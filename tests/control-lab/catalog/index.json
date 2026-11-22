@@ -282,6 +282,12 @@
       "sha256": "743ba4dc1ccb2d103c65e896df107dd37bce0d4a00147058205f7dcfa56c494f",
       "title": "LimitRange enforcement for containers and pods"
     },
+    "SAF-K8S-0702-005": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "0db14d0091bd6b67693376abbd7542ed4acf756af8cef861aaa6b72a15cacc8a",
+      "title": "Label and annotation schema definition for AI workload classification"
+    },
     "SAF-K8S-0702-009": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -290,7 +296,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "1282741b42d1de603d1678ab9e5b8dd197e7451c",
-  "sha256": "aefc685b3b821305b42ce28f3c1614edc0bed7ccef3e0ffa1004fa9e0cfc902c",
+  "revision": "82510f84edd5d4cb9b469c439f2d9f5499bb1a3b",
+  "sha256": "9f9e3cc89f794f7a68ab8e4f68d5b2986cb82260f619661711b44a8bd98e9255",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
