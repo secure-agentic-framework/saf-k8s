@@ -1452,6 +1452,12 @@
       "sha256": "38d28244aa90f72f7b03613ca9c5461dc5f3bf4b9ff6ea8bde338c066c9f1802",
       "title": "Secure AI workload decommissioning"
     },
+    "SAF-K8S-1007-007": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "4cd30960a684800bed363d14247e132b2adb54a88f1aca2e3bd035568aaa23c4",
+      "title": "Cluster service protection from AI training resource exhaustion"
+    },
     "SAF-K8S-1007-017": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1460,7 +1466,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "3479f7a843adf184646a59e6863da69d4f9fdf4b",
+  "revision": "8cc3c8c629aab5df8fda9fca5734fc63f271360d",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

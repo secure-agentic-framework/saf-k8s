@@ -1,0 +1,148 @@
+{
+  "control_id": "SAF-K8S-1007-007",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "4cd30960a684800bed363d14247e132b2adb54a88f1aca2e3bd035568aaa23c4",
+  "scope": "One disposable Kind v1.36.1 cluster. A small server-side dry-run Pod request is compared before and after a namespace CPU/memory ResourceQuota; a second request at the remaining declared budget is admitted. Two case-owned PriorityClasses are read back and resolved onto dry-run Pods, with preemption disabled. One tokenless, low-resource HTTP fixture Pod is observed Ready and read through the Kubernetes API Service proxy before and after quota checks, and looks up the exact in-cluster Kubernetes Service via CoreDNS. This does not create pressure or simulate training. It does not demonstrate actual scheduler ordering under contention, protection of built-in control-plane components, CoreDNS resolution latency, real metrics scrape success, log forwarding lag, node/network capacity, or production service availability.",
+  "cluster": "saf-lab-8f74a67cbb32",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Case-owned priority metadata declares shared service above training, without preemption",
+      "matched": true,
+      "observed": {
+        "shared_value": 1000,
+        "training_value": 10,
+        "both_nonpreempting": true,
+        "neither_global_default": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without a namespace quota, the small synthetic training request reaches admission",
+      "matched": true,
+      "observed": {
+        "server_side_dry_run_admitted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "before quota enforcement: the steady fixture serves its marker and resolves the exact in-cluster Service",
+      "matched": true,
+      "observed": {
+        "pod_ready": true,
+        "http_marker_matches": true,
+        "pod_uid_present": true,
+        "cluster_dns_matches_service_address": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The namespace quota readback matches the fixed small budget",
+      "matched": true,
+      "observed": {
+        "cpu": "20m",
+        "memory": "32Mi"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Quota usage readback accounts for only the steady fixture before probes",
+      "matched": true,
+      "observed": {
+        "used_cpu": "5m",
+        "used_memory": "8Mi"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "ResourceQuota refuses a request that exceeds the declared CPU budget",
+      "matched": true,
+      "observed": {
+        "server_side_dry_run_denied_by_named_quota": true,
+        "detail_is_quota_refusal": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The named quota separately refuses an over-budget memory request",
+      "matched": true,
+      "observed": {
+        "rejected_by_named_memory_quota": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The request at the remaining declared budget is admitted with resolved low non-preempting priority",
+      "matched": true,
+      "observed": {
+        "server_side_dry_run_admitted_at_budget": true,
+        "resolved_priority_matches": true,
+        "training_class_matches": true,
+        "preemption_disabled": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "after quota refusal and bounded admission probes: the steady fixture serves its marker and resolves the exact in-cluster Service",
+      "matched": true,
+      "observed": {
+        "pod_ready": true,
+        "http_marker_matches": true,
+        "pod_uid_present": true,
+        "cluster_dns_matches_service_address": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same healthy Pod remains and the dry-run requests created no training Pods",
+      "matched": true,
+      "observed": {
+        "same_steady_fixture": true,
+        "training_pods_created": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The steady fixture resolves to the higher declared shared-service priority",
+      "matched": true,
+      "observed": {
+        "priority_class_matches": true,
+        "resolved_priority_matches": true,
+        "pod_uid_present": true
+      }
+    }
+  ]
+}
