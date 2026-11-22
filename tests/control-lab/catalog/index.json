@@ -255,7 +255,7 @@
     "SAF-K8S-0201-016": {
       "catalog_status": "draft",
       "domain": "D02",
-      "sha256": "2a8f19ff34bea92b673b38b66a7da7b5c61895b51ea8d6e247337b27f4e9f8b0",
+      "sha256": "a597f842f5f1542ef4478dff8aeab578c264f71d00165b9d42bc2ca7cf66e3a9",
       "title": "Node audit log forwarding and centralized reviewability"
     },
     "SAF-K8S-0202-002": {
@@ -608,7 +608,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "d4c0ce9b6734d38fdbb15f96d9565abdc578afc4",
-  "sha256": "3ed268d0af87045a4b0eafc53b91df6d67cf9f5daeb4e96054b43f1b09b92199",
+  "revision": "a2965318971d7e09d2e27170358f32f7422b157a",
+  "sha256": "4967f071e880774746bffe0d766c8568b2787069d414141da3ee644cbb79acb5",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

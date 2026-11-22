@@ -23,3 +23,14 @@ operational search and alerting, and recurring verification across the node flee
 
 - [Linux Audit upstream forwarding plugin](https://github.com/linux-audit/audit-userspace/blob/v4.2.1/audisp/plugins/remote/audisp-remote.c)
 - [Kubernetes v1.36 PersistentVolumes](https://v1-36.docs.kubernetes.io/docs/concepts/storage/persistent-volumes/)
+
+## Recurring coverage check
+
+Catalog revision `fa9a3453e00f492e65dbb3989a28fc2dfc81b272` adds a control-plane node and worker
+fixture. A scheduled check initially reports no per-node markers. A DaemonSet
+then forwards one inert marker per node. Two consecutive CronJob runs query
+the central receiver and report full fixture coverage. The harness verifies
+distinct controller-issued schedule timestamps.
+
+- [Kubernetes v1.36 DaemonSets](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/daemonset/)
+- [Kubernetes v1.36 CronJobs](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/)

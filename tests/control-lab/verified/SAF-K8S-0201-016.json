@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0201-016",
-  "catalog_revision": "7e2e05c327f54bcc2c6aefd64c255880a81ce7c9",
-  "catalog_sha256": "df105e4d2453b18902086552ec1bae50b698ff889053abd168a340c3f200169b",
+  "catalog_revision": "fa9a3453e00f492e65dbb3989a28fc2dfc81b272",
+  "catalog_sha256": "d98630c766a3bfb70f424b430030b470b1341bbd69098d9f467132b2d3b67b9c",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "2a8f19ff34bea92b673b38b66a7da7b5c61895b51ea8d6e247337b27f4e9f8b0",
-  "scope": "One disposable kind cluster runs a nonroot Python forwarder with one inert synthetic event and a private ClusterIP fixture receiver backed by a disposable PVC. Observes an HTTP 503, automatic retry and delivery after receiver recovery, then restarts the receiver and queries the sink for the retained event. Does not generate Linux Audit events, configure host auditd or node agents, prove production retention/review/alerting, or cover a fleet.",
-  "cluster": "saf-lab-f9cc3d1dcac7",
+  "control_sha256": "a597f842f5f1542ef4478dff8aeab578c264f71d00165b9d42bc2ca7cf66e3a9",
+  "scope": "Disposable v1.36.1 two-node kind cluster. A synthetic audit forwarder exercises outage, retry and receiver PVC retention. A DaemonSet sends one inert marker per fixture node, and owned CronJob runs monitor sink coverage across scheduled boundaries. Production audit agent behavior, retention periods, secure transport, deployment coverage and alert delivery stay open.",
+  "cluster": "saf-lab-c0a2ccdbf219",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -38,6 +38,14 @@
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
+    {
+      "phase": "positive",
+      "claim": "The recapture check has independent control-plane and worker nodes",
+      "matched": true,
+      "observed": {
+        "fixture_nodes": 2
+      }
+    },
     {
       "phase": "positive",
       "claim": "The sink uses a bound disposable PVC and has a nonroot tokenless pod",
@@ -111,6 +119,40 @@
       "observed": {
         "query_event_count_after_restart": 1,
         "matches_fixture": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The scheduled sink check reports both missing node markers before canary deployment",
+      "matched": true,
+      "observed": {
+        "missing_count": 2,
+        "node_count": 2,
+        "received_count": 0,
+        "unexpected_count": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A scheduled sink check finds one acknowledged marker for each node",
+      "matched": true,
+      "observed": {
+        "missing_count": 0,
+        "node_count": 2,
+        "received_count": 2,
+        "unexpected_count": 0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A later CronJob execution retrieves both retained node markers",
+      "matched": true,
+      "observed": {
+        "missing_count": 0,
+        "node_count": 2,
+        "received_count": 2,
+        "unexpected_count": 0,
+        "new_scheduled_slot": true
       }
     }
   ]
