@@ -1,0 +1,11 @@
+{
+  "fixture_type": "synthetic-fixed-approval",
+  "approval_status": "approved",
+  "change_id": "fixture-rollback-v2-to-v1",
+  "from_version": "saf-workflow-v2",
+  "from_sha256": "34c04a46bccefdb795cbd242de3f8f14d0402e7bdb89ddd29fd017b3daf7d7d6",
+  "to_version": "saf-workflow-v1",
+  "to_sha256": "8f0ad4b0c115653642fb6d75513462014f5ec607bbabce022febfc40228bcd96",
+  "approved_by": ["fixture-ml-platform-owner", "fixture-security-reviewer"],
+  "approved_at": "2026-11-20T12:00:00Z"
+}

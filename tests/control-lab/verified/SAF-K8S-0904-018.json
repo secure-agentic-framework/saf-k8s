@@ -1,0 +1,111 @@
+{
+  "control_id": "SAF-K8S-0904-018",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "37c58febf4ccbd90e7926bb64dd47a877b3a494325dfb1c6c728fd592988646c",
+  "scope": "One disposable Kind Kubernetes v1.36.1 cluster and the runner's saf-test namespace. This case retains the mutable-to-immutable ConfigMap and scoped-RBAC version checks, and adds a native admissionregistration.k8s.io/v1 ValidatingAdmissionPolicy with a namespaced core/v1 ConfigMap parameter and ValidatingAdmissionPolicyBinding. The policy matches only UPDATEs to the saf-test ConfigMap named saf-workflow-active and enforces one exact CAS-style v2-to-v1 rollback using the old pointer state, target name/UID/digest, and change ID. Approval values and workflow strings are synthetic inert fixtures. No Pods or workflow executions are created. Production approval authority, policy administration, audit retention, platform integration, and privileged administrator paths remain untested.",
+  "cluster": "saf-lab-94d3d6d8d029",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The operator can patch a mutable version and the pre-policy server-side delete dry-run is allowed",
+      "matched": true,
+      "observed": {
+        "mutable_version_patch_succeeded": true,
+        "server_dry_run_delete_allowed": true,
+        "dry_run_preserved_version": true,
+        "immutable_api_rejected_patch_under_write_capable_role": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before admission policy is bound, the same mismatched rollback patch is accepted by server dry-run and persists no change",
+      "matched": true,
+      "observed": {
+        "server_dry_run_accepted": true,
+        "pointer_unchanged_after_dry_run": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The bound admission policy denies the identical mismatched rollback with its exact Forbidden reason and message",
+      "matched": true,
+      "observed": {
+        "mismatched_patch_denied": true,
+        "named_policy_rejection": true,
+        "named_binding_rejection": true,
+        "forbidden_reason": true,
+        "exact_approval_message": true,
+        "pointer_unchanged_after_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The requesting identity can read but cannot patch, replace, or delete the immutable approval parameter",
+      "matched": true,
+      "observed": {
+        "parameter_read_succeeded": true,
+        "patch_denied": true,
+        "update_denied": true,
+        "delete_denied": true,
+        "parameter_still_present": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The narrowed Role denies retained-version patch/delete and the occupied version name cannot be recreated",
+      "matched": true,
+      "observed": {
+        "retained_version_patch_denied": true,
+        "retained_version_delete_denied": true,
+        "same_name_create_conflicted": true,
+        "retained_version_content_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Exact approved CAS rollback succeeds and the original immutable v1 content and UID remain present",
+      "matched": true,
+      "observed": {
+        "new_immutable_version_allowed": true,
+        "approved_rollback_allowed": true,
+        "active_pointer_targets_approved_version": true,
+        "retained_immutable_content_present": true,
+        "cas_resource_version_supplied": true,
+        "resource_version_advanced": true
+      }
+    }
+  ]
+}
