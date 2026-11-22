@@ -684,6 +684,12 @@
       "sha256": "61aa06e22bf3ff24752dc5ad98ea2c3da841db9893153ec159d5551eafba0145",
       "title": "Build environment and process attestations"
     },
+    "SAF-K8S-0605-002": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "d9a51450beb3e7fbeaa906f62c8b817b17aca389da3e974ea9e1361d9dc3a090",
+      "title": "Kyverno admission policies"
+    },
     "SAF-K8S-0605-006": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -950,7 +956,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "a76cd4443524b0f06fd3823d76389c242f3e9eb6",
-  "sha256": "1c3e887718db72c39815b9f3a4dc584599be17811f60780fda5744bdf21de8ea",
+  "revision": "01217bcc4977df78eee7dd7e80b6e7f768d35e8a",
+  "sha256": "7040d542bd8a9bd9ca065187dad4aff313fb7abb9bf050f8b306132f8b696fa7",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

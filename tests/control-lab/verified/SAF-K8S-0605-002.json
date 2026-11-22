@@ -1,0 +1,151 @@
+{
+  "control_id": "SAF-K8S-0605-002",
+  "catalog_revision": "712ff2cd08322bfc77e3061a70aea50b53250333",
+  "catalog_sha256": "44255fd8a87d3147ab0d1d64d71c71ce3ca6d901b304f2df73c21d720d91bb48",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "d9a51450beb3e7fbeaa906f62c8b817b17aca389da3e974ea9e1361d9dc3a090",
+  "scope": "One fresh disposable Kubernetes v1.36.1 Kind cluster and Kyverno v1.20.0 from Helm chart 3.10.0. A cluster-scoped GeneratingPolicy reacts only to the case namespace label; namespaced ValidatingPolicy and MutatingPolicy apply only to Pods in saf-0605-002. The case records one persisted Audit violation and its exact PolicyReport, changes that policy to Deny, checks the exact admission denial, and compares compliant and out-of-scope Pods. It checks a positive server-dry-run mutation and one inert generated ConfigMap companion. Signature verification is outside executable scope: the runner lacks Cosign and an owned registry/signing workflow. No image signature or attestation claim is established.",
+  "cluster": "saf-lab-22e43fb42195",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Disposable API server is Kubernetes v1.36.1",
+      "matched": true,
+      "observed": {
+        "server": "v1.36.1"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Kyverno controller workloads use their pinned v1.20.0 images",
+      "matched": true,
+      "observed": {
+        "chart": "3.10.0",
+        "images": [
+          "reg.kyverno.io/kyverno/background-controller:v1.20.0",
+          "reg.kyverno.io/kyverno/cleanup-controller:v1.20.0",
+          "reg.kyverno.io/kyverno/kyverno:v1.20.0",
+          "reg.kyverno.io/kyverno/reports-controller:v1.20.0"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Scoped GeneratingPolicy creates its inert ConfigMap companion",
+      "matched": true,
+      "observed": {
+        "resource": "saf-0605-002-companion",
+        "generated_by_label": "saf-0605-002-namespace-companion"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Kyverno v1.20 explicitly rejects creation of the legacy policy",
+      "matched": true,
+      "observed": {
+        "legacy_write_explicitly_retired": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Legacy Enforce policy cannot supply this label admission check on Kyverno v1.20",
+      "matched": true,
+      "observed": {
+        "noncompliant_dry_run_admitted": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Same-policy noncompliant Pod is admitted in Audit mode with exact report evidence",
+      "matched": true,
+      "observed": {
+        "admitted_in_audit": true,
+        "policy": "saf-0605-002-pod-baseline",
+        "result": "fail",
+        "message": "SAF-K8S-0605-002: pod requires label saf-k8s.example/required=yes and spec.securityContext.runAsNonRoot=true",
+        "resource": "saf-0605-002-audit-violation"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Scoped Enforce change rejects the violation with its exact message",
+      "matched": true,
+      "observed": {
+        "denied": true,
+        "kyverno_webhook_denied": true,
+        "policy_named": true,
+        "exact_violation": true,
+        "correct_namespace": "saf-0605-002"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "MutatingPolicy adds label and pod security defaults before validation",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "mutation_observed": true,
+        "labels": {
+          "saf-k8s.example/case": "0605-002",
+          "saf-k8s.example/mutated": "true",
+          "saf-k8s.example/required": "yes"
+        },
+        "security_context": {
+          "runAsNonRoot": true,
+          "seccompProfile": {
+            "type": "RuntimeDefault"
+          }
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Compliant Pod remains admitted under Enforce",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "server_side_dry_run": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Same violation remains outside the namespaced policy scope",
+      "matched": true,
+      "observed": {
+        "admitted_outside_scope": true,
+        "server_side_dry_run": true
+      }
+    }
+  ]
+}
