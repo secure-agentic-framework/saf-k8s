@@ -666,6 +666,12 @@
       "sha256": "af079df34c0017c17d4a8664bcc9a63ec0c6dcce4b906f9ec4510c207c99acc7",
       "title": "AI workload resource exhaustion guardrails"
     },
+    "SAF-K8S-0703-009": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "df9676b245101c7ce180a52c86a0bd94a9ed66cbca1d850b89808aab2a5e7ad1",
+      "title": "GPU spending limits and budget enforcement"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -680,7 +686,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "458d8970b967698eae9d074aca884f6c5197d63b",
+  "revision": "b19abebadffe5419808cf91af804c2f0d7c6618d",
   "sha256": "a686bfbe52cded89985495c3a14f05eb580c3499b772f2473beb3accc1c99e38",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
