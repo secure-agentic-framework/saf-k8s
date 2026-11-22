@@ -1074,6 +1074,12 @@
       "sha256": "67e00241dc26408714fe94fa0d80f54c405bd2bc6f6b17bf54b793fb3610b1db",
       "title": "PII redaction and sensitive payload minimization for inference logs"
     },
+    "SAF-K8S-1001-016": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "924a35ff7db737483a58b39af2f57d1864bf4d955f0d945a5f7229ab57070a5c",
+      "title": "Audit policy coverage for AI-specific resource and workflow events"
+    },
     "SAF-K8S-1001-026": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1154,7 +1160,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ce60259b4bde899b984521f394862582cf418bbf",
+  "revision": "bf941deee7bc783d71d83b9a5a23cad6a82418e0",
   "sha256": "5468afd7544aceb8f79e434b7d58a52fc41eeee0b3084837f4dc587efc72cace",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

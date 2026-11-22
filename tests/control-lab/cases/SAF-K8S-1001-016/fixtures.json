@@ -1,0 +1,77 @@
+{
+  "namespace": "saf-1001-016",
+  "marker_values": [
+    "red-inert",
+    "green-inert",
+    "updated",
+    "inert"
+  ],
+  "families": [
+    {
+      "id": "ai-crd",
+      "group": "models.saf-fixture.invalid",
+      "kind": "ModelRecord",
+      "plural": "modelrecords",
+      "name": "fixture-model"
+    },
+    {
+      "id": "training-pipeline",
+      "group": "workflows.saf-fixture.invalid",
+      "kind": "TrainingRun",
+      "plural": "trainingruns",
+      "name": "fixture-training",
+      "also": {
+        "kind": "PipelineRun",
+        "plural": "pipelineruns",
+        "name": "fixture-pipeline"
+      }
+    },
+    {
+      "id": "gpu-resource",
+      "group": "devices.saf-fixture.invalid",
+      "kind": "GpuClaim",
+      "plural": "gpuclaims",
+      "name": "fixture-gpu-claim"
+    },
+    {
+      "id": "model-serving",
+      "group": "serving.saf-fixture.invalid",
+      "kind": "ServingDeployment",
+      "plural": "servingdeployments",
+      "name": "fixture-serving"
+    },
+    {
+      "id": "checkpoint-snapshot",
+      "group": "artifacts.saf-fixture.invalid",
+      "kind": "ModelCheckpoint",
+      "plural": "modelcheckpoints",
+      "name": "fixture-checkpoint",
+      "also": {
+        "kind": "ModelSnapshot",
+        "plural": "modelsnapshots",
+        "name": "fixture-snapshot"
+      }
+    }
+  ],
+  "controls": {
+    "broad_fallback": "fallback-configmap-control",
+    "red_policy_positive": "red-audit-control",
+    "negative_resource_name": "negative-scope-control"
+  },
+  "selector_probes": [
+    {
+      "id": "unlisted-resource",
+      "group": "models.saf-fixture.invalid",
+      "kind": "ModelNote",
+      "plural": "modelnotes",
+      "name": "unlisted-resource"
+    },
+    {
+      "id": "unlisted-group",
+      "group": "other.saf-fixture.invalid",
+      "kind": "ModelRecordShadow",
+      "plural": "modelrecords",
+      "name": "unlisted-group"
+    }
+  ]
+}
