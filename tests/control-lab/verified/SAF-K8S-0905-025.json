@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-025",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "d275b7eca463198524d4ef5b099d7dd1d1babb67",
+  "catalog_sha256": "f7feaa3ec934689365c021fd96c8741f716cc0bd9d55b9a382208b310d3344b5",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "07f137c5f6096b60bfdddc60b2a9cc41959fecadbdd0ec2bf33082e1c5bd2bef",
+  "control_sha256": "1cacba9c6e0a6b7faba354f263e71920e4055453ab92d7270c5cf4d52054300c",
   "scope": "Kubernetes v1.36.1 native ValidatingAdmissionPolicy on updates to one synthetic ConfigMap release record. Two independently authenticated, short-lived ServiceAccount tokens represent the case developer and an approved reviewer. The policy binds the approver field to request.userInfo.username, preserves the original proposer and fixed release ID, denies developer self-approval, and permits the distinct reviewer to persist the same approval decision. This does not exercise a model registry, production promotion controller, human identity provider, quorum, cross-tenant workflow, artifact verification, or model execution.",
-  "cluster": "saf-lab-81f4ff44b476",
+  "cluster": "saf-lab-ccc82602f6bc",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

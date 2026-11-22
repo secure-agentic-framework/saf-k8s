@@ -1281,7 +1281,7 @@
     "SAF-K8S-0905-025": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "07f137c5f6096b60bfdddc60b2a9cc41959fecadbdd0ec2bf33082e1c5bd2bef",
+      "sha256": "1cacba9c6e0a6b7faba354f263e71920e4055453ab92d7270c5cf4d52054300c",
       "title": "Separation of duties enforcement for model promotion approvals"
     },
     "SAF-K8S-0905-050": {
@@ -1772,7 +1772,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6a4c47e5450cd7291f341bf4cc29f20b6a1b57d9",
-  "sha256": "7ffb43067ed3adc487f9f2d6a997c6ea1768540997726fe36991eb41516053ea",
+  "revision": "79d2cc6e1284c27af1b7adeb1125dfa75970ea57",
+  "sha256": "6d92dc4241cfab0152a84b60f7e999d80a82f00ad7cadd178658b2938e801fda",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
