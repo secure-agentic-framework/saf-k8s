@@ -1,0 +1,92 @@
+{
+  "fixture_only": true,
+  "fixture_notice": "All identifiers, roles, priorities, findings, dates, payloads, and evidence references are synthetic reserved placeholders. No real person, incident, workload, feed, or target is represented.",
+  "exercise_record": {
+    "control_id": "SAF-K8S-1005-014",
+    "exercise_id": "SYNTH-EXERCISE-1005-014-01",
+    "fixture_only": true,
+    "record_type": "inert-recovery-review",
+    "recovery_plan": {
+      "plan_id": "SYNTH-RECOVERY-PLAN-1005-014-01",
+      "review": {
+        "status": "approved",
+        "reviewer": "urn:example:saf:role:independent-reviewer",
+        "approval_ref": "urn:example:saf:approval:recovery-plan-001"
+      },
+      "assets": [
+        {
+          "id": "runtime-config",
+          "configmap": "saf1005014-runtime-config",
+          "business_priority": 0,
+          "criticality_basis": "Synthetic shared prerequisite for the mock service records",
+          "depends_on": []
+        },
+        {
+          "id": "inference-state",
+          "configmap": "saf1005014-inference-state",
+          "business_priority": 1,
+          "criticality_basis": "Synthetic highest-priority service state in this exercise",
+          "depends_on": ["runtime-config"]
+        },
+        {
+          "id": "training-cache",
+          "configmap": "saf1005014-training-cache",
+          "business_priority": 3,
+          "criticality_basis": "Synthetic lower-priority, nonessential exercise cache",
+          "depends_on": ["runtime-config"]
+        }
+      ],
+      "reviewed_order": ["runtime-config", "inference-state", "training-cache"]
+    },
+    "lessons_learned": {
+      "finding_id": "SYNTH-FINDING-1005-014-01",
+      "finding": "The prior mock exercise did not make prerequisite order explicit in its restoration plan.",
+      "improvement_action": {
+        "action_id": "SYNTH-IMPROVEMENT-1005-014-01",
+        "action": "Update the mock recovery playbook with reviewed business priorities and prerequisite ordering.",
+        "owner": "urn:example:saf:role:platform-engineering",
+        "due": "2026-11-30",
+        "status": "implemented",
+        "verification_ref": "urn:example:saf:evidence:improvement-check-001"
+      },
+      "playbook_revision": {
+        "version": "mock-recovery-v2",
+        "improvement_id": "SYNTH-IMPROVEMENT-1005-014-01"
+      }
+    }
+  },
+  "preparedness_playbook": {
+    "control_id": "SAF-K8S-1005-014",
+    "fixture_only": true,
+    "version": "mock-recovery-v2",
+    "review_status": "approved",
+    "reviewer": "urn:example:saf:role:independent-reviewer",
+    "source_finding": "SYNTH-FINDING-1005-014-01",
+    "source_improvement": "SYNTH-IMPROVEMENT-1005-014-01",
+    "recovery_order": ["runtime-config", "inference-state", "training-cache"],
+    "ordered_steps": [
+      "Restore the exact shared mock runtime ConfigMap prerequisite.",
+      "Restore the exact mock inference state after its prerequisite is observable.",
+      "Restore the exact lower-priority mock training cache after its prerequisite is observable."
+    ]
+  },
+  "configmaps": {
+    "runtime-config": {
+      "purpose": "synthetic shared runtime prerequisite",
+      "fixture_id": "SYNTH-RESOURCE-1005-014-RUNTIME-01",
+      "config_revision": "mock-runtime-v1"
+    },
+    "inference-state": {
+      "purpose": "synthetic high-priority mock service state",
+      "fixture_id": "SYNTH-RESOURCE-1005-014-INFERENCE-01",
+      "required_configmap": "saf1005014-runtime-config",
+      "state": "ready-fixture"
+    },
+    "training-cache": {
+      "purpose": "synthetic lower-priority mock cache",
+      "fixture_id": "SYNTH-RESOURCE-1005-014-TRAINING-01",
+      "required_configmap": "saf1005014-runtime-config",
+      "state": "ready-fixture"
+    }
+  }
+}

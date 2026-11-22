@@ -1,0 +1,137 @@
+{
+  "control_id": "SAF-K8S-1005-014",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "4c0737d153609efcddec9ce20a39fa5948a3d580967db031d78bcc8e80dce2ee",
+  "scope": "One disposable Kind v1.36.1 cluster, one inert synthetic exercise record, one mock recovery playbook, and three case-owned ConfigMaps. Checks a reviewed dependency-aware restoration order and a tracked lesson linked to a revised playbook, then restores only exact fixture ConfigMap payloads in saf-test. No production workload, external target, feed, or incident data is used. This does not establish an organization's business-impact criteria, complete recovery readiness, production recovery outcomes, or sustained improvement governance.",
+  "cluster": "saf-lab-8aad11719614",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Unreviewed restoration order and an unclosed improvement link fail review",
+      "matched": true,
+      "observed": {
+        "plan_review": {
+          "valid": false,
+          "declared_order": [
+            "training-cache",
+            "runtime-config",
+            "inference-state"
+          ],
+          "computed_order": [
+            "runtime-config",
+            "inference-state",
+            "training-cache"
+          ],
+          "asset_ids_match_allowlist": true,
+          "configmap_names_match_allowlist": true,
+          "priorities_have_basis": true,
+          "dependencies_match_exact_fixture_graph": true
+        },
+        "improvement_review": {
+          "valid": false,
+          "finding_id": "SYNTH-FINDING-1005-014-01",
+          "action_id": "SYNTH-IMPROVEMENT-1005-014-01",
+          "action_status": "open",
+          "playbook_version": "mock-recovery-v2",
+          "playbook_improvement_id": "",
+          "playbook_finding_id": "SYNTH-FINDING-1005-014-01"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Reviewed order respects exact dependencies and business priority, and the tracked action updates its playbook",
+      "matched": true,
+      "observed": {
+        "plan_review": {
+          "valid": true,
+          "declared_order": [
+            "runtime-config",
+            "inference-state",
+            "training-cache"
+          ],
+          "computed_order": [
+            "runtime-config",
+            "inference-state",
+            "training-cache"
+          ],
+          "asset_ids_match_allowlist": true,
+          "configmap_names_match_allowlist": true,
+          "priorities_have_basis": true,
+          "dependencies_match_exact_fixture_graph": true
+        },
+        "improvement_review": {
+          "valid": true,
+          "finding_id": "SYNTH-FINDING-1005-014-01",
+          "action_id": "SYNTH-IMPROVEMENT-1005-014-01",
+          "action_status": "implemented",
+          "playbook_version": "mock-recovery-v2",
+          "playbook_improvement_id": "SYNTH-IMPROVEMENT-1005-014-01",
+          "playbook_finding_id": "SYNTH-FINDING-1005-014-01"
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The earlier playbook and an unrelated improvement reference leave the finding open",
+      "matched": true,
+      "observed": {
+        "old_version": "mock-recovery-v1",
+        "wrong_improvement_link_rejected": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "API-observed restoration follows the approved order and recreates exact fixture-owned ConfigMaps",
+      "matched": true,
+      "observed": {
+        "expected_order": [
+          "runtime-config",
+          "inference-state",
+          "training-cache"
+        ],
+        "actual_order": [
+          "runtime-config",
+          "inference-state",
+          "training-cache"
+        ],
+        "all_restored_payloads_match": true,
+        "improvement_reflected_in_api_playbook": true,
+        "native_playbook_revision_observed": true
+      }
+    }
+  ]
+}
