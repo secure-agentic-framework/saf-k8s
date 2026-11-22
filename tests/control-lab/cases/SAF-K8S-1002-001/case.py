@@ -28,6 +28,8 @@ EXPORTER_SERVICE = "saf-prom-exporter.saf-test.svc"
 METRICS_SERVICE = "metrics-server.kube-system.svc"
 METRICS_READER = "saf-1002-reader"
 METRICS_DENIED = "saf-1002-denied"
+SCOPE_NAMESPACES = ("saf-1002-alpha", "saf-1002-beta")
+AGGREGATED_METRICS_ROLE = "system:aggregated-metrics-reader"
 METRICS_API_PATH = "/apis/metrics.k8s.io/v1beta1/namespaces/saf-test/pods/saf-metrics-fixture"
 PROM_QUERY = 'saf_fixture_metric{fixture="1002-001",workload="synthetic"}'
 PROM_LABELS = {"__name__": "saf_fixture_metric", "fixture": "1002-001", "workload": "synthetic"}
@@ -132,7 +134,7 @@ def _token(lab, service_account):
     return _checked(args, timeout=30).strip()
 
 
-def _api_get(lab, token=None):
+def _api_get(lab, token=None, namespace="saf-test", pod="saf-metrics-fixture"):
     args = ["kubectl", "--kubeconfig", str(lab.kubeconfig), "--context", f"kind-{lab.cluster}",
             "config", "view", "--minify", "--raw", "-o"]
     endpoint = urlsplit(_checked([*args, "jsonpath={.clusters[0].cluster.server}"]).strip())
@@ -145,7 +147,8 @@ def _api_get(lab, token=None):
     if token is not None:
         headers["Authorization"] = "Bearer " + token
     try:
-        connection.request("GET", METRICS_API_PATH, headers=headers)
+        path = f"/apis/metrics.k8s.io/v1beta1/namespaces/{namespace}/pods/{pod}"
+        connection.request("GET", path, headers=headers)
         response = connection.getresponse()
         return {"status": response.status, "body": response.read(65536).decode("utf-8", "replace")}
     finally:
@@ -255,13 +258,13 @@ def _prom_sample(response):
             and rows[0]["value"][1] == "42")
 
 
-def _podmetrics(response):
+def _podmetrics(response, namespace="saf-test", pod="saf-metrics-fixture"):
     if response["status"] != 200:
         return False
     document = json.loads(response["body"])
     return (document["kind"] == "PodMetrics" and document["apiVersion"] == "metrics.k8s.io/v1beta1"
-            and document["metadata"]["name"] == "saf-metrics-fixture"
-            and document["metadata"]["namespace"] == "saf-test"
+            and document["metadata"]["name"] == pod
+            and document["metadata"]["namespace"] == namespace
             and any(row["name"] == "idle" and "memory" in row["usage"] for row in document["containers"]))
 
 
@@ -270,16 +273,7 @@ def _create_metrics_reader(lab):
     denied_account = {"apiVersion": "v1", "kind": "ServiceAccount", "metadata": {"name": METRICS_DENIED, "namespace": "saf-test"}}
     lab.kubectl("apply", "-f", "-", payload=json.dumps(service_account))
     lab.kubectl("apply", "-f", "-", payload=json.dumps(denied_account))
-    pod = {"apiVersion": "v1", "kind": "Pod", "metadata": {"name": "saf-metrics-fixture"},
-           "spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,
-                    "containers": [{"name": "idle",
-                        "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
-                        "command": ["sh", "-c", "sleep 3600"],
-                        "resources": {"requests": {"cpu": "10m", "memory": "16Mi"},
-                                      "limits": {"cpu": "50m", "memory": "32Mi"}},
-                        "securityContext": {"allowPrivilegeEscalation": False, "runAsNonRoot": True,
-                            "runAsUser": 65534, "capabilities": {"drop": ["ALL"]},
-                            "seccompProfile": {"type": "RuntimeDefault"}}}]}}
+    pod = _fixture_pod("saf-metrics-fixture", "saf-test")
     lab.kubectl("apply", "-f", "-", payload=json.dumps(pod))
     lab.kubectl("wait", "--for=condition=Ready", "pod/saf-metrics-fixture", "--timeout=90s", timeout=95)
     role = {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "ClusterRole",
@@ -294,11 +288,131 @@ def _create_metrics_reader(lab):
     lab.kubectl("apply", "-f", "-", payload=json.dumps(binding))
 
 
+
+def _fixture_pod(name, namespace):
+    return {"apiVersion": "v1", "kind": "Pod", "metadata": {"name": name, "namespace": namespace},
+           "spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,
+                    "containers": [{"name": "idle",
+                        "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+                        "command": ["sh", "-c", "sleep 3600"],
+                        "resources": {"requests": {"cpu": "10m", "memory": "16Mi"},
+                                      "limits": {"cpu": "50m", "memory": "32Mi"}},
+                        "securityContext": {"allowPrivilegeEscalation": False, "runAsNonRoot": True,
+                            "runAsUser": 65534, "capabilities": {"drop": ["ALL"]},
+                            "seccompProfile": {"type": "RuntimeDefault"}}}]}}
+
+
+def _aggregate_permissions(lab):
+    names = ("view", "edit", "admin")
+    roles = json.loads(lab.kubectl("get", "clusterroles", *names, "-o", "json").stdout)["items"]
+    return {
+        role["metadata"]["name"]: [rule for rule in role.get("rules", [])
+                                   if "metrics.k8s.io" in rule.get("apiGroups", [])]
+        for role in roles
+    }
+
+
+def _scoped_metrics_access(lab, before):
+    """Exercise view aggregation and namespace boundaries with synthetic identities."""
+    namespaces = list(SCOPE_NAMESPACES)
+    for namespace in namespaces:
+        lab.kubectl("create", "namespace", namespace)
+        account = {"apiVersion": "v1", "kind": "ServiceAccount",
+                   "metadata": {"name": "scoped-reader", "namespace": namespace}}
+        lab.kubectl("-n", namespace, "apply", "-f", "-", payload=json.dumps(account))
+        pod = _fixture_pod("scope-metrics-fixture", namespace)
+        lab.kubectl("-n", namespace, "apply", "-f", "-", payload=json.dumps(pod))
+        lab.kubectl("-n", namespace, "wait", "--for=condition=Ready", "pod/scope-metrics-fixture",
+                    "--timeout=90s", timeout=95)
+        binding = {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding",
+                   "metadata": {"name": "scoped-reader-view", "namespace": namespace},
+                   "subjects": [{"kind": "ServiceAccount", "name": "scoped-reader", "namespace": namespace}],
+                   "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "ClusterRole", "name": "view"}}
+        lab.kubectl("-n", namespace, "apply", "-f", "-", payload=json.dumps(binding))
+
+    def cluster_role():
+        return json.loads(lab.kubectl("get", "clusterrole", AGGREGATED_METRICS_ROLE, "-o", "json").stdout)
+
+    role = cluster_role()
+    expected_verbs = {"get", "list", "watch"}
+    after = _wait_for(lambda: _aggregate_permissions(lab),
+                      lambda roles: len(roles) == 3 and all(
+                          any({"pods", "nodes"} <= set(rule.get("resources", []))
+                              and expected_verbs <= set(rule.get("verbs", [])) for rule in rules)
+                          for rules in roles.values()), "RBAC convergence for view, edit and admin")
+    wrong_name = lab.kubectl("get", "clusterrole", "system:metrics-reader", "--ignore-not-found",
+                             "-o", "name").stdout.strip()
+    lab.check("red", "The original role name does not resolve after the tagged installation",
+              not wrong_name and len(before) == 3 and all(not rules for rules in before.values()),
+              {"listed_old_role": bool(wrong_name), "preinstall_metrics_roles": sum(map(bool, before.values()))})
+    relevant_rules = [rule for rule in role.get("rules", [])
+                      if "metrics.k8s.io" in rule.get("apiGroups", [])]
+    expected_rule = {"apiGroups": ["metrics.k8s.io"], "resources": ["pods", "nodes"],
+                     "verbs": ["get", "list", "watch"]}
+    expected_labels = {"rbac.authorization.k8s.io/aggregate-to-view": "true",
+                       "rbac.authorization.k8s.io/aggregate-to-edit": "true",
+                       "rbac.authorization.k8s.io/aggregate-to-admin": "true"}
+    labels = role.get("metadata", {}).get("labels", {})
+    exact_role = (relevant_rules == [expected_rule]
+                  and all(labels.get(key) == value for key, value in expected_labels.items()))
+    lab.check("positive", "Metrics Server installed the tagged aggregated reader role and permissions",
+              exact_role, {"name": role.get("metadata", {}).get("name"),
+                           "labels": {key: labels.get(key) for key in expected_labels},
+                           "metrics_rules": relevant_rules})
+    role_metadata = {"name": role["metadata"]["name"], "labels": labels,
+                     "metrics_rules": relevant_rules, "before_installation": before,
+                     "after_installation": after, "original_role_reference": wrong_name}
+    _evidence(lab, "aggregated-metrics-role.json", role_metadata)
+
+    decisions = {}
+    for namespace in namespaces:
+        subject = f"system:serviceaccount:{namespace}:scoped-reader"
+        for target in namespaces:
+            result = lab.command("kubectl", "--kubeconfig", str(lab.kubeconfig), "--context", f"kind-{lab.cluster}",
+                                 "auth", "can-i", "get", "pods.metrics.k8s.io", "-n", target,
+                                 "--as", subject, allow_failure=True)
+            decisions[f"{subject} -> {target}"] = {"subject": subject, "namespace": target,
+                "verb": "get", "api_group": "metrics.k8s.io", "resource": "pods",
+                "allowed": result.stdout.strip().lower() == "yes", "exit_code": result.returncode,
+                "stdout": result.stdout.strip(), "stderr": result.stderr.strip()}
+    _evidence(lab, "metrics-rbac-authorization.json", decisions)
+    expected = {f"system:serviceaccount:{namespaces[0]}:scoped-reader -> {namespaces[0]}": True,
+                f"system:serviceaccount:{namespaces[0]}:scoped-reader -> {namespaces[1]}": False,
+                f"system:serviceaccount:{namespaces[1]}:scoped-reader -> {namespaces[0]}": False,
+                f"system:serviceaccount:{namespaces[1]}:scoped-reader -> {namespaces[1]}": True}
+    observed = {key: row["allowed"] for key, row in decisions.items()}
+    lab.check("positive", "Namespaced view grants metrics reads only in the bound namespace",
+              observed == expected, observed)
+
+    tokens = {namespace: _checked(["kubectl", "--kubeconfig", str(lab.kubeconfig), "--context", f"kind-{lab.cluster}",
+                                   "-n", namespace, "create", "token", "scoped-reader", "--duration=10m"], timeout=30).strip()
+              for namespace in namespaces}
+    runtime = {}
+    for namespace in namespaces:
+        own = _wait_for(lambda: _api_get(lab, tokens[namespace], namespace, "scope-metrics-fixture"),
+                        lambda reply: _podmetrics(reply, namespace, "scope-metrics-fixture"),
+                        f"Authorized PodMetrics in {namespace}", timeout=80)
+        other_namespace = namespaces[1] if namespace == namespaces[0] else namespaces[0]
+        other = _api_get(lab, tokens[namespace], other_namespace, "scope-metrics-fixture")
+        runtime[namespace] = {"own_namespace": own, "other_namespace": other}
+    runtime_ok = all(row["own_namespace"]["status"] == 200
+                     and _podmetrics(row["own_namespace"], namespace, "scope-metrics-fixture")
+                     and row["other_namespace"]["status"] == 403
+                     for namespace, row in runtime.items())
+    _evidence(lab, "metrics-rbac-runtime.json", runtime)
+    lab.check("positive", "Scoped readers retrieve own namespace metrics and are denied cross-namespace",
+              runtime_ok, {namespace: {"own": row["own_namespace"]["status"],
+                                       "other": row["other_namespace"]["status"]}
+                           for namespace, row in runtime.items()})
+
+
 def run(lab):
     temporary = lab.kubeconfig.parent
     base = _metrics_case()
+    before = _aggregate_permissions(lab)
     base._install_metrics_server(lab, temporary)
     _create_metrics_reader(lab)
+    _scoped_metrics_access(lab, before)
     prom_password, prom_ca, exporter_password, exporter_ca = _install_prometheus(lab, temporary)
     path = "/api/v1/query?query=" + quote(PROM_QUERY)
     raw = {}

@@ -1203,7 +1203,7 @@
     "SAF-K8S-1002-001": {
       "catalog_status": "draft",
       "domain": "D10",
-      "sha256": "92b40c6f0e82cb4d10ba7703668075b93128a630f6c0b657d3c3a0ecdeaa9b69",
+      "sha256": "5585f2bdd457de908aa9bc86bec1df9569dbd24db063a97fb242a0a3378d8f00",
       "title": "Metric endpoint authentication"
     },
     "SAF-K8S-1002-002": {
@@ -1250,7 +1250,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "0f65707402c3bbd8734a2562a3e35405a40bfcee",
-  "sha256": "872822531716b059a05f969b9bdb15559fa3dd850de26945615e595c3d8e018e",
+  "revision": "ae40ad71ae6b569f96ffb62610e561012a062208",
+  "sha256": "38b527f8e7cb95c6940070a2d9ff23fa8a0cd34b7bd3773bdf896c0725e39aba",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1002-001",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "9ccac72e3501a295e9fb756e65ed94537bc539f1",
+  "catalog_sha256": "38b527f8e7cb95c6940070a2d9ff23fa8a0cd34b7bd3773bdf896c0725e39aba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "92b40c6f0e82cb4d10ba7703668075b93128a630f6c0b657d3c3a0ecdeaa9b69",
+  "control_sha256": "5585f2bdd457de908aa9bc86bec1df9569dbd24db063a97fb242a0a3378d8f00",
   "scope": "Kubernetes v1.36.1 Kind. TLS-verified authentication checks cover Prometheus, a case-owned HTTPS exporter, direct Metrics Server exposition and the aggregated Metrics API. Subject- and resource-specific observations use synthetic principals and metrics. Production endpoint inventory, permission breadth and deployment settings require separate evidence.",
-  "cluster": "saf-lab-4ee7ca9133ce",
+  "cluster": "saf-lab-7098e9424fbf",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -46,6 +46,70 @@
         "api": "v1beta1.metrics.k8s.io",
         "image": "registry.k8s.io/metrics-server/metrics-server@sha256:b2d2efaf5ac3b366ed0f839d2412a2c4279d4fc2a2a733f12c52133faed36c41",
         "aggregation_tls_verified": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The original role name does not resolve after the tagged installation",
+      "matched": true,
+      "observed": {
+        "listed_old_role": false,
+        "preinstall_metrics_roles": 0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Metrics Server installed the tagged aggregated reader role and permissions",
+      "matched": true,
+      "observed": {
+        "name": "system:aggregated-metrics-reader",
+        "labels": {
+          "rbac.authorization.k8s.io/aggregate-to-view": "true",
+          "rbac.authorization.k8s.io/aggregate-to-edit": "true",
+          "rbac.authorization.k8s.io/aggregate-to-admin": "true"
+        },
+        "metrics_rules": [
+          {
+            "apiGroups": [
+              "metrics.k8s.io"
+            ],
+            "resources": [
+              "pods",
+              "nodes"
+            ],
+            "verbs": [
+              "get",
+              "list",
+              "watch"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Namespaced view grants metrics reads only in the bound namespace",
+      "matched": true,
+      "observed": {
+        "system:serviceaccount:saf-1002-alpha:scoped-reader -> saf-1002-alpha": true,
+        "system:serviceaccount:saf-1002-alpha:scoped-reader -> saf-1002-beta": false,
+        "system:serviceaccount:saf-1002-beta:scoped-reader -> saf-1002-alpha": false,
+        "system:serviceaccount:saf-1002-beta:scoped-reader -> saf-1002-beta": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Scoped readers retrieve own namespace metrics and are denied cross-namespace",
+      "matched": true,
+      "observed": {
+        "saf-1002-alpha": {
+          "own": 200,
+          "other": 403
+        },
+        "saf-1002-beta": {
+          "own": 200,
+          "other": 403
+        }
       }
     },
     {

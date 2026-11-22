@@ -10,6 +10,8 @@ In a fresh Kubernetes v1.36.1 Kind cluster, Prometheus initially serves a synthe
 
 The direct Metrics Server endpoint rejects anonymous and unauthorized requests with HTTP 403 and an invalid token with HTTP 401. The aggregated Metrics API returns HTTP 401 for absent or invalid credentials and HTTP 403 for an authenticated service account without permission. Both endpoints return the expected metrics to the authorized service account. The fixture validates TLS and stores only the responses and decisions.
 
+Before installing Metrics Server, the built-in view, edit, and admin roles lack the fixture resource metric grants. The installed system:aggregated-metrics-reader contributes get, list, and watch for metrics.k8s.io Pods and Nodes to all three roles. The original system:metrics-reader reference does not resolve. A namespaced RoleBinding to view lets each fixture account retrieve its own PodMetrics and returns HTTP 403 for the other namespace.
+
 Deployment evidence must cover the actual endpoint inventory, approved roles, custom and external metric APIs, managed Prometheus, kubelet endpoints, network controls and metric redaction.
 
 [Prometheus HTTPS configuration](https://prometheus.io/docs/prometheus/latest/configuration/https/) · [Metrics Server v0.8.1 manifest](https://github.com/kubernetes-sigs/metrics-server/blob/v0.8.1/manifests/base/rbac.yaml)
