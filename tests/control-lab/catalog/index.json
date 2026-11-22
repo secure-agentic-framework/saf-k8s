@@ -1182,6 +1182,12 @@
       "sha256": "dbdbd11a8661728f7c4050ababc3117a64274f33e315ae9ffba2fe407cd98b35",
       "title": "Regulatory audit log immutability and deletion prevention before retention expiry"
     },
+    "SAF-K8S-1001-038": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "7d142bc02c1d75e974ef8bef9130e2c09ba4a97c454ea3473c43495b6e6484d4",
+      "title": "Centralized AI log retention lifecycle enforcement"
+    },
     "SAF-K8S-1006-004": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1214,7 +1220,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "75eeeeb92d5182cbc30c970d34234aef51390f34",
+  "revision": "113d746ef5295b18eafbec9a85a1a1b26d450d26",
   "sha256": "872822531716b059a05f969b9bdb15559fa3dd850de26945615e595c3d8e018e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

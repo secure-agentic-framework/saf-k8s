@@ -1,0 +1,4 @@
+{
+  "approved_days": {"audit": 3, "training": 5, "inference": 7},
+  "initial_days": {"audit": 2, "training": 5, "inference": 7}
+}
