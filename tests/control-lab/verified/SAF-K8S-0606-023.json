@@ -1,0 +1,117 @@
+{
+  "control_id": "SAF-K8S-0606-023",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "be4b4a1ea2b23b06251712540cff29734e6050a004041ba78eaf028669abd653",
+  "scope": "A disposable Kubernetes v1.36.1 kind cluster runs the official Checkov 3.3.16 image against case-owned inert Terraform files. The test observes one configured Checkov rule, the real Job and process exit statuses, and a separate marker promotion gate. It never initializes or applies Terraform and has no cloud credentials. This establishes Terraform coverage for this scanner/rule and delivery path only; other IaC languages, production CI protection, policy completeness, and deployment blocking require separate evidence.",
+  "cluster": "saf-lab-fd1d01340a96",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The case starts without a promotion marker",
+      "matched": true,
+      "observed": {
+        "marker_absent_before_scan": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The real Checkov Job exits 1 on the exact CKV_AWS_20 public ACL violation",
+      "matched": true,
+      "observed": {
+        "job_state": "Failed",
+        "exit_code": 1,
+        "failed_count": 1,
+        "passed_count": 0,
+        "violations": [
+          {
+            "check_id": "CKV_AWS_20",
+            "resource": "aws_s3_bucket.saf_lab_public_acl",
+            "file": "main.tf"
+          }
+        ],
+        "report_parseable": true,
+        "terraform_sha256": "ff8e39d221e51e781dc34bd7808918fe52fa3ef8237dfa32ec14331e2d44fea5"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The independent promotion fixture withholds its marker after the failed scan",
+      "matched": true,
+      "observed": {
+        "withheld": true,
+        "created": false,
+        "artifact_matches": true,
+        "job_matches": true,
+        "marker_absent": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same real scanner accepts the private ACL fixture with exit 0",
+      "matched": true,
+      "observed": {
+        "job_state": "Complete",
+        "exit_code": 0,
+        "failed_count": 0,
+        "passed_count": 1,
+        "violations": [],
+        "report_parseable": true,
+        "terraform_sha256": "1164b0fde073d6915f96cde48e7f568a5486056ccaf94a9cf4797b33da64c9f2"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The independent promotion fixture creates its marker after a clean scan",
+      "matched": true,
+      "observed": {
+        "withheld": false,
+        "created": true,
+        "artifact_matches": true,
+        "job_matches": true,
+        "marker_matches": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The promoted marker is a case-owned inert ConfigMap",
+      "matched": true,
+      "observed": {
+        "kind": "ConfigMap",
+        "scanner_job": "iac-compliant-check"
+      }
+    }
+  ]
+}
