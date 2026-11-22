@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0101-003",
-  "catalog_revision": "510d20738720ad3b44c5f20e7fa14c0df8cdf359",
-  "catalog_sha256": "f90ef69f5a08246aa7796cd8c80f8790550643639edcb0194605a3a8db2ac6bb",
+  "catalog_revision": "f991046f3d185d01f6204f43c759b3c005009453",
+  "catalog_sha256": "e65319721051d40e669e16745eca07293185081ed6687129db91ea07053ed2a9",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "bc0a29d53f622ca04868f6c8131e41a01925e91e5afbe98bd9c1085812f72787",
+  "control_sha256": "65aef45887890a767a6b2d4546b5e35c126ad1a90d56e0d34346304f6bfa47c8",
   "scope": "Kubernetes v1.36.1 kind. Compare stock storage and two Secretbox configuration profiles using the core-group and all-group wildcards. Inspect only an exact synthetic Secret key and an exact synthetic apps Deployment key. Existing object rewrite, external KMS and managed control planes require separate evidence.",
-  "cluster": "saf-lab-1fa29ef817c7",
+  "cluster": "saf-lab-3d3cff7f5901",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

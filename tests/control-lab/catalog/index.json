@@ -3,7 +3,7 @@
     "SAF-K8S-0101-003": {
       "catalog_status": "draft",
       "domain": "D01",
-      "sha256": "bc0a29d53f622ca04868f6c8131e41a01925e91e5afbe98bd9c1085812f72787",
+      "sha256": "65aef45887890a767a6b2d4546b5e35c126ad1a90d56e0d34346304f6bfa47c8",
       "title": "Encryption at rest for Secrets and sensitive API resources"
     },
     "SAF-K8S-0101-005": {
@@ -1760,7 +1760,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "d01ca7dfddf8c5d66050cd51108c91852e0324d1",
-  "sha256": "4095f032054cac7a78a6134ea809e50d9fbf12e0cdfc58a22716db451d7619b2",
+  "revision": "c0c63771ffd7e840c0a70fd9fbadea5802ef630f",
+  "sha256": "7ffb43067ed3adc487f9f2d6a997c6ea1768540997726fe36991eb41516053ea",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
