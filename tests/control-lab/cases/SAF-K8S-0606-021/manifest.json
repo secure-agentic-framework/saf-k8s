@@ -1,0 +1,10 @@
+{
+  "apiVersion": "v1",
+  "data": {
+    "fixture": "signed fixture"
+  },
+  "kind": "ConfigMap",
+  "metadata": {
+    "name": "saf-0606-021-signed-manifest"
+  }
+}

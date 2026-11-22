@@ -738,6 +738,12 @@
       "sha256": "1c5c3ed8623fb4fe89e05e2d878f1862dd915c0525abce67b71bd15b2f94182c",
       "title": "AI custom resource validation and policy constraint enforcement"
     },
+    "SAF-K8S-0606-021": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "4b8533818269b90366e0a4aabe16ef404af9ddd8407e206dcec6f24ee377f8fc",
+      "title": "Kubernetes manifest cryptographic signing before deployment"
+    },
     "SAF-K8S-0606-023": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -1094,7 +1100,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "441da339c6ffdfe81ab4dbba855c31c576be4a7f",
+  "revision": "f1114f62dc3b2fbf418f0891a8bb6eb4837fae15",
   "sha256": "5468afd7544aceb8f79e434b7d58a52fc41eeee0b3084837f4dc587efc72cace",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
