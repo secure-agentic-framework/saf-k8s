@@ -26,7 +26,7 @@ See [`LICENSE`](LICENSE) for the summary.
 
 - Domains: 10
 - Knowledge areas: 55
-- Controls: 593
+- Controls: 594
 - Crosswalk rows: 4917
 
 ## YAML Files
@@ -717,7 +717,7 @@ This knowledge area focuses on: LoadBalancer, NodePort, and ExternalIP restricti
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Maturity: Practitioner
-- Controls: 14
+- Controls: 15
 
 ### Description
 
@@ -741,6 +741,7 @@ This knowledge area focuses on: AI GPU and ML framework base image validation, C
 | [SAF-K8S-0601-021](markdown/controls/SAF-K8S-0601-021.md) | Container registry trusted-source network restriction | Practitioner | baseline |
 | [SAF-K8S-0601-022](markdown/controls/SAF-K8S-0601-022.md) | Kubernetes image pull secret distribution and external secret integration | Practitioner | baseline |
 | [SAF-K8S-0601-023](markdown/controls/SAF-K8S-0601-023.md) | Image pull credential automatic rotation and expiry reduction | Practitioner | baseline |
+| [SAF-K8S-0601-024](markdown/controls/SAF-K8S-0601-024.md) | Kubelet authorization for cached private images | Practitioner | baseline |
 
 <a id="knowledge-area-6-2"></a>
 ## 6.2 - Image Signing and Admission Enforcement
