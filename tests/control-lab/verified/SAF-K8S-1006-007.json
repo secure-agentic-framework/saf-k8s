@@ -1,0 +1,107 @@
+{
+  "control_id": "SAF-K8S-1006-007",
+  "catalog_revision": "63e9c61813b70b1440251245cbb3263f205e2503",
+  "catalog_sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "1e8d3a1abaf766fafeb5b5ed841ead4980393875d3fcb0c2594145f91f16ee89",
+  "scope": "One disposable Kind cluster on the lab-pinned Kubernetes v1.36.1 node image. A case-owned ValidatingAdmissionPolicy gates a synthetic namespaced SSDF 1.1 assessment. It checks the complete NIST task-ID inventory, local fixture SHA-256 references, and owner-attributed, reviewable gap/not-applicable/unassessed statements. The assessment and mock AI workload contain reserved placeholders only; no workload is launched. This tests record shape and admission behavior, not organizational SSDF conformity or production practice.",
+  "cluster": "saf-lab-da1db0f20e79",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The case is running against the intended disposable Kubernetes v1.36.1 API",
+      "matched": true,
+      "observed": {
+        "server_git_version": "v1.36.1"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without the VAP, the API admits a synthetic evidence-gap record with one missing task",
+      "matched": true,
+      "observed": {
+        "admitted_without_gate": true,
+        "server_side_dry_run": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The gate admits a complete, immutable, owner-attributed assessment while keeping gaps review-required",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "task_count": 42,
+        "gap_review_pending": true,
+        "not_applicable_review_pending": true,
+        "disposition": "evidence_gap_review_required"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enabled gate rejects a record missing a required SSDF task",
+      "matched": true,
+      "observed": {
+        "expected_rule_observed": true,
+        "policy_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enabled gate rejects a gap statement without its accountable owner",
+      "matched": true,
+      "observed": {
+        "expected_rule_observed": true,
+        "policy_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enabled gate rejects an altered immutable fixture digest",
+      "matched": true,
+      "observed": {
+        "expected_rule_observed": true,
+        "policy_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An unsupported status update is denied and the persisted review remains unchanged",
+      "matched": true,
+      "observed": {
+        "policy_denial": true,
+        "stored_assessment_unchanged": true
+      }
+    }
+  ]
+}

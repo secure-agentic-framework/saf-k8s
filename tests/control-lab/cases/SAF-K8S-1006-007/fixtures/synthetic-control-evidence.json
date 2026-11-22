@@ -1,0 +1,19 @@
+{
+  "fixture_only": true,
+  "control_id": "SAF-K8S-1006-007",
+  "purpose": "Synthetic scenario notes for testing a scoped SSDF evidence-gap record gate.",
+  "planned_checks": [
+    {
+      "id": "synthetic-api-policy-observation",
+      "description": "Supervisor-run server-side dry-runs will compare admission with the fixture policy absent and present.",
+      "limitations": ["This fixture records no completed run or pass result.", "Does not establish any organization's software-development practice or conformity with NIST SSDF.", "Does not test production CI/CD, team coverage, AI model lifecycle, or external evidence stores."]
+    },
+    {
+      "id": "synthetic-gap-review-example",
+      "description": "One illustrative gap and one illustrative not-applicable statement remain assigned to reserved fixture owners for human review.",
+      "limitations": ["Applicability decisions are not made by this fixture or by NIST's SSDF table."]
+    }
+  ],
+  "reserved_owner_placeholders": ["fixture-owner-placeholder", "fixture-reviewer-placeholder"],
+  "mock_workload": "mock-workload.json"
+}

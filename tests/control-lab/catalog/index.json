@@ -1320,6 +1320,12 @@
       "sha256": "08f7b8fab16c73ec21b343a9efa6550c984ec776c09de1a08548a7cd48c1f0ce",
       "title": "Policy-as-code enforcement for AI workload compliance"
     },
+    "SAF-K8S-1006-007": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "1e8d3a1abaf766fafeb5b5ed841ead4980393875d3fcb0c2594145f91f16ee89",
+      "title": "NIST SSDF v1.1 alignment and gap assessment for Kubernetes AI development"
+    },
     "SAF-K8S-1006-008": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1346,7 +1352,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "f46003cad960b0f929ec43b404621b947d5d8546",
-  "sha256": "96bbe95867f8783addc191244f8304cc5bf6c3eee10dc7a2c1608fbb5f4ab156",
+  "revision": "420dab6080be5adee28a0000106b957c1f0a8bda",
+  "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
