@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0201-015",
-  "catalog_revision": "36d67fc68b5176566299ebffa1c448bea0a6dc2c",
-  "catalog_sha256": "957795ca0841a48dd97f65d6a691d642bc38d11bbf391056ec5ea9b34e1a131b",
+  "catalog_revision": "313f8d57928b85f679837f527199bd655a5999d7",
+  "catalog_sha256": "714d60f6e8e32a103c413c1cd2606e2a70c104217ddfd71bd1a082c4584eb54c",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "a673ba4280f54e2ed90bb6609bd9c2e186cef3829d13eb99ac2775ab94ca9ed0",
+  "control_sha256": "14bcfa3cfbada570dfe96c8db5db1e922de8946312f2a17dabceb3d21e915593",
   "scope": "Kind confirms the generated kubelet config, kubeconfig and PKI path types. A separate mount-free disposable Debian VM loads Linux Audit watch rules for three inert files and verifies read/write events. Deployed rules, complete node paths, and recurring production coverage require independent evidence.",
-  "cluster": "saf-lab-78775040f63b",
+  "cluster": "saf-lab-cbfcf0110181",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

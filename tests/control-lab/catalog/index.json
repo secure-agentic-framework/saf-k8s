@@ -243,7 +243,7 @@
     "SAF-K8S-0201-015": {
       "catalog_status": "draft",
       "domain": "D02",
-      "sha256": "a673ba4280f54e2ed90bb6609bd9c2e186cef3829d13eb99ac2775ab94ca9ed0",
+      "sha256": "14bcfa3cfbada570dfe96c8db5db1e922de8946312f2a17dabceb3d21e915593",
       "title": "Node-level kubelet audit rule coverage"
     },
     "SAF-K8S-0202-002": {
@@ -572,7 +572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "5f68929db3db0917e38212889f8e1648cce96610",
-  "sha256": "957795ca0841a48dd97f65d6a691d642bc38d11bbf391056ec5ea9b34e1a131b",
+  "revision": "8a8835af505a6a4a620404ec4718ba97315f176e",
+  "sha256": "714d60f6e8e32a103c413c1cd2606e2a70c104217ddfd71bd1a082c4584eb54c",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
