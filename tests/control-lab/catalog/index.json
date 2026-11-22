@@ -1362,6 +1362,12 @@
       "sha256": "9161ce67bcfd0f9fe81a89427391e3a83618022059c9f5126cc3323d75a7d567",
       "title": "Inference service quarantine and pipeline execution suspension with state preservation"
     },
+    "SAF-K8S-1005-026": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "41e8cee036853887143e588d87d54d5d4ff34bae719a59d39803564468487da2",
+      "title": "Forensic chain-of-custody and evidence handling for Kubernetes AI incidents"
+    },
     "SAF-K8S-1005-028": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1418,7 +1424,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "2dc92a29aa2c9e47e92d60befc9a04de3fdfeab7",
+  "revision": "0eb1626712f822cc96514c84bbc5503410ec1860",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

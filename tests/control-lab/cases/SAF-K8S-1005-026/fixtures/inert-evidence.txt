@@ -1,0 +1,3 @@
+SYNTHETIC SAF-K8S-1005-026 FORENSIC FIXTURE
+This inert text is invented for a defensive control demonstration.
+It contains no system data, personal data, credentials, indicators, payloads, or real evidence.

@@ -1,0 +1,124 @@
+{
+  "control_id": "SAF-K8S-1005-026",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "41e8cee036853887143e588d87d54d5d4ff34bae719a59d39803564468487da2",
+  "scope": "One disposable single-node Kind v1.36.1 cluster, one immutable ConfigMap holding a checked-in inert text fixture, and one tokenless digest-pinned Python mock Job. The Job compares the same fictional transfer with a pending authorization label when the workflow gate is disabled and enabled, then performs one approved positive transfer. It emits synthetic hash-linked custody records only. This does not handle real evidence, establish actor identity or authority, seize assets, prove durable/WORM storage, or establish legal admissibility or production procedure.",
+  "cluster": "saf-lab-2b9896c8cde0",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "green",
+      "claim": "Kubernetes immutable ConfigMap preserves the fixture after a data-update attempt",
+      "matched": true,
+      "observed": {
+        "immutable": true,
+        "fixture_readback_matches": true,
+        "update_rejected_by_immutability": true,
+        "bytes_unchanged_after_attempt": true,
+        "evidence_id_label": "SYN-EVIDENCE-1005-026-001",
+        "artifact_sha256_expected": "979aa151b3ed8f6168e201e52771ce9c56465b6905a7c2c2002032f7eb0cc596"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Hash-linked custody receipts are read back from an immutable labeled ConfigMap",
+      "matched": true,
+      "observed": {
+        "immutable": true,
+        "receipt_readback_matches": true,
+        "receipt_sha256": "bd02a2857ceb9469f9ea22f94e89659a7251fc8d09b61015f729fe3842d82f38",
+        "receipt_sha256_annotation_matches": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The same pending fictional transfer completes when its workflow gate is disabled",
+      "matched": true,
+      "observed": {
+        "transfer_id": "SYN-TRANSFER-1005-026-001",
+        "gate_enabled": false,
+        "state": "transferred",
+        "authorization_status": "pending",
+        "custody_chain_valid": true,
+        "artifact_sha256_matches": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The gate blocks that same transfer while authorization is pending and retains the fixture",
+      "matched": true,
+      "observed": {
+        "transfer_id": "SYN-TRANSFER-1005-026-001",
+        "gate_enabled": true,
+        "state": "retained-in-immutable-storage",
+        "last_event_outcome": "blocked",
+        "last_event_authorization_status": "pending",
+        "requested_destination_label": "urn:example:review:sandbox-counsel",
+        "actual_destination_label": "urn:example:storage:saf-1005-026-vault",
+        "custody_chain_valid": true,
+        "item_moved": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An independent verifier validates all emitted chains and rejects a changed event",
+      "matched": true,
+      "observed": {
+        "original_chains_valid": {
+          "pending_without_gate": true,
+          "pending_with_gate": true,
+          "approved_with_gate": true
+        },
+        "edited_chain_valid": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An explicitly approved and correctly scoped transfer completes through the gate",
+      "matched": true,
+      "observed": {
+        "transfer_id": "SYN-TRANSFER-1005-026-001",
+        "state": "transferred",
+        "authorization_label": "urn:example:authorization:SYN-TRANSFER-APPROVED-001",
+        "authorization_status": "approved",
+        "approver_role_label": "synthetic-incident-commander",
+        "authorization_scope_label": "transfer:SYN-TRANSFER-1005-026-001",
+        "custody_chain_valid": true,
+        "artifact_sha256": "979aa151b3ed8f6168e201e52771ce9c56465b6905a7c2c2002032f7eb0cc596",
+        "external_services_contacted": false
+      }
+    }
+  ]
+}

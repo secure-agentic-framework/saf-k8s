@@ -1,0 +1,34 @@
+{
+  "fixture_only": true,
+  "control_id": "SAF-K8S-1005-026",
+  "fixture_id": "SYN-EVIDENCE-1005-026-001",
+  "artifact_file": "inert-evidence.txt",
+  "artifact_sha256": "979aa151b3ed8f6168e201e52771ce9c56465b6905a7c2c2002032f7eb0cc596",
+  "transfer": {
+    "transfer_id": "SYN-TRANSFER-1005-026-001",
+    "from_label": "urn:example:storage:saf-1005-026-vault",
+    "to_label": "urn:example:review:sandbox-counsel",
+    "purpose_label": "fictional-review-only",
+    "timestamp": "2030-01-01T12:00:00Z"
+  },
+  "collection_authorization": {
+    "authorization_label": "urn:example:authorization:SYN-COLLECTION-001",
+    "authorization_status": "approved",
+    "approver_role_label": "synthetic-incident-commander",
+    "scope_label": "collect-and-seal-fictional-fixture"
+  },
+  "transfer_authorization_pending": {
+    "authorization_label": "urn:example:authorization:SYN-TRANSFER-PENDING-001",
+    "authorization_status": "pending",
+    "approver_role_label": "unassigned-synthetic-role",
+    "scope_label": "transfer:SYN-TRANSFER-1005-026-001"
+  },
+  "transfer_authorization_approved": {
+    "authorization_label": "urn:example:authorization:SYN-TRANSFER-APPROVED-001",
+    "authorization_status": "approved",
+    "approver_role_label": "synthetic-incident-commander",
+    "scope_label": "transfer:SYN-TRANSFER-1005-026-001"
+  },
+  "timestamps_are_synthetic": true,
+  "labels_are_credentials": false
+}
