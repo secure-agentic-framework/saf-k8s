@@ -696,6 +696,12 @@
       "sha256": "13c6dfcfef99dab1abfd0f36a2bd508e3cbec437ff52c5336a24755220a314c0",
       "title": "Admission webhook TLS rotation and high-availability resilience"
     },
+    "SAF-K8S-0605-009": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "1c5c3ed8623fb4fe89e05e2d878f1862dd915c0525abce67b71bd15b2f94182c",
+      "title": "AI custom resource validation and policy constraint enforcement"
+    },
     "SAF-K8S-0701-001": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -938,7 +944,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "4c9444585dd1c33767dbcb4fd74effba02719b95",
-  "sha256": "ba2c83990b7e8dabd3521401627a287dc143c1661a28469381ebabfdcef4730b",
+  "revision": "3e4fb3e33ddcd8e7afdc3625ed0dd76e625aac67",
+  "sha256": "23367e3a26e88127db269d5e4d3bde470802ae8a3cabe535d0ed6ebc9d3c35e7",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -1,0 +1,94 @@
+{
+  "ordinary": {
+    "apiVersion": "ai-lab.example.test/v1",
+    "kind": "InferencePlan",
+    "metadata": {"name": "synthetic-ordinary-inference"},
+    "spec": {
+      "mode": "inference",
+      "modelRef": "models/demo-v1",
+      "replicas": 2,
+      "gpu": 1,
+      "maxTokens": 1024
+    }
+  },
+  "malformed_missing_model": {
+    "apiVersion": "ai-lab.example.test/v1",
+    "kind": "InferencePlan",
+    "metadata": {
+      "name": "synthetic-schema-missing-model",
+      "labels": {"saf-k8s.example/webhook-validation": "enabled"}
+    },
+    "spec": {
+      "mode": "inference",
+      "replicas": 1,
+      "gpu": 1,
+      "maxTokens": 1024
+    }
+  },
+  "schema_gpu_above_max": {
+    "apiVersion": "ai-lab.example.test/v1",
+    "kind": "InferencePlan",
+    "metadata": {"name": "synthetic-schema-gpu-above-max"},
+    "spec": {
+      "mode": "inference",
+      "modelRef": "models/demo-v1",
+      "replicas": 1,
+      "gpu": 3,
+      "maxTokens": 1024
+    }
+  },
+  "cel_tokens_above_limit": {
+    "apiVersion": "ai-lab.example.test/v1",
+    "kind": "InferencePlan",
+    "metadata": {"name": "synthetic-cel-tokens-above-limit"},
+    "spec": {
+      "mode": "inference",
+      "modelRef": "models/demo-v1",
+      "replicas": 1,
+      "gpu": 1,
+      "maxTokens": 3500
+    }
+  },
+  "quota_counterfactual": {
+    "apiVersion": "ai-lab.example.test/v1",
+    "kind": "InferencePlan",
+    "metadata": {"name": "synthetic-quota-counterfactual"},
+    "spec": {
+      "mode": "training",
+      "modelRef": "models/demo-v1",
+      "replicas": 3,
+      "gpu": 2,
+      "maxTokens": 1024
+    }
+  },
+  "webhook_disallowed": {
+    "apiVersion": "ai-lab.example.test/v1",
+    "kind": "InferencePlan",
+    "metadata": {
+      "name": "synthetic-webhook-disallowed-model",
+      "labels": {"saf-k8s.example/webhook-validation": "enabled"}
+    },
+    "spec": {
+      "mode": "inference",
+      "modelRef": "models/unreviewed-demo",
+      "replicas": 1,
+      "gpu": 1,
+      "maxTokens": 1024
+    }
+  },
+  "webhook_approved": {
+    "apiVersion": "ai-lab.example.test/v1",
+    "kind": "InferencePlan",
+    "metadata": {
+      "name": "synthetic-webhook-approved-model",
+      "labels": {"saf-k8s.example/webhook-validation": "enabled"}
+    },
+    "spec": {
+      "mode": "inference",
+      "modelRef": "models/approved-v1",
+      "replicas": 1,
+      "gpu": 1,
+      "maxTokens": 1024
+    }
+  }
+}

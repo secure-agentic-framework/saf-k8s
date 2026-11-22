@@ -1,0 +1,11 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-0605-009-ai-constraints
+spec:
+  policyName: saf-0605-009-ai-constraints
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/ai-validation: enabled

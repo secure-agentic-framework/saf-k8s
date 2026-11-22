@@ -1,0 +1,48 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: inferenceplans.ai-lab.example.test
+spec:
+  group: ai-lab.example.test
+  scope: Namespaced
+  names:
+    plural: inferenceplans
+    singular: inferenceplan
+    kind: InferencePlan
+    shortNames: [iplan]
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          required: [spec]
+          properties:
+            spec:
+              type: object
+              required: [mode, modelRef, replicas, gpu, maxTokens]
+              properties:
+                mode:
+                  type: string
+                  enum: [inference, training]
+                modelRef:
+                  type: string
+                  minLength: 1
+                  maxLength: 96
+                  pattern: '^[a-z0-9][a-z0-9._/-]*$'
+                replicas:
+                  type: integer
+                  minimum: 1
+                  maximum: 4
+                gpu:
+                  type: integer
+                  minimum: 0
+                  maximum: 2
+                maxTokens:
+                  type: integer
+                  minimum: 1
+                  maximum: 4096
+              x-kubernetes-validations:
+                - rule: "self.mode != 'inference' || self.maxTokens <= 3072"
+                  message: CEL inference maxTokens must not exceed 3072

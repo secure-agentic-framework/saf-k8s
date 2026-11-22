@@ -1,0 +1,20 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-0605-009-ai-constraints
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [ai-lab.example.test]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [inferenceplans]
+        scope: Namespaced
+  validations:
+    - expression: object.spec.replicas <= 3
+      message: replicas must not exceed the organizational limit of 3
+    - expression: object.spec.replicas * object.spec.gpu <= 4
+      message: replica-times-GPU quota exceeds 4
+    - expression: object.spec.mode != 'inference' || object.spec.maxTokens <= 2048
+      message: inference maxTokens must not exceed 2048

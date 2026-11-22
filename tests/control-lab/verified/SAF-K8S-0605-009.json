@@ -1,0 +1,163 @@
+{
+  "control_id": "SAF-K8S-0605-009",
+  "catalog_revision": "53f878d80544b84efc22cd452f040c94c9ab4931",
+  "catalog_sha256": "23367e3a26e88127db269d5e4d3bde470802ae8a3cabe535d0ed6ebc9d3c35e7",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "1c5c3ed8623fb4fe89e05e2d878f1862dd915c0525abce67b71bd15b2f94182c",
+  "scope": "One fresh Kubernetes v1.36.1 kind cluster. A namespaced inert InferencePlan CRD stores only synthetic scalar configuration and has no controller or workload effect. The CRD structural schema and one CEL rule validate shape and a 3072 token ceiling; a namespace-scoped VAP enforces separate quota and semantic rules. A case-owned HTTPS AdmissionReview webhook then allows only the approved synthetic modelRef for explicitly labeled CRs in the selected namespace. All custom-resource probes are named server-side dry-runs. A schema-invalid dry-run is correlated to a metadata-only audit response and absence of a matching backend event. The only Pod is the owned AdmissionReview fixture; no AI operator or generated AI workload is present.",
+  "cluster": "saf-lab-94bf367f1274",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Disposable API server is Kubernetes v1.36.1",
+      "matched": true,
+      "observed": {
+        "server": "v1.36.1"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Same schema-valid unapproved object is admitted before webhook registration",
+      "matched": true,
+      "observed": {
+        "admitted_without_webhook": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Owned webhook backend has a ready Service endpoint",
+      "matched": true,
+      "observed": {
+        "ready_endpoints": 1
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved comparison reaches the registered webhook and is admitted",
+      "matched": true,
+      "observed": {
+        "api_admitted": true,
+        "backend_recorded_allow": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Malformed structural CR is rejected before matching webhook admission",
+      "matched": true,
+      "observed": {
+        "api_status_code": 422,
+        "api_status_reason": "Invalid",
+        "api_status_message": "InferencePlan.ai-lab.example.test \"synthetic-schema-missing-model\" is invalid: [spec.modelRef: Required value, <nil>: Invalid value: null: some validation rules were not checked because the object was invalid; correct the existing errors to complete validation]",
+        "required_field_message": true,
+        "matching_backend_call_absent": true,
+        "kubectl_schema_message_matched": true,
+        "metadata_only_audit": true,
+        "audit_id_present": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Quota-invalid but schema-valid object is admitted before VAP binding",
+      "matched": true,
+      "observed": {
+        "admitted_before_binding": true,
+        "server_side_dry_run": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Same quota counterfactual is denied in selected AI namespace",
+      "matched": true,
+      "observed": {
+        "policy_denied_request": true,
+        "api_status_code": 422
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Same quota-invalid object remains outside VAP namespace scope",
+      "matched": true,
+      "observed": {
+        "admitted_outside_scope": true,
+        "server_side_dry_run": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Structural schema rejects gpu above hard maximum",
+      "matched": true,
+      "observed": {
+        "rejected": true,
+        "expected_rejection_fragments": [
+          "spec.gpu",
+          "should be less than or equal to 2"
+        ],
+        "rejection_text_matched": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native CRD CEL rejects the selected request before webhook evaluation",
+      "matched": true,
+      "observed": {
+        "native_cel_invalid": true,
+        "matching_backend_call_absent": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Webhook denies valid-schema disallowed modelRef with exact response",
+      "matched": true,
+      "observed": {
+        "exact_api_denial": true,
+        "backend_recorded_denial": true,
+        "api_status_code": 403,
+        "api_status_reason": "Forbidden",
+        "api_status_message": "admission webhook \"saf-0605-009.example.test\" denied the request: SAF-0605-009: modelRef models/unreviewed-demo is not approved",
+        "expected_status_code": 403,
+        "expected_message": "SAF-0605-009: modelRef models/unreviewed-demo is not approved",
+        "dry_run_only": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Webhook selector leaves the same synthetic object outside namespace scope",
+      "matched": true,
+      "observed": {
+        "admitted_outside_scope": true,
+        "server_side_dry_run": true
+      }
+    }
+  ]
+}
