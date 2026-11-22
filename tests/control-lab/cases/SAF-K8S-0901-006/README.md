@@ -98,3 +98,17 @@ abuse scenario is simulated.
 - [Volcano v1.15 Queue resource management](https://volcano.sh/docs/v1.15.0/keyfeatures/queueresourcemanagement/)
 - [Volcano Queue](https://volcano.sh/docs/concepts/queue/)
 - [Volcano scheduler actions](https://volcano.sh/docs/scheduler/actions/)
+
+## Kueue queue admission
+
+The same case installs upstream Kueue v0.17.7 in the isolated cluster. It
+verifies the official manifest bytes before replacing the image tag with the
+pinned controller digest. The tenant LocalQueue uses a restricted ClusterQueue
+with 300m CPU of nominal quota. A two-Pod batch requesting 400m CPU stays held
+without child Pods. A two-Pod batch requesting 200m receives quota and both
+workers emit the exact fixture receipt. An authorization check bounds queue
+administration to the selected namespace. This section requires access to the
+public Kueue release artifact and the pinned container images.
+
+- [Kueue v0.17 installation](https://kueue.sigs.k8s.io/v0.17/docs/installation/)
+- [Kueue v0.17 Jobs](https://kueue.sigs.k8s.io/v0.17/docs/tasks/run/jobs/)

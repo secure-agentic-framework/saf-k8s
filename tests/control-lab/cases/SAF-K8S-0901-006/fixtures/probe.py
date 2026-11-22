@@ -23,7 +23,8 @@ def pod(name, cpu, memory):
         "apiVersion": "v1", "kind": "Pod",
         "metadata": {"name": name, "namespace": NAMESPACE,
                      "labels": {"saf-k8s.example/fixture": "synthetic-only"}},
-        "spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,
+        "spec": {"restartPolicy": "Never", "terminationGracePeriodSeconds": 1,
+                 "automountServiceAccountToken": False,
                  "containers": [{
                      "name": "mock-workload", "image": IMAGE,
                      "command": ["python", "-c", "import time; time.sleep(3600)"],

@@ -1,5 +1,6 @@
 """Verify native namespace quota admission and tenant/admin authorization."""
 import json
+import runpy
 import time
 from pathlib import Path
 
@@ -24,11 +25,10 @@ SCOPE = (
     "500m CPU / 256Mi memory namespace ResourceQuota, verifies a low-request "
     "Pod remains admissible, and checks projected ServiceAccount authorization "
     "for creating Pods and ResourceQuota objects. A synthetic platform identity "
-    "gets only ResourceQuota create permission. The control cluster is not "
-    "configured with Volcano or Kueue. This does not exercise GPU resources, "
-    "gang scheduling, queue admission, fair sharing, priority classes, preemption, "
-    "cross-namespace isolation, production identity mapping, or quota update/delete "
-    "governance."
+    "gets only ResourceQuota create permission. A pinned Kueue v0.17.7 controller "
+    "also compares held and admitted two-Pod batches against a local queue's nominal CPU quota "
+    "and checks queue-admin authorization. Volcano and production fairness, priority, preemption and "
+    "accelerator quotas require separate evidence."
 )
 
 
@@ -189,3 +189,5 @@ def run(lab):
         "tenant_dry_run": tenant_quota_write, "platform_dry_run": admin_quota_write,
         "current_resource_quota_names": remaining, "hard_limits": hard,
     }, indent=2) + "\n")
+
+    runpy.run_path(str(HERE / "queue_admission.py"))["run"](lab)
