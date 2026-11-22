@@ -5149,10 +5149,10 @@
   domain_name: Supply Chain, Images, and Admission Control
   knowledge_area: '6.3'
   control_seq: '007'
-  control_title: Build environment and process attestations per NIST SP 800-204D
-  control_statement: Build pipelines must generate independently signed and verifiable environment attestations documenting build platform inventory and process attestations recording build tools and transformations applied, in alignment with NIST SP 800-204D.
+  control_title: Build environment and process attestations
+  control_statement: Build pipelines must capture verifiable environment evidence for build platform inventory and process evidence for observed build tools, transformations and tests. Bind both categories to the produced artifact and have a trusted build component sign each category independently under SAF policy. NIST SP 800-204D section 5.1.1 describes both evidence categories and treats process collection as best effort.
   objective: Ensure the build environment and build-step execution path are independently attested so compromised runners or unauthorized build-step changes are detectable.
-  rationale: Environment and process attestations expose compromise in build infrastructure and unauthorized pipeline modifications that a single monolithic attestation would obscure. Separating these dimensions makes the build platform and transformation chain independently verifiable.
+  rationale: Authenticating each evidence category lets consumers verify the reported platform inventory and transformation chain separately. Detecting deviations also requires reliable evidence collection, trusted signer identity, and verification against approved builders, processes and artifact digests.
   scope: Applies to all CI/CD pipelines that produce container images or deployable artifacts for production clusters, including managed build services that must provide equivalent environment and process provenance.
   primary_enforcement_point: CI/CD attestation generation for build platform inventory and transformation steps.
   implementation_surface: Environment attestation for runner image, node, and platform inventory; process attestation for build tools, Dockerfile transformations, and pipeline stages; per-category signatures; and verification of environment and process attestation presence.
