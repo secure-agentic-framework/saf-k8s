@@ -1,0 +1,106 @@
+{
+  "control_id": "SAF-K8S-0101-013",
+  "catalog_revision": "c62a40551eb5c880e5b9894cdc26bb7a929a5a29",
+  "catalog_sha256": "f8e0cf1e01bc0de4b00f018afbbd50ede74ea9107afc25c95416adf9c3533f88",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "e10579cb85037b2ec3b86a7a00c50670c0cfe7d6c6ef230d69c815c12d28b760",
+  "scope": "Kubernetes v1.36.1 kubeadm-managed API server serving certificate on the one fresh runner-owned Kind cluster's host-published loopback endpoint. The case uses kubeadm certs renew apiserver, observes the live process before and after the documented static-Pod restart, and validates only local TLS trust and IP identity. External PKI automation, production TLS termination paths, other control-plane replicas, and non-serving certificates are outside this case.",
+  "cluster": "saf-lab-7cb36737d5ad",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The generated local API endpoint initially serves a trusted certificate for its IP",
+      "matched": true,
+      "observed": {
+        "same_owned_loopback_endpoint": true,
+        "verified": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The same local API endpoint rejects a client trust store containing only the throwaway CA",
+      "matched": true,
+      "observed": {
+        "same_owned_loopback_endpoint": true,
+        "certificate_rejected": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The same local API endpoint rejects a mismatched client-side server identity",
+      "matched": true,
+      "observed": {
+        "same_owned_loopback_endpoint": true,
+        "identity_mismatch_rejected": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "kubeadm certs renew apiserver completed inside the owned control-plane node",
+      "matched": true,
+      "observed": {
+        "renewal_command_succeeded": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The owned static API server stopped while its manifest was parked",
+      "matched": true,
+      "observed": {
+        "previous_container_stopped": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Renewed certificate is served at the identical endpoint after the documented static-Pod restart",
+      "matched": true,
+      "observed": {
+        "same_owned_loopback_endpoint": true,
+        "renewal_changed_leaf_fingerprint": true,
+        "trusted_identity_after_restart": true,
+        "new_container_ready": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "After renewal the same local endpoint still rejects wrong CA and wrong identity",
+      "matched": true,
+      "observed": {
+        "same_owned_loopback_endpoint": true,
+        "wrong_ca_rejected_after_renewal": true,
+        "wrong_identity_rejected_after_renewal": true
+      }
+    }
+  ]
+}
