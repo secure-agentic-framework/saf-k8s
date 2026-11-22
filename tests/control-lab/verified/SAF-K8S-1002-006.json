@@ -1,0 +1,94 @@
+{
+  "control_id": "SAF-K8S-1002-006",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "b5120c0a1fe39bb3b875eae0149c73b8f046e9be62eab8a5bf730eeb9a8db0ce",
+  "scope": "A disposable Kind v1.36.1 cluster checks a digest-pinned Prometheus 3.5.0 and synthetic training metrics. A recording rule aggregates labels while the original remains queryable. Metric relabeling stops new detail samples, and the same Prometheus process retains history while reporting changing safe aggregates. Deployed endpoints, authentication, label hashing, remote stores and historical remediation require separate evidence.",
+  "cluster": "saf-lab-3680c4008c4d",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Raw synthetic series expose the fixture-only sensitive dimensions and safe source path retains useful cohort aggregates",
+      "matched": true,
+      "observed": {
+        "raw_series": 3,
+        "safe_series": 2,
+        "raw_sensitive_labels_present": true,
+        "safe_labels_minimized": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Recording rule emits a safe aggregate but leaves original raw series and labels queryable",
+      "matched": true,
+      "observed": {
+        "safe_source_values": [
+          5.0,
+          18.0
+        ],
+        "recorded_values": [
+          5.0,
+          18.0
+        ],
+        "recorded_series": 2,
+        "original_raw_series_still_queryable": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "After metric_relabel_configs reload, new detail series and rule output disappear while the independent safe aggregate remains queryable",
+      "matched": true,
+      "observed": {
+        "fresh_raw_series": 0,
+        "safe_values": [
+          9.0,
+          30.0
+        ],
+        "safe_source_labels_minimized": true,
+        "stale_red_marker_absent_from_instant_query": true,
+        "recording_rule_output_after_detail_drop": 0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The original detail remains in historical storage after forward-only relabeling",
+      "matched": true,
+      "observed": {
+        "same_prometheus_pod": true,
+        "historical_detail_samples": 3
+      }
+    }
+  ]
+}
