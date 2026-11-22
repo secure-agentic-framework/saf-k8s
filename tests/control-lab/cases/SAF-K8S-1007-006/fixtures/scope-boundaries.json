@@ -1,0 +1,24 @@
+{
+  "fixture_id": "SYNTH-1007-006-SCOPE-001",
+  "classification": "synthetic-defense-only",
+  "external_identity": {
+    "status": "not-represented",
+    "reason": "No external identity provider or real principal is consulted."
+  },
+  "gpu_provider": {
+    "status": "placeholder-only",
+    "resource_name": "example.com/synthetic-gpu",
+    "allocation_observed": false,
+    "provider_deletion_observed": false
+  },
+  "storage_provider": {
+    "status": "placeholder-only",
+    "asset_id": "urn:example:synthetic:storage:1007-006",
+    "backend_data_erasure_observed": false
+  },
+  "model_registry": {
+    "status": "placeholder-only",
+    "artifact_id": "urn:example:synthetic:model:1007-006",
+    "registry_deletion_observed": false
+  }
+}

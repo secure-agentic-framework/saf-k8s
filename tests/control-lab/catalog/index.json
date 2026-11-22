@@ -1446,6 +1446,12 @@
       "sha256": "ecb42fcb34ae670705db479243ab92b766a37729c6c28daa46b2ca8e8c681fca",
       "title": "Change management for production AI model deployments"
     },
+    "SAF-K8S-1007-006": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "38d28244aa90f72f7b03613ca9c5461dc5f3bf4b9ff6ea8bde338c066c9f1802",
+      "title": "Secure AI workload decommissioning"
+    },
     "SAF-K8S-1007-017": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1454,7 +1460,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "534bb9a4d07212966aed5ea9a9dfef092064a0c9",
+  "revision": "3479f7a843adf184646a59e6863da69d4f9fdf4b",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
