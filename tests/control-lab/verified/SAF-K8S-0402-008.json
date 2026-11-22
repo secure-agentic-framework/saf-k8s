@@ -1,0 +1,201 @@
+{
+  "control_id": "SAF-K8S-0402-008",
+  "catalog_revision": "d34b502ac96accb45a26841dfa77094dc4a72d9e",
+  "catalog_sha256": "c3bdef2bfc0aae712ee2fcb1bfd47cebfcedc7415526acfb36b86be77042a93f",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "53d56fec8fa31f01eaaf7e613848eda1231d0bc99041480c6a142fab12c94b95",
+  "scope": "Kubernetes v1.36.1 native ServiceAccounts, Pods, namespaced Roles and RoleBindings, and three case-owned ConfigMaps. Three ordinary synthetic Pods begin with a shared account and are recreated with distinct Training, Inference, and Pipeline accounts. The case reviews named ConfigMap GET authorization using ephemeral authorization.k8s.io/v1 SubjectAccessReviews and does not use workload credentials. External cloud IAM, federated identities, admission mapping enforcement, Kubeflow, KServe, training operators, production resources, and actual model environments are outside this case.",
+  "cluster": "saf-lab-8dee9fa35a3b",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The shared workload identity receives all three harmless named reads",
+      "matched": true,
+      "observed": {
+        "workloads": [
+          {
+            "type": "training",
+            "pod": "saf-0402-008-training-workload",
+            "service_account": "saf-0402-008-shared",
+            "automount_token": false
+          },
+          {
+            "type": "inference",
+            "pod": "saf-0402-008-inference-workload",
+            "service_account": "saf-0402-008-shared",
+            "automount_token": false
+          },
+          {
+            "type": "pipeline",
+            "pod": "saf-0402-008-pipeline-workload",
+            "service_account": "saf-0402-008-shared",
+            "automount_token": false
+          }
+        ],
+        "shared_named_reads": {
+          "saf-0402-008-inference-model": {
+            "allowed": true,
+            "denied": false,
+            "reason": "RBAC: allowed by RoleBinding \"saf-0402-008-shared/saf-0402-008\" of Role \"saf-0402-008-shared\" to ServiceAccount \"saf-0402-008-shared/saf-0402-008\""
+          },
+          "saf-0402-008-pipeline-config": {
+            "allowed": true,
+            "denied": false,
+            "reason": "RBAC: allowed by RoleBinding \"saf-0402-008-shared/saf-0402-008\" of Role \"saf-0402-008-shared\" to ServiceAccount \"saf-0402-008-shared/saf-0402-008\""
+          },
+          "saf-0402-008-training-data": {
+            "allowed": true,
+            "denied": false,
+            "reason": "RBAC: allowed by RoleBinding \"saf-0402-008-shared/saf-0402-008\" of Role \"saf-0402-008-shared\" to ServiceAccount \"saf-0402-008-shared/saf-0402-008\""
+          }
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The ordinary synthetic workloads run under three distinct explicit Kubernetes ServiceAccounts",
+      "matched": true,
+      "observed": [
+        {
+          "type": "training",
+          "pod": "saf-0402-008-training-workload",
+          "service_account": "saf-0402-008-training",
+          "automount_token": false
+        },
+        {
+          "type": "inference",
+          "pod": "saf-0402-008-inference-workload",
+          "service_account": "saf-0402-008-inference",
+          "automount_token": false
+        },
+        {
+          "type": "pipeline",
+          "pod": "saf-0402-008-pipeline-workload",
+          "service_account": "saf-0402-008-pipeline",
+          "automount_token": false
+        }
+      ]
+    },
+    {
+      "phase": "positive",
+      "claim": "Each RoleBinding binds one workload ServiceAccount to a Role permitting only get on its exact harmless ConfigMap",
+      "matched": true,
+      "observed": {
+        "training": true,
+        "inference": true,
+        "pipeline": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "API-server authorization preserves each workload's exact named read and withholds the other two named reads",
+      "matched": true,
+      "observed": {
+        "training": {
+          "saf-0402-008-inference-model": {
+            "allowed": false,
+            "denied": false,
+            "reason": ""
+          },
+          "saf-0402-008-pipeline-config": {
+            "allowed": false,
+            "denied": false,
+            "reason": ""
+          },
+          "saf-0402-008-training-data": {
+            "allowed": true,
+            "denied": false,
+            "reason": "RBAC: allowed by RoleBinding \"saf-0402-008-training-reader/saf-0402-008\" of Role \"saf-0402-008-training-reader\" to ServiceAccount \"saf-0402-008-training/saf-0402-008\""
+          }
+        },
+        "inference": {
+          "saf-0402-008-inference-model": {
+            "allowed": true,
+            "denied": false,
+            "reason": "RBAC: allowed by RoleBinding \"saf-0402-008-inference-reader/saf-0402-008\" of Role \"saf-0402-008-inference-reader\" to ServiceAccount \"saf-0402-008-inference/saf-0402-008\""
+          },
+          "saf-0402-008-pipeline-config": {
+            "allowed": false,
+            "denied": false,
+            "reason": ""
+          },
+          "saf-0402-008-training-data": {
+            "allowed": false,
+            "denied": false,
+            "reason": ""
+          }
+        },
+        "pipeline": {
+          "saf-0402-008-inference-model": {
+            "allowed": false,
+            "denied": false,
+            "reason": ""
+          },
+          "saf-0402-008-pipeline-config": {
+            "allowed": true,
+            "denied": false,
+            "reason": "RBAC: allowed by RoleBinding \"saf-0402-008-pipeline-reader/saf-0402-008\" of Role \"saf-0402-008-pipeline-reader\" to ServiceAccount \"saf-0402-008-pipeline/saf-0402-008\""
+          },
+          "saf-0402-008-training-data": {
+            "allowed": false,
+            "denied": false,
+            "reason": ""
+          }
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Training, Inference, and Pipeline each retain their own required named read",
+      "matched": true,
+      "observed": {
+        "training": {
+          "allowed": true,
+          "denied": false,
+          "reason": "RBAC: allowed by RoleBinding \"saf-0402-008-training-reader/saf-0402-008\" of Role \"saf-0402-008-training-reader\" to ServiceAccount \"saf-0402-008-training/saf-0402-008\""
+        },
+        "inference": {
+          "allowed": true,
+          "denied": false,
+          "reason": "RBAC: allowed by RoleBinding \"saf-0402-008-inference-reader/saf-0402-008\" of Role \"saf-0402-008-inference-reader\" to ServiceAccount \"saf-0402-008-inference/saf-0402-008\""
+        },
+        "pipeline": {
+          "allowed": true,
+          "denied": false,
+          "reason": "RBAC: allowed by RoleBinding \"saf-0402-008-pipeline-reader/saf-0402-008\" of Role \"saf-0402-008-pipeline-reader\" to ServiceAccount \"saf-0402-008-pipeline/saf-0402-008\""
+        }
+      }
+    }
+  ]
+}

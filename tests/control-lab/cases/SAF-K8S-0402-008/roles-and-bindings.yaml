@@ -1,0 +1,74 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0402-008-training-reader
+  namespace: saf-0402-008
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["saf-0402-008-training-data"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0402-008-inference-reader
+  namespace: saf-0402-008
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["saf-0402-008-inference-model"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0402-008-pipeline-reader
+  namespace: saf-0402-008
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["saf-0402-008-pipeline-config"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0402-008-training-reader
+  namespace: saf-0402-008
+subjects:
+  - kind: ServiceAccount
+    name: saf-0402-008-training
+    namespace: saf-0402-008
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0402-008-training-reader
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0402-008-inference-reader
+  namespace: saf-0402-008
+subjects:
+  - kind: ServiceAccount
+    name: saf-0402-008-inference
+    namespace: saf-0402-008
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0402-008-inference-reader
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0402-008-pipeline-reader
+  namespace: saf-0402-008
+subjects:
+  - kind: ServiceAccount
+    name: saf-0402-008-pipeline
+    namespace: saf-0402-008
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0402-008-pipeline-reader

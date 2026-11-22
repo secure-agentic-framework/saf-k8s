@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0402-008-training
+  namespace: saf-0402-008
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0402-008-inference
+  namespace: saf-0402-008
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0402-008-pipeline
+  namespace: saf-0402-008
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-0402-008-training-data
+  namespace: saf-0402-008
+  labels:
+    saf-k8s.example/control-case: SAF-K8S-0402-008
+    saf-k8s.example/workload-type: training
+data:
+  marker: synthetic-training-data
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-0402-008-inference-model
+  namespace: saf-0402-008
+  labels:
+    saf-k8s.example/control-case: SAF-K8S-0402-008
+    saf-k8s.example/workload-type: inference
+data:
+  marker: synthetic-inference-model
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-0402-008-pipeline-config
+  namespace: saf-0402-008
+  labels:
+    saf-k8s.example/control-case: SAF-K8S-0402-008
+    saf-k8s.example/workload-type: pipeline
+data:
+  marker: synthetic-pipeline-config

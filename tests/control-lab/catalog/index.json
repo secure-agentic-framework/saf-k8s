@@ -300,6 +300,12 @@
       "sha256": "7e3640209f1b79c77ad2dbd7ad613b7f9d83e7d437855fc48ec911194a96d8a0",
       "title": "RBAC for AI operator custom resources"
     },
+    "SAF-K8S-0402-008": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "53d56fec8fa31f01eaaf7e613848eda1231d0bc99041480c6a142fab12c94b95",
+      "title": "Distinct identity assignment for AI workload types"
+    },
     "SAF-K8S-0402-018": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -404,7 +410,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c8b924a09f27e6538d2a9728bfc34638e45b5091",
+  "revision": "6075fd50ddb23f8db7f19f96267ba4ad15efe41c",
   "sha256": "c3bdef2bfc0aae712ee2fcb1bfd47cebfcedc7415526acfb36b86be77042a93f",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
