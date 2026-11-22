@@ -1,0 +1,121 @@
+{
+  "control_id": "SAF-K8S-1001-004",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "e6f48e3843a02039a1da7b1f81dad712cb825c9936053a485d564742b8add3d0",
+  "scope": "Two fresh, single-control-plane Kind Kubernetes v1.36.1 clusters. Both receive the same seven measured API operations: five small ConfigMap LIST polls, one synthetic RoleBinding create, and one denied synthetic ConfigMap create. Red uses RequestResponse for both fixture resource types. Green omits RequestReceived, records ConfigMap LIST polls at Metadata, and retains both security-relevant writes at RequestResponse. Matching raw lines and file byte counts are saved. This finite fixture does not model sustained workload, production capacity, drops, backpressure, real AI traffic, or cluster-wide coverage.",
+  "cluster": "saf-lab-3a7f8cdc13b7",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Broad baseline records all seven operations at RequestResponse",
+      "matched": true,
+      "observed": {
+        "selected_audit_events": 14,
+        "response_complete_operations": 7,
+        "poll_audit_events": 10,
+        "request_received_events": 7,
+        "levels": [
+          "RequestResponse"
+        ],
+        "high_fidelity_binding": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Selective policy reduces poll payloads and retains both security writes",
+      "matched": true,
+      "observed": {
+        "selected_audit_events": 7,
+        "response_complete_operations": 7,
+        "poll_audit_events": 5,
+        "request_received_events": 0,
+        "poll_levels": [
+          "Metadata"
+        ],
+        "high_fidelity_binding": true,
+        "denied_status": 403
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Synthetic RBAC details and denied-write decision remain unchanged",
+      "matched": true,
+      "observed": {
+        "rolebinding_signature_equal": true,
+        "denial_equal": true,
+        "rolebinding_signature": {
+          "level": "RequestResponse",
+          "verb": "create",
+          "username": "kubernetes-admin",
+          "response_code": 201,
+          "request_role_ref": {
+            "apiGroup": "rbac.authorization.k8s.io",
+            "kind": "ClusterRole",
+            "name": "view"
+          },
+          "request_subjects": [
+            {
+              "kind": "User",
+              "apiGroup": "rbac.authorization.k8s.io",
+              "name": "saf-synthetic:workload"
+            }
+          ],
+          "response_role_ref": {
+            "apiGroup": "rbac.authorization.k8s.io",
+            "kind": "ClusterRole",
+            "name": "view"
+          },
+          "response_subjects": [
+            {
+              "kind": "User",
+              "apiGroup": "rbac.authorization.k8s.io",
+              "name": "saf-synthetic:workload"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The finite inventory probes consume fewer raw audit log bytes",
+      "matched": true,
+      "observed": {
+        "baseline_bytes": 14730,
+        "selective_bytes": 5210
+      }
+    }
+  ]
+}
