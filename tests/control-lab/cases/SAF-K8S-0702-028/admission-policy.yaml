@@ -1,0 +1,38 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0702-028-pipeline-classification
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        operations: [CREATE, UPDATE]
+        resources: [deployments]
+      - apiGroups: ["batch"]
+        apiVersions: ["v1"]
+        operations: [CREATE, UPDATE]
+        resources: [jobs]
+  validations:
+    - expression: >-
+        has(object.spec.template.metadata.labels) &&
+        "saf-k8s.example/data-classification" in object.spec.template.metadata.labels &&
+        has(namespaceObject.metadata.labels) &&
+        "saf-k8s.example/required-classification" in namespaceObject.metadata.labels &&
+        object.spec.template.metadata.labels["saf-k8s.example/data-classification"] ==
+          namespaceObject.metadata.labels["saf-k8s.example/required-classification"]
+      message: "pipeline template classification must be present and match the namespace requirement"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0702-028-pipeline-classification
+spec:
+  policyName: saf-k8s-0702-028-pipeline-classification
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/classification-enforcement: required

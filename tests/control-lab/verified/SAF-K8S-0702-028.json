@@ -1,0 +1,193 @@
+{
+  "control_id": "SAF-K8S-0702-028",
+  "catalog_revision": "7e2e05c327f54bcc2c6aefd64c255880a81ce7c9",
+  "catalog_sha256": "df105e4d2453b18902086552ec1bae50b698ff889053abd168a340c3f200169b",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "aefea4893156ece05863d05149e7848c866f504e9af2b4ca04662b7c51426692",
+  "scope": "Kubernetes v1.36.1 native ValidatingAdmissionPolicy checks for synthetic Deployment and suspended Job CREATE and UPDATE in one case-owned namespace. The namespace requires the synthetic confidential classification. The case verifies compliant admission and exact policy denials for missing and mismatched values, including template UPDATE dry-runs. It does not test workflow engines, other resource kinds, namespace enrollment governance, existing cluster workloads, or production classification processes.",
+  "cluster": "saf-lab-ac4ef978aaf9",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Without the case policy, missing and mismatched synthetic classifications reach the API",
+      "matched": true,
+      "observed": [
+        {
+          "kind": "Deployment",
+          "variant": "missing",
+          "admitted": true,
+          "denied_by_expected_policy": false
+        },
+        {
+          "kind": "Deployment",
+          "variant": "mismatch",
+          "admitted": true,
+          "denied_by_expected_policy": false
+        },
+        {
+          "kind": "Job",
+          "variant": "missing",
+          "admitted": true,
+          "denied_by_expected_policy": false
+        },
+        {
+          "kind": "Job",
+          "variant": "mismatch",
+          "admitted": true,
+          "denied_by_expected_policy": false
+        }
+      ]
+    },
+    {
+      "phase": "red",
+      "claim": "Compliant Deployment update baseline is created before policy",
+      "matched": true,
+      "observed": "created"
+    },
+    {
+      "phase": "red",
+      "claim": "Compliant Job update baseline is created before policy",
+      "matched": true,
+      "observed": "created"
+    },
+    {
+      "phase": "red",
+      "claim": "Both kinds accept updates that remove or mismatch labels before policy activation",
+      "matched": true,
+      "observed": [
+        {
+          "kind": "Deployment",
+          "variant": "missing",
+          "admitted": true,
+          "denied_by_expected_policy": false
+        },
+        {
+          "kind": "Deployment",
+          "variant": "mismatch",
+          "admitted": true,
+          "denied_by_expected_policy": false
+        },
+        {
+          "kind": "Job",
+          "variant": "missing",
+          "admitted": true,
+          "denied_by_expected_policy": false
+        },
+        {
+          "kind": "Job",
+          "variant": "mismatch",
+          "admitted": true,
+          "denied_by_expected_policy": false
+        }
+      ]
+    },
+    {
+      "phase": "green",
+      "claim": "CREATE denies missing and mismatched metadata for both pipeline fixture kinds for the policy reason",
+      "matched": true,
+      "observed": [
+        {
+          "kind": "Deployment",
+          "variant": "missing",
+          "admitted": false,
+          "denied_by_expected_policy": true
+        },
+        {
+          "kind": "Deployment",
+          "variant": "mismatch",
+          "admitted": false,
+          "denied_by_expected_policy": true
+        },
+        {
+          "kind": "Job",
+          "variant": "missing",
+          "admitted": false,
+          "denied_by_expected_policy": true
+        },
+        {
+          "kind": "Job",
+          "variant": "mismatch",
+          "admitted": false,
+          "denied_by_expected_policy": true
+        }
+      ]
+    },
+    {
+      "phase": "green",
+      "claim": "Both kinds reject updates that remove or mismatch labels under the policy",
+      "matched": true,
+      "observed": [
+        {
+          "kind": "Deployment",
+          "variant": "missing",
+          "admitted": false,
+          "denied_by_expected_policy": true
+        },
+        {
+          "kind": "Deployment",
+          "variant": "mismatch",
+          "admitted": false,
+          "denied_by_expected_policy": true
+        },
+        {
+          "kind": "Job",
+          "variant": "missing",
+          "admitted": false,
+          "denied_by_expected_policy": true
+        },
+        {
+          "kind": "Job",
+          "variant": "mismatch",
+          "admitted": false,
+          "denied_by_expected_policy": true
+        }
+      ]
+    },
+    {
+      "phase": "positive",
+      "claim": "Both kinds admit matching confidential metadata on CREATE and UPDATE",
+      "matched": true,
+      "observed": {
+        "creates": {
+          "Deployment": true,
+          "Job": true
+        },
+        "updates": {
+          "Deployment": true,
+          "Job": true
+        }
+      }
+    }
+  ]
+}
