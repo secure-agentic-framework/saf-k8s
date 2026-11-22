@@ -10330,12 +10330,12 @@
   knowledge_area: '10.1'
   control_seq: '007'
   control_title: Supplemental application-level telemetry for AI workload events
-  control_statement: Organizations must deploy supplemental application-level or runtime telemetry to capture AI workload events not visible to the Kubernetes API server, including model loading, GPU process activity, and inference request content.
+  control_statement: Organizations must deploy supplemental application-level or runtime telemetry to capture AI workload events not visible to the Kubernetes API server, including model loading, GPU process activity, and inference request metadata. Capture selected request content only where explicitly approved for a documented evidence need.
   objective: Ensure that security-relevant AI workload events occurring below the API layer are captured through supplemental telemetry to support detection, investigation, and compliance requirements.
   rationale: The Kubernetes API server audit log captures API requests but does not observe in-process runtime events such as model loading inside an inference server, GPU memory operations, or inference request content. Without supplemental telemetry for these application-level events, organizations have no visibility into unauthorized model loading, GPU process hijacking, or inference abuse patterns.
   scope: Applies to all Kubernetes clusters hosting AI/ML workloads where application-level events are security-relevant. Covers inference serving frameworks, GPU runtime monitoring, and training job application logs. For managed Kubernetes services, this control applies to customer-deployed telemetry agents and application-level log forwarding.
   primary_enforcement_point: Supplemental telemetry pipeline configuration and application-level logging configuration for AI workload pods.
-  implementation_surface: Supplemental telemetry from inference servers (Triton, vLLM, TorchServe application logs and metrics), DCGM exporter GPU process telemetry, service mesh sidecar access logs for inference request content capture, and log forwarding configuration for application-level AI events.
+  implementation_surface: Application-level model and inference events from serving frameworks such as Triton, vLLM, or TorchServe. Use validated runtime sources for GPU process events and exporters such as DCGM Exporter for supported GPU metrics. Standard service mesh access logs can supply request metadata. Use separately authorized instrumentation for selected payload fields when needed, and verify forwarding and retention.
   owner_primary: AI/ML Engineering
   owner_supporting: Security Operations; Platform Engineering
   baseline_or_ai_specific: ai-specific
