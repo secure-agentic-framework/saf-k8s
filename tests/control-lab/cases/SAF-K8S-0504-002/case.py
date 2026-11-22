@@ -2,6 +2,7 @@
 from hashlib import sha256
 import json
 import platform
+import re
 import tarfile
 import time
 from pathlib import Path
@@ -15,6 +16,14 @@ ISTIO_RELEASE_SHA256 = {
     "Darwin-arm64": "1d9a82445c2395f85ce3a165dc90e182ad4e52214f85c18e93db274fd6d82fbb",
     "Darwin-x86_64": "803f30507ba687f88e10ea9b6736dfb77fcc3c66c1d3ce8dc71420bfcfe27d6c",
 }
+CILIUM_CHARTS = {
+    "1.20.5": "0c7592eb75179ecf46dd3ec22145916f0164c4401214ea15afb5b230b1d11a21",
+    "1.21.0-pre.4": "c913f29730b65d916433a19eed24c557db2c6fa75d4039e03895f0aa09f51bb2",
+}
+LEGACY_SPIRE_VALUES = (
+    "authentication.enabled=true,authentication.mutual.spire.enabled=true,"
+    "authentication.mutual.spire.install.enabled=true"
+)
 NODE_IMAGE = (
     "kindest/node:v1.36.1@sha256:"
     "3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
@@ -40,8 +49,44 @@ SCOPE = (
     "mTLS through the backend's observed XFCC SPIFFE identity, then applies one exact "
     "service-account AuthorizationPolicy and checks allowed 200 versus denied 403. "
     "It queries backend proxy request metrics and Jaeger for one generated trace. "
-    "Only these fixtures and this in-cluster request are in scope."
+    "A separate Helm render comparison checks the Cilium 1.20.5 mutual-auth "
+    "switch against the 1.21.0-pre.4 chart using identical legacy values."
 )
+
+
+def cilium_chart(lab, version):
+    work = lab.kubeconfig.parent
+    lab.command("helm", "pull", "oci://quay.io/cilium/charts/cilium", "--version", version,
+                "--destination", str(work), "--registry-config", str(work / "cilium-registry.json"),
+                timeout=120)
+    archive = work / f"cilium-{version}.tgz"
+    if sha256(archive.read_bytes()).hexdigest() != CILIUM_CHARTS[version]:
+        lab.block(f"Official Cilium chart {version} failed the pinned archive checksum")
+    return archive
+
+
+def cilium_settings(lab, archive, *flags):
+    rendered = lab.command("helm", "template", "saf-mesh", str(archive), "--namespace", "kube-system",
+                           "--kube-version", "1.36.1", *flags, timeout=45).stdout
+    auth = re.findall(r'^  mesh-auth-mutual-enabled: "([^"]+)"$', rendered, re.MULTILINE)
+    server = any(re.search(r"^kind: StatefulSet$", resource, re.MULTILINE)
+                 and re.search(r"^  name: spire-server$", resource, re.MULTILINE)
+                 for resource in rendered.split("\n---\n"))
+    return {"mutual_auth_config": auth, "bundled_spire_server_rendered": server}
+
+
+def verify_cilium_chart_lifecycle(lab):
+    stable = cilium_chart(lab, "1.20.5")
+    prerelease = cilium_chart(lab, "1.21.0-pre.4")
+    baseline = cilium_settings(lab, stable)
+    lab.check("red", "The default Cilium 1.20.5 chart leaves legacy mutual authentication disabled",
+              baseline == {"mutual_auth_config": [], "bundled_spire_server_rendered": False}, baseline)
+    enabled = cilium_settings(lab, stable, "--set", LEGACY_SPIRE_VALUES)
+    lab.check("green", "The legacy values enable the Cilium 1.20.5 mutual-auth switch and render SPIRE",
+              enabled == {"mutual_auth_config": ["true"], "bundled_spire_server_rendered": True}, enabled)
+    preview = cilium_settings(lab, prerelease, "--set", LEGACY_SPIRE_VALUES)
+    lab.check("positive", "Identical legacy values render SPIRE without the former mutual-auth switch in the Cilium prerelease",
+              preview == {"mutual_auth_config": [], "bundled_spire_server_rendered": True}, preview)
 
 
 def kubectl(lab, *args, timeout=45, **kwargs):
@@ -390,3 +435,4 @@ def run(lab):
     trace_found, trace_observation = wait_for_trace(lab, ALLOWED_CLIENT, trace_id)
     assert_check(lab, "positive", "Jaeger stores client and backend spans for the same traced request",
                  trace_found, trace_observation)
+    verify_cilium_chart_lifecycle(lab)

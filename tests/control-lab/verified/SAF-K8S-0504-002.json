@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0504-002",
-  "catalog_revision": "da35972a15cb3951c2b70d9126bfb646068eddb3",
-  "catalog_sha256": "189962c3e5a31f6eb8fdbac0b12bd14c79f1ff1ef27182d4c8195ff3c9ff0d65",
+  "catalog_revision": "cb548d38a27108aa0cb3ba2dab7022493cb7ead3",
+  "catalog_sha256": "eb09f73c734ce9fb61334c4114a1c97b53636c859a90ae5fa9dc4148d220bfa8",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "9d1058e3b9f3454c71a630599fe3e67ba1a312d06fc71168e6c3a72a408839cb",
-  "scope": "Fresh disposable Kubernetes v1.36.1 Kind cluster with pinned Istio 1.32.0 sidecar mode. Two case-owned clients with distinct Kubernetes service accounts send the same ordinary HTTP GET to one case-owned backend. The case compares plain baseline behavior with injected workload behavior, verifies automatic mTLS through the backend's observed XFCC SPIFFE identity, then applies one exact service-account AuthorizationPolicy and checks allowed 200 versus denied 403. It queries backend proxy request metrics and Jaeger for one generated trace. Only these fixtures and this in-cluster request are in scope.",
-  "cluster": "saf-lab-83217d9a80eb",
+  "control_sha256": "b3b589d90ccaa1051053396388688d80df81c18895935a9c76e3c474efa4a1f2",
+  "scope": "Fresh disposable Kubernetes v1.36.1 Kind cluster with pinned Istio 1.32.0 sidecar mode. Two case-owned clients with distinct Kubernetes service accounts send the same ordinary HTTP GET to one case-owned backend. The case compares plain baseline behavior with injected workload behavior, verifies automatic mTLS through the backend's observed XFCC SPIFFE identity, then applies one exact service-account AuthorizationPolicy and checks allowed 200 versus denied 403. It queries backend proxy request metrics and Jaeger for one generated trace. A separate Helm render comparison checks the Cilium 1.20.5 mutual-auth switch against the 1.21.0-pre.4 chart using identical legacy values.",
+  "cluster": "saf-lab-927ee3ae0968",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -150,6 +150,35 @@
         "client_span": true,
         "backend_span": true,
         "exact_fixture_marker": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The default Cilium 1.20.5 chart leaves legacy mutual authentication disabled",
+      "matched": true,
+      "observed": {
+        "mutual_auth_config": [],
+        "bundled_spire_server_rendered": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The legacy values enable the Cilium 1.20.5 mutual-auth switch and render SPIRE",
+      "matched": true,
+      "observed": {
+        "mutual_auth_config": [
+          "true"
+        ],
+        "bundled_spire_server_rendered": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Identical legacy values render SPIRE without the former mutual-auth switch in the Cilium prerelease",
+      "matched": true,
+      "observed": {
+        "mutual_auth_config": [],
+        "bundled_spire_server_rendered": true
       }
     }
   ]
