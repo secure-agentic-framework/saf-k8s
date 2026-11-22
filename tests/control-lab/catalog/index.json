@@ -744,6 +744,12 @@
       "sha256": "4b8533818269b90366e0a4aabe16ef404af9ddd8407e206dcec6f24ee377f8fc",
       "title": "Kubernetes manifest cryptographic signing before deployment"
     },
+    "SAF-K8S-0606-022": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "036ecc3750b41ed9eacd25714414ddc3086e62bc67966977ae8510ac2894fe2b",
+      "title": "Admission-time verification of Kubernetes manifest signatures"
+    },
     "SAF-K8S-0606-023": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -1148,7 +1154,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "38a47586492295ba58e03df9ff92d2e16893a25e",
+  "revision": "ce60259b4bde899b984521f394862582cf418bbf",
   "sha256": "5468afd7544aceb8f79e434b7d58a52fc41eeee0b3084837f4dc587efc72cace",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

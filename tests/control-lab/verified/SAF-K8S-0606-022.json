@@ -1,0 +1,172 @@
+{
+  "control_id": "SAF-K8S-0606-022",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "036ecc3750b41ed9eacd25714414ddc3086e62bc67966977ae8510ac2894fe2b",
+  "scope": "One disposable Kubernetes v1.36.1 Kind cluster with an HTTPS validating webhook. Ed25519 protects canonical JSON for apiVersion, kind, name, namespace, labels, data, binaryData and an optional immutable field on the selected ConfigMaps. Tests real CREATE and UPDATE, absent authorization, an unrelated valid signer, and changes to signed data and binaryData. Trust custody, other meaningful metadata, all resources and production submission paths remain open.",
+  "cluster": "saf-lab-4788935fbd54",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The same unsigned ConfigMap persists before the webhook is installed",
+      "matched": true,
+      "observed": {
+        "name": "signed-fixture",
+        "data": {
+          "payload": "hello from approved fixture"
+        },
+        "binary_data": {
+          "fixture": "U0FG"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The webhook gives the expected denial for unsigned-create",
+      "matched": true,
+      "observed": {
+        "returncode": 1,
+        "expected_decision": "signature is absent",
+        "decision_matches": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The webhook gives the expected denial for unrelated-signer",
+      "matched": true,
+      "observed": {
+        "returncode": 1,
+        "expected_decision": "signature is valid but signer is not authorized",
+        "decision_matches": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The webhook gives the expected denial for altered-binary-create",
+      "matched": true,
+      "observed": {
+        "returncode": 1,
+        "expected_decision": "signature does not verify over the signed field projection",
+        "decision_matches": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The authorized signature accepts and stores the exact signed ConfigMap",
+      "matched": true,
+      "observed": {
+        "data": {
+          "payload": "hello from approved fixture"
+        },
+        "binary_data": {
+          "fixture": "U0FG"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The webhook gives the expected denial for altered-data-update",
+      "matched": true,
+      "observed": {
+        "returncode": 1,
+        "expected_decision": "signature does not verify over the signed field projection",
+        "decision_matches": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A denied update leaves the approved ConfigMap and resource version unchanged",
+      "matched": true,
+      "observed": {
+        "payload": "hello from approved fixture",
+        "resource_version_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A fresh authorized signature admits the exact updated payload",
+      "matched": true,
+      "observed": {
+        "returncode": 0,
+        "payload": "a second approved fixture revision"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Real AdmissionReviews match every expected operation, signed projection and decision",
+      "matched": true,
+      "observed": {
+        "decisions": [
+          [
+            "CREATE",
+            "bd4e1800721f06ceeb3896c33030cc63d7968a0849e0414ed1d2939f110b6819",
+            false,
+            "signature is absent"
+          ],
+          [
+            "CREATE",
+            "bd4e1800721f06ceeb3896c33030cc63d7968a0849e0414ed1d2939f110b6819",
+            false,
+            "signature is valid but signer is not authorized"
+          ],
+          [
+            "CREATE",
+            "bb2547e2551604bf45c38da6250e973c375d63c241487d62b6bd4c176bf3afae",
+            false,
+            "signature does not verify over the signed field projection"
+          ],
+          [
+            "CREATE",
+            "bd4e1800721f06ceeb3896c33030cc63d7968a0849e0414ed1d2939f110b6819",
+            true,
+            "authorized signature verified"
+          ],
+          [
+            "UPDATE",
+            "93652ff0506f22edb00ec6cb5b0dab330fb63b344bbacc8024acb55e0225ef8c",
+            false,
+            "signature does not verify over the signed field projection"
+          ],
+          [
+            "UPDATE",
+            "93652ff0506f22edb00ec6cb5b0dab330fb63b344bbacc8024acb55e0225ef8c",
+            true,
+            "authorized signature verified"
+          ]
+        ]
+      }
+    }
+  ]
+}
