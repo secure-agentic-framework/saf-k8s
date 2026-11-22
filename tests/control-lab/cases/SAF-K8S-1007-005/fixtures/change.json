@@ -1,0 +1,29 @@
+{
+  "fixture_notice": "Synthetic defensive change-control fixture. All identities, approvers, change records, model metadata, and digests are reserved placeholders; no real model or production target is represented.",
+  "control_id": "SAF-K8S-1007-005",
+  "fixed_now": "2026-11-22T12:00:00Z",
+  "policy": {
+    "deployment_window_start": "2026-11-22T11:00:00Z",
+    "deployment_window_end": "2026-11-22T13:00:00Z",
+    "maximum_risk_score": 3,
+    "required_approval_roles": ["synthetic-model-owner", "synthetic-platform-security"]
+  },
+  "mock_workload": {
+    "image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90",
+    "baseline_release": "SYNTH-RELEASE-000",
+    "baseline_model_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "proposed_change": {
+    "change_id": "SYNTH-CHANGE-1007-005-001",
+    "release": "SYNTH-RELEASE-001",
+    "model_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "risk_score": 2,
+    "fixture_image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
+  },
+  "approval": {
+    "explicitly_approved": true,
+    "approved_at": "2026-11-22T11:30:00Z",
+    "approved_roles": ["synthetic-model-owner", "synthetic-platform-security"],
+    "approved_change_sha256": "36704c9d8e9e0d10b2427ba4cbf4939dfd350148baf1f491c4864b409adb1a9c"
+  }
+}

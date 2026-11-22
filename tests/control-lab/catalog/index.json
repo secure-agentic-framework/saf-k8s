@@ -1434,6 +1434,12 @@
       "sha256": "71ead8fa4d98f66edf41f9d398a53c3956222497b4c6bd7bcc6dcb062897a4cd",
       "title": "Continuous security posture management for AI clusters"
     },
+    "SAF-K8S-1007-005": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "ecb42fcb34ae670705db479243ab92b766a37729c6c28daa46b2ca8e8c681fca",
+      "title": "Change management for production AI model deployments"
+    },
     "SAF-K8S-1007-017": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1442,7 +1448,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "74538ae63e29d609f91b5c082fe9a33fcae39ae0",
+  "revision": "382f37afb5600cb25ebb89981e1b05ae86f771cc",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
