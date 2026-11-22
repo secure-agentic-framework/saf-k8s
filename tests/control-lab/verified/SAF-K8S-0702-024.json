@@ -1,0 +1,95 @@
+{
+  "control_id": "SAF-K8S-0702-024",
+  "catalog_revision": "8b9352e1d27005030036fef75e277ec01d2ad5a5",
+  "catalog_sha256": "4967f071e880774746bffe0d766c8568b2787069d414141da3ee644cbb79acb5",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "bd333cb2f6c19ca0a62eeb307a4aac51ebe41b37c54d81f9a2545acfb55f2804",
+  "scope": "A v1.36.1 kind administrator inventories direct RoleBinding and ClusterRoleBinding subjects for one synthetic ServiceAccount. The inventory finds planted cross-namespace and cluster-wide reads of only a named fixture and confirms removal. A nonroot Pod uses its genuine identity for a permitted tenant-local read and self-access reviews. The case leaves group grants, other principals, exception governance, and deployed audit cadence for independent evidence.",
+  "cluster": "saf-lab-91e278a1b95e",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The administrator inventory detects both planted grants outside the enrolled namespace",
+      "matched": true,
+      "observed": {
+        "direct_bindings": [
+          "cluster/saf-0702-024-tenant-workload",
+          "saf-0702-024-enrolled/saf-0702-024-tenant-workload",
+          "saf-0702-024-synthetic/saf-0702-024-tenant-workload"
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before the tenant RoleBinding, the Pod's own access review denies its local read",
+      "matched": true,
+      "observed": {
+        "allowed": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Remediation leaves exactly the enrolled namespace binding",
+      "matched": true,
+      "observed": {
+        "direct_bindings": [
+          "saf-0702-024-enrolled/saf-0702-024-tenant-workload"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The named read in the separate workspace is denied by the Pod's own access review",
+      "matched": true,
+      "observed": {
+        "target_namespace": "saf-0702-024-synthetic",
+        "allowed": false,
+        "resource_request_sent": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The Pod can read its permitted local synthetic ConfigMap",
+      "matched": true,
+      "observed": {
+        "target_namespace": "saf-0702-024-enrolled",
+        "local_access_review_allowed": true,
+        "workload_get": {
+          "code": 200,
+          "marker": "tenant-namespace-synthetic-marker"
+        }
+      }
+    }
+  ]
+}

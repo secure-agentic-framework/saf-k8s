@@ -576,6 +576,12 @@
       "sha256": "766d73d0ef57d1b2c2d65c07178fdb0ea089a1053823119f876811aef70693f3",
       "title": "Virtual cluster isolation guarantee and residual risk documentation"
     },
+    "SAF-K8S-0702-024": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "bd333cb2f6c19ca0a62eeb307a4aac51ebe41b37c54d81f9a2545acfb55f2804",
+      "title": "Tenant namespace-scoped RBAC boundary enforcement"
+    },
     "SAF-K8S-0702-026": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -626,7 +632,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6c3d336c05a7e06fc343475a798ed9690e79de64",
+  "revision": "03cd976d7298e378aa860471f45c98ed2fb721b6",
   "sha256": "4967f071e880774746bffe0d766c8568b2787069d414141da3ee644cbb79acb5",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
