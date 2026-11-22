@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-approved-recovery-client-to-mock-endpoint
+  namespace: saf-1005-017-protected
+spec:
+  podSelector:
+    matchLabels:
+      saf-k8s.example/1005-017-role: recovery-mock-endpoint
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: saf-1005-017-recovery
+          podSelector:
+            matchLabels:
+              saf-k8s.example/1005-017-role: approved-recovery-client
+      ports:
+        - protocol: TCP
+          port: 8080

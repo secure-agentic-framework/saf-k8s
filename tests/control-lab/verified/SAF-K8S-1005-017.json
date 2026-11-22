@@ -1,0 +1,384 @@
+{
+  "control_id": "SAF-K8S-1005-017",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "2928345f20e6a6e43c51ff06247bb373291c12a9d4f9ed7139ebb5ae0cbf649f",
+  "scope": "One disposable two-node Kind v0.32.0 cluster on Kubernetes v1.36.1 with bundled kindnet. Benign mock HTTP paths exercise independent ingress and egress enforcement, exact recovery allowances and a same-label client in another namespace. Separate checks verify least-privilege RBAC for one named receipt and revoke an old synthetic Secret-bound service account token while its replacement remains valid. Production networking, control-plane and node paths, hardware, arbitrary credentials and actual incident procedures need separate evidence.",
+  "cluster": "saf-lab-202aa7f3a117",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Pinned Kubernetes and bundled kindnet are ready on both nodes",
+      "matched": true,
+      "observed": {
+        "kind_version": "kind v0.32.0 go1.26.3 darwin/arm64",
+        "kubernetes_version": "v1.36.1",
+        "cni_daemonset": "kube-system/kindnet",
+        "cni_images": [
+          "docker.io/kindest/kindnetd:v20260528-9350166c"
+        ],
+        "ready_nodes_with_cni": 2,
+        "desired_nodes": 2
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Source and Service endpoints are placed on separate Kind nodes",
+      "matched": true,
+      "observed": {
+        "source_node_role": "control-plane",
+        "destination_node_role": "worker",
+        "source_fixture_pods": [
+          "approved-recovery",
+          "ordinary-client",
+          "lookalike-client"
+        ],
+        "destination_fixture_pods": [
+          "recovery-mock-endpoint",
+          "ordinary-mock-endpoint"
+        ],
+        "service_endpoints_match_exact_case_pods": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before policy, client reaches the recovery mock Service",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-1005-017-recovery",
+        "source_pod": "approved-recovery",
+        "expected_fixture_marker": "saf-1005-017-benign-recovery-marker-61c2",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before policy, client reaches the ordinary mock Service",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-1005-017-recovery",
+        "source_pod": "approved-recovery",
+        "expected_fixture_marker": "saf-1005-017-benign-ordinary-marker-84a7",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before policy, client reaches the recovery mock Service",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-1005-017-recovery",
+        "source_pod": "ordinary-client",
+        "expected_fixture_marker": "saf-1005-017-benign-recovery-marker-61c2",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before policy, client reaches the ordinary mock Service",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-1005-017-recovery",
+        "source_pod": "ordinary-client",
+        "expected_fixture_marker": "saf-1005-017-benign-ordinary-marker-84a7",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before policy, client reaches the recovery mock Service",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-1005-017-unrelated",
+        "source_pod": "lookalike-client",
+        "expected_fixture_marker": "saf-1005-017-benign-recovery-marker-61c2",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before policy, client reaches the ordinary mock Service",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-1005-017-unrelated",
+        "source_pod": "lookalike-client",
+        "expected_fixture_marker": "saf-1005-017-benign-ordinary-marker-84a7",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Recovery namespace egress isolation fences the approved client",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-1005-017-recovery",
+        "source_pod": "approved-recovery",
+        "expected_fixture_marker": "saf-1005-017-benign-recovery-marker-61c2",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Egress policy scope leaves the unrelated namespace unaffected",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-1005-017-unrelated",
+        "source_pod": "lookalike-client",
+        "expected_fixture_marker": "saf-1005-017-benign-recovery-marker-61c2",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Exact egress allowance restores the approved recovery Service path",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-1005-017-recovery",
+        "source_pod": "approved-recovery",
+        "expected_fixture_marker": "saf-1005-017-benign-recovery-marker-61c2",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Exact egress allowance does not reach the ordinary Service",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-1005-017-recovery",
+        "source_pod": "approved-recovery",
+        "expected_fixture_marker": "saf-1005-017-benign-ordinary-marker-84a7",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Ordinary same-namespace request stays fenced",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-1005-017-recovery",
+        "source_pod": "ordinary-client",
+        "expected_fixture_marker": "saf-1005-017-benign-recovery-marker-61c2",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Protected namespace ingress isolation independently fences the allowed egress path",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-1005-017-recovery",
+        "source_pod": "approved-recovery",
+        "expected_fixture_marker": "saf-1005-017-benign-recovery-marker-61c2",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Protected ingress isolation fences the same-label unrelated client",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-1005-017-unrelated",
+        "source_pod": "lookalike-client",
+        "expected_fixture_marker": "saf-1005-017-benign-recovery-marker-61c2",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Paired exact ingress and egress rules admit approved recovery HTTP",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-1005-017-recovery",
+        "source_pod": "approved-recovery",
+        "expected_fixture_marker": "saf-1005-017-benign-recovery-marker-61c2",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Paired rules continue to fence an ordinary same-namespace request",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-1005-017-recovery",
+        "source_pod": "ordinary-client",
+        "expected_fixture_marker": "saf-1005-017-benign-recovery-marker-61c2",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Paired rules fence a same-label client from an unrelated namespace",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-1005-017-unrelated",
+        "source_pod": "lookalike-client",
+        "expected_fixture_marker": "saf-1005-017-benign-recovery-marker-61c2",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Paired rules fence the approved client from the ordinary Service",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-1005-017-recovery",
+        "source_pod": "approved-recovery",
+        "expected_fixture_marker": "saf-1005-017-benign-ordinary-marker-84a7",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both benign mock HTTP listeners stay healthy during policy denial",
+      "matched": true,
+      "observed": {
+        "services": [
+          "saf-1005-017-protected/recovery-mock",
+          "saf-1005-017-protected/ordinary-mock"
+        ],
+        "listeners_healthy": true,
+        "markers": [
+          "saf-1005-017-benign-recovery-marker-61c2",
+          "saf-1005-017-benign-ordinary-marker-84a7"
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A recovery identity without the approved binding cannot read the case receipt",
+      "matched": true,
+      "observed": {
+        "named_read_denied_without_binding": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The scoped binding allows the exact receipt and denies an unrelated same-namespace read",
+      "matched": true,
+      "observed": {
+        "approved_read": true,
+        "unrelated_read_denied": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Issuing a replacement alone leaves both fixture credentials valid",
+      "matched": true,
+      "observed": {
+        "old_valid": true,
+        "replacement_valid": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Retiring the old binding object invalidates only its credential",
+      "matched": true,
+      "observed": {
+        "old_valid_after_retirement": false,
+        "replacement_valid": true,
+        "audience": "urn:example:saf:recovery-audit",
+        "subject": "system:serviceaccount:saf-1005-017-recovery:receipt-reader"
+      }
+    }
+  ]
+}

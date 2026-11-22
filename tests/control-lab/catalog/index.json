@@ -1320,6 +1320,12 @@
       "sha256": "7ce0cbfb8a5b088e9edb6df6ffb63b88e695d95a2d9e430b4af8bfad89554419",
       "title": "Documented post-incident model retraining or rollback decisions"
     },
+    "SAF-K8S-1005-017": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "2928345f20e6a6e43c51ff06247bb373291c12a9d4f9ed7139ebb5ae0cbf649f",
+      "title": "Recovery-time lateral movement containment for compromised AI workloads"
+    },
     "SAF-K8S-1006-001": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1370,7 +1376,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "53046cc9f3091ffde0b1fcc75b61cf6c9e55b294",
+  "revision": "2b8a0c03355b730644c47e41fcaf13fb8b6fc9ca",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
