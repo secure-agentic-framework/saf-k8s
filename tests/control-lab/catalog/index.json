@@ -1302,6 +1302,12 @@
       "sha256": "4b0332e246a7260e1234803efd1e1e7d6621d0bf5952287fe31552dbfb9334e8",
       "title": "AI-specific incident response playbooks for Kubernetes"
     },
+    "SAF-K8S-1005-015": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "80822fea7a1795871dd8ad92c4bdc588814d2665ae04194c4f990fbe7f97e0a5",
+      "title": "Post-incident AI model integrity verification"
+    },
     "SAF-K8S-1006-001": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1352,7 +1358,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "420dab6080be5adee28a0000106b957c1f0a8bda",
+  "revision": "9ef9106f4e64b426fc0d65a6c54d3e2e7d744d76",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

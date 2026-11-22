@@ -1,0 +1,133 @@
+{
+  "control_id": "SAF-K8S-1005-015",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "80822fea7a1795871dd8ad92c4bdc588814d2665ae04194c4f990fbe7f97e0a5",
+  "scope": "One disposable Kind Kubernetes v1.36.1 cluster runs restricted, tokenless native Jobs. They process only one harmless synthetic plain-text fixture, synthetic approval metadata, and a pre-incident SHA-256 record stored in a Kubernetes immutable ConfigMap. A bypass comparator accepts a changed candidate; the enabled gate blocks it and accepts byte-identical approved reconstruction. This demonstrates a fixture-level byte-identity check and decision path only. It does not use, test, represent, or establish the safety of an AI model; prove approval identity, signature authenticity, or baseline protection from a cluster administrator; or establish production incident response, registry, signature, behavioral-validation, monitoring, or deployment coverage.",
+  "cluster": "saf-lab-3b20b572c06b",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The case-owned fixture ConfigMap is persisted as immutable",
+      "matched": true,
+      "observed": {
+        "immutable": true,
+        "verified_api_readback": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The API rejects an edit of the immutable fixture baseline",
+      "matched": true,
+      "observed": {
+        "immutable_api_denial": true,
+        "fixture_bytes_preserved": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A byte-identical reconstruction remains blocked without approved metadata",
+      "matched": true,
+      "observed": {
+        "job_condition": "Failed",
+        "exit_code": 1,
+        "decision": {
+          "approval_valid": false,
+          "baseline_sha256": "8176b6cb32837a6710222858fc244c8a9368e6d577da489afb7e5b1edebb7fac",
+          "candidate_sha256": "8176b6cb32837a6710222858fc244c8a9368e6d577da489afb7e5b1edebb7fac",
+          "decision": "blocked",
+          "reason": "baseline_or_approval_invalid",
+          "recorded_sha256": "8176b6cb32837a6710222858fc244c8a9368e6d577da489afb7e5b1edebb7fac"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The disposable cluster reports Kubernetes v1.36.1 nodes",
+      "matched": true,
+      "observed": {
+        "node_count": 1,
+        "kubelet_versions": [
+          "v1.36.1"
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The bypass comparator accepts the changed candidate without an integrity decision",
+      "matched": true,
+      "observed": {
+        "job_condition": "Complete",
+        "exit_code": 0,
+        "decision": {
+          "candidate_sha256": "5b408138f43d2f52fee6ffb6047a344ad4908823f80c27c0e5fb2b52d5cdb44d",
+          "decision": "accepted_without_integrity_check"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enabled gate blocks a changed candidate despite matching synthetic approval metadata",
+      "matched": true,
+      "observed": {
+        "job_condition": "Failed",
+        "exit_code": 1,
+        "decision": {
+          "approval_valid": true,
+          "baseline_sha256": "8176b6cb32837a6710222858fc244c8a9368e6d577da489afb7e5b1edebb7fac",
+          "candidate_sha256": "5b408138f43d2f52fee6ffb6047a344ad4908823f80c27c0e5fb2b52d5cdb44d",
+          "decision": "blocked",
+          "reason": "candidate_digest_mismatch"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The enabled gate validates the approved byte-identical reconstruction",
+      "matched": true,
+      "observed": {
+        "job_condition": "Complete",
+        "exit_code": 0,
+        "decision": {
+          "approval_id": "approval-fixture-1005-015-001",
+          "approval_valid": true,
+          "baseline_sha256": "8176b6cb32837a6710222858fc244c8a9368e6d577da489afb7e5b1edebb7fac",
+          "candidate_sha256": "8176b6cb32837a6710222858fc244c8a9368e6d577da489afb7e5b1edebb7fac",
+          "decision": "reconstruction_validated"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+SAF-K8S-1005-015 inert integrity fixture
+artifact_type=synthetic-plain-text
+record_id=fixture-1005-015-001
+content=reserved-placeholder-only

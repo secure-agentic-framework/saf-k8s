@@ -1,0 +1,8 @@
+{
+  "approval_id": "approval-fixture-1005-015-001",
+  "approver": "synthetic-reviewer-01",
+  "decision": "approved",
+  "operation": "reconstruct",
+  "artifact_id": "fixture-1005-015-001",
+  "approved_sha256": "8176b6cb32837a6710222858fc244c8a9368e6d577da489afb7e5b1edebb7fac"
+}
