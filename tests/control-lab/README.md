@@ -15,3 +15,10 @@ Use a valid local Docker context for your machine. The first run may pull the
 pinned node and workload images. Inspect `cases/<control-id>/` for the runnable
 test and fixtures, and `verified/<control-id>.json` for the retained passing
 result and its scope. New runs write `evidence/<control-id>/<run-id>/` locally.
+
+For self-contained cases with the default Kind layout, run `test <control-id>`
+with `--await-approval <new-file>` to start the cluster while reviewing the case.
+Once reviewed, run `approve <control-id> <new-file>` with the same catalog index.
+Use a separate approval file in a private directory outside the case for each
+run. The runner checks the approved snapshot before loading the case and cleans
+up the cluster on approval timeout or cancellation.
