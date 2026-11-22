@@ -1362,6 +1362,12 @@
       "sha256": "9161ce67bcfd0f9fe81a89427391e3a83618022059c9f5126cc3323d75a7d567",
       "title": "Inference service quarantine and pipeline execution suspension with state preservation"
     },
+    "SAF-K8S-1005-025": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "0f9ffb3cd11f465387ff57190496163e25d6b50a5a68297d0979e07986d959c2",
+      "title": "Kubernetes forensic evidence acquisition for container, node, audit, and network artifacts"
+    },
     "SAF-K8S-1005-026": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1430,7 +1436,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "3742321a777d39508506d119a958b5b527eff70c",
+  "revision": "c78c9f8c73fd1ec51213e03862beac7160bc9fc7",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

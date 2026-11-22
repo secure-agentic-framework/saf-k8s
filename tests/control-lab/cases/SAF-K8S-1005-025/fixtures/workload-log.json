@@ -1,0 +1,8 @@
+{
+  "fixture_id": "SYNTH-1005-025-WORKLOAD-001",
+  "notice": "Synthetic case-owned mock workload output; no incident or customer data.",
+  "records": [
+    {"event": "mock_inference_started", "request_id": "urn:example:saf:fixture:request:001", "result": "ok"},
+    {"event": "mock_inference_completed", "request_id": "urn:example:saf:fixture:request:001", "result": "ok"}
+  ]
+}
