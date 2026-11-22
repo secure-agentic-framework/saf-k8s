@@ -1,0 +1,66 @@
+{
+  "fixture_notice": "Entirely synthetic offline benchmark data. No real advisory identifiers, target assets, or feed records.",
+  "control_id": "SAF-K8S-1007-004",
+  "profile": {
+    "pod_security": {
+      "pod-security.kubernetes.io/enforce": "restricted",
+      "pod-security.kubernetes.io/enforce-version": "v1.36",
+      "pod-security.kubernetes.io/audit": "restricted",
+      "pod-security.kubernetes.io/audit-version": "v1.36",
+      "pod-security.kubernetes.io/warn": "restricted",
+      "pod-security.kubernetes.io/warn-version": "v1.36"
+    },
+    "network_policy": {
+      "podSelector": {"matchLabels": {"app": "mock-inference"}},
+      "policyTypes": ["Ingress", "Egress"]
+    },
+    "role_rules": [
+      {
+        "apiGroups": [""],
+        "resources": ["configmaps"],
+        "resourceNames": ["posture-fixture"],
+        "verbs": ["get"]
+      }
+    ],
+    "workload": {
+      "image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90",
+      "runAsNonRoot": true,
+      "allowPrivilegeEscalation": false,
+      "readOnlyRootFilesystem": true,
+      "seccompProfile": "RuntimeDefault",
+      "dropCapabilities": ["ALL"],
+      "automountServiceAccountToken": false
+    }
+  },
+  "offline_advisories": [
+    {
+      "advisory_id": "SYNTH-ADVISORY-1007-004-A",
+      "source_id": "SYNTH-LOCAL-FICTIONAL-SOURCE",
+      "record_type": "fictional-benchmark-metadata",
+      "component": "mock-runtime",
+      "version": "0.0.0-synthetic",
+      "severity": "synthetic-high",
+      "status": "fictional-open"
+    },
+    {
+      "advisory_id": "SYNTH-ADVISORY-1007-004-B",
+      "source_id": "SYNTH-LOCAL-FICTIONAL-SOURCE",
+      "record_type": "fictional-benchmark-metadata",
+      "component": "mock-runtime",
+      "version": "9.9.9-synthetic",
+      "severity": "synthetic-low",
+      "status": "fictional-closed"
+    }
+  ],
+  "asset_observations": [
+    {
+      "asset_id": "SYNTH-ASSET-MOCK-INFERENCE-01",
+      "namespace": "saf-1007-004-owned",
+      "workload": "mock-inference",
+      "image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90",
+      "components": [
+        {"name": "mock-runtime", "version": "0.0.0-synthetic"}
+      ]
+    }
+  ]
+}

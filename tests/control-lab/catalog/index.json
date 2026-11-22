@@ -1428,6 +1428,12 @@
       "sha256": "74f21e8e1240e6edb5f6f7cd1a02dd7a22f02c984b6c1a5e713ce16410801fa7",
       "title": "Policy exception approval and expiration governance for AI workload compliance"
     },
+    "SAF-K8S-1007-004": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "71ead8fa4d98f66edf41f9d398a53c3956222497b4c6bd7bcc6dcb062897a4cd",
+      "title": "Continuous security posture management for AI clusters"
+    },
     "SAF-K8S-1007-017": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1436,7 +1442,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c78c9f8c73fd1ec51213e03862beac7160bc9fc7",
+  "revision": "74538ae63e29d609f91b5c082fe9a33fcae39ae0",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
