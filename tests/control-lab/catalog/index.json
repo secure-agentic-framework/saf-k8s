@@ -1278,6 +1278,12 @@
       "sha256": "37c58febf4ccbd90e7926bb64dd47a877b3a494325dfb1c6c728fd592988646c",
       "title": "Pipeline definition immutable version storage and controlled rollback governance"
     },
+    "SAF-K8S-0905-050": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "0daaea403024f6a3b3e596b62b20201a20192c1dece9d9eb4bddb51a8f764376",
+      "title": "Authenticated reviewer identity validation for model promotion approvals"
+    },
     "SAF-K8S-0907-007": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1760,7 +1766,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "caa48b30d08b53396c671d9ae0b05a91d8da3765",
+  "revision": "cfd5192e836dc627199c596e7685ec27f15221ae",
   "sha256": "7ffb43067ed3adc487f9f2d6a997c6ea1768540997726fe36991eb41516053ea",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

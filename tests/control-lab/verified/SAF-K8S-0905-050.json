@@ -1,0 +1,98 @@
+{
+  "control_id": "SAF-K8S-0905-050",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "0daaea403024f6a3b3e596b62b20201a20192c1dece9d9eb4bddb51a8f764376",
+  "scope": "Kubernetes v1.36.1 runs two case-owned copies of a small promotion API. Both receive the same case-minted ServiceAccount token and fixed inert decision; the disabled gate accepts it, while the enabled gate uses authentication.k8s.io/v1 TokenReview with a fixed audience and an exact reviewer allowlist. The enabled gate rejects wrong-audience, missing, and authenticated-but-unapproved identities and accepts the allowlisted reviewer. This proves the Kubernetes token identity/audience boundary for one inert decision only; external OIDC/SSO, human session binding, audit binding, and deployed workflow coverage need separate evidence.",
+  "cluster": "saf-lab-fc5af84830f1",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "With the deployed gate disabled, the same fixed decision accepts its case-minted wrong-audience credential",
+      "matched": true,
+      "observed": {
+        "decision_accepted": true,
+        "gate": "disabled",
+        "http_status": 200
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The deployed gate rejects that credential because TokenReview does not authenticate it for the promotion audience",
+      "matched": true,
+      "observed": {
+        "decision_accepted": false,
+        "tokenreview_authenticated": false,
+        "returned_audiences": [],
+        "http_status": 403
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A different authenticated ServiceAccount cannot approve the fixed decision",
+      "matched": true,
+      "observed": {
+        "tokenreview_authenticated": true,
+        "reviewer_allowlist_match": false,
+        "audiences": [
+          "https://promotion.saf.invalid"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The deployed gate rejects a request with no reviewer credential",
+      "matched": true,
+      "observed": {
+        "decision_accepted": false,
+        "credential_present": false,
+        "http_status": 403
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The allowlisted reviewer is authenticated for the promotion audience and accepted",
+      "matched": true,
+      "observed": {
+        "decision_accepted": true,
+        "tokenreview_authenticated": true,
+        "reviewer_allowlist_match": true,
+        "audiences": [
+          "https://promotion.saf.invalid"
+        ]
+      }
+    }
+  ]
+}
