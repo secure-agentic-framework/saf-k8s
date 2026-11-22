@@ -606,6 +606,12 @@
       "sha256": "8f8ee894d18af13f8d41eacce8551c1de3a48399de843dc7eb1db091a642164a",
       "title": "Promotion-time automatic classification uplift and reclassification execution"
     },
+    "SAF-K8S-0702-031": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "f4e4d3c40de846537354fb5c7ca5e70670148ce237c380b6f0414d2de7caa787",
+      "title": "Production promotion gate enforcement on validated classification metadata"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -620,7 +626,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "852c5ed81dbdc0fc81cf6d43f0e4090211da2ac9",
+  "revision": "6c3d336c05a7e06fc343475a798ed9690e79de64",
   "sha256": "4967f071e880774746bffe0d766c8568b2787069d414141da3ee644cbb79acb5",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

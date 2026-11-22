@@ -1,0 +1,49 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0702-031-promotion-classification
+spec:
+  failurePolicy: Fail
+  paramKind:
+    apiVersion: v1
+    kind: ConfigMap
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        operations: [CREATE, UPDATE]
+        resources: [deployments]
+  validations:
+    - expression: >-
+        params != null && has(params.data) &&
+        ["classification", "target", "policyVersion", "artifactDigest"].all(key, key in params.data) &&
+        has(object.metadata.labels) &&
+        "saf-k8s.example/data-classification" in object.metadata.labels &&
+        object.metadata.labels["saf-k8s.example/data-classification"] == params.data["classification"] &&
+        "saf-k8s.example/lifecycle-stage" in object.metadata.labels &&
+        object.metadata.labels["saf-k8s.example/lifecycle-stage"] == params.data["target"] &&
+        has(object.metadata.annotations) &&
+        "saf-k8s.example/classification-validated-for" in object.metadata.annotations &&
+        object.metadata.annotations["saf-k8s.example/classification-validated-for"] == params.data["target"] &&
+        "saf-k8s.example/classification-policy-version" in object.metadata.annotations &&
+        object.metadata.annotations["saf-k8s.example/classification-policy-version"] == params.data["policyVersion"] &&
+        "saf-k8s.example/approved-artifact-digest" in object.metadata.annotations &&
+        object.metadata.annotations["saf-k8s.example/approved-artifact-digest"] == params.data["artifactDigest"]
+      message: "promotion metadata must match the target classification policy version"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0702-031-promotion-classification
+spec:
+  policyName: saf-k8s-0702-031-promotion-classification
+  validationActions: [Deny]
+  paramRef:
+    name: approved-synthetic-promotion
+    namespace: saf-0702-031-production
+    parameterNotFoundAction: Deny
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/promotion-gate: required

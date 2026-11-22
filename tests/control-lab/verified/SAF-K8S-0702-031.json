@@ -1,0 +1,139 @@
+{
+  "control_id": "SAF-K8S-0702-031",
+  "catalog_revision": "8b9352e1d27005030036fef75e277ec01d2ad5a5",
+  "catalog_sha256": "4967f071e880774746bffe0d766c8568b2787069d414141da3ee644cbb79acb5",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "f4e4d3c40de846537354fb5c7ca5e70670148ce237c380b6f0414d2de7caa787",
+  "scope": "Kubernetes v1.36.1 ValidatingAdmissionPolicy CREATE and UPDATE checks for synthetic Deployments in a case-owned namespace. The admission decision compares classification, target, policy version and artifact digest claims with a separate administrator-supplied ConfigMap for one synthetic release. The digest is computed from an inert fixture. Actual production model registry integrity, signers, promotion pipelines and organization-wide policy enrollment require production evidence.",
+  "cluster": "saf-lab-52f66ff59064",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Without the case policy, all invalid promotion metadata probes reach the API",
+      "matched": true,
+      "observed": [
+        {
+          "variant": "absent-classification",
+          "admitted": true,
+          "denied_by_expected_policy": false,
+          "detail": ""
+        },
+        {
+          "variant": "malformed-classification",
+          "admitted": true,
+          "denied_by_expected_policy": false,
+          "detail": ""
+        },
+        {
+          "variant": "outdated-policy-version",
+          "admitted": true,
+          "denied_by_expected_policy": false,
+          "detail": ""
+        },
+        {
+          "variant": "unapproved-target",
+          "admitted": true,
+          "denied_by_expected_policy": false,
+          "detail": ""
+        },
+        {
+          "variant": "unapproved-artifact",
+          "admitted": true,
+          "denied_by_expected_policy": false,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "phase": "green",
+      "claim": "Enrolled promotion admission rejects invalid claims and unapproved artifact or target",
+      "matched": true,
+      "observed": [
+        {
+          "variant": "absent-classification",
+          "admitted": false,
+          "denied_by_expected_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": deployments.apps \"probe-absent\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-031-promotion-classification' with binding 'saf-k8s-0702-031-promotion-classification' denied request: promotion metadata must match the target classification policy version"
+        },
+        {
+          "variant": "malformed-classification",
+          "admitted": false,
+          "denied_by_expected_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": deployments.apps \"probe-malformed\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-031-promotion-classification' with binding 'saf-k8s-0702-031-promotion-classification' denied request: promotion metadata must match the target classification policy version"
+        },
+        {
+          "variant": "outdated-policy-version",
+          "admitted": false,
+          "denied_by_expected_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": deployments.apps \"probe-outdated\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-031-promotion-classification' with binding 'saf-k8s-0702-031-promotion-classification' denied request: promotion metadata must match the target classification policy version"
+        },
+        {
+          "variant": "unapproved-target",
+          "admitted": false,
+          "denied_by_expected_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": deployments.apps \"probe-unapproved-stage\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-031-promotion-classification' with binding 'saf-k8s-0702-031-promotion-classification' denied request: promotion metadata must match the target classification policy version"
+        },
+        {
+          "variant": "unapproved-artifact",
+          "admitted": false,
+          "denied_by_expected_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": deployments.apps \"probe-unapproved-artifact\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-031-promotion-classification' with binding 'saf-k8s-0702-031-promotion-classification' denied request: promotion metadata must match the target classification policy version"
+        }
+      ]
+    },
+    {
+      "phase": "positive",
+      "claim": "The API persists the Deployment for the independently approved fixture",
+      "matched": true,
+      "observed": {
+        "policy_version": "fixture-classification-v1.2.0",
+        "approved_digest": "sha256:344bc895a34b62f2a2a00935cf745d4efa36ae34579da77116412ca6f4a7dc7a"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same deployment cannot remove its target validation on UPDATE",
+      "matched": true,
+      "observed": {
+        "denied_by_expected_policy": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Namespace selector leaves the same malformed fixture outside the enrolled scope",
+      "matched": true,
+      "observed": "unenrolled namespace request admitted"
+    }
+  ]
+}
