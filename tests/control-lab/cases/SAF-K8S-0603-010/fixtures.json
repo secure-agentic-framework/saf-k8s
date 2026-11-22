@@ -1,0 +1,20 @@
+{
+  "format": "saf-k8s-0603-010-fixtures-v1",
+  "approved": "approved-image",
+  "images": {
+    "approved-image": {
+      "release_marker": "SAF-K8S-0603-010 approved inert image fixture v1\n",
+      "components": [
+        {"name": "fixture-runtime", "version": "1.0.0", "type": "library"},
+        {"name": "fixture-app-approved", "version": "1.0.0", "type": "application"}
+      ]
+    },
+    "other-image": {
+      "release_marker": "SAF-K8S-0603-010 other inert image fixture v1\n",
+      "components": [
+        {"name": "fixture-runtime", "version": "1.0.0", "type": "library"},
+        {"name": "fixture-app-other", "version": "1.0.0", "type": "application"}
+      ]
+    }
+  }
+}

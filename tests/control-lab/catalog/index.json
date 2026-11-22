@@ -690,6 +690,12 @@
       "sha256": "1ac7627f33aee68061f768f048074a00037d45d0734a4322b77ff9017890e974",
       "title": "Build materials and artifact attestations"
     },
+    "SAF-K8S-0603-010": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "50a0c2486de2c2c57f546c078fed89cc2d4a8ef5b170dae89a62d05051799877",
+      "title": "SBOM attestation binding to image digests"
+    },
     "SAF-K8S-0605-002": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -962,7 +968,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "0df2209c3449bcea3c6e8b6384c7fffb6fd58177",
+  "revision": "57bf278e54bbba4b4e3fcf79058770db5702ddf3",
   "sha256": "fc842ab4d46fdce83225faef0975a8e44f736b300242218bc44d9e709727ce55",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

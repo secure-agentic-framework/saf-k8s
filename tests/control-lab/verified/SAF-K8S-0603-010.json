@@ -1,0 +1,125 @@
+{
+  "control_id": "SAF-K8S-0603-010",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "50a0c2486de2c2c57f546c078fed89cc2d4a8ef5b170dae89a62d05051799877",
+  "scope": "One fresh local Kubernetes v1.36.1 Kind cluster. The case creates two distinct, case-owned OCI image layouts in a temporary directory from inert synthetic config and layer bytes; it computes each OCI image-manifest digest from the serialized manifest. A CycloneDX 1.6 fixture SBOM is generated from package metadata read out of each verified OCI layer, wrapped in an in-toto Statement v1 and signed with one ephemeral RSA key. A Kubernetes verifier Job independently verifies the DSSE signature and recomputes the supplied OCI manifest digest. One Job accepts the approved image's exact subject; another verifies a valid claim from the same signer for the second image and rejects its different subject against the approved digest. No registry is contacted or written. The component list is fixture input, not a scan or inventory generated from image contents. OCI referrer/registry attachment, general-purpose inventory coverage, CI/CD promotion, production signer authorization, and production deployment coverage are not tested.",
+  "cluster": "saf-lab-a617d3f1d05d",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Disposable API server is Kubernetes v1.36.1",
+      "matched": true,
+      "observed": {
+        "server": "v1.36.1"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Two case-owned OCI image manifests have distinct computed digests",
+      "matched": true,
+      "observed": {
+        "approved_manifest_digest": "sha256:fb19154da769460d1f668daeba91e648fe5e74da9b68d612fdb94979d945570d",
+        "other_manifest_digest": "sha256:850a8f10be4e0bb9c3b6ef50ce43392fc48b83059f92aaf0671d777fa6036ec1",
+        "distinct": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "CycloneDX evidence matches the package inventory in approved-image",
+      "matched": true,
+      "observed": {
+        "components": [
+          {
+            "name": "fixture-runtime",
+            "version": "1.0.0",
+            "type": "library"
+          },
+          {
+            "name": "fixture-app-approved",
+            "version": "1.0.0",
+            "type": "application"
+          }
+        ],
+        "source_is_verified_oci_layer": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "CycloneDX evidence matches the package inventory in other-image",
+      "matched": true,
+      "observed": {
+        "components": [
+          {
+            "name": "fixture-runtime",
+            "version": "1.0.0",
+            "type": "library"
+          },
+          {
+            "name": "fixture-app-other",
+            "version": "1.0.0",
+            "type": "application"
+          }
+        ],
+        "source_is_verified_oci_layer": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Independent Kubernetes verifier accepts the signed SBOM for the approved OCI manifest digest",
+      "matched": true,
+      "observed": {
+        "job": "complete",
+        "manifest_digest_recomputed": true,
+        "signature_verified": true,
+        "subject_matched": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Valid SBOM claim from the same signer for the other image digest fails exact approved-subject comparison",
+      "matched": true,
+      "observed": {
+        "job": "failed",
+        "same_authorized_signer": true,
+        "other_manifest_digest": "sha256:850a8f10be4e0bb9c3b6ef50ce43392fc48b83059f92aaf0671d777fa6036ec1",
+        "counterfactual_claim_subject_digest": "sha256:850a8f10be4e0bb9c3b6ef50ce43392fc48b83059f92aaf0671d777fa6036ec1",
+        "approved_manifest_digest": "sha256:fb19154da769460d1f668daeba91e648fe5e74da9b68d612fdb94979d945570d",
+        "signature_verified_before_subject_rejection": true,
+        "subject_mismatch": true
+      }
+    }
+  ]
+}
