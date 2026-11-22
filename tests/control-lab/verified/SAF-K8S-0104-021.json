@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0104-021",
-  "catalog_revision": "58d32d0620d30017a773ef8c68a16b135af2698a",
-  "catalog_sha256": "fd59c6f494f19e72c2c9f756d2481292195dcc71d5d6f5aa774426a49cbc8063",
+  "catalog_revision": "4961d5515b66462382e5403c5640c1965b451eef",
+  "catalog_sha256": "4c894c901242afc4d2a25f8ebaa77085e3c1a94a50cc1ede5866d5381e4bb0cd",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "1e503048fe15a0f28375fb985bc0d4efdbdce3e1a0d933a73c647340f95b6825",
-  "scope": "Synthetic Kubernetes v1.36 component-skew boundaries, including mixed-API-server HA intersections, plus read-only version inventory from the runner-owned single-version kind v1.36.1 cluster. This does not test a mixed-version upgrade, an HA cluster, or production inventory; enterprise-wide governance and deployment-tool restrictions require separate evidence.",
-  "cluster": "saf-lab-b1f4994cd06f",
+  "control_sha256": "386539c0738c9a7aedabb0fa936a3e2308d459f3d32c1cfa317c5b020a883152",
+  "scope": "Synthetic Kubernetes v1.36 policy cases for mixed API server endpoints and the optional cloud-controller-manager, plus read-only inventory on one disposable v1.36.1 kind cluster. Actual managed-provider endpoints and mixed-version upgrades require their own evidence.",
+  "cluster": "saf-lab-dadff55d056e",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -79,6 +79,48 @@
           "kube-proxy-oldest-supported-against-api-and-kubelet",
           "ha-intersection-allows-shared-components-at-1-35",
           "legacy-node-components-two-minors-behind"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Cloud controller skew decision for shared-controller",
+      "matched": true,
+      "observed": {
+        "decisions": []
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Cloud controller skew decision for newer-endpoint-only",
+      "matched": true,
+      "observed": {
+        "decisions": []
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Cloud controller skew decision for shared-controller-too-new",
+      "matched": true,
+      "observed": {
+        "decisions": [
+          [
+            "newer_than_api_server",
+            "older-api"
+          ]
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Cloud controller skew decision for shared-controller-too-old",
+      "matched": true,
+      "observed": {
+        "decisions": [
+          [
+            "too_old_for_api_server",
+            "newer-api"
+          ]
         ]
       }
     },

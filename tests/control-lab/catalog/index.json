@@ -171,7 +171,7 @@
     "SAF-K8S-0104-021": {
       "catalog_status": "draft",
       "domain": "D01",
-      "sha256": "1e503048fe15a0f28375fb985bc0d4efdbdce3e1a0d933a73c647340f95b6825",
+      "sha256": "386539c0738c9a7aedabb0fa936a3e2308d459f3d32c1cfa317c5b020a883152",
       "title": "Kubernetes component version skew compliance"
     },
     "SAF-K8S-0201-005": {
@@ -500,7 +500,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "e94d3d81a8389251aa687a112a8d123cacfe7ff5",
-  "sha256": "83e0245e2810213d80a33174628c0ea3217f5fe52d7959d2d332a4394d7a7744",
+  "revision": "e6201e60c2dac0f8ee83ba590a46e844c7d39ebb",
+  "sha256": "4c894c901242afc4d2a25f8ebaa77085e3c1a94a50cc1ede5866d5381e4bb0cd",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

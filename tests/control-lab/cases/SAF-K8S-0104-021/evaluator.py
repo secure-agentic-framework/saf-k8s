@@ -27,7 +27,7 @@ def evaluate(inventory, policy):
 
     parsed = {}
     groups = {"api_server": api_servers}
-    for group_name in ("kubelets", "kube_controller_managers", "kube_schedulers",
+    for group_name in ("kubelets", "kube_controller_managers", "cloud_controller_managers", "kube_schedulers",
                        "kubectl_clients", "kube_proxies"):
         groups[group_name] = inventory.get(group_name, [])
 
@@ -113,6 +113,7 @@ def evaluate(inventory, policy):
                     must_not_exceed=rule["kubelet_must_not_exceed_api_server"])
     for group, component, behind_key in (
             ("kube_controller_managers", "kube-controller-manager", "kube_controller_manager_api_server_max_behind"),
+            ("cloud_controller_managers", "cloud-controller-manager", "kube_controller_manager_api_server_max_behind"),
             ("kube_schedulers", "kube-scheduler", "kube_scheduler_api_server_max_behind")):
         for entry in groups.get(group, []):
             if isinstance(entry, dict) and isinstance(entry.get("id"), str):

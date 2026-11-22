@@ -13,11 +13,12 @@ cluster and uses synthetic inputs for mixed-version HA. Actual production
 inventories, provider and deployment-tool restrictions, and upgrade validation
 need their own evidence.
 
-The catalog lists the API server, kubelets, controller-manager, scheduler, and
-administrative clients. Kubernetes also specifies kube-proxy skew relative to
-the API server and its colocated kubelet. A separate catalog follow-up tracks
-expanding the listed coverage. The evaluator uses the upstream Version Skew
-Policy. Kubernetes deployment tools can impose stricter requirements.
+The revised catalog also requires checking kube-proxy against the colocated
+kubelet and every reachable API server, and cloud-controller-manager where
+deployed. The revised case adds synthetic examples for the optional cloud
+component and covers allowed and rejected relationships to individual HA
+endpoints. Follow the upstream Version Skew Policy and any stricter
+deployment-tool or provider requirements.
 
 ```sh
 python3 lab.py test SAF-K8S-0104-021 --docker-context desktop-linux
