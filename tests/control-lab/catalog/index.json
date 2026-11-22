@@ -1164,6 +1164,12 @@
       "sha256": "bb2fae2ae77bfbc0cc3932a32715c7149aa17f377686513cadafe1fe7079865a",
       "title": "Inference response filtering and output controls"
     },
+    "SAF-K8S-0902-010": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "d7401333ab41cf90b9a7495bfe000b5e54da079296daa31b180276eed56d926c",
+      "title": "Infrastructure-layer prompt injection classification and instruction boundary enforcement"
+    },
     "SAF-K8S-0902-011": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1676,7 +1682,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "3d3e53cec6bb56cb7d1cdcdfeddf77b71f40ddfc",
+  "revision": "c497f71f5eb52f4c09a1ed67a63c16bf213cd712",
   "sha256": "048037b90a24d7ec93c499b5090f5453e3fe06e6708b6dbb8ea5d9294d79cf1b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
