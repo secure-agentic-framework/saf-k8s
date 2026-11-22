@@ -1458,6 +1458,12 @@
       "sha256": "4cd30960a684800bed363d14247e132b2adb54a88f1aca2e3bd035568aaa23c4",
       "title": "Cluster service protection from AI training resource exhaustion"
     },
+    "SAF-K8S-1007-010": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "dcaefe65c2663a9b42c4470449e71507352c420e2959d0af446d8333585b2b45",
+      "title": "Pre-upgrade Kubernetes API compatibility testing for AI workloads"
+    },
     "SAF-K8S-1007-017": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1466,7 +1472,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "8cc3c8c629aab5df8fda9fca5734fc63f271360d",
+  "revision": "51c85ae9858caaa02a2ed077a874c71873be206a",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

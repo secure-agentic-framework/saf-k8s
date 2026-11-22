@@ -1,0 +1,47 @@
+{
+  "fixture_notice": "Synthetic defensive compatibility metadata only. No real operator, model, image, feed, or target is represented.",
+  "target_version": "v1.36.1",
+  "synthetic_operator": {
+    "name": "saf-mock-model-operator",
+    "version": "0.1.0-fixture",
+    "component_type": "mock-operator-api-client-inventory",
+    "legacy_requirement": {
+      "api_group_version": "policy/v1beta1",
+      "resource": "poddisruptionbudgets"
+    },
+    "repaired_requirement": {
+      "api_group_version": "policy/v1",
+      "resource": "poddisruptionbudgets"
+    }
+  },
+  "synthetic_custom_resource": {
+    "group": "models.saf-k8s.example",
+    "version": "v1alpha1",
+    "plural": "mockinferenceservices",
+    "kind": "MockInferenceService",
+    "name": "fixture-inference",
+    "namespace": "saf-test",
+    "model_ref": "reserved-fixture-model",
+    "replicas": 1
+  },
+  "synthetic_pdb": {
+    "apiVersion": "policy/v1",
+    "kind": "PodDisruptionBudget",
+    "metadata": {
+      "name": "mock-inference-budget",
+      "namespace": "saf-test",
+      "labels": {
+        "saf-k8s.example/control": "1007-010",
+        "saf-k8s.example/data": "synthetic"
+      }
+    },
+    "spec": {
+      "minAvailable": 1,
+      "selector": {
+        "matchLabels": {
+          "app": "saf-mock-inference"
+        }
+      }
+    }
+  }
+}

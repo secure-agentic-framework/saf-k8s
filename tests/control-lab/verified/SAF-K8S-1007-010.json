@@ -1,0 +1,133 @@
+{
+  "control_id": "SAF-K8S-1007-010",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "dcaefe65c2663a9b42c4470449e71507352c420e2959d0af446d8333585b2b45",
+  "scope": "One disposable Kind v1.36.1 target cluster, using the lab runner's digest-pinned node image. Reads the live server version and Kubernetes API discovery, flags a synthetic mock-operator inventory that still requires removed policy/v1beta1 PodDisruptionBudgets, then checks the repaired policy/v1 API with a server-side dry-run and persists one benign synthetic CRD and custom resource. A local mock upgrade gate denies promotion without evidence and on exact target version mismatch and persists only approved mock decisions. No real operator, AI workload, model, GPU, feed, or remote target is used.",
+  "cluster": "saf-lab-af9adc69d705",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "green",
+      "claim": "Preflight observes the exact pinned Kubernetes target version",
+      "matched": true,
+      "observed": {
+        "expected": "v1.36.1",
+        "observed": "v1.36.1",
+        "node_image_digest_pinned_by_runner": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Preflight flags the synthetic operator's unavailable legacy API requirement",
+      "matched": true,
+      "observed": {
+        "requirement": "policy/v1beta1/poddisruptionbudgets",
+        "requirement_missing": true,
+        "discovered_group_versions": [
+          "policy/v1"
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Mock upgrade gate denies promotion when compatibility evidence is missing",
+      "matched": true,
+      "observed": {
+        "decision": "deny",
+        "reasons": [
+          "compatibility_evidence_missing"
+        ],
+        "observed_target": "v1.36.1",
+        "requested_target": "v1.36.1"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Repaired policy/v1 request passes target API server validation",
+      "matched": true,
+      "observed": {
+        "api_version": "policy/v1",
+        "kind": "PodDisruptionBudget",
+        "name": "mock-inference-budget",
+        "server_side_dry_run": true,
+        "required_api_discovered": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Target custom resource schema rejects an omitted model reference",
+      "matched": true,
+      "observed": {
+        "server_side_required_field_rejection": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Target API accepts the synthetic operator CRD and custom resource",
+      "matched": true,
+      "observed": {
+        "crd": "mockinferenceservices.models.saf-k8s.example",
+        "custom_resource_api": "models.saf-k8s.example/v1alpha1",
+        "kind": "MockInferenceService",
+        "accepted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Mock promotion is allowed only with evidence for this exact target",
+      "matched": true,
+      "observed": {
+        "matching_target_decision": "allow",
+        "matching_target": "v1.36.1",
+        "mismatched_target_decision": "deny",
+        "mismatched_target": "v1.36.0",
+        "mismatch_reasons": [
+          "target_version_mismatch",
+          "evidence_target_version_mismatch"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Compatibility evidence permits only the mock promotion decision",
+      "matched": true,
+      "observed": {
+        "decision": "allow",
+        "approved_receipt_matches": true,
+        "evidence_target": "v1.36.1"
+      }
+    }
+  ]
+}
