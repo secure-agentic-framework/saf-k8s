@@ -804,6 +804,12 @@
       "sha256": "2a7a809c996cf911ed223c74d4a219605f537eb3990669b12d4e00fc467bbe76",
       "title": "GPU device plugin security configuration and hardening"
     },
+    "SAF-K8S-1001-007": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "fae14622a867ccba17728cfb10cd5188ab094099f8868c7492272538453e405e",
+      "title": "Supplemental application-level telemetry for AI workload events"
+    },
     "SAF-K8S-1007-017": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -812,7 +818,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "694fa9e5278630a6a993d1386e0671d307ffdc27",
-  "sha256": "b5c2f4a8bfac5aa27b81f5b3a84c72083b81b5210bba5d600c9cb6f4424dca4c",
+  "revision": "c2be3cf384a9414d5696124e93a1fb508238201d",
+  "sha256": "4155548c831c8d59e531d7763a40a78a7bd4f509cc9fe8441b72891a0bbb496c",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

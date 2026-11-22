@@ -1,0 +1,77 @@
+{
+  "control_id": "SAF-K8S-1001-007",
+  "catalog_revision": "9bd9773d77f4ac812211c78178cc6d2ab14acf7d",
+  "catalog_sha256": "4155548c831c8d59e531d7763a40a78a7bd4f509cc9fe8441b72891a0bbb496c",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "fae14622a867ccba17728cfb10cd5188ab094099f8868c7492272538453e405e",
+  "scope": "Kubernetes Metadata audit versus scoped telemetry for synthetic HTTP workloads in two pods on one local kind node. The case uses fictional model information, an inert prompt marker, and a pod-local collector. Mesh, GPU processes, central forwarding and production retention require separate evidence.",
+  "cluster": "saf-lab-04037c741179",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The successful fixture ConfigMap read appears in the real Metadata audit file",
+      "matched": true,
+      "observed": {
+        "metadata_level": true,
+        "completed_successfully": true,
+        "request_body_absent": true,
+        "response_body_absent": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without supplemental collection, the workload accepts a request with no collected event",
+      "matched": true,
+      "observed": {
+        "status": 200,
+        "response_matches_event": true,
+        "records": 0,
+        "runtime_event_absent_from_api_audit": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Supplemental collection persists one allowlisted event while API audit omits it",
+      "matched": true,
+      "observed": {
+        "status": 200,
+        "response_matches_event": true,
+        "records": 1,
+        "persisted_event_matches_allowlist": true,
+        "prompt_absent_from_record": true,
+        "runtime_event_absent_from_api_audit": true
+      }
+    }
+  ]
+}
