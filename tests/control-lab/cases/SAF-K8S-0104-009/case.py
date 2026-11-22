@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 import re
+import time
 
 
 CASE_DIR = Path(__file__).resolve().parent
@@ -14,8 +15,16 @@ SCOPE = (
     "one removed gate. The v1.36.1 kind node's kubelet binary validates the same flag "
     "inputs before hitting an intentionally impossible configuration path. This uses "
     "a separate short-lived command without changing the running kubelet. Actual "
-    "upgrade execution, managed clusters and organization-wide coverage remain separate."
+    "upgrade execution, managed clusters and organization-wide coverage remain separate. "
+    "A defensive GitRepoVolumeDriver locked-off parser check and namespace-scoped "
+    "ValidatingAdmissionPolicy use only synthetic server-side dry-run requests. No "
+    "gitRepo workload is persisted or executed."
 )
+
+GITREPO_GATE = "GitRepoVolumeDriver"
+GITREPO_POLICY = "saf-k8s-0104-009-gitrepo-deny"
+GITREPO_BINDING = "saf-k8s-0104-009-gitrepo-deny"
+GITREPO_DENIAL = "spec.volumes[*].gitRepo is prohibited; migrate to a supported volume source"
 
 
 def minor(release):
@@ -120,6 +129,79 @@ def check_fixtures(lab):
     )
 
 
+def inert_pod(name, volume_source):
+    """Build a synthetic Pod request; callers submit it only with server dry-run."""
+    return {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "metadata": {"name": name, "namespace": "saf-test"},
+        "spec": {
+            "restartPolicy": "Never",
+            "containers": [{"name": "fixture", "image": "example.invalid/never-pulled:fixture",
+                            "volumeMounts": [{"name": "fixture-data", "mountPath": "/fixture",
+                                              "readOnly": True}]}],
+            "volumes": [{"name": "fixture-data", **volume_source}],
+        },
+    }
+
+
+def install_gitrepo_policy(lab):
+    """Install a case-specific deny rule in the fresh runner-owned cluster."""
+    lab.apply(CASE_DIR / "gitrepo-admission-policy.yaml")
+
+
+def server_dry_run(lab, pod):
+    return lab.kubectl("create", "-f", "-", "--dry-run=server", "-o", "json",
+                       payload=json.dumps(pod), allow_failure=True)
+
+
+def check_gitrepo_admission(lab):
+    legacy = inert_pod("synthetic-gitrepo-never-persisted", {
+        "gitRepo": {"repository": "https://example.invalid/never-clone", "revision": "inert"},
+    })
+    before_policy = server_dry_run(lab, legacy)
+    admitted_legacy = before_policy.returncode == 0
+    lab.check(
+        "red", "The live API accepts the inert legacy volume before policy",
+        admitted_legacy,
+        {"dry_run_admitted": admitted_legacy,
+         "detail": "dry-run admitted" if admitted_legacy else before_policy.stderr.strip()},
+    )
+
+    install_gitrepo_policy(lab)
+    rejected = server_dry_run(lab, legacy)
+    for _ in range(20):
+        if rejected.returncode != 0:
+            break
+        time.sleep(1)
+        rejected = server_dry_run(lab, legacy)
+    detail = rejected.stderr
+    denied_by_expected_policy = (
+        rejected.returncode != 0
+        and f"ValidatingAdmissionPolicy '{GITREPO_POLICY}'" in detail
+        and f"binding '{GITREPO_BINDING}'" in detail
+        and GITREPO_DENIAL in detail
+    )
+    lab.check(
+        "green",
+        "Server-side dry-run rejects the inert legacy field with the exact policy message",
+        denied_by_expected_policy,
+        {"denied_by_expected_policy": denied_by_expected_policy,
+         "exact_message_present": GITREPO_DENIAL in detail,
+         "detail": detail.strip() if not denied_by_expected_policy else "expected denial observed"},
+    )
+
+    supported = inert_pod("synthetic-emptydir-permitted", {"emptyDir": {}})
+    admitted = server_dry_run(lab, supported)
+    lab.check(
+        "positive",
+        "Server-side dry-run permits the supported emptyDir counterpart",
+        admitted.returncode == 0,
+        {"admitted": admitted.returncode == 0,
+         "detail": admitted.stderr.strip() if admitted.returncode else "dry-run admitted"},
+    )
+
+
 def run(lab):
     check_fixtures(lab)
     node = f"{lab.cluster}-control-plane"
@@ -133,7 +215,9 @@ def run(lab):
     for phase, label, setting, expected in (
         ("red", "Locked kubelet gate rejects the opposite value", f"{LOCKED}=false", "feature is locked to true"),
         ("red", "Removed kubelet gate is unrecognized", f"{REMOVED}=true", f"unrecognized feature gate: {REMOVED}"),
+        ("red", "v1.36 gitRepo driver gate rejects enabling the locked feature", f"{GITREPO_GATE}=true", "feature is locked to false"),
         ("positive", "Recognized explicit default reaches the file sentinel", f"{LOCKED}=true", "not a directory"),
+        ("positive", "gitRepo driver default reaches the impossible config sentinel", f"{GITREPO_GATE}=false", "not a directory"),
         ("green", "Removing stale flags reaches the file sentinel", None, "not a directory"),
     ):
         flags = (f"--feature-gates={setting}",) if setting else ()
@@ -147,6 +231,7 @@ def run(lab):
 
     readiness = lab.kubectl("get", "--raw=/readyz").stdout.strip()
     lab.check("positive", "The running kind API stays ready", readiness == "ok", {"ready": readiness == "ok"})
+    check_gitrepo_admission(lab)
 
 
 class StaticReporter:

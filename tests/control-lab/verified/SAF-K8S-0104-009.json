@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0104-009",
-  "catalog_revision": "712139965c407830056ada89a15031c8f9d956cd",
-  "catalog_sha256": "0427a45ac9bf0f2d8256f7f075d12a0ac8ad43daf141990b68d2fba2211f5a21",
+  "catalog_revision": "7e7b463c49aefba0c8641919e0ab030a9a48ca0b",
+  "catalog_sha256": "6a0fac460ca17335f8678039750a9d383e07a25de2e9203167cc3e6125ed961f",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "a2851e2294a3881aff1640958bbf0050d72d49f11d9a7e7a1f02bacffdfa2df4",
-  "scope": "Source-derived checks for stale configuration of one locked kubelet gate and one removed gate. The v1.36.1 kind node's kubelet binary validates the same flag inputs before hitting an intentionally impossible configuration path. This uses a separate short-lived command without changing the running kubelet. Actual upgrade execution, managed clusters and organization-wide coverage remain separate.",
-  "cluster": "saf-lab-79488e9e6a39",
+  "scope": "Source-derived checks for stale configuration of one locked kubelet gate and one removed gate. The v1.36.1 kind node's kubelet binary validates the same flag inputs before hitting an intentionally impossible configuration path. This uses a separate short-lived command without changing the running kubelet. Actual upgrade execution, managed clusters and organization-wide coverage remain separate. A defensive GitRepoVolumeDriver locked-off parser check and namespace-scoped ValidatingAdmissionPolicy use only synthetic server-side dry-run requests. No gitRepo workload is persisted or executed.",
+  "cluster": "saf-lab-a69f3829d7e9",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -105,8 +105,26 @@
       }
     },
     {
+      "phase": "red",
+      "claim": "v1.36 gitRepo driver gate rejects enabling the locked feature",
+      "matched": true,
+      "observed": {
+        "expected_parser_outcome": "feature is locked to false",
+        "matched": true
+      }
+    },
+    {
       "phase": "positive",
       "claim": "Recognized explicit default reaches the file sentinel",
+      "matched": true,
+      "observed": {
+        "expected_parser_outcome": "not a directory",
+        "matched": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "gitRepo driver default reaches the impossible config sentinel",
       "matched": true,
       "observed": {
         "expected_parser_outcome": "not a directory",
@@ -128,6 +146,34 @@
       "matched": true,
       "observed": {
         "ready": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The live API accepts the inert legacy volume before policy",
+      "matched": true,
+      "observed": {
+        "dry_run_admitted": true,
+        "detail": "dry-run admitted"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Server-side dry-run rejects the inert legacy field with the exact policy message",
+      "matched": true,
+      "observed": {
+        "denied_by_expected_policy": true,
+        "exact_message_present": true,
+        "detail": "expected denial observed"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Server-side dry-run permits the supported emptyDir counterpart",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "detail": "dry-run admitted"
       }
     }
   ]

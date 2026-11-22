@@ -1,0 +1,28 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0104-009-gitrepo-deny
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  validations:
+    - expression: "!has(object.spec.volumes) || object.spec.volumes.all(v, !has(v.gitRepo))"
+      message: "spec.volumes[*].gitRepo is prohibited; migrate to a supported volume source"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0104-009-gitrepo-deny
+spec:
+  policyName: saf-k8s-0104-009-gitrepo-deny
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: saf-test
