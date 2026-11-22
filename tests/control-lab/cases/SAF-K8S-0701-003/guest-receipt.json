@@ -1,0 +1,57 @@
+{
+  "control": "SAF-K8S-0701-003",
+  "catalog_revision": "d4328fde2e235c4d4a65baf2e08f7e45cfb81217",
+  "platform": {
+    "guest": "Debian 13.6 ARM64",
+    "kernel": "6.12.95+deb13-cloud-arm64",
+    "vm_type": "Lima vz",
+    "vm_definition_sha256": "7069d871394496a49ce511fc81dba76c70909e4c4bdee06376819b9ec7088d00",
+    "host_shares": false,
+    "docker": "26.1.5+dfsg1-9+deb13u1+b1",
+    "cryptsetup": "2:2.7.5-2",
+    "e2fsprogs": "1.47.2-3+b12",
+    "openssl": "3.5.9-1~deb13u1",
+    "kind": "v0.32.0",
+    "kind_linux_arm64_sha256": "b92cd615e97585de8ddade28ed5cd7feb4248d717c233eea5b03c37298900f5d",
+    "kubectl": "v1.36.1",
+    "kubectl_linux_arm64_sha256": "59f7ee8e477fae658447607dc3c8790ac17a1b016c01c622c12070e969e2d4e7",
+    "kind_node": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
+  },
+  "guest_script_sha256": {
+    "guest-fixture.sh": "655072ac183daf6eccd55068fc1fb300f8e05c85eb299e3fc7f21400d304c36d",
+    "guest-pv-probe.sh": "cb4cfbedfd46200ee431f5c42d1c67bf1fe6fe76ddb53d94dc2ab2d9c27a8061"
+  },
+  "guest_runs": [
+    {
+      "cluster": "saf-crypt-b087ff69b058",
+      "checks": {
+        "PLAIN_REFERENCE_MARKER_VISIBLE": "true",
+        "ORDINARY_LOCAL_FILE_READ_WRITE": "true",
+        "PV_PROBE_KUBERNETES": "v1.36.1",
+        "PV_PROBE_BOUND_AND_POD_WRITTEN": "true",
+        "PV_PROBE_CLUSTER_DELETED": "true",
+        "EXACT_MARKERS_ABSENT_FROM_ENCRYPTED_BACKING": "true",
+        "LUKS_HEADER_VERSION": "2",
+        "WRONG_KEY_REJECTED": "true",
+        "ALL_SYNTHETIC_FILES_REOPENED": "true",
+        "GUEST_FIXTURE_CLEANUP": "true"
+      }
+    },
+    {
+      "cluster": "saf-crypt-631a20b833a9",
+      "checks": {
+        "PLAIN_REFERENCE_MARKER_VISIBLE": "true",
+        "ORDINARY_LOCAL_FILE_READ_WRITE": "true",
+        "PV_PROBE_KUBERNETES": "v1.36.1",
+        "PV_PROBE_BOUND_AND_POD_WRITTEN": "true",
+        "PV_PROBE_CLUSTER_DELETED": "true",
+        "EXACT_MARKERS_ABSENT_FROM_ENCRYPTED_BACKING": "true",
+        "LUKS_HEADER_VERSION": "2",
+        "WRONG_KEY_REJECTED": "true",
+        "ALL_SYNTHETIC_FILES_REOPENED": "true",
+        "GUEST_FIXTURE_CLEANUP": "true"
+      }
+    }
+  ],
+  "vm_cleanup": "deleted"
+}

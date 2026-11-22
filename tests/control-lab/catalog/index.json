@@ -528,6 +528,12 @@
       "sha256": "d980b46abb69296bfc92d75227112e1ee1408ba580fcd9498a24092f8310d8c1",
       "title": "CSI driver security and privilege restriction"
     },
+    "SAF-K8S-0701-003": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "0b060cdfc8d7634d4f280ebb6ab45c7f5a748d36bd2c07c04f3ba6e53c6ce8ed",
+      "title": "Encryption at rest for persistent volumes"
+    },
     "SAF-K8S-0701-004": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -710,7 +716,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "181ad10b99632ae888aca25ad4d9e291d7f046f5",
-  "sha256": "a686bfbe52cded89985495c3a14f05eb580c3499b772f2473beb3accc1c99e38",
+  "revision": "76f7b58c4c4ad1c8163913b6081911ad2d8d881e",
+  "sha256": "e8d024860997c85e65dcb4d9a1c10c9e716416ecfea1f4d4479987609b4092f0",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
