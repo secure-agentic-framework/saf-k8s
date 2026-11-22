@@ -1,0 +1,121 @@
+{
+  "control_id": "SAF-K8S-1003-004",
+  "review": {
+    "change_triggers": [
+      "new ATT&CK release",
+      "architecture change",
+      "retired telemetry source"
+    ],
+    "next_due": "2027-02-22",
+    "owner": "Defensive coverage reviewers"
+  },
+  "source": {
+    "matrix_url": "https://attack.mitre.org/versions/v20/matrices/enterprise/containers/",
+    "name": "MITRE ATT&CK for Containers",
+    "release": "20.1",
+    "release_url": "https://github.com/mitre-attack/attack-stix-data/releases/tag/v20.1",
+    "reviewed_at": "2026-11-22",
+    "scope_note": "Three selected Containers entries for a synthetic Kubernetes infrastructure assessment."
+  },
+  "techniques": [
+    {
+      "coverage_status": "documented",
+      "defensive_evidence": {
+        "detection": {
+          "description": "Admission decision records carry workload identity and policy result.",
+          "event_ids": [
+            "evt-policy-001"
+          ],
+          "source": "synthetic-policy-events.json"
+        },
+        "mitigation": {
+          "control": "Admission review for workload identity, image provenance, and security context",
+          "evidence_ref": "mitigation-review.json",
+          "record_id": "mitigation-T1610"
+        }
+      },
+      "deployed_protection": "unknown",
+      "gap": {
+        "description": "No production admission audit sample or rollout evidence supplied.",
+        "disposition": "Track evidence collection before claiming deployed coverage.",
+        "due": "2026-12-15",
+        "owner": "Security Architecture",
+        "status": "open"
+      },
+      "name": "Deploy Container",
+      "tactic": {
+        "id": "TA0002",
+        "name": "Execution",
+        "url": "https://attack.mitre.org/tactics/TA0002"
+      },
+      "technique_id": "T1610",
+      "url": "https://attack.mitre.org/techniques/T1610"
+    },
+    {
+      "coverage_status": "partial",
+      "defensive_evidence": {
+        "detection": {
+          "description": "Synthetic policy-denial event records a prohibited security-context request.",
+          "event_ids": [
+            "evt-policy-002"
+          ],
+          "source": "synthetic-policy-events.json"
+        },
+        "mitigation": {
+          "control": "Restricted pod security profile and least-privilege workload identity",
+          "evidence_ref": "mitigation-review.json",
+          "record_id": "mitigation-T1611"
+        }
+      },
+      "deployed_protection": "unknown",
+      "gap": {
+        "description": "Node-level runtime telemetry and exception review are not evidenced here.",
+        "disposition": "Validate telemetry source and assign runtime control owner.",
+        "due": "2026-12-20",
+        "owner": "Detection Engineering",
+        "status": "open"
+      },
+      "name": "Escape to Host",
+      "tactic": {
+        "id": "TA0004",
+        "name": "Privilege Escalation",
+        "url": "https://attack.mitre.org/tactics/TA0004"
+      },
+      "technique_id": "T1611",
+      "url": "https://attack.mitre.org/techniques/T1611"
+    },
+    {
+      "coverage_status": "none",
+      "defensive_evidence": {
+        "detection": {
+          "description": "Synthetic audit summary records an out-of-scope read-only inventory event for review.",
+          "event_ids": [
+            "evt-policy-003"
+          ],
+          "source": "synthetic-policy-events.json"
+        },
+        "mitigation": {
+          "control": "Namespace-scoped RBAC and periodic authorization review",
+          "evidence_ref": "mitigation-review.json",
+          "record_id": "mitigation-T1613"
+        }
+      },
+      "deployed_protection": "unknown",
+      "gap": {
+        "description": "No measured alert coverage or workload-specific authorization inventory supplied.",
+        "disposition": "Build an inventory and review alert feasibility with Security Operations.",
+        "due": "2027-01-15",
+        "owner": "AI/ML Engineering",
+        "status": "open"
+      },
+      "name": "Container and Resource Discovery",
+      "tactic": {
+        "id": "TA0007",
+        "name": "Discovery",
+        "url": "https://attack.mitre.org/tactics/TA0007"
+      },
+      "technique_id": "T1613",
+      "url": "https://attack.mitre.org/techniques/T1613"
+    }
+  ]
+}

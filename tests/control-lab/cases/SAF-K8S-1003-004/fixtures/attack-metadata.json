@@ -1,0 +1,52 @@
+{
+  "release": "20.1",
+  "techniques": {
+    "T1610": {
+      "name": "Deploy Container",
+      "platforms": [
+        "Containers"
+      ],
+      "tactics": [
+        {
+          "id": "TA0002",
+          "name": "Execution",
+          "url": "https://attack.mitre.org/tactics/TA0002"
+        }
+      ],
+      "url": "https://attack.mitre.org/techniques/T1610"
+    },
+    "T1611": {
+      "name": "Escape to Host",
+      "platforms": [
+        "Containers",
+        "ESXi",
+        "Linux",
+        "Windows"
+      ],
+      "tactics": [
+        {
+          "id": "TA0004",
+          "name": "Privilege Escalation",
+          "url": "https://attack.mitre.org/tactics/TA0004"
+        }
+      ],
+      "url": "https://attack.mitre.org/techniques/T1611"
+    },
+    "T1613": {
+      "name": "Container and Resource Discovery",
+      "platforms": [
+        "Containers"
+      ],
+      "tactics": [
+        {
+          "id": "TA0007",
+          "name": "Discovery",
+          "url": "https://attack.mitre.org/tactics/TA0007"
+        }
+      ],
+      "url": "https://attack.mitre.org/techniques/T1613"
+    }
+  },
+  "upstream_sha256": "539a843a7b53ed9749740b2123dddae3726b1a4831841c32aca740b011b910b5",
+  "upstream_url": "https://raw.githubusercontent.com/mitre-attack/attack-stix-data/v20.1/enterprise-attack/enterprise-attack.json"
+}

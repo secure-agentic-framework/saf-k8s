@@ -1,0 +1,22 @@
+{
+  "records": [
+    {
+      "evidence_kind": "synthetic-design-record",
+      "id": "mitigation-T1610",
+      "statement": "Admission review for workload identity, image provenance, and security context",
+      "technique_id": "T1610"
+    },
+    {
+      "evidence_kind": "synthetic-design-record",
+      "id": "mitigation-T1611",
+      "statement": "Restricted pod security profile and least-privilege workload identity",
+      "technique_id": "T1611"
+    },
+    {
+      "evidence_kind": "synthetic-design-record",
+      "id": "mitigation-T1613",
+      "statement": "Namespace-scoped RBAC and periodic authorization review",
+      "technique_id": "T1613"
+    }
+  ]
+}

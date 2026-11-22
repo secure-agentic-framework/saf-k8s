@@ -1,0 +1,52 @@
+{
+  "events": [
+    {
+      "credential_material": false,
+      "decision": "allowed_by_fixture_policy",
+      "event_id": "evt-policy-001",
+      "kind": "admission_decision",
+      "mapped_technique": "T1610",
+      "namespace": "ai-fixture",
+      "policy": "synthetic-image-review",
+      "workload": "training-fixture"
+    },
+    {
+      "credential_material": false,
+      "decision": "denied_by_fixture_policy",
+      "event_id": "evt-policy-002",
+      "kind": "admission_decision",
+      "mapped_technique": "T1611",
+      "namespace": "ai-fixture",
+      "policy": "synthetic-restricted-profile",
+      "workload": "inference-fixture"
+    },
+    {
+      "credential_material": false,
+      "decision": "review_required",
+      "event_id": "evt-policy-003",
+      "kind": "audit_summary",
+      "mapped_technique": "T1613",
+      "namespace": "ai-fixture",
+      "resource_class": "synthetic_metadata",
+      "workload": "inventory-fixture"
+    }
+  ],
+  "fixture_notice": "Synthetic records only; these are policy and audit summaries, not instructions or reproduced attack activity.",
+  "mitigation_evidence": [
+    {
+      "control": "Admission review for workload identity, image provenance, and security context",
+      "evidence_ref": "ctrl-admission-review",
+      "fixture_state": "reviewed_in_synthetic_policy_fixture"
+    },
+    {
+      "control": "Restricted pod security profile and least-privilege workload identity",
+      "evidence_ref": "ctrl-restricted-profile",
+      "fixture_state": "represented_by_synthetic_policy_denial"
+    },
+    {
+      "control": "Namespace-scoped RBAC and periodic authorization review",
+      "evidence_ref": "ctrl-rbac-review",
+      "fixture_state": "design_evidence_only"
+    }
+  ]
+}

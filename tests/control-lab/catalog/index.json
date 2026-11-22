@@ -1248,6 +1248,12 @@
       "sha256": "d1428699ad58e30a60a8161ec17d64cc03f788c49304c790fc2335423d0353af",
       "title": "OCTAVE risk-based threat assessment for Kubernetes AI environments"
     },
+    "SAF-K8S-1003-004": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "45775658ceee3763e8fa28984db673a5697cf40a85d04dfea2a1f608409796c8",
+      "title": "MITRE ATT&CK for Containers coverage mapping and gap analysis"
+    },
     "SAF-K8S-1006-004": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1280,7 +1286,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "b2f346e1fb53c6ff7b9aa7e3be66eeb01319e341",
+  "revision": "fb2515750efe2ce3c22c1b2c1d21d4bc9e351646",
   "sha256": "a0136783421c2c5f3387b92e1cbc8722c1faf77205eda1623cee5d4dc8a05bee",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
