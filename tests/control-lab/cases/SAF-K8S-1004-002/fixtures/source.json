@@ -1,0 +1,4 @@
+{
+  "release": "synthetic-v1",
+  "flags": ["provenance-required", "offline-fixture"]
+}

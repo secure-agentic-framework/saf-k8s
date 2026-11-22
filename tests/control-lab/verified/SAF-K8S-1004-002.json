@@ -1,0 +1,98 @@
+{
+  "control_id": "SAF-K8S-1004-002",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "5a2d9c710fead43289eab97a7f60d3b06f0b9fe05cab19cbb9aaad7ce04f2835",
+  "scope": "A synthetic promotion gate checks signed builder provenance, source, and the digest of a deterministically generated configuration artifact. The allowed bytes are mounted in a digest-pinned Kubernetes Job and independently read and hashed there. This covers a selected CI/CD provenance control and artifact propagation check. Production trust, image admission, organization-wide threat modeling, AI pipeline coverage and ongoing deployment monitoring need separate evidence.",
+  "cluster": "saf-lab-c91f6fe8e474",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "missing provenance",
+      "matched": true,
+      "observed": {
+        "rejection": "missing provenance",
+        "release_objects_created": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "source digest mismatch",
+      "matched": true,
+      "observed": {
+        "rejection": "source digest mismatch",
+        "release_objects_created": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "artifact does not match signed build output",
+      "matched": true,
+      "observed": {
+        "rejection": "artifact does not match signed build output",
+        "release_objects_created": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "invalid builder signature",
+      "matched": true,
+      "observed": {
+        "rejection": "invalid builder signature",
+        "release_objects_created": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The gate promotes an artifact bound to the signed source and builder",
+      "matched": true,
+      "observed": {
+        "source_sha256": "dead9a40a6ed799dd69962653cc867ce97b7821a11a75179d0bb728139c32ff6",
+        "artifact_sha256": "ab0cc3374b875ffc52e82f0a1e7ccfd5429ed286d880f3d5324f31830e2e8b04",
+        "builder": "https://example.invalid/synthetic-builder/v1"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The native Job completes after reading and hashing the mounted build bytes",
+      "matched": true,
+      "observed": {
+        "mounted_sha256": "ab0cc3374b875ffc52e82f0a1e7ccfd5429ed286d880f3d5324f31830e2e8b04",
+        "job_completed": true,
+        "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
+      }
+    }
+  ]
+}

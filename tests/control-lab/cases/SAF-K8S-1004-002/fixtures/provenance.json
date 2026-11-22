@@ -1,0 +1,32 @@
+{
+  "_type": "https://in-toto.io/Statement/v1",
+  "predicate": {
+    "buildDefinition": {
+      "buildType": "https://example.invalid/normalize-config/v1",
+      "externalParameters": {},
+      "internalParameters": {},
+      "resolvedDependencies": [
+        {
+          "digest": {
+            "sha256": "dead9a40a6ed799dd69962653cc867ce97b7821a11a75179d0bb728139c32ff6"
+          },
+          "uri": "https://example.invalid/source.json"
+        }
+      ]
+    },
+    "runDetails": {
+      "builder": {
+        "id": "https://example.invalid/synthetic-builder/v1"
+      }
+    }
+  },
+  "predicateType": "https://slsa.dev/provenance/v1",
+  "subject": [
+    {
+      "digest": {
+        "sha256": "ab0cc3374b875ffc52e82f0a1e7ccfd5429ed286d880f3d5324f31830e2e8b04"
+      },
+      "name": "generated-config.json"
+    }
+  ]
+}
