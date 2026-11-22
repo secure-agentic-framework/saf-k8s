@@ -1,0 +1,58 @@
+{
+  "compliant": {
+    "apiVersion": "v1",
+    "kind": "ConfigMap",
+    "metadata": {
+      "name": "saf-1006-009-allow-r1",
+      "labels": {
+        "saf-lab.example/case": "1006-009",
+        "saf-lab.example/request-marker": "allow-r1",
+        "saf-lab.example/policy-revision": "r1"
+      },
+      "annotations": {"saf-lab.example/policy-revision": "r1"}
+    },
+    "data": {"scope": "synthetic-fixture", "evidence": "present"}
+  },
+  "audit_violation": {
+    "apiVersion": "v1",
+    "kind": "ConfigMap",
+    "metadata": {
+      "name": "saf-1006-009-audit-r1",
+      "labels": {
+        "saf-lab.example/case": "1006-009",
+        "saf-lab.example/request-marker": "audit-r1",
+        "saf-lab.example/policy-revision": "r1"
+      },
+      "annotations": {"saf-lab.example/policy-revision": "r1"}
+    },
+    "data": {"scope": "synthetic-fixture", "evidence": "missing"}
+  },
+  "deny_violation": {
+    "apiVersion": "v1",
+    "kind": "ConfigMap",
+    "metadata": {
+      "name": "saf-1006-009-deny-r2",
+      "labels": {
+        "saf-lab.example/case": "1006-009",
+        "saf-lab.example/request-marker": "deny-r2",
+        "saf-lab.example/policy-revision": "r2"
+      },
+      "annotations": {"saf-lab.example/policy-revision": "r2"}
+    },
+    "data": {"scope": "synthetic-fixture", "evidence": "missing"}
+  },
+  "positive_regression": {
+    "apiVersion": "v1",
+    "kind": "ConfigMap",
+    "metadata": {
+      "name": "saf-1006-009-allow-r2",
+      "labels": {
+        "saf-lab.example/case": "1006-009",
+        "saf-lab.example/request-marker": "allow-r2",
+        "saf-lab.example/policy-revision": "r2"
+      },
+      "annotations": {"saf-lab.example/policy-revision": "r2"}
+    },
+    "data": {"scope": "synthetic-fixture", "evidence": "present"}
+  }
+}

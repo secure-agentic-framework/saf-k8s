@@ -1,0 +1,154 @@
+{
+  "control_id": "SAF-K8S-1006-009",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "cdc451eceb71013b1aa77bb4fd7d07f05b859bd82309ba71d511b0adc6b1941b",
+  "scope": "One fresh Kubernetes v1.36.1 Kind cluster and Kyverno v1.20.0 from chart 3.10.0. One owned namespace contains only inert ConfigMaps. A namespaced Kyverno policy moves from Audit r1 to Deny r2. The case separately checks PolicyReport state, native API audit records for exact allowed and denied requests, two source-control policy revisions, and a filtered evidence export to a scoped in-cluster receiver. This is fixture evidence for one cluster and policy path, not production retention, SIEM/GRC acceptance, or AI workload coverage.",
+  "cluster": "saf-lab-0e66919657ea",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "API server is the pinned Kubernetes v1.36.1 release",
+      "matched": true,
+      "observed": {
+        "gitVersion": "v1.36.1"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Kyverno controllers use the cataloged v1.20.0 pin",
+      "matched": true,
+      "observed": {
+        "expected": [
+          "reg.kyverno.io/kyverno/background-controller:v1.20.0",
+          "reg.kyverno.io/kyverno/cleanup-controller:v1.20.0",
+          "reg.kyverno.io/kyverno/kyverno:v1.20.0",
+          "reg.kyverno.io/kyverno/reports-controller:v1.20.0"
+        ],
+        "observed": [
+          "reg.kyverno.io/kyverno/background-controller:v1.20.0",
+          "reg.kyverno.io/kyverno/cleanup-controller:v1.20.0",
+          "reg.kyverno.io/kyverno/kyverno:v1.20.0",
+          "reg.kyverno.io/kyverno/reports-controller:v1.20.0"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Policy r1 and r2 are separate source-control revisions with content hashes",
+      "matched": true,
+      "observed": {
+        "r1": {
+          "commit": "091adba1400582b7fe2ba408e19ed22d35afe533",
+          "policy_sha256": "c42a099d7cab5d6ae771df2bd41df83f74af410ea6874a718d54354b23677bcc"
+        },
+        "r2": {
+          "commit": "332e24ad2cf3bd083ad1c4f679202aa8a260241d",
+          "policy_sha256": "96989d417342fc5cb77a11793e1d03d72f6d9d59426aac5363ac4c7d35704b2b"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native API audit records the exact allowed r1 request and revision",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "matching_audit_events": 1,
+        "response_code": 201,
+        "request_marker": "allow-r1",
+        "policy_revision": "r1"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Audit mode admits the exact r1 violation and PolicyReport records fail",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "policy_report_status": "fail",
+        "policy_report_source": "KyvernoValidatingPolicy",
+        "allow_report_present": true,
+        "audit_response_code": 201,
+        "request_marker": "audit-r1",
+        "policy_revision": "r1"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Deny r2 refuses the same policy violation and native audit records the exact request",
+      "matched": true,
+      "observed": {
+        "denied": true,
+        "message_matched": true,
+        "matching_audit_events": 1,
+        "response_code": 400,
+        "request_marker": "deny-r2",
+        "policy_revision": "r2"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Compliant r2 request remains admitted with matching audit evidence",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "matching_audit_events": 1,
+        "response_code": 201,
+        "request_marker": "allow-r2",
+        "policy_revision": "r2"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Disabled scoped receiver rejects export and retains no evidence",
+      "matched": true,
+      "observed": {
+        "post_rejected": true,
+        "storage_absent": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Scoped in-cluster receiver stores the correlated reports, audit events, and history",
+      "matched": true,
+      "observed": {
+        "http_200": true,
+        "exact_envelope_retained_once": true,
+        "retained_admission_decisions": 4
+      }
+    }
+  ]
+}
