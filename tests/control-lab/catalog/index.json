@@ -1056,6 +1056,12 @@
       "sha256": "498d90bbe4921b9b8a6929b97a72c4d90b8cd2981e5907d82c3f9acd466a5ffe",
       "title": "Kubernetes audit level and stage filtering for AI workloads"
     },
+    "SAF-K8S-1001-015": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "67e00241dc26408714fe94fa0d80f54c405bd2bc6f6b17bf54b793fb3610b1db",
+      "title": "PII redaction and sensitive payload minimization for inference logs"
+    },
     "SAF-K8S-1001-026": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1136,7 +1142,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "1faf7f7b3a58d6a01f40b8c4359132fb718fad8e",
+  "revision": "e5b99cf081d91eb6eaef06e5639f1f8d8b2eba52",
   "sha256": "5468afd7544aceb8f79e434b7d58a52fc41eeee0b3084837f4dc587efc72cace",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -1,0 +1,85 @@
+{
+  "control_id": "SAF-K8S-1001-015",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "67e00241dc26408714fe94fa0d80f54c405bd2bc6f6b17bf54b793fb3610b1db",
+  "scope": "One Fluent Bit 5.1.2 tail -> Lua filter -> Loki 3.5.0 path in the runner's disposable Kind cluster. It reads only four case-owned fixture lines: one synthetic request, one synthetic response, one benign positive record, and one malformed line. Green behavior covers only the literal synthetic patterns PERSON_[A-Z]+_[0-9]+ and KEY_[A-Z]+_[0-9]+ in the two allow-listed text fields, drops the fixture's customer_ref and auth_fragment fields, and preserves event_id, direction, model, status, elapsed_ms and scrubbed text. Malformed tail input is replaced with a fixed marker. This does not evaluate NER, general PII detection, nested/encoded payloads, production model or application collection, retention/access governance, forensic sampling, or non-payload operational logs. All fixture values are invented and non-sensitive; no external target, service, or credential is used.",
+  "cluster": "saf-lab-3490b2d2732b",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "With minimization absent, Loki stores both synthetic payload sentinels and structured sensitive fields",
+      "matched": true,
+      "observed": {
+        "query_status": "success",
+        "event_ids": [
+          "saf015-malformed-001",
+          "saf015-positive-001",
+          "saf015-request-001",
+          "saf015-response-001"
+        ],
+        "exact_labels_and_raw_payloads_match": true,
+        "request_raw_sentinels_present": true,
+        "response_raw_sentinels_present": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Loki stores exactly the allow-listed, pattern-masked request/response records; structured fields and malformed bytes are absent",
+      "matched": true,
+      "observed": {
+        "query_status": "success",
+        "event_ids": [
+          "saf015-malformed-001",
+          "saf015-positive-001",
+          "saf015-request-001",
+          "saf015-response-001"
+        ],
+        "exact_labels_and_minimized_payloads_match": true,
+        "sentinels_absent_from_backend_result": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Benign request record remains queryable with its permitted metadata and unchanged operational text",
+      "matched": true,
+      "observed": {
+        "event_id": "saf015-positive-001",
+        "status": "ok",
+        "permitted_metadata_preserved": true
+      }
+    }
+  ]
+}

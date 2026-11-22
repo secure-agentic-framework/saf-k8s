@@ -1,0 +1,84 @@
+{
+  "sentinels": ["PERSON_FABLE_015", "KEY_MINT_015", "PERSON_COPPER_015", "KEY_ORBIT_015", "PERSON_BRIGHT_015", "KEY_PAPER_015"],
+  "valid_events": [
+    {
+      "event_id": "saf015-request-001",
+      "direction": "request",
+      "model": "invented-model-a",
+      "status": "accepted",
+      "elapsed_ms": 14,
+      "prompt": "Please classify PERSON_FABLE_015 using reference KEY_MINT_015.",
+      "completion": "Request accepted for synthetic item PERSON_FABLE_015 with key KEY_MINT_015.",
+      "customer_ref": "PERSON_FABLE_015",
+      "auth_fragment": "KEY_MINT_015"
+    },
+    {
+      "event_id": "saf015-response-001",
+      "direction": "response",
+      "model": "invented-model-a",
+      "status": "complete",
+      "elapsed_ms": 27,
+      "prompt": "The invented prompt references PERSON_COPPER_015 and KEY_ORBIT_015.",
+      "completion": "Synthetic answer: PERSON_COPPER_015 maps to KEY_ORBIT_015.",
+      "customer_ref": "PERSON_COPPER_015",
+      "auth_fragment": "KEY_ORBIT_015"
+    },
+    {
+      "event_id": "saf015-positive-001",
+      "direction": "request",
+      "model": "invented-model-a",
+      "status": "ok",
+      "elapsed_ms": 9,
+      "prompt": "Summarize the invented sample dataset.",
+      "completion": "The sample contains three fictional colors.",
+      "customer_ref": "PERSON_BRIGHT_015",
+      "auth_fragment": "KEY_PAPER_015"
+    }
+  ],
+  "malformed_line": "{invented malformed payload PERSON_FABLE_015 KEY_MINT_015",
+  "expected_red": {
+    "saf015-request-001": {
+      "event_id": "saf015-request-001", "direction": "request", "model": "invented-model-a", "status": "accepted", "elapsed_ms": 14,
+      "prompt": "Please classify PERSON_FABLE_015 using reference KEY_MINT_015.",
+      "completion": "Request accepted for synthetic item PERSON_FABLE_015 with key KEY_MINT_015.",
+      "customer_ref": "PERSON_FABLE_015", "auth_fragment": "KEY_MINT_015"
+    },
+    "saf015-response-001": {
+      "event_id": "saf015-response-001", "direction": "response", "model": "invented-model-a", "status": "complete", "elapsed_ms": 27,
+      "prompt": "The invented prompt references PERSON_COPPER_015 and KEY_ORBIT_015.",
+      "completion": "Synthetic answer: PERSON_COPPER_015 maps to KEY_ORBIT_015.",
+      "customer_ref": "PERSON_COPPER_015", "auth_fragment": "KEY_ORBIT_015"
+    },
+    "saf015-positive-001": {
+      "event_id": "saf015-positive-001", "direction": "request", "model": "invented-model-a", "status": "ok", "elapsed_ms": 9,
+      "prompt": "Summarize the invented sample dataset.",
+      "completion": "The sample contains three fictional colors.",
+      "customer_ref": "PERSON_BRIGHT_015", "auth_fragment": "KEY_PAPER_015"
+    },
+    "saf015-malformed-001": {
+      "log": "{invented malformed payload PERSON_FABLE_015 KEY_MINT_015"
+    }
+  },
+  "expected_green": {
+    "saf015-request-001": {
+      "event_id": "saf015-request-001", "direction": "request", "model": "invented-model-a", "status": "accepted", "elapsed_ms": 14,
+      "prompt": "Please classify [REDACTED] using reference [REDACTED].",
+      "completion": "Request accepted for synthetic item [REDACTED] with key [REDACTED]."
+    },
+    "saf015-response-001": {
+      "event_id": "saf015-response-001", "direction": "response", "model": "invented-model-a", "status": "complete", "elapsed_ms": 27,
+      "prompt": "The invented prompt references [REDACTED] and [REDACTED].",
+      "completion": "Synthetic answer: [REDACTED] maps to [REDACTED]."
+    },
+    "saf015-positive-001": {
+      "event_id": "saf015-positive-001", "direction": "request", "model": "invented-model-a", "status": "ok", "elapsed_ms": 9,
+      "prompt": "Summarize the invented sample dataset.",
+      "completion": "The sample contains three fictional colors."
+    },
+    "saf015-malformed-001": {
+      "event_id": "saf015-malformed-001",
+      "direction": "malformed",
+      "payload_state": "malformed_record_suppressed"
+    }
+  }
+}
