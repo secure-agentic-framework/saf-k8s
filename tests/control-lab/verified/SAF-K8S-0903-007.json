@@ -1,0 +1,133 @@
+{
+  "control_id": "SAF-K8S-0903-007",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "90d281facd2897a5159fa701e9360e5c43df31da83e8bb39f23006667f26dab3",
+  "scope": "One disposable Kind cluster (the harness-pinned Kubernetes v1.36.1 node image), one case-owned namespace, one inert Python Deployment capped at four Pods during the intentionally unsafe baseline, and one case-owned HTTPS external-metrics API fixture. The native autoscaling/v2 HPA controller reads a deterministic synthetic external metric and scales only that Deployment. The case observes an unsafe baseline reaching its configured ceiling, then verifies a guarded maximum of three replicas, a one-Pod per-30-second scale-up policy, and a 30-second scale-down stabilization window. No GPU, GPU metric provider, KEDA, inference server, real workload, demand source, external traffic, co-host, or production cluster is involved. The fixture creates only a short-lived local API serving certificate.",
+  "cluster": "saf-lab-ad7ea86650de",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The metric fixture and inert target match the case-owned pinned manifests",
+      "matched": true,
+      "observed": {
+        "provider_image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90",
+        "workload_image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90",
+        "workload_command": [
+          "python",
+          "-c",
+          "import time; time.sleep(86400)"
+        ],
+        "workload_control_label": "SAF-K8S-0903-007",
+        "provider_token_mounted": false,
+        "workload_token_mounted": false,
+        "fixture_configmap_matches_source": true,
+        "api_service_namespace": "saf-0903-007",
+        "api_service_skips_backend_certificate_verification": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The aggregated API exposes the exact fixed synthetic demand",
+      "matched": true,
+      "observed": {
+        "fixture_file_value": "1",
+        "api_values": [
+          "1"
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The broader baseline permits four requested replicas in the initial high-demand period",
+      "matched": true,
+      "observed": {
+        "requested": 4,
+        "ready": 4,
+        "desired": 4,
+        "maximum": 4,
+        "four_requested_in_window": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The active HPA requests only one additional replica during the comparable high-demand window",
+      "matched": true,
+      "observed": {
+        "only_one_additional_replica": true,
+        "policy": [
+          {
+            "periodSeconds": 30,
+            "type": "Pods",
+            "value": 1
+          }
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Sustained demand reaches three Ready Pods and the native controller reports its ceiling",
+      "matched": true,
+      "observed": {
+        "requested": 3,
+        "ready": 3,
+        "desired": 3,
+        "maximum": 3,
+        "ceiling_reported": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The controller retains three replicas and reports downscale stabilization after demand falls",
+      "matched": true,
+      "observed": {
+        "window_seconds": 30,
+        "held_replicas": true,
+        "stabilization_reported": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "After stabilization expires the inert workload returns to one Ready Pod",
+      "matched": true,
+      "observed": {
+        "requested": 1,
+        "ready": 1,
+        "desired": 1,
+        "maximum": 3
+      }
+    }
+  ]
+}

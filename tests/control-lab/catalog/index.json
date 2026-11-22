@@ -1182,6 +1182,12 @@
       "sha256": "1116d92cb8887aa2ae81c1ca08c9d8caec68038295f640eeedc9efcb4896f045",
       "title": "LLM context window and token resource controls"
     },
+    "SAF-K8S-0903-007": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "90d281facd2897a5159fa701e9360e5c43df31da83e8bb39f23006667f26dab3",
+      "title": "GPU inference autoscaling replica bounds and stabilization enforcement"
+    },
     "SAF-K8S-0907-007": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1664,7 +1670,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "8af532a47d0f8132486c4dff94848f3bd5bff765",
+  "revision": "4bc574c712eed2099f46734d6fd17e42e8e0cdcd",
   "sha256": "048037b90a24d7ec93c499b5090f5453e3fe06e6708b6dbb8ea5d9294d79cf1b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
