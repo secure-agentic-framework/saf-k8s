@@ -1,0 +1,270 @@
+{
+  "control_id": "SAF-K8S-0103-018",
+  "catalog_revision": "d34b502ac96accb45a26841dfa77094dc4a72d9e",
+  "catalog_sha256": "c3bdef2bfc0aae712ee2fcb1bfd47cebfcedc7415526acfb36b86be77042a93f",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "a89d65de77be30e70cdf4a4705c938538ffbeaddc916f97d5f8e174351e46a06",
+  "scope": "One disposable local kind Kubernetes v1.36.1 cluster with three configured and observed control-plane nodes. Verify three Ready Kubernetes control-plane component replicas and exactly three ready kubeadm static etcd members, their member IDs/names/peer URLs, per-member endpoint health and readiness, then stop and restart only one case-owned control-plane container for a bounded API health and synthetic ConfigMap read/write probe. Separate synthetic failure-domain fixtures demonstrate replica concentration versus three-domain placement and odd-member quorum arithmetic. Container placement does not establish distinct physical failure domains; worker capacity, external etcd, managed Kubernetes guarantees, production availability, and real domain failure are outside scope.",
+  "cluster": "saf-lab-5352cf094c07",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Loss of the concentrated synthetic domain leaves fewer than quorum",
+      "matched": true,
+      "observed": {
+        "fixture": "red-concentrated-control-plane",
+        "survivors": 0,
+        "quorum": 2,
+        "available": false,
+        "synthetic_only": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Loss of one of three synthetic domains retains exactly quorum",
+      "matched": true,
+      "observed": {
+        "fixture": "green-one-member-per-synthetic-domain",
+        "survivors": 2,
+        "quorum": 2,
+        "available": true,
+        "synthetic_only": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Odd-member example uses resources efficiently for the same fault tolerance",
+      "matched": true,
+      "observed": {
+        "examples": [
+          {
+            "members": 3,
+            "quorum": 2,
+            "tolerated_losses": 1
+          },
+          {
+            "members": 4,
+            "quorum": 3,
+            "tolerated_losses": 1
+          },
+          {
+            "members": 5,
+            "quorum": 3,
+            "tolerated_losses": 2
+          }
+        ],
+        "interpretation": "4 members tolerates 1 loss, the same as 3; odd is efficiency, not a standalone placement guarantee"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Exactly three configured control-plane nodes are Ready",
+      "matched": true,
+      "observed": {
+        "nodes": {
+          "control-plane": "True",
+          "control-plane2": "True",
+          "control-plane3": "True"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Each kubeadm control-plane component has one Ready static replica per node",
+      "matched": true,
+      "observed": {
+        "kube-apiserver": [
+          "control-plane",
+          "control-plane2",
+          "control-plane3"
+        ],
+        "kube-controller-manager": [
+          "control-plane",
+          "control-plane2",
+          "control-plane3"
+        ],
+        "kube-scheduler": [
+          "control-plane",
+          "control-plane2",
+          "control-plane3"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Each control-plane node has one Running and Ready etcd Pod",
+      "matched": true,
+      "observed": {
+        "etcd_pods_ready_by_node": {
+          "control-plane": true,
+          "control-plane2": true,
+          "control-plane3": true
+        },
+        "image": "registry.k8s.io/etcd:3.6.8-0"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "All three member endpoints report healthy and ready",
+      "matched": true,
+      "observed": {
+        "member_names": [
+          "control-plane",
+          "control-plane2",
+          "control-plane3"
+        ],
+        "unique_member_ids": true,
+        "unique_peer_urls": true,
+        "endpoint_health": [
+          true,
+          true,
+          true
+        ],
+        "endpoint_readyz": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A bounded synthetic API ConfigMap write and read succeeds",
+      "matched": true,
+      "observed": {
+        "namespace": "saf-test",
+        "name": "saf-0103-018-maintenance-probe-before",
+        "data_matches": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "API read/write remains correct with one stopped control-plane node",
+      "matched": true,
+      "observed": {
+        "stopped_node_role": "control-plane",
+        "readyz": "ready",
+        "synthetic_configmap_round_trip": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The restarted control-plane node returns Ready",
+      "matched": true,
+      "observed": {
+        "node_role": "control-plane",
+        "all_control_planes_ready": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Exactly three configured control-plane nodes are Ready",
+      "matched": true,
+      "observed": {
+        "nodes": {
+          "control-plane": "True",
+          "control-plane2": "True",
+          "control-plane3": "True"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Each kubeadm control-plane component has one Ready static replica per node",
+      "matched": true,
+      "observed": {
+        "kube-apiserver": [
+          "control-plane",
+          "control-plane2",
+          "control-plane3"
+        ],
+        "kube-controller-manager": [
+          "control-plane",
+          "control-plane2",
+          "control-plane3"
+        ],
+        "kube-scheduler": [
+          "control-plane",
+          "control-plane2",
+          "control-plane3"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Each control-plane node has one Running and Ready etcd Pod",
+      "matched": true,
+      "observed": {
+        "etcd_pods_ready_by_node": {
+          "control-plane": true,
+          "control-plane2": true,
+          "control-plane3": true
+        },
+        "image": "registry.k8s.io/etcd:3.6.8-0"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "All three member endpoints report healthy and ready",
+      "matched": true,
+      "observed": {
+        "member_names": [
+          "control-plane",
+          "control-plane2",
+          "control-plane3"
+        ],
+        "unique_member_ids": true,
+        "unique_peer_urls": true,
+        "endpoint_health": [
+          true,
+          true,
+          true
+        ],
+        "endpoint_readyz": [
+          true,
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An independent write/read also works after recovery",
+      "matched": true,
+      "observed": {
+        "name": "saf-0103-018-maintenance-probe-after"
+      }
+    }
+  ]
+}

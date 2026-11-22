@@ -1,0 +1,34 @@
+{
+  "purpose": "Synthetic placement and quorum arithmetic only; these labels do not assert physical Docker or host failure domains.",
+  "scenarios": [
+    {
+      "name": "red-concentrated-control-plane",
+      "members": [
+        {"id": "cp-a", "synthetic_failure_domain": "zone-a"},
+        {"id": "cp-b", "synthetic_failure_domain": "zone-a"},
+        {"id": "cp-c", "synthetic_failure_domain": "zone-a"}
+      ],
+      "loss_domain": "zone-a",
+      "surviving_members": 0,
+      "expected_quorum": 2,
+      "expected_available": false
+    },
+    {
+      "name": "green-one-member-per-synthetic-domain",
+      "members": [
+        {"id": "cp-a", "synthetic_failure_domain": "zone-a"},
+        {"id": "cp-b", "synthetic_failure_domain": "zone-b"},
+        {"id": "cp-c", "synthetic_failure_domain": "zone-c"}
+      ],
+      "loss_domain": "zone-a",
+      "surviving_members": 2,
+      "expected_quorum": 2,
+      "expected_available": true
+    }
+  ],
+  "quorum_examples": [
+    {"members": 3, "quorum": 2, "tolerated_member_losses": 1},
+    {"members": 4, "quorum": 3, "tolerated_member_losses": 1},
+    {"members": 5, "quorum": 3, "tolerated_member_losses": 2}
+  ]
+}

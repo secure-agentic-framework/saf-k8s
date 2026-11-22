@@ -144,6 +144,12 @@
       "sha256": "94b2d75af7c8d8cc5fd506e95badd290d96539e10722ce288007928de8a0a7ba",
       "title": "Controller-manager and scheduler insecure-port disablement and non-public health-metrics exposure"
     },
+    "SAF-K8S-0103-018": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "a89d65de77be30e70cdf4a4705c938538ffbeaddc916f97d5f8e174351e46a06",
+      "title": "Control-plane replica distribution and etcd quorum topology"
+    },
     "SAF-K8S-0104-005": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -392,7 +398,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "2a8d799bacb0894fe24d586c7a5d9c3614475886",
+  "revision": "c8b924a09f27e6538d2a9728bfc34638e45b5091",
   "sha256": "c3bdef2bfc0aae712ee2fcb1bfd47cebfcedc7415526acfb36b86be77042a93f",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
