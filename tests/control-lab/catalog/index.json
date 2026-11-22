@@ -1499,10 +1499,16 @@
       "domain": "D10",
       "sha256": "86bede5c4a8f71a86b0b7f0e14ac9d318020fac42d6bf4cbbc9b625681470614",
       "title": "Kubernetes release-channel and changelog monitoring for API deprecations"
+    },
+    "SAF-K8S-1007-018": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "cfd2e5bc988c7ed5730322a3558adac4b7c86247ddcd96f01d9a56ea736c93f8",
+      "title": "Deprecated Kubernetes API usage inventory and migration tracking for AI workloads"
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "dbdfb4288bdf2eac3c454076b40852405fe26e1d",
+  "revision": "0df676b10e07bbf02651ed9f806391c11992fe26",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

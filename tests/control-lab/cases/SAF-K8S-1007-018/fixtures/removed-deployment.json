@@ -1,0 +1,20 @@
+{
+  "apiVersion": "extensions/v1beta1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "saf-1007-018-mock-inference",
+    "namespace": "saf-test",
+    "labels": {
+      "saf-lab.example/control": "SAF-K8S-1007-018",
+      "saf-lab.example/fixture": "true"
+    }
+  },
+  "spec": {
+    "replicas": 0,
+    "selector": {"matchLabels": {"app": "saf-1007-018-mock-inference"}},
+    "template": {
+      "metadata": {"labels": {"app": "saf-1007-018-mock-inference"}},
+      "spec": {"containers": [{"name": "mock", "image": "reserved.example.invalid/mock:synthetic"}]}
+    }
+  }
+}
