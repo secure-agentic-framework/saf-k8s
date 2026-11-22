@@ -1,0 +1,98 @@
+{
+  "control_id": "SAF-K8S-0904-016",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "bca0e2b4c57d853835f8fd4a80f5de42cc01e7f18cd74f1509e5ae11b47bc80f",
+  "scope": "One fresh Kind v1.36.1 cluster in the runner's saf-test namespace; official MLflow 3.5.1 server and client image, one SQLite backend, and a same-Pod authenticated append-only audit bridge. The server binds only to Pod loopback; the only Service targets the bridge. A fixed five-request sequence exercises experiment creation, experiment read, run creation, parameter write, and run deletion through actual MLflow REST APIs with three fixture-only Basic-auth symbolic actors. The sequence runs once with audit off and once with audit on; a separate permitted read checks continued access. Dynamic experiment/run IDs are retained only in raw evidence. This is not proof of production identity federation, every MLflow endpoint, artifact store access, durable/tamper-resistant export, retention, or Kubernetes network policy.",
+  "cluster": "saf-lab-9be179c6eef1",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "With the audit bridge disabled, fixed MLflow API operations succeed but leave no persisted actor-aware events",
+      "matched": true,
+      "observed": {
+        "all_fixed_api_operations_succeeded": true,
+        "persisted_event_count": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "With audit enabled, the same successful MLflow dispatch persists actor, operation, resource ID, and result",
+      "matched": true,
+      "observed": {
+        "same_dispatch_and_success": true,
+        "event_actor_operation_result": [
+          [
+            "lab-admin",
+            "administrative",
+            "success"
+          ],
+          [
+            "lab-reader",
+            "read",
+            "success"
+          ],
+          [
+            "lab-writer",
+            "write",
+            "success"
+          ],
+          [
+            "lab-writer",
+            "write",
+            "success"
+          ],
+          [
+            "lab-writer",
+            "delete",
+            "success"
+          ]
+        ],
+        "resource_ids_present": true,
+        "persisted_event_count": 5
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An approved reader continues to retrieve the fixed experiment while an attributable read event is persisted",
+      "matched": true,
+      "observed": {
+        "read_succeeded": true,
+        "reader_read_success_recorded": true,
+        "persisted_event_count": 6
+      }
+    }
+  ]
+}
