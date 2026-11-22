@@ -1,0 +1,9 @@
+{
+  "advisory_id": "SYNTH-CONTD-0001",
+  "synthetic": true,
+  "affected_runtime": "containerd",
+  "affected_versions": "< 9.4.2",
+  "disclosed_on": "2026-11-01",
+  "source_ref": "fixture://SAF-K8S-0202-003/synthetic-advisory.json",
+  "notes": "Fictional advisory evidence for evaluator testing. This is not a CVE, GHSA, or vulnerability reproduction."
+}

@@ -1,0 +1,10 @@
+{
+  "record_id": "SYNTH-REL-9.4.2",
+  "synthetic": true,
+  "runtime": "containerd",
+  "release_version": "9.4.2",
+  "fixed_version": "9.4.2",
+  "published_on": "2026-11-01",
+  "compatibility_fixture": "synthetic runtime inventory policy only",
+  "notes": "Fictional release record; version is intentionally unrelated to upstream containerd releases."
+}

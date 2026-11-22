@@ -1,0 +1,15 @@
+{
+  "policy_id": "SAF-K8S-0202-003-synthetic-policy-v1",
+  "synthetic": true,
+  "fixture_as_of": "2026-11-21",
+  "runtime": "containerd",
+  "vendor_support_policy": {
+    "accepted_statuses": ["supported"],
+    "require_as_of_on_or_before_support_until": true
+  },
+  "security_patch_sla_days": 14,
+  "allowed_fixture_sources": [
+    "fixture://SAF-K8S-0202-003/synthetic-advisory.json"
+  ],
+  "notes": "Fictional policy and dates for exercising case logic. Not a vendor support commitment or a real vulnerability SLA."
+}

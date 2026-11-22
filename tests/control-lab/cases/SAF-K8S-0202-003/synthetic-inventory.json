@@ -1,0 +1,25 @@
+{
+  "synthetic": true,
+  "records": [
+    {
+      "record_id": "SYNTH-NODE-APPROVED",
+      "runtime": "containerd",
+      "installed_version": "9.4.2",
+      "vendor_support_status": "supported",
+      "vendor_support_until": "2026-12-31",
+      "applicable_advisory_id": "SYNTH-CONTD-0001",
+      "patched_on": "2026-11-10",
+      "notes": "Fictional approved inventory record."
+    },
+    {
+      "record_id": "SYNTH-NODE-OUTDATED",
+      "runtime": "containerd",
+      "installed_version": "9.4.1",
+      "vendor_support_status": "supported",
+      "vendor_support_until": "2026-12-31",
+      "applicable_advisory_id": "SYNTH-CONTD-0001",
+      "patched_on": null,
+      "notes": "Fictional outdated inventory record. It remains in vendor support in this fixture, isolating the patch-SLA failure."
+    }
+  ]
+}

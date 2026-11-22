@@ -1,0 +1,121 @@
+{
+  "control_id": "SAF-K8S-0202-003",
+  "catalog_revision": "d34b502ac96accb45a26841dfa77094dc4a72d9e",
+  "catalog_sha256": "c3bdef2bfc0aae712ee2fcb1bfd47cebfcedc7415526acfb36b86be77042a93f",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "3cf58ffe3e4a2fde5c76e0ea36fcb6d356125a84dab803789e942505196bb353",
+  "scope": "Reads Kubernetes v1.36 Node.status.nodeInfo.containerRuntimeVersion from every node created by this run and verifies the Docker node containers use the lab's digest-pinned kind image and checks the packaged containerd and runc versions. Separately evaluates only case-owned synthetic containerd inventory, support, SLA, and advisory records. A tiny pinned BusyBox fixture must schedule and complete. This does not establish production node compliance, real vendor support, real advisory applicability, patch deployment, or compatibility beyond the fixture workload.",
+  "cluster": "saf-lab-04e74de7c711",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "An overdue synthetic runtime inventory fails while support and advisory provenance remain independently valid",
+      "matched": true,
+      "observed": {
+        "result": {
+          "vendor_support": true,
+          "patch_sla": false,
+          "advisory_provenance": true,
+          "overall": false,
+          "sla_due": "2026-11-15",
+          "reasons": [
+            "patch_sla"
+          ]
+        },
+        "record": "SYNTH-NODE-OUTDATED"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A synthetic inventory at the fixed release, patched inside its SLA, passes",
+      "matched": true,
+      "observed": {
+        "result": {
+          "vendor_support": true,
+          "patch_sla": true,
+          "advisory_provenance": true,
+          "overall": true,
+          "sla_due": "2026-11-15",
+          "reasons": []
+        },
+        "record": "SYNTH-NODE-APPROVED"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A fixed binary still fails the fixture policy when timing, support or provenance fails",
+      "matched": true,
+      "observed": {
+        "late": [
+          "patch_sla"
+        ],
+        "expired_support": [
+          "vendor_support"
+        ],
+        "unknown_source": [
+          "patch_sla",
+          "advisory_provenance"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Every node reports the packaged containerd version and has an inventoried runc version",
+      "matched": true,
+      "observed": {
+        "pinned_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+        "nodes": [
+          {
+            "node": "control-plane",
+            "container_runtime_version": "containerd://2.3.1",
+            "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+            "runc_version": "1.4.2",
+            "cri_matches_containerd": true
+          }
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A tiny non-root BusyBox fixture schedules on a reported node and completes",
+      "matched": true,
+      "observed": {
+        "phase": "Succeeded",
+        "scheduled_node": "control-plane",
+        "output": "fixture-ok",
+        "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
+      }
+    }
+  ]
+}
