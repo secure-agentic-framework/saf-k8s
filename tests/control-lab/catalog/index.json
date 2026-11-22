@@ -252,6 +252,12 @@
       "sha256": "44ec63bc8f618058b65b879db5b3e626e8104ca8f0b2fbe373b3e823b8837eb1",
       "title": "Seccomp profile enforcement"
     },
+    "SAF-K8S-0304-006": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "2cbb412e609dd2daaf3b701575e37397b0348dcffdb6678dd6673641ebbbc87e",
+      "title": "Host volume mount restriction"
+    },
     "SAF-K8S-0304-007": {
       "catalog_status": "draft",
       "domain": "D03",
