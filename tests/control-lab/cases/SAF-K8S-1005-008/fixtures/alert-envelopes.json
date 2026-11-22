@@ -1,0 +1,60 @@
+{
+  "fixture_only": true,
+  "envelopes": [
+    {
+      "event_id": "saf1005008-training-001",
+      "fixture_id": "SAF-K8S-1005-008",
+      "scenario": "training_job_integrity_review",
+      "alert_name": "SyntheticTrainingJobIntegrityReview",
+      "severity": "exercise",
+      "source_class": "synthetic-fixture",
+      "resource_ref": "saf-fixture-training-run",
+      "evidence_ref": "synthetic-record-training-001"
+    },
+    {
+      "event_id": "saf1005008-model-001",
+      "fixture_id": "SAF-K8S-1005-008",
+      "scenario": "model_artifact_integrity_review",
+      "alert_name": "SyntheticModelArtifactIntegrityReview",
+      "severity": "exercise",
+      "source_class": "synthetic-fixture",
+      "resource_ref": "saf-fixture-model-candidate",
+      "evidence_ref": "synthetic-record-model-001"
+    },
+    {
+      "event_id": "saf1005008-gpu-001",
+      "fixture_id": "SAF-K8S-1005-008",
+      "scenario": "gpu_resource_anomaly_review",
+      "alert_name": "SyntheticGPUResourceAnomalyReview",
+      "severity": "exercise",
+      "source_class": "synthetic-fixture",
+      "resource_ref": "synthetic-device-reference-only",
+      "evidence_ref": "synthetic-record-gpu-001"
+    },
+    {
+      "event_id": "saf1005008-inference-001",
+      "fixture_id": "SAF-K8S-1005-008",
+      "scenario": "inference_route_abuse_review",
+      "alert_name": "SyntheticInferenceRouteAbuseReview",
+      "severity": "exercise",
+      "source_class": "synthetic-fixture",
+      "resource_ref": "saf-fixture-inference-route",
+      "evidence_ref": "synthetic-record-inference-001"
+    },
+    {
+      "event_id": "saf1005008-positive-001",
+      "fixture_id": "SAF-K8S-1005-008",
+      "scenario": "healthy_observation",
+      "alert_name": "SyntheticHealthyObservation",
+      "severity": "informational",
+      "source_class": "synthetic-fixture",
+      "resource_ref": "saf-fixture-training-run",
+      "evidence_ref": "synthetic-record-positive-001"
+    }
+  ],
+  "mock_model_artifact": {
+    "name": "fixture-model-candidate-v1",
+    "content": "synthetic fixture artifact; not a model",
+    "sha256": "de253f4f33d813608e55ce5872b70e3c4a47646d2d79a5d473613a9426a6f4fe"
+  }
+}

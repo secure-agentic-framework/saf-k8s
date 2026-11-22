@@ -1,0 +1,91 @@
+{
+  "control_id": "SAF-K8S-1005-008",
+  "fixture_only": true,
+  "playbooks": [
+    {
+      "scenario": "training_job_integrity_review",
+      "title": "Training job integrity review",
+      "owner": "Mira Chen (fictional, AI Operations)",
+      "trigger": "Synthetic alert envelope training-job-integrity-review-v1",
+      "verify": [
+        "Confirm the envelope fixture_id and scenario match this case",
+        "Record the mock training-run ConfigMap name and current existence"
+      ],
+      "response_action": "pause_mock_training",
+      "response": [
+        "Pause only the case-owned mock training-run by deleting its labeled ConfigMap",
+        "Escalate to the fictional AI Operations owner for human review"
+      ],
+      "recovery": [
+        "Recreate only the case-owned mock training-run from the checked-in fixture",
+        "Record that recovery is a fixture reset, not production restoration"
+      ],
+      "escalation": "Fictional Security Operations lead if the synthetic exercise cannot establish scope",
+      "evidence": ["raw synthetic envelope", "response receipt", "before/after object observations"],
+      "exercise_cadence": "Annual tabletop is a control-statement expectation; this fixture makes no claim about an organization’s schedule."
+    },
+    {
+      "scenario": "model_artifact_integrity_review",
+      "title": "Model artifact integrity review",
+      "owner": "Noah Patel (fictional, ML Engineering)",
+      "trigger": "Synthetic alert envelope model-artifact-integrity-review-v1",
+      "verify": [
+        "Compare the fixture artifact bytes with the checked-in expected SHA-256",
+        "Record the mock candidate ConfigMap name and current existence"
+      ],
+      "response_action": "quarantine_mock_candidate",
+      "response": [
+        "Quarantine only the case-owned mock candidate by deleting its labeled ConfigMap",
+        "Escalate to the fictional ML Engineering owner for an independent review"
+      ],
+      "recovery": [
+        "Recreate the mock candidate fixture from its immutable checked-in JSON value",
+        "Record the restored fixture hash; do not treat it as a model rollback"
+      ],
+      "escalation": "Fictional Security Operations lead if the expected digest or fixture bytes are unavailable",
+      "evidence": ["raw synthetic envelope", "fixture digest comparison", "response receipt", "before/after object observations"],
+      "exercise_cadence": "Annual tabletop is a control-statement expectation; this fixture makes no claim about an organization’s schedule."
+    },
+    {
+      "scenario": "gpu_resource_anomaly_review",
+      "title": "GPU resource anomaly review",
+      "owner": "Avery Brooks (fictional, Platform Engineering)",
+      "trigger": "Synthetic alert envelope gpu-resource-anomaly-review-v1",
+      "verify": [
+        "Confirm the alert is marked synthetic and references no real node, device, or workload",
+        "Record that this case has no GPU, driver, or DCGM telemetry source"
+      ],
+      "response_action": "escalate_gpu_anomaly",
+      "response": [
+        "Route the synthetic observation to the fictional Platform Engineering owner",
+        "Do not stop, isolate, or modify any workload or device"
+      ],
+      "recovery": ["Close the mock exercise receipt after the owner acknowledgement is recorded"],
+      "escalation": "Fictional Security Operations lead if an operational GPU signal is unavailable in the organization’s environment",
+      "evidence": ["raw synthetic envelope", "response receipt", "unchanged fixture-resource observation"],
+      "exercise_cadence": "Annual tabletop is a control-statement expectation; this fixture makes no claim about an organization’s schedule."
+    },
+    {
+      "scenario": "inference_route_abuse_review",
+      "title": "Inference route abuse review",
+      "owner": "Elena Ruiz (fictional, Security Operations)",
+      "trigger": "Synthetic alert envelope inference-route-abuse-review-v1",
+      "verify": [
+        "Confirm the fixture_id and scenario match this case",
+        "Record the case-owned mock inference Service name and current existence"
+      ],
+      "response_action": "disable_mock_inference_route",
+      "response": [
+        "Disable only the case-owned mock inference route by deleting its labeled Service",
+        "Escalate to the fictional Security Operations owner for human review"
+      ],
+      "recovery": [
+        "Recreate only the case-owned mock inference Service from the checked-in fixture",
+        "Record that route recovery is a fixture reset, not production rate limiting or model quarantine"
+      ],
+      "escalation": "Fictional AI Operations lead if the synthetic route state cannot be established",
+      "evidence": ["raw synthetic envelope", "response receipt", "before/after Service observations"],
+      "exercise_cadence": "Annual tabletop is a control-statement expectation; this fixture makes no claim about an organization’s schedule."
+    }
+  ]
+}
