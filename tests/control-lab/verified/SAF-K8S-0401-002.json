@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0401-002",
-  "catalog_revision": "d34b502ac96accb45a26841dfa77094dc4a72d9e",
-  "catalog_sha256": "c3bdef2bfc0aae712ee2fcb1bfd47cebfcedc7415526acfb36b86be77042a93f",
+  "catalog_revision": "3f2c45b07cab1372d80dc649cce6a5d40f2000e2",
+  "catalog_sha256": "0decf495b5f1d40eeb3f160be10f54351993ceb48c799c63c547928aedf41319",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "87ef1438b413241e96856e0762c6ed6a130b1e980467187a92a0968688f19aae",
-  "scope": "Kubernetes v1.36.1 RBAC for one synthetic ServiceAccount, two case-owned Roles, two RoleBindings, and two named ConfigMaps in namespace saf-0401-002. Kubernetes SubjectAccessReview requests evaluate only named get actions for that synthetic identity. The test removes only the case-owned binding for the unnecessary read. Cluster-scoped RBAC, other subjects, privilege-escalation paths, real data, admission controls, and production audit coverage are outside this case.",
-  "cluster": "saf-lab-516c4994fbfd",
+  "control_sha256": "6070733308e304589b4570dd25316bca0dc37cfabc9d7f9d6a16c46e45c83c9f",
+  "scope": "Replays the existing synthetic ConfigMap permission audit. A second isolated namespace tests v1.36.1 SubjectAccessReview decisions for ordinary ResourceClaim status plus the DRA binding and driver permissions. The test uses fixed synthetic principals, driver names and node-aware verbs. Production role inventory, native status request construction, node association, actual driver behavior and allocation remain separate.",
+  "cluster": "saf-lab-2520ccb2789f",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -122,6 +122,710 @@
         "allowed": true,
         "denied": false,
         "reason": "RBAC: allowed by RoleBinding \"saf-0401-002-required-reader/saf-0401-002\" of Role \"saf-0401-002-required-reader\" to ServiceAccount \"saf-0401-002-audited-reader/saf-0401-002\""
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "status-only: patch resourceclaims/status saf-0401-002-dra-claim",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "status",
+          "name": "saf-0401-002-dra-claim"
+        },
+        "allowed": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "status-only: patch resourceclaims/binding saf-0401-002-dra-claim",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "binding",
+          "name": "saf-0401-002-dra-claim"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "status-only: associated-node:patch resourceclaims/driver saf-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "associated-node:patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "saf-dra.example.invalid"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "status-only: arbitrary-node:patch resourceclaims/driver saf-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "arbitrary-node:patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "saf-dra.example.invalid"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "status-only: update resourceclaims/status saf-0401-002-dra-claim",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "status",
+          "name": "saf-0401-002-dra-claim"
+        },
+        "allowed": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "status-only: update resourceclaims/binding saf-0401-002-dra-claim",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "binding",
+          "name": "saf-0401-002-dra-claim"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "status-only: associated-node:update resourceclaims/driver saf-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "associated-node:update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "saf-dra.example.invalid"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "status-only: arbitrary-node:update resourceclaims/driver saf-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "arbitrary-node:update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "saf-dra.example.invalid"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "scheduler: patch resourceclaims/status saf-0401-002-dra-claim",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "status",
+          "name": "saf-0401-002-dra-claim"
+        },
+        "allowed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "scheduler: patch resourceclaims/binding saf-0401-002-dra-claim",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "binding",
+          "name": "saf-0401-002-dra-claim"
+        },
+        "allowed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "scheduler: associated-node:patch resourceclaims/driver saf-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "associated-node:patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "saf-dra.example.invalid"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "scheduler: arbitrary-node:patch resourceclaims/driver saf-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "arbitrary-node:patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "saf-dra.example.invalid"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "scheduler: update resourceclaims/status saf-0401-002-dra-claim",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "status",
+          "name": "saf-0401-002-dra-claim"
+        },
+        "allowed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "scheduler: update resourceclaims/binding saf-0401-002-dra-claim",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "binding",
+          "name": "saf-0401-002-dra-claim"
+        },
+        "allowed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "scheduler: associated-node:update resourceclaims/driver saf-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "associated-node:update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "saf-dra.example.invalid"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "scheduler: arbitrary-node:update resourceclaims/driver saf-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "arbitrary-node:update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "saf-dra.example.invalid"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "node-driver: patch resourceclaims/status saf-0401-002-dra-claim",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "status",
+          "name": "saf-0401-002-dra-claim"
+        },
+        "allowed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "node-driver: associated-node:patch resourceclaims/driver saf-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "associated-node:patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "saf-dra.example.invalid"
+        },
+        "allowed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "node-driver: associated-node:patch resourceclaims/driver other-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "associated-node:patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "other-dra.example.invalid"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "node-driver: arbitrary-node:patch resourceclaims/driver saf-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "arbitrary-node:patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "saf-dra.example.invalid"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "node-driver: patch resourceclaims/binding saf-0401-002-dra-claim",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "binding",
+          "name": "saf-0401-002-dra-claim"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "node-driver: update resourceclaims/status saf-0401-002-dra-claim",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "status",
+          "name": "saf-0401-002-dra-claim"
+        },
+        "allowed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "node-driver: associated-node:update resourceclaims/driver saf-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "associated-node:update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "saf-dra.example.invalid"
+        },
+        "allowed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "node-driver: associated-node:update resourceclaims/driver other-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "associated-node:update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "other-dra.example.invalid"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "node-driver: arbitrary-node:update resourceclaims/driver saf-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "arbitrary-node:update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "saf-dra.example.invalid"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "node-driver: update resourceclaims/binding saf-0401-002-dra-claim",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "binding",
+          "name": "saf-0401-002-dra-claim"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "multi-node: patch resourceclaims/status saf-0401-002-dra-claim",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "status",
+          "name": "saf-0401-002-dra-claim"
+        },
+        "allowed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "multi-node: arbitrary-node:patch resourceclaims/driver saf-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "arbitrary-node:patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "saf-dra.example.invalid"
+        },
+        "allowed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "multi-node: arbitrary-node:patch resourceclaims/driver other-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "arbitrary-node:patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "other-dra.example.invalid"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "multi-node: associated-node:patch resourceclaims/driver saf-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "associated-node:patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "saf-dra.example.invalid"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "multi-node: patch resourceclaims/binding saf-0401-002-dra-claim",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "binding",
+          "name": "saf-0401-002-dra-claim"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "multi-node: update resourceclaims/status saf-0401-002-dra-claim",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "status",
+          "name": "saf-0401-002-dra-claim"
+        },
+        "allowed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "multi-node: arbitrary-node:update resourceclaims/driver saf-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "arbitrary-node:update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "saf-dra.example.invalid"
+        },
+        "allowed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "multi-node: arbitrary-node:update resourceclaims/driver other-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "arbitrary-node:update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "other-dra.example.invalid"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "multi-node: associated-node:update resourceclaims/driver saf-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "associated-node:update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "saf-dra.example.invalid"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "multi-node: update resourceclaims/binding saf-0401-002-dra-claim",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "binding",
+          "name": "saf-0401-002-dra-claim"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "tenant: patch resourceclaims/status saf-0401-002-dra-claim",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "status",
+          "name": "saf-0401-002-dra-claim"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "tenant: patch resourceclaims/binding saf-0401-002-dra-claim",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "binding",
+          "name": "saf-0401-002-dra-claim"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "tenant: associated-node:patch resourceclaims/driver saf-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "associated-node:patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "saf-dra.example.invalid"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "tenant: arbitrary-node:patch resourceclaims/driver saf-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "arbitrary-node:patch",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "saf-dra.example.invalid"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "tenant: update resourceclaims/status saf-0401-002-dra-claim",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "status",
+          "name": "saf-0401-002-dra-claim"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "tenant: update resourceclaims/binding saf-0401-002-dra-claim",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "binding",
+          "name": "saf-0401-002-dra-claim"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "tenant: associated-node:update resourceclaims/driver saf-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "associated-node:update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "saf-dra.example.invalid"
+        },
+        "allowed": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "tenant: arbitrary-node:update resourceclaims/driver saf-dra.example.invalid",
+      "matched": true,
+      "observed": {
+        "attributes": {
+          "namespace": "saf-0401-002-dra",
+          "verb": "arbitrary-node:update",
+          "group": "resource.k8s.io",
+          "resource": "resourceclaims",
+          "subresource": "driver",
+          "name": "saf-dra.example.invalid"
+        },
+        "allowed": false
       }
     }
   ]

@@ -297,7 +297,7 @@
     "SAF-K8S-0401-002": {
       "catalog_status": "draft",
       "domain": "D04",
-      "sha256": "87ef1438b413241e96856e0762c6ed6a130b1e980467187a92a0968688f19aae",
+      "sha256": "6070733308e304589b4570dd25316bca0dc37cfabc9d7f9d6a16c46e45c83c9f",
       "title": "RBAC permission audit and analysis"
     },
     "SAF-K8S-0401-003": {
@@ -428,7 +428,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "88c57e58bf58573cf4c8492f551c56b5d716a207",
-  "sha256": "0427a45ac9bf0f2d8256f7f075d12a0ac8ad43daf141990b68d2fba2211f5a21",
+  "revision": "3984e3c0270ba6ee3e259d107ad939aee7fc9ce3",
+  "sha256": "0decf495b5f1d40eeb3f160be10f54351993ceb48c799c63c547928aedf41319",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
