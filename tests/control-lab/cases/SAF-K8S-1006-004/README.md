@@ -22,3 +22,8 @@ coverage, archive retention, external GRC integration and applicability of
 crosswalk records require separate evidence.
 
 [Kubernetes v1.36 CronJobs](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/), [Pod Security Admission](https://v1-36.docs.kubernetes.io/docs/concepts/security/pod-security-admission/)
+
+The same test also runs the [scoped API collector](scoped/README.md) against two additional
+synthetic namespaces. It checks exact live RoleBindings, NetworkPolicies and Pod Security
+labels, verifies source identity and resource versions, and retains the old scheduled
+retention checks in the same run.

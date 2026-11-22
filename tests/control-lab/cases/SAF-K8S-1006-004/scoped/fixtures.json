@@ -1,0 +1,51 @@
+{
+  "schema": "saf.example/evidence-fixture/v1",
+  "control_id": "SAF-K8S-1006-004",
+  "freshness_limit_seconds": 8,
+  "namespaces": {
+    "primary": {
+      "name": "saf-1006-004-primary",
+      "labels": {
+        "pod-security.kubernetes.io/enforce": "restricted",
+        "pod-security.kubernetes.io/enforce-version": "v1.36",
+        "pod-security.kubernetes.io/audit": "restricted",
+        "pod-security.kubernetes.io/audit-version": "v1.36",
+        "pod-security.kubernetes.io/warn": "restricted",
+        "pod-security.kubernetes.io/warn-version": "v1.36",
+        "saf.example/control-id": "SAF-K8S-1006-004",
+        "saf.example/fixture": "primary"
+      },
+      "binding": {
+        "name": "saf-1006-004-fixture-reader",
+        "subjects": [{"kind": "ServiceAccount", "name": "mock-workload", "namespace": "saf-1006-004-primary"}],
+        "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "Role", "name": "saf-1006-004-fixture-view"}
+      },
+      "network_policy": {
+        "name": "saf-1006-004-default-deny",
+        "spec": {"podSelector": {"matchLabels": {"app": "mock-workload"}}, "policyTypes": ["Ingress", "Egress"]}
+      }
+    },
+    "positive": {
+      "name": "saf-1006-004-positive",
+      "labels": {
+        "pod-security.kubernetes.io/enforce": "restricted",
+        "pod-security.kubernetes.io/enforce-version": "v1.36",
+        "pod-security.kubernetes.io/audit": "restricted",
+        "pod-security.kubernetes.io/audit-version": "v1.36",
+        "pod-security.kubernetes.io/warn": "restricted",
+        "pod-security.kubernetes.io/warn-version": "v1.36",
+        "saf.example/control-id": "SAF-K8S-1006-004",
+        "saf.example/fixture": "positive"
+      },
+      "binding": {
+        "name": "saf-1006-004-positive-reader",
+        "subjects": [{"kind": "ServiceAccount", "name": "mock-workload", "namespace": "saf-1006-004-positive"}],
+        "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "Role", "name": "saf-1006-004-positive-view"}
+      },
+      "network_policy": {
+        "name": "saf-1006-004-positive-deny",
+        "spec": {"podSelector": {"matchLabels": {"app": "mock-workload"}}, "policyTypes": ["Ingress", "Egress"]}
+      }
+    }
+  }
+}

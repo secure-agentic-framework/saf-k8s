@@ -2,6 +2,7 @@
 from datetime import datetime, timezone
 import json
 from pathlib import Path
+import runpy
 import time
 
 HERE = Path(__file__).resolve().parent
@@ -19,8 +20,8 @@ SCOPE = (
     "identity to collect inert catalog and crosswalk records and live Pod Security "
     "Admission labels twice. It writes both "
     "snapshots to a PVC where a separate Pod reads them. The lab demonstrates missing, "
-    "fresh, stale, and recovered states under a fixture timing threshold. Scope is capture, "
-    "retained data, and freshness for the synthetic inputs."
+    "fresh, stale, and recovered states under a fixture timing threshold. The scoped follow-on checks live RoleBindings, NetworkPolicies, Namespace labels, "
+    "object provenance, and cross-namespace denial. Scope is capture and freshness for the synthetic inputs."
 )
 
 
@@ -194,3 +195,4 @@ def run(lab):
               new_exact and kept_old and new_fresh and next_path != path,
               {"revised_inputs_exact": new_exact, "older_artifact_retained": kept_old,
                "new_artifact_fresh": new_fresh})
+    runpy.run_path(str(HERE / "scoped" / "case.py"))["run"](lab)

@@ -4,8 +4,8 @@
   "catalog_sha256": "5468afd7544aceb8f79e434b7d58a52fc41eeee0b3084837f4dc587efc72cace",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "8877e0aea2bbffdc28a808535c9c9920647990571e0060d3e184ab6fc9fdf3a2",
-  "scope": "Disposable Kind cluster. A Kubernetes CronJob uses its own read-only, named-object identity to collect inert catalog and crosswalk records and live Pod Security Admission labels twice. It writes both snapshots to a PVC where a separate Pod reads them. The lab demonstrates missing, fresh, stale, and recovered states under a fixture timing threshold. Scope is capture, retained data, and freshness for the synthetic inputs.",
-  "cluster": "saf-lab-6b0c88f979c1",
+  "scope": "Disposable Kind cluster. A Kubernetes CronJob uses its own read-only, named-object identity to collect inert catalog and crosswalk records and live Pod Security Admission labels twice. It writes both snapshots to a PVC where a separate Pod reads them. The lab demonstrates missing, fresh, stale, and recovered states under a fixture timing threshold. The scoped follow-on checks live RoleBindings, NetworkPolicies, Namespace labels, object provenance, and cross-namespace denial. Scope is capture and freshness for the synthetic inputs.",
+  "cluster": "saf-lab-aba4f5353e9d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -84,6 +84,88 @@
         "revised_inputs_exact": true,
         "older_artifact_retained": true,
         "new_artifact_fresh": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The disposable API server is Kubernetes v1.36.1",
+      "matched": true,
+      "observed": {
+        "gitVersion": "v1.36.1"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Fixture freshness policy is explicit and bounded",
+      "matched": true,
+      "observed": {
+        "freshness_limit_seconds": 8
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The evidence ledger reports missing before any collector has run",
+      "matched": true,
+      "observed": {
+        "capture_state": "missing",
+        "capture_present": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The collector identity has the intended read scope and no tested write or Secret access",
+      "matched": true,
+      "observed": {
+        "identity": "system:serviceaccount:saf-1006-004-primary:capture-reader",
+        "can_i": {
+          "get_namespace": "yes",
+          "list_rolebindings": "yes",
+          "list_networkpolicies": "yes",
+          "create_rolebinding": "no",
+          "patch_namespace": "no",
+          "read_secret": "no"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Read-only API collection returns exact primary namespace evidence with provenance",
+      "matched": true,
+      "observed": {
+        "capture_state": "fresh",
+        "source_matches_fixture": true,
+        "provenance_matches_live_objects": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The unchanged captured API response is detected as stale after the fixture freshness window",
+      "matched": true,
+      "observed": {
+        "capture_state": "stale",
+        "max_age_seconds": 8,
+        "source_capture_unchanged": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A new API collection restores fresh evidence for the previously stale namespace",
+      "matched": true,
+      "observed": {
+        "capture_state": "fresh",
+        "source_matches_fixture": true,
+        "captured_after_stale_observation": true,
+        "same_namespace_uid": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An independent namespace produces a fresh, distinct, complete capture",
+      "matched": true,
+      "observed": {
+        "capture_state": "fresh",
+        "source_matches_fixture": true,
+        "different_namespace_uid": true
       }
     }
   ]
