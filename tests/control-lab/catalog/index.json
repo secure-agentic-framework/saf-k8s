@@ -1092,6 +1092,12 @@
       "sha256": "498d90bbe4921b9b8a6929b97a72c4d90b8cd2981e5907d82c3f9acd466a5ffe",
       "title": "Kubernetes audit level and stage filtering for AI workloads"
     },
+    "SAF-K8S-1001-012": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "b823f9e183622b4efc66cecf87987ffd915d6ec5a4d2ffaf80bf47f9ed93e281",
+      "title": "SIEM correlation rules for AI-specific attack patterns"
+    },
     "SAF-K8S-1001-015": {
       "catalog_status": "draft",
       "domain": "D10",

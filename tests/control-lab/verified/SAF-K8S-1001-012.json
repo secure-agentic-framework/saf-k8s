@@ -1,0 +1,173 @@
+{
+  "control_id": "SAF-K8S-1001-012",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "b823f9e183622b4efc66cecf87987ffd915d6ec5a4d2ffaf80bf47f9ed93e281",
+  "scope": "One disposable single-node Kind Kubernetes v1.36.1 cluster. Reads metadata for the exact case-owned tokenless mock Pod, its case-owned ConfigMap, the assigned Node, and namespaced Kubernetes Events; captures the mock Pod's single fixed JSON log line. Exercises six explicitly specified decisions on static synthetic audit-shaped records and fabricated benign counters. No SIEM is connected, no AI/GPU runtime exists, no KServe/API extension is installed, and no live attack or external traffic is used. This validates deterministic rule logic and a bounded Kubernetes metadata read path only.",
+  "cluster": "saf-lab-044e5b276a39",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Synthetic positive for unexpected_inferenceservice_create triggers its rule",
+      "matched": true,
+      "observed": {
+        "rule": "unexpected_inferenceservice_create",
+        "fixture_id": "SYNTH-1001-012-01A",
+        "alert": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Approved or benign control for unexpected_inferenceservice_create does not trigger",
+      "matched": true,
+      "observed": {
+        "rule": "unexpected_inferenceservice_create",
+        "fixture_id": "SYNTH-1001-012-01B",
+        "alert": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Synthetic positive for gpu_without_training_job triggers its rule",
+      "matched": true,
+      "observed": {
+        "rule": "gpu_without_training_job",
+        "fixture_id": "SYNTH-1001-012-02A",
+        "alert": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Approved or benign control for gpu_without_training_job does not trigger",
+      "matched": true,
+      "observed": {
+        "rule": "gpu_without_training_job",
+        "fixture_id": "SYNTH-1001-012-02B",
+        "alert": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Synthetic positive for training_job_changed_by_non_owner triggers its rule",
+      "matched": true,
+      "observed": {
+        "rule": "training_job_changed_by_non_owner",
+        "fixture_id": "SYNTH-1001-012-03A",
+        "alert": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Approved or benign control for training_job_changed_by_non_owner does not trigger",
+      "matched": true,
+      "observed": {
+        "rule": "training_job_changed_by_non_owner",
+        "fixture_id": "SYNTH-1001-012-03B",
+        "alert": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Synthetic positive for inference_request_rate_spike triggers its rule",
+      "matched": true,
+      "observed": {
+        "rule": "inference_request_rate_spike",
+        "fixture_id": "SYNTH-1001-012-04A",
+        "alert": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Approved or benign control for inference_request_rate_spike does not trigger",
+      "matched": true,
+      "observed": {
+        "rule": "inference_request_rate_spike",
+        "fixture_id": "SYNTH-1001-012-04B",
+        "alert": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Synthetic positive for large_model_storage_egress triggers its rule",
+      "matched": true,
+      "observed": {
+        "rule": "large_model_storage_egress",
+        "fixture_id": "SYNTH-1001-012-05A",
+        "alert": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Approved or benign control for large_model_storage_egress does not trigger",
+      "matched": true,
+      "observed": {
+        "rule": "large_model_storage_egress",
+        "fixture_id": "SYNTH-1001-012-05B",
+        "alert": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Synthetic positive for audit_policy_configmap_changed triggers its rule",
+      "matched": true,
+      "observed": {
+        "rule": "audit_policy_configmap_changed",
+        "fixture_id": "SYNTH-1001-012-06A",
+        "alert": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Approved or benign control for audit_policy_configmap_changed does not trigger",
+      "matched": true,
+      "observed": {
+        "rule": "audit_policy_configmap_changed",
+        "fixture_id": "SYNTH-1001-012-06B",
+        "alert": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Read-only native telemetry is bound to the case-owned Pod and Node",
+      "matched": true,
+      "observed": {
+        "pod_uid_matches_create": true,
+        "owned_pod_event_observed": true,
+        "node_version": "v1.36.1",
+        "workload_log_fixture": "SYNTH-SAF-K8S-1001-012-WORKLOAD-001"
+      }
+    }
+  ]
+}
