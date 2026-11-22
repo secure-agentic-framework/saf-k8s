@@ -1,0 +1,100 @@
+{
+  "control_id": "SAF-K8S-1004-006",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "9231ef42b8978d9f2c43f75df5a37f2af85d8cc86d788ee8f8f119c51dc3e8f2",
+  "scope": "One disposable Kind v1.36.1 cluster. Two restricted, tokenless Jobs process only bundled, invented defensive metadata. Correlation requires exact cluster, namespace, workload and a five-minute event-time window; business context is validity-bounded and can change analyst review urgency. The fixture makes no attribution or employment decision. It does not collect live audit, physical, organizational, HR, or SIEM/SOAR data and does not establish deployed coverage or control operation.",
+  "cluster": "saf-lab-e7ba271689b2",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Single-signal comparator ranks the higher-severity record first",
+      "matched": true,
+      "observed": {
+        "same_candidate_set": true,
+        "single_signal_order": [
+          "TECH-E",
+          "TECH-B",
+          "TECH-A",
+          "TECH-C",
+          "TECH-D",
+          "TECH-F"
+        ],
+        "first_urgency": "urgent"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Exact workload and time correlation changes analyst review ordering",
+      "matched": true,
+      "observed": {
+        "single_signal_order": [
+          "TECH-E",
+          "TECH-B",
+          "TECH-A",
+          "TECH-C",
+          "TECH-D",
+          "TECH-F"
+        ],
+        "correlated_order": [
+          "TECH-E",
+          "TECH-A",
+          "TECH-B",
+          "TECH-C",
+          "TECH-D",
+          "TECH-F"
+        ],
+        "exact_join_ids": [
+          "CTX-A"
+        ],
+        "business_context_id": "BIZ-A",
+        "contextual_review_urgency": "urgent"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Out-of-scope, expired and ambiguously matched context cannot increase review urgency",
+      "matched": true,
+      "observed": {
+        "mismatch_excluded": true,
+        "same_workload_outside_time_window_excluded": true,
+        "expired_context_excluded": true,
+        "expired_status": "expired",
+        "ambiguous_status": "ambiguous",
+        "no_attribution_or_employment_decision": true
+      }
+    }
+  ]
+}

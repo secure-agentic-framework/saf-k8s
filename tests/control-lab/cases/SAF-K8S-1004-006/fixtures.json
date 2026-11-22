@@ -1,0 +1,197 @@
+{
+  "notice": "Entirely invented synthetic defensive metadata. No people, real workloads, real events, attribution, or employment decisions are represented.",
+  "correlation_window_seconds": 300,
+  "technical_events": [
+    {
+      "event_id": "TECH-A",
+      "workload_id": "workload-synthetic-a",
+      "namespace": "saf-test",
+      "workload_name": "mock-model-serving-a",
+      "observed_at": "2026-11-22T12:00:00Z",
+      "signal": "unusual_configuration_change",
+      "severity": "medium",
+      "cluster": "kind-fixture"
+    },
+    {
+      "event_id": "TECH-B",
+      "workload_id": "workload-synthetic-b",
+      "namespace": "saf-test",
+      "workload_name": "mock-model-serving-b",
+      "observed_at": "2026-11-22T12:00:00Z",
+      "signal": "unusual_configuration_change",
+      "severity": "high",
+      "cluster": "kind-fixture"
+    },
+    {
+      "event_id": "TECH-C",
+      "workload_id": "workload-synthetic-c",
+      "namespace": "saf-test",
+      "workload_name": "mock-model-serving-c",
+      "observed_at": "2026-11-22T12:00:00Z",
+      "signal": "unusual_configuration_change",
+      "severity": "medium",
+      "cluster": "kind-fixture"
+    },
+    {
+      "event_id": "TECH-D",
+      "workload_id": "workload-synthetic-d",
+      "namespace": "saf-test",
+      "workload_name": "mock-model-serving-d",
+      "observed_at": "2026-11-22T12:00:00Z",
+      "signal": "unusual_configuration_change",
+      "severity": "medium",
+      "cluster": "kind-fixture"
+    },
+    {
+      "event_id": "TECH-E",
+      "workload_id": "workload-synthetic-e",
+      "namespace": "saf-test",
+      "workload_name": "mock-model-serving-a",
+      "observed_at": "2026-11-22T12:00:00Z",
+      "signal": "unusual_configuration_change",
+      "severity": "critical",
+      "cluster": "kind-fixture"
+    },
+    {
+      "event_id": "TECH-F",
+      "workload_id": "workload-synthetic-f",
+      "namespace": "saf-test",
+      "workload_name": "mock-model-serving-a",
+      "observed_at": "2026-11-22T12:00:00Z",
+      "signal": "unusual_configuration_change",
+      "severity": "medium",
+      "cluster": "kind-fixture"
+    }
+  ],
+  "nontechnical_context": [
+    {
+      "record_id": "CTX-A",
+      "workload_id": "workload-synthetic-a",
+      "observed_at": "2026-11-22T12:02:00Z",
+      "source_class": "facility_status",
+      "risk_flag": "unplanned_zone_access_review",
+      "cluster": "kind-fixture",
+      "namespace": "saf-test"
+    },
+    {
+      "record_id": "CTX-C-MISMATCH",
+      "workload_id": "workload-synthetic-other",
+      "observed_at": "2026-11-22T12:01:00Z",
+      "source_class": "facility_status",
+      "risk_flag": "unplanned_zone_access_review",
+      "cluster": "kind-fixture",
+      "namespace": "saf-test"
+    },
+    {
+      "record_id": "CTX-D-OUTSIDE-WINDOW",
+      "workload_id": "workload-synthetic-d",
+      "observed_at": "2026-11-22T12:10:00Z",
+      "source_class": "facility_status",
+      "risk_flag": "unplanned_zone_access_review",
+      "cluster": "kind-fixture",
+      "namespace": "saf-test"
+    },
+    {
+      "record_id": "CTX-A-OTHER-SCOPE",
+      "workload_id": "workload-synthetic-a",
+      "observed_at": "2026-11-22T12:02:00Z",
+      "source_class": "facility_status",
+      "risk_flag": "unplanned_zone_access_review",
+      "cluster": "kind-fixture",
+      "namespace": "synthetic-other"
+    },
+    {
+      "record_id": "CTX-A-AFTER-REVIEW",
+      "workload_id": "workload-synthetic-a",
+      "observed_at": "2026-11-22T12:04:00Z",
+      "source_class": "facility_status",
+      "risk_flag": "unplanned_zone_access_review",
+      "cluster": "kind-fixture",
+      "namespace": "saf-test"
+    },
+    {
+      "record_id": "CTX-F",
+      "workload_id": "workload-synthetic-f",
+      "observed_at": "2026-11-22T12:02:00Z",
+      "source_class": "facility_status",
+      "risk_flag": "unplanned_zone_access_review",
+      "cluster": "kind-fixture",
+      "namespace": "saf-test"
+    }
+  ],
+  "business_context": [
+    {
+      "record_id": "BIZ-A",
+      "workload_id": "workload-synthetic-a",
+      "valid_from": "2026-11-22T11:00:00Z",
+      "valid_until": "2026-11-22T13:00:00Z",
+      "business_criticality": "high",
+      "review_context_flag": "service_continuity_review",
+      "cluster": "kind-fixture",
+      "namespace": "saf-test"
+    },
+    {
+      "record_id": "BIZ-C-MISMATCH",
+      "workload_id": "workload-synthetic-other",
+      "valid_from": "2026-11-22T11:00:00Z",
+      "valid_until": "2026-11-22T13:00:00Z",
+      "business_criticality": "high",
+      "review_context_flag": "service_continuity_review",
+      "cluster": "kind-fixture",
+      "namespace": "saf-test"
+    },
+    {
+      "record_id": "BIZ-D-EXPIRED",
+      "workload_id": "workload-synthetic-d",
+      "valid_from": "2026-11-22T10:00:00Z",
+      "valid_until": "2026-11-22T11:59:59Z",
+      "business_criticality": "high",
+      "review_context_flag": "service_continuity_review",
+      "cluster": "kind-fixture",
+      "namespace": "saf-test"
+    },
+    {
+      "record_id": "BIZ-A-OTHER-SCOPE",
+      "workload_id": "workload-synthetic-a",
+      "valid_from": "2026-11-22T11:00:00Z",
+      "valid_until": "2026-11-22T13:00:00Z",
+      "business_criticality": "high",
+      "review_context_flag": "service_continuity_review",
+      "cluster": "synthetic-other",
+      "namespace": "saf-test"
+    },
+    {
+      "record_id": "BIZ-F-ONE",
+      "workload_id": "workload-synthetic-f",
+      "valid_from": "2026-11-22T11:00:00Z",
+      "valid_until": "2026-11-22T13:00:00Z",
+      "business_criticality": "high",
+      "review_context_flag": "service_continuity_review",
+      "cluster": "kind-fixture",
+      "namespace": "saf-test"
+    },
+    {
+      "record_id": "BIZ-F-TWO",
+      "workload_id": "workload-synthetic-f",
+      "valid_from": "2026-11-22T11:00:00Z",
+      "valid_until": "2026-11-22T13:00:00Z",
+      "business_criticality": "high",
+      "review_context_flag": "service_continuity_review",
+      "cluster": "kind-fixture",
+      "namespace": "saf-test"
+    }
+  ],
+  "expected": {
+    "severity_only_first": "TECH-E",
+    "contextual_first": "TECH-E",
+    "exact_join_event": "TECH-A",
+    "single_signal_event": "TECH-B",
+    "mismatch_event": "TECH-C",
+    "expired_event": "TECH-D",
+    "severity_only_second": "TECH-B",
+    "contextual_second": "TECH-A",
+    "ambiguous_event": "TECH-F",
+    "critical_event": "TECH-E"
+  },
+  "review_time": "2026-11-22T12:03:00Z"
+}

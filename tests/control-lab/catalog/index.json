@@ -1284,6 +1284,12 @@
       "sha256": "432091281f901c3b96dcd7eb26835ce2ea62ea4fe4b2065643744e863bb63515",
       "title": "Adversarial ML threat taxonomy and structured classification"
     },
+    "SAF-K8S-1004-006": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "9231ef42b8978d9f2c43f75df5a37f2af85d8cc86d788ee8f8f119c51dc3e8f2",
+      "title": "Cross-source threat correlation with business context for AI incidents"
+    },
     "SAF-K8S-1006-004": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1316,7 +1322,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "66e2dbe2cea93b7eeb40a25644ccdfbe1e32f9c1",
+  "revision": "b59661002e131083e998c5ae8f8fdc8a91d20c60",
   "sha256": "33956f720f066941851029bbc899f83d9bc6a34f860dc3ea3ae2e1c2e981c361",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
