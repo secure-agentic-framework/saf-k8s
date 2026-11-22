@@ -329,10 +329,16 @@
       "domain": "D07",
       "sha256": "688e3eff7e674662fb6e50487c571f5ce9c9888d3aa16ddb8669db1b861e231f",
       "title": "Admission control enforcement of workload classification label requirements"
+    },
+    "SAF-K8S-0702-013": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "51b53fdc0490ddaa45e962ba8deb9b29bd7d589abf6c98a553edd32cc708ddec",
+      "title": "Tenant default-deny inter-namespace network isolation"
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "df0b2f76fd1c2d93ac8c77294750e8db80da6476",
+  "revision": "93af5be872aa72d3a2ff46198832b872d0a91474",
   "sha256": "9f3a36256cfdd93b4f2874549aa7792ac0af792b496e00a83549929ab1dac73a",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
