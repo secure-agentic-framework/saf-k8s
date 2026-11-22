@@ -132,6 +132,12 @@
       "sha256": "054d3b40a4bf405840b99a0ccc6af418f0dc90808684050bbb21436fec102d61",
       "title": "Controller-manager and scheduler loopback bind-address enforcement"
     },
+    "SAF-K8S-0103-017": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "94b2d75af7c8d8cc5fd506e95badd290d96539e10722ce288007928de8a0a7ba",
+      "title": "Controller-manager and scheduler insecure-port disablement and non-public health-metrics exposure"
+    },
     "SAF-K8S-0104-005": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -296,7 +302,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "82510f84edd5d4cb9b469c439f2d9f5499bb1a3b",
-  "sha256": "9f9e3cc89f794f7a68ab8e4f68d5b2986cb82260f619661711b44a8bd98e9255",
+  "revision": "c7cedd6b86e58f1295496d8482ec2ff303728b84",
+  "sha256": "908972b6a00e8cc07b7b12a9f20e3502130f13cb904d74bf6dd8e58a9064f7de",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
