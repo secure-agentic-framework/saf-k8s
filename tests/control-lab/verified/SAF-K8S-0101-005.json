@@ -5,7 +5,13 @@
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "1b41f61c63728fcb7627b6f525c71002da908044bbbee6e244fcbe901a35f633",
   "scope": "Containerd port-forward idle timing and namespace RBAC restrictions on routine exec and attach, with each stream path measured independently.",
-  "cluster": "saf-lab-99f6b721ef2f",
+  "review_timing": {
+    "queued_at": "2026-11-22T23:37:59.360402+00:00",
+    "cluster_ready_at": "2026-11-22T23:38:26.094667+00:00",
+    "approval_at": "2026-11-22T23:41:57.770954+00:00",
+    "case_loaded_at": "2026-11-22T23:41:57.821918+00:00"
+  },
+  "cluster": "saf-lab-08b477008762",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -35,6 +41,7 @@
       "platform": "linux/arm64"
     }
   },
+  "approved_case_sha256": "38fd66fa22933b1956aa7f7a26c19ce67e3e054b0b2c76d6e9d50049128e110d",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
@@ -47,24 +54,18 @@
           "version": "containerd github.com/containerd/containerd/v2 v2.3.1 64b425cf570b3b8dd1d4cc46da7c1fce65c6651a",
           "timeout": "4h0m0s"
         },
-        "observations": {
+        "streams": {
           "exec": {
             "established": true,
-            "active_survived": null,
-            "idle_closed": false,
-            "idle_duration_s": 9.01
+            "stayed_open": true
           },
           "attach": {
             "established": true,
-            "active_survived": null,
-            "idle_closed": false,
-            "idle_duration_s": 9.01
+            "stayed_open": true
           },
           "port-forward": {
             "established": true,
-            "active_survived": null,
-            "idle_closed": false,
-            "idle_duration_s": 9.0
+            "stayed_open": true
           }
         }
       }
@@ -80,51 +81,33 @@
     },
     {
       "phase": "green",
-      "claim": "The timeout closes each allowed idle path after active traffic stops",
+      "claim": "Every allowed path sustains active traffic and closes within the idle window",
       "matched": true,
       "observed": {
-        "verified_operations": [
-          "attach",
+        "required": [
           "port-forward"
         ],
-        "observations": {
-          "exec": {
-            "established": true,
-            "active_survived": true,
-            "idle_closed": false,
-            "idle_duration_s": 9.01
-          },
-          "attach": {
-            "established": true,
-            "active_survived": true,
-            "idle_closed": true,
-            "idle_duration_s": 5.96
-          },
+        "allowed_streams": {
           "port-forward": {
             "established": true,
-            "active_survived": true,
-            "idle_closed": true,
-            "idle_duration_s": 5.94
+            "active_traffic_survived": true,
+            "closed_in_required_idle_window": true
           }
         }
       }
     },
     {
       "phase": "positive",
-      "claim": "Paths requiring authorization restrictions were individually measured",
+      "claim": "Restricted paths establish and sustain active traffic before RBAC denial",
       "matched": true,
       "observed": {
-        "exec": {
-          "established": true,
-          "active_survived": true,
-          "idle_closed": false,
-          "idle_duration_s": 9.01
-        },
         "attach": {
           "established": true,
-          "active_survived": true,
-          "idle_closed": true,
-          "idle_duration_s": 5.96
+          "active_traffic_survived": true
+        },
+        "exec": {
+          "established": true,
+          "active_traffic_survived": true
         }
       }
     },

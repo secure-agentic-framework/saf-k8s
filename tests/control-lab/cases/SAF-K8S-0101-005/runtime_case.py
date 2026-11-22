@@ -250,29 +250,63 @@ def routine_stream_restriction(lab, args, restricted):
 
 
 def run_profile(lab, required, restricted):
+    restricted = set(restricted)
+    required = set(required)
+    allowed = set(OPERATIONS) - restricted
+    if not required <= allowed:
+        lab.block(f"Required idle paths are also restricted: {sorted(required - allowed)}")
+
     original = client(lab.cluster, lab.kubeconfig)
     fixtures(lab, original)
-    baseline = {op: observe(lab, original, op) for op in OPERATIONS}
+    baseline = {operation: observe(lab, original, operation) for operation in OPERATIONS}
     default_config = timeout_config(lab, lab.cluster)
+    measurements = {"baseline": {"config": default_config, "streams": baseline}}
+    raw = lab.evidence / "stream-timing.raw.json"
+    raw.write_text(json.dumps(measurements, indent=2, sort_keys=True) + "\n")
+
+    baseline_checks = {operation: {
+        "established": row.get("established") is True,
+        "stayed_open": row.get("idle_closed") is False,
+    } for operation, row in baseline.items()}
     lab.check("red", "Established default runtime streams stay open beyond the lab limit",
-              all(r.get("established") and not r["idle_closed"] for r in baseline.values()),
-              {"config": default_config, "observations": baseline})
+              all(all(check.values()) for check in baseline_checks.values()),
+              {"config": default_config, "streams": baseline_checks})
 
     with tuned_profile(lab) as (cluster, args):
         config = timeout_config(lab, cluster)
         lab.check("positive", "The runtime's effective configured timeout matches the profile",
                   "2.3." in config["version"] and config["timeout"] == f"{IDLE}s", config)
         fixtures(lab, args)
-        observed = {op: observe(lab, args, op, active=True) for op in OPERATIONS}
-        validated = [op for op, row in observed.items()
-                     if row.get("established") and row["active_survived"] and row["idle_closed"]
-                     and IDLE - 1 <= row["idle_duration_s"] < WINDOW]
-        lab.check("green", "The timeout closes each allowed idle path after active traffic stops",
-                  required <= set(validated),
-                  {"verified_operations": validated, "observations": observed})
-        lab.check("positive", "Paths requiring authorization restrictions were individually measured",
-                  all(observed[op].get("established") for op in restricted),
-                  {op: observed[op] for op in restricted})
+        observed = {operation: observe(lab, args, operation, active=True) for operation in OPERATIONS}
+        measurements["tuned"] = {"config": config, "streams": observed,
+                                 "allowed": sorted(allowed), "restricted": sorted(restricted)}
+        raw.write_text(json.dumps(measurements, indent=2, sort_keys=True) + "\n")
+
+        def connection_checks(operation):
+            row = observed[operation]
+            return {"established": row.get("established") is True,
+                    "active_traffic_survived": row.get("active_survived") is True}
+
+        allowed_checks = {}
+        for operation in sorted(allowed):
+            row = observed[operation]
+            duration = row.get("idle_duration_s")
+            allowed_checks[operation] = {
+                **connection_checks(operation),
+                "closed_in_required_idle_window": (
+                    row.get("idle_closed") is True
+                    and isinstance(duration, (float, int))
+                    and IDLE - 1 <= duration < WINDOW
+                ),
+            }
+        lab.check("green", "Every allowed path sustains active traffic and closes within the idle window",
+                  all(all(check.values()) for check in allowed_checks.values()),
+                  {"required": sorted(required), "allowed_streams": allowed_checks})
+
+        restricted_checks = {operation: connection_checks(operation) for operation in sorted(restricted)}
+        lab.check("positive", "Restricted paths establish and sustain active traffic before RBAC denial",
+                  all(all(check.values()) for check in restricted_checks.values()),
+                  restricted_checks)
         routine_stream_restriction(lab, args, restricted)
 
 
