@@ -1,0 +1,116 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0401-007-quota-manager
+  namespace: saf-0401-007
+rules:
+- apiGroups: [""]
+  resources: ["resourcequotas"]
+  resourceNames: ["saf-0401-007-gpu-quota"]
+  verbs: ["get", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0401-007-quota-manager
+  namespace: saf-0401-007
+subjects:
+- kind: ServiceAccount
+  name: saf-0401-007-quota-admin
+  namespace: saf-0401-007
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0401-007-quota-manager
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: saf-0401-007-priority-manager
+rules:
+- apiGroups: ["scheduling.k8s.io"]
+  resources: ["priorityclasses"]
+  resourceNames: ["saf-0401-007-low"]
+  verbs: ["get", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: saf-0401-007-priority-manager
+subjects:
+- kind: ServiceAccount
+  name: saf-0401-007-priority-admin
+  namespace: saf-0401-007
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: saf-0401-007-priority-manager
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0401-007-metrics-reader
+  namespace: saf-0401-007
+rules:
+- apiGroups: [""]
+  resources: ["services/proxy"]
+  resourceNames: ["saf-0401-007-gpu-metrics"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0401-007-metrics-reader
+  namespace: saf-0401-007
+subjects:
+- kind: ServiceAccount
+  name: saf-0401-007-monitor
+  namespace: saf-0401-007
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0401-007-metrics-reader
+---
+# Independent, explicitly bound positive-control identity. Its permissions
+# remain limited to the three named fixture objects and never grant escalation.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0401-007-independent-check-ns
+  namespace: saf-0401-007
+rules:
+- apiGroups: [""]
+  resources: ["resourcequotas"]
+  resourceNames: ["saf-0401-007-gpu-quota"]
+  verbs: ["get", "patch", "update"]
+- apiGroups: [""]
+  resources: ["services/proxy"]
+  resourceNames: ["saf-0401-007-gpu-metrics"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0401-007-independent-check-ns
+  namespace: saf-0401-007
+subjects:
+- kind: ServiceAccount
+  name: saf-0401-007-independent-check
+  namespace: saf-0401-007
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0401-007-independent-check-ns
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: saf-0401-007-independent-check-priority
+subjects:
+- kind: ServiceAccount
+  name: saf-0401-007-independent-check
+  namespace: saf-0401-007
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: saf-0401-007-priority-manager

@@ -1,0 +1,123 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: saf-0401-007
+  labels:
+    saf-k8s.example/fixture: synthetic-only
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0401-007-workload
+  namespace: saf-0401-007
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0401-007-quota-admin
+  namespace: saf-0401-007
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0401-007-priority-admin
+  namespace: saf-0401-007
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0401-007-monitor
+  namespace: saf-0401-007
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0401-007-independent-check
+  namespace: saf-0401-007
+  annotations:
+    saf-k8s.example/fixture: independently-authorized-bounded-positive-control
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: saf-0401-007-gpu-quota
+  namespace: saf-0401-007
+  annotations:
+    saf-k8s.example/fixture: inert-gpu-like-quota-declaration
+spec:
+  hard:
+    requests.saf-k8s.example/gpu: "2"
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: saf-0401-007-low
+  annotations:
+    saf-k8s.example/fixture: inert-synthetic-priority-marker
+value: 100
+globalDefault: false
+description: Synthetic fixture only; separate probes do not use this priority.
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-0401-007-probe
+  namespace: saf-0401-007
+  annotations:
+    saf-k8s.example/fixture: local-probe-script
+data:
+  probe.py: |
+    import base64
+    import json
+    import os
+    import ssl
+    import urllib.error
+    import urllib.request
+
+    namespace = "saf-0401-007"
+    token_path = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+    ca_path = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+    token = open(token_path, encoding="utf-8").read().strip()
+    claims = token.split(".")[1]
+    claims += "=" * (-len(claims) % 4)
+    token_claims = json.loads(base64.urlsafe_b64decode(claims))
+    expected_sub = "system:serviceaccount:" + namespace + ":" + os.environ["EXPECTED_SERVICE_ACCOUNT"]
+    if token_claims.get("sub") != expected_sub:
+        raise SystemExit("projected token subject does not match the Pod ServiceAccount")
+    print(json.dumps({"probe": "projected-service-account-identity",
+                      "subject": token_claims["sub"]}))
+
+    host = os.environ["KUBERNETES_SERVICE_HOST"]
+    port = os.environ["KUBERNETES_SERVICE_PORT_HTTPS"]
+    base = "https://" + host + ":" + port
+    context = ssl.create_default_context(cafile=ca_path)
+
+    def request(label, method, path, body=None):
+        data = None if body is None else json.dumps(body).encode()
+        headers = {"Authorization": "Bearer " + token}
+        if data is not None:
+            headers["Content-Type"] = "application/merge-patch+json"
+        req = urllib.request.Request(base + path, data=data, headers=headers, method=method)
+        try:
+            with urllib.request.urlopen(req, context=context, timeout=8) as response:
+                marker = label == "synthetic-metrics-read" and response.read().decode().strip() == "saf_synthetic_gpu_utilization 42"
+                quota_raised = label == "quota-dry-run-patch" and json.load(response)["spec"]["hard"]["requests.saf-k8s.example/gpu"] == "3"
+                print(json.dumps({"probe": label, "status": response.status,
+                                  "metric_marker": marker, "quota_raised_in_dry_run": quota_raised}))
+        except urllib.error.HTTPError as exc:
+            print(json.dumps({"probe": label, "status": exc.code,
+                              "metric_marker": False, "quota_raised_in_dry_run": False}))
+
+    request("quota-dry-run-patch", "PATCH",
+            "/api/v1/namespaces/" + namespace + "/resourcequotas/saf-0401-007-gpu-quota?dryRun=All",
+            {"spec": {"hard": {"requests.saf-k8s.example/gpu": "3"}}})
+    request("priorityclass-dry-run-patch", "PATCH",
+            "/apis/scheduling.k8s.io/v1/priorityclasses/saf-0401-007-low?dryRun=All",
+            {"metadata": {"annotations": {"saf-k8s.example/probe": "dry-run-only"}}})
+    request("synthetic-metrics-read", "GET",
+            "/api/v1/namespaces/" + namespace + "/services/saf-0401-007-gpu-metrics/proxy/metrics")

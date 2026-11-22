@@ -438,6 +438,12 @@
       "sha256": "70dc1efecb11f86e7a71ef61ea6fc7a2ffed833bcad126a13896c72c910932d5",
       "title": "Organizational role separation for ML, platform, and security functions"
     },
+    "SAF-K8S-0401-007": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "d1ec6c0eaba96c02cc177fb515c1f9826767f212333994b958421c07f227942e",
+      "title": "GPU resource governance permission boundaries"
+    },
     "SAF-K8S-0402-003": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -800,7 +806,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c46d4d0f26c018d56204afc5ba7930e00c94584a",
+  "revision": "a0600f86a06b7b675122249176d9283c691f6880",
   "sha256": "b5c2f4a8bfac5aa27b81f5b3a84c72083b81b5210bba5d600c9cb6f4424dca4c",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

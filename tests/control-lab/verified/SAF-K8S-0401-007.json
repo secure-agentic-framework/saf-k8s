@@ -1,0 +1,600 @@
+{
+  "control_id": "SAF-K8S-0401-007",
+  "catalog_revision": "b126a9987a2383122872317e04a923f2137b2591",
+  "catalog_sha256": "b5c2f4a8bfac5aa27b81f5b3a84c72083b81b5210bba5d600c9cb6f4424dca4c",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "d1ec6c0eaba96c02cc177fb515c1f9826767f212333994b958421c07f227942e",
+  "scope": "Kubernetes v1.36.1 synthetic ServiceAccount tests for a namespaced GPU-like quota dry-run increase, an exact named PriorityClass metadata dry run, and an actual test-owned HTTP metrics marker through the Service proxy. Isolated fixture roles preserve ownership of each distinct action. Actual GPU allocation, workload priority assignment, provider and group governance, and production metrics pipeline authorization remain separate.",
+  "cluster": "saf-lab-16e6b23a1edf",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The API proxy reaches the intended live synthetic metrics endpoint",
+      "matched": true,
+      "observed": {
+        "owned_metric_marker": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "before binding: each probe request uses its actual projected ServiceAccount token",
+      "matched": true,
+      "observed": {
+        "workload": {
+          "identity": "system:serviceaccount:saf-0401-007:saf-0401-007-workload",
+          "expected_identity": "system:serviceaccount:saf-0401-007:saf-0401-007-workload",
+          "decisions": {
+            "quota-dry-run-patch": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            },
+            "priorityclass-dry-run-patch": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            },
+            "synthetic-metrics-read": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            }
+          }
+        },
+        "quota": {
+          "identity": "system:serviceaccount:saf-0401-007:saf-0401-007-quota-admin",
+          "expected_identity": "system:serviceaccount:saf-0401-007:saf-0401-007-quota-admin",
+          "decisions": {
+            "quota-dry-run-patch": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            },
+            "priorityclass-dry-run-patch": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            },
+            "synthetic-metrics-read": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            }
+          }
+        },
+        "priority": {
+          "identity": "system:serviceaccount:saf-0401-007:saf-0401-007-priority-admin",
+          "expected_identity": "system:serviceaccount:saf-0401-007:saf-0401-007-priority-admin",
+          "decisions": {
+            "quota-dry-run-patch": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            },
+            "priorityclass-dry-run-patch": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            },
+            "synthetic-metrics-read": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            }
+          }
+        },
+        "monitor": {
+          "identity": "system:serviceaccount:saf-0401-007:saf-0401-007-monitor",
+          "expected_identity": "system:serviceaccount:saf-0401-007:saf-0401-007-monitor",
+          "decisions": {
+            "quota-dry-run-patch": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            },
+            "priorityclass-dry-run-patch": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            },
+            "synthetic-metrics-read": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            }
+          }
+        },
+        "independent": {
+          "identity": "system:serviceaccount:saf-0401-007:saf-0401-007-independent-check",
+          "expected_identity": "system:serviceaccount:saf-0401-007:saf-0401-007-independent-check",
+          "decisions": {
+            "quota-dry-run-patch": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            },
+            "priorityclass-dry-run-patch": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            },
+            "synthetic-metrics-read": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "before binding: quota, PriorityClass, and synthetic monitoring read permissions stay separate",
+      "matched": true,
+      "observed": {
+        "matches": {
+          "workload": {
+            "quota-dry-run-patch": true,
+            "priorityclass-dry-run-patch": true,
+            "synthetic-metrics-read": true
+          },
+          "quota": {
+            "quota-dry-run-patch": true,
+            "priorityclass-dry-run-patch": true,
+            "synthetic-metrics-read": true
+          },
+          "priority": {
+            "quota-dry-run-patch": true,
+            "priorityclass-dry-run-patch": true,
+            "synthetic-metrics-read": true
+          },
+          "monitor": {
+            "quota-dry-run-patch": true,
+            "priorityclass-dry-run-patch": true,
+            "synthetic-metrics-read": true
+          },
+          "independent": {
+            "quota-dry-run-patch": true,
+            "priorityclass-dry-run-patch": true,
+            "synthetic-metrics-read": true
+          }
+        },
+        "observed": {
+          "workload": {
+            "identity": "system:serviceaccount:saf-0401-007:saf-0401-007-workload",
+            "expected_identity": "system:serviceaccount:saf-0401-007:saf-0401-007-workload",
+            "decisions": {
+              "quota-dry-run-patch": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              },
+              "priorityclass-dry-run-patch": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              },
+              "synthetic-metrics-read": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              }
+            }
+          },
+          "quota": {
+            "identity": "system:serviceaccount:saf-0401-007:saf-0401-007-quota-admin",
+            "expected_identity": "system:serviceaccount:saf-0401-007:saf-0401-007-quota-admin",
+            "decisions": {
+              "quota-dry-run-patch": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              },
+              "priorityclass-dry-run-patch": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              },
+              "synthetic-metrics-read": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              }
+            }
+          },
+          "priority": {
+            "identity": "system:serviceaccount:saf-0401-007:saf-0401-007-priority-admin",
+            "expected_identity": "system:serviceaccount:saf-0401-007:saf-0401-007-priority-admin",
+            "decisions": {
+              "quota-dry-run-patch": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              },
+              "priorityclass-dry-run-patch": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              },
+              "synthetic-metrics-read": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              }
+            }
+          },
+          "monitor": {
+            "identity": "system:serviceaccount:saf-0401-007:saf-0401-007-monitor",
+            "expected_identity": "system:serviceaccount:saf-0401-007:saf-0401-007-monitor",
+            "decisions": {
+              "quota-dry-run-patch": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              },
+              "priorityclass-dry-run-patch": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              },
+              "synthetic-metrics-read": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              }
+            }
+          },
+          "independent": {
+            "identity": "system:serviceaccount:saf-0401-007:saf-0401-007-independent-check",
+            "expected_identity": "system:serviceaccount:saf-0401-007:saf-0401-007-independent-check",
+            "decisions": {
+              "quota-dry-run-patch": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              },
+              "priorityclass-dry-run-patch": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              },
+              "synthetic-metrics-read": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "after binding: each probe request uses its actual projected ServiceAccount token",
+      "matched": true,
+      "observed": {
+        "workload": {
+          "identity": "system:serviceaccount:saf-0401-007:saf-0401-007-workload",
+          "expected_identity": "system:serviceaccount:saf-0401-007:saf-0401-007-workload",
+          "decisions": {
+            "quota-dry-run-patch": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            },
+            "priorityclass-dry-run-patch": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            },
+            "synthetic-metrics-read": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            }
+          }
+        },
+        "quota": {
+          "identity": "system:serviceaccount:saf-0401-007:saf-0401-007-quota-admin",
+          "expected_identity": "system:serviceaccount:saf-0401-007:saf-0401-007-quota-admin",
+          "decisions": {
+            "quota-dry-run-patch": {
+              "status": 200,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": true
+            },
+            "priorityclass-dry-run-patch": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            },
+            "synthetic-metrics-read": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            }
+          }
+        },
+        "priority": {
+          "identity": "system:serviceaccount:saf-0401-007:saf-0401-007-priority-admin",
+          "expected_identity": "system:serviceaccount:saf-0401-007:saf-0401-007-priority-admin",
+          "decisions": {
+            "quota-dry-run-patch": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            },
+            "priorityclass-dry-run-patch": {
+              "status": 200,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            },
+            "synthetic-metrics-read": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            }
+          }
+        },
+        "monitor": {
+          "identity": "system:serviceaccount:saf-0401-007:saf-0401-007-monitor",
+          "expected_identity": "system:serviceaccount:saf-0401-007:saf-0401-007-monitor",
+          "decisions": {
+            "quota-dry-run-patch": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            },
+            "priorityclass-dry-run-patch": {
+              "status": 403,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            },
+            "synthetic-metrics-read": {
+              "status": 200,
+              "metric_marker": true,
+              "quota_raised_in_dry_run": false
+            }
+          }
+        },
+        "independent": {
+          "identity": "system:serviceaccount:saf-0401-007:saf-0401-007-independent-check",
+          "expected_identity": "system:serviceaccount:saf-0401-007:saf-0401-007-independent-check",
+          "decisions": {
+            "quota-dry-run-patch": {
+              "status": 200,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": true
+            },
+            "priorityclass-dry-run-patch": {
+              "status": 200,
+              "metric_marker": false,
+              "quota_raised_in_dry_run": false
+            },
+            "synthetic-metrics-read": {
+              "status": 200,
+              "metric_marker": true,
+              "quota_raised_in_dry_run": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "after binding: quota, PriorityClass, and synthetic monitoring read permissions stay separate",
+      "matched": true,
+      "observed": {
+        "matches": {
+          "workload": {
+            "quota-dry-run-patch": true,
+            "priorityclass-dry-run-patch": true,
+            "synthetic-metrics-read": true
+          },
+          "quota": {
+            "quota-dry-run-patch": true,
+            "priorityclass-dry-run-patch": true,
+            "synthetic-metrics-read": true
+          },
+          "priority": {
+            "quota-dry-run-patch": true,
+            "priorityclass-dry-run-patch": true,
+            "synthetic-metrics-read": true
+          },
+          "monitor": {
+            "quota-dry-run-patch": true,
+            "priorityclass-dry-run-patch": true,
+            "synthetic-metrics-read": true
+          },
+          "independent": {
+            "quota-dry-run-patch": true,
+            "priorityclass-dry-run-patch": true,
+            "synthetic-metrics-read": true
+          }
+        },
+        "observed": {
+          "workload": {
+            "identity": "system:serviceaccount:saf-0401-007:saf-0401-007-workload",
+            "expected_identity": "system:serviceaccount:saf-0401-007:saf-0401-007-workload",
+            "decisions": {
+              "quota-dry-run-patch": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              },
+              "priorityclass-dry-run-patch": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              },
+              "synthetic-metrics-read": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              }
+            }
+          },
+          "quota": {
+            "identity": "system:serviceaccount:saf-0401-007:saf-0401-007-quota-admin",
+            "expected_identity": "system:serviceaccount:saf-0401-007:saf-0401-007-quota-admin",
+            "decisions": {
+              "quota-dry-run-patch": {
+                "status": 200,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": true
+              },
+              "priorityclass-dry-run-patch": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              },
+              "synthetic-metrics-read": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              }
+            }
+          },
+          "priority": {
+            "identity": "system:serviceaccount:saf-0401-007:saf-0401-007-priority-admin",
+            "expected_identity": "system:serviceaccount:saf-0401-007:saf-0401-007-priority-admin",
+            "decisions": {
+              "quota-dry-run-patch": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              },
+              "priorityclass-dry-run-patch": {
+                "status": 200,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              },
+              "synthetic-metrics-read": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              }
+            }
+          },
+          "monitor": {
+            "identity": "system:serviceaccount:saf-0401-007:saf-0401-007-monitor",
+            "expected_identity": "system:serviceaccount:saf-0401-007:saf-0401-007-monitor",
+            "decisions": {
+              "quota-dry-run-patch": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              },
+              "priorityclass-dry-run-patch": {
+                "status": 403,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              },
+              "synthetic-metrics-read": {
+                "status": 200,
+                "metric_marker": true,
+                "quota_raised_in_dry_run": false
+              }
+            }
+          },
+          "independent": {
+            "identity": "system:serviceaccount:saf-0401-007:saf-0401-007-independent-check",
+            "expected_identity": "system:serviceaccount:saf-0401-007:saf-0401-007-independent-check",
+            "decisions": {
+              "quota-dry-run-patch": {
+                "status": 200,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": true
+              },
+              "priorityclass-dry-run-patch": {
+                "status": 200,
+                "metric_marker": false,
+                "quota_raised_in_dry_run": false
+              },
+              "synthetic-metrics-read": {
+                "status": 200,
+                "metric_marker": true,
+                "quota_raised_in_dry_run": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Only the approved identities retrieve the exact served metrics marker",
+      "matched": true,
+      "observed": {
+        "metrics_marker_reached": {
+          "workload": false,
+          "quota": false,
+          "priority": false,
+          "monitor": true,
+          "independent": true
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Only approved identities stage the actual synthetic quota increase",
+      "matched": true,
+      "observed": {
+        "quota_increase_staged": {
+          "workload": false,
+          "quota": true,
+          "priority": false,
+          "monitor": false,
+          "independent": true
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Quota dry-run probes did not persist a quota mutation",
+      "matched": true,
+      "observed": {
+        "unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "PriorityClass dry-run probes did not persist a priority mutation",
+      "matched": true,
+      "observed": {
+        "unchanged": true
+      }
+    }
+  ]
+}

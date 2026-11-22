@@ -1,0 +1,189 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: saf-0401-007-workload-probe
+  namespace: saf-0401-007
+  labels:
+    saf-k8s.example/control: SAF-K8S-0401-007
+    saf-k8s.example/fixture: synthetic-only
+spec:
+  serviceAccountName: saf-0401-007-workload
+  automountServiceAccountToken: true
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: probe
+    image: docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90
+    command: ["python", "/fixture/probe.py"]
+    env:
+    - name: EXPECTED_SERVICE_ACCOUNT
+      value: saf-0401-007-workload
+    volumeMounts:
+    - name: probe
+      mountPath: /fixture
+      readOnly: true
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: ["ALL"]
+      readOnlyRootFilesystem: true
+  volumes:
+  - name: probe
+    configMap:
+      name: saf-0401-007-probe
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: saf-0401-007-quota-probe
+  namespace: saf-0401-007
+  labels:
+    saf-k8s.example/control: SAF-K8S-0401-007
+    saf-k8s.example/fixture: synthetic-only
+spec:
+  serviceAccountName: saf-0401-007-quota-admin
+  automountServiceAccountToken: true
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: probe
+    image: docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90
+    command: ["python", "/fixture/probe.py"]
+    env:
+    - name: EXPECTED_SERVICE_ACCOUNT
+      value: saf-0401-007-quota-admin
+    volumeMounts:
+    - name: probe
+      mountPath: /fixture
+      readOnly: true
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: ["ALL"]
+      readOnlyRootFilesystem: true
+  volumes:
+  - name: probe
+    configMap:
+      name: saf-0401-007-probe
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: saf-0401-007-priority-probe
+  namespace: saf-0401-007
+  labels:
+    saf-k8s.example/control: SAF-K8S-0401-007
+    saf-k8s.example/fixture: synthetic-only
+spec:
+  serviceAccountName: saf-0401-007-priority-admin
+  automountServiceAccountToken: true
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: probe
+    image: docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90
+    command: ["python", "/fixture/probe.py"]
+    env:
+    - name: EXPECTED_SERVICE_ACCOUNT
+      value: saf-0401-007-priority-admin
+    volumeMounts:
+    - name: probe
+      mountPath: /fixture
+      readOnly: true
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: ["ALL"]
+      readOnlyRootFilesystem: true
+  volumes:
+  - name: probe
+    configMap:
+      name: saf-0401-007-probe
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: saf-0401-007-monitor-probe
+  namespace: saf-0401-007
+  labels:
+    saf-k8s.example/control: SAF-K8S-0401-007
+    saf-k8s.example/fixture: synthetic-only
+spec:
+  serviceAccountName: saf-0401-007-monitor
+  automountServiceAccountToken: true
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: probe
+    image: docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90
+    command: ["python", "/fixture/probe.py"]
+    env:
+    - name: EXPECTED_SERVICE_ACCOUNT
+      value: saf-0401-007-monitor
+    volumeMounts:
+    - name: probe
+      mountPath: /fixture
+      readOnly: true
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: ["ALL"]
+      readOnlyRootFilesystem: true
+  volumes:
+  - name: probe
+    configMap:
+      name: saf-0401-007-probe
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: saf-0401-007-independent-check-probe
+  namespace: saf-0401-007
+  labels:
+    saf-k8s.example/control: SAF-K8S-0401-007
+    saf-k8s.example/fixture: independently-authorized-positive-control
+spec:
+  serviceAccountName: saf-0401-007-independent-check
+  automountServiceAccountToken: true
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: probe
+    image: docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90
+    command: ["python", "/fixture/probe.py"]
+    env:
+    - name: EXPECTED_SERVICE_ACCOUNT
+      value: saf-0401-007-independent-check
+    volumeMounts:
+    - name: probe
+      mountPath: /fixture
+      readOnly: true
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: ["ALL"]
+      readOnlyRootFilesystem: true
+  volumes:
+  - name: probe
+    configMap:
+      name: saf-0401-007-probe
