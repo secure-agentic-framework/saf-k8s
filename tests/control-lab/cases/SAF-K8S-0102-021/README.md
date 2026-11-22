@@ -16,8 +16,14 @@ file, so the same evaluator reports the missing alert.
 The case uses example thresholds and a synthetic metric contract for a single
 cluster. Deployment verification still needs a collector, expected member
 inventory, remediation and routing requirements, and test notifications. The
-certificates inspected are public. The case files, evaluation inputs and
-disposable Kubernetes cluster are cleaned up by the runner.
+certificates inspected are public. The stable positive observation records the
+measured validity and local-CA trust predicates for each exact certificate
+role. The actual public `notAfter` timestamps and calculated remaining seconds
+plus their measurement timestamp are emitted separately to
+`certificate-inventory.raw.json` beside `case.py`; retain that sidecar with the
+run evidence. It contains no private key material.
+The evaluation inputs and disposable Kubernetes cluster are cleaned up by the
+runner.
 
 - [Kubernetes v1.36 Certificate Management with kubeadm](https://v1-36.docs.kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/)
 - [Kubernetes v1.36 PKI certificates and requirements](https://v1-36.docs.kubernetes.io/docs/setup/best-practices/certificates/)

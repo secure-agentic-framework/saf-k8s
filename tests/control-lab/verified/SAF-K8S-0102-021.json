@@ -5,7 +5,13 @@
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "c95e66f3b19cc2dc0d05702b830ba638ee104c0d8cc03bb5dfc368b45aa19f82",
   "scope": "On the harness's pinned kubeadm v1.36.1 kind control-plane node, inspect only public notAfter values and etcd-CA verification for etcd-server, etcd-peer and apiserver-etcd-client. Evaluate a case-owned Prometheus expiry rule with one healthy observed inventory sample and controlled synthetic samples around an example 30-day lead time and a five-minute per-role missing-series hold. The metric is a synthetic telemetry contract, not a claim that kubeadm exports this Prometheus metric. No private key, notification route, production cluster, external etcd, externally managed certificate, or real alert delivery is tested.",
-  "cluster": "saf-lab-af799bb0ebee",
+  "review_timing": {
+    "queued_at": "2026-11-22T23:33:11.895640+00:00",
+    "cluster_ready_at": "2026-11-22T23:33:39.712977+00:00",
+    "approval_at": "2026-11-22T23:34:21.229558+00:00",
+    "case_loaded_at": "2026-11-22T23:34:21.251896+00:00"
+  },
+  "cluster": "saf-lab-b42106a3ec41",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -35,6 +41,7 @@
       "platform": "linux/arm64"
     }
   },
+  "approved_case_sha256": "2b24bdfb9d2aa95062091d1d9a4268cd248882d857628495bec1ab6250fe9373",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
@@ -43,24 +50,31 @@
       "claim": "The exact kubeadm server, peer and API-server-client public certificate inventory is current and etcd-CA trusted",
       "matched": true,
       "observed": {
-        "etcd-server": {
-          "not_after_utc": "2027-11-21T23:49:30+00:00",
-          "remaining_seconds": 31535973,
-          "currently_valid": true,
-          "trusted_by_local_etcd_ca": true
+        "certificate_types": [
+          "etcd-server",
+          "etcd-peer",
+          "apiserver-etcd-client"
+        ],
+        "inventory_complete": true,
+        "certificates": {
+          "etcd-server": {
+            "not_after_measured": true,
+            "currently_valid": true,
+            "trusted_by_local_etcd_ca": true
+          },
+          "etcd-peer": {
+            "not_after_measured": true,
+            "currently_valid": true,
+            "trusted_by_local_etcd_ca": true
+          },
+          "apiserver-etcd-client": {
+            "not_after_measured": true,
+            "currently_valid": true,
+            "trusted_by_local_etcd_ca": true
+          }
         },
-        "etcd-peer": {
-          "not_after_utc": "2027-11-21T23:49:30+00:00",
-          "remaining_seconds": 31535973,
-          "currently_valid": true,
-          "trusted_by_local_etcd_ca": true
-        },
-        "apiserver-etcd-client": {
-          "not_after_utc": "2027-11-21T23:49:30+00:00",
-          "remaining_seconds": 31535973,
-          "currently_valid": true,
-          "trusted_by_local_etcd_ca": true
-        }
+        "all_certificates_current_and_trusted": true,
+        "raw_evidence_file": "certificate-inventory.raw.json"
       }
     },
     {

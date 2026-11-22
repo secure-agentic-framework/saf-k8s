@@ -56,11 +56,41 @@ def inspect_inventory(lab, node):
         remaining = int((expiry - now).total_seconds())
         records[name] = {
             "not_after_utc": expiry.isoformat(),
+            "measured_at_utc": now.isoformat(),
             "remaining_seconds": remaining,
             "currently_valid": remaining > 0,
             "trusted_by_local_etcd_ca": trusted,
         }
     return records
+
+
+def stable_inventory_observation(records):
+    return {
+        "certificate_types": list(CERTIFICATES),
+        "inventory_complete": set(records) == set(CERTIFICATES),
+        "certificates": {
+            name: {
+                "not_after_measured": bool(record["not_after_utc"]),
+                "currently_valid": record["currently_valid"],
+                "trusted_by_local_etcd_ca": record["trusted_by_local_etcd_ca"],
+            }
+            for name, record in records.items()
+        },
+        "all_certificates_current_and_trusted": (
+            set(records) == set(CERTIFICATES)
+            and all(record["not_after_utc"]
+                    and record["currently_valid"]
+                    and record["trusted_by_local_etcd_ca"]
+                    for record in records.values())
+        ),
+        "raw_evidence_file": "certificate-inventory.raw.json",
+    }
+
+
+def write_raw_inventory(lab, records):
+    # The artifact contains public notAfter and calculated remaining-time values only.
+    path = lab.evidence / "certificate-inventory.raw.json"
+    path.write_text(json.dumps({"certificates": records}, indent=2) + "\n")
 
 
 def sample(metric, certificate, values):
@@ -123,13 +153,14 @@ def test_groups(inventory):
 def run(lab):
     node = f"{lab.cluster}-control-plane"
     actual = inspect_inventory(lab, node)
+    write_raw_inventory(lab, actual)
     complete = set(actual) == set(CERTIFICATES)
+    stable_observation = stable_inventory_observation(actual)
     lab.check(
         "positive",
         "The exact kubeadm server, peer and API-server-client public certificate inventory is current and etcd-CA trusted",
-        complete and all(item["currently_valid"] and item["trusted_by_local_etcd_ca"]
-                         for item in actual.values()),
-        actual,
+        complete and stable_observation["all_certificates_current_and_trusted"],
+        stable_observation,
     )
 
     tests = test_groups(actual)
