@@ -1,0 +1,52 @@
+{
+  "apiVersion": "batch/v1",
+  "kind": "CronJob",
+  "metadata": {
+    "name": "saf-0904-007-scheduled",
+    "labels": {"saf.example/control": "SAF-K8S-0904-007"}
+  },
+  "spec": {
+    "schedule": "*/1 * * * *",
+    "timeZone": "Etc/UTC",
+    "startingDeadlineSeconds": 120,
+    "concurrencyPolicy": "Forbid",
+    "suspend": false,
+    "successfulJobsHistoryLimit": 1,
+    "failedJobsHistoryLimit": 1,
+    "jobTemplate": {
+      "metadata": {"labels": {"saf.example/control": "SAF-K8S-0904-007"}},
+      "spec": {
+        "backoffLimit": 0,
+        "activeDeadlineSeconds": 25,
+        "template": {
+          "metadata": {"labels": {"saf.example/control": "SAF-K8S-0904-007"}},
+          "spec": {
+            "serviceAccountName": "saf-0904-007-runner",
+            "automountServiceAccountToken": false,
+            "restartPolicy": "Never",
+            "securityContext": {
+              "runAsNonRoot": true,
+              "runAsUser": 65534,
+              "seccompProfile": {"type": "RuntimeDefault"}
+            },
+            "containers": [{
+              "name": "marker",
+              "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+              "imagePullPolicy": "IfNotPresent",
+              "command": ["sh", "-c", "echo scheduled-ok"],
+              "resources": {"requests": {"cpu": "10m", "memory": "8Mi"}, "limits": {"cpu": "100m", "memory": "16Mi"}},
+              "securityContext": {
+                "runAsNonRoot": true,
+                "runAsUser": 65534,
+                "allowPrivilegeEscalation": false,
+                "readOnlyRootFilesystem": true,
+                "capabilities": {"drop": ["ALL"]},
+                "seccompProfile": {"type": "RuntimeDefault"}
+              }
+            }]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,62 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-0904-007-cronjob-policy
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["batch"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["cronjobs"]
+  matchConditions:
+    - name: owned-fixture
+      expression: "has(object.metadata.labels) && 'saf.example/control' in object.metadata.labels && object.metadata.labels['saf.example/control'] == 'SAF-K8S-0904-007'"
+  validations:
+    - expression: "has(object.spec.concurrencyPolicy) && object.spec.concurrencyPolicy == 'Forbid' && has(object.spec.startingDeadlineSeconds) && object.spec.startingDeadlineSeconds >= 60 && has(object.spec.jobTemplate.spec.activeDeadlineSeconds) && object.spec.jobTemplate.spec.activeDeadlineSeconds <= 30 && has(object.spec.jobTemplate.spec.backoffLimit) && object.spec.jobTemplate.spec.backoffLimit == 0 && has(object.spec.jobTemplate.spec.template.spec.serviceAccountName) && object.spec.jobTemplate.spec.template.spec.serviceAccountName == 'saf-0904-007-runner' && has(object.spec.jobTemplate.spec.template.spec.automountServiceAccountToken) && object.spec.jobTemplate.spec.template.spec.automountServiceAccountToken == false"
+      message: "SAF-K8S-0904-007 CronJob scheduling, runtime, retry, and identity bounds required"
+    - expression: "object.spec.jobTemplate.spec.template.spec.containers.all(c, has(c.securityContext) && has(c.securityContext.runAsNonRoot) && c.securityContext.runAsNonRoot == true && has(c.securityContext.allowPrivilegeEscalation) && c.securityContext.allowPrivilegeEscalation == false && has(c.securityContext.readOnlyRootFilesystem) && c.securityContext.readOnlyRootFilesystem == true && has(c.securityContext.capabilities) && has(c.securityContext.capabilities.drop) && 'ALL' in c.securityContext.capabilities.drop)"
+      message: "SAF-K8S-0904-007 CronJob containers must use the fixture hardening profile"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-0904-007-job-policy
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["batch"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["jobs"]
+  matchConditions:
+    - name: owned-fixture
+      expression: "has(object.metadata.labels) && 'saf.example/control' in object.metadata.labels && object.metadata.labels['saf.example/control'] == 'SAF-K8S-0904-007'"
+  validations:
+    - expression: "has(object.spec.activeDeadlineSeconds) && object.spec.activeDeadlineSeconds <= 30 && has(object.spec.backoffLimit) && object.spec.backoffLimit == 0 && has(object.spec.template.spec.serviceAccountName) && object.spec.template.spec.serviceAccountName == 'saf-0904-007-runner' && has(object.spec.template.spec.automountServiceAccountToken) && object.spec.template.spec.automountServiceAccountToken == false"
+      message: "SAF-K8S-0904-007 Job runtime, retry, and identity bounds required"
+    - expression: "object.spec.template.spec.containers.all(c, has(c.securityContext) && has(c.securityContext.runAsNonRoot) && c.securityContext.runAsNonRoot == true && has(c.securityContext.allowPrivilegeEscalation) && c.securityContext.allowPrivilegeEscalation == false && has(c.securityContext.readOnlyRootFilesystem) && c.securityContext.readOnlyRootFilesystem == true && has(c.securityContext.capabilities) && has(c.securityContext.capabilities.drop) && 'ALL' in c.securityContext.capabilities.drop)"
+      message: "SAF-K8S-0904-007 Job containers must use the fixture hardening profile"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-0904-007-pod-policy
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["pods"]
+  matchConditions:
+    - name: owned-fixture
+      expression: "has(object.metadata.labels) && 'saf.example/control' in object.metadata.labels && object.metadata.labels['saf.example/control'] == 'SAF-K8S-0904-007'"
+  validations:
+    - expression: "has(object.spec.serviceAccountName) && object.spec.serviceAccountName == 'saf-0904-007-runner' && has(object.spec.automountServiceAccountToken) && object.spec.automountServiceAccountToken == false && has(object.spec.securityContext) && has(object.spec.securityContext.runAsNonRoot) && object.spec.securityContext.runAsNonRoot == true && has(object.spec.securityContext.seccompProfile) && object.spec.securityContext.seccompProfile.type == 'RuntimeDefault'"
+      message: "SAF-K8S-0904-007 Pods must use the dedicated tokenless non-root identity"
+    - expression: "object.spec.containers.all(c, has(c.securityContext) && has(c.securityContext.runAsNonRoot) && c.securityContext.runAsNonRoot == true && has(c.securityContext.allowPrivilegeEscalation) && c.securityContext.allowPrivilegeEscalation == false && has(c.securityContext.readOnlyRootFilesystem) && c.securityContext.readOnlyRootFilesystem == true && has(c.securityContext.capabilities) && has(c.securityContext.capabilities.drop) && 'ALL' in c.securityContext.capabilities.drop)"
+      message: "SAF-K8S-0904-007 Pods must use the fixture container hardening profile"

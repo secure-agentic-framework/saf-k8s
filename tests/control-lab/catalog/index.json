@@ -1206,6 +1206,12 @@
       "sha256": "6907f4b016c44a7929888513de49873a6992c0b5e03c6c59de26c75fc621f055",
       "title": "Budget-aware inference autoscaling suppression and degraded-service fallback"
     },
+    "SAF-K8S-0904-007": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "06e2de7238bd38052426e4b57ada423ce49c6e29da6d02549d98013039bc8e6d",
+      "title": "Scheduled feature computation job hardening"
+    },
     "SAF-K8S-0904-008": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1694,7 +1700,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "50cb100195a15ee9e1f143ae13ab456a44d4acab",
+  "revision": "74fb157fae8a08d8b561f39ee14cc5ca844ad0a5",
   "sha256": "048037b90a24d7ec93c499b5090f5453e3fe06e6708b6dbb8ea5d9294d79cf1b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

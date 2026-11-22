@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0904-007-reviewer
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0904-007-runner
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0904-007-reviewer
+rules:
+  - apiGroups: ["batch"]
+    resources: ["cronjobs"]
+    resourceNames: ["saf-0904-007-scheduled"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0904-007-reviewer
+subjects:
+  - kind: ServiceAccount
+    name: saf-0904-007-reviewer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0904-007-reviewer
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0904-007-editor
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0904-007-editor
+rules:
+  - apiGroups: ["batch"]
+    resources: ["cronjobs"]
+    resourceNames: ["saf-0904-007-scheduled"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0904-007-editor
+subjects:
+  - kind: ServiceAccount
+    name: saf-0904-007-editor
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0904-007-editor
