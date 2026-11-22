@@ -1236,6 +1236,12 @@
       "sha256": "62323d7c0d3aab530a25da7b649ecec81e8e265055507f896b392daed6d7c8b4",
       "title": "Pipeline stage isolation between sensitivity levels"
     },
+    "SAF-K8S-0904-012": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "1a1d682f4d7f403ae3ce9a49668c616a7b55f01acdec2e32ab6458235b24d431",
+      "title": "Cross-classification pipeline data transfer authorization gates"
+    },
     "SAF-K8S-0907-007": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1718,7 +1724,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "30fdcce990593316f08346992e99beddf435ca84",
+  "revision": "42a0e5fbc535c8dd5f4c1460f510ee50a6cbc54f",
   "sha256": "048037b90a24d7ec93c499b5090f5453e3fe06e6708b6dbb8ea5d9294d79cf1b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

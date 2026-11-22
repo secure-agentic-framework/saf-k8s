@@ -1,0 +1,154 @@
+{
+  "control_id": "SAF-K8S-0904-012",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "1a1d682f4d7f403ae3ce9a49668c616a7b55f01acdec2e32ab6458235b24d431",
+  "scope": "One Kind v1.36.1 namespace with a source Pod, bounded transfer gateway, and separate case-owned destination Pods for the public and restricted fixtures. Immutable ConfigMaps provide typed stage scope and exact approval. The cluster restricts receiver ingress to the gateway. Tests compare the same fixed event with the policy off, approval absent, approval mismatched, and approval exact, then verify the separate same-classification path. Production workflow, approval identity, tenancy, persistent stores and derived data need separate evidence.",
+  "review_timing": {
+    "queued_at": "2026-11-22T22:18:29.995078+00:00",
+    "cluster_ready_at": "2026-11-22T22:19:09.674887+00:00",
+    "approval_at": "2026-11-22T22:24:20.364431+00:00",
+    "case_loaded_at": "2026-11-22T22:24:20.505330+00:00"
+  },
+  "cluster": "saf-lab-ddacee147b5d",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "5caf0a5809bc27912f751dc200f8eda4d9847b6e935cde773f368b8adb0e9389",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "With cross-classification policy disabled, the fixed event is transferred",
+      "matched": true,
+      "observed": {
+        "decision": {
+          "http_status": 200,
+          "receipt": {
+            "decision": "allow",
+            "event_id": "fixture-transfer-001",
+            "reason": "policy_disabled",
+            "request_ref": "approval-0904-012-one-transfer"
+          }
+        },
+        "destination": {
+          "bytes": 46,
+          "present": true,
+          "sha256": "8df8093d39026ede1c82426cd8d3e370bb15c4590f20884867cf5a9baa981b73"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Enabled policy denies the same event without approval and creates no destination receipt",
+      "matched": true,
+      "observed": {
+        "decision": {
+          "http_status": 403,
+          "receipt": {
+            "decision": "deny",
+            "event_id": "fixture-transfer-001",
+            "reason": "approval_required",
+            "request_ref": "approval-0904-012-one-transfer"
+          }
+        },
+        "destination": {
+          "bytes": 0,
+          "present": false,
+          "sha256": null
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A mounted approval with a different destination stage is rejected",
+      "matched": true,
+      "observed": {
+        "decision": {
+          "http_status": 403,
+          "receipt": {
+            "decision": "deny",
+            "event_id": "fixture-transfer-001",
+            "reason": "approval_scope_mismatch",
+            "request_ref": "approval-0904-012-one-transfer"
+          }
+        },
+        "destination": {
+          "bytes": 0,
+          "present": false,
+          "sha256": null
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Only the exact immutable approval scope admits the transfer and destination bytes match",
+      "matched": true,
+      "observed": {
+        "decision": {
+          "http_status": 200,
+          "receipt": {
+            "decision": "allow",
+            "event_id": "fixture-transfer-001",
+            "reason": "exact_approval",
+            "request_ref": "approval-0904-012-one-transfer"
+          }
+        },
+        "destination": {
+          "bytes": 46,
+          "present": true,
+          "sha256": "8df8093d39026ede1c82426cd8d3e370bb15c4590f20884867cf5a9baa981b73"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An ordinary same-classification stage transfer remains available",
+      "matched": true,
+      "observed": {
+        "decision": {
+          "http_status": 200,
+          "receipt": {
+            "decision": "allow",
+            "event_id": "fixture-transfer-ordinary",
+            "reason": "same_classification",
+            "request_ref": "ordinary-same-class"
+          }
+        },
+        "destination": {
+          "bytes": 46,
+          "present": true,
+          "sha256": "8df8093d39026ede1c82426cd8d3e370bb15c4590f20884867cf5a9baa981b73"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+SAF fixture marker: inert synthetic data only
