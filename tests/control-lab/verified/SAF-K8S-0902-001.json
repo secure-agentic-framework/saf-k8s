@@ -1,0 +1,105 @@
+{
+  "control_id": "SAF-K8S-0902-001",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "66dcc21b763407314fd815b3b6394669f30cccb885aada0445060a39dd257234",
+  "scope": "One disposable Kind v1.36.1 cluster with a synthetic inference HTTP Pod and two owned HTTP sinks. An independent runtime probe verifies the effective nonroot identity, root filesystem and model mounts, exact synthetic model bytes, and permitted scratch writes. An egress allowlist keeps one Ready peer reachable and denies the other while an unselected peer still reaches it. A controlled setting change verifies the root filesystem write comparator. Actual serving stacks, production dependencies, network boundaries and patch cadence require separate evidence.",
+  "cluster": "saf-lab-c983f3213f33",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Before policy, both ready local listeners return their fixture marker",
+      "matched": true,
+      "observed": {
+        "source_received_both_exact_markers": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Live API posture is restricted and model mount is exactly read-only",
+      "matched": true,
+      "observed": {
+        "pod_uid_present": true,
+        "security_context_matches": {
+          "runAsNonRoot": true,
+          "runAsUser": 10001,
+          "readOnlyRootFilesystem": true
+        },
+        "exact_model_mount_count": 1,
+        "model_mount_readOnly": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Runtime reads the exact fixture model, runs as the declared UID, blocks protected writes and writes only to case scratch",
+      "matched": true,
+      "observed": {
+        "runtime_uid": 10001,
+        "model_sha256_matches": true,
+        "model_mount_options": "ro,relatime",
+        "model_write_errno": 30,
+        "rootfs_readonly": true,
+        "rootfs_write_errno": 30,
+        "case_scratch_readback": "synthetic-write-ok",
+        "synthetic_inference_result": {
+          "model_id": "synthetic-linear-v1",
+          "result": "synthetic-label-a"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The exact egress allowlist permits the approved peer and denies the other",
+      "matched": true,
+      "observed": {
+        "exact_policy_readback": true,
+        "approved_marker_received": true,
+        "unapproved_peer_timed_out": true,
+        "same_unapproved_listener_remained_available": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Disabling the root read-only setting permits the identical fixture write",
+      "matched": true,
+      "observed": {
+        "separate_comparator_pod": true,
+        "root_mount_readonly": false,
+        "root_probe_write_errno": null,
+        "root_probe_readback": "synthetic"
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "fixture_notice": "Synthetic defensive fixture only. No real model, dataset, advisory, feed, endpoint, or target.",
+  "model": {
+    "model_id": "synthetic-linear-v1",
+    "format": "saf-k8s-lab-metadata-v1",
+    "weights": {
+      "fixture-alpha": "synthetic-label-a",
+      "fixture-beta": "synthetic-label-b"
+    }
+  },
+  "expected_sha256": "bba1bfe7d862f762f417905e87f0ba3dece50f1307045fd77ab2323a9e1a0b51"
+}
