@@ -636,6 +636,12 @@
       "sha256": "f4e4d3c40de846537354fb5c7ca5e70670148ce237c380b6f0414d2de7caa787",
       "title": "Production promotion gate enforcement on validated classification metadata"
     },
+    "SAF-K8S-0703-002": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "1a26c51caa2183304abc5d3ca3bfe19467e184b60c553fa4b5917828d5af962f",
+      "title": "Pod Disruption Budgets for workload availability"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -650,7 +656,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "83e9d80c79f76317e01e7c0153ddcaf1fba5e0bb",
-  "sha256": "02dff3005821d2dba45b4f0e14410046c532f8cbc9b07d21c88a0612f88689e5",
+  "revision": "819d1653ce4d9faf5ef107931fc1a7f319f3663c",
+  "sha256": "d0505b3cef6e27ac3451a0998acf0350819409280331edf48be9cfacfd4f73a7",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

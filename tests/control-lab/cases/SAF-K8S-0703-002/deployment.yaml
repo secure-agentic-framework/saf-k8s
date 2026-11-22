@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pdb-availability-probe
+  labels:
+    saf-lab.example/control: SAF-K8S-0703-002
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      saf-lab.example/control: SAF-K8S-0703-002
+  template:
+    metadata:
+      labels:
+        saf-lab.example/control: SAF-K8S-0703-002
+    spec:
+      terminationGracePeriodSeconds: 1
+      containers:
+        - name: hold
+          image: docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec
+          command: ["sh", "-c", "sleep 3600"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            runAsNonRoot: true
+            runAsUser: 65534
+            seccompProfile:
+              type: RuntimeDefault

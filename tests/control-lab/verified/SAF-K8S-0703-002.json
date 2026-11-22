@@ -1,0 +1,123 @@
+{
+  "control_id": "SAF-K8S-0703-002",
+  "catalog_revision": "ade092c39de13bdd5b24d341f629033f78bf3367",
+  "catalog_sha256": "d0505b3cef6e27ac3451a0998acf0350819409280331edf48be9cfacfd4f73a7",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "1a26c51caa2183304abc5d3ca3bfe19467e184b60c553fa4b5917828d5af962f",
+  "scope": "One owned three-replica Deployment in the runner-created saf-test namespace: policy/v1 Eviction requests with no matching PDB, zero disruption allowance, and one allowed disruption. Does not test org-wide PDB coverage or other disruptions.",
+  "cluster": "saf-lab-fbaa4f4fb94d",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Owned benign Deployment reaches three Ready replicas",
+      "matched": true,
+      "observed": {
+        "namespace": "saf-test",
+        "deployment": "pdb-availability-probe",
+        "readyReplicas": 3,
+        "readyPods": 3
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Eviction API accepts a voluntary eviction when no PDB selects the workload",
+      "matched": true,
+      "observed": {
+        "pdbCountBefore": 0,
+        "httpStatus": 201
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Deployment controller restores its three Ready replicas after the unbudgeted eviction",
+      "matched": true,
+      "observed": {
+        "readyReplicas": 3,
+        "readyPods": 3,
+        "evictedPodReplaced": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "PDB status reports a current, zero-allowance DisruptionAllowed condition",
+      "matched": true,
+      "observed": {
+        "generation": 1,
+        "observedGeneration": 1,
+        "expectedPods": 3,
+        "currentHealthy": 3,
+        "desiredHealthy": 3,
+        "disruptionsAllowed": 0,
+        "conditionStatus": "False",
+        "conditionReason": "InsufficientPods"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Eviction API rejects a healthy Pod while the matching PDB allows zero disruptions",
+      "matched": true,
+      "observed": {
+        "httpStatus": 429,
+        "reason": "TooManyRequests",
+        "targetStillReady": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "PDB status reports one allowed disruption and a current positive condition",
+      "matched": true,
+      "observed": {
+        "generation": 2,
+        "observedGeneration": 2,
+        "expectedPods": 3,
+        "currentHealthy": 3,
+        "desiredHealthy": 2,
+        "disruptionsAllowed": 1,
+        "conditionStatus": "True",
+        "conditionReason": "SufficientPods"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Eviction API permits one voluntary eviction with one disruption allowed",
+      "matched": true,
+      "observed": {
+        "httpStatus": 201,
+        "readyReplicas": 3,
+        "readyPods": 3,
+        "evictedPodReplaced": true
+      }
+    }
+  ]
+}
