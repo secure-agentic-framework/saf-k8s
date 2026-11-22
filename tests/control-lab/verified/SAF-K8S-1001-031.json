@@ -1,0 +1,172 @@
+{
+  "control_id": "SAF-K8S-1001-031",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "246ef3df0dd2b54b44629d62cb84e84796fc78c6a8661fa525ae58581d93eb01",
+  "scope": "Two fixture namespaces and five synthetic app records in one disposable cluster. Fluent Bit enriches and forwards the events using actual Pod labels. The case verifies preserved context and exact query membership at a fixture receiver. Production SIEM authorization, collector rollout, and label governance need separate evidence.",
+  "cluster": "saf-lab-494c658c7859",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Without metadata enrichment, fixture receiver identifies missing Kubernetes context",
+      "matched": true,
+      "observed": {
+        "event_ids": [
+          "alpha-infer-001-unenriched",
+          "alpha-missing-tenant-001-unenriched",
+          "alpha-train-001-unenriched",
+          "beta-infer-001-unenriched",
+          "beta-train-001-unenriched"
+        ],
+        "context_missing": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Receiver records retain source identity and receive tenant/workload only from fixture Pod labels",
+      "matched": true,
+      "observed": {
+        "alpha-infer-001-enriched": {
+          "tenant": "tenant-alpha",
+          "workload": "inference",
+          "namespace": "saf-031-alpha",
+          "pod": "alpha-inference-enriched",
+          "marker": "synthetic-alpha-inference-marker"
+        },
+        "alpha-train-001-enriched": {
+          "tenant": "tenant-alpha",
+          "workload": "training",
+          "namespace": "saf-031-alpha",
+          "pod": "alpha-training-enriched",
+          "marker": "synthetic-alpha-training-marker"
+        },
+        "beta-infer-001-enriched": {
+          "tenant": "tenant-beta",
+          "workload": "inference",
+          "namespace": "saf-031-beta",
+          "pod": "beta-inference-enriched",
+          "marker": "synthetic-beta-inference-marker"
+        },
+        "beta-train-001-enriched": {
+          "tenant": "tenant-beta",
+          "workload": "training",
+          "namespace": "saf-031-beta",
+          "pod": "beta-training-enriched",
+          "marker": "synthetic-beta-training-marker"
+        },
+        "alpha-missing-tenant-001-enriched": {
+          "tenant": null,
+          "workload": "inference",
+          "namespace": "saf-031-alpha",
+          "pod": "alpha-missing-tenant-enriched",
+          "marker": "synthetic-missing-tenant-marker"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Exact tenant searches isolate event membership and identify missing tenant labels",
+      "matched": true,
+      "observed": {
+        "tenant-alpha": {
+          "expected": [
+            "alpha-infer-001-enriched",
+            "alpha-train-001-enriched"
+          ],
+          "observed": [
+            "alpha-infer-001-enriched",
+            "alpha-train-001-enriched"
+          ],
+          "exact": true
+        },
+        "tenant-beta": {
+          "expected": [
+            "beta-infer-001-enriched",
+            "beta-train-001-enriched"
+          ],
+          "observed": [
+            "beta-infer-001-enriched",
+            "beta-train-001-enriched"
+          ],
+          "exact": true
+        },
+        "tenant-alpha/inference": {
+          "expected": [
+            "alpha-infer-001-enriched"
+          ],
+          "observed": [
+            "alpha-infer-001-enriched"
+          ],
+          "exact": true
+        },
+        "tenant-alpha/training": {
+          "expected": [
+            "alpha-train-001-enriched"
+          ],
+          "observed": [
+            "alpha-train-001-enriched"
+          ],
+          "exact": true
+        },
+        "tenant-beta/inference": {
+          "expected": [
+            "beta-infer-001-enriched"
+          ],
+          "observed": [
+            "beta-infer-001-enriched"
+          ],
+          "exact": true
+        },
+        "tenant-beta/training": {
+          "expected": [
+            "beta-train-001-enriched"
+          ],
+          "observed": [
+            "beta-train-001-enriched"
+          ],
+          "exact": true
+        },
+        "unattributed_events": {
+          "expected": [
+            "alpha-missing-tenant-001-enriched"
+          ],
+          "observed": [
+            "alpha-missing-tenant-001-enriched"
+          ]
+        }
+      }
+    }
+  ]
+}

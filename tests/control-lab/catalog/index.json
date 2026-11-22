@@ -1026,6 +1026,12 @@
       "sha256": "960b9470f9a4418a1bdb6d25e3cb1cfe022155905356284f80e2461ac26f1ae3",
       "title": "SIEM ingestion health, delivery completeness, and source coverage monitoring"
     },
+    "SAF-K8S-1001-031": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "246ef3df0dd2b54b44629d62cb84e84796fc78c6a8661fa525ae58581d93eb01",
+      "title": "Tenant and workload context preservation for AI log segregation and searchability"
+    },
     "SAF-K8S-1006-004": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1058,7 +1064,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "168da04833554c7f6f0925797c6d0350cf9bfc82",
+  "revision": "da97c3d5efa8eb0be15883ea7a42e35c67754188",
   "sha256": "5468afd7544aceb8f79e434b7d58a52fc41eeee0b3084837f4dc587efc72cace",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

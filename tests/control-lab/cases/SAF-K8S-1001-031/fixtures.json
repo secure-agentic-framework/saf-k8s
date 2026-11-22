@@ -1,0 +1,19 @@
+{
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "control_id": "SAF-K8S-1001-031",
+  "fixtures": [
+    {"namespace": "saf-031-alpha", "pod": "alpha-inference", "tenant": "tenant-alpha", "workload": "inference", "event_id": "alpha-infer-001", "marker": "synthetic-alpha-inference-marker"},
+    {"namespace": "saf-031-alpha", "pod": "alpha-training", "tenant": "tenant-alpha", "workload": "training", "event_id": "alpha-train-001", "marker": "synthetic-alpha-training-marker"},
+    {"namespace": "saf-031-beta", "pod": "beta-inference", "tenant": "tenant-beta", "workload": "inference", "event_id": "beta-infer-001", "marker": "synthetic-beta-inference-marker"},
+    {"namespace": "saf-031-beta", "pod": "beta-training", "tenant": "tenant-beta", "workload": "training", "event_id": "beta-train-001", "marker": "synthetic-beta-training-marker"},
+    {"namespace": "saf-031-alpha", "pod": "alpha-missing-tenant", "workload": "inference", "event_id": "alpha-missing-tenant-001", "marker": "synthetic-missing-tenant-marker", "missing": "tenant"}
+  ],
+  "expected_searches": {
+    "tenant-alpha": ["alpha-infer-001", "alpha-train-001"],
+    "tenant-beta": ["beta-infer-001", "beta-train-001"],
+    "tenant-alpha/inference": ["alpha-infer-001"],
+    "tenant-alpha/training": ["alpha-train-001"],
+    "tenant-beta/inference": ["beta-infer-001"],
+    "tenant-beta/training": ["beta-train-001"]
+  }
+}
