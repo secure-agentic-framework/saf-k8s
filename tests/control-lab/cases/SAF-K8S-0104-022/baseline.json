@@ -1,0 +1,11 @@
+{
+  "kubernetes_version": "1.36.1",
+  "gate": "TaintTolerationComparisonOperators",
+  "component": "kube-apiserver",
+  "default": false,
+  "stage": "ALPHA",
+  "feature_metadata_source": "https://github.com/kubernetes/kubernetes/blob/v1.36.1/pkg/features/kube_features.go",
+  "registration_source": "https://github.com/kubernetes/kubernetes/blob/v1.36.1/pkg/features/kube_features.go",
+  "component_wiring_source": "https://github.com/kubernetes/kubernetes/blob/v1.36.1/pkg/apis/core/validation/pod_validation_options.go",
+  "effective_metadata_source": "https://github.com/kubernetes/kubernetes/blob/v1.36.1/staging/src/k8s.io/component-base/metrics/prometheus/feature/metrics.go"
+}

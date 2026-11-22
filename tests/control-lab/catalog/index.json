@@ -180,6 +180,12 @@
       "sha256": "386539c0738c9a7aedabb0fa936a3e2308d459f3d32c1cfa317c5b020a883152",
       "title": "Kubernetes component version skew compliance"
     },
+    "SAF-K8S-0104-022": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "667a3f66058fbfb4411207022bda3990f9bcf036178b3a06e1544c828256f917",
+      "title": "Non-default feature gate inventory for production clusters"
+    },
     "SAF-K8S-0201-005": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -536,7 +542,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "401d3d7b57812e0dc33fabe7c89ef889f3b435ad",
+  "revision": "ebe31d5d72b6a96e269e4f870276d7bc9cb5f493",
   "sha256": "957795ca0841a48dd97f65d6a691d642bc38d11bbf391056ec5ea9b34e1a131b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

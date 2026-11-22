@@ -1,0 +1,21 @@
+{
+  "kubernetes_version": "1.36.1",
+  "observations": [
+    {
+      "component": "kube-apiserver",
+      "feature": "TaintTolerationComparisonOperators",
+      "enabled": true,
+      "stage": "ALPHA"
+    }
+  ],
+  "expected_inventory": [
+    {
+      "component": "kube-apiserver",
+      "feature": "TaintTolerationComparisonOperators",
+      "effective": true,
+      "default": false,
+      "stage": "ALPHA",
+      "classification": "non-default-enabled"
+    }
+  ]
+}

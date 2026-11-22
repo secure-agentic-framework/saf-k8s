@@ -1,0 +1,101 @@
+{
+  "control_id": "SAF-K8S-0104-022",
+  "catalog_revision": "36d67fc68b5176566299ebffa1c448bea0a6dc2c",
+  "catalog_sha256": "957795ca0841a48dd97f65d6a691d642bc38d11bbf391056ec5ea9b34e1a131b",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "667a3f66058fbfb4411207022bda3990f9bcf036178b3a06e1544c828256f917",
+  "scope": "Paired disposable Kubernetes v1.36.1 clusters. The stock API server supplies the effective default and the second API server enables one alpha gate. The test inventories that component and gate. Full production component inventory and governance need separate evidence.",
+  "cluster": "saf-lab-32acd95fb7d6",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The stock API server reports the versioned default and no override",
+      "matched": true,
+      "observed": {
+        "stock_metric": {
+          "component": "kube-apiserver",
+          "feature": "TaintTolerationComparisonOperators",
+          "enabled": false,
+          "stage": "ALPHA"
+        },
+        "classified_inventory": [],
+        "stock_version": "v1.36.1",
+        "stock_cleanup": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Effective read-only API server state is statically classified",
+      "matched": true,
+      "observed": {
+        "effective_metric": {
+          "component": "kube-apiserver",
+          "feature": "TaintTolerationComparisonOperators",
+          "enabled": true,
+          "stage": "ALPHA"
+        },
+        "classified_inventory": [
+          {
+            "component": "kube-apiserver",
+            "feature": "TaintTolerationComparisonOperators",
+            "effective": true,
+            "default": false,
+            "stage": "ALPHA",
+            "classification": "non-default-enabled"
+          }
+        ],
+        "expected_inventory": [
+          {
+            "component": "kube-apiserver",
+            "feature": "TaintTolerationComparisonOperators",
+            "effective": true,
+            "default": false,
+            "stage": "ALPHA",
+            "classification": "non-default-enabled"
+          }
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Generated configuration and effective metric agree",
+      "matched": true,
+      "observed": {
+        "api_server_feature_gate_argument_present": true,
+        "effective_metric_enabled": true,
+        "metric_source": "kube-apiserver /metrics via read-only Kubernetes API GET"
+      }
+    }
+  ]
+}
