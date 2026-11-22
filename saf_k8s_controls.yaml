@@ -4292,7 +4292,7 @@
   control_title: CoreDNS and upstream resolver hardening
   control_statement: CoreDNS must be configured with hardened settings that restrict upstream resolver use to approved destinations, apply secure caching and forwarding behavior, and limit DNS infrastructure changes to authorized configuration paths.
   objective: Secure the cluster DNS infrastructure itself so CoreDNS and related resolver components cannot be abused as a weak or untrusted control plane dependency.
-  rationale: CoreDNS is a critical shared service in every Kubernetes cluster. Weak forwarding, caching, or upstream resolver configuration can expose workloads to malicious resolution behavior, redirection, or unauthorized infrastructure changes. Hardening the DNS infrastructure is a distinct obligation from controlling which DNS paths and service names workloads may use.
+  rationale: Where deployed, CoreDNS is a shared dependency for cluster service discovery and upstream name resolution. Weak forwarding, caching, or upstream resolver configuration can expose workloads to malicious resolution behavior, redirection, or unauthorized infrastructure changes. Hardening the DNS infrastructure is a distinct obligation from controlling which DNS paths and service names workloads may use.
   scope: Applies to CoreDNS deployments, NodeLocal DNSCache, and any approved upstream resolver integrations in production clusters.
   primary_enforcement_point: DNS Infrastructure
   implementation_surface: CoreDNS Corefile configuration, NodeLocal DNSCache configuration, and approved upstream resolver settings.
