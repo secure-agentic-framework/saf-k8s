@@ -1,0 +1,196 @@
+{
+  "control_id": "SAF-K8S-1001-028",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "5350ea2368453260d2e3f6b924ad0c12b3b438654fc5e628202364d4ae5ab431",
+  "scope": "One case-owned kind cluster with the v1.36.1 node image, a metadata-only audit policy, one successful ConfigMap create, five in-cluster synthetic AI fixture Jobs, and an owned router plus HTTP receiver in one namespace. The first AI submissions use the same fixed events as replay and receive 404 while their routes are absent; after enabling those routes, the exact events reach the receiver. The Kubernetes event is read from the API server audit file and keeps its real auditID and explicit source_origin. No training, inference, registry service, policy engine, production SIEM, or SIEM completeness monitoring is exercised.",
+  "cluster": "saf-lab-4c37de6c2361",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "AI fixture event classes have no enabled source routes and are absent at the receiver",
+      "matched": true,
+      "observed": {
+        "route_map": [
+          "kubernetes.audit"
+        ],
+        "blocked_submissions": [
+          {
+            "event_id": "ai-1001-028-inference-001",
+            "status": 404
+          },
+          {
+            "event_id": "ai-1001-028-training-001",
+            "status": 404
+          },
+          {
+            "event_id": "ai-1001-028-registry-001",
+            "status": 404
+          },
+          {
+            "event_id": "ai-1001-028-policy-001",
+            "status": 404
+          },
+          {
+            "event_id": "ai-1001-028-runtime-001",
+            "status": 404
+          }
+        ],
+        "ai_event_ids_absent": [
+          "ai-1001-028-inference-001",
+          "ai-1001-028-training-001",
+          "ai-1001-028-registry-001",
+          "ai-1001-028-policy-001",
+          "ai-1001-028-runtime-001"
+        ],
+        "observed_count": 1
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The real API audit record reaches the receiver with expected origin and unchanged auditID",
+      "matched": true,
+      "observed": {
+        "response_id_matched_audit_and_receiver": true,
+        "receiver_events": 1,
+        "source_origin": "kube-apiserver/audit-policy-file"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Enabling source routes delivers the same five event types with expected origin; audit ID remains intact",
+      "matched": true,
+      "observed": {
+        "expected_ai": [
+          {
+            "event_id": "ai-1001-028-inference-001",
+            "source_origin": "fixture-app/inference",
+            "event_type": "inference",
+            "synthetic": true,
+            "result": "completed"
+          },
+          {
+            "event_id": "ai-1001-028-policy-001",
+            "source_origin": "fixture-app/policy",
+            "event_type": "policy",
+            "synthetic": true,
+            "result": "allowed_by_fixture"
+          },
+          {
+            "event_id": "ai-1001-028-registry-001",
+            "source_origin": "fixture-app/registry",
+            "event_type": "registry",
+            "synthetic": true,
+            "result": "accepted"
+          },
+          {
+            "event_id": "ai-1001-028-runtime-001",
+            "source_origin": "fixture-app/runtime",
+            "event_type": "runtime",
+            "synthetic": true,
+            "result": "healthy"
+          },
+          {
+            "event_id": "ai-1001-028-training-001",
+            "source_origin": "fixture-app/training",
+            "event_type": "training",
+            "synthetic": true,
+            "result": "completed"
+          }
+        ],
+        "replay_submissions": [
+          {
+            "event_id": "ai-1001-028-inference-001",
+            "status": 201
+          },
+          {
+            "event_id": "ai-1001-028-training-001",
+            "status": 201
+          },
+          {
+            "event_id": "ai-1001-028-registry-001",
+            "status": 201
+          },
+          {
+            "event_id": "ai-1001-028-policy-001",
+            "status": 201
+          },
+          {
+            "event_id": "ai-1001-028-runtime-001",
+            "status": 201
+          }
+        ],
+        "observed_ai": [
+          {
+            "event_id": "ai-1001-028-inference-001",
+            "event_type": "inference",
+            "result": "completed",
+            "source_origin": "fixture-app/inference",
+            "synthetic": true
+          },
+          {
+            "event_id": "ai-1001-028-policy-001",
+            "event_type": "policy",
+            "result": "allowed_by_fixture",
+            "source_origin": "fixture-app/policy",
+            "synthetic": true
+          },
+          {
+            "event_id": "ai-1001-028-registry-001",
+            "event_type": "registry",
+            "result": "accepted",
+            "source_origin": "fixture-app/registry",
+            "synthetic": true
+          },
+          {
+            "event_id": "ai-1001-028-runtime-001",
+            "event_type": "runtime",
+            "result": "healthy",
+            "source_origin": "fixture-app/runtime",
+            "synthetic": true
+          },
+          {
+            "event_id": "ai-1001-028-training-001",
+            "event_type": "training",
+            "result": "completed",
+            "source_origin": "fixture-app/training",
+            "synthetic": true
+          }
+        ],
+        "audit_id_preserved": true
+      }
+    }
+  ]
+}

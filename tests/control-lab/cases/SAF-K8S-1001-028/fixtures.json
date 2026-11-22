@@ -1,0 +1,24 @@
+{
+  "namespace": "saf-1001-028",
+  "audit_object": {
+    "apiVersion": "v1",
+    "kind": "ConfigMap",
+    "metadata": {
+      "name": "saf-1001-028-audit-fixture",
+      "namespace": "saf-1001-028",
+      "labels": {"saf.example/purpose": "audit-routing-fixture"}
+    },
+    "data": {"purpose": "inert audit routing proof", "revision": "r1"}
+  },
+  "ai_events": [
+    {"event_id": "ai-1001-028-inference-001", "source_origin": "fixture-app/inference", "event_type": "inference", "synthetic": true, "result": "completed"},
+    {"event_id": "ai-1001-028-training-001", "source_origin": "fixture-app/training", "event_type": "training", "synthetic": true, "result": "completed"},
+    {"event_id": "ai-1001-028-registry-001", "source_origin": "fixture-app/registry", "event_type": "registry", "synthetic": true, "result": "accepted"},
+    {"event_id": "ai-1001-028-policy-001", "source_origin": "fixture-app/policy", "event_type": "policy", "synthetic": true, "result": "allowed_by_fixture"},
+    {"event_id": "ai-1001-028-runtime-001", "source_origin": "fixture-app/runtime", "event_type": "runtime", "synthetic": true, "result": "healthy"}
+  ],
+  "audit_route": "kubernetes.audit",
+  "ai_routes": ["ai.inference", "ai.training", "ai.registry", "ai.policy", "ai.runtime"],
+  "expected_audit_origin": "kube-apiserver/audit-policy-file",
+  "expected_audit_event_type": "kubernetes_audit"
+}

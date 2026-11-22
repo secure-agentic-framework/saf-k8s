@@ -1,0 +1,11 @@
+apiVersion: audit.k8s.io/v1
+kind: Policy
+omitStages:
+  - RequestReceived
+rules:
+  - level: Metadata
+    namespaces: [saf-1001-028]
+    resources:
+      - group: ""
+        resources: [configmaps]
+  - level: None
