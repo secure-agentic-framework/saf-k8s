@@ -6390,12 +6390,12 @@
   knowledge_area: '7.2'
   control_seq: '020'
   control_title: Namespace ResourceQuota enforcement for GPU and AI workloads
-  control_statement: Namespace ResourceQuota objects SHALL enforce approved per-namespace limits for GPU, CPU, memory, storage, and relevant object counts for AI and accelerator-consuming workloads so that no tenant or workload can exceed its authorized share of cluster resources.
+  control_statement: Namespace ResourceQuota objects must enforce approved ceilings at admission for declared accelerator, CPU, memory and storage resources and for relevant object counts in AI and accelerator-consuming namespaces.
   objective: Prevent any single namespace from exceeding its approved share of GPU and related cluster resources by enforcing namespace-level ResourceQuota boundaries for AI workloads.
-  rationale: GPU and AI workload capacity is scarce, expensive, and easy to exhaust. Namespace ResourceQuota enforcement prevents tenant monopolization, quota bypass through uncontrolled namespace growth, and cross-tenant disruption caused by runaway training or inference workloads.
+  rationale: Namespace quota bounds the declared allocations admitted for a single namespace. Protect cluster capacity by governing namespace creation, applying quotas before tenant workloads begin, and monitoring actual device and resource capacity.
   scope: Applies to AI or accelerator-consuming namespaces where GPU, CPU, memory, storage, and relevant object-count ceilings must be enforced through ResourceQuota. LimitRange defaults remain a separate companion control.
   primary_enforcement_point: Namespace ResourceQuota objects enforced by the Kubernetes resource quota admission controller and validated through periodic configuration review.
-  implementation_surface: ResourceQuota objects specifying requests and limits for CPU, memory, storage, pods, persistent volume claims, services, and GPU or MIG resources; scope selectors where approved; and namespace configuration review evidence.
+  implementation_surface: ResourceQuota requests and limits for CPU and memory, requests.storage for declared persistent-volume storage, and relevant Pod, persistent volume claim and Service counts. Use requests.<extended-resource-name> for device-plugin GPUs and MIG resources using the resource name actually advertised. Select approved scope selectors where applicable and review coverage of new and existing namespaces.
   owner_primary: Platform Engineering
   owner_supporting: ML Engineering; FinOps
   baseline_or_ai_specific: ai-specific
