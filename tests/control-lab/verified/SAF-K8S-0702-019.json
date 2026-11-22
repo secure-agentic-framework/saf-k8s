@@ -1,0 +1,203 @@
+{
+  "control_id": "SAF-K8S-0702-019",
+  "catalog_revision": "11088e58e64a537472c1fce0cf50a66e86edf7c6",
+  "catalog_sha256": "d7d28292b8acff5a66248c6cc45657bf790264e652dc2045ccd63a055e692998",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "bda2105ab4570360022cc935e83bd91e62228051aa13ef24a674520b298fb48a",
+  "scope": "One disposable kind cluster with two case-owned namespaces, one labeled synthetic AI and one general. Tests named ConfigMap GET under a namespace Role/RoleBinding, fixed IPv4 TCP/8080 Pod paths across AI-namespace ingress and egress default deny, and Pod CREATE admission selected only for the AI namespace. No external destinations, real data, privileged workloads, other CNIs/platforms, production rollout, periodic validation, human review, tenant policy administration, or cross-platform deployment is established.",
+  "cluster": "saf-lab-d72e06787129",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "green",
+      "claim": "saf-0702-019-ai is denied saf-0702-019-ai/synthetic-record",
+      "matched": true,
+      "observed": {
+        "returncode": 1,
+        "forbidden": true,
+        "detail": "Error from server (Forbidden): configmaps \"synthetic-record\" is forbidden: User \"system:serviceaccount:saf-0702-019-ai:case-reader\" cannot get resource \"configmaps\" in API group \"\" in the namespace \"saf-0702-019-ai\""
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "saf-0702-019-ai reads saf-0702-019-ai/synthetic-record",
+      "matched": true,
+      "observed": {
+        "returncode": 0,
+        "marker": "saf-0702-019-ai-synthetic"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "saf-0702-019-ai is denied saf-0702-019-ai/other-record",
+      "matched": true,
+      "observed": {
+        "returncode": 1,
+        "forbidden": true,
+        "detail": "Error from server (Forbidden): configmaps \"other-record\" is forbidden: User \"system:serviceaccount:saf-0702-019-ai:case-reader\" cannot get resource \"configmaps\" in API group \"\" in the namespace \"saf-0702-019-ai\""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "saf-0702-019-ai is denied saf-0702-019-general/synthetic-record",
+      "matched": true,
+      "observed": {
+        "returncode": 1,
+        "forbidden": true,
+        "detail": "Error from server (Forbidden): configmaps \"synthetic-record\" is forbidden: User \"system:serviceaccount:saf-0702-019-ai:case-reader\" cannot get resource \"configmaps\" in API group \"\" in the namespace \"saf-0702-019-general\""
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "saf-0702-019-ai reaches fixed listener",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "saf-0702-019-general reaches fixed listener",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "saf-0702-019-ai reaches fixed listener",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before policy, both invalid AI Pod CREATE dry-runs are admitted",
+      "matched": true,
+      "observed": [
+        {
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "accepted": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "phase": "green",
+      "claim": "AI namespace rejects missing and unapproved classification exactly",
+      "matched": true,
+      "observed": [
+        {
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": pods \"admission-missing\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-019-ai-classification' with binding 'saf-k8s-0702-019-ai-classification' denied request: AI workloads in this namespace require an approved workload classification"
+        },
+        {
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": pods \"admission-wrong\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-019-ai-classification' with binding 'saf-k8s-0702-019-ai-classification' denied request: AI workloads in this namespace require an approved workload classification"
+        }
+      ]
+    },
+    {
+      "phase": "positive",
+      "claim": "Valid AI and unselected general-namespace Pods remain admissible",
+      "matched": true,
+      "observed": [
+        {
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "accepted": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "phase": "green",
+      "claim": "saf-0702-019-general cannot reach fixed listener",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "saf-0702-019-ai cannot reach fixed listener",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "saf-0702-019-ai reaches fixed listener",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "saf-0702-019-general reaches fixed listener",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "destination_port": 8080
+      }
+    }
+  ]
+}

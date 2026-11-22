@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: saf-k8s-0702-019-ai-default-deny
+  namespace: saf-0702-019-ai
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              saf-k8s.example/0702-019: client
+      ports:
+        - protocol: TCP
+          port: 8080
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              saf-k8s.example/0702-019: listener
+      ports:
+        - protocol: TCP
+          port: 8080

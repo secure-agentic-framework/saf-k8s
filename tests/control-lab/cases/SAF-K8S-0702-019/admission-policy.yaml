@@ -1,0 +1,31 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0702-019-ai-classification
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: [CREATE]
+        resources: ["pods"]
+  validations:
+    - expression: >-
+        has(object.metadata.labels) &&
+        "saf-k8s.example/workload-type" in object.metadata.labels &&
+        object.metadata.labels["saf-k8s.example/workload-type"] == "inference"
+      message: "AI workloads in this namespace require an approved workload classification"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0702-019-ai-classification
+spec:
+  policyName: saf-k8s-0702-019-ai-classification
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/tenant-class: ai
