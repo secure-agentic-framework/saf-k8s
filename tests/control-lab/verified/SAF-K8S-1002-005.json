@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1002-005",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "2b95885b1bd5ac2a844ab6c41faa4ee310e40122",
+  "catalog_sha256": "0bac9e0c97ccaf174b4670effacf87bef9c2c867073c90c42c73d4a2a61ffafe",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "141aed48af81b281621e5902cfbbf6e3211803e147769351ec2b7c86852b4ead",
+  "control_sha256": "abf657df886b47fe7757a76310327e35d474d43ef9bf0ff1a9725323aed99022",
   "scope": "Fresh Kind v1.36.1. A digest-pinned Prometheus Adapter v0.12.0 serves real aggregated custom and external metrics APIs from synthetic Prometheus series. Two namespace-owned ServiceAccount tokens exercise live API-server authorization and compare exact synthetic samples, cross-namespace and cluster-scope denials, and the explicit external-rule exception. Prometheus Kubernetes pod discovery is separately scoped to the two fixture namespaces. A narrow API-server audit policy demonstrates that coverage depends on configured policy/backend. No production endpoint or identity is used.",
-  "cluster": "saf-lab-b46429f589ae",
+  "cluster": "saf-lab-5ca86d95aeb6",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

@@ -1227,7 +1227,7 @@
     "SAF-K8S-1002-005": {
       "catalog_status": "draft",
       "domain": "D10",
-      "sha256": "141aed48af81b281621e5902cfbbf6e3211803e147769351ec2b7c86852b4ead",
+      "sha256": "abf657df886b47fe7757a76310327e35d474d43ef9bf0ff1a9725323aed99022",
       "title": "Metric endpoint authorization and RBAC"
     },
     "SAF-K8S-1002-006": {
@@ -1268,7 +1268,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6132587be3f3a310d46b527f2f2801d4e41a913a",
-  "sha256": "372d09cd795dff2d873dc51ba9b3ac4085a372b623b11680a6f2cfac07505df6",
+  "revision": "580e56076a44db42552aac886ecae548da54d477",
+  "sha256": "0bac9e0c97ccaf174b4670effacf87bef9c2c867073c90c42c73d4a2a61ffafe",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
