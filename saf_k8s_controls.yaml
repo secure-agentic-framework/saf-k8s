@@ -8353,7 +8353,7 @@
   control_statement: Inference request queues must enforce priority controls, timeout settings, and queue depth limits to prevent backpressure attacks from blocking legitimate inference traffic.
   objective: Protect inference availability through hardened request queue management that constrains backlog growth, prioritizes legitimate work, and expires abusive or stalled requests.
   rationale: Without queue priority, depth ceilings, and enforced request timeouts, an attacker can fill the inference backlog with slow or malformed requests, creating backpressure that degrades service for legitimate users and can amplify resource exhaustion.
-  scope: Applies to inference-serving request queues, admission backlogs, and asynchronous work queues in Kubernetes-based AI serving platforms. Covers queue priority, timeout enforcement, and maximum depth controls. Excludes autoscaling bounds and cost-governed scale-out, which are covered by SAF-K8S-0903-005.
+  scope: Applies to inference-serving request queues, admission backlogs, and asynchronous work queues in Kubernetes-based AI serving platforms. Covers queue priority, timeout enforcement, and maximum depth controls. Excludes inference autoscaling bounds (SAF-K8S-0903-007) and budget-governed scale-out (SAF-K8S-0903-008).
   primary_enforcement_point: Inference server queue configuration, API gateway admission policy, and backpressure control settings.
   implementation_surface: Inference queue implementations with bounded depth, per-request timeout enforcement, priority queueing or class-of-service controls, and degraded-service handling that sheds excess load rather than allowing unbounded backlog accumulation.
   owner_primary: ML Platform Engineering
