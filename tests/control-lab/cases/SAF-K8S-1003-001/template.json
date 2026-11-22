@@ -1,0 +1,344 @@
+{
+  "change_triggers": [
+    "new or changed AI operator or CRD",
+    "GPU sharing or scheduling change",
+    "serving ingress, tenant, or data-class change",
+    "control-plane or node version/configuration change"
+  ],
+  "classification": "",
+  "components": {
+    "api-server": {
+      "boundary": "",
+      "data_flows": []
+    },
+    "container-runtime": {
+      "boundary": "",
+      "data_flows": []
+    },
+    "etcd": {
+      "boundary": "",
+      "data_flows": []
+    },
+    "gpu-device-plugin": {
+      "boundary": "",
+      "data_flows": []
+    },
+    "kserve-controller": {
+      "boundary": "",
+      "data_flows": []
+    },
+    "kubeflow-operator": {
+      "boundary": "",
+      "data_flows": []
+    },
+    "kubelet": {
+      "boundary": "",
+      "data_flows": []
+    },
+    "model-serving-endpoint": {
+      "boundary": "",
+      "data_flows": []
+    },
+    "scheduler": {
+      "boundary": "",
+      "data_flows": []
+    }
+  },
+  "coverage": {
+    "api-server": {
+      "denial-of-service": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "elevation-of-privilege": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "information-disclosure": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "repudiation": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "spoofing": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "tampering": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      }
+    },
+    "container-runtime": {
+      "denial-of-service": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "elevation-of-privilege": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "information-disclosure": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "repudiation": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "spoofing": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "tampering": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      }
+    },
+    "etcd": {
+      "denial-of-service": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "elevation-of-privilege": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "information-disclosure": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "repudiation": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "spoofing": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "tampering": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      }
+    },
+    "gpu-device-plugin": {
+      "denial-of-service": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "elevation-of-privilege": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "information-disclosure": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "repudiation": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "spoofing": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "tampering": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      }
+    },
+    "kserve-controller": {
+      "denial-of-service": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "elevation-of-privilege": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "information-disclosure": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "repudiation": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "spoofing": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "tampering": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      }
+    },
+    "kubeflow-operator": {
+      "denial-of-service": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "elevation-of-privilege": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "information-disclosure": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "repudiation": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "spoofing": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "tampering": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      }
+    },
+    "kubelet": {
+      "denial-of-service": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "elevation-of-privilege": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "information-disclosure": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "repudiation": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "spoofing": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "tampering": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      }
+    },
+    "model-serving-endpoint": {
+      "denial-of-service": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "elevation-of-privilege": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "information-disclosure": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "repudiation": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "spoofing": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "tampering": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      }
+    },
+    "scheduler": {
+      "denial-of-service": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "elevation-of-privilege": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "information-disclosure": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "repudiation": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "spoofing": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      },
+      "tampering": {
+        "rationale": "",
+        "status": "",
+        "threat_ids": []
+      }
+    }
+  },
+  "record_id": "",
+  "review": {
+    "approvals": [],
+    "review_due": "",
+    "stage": "draft"
+  },
+  "threats": []
+}

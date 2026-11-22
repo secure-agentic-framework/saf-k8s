@@ -1,0 +1,1079 @@
+{
+  "change_triggers": [
+    "new or changed AI operator or CRD",
+    "GPU sharing or scheduling change",
+    "serving ingress, tenant, or data-class change",
+    "control-plane or node version/configuration change"
+  ],
+  "classification": "synthetic-example",
+  "components": {
+    "api-server": {
+      "boundary": "caller to control plane",
+      "data_flows": [
+        "evidence/api-server-boundary.md"
+      ]
+    },
+    "container-runtime": {
+      "boundary": "node process isolation",
+      "data_flows": [
+        "evidence/model-serving-boundary.md"
+      ]
+    },
+    "etcd": {
+      "boundary": "control-plane persistence",
+      "data_flows": [
+        "evidence/api-server-boundary.md"
+      ]
+    },
+    "gpu-device-plugin": {
+      "boundary": "node GPU devices to scheduled workload",
+      "data_flows": [
+        "evidence/model-serving-boundary.md"
+      ]
+    },
+    "kserve-controller": {
+      "boundary": "serving API to inference service",
+      "data_flows": [
+        "evidence/model-serving-boundary.md"
+      ]
+    },
+    "kubeflow-operator": {
+      "boundary": "AI API to workload reconciliation",
+      "data_flows": [
+        "evidence/model-serving-boundary.md"
+      ]
+    },
+    "kubelet": {
+      "boundary": "control plane to node agent",
+      "data_flows": [
+        "evidence/model-serving-boundary.md"
+      ]
+    },
+    "model-serving-endpoint": {
+      "boundary": "client to inference service",
+      "data_flows": [
+        "evidence/model-serving-boundary.md"
+      ]
+    },
+    "scheduler": {
+      "boundary": "control plane to node placement",
+      "data_flows": [
+        "evidence/model-serving-boundary.md"
+      ]
+    }
+  },
+  "coverage": {
+    "api-server": {
+      "denial-of-service": {
+        "status": "threat",
+        "threat_ids": [
+          "api-server:denial-of-service"
+        ]
+      },
+      "elevation-of-privilege": {
+        "status": "threat",
+        "threat_ids": [
+          "api-server:elevation-of-privilege"
+        ]
+      },
+      "information-disclosure": {
+        "status": "threat",
+        "threat_ids": [
+          "api-server:information-disclosure"
+        ]
+      },
+      "repudiation": {
+        "status": "threat",
+        "threat_ids": [
+          "api-server:repudiation"
+        ]
+      },
+      "spoofing": {
+        "status": "threat",
+        "threat_ids": [
+          "api-server:spoofing"
+        ]
+      },
+      "tampering": {
+        "status": "threat",
+        "threat_ids": [
+          "api-server:tampering"
+        ]
+      }
+    },
+    "container-runtime": {
+      "denial-of-service": {
+        "status": "threat",
+        "threat_ids": [
+          "container-runtime:denial-of-service"
+        ]
+      },
+      "elevation-of-privilege": {
+        "status": "threat",
+        "threat_ids": [
+          "container-runtime:elevation-of-privilege"
+        ]
+      },
+      "information-disclosure": {
+        "status": "threat",
+        "threat_ids": [
+          "container-runtime:information-disclosure"
+        ]
+      },
+      "repudiation": {
+        "status": "threat",
+        "threat_ids": [
+          "container-runtime:repudiation"
+        ]
+      },
+      "spoofing": {
+        "status": "threat",
+        "threat_ids": [
+          "container-runtime:spoofing"
+        ]
+      },
+      "tampering": {
+        "status": "threat",
+        "threat_ids": [
+          "container-runtime:tampering"
+        ]
+      }
+    },
+    "etcd": {
+      "denial-of-service": {
+        "status": "threat",
+        "threat_ids": [
+          "etcd:denial-of-service"
+        ]
+      },
+      "elevation-of-privilege": {
+        "status": "threat",
+        "threat_ids": [
+          "etcd:elevation-of-privilege"
+        ]
+      },
+      "information-disclosure": {
+        "status": "threat",
+        "threat_ids": [
+          "etcd:information-disclosure"
+        ]
+      },
+      "repudiation": {
+        "status": "threat",
+        "threat_ids": [
+          "etcd:repudiation"
+        ]
+      },
+      "spoofing": {
+        "status": "threat",
+        "threat_ids": [
+          "etcd:spoofing"
+        ]
+      },
+      "tampering": {
+        "status": "threat",
+        "threat_ids": [
+          "etcd:tampering"
+        ]
+      }
+    },
+    "gpu-device-plugin": {
+      "denial-of-service": {
+        "status": "threat",
+        "threat_ids": [
+          "gpu-device-plugin:denial-of-service"
+        ]
+      },
+      "elevation-of-privilege": {
+        "status": "threat",
+        "threat_ids": [
+          "gpu-device-plugin:elevation-of-privilege"
+        ]
+      },
+      "information-disclosure": {
+        "status": "threat",
+        "threat_ids": [
+          "gpu-device-plugin:information-disclosure"
+        ]
+      },
+      "repudiation": {
+        "status": "threat",
+        "threat_ids": [
+          "gpu-device-plugin:repudiation"
+        ]
+      },
+      "spoofing": {
+        "status": "threat",
+        "threat_ids": [
+          "gpu-device-plugin:spoofing"
+        ]
+      },
+      "tampering": {
+        "status": "threat",
+        "threat_ids": [
+          "gpu-device-plugin:tampering"
+        ]
+      }
+    },
+    "kserve-controller": {
+      "denial-of-service": {
+        "status": "threat",
+        "threat_ids": [
+          "kserve-controller:denial-of-service"
+        ]
+      },
+      "elevation-of-privilege": {
+        "status": "threat",
+        "threat_ids": [
+          "kserve-controller:elevation-of-privilege"
+        ]
+      },
+      "information-disclosure": {
+        "status": "threat",
+        "threat_ids": [
+          "kserve-controller:information-disclosure"
+        ]
+      },
+      "repudiation": {
+        "status": "threat",
+        "threat_ids": [
+          "kserve-controller:repudiation"
+        ]
+      },
+      "spoofing": {
+        "status": "threat",
+        "threat_ids": [
+          "kserve-controller:spoofing"
+        ]
+      },
+      "tampering": {
+        "status": "threat",
+        "threat_ids": [
+          "kserve-controller:tampering"
+        ]
+      }
+    },
+    "kubeflow-operator": {
+      "denial-of-service": {
+        "status": "threat",
+        "threat_ids": [
+          "kubeflow-operator:denial-of-service"
+        ]
+      },
+      "elevation-of-privilege": {
+        "status": "threat",
+        "threat_ids": [
+          "kubeflow-operator:elevation-of-privilege"
+        ]
+      },
+      "information-disclosure": {
+        "status": "threat",
+        "threat_ids": [
+          "kubeflow-operator:information-disclosure"
+        ]
+      },
+      "repudiation": {
+        "status": "threat",
+        "threat_ids": [
+          "kubeflow-operator:repudiation"
+        ]
+      },
+      "spoofing": {
+        "status": "threat",
+        "threat_ids": [
+          "kubeflow-operator:spoofing"
+        ]
+      },
+      "tampering": {
+        "status": "threat",
+        "threat_ids": [
+          "kubeflow-operator:tampering"
+        ]
+      }
+    },
+    "kubelet": {
+      "denial-of-service": {
+        "status": "threat",
+        "threat_ids": [
+          "kubelet:denial-of-service"
+        ]
+      },
+      "elevation-of-privilege": {
+        "status": "threat",
+        "threat_ids": [
+          "kubelet:elevation-of-privilege"
+        ]
+      },
+      "information-disclosure": {
+        "status": "threat",
+        "threat_ids": [
+          "kubelet:information-disclosure"
+        ]
+      },
+      "repudiation": {
+        "status": "threat",
+        "threat_ids": [
+          "kubelet:repudiation"
+        ]
+      },
+      "spoofing": {
+        "status": "threat",
+        "threat_ids": [
+          "kubelet:spoofing"
+        ]
+      },
+      "tampering": {
+        "status": "threat",
+        "threat_ids": [
+          "kubelet:tampering"
+        ]
+      }
+    },
+    "model-serving-endpoint": {
+      "denial-of-service": {
+        "status": "threat",
+        "threat_ids": [
+          "model-serving-endpoint:denial-of-service"
+        ]
+      },
+      "elevation-of-privilege": {
+        "status": "threat",
+        "threat_ids": [
+          "model-serving-endpoint:elevation-of-privilege"
+        ]
+      },
+      "information-disclosure": {
+        "status": "threat",
+        "threat_ids": [
+          "model-serving-endpoint:information-disclosure"
+        ]
+      },
+      "repudiation": {
+        "status": "threat",
+        "threat_ids": [
+          "model-serving-endpoint:repudiation"
+        ]
+      },
+      "spoofing": {
+        "status": "threat",
+        "threat_ids": [
+          "model-serving-endpoint:spoofing"
+        ]
+      },
+      "tampering": {
+        "status": "threat",
+        "threat_ids": [
+          "model-serving-endpoint:tampering"
+        ]
+      }
+    },
+    "scheduler": {
+      "denial-of-service": {
+        "status": "threat",
+        "threat_ids": [
+          "scheduler:denial-of-service"
+        ]
+      },
+      "elevation-of-privilege": {
+        "status": "threat",
+        "threat_ids": [
+          "scheduler:elevation-of-privilege"
+        ]
+      },
+      "information-disclosure": {
+        "status": "threat",
+        "threat_ids": [
+          "scheduler:information-disclosure"
+        ]
+      },
+      "repudiation": {
+        "status": "threat",
+        "threat_ids": [
+          "scheduler:repudiation"
+        ]
+      },
+      "spoofing": {
+        "status": "threat",
+        "threat_ids": [
+          "scheduler:spoofing"
+        ]
+      },
+      "tampering": {
+        "status": "threat",
+        "threat_ids": [
+          "scheduler:tampering"
+        ]
+      }
+    }
+  },
+  "record_id": "SYN-STRIDE-REV-001",
+  "review": {
+    "approvals": [
+      {
+        "date": "2026-11-21",
+        "decision": "approved",
+        "reviewer": "Reviewer A (synthetic)",
+        "role": "security-architecture"
+      },
+      {
+        "date": "2026-11-21",
+        "decision": "approved",
+        "reviewer": "Reviewer B (synthetic)",
+        "role": "platform-engineering"
+      }
+    ],
+    "review_due": "2026-11-01",
+    "reviewed_at": "2026-11-20",
+    "stage": "security-architecture-approved"
+  },
+  "threats": [
+    {
+      "category": "spoofing",
+      "component": "api-server",
+      "evidence": [
+        "evidence/api-server-boundary.md"
+      ],
+      "id": "api-server:spoofing",
+      "mitigation": "Verify authenticated peer identity and allow-list the intended workload or control-plane principal.",
+      "owner": "Synthetic platform controls team",
+      "risk": "caller to control plane. The wrong identity could be accepted at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "tampering",
+      "component": "api-server",
+      "evidence": [
+        "evidence/api-server-boundary.md"
+      ],
+      "id": "api-server:tampering",
+      "mitigation": "Require integrity checks and approved writes, and reconcile changes against the reviewed configuration.",
+      "owner": "Synthetic platform controls team",
+      "risk": "caller to control plane. Configuration or artifacts could change without authorization at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "repudiation",
+      "component": "api-server",
+      "evidence": [
+        "evidence/api-server-boundary.md"
+      ],
+      "id": "api-server:repudiation",
+      "mitigation": "Capture approved event metadata and correlate it with the authorized principal and change record.",
+      "owner": "Synthetic platform controls team",
+      "risk": "caller to control plane. A security-relevant operation could lack evidence of the responsible identity.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "information-disclosure",
+      "component": "api-server",
+      "evidence": [
+        "evidence/api-server-boundary.md"
+      ],
+      "id": "api-server:information-disclosure",
+      "mitigation": "Limit access, minimize exposed data, and test the authorized consumer and independent tenant comparator.",
+      "owner": "Synthetic platform controls team",
+      "risk": "caller to control plane. Protected data or metadata could be visible to an unintended consumer.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "denial-of-service",
+      "component": "api-server",
+      "evidence": [
+        "evidence/api-server-boundary.md"
+      ],
+      "id": "api-server:denial-of-service",
+      "mitigation": "Bound admitted demand, monitor resource saturation, and document a verified recovery path.",
+      "owner": "Synthetic platform controls team",
+      "risk": "caller to control plane. Resource contention could delay legitimate work at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "elevation-of-privilege",
+      "component": "api-server",
+      "evidence": [
+        "evidence/api-server-boundary.md"
+      ],
+      "id": "api-server:elevation-of-privilege",
+      "mitigation": "Review effective identity bindings, enforce least privilege, and verify permitted and prohibited operations.",
+      "owner": "Synthetic platform controls team",
+      "risk": "caller to control plane. A principal could receive permissions beyond its assigned role.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "spoofing",
+      "component": "etcd",
+      "evidence": [
+        "evidence/api-server-boundary.md"
+      ],
+      "id": "etcd:spoofing",
+      "mitigation": "Verify authenticated peer identity and allow-list the intended workload or control-plane principal.",
+      "owner": "Synthetic platform controls team",
+      "risk": "control-plane persistence. The wrong identity could be accepted at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "tampering",
+      "component": "etcd",
+      "evidence": [
+        "evidence/api-server-boundary.md"
+      ],
+      "id": "etcd:tampering",
+      "mitigation": "Require integrity checks and approved writes, and reconcile changes against the reviewed configuration.",
+      "owner": "Synthetic platform controls team",
+      "risk": "control-plane persistence. Configuration or artifacts could change without authorization at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "repudiation",
+      "component": "etcd",
+      "evidence": [
+        "evidence/api-server-boundary.md"
+      ],
+      "id": "etcd:repudiation",
+      "mitigation": "Capture approved event metadata and correlate it with the authorized principal and change record.",
+      "owner": "Synthetic platform controls team",
+      "risk": "control-plane persistence. A security-relevant operation could lack evidence of the responsible identity.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "information-disclosure",
+      "component": "etcd",
+      "evidence": [
+        "evidence/api-server-boundary.md"
+      ],
+      "id": "etcd:information-disclosure",
+      "mitigation": "Limit access, minimize exposed data, and test the authorized consumer and independent tenant comparator.",
+      "owner": "Synthetic platform controls team",
+      "risk": "control-plane persistence. Protected data or metadata could be visible to an unintended consumer.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "denial-of-service",
+      "component": "etcd",
+      "evidence": [
+        "evidence/api-server-boundary.md"
+      ],
+      "id": "etcd:denial-of-service",
+      "mitigation": "Bound admitted demand, monitor resource saturation, and document a verified recovery path.",
+      "owner": "Synthetic platform controls team",
+      "risk": "control-plane persistence. Resource contention could delay legitimate work at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "elevation-of-privilege",
+      "component": "etcd",
+      "evidence": [
+        "evidence/api-server-boundary.md"
+      ],
+      "id": "etcd:elevation-of-privilege",
+      "mitigation": "Review effective identity bindings, enforce least privilege, and verify permitted and prohibited operations.",
+      "owner": "Synthetic platform controls team",
+      "risk": "control-plane persistence. A principal could receive permissions beyond its assigned role.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "spoofing",
+      "component": "kubelet",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "kubelet:spoofing",
+      "mitigation": "Verify authenticated peer identity and allow-list the intended workload or control-plane principal.",
+      "owner": "Synthetic platform controls team",
+      "risk": "control plane to node agent. The wrong identity could be accepted at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "tampering",
+      "component": "kubelet",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "kubelet:tampering",
+      "mitigation": "Require integrity checks and approved writes, and reconcile changes against the reviewed configuration.",
+      "owner": "Synthetic platform controls team",
+      "risk": "control plane to node agent. Configuration or artifacts could change without authorization at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "repudiation",
+      "component": "kubelet",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "kubelet:repudiation",
+      "mitigation": "Capture approved event metadata and correlate it with the authorized principal and change record.",
+      "owner": "Synthetic platform controls team",
+      "risk": "control plane to node agent. A security-relevant operation could lack evidence of the responsible identity.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "information-disclosure",
+      "component": "kubelet",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "kubelet:information-disclosure",
+      "mitigation": "Limit access, minimize exposed data, and test the authorized consumer and independent tenant comparator.",
+      "owner": "Synthetic platform controls team",
+      "risk": "control plane to node agent. Protected data or metadata could be visible to an unintended consumer.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "denial-of-service",
+      "component": "kubelet",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "kubelet:denial-of-service",
+      "mitigation": "Bound admitted demand, monitor resource saturation, and document a verified recovery path.",
+      "owner": "Synthetic platform controls team",
+      "risk": "control plane to node agent. Resource contention could delay legitimate work at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "elevation-of-privilege",
+      "component": "kubelet",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "kubelet:elevation-of-privilege",
+      "mitigation": "Review effective identity bindings, enforce least privilege, and verify permitted and prohibited operations.",
+      "owner": "Synthetic platform controls team",
+      "risk": "control plane to node agent. A principal could receive permissions beyond its assigned role.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "spoofing",
+      "component": "scheduler",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "scheduler:spoofing",
+      "mitigation": "Verify authenticated peer identity and allow-list the intended workload or control-plane principal.",
+      "owner": "Synthetic platform controls team",
+      "risk": "control plane to node placement. The wrong identity could be accepted at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "tampering",
+      "component": "scheduler",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "scheduler:tampering",
+      "mitigation": "Require integrity checks and approved writes, and reconcile changes against the reviewed configuration.",
+      "owner": "Synthetic platform controls team",
+      "risk": "control plane to node placement. Configuration or artifacts could change without authorization at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "repudiation",
+      "component": "scheduler",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "scheduler:repudiation",
+      "mitigation": "Capture approved event metadata and correlate it with the authorized principal and change record.",
+      "owner": "Synthetic platform controls team",
+      "risk": "control plane to node placement. A security-relevant operation could lack evidence of the responsible identity.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "information-disclosure",
+      "component": "scheduler",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "scheduler:information-disclosure",
+      "mitigation": "Limit access, minimize exposed data, and test the authorized consumer and independent tenant comparator.",
+      "owner": "Synthetic platform controls team",
+      "risk": "control plane to node placement. Protected data or metadata could be visible to an unintended consumer.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "denial-of-service",
+      "component": "scheduler",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "scheduler:denial-of-service",
+      "mitigation": "Bound admitted demand, monitor resource saturation, and document a verified recovery path.",
+      "owner": "Synthetic platform controls team",
+      "risk": "control plane to node placement. Resource contention could delay legitimate work at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "elevation-of-privilege",
+      "component": "scheduler",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "scheduler:elevation-of-privilege",
+      "mitigation": "Review effective identity bindings, enforce least privilege, and verify permitted and prohibited operations.",
+      "owner": "Synthetic platform controls team",
+      "risk": "control plane to node placement. A principal could receive permissions beyond its assigned role.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "spoofing",
+      "component": "container-runtime",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "container-runtime:spoofing",
+      "mitigation": "Verify authenticated peer identity and allow-list the intended workload or control-plane principal.",
+      "owner": "Synthetic platform controls team",
+      "risk": "node process isolation. The wrong identity could be accepted at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "tampering",
+      "component": "container-runtime",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "container-runtime:tampering",
+      "mitigation": "Require integrity checks and approved writes, and reconcile changes against the reviewed configuration.",
+      "owner": "Synthetic platform controls team",
+      "risk": "node process isolation. Configuration or artifacts could change without authorization at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "repudiation",
+      "component": "container-runtime",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "container-runtime:repudiation",
+      "mitigation": "Capture approved event metadata and correlate it with the authorized principal and change record.",
+      "owner": "Synthetic platform controls team",
+      "risk": "node process isolation. A security-relevant operation could lack evidence of the responsible identity.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "information-disclosure",
+      "component": "container-runtime",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "container-runtime:information-disclosure",
+      "mitigation": "Limit access, minimize exposed data, and test the authorized consumer and independent tenant comparator.",
+      "owner": "Synthetic platform controls team",
+      "risk": "node process isolation. Protected data or metadata could be visible to an unintended consumer.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "denial-of-service",
+      "component": "container-runtime",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "container-runtime:denial-of-service",
+      "mitigation": "Bound admitted demand, monitor resource saturation, and document a verified recovery path.",
+      "owner": "Synthetic platform controls team",
+      "risk": "node process isolation. Resource contention could delay legitimate work at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "elevation-of-privilege",
+      "component": "container-runtime",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "container-runtime:elevation-of-privilege",
+      "mitigation": "Review effective identity bindings, enforce least privilege, and verify permitted and prohibited operations.",
+      "owner": "Synthetic platform controls team",
+      "risk": "node process isolation. A principal could receive permissions beyond its assigned role.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "spoofing",
+      "component": "kubeflow-operator",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "kubeflow-operator:spoofing",
+      "mitigation": "Verify authenticated peer identity and allow-list the intended workload or control-plane principal.",
+      "owner": "Synthetic platform controls team",
+      "risk": "AI API to workload reconciliation. The wrong identity could be accepted at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "tampering",
+      "component": "kubeflow-operator",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "kubeflow-operator:tampering",
+      "mitigation": "Require integrity checks and approved writes, and reconcile changes against the reviewed configuration.",
+      "owner": "Synthetic platform controls team",
+      "risk": "AI API to workload reconciliation. Configuration or artifacts could change without authorization at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "repudiation",
+      "component": "kubeflow-operator",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "kubeflow-operator:repudiation",
+      "mitigation": "Capture approved event metadata and correlate it with the authorized principal and change record.",
+      "owner": "Synthetic platform controls team",
+      "risk": "AI API to workload reconciliation. A security-relevant operation could lack evidence of the responsible identity.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "information-disclosure",
+      "component": "kubeflow-operator",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "kubeflow-operator:information-disclosure",
+      "mitigation": "Limit access, minimize exposed data, and test the authorized consumer and independent tenant comparator.",
+      "owner": "Synthetic platform controls team",
+      "risk": "AI API to workload reconciliation. Protected data or metadata could be visible to an unintended consumer.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "denial-of-service",
+      "component": "kubeflow-operator",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "kubeflow-operator:denial-of-service",
+      "mitigation": "Bound admitted demand, monitor resource saturation, and document a verified recovery path.",
+      "owner": "Synthetic platform controls team",
+      "risk": "AI API to workload reconciliation. Resource contention could delay legitimate work at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "elevation-of-privilege",
+      "component": "kubeflow-operator",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "kubeflow-operator:elevation-of-privilege",
+      "mitigation": "Review effective identity bindings, enforce least privilege, and verify permitted and prohibited operations.",
+      "owner": "Synthetic platform controls team",
+      "risk": "AI API to workload reconciliation. A principal could receive permissions beyond its assigned role.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "spoofing",
+      "component": "kserve-controller",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "kserve-controller:spoofing",
+      "mitigation": "Verify authenticated peer identity and allow-list the intended workload or control-plane principal.",
+      "owner": "Synthetic platform controls team",
+      "risk": "serving API to inference service. The wrong identity could be accepted at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "tampering",
+      "component": "kserve-controller",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "kserve-controller:tampering",
+      "mitigation": "Require integrity checks and approved writes, and reconcile changes against the reviewed configuration.",
+      "owner": "Synthetic platform controls team",
+      "risk": "serving API to inference service. Configuration or artifacts could change without authorization at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "repudiation",
+      "component": "kserve-controller",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "kserve-controller:repudiation",
+      "mitigation": "Capture approved event metadata and correlate it with the authorized principal and change record.",
+      "owner": "Synthetic platform controls team",
+      "risk": "serving API to inference service. A security-relevant operation could lack evidence of the responsible identity.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "information-disclosure",
+      "component": "kserve-controller",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "kserve-controller:information-disclosure",
+      "mitigation": "Limit access, minimize exposed data, and test the authorized consumer and independent tenant comparator.",
+      "owner": "Synthetic platform controls team",
+      "risk": "serving API to inference service. Protected data or metadata could be visible to an unintended consumer.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "denial-of-service",
+      "component": "kserve-controller",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "kserve-controller:denial-of-service",
+      "mitigation": "Bound admitted demand, monitor resource saturation, and document a verified recovery path.",
+      "owner": "Synthetic platform controls team",
+      "risk": "serving API to inference service. Resource contention could delay legitimate work at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "elevation-of-privilege",
+      "component": "kserve-controller",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "kserve-controller:elevation-of-privilege",
+      "mitigation": "Review effective identity bindings, enforce least privilege, and verify permitted and prohibited operations.",
+      "owner": "Synthetic platform controls team",
+      "risk": "serving API to inference service. A principal could receive permissions beyond its assigned role.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "spoofing",
+      "component": "gpu-device-plugin",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "gpu-device-plugin:spoofing",
+      "mitigation": "Verify authenticated peer identity and allow-list the intended workload or control-plane principal.",
+      "owner": "Synthetic platform controls team",
+      "risk": "node GPU devices to scheduled workload. The wrong identity could be accepted at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "tampering",
+      "component": "gpu-device-plugin",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "gpu-device-plugin:tampering",
+      "mitigation": "Require integrity checks and approved writes, and reconcile changes against the reviewed configuration.",
+      "owner": "Synthetic platform controls team",
+      "risk": "node GPU devices to scheduled workload. Configuration or artifacts could change without authorization at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "repudiation",
+      "component": "gpu-device-plugin",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "gpu-device-plugin:repudiation",
+      "mitigation": "Capture approved event metadata and correlate it with the authorized principal and change record.",
+      "owner": "Synthetic platform controls team",
+      "risk": "node GPU devices to scheduled workload. A security-relevant operation could lack evidence of the responsible identity.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "information-disclosure",
+      "component": "gpu-device-plugin",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "gpu-device-plugin:information-disclosure",
+      "mitigation": "Limit access, minimize exposed data, and test the authorized consumer and independent tenant comparator.",
+      "owner": "Synthetic platform controls team",
+      "risk": "node GPU devices to scheduled workload. Protected data or metadata could be visible to an unintended consumer.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "denial-of-service",
+      "component": "gpu-device-plugin",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "gpu-device-plugin:denial-of-service",
+      "mitigation": "Bound admitted demand, monitor resource saturation, and document a verified recovery path.",
+      "owner": "Synthetic platform controls team",
+      "risk": "node GPU devices to scheduled workload. Resource contention could delay legitimate work at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "elevation-of-privilege",
+      "component": "gpu-device-plugin",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "gpu-device-plugin:elevation-of-privilege",
+      "mitigation": "Review effective identity bindings, enforce least privilege, and verify permitted and prohibited operations.",
+      "owner": "Synthetic platform controls team",
+      "risk": "node GPU devices to scheduled workload. A principal could receive permissions beyond its assigned role.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "spoofing",
+      "component": "model-serving-endpoint",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "model-serving-endpoint:spoofing",
+      "mitigation": "Verify authenticated peer identity and allow-list the intended workload or control-plane principal.",
+      "owner": "Synthetic platform controls team",
+      "risk": "client to inference service. The wrong identity could be accepted at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "tampering",
+      "component": "model-serving-endpoint",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "model-serving-endpoint:tampering",
+      "mitigation": "Require integrity checks and approved writes, and reconcile changes against the reviewed configuration.",
+      "owner": "Synthetic platform controls team",
+      "risk": "client to inference service. Configuration or artifacts could change without authorization at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "repudiation",
+      "component": "model-serving-endpoint",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "model-serving-endpoint:repudiation",
+      "mitigation": "Capture approved event metadata and correlate it with the authorized principal and change record.",
+      "owner": "Synthetic platform controls team",
+      "risk": "client to inference service. A security-relevant operation could lack evidence of the responsible identity.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "information-disclosure",
+      "component": "model-serving-endpoint",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "model-serving-endpoint:information-disclosure",
+      "mitigation": "Limit access, minimize exposed data, and test the authorized consumer and independent tenant comparator.",
+      "owner": "Synthetic platform controls team",
+      "risk": "client to inference service. Protected data or metadata could be visible to an unintended consumer.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "denial-of-service",
+      "component": "model-serving-endpoint",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "model-serving-endpoint:denial-of-service",
+      "mitigation": "Bound admitted demand, monitor resource saturation, and document a verified recovery path.",
+      "owner": "Synthetic platform controls team",
+      "risk": "client to inference service. Resource contention could delay legitimate work at this boundary.",
+      "status": "mitigation-planned"
+    },
+    {
+      "category": "elevation-of-privilege",
+      "component": "model-serving-endpoint",
+      "evidence": [
+        "evidence/model-serving-boundary.md"
+      ],
+      "id": "model-serving-endpoint:elevation-of-privilege",
+      "mitigation": "Review effective identity bindings, enforce least privilege, and verify permitted and prohibited operations.",
+      "owner": "Synthetic platform controls team",
+      "risk": "client to inference service. A principal could receive permissions beyond its assigned role.",
+      "status": "mitigation-planned"
+    }
+  ]
+}

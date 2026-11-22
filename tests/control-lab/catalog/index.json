@@ -1236,6 +1236,12 @@
       "sha256": "f4453e200326e9c8dfd7349fc733f9b4fe68e6011d56f98877f0f446869be598",
       "title": "Sensitive metric redaction and access restriction"
     },
+    "SAF-K8S-1003-001": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "2d22371fd4cc55731ebef0947da3557e14034a5dc789b150b80c22380fe9342b",
+      "title": "STRIDE threat modeling for Kubernetes AI systems"
+    },
     "SAF-K8S-1006-004": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1268,7 +1274,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "4181d64f02e0c0feb220e3e23447be757555ddc7",
+  "revision": "3480857e1d426fe818a1fac2b994ba6ae7c23dec",
   "sha256": "a0136783421c2c5f3387b92e1cbc8722c1faf77205eda1623cee5d4dc8a05bee",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
