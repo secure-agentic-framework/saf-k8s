@@ -1,0 +1,91 @@
+{
+  "control_id": "SAF-K8S-0701-009",
+  "catalog_revision": "d4328fde2e235c4d4a65baf2e08f7e45cfb81217",
+  "catalog_sha256": "e8d024860997c85e65dcb4d9a1c10c9e716416ecfea1f4d4479987609b4092f0",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "5c9d7a8cd557d3b117fe853b36a7acfec97bb29583b7d85a6c890c470bd455a8",
+  "scope": "A disposable Kubernetes v1.36.1 kind cluster runs one digest-pinned local Versity S3 gateway server with ephemeral emptyDir storage. A pinned AWS CLI client uses documented S3 APIs and synthetic bytes/credentials to compare an unlocked baseline with COMPLIANCE-locked object versions. It checks that a same-key PUT creates a new current version while preserving the earlier locked version, that a permanent delete of the locked version is refused, and that an unversioned delete marker can hide but does not remove the retained version. No Kubernetes privileged actor, node/storage administrator, cloud provider, or provider WORM policy is tested.",
+  "cluster": "saf-lab-981b17945ee5",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The same-key overwrite and permanent delete work for the unlocked benign baseline",
+      "matched": true,
+      "observed": {
+        "overwrite_visible": true,
+        "deleted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Same-key PUT creates a new dataset version and preserves the exact locked prior contents",
+      "matched": true,
+      "observed": {
+        "new_current_version": true,
+        "prior_unchanged": true,
+        "retention_mode": "COMPLIANCE"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Permanent deletion of a locked dataset version is denied and a delete marker preserves it",
+      "matched": true,
+      "observed": {
+        "permanent_delete_denied": true,
+        "delete_marker_created": true,
+        "locked_version_still_readable": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Same-key PUT creates a new artifact version and preserves the exact locked prior contents",
+      "matched": true,
+      "observed": {
+        "new_current_version": true,
+        "prior_unchanged": true,
+        "retention_mode": "COMPLIANCE"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Permanent deletion of a locked artifact version is denied and a delete marker preserves it",
+      "matched": true,
+      "observed": {
+        "permanent_delete_denied": true,
+        "delete_marker_created": true,
+        "locked_version_still_readable": true
+      }
+    }
+  ]
+}

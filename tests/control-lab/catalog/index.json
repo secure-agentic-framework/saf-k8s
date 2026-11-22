@@ -558,6 +558,12 @@
       "sha256": "1514a8153f622cbfc007e770f18e1ccd88a03c30cbc300462e807d125b8616fe",
       "title": "Training data and model artifact version tracking for reproducibility"
     },
+    "SAF-K8S-0701-009": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "5c9d7a8cd557d3b117fe853b36a7acfec97bb29583b7d85a6c890c470bd455a8",
+      "title": "Immutable storage protection for training data and model artifacts"
+    },
     "SAF-K8S-0702-003": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -746,7 +752,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "bd6acd1b39bbaa62ed6329a2ac18029048b9d573",
+  "revision": "fa8818f9e142fbbdf991c2bcfbd5b8ecd1c84f09",
   "sha256": "e8d024860997c85e65dcb4d9a1c10c9e716416ecfea1f4d4479987609b4092f0",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
