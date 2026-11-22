@@ -1,0 +1,23 @@
+{
+  "namespace": "saf-test",
+  "service_account": "saf-1001-024-writer",
+  "role": "saf-1001-024-append-only",
+  "role_binding": "saf-1001-024-append-only",
+  "probe_pod": "saf-1001-024-probe",
+  "writer_pod": "saf-1001-024-writer",
+  "fixture_label": "saf-k8s.example/control-1001-024",
+  "records": [
+    {
+      "name": "saf-1001-024-record-0001",
+      "sequence": 1
+    },
+    {
+      "name": "saf-1001-024-record-0002",
+      "sequence": 2
+    },
+    {
+      "name": "saf-1001-024-record-0003",
+      "sequence": 3
+    }
+  ]
+}
