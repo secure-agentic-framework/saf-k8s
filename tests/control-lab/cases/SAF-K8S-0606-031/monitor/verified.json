@@ -1,0 +1,251 @@
+{
+  "control_id": "SAF-K8S-0606-031",
+  "catalog_revision": "ca41959a726b562ca2323b8b41988498f829bc90",
+  "catalog_sha256": "ddeb6cd8a0c19f388ae9ef9e35085987a44668dbcc5d1557792bf8a3b1b5799c",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "3785a778973d9bbaa88fbe270dd39ebe9729b9ce4691fdb83cf8a56790bb2e66",
+  "scope": "One disposable Kind cluster, pinned Argo CD, Prometheus and Alertmanager. The fixture exercises native reconciliation status, difference between failed reconciliation and missing telemetry, retained history on a persistent volume through a Prometheus replacement, and delivered firing and resolved notifications on the two owned alert paths.",
+  "cluster": "saf-lab-5045832ba426",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The live controller, repository server, and API server use the digest-pinned Argo CD release",
+      "matched": true,
+      "observed": {
+        "argocd-repo-server": [
+          "quay.io/argoproj/argocd:v3.6.1@sha256:296e3d74f449b2ce45265613fcb68c18ed7366488360c8ea32f5f2a93d2e5c54"
+        ],
+        "argocd-server": [
+          "quay.io/argoproj/argocd:v3.6.1@sha256:296e3d74f449b2ce45265613fcb68c18ed7366488360c8ea32f5f2a93d2e5c54"
+        ],
+        "argocd-application-controller": [
+          "quay.io/argoproj/argocd:v3.6.1@sha256:296e3d74f449b2ce45265613fcb68c18ed7366488360c8ea32f5f2a93d2e5c54"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Approved Git commit is Synced and Healthy with a Ready workload and native app metric",
+      "matched": true,
+      "observed": {
+        "sync": "Synced",
+        "revision": "6663c522a4fee2374bace27221e664933ba1acec",
+        "health": "Healthy",
+        "ready_replicas": 1,
+        "marker": "approved-v1",
+        "argocd_app_info": [
+          {
+            "labels": {
+              "autosync_enabled": "true",
+              "dest_namespace": "saf-test",
+              "dest_server": "https://kubernetes.default.svc",
+              "health_status": "Healthy",
+              "hydrator_status": "",
+              "name": "saf-health-fixture",
+              "namespace": "argocd",
+              "operation": "",
+              "phase": "Succeeded",
+              "project": "default",
+              "repo": "http://saf-health-git.saf-test.svc.cluster.local:8080/repo",
+              "sync_status": "Synced"
+            },
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Argo CD surfaces the missing manifest path while leaving the deployed fixture intact",
+      "matched": true,
+      "observed": {
+        "failure": {
+          "requested_path": "missing-saf-source-0606-031",
+          "requested_revision": "6663c522a4fee2374bace27221e664933ba1acec",
+          "condition": "ComparisonError",
+          "missing_path_named": true,
+          "sync": "Unknown",
+          "metrics": [
+            {
+              "labels": {
+                "autosync_enabled": "true",
+                "dest_namespace": "saf-test",
+                "dest_server": "https://kubernetes.default.svc",
+                "health_status": "Healthy",
+                "hydrator_status": "",
+                "name": "saf-health-fixture",
+                "namespace": "argocd",
+                "operation": "",
+                "phase": "Succeeded",
+                "project": "default",
+                "repo": "http://saf-health-git.saf-test.svc.cluster.local:8080/repo",
+                "sync_status": "Unknown"
+              },
+              "value": "1"
+            }
+          ]
+        },
+        "workload_unchanged": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Restoring the manifest path clears the source error and restores native status and metrics",
+      "matched": true,
+      "observed": {
+        "recovery": {
+          "sync": "Synced",
+          "revision": "6663c522a4fee2374bace27221e664933ba1acec",
+          "health": "Healthy",
+          "comparison_error_cleared": true,
+          "metrics": [
+            {
+              "labels": {
+                "autosync_enabled": "true",
+                "dest_namespace": "saf-test",
+                "dest_server": "https://kubernetes.default.svc",
+                "health_status": "Healthy",
+                "hydrator_status": "",
+                "name": "saf-health-fixture",
+                "namespace": "argocd",
+                "operation": "",
+                "phase": "Succeeded",
+                "project": "default",
+                "repo": "http://saf-health-git.saf-test.svc.cluster.local:8080/repo",
+                "sync_status": "Synced"
+              },
+              "value": "1"
+            }
+          ]
+        },
+        "workload_unchanged": true,
+        "approved_commit": "6663c522a4fee2374bace27221e664933ba1acec"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Pinned Prometheus repeatedly collects the exact healthy Argo CD fixture metric",
+      "matched": true,
+      "observed": {
+        "instant_metric_present": true,
+        "three_actual_samples_seen": true,
+        "target_up": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Present Unknown status fires and delivers while the prior workload remains",
+      "matched": true,
+      "observed": {
+        "unknown_metric_present": true,
+        "comparison_error_named": true,
+        "workload_unchanged": true,
+        "firing_webhook": [
+          "fixture-webhook",
+          "GitOpsReconcileUnknown",
+          "saf-health-fixture",
+          "argocd",
+          "fixture",
+          "warning",
+          "Owned fixture reconciliation is Unknown",
+          "firing",
+          true,
+          true
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Recovery clears the alert and a new Prometheus Pod reads the same retained state history",
+      "matched": true,
+      "observed": {
+        "sample_present_after_recovery": true,
+        "resolved_webhook": [
+          "fixture-webhook",
+          "GitOpsReconcileUnknown",
+          "saf-health-fixture",
+          "argocd",
+          "fixture",
+          "warning",
+          "Owned fixture reconciliation is Unknown",
+          "resolved",
+          true,
+          true
+        ],
+        "ordered_healthy_failed_recovered_history": true,
+        "recovered_commit_matches_approved": true,
+        "same_volume": true,
+        "different_prometheus_pod": true,
+        "historical_results_identical": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Absent telemetry has its own firing and resolved alert lifecycle",
+      "matched": true,
+      "observed": {
+        "missing_alert": true,
+        "firing_webhook": [
+          "fixture-webhook",
+          "GitOpsTelemetryMissing",
+          "saf-health-fixture",
+          "argocd",
+          "fixture",
+          "warning",
+          "Owned fixture reconciliation telemetry is missing",
+          "firing",
+          true,
+          true
+        ],
+        "application_still_healthy": true,
+        "target_down_observed": true,
+        "no_fresh_metric_samples_in_12_seconds": true,
+        "scrape_restored": true,
+        "target_up_restored": true,
+        "resolved_webhook": [
+          "fixture-webhook",
+          "GitOpsTelemetryMissing",
+          "saf-health-fixture",
+          "argocd",
+          "fixture",
+          "warning",
+          "Owned fixture reconciliation telemetry is missing",
+          "resolved",
+          true,
+          true
+        ]
+      }
+    }
+  ]
+}

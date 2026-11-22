@@ -5,7 +5,7 @@
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "3785a778973d9bbaa88fbe270dd39ebe9729b9ce4691fdb83cf8a56790bb2e66",
   "scope": "One disposable kind cluster with Argo CD v3.6.1 watching a case-owned, read-only static Git repository in saf-test. The case observes an approved full Git commit, Argo Application sync and health status, a Ready inert Deployment, the controller's argocd_app_info metric, a manifest-source failure, and recovery on the original fixture commit. Coverage is native Argo CD status and metrics on this fixture.",
-  "cluster": "saf-lab-3cd1631384d7",
+  "cluster": "saf-lab-41d5024d4a57",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

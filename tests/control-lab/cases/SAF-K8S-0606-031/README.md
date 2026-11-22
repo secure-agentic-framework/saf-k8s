@@ -19,3 +19,6 @@ failure freshness, Flux coverage, and controller integrity need separate
 evidence.
 
 [Argo CD v3.6.1 metrics documentation](https://github.com/argoproj/argo-cd/blob/v3.6.1/docs/operator-manual/metrics.md)
+
+The [retained monitoring test](monitor/README.md) exercises delivered alerts
+and recorded reconciliation history from Prometheus and Alertmanager.
