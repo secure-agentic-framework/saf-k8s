@@ -1,0 +1,139 @@
+{
+  "control_id": "SAF-K8S-0301-005",
+  "catalog_revision": "89f78fbae6d3127ebb4fdc628885140fd8b3debf",
+  "catalog_sha256": "9b3b6190b973eb3addee410c79d4c34a183e00a420066cc2e0a38653d22866a9",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "d683fdec75a243854ef327457f6e2ca4f00178720ac9272703622c5c96d25445",
+  "scope": "Live Kubernetes API admission for one case-owned, namespaced synthetic PSAExceptionRecord CRD. Compares one incomplete record before and after a ValidatingAdmissionPolicy, checks each required declaration independently, and persists one complete synthetic record. No Pod or other workload is created, no PSA exemption is installed, and deployed-exception enforcement, production registers, audit backends, and Secret data are out of scope.",
+  "cluster": "saf-lab-6e10dc869d6e",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "API accepts the incomplete typed register record before policy",
+      "matched": true,
+      "observed": "server-side dry-run admitted"
+    },
+    {
+      "phase": "green",
+      "claim": "The same incomplete record is rejected by the active admission policy",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": psaexceptionrecords.security.saf-lab.example \"synthetic-incomplete\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-005-complete-exception-register' with binding 'saf-k8s-0301-005-complete-exception-register' denied request: PSA exception register requires exact privileges, justification, risk owner, and compensating controls"
+    },
+    {
+      "phase": "green",
+      "claim": "Admission rejects a record missing privileges",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": psaexceptionrecords.security.saf-lab.example \"synthetic-missing-privileges\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-005-complete-exception-register' with binding 'saf-k8s-0301-005-complete-exception-register' denied request: PSA exception register requires exact privileges, justification, risk owner, and compensating controls"
+    },
+    {
+      "phase": "green",
+      "claim": "Admission rejects a record missing justification",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": psaexceptionrecords.security.saf-lab.example \"synthetic-missing-justification\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-005-complete-exception-register' with binding 'saf-k8s-0301-005-complete-exception-register' denied request: PSA exception register requires exact privileges, justification, risk owner, and compensating controls"
+    },
+    {
+      "phase": "green",
+      "claim": "Admission rejects a record missing riskOwner",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": psaexceptionrecords.security.saf-lab.example \"synthetic-missing-riskowner\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-005-complete-exception-register' with binding 'saf-k8s-0301-005-complete-exception-register' denied request: PSA exception register requires exact privileges, justification, risk owner, and compensating controls"
+    },
+    {
+      "phase": "green",
+      "claim": "Admission rejects a record missing compensatingControls",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": psaexceptionrecords.security.saf-lab.example \"synthetic-missing-compensatingcontrols\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-005-complete-exception-register' with binding 'saf-k8s-0301-005-complete-exception-register' denied request: PSA exception register requires exact privileges, justification, risk owner, and compensating controls"
+    },
+    {
+      "phase": "green",
+      "claim": "Admission rejects a blank privileges declaration",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": psaexceptionrecords.security.saf-lab.example \"synthetic-empty-privileges\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-005-complete-exception-register' with binding 'saf-k8s-0301-005-complete-exception-register' denied request: PSA exception register requires exact privileges, justification, risk owner, and compensating controls"
+    },
+    {
+      "phase": "green",
+      "claim": "Admission rejects a blank justification declaration",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": psaexceptionrecords.security.saf-lab.example \"synthetic-empty-justification\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-005-complete-exception-register' with binding 'saf-k8s-0301-005-complete-exception-register' denied request: PSA exception register requires exact privileges, justification, risk owner, and compensating controls"
+    },
+    {
+      "phase": "green",
+      "claim": "Admission rejects a blank riskOwner declaration",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": psaexceptionrecords.security.saf-lab.example \"synthetic-empty-riskowner\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-005-complete-exception-register' with binding 'saf-k8s-0301-005-complete-exception-register' denied request: PSA exception register requires exact privileges, justification, risk owner, and compensating controls"
+    },
+    {
+      "phase": "green",
+      "claim": "Admission rejects a blank compensatingControls declaration",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": psaexceptionrecords.security.saf-lab.example \"synthetic-empty-compensatingcontrols\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-005-complete-exception-register' with binding 'saf-k8s-0301-005-complete-exception-register' denied request: PSA exception register requires exact privileges, justification, risk owner, and compensating controls"
+    },
+    {
+      "phase": "positive",
+      "claim": "Admission accepts and stores the explicitly complete synthetic record",
+      "matched": true,
+      "observed": {
+        "compensatingControls": [
+          "synthetic:network-isolation-review"
+        ],
+        "justification": "Synthetic fixture requires the named device access for its declared function.",
+        "privileges": [
+          "synthetic:device-access"
+        ],
+        "riskOwner": "synthetic-risk-owner@example.invalid",
+        "workloadRef": {
+          "kind": "DaemonSet",
+          "name": "synthetic-device-agent",
+          "namespace": "synthetic-system"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Removing the risk owner from an existing record is denied and preserves it",
+      "matched": true,
+      "observed": {
+        "forbidden_by_policy": true,
+        "original_record_preserved": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A complete update to the evidence record persists",
+      "matched": true,
+      "observed": {
+        "expected_complete_update_persisted": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0301-005-complete-exception-register
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [security.saf-lab.example]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [psaexceptionrecords]
+  validations:
+    - expression: >-
+        has(object.spec.privileges) &&
+        size(object.spec.privileges) > 0 &&
+        object.spec.privileges.all(value, size(value.trim()) > 0) &&
+        has(object.spec.justification) &&
+        size(object.spec.justification.trim()) > 0 &&
+        has(object.spec.riskOwner) &&
+        size(object.spec.riskOwner.trim()) > 0 &&
+        has(object.spec.compensatingControls) &&
+        size(object.spec.compensatingControls) > 0 &&
+        object.spec.compensatingControls.all(value, size(value.trim()) > 0)
+      message: "PSA exception register requires exact privileges, justification, risk owner, and compensating controls"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0301-005-complete-exception-register
+spec:
+  policyName: saf-k8s-0301-005-complete-exception-register
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/case: "0301-005"
