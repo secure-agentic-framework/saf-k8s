@@ -1,0 +1,100 @@
+{
+  "authorization_documents": {
+    "red": {
+      "authorization_mode": [
+        "RBAC"
+      ],
+      "authorization_configuration": {
+        "authorizers": [
+          {
+            "type": "RBAC"
+          }
+        ]
+      },
+      "node_identity_username": "kubelet",
+      "node_identity_groups": [
+        "system:authenticated"
+      ]
+    },
+    "green": {
+      "authorization_mode": [
+        "Node",
+        "RBAC"
+      ],
+      "authorization_configuration": {
+        "authorizers": [
+          {
+            "type": "RBAC"
+          },
+          {
+            "type": "Node"
+          }
+        ]
+      },
+      "node_identity_username": "system:node:<registered-node-name>",
+      "node_identity_groups": [
+        "system:nodes",
+        "system:authenticated"
+      ]
+    }
+  },
+  "provisioning_cases": {
+    "red": {
+      "policy": {
+        "approved_node_names": [
+          "worker-a"
+        ]
+      },
+      "observation": {
+        "registered_node_names": [
+          "worker-a",
+          "worker-a"
+        ],
+        "node_sources": [
+          {
+            "registered_node_name": "worker-a",
+            "hostname": "host-a",
+            "hostname_override": "worker-b"
+          },
+          {
+            "registered_node_name": "worker-a",
+            "hostname": "host-b",
+            "hostname_override": "worker-b"
+          }
+        ]
+      }
+    },
+    "green": {
+      "policy": {
+        "approved_node_names": [
+          "control-a",
+          "worker-a"
+        ],
+        "approved_overrides": {
+          "control-a": {
+            "value": "control-a",
+            "reason": "synthetic provider naming exception"
+          }
+        }
+      },
+      "observation": {
+        "registered_node_names": [
+          "control-a",
+          "worker-a"
+        ],
+        "node_sources": [
+          {
+            "registered_node_name": "control-a",
+            "hostname": "host-control-a",
+            "hostname_override": "control-a"
+          },
+          {
+            "registered_node_name": "worker-a",
+            "hostname": "worker-a",
+            "hostname_override": null
+          }
+        ]
+      }
+    }
+  }
+}

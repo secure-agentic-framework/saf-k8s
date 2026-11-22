@@ -162,6 +162,12 @@
       "sha256": "a2851e2294a3881aff1640958bbf0050d72d49f11d9a7e7a1f02bacffdfa2df4",
       "title": "Feature gate lifecycle transition tracking across Kubernetes upgrades"
     },
+    "SAF-K8S-0201-005": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "d9a64ab86b1056dd558975dead43d1fb854182358bba2d9916ef0b69fc643f2b",
+      "title": "Kubelet hostname override governance"
+    },
     "SAF-K8S-0201-008": {
       "catalog_status": "draft",
       "domain": "D02",
