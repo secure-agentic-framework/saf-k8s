@@ -1,0 +1,184 @@
+{
+  "control_id": "SAF-K8S-1001-025",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "bde80432dc0970b66e5d44042d78e793c198f769ad0583c51798b826a4d4889f",
+  "scope": "A disposable Kubernetes v1.36.1 API server protects a synthetic audit-record annotation update and a separate synthetic purge. Three non-admin ServiceAccounts use scoped RBAC and native ValidatingAdmissionPolicies. Each approval ledger binds the exact UID and operation to separate eligible reviewer fields. Human identity, storage backend workflows, approval expiry, and production governance require separate evidence.",
+  "cluster": "saf-lab-c42461700b04",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Before enforcement, the scoped ordinary executor can submit the exact synthetic update",
+      "matched": true,
+      "observed": {
+        "http_status": 200,
+        "annotation_change": "unreviewed -> reviewed",
+        "dry_run": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before enforcement, a dry-run DELETE succeeds and the exact object stays present",
+      "matched": true,
+      "observed": {
+        "http_status": 200,
+        "same_record_after_dry_run": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The exact update is denied with zero approvals",
+      "matched": true,
+      "observed": {
+        "http_status": 403,
+        "policy_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "One vote and an idempotent repeat by that same actor still leave one approval",
+      "matched": true,
+      "observed": {
+        "first_vote_http": 200,
+        "repeat_http": 200,
+        "executor_http": 403,
+        "distinct_approvals": 1
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The security reviewer cannot fill the records reviewer approval field",
+      "matched": true,
+      "observed": {
+        "http_status": 403,
+        "policy_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A reviewer without record-update RBAC cannot directly alter the audit record",
+      "matched": true,
+      "observed": {
+        "http_status": 403,
+        "reason": "Forbidden",
+        "detail": "configmaps \"synthetic-audit-log-record\" is forbidden: User \"system:serviceaccount:saf-test:security-reviewer\" cannot patch resource \"configmaps\" in API group \"\" in the namespace \"saf-test\""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Approvals bound to the target UID do not authorize the distinct decoy record UID",
+      "matched": true,
+      "observed": {
+        "second_vote_http": 200,
+        "distinct_target_and_decoy": true,
+        "cross_record_http": 403,
+        "policy_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The approved annotation action cannot modify retained event content",
+      "matched": true,
+      "observed": {
+        "http_status": 403,
+        "policy_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Two distinct approvals allow the normal exact-UID annotation update",
+      "matched": true,
+      "observed": {
+        "ledger_target_uid_matches": true,
+        "approval_identities": [
+          "system:serviceaccount:saf-test:security-reviewer",
+          "system:serviceaccount:saf-test:records-reviewer"
+        ],
+        "approved_action": "modify-annotation",
+        "dry_run_http": 200
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved workflow performs only the permitted synthetic annotation update",
+      "matched": true,
+      "observed": {
+        "http_status": 200,
+        "uid_unchanged": true,
+        "event_unchanged": true,
+        "annotation": "reviewed"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Unapproved purge and direct reviewer deletion are independently denied",
+      "matched": true,
+      "observed": {
+        "executor_http": 403,
+        "reviewer_http": 403
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "One reviewer still cannot approve the other field or authorize deletion",
+      "matched": true,
+      "observed": {
+        "votes_from_one_identity": 1,
+        "second_field_http": 403,
+        "purge_http": 403
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Two approvals permit only the exact synthetic purge and leave the decoy in place",
+      "matched": true,
+      "observed": {
+        "second_reviewer_http": 200,
+        "approved_purge_http": 200,
+        "decoy_purge_http": 403
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved DELETE removes the exact target without removing the other record",
+      "matched": true,
+      "observed": {
+        "http_status": 200,
+        "requested_record_absent": true,
+        "decoy_preserved": true
+      }
+    }
+  ]
+}

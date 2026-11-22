@@ -1110,6 +1110,12 @@
       "sha256": "663749f66b8ec34459f3ad00f789a6637a65d7bc3dedf532e2b3772e12a0d76b",
       "title": "Regulatory audit log durable retrieval enforcement"
     },
+    "SAF-K8S-1001-025": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "bde80432dc0970b66e5d44042d78e793c198f769ad0583c51798b826a4d4889f",
+      "title": "Dual authorization for audit log deletion or modification"
+    },
     "SAF-K8S-1001-026": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1196,7 +1202,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "0abf34fdf1fd004ccc14acc197987d5f36f4a2eb",
+  "revision": "f19a41b01b0aff1ba8099e82a207b1f8d0023602",
   "sha256": "872822531716b059a05f969b9bdb15559fa3dd850de26945615e595c3d8e018e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
