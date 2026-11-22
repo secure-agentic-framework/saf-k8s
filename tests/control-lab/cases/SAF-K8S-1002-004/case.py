@@ -196,6 +196,17 @@ def run(lab):
             {"scenario":mode,"receiver_identity":receiver,"delivered":bool(delivered)})
         healthy_clear=wait_until(lambda: cohort_clear(lab,alert),timeout=20)
         lab.check("positive",f"{mode}: healthy cohort remains non-firing",bool(healthy_clear),{"healthy_cohort_clear":bool(healthy_clear)})
+        if mode == "gpu_xid":
+            selector = 'DCGM_FI_DEV_XID_ERRORS{cohort="affected"}'
+            first = wait_until(lambda: metric_value(lab, selector, 79))
+            http(lab, "/mode", {"mode": "gpu_xid_updated"})
+            second = wait_until(lambda: metric_value(lab, selector, 31))
+            current = active(lab) or []
+            still_firing = len(current) == 1 and current[0]["labels"] == firing[0]["labels"]
+            lab.check("green", "The live last-code gauge can decrease while the state alert stays active",
+                      bool(first and second and still_firing),
+                      {"first_code_seen": bool(first), "second_code_seen": bool(second), "same_alert": still_firing})
+            evidence["xid_gauge"] = {"before": first, "after": second, "firing": current}
         http(lab,"/mode",{"mode":"healthy"})
         recovered=wait_until(lambda: active(lab) == [],timeout=25)
         resolved = wait_until(lambda: receiver_seen(lab, alert, receiver, "resolved"), timeout=35)
@@ -207,6 +218,13 @@ def run(lab):
 def vector(lab, expression):
     reply = prom_query(lab, expression)
     return reply["data"]["result"] if reply and reply.get("status") == "success" else None
+
+
+def metric_value(lab, expression, expected):
+    samples = vector(lab, expression)
+    if samples and len(samples) == 1 and float(samples[0]["value"][1]) == expected:
+        return samples[0]
+    return None
 
 
 def active(lab):

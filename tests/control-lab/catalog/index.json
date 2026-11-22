@@ -1215,7 +1215,7 @@
     "SAF-K8S-1002-004": {
       "catalog_status": "draft",
       "domain": "D10",
-      "sha256": "228368bbb88774ddf7694f6078cee7c8782a20562e31e5142e9443b72129d266",
+      "sha256": "c4e5c40da35a9bc80a1d5689dc30ebac3884eb9693ab14b696429308b3597b25",
       "title": "AI-specific alerting and failure mode detection"
     },
     "SAF-K8S-1006-004": {
@@ -1250,7 +1250,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ae40ad71ae6b569f96ffb62610e561012a062208",
-  "sha256": "38b527f8e7cb95c6940070a2d9ff23fa8a0cd34b7bd3773bdf896c0725e39aba",
+  "revision": "31c073a14ca3762d3ccf14727bb4d700da07caaf",
+  "sha256": "372d09cd795dff2d873dc51ba9b3ac4085a372b623b11680a6f2cfac07505df6",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

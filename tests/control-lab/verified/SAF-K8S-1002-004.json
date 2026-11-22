@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1002-004",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "ae3bd4dc229a55a5bb84023613c1480920af4c85",
+  "catalog_sha256": "6031d6bce6e815656d2bdd19b4aded4a7daef10e76dfcd7bd8b7ceacceab129d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "228368bbb88774ddf7694f6078cee7c8782a20562e31e5142e9443b72129d266",
+  "control_sha256": "c4e5c40da35a9bc80a1d5689dc30ebac3884eb9693ab14b696429308b3597b25",
   "scope": "Synthetic telemetry served by an owned fixture workload in Kubernetes v1.36.1; real Prometheus v3.5.0 rule evaluation and Alertmanager v0.28.1 route to two case-only webhook receiver identities. No NVIDIA exporter, GPU, model, or real inference/training system is exercised. Each failure is injected independently.",
-  "cluster": "saf-lab-934eafbe2dd4",
+  "cluster": "saf-lab-3f805207d960",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -165,6 +165,16 @@
       "matched": true,
       "observed": {
         "healthy_cohort_clear": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The live last-code gauge can decrease while the state alert stays active",
+      "matched": true,
+      "observed": {
+        "first_code_seen": true,
+        "second_code_seen": true,
+        "same_alert": true
       }
     },
     {
