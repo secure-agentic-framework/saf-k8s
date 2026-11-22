@@ -1152,6 +1152,12 @@
       "sha256": "e42ea6c51f0aa37dc5b2dfb097089245318d84afc97d225c9752eec9d85be35f",
       "title": "Durable audit backend delivery for Kubernetes AI workloads"
     },
+    "SAF-K8S-1001-027": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "91390198c97536bcc6221ee1936649206d2d31493e91932c1b4f6e2b36b53753",
+      "title": "Tamper-resistant retention for Kubernetes AI audit backends"
+    },
     "SAF-K8S-1001-028": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1544,7 +1550,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ce180e14717c39a21aca140eb5b13a46c4a93cc6",
+  "revision": "bc811bdb2396e5583e47c83387be7cf46e55bac7",
   "sha256": "28e2e795c3d0eee859ba13f7c7c1e62c33d93955ba867c40a0060d1dfd1984cb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
