@@ -1,0 +1,284 @@
+[
+  {
+    "apiVersion": "v1",
+    "kind": "Namespace",
+    "metadata": {
+      "name": "saf-0402-010-pcr",
+      "labels": {
+        "purpose": "isolated-synthetic-pod-certificate-test"
+      }
+    }
+  },
+  {
+    "apiVersion": "v1",
+    "kind": "ServiceAccount",
+    "metadata": {
+      "name": "pod-workload",
+      "namespace": "saf-0402-010-pcr"
+    },
+    "automountServiceAccountToken": false
+  },
+  {
+    "apiVersion": "v1",
+    "kind": "ServiceAccount",
+    "metadata": {
+      "name": "podcert-test-signer",
+      "namespace": "saf-0402-010-pcr"
+    }
+  },
+  {
+    "apiVersion": "rbac.authorization.k8s.io/v1",
+    "kind": "Role",
+    "metadata": {
+      "name": "podcert-test-signer",
+      "namespace": "saf-0402-010-pcr"
+    },
+    "rules": [
+      {
+        "apiGroups": [
+          "certificates.k8s.io"
+        ],
+        "resources": [
+          "podcertificaterequests"
+        ],
+        "verbs": [
+          "list"
+        ]
+      },
+      {
+        "apiGroups": [
+          "certificates.k8s.io"
+        ],
+        "resources": [
+          "podcertificaterequests/status"
+        ],
+        "verbs": [
+          "update"
+        ]
+      },
+      {
+        "apiGroups": [
+          ""
+        ],
+        "resources": [
+          "pods"
+        ],
+        "resourceNames": [
+          "authorized-workload"
+        ],
+        "verbs": [
+          "get"
+        ]
+      },
+      {
+        "apiGroups": [
+          ""
+        ],
+        "resources": [
+          "serviceaccounts"
+        ],
+        "resourceNames": [
+          "pod-workload"
+        ],
+        "verbs": [
+          "get"
+        ]
+      }
+    ]
+  },
+  {
+    "apiVersion": "rbac.authorization.k8s.io/v1",
+    "kind": "RoleBinding",
+    "metadata": {
+      "name": "podcert-test-signer",
+      "namespace": "saf-0402-010-pcr"
+    },
+    "subjects": [
+      {
+        "kind": "ServiceAccount",
+        "name": "podcert-test-signer",
+        "namespace": "saf-0402-010-pcr"
+      }
+    ],
+    "roleRef": {
+      "apiGroup": "rbac.authorization.k8s.io",
+      "kind": "Role",
+      "name": "podcert-test-signer"
+    }
+  },
+  {
+    "apiVersion": "rbac.authorization.k8s.io/v1",
+    "kind": "ClusterRole",
+    "metadata": {
+      "name": "saf-0402-010-podcert-test-signer"
+    },
+    "rules": [
+      {
+        "apiGroups": [
+          "certificates.k8s.io"
+        ],
+        "resources": [
+          "signers"
+        ],
+        "resourceNames": [
+          "identity.example.test/pod-workload"
+        ],
+        "verbs": [
+          "sign"
+        ]
+      }
+    ]
+  },
+  {
+    "apiVersion": "rbac.authorization.k8s.io/v1",
+    "kind": "ClusterRoleBinding",
+    "metadata": {
+      "name": "saf-0402-010-podcert-test-signer"
+    },
+    "subjects": [
+      {
+        "kind": "ServiceAccount",
+        "name": "podcert-test-signer",
+        "namespace": "saf-0402-010-pcr"
+      }
+    ],
+    "roleRef": {
+      "apiGroup": "rbac.authorization.k8s.io",
+      "kind": "ClusterRole",
+      "name": "saf-0402-010-podcert-test-signer"
+    }
+  },
+  {
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+      "name": "authorized-workload",
+      "namespace": "saf-0402-010-pcr",
+      "labels": {
+        "app": "authorized-workload"
+      }
+    },
+    "spec": {
+      "restartPolicy": "Never",
+      "serviceAccountName": "pod-workload",
+      "automountServiceAccountToken": false,
+      "securityContext": {
+        "runAsNonRoot": true,
+        "runAsUser": 65532,
+        "runAsGroup": 65532,
+        "fsGroup": 65532,
+        "seccompProfile": {
+          "type": "RuntimeDefault"
+        }
+      },
+      "containers": [
+        {
+          "name": "verifier",
+          "image": "saf-podcert-fixture:local",
+          "imagePullPolicy": "Never",
+          "command": [
+            "python",
+            "/opt/fixture/workload.py"
+          ],
+          "securityContext": {
+            "allowPrivilegeEscalation": false,
+            "readOnlyRootFilesystem": true,
+            "capabilities": {
+              "drop": [
+                "ALL"
+              ]
+            }
+          },
+          "resources": {
+            "requests": {
+              "cpu": "10m",
+              "memory": "32Mi"
+            },
+            "limits": {
+              "cpu": "250m",
+              "memory": "128Mi"
+            }
+          },
+          "volumeMounts": [
+            {
+              "name": "pod-identity",
+              "mountPath": "/var/run/pod-identity",
+              "readOnly": true
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "name": "pod-identity",
+          "projected": {
+            "sources": [
+              {
+                "podCertificate": {
+                  "signerName": "identity.example.test/pod-workload",
+                  "keyType": "ECDSAP256",
+                  "maxExpirationSeconds": 3600,
+                  "credentialBundlePath": "credential.pem"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+      "name": "podcert-test-signer",
+      "namespace": "saf-0402-010-pcr",
+      "labels": {
+        "app": "podcert-test-signer"
+      }
+    },
+    "spec": {
+      "restartPolicy": "Never",
+      "serviceAccountName": "podcert-test-signer",
+      "automountServiceAccountToken": true,
+      "securityContext": {
+        "runAsNonRoot": true,
+        "runAsUser": 65532,
+        "runAsGroup": 65532,
+        "seccompProfile": {
+          "type": "RuntimeDefault"
+        }
+      },
+      "containers": [
+        {
+          "name": "signer",
+          "image": "saf-podcert-fixture:local",
+          "imagePullPolicy": "Never",
+          "command": [
+            "python",
+            "/opt/fixture/signer.py"
+          ],
+          "securityContext": {
+            "allowPrivilegeEscalation": false,
+            "readOnlyRootFilesystem": true,
+            "capabilities": {
+              "drop": [
+                "ALL"
+              ]
+            }
+          },
+          "resources": {
+            "requests": {
+              "cpu": "10m",
+              "memory": "32Mi"
+            },
+            "limits": {
+              "cpu": "250m",
+              "memory": "128Mi"
+            }
+          }
+        }
+      ]
+    }
+  }
+]

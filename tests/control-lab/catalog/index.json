@@ -429,7 +429,7 @@
     "SAF-K8S-0402-010": {
       "catalog_status": "draft",
       "domain": "D04",
-      "sha256": "2fa7b55443774a895eabf5b4d55224a34bd4a0a4404f6ac2328b9651c6073182",
+      "sha256": "5ec9acef992fd2ea3489155097175422e95cd787c55fa53b2697d8b763b1cb59",
       "title": "Cross-cluster and cross-cloud cryptographic identity federation"
     },
     "SAF-K8S-0402-015": {
@@ -608,7 +608,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "0ca6c83364b2bb43cc5aa22f307f7526386f1ddd",
-  "sha256": "df105e4d2453b18902086552ec1bae50b698ff889053abd168a340c3f200169b",
+  "revision": "d4c0ce9b6734d38fdbb15f96d9565abdc578afc4",
+  "sha256": "3ed268d0af87045a4b0eafc53b91df6d67cf9f5daeb4e96054b43f1b09b92199",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

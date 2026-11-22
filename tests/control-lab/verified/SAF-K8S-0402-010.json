@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0402-010",
-  "catalog_revision": "0f37d5ff538bcac32ae725750f687e2c95f38d97",
-  "catalog_sha256": "10a6e1cfd2ac83172c1f20daf07f5fffce1468094455723a57c2eb56aa139bc7",
+  "catalog_revision": "484ff64d07e3de8facdcc75775502bbfbe1e9434",
+  "catalog_sha256": "aad618405b58b8592bf2f3dbcfc3a090fab001ddf61239d4bd37fe08af9adb52",
   "node_image": "kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5",
-  "control_sha256": "2fa7b55443774a895eabf5b4d55224a34bd4a0a4404f6ac2328b9651c6073182",
-  "scope": "Kubernetes v1.37.0 kind with one inert Pod. Authorized requests create and update synthetic public CA bundles. The Pod checks selection and refresh by signer and label. Signer-specific authorization, Pod certificate lifecycle and federation require separate evidence.",
-  "cluster": "saf-lab-31f35035144b",
+  "control_sha256": "5ec9acef992fd2ea3489155097175422e95cd787c55fa53b2697d8b763b1cb59",
+  "scope": "Kubernetes v1.37.0 kind with synthetic Pods. Validate selection and live update of public trust anchors, then authorized Pod certificate issuance, projection, and refresh under an exactly scoped test signer. Cross-cluster exchange, peer authentication and production authorization require independent evidence.",
+  "cluster": "saf-lab-f7d193a05765",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -76,6 +76,66 @@
       "observed": {
         "fingerprints_match": true,
         "certificate_count": 1
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The owned v1.37 node and API support the intended PCR admission path",
+      "matched": true,
+      "observed": {
+        "pinned_kubelet": true,
+        "pinned_api_server": true,
+        "node_authorizer": true,
+        "node_restriction": true,
+        "stable_api": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without the fixture signer, the matching request is unissued and the Pod stays Pending",
+      "matched": true,
+      "observed": {
+        "one_matching_unissued_request": true,
+        "pod_pending": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The authorized signer issues the expected one-hour certificate and kubelet projects it",
+      "matched": true,
+      "observed": {
+        "initial_projection": true,
+        "expected_api_identity_and_lifetime": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same Pod sees a new valid key and certificate from a distinct issued request",
+      "matched": true,
+      "observed": {
+        "same_pod": true,
+        "distinct_api_issuance": true,
+        "projection": {
+          "initial_chain_valid": true,
+          "initial_key_certificate_match": true,
+          "initial_projection_valid": true,
+          "initial_public_metadata_valid": true,
+          "projected_generation_changed": true,
+          "public_certificate_metadata_changed": true,
+          "public_key_changed": true,
+          "renewal_observed": true,
+          "renewed_chain_valid": true,
+          "renewed_key_certificate_match": true,
+          "renewed_public_metadata_valid": true
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The lab removes its local fixture image tag",
+      "matched": true,
+      "observed": {
+        "removed": true
       }
     }
   ]
