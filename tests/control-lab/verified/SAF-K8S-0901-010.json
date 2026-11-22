@@ -1,0 +1,81 @@
+{
+  "control_id": "SAF-K8S-0901-010",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "6c483b730074f11244712911a81d01337f11f950dadd0cd9f459d2bb27a4f031",
+  "scope": "Two case-owned Python mock workers on distinct nodes in one disposable Kubernetes v1.36.1 Kind cluster. The sender transmits one fixed synthetic marker over plaintext and then authenticated TLS 1.3 to the receiver. A bounded local relay in the sender observes only the sender's own plaintext and TLS TCP stream; no host or other workload traffic is collected. Evidence records exact receiver readback, negotiated TLS version, verified server name, and the sender-owned outbound TLS bytes. This demonstrates transport encryption for this Python fixture only. It does not exercise NCCL, MPI, TensorFlow gRPC, any training engine/provider/GPU, real gradients, mTLS client identity, certificate rotation, a production CNI/fabric, or cluster-wide enforcement.",
+  "cluster": "saf-lab-2873ffec52ba",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The plaintext counterfactual exposes the exact synthetic marker on its owned stream",
+      "matched": true,
+      "observed": {
+        "marker": "SAF-SYNTH-GRADIENT-MARKER-0901-010",
+        "owned_stream_hex": "5341462d53594e54482d4752414449454e542d4d41524b45522d303930312d3031300a",
+        "receiver_readback": "SAF-SYNTH-GRADIENT-MARKER-0901-010"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The TLS 1.3 worker exchange reads back the marker while owned outbound bytes conceal it",
+      "matched": true,
+      "observed": {
+        "readback": "SAF-SYNTH-GRADIENT-MARKER-0901-010",
+        "tls_version": "TLSv1.3",
+        "owned_outbound_bytes_observed": true,
+        "marker_present_in_owned_bytes": false,
+        "receiver": {
+          "client_certificate_present": false,
+          "mode": "tls",
+          "readback": "SAF-SYNTH-GRADIENT-MARKER-0901-010",
+          "tls_version": "TLSv1.3"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The TLS server CA and DNS identity verify; client-certificate identity is a separate untested control",
+      "matched": true,
+      "observed": {
+        "workers_on_distinct_nodes": true,
+        "sender_peer_authentication": "server certificate and DNS SAN verified",
+        "receiver_observed_client_certificate": false,
+        "mtls_identity_control_tested": false,
+        "plaintext_and_tls_readbacks_match": true
+      }
+    }
+  ]
+}

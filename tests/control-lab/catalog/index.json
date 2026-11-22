@@ -1092,6 +1092,12 @@
       "sha256": "d79f66cd464a75289b31c7453526fd3d7d5935b8c8af6f218b9a34735e17771a",
       "title": "Multi-node training worker mutual authentication"
     },
+    "SAF-K8S-0901-010": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "6c483b730074f11244712911a81d01337f11f950dadd0cd9f459d2bb27a4f031",
+      "title": "Encrypted inter-worker gradient transport"
+    },
     "SAF-K8S-0907-007": {
       "catalog_status": "draft",
       "domain": "D09",
