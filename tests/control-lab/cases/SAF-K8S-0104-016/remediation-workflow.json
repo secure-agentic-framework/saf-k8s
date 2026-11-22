@@ -1,0 +1,64 @@
+{
+  "schema": "saf-k8s-remediation-workflow/v1",
+  "record_version": 2,
+  "synthetic": true,
+  "finding": {
+    "id": "SYN-KUBELET-RO-001",
+    "summary": "Synthetic hardening observation: kubelet readOnlyPort is enabled",
+    "source_type": "synthetic-cis-style-hardening-review",
+    "source_reference": "Kubernetes v1.36 KubeletConfiguration documentation",
+    "scope": {
+      "environment": "disposable-kind-lab",
+      "cluster": "saf-k8s-0104-016-review",
+      "node": "saf-k8s-0104-016-review-control-plane",
+      "kubernetes_version": "v1.36.1",
+      "kind_version": "v0.32.0",
+      "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+      "setting": "KubeletConfiguration.readOnlyPort"
+    },
+    "detected_at": "2026-11-21T09:00:00-08:00",
+    "baseline_evidence": "evidence/baseline-config.json"
+  },
+  "remediation": {
+    "owner": {
+      "name": "Morgan Example",
+      "role": "Platform Engineering",
+      "synthetic": true
+    },
+    "assigned_at": "2026-11-21T09:30:00-08:00",
+    "due_at": "2026-12-05T17:00:00-08:00",
+    "target_value": 0,
+    "revision": 2,
+    "completed_at": "2026-11-22T11:00:00-08:00",
+    "change_evidence": "evidence/remediated-config.json"
+  },
+  "retest": {
+    "performed_at": "2026-11-23T10:00:00-08:00",
+    "reviewer": {
+      "name": "Taylor Example",
+      "role": "Security Engineering",
+      "synthetic": true
+    },
+    "independent_of_owner": true,
+    "tested_revision": 2,
+    "result": "pass",
+    "evidence": "evidence/retest.json"
+  },
+  "closure": {
+    "closed_at": "2026-11-23T10:30:00-08:00",
+    "approver": {
+      "name": "Jordan Example",
+      "role": "Security Engineering Lead",
+      "synthetic": true
+    },
+    "status": "closed",
+    "retest_evidence": "evidence/retest.json"
+  },
+  "events": [
+    {"sequence": 1, "event": "detected", "at": "2026-11-21T09:00:00-08:00", "revision": 1},
+    {"sequence": 2, "event": "assigned", "at": "2026-11-21T09:30:00-08:00", "revision": 1},
+    {"sequence": 3, "event": "remediated", "at": "2026-11-22T11:00:00-08:00", "revision": 2},
+    {"sequence": 4, "event": "retested", "at": "2026-11-23T10:00:00-08:00", "revision": 2},
+    {"sequence": 5, "event": "closed", "at": "2026-11-23T10:30:00-08:00", "revision": 2}
+  ]
+}

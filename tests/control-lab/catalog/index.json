@@ -162,6 +162,12 @@
       "sha256": "a2851e2294a3881aff1640958bbf0050d72d49f11d9a7e7a1f02bacffdfa2df4",
       "title": "Feature gate lifecycle transition tracking across Kubernetes upgrades"
     },
+    "SAF-K8S-0104-016": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "599bb8dc936e12291b48e232dce801cdc1160ee19323ff23a2a0a1fe690a1dac",
+      "title": "CIS Benchmark remediation workflow tracking"
+    },
     "SAF-K8S-0201-005": {
       "catalog_status": "draft",
       "domain": "D02",

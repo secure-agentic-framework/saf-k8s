@@ -1,0 +1,11 @@
+{
+  "synthetic": true,
+  "captured_at": "2026-11-21T09:00:00-08:00",
+  "cluster": "saf-k8s-0104-016-review",
+  "node": "saf-k8s-0104-016-review-control-plane",
+  "kubernetes_version": "v1.36.1",
+  "kind_version": "v0.32.0",
+  "setting": "KubeletConfiguration.readOnlyPort",
+  "observed_value": 10255,
+  "source": "invented training fixture; not a cluster capture"
+}

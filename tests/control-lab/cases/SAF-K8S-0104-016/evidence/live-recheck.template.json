@@ -1,0 +1,17 @@
+{
+  "status": "pending",
+  "synthetic": false,
+  "cluster_owner_confirmed": false,
+  "captured_at": null,
+  "kubeconfig_context": null,
+  "cluster": null,
+  "node": null,
+  "kubernetes_version": null,
+  "kind_version": null,
+  "node_image_digest": null,
+  "command": null,
+  "observed_readOnlyPort": null,
+  "reviewer": null,
+  "raw_output_evidence": null,
+  "result": "unverified"
+}
