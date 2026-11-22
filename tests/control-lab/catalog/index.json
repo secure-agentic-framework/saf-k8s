@@ -1086,6 +1086,12 @@
       "sha256": "1e78718de78fd4cb8e61eaccfe339d400d96a3ba2c1799ea93ad01a836960282",
       "title": "Training job network isolation"
     },
+    "SAF-K8S-0901-009": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "d79f66cd464a75289b31c7453526fd3d7d5935b8c8af6f218b9a34735e17771a",
+      "title": "Multi-node training worker mutual authentication"
+    },
     "SAF-K8S-0907-007": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1568,7 +1574,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "04edfdabbbcfaa23a1d0c316425dc10a8b9ec8bb",
+  "revision": "7e91a577160a4f01379ae18a1b84f4d97143c9a5",
   "sha256": "28e2e795c3d0eee859ba13f7c7c1e62c33d93955ba867c40a0060d1dfd1984cb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
