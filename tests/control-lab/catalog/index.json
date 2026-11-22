@@ -726,6 +726,12 @@
       "sha256": "2fb7933bcb7686f5829fabc4fe736cb83743ecc3664a2425366eea39610e6eeb",
       "title": "EDoS spending guardrails and autoscaling limits for AI resources"
     },
+    "SAF-K8S-0703-015": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "f21270a988ca6faa0e57d488a7d40c59c2f4b14090a4394472fdc51320795299",
+      "title": "Chaos engineering validation for AI resource governance controls"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -740,7 +746,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "cb64f0deeac76aeb95824b6b8908c4196f3d1e6e",
+  "revision": "bd6acd1b39bbaa62ed6329a2ac18029048b9d573",
   "sha256": "e8d024860997c85e65dcb4d9a1c10c9e716416ecfea1f4d4479987609b4092f0",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

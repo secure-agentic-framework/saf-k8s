@@ -1,0 +1,86 @@
+{
+  "control_id": "SAF-K8S-0703-015",
+  "catalog_revision": "d4328fde2e235c4d4a65baf2e08f7e45cfb81217",
+  "catalog_sha256": "e8d024860997c85e65dcb4d9a1c10c9e716416ecfea1f4d4479987609b4092f0",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "f21270a988ca6faa0e57d488a7d40c59c2f4b14090a4394472fdc51320795299",
+  "scope": "On Kueue v0.20.6 and Kubernetes v1.36.1 in disposable kind, a finite 10m CPU Job starts suspended against zero quota. One quota restoration admits the same Workload. Its Pod runs and exits with a known application failure. After repairing its synthetic dependency, an identical queued Job completes. Hardware faults, provider autoscaling, recurring practice, and production training recovery need deployment evidence.",
+  "cluster": "saf-lab-68a67c908abe",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Zero queue CPU quota keeps the same finite Job queued and suspended",
+      "matched": true,
+      "observed": {
+        "quota_reserved": false,
+        "pending_reason": "ExceedsMaxQuota",
+        "admitted": false,
+        "job_suspended": true,
+        "case_pods": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Restored quota admits the exact pending Workload and unsuspends the same Job",
+      "matched": true,
+      "observed": {
+        "same_job": true,
+        "same_workload": true,
+        "suspended": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The admitted Job runs and records the controlled dependency failure",
+      "matched": true,
+      "observed": {
+        "scheduled": true,
+        "pod_phase": "Failed",
+        "exit_code": 42,
+        "marker": "fixture-unavailable"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An identical queued Job completes after the fixture dependency is repaired",
+      "matched": true,
+      "observed": {
+        "scheduled": true,
+        "pod_phase": "Succeeded",
+        "exit_code": 0,
+        "marker": "fixture-recovered"
+      }
+    }
+  ]
+}
