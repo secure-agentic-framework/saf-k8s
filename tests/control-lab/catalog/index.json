@@ -378,6 +378,12 @@
       "sha256": "53d56fec8fa31f01eaaf7e613848eda1231d0bc99041480c6a142fab12c94b95",
       "title": "Distinct identity assignment for AI workload types"
     },
+    "SAF-K8S-0402-010": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "2fa7b55443774a895eabf5b4d55224a34bd4a0a4404f6ac2328b9651c6073182",
+      "title": "Cross-cluster and cross-cloud cryptographic identity federation"
+    },
     "SAF-K8S-0402-015": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -506,7 +512,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "d4e767f6b5cfcd054f21d709444762e228008070",
-  "sha256": "4c894c901242afc4d2a25f8ebaa77085e3c1a94a50cc1ede5866d5381e4bb0cd",
+  "revision": "b4d308f7e793bbbac6135e869472ea002274aeec",
+  "sha256": "10a6e1cfd2ac83172c1f20daf07f5fffce1468094455723a57c2eb56aa139bc7",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

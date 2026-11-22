@@ -1,0 +1,82 @@
+{
+  "control_id": "SAF-K8S-0402-010",
+  "catalog_revision": "0f37d5ff538bcac32ae725750f687e2c95f38d97",
+  "catalog_sha256": "10a6e1cfd2ac83172c1f20daf07f5fffce1468094455723a57c2eb56aa139bc7",
+  "node_image": "kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5",
+  "control_sha256": "2fa7b55443774a895eabf5b4d55224a34bd4a0a4404f6ac2328b9651c6073182",
+  "scope": "Kubernetes v1.37.0 kind with one inert Pod. Authorized requests create and update synthetic public CA bundles. The Pod checks selection and refresh by signer and label. Signer-specific authorization, Pod certificate lifecycle and federation require separate evidence.",
+  "cluster": "saf-lab-31f35035144b",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "37",
+      "emulationMajor": "1",
+      "emulationMinor": "37",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "36",
+      "gitVersion": "v1.37.0",
+      "gitCommit": "f54c212e3a2f75d674b717a9b29052b20b60aefc",
+      "gitTreeState": "clean",
+      "buildDate": "2026-08-26T10:44:25Z",
+      "goVersion": "go1.26.6",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Pinned Kubernetes v1.37 serves the stable identity APIs",
+      "matched": true,
+      "observed": {
+        "server": "v1.37.0",
+        "kubelets": [
+          "v1.37.0"
+        ],
+        "ctb_v1": true,
+        "pcr_v1": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A bundle without the selected label supplies no trust anchors",
+      "matched": true,
+      "observed": {
+        "fingerprints_match": true,
+        "certificate_count": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The Pod receives only the public CA selected by signer and label",
+      "matched": true,
+      "observed": {
+        "fingerprints_match": true,
+        "certificate_count": 1
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The running Pod receives only the replacement CA after the update",
+      "matched": true,
+      "observed": {
+        "fingerprints_match": true,
+        "certificate_count": 1
+      }
+    }
+  ]
+}
