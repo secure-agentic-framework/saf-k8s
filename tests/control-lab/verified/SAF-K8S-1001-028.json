@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-028",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "3bba248d090b59df38179eb92202cb35a1b4dc36",
+  "catalog_sha256": "5468afd7544aceb8f79e434b7d58a52fc41eeee0b3084837f4dc587efc72cace",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "5350ea2368453260d2e3f6b924ad0c12b3b438654fc5e628202364d4ae5ab431",
   "scope": "One case-owned kind cluster with the v1.36.1 node image, a metadata-only audit policy, one successful ConfigMap create, five in-cluster synthetic AI fixture Jobs, and an owned router plus HTTP receiver in one namespace. The first AI submissions use the same fixed events as replay and receive 404 while their routes are absent; after enabling those routes, the exact events reach the receiver. The Kubernetes event is read from the API server audit file and keeps its real auditID and explicit source_origin. No training, inference, registry service, policy engine, production SIEM, or SIEM completeness monitoring is exercised.",
-  "cluster": "saf-lab-4c37de6c2361",
+  "cluster": "saf-lab-f8b2b012bc9d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
