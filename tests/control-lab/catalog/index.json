@@ -1242,6 +1242,12 @@
       "sha256": "d87dd4de9467b210e164f48404f91bfc7515c1cb8433bca5fe6d51807d7eec95",
       "title": "Cross-classification pipeline data transfer authorization gates"
     },
+    "SAF-K8S-0904-017": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "f5e0df22d87ba2cb3ece4bef3d366f16d92cdf915b23fe13f135f74764d97a31",
+      "title": "Pipeline definition signing and execution-time signature verification"
+    },
     "SAF-K8S-0904-018": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1730,7 +1736,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "92ecd5f3086ba7d273e86463dbaa0e86c332e80b",
+  "revision": "7960fa5a464d7a8436a5a023ea537ac1e41541fb",
   "sha256": "839ba1ce22e74f9ff2524b53a86bbfb332d3fd13867bcc8d26d03cbd7ef8749c",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

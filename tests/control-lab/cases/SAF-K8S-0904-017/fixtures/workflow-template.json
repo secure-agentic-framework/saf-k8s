@@ -1,0 +1,21 @@
+{
+  "apiVersion": "argoproj.io/v1alpha1",
+  "kind": "WorkflowTemplate",
+  "metadata": {
+    "name": "saf-signing-fixed-benign",
+    "namespace": "saf-signing-admission"
+  },
+  "spec": {
+    "entrypoint": "fixed-benign",
+    "templates": [
+      {
+        "name": "fixed-benign",
+        "container": {
+          "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+          "command": ["/bin/sh", "-c"],
+          "args": ["true"]
+        }
+      }
+    ]
+  }
+}
