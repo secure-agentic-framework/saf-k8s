@@ -1,0 +1,145 @@
+{
+  "control_id": "SAF-K8S-0703-005",
+  "catalog_revision": "f2674e0500dca03557ebfd73c54d5ce3cb49a3d5",
+  "catalog_sha256": "02dff3005821d2dba45b4f0e14410046c532f8cbc9b07d21c88a0612f88689e5",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "af079df34c0017c17d4a8664bcc9a63ec0c6dcce4b906f9ec4510c207c99acc7",
+  "scope": "Kubernetes v1.36.1 LimitRange and ResourceQuota admission, an owned Job's declared memory and Job-controller deadline, and a separate nonroot Job exercising synthetic queue and input bounds. Production queue integration, dataset size, aggregate memory and availability requirements require separate deployed evidence.",
+  "cluster": "saf-lab-72182273996f",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Without a memory bound, the oversized synthetic Pod reaches admission",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without storage bounds, the oversized synthetic PVC reaches admission",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Pod admission defaults omitted memory to the fixed namespace ceiling",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "memory_request": "16Mi",
+        "memory_limit": "32Mi",
+        "detail": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Pod admission rejects an explicit memory limit above the ceiling",
+      "matched": true,
+      "observed": {
+        "denied_by_limit_range": true,
+        "detail": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0703-005-memory-over\" is forbidden: maximum memory usage per Container is 64Mi, but limit is 65Mi"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "PVC admission rejects a claim above the per-claim storage bound",
+      "matched": true,
+      "observed": {
+        "denied_by_limit_range": true,
+        "detail": "Error from server (Forbidden): error when creating \"STDIN\": persistentvolumeclaims \"saf-0703-005-pvc-over\" is forbidden: maximum storage usage per PersistentVolumeClaim is 8Mi, but request is 9Mi"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "PVC admission permits aggregate requested storage at the namespace quota",
+      "matched": true,
+      "observed": {
+        "accounted_total": "16Mi",
+        "admitted_claims": 2
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "PVC admission rejects aggregate requested storage above the namespace quota",
+      "matched": true,
+      "observed": {
+        "denied_by_resource_quota": true,
+        "detail": "Error from server (Forbidden): error when creating \"STDIN\": persistentvolumeclaims \"saf-0703-005-pvc-aggregate-over\" is forbidden: exceeded quota: saf-0703-005-storage-budget, requested: requests.storage=1Mi, used: requests.storage=16Mi, limited: requests.storage=16Mi"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Admission permits the declared memory ceiling",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The Job rejects full-queue and oversized input and preserves FIFO recovery",
+      "matched": true,
+      "observed": {
+        "queue_full_rejected": true,
+        "oversize_rejected_without_enqueue": true,
+        "retry_after_seconds": 1,
+        "retry_after_completion_accepted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Job-created Pod is admitted with its fixed memory request and limit",
+      "matched": true,
+      "observed": {
+        "running_job_pods": 1,
+        "all_have_16Mi_request_and_32Mi_limit": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Job controller fails the inert sleeper at its active deadline",
+      "matched": true,
+      "observed": {
+        "reason": "DeadlineExceeded",
+        "active_deadline_seconds": 20
+      }
+    }
+  ]
+}

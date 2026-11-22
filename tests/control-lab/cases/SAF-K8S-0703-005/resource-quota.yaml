@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: saf-0703-005-storage-budget
+spec:
+  hard:
+    requests.storage: 16Mi
+    persistentvolumeclaims: "3"

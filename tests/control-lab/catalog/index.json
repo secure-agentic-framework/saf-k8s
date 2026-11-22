@@ -642,6 +642,12 @@
       "sha256": "1a26c51caa2183304abc5d3ca3bfe19467e184b60c553fa4b5917828d5af962f",
       "title": "Pod Disruption Budgets for workload availability"
     },
+    "SAF-K8S-0703-005": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "af079df34c0017c17d4a8664bcc9a63ec0c6dcce4b906f9ec4510c207c99acc7",
+      "title": "AI workload resource exhaustion guardrails"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -656,7 +662,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "819d1653ce4d9faf5ef107931fc1a7f319f3663c",
+  "revision": "6057924aa48b87b8c0e7877c0362aa2534d728a5",
   "sha256": "d0505b3cef6e27ac3451a0998acf0350819409280331edf48be9cfacfd4f73a7",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
