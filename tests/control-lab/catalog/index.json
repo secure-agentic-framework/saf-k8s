@@ -1278,6 +1278,12 @@
       "sha256": "d0e46e023c64d95531509ff58f3604bd478b08d6166fd2b923b5c0b400d7dfd8",
       "title": "Kubernetes AI threat intelligence feed ingestion and detection enrichment"
     },
+    "SAF-K8S-1004-005": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "432091281f901c3b96dcd7eb26835ce2ea62ea4fe4b2065643744e863bb63515",
+      "title": "Adversarial ML threat taxonomy and structured classification"
+    },
     "SAF-K8S-1006-004": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1310,7 +1316,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "a12d070764e2da45e43041921f893ae427754ce0",
-  "sha256": "a0136783421c2c5f3387b92e1cbc8722c1faf77205eda1623cee5d4dc8a05bee",
+  "revision": "66e2dbe2cea93b7eeb40a25644ccdfbe1e32f9c1",
+  "sha256": "33956f720f066941851029bbc899f83d9bc6a34f860dc3ea3ae2e1c2e981c361",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

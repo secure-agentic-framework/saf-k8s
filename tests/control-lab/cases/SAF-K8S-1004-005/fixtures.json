@@ -1,0 +1,338 @@
+{
+  "fixture_id": "saf-k8s-1004-005-synthetic-review-v1",
+  "taxonomy": {
+    "id": "NIST AI 100-2e2025",
+    "title": "Adversarial Machine Learning: A Taxonomy and Terminology of Attacks and Mitigations",
+    "url": "https://doi.org/10.6028/NIST.AI.100-2e2025",
+    "classification_dimensions": [
+      "system_type",
+      "learning_method_and_lifecycle_stage",
+      "attacker_goals_and_objectives",
+      "attacker_capabilities_and_access",
+      "attacker_knowledge"
+    ],
+    "projection": "Case-owned review schema based on the final NIST taxonomy, sections 1 and 2.1."
+  },
+  "freshness_policy_days": 90,
+  "observations": [
+    {
+      "observation_id": "obs-abstract-001",
+      "kind": "synthetic_quality_marker_delta",
+      "description": "Mock workload reports a changed quality marker between two synthetic baselines.",
+      "values": {
+        "baseline": 0.92,
+        "current": 0.71
+      },
+      "scope": "fixture-only; no model, user data, attack input, or external target",
+      "source": "mock-workload-response",
+      "tenant": "synthetic-team-a",
+      "namespace": "saf-test"
+    },
+    {
+      "observation_id": "obs-abstract-002",
+      "kind": "synthetic_record_metadata",
+      "description": "Fixture declares a predictive, supervised-learning workload at deployment stage.",
+      "values": {
+        "system_type": "predictive",
+        "learning_method": "supervised",
+        "lifecycle_stage": "deployment"
+      },
+      "scope": "fixture-only metadata; not evidence of an incident",
+      "source": "mock-workload-response",
+      "tenant": "synthetic-team-a",
+      "namespace": "saf-test"
+    }
+  ],
+  "records": [
+    {
+      "record_id": "reviewable-abstract-001",
+      "tenant": "synthetic-team-a",
+      "namespace": "saf-test",
+      "taxonomy_id": "NIST AI 100-2e2025",
+      "review_age_days": 2,
+      "status": "reviewable_unconfirmed",
+      "actual_incident": false,
+      "candidate_attack_class": null,
+      "dimensions": {
+        "system_type": {
+          "value": "predictive",
+          "evidence": [
+            "obs-abstract-002"
+          ]
+        },
+        "learning_method_and_lifecycle_stage": {
+          "value": {
+            "learning_method": "supervised",
+            "stage": "deployment"
+          },
+          "evidence": [
+            "obs-abstract-002"
+          ]
+        },
+        "attacker_goals_and_objectives": {
+          "value": "undetermined_from_observation",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "A synthetic quality-marker change does not identify an adversary or establish an objective."
+        },
+        "attacker_capabilities_and_access": {
+          "value": "unknown",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "The fixture has no actor or access telemetry."
+        },
+        "attacker_knowledge": {
+          "value": "unknown",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "The fixture has no actor or knowledge telemetry."
+        }
+      },
+      "review_note": "Keep as an unconfirmed, human-review candidate; do not assign an attack class from this signal alone."
+    },
+    {
+      "record_id": "stale-abstract-002",
+      "tenant": "synthetic-team-a",
+      "namespace": "saf-test",
+      "taxonomy_id": "NIST AI 100-2e2025",
+      "review_age_days": 365,
+      "status": "reviewable_unconfirmed",
+      "actual_incident": false,
+      "candidate_attack_class": null,
+      "dimensions": {
+        "system_type": {
+          "value": "predictive",
+          "evidence": [
+            "obs-abstract-002"
+          ]
+        }
+      },
+      "review_note": "Stale and incomplete synthetic record; must be rejected from current review."
+    },
+    {
+      "record_id": "incomplete-abstract-003",
+      "tenant": "synthetic-team-b",
+      "namespace": "saf-test",
+      "taxonomy_id": "NIST AI 100-2e2025",
+      "review_age_days": 1,
+      "status": "reviewable_unconfirmed",
+      "actual_incident": false,
+      "candidate_attack_class": null,
+      "dimensions": {
+        "system_type": {
+          "value": "generative",
+          "evidence": [
+            "obs-abstract-001"
+          ]
+        },
+        "learning_method_and_lifecycle_stage": {
+          "value": {
+            "learning_method": "unknown",
+            "stage": "unknown"
+          },
+          "evidence": []
+        }
+      },
+      "review_note": "Incomplete synthetic record with unsupported values; must be rejected."
+    },
+    {
+      "record_id": "draft-reference-004",
+      "tenant": "synthetic-team-a",
+      "namespace": "saf-test",
+      "taxonomy_id": "NISTIR 8269",
+      "review_age_days": 2,
+      "status": "reviewable_unconfirmed",
+      "actual_incident": false,
+      "candidate_attack_class": null,
+      "dimensions": {
+        "system_type": {
+          "value": "predictive",
+          "evidence": [
+            "obs-abstract-002"
+          ]
+        },
+        "learning_method_and_lifecycle_stage": {
+          "value": {
+            "learning_method": "supervised",
+            "stage": "deployment"
+          },
+          "evidence": [
+            "obs-abstract-002"
+          ]
+        },
+        "attacker_goals_and_objectives": {
+          "value": "undetermined_from_observation",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "A synthetic quality-marker change does not identify an adversary or establish an objective."
+        },
+        "attacker_capabilities_and_access": {
+          "value": "unknown",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "The fixture has no actor or access telemetry."
+        },
+        "attacker_knowledge": {
+          "value": "unknown",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "The fixture has no actor or knowledge telemetry."
+        }
+      },
+      "review_note": "Keep as an unconfirmed, human-review candidate; do not assign an attack class from this signal alone."
+    },
+    {
+      "record_id": "unsupported-claim-005",
+      "tenant": "synthetic-team-a",
+      "namespace": "saf-test",
+      "taxonomy_id": "NIST AI 100-2e2025",
+      "review_age_days": 2,
+      "status": "reviewable_unconfirmed",
+      "actual_incident": true,
+      "candidate_attack_class": "unsupported-synthetic-classification",
+      "dimensions": {
+        "system_type": {
+          "value": "predictive",
+          "evidence": [
+            "obs-abstract-002"
+          ]
+        },
+        "learning_method_and_lifecycle_stage": {
+          "value": {
+            "learning_method": "supervised",
+            "stage": "deployment"
+          },
+          "evidence": [
+            "obs-abstract-002"
+          ]
+        },
+        "attacker_goals_and_objectives": {
+          "value": "undetermined_from_observation",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "A synthetic quality-marker change does not identify an adversary or establish an objective."
+        },
+        "attacker_capabilities_and_access": {
+          "value": "unknown",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "The fixture has no actor or access telemetry."
+        },
+        "attacker_knowledge": {
+          "value": "asserted_without_evidence",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "The fixture has no actor or knowledge telemetry."
+        }
+      },
+      "review_note": "Keep as an unconfirmed, human-review candidate; do not assign an attack class from this signal alone."
+    },
+    {
+      "record_id": "contradictory-evidence-006",
+      "tenant": "synthetic-team-a",
+      "namespace": "saf-test",
+      "taxonomy_id": "NIST AI 100-2e2025",
+      "review_age_days": 2,
+      "status": "reviewable_unconfirmed",
+      "actual_incident": false,
+      "candidate_attack_class": null,
+      "dimensions": {
+        "system_type": {
+          "value": "generative",
+          "evidence": [
+            "obs-abstract-002"
+          ]
+        },
+        "learning_method_and_lifecycle_stage": {
+          "value": {
+            "learning_method": "supervised",
+            "stage": "deployment"
+          },
+          "evidence": [
+            "obs-abstract-002"
+          ]
+        },
+        "attacker_goals_and_objectives": {
+          "value": "undetermined_from_observation",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "A synthetic quality-marker change does not identify an adversary or establish an objective."
+        },
+        "attacker_capabilities_and_access": {
+          "value": "unknown",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "The fixture has no actor or access telemetry."
+        },
+        "attacker_knowledge": {
+          "value": "unknown",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "The fixture has no actor or knowledge telemetry."
+        }
+      },
+      "review_note": "Keep as an unconfirmed, human-review candidate; do not assign an attack class from this signal alone."
+    },
+    {
+      "record_id": "foreign-evidence-007",
+      "tenant": "synthetic-team-b",
+      "namespace": "saf-test",
+      "taxonomy_id": "NIST AI 100-2e2025",
+      "review_age_days": 2,
+      "status": "reviewable_unconfirmed",
+      "actual_incident": false,
+      "candidate_attack_class": null,
+      "dimensions": {
+        "system_type": {
+          "value": "predictive",
+          "evidence": [
+            "obs-abstract-002"
+          ]
+        },
+        "learning_method_and_lifecycle_stage": {
+          "value": {
+            "learning_method": "supervised",
+            "stage": "deployment"
+          },
+          "evidence": [
+            "obs-abstract-002"
+          ]
+        },
+        "attacker_goals_and_objectives": {
+          "value": "undetermined_from_observation",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "A synthetic quality-marker change does not identify an adversary or establish an objective."
+        },
+        "attacker_capabilities_and_access": {
+          "value": "unknown",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "The fixture has no actor or access telemetry."
+        },
+        "attacker_knowledge": {
+          "value": "unknown",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "The fixture has no actor or knowledge telemetry."
+        }
+      },
+      "review_note": "Keep as an unconfirmed, human-review candidate; do not assign an attack class from this signal alone."
+    }
+  ]
+}

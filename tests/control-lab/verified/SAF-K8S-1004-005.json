@@ -1,0 +1,114 @@
+{
+  "control_id": "SAF-K8S-1004-005",
+  "catalog_revision": "5f53add3913d8005ea96023cfc796191fb89cfea",
+  "catalog_sha256": "33956f720f066941851029bbc899f83d9bc6a34f860dc3ea3ae2e1c2e981c361",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "432091281f901c3b96dcd7eb26835ce2ea62ea4fe4b2065643744e863bb63515",
+  "scope": "A disposable Kubernetes v1.36.1 Kind cluster runs one digest-pinned Python mock workload that serves only checked-in synthetic review metadata. The case validates namespace, freshness, evidence references, and five NIST AI 100-2e2025 review dimensions; it detects a synthetic marker-only overclaim, rejects stale/incomplete records, and preserves unknowns without assigning an attack class. It does not connect to feeds or external targets, run an AI model, establish an actual incident, prove deployed controls, or validate a production classification workflow.",
+  "cluster": "saf-lab-378c3d177015",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The in-cluster review rejects a draft source and invalid evidence or assertions",
+      "matched": true,
+      "observed": {
+        "draft-reference-004": [
+          "taxonomy_id_mismatch"
+        ],
+        "unsupported-claim-005": [
+          "incident_status_not_bounded",
+          "unsupported_actor_inference:attacker_knowledge",
+          "unsupported_attack_class_assignment"
+        ],
+        "contradictory-evidence-006": [
+          "evidence_value_mismatch:system_type"
+        ],
+        "foreign-evidence-007": [
+          "evidence_scope_mismatch:attacker_capabilities_and_access",
+          "evidence_scope_mismatch:attacker_goals_and_objectives",
+          "evidence_scope_mismatch:attacker_knowledge",
+          "evidence_scope_mismatch:learning_method_and_lifecycle_stage",
+          "evidence_scope_mismatch:system_type"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Structured review rejects stale and incomplete records and accepts a fully evidenced candidate",
+      "matched": true,
+      "observed": {
+        "stale": {
+          "accepted_for_review": false,
+          "errors": [
+            "dimension_set_incomplete",
+            "stale_record"
+          ],
+          "review_state": "rejected"
+        },
+        "incomplete": {
+          "accepted_for_review": false,
+          "errors": [
+            "dimension_set_incomplete",
+            "evidence_missing:learning_method_and_lifecycle_stage",
+            "evidence_scope_mismatch:system_type",
+            "evidence_value_mismatch:system_type"
+          ],
+          "review_state": "rejected"
+        },
+        "reviewable": {
+          "accepted_for_review": true,
+          "errors": [],
+          "review_state": "pending_human_review"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Namespaced evidence preserves unknowns and leaves incident/classification unresolved",
+      "matched": true,
+      "observed": {
+        "tenant": "synthetic-team-a",
+        "namespace": "saf-test",
+        "review_state": "pending_human_review",
+        "unknown_dimensions": {
+          "attacker_goals_and_objectives": "undetermined_from_observation",
+          "attacker_capabilities_and_access": "unknown",
+          "attacker_knowledge": "unknown"
+        },
+        "actual_incident": false,
+        "candidate_attack_class": null
+      }
+    }
+  ]
+}
