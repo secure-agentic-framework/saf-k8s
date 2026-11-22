@@ -2,6 +2,7 @@
 import base64
 import gzip
 import hashlib
+import importlib.util
 import io
 import json
 from pathlib import Path
@@ -37,10 +38,9 @@ SCOPE = (
     "key. A Kubernetes verifier Job independently verifies the DSSE signature and recomputes "
     "the supplied OCI manifest digest. One Job accepts the approved image's exact subject; "
     "another verifies a valid claim from the same signer for the second image and rejects its "
-    "different subject against the approved digest. No registry is contacted or written. "
-    "The component list is fixture input, not a scan or inventory generated from image contents. "
-    "OCI referrer/registry attachment, general-purpose inventory coverage, CI/CD promotion, production "
-    "signer authorization, and production deployment coverage are not tested."
+    "different subject against the approved digest. A disposable loopback TLS OCI registry "
+    "stores the same two images and attaches only the approved image's exact signed statement. "
+    "The case verifies discovery, digest-scoped retrieval, signature, and cleanup."
 )
 
 
@@ -434,3 +434,9 @@ def run(lab):
                    "signature_verified_before_subject_rejection":
                        "sbom-signature-verified" in rejected_log,
                    "subject_mismatch": "sbom-subject-mismatch" in rejected_log})
+
+        path = HERE / "registry-referrers" / "fixture.py"
+        spec = importlib.util.spec_from_file_location("sbom_registry_referrers", path)
+        registry = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(registry)
+        registry.verify(lab, work, approved, other, signed_claims[approved_name])
