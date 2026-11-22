@@ -1,0 +1,9 @@
+{
+  "name": "co-retain-and-retire-as-cohort",
+  "subject_retention_days": 30,
+  "referrer_retention_days": 7,
+  "referrers_inherit_subject_expiry": true,
+  "orphan_action": "hold-and-report",
+  "retirement_mode": "cohort",
+  "retirement_order": "referrers-before-subject"
+}

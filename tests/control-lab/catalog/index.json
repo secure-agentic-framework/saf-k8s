@@ -306,6 +306,12 @@
       "sha256": "5bceccd60b9178d97b15c75e0b0ab8874bd0fe7e9ce0a6665c6e8868efa96e41",
       "title": "AI pipeline secret leakage prevention"
     },
+    "SAF-K8S-0601-011": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "bb8438103be279a672ab461aff4a9f9bbb1362ebe7a27c70004e6a0ba7758cca",
+      "title": "Integrity metadata co-retention with software artifacts"
+    },
     "SAF-K8S-0601-014": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -350,7 +356,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "1cb167c0bd73d583a76d539c5e74b9a222a7c458",
+  "revision": "380a26e444a75fbec52220a9accd50828ad60ccf",
   "sha256": "c3bdef2bfc0aae712ee2fcb1bfd47cebfcedc7415526acfb36b86be77042a93f",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

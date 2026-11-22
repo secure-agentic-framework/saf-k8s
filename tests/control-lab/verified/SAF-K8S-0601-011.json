@@ -1,0 +1,113 @@
+{
+  "control_id": "SAF-K8S-0601-011",
+  "catalog_revision": "d34b502ac96accb45a26841dfa77094dc4a72d9e",
+  "catalog_sha256": "c3bdef2bfc0aae712ee2fcb1bfd47cebfcedc7415526acfb36b86be77042a93f",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "bb8438103be279a672ab461aff4a9f9bbb1362ebe7a27c70004e6a0ba7758cca",
+  "scope": "Verify exact OCI subject and referrer descriptors, synthetic lifecycle eligibility and orphan hold. Exercise a disposable loopback-only OCI registry with three synthetic metadata manifest types, then observe early-loss baseline, protected retention and eligible retirement. Actual production lifecycle, GC, signatures and cross-repository replication require separate verification.",
+  "cluster": "saf-lab-ad363ec1b147",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Independent expiry allows premature deletion and the inventory finds an orphan",
+      "matched": true,
+      "observed": {
+        "orphan_findings": [
+          "orphan:orphaned-synthetic-referrer:sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        ],
+        "independent_retirement_decisions": [
+          "premature-expiry:sbom",
+          "premature-expiry:signature-metadata",
+          "would-delete:sbom",
+          "would-delete:signature-metadata",
+          "would-delete:orphaned-synthetic-referrer"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Digest-linked metadata remains retained and unmatched evidence is held",
+      "matched": true,
+      "observed": {
+        "unresolved_metadata_held": true,
+        "no_retirement_while_subject_retained": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Eligible fixture retirement includes all linked manifests in order",
+      "matched": true,
+      "observed": {
+        "retirement_plan": [
+          [
+            "sbom",
+            "signature-metadata",
+            "worker-image"
+          ]
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The registry alone allows a linked referrer to disappear while its subject remains",
+      "matched": true,
+      "observed": {
+        "original_set_advertised": true,
+        "discovery": "fallback-tag",
+        "early_loss_observed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A retention guard preserves the available subject and all three associated referrers",
+      "matched": true,
+      "observed": {
+        "exact_referrer_set_advertised": true,
+        "discovery": "fallback-tag",
+        "early_retirement_denied": true,
+        "subject_and_all_referrers_available": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Eligible retirement removes the fixture subject, linked manifests and fallback index",
+      "matched": true,
+      "observed": {
+        "eligible_retirement_permitted": true,
+        "all_manifests_absent": true,
+        "fallback_index_absent": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "unsafe-independent-ttl",
+  "subject_retention_days": 30,
+  "referrer_retention_days": 7,
+  "retirement_mode": "independent"
+}

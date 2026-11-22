@@ -1,0 +1,45 @@
+{
+  "description": "Synthetic OCI-shaped image and referrer records; no registry content or signing material.",
+  "evaluation_day": 8,
+  "retirement_day": 31,
+  "subjects": [
+    {
+      "id": "worker-image",
+      "repository": "case.local/fixture/worker",
+      "created_day": 0,
+      "manifest": {
+        "schemaVersion": 2,
+        "mediaType": "application/vnd.oci.image.manifest.v1+json",
+        "config": {
+          "mediaType": "application/vnd.oci.image.config.v1+json",
+          "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "size": 64
+        },
+        "layers": []
+      }
+    }
+  ],
+  "referrers": [
+    {
+      "id": "sbom",
+      "repository": "case.local/fixture/worker",
+      "created_day": 0,
+      "artifact_type": "application/vnd.example.sbom.v1",
+      "subject_id": "worker-image"
+    },
+    {
+      "id": "signature-metadata",
+      "repository": "case.local/fixture/worker",
+      "created_day": 0,
+      "artifact_type": "application/vnd.example.signature-metadata.v1",
+      "subject_id": "worker-image"
+    },
+    {
+      "id": "orphaned-synthetic-referrer",
+      "repository": "case.local/fixture/worker",
+      "created_day": 0,
+      "artifact_type": "application/vnd.example.sbom.v1",
+      "subject_digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    }
+  ]
+}
