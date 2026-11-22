@@ -1,0 +1,189 @@
+{
+  "control_id": "SAF-K8S-0503-009",
+  "catalog_revision": "619c1478dc53b82ee7825214d7a3dd81af588371",
+  "catalog_sha256": "ba2c83990b7e8dabd3521401627a287dc143c1661a28469381ebabfdcef4730b",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "0453381bec9c2f86fc190bf06a23784ccb4c258d6e1fe9a48fe74e7d70794ba1",
+  "scope": "One disposable kind Kubernetes v1.36.1 cluster with the stock DNS addon disabled, one case-owned CoreDNS v1.14.2 deployment with the Kubernetes plugin, and two case-owned UDP DNS stubs in saf-test. Uses only saf-0503-009.test names and RFC 5737 documentation addresses. Compares the same query through a baseline Corefile forwarding to the unapproved stub and a hardened Corefile forwarding only to the approved stub; checks a native cluster Service record, cache reuse, health/ready HTTP endpoints, configured loop-plugin startup, and scoped configuration changes through the Kubernetes API. No external DNS, NodeLocal DNSCache, production cluster, external resolver, or loop-failure exercise.",
+  "cluster": "saf-lab-7cfed3f31632",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Case uses Kubernetes v1.36.1",
+      "matched": true,
+      "observed": "v1.36.1"
+    },
+    {
+      "phase": "red",
+      "claim": "Kubernetes is Ready with kubeadm's CoreDNS addon disabled",
+      "matched": true,
+      "observed": {
+        "api_ready": true,
+        "stock_coredns_deployment_and_service_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Owned inert resolver saf-0503-009-unapproved is ready",
+      "matched": true,
+      "observed": {
+        "has_pod_ip": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Owned inert resolver saf-0503-009-approved is ready",
+      "matched": true,
+      "observed": {
+        "has_pod_ip": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Baseline forwarding sends the safe test query to the unapproved inert resolver",
+      "matched": true,
+      "observed": {
+        "query": "approved.saf-0503-009.test",
+        "answer": {
+          "A": [
+            "192.0.2.53"
+          ],
+          "name": "approved.saf-0503-009.test",
+          "rcode": 0
+        },
+        "unapproved_query_observed": true,
+        "approved_query_observed": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The fixture identity cannot update the Corefile before its named RBAC grant",
+      "matched": true,
+      "observed": {
+        "code": 403,
+        "reason": "Forbidden",
+        "matches_corefile": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same identity updates the exact Corefile after its scoped grant",
+      "matched": true,
+      "observed": {
+        "code": 200,
+        "reason": null,
+        "matches_corefile": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The grant cannot update an unrelated ConfigMap",
+      "matched": true,
+      "observed": {
+        "code": 403,
+        "reason": "Forbidden",
+        "matches_corefile": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Hardened forwarding sends the same safe query only to the configured resolver",
+      "matched": true,
+      "observed": {
+        "query": "approved.saf-0503-009.test",
+        "answer": {
+          "A": [
+            "192.0.2.53"
+          ],
+          "name": "approved.saf-0503-009.test",
+          "rcode": 0
+        },
+        "approved_query_observed": true,
+        "unapproved_query_delta": 0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The isolated CoreDNS copy still resolves the native Kubernetes Service",
+      "matched": true,
+      "observed": {
+        "service": "kubernetes.default.svc.cluster.local",
+        "native_service_ip_matched": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A repeated safe query is answered from the configured cache",
+      "matched": true,
+      "observed": {
+        "query": "approved.saf-0503-009.test",
+        "answer": {
+          "A": [
+            "192.0.2.53"
+          ],
+          "name": "approved.saf-0503-009.test",
+          "rcode": 0
+        },
+        "upstream_query_count_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Configured CoreDNS /health endpoint returns HTTP 200",
+      "matched": true,
+      "observed": {
+        "path": "/health",
+        "status": 200
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Configured CoreDNS /ready endpoint returns HTTP 200",
+      "matched": true,
+      "observed": {
+        "path": "/ready",
+        "status": 200
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "CoreDNS starts with the loop plugin configured and no loop warning",
+      "matched": true,
+      "observed": {
+        "loop_plugin_configured": true,
+        "loop_warning_observed": false
+      }
+    }
+  ]
+}

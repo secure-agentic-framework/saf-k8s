@@ -594,6 +594,12 @@
       "sha256": "e6d95686536b60b52d952c519b0b66b44777f431be7f610704b70045df0ac00b",
       "title": "Ingress TLS termination and boundary configuration hardening"
     },
+    "SAF-K8S-0503-009": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "0453381bec9c2f86fc190bf06a23784ccb4c258d6e1fe9a48fe74e7d70794ba1",
+      "title": "CoreDNS and upstream resolver hardening"
+    },
     "SAF-K8S-0503-011": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -896,7 +902,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "df48eeb47d78b5e42b0f20b4400efb4dc00dcedc",
-  "sha256": "f8e0cf1e01bc0de4b00f018afbbd50ede74ea9107afc25c95416adf9c3533f88",
+  "revision": "ca4bc66230beb0e291f6da0583c9d26381b6f7a7",
+  "sha256": "ba2c83990b7e8dabd3521401627a287dc143c1661a28469381ebabfdcef4730b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
