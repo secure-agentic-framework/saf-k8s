@@ -1,0 +1,170 @@
+{
+  "control_id": "SAF-K8S-1001-029",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "960b9470f9a4418a1bdb6d25e3cb1cfe022155905356284f80e2461ac26f1ae3",
+  "scope": "One ordinary runner-owned kind cluster and namespace; a case-owned Fluent Bit 5.1.2 collector tails two structured ConfigMap-backed fixture files and posts only to a case-owned HTTP evidence sink in that namespace. Synthetic event IDs model Kubernetes audit and AI security telemetry. The case compares source-level expected IDs and counts at the sink across complete, missing-source, partial-source, and recovered runs. It does not test native Kubernetes audit generation, an AI workload, production SIEM alerting, long-term retention, high availability, or sustained/load delivery.",
+  "cluster": "saf-lab-eeb3d63acdb4",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Both expected structured feeds reach the local sink once per event ID",
+      "matched": true,
+      "observed": {
+        "synthetic-k8s-audit": {
+          "expected_count": 2,
+          "observed_count": 2,
+          "expected_event_ids": [
+            "k8s-audit-001",
+            "k8s-audit-002"
+          ],
+          "observed_event_ids": [
+            "k8s-audit-001",
+            "k8s-audit-002"
+          ],
+          "state": "complete"
+        },
+        "synthetic-ai-security": {
+          "expected_count": 2,
+          "observed_count": 2,
+          "expected_event_ids": [
+            "ai-security-001",
+            "ai-security-002"
+          ],
+          "observed_event_ids": [
+            "ai-security-001",
+            "ai-security-002"
+          ],
+          "state": "complete"
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A case-owned missing source produces a sink-side coverage gap against the declared baseline",
+      "matched": true,
+      "observed": {
+        "synthetic-k8s-audit": {
+          "expected_count": 2,
+          "observed_count": 2,
+          "expected_event_ids": [
+            "k8s-audit-001",
+            "k8s-audit-002"
+          ],
+          "observed_event_ids": [
+            "k8s-audit-001",
+            "k8s-audit-002"
+          ],
+          "state": "complete"
+        },
+        "synthetic-ai-security": {
+          "expected_count": 2,
+          "observed_count": 0,
+          "expected_event_ids": [
+            "ai-security-001",
+            "ai-security-002"
+          ],
+          "observed_event_ids": [],
+          "state": "missing_source"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The sink comparison detects the exact event excluded by the collector from a complete source file",
+      "matched": true,
+      "observed": {
+        "synthetic-k8s-audit": {
+          "expected_count": 2,
+          "observed_count": 2,
+          "expected_event_ids": [
+            "k8s-audit-001",
+            "k8s-audit-002"
+          ],
+          "observed_event_ids": [
+            "k8s-audit-001",
+            "k8s-audit-002"
+          ],
+          "state": "complete"
+        },
+        "synthetic-ai-security": {
+          "expected_count": 2,
+          "observed_count": 1,
+          "expected_event_ids": [
+            "ai-security-001",
+            "ai-security-002"
+          ],
+          "observed_event_ids": [
+            "ai-security-001"
+          ],
+          "state": "partial_delivery"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Restoring the collector configuration returns both feeds to their exact healthy state",
+      "matched": true,
+      "observed": {
+        "synthetic-k8s-audit": {
+          "expected_count": 2,
+          "observed_count": 2,
+          "expected_event_ids": [
+            "k8s-audit-001",
+            "k8s-audit-002"
+          ],
+          "observed_event_ids": [
+            "k8s-audit-001",
+            "k8s-audit-002"
+          ],
+          "state": "complete"
+        },
+        "synthetic-ai-security": {
+          "expected_count": 2,
+          "observed_count": 2,
+          "expected_event_ids": [
+            "ai-security-001",
+            "ai-security-002"
+          ],
+          "observed_event_ids": [
+            "ai-security-001",
+            "ai-security-002"
+          ],
+          "state": "complete"
+        }
+      }
+    }
+  ]
+}

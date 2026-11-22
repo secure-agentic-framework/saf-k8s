@@ -1,0 +1,14 @@
+{
+  "fixture_profile": "synthetic-owned-telemetry-v1",
+  "sources": {
+    "k8s_audit": [
+      {"event_id": "k8s-audit-001", "source_id": "synthetic-k8s-audit", "event_type": "audit_record", "action": "create", "resource": "configmap", "result": "allowed", "synthetic": true},
+      {"event_id": "k8s-audit-002", "source_id": "synthetic-k8s-audit", "event_type": "audit_record", "action": "update", "resource": "deployment", "result": "allowed", "synthetic": true}
+    ],
+    "ai_security": [
+      {"event_id": "ai-security-001", "source_id": "synthetic-ai-security", "event_type": "model_guardrail", "action": "policy_check", "result": "blocked_by_fixture_policy", "synthetic": true},
+      {"event_id": "ai-security-002", "source_id": "synthetic-ai-security", "event_type": "model_runtime", "action": "inference_metadata", "result": "completed", "synthetic": true}
+    ]
+  },
+  "expected_counts_per_run": {"synthetic-k8s-audit": 2, "synthetic-ai-security": 2}
+}

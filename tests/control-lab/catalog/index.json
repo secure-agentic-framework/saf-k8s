@@ -990,6 +990,12 @@
       "sha256": "498d90bbe4921b9b8a6929b97a72c4d90b8cd2981e5907d82c3f9acd466a5ffe",
       "title": "Kubernetes audit level and stage filtering for AI workloads"
     },
+    "SAF-K8S-1001-029": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "960b9470f9a4418a1bdb6d25e3cb1cfe022155905356284f80e2461ac26f1ae3",
+      "title": "SIEM ingestion health, delivery completeness, and source coverage monitoring"
+    },
     "SAF-K8S-1007-017": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -998,7 +1004,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "098050c1bece13dcc94e838d56ff39447a17be83",
+  "revision": "68a367f7e122a6e71845dd92171eb05b07ba210f",
   "sha256": "0264e66c6532b9cabd3d3301582d0dad604e98d0619e96179371fc65ec016af9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
