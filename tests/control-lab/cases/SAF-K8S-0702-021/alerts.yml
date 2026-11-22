@@ -1,0 +1,28 @@
+groups:
+  - name: saf-namespace-quota
+    rules:
+      - alert: NamespaceExtendedResourceQuotaHigh
+        expr: |
+          max by (namespace, resourcequota, resource) (
+            kube_resourcequota{
+              namespace="saf-test",
+              resourcequota="synthetic-accelerator-budget",
+              resource="requests.gpu.vendor.example/units",
+              type="used"
+            }
+          )
+          /
+          max by (namespace, resourcequota, resource) (
+            kube_resourcequota{
+              namespace="saf-test",
+              resourcequota="synthetic-accelerator-budget",
+              resource="requests.gpu.vendor.example/units",
+              type="hard"
+            }
+          ) >= 0.75
+        for: 4s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Namespace {{ $labels.namespace }} is approaching its accelerator quota"
+          description: "Declared accelerator quota use is {{ $value | humanizePercentage }}."

@@ -528,6 +528,12 @@
       "sha256": "a062cd95f6a93938db8ffb4752b79e2f884041ca690bfa156e4088fcdd841c36",
       "title": "Namespace ResourceQuota enforcement for GPU and AI workloads"
     },
+    "SAF-K8S-0702-021": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "b0ae805b4d2060d306ba9e5fcc99424da1a19d7acec6cccb0030c8c1dc42b1a3",
+      "title": "Namespace quota utilization monitoring and exhaustion alerting for GPU and AI workloads"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -542,7 +548,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ebe31d5d72b6a96e269e4f870276d7bc9cb5f493",
+  "revision": "f40800517b4f85b71f1609951778adb9e39dbaaa",
   "sha256": "957795ca0841a48dd97f65d6a691d642bc38d11bbf391056ec5ea9b34e1a131b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

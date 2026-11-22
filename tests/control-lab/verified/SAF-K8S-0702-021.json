@@ -1,0 +1,117 @@
+{
+  "control_id": "SAF-K8S-0702-021",
+  "catalog_revision": "36d67fc68b5176566299ebffa1c448bea0a6dc2c",
+  "catalog_sha256": "957795ca0841a48dd97f65d6a691d642bc38d11bbf391056ec5ea9b34e1a131b",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "b0ae805b4d2060d306ba9e5fcc99424da1a19d7acec6cccb0030c8c1dc42b1a3",
+  "scope": "Live v1.36.1 ResourceQuota status and kube-state-metrics scrape on local kind. Prometheus evaluates a live warning rule across bounded synthetic accelerator declarations and sees recovery. Hardware utilization, billing and notification delivery require separate evidence.",
+  "cluster": "saf-lab-890745eb6b79",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The live quota metrics are present and the unused quota has no firing alert",
+      "matched": true,
+      "observed": {
+        "quota_used": "0",
+        "quota_hard": "4",
+        "prometheus_used": [
+          "0"
+        ],
+        "prometheus_hard": [
+          "4"
+        ],
+        "firing": []
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "One declared unit is scraped and stays below the threshold",
+      "matched": true,
+      "observed": {
+        "quota_used": "1",
+        "quota_hard": "4",
+        "prometheus_used": [
+          "1"
+        ],
+        "prometheus_hard": [
+          "4"
+        ],
+        "firing": []
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Prometheus fires at 75 percent while quota headroom remains",
+      "matched": true,
+      "observed": {
+        "quota_used": "3",
+        "quota_hard": "4",
+        "prometheus_used": [
+          "3"
+        ],
+        "prometheus_hard": [
+          "4"
+        ],
+        "firing": [
+          "1"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both inert declarations remain Pending with no advertised accelerator",
+      "matched": true,
+      "observed": [
+        "synthetic-accelerator-high",
+        "synthetic-accelerator-low"
+      ]
+    },
+    {
+      "phase": "green",
+      "claim": "The live warning clears when declared quota usage drops to 25 percent",
+      "matched": true,
+      "observed": {
+        "quota_used": "1",
+        "quota_hard": "4",
+        "prometheus_used": [
+          "1"
+        ],
+        "prometheus_hard": [
+          "4"
+        ],
+        "firing": []
+      }
+    }
+  ]
+}
