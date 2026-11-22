@@ -714,6 +714,12 @@
       "sha256": "9cc82b4d0ef875f27e008b42ff073701acc31feac294a2999530667cfe44a860",
       "title": "Node affinity rules, taints, and tolerations for AI workload isolation"
     },
+    "SAF-K8S-0703-013": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "e0deb30413804c064b1b2f450841d298a524d7e19b24d43c9bb8ec28fc72d43c",
+      "title": "Topology-aware scheduling for GPU locality with blast-radius containment"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -728,7 +734,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "5677fee3014a1b5e7da0043cfae5b6d75a4aec0e",
+  "revision": "67cef27a964a1efabc4a57c56abc0372a0580682",
   "sha256": "e8d024860997c85e65dcb4d9a1c10c9e716416ecfea1f4d4479987609b4092f0",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

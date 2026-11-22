@@ -1,0 +1,126 @@
+{
+  "control_id": "SAF-K8S-0703-013",
+  "catalog_revision": "d4328fde2e235c4d4a65baf2e08f7e45cfb81217",
+  "catalog_sha256": "e8d024860997c85e65dcb4d9a1c10c9e716416ecfea1f4d4479987609b4092f0",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "e0deb30413804c064b1b2f450841d298a524d7e19b24d43c9bb8ec28fc72d43c",
+  "scope": "Kubernetes v1.36.1 on a disposable three-node kind cluster. Synthetic worker labels exercise ordinary node-selector placement and Pod topology spread across two named failure domains. The fixture does not configure kubelet Topology Manager, expose NUMA hardware or GPU resources, install a device plugin/vendor operator, or measure NVLink/NVSwitch connectivity or bandwidth. Production labels, hardware topology, plugin behavior, and workload fault tolerance require separate evidence.",
+  "cluster": "saf-lab-c4f3723b3d46",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Fixture has two synthetic compute failure domains and one locality-labeled worker",
+      "matched": true,
+      "observed": {
+        "compute_workers": 2,
+        "failure_domains": [
+          "fd-a",
+          "fd-b"
+        ],
+        "aligned_worker_count": 1
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without a synthetic locality selector, a benign Pod runs in the unlabeled fixture domain",
+      "matched": true,
+      "observed": {
+        "phase": "Running",
+        "assigned_domain": "fd-a",
+        "locality_selector_present": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A synthetic locality selector places the Pod only on the labeled worker",
+      "matched": true,
+      "observed": {
+        "scheduled": true,
+        "node_has_synthetic_locality_label": true,
+        "selector": "saf.example/numa-fixture=aligned"
+      }
+    },
+    {
+      "phase": "negative",
+      "claim": "A requested synthetic locality value absent from all workers remains unscheduled",
+      "matched": true,
+      "observed": {
+        "scheduled": false,
+        "reason": "Unschedulable",
+        "selector_failure_confirmed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Topology spread places four matching Pods across both synthetic failure domains",
+      "matched": true,
+      "observed": {
+        "domain_counts": {
+          "fd-a": 2,
+          "fd-b": 2
+        },
+        "all_running": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "One additional fd-a Pod is allowed while resulting skew remains one",
+      "matched": true,
+      "observed": {
+        "scheduled": true,
+        "assigned_domain": "fd-a"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without the spread constraint, the same second fd-a-only Pod runs at skew two",
+      "matched": true,
+      "observed": {
+        "running": true,
+        "assigned_domain": "fd-a"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A second fd-a-only Pod is blocked because it would exceed maxSkew",
+      "matched": true,
+      "observed": {
+        "scheduled": false,
+        "reason": "Unschedulable",
+        "spread_failure_confirmed": true,
+        "nodeAffinityPolicy": "Ignore"
+      }
+    }
+  ]
+}

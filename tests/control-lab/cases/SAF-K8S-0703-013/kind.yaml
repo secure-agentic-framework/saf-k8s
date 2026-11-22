@@ -1,0 +1,22 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+  - role: worker
+    kubeadmConfigPatches:
+      - |
+        apiVersion: kubeadm.k8s.io/v1beta4
+        kind: JoinConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            - name: node-labels
+              value: saf.example/node-pool=compute,saf.example/failure-domain=fd-a
+  - role: worker
+    kubeadmConfigPatches:
+      - |
+        apiVersion: kubeadm.k8s.io/v1beta4
+        kind: JoinConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            - name: node-labels
+              value: saf.example/node-pool=compute,saf.example/numa-fixture=aligned,saf.example/failure-domain=fd-b
