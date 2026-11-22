@@ -1,0 +1,102 @@
+{
+  "control_id": "SAF-K8S-1007-016",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "889abe14de019dbfefa183cbea07391331a1e41c02ddb24b44c8a0b92b03fbaf",
+  "scope": "One disposable default-layout Kind v1.36.1 node. The case labels that node as a synthetic candidate, observes an inert digest-pinned pause Pod schedule before a fixture-scoped NoSchedule taint, then observes an untolerating Pod remain unscheduled and a tolerating Pod receive a scheduler-assigned nodeName. It parses local fictional attestation and driver-evidence JSON fixtures and records mock eligibility decisions. This does not provision or identify GPU hardware, install or inspect a driver, cryptographically verify attestation, verify signatures or real checksums, integrate an onboarding gate with Kubernetes, or establish production label/taint authority.",
+  "review_timing": {
+    "queued_at": "2026-11-22T19:28:38.255056+00:00",
+    "cluster_ready_at": "2026-11-22T19:29:06.881635+00:00",
+    "approval_at": "2026-11-22T19:30:20.114535+00:00",
+    "case_loaded_at": "2026-11-22T19:30:20.181319+00:00"
+  },
+  "cluster": "saf-lab-b0d9532905d9",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "26e7f30958c770dedfe6b73f2e6c37e9e9bb2e80e550ad120a40d306b3ab2f84",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Before the candidate taint, an inert Pod can schedule to the candidate node",
+      "matched": true,
+      "observed": {
+        "scheduler_assigned_candidate_node": true,
+        "fixture_taint_present": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The scheduler leaves an untolerating candidate Pod unscheduled for the scoped taint",
+      "matched": true,
+      "observed": {
+        "scheduler_reported_untolerated_taint": true,
+        "scoped_taint_read_back": true,
+        "node_name_empty": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Synthetic attestation failure and driver digest mismatch each independently yield hold",
+      "matched": true,
+      "observed": {
+        "attestation_failure": {
+          "decision": "hold",
+          "evidence_class": "synthetic-fixture-only",
+          "attestation_fields_match_fixture_contract": false,
+          "driver_fields_match_fixture_contract": true,
+          "cryptographic_attestation_verified": false,
+          "host_driver_or_checksum_inspected": false
+        },
+        "driver_digest_mismatch": {
+          "decision": "hold",
+          "evidence_class": "synthetic-fixture-only",
+          "attestation_fields_match_fixture_contract": true,
+          "driver_fields_match_fixture_contract": false,
+          "cryptographic_attestation_verified": false,
+          "host_driver_or_checksum_inspected": false
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Matching synthetic fixture records permit an inert Pod that tolerates the taint to schedule",
+      "matched": true,
+      "observed": {
+        "mock_decision": "eligible",
+        "scheduler_assigned_candidate_node": true,
+        "cryptographic_attestation_verified": false,
+        "host_driver_or_checksum_inspected": false
+      }
+    }
+  ]
+}

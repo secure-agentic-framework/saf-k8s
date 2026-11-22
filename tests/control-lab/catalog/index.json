@@ -1488,6 +1488,12 @@
       "sha256": "4f075e69f52d7dbc01c182a5d3f1e9b1daee3bc3aa42455913f4c04a6e8c5d69",
       "title": "AI asset classification and criticality governance for Kubernetes environments"
     },
+    "SAF-K8S-1007-016": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "889abe14de019dbfefa183cbea07391331a1e41c02ddb24b44c8a0b92b03fbaf",
+      "title": "GPU node hardware attestation, driver integrity, and taint verification"
+    },
     "SAF-K8S-1007-017": {
       "catalog_status": "draft",
       "domain": "D10",

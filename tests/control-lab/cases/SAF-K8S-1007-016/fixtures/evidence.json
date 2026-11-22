@@ -1,0 +1,40 @@
+{
+  "fixture_notice": "Entirely fictional defensive test data. No hardware, vendor, host, key, signature, feed, or target was inspected.",
+  "node_alias": "urn:example:saf-k8s:1007-016:kind-single-node",
+  "attestation": {
+    "schema": "urn:example:saf-k8s:attestation-fixture:v1",
+    "source_kind": "synthetic-fixture",
+    "subject": "urn:example:saf-k8s:1007-016:kind-single-node",
+    "fixture_result": "pass",
+    "verification_performed": false,
+    "signature": "<reserved-placeholder-not-a-signature>"
+  },
+  "driver_evidence": {
+    "schema": "urn:example:saf-k8s:driver-fixture:v1",
+    "source_kind": "synthetic-fixture",
+    "subject": "urn:example:saf-k8s:1007-016:kind-single-node",
+    "component": "mock-gpu-driver",
+    "version": "0.0-fixture",
+    "fixture_result": "pass",
+    "observed_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "approved_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+  },
+  "negative_attestation": {
+    "schema": "urn:example:saf-k8s:attestation-fixture:v1",
+    "source_kind": "synthetic-fixture",
+    "subject": "urn:example:saf-k8s:1007-016:kind-single-node",
+    "fixture_result": "fail",
+    "verification_performed": false,
+    "signature": "<reserved-placeholder-not-a-signature>"
+  },
+  "negative_driver_evidence": {
+    "schema": "urn:example:saf-k8s:driver-fixture:v1",
+    "source_kind": "synthetic-fixture",
+    "subject": "urn:example:saf-k8s:1007-016:kind-single-node",
+    "component": "mock-gpu-driver",
+    "version": "0.0-fixture",
+    "fixture_result": "pass",
+    "observed_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "approved_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+  }
+}
