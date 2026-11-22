@@ -294,6 +294,12 @@
       "sha256": "97bd0eb0f91a693f025f4fb7f1fe47ae74f5f8a312c75ae95ef91eed2d098833",
       "title": "Rootless node verification and placement eligibility"
     },
+    "SAF-K8S-0203-002": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "00f49c361501550fca3fe62fc14619550cf47ea4437c2b66407ba7fe99b3d182",
+      "title": "Kernel parameter hardening via sysctl"
+    },
     "SAF-K8S-0301-001": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -842,7 +848,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "662ce8f83189d390ec2ee6ca742a5a925fdb53f2",
+  "revision": "afd72963b7976048a0ca9694374ce18a13cea0d0",
   "sha256": "115d55b7443aed0213c5b909968f35b73439c1376fb56857836f63c2b08ce322",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
