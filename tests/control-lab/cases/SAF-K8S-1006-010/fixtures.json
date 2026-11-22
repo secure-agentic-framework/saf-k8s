@@ -1,0 +1,131 @@
+{
+  "exact_approved": {
+    "apiVersion": "saf-lab.example/v1alpha1",
+    "kind": "PolicyException",
+    "metadata": {
+      "name": "exact-approved",
+      "namespace": "saf-test"
+    },
+    "spec": {
+      "policyRef": "ai-workload-compliance",
+      "scope": {
+        "namespace": "saf-test",
+        "kind": "Deployment",
+        "name": "saf-ai-exception-workload"
+      },
+      "approval": {
+        "status": "approved",
+        "approverIdentity": "fixture-placeholder",
+        "justification": "Synthetic exception for a disposable inert workload"
+      },
+      "expiresAt": "2026-12-22T00:00:00Z"
+    }
+  },
+  "broad_scope": {
+    "apiVersion": "saf-lab.example/v1alpha1",
+    "kind": "PolicyException",
+    "metadata": {
+      "name": "guarded-broad",
+      "namespace": "saf-test"
+    },
+    "spec": {
+      "policyRef": "ai-workload-compliance",
+      "scope": {
+        "namespace": "*",
+        "kind": "Deployment",
+        "name": "saf-ai-exception-workload"
+      },
+      "approval": {
+        "status": "approved",
+        "approverIdentity": "fixture-placeholder",
+        "justification": "Synthetic broad-scope challenge"
+      },
+      "expiresAt": "2026-12-22T00:00:00Z"
+    }
+  },
+  "stale_exact": {
+    "apiVersion": "saf-lab.example/v1alpha1",
+    "kind": "PolicyException",
+    "metadata": {
+      "name": "guarded-stale",
+      "namespace": "saf-test"
+    },
+    "spec": {
+      "policyRef": "ai-workload-compliance",
+      "scope": {
+        "namespace": "saf-test",
+        "kind": "Deployment",
+        "name": "saf-ai-exception-workload"
+      },
+      "approval": {
+        "status": "approved",
+        "approverIdentity": "fixture-placeholder",
+        "justification": "Synthetic stale-record challenge"
+      },
+      "expiresAt": "2025-01-01T00:00:00Z"
+    }
+  },
+  "missing_approver": {
+    "apiVersion": "saf-lab.example/v1alpha1",
+    "kind": "PolicyException",
+    "metadata": {
+      "name": "guarded-no-approver",
+      "namespace": "saf-test"
+    },
+    "spec": {
+      "policyRef": "ai-workload-compliance",
+      "scope": {
+        "namespace": "saf-test",
+        "kind": "Deployment",
+        "name": "saf-ai-exception-workload"
+      },
+      "approval": {
+        "status": "approved",
+        "justification": "Synthetic required-field challenge"
+      },
+      "expiresAt": "2026-12-22T00:00:00Z"
+    }
+  },
+  "missing_justification": {
+    "apiVersion": "saf-lab.example/v1alpha1",
+    "kind": "PolicyException",
+    "metadata": {
+      "name": "guarded-no-justification",
+      "namespace": "saf-test"
+    },
+    "spec": {
+      "policyRef": "ai-workload-compliance",
+      "scope": {
+        "namespace": "saf-test",
+        "kind": "Deployment",
+        "name": "saf-ai-exception-workload"
+      },
+      "approval": {
+        "status": "approved",
+        "approverIdentity": "fixture-placeholder"
+      },
+      "expiresAt": "2026-12-22T00:00:00Z"
+    }
+  },
+  "missing_expiration": {
+    "apiVersion": "saf-lab.example/v1alpha1",
+    "kind": "PolicyException",
+    "metadata": {
+      "name": "guarded-no-expiration",
+      "namespace": "saf-test"
+    },
+    "spec": {
+      "policyRef": "ai-workload-compliance",
+      "scope": {
+        "namespace": "saf-test",
+        "kind": "Deployment",
+        "name": "saf-ai-exception-workload"
+      },
+      "approval": {
+        "status": "approved",
+        "approverIdentity": "fixture-placeholder",
+        "justification": "Synthetic required-field challenge"
+      }
+    }
+  }
+}

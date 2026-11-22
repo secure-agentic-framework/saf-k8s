@@ -1,0 +1,59 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-lab-1006-010-exception-governance
+spec:
+  failurePolicy: Fail
+  paramKind:
+    apiVersion: v1
+    kind: ConfigMap
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [saf-lab.example]
+        apiVersions: [v1alpha1]
+        operations: [CREATE, UPDATE]
+        resources: [policyexceptions]
+  validations:
+    - expression: >-
+        has(object.spec.policyRef) &&
+        object.spec.policyRef == 'ai-workload-compliance' &&
+        has(object.spec.scope) &&
+        has(object.spec.scope.namespace) &&
+        object.spec.scope.namespace == 'saf-test' &&
+        has(object.spec.scope.kind) &&
+        object.spec.scope.kind == 'Deployment' &&
+        has(object.spec.scope.name) &&
+        object.spec.scope.name == 'saf-ai-exception-workload'
+      message: exception scope must match the named policy and workload
+      reason: Forbidden
+    - expression: >-
+        has(object.spec.approval) &&
+        has(object.spec.approval.status) &&
+        object.spec.approval.status == 'approved' &&
+        has(object.spec.approval.approverIdentity) &&
+        request.userInfo.username == object.spec.approval.approverIdentity &&
+        has(object.spec.approval.justification) &&
+        size(object.spec.approval.justification.trim()) > 0
+      message: exception requires approval attributed to the authenticated caller and justification
+      reason: Forbidden
+    - expression: >-
+        has(object.spec.expiresAt) &&
+        params != null &&
+        timestamp(object.spec.expiresAt) > timestamp(params.data.cutoff)
+      message: exception expiry must follow the protected cutoff
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-lab-1006-010-exception-governance
+spec:
+  policyName: saf-lab-1006-010-exception-governance
+  validationActions: [Deny]
+  paramRef:
+    name: fixture-exception-clock
+    parameterNotFoundAction: Deny
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-lab.example/exception-test: "true"

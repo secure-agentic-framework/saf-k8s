@@ -996,6 +996,12 @@
       "sha256": "960b9470f9a4418a1bdb6d25e3cb1cfe022155905356284f80e2461ac26f1ae3",
       "title": "SIEM ingestion health, delivery completeness, and source coverage monitoring"
     },
+    "SAF-K8S-1006-010": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "74f21e8e1240e6edb5f6f7cd1a02dd7a22f02c984b6c1a5e713ce16410801fa7",
+      "title": "Policy exception approval and expiration governance for AI workload compliance"
+    },
     "SAF-K8S-1007-017": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1004,7 +1010,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "b81919aaf10faaba046fe479dc024c58003b3574",
+  "revision": "38ce2b07ce7d996655f36ab0e2ad97a2fa7d0b04",
   "sha256": "eb09f73c734ce9fb61334c4114a1c97b53636c859a90ae5fa9dc4148d220bfa8",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

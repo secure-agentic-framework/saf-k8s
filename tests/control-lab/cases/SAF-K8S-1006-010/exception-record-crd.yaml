@@ -1,0 +1,46 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: policyexceptions.saf-lab.example
+spec:
+  group: saf-lab.example
+  scope: Namespaced
+  names:
+    plural: policyexceptions
+    singular: policyexception
+    kind: PolicyException
+    shortNames: [pex]
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                policyRef:
+                  type: string
+                scope:
+                  type: object
+                  properties:
+                    namespace:
+                      type: string
+                    kind:
+                      type: string
+                    name:
+                      type: string
+                approval:
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                    approverIdentity:
+                      type: string
+                    justification:
+                      type: string
+                expiresAt:
+                  type: string
+                  format: date-time
