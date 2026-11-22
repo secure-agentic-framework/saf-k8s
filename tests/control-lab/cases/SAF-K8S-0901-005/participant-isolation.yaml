@@ -1,0 +1,43 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: participant-isolation
+  namespace: saf-0901-005-participant-a
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: saf-0901-005-aggregation
+          podSelector:
+            matchLabels:
+              saf-k8s.example/0901-005-role: aggregation
+      ports:
+        - protocol: TCP
+          port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: participant-isolation
+  namespace: saf-0901-005-participant-b
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: saf-0901-005-aggregation
+          podSelector:
+            matchLabels:
+              saf-k8s.example/0901-005-role: aggregation
+      ports:
+        - protocol: TCP
+          port: 8080

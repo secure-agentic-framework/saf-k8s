@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: approved-participant-ingress
+  namespace: saf-0901-005-aggregation
+spec:
+  podSelector:
+    matchLabels:
+      saf-k8s.example/0901-005-role: aggregation
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: saf-0901-005-participant-a
+          podSelector:
+            matchLabels:
+              saf-k8s.example/0901-005-role: participant
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: saf-0901-005-participant-b
+          podSelector:
+            matchLabels:
+              saf-k8s.example/0901-005-role: participant
+      ports:
+        - protocol: TCP
+          port: 8080
