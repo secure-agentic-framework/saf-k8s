@@ -1,0 +1,105 @@
+{
+  "control_id": "SAF-K8S-1001-032",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "3e0b09b564e804d392de762cdf1978100125085136a3ba6ae100f8da122c29d7",
+  "scope": "One disposable v1.36.1 cluster with a control plane and two workers. A real DaemonSet reads the distinct read-only owned marker and actual fixture Pod logs on each covered node. One worker has a synthetic accelerator NoSchedule taint. GPU hardware/driver and cloud-provider collection require separate evidence.",
+  "cluster": "saf-lab-d2911dbf2ad5",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Owned Pod log sources are live on all nodes before collection",
+      "matched": true,
+      "observed": {
+        "source_roles": [
+          "control-plane",
+          "worker",
+          "worker2"
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The untolerated accelerator worker misses both collector sources",
+      "matched": true,
+      "observed": {
+        "sources": {
+          "worker": {
+            "marker": "saf032-node-worker",
+            "workload": "saf032-stdout-worker"
+          },
+          "control-plane": {
+            "marker": "saf032-node-control-plane",
+            "workload": "saf032-stdout-control-plane"
+          }
+        },
+        "collector_nodes": [
+          "control-plane",
+          "worker"
+        ],
+        "desired": 2,
+        "ready": 2
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The exact toleration covers all nodes and collects both sources from each",
+      "matched": true,
+      "observed": {
+        "sources": {
+          "control-plane": {
+            "marker": "saf032-node-control-plane",
+            "workload": "saf032-stdout-control-plane"
+          },
+          "worker2": {
+            "marker": "saf032-node-worker2",
+            "workload": "saf032-stdout-worker2"
+          },
+          "worker": {
+            "marker": "saf032-node-worker",
+            "workload": "saf032-stdout-worker"
+          }
+        },
+        "collector_nodes": [
+          "control-plane",
+          "worker",
+          "worker2"
+        ],
+        "desired": 3,
+        "ready": 3
+      }
+    }
+  ]
+}

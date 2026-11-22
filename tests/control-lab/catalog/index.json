@@ -1068,6 +1068,12 @@
       "sha256": "246ef3df0dd2b54b44629d62cb84e84796fc78c6a8661fa525ae58581d93eb01",
       "title": "Tenant and workload context preservation for AI log segregation and searchability"
     },
+    "SAF-K8S-1001-032": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "3e0b09b564e804d392de762cdf1978100125085136a3ba6ae100f8da122c29d7",
+      "title": "Cluster-wide Kubernetes and AI log source coverage"
+    },
     "SAF-K8S-1006-004": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1100,7 +1106,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "f1114f62dc3b2fbf418f0891a8bb6eb4837fae15",
+  "revision": "833abcb9e4d1ca341ad17b9ab9322d0bf83c5016",
   "sha256": "5468afd7544aceb8f79e434b7d58a52fc41eeee0b3084837f4dc587efc72cace",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
