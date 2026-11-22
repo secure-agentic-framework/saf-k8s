@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1007-007",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "52e7d0d2bdfc13b5d0d961b6ab166546ca155832",
+  "catalog_sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "4cd30960a684800bed363d14247e132b2adb54a88f1aca2e3bd035568aaa23c4",
   "scope": "One disposable Kind v1.36.1 cluster. A small server-side dry-run Pod request is compared before and after a namespace CPU/memory ResourceQuota; a second request at the remaining declared budget is admitted. Two case-owned PriorityClasses are read back and resolved onto dry-run Pods, with preemption disabled. One tokenless, low-resource HTTP fixture Pod is observed Ready and read through the Kubernetes API Service proxy before and after quota checks, and looks up the exact in-cluster Kubernetes Service via CoreDNS. This does not create pressure or simulate training. It does not demonstrate actual scheduler ordering under contention, protection of built-in control-plane components, CoreDNS resolution latency, real metrics scrape success, log forwarding lag, node/network capacity, or production service availability.",
-  "cluster": "saf-lab-8f74a67cbb32",
+  "cluster": "saf-lab-a7f4528b466b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
