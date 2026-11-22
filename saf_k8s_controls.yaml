@@ -5592,7 +5592,7 @@
   control_title: Admission webhook fail-closed enforcement and timeout bounds
   control_statement: Security-critical admission webhooks must use a failure policy of Fail and must set timeout values that bound API server latency while preserving fail-closed enforcement for requests that cannot be safely evaluated.
   objective: Ensure admission decisions fail securely without allowing webhook latency or misconfiguration to silently disable enforcement or destabilize the API server request path.
-  rationale: 'A webhook configured with failurePolicy: Ignore or with unbounded response times can create either a silent policy bypass or an API server degradation path that attackers can exploit. Fail-closed behavior paired with deliberate timeout bounds preserves enforcement intent and keeps admission failure modes predictable.'
+  rationale: 'When a webhook invocation errors or exceeds its timeout, failurePolicy: Ignore lets admission continue and failurePolicy: Fail rejects the request. Kubernetes v1.36 defaults each webhook call to 10 seconds and accepts explicit timeoutSeconds values from 1 through 30. Choose a per-webhook budget appropriate to the full request path and verify how the API server handles slow or unavailable webhooks.'
   scope: Applies to all validating and mutating admission webhooks in production and staging Kubernetes clusters where webhook decisions enforce security-relevant policy.
   primary_enforcement_point: Kubernetes API server webhook configuration.
   implementation_surface: ValidatingWebhookConfiguration and MutatingWebhookConfiguration resources, failurePolicy settings, timeoutSeconds configuration, and operational validation of fail-closed behavior for security-critical request paths.
