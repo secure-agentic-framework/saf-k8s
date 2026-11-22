@@ -606,6 +606,12 @@
       "sha256": "e309b7c859c5ec174c187f9e34fa199fac8034537aac790744fc0a928bbdd4ac",
       "title": "External traffic policy mode selection and tradeoff governance"
     },
+    "SAF-K8S-0503-012": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "f244d806ec0e16a6fc671a06a1191ccb35d19baacfdc108ad33c56b8c99595af",
+      "title": "Client source IP preservation for external services"
+    },
     "SAF-K8S-0505-002": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -902,7 +908,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ca4bc66230beb0e291f6da0583c9d26381b6f7a7",
+  "revision": "541fe6153f26b505302c44df49897b8c14238e36",
   "sha256": "ba2c83990b7e8dabd3521401627a287dc143c1661a28469381ebabfdcef4730b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

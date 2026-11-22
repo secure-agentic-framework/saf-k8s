@@ -1,0 +1,182 @@
+{
+  "control_id": "SAF-K8S-0503-012",
+  "catalog_revision": "619c1478dc53b82ee7825214d7a3dd81af588371",
+  "catalog_sha256": "ba2c83990b7e8dabd3521401627a287dc143c1661a28469381ebabfdcef4730b",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "f244d806ec0e16a6fc671a06a1191ccb35d19baacfdc108ad33c56b8c99595af",
+  "scope": "One fresh disposable Kubernetes v1.36.1 Kind cluster with one control-plane node and one worker, both owned by the by-ID runner and pinned to the same kindest/node digest. A single ready, non-privileged synthetic HTTP Pod runs on that worker behind one NodePort Service. A runner-owned Python client container attaches to the local Docker bridge shared by the Kind nodes. Its actual bridge IPv4 is read from scoped Docker inspection, then ordinary HTTP requests from that container reach the worker's bridge IPv4 and NodePort. The same NodePort, node, Service, and endpoint serve a live marker in explicit Cluster and Local arms. The endpoint reports the TCP peer address from the accepted socket; no HTTP forwarding header is used. This measures Kind, its Docker bridge, and kube-proxy only. It does not verify cloud load balancers, proxy-protocol or forwarded-header configuration, production policy rollout, or the per-Service governance obligation. No public endpoint, spoofing, data capture, or packet method is used.",
+  "cluster": "saf-lab-dfecb2220c50",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Kind reports exactly the two expected owned nodes",
+      "matched": true,
+      "observed": {
+        "exact_node_set": true,
+        "node_count": 2
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Each inspected node is an exact node owned by this Kind cluster",
+      "matched": true,
+      "observed": {
+        "exact_container_name": true,
+        "kind_cluster_label_matches": true,
+        "expected_kind_role_matches": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Each inspected node is an exact node owned by this Kind cluster",
+      "matched": true,
+      "observed": {
+        "exact_container_name": true,
+        "kind_cluster_label_matches": true,
+        "expected_kind_role_matches": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Kind nodes share exactly one local Docker bridge",
+      "matched": true,
+      "observed": {
+        "shared_local_bridge_found": true,
+        "shared_local_bridge_count": 1
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The worker has a usable IPv4 on the selected Kind bridge",
+      "matched": true,
+      "observed": {
+        "selected_worker_found": true,
+        "worker_bridge_ipv4_valid": true,
+        "selected_network_is_local_bridge": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "One ready harmless endpoint is on the selected worker",
+      "matched": true,
+      "observed": {
+        "pod_ready": true,
+        "endpoint_on_selected_worker": true,
+        "endpoint_pod_ipv4_valid": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The Service has exactly the same ready worker endpoint",
+      "matched": true,
+      "observed": {
+        "single_ready_endpoint_on_selected_worker": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact owned client container is running on the selected Kind bridge",
+      "matched": true,
+      "observed": {
+        "exact_container_name": true,
+        "container_running": true,
+        "digest_pinned_image_matches": true,
+        "attached_to_selected_bridge": true,
+        "client_bridge_ipv4_valid": true,
+        "client_ip_differs_from_node_ip": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Cluster baseline serves the live marker but rewrites the client peer",
+      "matched": true,
+      "observed": {
+        "service_policy": "Cluster",
+        "node_port": 30080,
+        "receipt_summary": {
+          "request_count": 3,
+          "responses_received": 3,
+          "all_http_responses": true,
+          "all_status_200": true,
+          "all_markers_match": true,
+          "all_peer_addresses_are_ipv4": true,
+          "all_peers_match_client": false,
+          "peer_is_entry_node_for_all": false
+        },
+        "all_connections_rewritten": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Only policy changed; the same NodePort and endpoint remain",
+      "matched": true,
+      "observed": {
+        "same_service_uid": true,
+        "same_node_port": true,
+        "same_selector": true,
+        "same_endpoint_pod_uid": true,
+        "same_ready_endpoint_after_patch": true,
+        "policy_is_local": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Local serves the same live marker with the actual client peer IPv4",
+      "matched": true,
+      "observed": {
+        "service_policy": "Local",
+        "node_port": 30080,
+        "receipt_summary": {
+          "request_count": 3,
+          "responses_received": 3,
+          "all_http_responses": true,
+          "all_status_200": true,
+          "all_markers_match": true,
+          "all_peer_addresses_are_ipv4": true,
+          "all_peers_match_client": true,
+          "peer_is_entry_node_for_all": false
+        },
+        "rewritten_connection_count": 0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact owned client container is absent after cleanup",
+      "matched": true,
+      "observed": {
+        "exact_client_container_absent": true
+      }
+    }
+  ]
+}
