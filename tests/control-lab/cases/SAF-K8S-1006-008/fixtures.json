@@ -1,0 +1,206 @@
+{
+  "fixture_set": "saf-k8s-1006-008-synthetic-v1",
+  "reserved_placeholder_domain": "example.invalid",
+  "scenarios": {
+    "consistent-development": {
+      "artifact": {
+        "artifact_id": "saf-fixture-artifact-001",
+        "fixture_payload": "SYNTHETIC ARTIFACT METADATA PLACEHOLDER ONLY; no model weights or executable bytes.",
+        "kind": "metadata-only-placeholder",
+        "sha256": "7d5005bb98a70aea7ac774fd72ae24ca08ca1b007dc9769ab88bbe479ca7bb5a",
+        "version": "1.0.0",
+        "weights_present": false
+      },
+      "dataset": {
+        "dataset_id": "saf-fixture-dataset-001",
+        "fixture_payload": "SYNTHETIC ONLY: sample=fixture-a,label=0\\nsample=fixture-b,label=1\\n",
+        "integrity_observation": "fixture_digest_only",
+        "provenance_state": "known",
+        "sha256": "ac39cfac2b08672f9f972bdc55335303d6d45c8d48606e2b32152ec5c1c42f35",
+        "source_ref": "https://saf-k8s-1006-008.example.invalid/dataset-v1",
+        "version": "1.0.0"
+      },
+      "environment": {
+        "environment_id": "saf-fixture-training-env-001",
+        "isolation_observation": "metadata_only_not_assessed",
+        "version": "1.0.0"
+      },
+      "evidence_scope": "ai_model_development",
+      "organizational_state": {
+        "actual_operation": "unknown",
+        "governance": "unknown"
+      },
+      "profile": "NIST.SP.800-218A-2024-07",
+      "release": {
+        "artifact_id": "saf-fixture-artifact-001",
+        "artifact_sha256": "7d5005bb98a70aea7ac774fd72ae24ca08ca1b007dc9769ab88bbe479ca7bb5a",
+        "artifact_version": "1.0.0",
+        "release_id": "saf-fixture-release-001",
+        "training_run_id": "saf-fixture-run-001",
+        "version": "1.0.0"
+      },
+      "schema": "saf-k8s.example/ai-development-evidence/v1",
+      "task_references": [
+        "PO.3.3",
+        "PO.5.1",
+        "PS.2.1",
+        "PS.3.1",
+        "PS.3.2",
+        "PW.3.2"
+      ],
+      "training_run": {
+        "artifact_sha256": "7d5005bb98a70aea7ac774fd72ae24ca08ca1b007dc9769ab88bbe479ca7bb5a",
+        "artifact_version": "1.0.0",
+        "environment_id": "saf-fixture-training-env-001",
+        "environment_version": "1.0.0",
+        "artifact_id": "saf-fixture-artifact-001",
+        "dataset_id": "saf-fixture-dataset-001",
+        "dataset_sha256": "ac39cfac2b08672f9f972bdc55335303d6d45c8d48606e2b32152ec5c1c42f35",
+        "dataset_version": "1.0.0",
+        "execution": "not_performed",
+        "fixture_only": true,
+        "pipeline_ref": "https://pipeline-001.example.invalid/version/1.0.0",
+        "run_id": "saf-fixture-run-001",
+        "trainer_ref": "https://trainer-001.example.invalid/version/1.0.0",
+        "version": "1.0.0"
+      }
+    },
+    "operation-scope-boundary": {
+      "evidence_scope": "ai_system_deployment_and_operation",
+      "observation_ref": "https://operation-record.example.invalid/placeholder",
+      "organizational_state": {
+        "actual_operation": "unknown",
+        "governance": "unknown"
+      },
+      "profile": "NIST.SP.800-218A-2024-07",
+      "schema": "saf-k8s.example/ai-development-evidence/v1"
+    },
+    "release-mismatch": {
+      "artifact": {
+        "artifact_id": "saf-fixture-artifact-001",
+        "fixture_payload": "SYNTHETIC ARTIFACT METADATA PLACEHOLDER ONLY; no model weights or executable bytes.",
+        "kind": "metadata-only-placeholder",
+        "sha256": "7d5005bb98a70aea7ac774fd72ae24ca08ca1b007dc9769ab88bbe479ca7bb5a",
+        "version": "1.0.0",
+        "weights_present": false
+      },
+      "dataset": {
+        "dataset_id": "saf-fixture-dataset-001",
+        "fixture_payload": "SYNTHETIC ONLY: sample=fixture-a,label=0\\nsample=fixture-b,label=1\\n",
+        "integrity_observation": "fixture_digest_only",
+        "provenance_state": "known",
+        "sha256": "ac39cfac2b08672f9f972bdc55335303d6d45c8d48606e2b32152ec5c1c42f35",
+        "source_ref": "https://saf-k8s-1006-008.example.invalid/dataset-v1",
+        "version": "1.0.0"
+      },
+      "environment": {
+        "environment_id": "saf-fixture-training-env-001",
+        "isolation_observation": "metadata_only_not_assessed",
+        "version": "1.0.0"
+      },
+      "evidence_scope": "ai_model_development",
+      "organizational_state": {
+        "actual_operation": "unknown",
+        "governance": "unknown"
+      },
+      "profile": "NIST.SP.800-218A-2024-07",
+      "release": {
+        "artifact_id": "saf-fixture-artifact-001",
+        "artifact_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "artifact_version": "0.9.0",
+        "release_id": "saf-fixture-release-001",
+        "training_run_id": "saf-fixture-run-001",
+        "version": "1.0.0"
+      },
+      "schema": "saf-k8s.example/ai-development-evidence/v1",
+      "task_references": [
+        "PO.3.3",
+        "PO.5.1",
+        "PS.2.1",
+        "PS.3.1",
+        "PS.3.2",
+        "PW.3.2"
+      ],
+      "training_run": {
+        "artifact_sha256": "7d5005bb98a70aea7ac774fd72ae24ca08ca1b007dc9769ab88bbe479ca7bb5a",
+        "artifact_version": "1.0.0",
+        "environment_id": "saf-fixture-training-env-001",
+        "environment_version": "1.0.0",
+        "artifact_id": "saf-fixture-artifact-001",
+        "dataset_id": "saf-fixture-dataset-001",
+        "dataset_sha256": "ac39cfac2b08672f9f972bdc55335303d6d45c8d48606e2b32152ec5c1c42f35",
+        "dataset_version": "1.0.0",
+        "execution": "not_performed",
+        "fixture_only": true,
+        "pipeline_ref": "https://pipeline-001.example.invalid/version/1.0.0",
+        "run_id": "saf-fixture-run-001",
+        "trainer_ref": "https://trainer-001.example.invalid/version/1.0.0",
+        "version": "1.0.0"
+      }
+    },
+    "unknown-data-provenance": {
+      "artifact": {
+        "artifact_id": "saf-fixture-artifact-001",
+        "fixture_payload": "SYNTHETIC ARTIFACT METADATA PLACEHOLDER ONLY; no model weights or executable bytes.",
+        "kind": "metadata-only-placeholder",
+        "sha256": "7d5005bb98a70aea7ac774fd72ae24ca08ca1b007dc9769ab88bbe479ca7bb5a",
+        "version": "1.0.0",
+        "weights_present": false
+      },
+      "dataset": {
+        "dataset_id": "saf-fixture-dataset-001",
+        "fixture_payload": "SYNTHETIC ONLY: sample=fixture-a,label=0\\nsample=fixture-b,label=1\\n",
+        "integrity_observation": "fixture_digest_only",
+        "provenance_state": "unknown",
+        "sha256": "ac39cfac2b08672f9f972bdc55335303d6d45c8d48606e2b32152ec5c1c42f35",
+        "version": "1.0.0",
+        "provenance_gap": "No source provenance was recorded for the inert dataset fixture."
+      },
+      "environment": {
+        "environment_id": "saf-fixture-training-env-001",
+        "isolation_observation": "metadata_only_not_assessed",
+        "version": "1.0.0"
+      },
+      "evidence_scope": "ai_model_development",
+      "organizational_state": {
+        "actual_operation": "unknown",
+        "governance": "unknown"
+      },
+      "profile": "NIST.SP.800-218A-2024-07",
+      "release": {
+        "artifact_id": "saf-fixture-artifact-001",
+        "artifact_sha256": "7d5005bb98a70aea7ac774fd72ae24ca08ca1b007dc9769ab88bbe479ca7bb5a",
+        "artifact_version": "1.0.0",
+        "release_id": "saf-fixture-release-001",
+        "training_run_id": "saf-fixture-run-001",
+        "version": "1.0.0"
+      },
+      "schema": "saf-k8s.example/ai-development-evidence/v1",
+      "task_references": [
+        "PO.3.3",
+        "PO.5.1",
+        "PS.2.1",
+        "PS.3.1",
+        "PS.3.2",
+        "PW.3.2"
+      ],
+      "training_run": {
+        "artifact_sha256": "7d5005bb98a70aea7ac774fd72ae24ca08ca1b007dc9769ab88bbe479ca7bb5a",
+        "artifact_version": "1.0.0",
+        "environment_id": "saf-fixture-training-env-001",
+        "environment_version": "1.0.0",
+        "artifact_id": "saf-fixture-artifact-001",
+        "dataset_id": "saf-fixture-dataset-001",
+        "dataset_sha256": "ac39cfac2b08672f9f972bdc55335303d6d45c8d48606e2b32152ec5c1c42f35",
+        "dataset_version": "1.0.0",
+        "execution": "not_performed",
+        "fixture_only": true,
+        "pipeline_ref": "https://pipeline-001.example.invalid/version/1.0.0",
+        "run_id": "saf-fixture-run-001",
+        "trainer_ref": "https://trainer-001.example.invalid/version/1.0.0",
+        "version": "1.0.0"
+      }
+    }
+  },
+  "synthetic_only": true
+}

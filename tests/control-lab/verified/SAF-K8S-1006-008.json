@@ -1,0 +1,89 @@
+{
+  "control_id": "SAF-K8S-1006-008",
+  "catalog_revision": "ec781cfd47821537718d85d45372493c44fa23c2",
+  "catalog_sha256": "96bbe95867f8783addc191244f8304cc5bf6c3eee10dc7a2c1608fbb5f4ab156",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "d8e451d9bf3aa2a686de57db111666c7e775a51b7974d0d4dc0b50cf825ad574",
+  "scope": "One disposable Kubernetes v1.36.1 Kind cluster runs three native, short-lived Jobs using a digest-pinned Python image. Each Job reads only checked-in synthetic metadata: an inert dataset string, a training-run record marked not performed, and a metadata-only model artifact placeholder. The Jobs check schema/task identifiers, fixture digests, scope labels, and release-to-run artifact references. Separate Job status and logs expose a consistent development fixture, a deliberate release provenance mismatch, and an out-of-profile operation record whose governance and actual operation remain unknown. This does not train or load a model, establish organizational compliance, evaluate real data or weights, prove production provenance, or assess deployment/operation controls.",
+  "cluster": "saf-lab-107c261d6c3d",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Disposable API server is Kubernetes v1.36.1",
+      "matched": true,
+      "observed": {
+        "server": "v1.36.1"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native Job validates versioned synthetic development evidence and matching release references",
+      "matched": true,
+      "observed": {
+        "job_state": "complete",
+        "raw_pod_logs": "{\"actual_operation\": \"unknown\", \"artifact_version\": \"1.0.0\", \"asserts_compliance\": false, \"dataset_version\": \"1.0.0\", \"decision\": \"fixture_consistent\", \"environment_protection\": \"unknown\", \"model_bytes_present\": false, \"organizational_governance\": \"unknown\", \"profile\": \"NIST.SP.800-218A-2024-07\", \"release_version\": \"1.0.0\", \"schema\": \"saf-k8s.example/ai-development-evidence/v1\", \"task_references\": [\"PO.3.3\", \"PO.5.1\", \"PS.2.1\", \"PS.3.1\", \"PS.3.2\", \"PW.3.2\"], \"training_executed\": false, \"training_run_version\": \"1.0.0\"}\n"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Native Job rejects a release whose artifact version and digest do not match its training-run provenance",
+      "matched": true,
+      "observed": {
+        "job_state": "failed",
+        "raw_pod_logs": "REJECT release_provenance_mismatch\n"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native Job marks AI system operation outside this Profile and preserves unknown governance and operation",
+      "matched": true,
+      "observed": {
+        "job_state": "complete",
+        "raw_pod_logs": "{\"actual_operation\": \"unknown\", \"asserts_compliance\": false, \"decision\": \"out_of_profile\", \"evidence_scope\": \"ai_system_deployment_and_operation\", \"organizational_governance\": \"unknown\", \"profile\": \"NIST.SP.800-218A-2024-07\"}\n"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Unknown dataset provenance stays documented and cannot validate release readiness",
+      "matched": true,
+      "observed": {
+        "asserts_compliance": false,
+        "dataset_id": "saf-fixture-dataset-001",
+        "decision": "provenance_gap",
+        "gap": "No source provenance was recorded for the inert dataset fixture.",
+        "provenance_state": "unknown"
+      }
+    }
+  ]
+}
