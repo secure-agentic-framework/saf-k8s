@@ -1,0 +1,37 @@
+{
+  "control_id": "SAF-K8S-1001-030",
+  "namespace": "saf-test",
+  "fixtures": [
+    {
+      "workload_type": "training",
+      "job_name": "saf-1001-030-training",
+      "container": "workload",
+      "event": {
+        "event_id": "saf-1001-030-training-event-001",
+        "event_type": "training.completed",
+        "message": "fixture training job completed"
+      }
+    },
+    {
+      "workload_type": "inference",
+      "pod_name": "saf-1001-030-inference",
+      "service_name": "saf-1001-030-inference",
+      "container": "workload",
+      "event": {
+        "event_id": "saf-1001-030-inference-event-001",
+        "event_type": "inference.ready",
+        "message": "fixture inference service ready"
+      }
+    },
+    {
+      "workload_type": "pipeline",
+      "job_name": "saf-1001-030-pipeline-stage",
+      "container": "workload",
+      "event": {
+        "event_id": "saf-1001-030-pipeline-event-001",
+        "event_type": "pipeline.stage.completed",
+        "message": "fixture pipeline stage completed"
+      }
+    }
+  ]
+}
