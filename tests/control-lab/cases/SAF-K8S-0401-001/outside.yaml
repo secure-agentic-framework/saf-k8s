@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-0401-001-outside-config
+  namespace: saf-0401-001-outside
+  labels:
+    saf-k8s.example/control-case: SAF-K8S-0401-001
+data:
+  marker: saf-0401-001-outside-config

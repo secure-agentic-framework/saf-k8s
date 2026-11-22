@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0401-001-reader
+  namespace: saf-0401-001
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-0401-001-required-config
+  namespace: saf-0401-001
+  labels:
+    saf-k8s.example/control-case: SAF-K8S-0401-001
+data:
+  marker: saf-0401-001-required-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-0401-001-unneeded-config
+  namespace: saf-0401-001
+  labels:
+    saf-k8s.example/control-case: SAF-K8S-0401-001
+data:
+  marker: saf-0401-001-unneeded-config

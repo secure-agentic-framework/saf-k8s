@@ -240,6 +240,12 @@
       "sha256": "991d1055d1a416b802a4a2def609fc1bfdd3e40f8754e4504e18a81f5ee3b252",
       "title": "Tmpfs-backed handling for sensitive training intermediates"
     },
+    "SAF-K8S-0401-001": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "0c8bc46353756c942a2a80e064a862e6c45694cc12e85ddef19bf534eb89a536",
+      "title": "RBAC least-privilege design"
+    },
     "SAF-K8S-0401-003": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -320,7 +326,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "061da00e4e62c5309b50a2032374c67864fd01e4",
+  "revision": "df0b2f76fd1c2d93ac8c77294750e8db80da6476",
   "sha256": "9f3a36256cfdd93b4f2874549aa7792ac0af792b496e00a83549929ab1dac73a",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

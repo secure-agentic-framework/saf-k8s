@@ -1,0 +1,24 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0401-001-required-config-reader
+  namespace: saf-0401-001
+rules:
+  - apiGroups: [""]
+    resources: [configmaps]
+    resourceNames: [saf-0401-001-required-config]
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0401-001-required-config-reader
+  namespace: saf-0401-001
+subjects:
+  - kind: ServiceAccount
+    name: saf-0401-001-reader
+    namespace: saf-0401-001
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0401-001-required-config-reader
