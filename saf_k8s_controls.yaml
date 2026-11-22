@@ -1429,13 +1429,13 @@
   domain_name: Node, Runtime, and OS Security
   knowledge_area: '2.2'
   control_seq: '007'
-  control_title: Container runtime user namespace isolation
-  control_statement: Clusters must enable container runtime user namespace isolation on supported nodes and runtimes, and must validate that privileged user IDs inside containers do not map directly to host root unless a documented exception with compensating controls is approved.
-  objective: Reduce the blast radius of container escape paths by isolating container user identities from host user identities at the runtime and kernel namespace boundary.
-  rationale: User namespace isolation prevents UID 0 inside a container from being equivalent to root on the host. This weakens a common post-exploitation path for container escapes and limits the impact of workloads that require elevated in-container privileges.
-  scope: Applies to production node pools and runtime configurations that support user namespace isolation. Unsupported workloads or runtimes must have documented exceptions and compensating controls.
-  primary_enforcement_point: Container runtime and node configuration governing user namespace remapping or isolation for supported workloads.
-  implementation_surface: Container runtime user namespace configuration, node pool capability validation, workload compatibility testing, and operational exception handling for runtimes or workloads that cannot yet run with user namespaces enabled.
+  control_title: Pod user namespace isolation
+  control_statement: For supported Linux workloads, require Pods to opt in to user namespaces with spec.hostUsers set to false. Verify the effective kubelet and runtime mapping so UID and GID zero inside the Pod map to nonzero host IDs. Require documented approval and compensating controls for exceptions.
+  objective: Constrain workload privileges at the Linux user namespace boundary by mapping Pod root identities to unprivileged host IDs.
+  rationale: Kubernetes v1.36 made Linux Pod user namespaces generally available. Kubelet assigns host UID and GID mappings to opted-in Pods. The effective Pod mappings establish this control. SAF-K8S-0202-012 covers rootless node components, where the optional kubelet runningInUserNamespace report concerns node processes.
+  scope: Applies to Linux Pod workloads in production pools with a compatible Kubernetes release, kubelet, container runtime, kernel and filesystems. Test support for the workload and its volume configuration. Document unsupported cases, their approved exceptions, and compensating controls.
+  primary_enforcement_point: Pod admission for the opt-in and kubelet, runtime and kernel for the effective identity mapping.
+  implementation_surface: Verify the deployed API server and kubelet versions, feature configuration and pool and workload compatibility. Enforce explicit Pod opt-in in the applicable scope. Corroborate the effective kernel UID and GID mappings against the node process context for representative running Pods. Resolve nested mappings through their parent namespaces before drawing conclusions about host IDs. Maintain reviewable exception records.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; OS/Infrastructure
   baseline_or_ai_specific: baseline
@@ -1443,7 +1443,7 @@
   status: draft
   superseded_by_control_id: null
   date_created: '2026-03-13'
-  date_modified: '2026-03-17'
+  date_modified: '2026-11-22'
 - control_id: SAF-K8S-0202-008
   domain_code: D02
   domain_name: Node, Runtime, and OS Security
