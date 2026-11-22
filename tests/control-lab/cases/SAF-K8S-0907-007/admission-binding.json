@@ -1,0 +1,11 @@
+{
+  "apiVersion": "admissionregistration.k8s.io/v1",
+  "kind": "ValidatingAdmissionPolicyBinding",
+  "metadata": {"name": "saf-model-promotion-binding"},
+  "spec": {
+    "policyName": "saf-model-promotion-policy",
+    "paramRef": {"name": "model-promotion", "parameterNotFoundAction": "Deny"},
+    "validationActions": ["Deny"],
+    "matchResources": {"namespaceSelector": {"matchLabels": {"saf.example.com/model-release": "true"}}}
+  }
+}

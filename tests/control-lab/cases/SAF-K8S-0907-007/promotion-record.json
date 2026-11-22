@@ -1,0 +1,11 @@
+{
+  "apiVersion": "v1",
+  "kind": "ConfigMap",
+  "metadata": {"name": "model-promotion"},
+  "data": {
+    "status": "approved",
+    "model-id": "fixture-model-a",
+    "promotion-record": "promotion-fixture-001",
+    "image": "example.invalid/saf/fixture-model-a@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  }
+}

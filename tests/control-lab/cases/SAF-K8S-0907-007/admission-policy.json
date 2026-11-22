@@ -1,0 +1,21 @@
+{
+  "apiVersion": "admissionregistration.k8s.io/v1",
+  "kind": "ValidatingAdmissionPolicy",
+  "metadata": {"name": "saf-model-promotion-policy"},
+  "spec": {
+    "failurePolicy": "Fail",
+    "paramKind": {"apiVersion": "v1", "kind": "ConfigMap"},
+    "matchConstraints": {
+      "resourceRules": [{
+        "apiGroups": ["apps"], "apiVersions": ["v1"],
+        "operations": ["CREATE", "UPDATE"], "resources": ["deployments"]
+      }]
+    },
+    "validations": [
+      {"expression": "params != null && params.data['status'] == 'approved'", "message": "promotion record is not approved"},
+      {"expression": "has(object.metadata.annotations) && 'saf.example.com/model-id' in object.metadata.annotations && object.metadata.annotations['saf.example.com/model-id'] == params.data['model-id']", "message": "model ID does not match the promotion record"},
+      {"expression": "has(object.metadata.annotations) && 'saf.example.com/promotion-record' in object.metadata.annotations && object.metadata.annotations['saf.example.com/promotion-record'] == params.data['promotion-record']", "message": "promotion record reference does not match"},
+      {"expression": "size(object.spec.template.spec.containers) == 1 && object.spec.template.spec.containers.all(c, c.name == 'model' && c.image == params.data['image'])", "message": "model image digest does not match the promotion record"}
+    ]
+  }
+}

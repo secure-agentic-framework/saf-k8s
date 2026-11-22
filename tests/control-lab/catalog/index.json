@@ -960,6 +960,12 @@
       "sha256": "2a7a809c996cf911ed223c74d4a219605f537eb3990669b12d4e00fc467bbe76",
       "title": "GPU device plugin security configuration and hardening"
     },
+    "SAF-K8S-0907-007": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "c2c0bdee1c3fc5ca2557fc215cfd0d53b20deae60657f890e6fb3a0a9bc28425",
+      "title": "Model deployment authorization and namespace-scoped release control"
+    },
     "SAF-K8S-1001-007": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -974,7 +980,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "f7fd4eb3e2d439815e89ab89c229542c7a21c7f7",
+  "revision": "db0e46895cd912985ac47aebf80e2abce552b9e6",
   "sha256": "0264e66c6532b9cabd3d3301582d0dad604e98d0619e96179371fc65ec016af9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
