@@ -1,0 +1,32 @@
+apiVersion: audit.k8s.io/v1
+kind: Policy
+omitStages:
+  - RequestReceived
+rules:
+  # This first Job rule must win over the deliberately overlapping next rule.
+  - level: Request
+    namespaces: [saf-test]
+    resources:
+      - group: batch
+        resources: [jobs]
+  - level: RequestResponse
+    resources:
+      - group: batch
+        resources: [jobs]
+  - level: RequestResponse
+    namespaces: [saf-test]
+    resources:
+      - group: apps
+        resources: [deployments]
+  - level: Metadata
+    namespaces: [saf-test]
+    resources:
+      - group: ""
+        resources: [configmaps]
+  # Keep Secret bodies out of the audit stream even for this empty dummy object.
+  - level: Metadata
+    namespaces: [saf-test]
+    resources:
+      - group: ""
+        resources: [secrets]
+  - level: None

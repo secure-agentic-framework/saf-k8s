@@ -972,6 +972,12 @@
       "sha256": "fae14622a867ccba17728cfb10cd5188ab094099f8868c7492272538453e405e",
       "title": "Supplemental application-level telemetry for AI workload events"
     },
+    "SAF-K8S-1001-010": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "498d90bbe4921b9b8a6929b97a72c4d90b8cd2981e5907d82c3f9acd466a5ffe",
+      "title": "Kubernetes audit level and stage filtering for AI workloads"
+    },
     "SAF-K8S-1007-017": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -980,7 +986,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "db0e46895cd912985ac47aebf80e2abce552b9e6",
+  "revision": "8c80749bdd3aa408782146d907a29d421b4baa26",
   "sha256": "0264e66c6532b9cabd3d3301582d0dad604e98d0619e96179371fc65ec016af9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

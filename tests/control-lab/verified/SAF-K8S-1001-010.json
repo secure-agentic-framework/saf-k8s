@@ -1,0 +1,227 @@
+{
+  "control_id": "SAF-K8S-1001-010",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "498d90bbe4921b9b8a6929b97a72c4d90b8cd2981e5907d82c3f9acd466a5ffe",
+  "scope": "One default runner cluster without audit flags is compared with one case-owned kind v1.36.1 API server using a case-owned file backend and ordered audit policy. Synthetic suspended training Job, zero-replica serving Deployment, metadata-only ConfigMap and empty dummy Secret create requests exercise Request, RequestResponse, and Metadata levels. A real watch-only ConfigMap request checks ResponseStarted. All requests are local, successful API object operations. No application containers are started. This does not establish production policy adequacy, remote retention, authorization/admission coverage, managed control plane behavior, or load capacity.",
+  "cluster": "saf-lab-9ee6287c7bdf",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Baseline API accepts the same inert fixture requests with its audit backend inactive",
+      "matched": true,
+      "observed": {
+        "created": {
+          "training_job": true,
+          "serving_deployment": true,
+          "metadata_configmap": true,
+          "dummy_secret": true,
+          "watch_configmap": true
+        },
+        "backend": "audit_flags=absent audit_file=absent"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Matched training, serving, metadata and dummy Secret API requests succeed",
+      "matched": true,
+      "observed": {
+        "created": {
+          "training_job": true,
+          "serving_deployment": true,
+          "metadata_configmap": true,
+          "dummy_secret": true,
+          "watch_configmap": true
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Exact jobs/saf-audit-training-fixture audit ID has the expected first-match level, body fields and stages",
+      "matched": true,
+      "observed": {
+        "expected": {
+          "level": "Request",
+          "requestObject": true,
+          "responseObject": false,
+          "stages": [
+            "ResponseComplete"
+          ],
+          "RequestReceived": "omitted"
+        },
+        "observed": [
+          {
+            "stage": "ResponseComplete",
+            "level": "Request",
+            "verb": "create",
+            "resource": "jobs",
+            "name": "saf-audit-training-fixture",
+            "code": 201,
+            "requestObject": "present",
+            "responseObject": "absent"
+          }
+        ],
+        "matches_response_id": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Exact deployments/saf-audit-serving-fixture audit ID has the expected first-match level, body fields and stages",
+      "matched": true,
+      "observed": {
+        "expected": {
+          "level": "RequestResponse",
+          "requestObject": true,
+          "responseObject": true,
+          "stages": [
+            "ResponseComplete"
+          ],
+          "RequestReceived": "omitted"
+        },
+        "observed": [
+          {
+            "stage": "ResponseComplete",
+            "level": "RequestResponse",
+            "verb": "create",
+            "resource": "deployments",
+            "name": "saf-audit-serving-fixture",
+            "code": 201,
+            "requestObject": "present",
+            "responseObject": "present"
+          }
+        ],
+        "matches_response_id": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Exact configmaps/saf-audit-metadata-fixture audit ID has the expected first-match level, body fields and stages",
+      "matched": true,
+      "observed": {
+        "expected": {
+          "level": "Metadata",
+          "requestObject": false,
+          "responseObject": false,
+          "stages": [
+            "ResponseComplete"
+          ],
+          "RequestReceived": "omitted"
+        },
+        "observed": [
+          {
+            "stage": "ResponseComplete",
+            "level": "Metadata",
+            "verb": "create",
+            "resource": "configmaps",
+            "name": "saf-audit-metadata-fixture",
+            "code": 201,
+            "requestObject": "absent",
+            "responseObject": "absent"
+          }
+        ],
+        "matches_response_id": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Exact secrets/saf-audit-empty-dummy-secret audit ID has the expected first-match level, body fields and stages",
+      "matched": true,
+      "observed": {
+        "expected": {
+          "level": "Metadata",
+          "requestObject": false,
+          "responseObject": false,
+          "stages": [
+            "ResponseComplete"
+          ],
+          "RequestReceived": "omitted"
+        },
+        "observed": [
+          {
+            "stage": "ResponseComplete",
+            "level": "Metadata",
+            "verb": "create",
+            "resource": "secrets",
+            "name": "saf-audit-empty-dummy-secret",
+            "code": 201,
+            "requestObject": "absent",
+            "responseObject": "absent"
+          }
+        ],
+        "matches_response_id": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Overlapping Job rules resolve to the first Request-level rule",
+      "matched": true,
+      "observed": [
+        {
+          "stage": "ResponseComplete",
+          "level": "Request",
+          "verb": "create",
+          "resource": "jobs",
+          "name": "saf-audit-training-fixture",
+          "code": 201,
+          "requestObject": "present",
+          "responseObject": "absent"
+        }
+      ]
+    },
+    {
+      "phase": "positive",
+      "claim": "Watch target ConfigMap exists before opening the real watch",
+      "matched": true,
+      "observed": "saf-test/saf-audit-watch-fixture created"
+    },
+    {
+      "phase": "green",
+      "claim": "A real watch records ResponseStarted with one audit ID and omits RequestReceived and bodies",
+      "matched": true,
+      "observed": [
+        {
+          "stage": "ResponseStarted",
+          "level": "Metadata",
+          "verb": "watch",
+          "resource": "configmaps",
+          "name": "saf-audit-watch-fixture",
+          "code": 200,
+          "requestObject": "absent",
+          "responseObject": "absent"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "training_job": {
+    "apiVersion": "batch/v1",
+    "kind": "Job",
+    "metadata": {
+      "name": "saf-audit-training-fixture",
+      "namespace": "saf-test",
+      "labels": {"saf.example/purpose": "audit-policy-fixture"}
+    },
+    "spec": {
+      "suspend": true,
+      "template": {
+        "metadata": {"labels": {"saf.example/purpose": "audit-policy-fixture"}},
+        "spec": {
+          "restartPolicy": "Never",
+          "containers": [{
+            "name": "training-fixture",
+            "image": "registry.k8s.io/pause:3.10",
+            "resources": {
+              "requests": {"cpu": "10m", "memory": "16Mi"},
+              "limits": {"cpu": "20m", "memory": "32Mi"}
+            }
+          }]
+        }
+      }
+    }
+  },
+  "serving_deployment": {
+    "apiVersion": "apps/v1",
+    "kind": "Deployment",
+    "metadata": {
+      "name": "saf-audit-serving-fixture",
+      "namespace": "saf-test",
+      "labels": {"saf.example/purpose": "audit-policy-fixture"}
+    },
+    "spec": {
+      "replicas": 0,
+      "selector": {"matchLabels": {"app": "saf-audit-serving-fixture"}},
+      "template": {
+        "metadata": {"labels": {"app": "saf-audit-serving-fixture"}},
+        "spec": {
+          "containers": [{
+            "name": "serving-fixture",
+            "image": "registry.k8s.io/pause:3.10",
+            "resources": {
+              "requests": {"cpu": "20m", "memory": "32Mi"},
+              "limits": {"cpu": "40m", "memory": "64Mi"}
+            }
+          }]
+        }
+      }
+    }
+  },
+  "metadata_configmap": {
+    "apiVersion": "v1",
+    "kind": "ConfigMap",
+    "metadata": {
+      "name": "saf-audit-metadata-fixture",
+      "namespace": "saf-test",
+      "labels": {"saf.example/purpose": "audit-policy-fixture"}
+    }
+  },
+  "dummy_secret": {
+    "apiVersion": "v1",
+    "kind": "Secret",
+    "metadata": {
+      "name": "saf-audit-empty-dummy-secret",
+      "namespace": "saf-test",
+      "labels": {"saf.example/purpose": "audit-policy-fixture"}
+    },
+    "type": "Opaque"
+  },
+  "watch_configmap": {
+    "apiVersion": "v1",
+    "kind": "ConfigMap",
+    "metadata": {
+      "name": "saf-audit-watch-fixture",
+      "namespace": "saf-test",
+      "labels": {"saf.example/purpose": "audit-policy-fixture"}
+    }
+  }
+}
