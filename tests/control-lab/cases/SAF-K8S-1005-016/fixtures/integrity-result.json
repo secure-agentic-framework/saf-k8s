@@ -1,0 +1,8 @@
+{
+  "artifact_ref": "urn:example:saf:model-fixture:stable-000",
+  "fixture_only": true,
+  "integrity_status": "passed",
+  "method": "sha256-byte-comparison",
+  "note": "Synthetic fixture metadata only; no incident or model was examined.",
+  "artifact_sha256": "e040d1a5d1a5d0fbd43351ab891629126564d8db7e50792766f242496347690e"
+}

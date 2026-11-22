@@ -1,0 +1,2 @@
+fixture-only rollback target: urn:example:saf:model-fixture:stable-000
+content: inert synthetic text; not a model, executable, or deployable artifact

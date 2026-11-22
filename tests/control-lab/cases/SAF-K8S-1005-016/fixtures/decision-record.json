@@ -1,0 +1,27 @@
+{
+  "approval_status": "approved",
+  "approver": "urn:example:saf:role:security-operations-approver",
+  "decision_id": "urn:example:saf:decision:recovery-fixture-016-001",
+  "evidence_refs": [
+    {"ref": "integrity-result", "sha256": "fixture-bound-at-run"},
+    {"ref": "reviewer-note", "sha256": "fixture-bound-at-run"}
+  ],
+  "fixture_only": true,
+  "owner": "urn:example:saf:role:security-operations-owner",
+  "reason": "Synthetic integrity metadata match the exact inert rollback fixture; this documented choice demonstrates review only.",
+  "rollback_target": {
+    "artifact_ref": "urn:example:saf:model-fixture:stable-000",
+    "sha256": "fixture-bound-at-run"
+  },
+  "unresolved_evidence": [
+    {
+      "accepted_by": "urn:example:saf:role:security-operations-approver",
+      "due": "2099-01-15",
+      "impact": "nonblocking-for-fixture-only-review",
+      "item": "production-behavior-validation-not-provided",
+      "owner": "urn:example:saf:role:ai-engineering-reviewer",
+      "reason": "No model or production evidence is in scope; production readiness remains unverified.",
+      "status": "unresolved"
+    }
+  ]
+}

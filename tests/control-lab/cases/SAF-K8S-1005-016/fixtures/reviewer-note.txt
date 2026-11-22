@@ -1,0 +1,1 @@
+Synthetic reviewer note: the inert rollback-target fixture is selected for this example because its fixture digest matches the synthetic integrity record. This note records no real incident, identity, approval, or operational decision.

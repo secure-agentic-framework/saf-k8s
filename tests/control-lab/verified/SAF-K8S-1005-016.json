@@ -1,0 +1,270 @@
+{
+  "control_id": "SAF-K8S-1005-016",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "7ce0cbfb8a5b088e9edb6df6ffb63b88e695d95a2d9e430b4af8bfad89554419",
+  "scope": "One disposable Kind v1.36.1 cluster runs tokenless restricted Python Jobs against immutable, case-owned ConfigMaps containing synthetic JSON and inert text. A bypass Job accepts an invalid fictional rollback decision; enforced Jobs block invalid owner, reason, evidence-ref, rollback-target, and unresolved-evidence fields; a positive Job accepts a fixture-only conditional approval while retaining production validation as unverified. Jobs only emit decisions and never perform rollback, retraining, quarantine, deployment, or network calls. No model, real incident, secret, live feed, external target, or attack input is present. This tests the synthetic evidence workflow and Kubernetes observation path only; it does not establish authorization identity, fixture provenance beyond this case's files, integrity of evidence against a cluster administrator, AI-specific recovery criteria, production readiness, or organizational response coverage.",
+  "cluster": "saf-lab-7a40ed34f2ce",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "positive decision and trusted fixture bundle persist in an immutable ConfigMap",
+      "matched": true,
+      "observed": {
+        "name": "saf1005016-positive-record",
+        "immutable": true,
+        "exact_data_readback": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "missing-owner decision and trusted fixture bundle persist in an immutable ConfigMap",
+      "matched": true,
+      "observed": {
+        "name": "saf1005016-missing-owner-record",
+        "immutable": true,
+        "exact_data_readback": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "missing-reason decision and trusted fixture bundle persist in an immutable ConfigMap",
+      "matched": true,
+      "observed": {
+        "name": "saf1005016-missing-reason-record",
+        "immutable": true,
+        "exact_data_readback": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "untrusted-reference decision and trusted fixture bundle persist in an immutable ConfigMap",
+      "matched": true,
+      "observed": {
+        "name": "saf1005016-untrusted-reference-record",
+        "immutable": true,
+        "exact_data_readback": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "wrong-target decision and trusted fixture bundle persist in an immutable ConfigMap",
+      "matched": true,
+      "observed": {
+        "name": "saf1005016-wrong-target-record",
+        "immutable": true,
+        "exact_data_readback": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "unresolved-evidence decision and trusted fixture bundle persist in an immutable ConfigMap",
+      "matched": true,
+      "observed": {
+        "name": "saf1005016-unresolved-evidence-record",
+        "immutable": true,
+        "exact_data_readback": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "failed-integrity decision and trusted fixture bundle persist in an immutable ConfigMap",
+      "matched": true,
+      "observed": {
+        "name": "saf1005016-failed-integrity-record",
+        "immutable": true,
+        "exact_data_readback": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The bypass path accepts the same ownerless synthetic approval record without validation",
+      "matched": true,
+      "observed": {
+        "job_condition": "Complete",
+        "exit_code": 0,
+        "outcome": {
+          "decision": "accepted_without_validation",
+          "fixture_only": true,
+          "record_id": "urn:example:saf:decision:recovery-fixture-016-001",
+          "validation_performed": false
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enforced workflow blocks missing-owner-enforce with its field-specific reason",
+      "matched": true,
+      "observed": {
+        "job_condition": "Failed",
+        "exit_code": 1,
+        "expected_error": "owner_missing_or_untrusted",
+        "outcome": {
+          "decision": "blocked",
+          "errors": [
+            "owner_missing_or_untrusted"
+          ],
+          "fixture_only": true,
+          "record_id": "urn:example:saf:decision:recovery-fixture-016-001",
+          "unresolved_count": 1
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enforced workflow blocks failed-integrity with its field-specific reason",
+      "matched": true,
+      "observed": {
+        "job_condition": "Failed",
+        "exit_code": 1,
+        "expected_error": "integrity_fixture_not_bound_to_target",
+        "outcome": {
+          "decision": "blocked",
+          "errors": [
+            "integrity_fixture_not_bound_to_target"
+          ],
+          "fixture_only": true,
+          "record_id": "urn:example:saf:decision:recovery-fixture-016-001",
+          "unresolved_count": 1
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enforced workflow blocks missing-reason with its field-specific reason",
+      "matched": true,
+      "observed": {
+        "job_condition": "Failed",
+        "exit_code": 1,
+        "expected_error": "reason_missing_or_too_short",
+        "outcome": {
+          "decision": "blocked",
+          "errors": [
+            "reason_missing_or_too_short"
+          ],
+          "fixture_only": true,
+          "record_id": "urn:example:saf:decision:recovery-fixture-016-001",
+          "unresolved_count": 1
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enforced workflow blocks untrusted-reference with its field-specific reason",
+      "matched": true,
+      "observed": {
+        "job_condition": "Failed",
+        "exit_code": 1,
+        "expected_error": "evidence_reference_untrusted_or_incomplete",
+        "outcome": {
+          "decision": "blocked",
+          "errors": [
+            "evidence_reference_untrusted_or_incomplete"
+          ],
+          "fixture_only": true,
+          "record_id": "urn:example:saf:decision:recovery-fixture-016-001",
+          "unresolved_count": 1
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enforced workflow blocks wrong-target with its field-specific reason",
+      "matched": true,
+      "observed": {
+        "job_condition": "Failed",
+        "exit_code": 1,
+        "expected_error": "rollback_target_untrusted_or_mismatched",
+        "outcome": {
+          "decision": "blocked",
+          "errors": [
+            "rollback_target_untrusted_or_mismatched"
+          ],
+          "fixture_only": true,
+          "record_id": "urn:example:saf:decision:recovery-fixture-016-001",
+          "unresolved_count": 1
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enforced workflow blocks unresolved-evidence with its field-specific reason",
+      "matched": true,
+      "observed": {
+        "job_condition": "Failed",
+        "exit_code": 1,
+        "expected_error": "unresolved_evidence_not_owned_and_explicitly_dispositioned",
+        "outcome": {
+          "decision": "blocked",
+          "errors": [
+            "unresolved_evidence_not_owned_and_explicitly_dispositioned"
+          ],
+          "fixture_only": true,
+          "record_id": "urn:example:saf:decision:recovery-fixture-016-001",
+          "unresolved_count": 1
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The disposable cluster reports Kubernetes v1.36.1 nodes",
+      "matched": true,
+      "observed": {
+        "node_count": 1,
+        "kubelet_versions": [
+          "v1.36.1"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A trusted fixture-only rollback decision preserves its owned unresolved evidence",
+      "matched": true,
+      "observed": {
+        "job_condition": "Complete",
+        "exit_code": 0,
+        "outcome": {
+          "decision": "approved_fixture_only_conditional",
+          "fixture_only": true,
+          "production_readiness": "unverified",
+          "record_id": "urn:example:saf:decision:recovery-fixture-016-001",
+          "rollback_target": "urn:example:saf:model-fixture:stable-000",
+          "unresolved_count": 1,
+          "unresolved_status": "explicitly_owned_nonblocking_for_fixture_only_review"
+        }
+      }
+    }
+  ]
+}

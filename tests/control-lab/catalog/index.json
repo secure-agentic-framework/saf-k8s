@@ -1314,6 +1314,12 @@
       "sha256": "80822fea7a1795871dd8ad92c4bdc588814d2665ae04194c4f990fbe7f97e0a5",
       "title": "Post-incident AI model integrity verification"
     },
+    "SAF-K8S-1005-016": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "7ce0cbfb8a5b088e9edb6df6ffb63b88e695d95a2d9e430b4af8bfad89554419",
+      "title": "Documented post-incident model retraining or rollback decisions"
+    },
     "SAF-K8S-1006-001": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1364,7 +1370,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "596abe0fe04ba272a10a5ae83b7fedf44904ab85",
+  "revision": "53046cc9f3091ffde0b1fcc75b61cf6c9e55b294",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
