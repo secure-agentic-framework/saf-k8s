@@ -306,6 +306,12 @@
       "sha256": "7e3640209f1b79c77ad2dbd7ad613b7f9d83e7d437855fc48ec911194a96d8a0",
       "title": "RBAC for AI operator custom resources"
     },
+    "SAF-K8S-0402-003": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "f559012f897daaf820103fb3ab47e2f4c23fc941d3d46af2b24e88207c188bfe",
+      "title": "Service account identifier exposure prevention"
+    },
     "SAF-K8S-0402-008": {
       "catalog_status": "draft",
       "domain": "D04",

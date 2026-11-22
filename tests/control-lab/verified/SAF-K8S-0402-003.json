@@ -1,0 +1,68 @@
+{
+  "control_id": "SAF-K8S-0402-003",
+  "catalog_revision": "712139965c407830056ada89a15031c8f9d956cd",
+  "catalog_sha256": "0427a45ac9bf0f2d8256f7f075d12a0ac8ad43daf141990b68d2fba2211f5a21",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "f559012f897daaf820103fb3ab47e2f4c23fc941d3d46af2b24e88207c188bfe",
+  "scope": "Two short non-root Pods in a disposable kind cluster process only the checked-in synthetic stdout lines. A case-local process filter redacts lines carrying one exact synthetic name and retains both other lines. The test reads only the two case Pods' stdout and disables credential automount. Production log aggregation, token protection, repository and image scanning, API sanitization, and external exposure remain separate.",
+  "cluster": "saf-lab-9be04237c3f6",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The exact synthetic identifier reaches Pod stdout with the filter absent",
+      "matched": true,
+      "observed": {
+        "exact_fixture_round_trip": true,
+        "lines": 3
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Only the exact configured identifier's line is redacted before stdout",
+      "matched": true,
+      "observed": {
+        "redacted_lines": 1,
+        "total_lines": 3
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An unrelated name and a longer shared-prefix name remain intact",
+      "matched": true,
+      "observed": {
+        "unrelated_lines_intact": true
+      }
+    }
+  ]
+}

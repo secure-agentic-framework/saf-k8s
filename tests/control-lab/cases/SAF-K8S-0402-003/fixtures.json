@@ -1,0 +1,6 @@
+{
+  "fixture_kind": "controlled stdout payload for the two disposable probe Pods",
+  "synthetic_service_account_identifier": "synthetic-sa-0402-003",
+  "matching_output": "INFO task started service_account=synthetic-sa-0402-003 result=ready",
+  "nonmatching_output": "INFO task started service_account=synthetic-reader-0402-003 result=ready"
+}
