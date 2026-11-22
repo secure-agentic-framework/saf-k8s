@@ -1326,6 +1326,12 @@
       "sha256": "2928345f20e6a6e43c51ff06247bb373291c12a9d4f9ed7139ebb5ae0cbf649f",
       "title": "Recovery-time lateral movement containment for compromised AI workloads"
     },
+    "SAF-K8S-1005-018": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "fa856ce08b257834ebd898f59b30b6472919795ae38f7a191b523b76b2c21b46",
+      "title": "Component integrity verification before restoration after compromise"
+    },
     "SAF-K8S-1005-019": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1382,7 +1388,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "1c84a3a1ac903ececb328309c99fa5d4f23713ee",
+  "revision": "1ab3a2fcfa06ccc7ffb50502305029f87fe892ee",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -1,0 +1,27 @@
+{
+  "fixture_only": true,
+  "notice": "All IDs, approvals, evidence, bytes, releases, and components are reserved synthetic placeholders. No real incident or system is represented.",
+  "control_id": "SAF-K8S-1005-018",
+  "release_id": "SYNTH-RELEASE-1005-018-01",
+  "release_identity": {
+    "status": "verified",
+    "reference": "urn:example:saf:release:1005-018-01",
+    "approval": "urn:example:saf:approval:1005-018-01"
+  },
+  "artifact": {
+    "name": "component-marker.txt",
+    "sha256": "635736fed17b21f8f051eb26f3d2318b5e36af3709043ac65c1642a60db5bc8a"
+  },
+  "components": [
+    {
+      "id": "mock-inference",
+      "deployment": "saf-1005-018-inference",
+      "image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
+    },
+    {
+      "id": "mock-policy",
+      "deployment": "saf-1005-018-policy",
+      "image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
+    }
+  ]
+}
