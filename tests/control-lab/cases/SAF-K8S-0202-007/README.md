@@ -1,33 +1,32 @@
-# SAF-K8S-0202-007 — Container runtime user namespace isolation
+# SAF-K8S-0202-007 — Pod user namespace isolation
 
-This case is prepared for a live run through the repository's local kind runner.
-It uses the runner's pinned `kindest/node:v1.36.1` image (containerd CRI) and
-the pinned BusyBox image in `fixtures.py`. It compares the vanilla Pod mapping
-with an explicitly opted-in `hostUsers: false` Pod by reading only
-`/proc/self/uid_map` inside each workload. A successful isolated observation
-requires container UID 0 to map to a nonzero host UID and a mapping range larger
-than one ID. Both workloads also run an innocuous `id` and `printf` check.
+Run the case against the current catalog from the SAF-K8S checkout.
 
-The admission policy is an optional namespace-scoped guard. Its red server-side
-dry run verifies an omitted `hostUsers` value is admitted before policy setup;
-its green request verifies the same shape is denied afterward; a green-path
-positive dry run explicitly sets `hostUsers: false`. The policy enforces explicit
-opt-in in `saf-test`; it is not cluster-wide and does not retrofit existing Pods.
+```sh
+python3 tests/control-lab/lab.py test SAF-K8S-0202-007 --docker-context desktop-linux
+```
 
-## Applicability and support boundaries
+The runner creates a disposable Kubernetes v1.36.1 Kind cluster. One BusyBox
+workload uses the default user namespace. A second explicitly sets
+`spec.hostUsers: false`. Both run a benign command as workload UID and GID zero.
+The case reads each workload's kernel UID and GID mappings and requires the
+opted-in workload's root IDs to map to nonzero node IDs. It corroborates the
+mapping and user namespace of each exact fixture process through the owned
+Kind node and checks that the node itself uses identity UID and GID ranges.
+A namespace-scoped admission policy blocks both omission and explicit
+`hostUsers: true` after the control is applied. The opted-in workload reaches
+Ready, and an ungoverned namespace admits the comparison dry-run.
 
-- Kubernetes API support for Pod user namespaces does not by itself guarantee
-  that a node can run them. The Linux kernel, CRI runtime, and node configuration
-  must support user namespaces. This case only targets the pinned local kind
-  image and its containerd runtime; it makes no claim about other runtimes,
-  distributions, managed clusters, or kernel configurations.
-- The live run must be treated as unsupported if the user namespace Pod cannot
-  schedule/start or if its UID map does not demonstrate the requested mapping.
-  A manifest accepted by admission alone is not runtime evidence.
-- This case checks only namespace mapping and benign workload functionality. It
-  does not probe host files, capabilities, escape paths, vulnerabilities, or
-  resistance to hostile workloads. UID mapping alone is not a complete isolation
-  assessment.
-- No live cluster or control review was run while preparing this case. The
-  mapping, scheduler/runtime support, policy enforcement, and workload readiness
-  remain unverified until a separately authorized lab run produces evidence.
+The separately reported Node field `status.nodeInfo.runningInUserNamespace`
+is absent in the pinned v1.36.1 profile. The case records that value as unknown
+and bases Pod isolation on the live Pod mapping. Retained evidence is in
+`pod-id-mappings.raw.json` and the command transcript.
+
+Kubernetes v1.36 made Linux Pod user namespaces stable. Runtime, kernel,
+filesystem, and workload compatibility still govern deployment. Production
+pool coverage, exception authorization, compensating controls, and any claim
+of node-level rootless operation require separate evidence. SAF-K8S-0202-012
+covers rootless node components and workload placement where applicable.
+
+- [Kubernetes v1.36 Pod user namespaces](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/pods/user-namespaces/)
+- [Kubernetes v1.37 rootless node operation](https://kubernetes.io/blog/2026/09/04/kubernetes-v1-37-rootless-beta/)

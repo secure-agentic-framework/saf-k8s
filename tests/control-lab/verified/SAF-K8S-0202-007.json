@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0202-007",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "6f2e21e521904a0fcee72aa15757102b1dc622a8",
+  "catalog_sha256": "28e2e795c3d0eee859ba13f7c7c1e62c33d93955ba867c40a0060d1dfd1984cb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "ce9f391b6deb0898b643e115837b2db527f9f4bd9208224ba43fcb9ca0c594b7",
-  "scope": "Local kind with its pinned Kubernetes 1.36.1 node image and containerd CRI; compares /proc/self/uid_map for a default Pod and a Pod explicitly setting hostUsers: false. Establishes kernel UID mapping and basic BusyBox operation only when the host kernel and runtime support Pod user namespaces. Does not establish escape resistance, host filesystem isolation, or production support.",
-  "cluster": "saf-lab-ea2bfba13125",
+  "control_sha256": "3fe215eadb2d4cb0aa9a1468eedd654004167521d5126b3640782979e70a57aa",
+  "scope": "One disposable Kind Kubernetes v1.36.1 cluster using its pinned node image and containerd CRI. Compares the kernel UID and GID mappings in default and explicit hostUsers:false Pods and observes server-side admission under a scoped opt-in policy. Corroborates the exact fixture processes in the node Linux user namespace context and checks the separate optional rootless node signal. Runtime observations apply to these workloads on this fixture. Production fleet support, exception governance, and rootless node operation require independent evidence.",
+  "cluster": "saf-lab-83c2f24d2417",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -51,38 +51,86 @@
       "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"admission-guard-probe\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-require-pod-userns' with binding 'saf-k8s-require-pod-userns-saf-test' denied request: hostUsers must be false for workloads in this namespace"
     },
     {
-      "phase": "red",
-      "claim": "Vanilla container UID zero maps to host UID zero",
-      "matched": true,
-      "observed": [
-        [
-          0,
-          0,
-          4294967295
-        ]
-      ]
-    },
-    {
       "phase": "green",
-      "claim": "Pod user namespace maps container UID zero to an unprivileged host range",
+      "claim": "The scoped policy rejects explicit use of the host user namespace",
       "matched": true,
-      "observed": [
-        [
-          0,
-          898564096,
-          65536
-        ]
-      ]
+      "observed": {
+        "explicit_true_denied": true
+      }
     },
     {
       "phase": "positive",
-      "claim": "Benign BusyBox command works in vanilla",
+      "claim": "The opt-in admission guard stays within the governed namespace",
+      "matched": true,
+      "observed": {
+        "outside_scope_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The node corroborates live Pod maps and the opted-in user namespace boundary",
+      "matched": true,
+      "observed": {
+        "node_has_initial_id_ranges": true,
+        "same_node_context": true,
+        "default_pod_shares_node_user_namespace": true,
+        "opted_in_pod_has_distinct_user_namespace": true,
+        "node_side_maps_match_in_pod_observations": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Default Pod UID zero maps to host ID zero",
+      "matched": true,
+      "observed": {
+        "identity_root_mapping": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Pod user namespace maps UID zero to a nonzero host ID",
+      "matched": true,
+      "observed": {
+        "container_root_maps_to_nonzero_host_id": true,
+        "all_host_ranges_have_nonzero_start": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Default Pod GID zero maps to host ID zero",
+      "matched": true,
+      "observed": {
+        "identity_root_mapping": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Pod user namespace maps GID zero to a nonzero host ID",
+      "matched": true,
+      "observed": {
+        "container_root_maps_to_nonzero_host_id": true,
+        "all_host_ranges_have_nonzero_start": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The opted-in Pod runs with remapped IDs while the node rootless signal is unavailable",
+      "matched": true,
+      "observed": {
+        "pod_hostUsers": false,
+        "node_rootless_signal_present": false,
+        "node_rootless_classification": "unknown"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Benign BusyBox command works as workload UID and GID zero in vanilla",
       "matched": true,
       "observed": "busybox-ok"
     },
     {
       "phase": "positive",
-      "claim": "Benign BusyBox command works in userns",
+      "claim": "Benign BusyBox command works as workload UID and GID zero in userns",
       "matched": true,
       "observed": "busybox-ok"
     }
