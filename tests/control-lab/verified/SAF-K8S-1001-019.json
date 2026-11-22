@@ -1,0 +1,109 @@
+{
+  "control_id": "SAF-K8S-1001-019",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "36b558a2a4719b734b7a5e88b29679ee36c9c16a90a1dfb9c7ca700ea137a070",
+  "scope": "A disposable Kubernetes v1.36.1 Kind cluster runs a digest-pinned Versity v1.9.0 S3 gateway on a case-owned local-path PVC. It stores three non-sensitive synthetic AI artifact classes as exact, versioned S3 objects in historical, corrected, and independent healthy-comparator buckets. Jobs use the pinned AWS CLI bundle through a Python runtime mount, read live Object Lock configuration and version-specific retention/head/get responses, including the measured policy extension on older versions. A scoped cleanup probe removes an unlocked comparator and receives a denial for the three retained versions. Production governance, deployed lifecycle rules and long-term durability require separate evidence.",
+  "cluster": "saf-lab-172ee2b4cba5",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The pinned Versity gateway uses its case-owned local-path PVC",
+      "matched": true,
+      "observed": {
+        "gateway_ready": true,
+        "claim_bound": true,
+        "case_owned_versioned_storage": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "All three fixture buckets expose versioning and Object Lock",
+      "matched": true,
+      "observed": {
+        "bucket_count": 3,
+        "versioning_enabled": true,
+        "object_lock_enabled": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Live version-specific retention exposes the historical shortfall in every class",
+      "matched": true,
+      "observed": {
+        "historical_default_days": 1,
+        "classes_below_synthetic_minimum": 3,
+        "all_classes_short": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Corrected version retention meets each class threshold and matches the healthy comparator",
+      "matched": true,
+      "observed": {
+        "corrected_classes_satisfied": 3,
+        "comparator_classes_satisfied": 3,
+        "class_duration_settings_match": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact source bytes are retrievable from each independently versioned bucket object",
+      "matched": true,
+      "observed": {
+        "class_count": 3,
+        "source_payload_digests_match": true,
+        "explicit_version_ids_observed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Retention is corrected on the exact earlier artifact versions",
+      "matched": true,
+      "observed": {
+        "historical_versions_remediated": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Retention denies early cleanup of all three exact versions while the unlocked comparator is removed",
+      "matched": true,
+      "observed": {
+        "unlocked_deleted": true,
+        "locked_bytes_still_available": true
+      }
+    }
+  ]
+}

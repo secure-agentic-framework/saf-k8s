@@ -1104,6 +1104,12 @@
       "sha256": "502cb74f3331058a6ff566bf79d5752916df77da0e0b2b37558fdc828adb6a6f",
       "title": "Audit capture of admission, authorization, and privileged API decisions for AI workloads"
     },
+    "SAF-K8S-1001-019": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "36b558a2a4719b734b7a5e88b29679ee36c9c16a90a1dfb9c7ca700ea137a070",
+      "title": "Regulatory AI artifact and provenance record retention enforcement"
+    },
     "SAF-K8S-1001-023": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1220,7 +1226,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "113d746ef5295b18eafbec9a85a1a1b26d450d26",
+  "revision": "56c133a98267d2f6516cc393c0e03a4672302873",
   "sha256": "872822531716b059a05f969b9bdb15559fa3dd850de26945615e595c3d8e018e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

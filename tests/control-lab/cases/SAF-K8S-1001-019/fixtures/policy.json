@@ -1,0 +1,30 @@
+{
+  "control_id": "SAF-K8S-1001-019",
+  "basis": "Synthetic duration thresholds for the lab fixture.",
+  "historical_default_days": 1,
+  "corrected_default_days": 3,
+  "mode": "COMPLIANCE",
+  "classes": [
+    {
+      "id": "model-artifact",
+      "label": "synthetic model artifact",
+      "key": "ai-artifacts/model/synthetic-model.json",
+      "payload_file": "model-artifact.json",
+      "minimum_days": 5
+    },
+    {
+      "id": "attached-provenance",
+      "label": "synthetic attached provenance",
+      "key": "ai-artifacts/provenance/synthetic-provenance.json",
+      "payload_file": "attached-provenance.json",
+      "minimum_days": 4
+    },
+    {
+      "id": "oversight-record",
+      "label": "synthetic documented oversight record",
+      "key": "ai-artifacts/oversight/synthetic-oversight.json",
+      "payload_file": "oversight-record.json",
+      "minimum_days": 3
+    }
+  ]
+}
