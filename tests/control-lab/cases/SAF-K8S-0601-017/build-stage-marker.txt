@@ -1,0 +1,1 @@
+synthetic build-only marker; not runtime content

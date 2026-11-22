@@ -1,0 +1,10 @@
+FROM scratch AS build
+COPY payload.txt /out/payload.txt
+COPY --chmod=0755 probe /out/probe
+COPY build-stage-marker.txt /out/build-stage-marker.txt
+
+FROM scratch AS runtime
+COPY --from=build /out/payload.txt /app/payload.txt
+COPY --from=build /out/probe /app/probe
+USER 65534:65534
+ENTRYPOINT ["/app/probe"]

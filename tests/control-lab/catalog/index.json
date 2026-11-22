@@ -306,6 +306,12 @@
       "sha256": "cd7f3b80433408dbdc37796a65ae4e7f73ab1496d6a77fbab4be7aedb0b7ecf5",
       "title": "Approved minimal base image catalog enforcement"
     },
+    "SAF-K8S-0601-017": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "514d8d6226656695e57e314b954a968bf062575cf8d8786b01cea44cb4afe74b",
+      "title": "Multi-stage build and stripped runtime image minimization"
+    },
     "SAF-K8S-0702-003": {
       "catalog_status": "draft",
       "domain": "D07",

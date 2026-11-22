@@ -1,0 +1,6 @@
+FROM scratch
+COPY payload.txt /app/payload.txt
+COPY build-stage-marker.txt /build-stage-marker.txt
+COPY --chmod=0755 probe /app/probe
+USER 65534:65534
+ENTRYPOINT ["/app/probe"]
