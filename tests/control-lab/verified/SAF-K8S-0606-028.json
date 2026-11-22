@@ -1,0 +1,119 @@
+{
+  "control_id": "SAF-K8S-0606-028",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "0f644fbd1cf00d98a8010a82d585a021e948aa473301559fc6bfc407c8ca388e",
+  "scope": "One disposable framework-runner Kind cluster. Flux v2.9.0 installs the source-controller v1.9.1 and kustomize-controller v1.9.1. Three independent case-owned Git checkouts serve inert ConfigMap markers over in-cluster Smart read-only HTTP: unsigned without verification, trusted signed with HEAD verification, unsigned with verification, and signed by an untrusted key. Synthetic private keys are generated in the runner temporary directory. The case says nothing about hosted branch rules, PR approvals, required checks, production key identity/custody, or every commit in Git history.",
+  "cluster": "saf-lab-c9e3815f6bed",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The source and downstream consumer use the pinned Flux v2.9.0 component images",
+      "matched": true,
+      "observed": {
+        "source_controller": [
+          "ghcr.io/fluxcd/source-controller:v1.9.1@sha256:773a90fa26e014d4f23d5c6a48ca5875c4686bdc6aac2ea73951b9cd9fda48dd"
+        ],
+        "kustomize_controller": [
+          "ghcr.io/fluxcd/kustomize-controller:v1.9.1@sha256:ae1a90c0c76d518618c5e2a64b82b6476c8213aa7a2b17ec8b94828f0230a6b8"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The owned Git Smart HTTP service advertises the exact signed fixture HEAD",
+      "matched": true,
+      "observed": {
+        "advertised_revision_matches": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without source verification, Flux consumes the unsigned HEAD and applies its inert marker",
+      "matched": true,
+      "observed": {
+        "source_ready": "True",
+        "verification_condition_absent": true,
+        "kustomization_ready": "True",
+        "marker_present": true,
+        "applied_revision_matches_checkout": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A trusted synthetic signed HEAD verifies and reaches the downstream Flux Kustomization",
+      "matched": true,
+      "observed": {
+        "source_ready": "True",
+        "source_verified": {
+          "status": "True",
+          "reason": "Succeeded"
+        },
+        "kustomization_ready": "True",
+        "marker_present": true,
+        "applied_revision_matches_checkout": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Unsigned and untrusted signed HEADs fail Flux verification and do not reconcile their inert markers",
+      "matched": true,
+      "observed": {
+        "verified-unsigned": {
+          "source_not_ready": true,
+          "source_verified": {
+            "status": "False",
+            "reason": "InvalidCommitSignature"
+          },
+          "kustomization_ready": "False",
+          "marker_absent": true,
+          "source_artifact_absent": true,
+          "exact_commit_named": true
+        },
+        "untrusted-signed": {
+          "source_not_ready": true,
+          "source_verified": {
+            "status": "False",
+            "reason": "InvalidCommitSignature"
+          },
+          "kustomization_ready": "False",
+          "marker_absent": true,
+          "source_artifact_absent": true,
+          "exact_commit_named": true
+        }
+      }
+    }
+  ]
+}
