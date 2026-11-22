@@ -1,0 +1,30 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0701-001-approved-mode
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: [CREATE, UPDATE]
+        resources: [persistentvolumeclaims]
+  validations:
+    - expression: >-
+        has(object.spec.storageClassName) && object.spec.storageClassName == "standard" &&
+        size(object.spec.accessModes) == 1 && object.spec.accessModes[0] == "ReadWriteOnce"
+      message: "fixture workspace claims require standard ReadWriteOnce storage"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0701-001-approved-mode
+spec:
+  policyName: saf-k8s-0701-001-approved-mode
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/fixture-storage-mode: approved
