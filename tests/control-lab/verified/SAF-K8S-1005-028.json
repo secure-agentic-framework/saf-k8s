@@ -1,0 +1,101 @@
+{
+  "control_id": "SAF-K8S-1005-028",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "c637ed1017cea12bff43fb5ed8ff0c208d2bba7608bb5b792efa16a42869af0f",
+  "scope": "A disposable Kubernetes v1.36.1 Kind cluster stores two case-owned ConfigMaps containing approved mock model access and training records, plus a benign unapproved comparator. The case captures authorized mock record bytes via the Kubernetes API, writes a completeness manifest and SHA-256 sidecars to the runner evidence directory, removes the source ConfigMaps to model cleanup, and independently verifies the captured bytes and required records remain complete. The dataset digest is a hash of a fabricated label, not dataset content. This does not prove production collection, audit coverage, evidence-store durability/access controls, chain of custody, or legal retention.",
+  "cluster": "saf-lab-d869603d619a",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Incomplete collector access leaves an existing lineage record uncaptured",
+      "matched": true,
+      "observed": {
+        "captured_record_kinds": [
+          "model_read"
+        ],
+        "missing_record_kinds": [
+          "training_lineage"
+        ],
+        "lineage_source_present": true,
+        "lineage_access_denied": true,
+        "unapproved_record_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Exact-name read access covers both required records while the unapproved record stays denied",
+      "matched": true,
+      "observed": {
+        "collector": "saf-lab-1005-028-collector",
+        "captured": [
+          "model_read",
+          "training_lineage"
+        ],
+        "unapproved_record_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Both complete records remain byte-identical and hash-verified after source cleanup",
+      "matched": true,
+      "observed": {
+        "source_records_absent": {
+          "model_read": true,
+          "training_lineage": true
+        },
+        "preserved_records_match": {
+          "model_read": true,
+          "training_lineage": true
+        },
+        "captured_record_kinds": [
+          "model_read",
+          "training_lineage"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved mock model-read and training-lineage records retain their full metadata and inert digest",
+      "matched": true,
+      "observed": {
+        "approved_model_read_preserved": true,
+        "approved_training_lineage_preserved": true,
+        "dataset_digest_preserved": "sha256:1276ea6b6c0f2b81eec1faa134bd04d19e2149013f9c5321d9fafa7f467d4138",
+        "model_or_dataset_content_present": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "fixture_id": "saf-k8s-1005-028-synthetic-fixture",
+  "notice": "All labels are fabricated. The dataset digest hashes only the inert label saf-k8s synthetic dataset label; it does not identify or hash dataset content.",
+  "records": [
+    {
+      "approval": "approved",
+      "actor_label": "mock-approved-reader-a",
+      "action": "read",
+      "event_label": "mock-model-read-event-a",
+      "kind": "model_read",
+      "model_label": "mock-model-cedar",
+      "request_label": "mock-read-request-a",
+      "timestamp": "2030-01-02T03:04:05Z",
+      "workload_label": "mock-inference-workload-a"
+    },
+    {
+      "approval": "approved",
+      "dataset_digest": "sha256:1276ea6b6c0f2b81eec1faa134bd04d19e2149013f9c5321d9fafa7f467d4138",
+      "dataset_label": "mock-dataset-cedar",
+      "kind": "training_lineage",
+      "pipeline_label": "mock-training-pipeline-a",
+      "run_label": "mock-training-run-a",
+      "timestamp": "2030-01-02T03:05:00Z",
+      "workload_label": "mock-training-workload-a"
+    }
+  ]
+}
