@@ -1,0 +1,36 @@
+{
+  "synthetic": true,
+  "manifest": {
+    "schemaVersion": 2,
+    "mediaType": "application/vnd.oci.image.manifest.v1+json",
+    "config": {
+      "mediaType": "application/vnd.oci.image.config.v1+json",
+      "digest": "sha256:53bdfef2868c79314fa97f14552256846fec3a4f55249d9c4769e3e585e36c58",
+      "size": 368
+    },
+    "layers": []
+  },
+  "config": {
+    "architecture": "amd64",
+    "os": "linux",
+    "config": {
+      "Labels": {
+        "org.opencontainers.image.title": "synthetic-control-lab-image"
+      }
+    },
+    "rootfs": {
+      "type": "layers",
+      "diff_ids": []
+    },
+    "history": [
+      {
+        "created_by": "FROM synthetic.local/base@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "empty_layer": true
+      },
+      {
+        "created_by": "COPY synthetic fixture",
+        "empty_layer": true
+      }
+    ]
+  }
+}

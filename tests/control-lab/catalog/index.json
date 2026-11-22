@@ -282,6 +282,12 @@
       "sha256": "e4dc965e387cb747b237eab489ef048bec599a46a49ad5f90e5a2907099b4254",
       "title": "Container image runtime hardening with non-root and read-only filesystem"
     },
+    "SAF-K8S-0601-016": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "cd7f3b80433408dbdc37796a65ae4e7f73ab1496d6a77fbab4be7aedb0b7ecf5",
+      "title": "Approved minimal base image catalog enforcement"
+    },
     "SAF-K8S-0702-003": {
       "catalog_status": "draft",
       "domain": "D07",

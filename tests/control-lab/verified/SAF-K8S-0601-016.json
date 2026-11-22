@@ -1,0 +1,136 @@
+{
+  "control_id": "SAF-K8S-0601-016",
+  "catalog_revision": "d3578710406221046942a7437b7726308c7015b3",
+  "catalog_sha256": "2c939594d57db831d028cf98022701e2580ed633aed4608b27bfb82196524934",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "cd7f3b80433408dbdc37796a65ae4e7f73ab1496d6a77fbab4be7aedb0b7ecf5",
+  "scope": "Build a local OCI artifact from a digest-pinned public base, verify manifest-to-attestation descriptor linkage and read the resolved base reported by BuildKit. A second synthetic case verifies trusted-key DSSE, subject digest binding and an exact approved base allowlist. No image is published. This case covers local build evidence and the verification mechanism. Production builder identities, provenance ingestion and runtime admission integration require their own checks.",
+  "cluster": "saf-lab-005737bbc4a9",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "BuildKit links a real local artifact to the exact approved base material",
+      "matched": true,
+      "observed": {
+        "oci_attestation_links_workload_digest": true,
+        "resolved_base_is_approved": true,
+        "base_digest": "sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "final OCI metadata alone cannot establish an approved base image",
+      "matched": true,
+      "observed": {
+        "final_digest": "sha256:7e1662148e5329eb92915a708ebc9c1f365bc03b98440129e8d14fa0aea8bfaf",
+        "history": [
+          {
+            "created_by": "FROM synthetic.local/base@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "empty_layer": true
+          },
+          {
+            "created_by": "COPY synthetic fixture",
+            "empty_layer": true
+          }
+        ],
+        "approved_as_final_artifact": true,
+        "claim": "exact final artifact identity is established; base lineage is not"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "unlisted changed final image digest is rejected by exact final-image allowlist",
+      "matched": true,
+      "observed": {
+        "altered_final_digest": "sha256:e7ceb25aa48527a59d781270931306590ecbde6edfa89c37446eaddc04b1f0bf",
+        "approved_final_digests": [
+          "sha256:7e1662148e5329eb92915a708ebc9c1f365bc03b98440129e8d14fa0aea8bfaf"
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "final image digest and self-asserted history cannot replace authenticated provenance",
+      "matched": true,
+      "observed": {
+        "final_digest_is_approved": true,
+        "observed": "provenance signature invalid or signer key id untrusted"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Authentic provenance is rejected when presented for a different image digest",
+      "matched": true,
+      "observed": {
+        "observed": "provenance subject does not bind the final image digest"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "trusted signed provenance binds the final image to the approved base digest",
+      "matched": true,
+      "observed": {
+        "final_digest": "sha256:7e1662148e5329eb92915a708ebc9c1f365bc03b98440129e8d14fa0aea8bfaf",
+        "verified_base_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "builder": "https://synthetic.invalid/builder/release-v1"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "validly signed provenance naming an unapproved base is denied",
+      "matched": true,
+      "observed": {
+        "observed": "base image digest is not in the approved base digest allowlist"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "altered provenance payload is denied before trusting its base claim",
+      "matched": true,
+      "observed": {
+        "observed": "provenance signature invalid or signer key id untrusted"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "permitted final image with approved authenticated base remains allowed",
+      "matched": true,
+      "observed": {
+        "final_digest": "sha256:7e1662148e5329eb92915a708ebc9c1f365bc03b98440129e8d14fa0aea8bfaf",
+        "base_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "synthetic_fixture_only": true
+      }
+    }
+  ]
+}

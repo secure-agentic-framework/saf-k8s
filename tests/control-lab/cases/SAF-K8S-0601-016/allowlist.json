@@ -1,0 +1,10 @@
+{
+  "format": "synthetic-local-policy-v1",
+  "approved_base_digests": [
+    "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
+  ],
+  "approved_final_image_digests": [
+    "sha256:7e1662148e5329eb92915a708ebc9c1f365bc03b98440129e8d14fa0aea8bfaf"
+  ]
+}
