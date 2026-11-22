@@ -1,0 +1,48 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-1006-005-ai-compliance
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  validations:
+    - expression: >-
+        has(object.metadata.labels) &&
+        "saf-k8s.example/classification" in object.metadata.labels &&
+        object.metadata.labels["saf-k8s.example/classification"] in
+        ["synthetic-inference", "synthetic-training"]
+      message: "SAF-K8S-1006-005: AI classification label is required and must be governed"
+    - expression: >-
+        has(object.spec.securityContext) &&
+        object.spec.securityContext.runAsNonRoot == true &&
+        has(object.spec.securityContext.seccompProfile) &&
+        object.spec.securityContext.seccompProfile.type == "RuntimeDefault" &&
+        object.spec.containers.all(c,
+          has(c.securityContext) &&
+          c.securityContext.allowPrivilegeEscalation == false &&
+          has(c.securityContext.capabilities) &&
+          c.securityContext.capabilities.drop.exists(cap, cap == "ALL"))
+      message: "SAF-K8S-1006-005: pod and containers must use the required restricted security context"
+    - expression: >-
+        object.spec.containers.all(c,
+          !has(c.resources) || !has(c.resources.limits) ||
+          c.resources.limits.all(name,
+            name != "nvidia.com/gpu" || !quantity(c.resources.limits[name]).isGreaterThan(quantity("1"))))
+      message: "SAF-K8S-1006-005: a container may request at most one named GPU extended resource"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-1006-005-ai-compliance
+spec:
+  policyName: saf-k8s-1006-005-ai-compliance
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/ai-compliance: enrolled
