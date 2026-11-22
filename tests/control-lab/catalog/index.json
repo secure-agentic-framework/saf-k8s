@@ -168,6 +168,12 @@
       "sha256": "599bb8dc936e12291b48e232dce801cdc1160ee19323ff23a2a0a1fe690a1dac",
       "title": "CIS Benchmark remediation workflow tracking"
     },
+    "SAF-K8S-0104-017": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "45553b5485e71555be09bdda206d034b05824728a280ce53e23f5f76f0ef2d62",
+      "title": "CIS Benchmark exception approval and re-review governance"
+    },
     "SAF-K8S-0104-020": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -554,7 +560,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "5bfdf488b2ff17c33e183b374f201ba37dfd5d0b",
+  "revision": "2b363f1eaea9cc4dbc640cc8d300c9bb5bc26d36",
   "sha256": "957795ca0841a48dd97f65d6a691d642bc38d11bbf391056ec5ea9b34e1a131b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

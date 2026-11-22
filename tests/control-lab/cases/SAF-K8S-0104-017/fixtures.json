@@ -1,0 +1,33 @@
+{
+  "scope_label": "saf-k8s.example/cis-exception",
+  "namespace_label": "saf-k8s.example/cis-exception-policy",
+  "policy_name": "synthetic-cis-exception-record",
+  "denial_message": "synthetic CIS exception record metadata is incomplete",
+  "accepted": {
+    "name": "complete-synthetic-exception",
+    "data": {
+      "cluster_scope": "prod-sim-a",
+      "benchmark": "CIS Kubernetes Benchmark",
+      "benchmark_version": "2.1.0",
+      "kubernetes_version": "v1.36.1",
+      "recommendation_id": "1.2.1",
+      "risk_owner_record": "SYN-RISK-OWNER-APPROVAL-017",
+      "justification": "Synthetic rehearsal record for an organization-defined exception.",
+      "compensating_controls": "Synthetic alternate guard and monitoring reference.",
+      "review_due": "2026-12-21T00:00:00Z"
+    }
+  },
+  "incomplete": {
+    "name": "incomplete-synthetic-exception",
+    "data": {
+      "cluster_scope": "prod-sim-a",
+      "benchmark": "CIS Kubernetes Benchmark",
+      "benchmark_version": "2.1.0",
+      "kubernetes_version": "v1.36.1",
+      "recommendation_id": "1.2.1",
+      "justification": "Synthetic rehearsal record without the remaining governance metadata."
+    }
+  },
+  "as_of": "2026-11-21T00:00:00Z",
+  "expired_message": "synthetic CIS exception review deadline has passed"
+}
