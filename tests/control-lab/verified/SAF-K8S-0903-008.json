@@ -1,0 +1,218 @@
+{
+  "control_id": "SAF-K8S-0903-008",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "6907f4b016c44a7929888513de49873a6992c0b5e03c6c59de26c75fc621f055",
+  "scope": "One disposable Kind cluster using the harness-pinned Kubernetes v1.36.1 node image and one case-owned namespace. A Python 3.13 slim fixture evaluates fixed synthetic demand and spend, and a dedicated ServiceAccount may only get or patch the named Deployment's scale subresource. One inert CPU-only controller Pod and at most three inert CPU-only target Pods are present at once. Identical demand of three replicas and projected spend of $15.00 are compared with policy disabled and enabled; an actual over-cap HTTP 429, equal-cap, and recovery cases are also observed. No GPU, provider, cloud bill, external traffic, inference service, or production environment is involved.",
+  "review_timing": {
+    "queued_at": "2026-11-22T21:50:03.703725+00:00",
+    "cluster_ready_at": "2026-11-22T21:50:55.714690+00:00",
+    "approval_at": "2026-11-22T21:52:55.119364+00:00",
+    "case_loaded_at": "2026-11-22T21:52:55.139252+00:00"
+  },
+  "cluster": "saf-lab-5301e7cd16ea",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "35493d0921eb12fea766f53db32c016a5136d54cc3547b4dc13e119389988e14",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The fixture identity has only the named Deployment scale permissions",
+      "matched": true,
+      "observed": {
+        "get deployments/scale/synthetic-inference": true,
+        "patch deployments/scale/synthetic-inference": true,
+        "update deployments/scale/synthetic-inference": false,
+        "patch deployments/synthetic-inference": false,
+        "patch deployments/scale/other-deployment": false,
+        "create deployments": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The controller source and target are the case-owned pinned fixtures",
+      "matched": true,
+      "observed": {
+        "source_matches": true,
+        "target_image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90",
+        "controller_image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90",
+        "target_pod_token_mounted": false,
+        "controller_service_account": "budget-reconciler",
+        "target_command": [
+          "python",
+          "-c",
+          "import time; time.sleep(86400)"
+        ],
+        "role_rules": [
+          {
+            "apiGroups": [
+              "apps"
+            ],
+            "resourceNames": [
+              "synthetic-inference"
+            ],
+            "resources": [
+              "deployments/scale"
+            ],
+            "verbs": [
+              "get",
+              "patch"
+            ]
+          }
+        ],
+        "target_image_is_pinned": true,
+        "controller_image_is_pinned": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "With budget policy off, identical $15 projected demand scales to three Ready Pods",
+      "matched": true,
+      "observed": {
+        "http_status": 200,
+        "allowed": true,
+        "approved_cap": "10.00",
+        "budget_enabled": false,
+        "decision": "allow",
+        "degraded_service": false,
+        "demand_replicas": 3,
+        "projected_spend": "15.00",
+        "requested_replicas": 3,
+        "unit_cost": "5.00",
+        "spec_replicas": 3,
+        "ready_replicas": 3,
+        "available_replicas": 3
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The under-cap reset returns the target to one Ready Pod",
+      "matched": true,
+      "observed": {
+        "http_status": 200,
+        "allowed": true,
+        "approved_cap": "10.00",
+        "budget_enabled": true,
+        "decision": "allow",
+        "degraded_service": false,
+        "demand_replicas": 1,
+        "projected_spend": "5.00",
+        "requested_replicas": 1,
+        "unit_cost": "5.00",
+        "spec_replicas": 1,
+        "ready_replicas": 1,
+        "available_replicas": 1
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same $15 demand over the $10 cap suppresses scale-up and selects degraded service",
+      "matched": true,
+      "observed": {
+        "http_status": 429,
+        "allowed": false,
+        "approved_cap": "10.00",
+        "budget_enabled": true,
+        "decision": "suppress_scale_up_and_degrade",
+        "degraded_service": true,
+        "demand_replicas": 3,
+        "projected_spend": "15.00",
+        "requested_replicas": 1,
+        "unit_cost": "5.00",
+        "spec_replicas": 1,
+        "ready_replicas": 1,
+        "available_replicas": 1
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Projected spend exactly equal to the approved cap remains allowed",
+      "matched": true,
+      "observed": {
+        "http_status": 200,
+        "allowed": true,
+        "approved_cap": "10.00",
+        "budget_enabled": true,
+        "decision": "allow",
+        "degraded_service": false,
+        "demand_replicas": 2,
+        "projected_spend": "10.00",
+        "requested_replicas": 2,
+        "unit_cost": "5.00",
+        "spec_replicas": 2,
+        "ready_replicas": 2,
+        "available_replicas": 2
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Over-cap scale-up is blocked while existing Ready capacity is retained",
+      "matched": true,
+      "observed": {
+        "http_status": 429,
+        "allowed": false,
+        "approved_cap": "10.00",
+        "budget_enabled": true,
+        "decision": "suppress_scale_up_and_degrade",
+        "degraded_service": true,
+        "demand_replicas": 3,
+        "projected_spend": "15.00",
+        "requested_replicas": 2,
+        "unit_cost": "5.00",
+        "spec_replicas": 2,
+        "ready_replicas": 2,
+        "available_replicas": 2
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "When projected spend recovers below cap, scaling down remains allowed",
+      "matched": true,
+      "observed": {
+        "http_status": 200,
+        "allowed": true,
+        "approved_cap": "10.00",
+        "budget_enabled": true,
+        "decision": "allow",
+        "degraded_service": false,
+        "demand_replicas": 1,
+        "projected_spend": "5.00",
+        "requested_replicas": 1,
+        "unit_cost": "5.00",
+        "spec_replicas": 1,
+        "ready_replicas": 1,
+        "available_replicas": 1
+      }
+    }
+  ]
+}

@@ -1200,6 +1200,12 @@
       "sha256": "90d281facd2897a5159fa701e9360e5c43df31da83e8bb39f23006667f26dab3",
       "title": "GPU inference autoscaling replica bounds and stabilization enforcement"
     },
+    "SAF-K8S-0903-008": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "6907f4b016c44a7929888513de49873a6992c0b5e03c6c59de26c75fc621f055",
+      "title": "Budget-aware inference autoscaling suppression and degraded-service fallback"
+    },
     "SAF-K8S-0907-007": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1682,7 +1688,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c497f71f5eb52f4c09a1ed67a63c16bf213cd712",
+  "revision": "c9ce088c5aa00f0724ef72f83e36aa112e1e5eac",
   "sha256": "048037b90a24d7ec93c499b5090f5453e3fe06e6708b6dbb8ea5d9294d79cf1b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
