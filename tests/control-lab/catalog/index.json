@@ -1470,6 +1470,12 @@
       "sha256": "562f1209a46b1d9d61f5407b9bf659d9da4e4d3232060e52133c316f477aa57a",
       "title": "Automated AI infrastructure asset discovery and continuously updated inventory"
     },
+    "SAF-K8S-1007-014": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "4f075e69f52d7dbc01c182a5d3f1e9b1daee3bc3aa42455913f4c04a6e8c5d69",
+      "title": "AI asset classification and criticality governance for Kubernetes environments"
+    },
     "SAF-K8S-1007-017": {
       "catalog_status": "draft",
       "domain": "D10",

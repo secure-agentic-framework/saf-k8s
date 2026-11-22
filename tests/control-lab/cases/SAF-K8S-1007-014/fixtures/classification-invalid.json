@@ -1,0 +1,10 @@
+{
+  "fixture_notice": "Synthetic invalid test input; includes an out-of-set sensitivity value.",
+  "labels": {
+    "saf-k8s.example/ai-asset": "true",
+    "saf-k8s.example/asset-id": "synth-asset-1007-014",
+    "saf-k8s.example/sensitivity": "top-secret",
+    "saf-k8s.example/criticality": "low",
+    "saf-k8s.example/exposure": "none"
+  }
+}

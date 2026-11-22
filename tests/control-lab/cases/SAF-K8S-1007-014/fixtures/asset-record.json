@@ -1,0 +1,31 @@
+{
+  "fixture_notice": "Synthetic owned mock AI asset metadata; not a real model, endpoint, dataset, organization, or compliance record.",
+  "asset_record": {
+    "asset_id": "synth-asset-1007-014",
+    "asset_type": "mock-ai-service",
+    "namespace": "saf-test",
+    "workload": "mock-inference",
+    "description": "Sleeping mock workload used only to bind a synthetic asset inventory record."
+  },
+  "classifications": {
+    "standard": {
+      "saf-k8s.example/ai-asset": "true",
+      "saf-k8s.example/asset-id": "synth-asset-1007-014",
+      "saf-k8s.example/sensitivity": "internal",
+      "saf-k8s.example/criticality": "low",
+      "saf-k8s.example/exposure": "none"
+    },
+    "priority": {
+      "saf-k8s.example/ai-asset": "true",
+      "saf-k8s.example/asset-id": "synth-asset-1007-014",
+      "saf-k8s.example/sensitivity": "restricted",
+      "saf-k8s.example/criticality": "critical",
+      "saf-k8s.example/exposure": "review"
+    }
+  },
+  "routes": {
+    "standard": "synthetic-standard-review",
+    "priority": "synthetic-priority-review"
+  },
+  "taxonomy_notice": "The allowed label values and routing rule are local synthetic exercise choices, not SAF taxonomy or legal/regulatory determinations."
+}

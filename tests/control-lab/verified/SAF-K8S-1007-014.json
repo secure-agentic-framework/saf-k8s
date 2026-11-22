@@ -1,0 +1,91 @@
+{
+  "control_id": "SAF-K8S-1007-014",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "4f075e69f52d7dbc01c182a5d3f1e9b1daee3bc3aa42455913f4c04a6e8c5d69",
+  "scope": "Disposable Kind Kubernetes v1.36.1 cluster. Creates one owned namespace, a scaled-to-zero mock Deployment, and a native ValidatingAdmissionPolicy for one synthetic AI asset ConfigMap. Missing and out-of-set sensitivity/criticality/exposure labels are tested through API denial and absence on readback. A valid record is read back, then its classification is updated and read back to show a fixture-only risk-route change. This does not discover assets, establish a real taxonomy, enforce classification on other resource kinds or clusters, create operational tickets, validate regulatory applicability, or prove production governance or response performance.",
+  "review_timing": {
+    "queued_at": "2026-11-22T19:15:41.213495+00:00",
+    "cluster_ready_at": "2026-11-22T19:16:16.489080+00:00",
+    "approval_at": "2026-11-22T19:16:10.398322+00:00",
+    "case_loaded_at": "2026-11-22T19:16:16.498180+00:00"
+  },
+  "cluster": "saf-lab-5b8c51e9f60b",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "6f0eaaae38ff3df1feaa0c507ab3c055cd3dd99bd7b4954754cff0fea0b7e552",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The API admits an unclassified record before the admission policy is installed",
+      "matched": true,
+      "observed": {
+        "unclassified_server_dry_run_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission denies missing and out-of-set classification and neither persists",
+      "matched": true,
+      "observed": {
+        "missing_classification_denied_and_absent": true,
+        "invalid_classification_denied_and_absent": true,
+        "missing_classification_error": "The configmaps \"synthetic-ai-asset\" is invalid: : ValidatingAdmissionPolicy 'saf-1007-014-ai-classification' with binding 'saf-1007-014-ai-classification' denied request: sensitivity must use an allowed synthetic class\n",
+        "invalid_classification_error": "The configmaps \"synthetic-ai-asset\" is invalid: : ValidatingAdmissionPolicy 'saf-1007-014-ai-classification' with binding 'saf-1007-014-ai-classification' denied request: sensitivity must use an allowed synthetic class\n"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Allowed classification is durably readable from the Kubernetes API",
+      "matched": true,
+      "observed": {
+        "uid_matches_create_response": true,
+        "record_data_matches_fixture": true,
+        "record_binds_live_mock_workload": true,
+        "classification_labels_match": true,
+        "route": "synthetic-standard-review"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same synthetic asset record changes from standard to priority routing",
+      "matched": true,
+      "observed": {
+        "same_record_uid_and_data": true,
+        "initial_route": "synthetic-standard-review",
+        "updated_route": "synthetic-priority-review",
+        "updated_classification_labels_match": true
+      }
+    }
+  ]
+}
