@@ -294,6 +294,12 @@
       "sha256": "e5abf117a6443c636eaeb307792e2305d69301b9fd883342a458278cef6ddf25",
       "title": "Service account token automount opt-out"
     },
+    "SAF-K8S-0304-009": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "e3a6c2a6cef955c00917bb7e378300ec80d66812cc129fbe1f4b16982495386a",
+      "title": "Temporary checkpoint storage encryption, integrity, and access control"
+    },
     "SAF-K8S-0304-010": {
       "catalog_status": "draft",
       "domain": "D03",

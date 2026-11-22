@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: checkpoint-training-access
+  namespace: saf-test
+subjects:
+  - kind: ServiceAccount
+    name: checkpoint-training
+    namespace: saf-test
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: checkpoint-training-access
