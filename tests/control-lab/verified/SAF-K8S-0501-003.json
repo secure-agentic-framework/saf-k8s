@@ -1,0 +1,240 @@
+{
+  "control_id": "SAF-K8S-0501-003",
+  "catalog_revision": "0daee82318101a0222e69db536bfbfabf8d0dd02",
+  "catalog_sha256": "0413020e18d66946895828d49eadcf20c43b72150355a385006f2541fb7f03c9",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "b4b02ba96da10c8c5acafaa56d761cf423e4591466fecdec6352cf25c5476b66",
+  "scope": "Kubernetes v1.36.1 kind with policy-capable bundled kindnet. A synthetic workload reaches two owned cluster HTTP listeners before egress enforcement. Namespace and Pod label allowances restore only the approved path. The same workload also contacts two owned HTTP peers on a separate Docker network outside Kubernetes. A real ipBlock /32 and port rule admits only the approved combination. Production IP authorities, FQDN policies, routing gateways and provider evidence remain separate.",
+  "cluster": "saf-lab-544ad6bc345e",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Pinned local Kind and kindnet dataplane are ready",
+      "matched": true,
+      "observed": {
+        "kind_version": "kind v0.32.0 go1.26.3 darwin/arm64",
+        "kubernetes_version": "v1.36.1",
+        "cni_images": [
+          "docker.io/kindest/kindnetd:v20260528-9350166c"
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without egress enforcement the client reaches the owned approved address and port",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "expected_fixed_marker": "owned-approved-8080",
+        "protocol": "IPv4 TCP",
+        "port": 8080
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without egress enforcement the client reaches the owned same address at the alternate port",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "expected_fixed_marker": "owned-approved-8081",
+        "protocol": "IPv4 TCP",
+        "port": 8081
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without egress enforcement the client reaches the owned alternate address at the approved port",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "expected_fixed_marker": "owned-restricted-8080",
+        "protocol": "IPv4 TCP",
+        "port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The /32 egress rule denies the exact alternate address",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "expected_fixed_marker": "owned-restricted-8080",
+        "protocol": "IPv4 TCP",
+        "port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The port rule denies the alternate port on the approved address",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "expected_fixed_marker": "owned-approved-8081",
+        "protocol": "IPv4 TCP",
+        "port": 8081
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact approved external address and port still return their marker",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "expected_fixed_marker": "owned-approved-8080",
+        "protocol": "IPv4 TCP",
+        "port": 8080
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both externally located denied paths have healthy owned listeners",
+      "matched": true,
+      "observed": {
+        "listeners_responded_locally": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The isolated external endpoint network and peers are removed",
+      "matched": true,
+      "observed": {
+        "external_network_removed": true,
+        "external_peers_removed": 2
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy client reaches the approved owned listener",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "expected_fixed_marker": "saf-0501-003-approved-harmless-http-marker-91d2",
+        "protocol": "IPv4 TCP",
+        "port": 8080
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy client reaches the restricted owned listener",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "expected_fixed_marker": "saf-0501-003-restricted-harmless-http-marker-47ac",
+        "protocol": "IPv4 TCP",
+        "port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Client-only egress default deny blocks the approved listener",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "expected_fixed_marker": null,
+        "protocol": "IPv4 TCP",
+        "port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Client-only egress default deny blocks the restricted listener",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "expected_fixed_marker": null,
+        "protocol": "IPv4 TCP",
+        "port": 8080
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Scoped egress allows the approved listener exact marker",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "expected_fixed_marker": "saf-0501-003-approved-harmless-http-marker-91d2",
+        "protocol": "IPv4 TCP",
+        "port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Scoped egress continues to deny the restricted listener",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "expected_fixed_marker": null,
+        "protocol": "IPv4 TCP",
+        "port": 8080
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both synthetic listeners stay healthy during egress denial",
+      "matched": true,
+      "observed": {
+        "approved_listener": true,
+        "restricted_listener": true,
+        "listener_markers": [
+          "saf-0501-003-approved-harmless-http-marker-91d2",
+          "saf-0501-003-restricted-harmless-http-marker-47ac"
+        ]
+      }
+    }
+  ]
+}

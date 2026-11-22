@@ -510,6 +510,12 @@
       "sha256": "fff48cefc65151490f384235bd52752805aae0fd293e8609cdb097f950e6465e",
       "title": "Namespace network isolation patterns"
     },
+    "SAF-K8S-0501-003": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "b4b02ba96da10c8c5acafaa56d761cf423e4591466fecdec6352cf25c5476b66",
+      "title": "Workload egress controls"
+    },
     "SAF-K8S-0601-011": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -788,7 +794,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "2df64cdcd3257678cd66334301ac6c8b5f087af7",
+  "revision": "fdf5226b6afbbc6c13ccb5d1074a65feee2817d8",
   "sha256": "4f3af75103b61d50fe765d3e9d09c52723867f4f4190370ee68a390ba14fad90",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
