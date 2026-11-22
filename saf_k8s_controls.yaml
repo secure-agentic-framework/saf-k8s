@@ -3112,10 +3112,10 @@
   control_title: Secrets KMS key rotation and re-encryption verification
   control_statement: Kubernetes Secrets encryption keys must rotate on a defined schedule, and periodic re-encryption verification must confirm that no Secrets remain encrypted under retired keys.
   objective: Ensure long-lived KMS keys protecting Kubernetes Secrets are rotated and that existing Secrets are re-encrypted so retired key material does not remain in use.
-  rationale: Using an external KMS without key lifecycle enforcement leaves old keys in service indefinitely. This control isolates rotation and re-encryption verification so teams can independently prove that key retirement actually propagates to stored Secrets.
+  rationale: Changing the write key protects new writes while existing Secret records can still use an earlier key. Rewriting and independently verifying those records establishes current-key coverage before key retirement.
   scope: Applies to all production Kubernetes clusters using KMS-backed Secrets encryption. Covers automated key rotation schedules, retired-key re-encryption checks, and verification that existing Secrets are protected under current keys.
   primary_enforcement_point: KMS rotation automation and re-encryption verification.
-  implementation_surface: Automated key rotation schedules, KMS metadata, and re-encryption verification tooling or procedures confirming current-key coverage for stored Secrets.
+  implementation_surface: Automated KMS rotation schedules and key-version audit evidence, with old-key decryption available until full current-key coverage is verified and backup recovery is accounted for. After confirming that new writes use the active key, Kubernetes v1.37 clusters serving storagemigration.k8s.io/v1 can run a StorageVersionMigration for the core secrets resource and verify Succeeded. Use an equivalent rewrite procedure where this API is unavailable. Independently check the stored key version for the complete in-scope inventory before retirement. Migration success records completion of the rewrite and requires separate key-version evidence.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Key Management/Cryptography; Cloud Platform Engineering
   baseline_or_ai_specific: baseline
