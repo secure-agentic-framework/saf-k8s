@@ -1,0 +1,12 @@
+{
+  "namespace": "saf-0606-034-fixture",
+  "service_account": "fixture-emergency-operator",
+  "no_justification": {
+    "name": "saf-breakglass-no-justification",
+    "request_body": {"data": {"state": "reviewed-no-ticket"}}
+  },
+  "approved_action": {
+    "name": "saf-breakglass-approved-action",
+    "request_body": {"data": {"state": "reviewed-under-approval"}}
+  }
+}

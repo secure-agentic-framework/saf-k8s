@@ -1,0 +1,18 @@
+{
+  "no_justification_record": null,
+  "approved_action": {
+    "action_id": "ACTION-0606-034-002",
+    "approval_id": "APPROVAL-0606-034-002",
+    "status": "approved",
+    "approved_by": "fixture-approver@example.invalid",
+    "justification": "Synthetic incident exercise; preserve the inert fixture marker.",
+    "approved_request": {
+      "username": "system:serviceaccount:saf-0606-034-fixture:fixture-emergency-operator",
+      "verb": "patch",
+      "namespace": "saf-0606-034-fixture",
+      "resource": "configmaps",
+      "name": "saf-breakglass-approved-action",
+      "request_body": {"data": {"state": "reviewed-under-approval"}}
+    }
+  }
+}

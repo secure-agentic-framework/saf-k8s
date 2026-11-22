@@ -1,0 +1,12 @@
+apiVersion: audit.k8s.io/v1
+kind: Policy
+rules:
+  - level: Request
+    users:
+      - system:serviceaccount:saf-0606-034-fixture:fixture-emergency-operator
+    verbs: [patch]
+    namespaces: [saf-0606-034-fixture]
+    resources:
+      - group: ""
+        resources: [configmaps]
+  - level: None

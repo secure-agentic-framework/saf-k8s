@@ -774,6 +774,12 @@
       "sha256": "0db9f36b8f952e8d01e260e3cd9e619b67f90306b5505c3b8044bde1c6583e13",
       "title": "Git-only production deployment path enforcement"
     },
+    "SAF-K8S-0606-034": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "f4faaf13940b0fabd868798d63a790a7d2fd268816de49397c6d279b6c52c6bd",
+      "title": "Emergency direct-access audit logging and justification governance"
+    },
     "SAF-K8S-0701-001": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -1064,7 +1070,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "da97c3d5efa8eb0be15883ea7a42e35c67754188",
+  "revision": "9e8849be67ca1663581209fbf0e08f8a5e987576",
   "sha256": "5468afd7544aceb8f79e434b7d58a52fc41eeee0b3084837f4dc587efc72cace",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
