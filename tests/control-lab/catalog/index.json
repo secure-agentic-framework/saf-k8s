@@ -288,6 +288,12 @@
       "sha256": "b2c26f8f26b0c8c56997c8b4190044e5e13ecc701c925780619b62369b6b9f90",
       "title": "Container runtime socket root-only protection"
     },
+    "SAF-K8S-0202-012": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "97bd0eb0f91a693f025f4fb7f1fe47ae74f5f8a312c75ae95ef91eed2d098833",
+      "title": "Rootless node verification and placement eligibility"
+    },
     "SAF-K8S-0301-001": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -830,7 +836,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "77bcc22849e09d5b79aa2a9bf8321980499a72bb",
-  "sha256": "31490639f973d1f95ee1465812ef6775f786dc53b54c2e4adc2fb8807bb12799",
+  "revision": "cb38b6e5ea0246734d7aa78468679a7fde62ad4a",
+  "sha256": "115d55b7443aed0213c5b909968f35b73439c1376fb56857836f63c2b08ce322",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
