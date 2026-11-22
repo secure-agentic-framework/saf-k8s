@@ -5,11 +5,18 @@
 
 ## Mapping Notes
 
-DoS protection for agent endpoints and APIs prevents service disruption attacks
-
-9.3 - Autoscaling safety, EDoS prevention; 7.3 - Resource exhaustion resilience (DoS protection)
+Scoped quotas, workload priorities, and service monitoring contribute to protection against capacity-related loss of service. Coverage depends on the resources and internal events designated by the organization.
 
 ## SAF-K8S Controls
+
+### [SAF-K8S-1007-007 - Cluster service protection from AI training resource exhaustion](../../controls/SAF-K8S-1007-007.md)
+
+- Domain: D10 - Observability, Incident Response, and Governance
+- Knowledge Area: 10.7
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: framework-language-interpretation
 
 ### [SAF-K8S-0703-002 - Pod Disruption Budgets for workload availability](../../controls/SAF-K8S-0703-002.md)
 

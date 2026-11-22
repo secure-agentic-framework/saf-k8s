@@ -7047,18 +7047,41 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AC-16(6)
-  framework_requirement_title: Maintenance of Attribute Association
-  framework_mapping_notes: 'Persistent attribute association across agent handoffs
-
-
-    7.2 - Maintaining classification attributes across model lifecycle stages; 10.7 - AI infrastructure asset inventory with classification persistence'
+  framework_requirement_id: CA-7
+  framework_requirement_title: Continuous Monitoring
+  framework_mapping_notes: Training-related service-health metrics can provide inputs to system continuous monitoring. This control does not define the monitoring strategy or implement every CA-7 activity.
   control_id: SAF-K8S-1007-007
   relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Where system monitoring incorporates service-health and resource measurements into its assessment, analysis, response, and reporting process.
+  strength_reason_code: framework-language-interpretation
+- mapping_set_name: SAF-K8S to NIST SP 800-53r5
+  framework_code: NIST-800-53R5
+  framework_name: NIST SP 800-53 Revision 5
+  framework_version: 5.2.0
+  framework_requirement_id: SC-5
+  framework_requirement_title: Denial-of-service Protection
+  framework_mapping_notes: Scoped quotas, workload priorities, and service monitoring contribute to protection against capacity-related loss of service. Coverage depends on the resources and internal events designated by the organization.
+  control_id: SAF-K8S-1007-007
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Where the organization identifies internal training-related resource exhaustion as a protected service-denial scenario.
+  strength_reason_code: framework-language-interpretation
+- mapping_set_name: SAF-K8S to NIST SP 800-53r5
+  framework_code: NIST-800-53R5
+  framework_name: NIST SP 800-53 Revision 5
+  framework_version: 5.2.0
+  framework_requirement_id: SC-6
+  framework_requirement_title: Resource Availability
+  framework_mapping_notes: Namespace quotas allocate or cap declared requests, and PriorityClasses express scheduling preference for shared-service workloads. These mechanisms implement priority or quota allocation for the selected resources.
+  control_id: SAF-K8S-1007-007
+  relation_type: direct
   strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  applicability: conditional
+  applicability_condition: Where the organization selects resources covered by the deployed quota or scheduling priority.
+  strength_reason_code: framework-language-interpretation
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -11895,22 +11918,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AC-3(2)
-  framework_requirement_title: Dual Authorization
-  framework_mapping_notes: 'Requiring human+agent or multi-agent approval for critical actions
-
-
-    9.5 - Model promotion gates (approval workflows for production deployment); 10.7 - Change management approval workflows for model deployments'
-  control_id: SAF-K8S-1007-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AC-3(3)
   framework_requirement_title: Mandatory Access Control
   framework_mapping_notes: 'Mandatory access policies for agent trust boundaries
@@ -15838,22 +15845,6 @@
 
     9.5 - Model promotion gates (human review: security scan, bias evaluation before production); 10.7 - Change management approval workflows'
   control_id: SAF-K8S-1007-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(9)
-  framework_requirement_title: Human Reviews
-  framework_mapping_notes: 'Human-in-the-loop review of agent data flows
-
-
-    9.5 - Model promotion gates (human review: security scan, bias evaluation before production); 10.7 - Change management approval workflows'
-  control_id: SAF-K8S-1007-007
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -23127,22 +23118,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: CA-7
-  framework_requirement_title: Continuous Monitoring
-  framework_mapping_notes: 'Continuous monitoring of agent security posture
-
-
-    10.6 - Continuous compliance evidence collection; 10.7 - Security posture management (continuous assessment)'
-  control_id: SAF-K8S-1007-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: CA-7(1)
   framework_requirement_title: Independent Assessment
   framework_mapping_notes: 'Independent ongoing agent security assessment
@@ -23294,22 +23269,6 @@
 
     10.7 - Security posture management (continuous risk monitoring for cluster drift and vulnerability exposure)'
   control_id: SAF-K8S-1007-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CA-7(4)
-  framework_requirement_title: Risk Monitoring
-  framework_mapping_notes: 'Ongoing risk monitoring for agent systems
-
-
-    10.7 - Security posture management (continuous risk monitoring for cluster drift and vulnerability exposure)'
-  control_id: SAF-K8S-1007-007
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -24327,22 +24286,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: CM-12
-  framework_requirement_title: Information Location
-  framework_mapping_notes: 'Tracking where agent-processed data resides
-
-
-    10.7 - AI infrastructure asset inventory (tracking where data, models, and artifacts reside across clusters)'
-  control_id: SAF-K8S-1007-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: CM-12(1)
   framework_requirement_title: Automated Tools to Support Information Location
   framework_mapping_notes: 'Automated data location for agent systems
@@ -24382,22 +24325,6 @@
 
     10.7 - Automated discovery and classification of AI infrastructure assets'
   control_id: SAF-K8S-1007-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-12(1)
-  framework_requirement_title: Automated Tools to Support Information Location
-  framework_mapping_notes: 'Automated data location for agent systems
-
-
-    10.7 - Automated discovery and classification of AI infrastructure assets'
-  control_id: SAF-K8S-1007-007
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -24846,22 +24773,6 @@
 
     6.6 - GitOps (Git history retains all previous configurations); 10.7 - Configuration snapshot generation'
   control_id: SAF-K8S-1007-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-2(3)
-  framework_requirement_title: Retention of Previous Configurations
-  framework_mapping_notes: 'Retaining previous agent configs for rollback
-
-
-    6.6 - GitOps (Git history retains all previous configurations); 10.7 - Configuration snapshot generation'
-  control_id: SAF-K8S-1007-007
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -25742,22 +25653,6 @@
 
     10.7 - K8s upgrade planning (impact analysis for version upgrades); 1.4 - Version lifecycle management'
   control_id: SAF-K8S-1007-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-4
-  framework_requirement_title: Impact Analyses
-  framework_mapping_notes: 'Analyzing impact of changes on agent security
-
-
-    10.7 - K8s upgrade planning (impact analysis for version upgrades); 1.4 - Version lifecycle management'
-  control_id: SAF-K8S-1007-007
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -26855,22 +26750,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: CM-7(1)
-  framework_requirement_title: Periodic Review
-  framework_mapping_notes: 'Periodically reviewing agent enabled functions
-
-
-    1.4 - Feature gate governance (periodic review of enabled functionality); 10.7 - Deprecation tracking'
-  control_id: SAF-K8S-1007-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: CM-7(2)
   framework_requirement_title: Prevent Program Execution
   framework_mapping_notes: 'Preventing unauthorized code execution by agents
@@ -27527,22 +27406,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: CM-8
-  framework_requirement_title: System Component Inventory
-  framework_mapping_notes: 'Inventory of agent components (models, tools, plugins)
-
-
-    10.7 - AI infrastructure asset inventory (models, datasets, pipelines, inference endpoints, GPU allocations)'
-  control_id: SAF-K8S-1007-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: CM-8(1)
   framework_requirement_title: Updates During Installation and Removal
   framework_mapping_notes: 'Updating inventory when agent components change
@@ -27582,22 +27445,6 @@
 
     10.7 - Asset inventory (updating during component installation and removal)'
   control_id: SAF-K8S-1007-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-8(1)
-  framework_requirement_title: Updates During Installation and Removal
-  framework_mapping_notes: 'Updating inventory when agent components change
-
-
-    10.7 - Asset inventory (updating during component installation and removal)'
-  control_id: SAF-K8S-1007-007
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -27710,22 +27557,6 @@
 
     10.7 - Automated discovery and classification of AI infrastructure assets; 4.3 - Credential inventory and sprawl governance (SAF-K8S-0403-008)'
   control_id: SAF-K8S-1007-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-8(2)
-  framework_requirement_title: Automated Maintenance
-  framework_mapping_notes: 'Automated agent component inventory
-
-
-    10.7 - Automated discovery and classification of AI infrastructure assets; 4.3 - Credential inventory and sprawl governance (SAF-K8S-0403-008)'
-  control_id: SAF-K8S-1007-007
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -28030,22 +27861,6 @@
 
     10.7 - AI infrastructure asset inventory (centralized repository for models, datasets, components)'
   control_id: SAF-K8S-1007-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-8(7)
-  framework_requirement_title: Centralized Repository
-  framework_mapping_notes: 'Central registry of agent components
-
-
-    10.7 - AI infrastructure asset inventory (centralized repository for models, datasets, components)'
-  control_id: SAF-K8S-1007-007
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -29294,22 +29109,6 @@
 
     10.7 - AI infrastructure asset inventory (identifying critical models, datasets, GPU resources)'
   control_id: SAF-K8S-1007-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-2(8)
-  framework_requirement_title: Identify Critical Assets
-  framework_mapping_notes: 'Identifying critical agent assets (models, data, configs)
-
-
-    10.7 - AI infrastructure asset inventory (identifying critical models, datasets, GPU resources)'
-  control_id: SAF-K8S-1007-007
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -31198,22 +30997,6 @@
 
     7.1 - Dual authorization requirements for destruction of training data backups and model checkpoint archives; 10.7 - Decommissioning approval'
   control_id: SAF-K8S-1007-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-9(7)
-  framework_requirement_title: Dual Authorization for Deletion or Destruction
-  framework_mapping_notes: 'Dual auth for agent backup deletion
-
-
-    7.1 - Dual authorization requirements for destruction of training data backups and model checkpoint archives; 10.7 - Decommissioning approval'
-  control_id: SAF-K8S-1007-007
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -33806,22 +33589,6 @@
 
     8.4 - Remote attestation (verifying TEE integrity, hardware attestation); 10.7 - Hardware attestation for new nodes'
   control_id: SAF-K8S-1007-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-3(4)
-  framework_requirement_title: Device Attestation
-  framework_mapping_notes: 'Agent runtime attestation
-
-
-    8.4 - Remote attestation (verifying TEE integrity, hardware attestation); 10.7 - Hardware attestation for new nodes'
-  control_id: SAF-K8S-1007-007
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -40567,22 +40334,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: PM-31
-  framework_requirement_title: Continuous Monitoring Strategy
-  framework_mapping_notes: 'Continuous monitoring strategy is essential for detecting agentic AI security anomalies
-
-
-    10.7 - Security posture management (continuous monitoring strategy for cluster config drift and vulnerability exposure)'
-  control_id: SAF-K8S-1007-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: PM-32
   framework_requirement_title: Purposing
   framework_mapping_notes: 'System purposing (dedicating systems to specific functions) applies to agent isolation strategies
@@ -40718,22 +40469,6 @@
 
     10.7 - AI infrastructure asset inventory (system inventory for K8s clusters and AI workloads)'
   control_id: SAF-K8S-1007-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-5
-  framework_requirement_title: System Inventory
-  framework_mapping_notes: 'Inventory of agentic AI systems, agents, models, and tools is essential for security management
-
-
-    10.7 - AI infrastructure asset inventory (system inventory for K8s clusters and AI workloads)'
-  control_id: SAF-K8S-1007-007
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -41054,22 +40789,6 @@
 
     4.5 - Detect identity abuse (revoking access on personnel termination); 10.7 - Decommissioning access grants'
   control_id: SAF-K8S-1007-006
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PS-4
-  framework_requirement_title: Personnel Termination
-  framework_mapping_notes: 'Personnel termination procedures must address revocation of agent system access and credentials
-
-
-    4.5 - Detect identity abuse (revoking access on personnel termination); 10.7 - Decommissioning access grants'
-  control_id: SAF-K8S-1007-007
   relation_type: supports
   strength_level: moderate
   applicability: required
@@ -42887,22 +42606,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: RA-9
-  framework_requirement_title: Criticality Analysis
-  framework_mapping_notes: 'Criticality analysis identifies which agent components are most essential to operations
-
-
-    10.7 - AI infrastructure asset inventory (criticality analysis for models, datasets, GPU resources, inference endpoints)'
-  control_id: SAF-K8S-1007-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SA-1
   framework_requirement_title: Policy and Procedures
   framework_mapping_notes: 'System acquisition policy governs procurement and development of agentic AI components
@@ -44311,22 +44014,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SA-15(3)
-  framework_requirement_title: Criticality Analysis
-  framework_mapping_notes: 'Criticality analysis of agent components prioritizes security testing and hardening efforts
-
-
-    10.7 - AI infrastructure asset inventory (criticality analysis for AI components and dependencies)'
-  control_id: SAF-K8S-1007-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SA-15(5)
   framework_requirement_title: Attack Surface Reduction
   framework_mapping_notes: 'Attack surface reduction in agent design minimizes exposed interfaces and tool endpoints
@@ -45591,22 +45278,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SA-22
-  framework_requirement_title: Unsupported System Components
-  framework_mapping_notes: 'Managing unsupported AI models, libraries, and frameworks prevents unpatched vulnerabilities
-
-
-    10.7 - Deprecation tracking (managing unsupported K8s APIs, GPU drivers, AI framework versions)'
-  control_id: SAF-K8S-1007-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SA-23
   framework_requirement_title: Specialization
   framework_mapping_notes: 'Specializing agent components to specific functions reduces attack surface per component
@@ -46158,22 +45829,6 @@
 
     10.7 - Version governance (coordinated updates for GPU drivers, CUDA toolkits, AI operators, serving frameworks)'
   control_id: SAF-K8S-1007-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-3(3)
-  framework_requirement_title: Technology Refresh
-  framework_mapping_notes: 'Technology refresh planning for AI models, frameworks, and tools prevents obsolescence risks
-
-
-    10.7 - Version governance (coordinated updates for GPU drivers, CUDA toolkits, AI operators, serving frameworks)'
-  control_id: SAF-K8S-1007-007
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -48119,22 +47774,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SA-8(21)
-  framework_requirement_title: Self-analysis
-  framework_mapping_notes: 'Self-analysis enables agent systems to verify their own security state and detect anomalies
-
-
-    10.7 - Security posture management (self-analysis of cluster configuration and compliance drift)'
-  control_id: SAF-K8S-1007-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SA-8(22)
   framework_requirement_title: Accountability and Traceability
   framework_mapping_notes: 'Accountability and traceability of agent actions is essential for audit and forensics
@@ -49614,22 +49253,6 @@
 
     10.7 - K8s upgrade planning (secure evolution through version lifecycle management and deprecation tracking)'
   control_id: SAF-K8S-1007-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(8)
-  framework_requirement_title: Secure Evolvability
-  framework_mapping_notes: 'Secure evolvability ensures agent systems can be updated and patched without introducing vulnerabilities
-
-
-    10.7 - K8s upgrade planning (secure evolution through version lifecycle management and deprecation tracking)'
-  control_id: SAF-K8S-1007-007
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -63895,22 +63518,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-12(3)
-  framework_requirement_title: Information Disposal
-  framework_mapping_notes: 'Secure disposal of agent data, logs, and model artifacts prevents unauthorized recovery
-
-
-    9.5 - Artifact lifecycle management (secure deletion of retired models); 10.7 - AI workload decommissioning'
-  control_id: SAF-K8S-1007-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-13
   framework_requirement_title: Predictable Failure Prevention
   framework_mapping_notes: 'Predictable failure prevention for agent systems ensures graceful degradation under stress
@@ -67159,22 +66766,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-2(2)
-  framework_requirement_title: Automated Flaw Remediation Status
-  framework_mapping_notes: 'Automated tracking of agent vulnerability patch status ensures timely remediation
-
-
-    6.4 - Vulnerability prioritization (automated tracking of flaw remediation status); 10.7 - Security posture management'
-  control_id: SAF-K8S-1007-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-2(3)
   framework_requirement_title: Time to Remediate Flaws and Benchmarks for Corrective Actions
   framework_mapping_notes: 'Remediation time benchmarks for agent vulnerabilities drive timely patching
@@ -67566,22 +67157,6 @@
 
     9.5 - Artifact lifecycle management (deprecation, archival, secure deletion); 10.7 - Deprecation tracking'
   control_id: SAF-K8S-1007-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-2(6)
-  framework_requirement_title: Removal of Previous Versions of Software and Firmware
-  framework_mapping_notes: 'Removing old agent versions prevents exploitation of known vulnerabilities in outdated code
-
-
-    9.5 - Artifact lifecycle management (deprecation, archival, secure deletion); 10.7 - Deprecation tracking'
-  control_id: SAF-K8S-1007-007
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -71895,22 +71470,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-6
-  framework_requirement_title: Security and Privacy Function Verification
-  framework_mapping_notes: 'Verification of agent security functions ensures controls operate as intended
-
-
-    10.7 - Security posture management (verifying security function effectiveness); 7.3 - Chaos engineering'
-  control_id: SAF-K8S-1007-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-6(2)
   framework_requirement_title: Automation Support for Distributed Testing
   framework_mapping_notes: 'Distributed testing automation verifies agent security across deployment environments
@@ -72093,22 +71652,6 @@
 
 
     7.3 - Chaos engineering for GPU controls (automated distributed testing); 10.7 - Continuous assessment'
-  control_id: SAF-K8S-1007-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-6(2)
-  framework_requirement_title: Automation Support for Distributed Testing
-  framework_mapping_notes: 'Distributed testing automation verifies agent security across deployment environments
-
-
-    7.3 - Chaos engineering for GPU controls (automated distributed testing); 10.7 - Continuous assessment'
   control_id: SAF-K8S-1007-010
   relation_type: direct
   strength_level: strong
@@ -72206,22 +71749,6 @@
 
     10.6 - Compliance evidence collection (reporting verification results); 10.7 - Security posture management'
   control_id: SAF-K8S-1007-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-6(3)
-  framework_requirement_title: Report Verification Results
-  framework_mapping_notes: 'Reporting security verification results provides evidence of agent control effectiveness
-
-
-    10.6 - Compliance evidence collection (reporting verification results); 10.7 - Security posture management'
-  control_id: SAF-K8S-1007-007
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -74247,22 +73774,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SR-11(2)
-  framework_requirement_title: Configuration Control for Component Service and Repair
-  framework_mapping_notes: 'Configuration control during AI component updates ensures integrity is maintained
-
-
-    8.2 - GPU driver version management (configuration control for driver updates); 10.7 - Change management for model deployments'
-  control_id: SAF-K8S-1007-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SR-11(3)
   framework_requirement_title: Anti-counterfeit Scanning
   framework_mapping_notes: 'Scanning for counterfeit AI components detects fake or tampered models and tools
@@ -74398,22 +73909,6 @@
 
     10.7 - AI workload decommissioning (secure cleanup of training data, models, GPU reservations, secrets); 9.5 - Artifact lifecycle (secure deletion)'
   control_id: SAF-K8S-1007-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-12
-  framework_requirement_title: Component Disposal
-  framework_mapping_notes: 'Secure disposal of retired AI models, agents, and associated data prevents unauthorized recovery
-
-
-    10.7 - AI workload decommissioning (secure cleanup of training data, models, GPU reservations, secrets); 9.5 - Artifact lifecycle (secure deletion)'
-  control_id: SAF-K8S-1007-007
   relation_type: direct
   strength_level: strong
   applicability: required

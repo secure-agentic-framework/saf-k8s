@@ -5,11 +5,18 @@
 
 ## Mapping Notes
 
-Continuous monitoring of agent security posture
-
-10.6 - Continuous compliance evidence collection; 10.7 - Security posture management (continuous assessment)
+Training-related service-health metrics can provide inputs to system continuous monitoring. This control does not define the monitoring strategy or implement every CA-7 activity.
 
 ## SAF-K8S Controls
+
+### [SAF-K8S-1007-007 - Cluster service protection from AI training resource exhaustion](../../controls/SAF-K8S-1007-007.md)
+
+- Domain: D10 - Observability, Incident Response, and Governance
+- Knowledge Area: 10.7
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: framework-language-interpretation
 
 ### [SAF-K8S-0910-018 - Security-aware target-cluster posture verification before multi-cluster placement](../../controls/SAF-K8S-0910-018.md)
 
@@ -75,15 +82,6 @@ Continuous monitoring of agent security posture
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-1007-006 - Secure AI workload decommissioning](../../controls/SAF-K8S-1007-006.md)
-
-- Domain: D10 - Observability, Incident Response, and Governance
-- Knowledge Area: 10.7
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
-### [SAF-K8S-1007-007 - Cluster service protection from AI training resource exhaustion](../../controls/SAF-K8S-1007-007.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.7

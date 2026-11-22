@@ -5,11 +5,18 @@
 
 ## Mapping Notes
 
-Resource availability controls prevent agent compute and API quota exhaustion
-
-7.3 - Priority classes, resource quotas, GPU cost governance (resource availability management)
+Namespace quotas allocate or cap declared requests, and PriorityClasses express scheduling preference for shared-service workloads. These mechanisms implement priority or quota allocation for the selected resources.
 
 ## SAF-K8S Controls
+
+### [SAF-K8S-1007-007 - Cluster service protection from AI training resource exhaustion](../../controls/SAF-K8S-1007-007.md)
+
+- Domain: D10 - Observability, Incident Response, and Governance
+- Knowledge Area: 10.7
+- Relation Type: direct
+- Strength: strong
+- Applicability: conditional
+- Strength Reason Code: framework-language-interpretation
 
 ### [SAF-K8S-0703-002 - Pod Disruption Budgets for workload availability](../../controls/SAF-K8S-0703-002.md)
 
