@@ -1,0 +1,140 @@
+{
+  "control_id": "SAF-K8S-0503-011",
+  "catalog_revision": "c62a40551eb5c880e5b9894cdc26bb7a929a5a29",
+  "catalog_sha256": "f8e0cf1e01bc0de4b00f018afbbd50ede74ea9107afc25c95416adf9c3533f88",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "e309b7c859c5ec174c187f9e34fa199fac8034537aac790744fc0a928bbdd4ac",
+  "scope": "One fresh disposable Kubernetes v1.36.1 Kind cluster with one control-plane node and two labeled workers. A single non-privileged synthetic HTTP Pod is pinned to worker-a and exposed by one NodePort Service. The same Service, endpoint, port, and localhost-to-worker mappings are probed with explicit externalTrafficPolicy Cluster and Local values. Harmless GET requests compare the endpoint-free worker with the endpoint worker. This is a kube-proxy/Kind behavior fixture, not production approval or documentation evidence. It does not establish a cloud LoadBalancer, healthCheckNodePort behavior, client source IP preservation across Docker/Kind address rewriting, provider defaults, or production endpoint topology and availability. No public destination or packet injection is used.",
+  "cluster": "saf-lab-4ae47409ab7d",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "One ready synthetic endpoint is on the known worker-a node",
+      "matched": true,
+      "observed": {
+        "pod": "external-policy-endpoint",
+        "pod_phase": "Running",
+        "endpoint_on_worker_a": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Service EndpointSlice has exactly the ready worker-a endpoint",
+      "matched": true,
+      "observed": {
+        "endpoint_count": 1,
+        "ready_endpoint_on_worker_a": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Cluster mode serves the sole endpoint from both worker NodePorts",
+      "matched": true,
+      "observed": {
+        "service_policy": "Cluster",
+        "service_type": "NodePort",
+        "local_samples": {
+          "expected_marker_responses": 3,
+          "no_http_responses": 0
+        },
+        "remote_samples": {
+          "expected_marker_responses": 3,
+          "no_http_responses": 0
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Only externalTrafficPolicy changed on the existing Service",
+      "matched": true,
+      "observed": {
+        "same_service_uid": true,
+        "same_cluster_ip": true,
+        "same_node_port": true,
+        "same_selector": true,
+        "same_endpoint_pod_uid": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Local mode preserves local success and removes remote forwarding",
+      "matched": true,
+      "observed": {
+        "service_policy": "Local",
+        "service_type": "NodePort",
+        "local_samples": {
+          "expected_marker_responses": 3,
+          "no_http_responses": 0
+        },
+        "remote_samples": {
+          "expected_marker_responses": 0,
+          "no_http_responses": 3
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The API accepts a mode change without a decision record before enforcement",
+      "matched": true,
+      "observed": {
+        "dry_run_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission denies the same undocumented mode change",
+      "matched": true,
+      "observed": {
+        "matched_policy_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission rejects a decision for the wrong mode",
+      "matched": true,
+      "observed": {
+        "matched_policy_denial": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Admission permits the matching documented change as a dry run",
+      "matched": true,
+      "observed": {
+        "documented_change_admitted": true,
+        "stored_mode": "Local"
+      }
+    }
+  ]
+}

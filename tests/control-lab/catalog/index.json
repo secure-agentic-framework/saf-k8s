@@ -594,6 +594,12 @@
       "sha256": "e6d95686536b60b52d952c519b0b66b44777f431be7f610704b70045df0ac00b",
       "title": "Ingress TLS termination and boundary configuration hardening"
     },
+    "SAF-K8S-0503-011": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "e309b7c859c5ec174c187f9e34fa199fac8034537aac790744fc0a928bbdd4ac",
+      "title": "External traffic policy mode selection and tradeoff governance"
+    },
     "SAF-K8S-0505-002": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -890,7 +896,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "be41ab7613b8783d017bda5b4d2ff82b9c6c5a82",
+  "revision": "70151fd6d3efef87bd0529a4681134982632804d",
   "sha256": "f8e0cf1e01bc0de4b00f018afbbd50ede74ea9107afc25c95416adf9c3533f88",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

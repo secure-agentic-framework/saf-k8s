@@ -1,0 +1,38 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-0503-011-traffic-decision
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["services"]
+  matchConditions:
+    - name: fixture
+      expression: >-
+        object.metadata.name == 'external-policy-fixture'
+        && object.spec.type in ['NodePort', 'LoadBalancer']
+  validations:
+    - expression: >-
+        has(object.metadata.annotations)
+        && 'saf.example/external-traffic-mode' in object.metadata.annotations
+        && object.metadata.annotations['saf.example/external-traffic-mode'] == object.spec.externalTrafficPolicy
+        && 'saf.example/external-traffic-rationale' in object.metadata.annotations
+        && size(object.metadata.annotations['saf.example/external-traffic-rationale']) > 0
+      reason: Forbidden
+      message: "Document the chosen external traffic mode and its routing tradeoff"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-0503-011-traffic-decision
+spec:
+  policyName: saf-0503-011-traffic-decision
+  validationActions: ["Deny"]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: saf-test
