@@ -1524,6 +1524,26 @@
   superseded_by_control_id: null
   date_created: '2026-03-16'
   date_modified: '2026-03-17'
+- control_id: SAF-K8S-0202-012
+  domain_code: D02
+  domain_name: Node, Runtime, and OS Security
+  knowledge_area: '2.2'
+  control_seq: '012'
+  control_title: Rootless node verification and placement eligibility
+  control_statement: Where a cluster or node pool claims rootless operation, verify that the kubelet, runtime and applicable node networking components share the intended noninitial Linux user namespace with non-root host UID and GID mappings. Treat absent, stale or uncorroborated status as unknown. Where workload placement depends on rootless operation, independently control the grant, renewal and removal of a trusted eligibility label or equivalent scheduling policy.
+  objective: Substantiate claimed rootless node operation and govern placement of workloads that require it.
+  rationale: Kubernetes v1.37 enables the beta KubeletInUserNamespace gate by default and can report status.nodeInfo.runningInUserNamespace. The gate does not create a Linux user namespace. The status is a kubelet report, so use independent process observations to confirm effective namespace membership and UID and GID mappings.
+  scope: Applies to deployments claiming rootless Kubernetes node components. Verify the kubelet, CRI runtime, kube-proxy when applicable and active node CNI components. Record OS, runtime, network, storage and provider prerequisites and approved exceptions. Pod user namespaces have a separate scope.
+  primary_enforcement_point: Effective node process configuration and independently managed workload eligibility policy.
+  implementation_surface: Correlate current Node status with host-side observations of process user namespaces, UID and GID maps, and subordinate mappings. Give centrally managed label writers narrow permissions. For standard node selectors, protect the label with Node authorization and NodeRestriction. Define when eligibility is issued, rechecked or removed and how existing placement is evaluated afterward.
+  owner_primary: Platform Engineering
+  owner_supporting: Security Engineering; OS/Infrastructure
+  baseline_or_ai_specific: baseline
+  maturity: Foundational
+  status: draft
+  superseded_by_control_id: null
+  date_created: '2026-11-21'
+  date_modified: '2026-11-21'
 - control_id: SAF-K8S-0203-002
   domain_code: D02
   domain_name: Node, Runtime, and OS Security

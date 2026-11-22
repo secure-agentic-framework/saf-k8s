@@ -26,7 +26,7 @@ See [`LICENSE`](LICENSE) for the summary.
 
 - Domains: 10
 - Knowledge areas: 55
-- Controls: 594
+- Controls: 595
 - Crosswalk rows: 4917
 
 ## YAML Files
@@ -282,6 +282,7 @@ This knowledge area focuses on: RuntimeClass configuration for workload-appropri
 | [SAF-K8S-0202-009](markdown/controls/SAF-K8S-0202-009.md) | Container runtime secure baseline settings and debug endpoint disablement | Foundational | baseline |
 | [SAF-K8S-0202-010](markdown/controls/SAF-K8S-0202-010.md) | Node default seccomp profile enforcement | Foundational | baseline |
 | [SAF-K8S-0202-011](markdown/controls/SAF-K8S-0202-011.md) | Node mandatory access control activation for container workloads | Foundational | baseline |
+| [SAF-K8S-0202-012](markdown/controls/SAF-K8S-0202-012.md) | Rootless node verification and placement eligibility | Foundational | baseline |
 
 <a id="knowledge-area-2-3"></a>
 ## 2.3 - Host OS and Kernel Hardening
