@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0304-006",
-  "catalog_revision": "d34b502ac96accb45a26841dfa77094dc4a72d9e",
-  "catalog_sha256": "c3bdef2bfc0aae712ee2fcb1bfd47cebfcedc7415526acfb36b86be77042a93f",
+  "catalog_revision": "ef66065cad9ae377d67f158e821d3a0ac2e41e59",
+  "catalog_sha256": "374fb0c8d76fcd4c6927b5b92577f3e820a08e5a4291a7f27dd0ed4ddf266b58",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "2cbb412e609dd2daaf3b701575e37397b0348dcffdb6678dd6673641ebbbc87e",
+  "control_sha256": "8d23c66354e8745d150c15ad4e5c8cd2b8659cd37557effd5a1f599c1657241d",
   "scope": "Server-side dry-run admission of one synthetic hostPath Pod under an unlabeled namespace and the same namespace enforcing Kubernetes v1.36 Pod Security Admission Baseline, plus a permitted emptyDir Pod dry-run. No Pod is persisted or run. No host path is created, mounted, or read. Does not test production-wide namespace coverage, admission configuration, policy-engine exceptions, exception-register governance, or audit delivery.",
-  "cluster": "saf-lab-c1db64232d59",
+  "cluster": "saf-lab-eac3afb6e3da",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

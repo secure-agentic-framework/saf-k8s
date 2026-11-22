@@ -399,7 +399,7 @@
     "SAF-K8S-0304-006": {
       "catalog_status": "draft",
       "domain": "D03",
-      "sha256": "2cbb412e609dd2daaf3b701575e37397b0348dcffdb6678dd6673641ebbbc87e",
+      "sha256": "8d23c66354e8745d150c15ad4e5c8cd2b8659cd37557effd5a1f599c1657241d",
       "title": "Host volume mount restriction"
     },
     "SAF-K8S-0304-007": {
@@ -1736,7 +1736,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "7960fa5a464d7a8436a5a023ea537ac1e41541fb",
-  "sha256": "839ba1ce22e74f9ff2524b53a86bbfb332d3fd13867bcc8d26d03cbd7ef8749c",
+  "revision": "bfd9d7d3393bc0981b4310615fe950c1ae89d0b1",
+  "sha256": "374fb0c8d76fcd4c6927b5b92577f3e820a08e5a4291a7f27dd0ed4ddf266b58",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
