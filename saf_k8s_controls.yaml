@@ -5630,12 +5630,12 @@
   knowledge_area: '6.5'
   control_seq: 009
   control_title: AI custom resource validation and policy constraint enforcement
-  control_statement: AI-specific Custom Resource Definitions must have validating admission webhooks that enforce structural schema correctness, security constraints, and organizational policy requirements before AI custom resources are admitted to the cluster.
+  control_statement: AI-specific Custom Resource Definitions must declare a structural OpenAPI schema enforced by the Kubernetes API. Use validating admission webhooks to enforce security constraints and organizational policy requirements before AI custom resources are admitted to the cluster.
   objective: Prevent malformed or policy-violating AI custom resources from creating unsafe workloads, excessive GPU consumption, or unauthorized model and data access patterns.
   rationale: AI CRDs such as InferenceService, TrainingJob, RayCluster, and PodGroup describe high-impact workloads and resource requests. Without CRD-specific validation and constraint enforcement, malformed or malicious objects can bypass operator assumptions and create unsafe runtime state before downstream controls can intervene.
   scope: Applies to all Kubernetes clusters running AI/ML operator frameworks such as KServe, Kubeflow, Ray, and Volcano that install AI-specific CRDs. Clusters without AI operator CRDs may document this control as not applicable.
-  primary_enforcement_point: Kubernetes validating admission webhooks for AI CRDs.
-  implementation_surface: ValidatingWebhookConfiguration resources for AI CRDs, operator-specific validation rules, structural schema validation, security and policy constraint logic, and test results demonstrating rejection of non-compliant AI custom resources.
+  primary_enforcement_point: Kubernetes CRD schema validation and validating admission webhooks for AI custom resources.
+  implementation_surface: Structural OpenAPI schema and applicable CEL validation rules for AI CRDs, ValidatingWebhookConfiguration resources for additional security and organizational policy constraints, and test results demonstrating rejection of non-compliant AI custom resources.
   owner_primary: Platform Engineering
   owner_supporting: ML Platform Engineering; Security Engineering
   baseline_or_ai_specific: ai-specific
