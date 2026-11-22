@@ -756,6 +756,12 @@
       "sha256": "a280b6cb8756f79fba65294731fb3129581c3bfbb88f5e0b5b92612be1909619",
       "title": "Artifact freshness limit enforcement for CI/CD promotion"
     },
+    "SAF-K8S-0606-027": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "1cb13dd5e28b6bcd0c3a39173a1fa6436d76fc24dcf05376eee3b62f51abc06d",
+      "title": "GitOps repository access restriction and least-privilege deploy credentials"
+    },
     "SAF-K8S-0606-028": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -1112,7 +1118,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "7d1dfbf53f1e453f969844de922815b1eca368b3",
+  "revision": "f775c23105e8d2535bce2b84821e4a9279a15d98",
   "sha256": "5468afd7544aceb8f79e434b7d58a52fc41eeee0b3084837f4dc587efc72cace",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

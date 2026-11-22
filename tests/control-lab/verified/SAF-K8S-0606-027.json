@@ -1,0 +1,101 @@
+{
+  "control_id": "SAF-K8S-0606-027",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "1cb13dd5e28b6bcd0c3a39173a1fa6436d76fc24dcf05376eee3b62f51abc06d",
+  "scope": "One isolated Gitea 1.23.8 instance on Kubernetes v1.36.1, two fixture private repositories, a repository deploy key and a separate maintenance collaborator. Uses normal Git reads and writes and a loopback-only port forward. Production repository coverage, branch protection and credential custody require separate evidence.",
+  "cluster": "saf-lab-76298e68076e",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The same fixture key can create its branch when given write permission",
+      "matched": true,
+      "observed": {
+        "result": "PASS",
+        "ref": "refs/heads/lab-control-off-write",
+        "observed_remote_ref": "present",
+        "commit": "f98beca9df10ea5163c2d666e07c5c1386077d8c",
+        "commit_signature": "disabled"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Changing that fixture key to read-only prevents the next branch creation",
+      "matched": true,
+      "observed": {
+        "result": "PASS",
+        "ref": "refs/heads/lab-reader-denied",
+        "observed_remote_ref": "absent",
+        "commit_signature": "disabled"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The read-only key still retrieves the exact committed fixture",
+      "matched": true,
+      "observed": {
+        "result": "PASS",
+        "ref": "refs/heads/main",
+        "commit": "0f66e734fc3dc05e197f84255b9001fde7bc01ec",
+        "fixture_path": "deployment.yaml",
+        "fixture_sha256": "da321544478bbaaea2bc4f4723f4c8ee0423ac426301e9d06d889c23dd087405"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The key cannot read the separate owned private fixture repository",
+      "matched": true,
+      "observed": {
+        "result": "PASS",
+        "repository": "restricted-source",
+        "repository_private": true,
+        "deploy_key_present": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved maintenance collaborator updates the exact owned branch",
+      "matched": true,
+      "observed": {
+        "result": "PASS",
+        "permission": "write",
+        "ref": "refs/heads/lab-maintenance",
+        "commit": "1a431941b5a1f7202cb739f717aab90578ec3927",
+        "fixture_sha256": "9fdb93e9a2884eccdcaf6734db8460c4a6f5836608d5223bf573380c3b247d67",
+        "commit_signature": "disabled"
+      }
+    }
+  ]
+}
