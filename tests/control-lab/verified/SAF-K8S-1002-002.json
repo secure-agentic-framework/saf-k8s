@@ -1,0 +1,98 @@
+{
+  "control_id": "SAF-K8S-1002-002",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "b2d048294f39c25df5312320f999436c9ea189bdbdb5105a9da892af35b9e24a",
+  "scope": "A disposable Kubernetes v1.36.1 Kind cluster runs a digest-pinned OpenTelemetry Collector and synthetic Python OpenTelemetry SDK ingestion, registry and inference services plus native asynchronous training Jobs. The raw Collector output proves exact parentage, separation when the Job omits context, and an inference error marker on the intended trace. Real pipeline enrollment, custom orchestrators and KServe, production telemetry governance and durable backends require separate evidence.",
+  "cluster": "saf-lab-20f37f9fe020",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Primary ingestion emits a valid sampled W3C traceparent",
+      "matched": true,
+      "observed": {
+        "valid": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A completed Job without context creates its own trace while ingestion stays separate",
+      "matched": true,
+      "observed": {
+        "missing_trace_separate": true,
+        "completed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Comparison ingestion emits a valid sampled W3C traceparent",
+      "matched": true,
+      "observed": {
+        "valid": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Collector confirms exact parentage from ingestion across the native Job to inference",
+      "matched": true,
+      "observed": {
+        "correct_parent_chain": true,
+        "stages": [
+          "ingestion",
+          "training.job",
+          "registry",
+          "inference"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The inert error marker belongs to the linked trace's inference span",
+      "matched": true,
+      "observed": {
+        "inference_only": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The healthy comparator retains its own complete trace and serves the fixture",
+      "matched": true,
+      "observed": {
+        "independent_trace": true,
+        "served": true
+      }
+    }
+  ]
+}

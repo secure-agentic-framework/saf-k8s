@@ -1206,6 +1206,12 @@
       "sha256": "92b40c6f0e82cb4d10ba7703668075b93128a630f6c0b657d3c3a0ecdeaa9b69",
       "title": "Metric endpoint authentication"
     },
+    "SAF-K8S-1002-002": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "b2d048294f39c25df5312320f999436c9ea189bdbdb5105a9da892af35b9e24a",
+      "title": "Distributed tracing for ML pipelines"
+    },
     "SAF-K8S-1002-004": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1244,7 +1250,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "d1cdf9765cc870bf759edd0d963d750823c8ae88",
+  "revision": "0f65707402c3bbd8734a2562a3e35405a40bfcee",
   "sha256": "872822531716b059a05f969b9bdb15559fa3dd850de26945615e595c3d8e018e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
