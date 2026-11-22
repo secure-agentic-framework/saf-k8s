@@ -1450,12 +1450,12 @@
   knowledge_area: '2.2'
   control_seq: 008
   control_title: Container runtime socket root-only protection
-  control_statement: Container runtime control sockets must be owned by root and protected with permissions that prevent non-root processes and workloads from accessing the runtime control plane.
+  control_statement: Runtime control sockets for rootful daemons must be owned by root and accessible only to authorized host principals. For approved rootless daemons, restrict access to the dedicated daemon identity and explicitly authorized administrators. Prevent workload access to the host socket.
   objective: Prevent unauthorized local access to the container runtime control socket on cluster nodes.
   rationale: The container runtime socket provides full control over container lifecycle operations. If non-root users, compromised workloads, or local processes can reach the socket, they can create privileged containers, escape isolation boundaries, or interfere with other workloads. Socket ownership and permission controls are independently auditable from broader runtime configuration settings.
-  scope: Applies to all nodes running containerd or CRI-O in production clusters. Managed Kubernetes services where the runtime is provider-managed satisfy this control through provider security documentation and compensating network controls. Custom or alternative CRI implementations must demonstrate equivalent hardening.
+  scope: Applies to all nodes running containerd or CRI-O in production clusters. For provider-managed runtime sockets, verify the provider's local access boundary and any customer-visible controls. Network isolation addresses separate network paths and does not replace local Unix socket protection. Custom or alternative CRI implementations must demonstrate equivalent hardening.
   primary_enforcement_point: Node image build pipeline and node-level runtime socket ownership and permission settings.
-  implementation_surface: Runtime socket filesystem paths such as /run/containerd/containerd.sock or CRI-O equivalents, file ownership, file mode, and validation of non-root access denial.
+  implementation_surface: Runtime socket and parent directory metadata, effective owner and group membership, ACLs where used, and validation of unauthorized local access denial. Verify workload admission and mount policy separately to prevent exposing the host socket.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; OS/Infrastructure
   baseline_or_ai_specific: baseline
