@@ -1,0 +1,285 @@
+{
+  "control_id": "SAF-K8S-1005-001",
+  "catalog_revision": "ccb45bb68cd62b897cbea7c39e37a1b5e66a8fb5",
+  "catalog_sha256": "5865d848da5d242232e32d1647d47db4cab5f87717818648edc58405e54c0bda",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "34d63abdf5e7a313bb49872564bf87ec639afa12e655105ca641cb5264116951",
+  "scope": "Synthetic defensive incident exercise in one fresh Kind v1.36.1 cluster. Checks role ownership, ordered timeline records, metadata-only Kubernetes audit evidence, pre-containment snapshot, namespace-scoped mock Deployment containment and recovery, and independent post-exercise review gates. The mock workload uses a digest-pinned public Python image and performs no network or application activity. All event, role, incident, and follow-up data is invented. This does not establish production policy completeness, external escalation or legal decisions, durable evidence retention, organization-wide readiness, AI-specific response sufficiency, or annual exercise cadence.",
+  "cluster": "saf-lab-5732f1875caf",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Unassigned incident ownership is identified as incomplete",
+      "matched": true,
+      "observed": {
+        "incident_commander": "",
+        "supporting_roles": [],
+        "handoff_accepted": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Named synthetic commander, supporting roles, and accepted handoff satisfy ownership",
+      "matched": true,
+      "observed": {
+        "incident_commander": "urn:example:saf:role:security-operations",
+        "supporting_roles": [
+          "urn:example:saf:role:platform-engineering",
+          "urn:example:saf:role:ai-ml-engineering"
+        ],
+        "handoff_accepted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An additional synthetic legal support role preserves the accepted owner record",
+      "matched": true,
+      "observed": {
+        "incident_commander": "urn:example:saf:role:security-operations",
+        "supporting_roles": [
+          "urn:example:saf:role:platform-engineering",
+          "urn:example:saf:role:ai-ml-engineering",
+          "urn:example:saf:role:legal"
+        ],
+        "handoff_accepted": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Out-of-order synthetic incident entries fail the timeline gate",
+      "matched": true,
+      "observed": [
+        {
+          "event": "signal",
+          "time": "2026-10-05T10:02:00Z"
+        },
+        {
+          "event": "containment-approved",
+          "time": "2026-10-05T10:01:00Z"
+        }
+      ]
+    },
+    {
+      "phase": "green",
+      "claim": "Timestamped signal, triage, and containment approval form an ordered timeline",
+      "matched": true,
+      "observed": [
+        {
+          "event": "signal",
+          "time": "2026-10-05T10:01:00Z"
+        },
+        {
+          "event": "triage",
+          "time": "2026-10-05T10:02:00Z"
+        },
+        {
+          "event": "containment-approved",
+          "time": "2026-10-05T10:03:00Z"
+        }
+      ]
+    },
+    {
+      "phase": "positive",
+      "claim": "Timeline accepts a later recovery verification without losing chronology",
+      "matched": true,
+      "observed": [
+        {
+          "event": "signal",
+          "time": "2026-10-05T10:01:00Z"
+        },
+        {
+          "event": "triage",
+          "time": "2026-10-05T10:02:00Z"
+        },
+        {
+          "event": "containment-approved",
+          "time": "2026-10-05T10:03:00Z"
+        },
+        {
+          "event": "recovery-verified",
+          "time": "2026-10-05T10:04:00Z"
+        }
+      ]
+    },
+    {
+      "phase": "red",
+      "claim": "A mismatched expected evidence digest is rejected",
+      "matched": true,
+      "observed": {
+        "expected": "0000000000000000000000000000000000000000000000000000000000000000",
+        "actual": "6cdd6f2390a496bef2944dad5f008bd00376c063b61c9e8e4a90ebf17cee2b6c"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Synthetic evidence bytes have a reproducible SHA-256 digest and contain no secrets",
+      "matched": true,
+      "observed": {
+        "sha256": "6cdd6f2390a496bef2944dad5f008bd00376c063b61c9e8e4a90ebf17cee2b6c",
+        "payload": {
+          "fixture_id": "SYNTH-EVIDENCE-1005-001-01",
+          "incident_id": "SYNTH-INCIDENT-1005-001-01",
+          "workload": "saf-1005-001-mock-inference",
+          "observation": "synthetic metadata snapshot before containment",
+          "contains_secrets": false
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Digest-pinned mock workload reaches one available replica before containment",
+      "matched": true,
+      "observed": {
+        "generation": 1,
+        "replicas": 1,
+        "image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Immutable evidence snapshot is committed before namespace workload containment",
+      "matched": true,
+      "observed": {
+        "evidence_name": "saf-1005-001-evidence",
+        "sha256": "be7b93c8aad6bd3986bbd26ff0cfa65a246499b75b8fff31d9e36ca392e0439a",
+        "source_generation": 1
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Independent API readback preserves the exact immutable pre-containment evidence bytes",
+      "matched": true,
+      "observed": {
+        "sha256": "be7b93c8aad6bd3986bbd26ff0cfa65a246499b75b8fff31d9e36ca392e0439a",
+        "source_generation": "1",
+        "immutable": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Containment scales the exact mock Deployment and removes its Pods",
+      "matched": true,
+      "observed": {
+        "desired_replicas": 0,
+        "available_replicas": 0,
+        "observed_pods": 0
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The recovery gate rejects a mismatched approval digest while replicas remain zero",
+      "matched": true,
+      "observed": {
+        "invalid_digest_rejected": true,
+        "desired_replicas": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Recovery restores the pinned mock workload and preserves verified pre-containment evidence",
+      "matched": true,
+      "observed": {
+        "available_replicas": 1,
+        "image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90",
+        "evidence_sha256": "be7b93c8aad6bd3986bbd26ff0cfa65a246499b75b8fff31d9e36ca392e0439a",
+        "immutable": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Recovered mock Pod is API-observable and retains the original pre-containment generation",
+      "matched": true,
+      "observed": {
+        "baseline_generation": 1,
+        "recovered_generation": 3,
+        "available_replicas": 1,
+        "evidence_generation": "1"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A closed record without independent review, evidence digest, or follow-up fails review gate",
+      "matched": true,
+      "observed": {
+        "status": "closed",
+        "reviewer": "",
+        "evidence_digest": "",
+        "follow_up": null
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Independent post-exercise review names its evidence and an owned due-dated follow-up",
+      "matched": true,
+      "observed": {
+        "status": "reviewed",
+        "reviewer": "urn:example:saf:role:independent-reviewer",
+        "evidence_digest": "sha256:be7b93c8aad6bd3986bbd26ff0cfa65a246499b75b8fff31d9e36ca392e0439a",
+        "follow_up": {
+          "action": "revise synthetic playbook exercise note",
+          "owner": "urn:example:saf:role:platform-engineering",
+          "due": "2026-11-30"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Review leaves unverified production validation visible instead of asserting coverage",
+      "matched": true,
+      "observed": {
+        "status": "reviewed",
+        "reviewer": "urn:example:saf:role:independent-reviewer",
+        "evidence_digest": "sha256:be7b93c8aad6bd3986bbd26ff0cfa65a246499b75b8fff31d9e36ca392e0439a",
+        "follow_up": {
+          "action": "revise synthetic playbook exercise note",
+          "owner": "urn:example:saf:role:platform-engineering",
+          "due": "2026-11-30"
+        },
+        "production_validation": "unverified"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native API audit metadata contains the mock workload and evidence operations",
+      "matched": true,
+      "observed": {
+        "workload_created": true,
+        "evidence_created": true,
+        "two_exact_scale_operations": true,
+        "ordered_distinct_successful_operations": true,
+        "metadata_only": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "fixture_notice": "All identifiers, roles, timestamps, event descriptions, and follow-up records are invented reserved placeholders. No real incident, feed, target, or person is represented.",
+  "incident_id": "SYNTH-INCIDENT-1005-001-01",
+  "case_prefix": "saf-1005-001",
+  "ownership": {
+    "red": {
+      "incident_commander": "",
+      "supporting_roles": [],
+      "handoff_accepted": false
+    },
+    "green": {
+      "incident_commander": "urn:example:saf:role:security-operations",
+      "supporting_roles": [
+        "urn:example:saf:role:platform-engineering",
+        "urn:example:saf:role:ai-ml-engineering"
+      ],
+      "handoff_accepted": true
+    },
+    "positive": {
+      "incident_commander": "urn:example:saf:role:security-operations",
+      "supporting_roles": [
+        "urn:example:saf:role:platform-engineering",
+        "urn:example:saf:role:ai-ml-engineering",
+        "urn:example:saf:role:legal"
+      ],
+      "handoff_accepted": true
+    }
+  },
+  "timeline": {
+    "red": [
+      {"event": "signal", "time": "2026-10-05T10:02:00Z"},
+      {"event": "containment-approved", "time": "2026-10-05T10:01:00Z"}
+    ],
+    "green": [
+      {"event": "signal", "time": "2026-10-05T10:01:00Z"},
+      {"event": "triage", "time": "2026-10-05T10:02:00Z"},
+      {"event": "containment-approved", "time": "2026-10-05T10:03:00Z"}
+    ],
+    "positive": [
+      {"event": "signal", "time": "2026-10-05T10:01:00Z"},
+      {"event": "triage", "time": "2026-10-05T10:02:00Z"},
+      {"event": "containment-approved", "time": "2026-10-05T10:03:00Z"},
+      {"event": "recovery-verified", "time": "2026-10-05T10:04:00Z"}
+    ]
+  },
+  "evidence": {
+    "red_expected_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "red_recovery_candidate": {
+      "replicas": 0,
+      "image": "docker.io/library/python:3.13-slim"
+    },
+    "captured_payload": {
+      "fixture_id": "SYNTH-EVIDENCE-1005-001-01",
+      "incident_id": "SYNTH-INCIDENT-1005-001-01",
+      "workload": "saf-1005-001-mock-inference",
+      "observation": "synthetic metadata snapshot before containment",
+      "contains_secrets": false
+    }
+  },
+  "review": {
+    "red": {
+      "status": "closed",
+      "reviewer": "",
+      "evidence_digest": "",
+      "follow_up": null
+    },
+    "green": {
+      "status": "reviewed",
+      "reviewer": "urn:example:saf:role:independent-reviewer",
+      "evidence_digest": "sha256:fixture-populated-at-run-time",
+      "follow_up": {
+        "action": "revise synthetic playbook exercise note",
+        "owner": "urn:example:saf:role:platform-engineering",
+        "due": "2026-11-30"
+      }
+    },
+    "positive": {
+      "status": "reviewed",
+      "reviewer": "urn:example:saf:role:independent-reviewer",
+      "evidence_digest": "sha256:fixture-populated-at-run-time",
+      "follow_up": {
+        "action": "revise synthetic playbook exercise note",
+        "owner": "urn:example:saf:role:platform-engineering",
+        "due": "2026-11-30"
+      },
+      "production_validation": "unverified"
+    }
+  }
+}

@@ -1290,6 +1290,12 @@
       "sha256": "9231ef42b8978d9f2c43f75df5a37f2af85d8cc86d788ee8f8f119c51dc3e8f2",
       "title": "Cross-source threat correlation with business context for AI incidents"
     },
+    "SAF-K8S-1005-001": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "34d63abdf5e7a313bb49872564bf87ec639afa12e655105ca641cb5264116951",
+      "title": "Kubernetes incident response lifecycle"
+    },
     "SAF-K8S-1005-008": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1328,7 +1334,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "2f49707c0fb759097748b2ba3b6b084bd725ce7e",
-  "sha256": "33956f720f066941851029bbc899f83d9bc6a34f860dc3ea3ae2e1c2e981c361",
+  "revision": "95b2721ad05f7a7f5d48c1a0c1dee16d5bac1a55",
+  "sha256": "5865d848da5d242232e32d1647d47db4cab5f87717818648edc58405e54c0bda",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
