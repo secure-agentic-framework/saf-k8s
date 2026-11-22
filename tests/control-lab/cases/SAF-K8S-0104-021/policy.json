@@ -1,0 +1,23 @@
+{
+  "policy_version": "Kubernetes v1.36 version skew policy",
+  "policy_url": "https://v1-36.docs.kubernetes.io/releases/version-skew-policy/",
+  "minor_version_rules": {
+    "api_server_ha_max_spread": 1,
+    "legacy_node_component_max_behind": 2,
+    "kubelet_api_server_max_behind": 3,
+    "kubelet_must_not_exceed_api_server": true,
+    "kube_controller_manager_api_server_max_behind": 1,
+    "kube_scheduler_api_server_max_behind": 1,
+    "control_plane_must_not_exceed_api_server": true,
+    "kubectl_max_distance_from_each_api_server": 1,
+    "kube_proxy_api_server_max_behind": 3,
+    "kube_proxy_must_not_exceed_api_server": true,
+    "kube_proxy_kubelet_max_absolute_distance": 3
+  },
+  "scope_notes": [
+    "Patch versions are recorded but the skew rules compare major and minor versions.",
+    "Each component instance is checked against every API server it can communicate with.",
+    "When HA API servers differ, component eligibility is the intersection of the per-server rules.",
+    "Deployment tools can impose stricter restrictions; this evaluator covers the upstream component policy only."
+  ]
+}

@@ -168,6 +168,12 @@
       "sha256": "599bb8dc936e12291b48e232dce801cdc1160ee19323ff23a2a0a1fe690a1dac",
       "title": "CIS Benchmark remediation workflow tracking"
     },
+    "SAF-K8S-0104-021": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "1e503048fe15a0f28375fb985bc0d4efdbdce3e1a0d933a73c647340f95b6825",
+      "title": "Kubernetes component version skew compliance"
+    },
     "SAF-K8S-0201-005": {
       "catalog_status": "draft",
       "domain": "D02",

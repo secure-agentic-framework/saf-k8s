@@ -1,0 +1,112 @@
+{
+  "description": "Synthetic v1.36 skew boundary and one-beyond examples; no sample describes production state.",
+  "cases": [
+    {
+      "name": "kubelet-oldest-supported",
+      "expect_valid": true,
+      "inventory": {"api_servers": [{"id": "api-a", "version": "1.36.1"}], "kubelets": [{"id": "node-a", "version": "1.33.7", "api_servers": ["api-a"]}]}
+    },
+    {
+      "name": "kubelet-one-beyond-oldest",
+      "expect_valid": false,
+      "expected_codes": ["too_old_for_api_server"],
+      "inventory": {"api_servers": [{"id": "api-a", "version": "1.36.1"}], "kubelets": [{"id": "node-a", "version": "1.32.9", "api_servers": ["api-a"]}]}
+    },
+    {
+      "name": "kubelet-one-newer-than-api-server",
+      "expect_valid": false,
+      "expected_codes": ["newer_than_api_server"],
+      "inventory": {"api_servers": [{"id": "api-a", "version": "1.36.1"}], "kubelets": [{"id": "node-a", "version": "1.37.0", "api_servers": ["api-a"]}]}
+    },
+    {
+      "name": "kubectl-newest-supported",
+      "expect_valid": true,
+      "inventory": {"api_servers": [{"id": "api-a", "version": "1.36.1"}], "kubectl_clients": [{"id": "admin-a", "version": "1.37.0", "api_servers": ["api-a"]}]}
+    },
+    {
+      "name": "kubectl-one-beyond-newest",
+      "expect_valid": false,
+      "expected_codes": ["outside_api_server_distance"],
+      "inventory": {"api_servers": [{"id": "api-a", "version": "1.36.1"}], "kubectl_clients": [{"id": "admin-a", "version": "1.38.0", "api_servers": ["api-a"]}]}
+    },
+    {
+      "name": "kubectl-one-beyond-oldest",
+      "expect_valid": false,
+      "expected_codes": ["outside_api_server_distance"],
+      "inventory": {"api_servers": [{"id": "api-a", "version": "1.36.1"}], "kubectl_clients": [{"id": "admin-a", "version": "1.34.0", "api_servers": ["api-a"]}]}
+    },
+    {
+      "name": "controller-manager-and-scheduler-oldest-supported",
+      "expect_valid": true,
+      "inventory": {"api_servers": [{"id": "api-a", "version": "1.36.1"}], "kube_controller_managers": [{"id": "cm-a", "version": "1.35.9", "api_servers": ["api-a"]}], "kube_schedulers": [{"id": "sched-a", "version": "1.35.2", "api_servers": ["api-a"]}]}
+    },
+    {
+      "name": "controller-manager-and-scheduler-one-beyond-oldest",
+      "expect_valid": false,
+      "expected_codes": ["too_old_for_api_server"],
+      "inventory": {"api_servers": [{"id": "api-a", "version": "1.36.1"}], "kube_controller_managers": [{"id": "cm-a", "version": "1.34.9", "api_servers": ["api-a"]}], "kube_schedulers": [{"id": "sched-a", "version": "1.34.2", "api_servers": ["api-a"]}]}
+    },
+    {
+      "name": "controller-manager-and-scheduler-one-newer-than-api-server",
+      "expect_valid": false,
+      "expected_codes": ["newer_than_api_server"],
+      "inventory": {"api_servers": [{"id": "api-a", "version": "1.36.1"}], "kube_controller_managers": [{"id": "cm-a", "version": "1.37.0", "api_servers": ["api-a"]}], "kube_schedulers": [{"id": "sched-a", "version": "1.37.0", "api_servers": ["api-a"]}]}
+    },
+    {
+      "name": "kube-proxy-api-and-kubelet-boundaries",
+      "expect_valid": true,
+      "inventory": {"api_servers": [{"id": "api-a", "version": "1.36.1"}], "kubelets": [{"id": "node-a", "version": "1.33.7", "api_servers": ["api-a"]}], "kube_proxies": [{"id": "proxy-a", "version": "1.36.1", "kubelet": "node-a", "api_servers": ["api-a"]}]}
+    },
+    {
+      "name": "kube-proxy-oldest-supported-against-api-and-kubelet",
+      "expect_valid": true,
+      "inventory": {"api_servers": [{"id": "api-a", "version": "1.36.1"}], "kubelets": [{"id": "node-a", "version": "1.36.1", "api_servers": ["api-a"]}], "kube_proxies": [{"id": "proxy-a", "version": "1.33.7", "kubelet": "node-a", "api_servers": ["api-a"]}]}
+    },
+    {
+      "name": "kube-proxy-one-beyond-oldest-against-api-and-kubelet",
+      "expect_valid": false,
+      "expected_codes": ["too_old_for_api_server", "outside_kubelet_distance"],
+      "inventory": {"api_servers": [{"id": "api-a", "version": "1.36.1"}], "kubelets": [{"id": "node-a", "version": "1.36.1", "api_servers": ["api-a"]}], "kube_proxies": [{"id": "proxy-a", "version": "1.32.7", "kubelet": "node-a", "api_servers": ["api-a"]}]}
+    },
+    {
+      "name": "kube-proxy-one-beyond-kubelet-distance",
+      "expect_valid": false,
+      "expected_codes": ["newer_than_api_server", "outside_kubelet_distance"],
+      "inventory": {"api_servers": [{"id": "api-a", "version": "1.36.1"}], "kubelets": [{"id": "node-a", "version": "1.33.7", "api_servers": ["api-a"]}], "kube_proxies": [{"id": "proxy-a", "version": "1.37.0", "kubelet": "node-a", "api_servers": ["api-a"]}]}
+    },
+    {
+      "name": "ha-intersection-allows-shared-components-at-1-35",
+      "expect_valid": true,
+      "inventory": {"api_servers": [{"id": "api-old", "version": "1.35.9"}, {"id": "api-new", "version": "1.36.1"}], "kubelets": [{"id": "node-a", "version": "1.35.1", "api_servers": ["api-old", "api-new"]}], "kube_controller_managers": [{"id": "cm-a", "version": "1.35.9", "api_servers": ["api-old", "api-new"]}], "kube_schedulers": [{"id": "sched-a", "version": "1.35.9", "api_servers": ["api-old", "api-new"]}], "kubectl_clients": [{"id": "admin-a", "version": "1.35.3", "api_servers": ["api-old", "api-new"]}], "kube_proxies": [{"id": "proxy-a", "version": "1.35.1", "kubelet": "node-a", "api_servers": ["api-old", "api-new"]}]}
+    },
+    {
+      "name": "ha-api-spread-one-beyond",
+      "expect_valid": false,
+      "expected_codes": ["api_server_ha_spread"],
+      "inventory": {"api_servers": [{"id": "api-old", "version": "1.34.9"}, {"id": "api-new", "version": "1.36.1"}]}
+    },
+    {
+      "name": "ha-kubectl-one-beyond-the-intersection",
+      "expect_valid": false,
+      "expected_codes": ["outside_api_server_distance"],
+      "inventory": {"api_servers": [{"id": "api-old", "version": "1.35.9"}, {"id": "api-new", "version": "1.36.1"}], "kubectl_clients": [{"id": "admin-a", "version": "1.37.0", "api_servers": ["api-old", "api-new"]}]}
+    },
+    {
+      "name": "ha-controller-one-beyond-the-intersection",
+      "expect_valid": false,
+      "expected_codes": ["newer_than_api_server"],
+      "inventory": {"api_servers": [{"id": "api-old", "version": "1.35.9"}, {"id": "api-new", "version": "1.36.1"}], "kube_controller_managers": [{"id": "cm-a", "version": "1.36.1", "api_servers": ["api-old", "api-new"]}]}
+    },
+    {
+      "name": "legacy-node-components-two-minors-behind",
+      "expect_valid": true,
+      "inventory": {"api_servers": [{"id": "api-a", "version": "1.26.0"}], "kubelets": [{"id": "node-a", "version": "1.24.0", "api_servers": ["api-a"]}], "kube_proxies": [{"id": "proxy-a", "version": "1.24.0", "kubelet": "node-a", "api_servers": ["api-a"]}]}
+    },
+    {
+      "name": "legacy-node-components-three-minors-behind",
+      "expect_valid": false,
+      "expected_codes": ["too_old_for_api_server"],
+      "inventory": {"api_servers": [{"id": "api-a", "version": "1.27.0"}], "kubelets": [{"id": "node-a", "version": "1.24.0", "api_servers": ["api-a"]}], "kube_proxies": [{"id": "proxy-a", "version": "1.24.0", "kubelet": "node-a", "api_servers": ["api-a"]}]}
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "control_id": "SAF-K8S-0104-021",
+  "catalog_revision": "58d32d0620d30017a773ef8c68a16b135af2698a",
+  "catalog_sha256": "fd59c6f494f19e72c2c9f756d2481292195dcc71d5d6f5aa774426a49cbc8063",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "1e503048fe15a0f28375fb985bc0d4efdbdce3e1a0d933a73c647340f95b6825",
+  "scope": "Synthetic Kubernetes v1.36 component-skew boundaries, including mixed-API-server HA intersections, plus read-only version inventory from the runner-owned single-version kind v1.36.1 cluster. This does not test a mixed-version upgrade, an HA cluster, or production inventory; enterprise-wide governance and deployment-tool restrictions require separate evidence.",
+  "cluster": "saf-lab-b1f4994cd06f",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "One-beyond synthetic samples are rejected for a policy violation",
+      "matched": true,
+      "observed": {
+        "rejected_samples": [
+          "kubelet-one-beyond-oldest",
+          "kubelet-one-newer-than-api-server",
+          "kubectl-one-beyond-newest",
+          "kubectl-one-beyond-oldest",
+          "controller-manager-and-scheduler-one-beyond-oldest",
+          "controller-manager-and-scheduler-one-newer-than-api-server",
+          "kube-proxy-one-beyond-oldest-against-api-and-kubelet",
+          "kube-proxy-one-beyond-kubelet-distance",
+          "ha-api-spread-one-beyond",
+          "ha-kubectl-one-beyond-the-intersection",
+          "ha-controller-one-beyond-the-intersection",
+          "legacy-node-components-three-minors-behind"
+        ],
+        "violation_codes": [
+          "api_server_ha_spread",
+          "newer_than_api_server",
+          "outside_api_server_distance",
+          "outside_kubelet_distance",
+          "too_old_for_api_server"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Supported synthetic boundaries are accepted",
+      "matched": true,
+      "observed": {
+        "accepted_samples": [
+          "kubelet-oldest-supported",
+          "kubectl-newest-supported",
+          "controller-manager-and-scheduler-oldest-supported",
+          "kube-proxy-api-and-kubelet-boundaries",
+          "kube-proxy-oldest-supported-against-api-and-kubelet",
+          "ha-intersection-allows-shared-components-at-1-35",
+          "legacy-node-components-two-minors-behind"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Pinned lab components and the active kubectl client satisfy the version policy",
+      "matched": true,
+      "observed": {
+        "server_version": "1.36.1",
+        "client_version": "1.36.1",
+        "node_count": 1,
+        "kubelet_versions": [
+          "1.36.1"
+        ],
+        "controller_manager_versions": [
+          "1.36.1"
+        ],
+        "scheduler_versions": [
+          "1.36.1"
+        ],
+        "proxy_versions": [
+          "1.36.1"
+        ],
+        "all_observed_versions": [
+          "1.36.1"
+        ],
+        "missing_components": [],
+        "skew_violations": []
+      }
+    }
+  ]
+}
