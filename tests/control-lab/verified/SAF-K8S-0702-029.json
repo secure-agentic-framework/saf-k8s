@@ -1,0 +1,126 @@
+{
+  "control_id": "SAF-K8S-0702-029",
+  "catalog_revision": "7e2e05c327f54bcc2c6aefd64c255880a81ce7c9",
+  "catalog_sha256": "df105e4d2453b18902086552ec1bae50b698ff889053abd168a340c3f200169b",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "39909a0e00e20c8036621b91a85e7909265929286ada73b40d4c55207ee02396",
+  "scope": "One disposable Kubernetes v1.36.1 kind cluster with the bundled kindnet CNI, two fixture namespaces carrying synthetic required-classification labels, and case-owned Pods. Exercises one IPv4 TCP/8080 request allowed to a same-class listener and denied to a lower-class listener after an egress NetworkPolicy; also guards a case-owned PVC through native admission and verifies a bound local PV with a synthetic write/read across Pods. Uses no external targets or real data. Does not establish production CNI behavior, general storage access authorization, full hostPath isolation, other protocols/address families, or organization-wide classification governance.",
+  "cluster": "saf-lab-82fdf1e43a80",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The installed policy-capable kindnet CNI is ready and identified",
+      "matched": true,
+      "observed": {
+        "kind_version": "kind v0.32.0 go1.26.3 darwin/arm64",
+        "kubernetes_version": "v1.36.1",
+        "cni_daemonset": "kube-system/kindnet",
+        "cni_images": [
+          "docker.io/kindest/kindnetd:v20260528-9350166c"
+        ],
+        "node_count": 1
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before policy, the sensitive client reaches the live lower-class listener",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_marker": "synthetic-internal-endpoint",
+        "two_consecutive_observations": true,
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The classified PVC binds only to its matching labeled PV",
+      "matched": true,
+      "observed": {
+        "claim_phase": "Bound",
+        "bound_volume": "saf-0702-029-confidential-pv",
+        "bound_volume_classification": "synthetic-confidential",
+        "storage_class": "saf-0702-029-local"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before the storage policy, the lower-class Pod can declare the fixture claim",
+      "matched": true,
+      "observed": {
+        "admitted_before_policy": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same lower-class Pod is denied a reference to the classified PVC",
+      "matched": true,
+      "observed": {
+        "denied_by_storage_policy": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A second Pod reads the synthetic marker from the bound claim",
+      "matched": true,
+      "observed": {
+        "read_marker_matches": true,
+        "persistent_volume": "saf-0702-029-confidential-pv",
+        "file_path": "/data/saf-k8s-0702-029-marker"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Classification egress policy blocks the lower-class listener",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_marker": null,
+        "two_consecutive_observations": true,
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same-class listener remains reachable under the policy",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_marker": "synthetic-confidential-endpoint",
+        "two_consecutive_observations": true,
+        "destination_port": 8080
+      }
+    }
+  ]
+}
