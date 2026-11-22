@@ -528,6 +528,12 @@
       "sha256": "d980b46abb69296bfc92d75227112e1ee1408ba580fcd9498a24092f8310d8c1",
       "title": "CSI driver security and privilege restriction"
     },
+    "SAF-K8S-0701-004": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "eedc7a35df84e843592b1bbd968e938acd931926ff8e7274947788b516a8e111",
+      "title": "PV reclaim policy enforcement for AI data volumes"
+    },
     "SAF-K8S-0702-003": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -668,7 +674,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "3a28f7342a8b5d15625f2d3237d7da9113a84667",
-  "sha256": "d0505b3cef6e27ac3451a0998acf0350819409280331edf48be9cfacfd4f73a7",
+  "revision": "fe02c1c58805907379dae55a1cc30db23f42664b",
+  "sha256": "a686bfbe52cded89985495c3a14f05eb580c3499b772f2473beb3accc1c99e38",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

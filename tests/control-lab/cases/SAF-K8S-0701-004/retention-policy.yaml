@@ -1,0 +1,32 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0701-004-retention
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: [CREATE]
+        resources: [persistentvolumeclaims]
+  validations:
+    - expression: >-
+        !has(object.metadata.labels) ||
+        !('saf-k8s.example/retained-data' in object.metadata.labels) ||
+        object.metadata.labels['saf-k8s.example/retained-data'] != 'backup' ||
+        (has(object.spec.storageClassName) && object.spec.storageClassName == 'saf-reclaim-retain')
+      message: "backup claims require the Retain StorageClass"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0701-004-retention
+spec:
+  policyName: saf-k8s-0701-004-retention
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/reclaim-fixture: enabled

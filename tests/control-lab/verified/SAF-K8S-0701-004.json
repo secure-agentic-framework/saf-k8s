@@ -1,0 +1,112 @@
+{
+  "control_id": "SAF-K8S-0701-004",
+  "catalog_revision": "6838d59c8941c27b2188821ee381e6cd7a852036",
+  "catalog_sha256": "a686bfbe52cded89985495c3a14f05eb580c3499b772f2473beb3accc1c99e38",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "eedc7a35df84e843592b1bbd968e938acd931926ff8e7274947788b516a8e111",
+  "scope": "Kubernetes v1.36.1 kind on one disposable node. The bundled local-path provisioner creates two independent synthetic volumes. Native admission limits labeled backup claims to the Retain class; both reclaim lifecycles are inspected. Media sanitization, cloud providers, actual backups and dual authorization require separate evidence.",
+  "cluster": "saf-lab-4378682d40c7",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The bundled local-path provisioner serves the standard StorageClass",
+      "matched": true,
+      "observed": {
+        "provisioner": "rancher.io/local-path",
+        "controller_image": "docker.io/kindest/local-path-provisioner:v20260521-9fb22683"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before policy, admission permits the backup claim's Delete declaration",
+      "matched": true,
+      "observed": {
+        "dry_run_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same labeled backup declaration receives the intended Retain policy denial",
+      "matched": true,
+      "observed": {
+        "denied_by_expected_policy": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The Delete fixture binds and writes its marker",
+      "matched": true,
+      "observed": {
+        "reclaim_policy": "Delete",
+        "marker_written": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Delete removes the scratch PV object and its exact provisioned path",
+      "matched": true,
+      "observed": {
+        "pv_absent": true,
+        "path_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The Retain fixture binds and writes its marker",
+      "matched": true,
+      "observed": {
+        "reclaim_policy": "Retain",
+        "marker_written": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Retain leaves the Released backup PV and readable synthetic data",
+      "matched": true,
+      "observed": {
+        "pv_phase": "Released",
+        "marker_preserved": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Deleting the Retain PV object leaves the backing data until lab teardown",
+      "matched": true,
+      "observed": {
+        "pv_absent": true,
+        "marker_preserved": true
+      }
+    }
+  ]
+}
