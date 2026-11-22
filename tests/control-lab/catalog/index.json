@@ -252,6 +252,12 @@
       "sha256": "14bcfa3cfbada570dfe96c8db5db1e922de8946312f2a17dabceb3d21e915593",
       "title": "Node-level kubelet audit rule coverage"
     },
+    "SAF-K8S-0201-016": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "2a8f19ff34bea92b673b38b66a7da7b5c61895b51ea8d6e247337b27f4e9f8b0",
+      "title": "Node audit log forwarding and centralized reviewability"
+    },
     "SAF-K8S-0202-002": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -578,7 +584,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "1c0c901fb0bfcb7c8009f430a927a7000865b9e1",
+  "revision": "e574ac331db5e17a2a0312c2ce44cc5ee986d3eb",
   "sha256": "df105e4d2453b18902086552ec1bae50b698ff889053abd168a340c3f200169b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

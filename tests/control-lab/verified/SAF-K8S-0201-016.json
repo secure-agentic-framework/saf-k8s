@@ -1,0 +1,117 @@
+{
+  "control_id": "SAF-K8S-0201-016",
+  "catalog_revision": "7e2e05c327f54bcc2c6aefd64c255880a81ce7c9",
+  "catalog_sha256": "df105e4d2453b18902086552ec1bae50b698ff889053abd168a340c3f200169b",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "2a8f19ff34bea92b673b38b66a7da7b5c61895b51ea8d6e247337b27f4e9f8b0",
+  "scope": "One disposable kind cluster runs a nonroot Python forwarder with one inert synthetic event and a private ClusterIP fixture receiver backed by a disposable PVC. Observes an HTTP 503, automatic retry and delivery after receiver recovery, then restarts the receiver and queries the sink for the retained event. Does not generate Linux Audit events, configure host auditd or node agents, prove production retention/review/alerting, or cover a fleet.",
+  "cluster": "saf-lab-f9cc3d1dcac7",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The sink uses a bound disposable PVC and has a nonroot tokenless pod",
+      "matched": true,
+      "observed": {
+        "pvc_phase": "Bound",
+        "receiver_pod_count": 1,
+        "receiver_run_as_nonroot": true,
+        "receiver_token_automount": false,
+        "forwarder_run_as_nonroot": true,
+        "forwarder_token_automount": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The active forwarder records the receiver 503 while retaining the event",
+      "matched": true,
+      "observed": {
+        "forwarder_logged_503": true,
+        "pending_event_retained": true,
+        "receiver_logged_503": true,
+        "sink_query_empty_before_recovery": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The receiver is rejecting delivery before recovery",
+      "matched": true,
+      "observed": {
+        "receiver_logged_503": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The running forwarder retries automatically and delivers after recovery",
+      "matched": true,
+      "observed": {
+        "forwarder_logged_delivery": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The sender removes the pending copy after receiver acknowledgement",
+      "matched": true,
+      "observed": {
+        "pending_after_ack": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The fixture sink can query the delivered synthetic event",
+      "matched": true,
+      "observed": {
+        "query_event_count": 1,
+        "matches_fixture": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The replacement receiver mounts the same bound volume",
+      "matched": true,
+      "observed": {
+        "new_receiver_pod": true,
+        "same_volume": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The PVC-backed sink retains the event across receiver restart",
+      "matched": true,
+      "observed": {
+        "query_event_count_after_restart": 1,
+        "matches_fixture": true
+      }
+    }
+  ]
+}
