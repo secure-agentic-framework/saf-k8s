@@ -1092,6 +1092,12 @@
       "sha256": "6f0f60fc5358b4c1a21be539732863bb1ae0794b856b27c32ca189f22338b04a",
       "title": "Centralized aggregation onboarding and export for cluster-wide AI logs"
     },
+    "SAF-K8S-1001-034": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "3e1b5e2274aef7bbc75ba779ceb0ca6107f0af0b6d9e22ddd726527b0c2e05df",
+      "title": "Centralized AI log backend immutability and integrity verification"
+    },
     "SAF-K8S-1006-004": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1124,7 +1130,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "5a5b9bc549a96472ae0e2799cbb6b46bb89b17a3",
+  "revision": "5c417e60af4789308dddc70114455ce30ad3785a",
   "sha256": "5468afd7544aceb8f79e434b7d58a52fc41eeee0b3084837f4dc587efc72cace",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
