@@ -1,0 +1,1 @@
+Synthetic only. Illustrates scoping of systems, components, and access paths supporting the critical assets and related vulnerability-review references. No cluster scan or technical finding is represented.

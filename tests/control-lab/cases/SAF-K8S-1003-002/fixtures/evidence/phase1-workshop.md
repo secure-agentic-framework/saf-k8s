@@ -1,0 +1,1 @@
+Synthetic only. Illustrates workshop record for business asset owners, important information assets, asset criticality, requirements, and asset-based threat profiles. No actual organization or workshop is represented.

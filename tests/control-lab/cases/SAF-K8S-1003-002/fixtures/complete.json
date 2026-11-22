@@ -1,0 +1,202 @@
+{
+  "phases": {
+    "phase1": {
+      "method": "Build Asset-Based Threat Profiles",
+      "workshop_record": "evidence/phase1-workshop.md"
+    },
+    "phase2": {
+      "method": "Identify Infrastructure Vulnerabilities",
+      "scope_record": "evidence/phase2-scope.md"
+    },
+    "phase3": {
+      "method": "Develop Security Strategy and Plans",
+      "plan_record": "evidence/phase3-plan.md"
+    }
+  },
+  "assets": [
+    {
+      "id": "model-core",
+      "class": "proprietary-model",
+      "criticality": "high",
+      "owner": "synthetic-ml-platform",
+      "business_service": "forecasting",
+      "security_requirements": [
+        "confidentiality",
+        "integrity"
+      ],
+      "impacts": [
+        "model extraction exposes proprietary capability"
+      ],
+      "threats": [
+        {
+          "scenario": "unauthorized registry access permits model extraction",
+          "impact_ref": "model extraction exposes proprietary capability"
+        }
+      ],
+      "infrastructure": [
+        {
+          "component": "synthetic-model-registry and Kubernetes workload identity",
+          "vulnerability_review_ref": "evidence/model-registry-review.md"
+        }
+      ],
+      "organizational_tolerance": {
+        "threshold": "synthetic-impact-tier-2",
+        "source_ref": "evidence/tolerance.md"
+      },
+      "risk_treatment": {
+        "choice": "mitigate",
+        "impact_ref": "model extraction exposes proprietary capability",
+        "threat_ref": "unauthorized registry access permits model extraction",
+        "tolerance_ref": "evidence/tolerance.md",
+        "business_justification": "reduce exposure of the forecast model",
+        "owner": "synthetic-ml-platform",
+        "residual_risk_ref": "evidence/residual-model.md",
+        "impact_refs": [
+          "model extraction exposes proprietary capability"
+        ]
+      }
+    },
+    {
+      "id": "data-training",
+      "class": "training-data",
+      "criticality": "high",
+      "owner": "synthetic-data-team",
+      "business_service": "forecasting",
+      "security_requirements": [
+        "integrity",
+        "privacy"
+      ],
+      "impacts": [
+        "poisoned training set degrades service"
+      ],
+      "threats": [
+        {
+          "scenario": "unauthorized training-set modification",
+          "impact_ref": "poisoned training set degrades service"
+        }
+      ],
+      "infrastructure": [
+        {
+          "component": "synthetic-object-store and training pipeline",
+          "vulnerability_review_ref": "evidence/data-pipeline-review.md"
+        }
+      ],
+      "organizational_tolerance": {
+        "threshold": "synthetic-impact-tier-2",
+        "source_ref": "evidence/tolerance.md"
+      },
+      "risk_treatment": {
+        "choice": "mitigate",
+        "impact_ref": "poisoned training set degrades service",
+        "threat_ref": "unauthorized training-set modification",
+        "tolerance_ref": "evidence/tolerance.md",
+        "business_justification": "protect forecast integrity",
+        "owner": "synthetic-data-team",
+        "residual_risk_ref": "evidence/residual-data.md",
+        "impact_refs": [
+          "poisoned training set degrades service"
+        ]
+      }
+    },
+    {
+      "id": "gpu-pool",
+      "class": "gpu-infrastructure",
+      "criticality": "medium",
+      "owner": "synthetic-platform-team",
+      "business_service": "model-training",
+      "security_requirements": [
+        "availability",
+        "isolation"
+      ],
+      "impacts": [
+        "training interruption delays release"
+      ],
+      "threats": [
+        {
+          "scenario": "cross-tenant GPU allocation",
+          "impact_ref": "training interruption delays release"
+        }
+      ],
+      "infrastructure": [
+        {
+          "component": "synthetic-GPU-nodepool and device plugin",
+          "vulnerability_review_ref": "evidence/gpu-review.md"
+        }
+      ],
+      "organizational_tolerance": {
+        "threshold": "synthetic-impact-tier-3",
+        "source_ref": "evidence/tolerance.md"
+      },
+      "risk_treatment": {
+        "choice": "mitigate",
+        "impact_ref": "training interruption delays release",
+        "threat_ref": "cross-tenant GPU allocation",
+        "tolerance_ref": "evidence/tolerance.md",
+        "business_justification": "maintain isolated training capacity",
+        "owner": "synthetic-platform-team",
+        "residual_risk_ref": "evidence/residual-gpu.md",
+        "impact_refs": [
+          "training interruption delays release"
+        ]
+      }
+    },
+    {
+      "id": "inference-api",
+      "class": "inference-endpoint",
+      "criticality": "high",
+      "owner": "synthetic-serving-team",
+      "business_service": "customer-inference",
+      "security_requirements": [
+        "availability",
+        "integrity",
+        "confidentiality"
+      ],
+      "impacts": [
+        "unavailable predictions disrupt workflow"
+      ],
+      "threats": [
+        {
+          "scenario": "resource exhaustion at endpoint",
+          "impact_ref": "unavailable predictions disrupt workflow"
+        }
+      ],
+      "infrastructure": [
+        {
+          "component": "synthetic-inference namespace, gateway and serving pod",
+          "vulnerability_review_ref": "evidence/inference-review.md"
+        }
+      ],
+      "organizational_tolerance": {
+        "threshold": "synthetic-impact-tier-2",
+        "source_ref": "evidence/tolerance.md"
+      },
+      "risk_treatment": {
+        "choice": "mitigate",
+        "impact_ref": "unavailable predictions disrupt workflow",
+        "threat_ref": "resource exhaustion at endpoint",
+        "tolerance_ref": "evidence/tolerance.md",
+        "business_justification": "preserve prediction availability and integrity",
+        "owner": "synthetic-serving-team",
+        "residual_risk_ref": "evidence/residual-inference.md",
+        "impact_refs": [
+          "unavailable predictions disrupt workflow"
+        ]
+      }
+    }
+  ],
+  "review_cadence": {
+    "annual_due": "2027-11-22",
+    "change_triggers": [
+      "major model, data pipeline, GPU platform, inference path, or business-use change"
+    ],
+    "owner": "synthetic-security-architecture"
+  },
+  "organization_scoring": {
+    "status": "separate organizational evidence required",
+    "scheme_ref": "evidence/org-scoring.md"
+  },
+  "stakeholder_outcomes": {
+    "status": "separate stakeholder decision required",
+    "record_ref": "evidence/stakeholder-outcomes.md"
+  }
+}

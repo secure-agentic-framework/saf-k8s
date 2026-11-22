@@ -1,0 +1,86 @@
+{
+  "control_id": "SAF-K8S-1003-002",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "d1428699ad58e30a60a8161ec17d64cc03f788c49304c790fc2335423d0353af",
+  "scope": "Kubernetes v1.36.1 Kind runs independent native review Jobs over synthetic OCTAVE worksheets. The gate checks Phase 1 asset/impact/threat profiles, Phase 2 supporting infrastructure and vulnerability evidence, and Phase 3 tolerance-linked treatment and review cadence. It proves record completeness and stable decisions only; organizational risk scoring, stakeholder judgment, evidence truth, implementation, and actual risk reduction require separate evidence.",
+  "cluster": "saf-lab-70f7f38bb9d3",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Disabled review accepts a structurally readable incomplete worksheet",
+      "matched": true,
+      "observed": {
+        "controller": "Complete",
+        "exit_code": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native Job rejects gaps in impact-to-treatment traceability and review cadence",
+      "matched": true,
+      "observed": {
+        "errors": [
+          "organization_scoring-evidence-missing",
+          "phase1-evidence-missing",
+          "phase1-impact-missing:model-core",
+          "phase1-threat-profile-missing:model-core",
+          "phase2-evidence-missing",
+          "phase2-infrastructure-link-missing:model-core",
+          "phase2-vulnerability-evidence-missing:data-training",
+          "phase3-evidence-missing",
+          "phase3-residual-review-missing:model-core",
+          "phase3-tolerance-missing:model-core",
+          "phase3-treatment-missing:model-core",
+          "phase3-treatment-trace-invalid:data-training",
+          "phase3-treatment-trace-invalid:gpu-pool",
+          "phase3-treatment-trace-invalid:inference-api",
+          "phase3-treatment-trace-invalid:model-core",
+          "review-cadence-missing",
+          "stakeholder_outcomes-evidence-missing"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Complete synthetic OCTAVE worksheet passes with deterministic decision and independent evidence fields",
+      "matched": true,
+      "observed": {
+        "status": "pass",
+        "assets": 4
+      }
+    }
+  ]
+}

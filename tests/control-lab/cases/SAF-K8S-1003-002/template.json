@@ -1,0 +1,72 @@
+{
+  "phases": {
+    "phase1": {
+      "method": "Build Asset-Based Threat Profiles",
+      "workshop_record": "evidence/phase1-workshop.md"
+    },
+    "phase2": {
+      "method": "Identify Infrastructure Vulnerabilities",
+      "scope_record": "evidence/phase2-scope.md"
+    },
+    "phase3": {
+      "method": "Develop Security Strategy and Plans",
+      "plan_record": "evidence/phase3-plan.md"
+    }
+  },
+  "assets": [
+    {
+      "id": "asset-id",
+      "class": "model | training-data | GPU-infrastructure | inference-endpoint",
+      "criticality": "organization-defined",
+      "owner": "role",
+      "business_service": "service",
+      "security_requirements": [
+        "confidentiality | integrity | availability"
+      ],
+      "impacts": [
+        "business impact statement"
+      ],
+      "threats": [
+        {
+          "scenario": "asset-specific threat scenario",
+          "impact_ref": "business impact statement"
+        }
+      ],
+      "infrastructure": [
+        {
+          "component": "supporting system or component",
+          "vulnerability_review_ref": "evidence/component-review.md"
+        }
+      ],
+      "organizational_tolerance": {
+        "threshold": "organization-defined threshold",
+        "source_ref": "evidence/tolerance.md"
+      },
+      "risk_treatment": {
+        "choice": "mitigate | accept | transfer | avoid",
+        "impact_ref": "exact impact entry",
+        "threat_ref": "exact threat scenario",
+        "tolerance_ref": "",
+        "business_justification": "reasoned treatment",
+        "owner": "role",
+        "residual_risk_ref": "evidence/residual-risk.md",
+        "impact_refs": []
+      }
+    }
+  ],
+  "review_cadence": {
+    "annual_due": "YYYY-MM-DD",
+    "change_triggers": [
+      "major AI platform or business change"
+    ],
+    "owner": "role"
+  },
+  "organization_scoring": {
+    "status": "separate organizational scoring record",
+    "scheme_ref": "evidence/org-scoring.md"
+  },
+  "stakeholder_outcomes": {
+    "status": "separate stakeholder decision record",
+    "record_ref": "evidence/stakeholder-outcomes.md"
+  }
+}
