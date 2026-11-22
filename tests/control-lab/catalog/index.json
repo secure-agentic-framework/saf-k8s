@@ -750,6 +750,12 @@
       "sha256": "be4b4a1ea2b23b06251712540cff29734e6050a004041ba78eaf028669abd653",
       "title": "IaC security scanning gate enforcement for deployment platforms"
     },
+    "SAF-K8S-0606-025": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "a280b6cb8756f79fba65294731fb3129581c3bfbb88f5e0b5b92612be1909619",
+      "title": "Artifact freshness limit enforcement for CI/CD promotion"
+    },
     "SAF-K8S-0606-028": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -1106,7 +1112,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "833abcb9e4d1ca341ad17b9ab9322d0bf83c5016",
+  "revision": "7d1dfbf53f1e453f969844de922815b1eca368b3",
   "sha256": "5468afd7544aceb8f79e434b7d58a52fc41eeee0b3084837f4dc587efc72cace",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

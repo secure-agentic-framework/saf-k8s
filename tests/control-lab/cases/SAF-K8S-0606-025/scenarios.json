@@ -1,0 +1,13 @@
+{
+  "reference_epoch": 1700000000,
+  "max_age_seconds": 300,
+  "scenarios": [
+    {"name":"fresh","source_age":120,"build_age":60,"admitted":true,"reason":"current"},
+    {"name":"boundary","source_age":300,"build_age":300,"admitted":true,"reason":"current"},
+    {"name":"stale-source","source_age":301,"build_age":30,"admitted":false,"reason":"stale-source"},
+    {"name":"stale-artifact","source_age":420,"build_age":301,"admitted":false,"reason":"stale-artifact"},
+    {"name":"future-build","source_age":120,"build_age":-1,"admitted":false,"reason":"future-build"},
+    {"name":"future-source","source_age":-1,"build_age":-2,"admitted":false,"reason":"future-source"},
+    {"name":"changed-bytes","source_age":120,"build_age":60,"admitted":false,"reason":"artifact-mismatch"}
+  ]
+}
