@@ -749,13 +749,13 @@
   domain_name: Control Plane and Cluster Hardening
   knowledge_area: '1.3'
   control_seq: '014'
-  control_title: Scheduler API and decision endpoint access restriction
-  control_statement: Production Kubernetes clusters must restrict access to the scheduler API and scheduling decision endpoints to authorized control-plane components only.
-  objective: Prevent unauthorized influence over workload placement decisions by limiting scheduler-access paths to authorized control-plane components only.
-  rationale: The scheduler determines where workloads run, making it a high-value target for attackers seeking to place pods on compromised nodes, co-locate with sensitive workloads, or bypass security-aware placement controls. Restricting scheduler API and decision endpoints to authorized control-plane components reduces the opportunity for direct placement manipulation.
-  scope: Applies to all production clusters. Covers default scheduler configuration, scheduler API exposure, bind-address constraints, and RBAC policies governing scheduler-related resources. For managed Kubernetes services, applies to customer-visible scheduler-access settings and compensating controls where scheduler internals are provider-managed.
-  primary_enforcement_point: Scheduler API exposure and RBAC restriction
-  implementation_surface: Scheduler configuration, bind address settings, scheduler RBAC bindings, and periodic validation that scheduler endpoints are not exposed beyond authorized control-plane paths.
+  control_title: Scheduler operational endpoint and placement authorization
+  control_statement: Production Kubernetes clusters must restrict kube-scheduler operational HTTPS endpoints to approved control-plane and monitoring paths. Restrict direct Pod binding through the Kubernetes API to authorized scheduling or explicitly approved operational identities, and govern workload fields that can influence placement.
+  objective: Protect scheduler operational interfaces and prevent unapproved direct Pod binding or placement overrides through Kubernetes API authorization and admission.
+  rationale: The scheduler determines where workloads run, making it a high-value target for attackers seeking to place pods on compromised nodes, co-locate with sensitive workloads, or bypass security-aware placement controls. The kube-scheduler HTTPS listener serves operational routes. The scheduler watches workloads and persists placement through the Kubernetes API. Controlling access to the HTTPS listener and authorizing Pod binding are separate safeguards. Direct placement fields such as spec.nodeName require their own admission policy where workload placement is sensitive.
+  scope: Applies to all production clusters. Covers scheduler secure serving, authorization for Kubernetes binding resources, and workload placement policy for the default and approved custom schedulers. For managed Kubernetes services, applies to customer-visible scheduler-access settings and compensating controls where scheduler internals are provider-managed.
+  primary_enforcement_point: Scheduler secure serving and Kubernetes API authorization
+  implementation_surface: Review effective bind address, secure endpoint paths and approved monitoring access. Verify native Kubernetes RBAC for pods/binding and applicable binding resources. Validate admission policy for direct node assignment and approved scheduler selection when relevant, and verify a permitted workload still schedules.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Application Platform teams
   baseline_or_ai_specific: baseline
