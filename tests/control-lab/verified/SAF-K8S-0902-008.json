@@ -1,0 +1,170 @@
+{
+  "control_id": "SAF-K8S-0902-008",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "ccfe058c28b3b973ae18fa6c8ab890022ce47206bea66c45fafad42f772ef93f",
+  "scope": "One disposable Kind v1.36.1 cluster; one local fixture gateway; two fixed synthetic identities; and two case-owned model mock endpoints. An ephemeral per-run HS256 test key signs short-lived fixture tokens for only those fixed identity/model grants. Identical ordinary fixed GETs to two owned paths are observed in an open red baseline, then with gateway verification/enforcement, plus one positive request per authorized identity. Gateway and independent backend event logs use fixed event IDs and contain no tokens or authorization headers. No real issuer, ingress, feed, target, model, credential, or user data is used.",
+  "cluster": "saf-lab-741941d1f6ad",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Case is on the expected Kind and Kubernetes versions",
+      "matched": true,
+      "observed": {
+        "kind_version": "kind v0.32.0 go1.26.3 darwin/arm64",
+        "kubernetes_version": "v1.36.1",
+        "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Open baseline permits red-absent to reach its owned mock",
+      "matched": true,
+      "observed": {
+        "event_id": "red-absent",
+        "status": 200,
+        "model": "model-alpha",
+        "fixed_mock_result": "SAF-SYNTHETIC-INFERENCE-ALPHA-0902-008"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Open baseline permits red-wrong-model to reach its owned mock",
+      "matched": true,
+      "observed": {
+        "event_id": "red-wrong-model",
+        "status": 200,
+        "model": "model-beta",
+        "fixed_mock_result": "SAF-SYNTHETIC-INFERENCE-BETA-0902-008"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Enforced gateway denies green-absent before the backend",
+      "matched": true,
+      "observed": {
+        "event_id": "green-absent",
+        "status": 401,
+        "decision": "authentication-required"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Enforced gateway denies green-expired before the backend",
+      "matched": true,
+      "observed": {
+        "event_id": "green-expired",
+        "status": 401,
+        "decision": "authentication-required"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Enforced gateway denies green-wrong-model before the backend",
+      "matched": true,
+      "observed": {
+        "event_id": "green-wrong-model",
+        "status": 403,
+        "decision": "model-not-authorized"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Authorized synthetic-client-a receives only its fixed model-alpha mock response",
+      "matched": true,
+      "observed": {
+        "event_id": "positive-alpha",
+        "identity": "synthetic-client-a",
+        "model": "model-alpha",
+        "status": 200,
+        "fixed_mock_result": "SAF-SYNTHETIC-INFERENCE-ALPHA-0902-008"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Authorized synthetic-client-b receives only its fixed model-beta mock response",
+      "matched": true,
+      "observed": {
+        "event_id": "positive-beta",
+        "identity": "synthetic-client-b",
+        "model": "model-beta",
+        "status": 200,
+        "fixed_mock_result": "SAF-SYNTHETIC-INFERENCE-BETA-0902-008"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Gateway and independent backends agree on each allow or deny",
+      "matched": true,
+      "observed": {
+        "red-absent": {
+          "gateway_matches": true,
+          "backend_matches_expected": true,
+          "backend_observed": true
+        },
+        "red-wrong-model": {
+          "gateway_matches": true,
+          "backend_matches_expected": true,
+          "backend_observed": true
+        },
+        "green-absent": {
+          "gateway_matches": true,
+          "backend_matches_expected": true,
+          "backend_observed": false
+        },
+        "green-expired": {
+          "gateway_matches": true,
+          "backend_matches_expected": true,
+          "backend_observed": false
+        },
+        "green-wrong-model": {
+          "gateway_matches": true,
+          "backend_matches_expected": true,
+          "backend_observed": false
+        },
+        "positive-alpha": {
+          "gateway_matches": true,
+          "backend_matches_expected": true,
+          "backend_observed": true
+        },
+        "positive-beta": {
+          "gateway_matches": true,
+          "backend_matches_expected": true,
+          "backend_observed": true
+        }
+      }
+    }
+  ]
+}
