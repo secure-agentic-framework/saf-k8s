@@ -1,0 +1,137 @@
+{
+  "version": "v1.37.0",
+  "node_image": "kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5",
+  "workload_image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+  "scope": "Disposable kind; native PVC Unused condition and retained fixture marker only.",
+  "feature_gate_override": null,
+  "checkpoints": [
+    {
+      "label": "initial_idle_after_seed_removal",
+      "pvc_uid": "6d941ddd-5726-4639-9f47-c7f222c86f55",
+      "pv_name": "saf-release-review-15-retained",
+      "pv_uid": "b98300a6-8ab1-4fd2-90f8-9f00025d0a58",
+      "reclaim_policy": "Retain",
+      "phase": "Bound",
+      "pod_references": [],
+      "pod_phases": {},
+      "marker_readback": null,
+      "unused_condition": {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-22T09:38:09Z",
+        "message": "No pods are currently referencing this PVC",
+        "reason": "NoPodsUsingPVC",
+        "status": "True",
+        "type": "Unused"
+      },
+      "last_transition_time_advanced": false,
+      "marker_seeded_by": "seed-marker Pod; command exited successfully"
+    },
+    {
+      "label": "first_running_reference",
+      "pvc_uid": "6d941ddd-5726-4639-9f47-c7f222c86f55",
+      "pv_name": "saf-release-review-15-retained",
+      "pv_uid": "b98300a6-8ab1-4fd2-90f8-9f00025d0a58",
+      "reclaim_policy": "Retain",
+      "phase": "Bound",
+      "pod_references": [
+        "first-reference"
+      ],
+      "pod_phases": {
+        "first-reference": "Running"
+      },
+      "marker_readback": "saf-k8s-release-review-15-marker-v1",
+      "unused_condition": {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-22T09:38:11Z",
+        "message": "A pod is currently referencing this PVC",
+        "reason": "PodUsingPVC",
+        "status": "False",
+        "type": "Unused"
+      },
+      "last_transition_time_advanced": true
+    },
+    {
+      "label": "only_reference_pod_removed",
+      "pvc_uid": "6d941ddd-5726-4639-9f47-c7f222c86f55",
+      "pv_name": "saf-release-review-15-retained",
+      "pv_uid": "b98300a6-8ab1-4fd2-90f8-9f00025d0a58",
+      "reclaim_policy": "Retain",
+      "phase": "Bound",
+      "pod_references": [],
+      "pod_phases": {},
+      "marker_readback": null,
+      "unused_condition": {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-22T09:38:43Z",
+        "message": "No pods are currently referencing this PVC",
+        "reason": "NoPodsUsingPVC",
+        "status": "True",
+        "type": "Unused"
+      },
+      "last_transition_time_advanced": true
+    },
+    {
+      "label": "second_running_reference",
+      "pvc_uid": "6d941ddd-5726-4639-9f47-c7f222c86f55",
+      "pv_name": "saf-release-review-15-retained",
+      "pv_uid": "b98300a6-8ab1-4fd2-90f8-9f00025d0a58",
+      "reclaim_policy": "Retain",
+      "phase": "Bound",
+      "pod_references": [
+        "second-reference"
+      ],
+      "pod_phases": {
+        "second-reference": "Running"
+      },
+      "marker_readback": "saf-k8s-release-review-15-marker-v1",
+      "unused_condition": {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-22T09:38:45Z",
+        "message": "A pod is currently referencing this PVC",
+        "reason": "PodUsingPVC",
+        "status": "False",
+        "type": "Unused"
+      },
+      "last_transition_time_advanced": true
+    }
+  ],
+  "cluster": "saf-rv15-v1-37-0-1f4f5284",
+  "server_version": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "37",
+      "emulationMajor": "1",
+      "emulationMinor": "37",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "36",
+      "gitVersion": "v1.37.0",
+      "gitCommit": "f54c212e3a2f75d674b717a9b29052b20b60aefc",
+      "gitTreeState": "clean",
+      "buildDate": "2026-08-26T10:44:25Z",
+      "goVersion": "go1.26.6",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "node_versions": [
+    "v1.37.0"
+  ],
+  "controller_gate_args": {
+    "kube-apiserver": [],
+    "kube-controller-manager": []
+  },
+  "status": "passed",
+  "cluster_cleanup": "deleted"
+}

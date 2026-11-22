@@ -24,3 +24,6 @@ production driver behavior and dual authorization need their own evidence.
 - [Kubernetes v1.36 PersistentVolume reclaiming](https://v1-36.docs.kubernetes.io/docs/concepts/storage/persistent-volumes/#reclaiming)
 - [Kubernetes v1.36 StorageClass reclaim policy](https://v1-36.docs.kubernetes.io/docs/concepts/storage/storage-classes/#reclaim-policy)
 - [Kubernetes v1.36 ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
+
+The optional [PVC usage comparison](pvc-usage-comparison/README.md) adds
+version-specific evidence for retained-data inventory.

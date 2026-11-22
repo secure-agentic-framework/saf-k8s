@@ -5,7 +5,7 @@
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "eedc7a35df84e843592b1bbd968e938acd931926ff8e7274947788b516a8e111",
   "scope": "Kubernetes v1.36.1 kind on one disposable node. The bundled local-path provisioner creates two independent synthetic volumes. Native admission limits labeled backup claims to the Retain class; both reclaim lifecycles are inspected. Media sanitization, cloud providers, actual backups and dual authorization require separate evidence.",
-  "cluster": "saf-lab-4378682d40c7",
+  "cluster": "saf-lab-16bd41d9cfa1",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
