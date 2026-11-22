@@ -109,8 +109,6 @@ def case_files(source):
         if not path.is_file():
             raise InfrastructureError(f"A reviewed case may contain only regular files: {path.name}")
         files[path.relative_to(source)] = (path.stat().st_mode & 0o777, path.read_bytes())
-    if Path("kind.yaml") in files:
-        raise InfrastructureError("Early startup requires the default Kind layout")
     return files
 
 
@@ -140,7 +138,7 @@ def approve(control_id, index, destination):
         temporary.unlink()
 
 
-def load_approved_case(control_id, index, marker, timeout, destination, report):
+def load_approved_case(control_id, index, marker, timeout, destination, report, reviewed_kind_config):
     pending = time.monotonic() + timeout
     while time.monotonic() < pending and not marker.is_file():
         time.sleep(0.2)
@@ -155,6 +153,9 @@ def load_approved_case(control_id, index, marker, timeout, destination, report):
     files = case_files(ROOT / "cases" / control_id)
     if approval != approval_record(control_id, index, files):
         raise InfrastructureError("Approval does not match the exact case and catalog snapshot")
+    case_kind_config = files.get(Path("kind.yaml"))
+    if (case_kind_config[1] if case_kind_config else None) != reviewed_kind_config:
+        raise InfrastructureError("Approved case Kind profile does not match the bootstrapped profile")
     for name, (mode, raw) in files.items():
         target = destination / name
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -162,7 +163,7 @@ def load_approved_case(control_id, index, marker, timeout, destination, report):
         target.chmod(mode)
     case = load_case(control_id, approval["control_sha256"], directory=destination)
     if case is None or getattr(case, "prepare_kind", None):
-        raise InfrastructureError("Early startup requires an executable case with the default Kind layout")
+        raise InfrastructureError("Early startup requires an executable case without a generated Kind profile")
     report["review_timing"]["approval_at"] = datetime.fromtimestamp(approved_at, timezone.utc).isoformat()
     report["review_timing"]["case_loaded_at"] = datetime.now(timezone.utc).isoformat()
     report["approved_case_sha256"] = approval["case_sha256"]
@@ -173,7 +174,8 @@ def interrupt_approval_run(_signum, _frame):
     raise KeyboardInterrupt
 
 
-def run(control_id, control_case, index, docker_context, *, approval_file=None, approval_timeout=180):
+def run(control_id, control_case, index, docker_context, *, approval_file=None, approval_timeout=180,
+        reviewed_kind_config=None):
     evidence = ROOT / "evidence" / control_id / (
         datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8]
     )
@@ -206,6 +208,10 @@ def run(control_id, control_case, index, docker_context, *, approval_file=None, 
             if lab.cluster in clusters.stdout.splitlines():
                 raise InfrastructureError(f"Cluster already exists: {lab.cluster}")
             config = Path(control_case.__file__).with_name("kind.yaml") if control_case else None
+            if reviewed_kind_config is not None:
+                config = temporary / "kind.yaml"
+                config.write_bytes(reviewed_kind_config)
+                report["kind_config_sha256"] = hashlib.sha256(reviewed_kind_config).hexdigest()
             if prepare_kind:
                 config = Path(prepare_kind(lab, temporary)).resolve()
                 if not config.is_relative_to(temporary) or not config.is_file():
@@ -223,7 +229,7 @@ def run(control_id, control_case, index, docker_context, *, approval_file=None, 
                 report["review_timing"]["cluster_ready_at"] = datetime.now(timezone.utc).isoformat()
                 print("Cluster ready for reviewed case", flush=True)
                 control_case = load_approved_case(control_id, index, approval_file, approval_timeout,
-                                                  temporary / control_id, report)
+                                                  temporary / control_id, report, reviewed_kind_config)
                 report["scope"] = control_case.SCOPE
             control_case.run(lab)
             phases = {check["phase"] for check in lab.checks}
@@ -269,6 +275,8 @@ def main():
     test.add_argument("--catalog-index", type=Path, default=ROOT / "catalog/index.json")
     test.add_argument("--docker-context", default=os.getenv("DOCKER_CONTEXT") or "default")
     test.add_argument("--await-approval", type=Path, metavar="FILE")
+    test.add_argument("--reviewed-kind-config", type=Path, metavar="FILE",
+                      help="Start with these already-reviewed static kind.yaml bytes while awaiting case approval")
     test.add_argument("--approval-timeout", type=int, default=180, metavar="SECONDS",
                       help="Seconds to wait for approval after the fresh cluster is ready")
     approval = commands.add_parser("approve", help="Approve the reviewed case and catalog snapshot")
@@ -292,17 +300,29 @@ def main():
         except (InfrastructureError, OSError) as error:
             parser.error(str(error))
         return 0
+    if args.reviewed_kind_config is not None and args.await_approval is None:
+        parser.error("--reviewed-kind-config requires --await-approval")
     if args.await_approval is not None:
         if args.await_approval.exists() or args.await_approval.is_symlink():
             parser.error("Use a new approval file for each run")
         if args.approval_timeout < 1:
             parser.error("Approval timeout must be at least one second")
-        if (ROOT / "cases" / args.id / "kind.yaml").exists():
-            parser.error("Early startup requires the default Kind layout")
+        case_kind_path = ROOT / "cases" / args.id / "kind.yaml"
+        reviewed_kind_config = None
+        if args.reviewed_kind_config is not None:
+            try:
+                reviewed_kind_config = args.reviewed_kind_config.read_bytes()
+                if case_kind_path.exists() and case_kind_path.read_bytes() != reviewed_kind_config:
+                    parser.error("Reviewed Kind profile differs from the case's kind.yaml")
+            except OSError as error:
+                parser.error(str(error))
+        elif case_kind_path.exists():
+            parser.error("Early startup with a static Kind profile requires --reviewed-kind-config")
         old_handler = signal.signal(signal.SIGTERM, interrupt_approval_run)
         try:
             return run(args.id, None, index, args.docker_context,
-                       approval_file=args.await_approval, approval_timeout=args.approval_timeout)
+                       approval_file=args.await_approval, approval_timeout=args.approval_timeout,
+                       reviewed_kind_config=reviewed_kind_config)
         finally:
             signal.signal(signal.SIGTERM, old_handler)
     control_case = load_case(args.id, index["controls"][args.id]["sha256"])
