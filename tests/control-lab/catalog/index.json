@@ -300,6 +300,12 @@
       "sha256": "cb2182819d0df02b2795af527692b6934bfbeada40f03774c105131657f8652d",
       "title": "Pod Security Admission configuration and version pinning"
     },
+    "SAF-K8S-0301-003": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "f42e8963bfa1ef8713611511e0d1f0fba5180d943ba3795a98cee97c3b319ed1",
+      "title": "PodSecurityPolicy to PSA migration"
+    },
     "SAF-K8S-0302-001": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -752,7 +758,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "fa8818f9e142fbbdf991c2bcfbd5b8ecd1c84f09",
+  "revision": "b32d8aaeb8d9e2297533c466a7102d328b349800",
   "sha256": "e8d024860997c85e65dcb4d9a1c10c9e716416ecfea1f4d4479987609b4092f0",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
