@@ -5,7 +5,7 @@
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "aafa570f4a87f5fdb9d353e4ee2ca123f3cdd771c35d787bb787480673e7fb4a",
   "scope": "Two disposable single-member etcd v3.6.8 processes, each in Docker network mode none. The manual case uses three public synthetic marker keys and one bounded deleted padding key, observes an old exact-key read before compaction, compacts the current revision, verifies that only the old read is rejected, and measures reclaimed database bytes after one online defrag. A second process checks periodic auto-compaction with a real 8-second retention window. No Kubernetes API or production data is used. Multi-member sequencing, real workload availability, sizing, and production retention selection are outside scope.",
-  "cluster": "saf-lab-d282c14b1fff",
+  "cluster": "saf-lab-bd85a8e11b34",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -68,14 +68,7 @@
       "matched": true,
       "observed": {
         "version": "etcd Version: 3.6.8\nGit SHA: 4e814e2\nGo Version: go1.24.13\nGo OS/Arch: linux/arm64",
-        "allocated_and_in_use_bytes_before_defrag": {
-          "allocated": 299008,
-          "in_use": 16384
-        },
-        "allocated_and_in_use_bytes_after_defrag": {
-          "allocated": 20480,
-          "in_use": 12288
-        },
+        "raw_evidence_file": "etcd-maintenance.raw.json",
         "latest_exact_key_reads": {
           "/saf-k8s-lab/public/marker": true,
           "/saf-k8s-lab/public/companion": true,
@@ -104,9 +97,10 @@
         "version": "etcd Version: 3.6.8\nGit SHA: 4e814e2\nGo Version: go1.24.13\nGo OS/Arch: linux/arm64",
         "retention": "8s",
         "maximum_wait_seconds": 40,
-        "elapsed_until_expiry_seconds": 15.509,
+        "raw_evidence_file": "etcd-maintenance.raw.json",
         "old_revision": 2,
         "old_revision_compacted": true,
+        "expiry_observed_within_maximum_wait": true,
         "latest_exact_key_read_available": true
       }
     }

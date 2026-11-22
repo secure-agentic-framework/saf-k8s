@@ -19,11 +19,20 @@ records `dbSize` (allocated bytes) and `dbSizeInUse` (bytes in use) before and
 after defrag, and requires allocated size to decrease while subsequent reads
 keep returning the latest expected values.
 
+The measured allocated and in-use database bytes before and after defrag are
+written to `raw-evidence.json` for each run. Stable check observations retain
+the measured predicates: valid nonzero size metrics, allocated bytes at least
+in-use bytes, lower allocated bytes after defrag, and successful latest-value
+reads. The periodic compaction check also stores its measured elapsed time in
+that artifact; its 40-second upper bound and compacted-revision/latest-read
+conditions remain enforced and visible as stable observations.
+
 A second instance uses periodic auto-compaction with an 8-second retention
 window. The exact old marker read must work before expiry, then return etcd's
 compacted-revision error within 40 seconds while the latest exact-key read
 continues to return its current marker. Timing is bounded; it is not a
-production retention recommendation.
+production retention recommendation. This fixture does not create a lease or
+verify lease expiry and key cleanup; those lease behaviors remain untested.
 
 ## Claim and scope notes
 

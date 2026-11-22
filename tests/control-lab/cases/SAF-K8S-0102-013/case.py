@@ -10,6 +10,7 @@ IMAGE = "gcr.io/etcd-development/etcd:v3.6.8"
 ENDPOINT = "http://127.0.0.1:2379"
 AUTO_RETENTION = "8s"
 AUTO_WAIT_SECONDS = 40
+RAW_EVIDENCE_FILE = "etcd-maintenance.raw.json"
 PADDING_KEY = "/saf-k8s-lab/public/transient-padding"
 MANUAL_KEYS = {
     "/saf-k8s-lab/public/marker": ("synthetic-marker-v1", "synthetic-marker-v2"),
@@ -93,6 +94,14 @@ def stop_etcd(lab, container):
         lab.block(f"Could not remove disposable etcd container {container}")
 
 
+def record_raw_evidence(lab, name, observations):
+    """Persist run-varying measurements separately from stable check observations."""
+    path = lab.evidence / RAW_EVIDENCE_FILE
+    records = json.loads(path.read_text()) if path.exists() else {}
+    records[name] = observations
+    path.write_text(json.dumps(records, indent=2, sort_keys=True) + "\n")
+
+
 def manual_compaction_and_defrag(lab, container):
     with etcd_member(lab, container) as version:
         old_revision = None
@@ -159,15 +168,20 @@ def manual_compaction_and_defrag(lab, container):
         }
         metrics_ok = (bytes_before["allocated"] >= bytes_before["in_use"] > 0
                       and bytes_after["allocated"] >= bytes_after["in_use"] > 0)
+        bytes_reclaimed = bytes_after["allocated"] < bytes_before["allocated"]
+        record_raw_evidence(
+            lab,
+            "manual_defrag_database_bytes",
+            {"allocated_and_in_use_bytes_before_defrag": bytes_before,
+             "allocated_and_in_use_bytes_after_defrag": bytes_after},
+        )
         lab.check(
             "positive", "Defrag reclaims backend allocation while all latest marker values remain readable",
-            defrag.returncode == 0 and all(intact.values()) and metrics_ok
-            and bytes_after["allocated"] < bytes_before["allocated"],
-            {"version": version, "allocated_and_in_use_bytes_before_defrag": bytes_before,
-             "allocated_and_in_use_bytes_after_defrag": bytes_after,
+            defrag.returncode == 0 and all(intact.values()) and metrics_ok and bytes_reclaimed,
+            {"version": version, "raw_evidence_file": RAW_EVIDENCE_FILE,
              "latest_exact_key_reads": intact,
              "allocated_ge_in_use": metrics_ok,
-             "backend_bytes_reclaimed": bytes_after["allocated"] < bytes_before["allocated"]},
+             "backend_bytes_reclaimed": bytes_reclaimed},
         )
 
 
@@ -200,14 +214,24 @@ def automatic_expiry(lab, container):
         latest = exact_value(lab, container, AUTO_KEY)
         latest_ok = latest.returncode == 0 and latest.stdout.rstrip("\n") == "synthetic-auto-marker-v2"
         compacted = expired_at is not None
+        elapsed = (round(expired_at - (deadline - AUTO_WAIT_SECONDS), 3)
+                   if expired_at else None)
+        within_original_wait = elapsed is not None and elapsed <= AUTO_WAIT_SECONDS
+        record_raw_evidence(
+            lab,
+            "periodic_compaction_expiry_timing",
+            {"retention": AUTO_RETENTION,
+             "maximum_wait_seconds": AUTO_WAIT_SECONDS,
+             "elapsed_until_expiry_seconds": elapsed},
+        )
         lab.check(
             "green", "The bounded periodic retention window automatically expires the old revision",
-            compacted and latest_ok,
+            compacted and within_original_wait and latest_ok,
             {"version": version, "retention": AUTO_RETENTION,
              "maximum_wait_seconds": AUTO_WAIT_SECONDS,
-             "elapsed_until_expiry_seconds": (round(expired_at - (deadline - AUTO_WAIT_SECONDS), 3)
-                                              if expired_at else None),
+             "raw_evidence_file": RAW_EVIDENCE_FILE,
              "old_revision": old_revision, "old_revision_compacted": compacted,
+             "expiry_observed_within_maximum_wait": within_original_wait,
              "latest_exact_key_read_available": latest_ok},
         )
 
