@@ -1230,6 +1230,12 @@
       "sha256": "e728251555059ac05e29e6b6a23153c0292729db4454feb28e2c097d935896b3",
       "title": "Feature freshness and integrity monitoring"
     },
+    "SAF-K8S-0904-011": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "62323d7c0d3aab530a25da7b649ecec81e8e265055507f896b392daed6d7c8b4",
+      "title": "Pipeline stage isolation between sensitivity levels"
+    },
     "SAF-K8S-0907-007": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1712,7 +1718,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "1b17c7734a124d7f7149133076f16f8bfbc04b79",
+  "revision": "30fdcce990593316f08346992e99beddf435ca84",
   "sha256": "048037b90a24d7ec93c499b5090f5453e3fe06e6708b6dbb8ea5d9294d79cf1b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -1,0 +1,103 @@
+{
+  "control_id": "SAF-K8S-0904-011",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "62323d7c0d3aab530a25da7b649ecec81e8e265055507f896b392daed6d7c8b4",
+  "scope": "One fresh disposable Kubernetes v1.36.1 Kind cluster from the control lab, using its stock kindnet networking. Two case-owned namespaces are labeled low and high sensitivity. Distinct non-default ServiceAccounts with API-token automount disabled identify the low probe, high endpoint, and permitted high peer. A low-stage probe first fetches one exact inert marker from an HTTP endpoint in the high namespace before any NetworkPolicy exists. A case-owned standard Kubernetes NetworkPolicy then allows only the same-namespace high peer to the same endpoint; bounded requests verify low-stage denial and high-stage success. Native RBAC separately permits the exact synthetic artifact ConfigMap to the high peer and denies it to the low identity. Production orchestrator, runtime, and storage boundaries and complete policy coverage need separate evidence.",
+  "review_timing": {
+    "queued_at": "2026-11-22T22:18:31.197707+00:00",
+    "cluster_ready_at": "2026-11-22T22:19:10.032283+00:00",
+    "approval_at": "2026-11-22T22:23:13.962157+00:00",
+    "case_loaded_at": "2026-11-22T22:23:14.008477+00:00"
+  },
+  "cluster": "saf-lab-82343f3d3247",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "3781b76cddf640ad2dc799f2fb5bc4e2ea3b96830fa8a04ef5388f8ab2b62af6",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "With no case NetworkPolicy installed, the low-sensitivity stage reaches the exact high endpoint marker",
+      "matched": true,
+      "observed": {
+        "request": "reached",
+        "source_stage": "low",
+        "marker": "SAF-K8S-0904-011-INERT",
+        "endpoint": "saf-0904-011-endpoint:18080/marker.txt",
+        "network_policy": "absent"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "After policy convergence, the same low-stage workload cannot fetch that same high-stage marker",
+      "matched": true,
+      "observed": {
+        "request": "blocked",
+        "source_stage": "low",
+        "marker": null,
+        "endpoint": "saf-0904-011-endpoint:18080/marker.txt",
+        "network_policy": "present",
+        "outcome": "denied"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The ordinary permitted high-stage peer still fetches the exact marker after policy",
+      "matched": true,
+      "observed": {
+        "request": "reached",
+        "source_stage": "high",
+        "marker": "SAF-K8S-0904-011-INERT",
+        "endpoint": "saf-0904-011-endpoint:18080/marker.txt",
+        "network_policy": "present",
+        "outcome": "permitted"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The low-stage identity is also forbidden to read the exact high-stage fixture object",
+      "matched": true,
+      "observed": {
+        "low_identity_api_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The narrowly bound high-stage identity reads the exact fixture object",
+      "matched": true,
+      "observed": {
+        "permitted_identity_marker": "SAF-K8S-0904-011-INERT"
+      }
+    }
+  ]
+}

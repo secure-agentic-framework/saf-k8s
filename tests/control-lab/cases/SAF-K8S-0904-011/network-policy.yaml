@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: saf-0904-011-high-endpoint-ingress
+  namespace: saf-0904-011-high
+spec:
+  podSelector:
+    matchLabels:
+      app: saf-0904-011-endpoint
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: saf-0904-011-high-peer
+      ports:
+        - protocol: TCP
+          port: 8080
