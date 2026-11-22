@@ -1080,6 +1080,12 @@
       "sha256": "4b26795b40e7b4cd9450c734b9f0fe943920510b3db8a248221d4921b2fb2139",
       "title": "Audit policy coverage for AI-specific resource and workflow events"
     },
+    "SAF-K8S-1001-017": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "502cb74f3331058a6ff566bf79d5752916df77da0e0b2b37558fdc828adb6a6f",
+      "title": "Audit capture of admission, authorization, and privileged API decisions for AI workloads"
+    },
     "SAF-K8S-1001-026": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1160,7 +1166,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "f904ec2560ea18884c9775d02fcb3b1d8be7d908",
+  "revision": "d8af88c8e99e7501e1cfc52fa82108a9e7543109",
   "sha256": "872822531716b059a05f969b9bdb15559fa3dd850de26945615e595c3d8e018e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
