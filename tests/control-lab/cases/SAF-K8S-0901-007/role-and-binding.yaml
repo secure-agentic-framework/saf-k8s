@@ -1,0 +1,28 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0901-007-controller-workload
+  namespace: saf-0901-007-workloads
+  labels:
+    saf-lab.example/control: SAF-K8S-0901-007
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  resourceNames: ["mock-raycluster-spec"]
+  verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0901-007-controller-workload
+  namespace: saf-0901-007-workloads
+  labels:
+    saf-lab.example/control: SAF-K8S-0901-007
+subjects:
+- kind: ServiceAccount
+  name: saf-0901-007-controller
+  namespace: saf-0901-007-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0901-007-controller-workload

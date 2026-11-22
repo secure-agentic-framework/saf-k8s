@@ -1,0 +1,192 @@
+{
+  "control_id": "SAF-K8S-0901-007",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "05c37c86fb548a4aa59553ec79fc57a571ec469ec81a0f36069edfad2816fa6d",
+  "scope": "Disposable Kind Kubernetes v1.36.1 cluster with a digest-pinned node image. A named controller ServiceAccount in a synthetic operator namespace uses a projected token to GET and PATCH one named mock workload ConfigMap through a RoleBinding in a separate workload namespace. Before/after direct API calls and independent kubectl auth checks show the denied adjacent namespace, sibling resource, list/Secret access, and cluster-scoped access. No actual AI operator, CRD, GPU, external target, feed, scan, or vendor upgrade is exercised; operational applicability and version-specific vendor permissions remain unresolved.",
+  "review_timing": {
+    "queued_at": "2026-11-22T19:52:05.603402+00:00",
+    "cluster_ready_at": "2026-11-22T19:52:34.699382+00:00",
+    "approval_at": "2026-11-22T19:55:00.470343+00:00",
+    "case_loaded_at": "2026-11-22T19:55:00.511666+00:00"
+  },
+  "cluster": "saf-lab-42205242d424",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "bb5ba5a5af57400c96548a8cda89a3ac0f2d05ec13cf9cd3dca195603c356a82",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "An unbound synthetic controller identity is denied every mock workload API operation",
+      "matched": true,
+      "observed": {
+        "kubectl_auth_can_i": {
+          "get_named": false,
+          "patch_named": false,
+          "get_sibling": false,
+          "get_adjacent_namespace": false,
+          "list_configmaps": false,
+          "get_secrets": false,
+          "get_nodes": false
+        },
+        "projected_token_api_observations": {
+          "identity": "system:serviceaccount:saf-0901-007-operator:saf-0901-007-controller",
+          "operations": {
+            "get_named": {
+              "method": "GET",
+              "namespace": "saf-0901-007-workloads",
+              "operation": "get_named",
+              "resource": "configmaps/mock-raycluster-spec",
+              "status": 403
+            },
+            "patch_named": {
+              "method": "PATCH",
+              "namespace": "saf-0901-007-workloads",
+              "operation": "patch_named",
+              "resource": "configmaps/mock-raycluster-spec",
+              "status": 403
+            },
+            "get_sibling": {
+              "method": "GET",
+              "namespace": "saf-0901-007-workloads",
+              "operation": "get_sibling",
+              "resource": "configmaps/mock-raycluster-neighbor",
+              "status": 403
+            },
+            "get_adjacent_namespace": {
+              "method": "GET",
+              "namespace": "saf-0901-007-adjacent",
+              "operation": "get_adjacent_namespace",
+              "resource": "configmaps/mock-raycluster-spec",
+              "status": 403
+            },
+            "list_configmaps": {
+              "method": "GET",
+              "namespace": "saf-0901-007-workloads",
+              "operation": "list_configmaps",
+              "resource": "configmaps",
+              "status": 403
+            },
+            "get_secret_collection": {
+              "method": "GET",
+              "namespace": "saf-0901-007-workloads",
+              "operation": "get_secret_collection",
+              "resource": "secrets",
+              "status": 403
+            }
+          }
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Controller permissions allow only GET and PATCH on the named workload ConfigMap",
+      "matched": true,
+      "observed": {
+        "kubectl_auth_can_i": {
+          "get_named": true,
+          "patch_named": true,
+          "get_sibling": false,
+          "get_adjacent_namespace": false,
+          "list_configmaps": false,
+          "get_secrets": false,
+          "get_nodes": false
+        },
+        "projected_token_api_observations": {
+          "identity": "system:serviceaccount:saf-0901-007-operator:saf-0901-007-controller",
+          "operations": {
+            "get_named": {
+              "fixture_marker_matches": true,
+              "method": "GET",
+              "namespace": "saf-0901-007-workloads",
+              "operation": "get_named",
+              "resource": "configmaps/mock-raycluster-spec",
+              "status": 200
+            },
+            "patch_named": {
+              "method": "PATCH",
+              "namespace": "saf-0901-007-workloads",
+              "operation": "patch_named",
+              "resource": "configmaps/mock-raycluster-spec",
+              "status": 200,
+              "synthetic_reconcile_marker_persisted": true
+            },
+            "get_sibling": {
+              "method": "GET",
+              "namespace": "saf-0901-007-workloads",
+              "operation": "get_sibling",
+              "resource": "configmaps/mock-raycluster-neighbor",
+              "status": 403
+            },
+            "get_adjacent_namespace": {
+              "method": "GET",
+              "namespace": "saf-0901-007-adjacent",
+              "operation": "get_adjacent_namespace",
+              "resource": "configmaps/mock-raycluster-spec",
+              "status": 403
+            },
+            "list_configmaps": {
+              "method": "GET",
+              "namespace": "saf-0901-007-workloads",
+              "operation": "list_configmaps",
+              "resource": "configmaps",
+              "status": 403
+            },
+            "get_secret_collection": {
+              "method": "GET",
+              "namespace": "saf-0901-007-workloads",
+              "operation": "get_secret_collection",
+              "resource": "secrets",
+              "status": 403
+            }
+          }
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Independent control-plane read confirms the allowed named resource changed and RBAC stayed bounded",
+      "matched": true,
+      "observed": {
+        "persisted_mock_resource": {
+          "namespace": "saf-0901-007-workloads",
+          "name": "mock-raycluster-spec",
+          "fixture_id": "SYNTH-0901-007-WORKLOAD-001",
+          "controller_observed": true
+        },
+        "role_is_exact_named_get_patch": true,
+        "binding_is_cross_namespace_controller_only": true
+      }
+    }
+  ]
+}

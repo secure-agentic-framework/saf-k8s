@@ -1,0 +1,158 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: saf-0901-007-operator
+  labels:
+    saf-lab.example/control: SAF-K8S-0901-007
+    saf-lab.example/fixture: synthetic-only
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: saf-0901-007-workloads
+  labels:
+    saf-lab.example/control: SAF-K8S-0901-007
+    saf-lab.example/fixture: synthetic-only
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: saf-0901-007-adjacent
+  labels:
+    saf-lab.example/control: SAF-K8S-0901-007
+    saf-lab.example/fixture: synthetic-only
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0901-007-controller
+  namespace: saf-0901-007-operator
+  labels:
+    saf-lab.example/control: SAF-K8S-0901-007
+  annotations:
+    saf-lab.example/identity-purpose: inert-synthetic-controller
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0901-007-probe
+  namespace: saf-0901-007-operator
+  labels:
+    saf-lab.example/control: SAF-K8S-0901-007
+  annotations:
+    saf-lab.example/identity-purpose: inert-synthetic-api-probe
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mock-raycluster-spec
+  namespace: saf-0901-007-workloads
+  labels:
+    saf-lab.example/control: SAF-K8S-0901-007
+    saf-lab.example/fixture: synthetic-mock-workload
+data:
+  fixture_id: SYNTH-0901-007-WORKLOAD-001
+  workload.json: '{"apiVersion":"saf-lab.example/v1","kind":"MockRayCluster","metadata":{"name":"synthetic-train-a","namespace":"saf-0901-007-workloads"},"spec":{"workers":2,"accelerator":"synthetic-gpu","image":"registry.example.invalid/mock/trainer@sha256:0000000000000000000000000000000000000000000000000000000000000000"}}'
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mock-raycluster-neighbor
+  namespace: saf-0901-007-workloads
+  labels:
+    saf-lab.example/control: SAF-K8S-0901-007
+    saf-lab.example/fixture: synthetic-adjacent-resource
+data:
+  fixture_id: SYNTH-0901-007-NEIGHBOR-001
+  marker: adjacent-resource-must-remain-denied
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mock-raycluster-spec
+  namespace: saf-0901-007-adjacent
+  labels:
+    saf-lab.example/control: SAF-K8S-0901-007
+    saf-lab.example/fixture: synthetic-adjacent-namespace
+data:
+  fixture_id: SYNTH-0901-007-ADJACENT-NS-001
+  marker: adjacent-namespace-must-remain-denied
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-0901-007-probe
+  namespace: saf-0901-007-operator
+  labels:
+    saf-lab.example/control: SAF-K8S-0901-007
+    saf-lab.example/fixture: local-probe-script
+data:
+  probe.py: |
+    import json
+    import os
+    import ssl
+    import urllib.error
+    import urllib.request
+
+    CONTROLLER_NS = "saf-0901-007-operator"
+    WORKLOAD_NS = "saf-0901-007-workloads"
+    ADJACENT_NS = "saf-0901-007-adjacent"
+    TOKEN_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+    CA_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+    EXPECTED_SUBJECT = "system:serviceaccount:" + CONTROLLER_NS + ":saf-0901-007-controller"
+    token = open(TOKEN_PATH, encoding="utf-8").read().strip()
+    parts = token.split(".")
+    if len(parts) != 3:
+        raise SystemExit("projected service-account token is not a JWT")
+    import base64
+    claims_text = parts[1] + "=" * (-len(parts[1]) % 4)
+    subject = json.loads(base64.urlsafe_b64decode(claims_text)).get("sub")
+    if subject != EXPECTED_SUBJECT:
+        raise SystemExit("projected token subject does not match the named controller identity")
+
+    host = os.environ["KUBERNETES_SERVICE_HOST"]
+    port = os.environ["KUBERNETES_SERVICE_PORT_HTTPS"]
+    base = "https://" + host + ":" + port
+    context = ssl.create_default_context(cafile=CA_PATH)
+
+    def request(name, method, namespace, resource, body=None):
+        path = "/api/v1/namespaces/" + namespace + "/" + resource
+        data = None if body is None else json.dumps(body).encode("utf-8")
+        headers = {"Authorization": "Bearer " + token}
+        if data is not None:
+            headers["Content-Type"] = "application/merge-patch+json"
+        req = urllib.request.Request(base + path, data=data, headers=headers, method=method)
+        try:
+            with urllib.request.urlopen(req, context=context, timeout=8) as response:
+                result = {"operation": name, "method": method, "namespace": namespace,
+                          "resource": resource, "status": response.status}
+                if name == "get_named":
+                    value = json.load(response)
+                    result["fixture_marker_matches"] = (
+                        value.get("data", {}).get("fixture_id") == "SYNTH-0901-007-WORKLOAD-001")
+                elif name == "patch_named":
+                    value = json.load(response)
+                    annotations = value.get("metadata", {}).get("annotations", {})
+                    result["synthetic_reconcile_marker_persisted"] = (
+                        annotations.get("saf-lab.example/controller-observed") == "true")
+                else:
+                    response.read()
+                print(json.dumps(result, sort_keys=True))
+        except urllib.error.HTTPError as exc:
+            # Do not emit response bodies; authorization error bodies can include
+            # implementation details that are unnecessary for this case.
+            print(json.dumps({"operation": name, "method": method,
+                              "namespace": namespace, "resource": resource,
+                              "status": exc.code}, sort_keys=True))
+
+    print(json.dumps({"operation": "projected_service_account_identity",
+                      "subject": subject}, sort_keys=True))
+    request("get_named", "GET", WORKLOAD_NS, "configmaps/mock-raycluster-spec")
+    request("patch_named", "PATCH", WORKLOAD_NS, "configmaps/mock-raycluster-spec",
+            {"metadata": {"annotations": {"saf-lab.example/controller-observed": "true"}}})
+    request("get_sibling", "GET", WORKLOAD_NS, "configmaps/mock-raycluster-neighbor")
+    request("get_adjacent_namespace", "GET", ADJACENT_NS, "configmaps/mock-raycluster-spec")
+    request("list_configmaps", "GET", WORKLOAD_NS, "configmaps")
+    request("get_secret_collection", "GET", WORKLOAD_NS, "secrets")
