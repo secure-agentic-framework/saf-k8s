@@ -252,6 +252,12 @@
       "sha256": "44ec63bc8f618058b65b879db5b3e626e8104ca8f0b2fbe373b3e823b8837eb1",
       "title": "Seccomp profile enforcement"
     },
+    "SAF-K8S-0304-003": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "f6d876e81207fd8f72f7bba6ef88027feee033eec1d899f149c3b7c3312bae89",
+      "title": "QoS class assignment for workload stability"
+    },
     "SAF-K8S-0304-006": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -410,7 +416,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6075fd50ddb23f8db7f19f96267ba4ad15efe41c",
-  "sha256": "c3bdef2bfc0aae712ee2fcb1bfd47cebfcedc7415526acfb36b86be77042a93f",
+  "revision": "cb6677a0489f7ff321d733d2007c63c31f62203f",
+  "sha256": "0427a45ac9bf0f2d8256f7f075d12a0ac8ad43daf141990b68d2fba2211f5a21",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

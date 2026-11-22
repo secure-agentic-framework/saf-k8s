@@ -1,0 +1,92 @@
+{
+  "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+  "container_security_context": {
+    "allowPrivilegeEscalation": false,
+    "capabilities": {
+      "drop": ["ALL"]
+    },
+    "runAsNonRoot": true,
+    "runAsUser": 65534,
+    "seccompProfile": {
+      "type": "RuntimeDefault"
+    }
+  },
+  "pods": [
+    {
+      "name": "saf-0304-guaranteed",
+      "expected_qos": "Guaranteed",
+      "containers": [
+        {
+          "name": "probe",
+          "command": ["sh", "-c", "sleep 3600"],
+          "resources": {
+            "requests": {"cpu": "100m", "memory": "64Mi", "ephemeral-storage": "8Mi"},
+            "limits": {"cpu": "100m", "memory": "64Mi", "ephemeral-storage": "16Mi"}
+          }
+        }
+      ]
+    },
+    {
+      "name": "saf-0304-burstable",
+      "expected_qos": "Burstable",
+      "containers": [
+        {
+          "name": "probe",
+          "command": ["sh", "-c", "sleep 3600"],
+          "resources": {
+            "requests": {"cpu": "10m", "memory": "16Mi"}
+          }
+        }
+      ]
+    },
+    {
+      "name": "saf-0304-besteffort",
+      "critical": true,
+      "expected_qos": "BestEffort",
+      "containers": [
+        {
+          "name": "probe",
+          "command": ["sh", "-c", "sleep 3600"]
+        }
+      ]
+    },
+    {
+      "name": "saf-0304-init-burstable",
+      "expected_qos": "Burstable",
+      "containers": [
+        {
+          "name": "app",
+          "command": ["sh", "-c", "sleep 3600"],
+          "resources": {
+            "requests": {"cpu": "100m", "memory": "64Mi"},
+            "limits": {"cpu": "100m", "memory": "64Mi"}
+          }
+        }
+      ],
+      "initContainers": [
+        {
+          "name": "init",
+          "command": ["sh", "-c", "exit 0"],
+          "resources": {
+            "requests": {"cpu": "10m", "memory": "16Mi"},
+            "limits": {"cpu": "20m", "memory": "16Mi"}
+          }
+        }
+      ]
+    },
+    {
+      "name": "saf-0304-podlevel-guaranteed",
+      "expected_qos": "Guaranteed",
+      "containers": [
+        {
+          "name": "probe",
+          "command": ["sh", "-c", "sleep 3600"]
+        }
+      ],
+      "pod_resources": {
+        "requests": {"cpu": "10m", "memory": "16Mi"},
+        "limits": {"cpu": "10m", "memory": "16Mi"}
+      }
+    }
+  ]
+}

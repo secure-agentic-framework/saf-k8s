@@ -1,0 +1,44 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-0304-critical-qos
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: saf-test
+    objectSelector:
+      matchLabels:
+        saf-k8s.example/qos-critical: "true"
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["pods"]
+  variables:
+    - name: budgets
+      expression: >-
+        has(object.spec.resources) && (has(object.spec.resources.requests) || has(object.spec.resources.limits))
+        ? [object.spec.resources]
+        : (object.spec.containers + (has(object.spec.initContainers) ? object.spec.initContainers : []))
+          .filter(c, has(c.resources)).map(c, c.resources)
+    - name: appliesAtPodLevel
+      expression: has(object.spec.resources) && (has(object.spec.resources.requests) || has(object.spec.resources.limits))
+  validations:
+    - expression: >-
+        (variables.appliesAtPodLevel || size(variables.budgets) == size(object.spec.containers)
+        + (has(object.spec.initContainers) ? size(object.spec.initContainers) : 0))
+        && variables.budgets.all(r, has(r.requests) && has(r.limits)
+          && ['cpu', 'memory'].all(key, key in r.requests && key in r.limits
+            && quantity(string(r.requests[key])).compareTo(quantity('0')) > 0
+            && quantity(string(r.requests[key])).compareTo(quantity(string(r.limits[key]))) == 0))
+      message: Critical fixture requires equal positive CPU and memory requests and limits
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-0304-critical-qos
+spec:
+  policyName: saf-0304-critical-qos
+  validationActions: [Deny]
