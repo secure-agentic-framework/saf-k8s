@@ -1,0 +1,114 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: modelruns.saf-0401-004.example
+spec:
+  group: saf-0401-004.example
+  scope: Namespaced
+  names:
+    plural: modelruns
+    singular: modelrun
+    kind: ModelRun
+    shortNames: [mr]
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      subresources:
+        status: {}
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+            status:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: trainingruns.saf-0401-004.example
+spec:
+  group: saf-0401-004.example
+  scope: Namespaced
+  names:
+    plural: trainingruns
+    singular: trainingrun
+    kind: TrainingRun
+    shortNames: [tr]
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0401-004-ml
+  namespace: saf-0401-004
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0401-004-admin
+  namespace: saf-0401-004
+---
+# Temporary, namespace-bounded baseline: permits only the case's synthetic API group.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0401-004-baseline
+  namespace: saf-0401-004
+rules:
+  - apiGroups: [saf-0401-004.example]
+    resources: ["*"]
+    verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0401-004-baseline
+  namespace: saf-0401-004
+subjects:
+  - kind: ServiceAccount
+    name: saf-0401-004-ml
+    namespace: saf-0401-004
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0401-004-baseline
+---
+# Separate synthetic administrator, still limited to these two case-owned CRDs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0401-004-admin
+  namespace: saf-0401-004
+rules:
+  - apiGroups: [saf-0401-004.example]
+    resources: [modelruns, modelruns/status, trainingruns]
+    verbs: [get, list, watch, create, update, patch, delete]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0401-004-admin
+  namespace: saf-0401-004
+subjects:
+  - kind: ServiceAccount
+    name: saf-0401-004-admin
+    namespace: saf-0401-004
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0401-004-admin

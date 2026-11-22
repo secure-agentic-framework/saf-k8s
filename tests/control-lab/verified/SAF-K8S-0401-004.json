@@ -1,0 +1,94 @@
+{
+  "control_id": "SAF-K8S-0401-004",
+  "catalog_revision": "d3578710406221046942a7437b7726308c7015b3",
+  "catalog_sha256": "2c939594d57db831d028cf98022701e2580ed633aed4608b27bfb82196524934",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "7e3640209f1b79c77ad2dbd7ad613b7f9d83e7d437855fc48ec911194a96d8a0",
+  "scope": "Kubernetes v1.36.1 native RBAC on two case-owned namespaced CRDs in one synthetic API group. The ML service account receives create/get/list/watch/update/patch/delete only on modelruns in saf-0401-004; trainingruns, modelruns/status, and modelruns in another namespace are outside that grant. A distinct synthetic admin actor has an explicit namespaced role for both fixture resources. No operator controller, real AI CRD, admission policy, workload, or production identity mapping is present.",
+  "cluster": "saf-lab-59bfb92a13b1",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The broad fixture grant allows create, update and delete on the second custom resource",
+      "matched": true,
+      "observed": {
+        "create_live": true,
+        "update_server_dry_run": true,
+        "delete_server_dry_run": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The exact namespaced Role permits the ML actor to create, update, and delete the granted synthetic resource",
+      "matched": true,
+      "observed": {
+        "resource": "modelruns",
+        "create_live": true,
+        "update_live": true,
+        "delete_dry_run": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same actor is forbidden from create, update, and delete on the other CRD, from update in another namespace, and from writing the status subresource",
+      "matched": true,
+      "observed": {
+        "trainingruns_create": "Error from server (Forbidden): error when creating \"STDIN\": trainingruns.saf-0401-004.example is forbidden: User \"system:serviceaccount:saf-0401-004:saf-0401-004-ml\" cannot create resource \"trainingruns\" in API group \"saf-0401-004.example\" in the namespace \"saf-0401-004\"",
+        "trainingruns_update": "Error from server (Forbidden): error when replacing \"STDIN\": trainingruns.saf-0401-004.example \"admin-trainingrun\" is forbidden: User \"system:serviceaccount:saf-0401-004:saf-0401-004-ml\" cannot update resource \"trainingruns\" in API group \"saf-0401-004.example\" in the namespace \"saf-0401-004\"",
+        "trainingruns_delete": "Error from server (Forbidden): trainingruns.saf-0401-004.example \"admin-trainingrun\" is forbidden: User \"system:serviceaccount:saf-0401-004:saf-0401-004-ml\" cannot delete resource \"trainingruns\" in API group \"saf-0401-004.example\" in the namespace \"saf-0401-004\"",
+        "other_namespace_update": "Error from server (Forbidden): error when replacing \"STDIN\": modelruns.saf-0401-004.example \"outside-modelrun\" is forbidden: User \"system:serviceaccount:saf-0401-004:saf-0401-004-ml\" cannot update resource \"modelruns\" in API group \"saf-0401-004.example\" in the namespace \"saf-0401-004-outside\"",
+        "modelruns_status_attempt": "Error from server (Forbidden): modelruns.saf-0401-004.example \"allowed-modelrun\" is forbidden: User \"system:serviceaccount:saf-0401-004:saf-0401-004-ml\" cannot get resource \"modelruns/status\" in API group \"saf-0401-004.example\" in the namespace \"saf-0401-004\"",
+        "modelruns_status_patch_authorized": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The custom resource instance Role grants no CRD definition administration",
+      "matched": true,
+      "observed": {
+        "crd_definition_update_authorized": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A distinct synthetic admin actor can use its explicit bounded status permission while the ML actor remains denied",
+      "matched": true,
+      "observed": {
+        "admin_create_trainingrun": true,
+        "admin_status_server_dry_run": true,
+        "ml_status_forbidden": true
+      }
+    }
+  ]
+}

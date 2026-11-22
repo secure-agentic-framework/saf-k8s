@@ -1,0 +1,23 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0401-004-ml-modelruns
+  namespace: saf-0401-004
+rules:
+  - apiGroups: [saf-0401-004.example]
+    resources: [modelruns]
+    verbs: [get, list, watch, create, update, patch, delete]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0401-004-ml-modelruns
+  namespace: saf-0401-004
+subjects:
+  - kind: ServiceAccount
+    name: saf-0401-004-ml
+    namespace: saf-0401-004
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0401-004-ml-modelruns

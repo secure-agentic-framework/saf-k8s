@@ -240,6 +240,12 @@
       "sha256": "26b47cbc081758ddd3c9d0d93e26293a119c2390a4e33ca013970c0e33b10f9e",
       "title": "Aggregated ClusterRole governance"
     },
+    "SAF-K8S-0401-004": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "7e3640209f1b79c77ad2dbd7ad613b7f9d83e7d437855fc48ec911194a96d8a0",
+      "title": "RBAC for AI operator custom resources"
+    },
     "SAF-K8S-0402-018": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -308,7 +314,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c7cedd6b86e58f1295496d8482ec2ff303728b84",
-  "sha256": "908972b6a00e8cc07b7b12a9f20e3502130f13cb904d74bf6dd8e58a9064f7de",
+  "revision": "8a3c357ee1d7963c03dfb917a4f77072d584b937",
+  "sha256": "2c939594d57db831d028cf98022701e2580ed633aed4608b27bfb82196524934",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
