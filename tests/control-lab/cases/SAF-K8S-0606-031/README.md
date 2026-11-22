@@ -22,3 +22,5 @@ evidence.
 
 The [retained monitoring test](monitor/README.md) exercises delivered alerts
 and recorded reconciliation history from Prometheus and Alertmanager.
+The [freshness test](stalled/README.md) checks alert firing and resolution
+while the application continues to report Healthy and Synced.

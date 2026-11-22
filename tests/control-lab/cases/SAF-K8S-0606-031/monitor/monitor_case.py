@@ -141,8 +141,9 @@ def deploy(lab, name, image, args, port, config_name, config_key, mount_path,
                 "--timeout=120s", timeout=130)
 
 
-def install_monitor(lab):
-    files = config_text()
+def install_monitor(lab, files=None):
+    if files is None:
+        files = config_text()
     lab.create({"apiVersion": "v1", "kind": "ConfigMap",
         "metadata": {"name": "saf-gitops-monitor-config", "namespace": "saf-test"},
         "data": {key: value for key, value in files.items() if key != "receiver.py"}})
