@@ -1,0 +1,199 @@
+{
+  "control_id": "SAF-K8S-0702-016",
+  "catalog_revision": "d34b502ac96accb45a26841dfa77094dc4a72d9e",
+  "catalog_sha256": "c3bdef2bfc0aae712ee2fcb1bfd47cebfcedc7415526acfb36b86be77042a93f",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "fb486329606d4b5c7e915ffadac56e9d33f6a4c586384f01f5945424fce829be",
+  "scope": "A local synthetic promotion CLI checks exact artifact identity and classification against an approved fixture contract on development-to-staging and staging-to-production edges, and emits serving Deployment metadata. Kubernetes v1.36.1 ValidatingAdmissionPolicy denies missing or changed classification and digest on one small production Deployment. Local payload bytes are synthetic, and their SHA-256 is validated and carried across both stages. No registry, provider, production signing, attestations, or governance process is exercised; trust in the release contract and its approval is out of scope.",
+  "cluster": "saf-lab-56badd8b3ede",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Local development-to-staging promotion rejects dropped input",
+      "matched": true,
+      "observed": {
+        "expected_denial": true,
+        "no_promotion_outputs": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Local development-to-staging promotion rejects changed input",
+      "matched": true,
+      "observed": {
+        "expected_denial": true,
+        "no_promotion_outputs": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Local development-to-staging promotion rejects payload-substituted input",
+      "matched": true,
+      "observed": {
+        "expected_denial": true,
+        "no_promotion_outputs": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Permitted development-to-staging promotion preserves artifact metadata",
+      "matched": true,
+      "observed": {
+        "stage": "staging",
+        "classification": {
+          "data-sensitivity": "synthetic-confidential",
+          "model-risk": "synthetic-high",
+          "training-data-class": "synthetic-restricted"
+        },
+        "serving_classification": {
+          "data-sensitivity": "synthetic-confidential",
+          "model-risk": "synthetic-high",
+          "training-data-class": "synthetic-restricted"
+        },
+        "payload_digest_verified": true,
+        "digest_matches": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Local staging-to-production promotion rejects dropped input",
+      "matched": true,
+      "observed": {
+        "expected_denial": true,
+        "no_promotion_outputs": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Local staging-to-production promotion rejects changed input",
+      "matched": true,
+      "observed": {
+        "expected_denial": true,
+        "no_promotion_outputs": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Local staging-to-production promotion rejects payload-substituted input",
+      "matched": true,
+      "observed": {
+        "expected_denial": true,
+        "no_promotion_outputs": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Permitted staging-to-production promotion preserves artifact metadata",
+      "matched": true,
+      "observed": {
+        "stage": "production",
+        "classification": {
+          "data-sensitivity": "synthetic-confidential",
+          "model-risk": "synthetic-high",
+          "training-data-class": "synthetic-restricted"
+        },
+        "serving_classification": {
+          "data-sensitivity": "synthetic-confidential",
+          "model-risk": "synthetic-high",
+          "training-data-class": "synthetic-restricted"
+        },
+        "payload_digest_verified": true,
+        "digest_matches": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Inactive admission permits dropped or changed production classification and changed digest",
+      "matched": true,
+      "observed": [
+        {
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "accepted": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "phase": "green",
+      "claim": "Production admission rejects missing or changed classification and changed digest with the exact denial",
+      "matched": true,
+      "observed": [
+        {
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": deployments.apps \"synthetic-production-model\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-016-classification-preservation' with binding 'saf-k8s-0702-016-classification-preservation' denied request: synthetic production model must retain its approved classification and artifact digest"
+        },
+        {
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": deployments.apps \"synthetic-production-model\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-016-classification-preservation' with binding 'saf-k8s-0702-016-classification-preservation' denied request: synthetic production model must retain its approved classification and artifact digest"
+        },
+        {
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": deployments.apps \"synthetic-production-model\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-016-classification-preservation' with binding 'saf-k8s-0702-016-classification-preservation' denied request: synthetic production model must retain its approved classification and artifact digest"
+        }
+      ]
+    },
+    {
+      "phase": "positive",
+      "claim": "Classification-preserving production Deployment remains admissible",
+      "matched": true,
+      "observed": "server-side dry-run admitted"
+    },
+    {
+      "phase": "positive",
+      "claim": "Permitted production workload becomes Ready with carried classification and digest",
+      "matched": true,
+      "observed": {
+        "deployment_ready": true,
+        "one_pod": true,
+        "classification_match": true,
+        "digest_match": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Serving admission rejects changing a live Deployment's retained digest",
+      "matched": true,
+      "observed": {
+        "exact_policy_denial": true
+      }
+    }
+  ]
+}

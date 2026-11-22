@@ -353,6 +353,12 @@
       "domain": "D07",
       "sha256": "51b53fdc0490ddaa45e962ba8deb9b29bd7d589abf6c98a553edd32cc708ddec",
       "title": "Tenant default-deny inter-namespace network isolation"
+    },
+    "SAF-K8S-0702-016": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "fb486329606d4b5c7e915ffadac56e9d33f6a4c586384f01f5945424fce829be",
+      "title": "Classification metadata preservation across model lifecycle stages"
     }
   },
   "path": "saf_k8s_controls.yaml",

@@ -1,0 +1,11 @@
+{
+  "artifact": {
+    "name": "synthetic-demo-model",
+    "digest": "sha256:8b633223ecb485b9274a80e226b8421d9625317898903c07fbc2b1a150212c34"
+  },
+  "classification": {
+    "data-sensitivity": "synthetic-confidential",
+    "model-risk": "synthetic-high",
+    "training-data-class": "synthetic-restricted"
+  }
+}

@@ -1,0 +1,40 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0702-016-classification-preservation
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        operations: [CREATE, UPDATE]
+        resources: ["deployments"]
+  validations:
+    - expression: >-
+        has(object.spec.template.metadata.labels) &&
+        "saf-k8s.example/data-sensitivity" in object.spec.template.metadata.labels &&
+        object.spec.template.metadata.labels["saf-k8s.example/data-sensitivity"] == "synthetic-confidential" &&
+        "saf-k8s.example/model-risk" in object.spec.template.metadata.labels &&
+        object.spec.template.metadata.labels["saf-k8s.example/model-risk"] == "synthetic-high" &&
+        "saf-k8s.example/training-data-class" in object.spec.template.metadata.labels &&
+        object.spec.template.metadata.labels["saf-k8s.example/training-data-class"] == "synthetic-restricted" &&
+        "saf-k8s.example/lifecycle-stage" in object.spec.template.metadata.labels &&
+        object.spec.template.metadata.labels["saf-k8s.example/lifecycle-stage"] == "production" &&
+        has(object.spec.template.metadata.annotations) &&
+        "saf-k8s.example/artifact-digest" in object.spec.template.metadata.annotations &&
+        object.spec.template.metadata.annotations["saf-k8s.example/artifact-digest"] == "sha256:8b633223ecb485b9274a80e226b8421d9625317898903c07fbc2b1a150212c34"
+      message: "synthetic production model must retain its approved classification and artifact digest"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0702-016-classification-preservation
+spec:
+  policyName: saf-k8s-0702-016-classification-preservation
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/classification-enforcement: "0702-016"
