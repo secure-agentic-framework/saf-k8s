@@ -594,6 +594,12 @@
       "sha256": "aefea4893156ece05863d05149e7848c866f504e9af2b4ca04662b7c51426692",
       "title": "Classification-driven admission policy enforcement for pipeline resources"
     },
+    "SAF-K8S-0702-030": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "8f8ee894d18af13f8d41eacce8551c1de3a48399de843dc7eb1db091a642164a",
+      "title": "Promotion-time automatic classification uplift and reclassification execution"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -608,7 +614,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "a2965318971d7e09d2e27170358f32f7422b157a",
+  "revision": "8091319fad413113e2b0fa456ece637d92d5a512",
   "sha256": "4967f071e880774746bffe0d766c8568b2787069d414141da3ee644cbb79acb5",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

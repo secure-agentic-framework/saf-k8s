@@ -1,0 +1,72 @@
+{
+  "control_id": "SAF-K8S-0702-030",
+  "catalog_revision": "7e2e05c327f54bcc2c6aefd64c255880a81ce7c9",
+  "catalog_sha256": "df105e4d2453b18902086552ec1bae50b698ff889053abd168a340c3f200169b",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "8f8ee894d18af13f8d41eacce8551c1de3a48399de843dc7eb1db091a642164a",
+  "scope": "Three ordinary Kubernetes Jobs apply a versioned synthetic promotion policy to distinct artifact metadata objects. The case observes uplift, equality and unresolved policy, and preserves the source classification. Real model systems, policy authoring, production deployment permissions and governance require separate evidence.",
+  "cluster": "saf-lab-2f8132a43c12",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A copied source classification fails to satisfy the higher policy",
+      "matched": true,
+      "observed": {
+        "copied_source_classification": "synthetic-internal",
+        "required": "synthetic-confidential"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The promotion Job persists the uplift and a policy-verifiable decision record",
+      "matched": true,
+      "observed": {
+        "applied_classification": "synthetic-confidential",
+        "decision": "uplifted",
+        "versioned_policy_record": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Equal classification is preserved and unknown policy leaves both source and target unchanged",
+      "matched": true,
+      "observed": {
+        "equal_preserved": true,
+        "unknown_target_unchanged": true,
+        "source_unchanged": true,
+        "unknown_applied": null
+      }
+    }
+  ]
+}

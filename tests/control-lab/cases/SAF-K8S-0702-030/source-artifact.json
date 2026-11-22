@@ -1,0 +1,7 @@
+{
+  "artifact_id": "synthetic-model-opaque-030",
+  "artifact_version": "fixture-1",
+  "source_environment": "synthetic-development",
+  "classification": "synthetic-internal",
+  "metadata_only": true
+}

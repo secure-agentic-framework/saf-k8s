@@ -1,0 +1,22 @@
+{
+  "policy_version": "synthetic-target-policy-v1",
+  "classification_ranks": {
+    "synthetic-public": 1,
+    "synthetic-internal": 2,
+    "synthetic-confidential": 3
+  },
+  "targets": {
+    "higher": {
+      "environment": "synthetic-sensitive-target",
+      "required_classification": "synthetic-confidential"
+    },
+    "equal": {
+      "environment": "synthetic-peer-target",
+      "required_classification": "synthetic-internal"
+    },
+    "unknown": {
+      "environment": "synthetic-unmapped-target",
+      "required_classification": "synthetic-unknown"
+    }
+  }
+}
