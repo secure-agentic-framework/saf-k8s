@@ -1,0 +1,22 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-only-safe-get
+  namespace: saf-0501-004
+spec:
+  description: Permit only GET /safe from the owned client to the owned server.
+  endpointSelector:
+    matchLabels:
+      app: owned-http-server
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app: owned-http-client
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+          rules:
+            http:
+              - method: GET
+                path: "/safe$"

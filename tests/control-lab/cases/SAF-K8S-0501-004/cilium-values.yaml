@@ -1,0 +1,15 @@
+# Pinned in case.py and README.md: Cilium chart 1.20.5.
+# Install after kind's bundled kindnet made nodes Ready. Cilium's exclusive CNI
+# config takes precedence for new Pods; Kubernetes node PodCIDRs provide IPAM.
+ipam:
+  mode: kubernetes
+kubeProxyReplacement: false
+cni:
+  exclusive: true
+  install: true
+enableIPv4Masquerade: true
+ipv6:
+  enabled: false
+l7Proxy: true
+operator:
+  replicas: 1

@@ -528,6 +528,12 @@
       "sha256": "b4b02ba96da10c8c5acafaa56d761cf423e4591466fecdec6352cf25c5476b66",
       "title": "Workload egress controls"
     },
+    "SAF-K8S-0501-004": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "0152c3f905267b688ec83e85ca70913617f27c02beeeab9255bd3e35dfad335d",
+      "title": "CNI-specific network policy extensions"
+    },
     "SAF-K8S-0601-011": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -806,7 +812,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "a0600f86a06b7b675122249176d9283c691f6880",
+  "revision": "694fa9e5278630a6a993d1386e0671d307ffdc27",
   "sha256": "b5c2f4a8bfac5aa27b81f5b3a84c72083b81b5210bba5d600c9cb6f4424dca4c",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

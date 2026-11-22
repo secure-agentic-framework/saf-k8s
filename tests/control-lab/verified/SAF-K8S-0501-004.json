@@ -1,0 +1,116 @@
+{
+  "control_id": "SAF-K8S-0501-004",
+  "catalog_revision": "b126a9987a2383122872317e04a923f2137b2591",
+  "catalog_sha256": "b5c2f4a8bfac5aa27b81f5b3a84c72083b81b5210bba5d600c9cb6f4424dca4c",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "0152c3f905267b688ec83e85ca70913617f27c02beeeab9255bd3e35dfad335d",
+  "scope": "Cilium 1.20.5 L7 ingress policy on kind v0.32.0 / Kubernetes v1.36.1, IPv4 TCP/8080, one case-owned client Pod and one case-owned HTTP server Pod, direct Pod-IP requests to /safe. The scope is method matching. DNS, Service routing, external/public traffic, other protocols, production policy, Calico, or cluster-wide policy is exercised.",
+  "cluster": "saf-lab-b49b741a678d",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Pinned Cilium CNI agents and operator are ready",
+      "matched": true,
+      "observed": {
+        "kind": "kind v0.32.0 go1.26.3 darwin/arm64",
+        "kubernetes": "v1.36.1",
+        "cilium_chart": "1.20.5",
+        "agent_images": [
+          "quay.io/cilium/cilium:v1.20.5@sha256:aa72499f075ad729947ea91b026218aceba24f1a8e4534bf36b8368c7c561526"
+        ],
+        "node_readiness": "all Ready after Cilium install"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without Cilium policy, owned server returns its marker to GET",
+      "matched": true,
+      "observed": {
+        "method": "GET",
+        "path": "/safe",
+        "expected_status": 200,
+        "expected_marker": "saf-0501-004-owned-harmless-response-6f83",
+        "observed": {
+          "status": 200,
+          "body": "saf-0501-004-owned-harmless-response-6f83"
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without Cilium policy, owned server returns its marker to POST",
+      "matched": true,
+      "observed": {
+        "method": "POST",
+        "path": "/safe",
+        "expected_status": 200,
+        "expected_marker": "saf-0501-004-owned-harmless-response-6f83",
+        "observed": {
+          "status": 200,
+          "body": "saf-0501-004-owned-harmless-response-6f83"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Cilium allows the explicitly permitted GET /safe",
+      "matched": true,
+      "observed": {
+        "method": "GET",
+        "path": "/safe",
+        "expected_status": 200,
+        "expected_marker": "saf-0501-004-owned-harmless-response-6f83",
+        "observed": {
+          "status": 200,
+          "body": "saf-0501-004-owned-harmless-response-6f83"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Cilium L7 policy rejects POST /safe with HTTP 403",
+      "matched": true,
+      "observed": {
+        "method": "POST",
+        "path": "/safe",
+        "expected_status": 403,
+        "expected_marker": null,
+        "observed": {
+          "status": 403,
+          "body": "Access denied\r\n"
+        }
+      }
+    }
+  ]
+}
