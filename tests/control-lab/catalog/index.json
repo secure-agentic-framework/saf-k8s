@@ -1098,6 +1098,12 @@
       "sha256": "6c483b730074f11244712911a81d01337f11f950dadd0cd9f459d2bb27a4f031",
       "title": "Encrypted inter-worker gradient transport"
     },
+    "SAF-K8S-0902-002": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "16a41a19f7d296415f7082bf487eca1d5850f50297eab758c941ef88b0fb3423",
+      "title": "Model loading integrity verification"
+    },
     "SAF-K8S-0907-007": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1580,7 +1586,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "7e91a577160a4f01379ae18a1b84f4d97143c9a5",
+  "revision": "8662c758e13a9f2917d71d11ca7547ca5902c449",
   "sha256": "28e2e795c3d0eee859ba13f7c7c1e62c33d93955ba867c40a0060d1dfd1984cb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
