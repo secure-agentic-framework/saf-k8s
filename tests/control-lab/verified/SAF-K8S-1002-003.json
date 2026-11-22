@@ -1,0 +1,85 @@
+{
+  "control_id": "SAF-K8S-1002-003",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "b946413aedef9f7592b455b46b8d70dbc1480d7ceebb401a0b757dfc55add8da",
+  "scope": "A disposable Kubernetes v1.36.1 Kind cluster reconciles native Prometheus Operator Prometheus, ServiceMonitor, and PodMonitor resources. Namespace-scoped discovery RBAC and selector labels limit scraping to two safe synthetic CPU workloads. Prometheus API queries prove no samples before monitor enrollment and exact per-workload stage, measured latency, and quality markers after enrollment. This does not prove NVIDIA hardware, DCGM exporter metrics, or instrumentation in native training or serving frameworks.",
+  "cluster": "saf-lab-cbc7ecd93541",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Before monitor enrollment healthy fixture workloads have no scrape targets or samples",
+      "matched": true,
+      "observed": {
+        "sample_sets": 0,
+        "active_targets": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The native monitors expose exact training progress, measured timings, and labeled model quality",
+      "matched": true,
+      "observed": {
+        "four_unique_expected_series": true,
+        "training_epochs": 3,
+        "quality_marker": 0.875,
+        "measured_timings_within_bounds": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "ServiceMonitor and PodMonitor produce separate scrapes and leave the healthy unselected fixture out",
+      "matched": true,
+      "observed": {
+        "pools": {
+          "podMonitor/saf-test/inference/0": "up",
+          "serviceMonitor/saf-test/training/0": "up"
+        },
+        "unselected_samples": 0,
+        "direct_comparator_healthy": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The scraping identity is scoped to discovery in the fixture namespace",
+      "matched": true,
+      "observed": {
+        "fixture_endpointslices": "yes",
+        "other_endpointslices": "no",
+        "fixture_secrets": "no"
+      }
+    }
+  ]
+}
