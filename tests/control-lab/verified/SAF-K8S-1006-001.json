@@ -1,0 +1,97 @@
+{
+  "control_id": "SAF-K8S-1006-001",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "c68faa9fd2537b456ea228a110dabd1c383fa739873809ffc9e068f837b7f5e5",
+  "scope": "Disposable Kind Kubernetes v1.36.1 cluster. A tokenless, non-root Job reads only synthetic mapping metadata and runs a deterministic metadata reviewer. It compares a deliberately flawed draft with a reviewed fixture, using fictional, preapproved applicability inputs. It checks framework identifier/authority labels, evidence references, explicit gaps, and safeguards. This is not a legal applicability assessment, control-effectiveness test, attestation, or compliance conclusion.",
+  "cluster": "saf-lab-1cfecb44b6a5",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Draft records expose wrong authority labels, missing evidence, and unapproved applicability",
+      "matched": true,
+      "observed": {
+        "review_integrity_pass": false,
+        "misattributed_authority_count": 3,
+        "missing_evidence_count": 3,
+        "unapproved_applicability_detected": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Authority-scoped applicability, unresolved evidence and premature closure are rejected",
+      "matched": true,
+      "observed": {
+        "reasons": [
+          "unapproved-applicability-input",
+          "unresolved-evidence-reference",
+          "unsupported-coverage-closure"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Reviewed mapping has valid identifiers, attributed authorities, approved scenario inputs, and complete review metadata",
+      "matched": true,
+      "observed": {
+        "review_integrity_pass": true,
+        "authorities_correctly_attributed": true,
+        "all_expected_identifiers_present": true,
+        "legal_applicability_determined": false,
+        "compliance_conclusion_made": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The report preserves unproven coverage as open gaps and records interim safeguards",
+      "matched": true,
+      "observed": {
+        "open_gap_count": 9,
+        "article_15_missing_evidence_surfaced": true,
+        "gap_ids_missing_evidence": [
+          "AICPA-TSC-2017-CC6.1",
+          "AICPA-TSC-2017-CC7.2",
+          "EU-AI-ACT-Annex-IV-5",
+          "EU-AI-ACT-Annex-VI-3",
+          "EU-AI-ACT-Article-15",
+          "EU-AI-ACT-Article-55.1.b",
+          "EU-AI-ACT-Article-9.1"
+        ],
+        "safeguards_present_for_open_gaps": true,
+        "framework_coverage_complete": false
+      }
+    }
+  ]
+}

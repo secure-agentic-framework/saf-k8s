@@ -1,0 +1,354 @@
+{
+  "scenario": {
+    "scenario_id": "fictional-ai-platform-a",
+    "notice": "Synthetic assumptions supplied for this lab only; they are not legal determinations or organization facts.",
+    "eu_ai_act": {
+      "applicability_input": "preapproved-fictional-input-eu-01",
+      "system_risk_classification_input": "high-risk",
+      "scenario_roles_input": [
+        "provider",
+        "deployer"
+      ],
+      "use_for_case_logic_only": true
+    },
+    "nist_ai_rmf": {
+      "applicability_input": "preapproved-fictional-input-nist-01",
+      "voluntary_framework_selected": true
+    },
+    "aicpa_trust_services_criteria": {
+      "applicability_input": "preapproved-fictional-input-tsc-01",
+      "security_category_selected_for_hypothetical_attestation_scope": true,
+      "attestation_assertion": false
+    }
+  },
+  "draft": {
+    "mapping_id": "fictional-draft-v0",
+    "control_id": "SAF-K8S-1006-001",
+    "rows": [
+      {
+        "requirement_id": "EU-AI-ACT-Article-12",
+        "framework": "EU AI Act 2024/1689",
+        "authority_type": "universal-kubernetes-regulation",
+        "applicability_input": "all-clusters",
+        "coverage": "covered",
+        "evidence_refs": [],
+        "gap": "",
+        "compensating_safeguards": []
+      },
+      {
+        "requirement_id": "NIST-AI-RMF-GOVERN-1.1",
+        "framework": "NIST AI RMF 1.0",
+        "authority_type": "binding-law",
+        "applicability_input": "all-ai-systems",
+        "coverage": "covered",
+        "evidence_refs": [],
+        "gap": "",
+        "compensating_safeguards": []
+      },
+      {
+        "requirement_id": "AICPA-TSC-2017-CC6.1",
+        "framework": "AICPA 2017 Trust Services Criteria, revised 2022",
+        "authority_type": "binding-regulation",
+        "applicability_input": "all-organizations",
+        "coverage": "covered",
+        "evidence_refs": [],
+        "gap": "",
+        "compensating_safeguards": []
+      }
+    ]
+  },
+  "reviewed": {
+    "mapping_id": "fictional-reviewed-v1",
+    "control_id": "SAF-K8S-1006-001",
+    "review_record": {
+      "reviewer": "fictional-review-role",
+      "decision": "metadata-review-only",
+      "applicability_input_set": "scenario",
+      "scope_note": "No legal applicability or compliance conclusion is made."
+    },
+    "rows": [
+      {
+        "requirement_id": "EU-AI-ACT-Article-12",
+        "framework": "EU AI Act 2024/1689",
+        "authority_type": "conditional-legal-obligation",
+        "applicability_input": "preapproved-fictional-input-eu-01",
+        "coverage": "partial",
+        "evidence_refs": [
+          "synthetic-logging-design-record"
+        ],
+        "evidence_limit": "Design metadata only; does not show events are actually logged or retained.",
+        "gap": "No runtime evidence of required event logging and retention in this fictional workload.",
+        "compensating_safeguards": [
+          "Synthetic operator review of a sampled logging configuration at each mock release."
+        ],
+        "status": "open"
+      },
+      {
+        "requirement_id": "EU-AI-ACT-Article-15",
+        "framework": "EU AI Act 2024/1689",
+        "authority_type": "conditional-legal-obligation",
+        "applicability_input": "preapproved-fictional-input-eu-01",
+        "coverage": "gap",
+        "evidence_refs": [],
+        "evidence_limit": "No synthetic evidence supplied.",
+        "gap": "No workload-specific accuracy, robustness, or cybersecurity evidence is supplied.",
+        "compensating_safeguards": [
+          "Mock release checklist requires a named reviewer to record a decision before a synthetic rollout."
+        ],
+        "status": "open"
+      },
+      {
+        "requirement_id": "EU-AI-ACT-Annex-IV-5",
+        "framework": "EU AI Act 2024/1689",
+        "authority_type": "conditional-legal-obligation",
+        "applicability_input": "preapproved-fictional-input-eu-01",
+        "coverage": "not-assessed",
+        "evidence_refs": [],
+        "evidence_limit": "No technical-documentation evidence supplied.",
+        "gap": "The mapping relation claimed by the pinned control has not been independently assessed.",
+        "compensating_safeguards": [
+          "Fictional review owner tracks the relation as unverified until a source-level crosswalk review."
+        ],
+        "status": "open"
+      },
+      {
+        "requirement_id": "EU-AI-ACT-Annex-VI-3",
+        "framework": "EU AI Act 2024/1689",
+        "authority_type": "conditional-legal-obligation",
+        "applicability_input": "preapproved-fictional-input-eu-01",
+        "coverage": "not-assessed",
+        "evidence_refs": [],
+        "evidence_limit": "No conformity-assessment evidence supplied.",
+        "gap": "The mapping relation claimed by the pinned control has not been independently assessed.",
+        "compensating_safeguards": [
+          "Fictional review owner tracks the relation as unverified until a source-level crosswalk review."
+        ],
+        "status": "open"
+      },
+      {
+        "requirement_id": "EU-AI-ACT-Article-55.1.b",
+        "framework": "EU AI Act 2024/1689",
+        "authority_type": "conditional-legal-obligation",
+        "applicability_input": "preapproved-fictional-input-eu-01",
+        "coverage": "not-assessed",
+        "evidence_refs": [],
+        "evidence_limit": "No GPAI systemic-risk evidence supplied.",
+        "gap": "The mapping relation claimed by the pinned control has not been independently assessed.",
+        "compensating_safeguards": [
+          "Fictional reviewer records provider/model scope as unresolved."
+        ],
+        "status": "open"
+      },
+      {
+        "requirement_id": "EU-AI-ACT-Article-9.1",
+        "framework": "EU AI Act 2024/1689",
+        "authority_type": "conditional-legal-obligation",
+        "applicability_input": "preapproved-fictional-input-eu-01",
+        "coverage": "not-assessed",
+        "evidence_refs": [],
+        "evidence_limit": "No risk-management-system evidence supplied.",
+        "gap": "The mapping relation claimed by the pinned control has not been independently assessed.",
+        "compensating_safeguards": [
+          "Fictional review owner leaves the row open pending a qualified applicability review."
+        ],
+        "status": "open"
+      },
+      {
+        "requirement_id": "NIST-AI-RMF-GOVERN-1.1",
+        "framework": "NIST AI RMF 1.0",
+        "authority_type": "voluntary-framework-outcome",
+        "applicability_input": "preapproved-fictional-input-nist-01",
+        "coverage": "mapping-link-present",
+        "evidence_refs": [
+          "synthetic-mapping-review-record"
+        ],
+        "evidence_limit": "Metadata proves only a link was recorded; not outcome achievement.",
+        "gap": "Outcome operation and effectiveness are outside this metadata-only test.",
+        "compensating_safeguards": [
+          "Fictional governance owner schedules a separate evidence review."
+        ],
+        "status": "open"
+      },
+      {
+        "requirement_id": "AICPA-TSC-2017-CC6.1",
+        "framework": "AICPA 2017 Trust Services Criteria, revised 2022",
+        "authority_type": "attestation-criterion",
+        "applicability_input": "preapproved-fictional-input-tsc-01",
+        "coverage": "not-assessed",
+        "evidence_refs": [],
+        "evidence_limit": "No synthetic evidence supplied.",
+        "gap": "No scoped control evidence or auditor evaluation is represented.",
+        "compensating_safeguards": [
+          "Mock evidence owner records an evidence request for a later independent review."
+        ],
+        "status": "open"
+      },
+      {
+        "requirement_id": "AICPA-TSC-2017-CC7.2",
+        "framework": "AICPA 2017 Trust Services Criteria, revised 2022",
+        "authority_type": "attestation-criterion",
+        "applicability_input": "preapproved-fictional-input-tsc-01",
+        "coverage": "not-assessed",
+        "evidence_refs": [],
+        "evidence_limit": "No synthetic evidence supplied.",
+        "gap": "No scoped infrastructure or software update evidence is represented.",
+        "compensating_safeguards": [
+          "Mock change owner maintains a synthetic release inventory pending evidence collection."
+        ],
+        "status": "open"
+      }
+    ]
+  },
+  "synthetic_evidence": {
+    "synthetic-logging-design-record": {
+      "type": "design-metadata",
+      "description": "Fictional configuration record states intended logging fields; no log data or secret values."
+    },
+    "synthetic-mapping-review-record": {
+      "type": "review-metadata",
+      "description": "Fictional review record links a Kubernetes control to the cited AI RMF outcome."
+    }
+  },
+  "overclaimed": {
+    "mapping_id": "fictional-reviewed-v1",
+    "control_id": "SAF-K8S-1006-001",
+    "review_record": {
+      "reviewer": "fictional-review-role",
+      "decision": "metadata-review-only",
+      "applicability_input_set": "scenario",
+      "scope_note": "No legal applicability or compliance conclusion is made."
+    },
+    "rows": [
+      {
+        "requirement_id": "EU-AI-ACT-Article-12",
+        "framework": "EU AI Act 2024/1689",
+        "authority_type": "conditional-legal-obligation",
+        "applicability_input": "preapproved-fictional-input-nist-01",
+        "coverage": "complete",
+        "evidence_refs": [
+          "nonexistent-runtime-capture"
+        ],
+        "evidence_limit": "Design metadata only; does not show events are actually logged or retained.",
+        "gap": "No runtime evidence of required event logging and retention in this fictional workload.",
+        "compensating_safeguards": [
+          "Synthetic operator review of a sampled logging configuration at each mock release."
+        ],
+        "status": "closed"
+      },
+      {
+        "requirement_id": "EU-AI-ACT-Article-15",
+        "framework": "EU AI Act 2024/1689",
+        "authority_type": "conditional-legal-obligation",
+        "applicability_input": "preapproved-fictional-input-eu-01",
+        "coverage": "gap",
+        "evidence_refs": [],
+        "evidence_limit": "No synthetic evidence supplied.",
+        "gap": "No workload-specific accuracy, robustness, or cybersecurity evidence is supplied.",
+        "compensating_safeguards": [
+          "Mock release checklist requires a named reviewer to record a decision before a synthetic rollout."
+        ],
+        "status": "open"
+      },
+      {
+        "requirement_id": "EU-AI-ACT-Annex-IV-5",
+        "framework": "EU AI Act 2024/1689",
+        "authority_type": "conditional-legal-obligation",
+        "applicability_input": "preapproved-fictional-input-eu-01",
+        "coverage": "not-assessed",
+        "evidence_refs": [],
+        "evidence_limit": "No technical-documentation evidence supplied.",
+        "gap": "The mapping relation claimed by the pinned control has not been independently assessed.",
+        "compensating_safeguards": [
+          "Fictional review owner tracks the relation as unverified until a source-level crosswalk review."
+        ],
+        "status": "open"
+      },
+      {
+        "requirement_id": "EU-AI-ACT-Annex-VI-3",
+        "framework": "EU AI Act 2024/1689",
+        "authority_type": "conditional-legal-obligation",
+        "applicability_input": "preapproved-fictional-input-eu-01",
+        "coverage": "not-assessed",
+        "evidence_refs": [],
+        "evidence_limit": "No conformity-assessment evidence supplied.",
+        "gap": "The mapping relation claimed by the pinned control has not been independently assessed.",
+        "compensating_safeguards": [
+          "Fictional review owner tracks the relation as unverified until a source-level crosswalk review."
+        ],
+        "status": "open"
+      },
+      {
+        "requirement_id": "EU-AI-ACT-Article-55.1.b",
+        "framework": "EU AI Act 2024/1689",
+        "authority_type": "conditional-legal-obligation",
+        "applicability_input": "preapproved-fictional-input-eu-01",
+        "coverage": "not-assessed",
+        "evidence_refs": [],
+        "evidence_limit": "No GPAI systemic-risk evidence supplied.",
+        "gap": "The mapping relation claimed by the pinned control has not been independently assessed.",
+        "compensating_safeguards": [
+          "Fictional reviewer records provider/model scope as unresolved."
+        ],
+        "status": "open"
+      },
+      {
+        "requirement_id": "EU-AI-ACT-Article-9.1",
+        "framework": "EU AI Act 2024/1689",
+        "authority_type": "conditional-legal-obligation",
+        "applicability_input": "preapproved-fictional-input-eu-01",
+        "coverage": "not-assessed",
+        "evidence_refs": [],
+        "evidence_limit": "No risk-management-system evidence supplied.",
+        "gap": "The mapping relation claimed by the pinned control has not been independently assessed.",
+        "compensating_safeguards": [
+          "Fictional review owner leaves the row open pending a qualified applicability review."
+        ],
+        "status": "open"
+      },
+      {
+        "requirement_id": "NIST-AI-RMF-GOVERN-1.1",
+        "framework": "NIST AI RMF 1.0",
+        "authority_type": "voluntary-framework-outcome",
+        "applicability_input": "preapproved-fictional-input-nist-01",
+        "coverage": "mapping-link-present",
+        "evidence_refs": [
+          "synthetic-mapping-review-record"
+        ],
+        "evidence_limit": "Metadata proves only a link was recorded; not outcome achievement.",
+        "gap": "Outcome operation and effectiveness are outside this metadata-only test.",
+        "compensating_safeguards": [
+          "Fictional governance owner schedules a separate evidence review."
+        ],
+        "status": "open"
+      },
+      {
+        "requirement_id": "AICPA-TSC-2017-CC6.1",
+        "framework": "AICPA 2017 Trust Services Criteria, revised 2022",
+        "authority_type": "attestation-criterion",
+        "applicability_input": "preapproved-fictional-input-tsc-01",
+        "coverage": "not-assessed",
+        "evidence_refs": [],
+        "evidence_limit": "No synthetic evidence supplied.",
+        "gap": "No scoped control evidence or auditor evaluation is represented.",
+        "compensating_safeguards": [
+          "Mock evidence owner records an evidence request for a later independent review."
+        ],
+        "status": "open"
+      },
+      {
+        "requirement_id": "AICPA-TSC-2017-CC7.2",
+        "framework": "AICPA 2017 Trust Services Criteria, revised 2022",
+        "authority_type": "attestation-criterion",
+        "applicability_input": "preapproved-fictional-input-tsc-01",
+        "coverage": "not-assessed",
+        "evidence_refs": [],
+        "evidence_limit": "No synthetic evidence supplied.",
+        "gap": "No scoped infrastructure or software update evidence is represented.",
+        "compensating_safeguards": [
+          "Mock change owner maintains a synthetic release inventory pending evidence collection."
+        ],
+        "status": "open"
+      }
+    ]
+  }
+}

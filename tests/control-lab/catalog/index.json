@@ -1302,6 +1302,12 @@
       "sha256": "4b0332e246a7260e1234803efd1e1e7d6621d0bf5952287fe31552dbfb9334e8",
       "title": "AI-specific incident response playbooks for Kubernetes"
     },
+    "SAF-K8S-1006-001": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "c68faa9fd2537b456ea228a110dabd1c383fa739873809ffc9e068f837b7f5e5",
+      "title": "Regulatory compliance mapping for Kubernetes AI platforms"
+    },
     "SAF-K8S-1006-004": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1334,7 +1340,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "95b2721ad05f7a7f5d48c1a0c1dee16d5bac1a55",
+  "revision": "eea6661907033f447710320d0ea587554d8ae8e3",
   "sha256": "5865d848da5d242232e32d1647d47db4cab5f87717818648edc58405e54c0bda",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
