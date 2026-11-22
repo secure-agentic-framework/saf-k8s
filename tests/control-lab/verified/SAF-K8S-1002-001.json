@@ -1,0 +1,104 @@
+{
+  "control_id": "SAF-K8S-1002-001",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "92b40c6f0e82cb4d10ba7703668075b93128a630f6c0b657d3c3a0ecdeaa9b69",
+  "scope": "Kubernetes v1.36.1 Kind. TLS-verified authentication checks cover Prometheus, a case-owned HTTPS exporter, direct Metrics Server exposition and the aggregated Metrics API. Subject- and resource-specific observations use synthetic principals and metrics. Production endpoint inventory, permission breadth and deployment settings require separate evidence.",
+  "cluster": "saf-lab-4ee7ca9133ce",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The exact pinned Metrics Server provides the registered TLS-verified APIService",
+      "matched": true,
+      "observed": {
+        "api": "v1beta1.metrics.k8s.io",
+        "image": "registry.k8s.io/metrics-server/metrics-server@sha256:b2d2efaf5ac3b366ed0f839d2412a2c4279d4fc2a2a733f12c52133faed36c41",
+        "aggregation_tls_verified": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "TLS alone leaves the exact fixture Prometheus query readable without credentials",
+      "matched": true,
+      "observed": {
+        "http_status": 200,
+        "fixture_value": 42
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Prometheus requires valid credentials and serves the same exact sample over TLS",
+      "matched": true,
+      "observed": {
+        "absent": 401,
+        "malformed": 401,
+        "wrong": 401,
+        "permitted": 200
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The independent HTTPS exporter requires the scraper credential",
+      "matched": true,
+      "observed": {
+        "absent": 401,
+        "wrong": 401,
+        "permitted": 200
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Direct Metrics Server denies anonymous and unauthorized readers",
+      "matched": true,
+      "observed": {
+        "absent": 403,
+        "malformed": 401,
+        "unauthorized": 403,
+        "permitted": 200
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The aggregated Metrics API validates credentials and returns the exact authorized PodMetrics",
+      "matched": true,
+      "observed": {
+        "absent": 401,
+        "malformed": 401,
+        "unauthorized": 403,
+        "permitted": 200
+      }
+    }
+  ]
+}

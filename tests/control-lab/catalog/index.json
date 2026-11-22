@@ -1200,6 +1200,12 @@
       "sha256": "4af250dc620dfb8bc3bb2d1168d5eb4d7b0b33abdc562d8f41a62b9907928ac0",
       "title": "Durable retrieval validation for centralized AI logs"
     },
+    "SAF-K8S-1002-001": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "92b40c6f0e82cb4d10ba7703668075b93128a630f6c0b657d3c3a0ecdeaa9b69",
+      "title": "Metric endpoint authentication"
+    },
     "SAF-K8S-1006-004": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1232,7 +1238,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "2cbfe8dd61c5f3b4057f40c1402681eaa6784a25",
+  "revision": "302909b757bcc93e82672f8e1145ae6b82b69185",
   "sha256": "872822531716b059a05f969b9bdb15559fa3dd850de26945615e595c3d8e018e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
