@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: saf-0503-015-approved-dns-only
+  namespace: saf-0503-015
+spec:
+  podSelector:
+    matchLabels:
+      saf-k8s.example/0503-015-role: selected-client
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              saf-k8s.example/0503-015-role: approved-dns
+      ports:
+        - protocol: UDP
+          port: 5353
+        - protocol: TCP
+          port: 5353

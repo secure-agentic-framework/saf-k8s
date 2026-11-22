@@ -618,6 +618,12 @@
       "sha256": "f244d806ec0e16a6fc671a06a1191ccb35d19baacfdc108ad33c56b8c99595af",
       "title": "Client source IP preservation for external services"
     },
+    "SAF-K8S-0503-015": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "abe6baadddd2bcd829d8e8b15c75d6a3b6b56b63557f0c78f43a17ed7b1412a0",
+      "title": "Approved DNS resolution path enforcement"
+    },
     "SAF-K8S-0505-002": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -920,7 +926,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "d80f4913defa323be2e806fab0dd0aef7f66406a",
+  "revision": "a84cdaa1af0f20dff1791b0f219555bfbf0094f8",
   "sha256": "ba2c83990b7e8dabd3521401627a287dc143c1661a28469381ebabfdcef4730b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
