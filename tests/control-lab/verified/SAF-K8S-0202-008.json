@@ -1,0 +1,101 @@
+{
+  "control_id": "SAF-K8S-0202-008",
+  "catalog_revision": "d34b502ac96accb45a26841dfa77094dc4a72d9e",
+  "catalog_sha256": "c3bdef2bfc0aae712ee2fcb1bfd47cebfcedc7415526acfb36b86be77042a93f",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "b2c26f8f26b0c8c56997c8b4190044e5e13ecc701c925780619b62369b6b9f90",
+  "scope": "Read-only pathname metadata and DAC permission test for the stock kind containerd socket. No connection or runtime protocol operation targets that socket. On the same owned node, a separate benign synthetic socket proves the effects of parent traversal and socket permissions. External nodes, CRI-O, rootless deployments, additional host ACLs and workload mount controls remain separate.",
+  "cluster": "saf-lab-45e68fb61bd1",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Actual rootful kind socket is root-owned and fails the unrelated UID permission check",
+      "matched": true,
+      "observed": {
+        "metadata": {
+          "/": {
+            "type": "directory",
+            "uid": 0,
+            "gid": 0,
+            "mode": "755"
+          },
+          "/run": {
+            "type": "directory",
+            "uid": 0,
+            "gid": 0,
+            "mode": "755"
+          },
+          "/run/containerd": {
+            "type": "directory",
+            "uid": 0,
+            "gid": 0,
+            "mode": "711"
+          },
+          "/run/containerd/containerd.sock": {
+            "type": "socket",
+            "uid": 0,
+            "gid": 0,
+            "mode": "660"
+          }
+        },
+        "unrelated_uid_permission_check_denied": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A traversable directory and permissive fixture socket allow an unrelated UID to echo",
+      "matched": true,
+      "observed": {
+        "unrelated_echo": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Tightening either the parent directory or fixture socket blocks the unrelated UID",
+      "matched": true,
+      "observed": {
+        "parent_path_denied": true,
+        "socket_mode_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The fixture socket owner can still perform the same echo",
+      "matched": true,
+      "observed": {
+        "owner_echo": true
+      }
+    }
+  ]
+}
