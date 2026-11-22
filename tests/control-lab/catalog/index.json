@@ -330,6 +330,12 @@
       "sha256": "53d56fec8fa31f01eaaf7e613848eda1231d0bc99041480c6a142fab12c94b95",
       "title": "Distinct identity assignment for AI workload types"
     },
+    "SAF-K8S-0402-015": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "a22140b61b87b22376929e5a939d6c888e301de1fb13e2a319f7273cb2c2d3e4",
+      "title": "Legacy service account token secret removal"
+    },
     "SAF-K8S-0402-018": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -440,7 +446,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "3984e3c0270ba6ee3e259d107ad939aee7fc9ce3",
-  "sha256": "0decf495b5f1d40eeb3f160be10f54351993ceb48c799c63c547928aedf41319",
+  "revision": "54c9086dd98a54b8610cec46598ff92cf4af9886",
+  "sha256": "d7d28292b8acff5a66248c6cc45657bf790264e652dc2045ccd63a055e692998",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
