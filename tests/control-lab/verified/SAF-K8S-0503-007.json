@@ -1,0 +1,151 @@
+{
+  "control_id": "SAF-K8S-0503-007",
+  "catalog_revision": "c62a40551eb5c880e5b9894cdc26bb7a929a5a29",
+  "catalog_sha256": "f8e0cf1e01bc0de4b00f018afbbd50ede74ea9107afc25c95416adf9c3533f88",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "e6d95686536b60b52d952c519b0b66b44777f431be7f610704b70045df0ac00b",
+  "scope": "One disposable kind cluster running Kubernetes v1.36.1, one Traefik Proxy Gateway API controller (chart 42.4.1; image v3.7.19 pinned by the GHCR manifest digest), one synthetic Python HTTP application, and one Gateway. Two dedicated host-loopback ports map to the fixture's NodePorts. The case first routes a fixed GET over plaintext HTTP with no TLS listener, then replaces that listener with HTTPS termination using a local CA-signed certificate, minimum TLS 1.2, and a small TLS 1.2 cipher allowlist. It probes trusted and untrusted CAs, the correct and incorrect client hostname, accepted TLS versions, the exact response marker, and unmatched host/path behavior. No internet target, public address, production resource, attack traffic, WAF, application authorization, cloud load balancer, or certificate issuer is involved.",
+  "cluster": "saf-lab-131de7ee8c81",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "32",
+      "gitVersion": "v1.32.3",
+      "gitCommit": "32cc146f75aad04beaaa245a7157eb35063a9f99",
+      "gitTreeState": "clean",
+      "buildDate": "2025-03-11T19:52:20Z",
+      "goVersion": "go1.24.1",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.5.0",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Supported controller chart/image are pinned and ready",
+      "matched": true,
+      "observed": {
+        "kind": "kind v0.32.0 go1.26.3 darwin/arm64",
+        "kubernetes": "v1.36.1",
+        "helm_chart": "42.4.1",
+        "controller_image": [
+          "ghcr.io/traefik/traefik@sha256:a6c0194dda77bcb804824580f36fa7edc56e315b1acfe933366c8b52844a78a4"
+        ],
+        "runtime_image_ids": [
+          "ghcr.io/traefik/traefik@sha256:a6c0194dda77bcb804824580f36fa7edc56e315b1acfe933366c8b52844a78a4"
+        ],
+        "gateway_api_crds": "v1.6.3"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without a TLS listener the owned route serves the marker over HTTP",
+      "matched": true,
+      "observed": {
+        "status": 200,
+        "body": "SAF-K8S-0503-007 harmless ingress marker 54a1",
+        "protocol": "HTTP"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "After TLS configuration the plaintext listener does not serve the route",
+      "matched": true,
+      "observed": {
+        "status": 404,
+        "body": "404 page not found\n",
+        "protocol": "HTTP"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Trusted CA, matching hostname, accepted protocol, and marker succeed",
+      "matched": true,
+      "observed": [
+        {
+          "status": 200,
+          "body": "SAF-K8S-0503-007 harmless ingress marker 54a1",
+          "protocol": "TLSv1.2",
+          "cipher": "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+        },
+        {
+          "status": 200,
+          "body": "SAF-K8S-0503-007 harmless ingress marker 54a1",
+          "protocol": "TLSv1.3",
+          "cipher": "TLS_AES_128_GCM_SHA256"
+        }
+      ]
+    },
+    {
+      "phase": "green",
+      "claim": "TLS 1.1 is rejected by the configured TLS 1.2 minimum",
+      "matched": true,
+      "observed": {
+        "client_error": "SSLError",
+        "reason": "TLSV1_ALERT_PROTOCOL_VERSION"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The owned endpoint rejects an unapproved TLS 1.2 cipher",
+      "matched": true,
+      "observed": {
+        "reason": "SSLV3_ALERT_HANDSHAKE_FAILURE"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A client that does not trust the fixture CA rejects the server",
+      "matched": true,
+      "observed": {
+        "verification_error": "SSLCertVerificationError",
+        "verify_code": 20
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A trusted certificate for a different hostname is rejected",
+      "matched": true,
+      "observed": {
+        "verification_error": "SSLCertVerificationError",
+        "verify_code": 62
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A correct TLS identity with an unmatched HTTP Host does not route",
+      "matched": true,
+      "observed": {
+        "status": 404,
+        "body": "404 page not found\n",
+        "protocol": "TLSv1.3",
+        "cipher": "TLS_AES_128_GCM_SHA256"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An unmatched path does not reach the application marker",
+      "matched": true,
+      "observed": {
+        "status": 404,
+        "body": "404 page not found\n",
+        "protocol": "TLSv1.3",
+        "cipher": "TLS_AES_128_GCM_SHA256"
+      }
+    }
+  ]
+}

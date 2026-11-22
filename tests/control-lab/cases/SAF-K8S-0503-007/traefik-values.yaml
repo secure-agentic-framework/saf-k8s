@@ -1,0 +1,66 @@
+image:
+  registry: ghcr.io
+  repository: traefik/traefik
+  tag: v3.7.19
+  digest: sha256:a6c0194dda77bcb804824580f36fa7edc56e315b1acfe933366c8b52844a78a4
+  pullPolicy: IfNotPresent
+versionOverride: v3.7.19
+
+deployment:
+  replicas: 1
+service:
+  enabled: true
+  spec:
+    type: NodePort
+ports:
+  traefik:
+    expose:
+      default: false
+  web:
+    port: 8000
+    expose:
+      default: true
+    exposedPort: 80
+    nodePort: 30080
+  websecure:
+    port: 8443
+    expose:
+      default: true
+    exposedPort: 443
+    nodePort: 30443
+
+providers:
+  kubernetesIngress:
+    enabled: false
+  kubernetesGateway:
+    enabled: true
+    experimentalChannel: false
+    namespaces:
+      - saf-0503-007
+      - traefik
+  kubernetesCRD:
+    enabled: true
+    namespaces:
+      - traefik
+    defaultTLSResourcesNamespace: traefik
+
+gatewayClass:
+  enabled: false
+gateway:
+  enabled: false
+ingressClass:
+  enabled: false
+ingressRoute:
+  dashboard:
+    enabled: false
+  healthcheck:
+    enabled: false
+
+tlsOptions:
+  default:
+    minVersion: VersionTLS12
+    cipherSuites:
+      - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+      - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+      - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+      - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384

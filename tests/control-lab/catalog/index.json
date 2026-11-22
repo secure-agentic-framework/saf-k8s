@@ -576,6 +576,12 @@
       "sha256": "74fc2b652f55270a399f34a93767c4a4a34532cdb0009a31a2bc1022463f9ba9",
       "title": "Kubernetes CNI IP pool exhaustion monitoring and alerting"
     },
+    "SAF-K8S-0503-007": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "e6d95686536b60b52d952c519b0b66b44777f431be7f610704b70045df0ac00b",
+      "title": "Ingress TLS termination and boundary configuration hardening"
+    },
     "SAF-K8S-0505-002": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -872,7 +878,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "dfd6c0cab54c7c9c20181a4cef69e3a5dadd2e5e",
-  "sha256": "6a0fac460ca17335f8678039750a9d383e07a25de2e9203167cc3e6125ed961f",
+  "revision": "46021cac6433ec9c32ec0a6bbfac7a12094ce7da",
+  "sha256": "f8e0cf1e01bc0de4b00f018afbbd50ede74ea9107afc25c95416adf9c3533f88",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
