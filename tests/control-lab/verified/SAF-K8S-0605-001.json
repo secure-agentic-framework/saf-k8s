@@ -1,0 +1,162 @@
+{
+  "control_id": "SAF-K8S-0605-001",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "922107a7471cb33873d4fc159a6263ba783339d73c613d0d7a966b193d32ab1f",
+  "scope": "Kubernetes v1.36.1 and digest-pinned Gatekeeper v3.23.1. A Rego ConstraintTemplate and namespace-selected constraint check aggregate regular-container requests for nvidia.com/gpu and require an approved RuntimeClass for those Pods. A real denied CREATE, actual approved persistence, audit of an existing violation, and a namespace comparison are observed. Fixture classes both use runc; no GPU is allocated. Image provenance, init/sidecar accounting, AI custom resource templates and production release paths remain open.",
+  "cluster": "saf-lab-824ea23261d7",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The API admits the baseline declaration before the Gatekeeper constraint",
+      "matched": true,
+      "observed": {
+        "probe": "baseline-budget",
+        "returncode": 0
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The API admits the baseline declaration before the Gatekeeper constraint",
+      "matched": true,
+      "observed": {
+        "probe": "baseline-runtime",
+        "returncode": 0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The pinned Gator suite passes its exact offline checks before policy deployment",
+      "matched": true,
+      "observed": {
+        "release": "v3.23.1",
+        "suite_cases": [
+          "checks-aggregate-budget",
+          "checks-wrong-runtime",
+          "checks-missing-runtime",
+          "checks-approved",
+          "checks-cpu-only",
+          "checks-other-namespace"
+        ],
+        "exit_code": 0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The actual Gatekeeper admission and audit deployments use the digest-staged release",
+      "matched": true,
+      "observed": {
+        "release": "v3.23.1",
+        "installer_sha256": "3c178abe6de4dcdcd2810c2945468a0d7a15ccf0036e324b73308643e94d6f72",
+        "repository": "docker.io/openpolicyagent/gatekeeper",
+        "deployments": [
+          "gatekeeper-audit",
+          "gatekeeper-controller-manager"
+        ],
+        "all_use_digest_staged_copy": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The named Gatekeeper constraint denies the exact violating Pod create",
+      "matched": true,
+      "observed": {
+        "probe": "aggregate-budget",
+        "reason": "GPU requests 3 exceed fixture maximum 2",
+        "denied": true,
+        "absent_from_storage": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The named Gatekeeper constraint denies the exact violating Pod create",
+      "matched": true,
+      "observed": {
+        "probe": "wrong-runtime",
+        "reason": "GPU Pods require RuntimeClass saf-gpu",
+        "denied": true,
+        "absent_from_storage": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The named Gatekeeper constraint denies the exact violating Pod create",
+      "matched": true,
+      "observed": {
+        "probe": "missing-runtime",
+        "reason": "GPU Pods require RuntimeClass saf-gpu",
+        "denied": true,
+        "absent_from_storage": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An at-budget Pod with the approved RuntimeClass persists",
+      "matched": true,
+      "observed": {
+        "returncode": 0,
+        "runtime": "saf-gpu",
+        "gpu_requests": [
+          "1",
+          "1"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "CPU-only and other-namespace comparators remain admissible",
+      "matched": true,
+      "observed": {
+        "cpu_only": 0,
+        "different_namespace": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Gatekeeper audit reports the pre-existing violation with its precise reason",
+      "matched": true,
+      "observed": {
+        "violations": [
+          {
+            "kind": "Pod",
+            "name": "existing-excess",
+            "namespace": "saf-0605-001-ai",
+            "message": "GPU requests 3 exceed fixture maximum 2"
+          }
+        ]
+      }
+    }
+  ]
+}

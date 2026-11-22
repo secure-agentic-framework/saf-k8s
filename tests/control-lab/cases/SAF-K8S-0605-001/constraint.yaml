@@ -1,0 +1,15 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: SafGPUAdmission
+metadata:
+  name: saf-gpu-admission
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: [Pod]
+    namespaces:
+      - saf-0605-001-ai
+  parameters:
+    maximum: 2
+    runtimeClass: saf-gpu

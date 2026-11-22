@@ -1,0 +1,45 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: safgpuadmission
+spec:
+  crd:
+    spec:
+      names:
+        kind: SafGPUAdmission
+      validation:
+        openAPIV3Schema:
+          type: object
+          required: [maximum, runtimeClass]
+          properties:
+            maximum:
+              type: integer
+              minimum: 1
+            runtimeClass:
+              type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package safgpuadmission
+
+        gpu_request(container) = quantity {
+          resources := object.get(container, "resources", {})
+          requests := object.get(resources, "requests", {})
+          limits := object.get(resources, "limits", {})
+          quantity := to_number(object.get(requests, "nvidia.com/gpu", object.get(limits, "nvidia.com/gpu", "0")))
+        }
+
+        total_gpu = total {
+          total := sum([count | container := input.review.object.spec.containers[_]; count := gpu_request(container)])
+        }
+
+        violation[{"msg": msg}] {
+          total_gpu > input.parameters.maximum
+          msg := sprintf("GPU requests %v exceed fixture maximum %v", [total_gpu, input.parameters.maximum])
+        }
+
+        violation[{"msg": msg}] {
+          total_gpu > 0
+          object.get(input.review.object.spec, "runtimeClassName", "") != input.parameters.runtimeClass
+          msg := sprintf("GPU Pods require RuntimeClass %s", [input.parameters.runtimeClass])
+        }

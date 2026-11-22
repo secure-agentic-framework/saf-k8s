@@ -708,6 +708,12 @@
       "sha256": "50a0c2486de2c2c57f546c078fed89cc2d4a8ef5b170dae89a62d05051799877",
       "title": "SBOM attestation binding to image digests"
     },
+    "SAF-K8S-0605-001": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "922107a7471cb33873d4fc159a6263ba783339d73c613d0d7a966b193d32ab1f",
+      "title": "OPA/Gatekeeper policies for Kubernetes and AI workloads"
+    },
     "SAF-K8S-0605-002": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -1166,7 +1172,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "d8af88c8e99e7501e1cfc52fa82108a9e7543109",
+  "revision": "f8afc270fad7a7aba809802d9e3ad5d09344816e",
   "sha256": "872822531716b059a05f969b9bdb15559fa3dd850de26945615e595c3d8e018e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
