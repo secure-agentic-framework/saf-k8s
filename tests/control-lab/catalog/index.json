@@ -672,6 +672,12 @@
       "sha256": "af079df34c0017c17d4a8664bcc9a63ec0c6dcce4b906f9ec4510c207c99acc7",
       "title": "AI workload resource exhaustion guardrails"
     },
+    "SAF-K8S-0703-008": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "ba1bc39ce708bdc38a6b970ce2dc498511794892c6784e01e07a5a699498569d",
+      "title": "Idle GPU detection and resource reclamation"
+    },
     "SAF-K8S-0703-009": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -692,7 +698,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "23ae81fa42fd520e970125c2903391a47f31614d",
+  "revision": "cd9fa8d5a2e6116064af0c2837da31ef6b0b9a3d",
   "sha256": "a686bfbe52cded89985495c3a14f05eb580c3499b772f2473beb3accc1c99e38",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
