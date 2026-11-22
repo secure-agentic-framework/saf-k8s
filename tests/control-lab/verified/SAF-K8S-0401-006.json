@@ -1,0 +1,147 @@
+{
+  "control_id": "SAF-K8S-0401-006",
+  "catalog_revision": "89f78fbae6d3127ebb4fdc628885140fd8b3debf",
+  "catalog_sha256": "9b3b6190b973eb3addee410c79d4c34a183e00a420066cc2e0a38653d22866a9",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "70dc1efecb11f86e7a71ef61ea6fc7a2ffed833bcad126a13896c72c910932d5",
+  "scope": "Kubernetes v1.36.1 native namespaced RBAC in one disposable kind cluster. Three independent synthetic ServiceAccounts use their actual projected Pod tokens to GET one inert named ConfigMap or send a server-side dry-run PATCH to one inert named ConfigMap. The case compares all three operations before and after exact RoleBindings and includes a fourth bounded admin-check ServiceAccount. It does not validate IdP group mapping, organization approval, role ownership, production access, AI operator CRDs, or cluster-wide grants.",
+  "cluster": "saf-lab-98cec8248ae8",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Three functional Pods use three distinct explicit ServiceAccounts with projected tokens",
+      "matched": true,
+      "observed": {
+        "ml": {
+          "service_account": "saf-0401-006-ml",
+          "automount_token": true
+        },
+        "platform": {
+          "service_account": "saf-0401-006-platform",
+          "automount_token": true
+        },
+        "security": {
+          "service_account": "saf-0401-006-security",
+          "automount_token": true
+        },
+        "admin-check": {
+          "service_account": "saf-0401-006-admin-check",
+          "automount_token": true
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Each functional projected identity is denied all representative fixture operations before binding",
+      "matched": true,
+      "observed": {
+        "ml": {
+          "audit-read": 403,
+          "model-read": 403,
+          "platform-dry-run-patch": 403
+        },
+        "platform": {
+          "audit-read": 403,
+          "model-read": 403,
+          "platform-dry-run-patch": 403
+        },
+        "security": {
+          "audit-read": 403,
+          "model-read": 403,
+          "platform-dry-run-patch": 403
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The bounded admin-check identity is also denied before its explicit binding",
+      "matched": true,
+      "observed": {
+        "audit-read": 403,
+        "model-read": 403,
+        "platform-dry-run-patch": 403
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Three functional RoleBindings each name one independent ServiceAccount and one exact Role",
+      "matched": true,
+      "observed": {
+        "ml": true,
+        "platform": true,
+        "security": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Each function can perform only its representative inert named operation",
+      "matched": true,
+      "observed": {
+        "ml": {
+          "audit-read": 403,
+          "model-read": 200,
+          "platform-dry-run-patch": 403
+        },
+        "platform": {
+          "audit-read": 403,
+          "model-read": 403,
+          "platform-dry-run-patch": 200
+        },
+        "security": {
+          "audit-read": 200,
+          "model-read": 403,
+          "platform-dry-run-patch": 403
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The separately bound admin-check fixture can perform all three bounded operations",
+      "matched": true,
+      "observed": {
+        "audit-read": 200,
+        "model-read": 200,
+        "platform-dry-run-patch": 200
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Successful platform dry-run changes leave the marker unmodified",
+      "matched": true,
+      "observed": {
+        "persistent_annotation_absent": true
+      }
+    }
+  ]
+}

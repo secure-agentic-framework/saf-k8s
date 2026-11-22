@@ -1,0 +1,110 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0401-006-ml-role
+  namespace: saf-0401-006
+  annotations:
+    saf-k8s.example/fixture: synthetic-only
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["saf-0401-006-model-fixture"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0401-006-ml-binding
+  namespace: saf-0401-006
+subjects:
+  - kind: ServiceAccount
+    name: saf-0401-006-ml
+    namespace: saf-0401-006
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0401-006-ml-role
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0401-006-platform-role
+  namespace: saf-0401-006
+  annotations:
+    saf-k8s.example/fixture: synthetic-only
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["saf-0401-006-platform-fixture"]
+    verbs: ["patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0401-006-platform-binding
+  namespace: saf-0401-006
+subjects:
+  - kind: ServiceAccount
+    name: saf-0401-006-platform
+    namespace: saf-0401-006
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0401-006-platform-role
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0401-006-security-role
+  namespace: saf-0401-006
+  annotations:
+    saf-k8s.example/fixture: synthetic-only
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["saf-0401-006-security-fixture"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0401-006-security-binding
+  namespace: saf-0401-006
+subjects:
+  - kind: ServiceAccount
+    name: saf-0401-006-security
+    namespace: saf-0401-006
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0401-006-security-role
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0401-006-admin-check-role
+  namespace: saf-0401-006
+  annotations:
+    saf-k8s.example/fixture: bounded-admin-positive-control
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames:
+      - saf-0401-006-model-fixture
+      - saf-0401-006-platform-fixture
+      - saf-0401-006-security-fixture
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0401-006-admin-check-binding
+  namespace: saf-0401-006
+subjects:
+  - kind: ServiceAccount
+    name: saf-0401-006-admin-check
+    namespace: saf-0401-006
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0401-006-admin-check-role

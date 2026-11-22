@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0401-006-ml
+  namespace: saf-0401-006
+  labels:
+    saf-k8s.example/function: ml
+  annotations:
+    saf-k8s.example/fixture: synthetic-only
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0401-006-platform
+  namespace: saf-0401-006
+  labels:
+    saf-k8s.example/function: platform
+  annotations:
+    saf-k8s.example/fixture: synthetic-only
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0401-006-security
+  namespace: saf-0401-006
+  labels:
+    saf-k8s.example/function: security
+  annotations:
+    saf-k8s.example/fixture: synthetic-only
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0401-006-admin-check
+  namespace: saf-0401-006
+  labels:
+    saf-k8s.example/function: admin-check
+  annotations:
+    saf-k8s.example/fixture: synthetic-only
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-0401-006-model-fixture
+  namespace: saf-0401-006
+  annotations:
+    saf-k8s.example/fixture: inert-synthetic-marker
+data:
+  marker: synthetic-model-metadata
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-0401-006-platform-fixture
+  namespace: saf-0401-006
+  annotations:
+    saf-k8s.example/fixture: inert-synthetic-marker
+data:
+  marker: synthetic-platform-metadata
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-0401-006-security-fixture
+  namespace: saf-0401-006
+  annotations:
+    saf-k8s.example/fixture: inert-synthetic-marker
+data:
+  marker: synthetic-audit-metadata

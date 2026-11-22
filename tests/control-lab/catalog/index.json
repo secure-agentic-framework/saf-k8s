@@ -426,6 +426,12 @@
       "sha256": "7e3640209f1b79c77ad2dbd7ad613b7f9d83e7d437855fc48ec911194a96d8a0",
       "title": "RBAC for AI operator custom resources"
     },
+    "SAF-K8S-0401-006": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "70dc1efecb11f86e7a71ef61ea6fc7a2ffed833bcad126a13896c72c910932d5",
+      "title": "Organizational role separation for ML, platform, and security functions"
+    },
     "SAF-K8S-0402-003": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -776,7 +782,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "b88feffa099495ffe99e6290e80ea893570f96af",
+  "revision": "211038f41da96d687306bb6505438ddc93415666",
   "sha256": "9b3b6190b973eb3addee410c79d4c34a183e00a420066cc2e0a38653d22866a9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
