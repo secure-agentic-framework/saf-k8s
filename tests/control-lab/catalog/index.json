@@ -540,6 +540,12 @@
       "sha256": "0152c3f905267b688ec83e85ca70913617f27c02beeeab9255bd3e35dfad335d",
       "title": "CNI-specific network policy extensions"
     },
+    "SAF-K8S-0501-006": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "a16de993105b055e6397f4036f9d74d16144c1d2a9b1c2f16861f168f3fcd8d1",
+      "title": "Multi-cluster network segmentation for federated AI workloads"
+    },
     "SAF-K8S-0601-011": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -824,7 +830,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "b530c0f3c9ca58bbb98e032ae741a0c06fd8e1a6",
+  "revision": "77bcc22849e09d5b79aa2a9bf8321980499a72bb",
   "sha256": "31490639f973d1f95ee1465812ef6775f786dc53b54c2e4adc2fb8807bb12799",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
