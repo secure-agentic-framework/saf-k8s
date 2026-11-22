@@ -1,0 +1,36 @@
+{
+  "fixture_id": "kubernetes-ingress-api-lifecycle-v1",
+  "fixture_kind": "versioned-upstream-lifecycle-summary",
+  "api": "Ingress",
+  "deprecated_api_versions": [
+    "networking.k8s.io/v1beta1"
+  ],
+  "deprecated_by_release": "v1.19.0",
+  "replacement_api_version": "networking.k8s.io/v1",
+  "replacement_available_since": "v1.19.0",
+  "removed_in_release": "v1.22.0",
+  "release_channel_evidence": {
+    "source_release": "v1.19.0",
+    "source_url": "https://kubernetes.io/blog/2020/09/03/warnings/",
+    "claim": "The v1.19-era deprecation warning identifies networking.k8s.io/v1beta1 Ingress as removed in v1.22."
+  },
+  "changelog_evidence": {
+    "source_release": "v1.22.0",
+    "source_url": "https://github.com/kubernetes/kubernetes/blob/v1.22.0/CHANGELOG/CHANGELOG-1.22.md",
+    "claim": "The tagged changelog records Ingress v1beta1 deprecation in its v1.22 release history."
+  },
+  "removal_evidence": {
+    "source_release": "v1.22.0",
+    "source_url": "https://kubernetes.io/blog/2021/08/04/kubernetes-1-22-release-announcement/",
+    "claim": "The Kubernetes v1.22 release announcement confirms removal of deprecated Ingress API versions."
+  },
+  "migration_evidence": {
+    "source_release": "v1.36 migration guide, v1.22 removal history",
+    "source_url": "https://v1-36.docs.kubernetes.io/docs/reference/using-api/deprecation-guide/#ingress-v122",
+    "claim": "Ingress v1beta1 APIs are no longer served as of v1.22; migrate to networking.k8s.io/v1, available since v1.19."
+  },
+  "limitations": [
+    "The fixture is a curated, version-pinned example and is not a live release feed.",
+    "This lifecycle example covers the built-in Ingress API and does not enumerate CRD or vendor API lifecycle."
+  ]
+}

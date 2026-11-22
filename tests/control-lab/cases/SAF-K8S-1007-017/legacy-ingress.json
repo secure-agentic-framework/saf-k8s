@@ -1,0 +1,15 @@
+{
+  "apiVersion": "networking.k8s.io/v1beta1",
+  "kind": "Ingress",
+  "metadata": {
+    "name": "synthetic-ai-serving-route",
+    "namespace": "synthetic-ai-serving"
+  },
+  "spec": {
+    "backend": {
+      "serviceName": "synthetic-inference",
+      "servicePort": 8080
+    }
+  },
+  "fixture_note": "Static pre-migration example only; never applied to a cluster."
+}

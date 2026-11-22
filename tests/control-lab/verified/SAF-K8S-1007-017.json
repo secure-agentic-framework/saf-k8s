@@ -1,0 +1,94 @@
+{
+  "control_id": "SAF-K8S-1007-017",
+  "catalog_revision": "d34b502ac96accb45a26841dfa77094dc4a72d9e",
+  "catalog_sha256": "c3bdef2bfc0aae712ee2fcb1bfd47cebfcedc7415526acfb36b86be77042a93f",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "86bede5c4a8f71a86b0b7f0e14ac9d318020fac42d6bf4cbbc9b625681470614",
+  "scope": "Read-only Kubernetes v1.36.1 API version/discovery inspection plus offline, version-pinned Kubernetes Ingress v1.22 deprecation fixtures. Computes an impact alert for one synthetic legacy manifest and evaluates the corresponding synthetic migration record. It creates no Kubernetes objects and makes no external requests. It does not establish release-feed polling, real cluster inventory completeness, production migration validation, or organization alert triage and distribution.",
+  "cluster": "saf-lab-2ea57ad2f5a9",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Live API discovery reports networking.k8s.io/v1 and does not report the removed networking.k8s.io/v1beta1 group version",
+      "matched": true,
+      "observed": {
+        "server_version": "v1.36.1",
+        "networking_k8s_io_versions": [
+          "v1"
+        ],
+        "stable_namespaced_ingress_served": true,
+        "networking_k8s_io_v1beta1_served": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The synthetic pre-upgrade inventory raises an impact alert for the deprecated API",
+      "matched": true,
+      "observed": {
+        "inventory_id": "ai-serving/public-route",
+        "component": "synthetic-ai-serving",
+        "api_version": "networking.k8s.io/v1beta1",
+        "upgrade_assessment_version": "v1.21.0",
+        "removed_in_release": "v1.22.0",
+        "alert": true,
+        "live_cluster_version_used_for_alert": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "An affected pre-upgrade inventory remains blocked when migration evidence is absent",
+      "matched": true,
+      "observed": {
+        "inventory_id": "ai-serving/public-route",
+        "impact_alert": true,
+        "migration_evidence_present": false,
+        "upgrade_gate_clear": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The documented stable replacement and scoped migration record clear this synthetic impact-gate example",
+      "matched": true,
+      "observed": {
+        "inventory_id": "ai-serving/public-route",
+        "replacement_api_version": "networking.k8s.io/v1",
+        "migration_record": "SYNTH-CHANGE-017",
+        "migration_fixture_valid": true,
+        "runtime_behavior_validated": false,
+        "production_approval": false,
+        "gate_clear_for_fixture": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "fixture_id": "synthetic-ai-platform-manifest-inventory-v1",
+  "inventory_snapshot": "2021-06-01T00:00:00Z",
+  "items": [
+    {
+      "inventory_id": "ai-serving/public-route",
+      "component": "synthetic-ai-serving",
+      "kind": "Ingress",
+      "api_version": "networking.k8s.io/v1beta1",
+      "manifest_fixture": "legacy-ingress.json",
+      "environment": "synthetic-production-candidate"
+    }
+  ],
+  "note": "Synthetic offline manifest inventory. The object is data in this directory and is never submitted to a Kubernetes API."
+}

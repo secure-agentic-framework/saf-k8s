@@ -383,10 +383,16 @@
       "domain": "D07",
       "sha256": "af5c1c0dc4d9ae4d08c6ee1a37b039c8da4d372722ee56c262e19750290a3617",
       "title": "Namespace tenant boundary model and isolation limitation documentation"
+    },
+    "SAF-K8S-1007-017": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "86bede5c4a8f71a86b0b7f0e14ac9d318020fac42d6bf4cbbc9b625681470614",
+      "title": "Kubernetes release-channel and changelog monitoring for API deprecations"
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "dff49a27c2b8873ff2f967e5144a38d4dc365dc5",
+  "revision": "2a8d799bacb0894fe24d586c7a5d9c3614475886",
   "sha256": "c3bdef2bfc0aae712ee2fcb1bfd47cebfcedc7415526acfb36b86be77042a93f",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

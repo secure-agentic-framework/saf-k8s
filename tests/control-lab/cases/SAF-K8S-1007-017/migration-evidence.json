@@ -1,0 +1,14 @@
+{
+  "fixture_id": "synthetic-migration-review-v1",
+  "inventory_id": "ai-serving/public-route",
+  "source_manifest": "legacy-ingress.json",
+  "replacement_manifest": "migrated-ingress.json",
+  "review_record": "SYNTH-CHANGE-017",
+  "review_status": "validated-fixture",
+  "review_scope": "API version and documented field-shape mapping only",
+  "replacement_api_version": "networking.k8s.io/v1",
+  "tested_against_release": "v1.22.0",
+  "runtime_behavior_validated": false,
+  "production_approval": false,
+  "note": "Synthetic evidence proves only that the local example records a replacement and review status; it is not organization or runtime evidence."
+}
