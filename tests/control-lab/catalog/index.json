@@ -420,6 +420,12 @@
       "sha256": "af5c1c0dc4d9ae4d08c6ee1a37b039c8da4d372722ee56c262e19750290a3617",
       "title": "Namespace tenant boundary model and isolation limitation documentation"
     },
+    "SAF-K8S-0801-001": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "2a7a809c996cf911ed223c74d4a219605f537eb3990669b12d4e00fc467bbe76",
+      "title": "GPU device plugin security configuration and hardening"
+    },
     "SAF-K8S-1007-017": {
       "catalog_status": "draft",
       "domain": "D10",

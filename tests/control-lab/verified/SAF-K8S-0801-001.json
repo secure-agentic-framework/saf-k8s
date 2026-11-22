@@ -1,0 +1,157 @@
+{
+  "control_id": "SAF-K8S-0801-001",
+  "catalog_revision": "3f2c45b07cab1372d80dc649cce6a5d40f2000e2",
+  "catalog_sha256": "0decf495b5f1d40eeb3f160be10f54351993ceb48c799c63c547928aedf41319",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "2a7a809c996cf911ed223c74d4a219605f537eb3990669b12d4e00fc467bbe76",
+  "scope": "Kubernetes v1.36.1 DRA adminAccess admission and namespace-label authorization. Only fixed isolated case namespaces and synthetic roles are created. Claims, claim templates and label-change probes use server dry-run. Actual GPU allocation, driver execution and legacy plugin controls remain separate.",
+  "cluster": "saf-lab-76b38f7a4156",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Ordinary namespace admits a non-admin ResourceClaim",
+      "matched": true,
+      "observed": {
+        "admitted": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Unapproved namespace rejects adminAccess for ResourceClaim",
+      "matched": true,
+      "observed": {
+        "namespace_admission_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Ordinary principal cannot create ResourceClaim in the approved namespace",
+      "matched": true,
+      "observed": {
+        "rbac_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The authorized maintenance dry run keeps adminAccess for ResourceClaim",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "admin_access_preserved": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Ordinary namespace admits a non-admin ResourceClaimTemplate",
+      "matched": true,
+      "observed": {
+        "admitted": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Unapproved namespace rejects adminAccess for ResourceClaimTemplate",
+      "matched": true,
+      "observed": {
+        "namespace_admission_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Ordinary principal cannot create ResourceClaimTemplate in the approved namespace",
+      "matched": true,
+      "observed": {
+        "rbac_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The authorized maintenance dry run keeps adminAccess for ResourceClaimTemplate",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "admin_access_preserved": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Ordinary identity cannot change the admin label in saf-0801-ordinary",
+      "matched": true,
+      "observed": {
+        "rbac_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Platform identity can propose the label change in saf-0801-ordinary",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "proposed_label": "true"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Ordinary identity cannot change the admin label in saf-0801-maintenance",
+      "matched": true,
+      "observed": {
+        "rbac_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Platform identity can propose the label change in saf-0801-maintenance",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "proposed_label": null
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Claim and Namespace dry runs leave the fixture state intact",
+      "matched": true,
+      "observed": {
+        "live_labels": {
+          "saf-0801-ordinary": null,
+          "saf-0801-maintenance": "true"
+        },
+        "persisted_claims_or_templates": {
+          "saf-0801-ordinary": 0,
+          "saf-0801-maintenance": 0
+        }
+      }
+    }
+  ]
+}
