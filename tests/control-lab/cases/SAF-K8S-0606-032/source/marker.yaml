@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-drift-marker
+  namespace: saf-test
+data:
+  version: approved-v1

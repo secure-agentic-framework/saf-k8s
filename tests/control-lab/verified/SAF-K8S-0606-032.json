@@ -1,0 +1,92 @@
+{
+  "control_id": "SAF-K8S-0606-032",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "a1f446d52922a85a1f23337002b0adef88652b50ad0ec203c5f1d0939babf33b",
+  "scope": "One disposable kind cluster and saf-test namespace; Argo CD v3.6.1 watches a case-owned, read-only static Git source and reconciles a ConfigMap marker. The case observes Argo CD OutOfSync with automated sync/selfHeal disabled, then enables selfHeal and independently checks the ConfigMap and its mounted value in the same running Pod. Notification delivery, external Git hosting, production authorization, and other controllers require separate evidence.",
+  "cluster": "saf-lab-683f7546fd0e",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The live controller, repository server, and API server use the tagged Argo CD release",
+      "matched": true,
+      "observed": {
+        "argocd-repo-server": [
+          "quay.io/argoproj/argocd:v3.6.1@sha256:296e3d74f449b2ce45265613fcb68c18ed7366488360c8ea32f5f2a93d2e5c54"
+        ],
+        "argocd-server": [
+          "quay.io/argoproj/argocd:v3.6.1@sha256:296e3d74f449b2ce45265613fcb68c18ed7366488360c8ea32f5f2a93d2e5c54"
+        ],
+        "argocd-application-controller": [
+          "quay.io/argoproj/argocd:v3.6.1@sha256:296e3d74f449b2ce45265613fcb68c18ed7366488360c8ea32f5f2a93d2e5c54"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The legitimate Git marker is present in the ConfigMap and running workload",
+      "matched": true,
+      "observed": {
+        "application_sync": "Synced",
+        "git_commit_matched": true,
+        "configmap": "approved-v1",
+        "mounted_value": "approved-v1"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "With selfHeal off, Argo CD detects live drift but leaves the inert marker changed",
+      "matched": true,
+      "observed": {
+        "application_sync": "OutOfSync",
+        "configmap": "runtime-drift",
+        "mounted_value": "runtime-drift",
+        "self_heal": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Enabling Argo CD selfHeal restores Git state and the mounted workload marker",
+      "matched": true,
+      "observed": {
+        "application_sync": "Synced",
+        "git_commit_matched": true,
+        "configmap": "approved-v1",
+        "mounted_value": "approved-v1",
+        "kept_original_pod": true
+      }
+    }
+  ]
+}
