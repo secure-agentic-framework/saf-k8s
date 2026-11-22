@@ -1,0 +1,23 @@
+[
+  {
+    "observation_id": "OBS-SYNTH-APPROVED-001",
+    "asset_ref": "saf-fixture/mock-inference/mock-runtime",
+    "image_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "package": "pkg:generic/saf-fixture-runtime",
+    "version": "1.0.0"
+  },
+  {
+    "observation_id": "OBS-SYNTH-NEARMISS-VERSION",
+    "asset_ref": "saf-fixture/mock-inference/mock-runtime",
+    "image_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "package": "pkg:generic/saf-fixture-runtime",
+    "version": "1.0.2"
+  },
+  {
+    "observation_id": "OBS-SYNTH-NEARMISS-IMAGE",
+    "asset_ref": "saf-fixture/mock-inference/mock-runtime",
+    "image_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "package": "pkg:generic/saf-fixture-runtime",
+    "version": "1.0.0"
+  }
+]

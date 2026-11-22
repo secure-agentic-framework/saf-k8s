@@ -1272,6 +1272,12 @@
       "sha256": "5a2d9c710fead43289eab97a7f60d3b06f0b9fe05cab19cbb9aaad7ce04f2835",
       "title": "Software supply chain threat model per NIST SP 800-204D"
     },
+    "SAF-K8S-1004-004": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "d0e46e023c64d95531509ff58f3604bd478b08d6166fd2b923b5c0b400d7dfd8",
+      "title": "Kubernetes AI threat intelligence feed ingestion and detection enrichment"
+    },
     "SAF-K8S-1006-004": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1304,7 +1310,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "b51471d1888a623ddfa61285a8e594aa5d560179",
+  "revision": "a12d070764e2da45e43041921f893ae427754ce0",
   "sha256": "a0136783421c2c5f3387b92e1cbc8722c1faf77205eda1623cee5d4dc8a05bee",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

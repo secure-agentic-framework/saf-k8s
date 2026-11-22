@@ -1,0 +1,18 @@
+{
+  "schema": "saf-k8s.synthetic-advisory-bundle/v1",
+  "bundle_id": "SYNTH-BUNDLE-1004-004-01",
+  "source_id": "SYNTH-SOURCE-LOCAL-ONLY",
+  "generated_at": "2026-11-20T00:00:00Z",
+  "expires_at": "2026-11-22T00:00:00Z",
+  "advisories": [
+    {
+      "advisory_id": "SYNTH-ADVISORY-1004-004-001",
+      "package": "pkg:generic/saf-fixture-runtime",
+      "affected_version": "1.0.0",
+      "severity": "synthetic-low",
+      "fixed_version": "1.0.1",
+      "product_scope": "synthetic-kubernetes-ai-runtime",
+      "image_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ]
+}
