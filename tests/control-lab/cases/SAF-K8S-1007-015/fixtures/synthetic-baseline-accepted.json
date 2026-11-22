@@ -1,0 +1,11 @@
+{
+  "fixture_id": "SYNTH-1007-015-BASELINE-ACCEPTED-001",
+  "synthetic": true,
+  "candidate_id": "urn:example:saf-k8s:synthetic-node:candidate-accepted-001",
+  "checks": {
+    "kubelet_hardening_attestation": "pass",
+    "container_runtime_protection_attestation": "pass",
+    "operating_system_baseline_attestation": "pass"
+  },
+  "fixture_note": "Synthetic defensive metadata only; not a real node assessment."
+}
