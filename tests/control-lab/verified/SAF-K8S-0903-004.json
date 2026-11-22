@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-0903-004",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "c8bc2471bb96b1b9a4d5eefd8eee3215868bb202",
+  "catalog_sha256": "e5bfae09a5d2bc163c11913bd1999c38c4c3c4ebd481e35055d6c2734002f656",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "1a715b83acc55edf60293843913341593a0e331e6bb99654e9c52534670ffd3c",
+  "control_sha256": "1116d92cb8887aa2ae81c1ca08c9d8caec68038295f640eeedc9efcb4896f045",
   "scope": "One owned Kubernetes v1.36.1 Pod runs a deterministic synthetic generation fixture. The real process counts whitespace-separated fixture tokens and enforces input, per-request output, per-session output, and logical-time generation-rate limits. Backend counters are inspected after each request. Real model tokenizer/template, streaming and concurrent identity enforcement, real KV cache or GPU memory, and production settings require separate evidence.",
-  "review_timing": {
-    "queued_at": "2026-11-22T21:29:22.813387+00:00",
-    "cluster_ready_at": "2026-11-22T21:29:58.320323+00:00",
-    "approval_at": "2026-11-22T21:31:19.942873+00:00",
-    "case_loaded_at": "2026-11-22T21:31:19.970418+00:00"
-  },
-  "cluster": "saf-lab-e812a726a0ba",
+  "cluster": "saf-lab-201ed29208b2",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "51374d2f8aa8af3bcb74f8f4f2514abf9afeff397bc014ec9cd4603cbc4477a6",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
