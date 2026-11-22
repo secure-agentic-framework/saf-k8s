@@ -1,0 +1,134 @@
+{
+  "fixture_notice": "Entirely invented, inert teaching data. CVE-shaped identifiers are illustrative only and do not assert real assignments or vulnerabilities.",
+  "kubernetes_official_feed_items": [
+    {
+      "id": "CVE-2099-00001",
+      "url": "https://example.invalid/advisories/CVE-2099-00001",
+      "content_text": "Synthetic example only. Affected Versions: kube-apiserver v1.34.0 through versions before v1.35.3. Fixed Versions: v1.35.3. No vulnerability is described.",
+      "summary": "Illustrative kube-apiserver advisory A"
+    },
+    {
+      "id": "CVE-2099-00002",
+      "url": "https://example.invalid/advisories/CVE-2099-00002",
+      "content_text": "Synthetic example only. Affected Versions: kube-apiserver v2.0.0 through versions before v2.1.0. Fixed Versions: v2.1.0. No vulnerability is described.",
+      "summary": "Illustrative kube-apiserver advisory B"
+    }
+  ],
+  "nvd_cve_records": [
+    {
+      "id": "CVE-2099-00001",
+      "metrics": {
+        "cvssMetricV31": [
+          {
+            "source": "example.invalid",
+            "type": "Primary",
+            "cvssData": {
+              "version": "3.1",
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+              "baseScore": 7.5,
+              "baseSeverity": "HIGH"
+            }
+          }
+        ]
+      },
+      "configurations": [
+        {
+          "nodes": [
+            {
+              "operator": "OR",
+              "cpeMatch": [
+                {
+                  "vulnerable": true,
+                  "criteria": "cpe:2.3:a:example:kube_apiserver:*:*:*:*:*:*:*:*",
+                  "versionStartIncluding": "1.34.0",
+                  "versionEndExcluding": "1.35.3"
+                }
+              ],
+              "negate": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CVE-2099-00002",
+      "metrics": {
+        "cvssMetricV31": [
+          {
+            "source": "example.invalid",
+            "type": "Primary",
+            "cvssData": {
+              "version": "3.1",
+              "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "baseScore": 9.8,
+              "baseSeverity": "CRITICAL"
+            }
+          }
+        ]
+      },
+      "configurations": [
+        {
+          "nodes": [
+            {
+              "operator": "OR",
+              "cpeMatch": [
+                {
+                  "vulnerable": true,
+                  "criteria": "cpe:2.3:a:example:kube_apiserver:*:*:*:*:*:*:*:*",
+                  "versionStartIncluding": "2.0.0",
+                  "versionEndExcluding": "2.1.0"
+                }
+              ],
+              "negate": false
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "cisa_kev_records": {
+    "title": "CISA Known Exploited Vulnerabilities Catalog (synthetic fixture)",
+    "catalogVersion": "illustrative",
+    "dateReleased": "2099-01-01T00:00:00.000Z",
+    "count": 1,
+    "vulnerabilities": [
+      {
+        "cveID": "CVE-2099-00001",
+        "vendorProject": "Example",
+        "product": "kube-apiserver",
+        "vulnerabilityName": "Illustrative advisory A",
+        "dateAdded": "2099-01-02",
+        "shortDescription": "Synthetic placeholder; no actual vulnerability or exploitation claim.",
+        "requiredAction": "Illustrative action field only; not a directive or operational deadline.",
+        "dueDate": "2099-02-01",
+        "knownRansomwareCampaignUse": "Unknown",
+        "notes": "Invented record for field-shape demonstration only."
+      }
+    ]
+  },
+  "synthetic_inventory": [
+    {
+      "name": "kube-apiserver-high-risk-example",
+      "cpe23Uri": "cpe:2.3:a:example:kube_apiserver:1.35.2:*:*:*:*:*:*:*",
+      "internet_exposed": true,
+      "criticality": "high"
+    },
+    {
+      "name": "kube-apiserver-cvss-only-example",
+      "cpe23Uri": "cpe:2.3:a:example:kube_apiserver:2.0.5:*:*:*:*:*:*:*",
+      "internet_exposed": false,
+      "criticality": "low"
+    },
+    {
+      "name": "kube-apiserver-not-affected",
+      "cpe23Uri": "cpe:2.3:a:example:kube_apiserver:1.35.3:*:*:*:*:*:*:*",
+      "internet_exposed": true,
+      "criticality": "high"
+    }
+  ],
+  "expected": {
+    "high_risk_id": "CVE-2099-00001",
+    "nonaffected_advisory_id": "CVE-2099-00001",
+    "nonaffected_component": "kube-apiserver-not-affected"
+  }
+}

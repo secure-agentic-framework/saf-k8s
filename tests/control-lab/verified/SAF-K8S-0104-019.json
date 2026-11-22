@@ -1,0 +1,79 @@
+{
+  "control_id": "SAF-K8S-0104-019",
+  "catalog_revision": "313f8d57928b85f679837f527199bd655a5999d7",
+  "catalog_sha256": "714d60f6e8e32a103c413c1cd2606e2a70c104217ddfd71bd1a082c4584eb54c",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "3b6db74ba56bf975e9277bb44fc0e0ca441a351cc955872e16fdc733a90af68f",
+  "scope": "Kubernetes runs two Jobs over identical inert advisory metadata and synthetic inventory. The fixture compares the scheduling and triage outputs of severity-only and contextual rules. Live feeds, production inventory and patch SLA enforcement require separate evidence.",
+  "cluster": "saf-lab-b8c363ee23a5",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A completed severity-only Job ranks a different affected record first",
+      "matched": true,
+      "observed": {
+        "identical_candidates": true,
+        "severity_order": [
+          "CVE-2099-00002",
+          "CVE-2099-00001"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The completed contextual Job ranks the exposed KEV fixture first",
+      "matched": true,
+      "observed": {
+        "contextual_order": [
+          "CVE-2099-00001",
+          "CVE-2099-00002"
+        ],
+        "range": {
+          "versionEndExcluding": "1.35.3",
+          "versionStartIncluding": "1.34.0"
+        },
+        "known_exploited": true,
+        "internet_exposed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The version at the exclusive upper bound is absent from the findings",
+      "matched": true,
+      "observed": {
+        "upper_boundary_excluded": true
+      }
+    }
+  ]
+}
