@@ -1,0 +1,168 @@
+{
+  "control_id": "SAF-K8S-0902-011",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "728fe0efb76151ba5ee946b744e7cdb6c2eb6d9ba7042e81fb983d601bd98a36",
+  "scope": "One disposable Kubernetes v1.36.1 Kind cluster and one case-owned, single-replica Python mock endpoint. A bounded, fixed-marker streaming filter receives three benign fixture chunks and holds at most a chunk plus the longest marker window. Separate loopback HTTP clients collect the disabled-filter control and enabled-filter response over HTTP/1.1 chunked encoding, with a client acknowledgement before the source releases the rest. The evidence establishes only withholding of one fixture-designated dummy word across chunk seams while a permitted public synthetic marker remains visible. It does not validate real PII/secret classes, policy classifiers, real protocols or serving stacks, model safety, or production controls.",
+  "review_timing": {
+    "queued_at": "2026-11-22T20:48:27.130023+00:00",
+    "cluster_ready_at": "2026-11-22T20:49:06.519390+00:00",
+    "approval_at": "2026-11-22T20:50:19.224975+00:00",
+    "case_loaded_at": "2026-11-22T20:50:19.450973+00:00"
+  },
+  "cluster": "saf-lab-1804f7f8a006",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "95c3a3b07043f6a99a8ebbb7f1deb7e5c0b29b9bb8064af95e7d0f7a230f3d91",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Fixed benign source fixture is bounded and splits both markers across chunks",
+      "matched": true,
+      "observed": {
+        "both_markers_cross_chunk_boundaries": true,
+        "source_bytes_within_limit": true,
+        "each_chunk_within_limit": true,
+        "longest_marker_window_characters": 26
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The owned mock streaming endpoint is API-observed Ready",
+      "matched": true,
+      "observed": {
+        "ready_replicas": 1,
+        "deployment_uid_present": true,
+        "image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without filtering, the fixture-designated dummy marker reaches the client",
+      "matched": true,
+      "observed": {
+        "status": 200,
+        "filter_header": "disabled",
+        "client_read_sizes": [
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          1
+        ],
+        "permitted_marker_reached_client": true,
+        "dummy_marker_reached_client": true,
+        "chunked_prefix_before_source_continued": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "With filtering enabled, the dummy marker never reaches the client",
+      "matched": true,
+      "observed": {
+        "status": 200,
+        "filter_header": "enabled",
+        "client_read_sizes": [
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5
+        ],
+        "dummy_marker_absent_from_client": true,
+        "redaction_marker_present": true,
+        "permitted_marker_reached_client": true,
+        "client_body": "Permitted public synthetic marker: SAF_PUBLIC_0902_011. Fixture-designated private dummy word: [REDACTED]. End of fixed benign fixture.",
+        "chunked_prefix_before_source_continued": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The permitted public synthetic marker still reaches the client",
+      "matched": true,
+      "observed": {
+        "permitted_marker_reached_client": true,
+        "status": 200,
+        "filter_header": "enabled"
+      }
+    }
+  ]
+}

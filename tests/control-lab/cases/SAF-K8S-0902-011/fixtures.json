@@ -1,0 +1,16 @@
+{
+  "endpoint_id": "SYNTH-ENDPOINT-0902-011",
+  "permitted_marker": "SAF_PUBLIC_0902_011",
+  "forbidden_dummy_marker": "SAF_PRIVATE_DUMMY_0902_011",
+  "chunks": [
+    "Permitted public synthetic marker: SAF_PUBLIC_0902_",
+    "011. Fixture-designated private dummy word: SAF_PRIVATE_DUMMY_",
+    "0902_011. End of fixed benign fixture."
+  ],
+  "replacement": "[REDACTED]",
+  "limits": {
+    "max_response_bytes": 1024,
+    "max_chunk_bytes": 64,
+    "client_read_bytes": 5
+  }
+}
