@@ -1182,6 +1182,12 @@
       "sha256": "1116d92cb8887aa2ae81c1ca08c9d8caec68038295f640eeedc9efcb4896f045",
       "title": "LLM context window and token resource controls"
     },
+    "SAF-K8S-0903-006": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "5c4582f5be676b74c6d7484a835bea43bd84f6f8dc85e7fe37648270873ca243",
+      "title": "Inference request queue priority, timeout, and depth controls"
+    },
     "SAF-K8S-0903-007": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1670,7 +1676,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "4bc574c712eed2099f46734d6fd17e42e8e0cdcd",
+  "revision": "3d3e53cec6bb56cb7d1cdcdfeddf77b71f40ddfc",
   "sha256": "048037b90a24d7ec93c499b5090f5453e3fe06e6708b6dbb8ea5d9294d79cf1b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

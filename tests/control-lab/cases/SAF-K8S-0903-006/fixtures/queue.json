@@ -1,0 +1,17 @@
+{
+  "control_id": "SAF-K8S-0903-006",
+  "max_pending": 2,
+  "class_priority": {"standard": 10, "priority": 20},
+  "principal_classes": {
+    "synthetic-standard-principal": ["standard"],
+    "synthetic-priority-principal": ["priority"]
+  },
+  "jobs": [
+    {"id": "happy-001", "class": "standard", "principal": "synthetic-standard-principal", "ttl": 5},
+    {"id": "wait-standard-001", "class": "standard", "principal": "synthetic-standard-principal", "ttl": 20},
+    {"id": "wait-priority-001", "class": "priority", "principal": "synthetic-priority-principal", "ttl": 20},
+    {"id": "denied-priority-001", "class": "priority", "principal": "synthetic-priority-principal", "ttl": 20},
+    {"id": "overflow-001", "class": "standard", "principal": "synthetic-standard-principal", "ttl": 20},
+    {"id": "expire-001", "class": "standard", "principal": "synthetic-standard-principal", "ttl": 2}
+  ]
+}

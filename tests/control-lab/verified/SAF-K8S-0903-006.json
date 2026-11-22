@@ -1,0 +1,222 @@
+{
+  "control_id": "SAF-K8S-0903-006",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "5c4582f5be676b74c6d7484a835bea43bd84f6f8dc85e7fe37648270873ca243",
+  "scope": "One disposable Kind cluster and one local-only Python serving fixture (one replica). The fixture accepts a fixed set of benign job IDs, caps waiting depth at two, maps synthetic principals to service classes, orders held work by class, and uses a manually advanced fixture clock to expire one waiting item. All queue receipts and execution records come from the running server process. Calls use localhost inside its Pod; no Service, external endpoint, model, secrets, or live target is involved. Synthetic principal labels exercise class authorization policy only; they are not authenticated identities. This does not validate production authentication, gateway integration, real inference, multi-replica queue coordination, durable receipts, or production timeout semantics.",
+  "cluster": "saf-lab-3d8812bebd43",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Unenforced queue exceeds configured depth, drains in arrival order, and dispatches the expired job",
+      "matched": true,
+      "observed": {
+        "pending_at_expiry": [
+          "wait-standard-001",
+          "wait-priority-001",
+          "overflow-001",
+          "expire-001"
+        ],
+        "executed": [
+          "wait-standard-001",
+          "wait-priority-001",
+          "overflow-001",
+          "expire-001"
+        ],
+        "admitted": 4
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An authorized standard job follows the unchanged happy path and executes exactly once",
+      "matched": true,
+      "observed": {
+        "submit": {
+          "job_id": "happy-001",
+          "receipt": {
+            "accepted_at": 0,
+            "executed_at": 0,
+            "execution_count": 1,
+            "job_id": "happy-001",
+            "principal": "synthetic-standard-principal",
+            "service_class": "standard",
+            "status": "executed"
+          },
+          "status": 200
+        },
+        "receipt": {
+          "accepted_at": 0,
+          "executed_at": 0,
+          "execution_count": 1,
+          "job_id": "happy-001",
+          "principal": "synthetic-standard-principal",
+          "service_class": "standard",
+          "status": "executed"
+        },
+        "executed": [
+          "happy-001"
+        ],
+        "pending_depth": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A standard principal cannot select the independently authorized priority class",
+      "matched": true,
+      "observed": {
+        "response": {
+          "job_id": "denied-priority-001",
+          "reason": "service_class_not_authorized",
+          "status": 403
+        },
+        "receipt": {
+          "execution_count": 0,
+          "job_id": "denied-priority-001",
+          "principal": "synthetic-standard-principal",
+          "reason": "service_class_not_authorized",
+          "service_class": "priority",
+          "status": "rejected"
+        },
+        "pending_depth": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "At most two authorized jobs wait; the next fixed job gets a depth-limit receipt",
+      "matched": true,
+      "observed": {
+        "hold": {
+          "dispatch_held": true
+        },
+        "pending": [
+          "wait-priority-001",
+          "wait-standard-001"
+        ],
+        "pending_depth": 2,
+        "limit": 2,
+        "overflow_response": {
+          "job_id": "overflow-001",
+          "reason": "queue_depth_limit",
+          "status": 429
+        },
+        "overflow_receipt": {
+          "execution_count": 0,
+          "job_id": "overflow-001",
+          "principal": "synthetic-standard-principal",
+          "reason": "queue_depth_limit",
+          "service_class": "standard",
+          "status": "rejected"
+        },
+        "executed": [
+          "happy-001"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Two independently authorized waiting classes drain by service-class priority",
+      "matched": true,
+      "observed": {
+        "release": {
+          "dispatch_held": false
+        },
+        "execution_order": [
+          "happy-001",
+          "wait-priority-001",
+          "wait-standard-001"
+        ],
+        "priority_receipt": {
+          "accepted_at": 0,
+          "executed_at": 0,
+          "execution_count": 1,
+          "job_id": "wait-priority-001",
+          "principal": "synthetic-priority-principal",
+          "service_class": "priority",
+          "status": "executed"
+        },
+        "standard_receipt": {
+          "accepted_at": 0,
+          "executed_at": 0,
+          "execution_count": 1,
+          "job_id": "wait-standard-001",
+          "principal": "synthetic-standard-principal",
+          "service_class": "standard",
+          "status": "executed"
+        },
+        "pending_depth": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Expiry removes a waiting job and records zero executions",
+      "matched": true,
+      "observed": {
+        "submit": {
+          "job_id": "expire-001",
+          "receipt": {
+            "accepted_at": 0,
+            "execution_count": 0,
+            "job_id": "expire-001",
+            "principal": "synthetic-standard-principal",
+            "service_class": "standard",
+            "status": "queued"
+          },
+          "status": 202
+        },
+        "pending_before_expiry": [
+          "expire-001"
+        ],
+        "clock_advance": {
+          "clock": 2
+        },
+        "receipt": {
+          "accepted_at": 0,
+          "execution_count": 0,
+          "expired_at": 2,
+          "job_id": "expire-001",
+          "principal": "synthetic-standard-principal",
+          "service_class": "standard",
+          "status": "expired"
+        },
+        "pending_after_expiry": [],
+        "executed": [
+          "happy-001",
+          "wait-priority-001",
+          "wait-standard-001"
+        ]
+      }
+    }
+  ]
+}
