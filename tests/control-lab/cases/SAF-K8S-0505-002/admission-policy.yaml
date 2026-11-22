@@ -1,0 +1,44 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0505-002-service-exposure
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: [CREATE, UPDATE]
+        resources: ["services"]
+  validations:
+    - expression: >-
+        object.spec.type != "NodePort" && object.spec.type != "LoadBalancer" ||
+        (object.metadata.namespace == "saf-k8s-0505-approved" &&
+         request.userInfo.username == "system:serviceaccount:saf-k8s-0505-approved:platform-exposure-owner" &&
+         has(object.metadata.labels) &&
+         object.metadata.labels["saf-k8s.example/exposure-owner"] == "platform-engineering" &&
+         has(object.metadata.annotations) &&
+         object.metadata.annotations["saf-k8s.example/exposure-approval"] == "synthetic-dry-run-approval-v1" &&
+         object.metadata.name.matches("^approved-[a-z0-9-]+$"))
+      message: "NodePort and LoadBalancer Services require the scoped platform exposure owner approval"
+      reason: Forbidden
+    - expression: >-
+        !has(object.spec.externalIPs) || size(object.spec.externalIPs) == 0 ||
+        (object.metadata.namespace == "saf-k8s-0505-approved" &&
+         request.userInfo.username == "system:serviceaccount:saf-k8s-0505-approved:platform-exposure-owner" &&
+         has(object.metadata.labels) &&
+         object.metadata.labels["saf-k8s.example/exposure-owner"] == "platform-engineering" &&
+         has(object.metadata.annotations) &&
+         object.metadata.annotations["saf-k8s.example/exposure-approval"] == "synthetic-dry-run-approval-v1" &&
+         object.metadata.name.matches("^approved-[a-z0-9-]+$") &&
+         object.spec.externalIPs.all(ip, ip.matches("^192\\.0\\.2\\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$")))
+      message: "ExternalIPs require scoped platform exposure owner approval and must use the reserved 192.0.2.0/24 documentation range"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0505-002-service-exposure
+spec:
+  policyName: saf-k8s-0505-002-service-exposure
+  validationActions: [Deny]

@@ -1,0 +1,296 @@
+{
+  "control_id": "SAF-K8S-0505-002",
+  "catalog_revision": "7e7b463c49aefba0c8641919e0ab030a9a48ca0b",
+  "catalog_sha256": "6a0fac460ca17335f8678039750a9d383e07a25de2e9203167cc3e6125ed961f",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "e25106f85d3b9744d569df177ace1b4d98296a175b4072d5d801f1f8211e4593",
+  "scope": "Fresh Kubernetes v1.36.1 Kind cluster; Service CREATE and UPDATE admission for NodePort, LoadBalancer, and reserved documentation-only ExternalIPs, with exact synthetic owner-namespace exception and genuine projected identities. The built-in admission plugin is verified on a separate disposable node. All exposure-shaped requests are server-side dry-runs. Only selector-less ClusterIP Services are persisted; real network exposure and production registry behavior are outside this fixture.",
+  "cluster": "saf-lab-0dd997d5c9eb",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The direct case token authenticates the intended platform-exposure-owner identity",
+      "matched": true,
+      "observed": {
+        "authenticated_identity": "system:serviceaccount:saf-k8s-0505-approved:platform-exposure-owner",
+        "expected": "system:serviceaccount:saf-k8s-0505-approved:platform-exposure-owner"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The direct case token authenticates the intended service-developer identity",
+      "matched": true,
+      "observed": {
+        "authenticated_identity": "system:serviceaccount:saf-k8s-0505-enforced:service-developer",
+        "expected": "system:serviceaccount:saf-k8s-0505-enforced:service-developer"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Unenforced CREATE admits NodePort / ExternalIPs shape",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "external_ip_deprecation_warning": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Unenforced UPDATE admits NodePort / ExternalIPs shape",
+      "matched": true,
+      "observed": "server dry-run admitted"
+    },
+    {
+      "phase": "red",
+      "claim": "Unenforced CREATE admits LoadBalancer / ExternalIPs shape",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "external_ip_deprecation_warning": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Unenforced UPDATE admits LoadBalancer / ExternalIPs shape",
+      "matched": true,
+      "observed": "server dry-run admitted"
+    },
+    {
+      "phase": "red",
+      "claim": "Unenforced CREATE admits ClusterIP / ExternalIPs shape",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "external_ip_deprecation_warning": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Unenforced UPDATE admits ClusterIP / ExternalIPs shape",
+      "matched": true,
+      "observed": "Warning: spec.externalIPs is deprecated and may no longer be implemented in some clusters"
+    },
+    {
+      "phase": "green",
+      "claim": "NodePort request reaches active VAP and gets its stable denial",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": services \"activation-probe\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0505-002-service-exposure' with binding 'saf-k8s-0505-002-service-exposure' denied request: NodePort and LoadBalancer Services require the scoped platform exposure owner approval"
+    },
+    {
+      "phase": "green",
+      "claim": "Enforced CREATE denies counterfactual 1",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": services \"deny-create-0\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0505-002-service-exposure' with binding 'saf-k8s-0505-002-service-exposure' denied request: NodePort and LoadBalancer Services require the scoped platform exposure owner approval"
+    },
+    {
+      "phase": "green",
+      "claim": "Enforced CREATE denies counterfactual 2",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": services \"deny-create-1\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0505-002-service-exposure' with binding 'saf-k8s-0505-002-service-exposure' denied request: NodePort and LoadBalancer Services require the scoped platform exposure owner approval"
+    },
+    {
+      "phase": "green",
+      "claim": "Enforced CREATE denies counterfactual 3",
+      "matched": true,
+      "observed": "Warning: spec.externalIPs is deprecated and may no longer be implemented in some clusters\nError from server (Forbidden): error when creating \"STDIN\": services \"deny-create-2\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0505-002-service-exposure' with binding 'saf-k8s-0505-002-service-exposure' denied request: ExternalIPs require scoped platform exposure owner approval and must use the reserved 192.0.2.0/24 documentation range"
+    },
+    {
+      "phase": "green",
+      "claim": "Enforced CREATE denies counterfactual 4",
+      "matched": true,
+      "observed": "Warning: spec.externalIPs is deprecated and may no longer be implemented in some clusters\nError from server (Forbidden): error when creating \"STDIN\": services \"deny-create-3\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0505-002-service-exposure' with binding 'saf-k8s-0505-002-service-exposure' denied request: NodePort and LoadBalancer Services require the scoped platform exposure owner approval"
+    },
+    {
+      "phase": "green",
+      "claim": "Enforced CREATE denies counterfactual 5",
+      "matched": true,
+      "observed": "Warning: spec.externalIPs is deprecated and may no longer be implemented in some clusters\nError from server (Forbidden): error when creating \"STDIN\": services \"deny-create-4\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0505-002-service-exposure' with binding 'saf-k8s-0505-002-service-exposure' denied request: NodePort and LoadBalancer Services require the scoped platform exposure owner approval"
+    },
+    {
+      "phase": "green",
+      "claim": "Enforced CREATE denies counterfactual 6",
+      "matched": true,
+      "observed": "Warning: spec.externalIPs is deprecated and may no longer be implemented in some clusters\nError from server (Forbidden): error when creating \"STDIN\": services \"deny-create-5\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0505-002-service-exposure' with binding 'saf-k8s-0505-002-service-exposure' denied request: ExternalIPs require scoped platform exposure owner approval and must use the reserved 192.0.2.0/24 documentation range"
+    },
+    {
+      "phase": "green",
+      "claim": "Enforced UPDATE denies counterfactual 1",
+      "matched": true,
+      "observed": "Error from server (Forbidden): services \"saf-0505-harmless-clusterip\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0505-002-service-exposure' with binding 'saf-k8s-0505-002-service-exposure' denied request: NodePort and LoadBalancer Services require the scoped platform exposure owner approval"
+    },
+    {
+      "phase": "green",
+      "claim": "Enforced UPDATE denies counterfactual 2",
+      "matched": true,
+      "observed": "Error from server (Forbidden): services \"saf-0505-harmless-clusterip\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0505-002-service-exposure' with binding 'saf-k8s-0505-002-service-exposure' denied request: NodePort and LoadBalancer Services require the scoped platform exposure owner approval"
+    },
+    {
+      "phase": "green",
+      "claim": "Enforced UPDATE denies counterfactual 3",
+      "matched": true,
+      "observed": "Warning: spec.externalIPs is deprecated and may no longer be implemented in some clusters\nError from server (Forbidden): services \"saf-0505-harmless-clusterip\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0505-002-service-exposure' with binding 'saf-k8s-0505-002-service-exposure' denied request: ExternalIPs require scoped platform exposure owner approval and must use the reserved 192.0.2.0/24 documentation range"
+    },
+    {
+      "phase": "green",
+      "claim": "Enforced UPDATE denies counterfactual 4",
+      "matched": true,
+      "observed": "Warning: spec.externalIPs is deprecated and may no longer be implemented in some clusters\nError from server (Forbidden): services \"saf-0505-harmless-clusterip\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0505-002-service-exposure' with binding 'saf-k8s-0505-002-service-exposure' denied request: NodePort and LoadBalancer Services require the scoped platform exposure owner approval"
+    },
+    {
+      "phase": "green",
+      "claim": "Enforced UPDATE denies counterfactual 5",
+      "matched": true,
+      "observed": "Warning: spec.externalIPs is deprecated and may no longer be implemented in some clusters\nError from server (Forbidden): services \"saf-0505-harmless-clusterip\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0505-002-service-exposure' with binding 'saf-k8s-0505-002-service-exposure' denied request: NodePort and LoadBalancer Services require the scoped platform exposure owner approval"
+    },
+    {
+      "phase": "green",
+      "claim": "Enforced UPDATE denies counterfactual 6",
+      "matched": true,
+      "observed": "Warning: spec.externalIPs is deprecated and may no longer be implemented in some clusters\nError from server (Forbidden): services \"saf-0505-harmless-clusterip\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0505-002-service-exposure' with binding 'saf-k8s-0505-002-service-exposure' denied request: ExternalIPs require scoped platform exposure owner approval and must use the reserved 192.0.2.0/24 documentation range"
+    },
+    {
+      "phase": "green",
+      "claim": "Owner identity cannot carry exception into another namespace",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": services \"approved-wrong-namespace\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0505-002-service-exposure' with binding 'saf-k8s-0505-002-service-exposure' denied request: NodePort and LoadBalancer Services require the scoped platform exposure owner approval"
+    },
+    {
+      "phase": "green",
+      "claim": "Developer identity cannot use the owner exception",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": services \"approved-wrong-actor\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0505-002-service-exposure' with binding 'saf-k8s-0505-002-service-exposure' denied request: NodePort and LoadBalancer Services require the scoped platform exposure owner approval"
+    },
+    {
+      "phase": "positive",
+      "claim": "Scoped owner can dry-run approved NodePort / ExternalIPs",
+      "matched": true,
+      "observed": "server dry-run admitted"
+    },
+    {
+      "phase": "positive",
+      "claim": "Scoped owner can dry-run approved LoadBalancer / ExternalIPs",
+      "matched": true,
+      "observed": "server dry-run admitted"
+    },
+    {
+      "phase": "positive",
+      "claim": "Scoped owner can dry-run approved ClusterIP / ExternalIPs",
+      "matched": true,
+      "observed": "Warning: spec.externalIPs is deprecated and may no longer be implemented in some clusters"
+    },
+    {
+      "phase": "positive",
+      "claim": "Scoped owner can dry-run approved NodePort UPDATE",
+      "matched": true,
+      "observed": "server dry-run admitted"
+    },
+    {
+      "phase": "positive",
+      "claim": "Scoped owner can dry-run approved LoadBalancer UPDATE",
+      "matched": true,
+      "observed": "server dry-run admitted"
+    },
+    {
+      "phase": "positive",
+      "claim": "Scoped owner can dry-run approved ExternalIPs UPDATE",
+      "matched": true,
+      "observed": "Warning: spec.externalIPs is deprecated and may no longer be implemented in some clusters"
+    },
+    {
+      "phase": "green",
+      "claim": "Owner exception rejects addresses outside reserved 192.0.2.0/24",
+      "matched": true,
+      "observed": "Warning: spec.externalIPs is deprecated and may no longer be implemented in some clusters\nError from server (Forbidden): error when creating \"STDIN\": services \"approved-wrong-pattern\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0505-002-service-exposure' with binding 'saf-k8s-0505-002-service-exposure' denied request: ExternalIPs require scoped platform exposure owner approval and must use the reserved 192.0.2.0/24 documentation range"
+    },
+    {
+      "phase": "green",
+      "claim": "Owner exception requires the platform owner label",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": services \"approved-wrong-label\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0505-002-service-exposure' with binding 'saf-k8s-0505-002-service-exposure' denied request: NodePort and LoadBalancer Services require the scoped platform exposure owner approval"
+    },
+    {
+      "phase": "green",
+      "claim": "Owner exception requires the exact approval annotation",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": services \"approved-wrong-approval\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0505-002-service-exposure' with binding 'saf-k8s-0505-002-service-exposure' denied request: NodePort and LoadBalancer Services require the scoped platform exposure owner approval"
+    },
+    {
+      "phase": "positive",
+      "claim": "Ordinary ClusterIP Service remains admissible after policy",
+      "matched": true,
+      "observed": "selector-less ClusterIP persisted; it has no endpoints or external exposure"
+    },
+    {
+      "phase": "red",
+      "claim": "The exact API server binary rejects the catalogued feature-gate form",
+      "matched": true,
+      "observed": {
+        "unknown_gate_reported": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The configured native plugin still permits an ordinary ClusterIP",
+      "matched": true,
+      "observed": {
+        "native_plugin_in_live_args": true,
+        "ordinary_service_created": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The native validating plugin rejects new ExternalIPs on CREATE",
+      "matched": true,
+      "observed": {
+        "native_external_ip_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The native validating plugin rejects new ExternalIPs on UPDATE",
+      "matched": true,
+      "observed": {
+        "native_external_ip_denial": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The independent native-plugin cluster was removed",
+      "matched": true,
+      "observed": {
+        "peer_deleted": true
+      }
+    }
+  ]
+}
