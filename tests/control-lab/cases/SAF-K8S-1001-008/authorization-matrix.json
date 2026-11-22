@@ -1,0 +1,64 @@
+{
+  "fixture_type": "synthetic-audit-response-authorization-matrix",
+  "control_id": "SAF-K8S-1001-008",
+  "finding": {
+    "id": "SYN-AUDIT-008-01",
+    "source": "mock Kubernetes audit metadata",
+    "severity": "moderate",
+    "summary": "Synthetic read-only review finding; no real event or target is represented."
+  },
+  "actions": [
+    {
+      "action": "investigation_read",
+      "permitted": true,
+      "required_approvers": ["synthetic-grc-approver", "synthetic-audit-owner"],
+      "authorized_subject": "system:serviceaccount:saf-1001-008:response-investigator",
+      "resource": "core/configmaps/finding-approved",
+      "verbs": ["get"],
+      "decision": "approved",
+      "approval_id": "SYN-APPROVAL-008-01"
+    },
+    {
+      "action": "escalation",
+      "permitted": true,
+      "condition": "severity is high or critical, or the approved investigation identifies material impact",
+      "required_approvers": ["synthetic-security-operations-lead"],
+      "disposition": "defined in matrix; not exercised by this case"
+    },
+    {
+      "action": "policy_adjustment",
+      "permitted": true,
+      "condition": "documented change request and separate change approval are present",
+      "required_approvers": ["synthetic-policy-owner", "synthetic-change-approver"],
+      "disposition": "explicitly withheld and not exercised by this case"
+    },
+    {
+      "action": "access_control_modification",
+      "permitted": true,
+      "decision": "approved",
+      "approval_id": "SYN-APPROVAL-008-01",
+      "condition": "documented access request and resource-owner approval are present",
+      "required_approvers": ["synthetic-iam-approver", "synthetic-resource-owner"],
+      "disposition": "only the single approved read grant below is exercised"
+    },
+    {
+      "action": "closure_verification",
+      "permitted": true,
+      "condition": "independent reviewer confirms the decision and evidence",
+      "required_approvers": ["synthetic-independent-reviewer"],
+      "disposition": "read-back is checked; organizational closure workflow is not exercised"
+    }
+  ],
+  "enforcement_decision": {
+    "approval_id": "SYN-APPROVAL-008-01",
+    "status": "approved",
+    "authorization_actions": ["investigation_read", "access_control_modification"],
+    "approver_identities": ["synthetic-grc-approver", "synthetic-audit-owner", "synthetic-iam-approver", "synthetic-resource-owner"],
+    "subject": "system:serviceaccount:saf-1001-008:response-investigator",
+    "namespace": "saf-1001-008",
+    "resource": "configmaps/finding-approved",
+    "verbs": ["get"],
+    "expires": "case-run-only",
+    "fixture_notice": "Synthetic approval metadata. It is not an organizational approval or production authorization."
+  }
+}

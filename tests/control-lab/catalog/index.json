@@ -1080,6 +1080,12 @@
       "sha256": "fae14622a867ccba17728cfb10cd5188ab094099f8868c7492272538453e405e",
       "title": "Supplemental application-level telemetry for AI workload events"
     },
+    "SAF-K8S-1001-008": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "2569412d314b4854ce61bb727df25efa6fcf55ad5d58d15dbd8b14308f86eb87",
+      "title": "Permitted responses to audit findings"
+    },
     "SAF-K8S-1001-010": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1514,7 +1520,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "de030475fb57d4e834414edb3143c9c70cc6befb",
+  "revision": "d57b9dc265aa0ce1534d13524e3eb1a4078a6c52",
   "sha256": "28e2e795c3d0eee859ba13f7c7c1e62c33d93955ba867c40a0060d1dfd1984cb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
