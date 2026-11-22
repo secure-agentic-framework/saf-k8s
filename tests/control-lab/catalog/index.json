@@ -528,6 +528,12 @@
       "sha256": "f0f7ebe6a67f123f4eb36aa66a0a9d13a9fa0fabac762495e98cdda9e866262e",
       "title": "Secrets KMS key rotation and re-encryption verification"
     },
+    "SAF-K8S-0403-024": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "e7758d2cb79b1cabc2a52aeb9bc1af75823d7c4a412fe41a91b06fb24ffe65c8",
+      "title": "Credential lifecycle metrics publication and governance"
+    },
     "SAF-K8S-0403-029": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -854,7 +860,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "f579f3911d513b5a6890038a62ad5f625e73f9bb",
+  "revision": "c5851ee28f9acddd9841d815483ba15fc3551e2f",
   "sha256": "e49cf10ac7e0e6cdfa7c6edb5e9221c7365257496c7df4c6f2e760056cb53a97",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

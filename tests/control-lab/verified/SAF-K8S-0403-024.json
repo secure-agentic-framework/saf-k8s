@@ -1,0 +1,112 @@
+{
+  "control_id": "SAF-K8S-0403-024",
+  "catalog_revision": "8499ab6eef453f23e74e24a1ab43555af4bd89f0",
+  "catalog_sha256": "115d55b7443aed0213c5b909968f35b73439c1376fb56857836f63c2b08ce322",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "e7758d2cb79b1cabc2a52aeb9bc1af75823d7c4a412fe41a91b06fb24ffe65c8",
+  "scope": "One case-owned Python producer serves allowlisted aggregate metrics computed from a fixed set of synthetic credential metadata events in Kind. A live digest-pinned Prometheus instance scrapes that Service every 2 seconds and queries its samples. The synthetic event window is exactly 300 seconds; issuance rate is events per second. No credential value or external scrape target is used. This tests the fixture producer and scrape/query path only, not ingestion from Vault, cloud IAM, Kubernetes token issuers, API-key stores, model registries, dashboards, review workflows, or production coverage.",
+  "cluster": "saf-lab-cfd083ddf16b",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Prometheus scrape targets are only the in-cluster fixture Service",
+      "matched": true,
+      "observed": {
+        "scrape_interval_seconds": 2,
+        "target": "saf-0403-024-exporter:9400",
+        "external_targets": 0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Live Prometheus target inventory contains only the two in-cluster fixture paths",
+      "matched": true,
+      "observed": {
+        "active_targets": [
+          [
+            "credential-empty-baseline",
+            "saf-0403-024-exporter:9400",
+            "baseline",
+            "up"
+          ],
+          [
+            "credential-metadata-fixture",
+            "saf-0403-024-exporter:9400",
+            "metrics",
+            "up"
+          ]
+        ],
+        "external_targets": 0
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Empty baseline publishes no credential issuance sample",
+      "matched": true,
+      "observed": {
+        "baseline_series": []
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Prometheus query matches synthetic metadata totals, units, and policy exclusions",
+      "matched": true,
+      "observed": {
+        "window_seconds": 300,
+        "issuance_events": 4.0,
+        "issuance_rate_events_per_second": 0.013333333333333334,
+        "mean_ttl_seconds": 5400.0,
+        "ttl_observed_count": 3.0,
+        "ttl_missing_count": 1.0,
+        "orphan_numerator": 1.0,
+        "orphan_denominator": 4.0,
+        "orphan_rate": 0.25,
+        "approved_exception_count": 2.0,
+        "duplicate_rejected": 1.0,
+        "unapproved_rejected": 1.0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Published series contain only bounded case/job/instance labels",
+      "matched": true,
+      "observed": {
+        "producer_labels": [
+          "case_id"
+        ],
+        "event_or_credential_labels": 0
+      }
+    }
+  ]
+}
