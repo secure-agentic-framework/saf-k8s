@@ -1260,6 +1260,12 @@
       "sha256": "ec4d26b3ae76623533a3d4822d86de61b5df13bd2b586dbf1e0cb2f8135493f2",
       "title": "Technique-aligned detection engineering for Kubernetes AI attack scenarios"
     },
+    "SAF-K8S-1004-001": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "e23e0fe9b1714cdc62fc3c9da098185f83b81f2f220db37fad6c9d6e4a0fd5c9",
+      "title": "ML threat taxonomy per CTA-2114 mapped to Kubernetes"
+    },
     "SAF-K8S-1006-004": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1292,7 +1298,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c56841459be4cb8249b39b3efd3ecf587ef01afe",
+  "revision": "a8174eaf60366e3d3be5da4b4c5a13e0b2ffcb33",
   "sha256": "a0136783421c2c5f3387b92e1cbc8722c1faf77205eda1623cee5d4dc8a05bee",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

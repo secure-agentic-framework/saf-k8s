@@ -1,0 +1,220 @@
+{
+  "format": "saf-k8s-1004-001-v1",
+  "provenance": {
+    "cta_source": "https://www.cta.tech/standards/mitigating-cybersecurity-threats-in-ml-based-systems/",
+    "cta_title": "Mitigating Cybersecurity Threats in ML-Based Systems (CTA-2114)",
+    "cta_public_status": "Title, publication date (November 2025), and summary verified; full report is behind member login or paid access. Exact class names and distinctions are not publicly inspectable here.",
+    "comparator": "NIST AI 100-2e2025, March 2025; https://doi.org/10.6028/NIST.AI.100-2e2025",
+    "mapping_status": "Illustrative worksheet; control-asserted labels are not attributed to CTA-2114 without access to the normative text. NIST labels remain separately namespaced."
+  },
+  "classes": [
+    {
+      "id": "control.data_poisoning",
+      "label": "Data Poisoning",
+      "source": "control assertion; CTA exact terminology unverified",
+      "surfaces": [
+        "training-data storage",
+        "data ingestion pipeline"
+      ],
+      "controls": [
+        "dataset provenance review",
+        "versioned approval and integrity checks"
+      ],
+      "detections": [
+        "unexpected dataset digest or lineage change"
+      ],
+      "owner": "AI/ML Engineering"
+    },
+    {
+      "id": "control.model_poisoning",
+      "label": "Model Poisoning",
+      "source": "control assertion; CTA exact terminology unverified",
+      "surfaces": [
+        "model registry",
+        "artifact storage"
+      ],
+      "controls": [
+        "signed model provenance",
+        "promotion approval"
+      ],
+      "detections": [
+        "unapproved model digest or lineage"
+      ],
+      "owner": "AI/ML Engineering"
+    },
+    {
+      "id": "control.targeted_poisoning",
+      "label": "Targeted Poisoning",
+      "source": "control assertion; CTA exact terminology unverified",
+      "surfaces": [
+        "training data pipeline",
+        "model evaluation"
+      ],
+      "controls": [
+        "dataset review",
+        "holdout evaluation"
+      ],
+      "detections": [
+        "targeted evaluation regression"
+      ],
+      "owner": "AI/ML Engineering"
+    },
+    {
+      "id": "control.label_modification",
+      "label": "Label Modification",
+      "source": "control assertion; CTA exact terminology unverified",
+      "surfaces": [
+        "labeling workflow",
+        "training-data storage"
+      ],
+      "controls": [
+        "label change audit and approval"
+      ],
+      "detections": [
+        "unexpected label distribution change"
+      ],
+      "owner": "Data Governance"
+    },
+    {
+      "id": "control.model_disclosure",
+      "label": "Model Disclosure",
+      "source": "control assertion; CTA exact terminology unverified",
+      "surfaces": [
+        "inference service",
+        "model registry"
+      ],
+      "controls": [
+        "access authorization",
+        "model artifact access audit"
+      ],
+      "detections": [
+        "anomalous model artifact access"
+      ],
+      "owner": "Security Architecture"
+    },
+    {
+      "id": "control.data_disclosure",
+      "label": "Data Disclosure",
+      "source": "control assertion; CTA exact terminology unverified",
+      "surfaces": [
+        "inference service",
+        "training-data access"
+      ],
+      "controls": [
+        "data minimization",
+        "access review"
+      ],
+      "detections": [
+        "privacy evaluation threshold event"
+      ],
+      "owner": "Privacy Engineering"
+    },
+    {
+      "id": "control.evasion",
+      "label": "Evasion",
+      "source": "control assertion; CTA exact terminology unverified",
+      "surfaces": [
+        "inference service",
+        "network policy"
+      ],
+      "controls": [
+        "input validation",
+        "model robustness evaluation"
+      ],
+      "detections": [
+        "validated input anomaly signal"
+      ],
+      "owner": "Detection Engineering"
+    },
+    {
+      "id": "control.oracle_attacks",
+      "label": "Oracle Attacks (extraction, inversion, membership inference)",
+      "source": "control assertion; CTA exact terminology unverified",
+      "surfaces": [
+        "inference API",
+        "network policy"
+      ],
+      "controls": [
+        "query authorization and rate policy",
+        "privacy review"
+      ],
+      "detections": [
+        "query-pattern or privacy-evaluation alert"
+      ],
+      "owner": "Detection Engineering"
+    },
+    {
+      "id": "control.computational_dos",
+      "label": "Denial of Service via computational complexity",
+      "source": "control assertion; CTA exact terminology unverified",
+      "surfaces": [
+        "inference service",
+        "GPU scheduling",
+        "resource quotas"
+      ],
+      "controls": [
+        "resource requests and limits",
+        "admission and queue policy"
+      ],
+      "detections": [
+        "sustained resource saturation or latency SLO breach"
+      ],
+      "owner": "Platform Engineering"
+    }
+  ],
+  "incident_records": [
+    {
+      "id": "INC-ABSTRACT-01",
+      "summary": "A reviewed training dataset digest changed outside the approved release record.",
+      "observed_surface": "training-data storage",
+      "evidence_ref": "fixture:evidence-01",
+      "signal": "training-data-digest-departure"
+    },
+    {
+      "id": "INC-ABSTRACT-02",
+      "summary": "A privacy evaluation flagged elevated membership signal in a synthetic test result.",
+      "observed_surface": "inference service",
+      "evidence_ref": "fixture:evidence-02",
+      "signal": "privacy-evaluation-signal"
+    },
+    {
+      "id": "INC-ABSTRACT-03",
+      "summary": "A synthetic inference workload exceeded its declared resource budget.",
+      "observed_surface": "GPU scheduling",
+      "evidence_ref": "fixture:evidence-03",
+      "signal": "resource-budget-alert"
+    }
+  ],
+  "comparators": [
+    "NIST AI 100-2e2025 distinguishes dimensions of predictive and generative AI taxonomy."
+  ],
+  "submissions": {
+    "INC-ABSTRACT-01": "control.data_poisoning",
+    "INC-ABSTRACT-02": "control.data_disclosure",
+    "INC-ABSTRACT-03": "control.computational_dos"
+  },
+  "positive_record": {
+    "id": "INC-ABSTRACT-POS",
+    "observed_surface": "model registry",
+    "signal": "model-provenance-review-signal",
+    "evidence_ref": "fixture:evidence-pos"
+  },
+  "evidence": {
+    "fixture:evidence-01": [
+      "training-data-digest-departure",
+      "training-data storage"
+    ],
+    "fixture:evidence-02": [
+      "privacy-evaluation-signal",
+      "inference service"
+    ],
+    "fixture:evidence-03": [
+      "resource-budget-alert",
+      "GPU scheduling"
+    ],
+    "fixture:evidence-pos": [
+      "model-provenance-review-signal",
+      "model registry"
+    ]
+  }
+}
