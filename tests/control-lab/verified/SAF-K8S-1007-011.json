@@ -1,0 +1,269 @@
+{
+  "control_id": "SAF-K8S-1007-011",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "422f1f4fab47ac5cfc7c6d1b30634ee1d1cf29ce841d873870e8ab33327304aa",
+  "scope": "One disposable default-profile Kind v1.36.1 cluster. The case reads live API server, kubectl, controller-manager, scheduler, kubelet, and kube-proxy versions; evaluates a synthetic one-minor maintenance sequence against the official Kubernetes v1.36 skew policy; and records a deliberately out-of-order/incompatible plan as red. A single-replica, tokenless Python Deployment performs no network I/O and carries reserved fixture release markers. The case applies a candidate marker, consumes a synthetic failed-health fixture to choose a rollback target, and verifies Kubernetes API rollout back to the stable marker. It does not upgrade Kubernetes components, cordon/drain nodes, install or upgrade add-ons, perform a Kubernetes version downgrade, or exercise production recovery. It does not establish organizational change approval, managed-service coordination, vendor add-on compatibility, or production service health.",
+  "cluster": "saf-lab-38bc58aa3ca3",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Out-of-order kubelet-first plan and a newer kubelet against the old API server are rejected",
+      "matched": true,
+      "observed": {
+        "observed_versions": {
+          "api_server": "v1.36.1",
+          "kubectl": "v1.36.1",
+          "controller_manager": "v1.36.1",
+          "scheduler": "v1.36.1",
+          "kube_proxy": "v1.36.1",
+          "kubelets": {
+            "control-plane": "v1.36.1"
+          }
+        },
+        "candidate_version": "v1.37.0",
+        "incorrect_order": [
+          "drain_each_node_then_kubelet",
+          "control_plane_api_server",
+          "control_plane_components",
+          "kube_proxy_after_api_server",
+          "post_upgrade_validation"
+        ],
+        "incorrect_order_rejected": true,
+        "target_kubelet_before_api_server_findings": {
+          "controller_manager_not_newer_and_within_one_minor": true,
+          "scheduler_not_newer_and_within_one_minor": true,
+          "kubelet_control-plane_not_newer_and_within_three_minors": false,
+          "kube_proxy_not_newer_and_within_three_minors_of_api_server": true,
+          "kube_proxy_within_three_minors_of_each_kubelet": true,
+          "kubectl_within_one_minor_of_api_server": true
+        },
+        "target_kubelet_before_api_server_rejected": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "One-minor maintenance stages remain within official component skew bounds",
+      "matched": true,
+      "observed": {
+        "observed_baseline_versions": {
+          "api_server": "v1.36.1",
+          "kubectl": "v1.36.1",
+          "controller_manager": "v1.36.1",
+          "scheduler": "v1.36.1",
+          "kube_proxy": "v1.36.1",
+          "kubelets": {
+            "control-plane": "v1.36.1"
+          }
+        },
+        "observed_versions_are_live_api_observations": true,
+        "candidate_version": "v1.37.0",
+        "candidate_version_status": "modeled_not_installed",
+        "baseline_skew_findings": {
+          "controller_manager_not_newer_and_within_one_minor": true,
+          "scheduler_not_newer_and_within_one_minor": true,
+          "kubelet_control-plane_not_newer_and_within_three_minors": true,
+          "kube_proxy_not_newer_and_within_three_minors_of_api_server": true,
+          "kube_proxy_within_three_minors_of_each_kubelet": true,
+          "kubectl_within_one_minor_of_api_server": true
+        },
+        "ordered_plan": [
+          "control_plane_api_server",
+          "control_plane_components",
+          "drain_each_node_then_kubelet",
+          "kube_proxy_after_api_server",
+          "post_upgrade_validation"
+        ],
+        "plan_evaluation": {
+          "accepted": true,
+          "order_matches_policy": true,
+          "all_intermediate_skew_checks_pass": true,
+          "target_version": "v1.37.0",
+          "stages": [
+            {
+              "stage": "control_plane_api_server",
+              "versions": {
+                "api_server": "v1.37.0",
+                "kubectl": "v1.36.1",
+                "controller_manager": "v1.36.1",
+                "scheduler": "v1.36.1",
+                "kube_proxy": "v1.36.1",
+                "kubelets": {
+                  "control-plane": "v1.36.1"
+                }
+              },
+              "findings": {
+                "controller_manager_not_newer_and_within_one_minor": true,
+                "scheduler_not_newer_and_within_one_minor": true,
+                "kubelet_control-plane_not_newer_and_within_three_minors": true,
+                "kube_proxy_not_newer_and_within_three_minors_of_api_server": true,
+                "kube_proxy_within_three_minors_of_each_kubelet": true,
+                "kubectl_within_one_minor_of_api_server": true
+              }
+            },
+            {
+              "stage": "control_plane_components",
+              "versions": {
+                "api_server": "v1.37.0",
+                "kubectl": "v1.36.1",
+                "controller_manager": "v1.37.0",
+                "scheduler": "v1.37.0",
+                "kube_proxy": "v1.36.1",
+                "kubelets": {
+                  "control-plane": "v1.36.1"
+                }
+              },
+              "findings": {
+                "controller_manager_not_newer_and_within_one_minor": true,
+                "scheduler_not_newer_and_within_one_minor": true,
+                "kubelet_control-plane_not_newer_and_within_three_minors": true,
+                "kube_proxy_not_newer_and_within_three_minors_of_api_server": true,
+                "kube_proxy_within_three_minors_of_each_kubelet": true,
+                "kubectl_within_one_minor_of_api_server": true
+              }
+            },
+            {
+              "stage": "drain_each_node_then_kubelet",
+              "versions": {
+                "api_server": "v1.37.0",
+                "kubectl": "v1.36.1",
+                "controller_manager": "v1.37.0",
+                "scheduler": "v1.37.0",
+                "kube_proxy": "v1.36.1",
+                "kubelets": {
+                  "control-plane": "v1.37.0"
+                }
+              },
+              "findings": {
+                "controller_manager_not_newer_and_within_one_minor": true,
+                "scheduler_not_newer_and_within_one_minor": true,
+                "kubelet_control-plane_not_newer_and_within_three_minors": true,
+                "kube_proxy_not_newer_and_within_three_minors_of_api_server": true,
+                "kube_proxy_within_three_minors_of_each_kubelet": true,
+                "kubectl_within_one_minor_of_api_server": true
+              }
+            },
+            {
+              "stage": "kube_proxy_after_api_server",
+              "versions": {
+                "api_server": "v1.37.0",
+                "kubectl": "v1.36.1",
+                "controller_manager": "v1.37.0",
+                "scheduler": "v1.37.0",
+                "kube_proxy": "v1.37.0",
+                "kubelets": {
+                  "control-plane": "v1.37.0"
+                }
+              },
+              "findings": {
+                "controller_manager_not_newer_and_within_one_minor": true,
+                "scheduler_not_newer_and_within_one_minor": true,
+                "kubelet_control-plane_not_newer_and_within_three_minors": true,
+                "kube_proxy_not_newer_and_within_three_minors_of_api_server": true,
+                "kube_proxy_within_three_minors_of_each_kubelet": true,
+                "kubectl_within_one_minor_of_api_server": true
+              }
+            },
+            {
+              "stage": "post_upgrade_validation",
+              "versions": {
+                "api_server": "v1.37.0",
+                "kubectl": "v1.36.1",
+                "controller_manager": "v1.37.0",
+                "scheduler": "v1.37.0",
+                "kube_proxy": "v1.37.0",
+                "kubelets": {
+                  "control-plane": "v1.37.0"
+                }
+              },
+              "findings": {
+                "controller_manager_not_newer_and_within_one_minor": true,
+                "scheduler_not_newer_and_within_one_minor": true,
+                "kubelet_control-plane_not_newer_and_within_three_minors": true,
+                "kube_proxy_not_newer_and_within_three_minors_of_api_server": true,
+                "kube_proxy_within_three_minors_of_each_kubelet": true,
+                "kubectl_within_one_minor_of_api_server": true
+              }
+            }
+          ]
+        },
+        "control_plane_node": {
+          "name_and_uid_present": true,
+          "ready": true,
+          "role_labels": {
+            "node-role.kubernetes.io/control-plane": ""
+          },
+          "kubelet": "v1.36.1"
+        },
+        "execution_boundary": "plan-only; no Kubernetes component is upgraded"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Synthetic failure selects the exact inert prior fixture and API-observed rollout undo restores it",
+      "matched": true,
+      "observed": {
+        "decision": "rollback_mock_workload_to_fixture_baseline",
+        "target": "urn:example:saf:cluster-fixture:stable-000",
+        "baseline_marker": [
+          "fixture-stable-000",
+          "urn:example:saf:cluster-fixture:stable-000"
+        ],
+        "candidate_marker": [
+          "fixture-candidate-001",
+          "urn:example:saf:cluster-fixture:candidate-001"
+        ],
+        "rollback_marker": [
+          "fixture-stable-000",
+          "urn:example:saf:cluster-fixture:stable-000"
+        ],
+        "same_deployment_uid": true,
+        "rollback_deployment": {
+          "generation": 3,
+          "observed_generation": 3,
+          "revision": "3",
+          "image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90",
+          "release": "fixture-stable-000",
+          "release_ref": "urn:example:saf:cluster-fixture:stable-000",
+          "replicas": 1,
+          "ready_replicas": 1,
+          "updated_replicas": 1,
+          "available_replicas": 1
+        },
+        "kubernetes_version_downgrade_performed": false
+      }
+    }
+  ]
+}

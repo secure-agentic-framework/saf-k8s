@@ -1,0 +1,28 @@
+{
+  "fixture_id": "SYNTH-1007-011-MAINTENANCE-001",
+  "fixture_only": true,
+  "target_minor_step": 1,
+  "version_policy": {
+    "reference": "https://v1-36.docs.kubernetes.io/releases/version-skew-policy/",
+    "max_kubelet_minor_lag": 3,
+    "max_kube_proxy_minor_lag": 3,
+    "max_controller_minor_lag": 1,
+    "max_kubectl_minor_skew": 1
+  },
+  "maintenance_order": [
+    "control_plane_api_server",
+    "control_plane_components",
+    "drain_each_node_then_kubelet",
+    "kube_proxy_after_api_server",
+    "post_upgrade_validation"
+  ],
+  "mock_workload": {
+    "image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90",
+    "baseline_release": "fixture-stable-000",
+    "candidate_release": "fixture-candidate-001",
+    "baseline_ref": "urn:example:saf:cluster-fixture:stable-000",
+    "candidate_ref": "urn:example:saf:cluster-fixture:candidate-001",
+    "candidate_health": "synthetic-failed",
+    "rollback_target": "urn:example:saf:cluster-fixture:stable-000"
+  }
+}
