@@ -1170,6 +1170,12 @@
       "sha256": "728fe0efb76151ba5ee946b744e7cdb6c2eb6d9ba7042e81fb983d601bd98a36",
       "title": "Streaming token-level output leakage and policy-violation filtering"
     },
+    "SAF-K8S-0903-003": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "517a9f2a8c13e82cf434806d71335e8d4580d3ec9a7bfae605454b8e6c472293",
+      "title": "Inference-time resource controls"
+    },
     "SAF-K8S-0903-004": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1658,7 +1664,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "e8da736b3cb2358ea6573be8ebb1e0716e38d030",
+  "revision": "9039d0024ed835f0eae9ff0546ce1af9822a601e",
   "sha256": "28e2e795c3d0eee859ba13f7c7c1e62c33d93955ba867c40a0060d1dfd1984cb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
