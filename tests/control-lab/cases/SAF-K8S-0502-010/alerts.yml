@@ -15,3 +15,12 @@ groups:
         annotations:
           summary: "Service ClusterIP pool has less than half its measured capacity available"
           description: "Review ServiceCIDR capacity and allocation trends before service creation is affected."
+  - name: saf-k8s-pod-ip-capacity
+    rules:
+      - alert: KubernetesKindPodIPPoolLow
+        expr: saf_lab_kind_pod_ipam_available < 9
+        labels:
+          severity: warning
+          scope: pod-cidr
+        annotations:
+          summary: "Owned Kind Pod IPAM pool is below the exercise warning threshold"

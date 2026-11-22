@@ -1,7 +1,8 @@
-"""Exercise the Kubernetes Service ClusterIP allocator's native metrics."""
+"""Exercise Service and Pod IP allocator capacity warnings on an isolated Kind cluster."""
 import ipaddress
 import json
 import re
+import runpy
 import subprocess
 import time
 from pathlib import Path
@@ -12,7 +13,7 @@ NODE_IMAGE = (
     "kindest/node:v1.36.1@sha256:"
     "3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
 )
-SERVICE_CIDR = "10.96.240.0/28"
+SERVICE_CIDR = "10.97.240.0/28"
 LOW_FREE_FRACTION = 0.50
 MAX_FIXTURES = 8
 METRICS = {
@@ -22,34 +23,22 @@ METRICS = {
 PREFIX = "saf-0502-010-"
 MONITOR = "service-ipam-prometheus"
 ALERT = "KubernetesServiceIPPoolLow"
+BUSYBOX_IMAGE = (
+    "docker.io/library/busybox:1.37.0@sha256:"
+    "a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
+)
 PROMETHEUS_IMAGE = (
     "docker.io/prom/prometheus:v3.16.0@sha256:"
     "e04987641b57704f408e31f6373ba4138ecf27cb4a165d24aabb6c38fddd0f06"
 )
 SCOPE = (
-    "Kubernetes v1.36.1 on one disposable local kind cluster with a dedicated "
-    "small IPv4 ServiceCIDR. Reads kube-apiserver's native Service ClusterIP "
-    "allocator metrics, creates at most nine harmless ClusterIP Services, "
-    "checks a live Prometheus low-free-capacity alert while addresses remain allocatable, and "
-    "deletes only its own Services to verify recovery. Pod CIDR, CNI IPAM, "
-    "provider node pools, and external alert delivery are outside this probe."
+    "Kubernetes v1.36.1 on one disposable Kind cluster with small dedicated IPv4 Service and Pod ranges. "
+    "Reads the API server's native Service ClusterIP allocator metrics and the owned node's kindnet "
+    "host-local Pod lease files. Prometheus fires each warning before its pool is full, a further owned "
+    "Service or Pod receives an address, and deleting only the fixtures clears each warning. "
+    "The Kind node underlay is inventoried separately. Provider address pools, other CNIs and external "
+    "alert delivery are outside this probe."
 )
-
-
-def prepare_kind(lab, temporary: Path) -> Path:
-    """Select a distinct pod range and the case-owned small IPv4 service range."""
-    service = ipaddress.ip_network(SERVICE_CIDR)
-    pod = ipaddress.ip_network("10.244.0.0/16")
-    if service.version != 4 or service.overlaps(pod):
-        lab.block("Case ServiceCIDR must be IPv4 and disjoint from the pod CIDR")
-    config = temporary / "kind.yaml"
-    config.write_text(f"""kind: Cluster
-apiVersion: kind.x-k8s.io/v1alpha4
-networking:
-  podSubnet: {pod}
-  serviceSubnet: {service}
-""")
-    return config
 
 
 def metric_series(lab):
@@ -92,7 +81,7 @@ def pressured(sample):
     return total > 0 and sample["available"] / total < LOW_FREE_FRACTION
 
 
-def service_resource(name):
+def service_resource(name, address):
     return {
         "apiVersion": "v1",
         "kind": "Service",
@@ -103,6 +92,7 @@ def service_resource(name):
         },
         "spec": {
             "type": "ClusterIP",
+            "clusterIP": str(address),
             "ports": [{"name": "harmless", "port": 80, "targetPort": 8080}],
             "selector": {"saf-k8s-control": "SAF-K8S-0502-010-no-backend"},
         },
@@ -150,6 +140,10 @@ scrape_configs:
     ca_file: {account}/ca.crt
   static_configs:
   - targets: ["kubernetes.default.svc:443"]
+- job_name: owned-pod-ipam-sample
+  fallback_scrape_protocol: PrometheusText0.0.4
+  static_configs:
+  - targets: ["127.0.0.1:9091"]
 """
     specs = [
         {"apiVersion": "v1", "kind": "ServiceAccount", "metadata": {"name": MONITOR}},
@@ -175,9 +169,16 @@ scrape_configs:
                       "readinessProbe": {"httpGet": {"path": "/-/ready", "port": "web"}},
                       "volumeMounts": [{"name": "config", "mountPath": "/fixture", "readOnly": True},
                                        {"name": "data", "mountPath": "/data"}],
+                  }, {
+                      "name": "pod-ipam-exporter", "image": BUSYBOX_IMAGE,
+                      "command": ["httpd", "-f", "-p", "127.0.0.1:9091", "-h", "/samples"],
+                      "securityContext": {"allowPrivilegeEscalation": False, "readOnlyRootFilesystem": True,
+                                          "capabilities": {"drop": ["ALL"]}},
+                      "volumeMounts": [{"name": "pod-samples", "mountPath": "/samples"}],
                   }],
                   "volumes": [{"name": "config", "configMap": {"name": MONITOR}},
-                              {"name": "data", "emptyDir": {}}]}},
+                              {"name": "data", "emptyDir": {}},
+                              {"name": "pod-samples", "emptyDir": {}}]}},
         {"apiVersion": "v1", "kind": "Service", "metadata": {"name": MONITOR},
          "spec": {"selector": {"app": MONITOR}, "ports": [{"name": "web", "port": 9090}]}},
     ]
@@ -218,6 +219,10 @@ def run(lab):
     if not server.startswith("v1.36."):
         lab.block(f"Expected a Kubernetes v1.36 server, got {server!r}")
 
+    cidr_name = "saf-ipam-warning-range"
+    lab.create({"apiVersion": "networking.k8s.io/v1", "kind": "ServiceCIDR",
+                "metadata": {"name": cidr_name}, "spec": {"cidrs": [SERVICE_CIDR]}})
+    lab.kubectl("wait", "--for=condition=Ready", f"servicecidr/{cidr_name}", "--timeout=35s", timeout=43)
     cidr_rows = json.loads(lab.kubectl("get", "servicecidr", "-o", "json").stdout)["items"]
     matching = [row for row in cidr_rows
                 if SERVICE_CIDR in row.get("spec", {}).get("cidrs", [])]
@@ -225,8 +230,20 @@ def run(lab):
         lab.block(f"Expected exactly one ServiceCIDR for {SERVICE_CIDR}")
 
     start_monitor(lab)
-    baseline = wait_metrics(lab, lambda value: value["allocated"] >= 3,
-                            "allocator gauge to reflect the monitoring Service")
+    addresses = list(ipaddress.ip_network(SERVICE_CIDR).hosts())
+    sentinel_name = "saf-ipam-baseline"
+    sentinel = service_resource(sentinel_name, addresses[0])
+    sentinel["metadata"]["labels"]["saf-k8s-control"] = "SAF-K8S-0502-010-baseline"
+    verify_allocated(lab, lab.create(sentinel), sentinel_name)
+
+    def registered_service_count():
+        objects = json.loads(lab.kubectl("get", "ipaddresses", "-o", "json").stdout)["items"]
+        pool = ipaddress.ip_network(SERVICE_CIDR)
+        return sum(ipaddress.ip_address(item["metadata"]["name"]) in pool
+                   and item["spec"]["parentRef"]["resource"] == "services" for item in objects)
+
+    baseline = wait_metrics(lab, lambda value: value["allocated"] == registered_service_count() == 1,
+                            "native allocator gauge to match the live Service IPAddress registrations")
     if pressured(baseline):
         lab.block("The initial case ServiceCIDR is already below the exercise threshold")
     initial_alert = observe_monitor(lab, baseline, False)
@@ -235,7 +252,7 @@ def run(lab):
     lab.check(
         "positive", "The API exposes native allocator gauges for the case ServiceCIDR",
         baseline["available"] > 0 and baseline["allocated"] > 0,
-        {"service_cidr": SERVICE_CIDR, "allocator": baseline,
+        {"service_cidr": SERVICE_CIDR, "gauge_matched_current_ipaddress_registrations": True,
          "metric_scope": "Service ClusterIP allocator only", "alert_state": initial_alert},
     )
 
@@ -251,7 +268,7 @@ def run(lab):
                 lab.block("The bounded fixture must retain allocation headroom")
             name = f"{PREFIX}{index:02d}"
             created.append(name)
-            response = lab.create(service_resource(name))
+            response = lab.create(service_resource(name, addresses[index + 1]))
             address = verify_allocated(lab, response, name)
             if address in allocated:
                 lab.block("The allocator returned a duplicate owned Service address")
@@ -274,7 +291,7 @@ def run(lab):
 
         extra_name = f"{PREFIX}extra"
         created.append(extra_name)
-        response = lab.create(service_resource(extra_name))
+        response = lab.create(service_resource(extra_name, addresses[-1]))
         extra_address = verify_allocated(lab, response, extra_name)
         if extra_address in allocated:
             lab.block("The final Service reused an occupied fixture address")
@@ -310,6 +327,9 @@ def run(lab):
     lab.check(
         "green", "Deleting only case-owned Services clears the alert condition and restores baseline allocation",
         not pressured(recovered) and recovered["allocated"] == baseline["allocated"] and not remaining,
-        {"baseline": baseline, "recovered": recovered, "remaining_owned_services": remaining,
-         "alert_state": recovered_alert},
+        {"baseline_allocation_restored": recovered["allocated"] == baseline["allocated"],
+         "remaining_owned_services": remaining, "alert_state": recovered_alert},
     )
+
+    pod_ipam = runpy.run_path(str(Path(__file__).with_name("pod_ipam.py")))
+    pod_ipam["verify"](lab, query, MONITOR, BUSYBOX_IMAGE)

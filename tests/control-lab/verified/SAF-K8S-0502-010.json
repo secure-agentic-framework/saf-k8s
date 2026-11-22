@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0502-010",
-  "catalog_revision": "8499ab6eef453f23e74e24a1ab43555af4bd89f0",
-  "catalog_sha256": "115d55b7443aed0213c5b909968f35b73439c1376fb56857836f63c2b08ce322",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "74fc2b652f55270a399f34a93767c4a4a34532cdb0009a31a2bc1022463f9ba9",
-  "scope": "Kubernetes v1.36.1 on one disposable local kind cluster with a dedicated small IPv4 ServiceCIDR. Reads kube-apiserver's native Service ClusterIP allocator metrics, creates at most nine harmless ClusterIP Services, checks a live Prometheus low-free-capacity alert while addresses remain allocatable, and deletes only its own Services to verify recovery. Pod CIDR, CNI IPAM, provider node pools, and external alert delivery are outside this probe.",
-  "cluster": "saf-lab-9a52b9a684e7",
+  "scope": "Kubernetes v1.36.1 on one disposable Kind cluster with small dedicated IPv4 Service and Pod ranges. Reads the API server's native Service ClusterIP allocator metrics and the owned node's kindnet host-local Pod lease files. Prometheus fires each warning before its pool is full, a further owned Service or Pod receives an address, and deleting only the fixtures clears each warning. The Kind node underlay is inventoried separately. Provider address pools, other CNIs and external alert delivery are outside this probe.",
+  "cluster": "saf-lab-6b658cabd9e4",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -43,11 +43,8 @@
       "claim": "The API exposes native allocator gauges for the case ServiceCIDR",
       "matched": true,
       "observed": {
-        "service_cidr": "10.96.240.0/28",
-        "allocator": {
-          "allocated": 3.0,
-          "available": 11.0
-        },
+        "service_cidr": "10.97.240.0/28",
+        "gauge_matched_current_ipaddress_registrations": true,
         "metric_scope": "Service ClusterIP allocator only",
         "alert_state": "inactive"
       }
@@ -79,16 +76,39 @@
       "claim": "Deleting only case-owned Services clears the alert condition and restores baseline allocation",
       "matched": true,
       "observed": {
-        "baseline": {
-          "allocated": 3.0,
-          "available": 11.0
-        },
-        "recovered": {
-          "allocated": 3.0,
-          "available": 11.0
-        },
+        "baseline_allocation_restored": true,
         "remaining_owned_services": [],
         "alert_state": "inactive"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Live Prometheus fires on the owned Pod CIDR while addresses remain",
+      "matched": true,
+      "observed": {
+        "two_new_runtime_leases_matched_ready_pods": true,
+        "addresses_still_available": true,
+        "alert_firing": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An additional Pod becomes Ready with a new lease while the alert fires",
+      "matched": true,
+      "observed": {
+        "extra_ready_pod_and_allocator_lease_matched": true,
+        "alert_firing": true,
+        "node_underlay_is_outside_pod_cidr": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Releasing only owned Pod leases clears the warning and restores the original pool",
+      "matched": true,
+      "observed": {
+        "original_lease_addresses_recovered": true,
+        "original_capacity_recovered": true,
+        "alert_firing": false
       }
     }
   ]
