@@ -1,0 +1,46 @@
+{
+  "synthetic_files": [
+    {
+      "name": "configuration",
+      "classification": "configuration",
+      "maximum_mode": "0644"
+    },
+    {
+      "name": "credential",
+      "classification": "credential",
+      "maximum_mode": "0600"
+    }
+  ],
+  "node_paths": [
+    {
+      "path": "/var/lib/kubelet/config.yaml",
+      "classification": "configuration",
+      "required": true
+    },
+    {
+      "path": "/var/lib/kubelet/instance-config.yaml",
+      "classification": "configuration",
+      "required": false
+    },
+    {
+      "path": "/var/lib/kubelet/kubeadm-flags.env",
+      "classification": "configuration",
+      "required": true
+    },
+    {
+      "path": "/etc/kubernetes/kubelet.conf",
+      "classification": "credential",
+      "required": true
+    },
+    {
+      "path": "/etc/kubernetes/bootstrap-kubelet.conf",
+      "classification": "credential",
+      "required": false
+    },
+    {
+      "path": "/var/lib/kubelet/pki/kubelet-client-current.pem",
+      "classification": "credential",
+      "required": false
+    }
+  ]
+}
