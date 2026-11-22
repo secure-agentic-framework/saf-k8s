@@ -42,6 +42,12 @@
       "sha256": "dd1569d6095848684ea5f392d0e03b50b88a493c339ea534d8bfa5c422917eee",
       "title": "API server authorization mode baseline enforcement"
     },
+    "SAF-K8S-0101-015": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "024fbeba2889324e064f854fafa76b3d940a1f7e90e77f0900345c6539b1fe87",
+      "title": "API server webhook authorizer endpoint trust controls"
+    },
     "SAF-K8S-0101-016": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -884,7 +890,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "637d67f7ba25ab9794d1ea29de248e731e8ca6fb",
+  "revision": "be41ab7613b8783d017bda5b4d2ff82b9c6c5a82",
   "sha256": "f8e0cf1e01bc0de4b00f018afbbd50ede74ea9107afc25c95416adf9c3533f88",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

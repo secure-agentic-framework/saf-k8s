@@ -1,0 +1,121 @@
+{
+  "control_id": "SAF-K8S-0101-015",
+  "catalog_revision": "c62a40551eb5c880e5b9894cdc26bb7a929a5a29",
+  "catalog_sha256": "f8e0cf1e01bc0de4b00f018afbbd50ede74ea9107afc25c95416adf9c3533f88",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "024fbeba2889324e064f854fafa76b3d940a1f7e90e77f0900345c6539b1fe87",
+  "scope": "Self-managed Kubernetes v1.36.1 kind API server using structured AuthorizationConfiguration. The same real, minimally scoped service-account GET of one synthetic ConfigMap is authorized by a local mTLS webhook when endpoint CA validation succeeds, and fails closed when the webhook kubeconfig trusts an unrelated ephemeral CA. Server name validation, API-server client certificate authentication, webhook request attributes, and a normal cluster-admin read are observed. This does not establish hosted-provider controls or production review governance.",
+  "cluster": "saf-lab-5dae8724c103",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "green",
+      "claim": "Same owned service-account ConfigMap GET has the expected webhook trust outcome",
+      "matched": true,
+      "observed": {
+        "method": "GET",
+        "path": "/api/v1/namespaces/saf-test/configmaps/webhook-probe",
+        "identity": "system:serviceaccount:saf-test:webhook-probe",
+        "http_status": 200,
+        "marker_observed": true,
+        "denial_categories": [],
+        "webhook_events": [
+          "ready",
+          "sar"
+        ],
+        "webhook_server_ca": "ephemeral issuing CA",
+        "api_server_client_certificate": "saf-apiserver"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Webhook received the exact SAR over mutually authenticated TLS",
+      "matched": true,
+      "observed": {
+        "observed_client_certificate": "saf-apiserver",
+        "request": "GET named ConfigMap",
+        "sar": "authorization.k8s.io/v1"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Unaffected authorized namespace read succeeds",
+      "matched": true,
+      "observed": {
+        "request": "GET namespace saf-test",
+        "result": "allowed"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Same owned service-account ConfigMap GET has the expected webhook trust outcome",
+      "matched": true,
+      "observed": {
+        "method": "GET",
+        "path": "/api/v1/namespaces/saf-test/configmaps/webhook-probe",
+        "identity": "system:serviceaccount:saf-test:webhook-probe",
+        "http_status": 500,
+        "marker_observed": false,
+        "denial_categories": [
+          "x509",
+          "unknown authority"
+        ],
+        "webhook_events": [
+          "client-rejected-server-cert",
+          "ready"
+        ],
+        "webhook_server_ca": "wrong ephemeral CA",
+        "api_server_client_certificate": "saf-apiserver"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Wrong server trust failed during TLS before the webhook accepted an SAR",
+      "matched": true,
+      "observed": {
+        "client_certificate_alert_observed": true,
+        "webhook_received_fixture_sar": false,
+        "failure_policy": "Deny"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Unaffected authorized namespace read succeeds",
+      "matched": true,
+      "observed": {
+        "request": "GET namespace saf-test",
+        "result": "allowed"
+      }
+    }
+  ]
+}
