@@ -1,0 +1,133 @@
+{
+  "control_id": "SAF-K8S-1001-033",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "6f0f60fc5358b4c1a21be539732863bb1ae0794b856b27c32ca189f22338b04a",
+  "scope": "One case-owned namespace in the runner's disposable Kind cluster. Fluent Bit tails only five static case-owned JSON fixture files and exports them to a local Loki single-binary backend. Four event categories represent upstream collected records; this case does not collect or validate node, container, provider, or accelerator sources. No external endpoint or credentials.",
+  "cluster": "saf-lab-b728248e7009",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Fluent Bit reads all files while Loki receives only the separate comparison stream",
+      "matched": true,
+      "observed": {
+        "input_counters_nonzero": [
+          "fixture_accelerator",
+          "fixture_container",
+          "fixture_node",
+          "fixture_provider",
+          "fixture_retention"
+        ],
+        "main_stream_absent": true,
+        "comparison_stream_present": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Loki query_range returns exactly the four expected fixture event IDs with the expected source labels",
+      "matched": true,
+      "observed": {
+        "query_status": "success",
+        "event_ids": [
+          "saf033-accelerator-001",
+          "saf033-container-001",
+          "saf033-node-001",
+          "saf033-provider-001"
+        ],
+        "event_source_labels": [
+          [
+            "saf033-accelerator-001",
+            "accelerator"
+          ],
+          [
+            "saf033-container-001",
+            "container"
+          ],
+          [
+            "saf033-node-001",
+            "node"
+          ],
+          [
+            "saf033-provider-001",
+            "provider"
+          ]
+        ],
+        "export_path_labels": [
+          "saf033-approved-loki-export"
+        ],
+        "expected_export_path": "saf033-approved-loki-export",
+        "expected_ids": [
+          "saf033-accelerator-001",
+          "saf033-container-001",
+          "saf033-node-001",
+          "saf033-provider-001"
+        ],
+        "expected_event_source_labels": [
+          [
+            "saf033-accelerator-001",
+            "accelerator"
+          ],
+          [
+            "saf033-container-001",
+            "container"
+          ],
+          [
+            "saf033-node-001",
+            "node"
+          ],
+          [
+            "saf033-provider-001",
+            "provider"
+          ]
+        ],
+        "record_count": 4,
+        "approved_export_and_payload_match": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The separate retention-probe stream reaches Loki under its own pipeline label",
+      "matched": true,
+      "observed": {
+        "event_ids": [
+          "saf033-retention-001"
+        ],
+        "pipeline": "retention-probe",
+        "configured_retention": "24h",
+        "default_retention": "72h"
+      }
+    }
+  ]
+}

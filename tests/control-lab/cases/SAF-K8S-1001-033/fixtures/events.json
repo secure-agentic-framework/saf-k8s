@@ -1,0 +1,13 @@
+{
+  "control_id": "SAF-K8S-1001-033",
+  "provenance": "Synthetic case-owned records representing previously collected source categories; not live hardware, provider, node, or container collection evidence.",
+  "events": [
+    {"event_id":"saf033-node-001","source_class":"node","pipeline":"fixture-ingest","collected":true,"marker":"synthetic-node-event"},
+    {"event_id":"saf033-container-001","source_class":"container","pipeline":"fixture-ingest","collected":true,"marker":"synthetic-container-event"},
+    {"event_id":"saf033-provider-001","source_class":"provider","pipeline":"fixture-ingest","collected":true,"marker":"synthetic-provider-event"},
+    {"event_id":"saf033-accelerator-001","source_class":"accelerator","pipeline":"fixture-ingest","collected":true,"marker":"synthetic-accelerator-event"},
+    {"event_id":"saf033-retention-001","source_class":"retention_probe","pipeline":"retention-probe","collected":true,"marker":"synthetic-retention-scope-event"}
+  ],
+  "expected_ids": ["saf033-accelerator-001","saf033-container-001","saf033-node-001","saf033-provider-001"],
+  "expected_source_labels": ["accelerator","container","node","provider"]
+}

@@ -1086,6 +1086,12 @@
       "sha256": "3e0b09b564e804d392de762cdf1978100125085136a3ba6ae100f8da122c29d7",
       "title": "Cluster-wide Kubernetes and AI log source coverage"
     },
+    "SAF-K8S-1001-033": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "6f0f60fc5358b4c1a21be539732863bb1ae0794b856b27c32ca189f22338b04a",
+      "title": "Centralized aggregation onboarding and export for cluster-wide AI logs"
+    },
     "SAF-K8S-1006-004": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1118,7 +1124,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "f775c23105e8d2535bce2b84821e4a9279a15d98",
+  "revision": "5a5b9bc549a96472ae0e2799cbb6b46bb89b17a3",
   "sha256": "5468afd7544aceb8f79e434b7d58a52fc41eeee0b3084837f4dc587efc72cace",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
