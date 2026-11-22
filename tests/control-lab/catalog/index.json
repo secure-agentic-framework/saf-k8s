@@ -1014,6 +1014,12 @@
       "sha256": "960b9470f9a4418a1bdb6d25e3cb1cfe022155905356284f80e2461ac26f1ae3",
       "title": "SIEM ingestion health, delivery completeness, and source coverage monitoring"
     },
+    "SAF-K8S-1006-004": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "8877e0aea2bbffdc28a808535c9c9920647990571e0060d3e184ab6fc9fdf3a2",
+      "title": "Automated audit readiness for Kubernetes AI platforms"
+    },
     "SAF-K8S-1006-005": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1040,7 +1046,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "24683802fd03d4e4cd9d207405b34724adb3536a",
-  "sha256": "ddeb6cd8a0c19f388ae9ef9e35085987a44668dbcc5d1557792bf8a3b1b5799c",
+  "revision": "26ed0f7bb79eaa89d76ec3e0b99d9ddc5d588822",
+  "sha256": "5468afd7544aceb8f79e434b7d58a52fc41eeee0b3084837f4dc587efc72cace",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

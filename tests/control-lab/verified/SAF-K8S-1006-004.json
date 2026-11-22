@@ -1,0 +1,90 @@
+{
+  "control_id": "SAF-K8S-1006-004",
+  "catalog_revision": "807854a5da5edd8046e6d5c2803ef994acaa6588",
+  "catalog_sha256": "5468afd7544aceb8f79e434b7d58a52fc41eeee0b3084837f4dc587efc72cace",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "8877e0aea2bbffdc28a808535c9c9920647990571e0060d3e184ab6fc9fdf3a2",
+  "scope": "Disposable Kind cluster. A Kubernetes CronJob uses its own read-only, named-object identity to collect inert catalog and crosswalk records and live Pod Security Admission labels twice. It writes both snapshots to a PVC where a separate Pod reads them. The lab demonstrates missing, fresh, stale, and recovered states under a fixture timing threshold. Scope is capture, retained data, and freshness for the synthetic inputs.",
+  "cluster": "saf-lab-6b0c88f979c1",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Pod Security Admission settings are available through Namespace labels",
+      "matched": true,
+      "observed": {
+        "standalone_api_type_absent": true,
+        "namespace_labels_confirmed": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Suspended scheduling leaves the independent store without a snapshot",
+      "matched": true,
+      "observed": {
+        "scheduled_jobs_absent": true,
+        "snapshots_absent": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A real scheduled Job captures exact named records and a separate Pod reads the fresh artifact",
+      "matched": true,
+      "observed": {
+        "fresh": true,
+        "exact_catalog_and_crosswalk_records": true,
+        "scope_denials": true,
+        "independent_read_matches": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The retained snapshot crosses the fixture freshness threshold during suspension",
+      "matched": true,
+      "observed": {
+        "snapshot_stale": true,
+        "fixture_max_age_seconds": 12
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Resuming scheduling captures the revised source and preserves the earlier artifact",
+      "matched": true,
+      "observed": {
+        "revised_inputs_exact": true,
+        "older_artifact_retained": true,
+        "new_artifact_fresh": true
+      }
+    }
+  ]
+}
