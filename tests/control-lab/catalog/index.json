@@ -768,6 +768,12 @@
       "sha256": "a1f446d52922a85a1f23337002b0adef88652b50ad0ec203c5f1d0939babf33b",
       "title": "GitOps drift detection and automated resync or notification"
     },
+    "SAF-K8S-0606-033": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "0db9f36b8f952e8d01e260e3cd9e619b67f90306b5505c3b8044bde1c6583e13",
+      "title": "Git-only production deployment path enforcement"
+    },
     "SAF-K8S-0701-001": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -1052,7 +1058,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "4e08c26e09eb3fd8c15af99a74f5cb218236ed1d",
+  "revision": "168da04833554c7f6f0925797c6d0350cf9bfc82",
   "sha256": "5468afd7544aceb8f79e434b7d58a52fc41eeee0b3084837f4dc587efc72cace",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

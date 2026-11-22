@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-operator
+  namespace: saf-test
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-out-of-band-probe
+  namespace: saf-test
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-out-of-band-probe
+  namespace: prod-fixture
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-out-of-band-probe
+  namespace: prod-fixture
+subjects:
+  - kind: ServiceAccount
+    name: saf-out-of-band-probe
+    namespace: saf-test
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-out-of-band-probe
