@@ -1,0 +1,48 @@
+{
+  "fixture_only": true,
+  "policy_id": "SYN-POLICY-1005-019-01",
+  "publication": {
+    "status": "published",
+    "uri": "https://disclosure.example.invalid/policy",
+    "issued_at": "2026-01-01T00:00:00Z"
+  },
+  "scope": {
+    "in_scope_classes": [
+      "mock-kubernetes-control-plane",
+      "mock-kubernetes-node-component",
+      "mock-cluster-addon",
+      "mock-ai-operator",
+      "mock-gpu-infrastructure"
+    ],
+    "out_of_scope_classes": ["mock-third-party-managed-service"],
+    "scope_note": "Fictional categories only; this record grants no real-world testing authorization."
+  },
+  "authorization": {
+    "good_faith_statement": "Fictional policy text for defensive intake-readiness testing only.",
+    "allowed_activity": "Submit synthetic metadata to the local case fixture.",
+    "prohibited_activity": ["testing real systems", "disruption", "accessing or changing data"],
+    "out_of_scope_handling": "referral_only_no_testing_authorized"
+  },
+  "intake_channels": {
+    "internal": {
+      "channel_id": "mock-internal-security-portal",
+      "contact": "internal-security@example.invalid",
+      "anonymous_allowed": false
+    },
+    "external": {
+      "channel_id": "mock-public-report-form",
+      "contact": "security@example.invalid",
+      "uri": "https://disclosure.example.invalid/submit",
+      "anonymous_allowed": true
+    }
+  },
+  "report_fields_requested": ["synthetic_report_id", "component_class", "impact_summary", "severity"],
+  "reporter_contact": "optional",
+  "response_targets": {
+    "critical": {"acknowledgment_minutes": 60, "triage_minutes": 240},
+    "high": {"acknowledgment_minutes": 240, "triage_minutes": 1440},
+    "medium": {"acknowledgment_minutes": 1440, "triage_minutes": 4320},
+    "low": {"acknowledgment_minutes": 2880, "triage_minutes": 7200}
+  },
+  "timeline_note": "All tiers and thresholds are invented case data, not a claim about a source-mandated SLA."
+}

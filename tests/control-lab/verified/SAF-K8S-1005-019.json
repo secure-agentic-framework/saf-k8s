@@ -1,0 +1,107 @@
+{
+  "control_id": "SAF-K8S-1005-019",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "63126aa79ee6952eec03f1a5024bc2328f69e43ad1a190e60fd5e00f7ee88238",
+  "scope": "One disposable Kind v1.36.1 cluster and one digest-pinned, tokenless Python Job process only. The Job evaluates checked-in fictional policy metadata and invented report records using fixed timestamps; it makes no network calls and does not inspect any real policy, report, feed, target, contact channel, vulnerability, cluster, AI workload, or GPU. It validates policy-field presence, synthetic internal/external intake routing, stated mock scope, anonymous submission, and severity-tier acknowledgment/triage deadlines. It does not establish that a policy is actually published, a contact channel is monitored, an organization has authorized any real testing, or production teams meet SLAs.",
+  "cluster": "saf-lab-a0904ce70816",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "An absent published policy is identified as not ready",
+      "matched": true,
+      "observed": {
+        "ready": false,
+        "reasons": [
+          "policy_missing"
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A synthetic high-severity report beyond its mock triage target is flagged",
+      "matched": true,
+      "observed": {
+        "acknowledgment_within_target": true,
+        "anonymous_external_accepted": false,
+        "channel_match": true,
+        "in_scope": true,
+        "status": "triage_sla_missed",
+        "synthetic_report_id": "SYN-REPORT-HIGH-LATE-001",
+        "triage_within_target": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Complete mock policy and on-time in-scope samples pass all four severity tiers",
+      "matched": true,
+      "observed": {
+        "late_report_ids": [
+          "SYN-REPORT-HIGH-LATE-001"
+        ],
+        "missing_fields": [],
+        "on_time_report_ids": [
+          "SYN-REPORT-INTERNAL-001",
+          "SYN-REPORT-EXTERNAL-ANON-001",
+          "SYN-REPORT-MEDIUM-001",
+          "SYN-REPORT-LOW-001"
+        ],
+        "ready": true,
+        "severity_tiers": [
+          "critical",
+          "high",
+          "low",
+          "medium"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Internal and anonymous external mock reports route through distinct declared channels",
+      "matched": true,
+      "observed": {
+        "accepted_report_ids": [
+          "SYN-REPORT-INTERNAL-001",
+          "SYN-REPORT-EXTERNAL-ANON-001",
+          "SYN-REPORT-MEDIUM-001",
+          "SYN-REPORT-LOW-001"
+        ],
+        "anonymous_external_accepted": true,
+        "out_of_scope_handled": "referral_only_no_testing_authorized",
+        "wrong_channel": "channel_mismatch"
+      }
+    }
+  ]
+}

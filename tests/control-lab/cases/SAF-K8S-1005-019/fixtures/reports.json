@@ -1,0 +1,90 @@
+{
+  "fixture_only": true,
+  "fake_clock_now": "2026-11-20T12:00:00Z",
+  "records": [
+    {
+      "synthetic_report_id": "SYN-REPORT-INTERNAL-001",
+      "reporter_class": "internal-employee",
+      "channel_id": "mock-internal-security-portal",
+      "anonymous": false,
+      "component_class": "mock-ai-operator",
+      "severity": "critical",
+      "received_at": "2026-11-20T08:00:00Z",
+      "acknowledged_at": "2026-11-20T08:10:00Z",
+      "triaged_at": "2026-11-20T09:00:00Z",
+      "impact_summary": "Invented metadata-only case; no vulnerability or reproduction details."
+    },
+    {
+      "synthetic_report_id": "SYN-REPORT-EXTERNAL-ANON-001",
+      "reporter_class": "external-researcher",
+      "channel_id": "mock-public-report-form",
+      "anonymous": true,
+      "component_class": "mock-gpu-infrastructure",
+      "severity": "high",
+      "received_at": "2026-11-20T09:00:00Z",
+      "acknowledged_at": "2026-11-20T09:15:00Z",
+      "triaged_at": "2026-11-20T10:30:00Z",
+      "impact_summary": "Invented metadata-only case; no vulnerability or reproduction details."
+    },
+    {
+      "synthetic_report_id": "SYN-REPORT-MEDIUM-001",
+      "reporter_class": "internal-employee",
+      "channel_id": "mock-internal-security-portal",
+      "anonymous": false,
+      "component_class": "mock-cluster-addon",
+      "severity": "medium",
+      "received_at": "2026-11-20T09:30:00Z",
+      "acknowledged_at": "2026-11-20T10:00:00Z",
+      "triaged_at": "2026-11-20T11:00:00Z",
+      "impact_summary": "Invented metadata-only case; no vulnerability or reproduction details."
+    },
+    {
+      "synthetic_report_id": "SYN-REPORT-LOW-001",
+      "reporter_class": "external-researcher",
+      "channel_id": "mock-public-report-form",
+      "anonymous": true,
+      "component_class": "mock-kubernetes-control-plane",
+      "severity": "low",
+      "received_at": "2026-11-20T10:00:00Z",
+      "acknowledged_at": "2026-11-20T10:30:00Z",
+      "triaged_at": "2026-11-20T11:00:00Z",
+      "impact_summary": "Invented metadata-only case; no vulnerability or reproduction details."
+    },
+    {
+      "synthetic_report_id": "SYN-REPORT-OUT-OF-SCOPE-001",
+      "reporter_class": "external-researcher",
+      "channel_id": "mock-public-report-form",
+      "anonymous": true,
+      "component_class": "mock-third-party-managed-service",
+      "severity": "medium",
+      "received_at": "2026-11-20T09:30:00Z",
+      "acknowledged_at": "2026-11-20T09:45:00Z",
+      "triaged_at": "2026-11-20T10:00:00Z",
+      "impact_summary": "Invented scope-routing record; no third party or service is identified."
+    },
+    {
+      "synthetic_report_id": "SYN-REPORT-HIGH-LATE-001",
+      "reporter_class": "internal-employee",
+      "channel_id": "mock-internal-security-portal",
+      "anonymous": false,
+      "component_class": "mock-kubernetes-node-component",
+      "severity": "high",
+      "received_at": "2026-11-18T08:00:00Z",
+      "acknowledged_at": "2026-11-18T09:00:00Z",
+      "triaged_at": "2026-11-20T09:00:00Z",
+      "impact_summary": "Invented SLA-timing record; no vulnerability or reproduction details."
+    },
+    {
+      "synthetic_report_id": "SYN-REPORT-WRONG-CHANNEL-001",
+      "reporter_class": "external-researcher",
+      "channel_id": "mock-wrong-fixture-channel",
+      "anonymous": true,
+      "component_class": "mock-gpu-infrastructure",
+      "severity": "high",
+      "received_at": "2026-11-20T09:00:00Z",
+      "acknowledged_at": "2026-11-20T09:15:00Z",
+      "triaged_at": "2026-11-20T10:30:00Z",
+      "impact_summary": "Invented metadata-only case; no vulnerability or reproduction details."
+    }
+  ]
+}

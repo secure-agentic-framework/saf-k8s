@@ -1326,6 +1326,12 @@
       "sha256": "2928345f20e6a6e43c51ff06247bb373291c12a9d4f9ed7139ebb5ae0cbf649f",
       "title": "Recovery-time lateral movement containment for compromised AI workloads"
     },
+    "SAF-K8S-1005-019": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "63126aa79ee6952eec03f1a5024bc2328f69e43ad1a190e60fd5e00f7ee88238",
+      "title": "Vulnerability disclosure policy, intake channels, and triage SLAs for Kubernetes AI infrastructure"
+    },
     "SAF-K8S-1006-001": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1376,7 +1382,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "2b8a0c03355b730644c47e41fcaf13fb8b6fc9ca",
+  "revision": "1c84a3a1ac903ececb328309c99fa5d4f23713ee",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
