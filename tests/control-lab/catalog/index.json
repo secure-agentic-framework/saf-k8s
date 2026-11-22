@@ -174,6 +174,12 @@
       "sha256": "45553b5485e71555be09bdda206d034b05824728a280ce53e23f5f76f0ef2d62",
       "title": "CIS Benchmark exception approval and re-review governance"
     },
+    "SAF-K8S-0104-018": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "49cb7a94a77befa71b031c47a406ece3675dc6cabc32d77b2d09a57fcc43921d",
+      "title": "Kubernetes security advisory and provider bulletin monitoring"
+    },
     "SAF-K8S-0104-020": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -560,7 +566,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "2b363f1eaea9cc4dbc640cc8d300c9bb5bc26d36",
+  "revision": "0289afb0efcacdf8ccc4b53791c8e32a7286ff74",
   "sha256": "957795ca0841a48dd97f65d6a691d642bc38d11bbf391056ec5ea9b34e1a131b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

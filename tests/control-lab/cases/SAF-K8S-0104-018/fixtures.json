@@ -1,0 +1,21 @@
+{
+  "kubernetes_json_feed": {
+    "version": "https://jsonfeed.org/version/1.1",
+    "title": "Synthetic Kubernetes security issue feed fixture",
+    "home_page_url": "https://kubernetes.io/docs/reference/issues-security/official-cve-feed/",
+    "feed_url": "https://kubernetes.io/docs/reference/issues-security/official-cve-feed/index.json",
+    "items": [
+      {
+        "id": "CVE-2099-0001",
+        "url": "https://example.test/kubernetes/security/fixture-001",
+        "content_text": "Inert test record; no vulnerability details or CVE reproduced.",
+        "date_published": "2026-01-02T03:04:05Z",
+        "summary": "SYNTHETIC upstream advisory metadata fixture"
+      }
+    ],
+    "_kubernetes_io": {
+      "updated_at": "2026-01-02T03:04:05Z"
+    }
+  },
+  "aws_rss": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<rss version=\"2.0\"><channel><title>Synthetic AWS Security Bulletins fixture</title><link>https://aws.amazon.com/security/security-bulletins/</link><description>Inert test data using RSS 2.0 item semantics.</description><item><title>SYNTHETIC provider bulletin metadata fixture</title><link>https://aws.amazon.com/security/security-bulletins/</link><guid isPermaLink=\"false\">fixture:aws:001</guid><pubDate>Fri, 02 Jan 2026 03:04:05 GMT</pubDate><description>Inert test record; no vulnerability details or CVE reproduced.</description></item></channel></rss>"
+}
