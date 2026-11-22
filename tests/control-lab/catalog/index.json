@@ -192,6 +192,12 @@
       "sha256": "775c222b9f0d7176731e4939c205846805c278649a8da37fec48c8aa6a9677b2",
       "title": "Kubelet webhook authentication and authorization enforcement"
     },
+    "SAF-K8S-0201-013": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "1ab883f0d94c2ec1e490077bc53c359a05a807dfca40ec700c65eae31c18fb2a",
+      "title": "Kubelet client certificate rotation via TLS bootstrap"
+    },
     "SAF-K8S-0202-002": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -476,7 +482,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "23578635896feefc9a32e220f290e11042c7264e",
+  "revision": "79dc62c4f53e3fffeeb9024fac06e8588209cf54",
   "sha256": "d7d28292b8acff5a66248c6cc45657bf790264e652dc2045ccd63a055e692998",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -1,0 +1,14 @@
+{
+  "rotation_policy_counterfactual": {
+    "red": {
+      "bootstrap": {"bootstrap_identity_group": "system:bootstrappers", "can_create_and_retrieve_csr": true, "signer_name": "kubernetes.io/kube-apiserver-client-kubelet", "approval_path": "automatic"},
+      "client_rotation": {"rotate_certificates": false, "renewal_identity_group": "system:bootstrappers", "renewal_approval": "none", "signer_name": "kubernetes.io/kubelet-serving"},
+      "signer": {"controller_manager_signing_enabled": true, "signing_ca_trusted_by_api_server": true}
+    },
+    "green": {
+      "bootstrap": {"bootstrap_identity_group": "system:bootstrappers", "can_create_and_retrieve_csr": true, "signer_name": "kubernetes.io/kube-apiserver-client-kubelet", "approval_path": "automatic"},
+      "client_rotation": {"rotate_certificates": true, "renewal_identity_group": "system:nodes", "renewal_approval": "automatic", "signer_name": "kubernetes.io/kube-apiserver-client-kubelet"},
+      "signer": {"controller_manager_signing_enabled": true, "signing_ca_trusted_by_api_server": true}
+    }
+  }
+}
