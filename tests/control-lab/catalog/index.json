@@ -1170,6 +1170,12 @@
       "sha256": "728fe0efb76151ba5ee946b744e7cdb6c2eb6d9ba7042e81fb983d601bd98a36",
       "title": "Streaming token-level output leakage and policy-violation filtering"
     },
+    "SAF-K8S-0903-004": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "1a715b83acc55edf60293843913341593a0e331e6bb99654e9c52534670ffd3c",
+      "title": "LLM context window and token resource controls"
+    },
     "SAF-K8S-0907-007": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1652,7 +1658,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c6d5361617b85006e775a81d2d2fdb3e2f337794",
+  "revision": "e8da736b3cb2358ea6573be8ebb1e0716e38d030",
   "sha256": "28e2e795c3d0eee859ba13f7c7c1e62c33d93955ba867c40a0060d1dfd1984cb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

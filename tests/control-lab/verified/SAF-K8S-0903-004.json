@@ -1,0 +1,265 @@
+{
+  "control_id": "SAF-K8S-0903-004",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "1a715b83acc55edf60293843913341593a0e331e6bb99654e9c52534670ffd3c",
+  "scope": "One owned Kubernetes v1.36.1 Pod runs a deterministic synthetic generation fixture. The real process counts whitespace-separated fixture tokens and enforces input, per-request output, per-session output, and logical-time generation-rate limits. Backend counters are inspected after each request. Real model tokenizer/template, streaming and concurrent identity enforcement, real KV cache or GPU memory, and production settings require separate evidence.",
+  "review_timing": {
+    "queued_at": "2026-11-22T21:29:22.813387+00:00",
+    "cluster_ready_at": "2026-11-22T21:29:58.320323+00:00",
+    "approval_at": "2026-11-22T21:31:19.942873+00:00",
+    "case_loaded_at": "2026-11-22T21:31:19.970418+00:00"
+  },
+  "cluster": "saf-lab-e812a726a0ba",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "51374d2f8aa8af3bcb74f8f4f2514abf9afeff397bc014ec9cd4603cbc4477a6",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "With token policy disabled, the fake model processes the five-token input and seven outputs",
+      "matched": true,
+      "observed": {
+        "backend": {
+          "generated_tokens": 7,
+          "prompt_tokens": 5,
+          "requests": 1
+        },
+        "response": {
+          "accepted": true,
+          "input_tokens": 5,
+          "output_tokens": 7,
+          "reason": "unguarded",
+          "text": "tok tok tok tok tok tok tok"
+        },
+        "session_output": null
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The exact four-token input is admitted and a fifth token is rejected before backend work",
+      "matched": true,
+      "observed": [
+        {
+          "backend": {
+            "generated_tokens": 4,
+            "prompt_tokens": 4,
+            "requests": 1
+          },
+          "response": {
+            "accepted": true,
+            "input_tokens": 4,
+            "output_tokens": 4,
+            "reason": "complete",
+            "text": "tok tok tok tok"
+          },
+          "session_output": 4
+        },
+        {
+          "backend": {
+            "generated_tokens": 4,
+            "prompt_tokens": 4,
+            "requests": 1
+          },
+          "response": {
+            "accepted": false,
+            "input_tokens": 5,
+            "output_tokens": 0,
+            "reason": "input_limit",
+            "text": ""
+          },
+          "session_output": 4
+        }
+      ]
+    },
+    {
+      "phase": "green",
+      "claim": "Backend accounting confirms request and cumulative session output caps",
+      "matched": true,
+      "observed": [
+        {
+          "backend": {
+            "generated_tokens": 4,
+            "prompt_tokens": 1,
+            "requests": 1
+          },
+          "response": {
+            "accepted": true,
+            "input_tokens": 1,
+            "output_tokens": 4,
+            "reason": "request_budget",
+            "text": "tok tok tok tok"
+          },
+          "session_output": 4
+        },
+        {
+          "backend": {
+            "generated_tokens": 6,
+            "prompt_tokens": 2,
+            "requests": 2
+          },
+          "response": {
+            "accepted": true,
+            "input_tokens": 1,
+            "output_tokens": 2,
+            "reason": "session_budget",
+            "text": "tok tok"
+          },
+          "session_output": 6
+        },
+        {
+          "backend": {
+            "generated_tokens": 6,
+            "prompt_tokens": 2,
+            "requests": 2
+          },
+          "response": {
+            "accepted": true,
+            "input_tokens": 1,
+            "output_tokens": 0,
+            "reason": "session_budget",
+            "text": ""
+          },
+          "session_output": 6
+        }
+      ]
+    },
+    {
+      "phase": "positive",
+      "claim": "A distinct fixture session keeps its own output allowance",
+      "matched": true,
+      "observed": {
+        "backend": {
+          "generated_tokens": 7,
+          "prompt_tokens": 3,
+          "requests": 3
+        },
+        "response": {
+          "accepted": true,
+          "input_tokens": 1,
+          "output_tokens": 1,
+          "reason": "complete",
+          "text": "tok"
+        },
+        "session_output": 1
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The two-token burst exhausts at the same tick and refills by one token per tick",
+      "matched": true,
+      "observed": [
+        {
+          "backend": {
+            "generated_tokens": 2,
+            "prompt_tokens": 1,
+            "requests": 1
+          },
+          "response": {
+            "accepted": true,
+            "input_tokens": 1,
+            "output_tokens": 2,
+            "reason": "token_rate",
+            "text": "tok tok"
+          },
+          "session_output": 2
+        },
+        {
+          "backend": {
+            "generated_tokens": 2,
+            "prompt_tokens": 2,
+            "requests": 2
+          },
+          "response": {
+            "accepted": true,
+            "input_tokens": 1,
+            "output_tokens": 0,
+            "reason": "token_rate",
+            "text": ""
+          },
+          "session_output": 2
+        },
+        {
+          "backend": {
+            "generated_tokens": 3,
+            "prompt_tokens": 3,
+            "requests": 3
+          },
+          "response": {
+            "accepted": true,
+            "input_tokens": 1,
+            "output_tokens": 1,
+            "reason": "complete",
+            "text": "tok"
+          },
+          "session_output": 3
+        },
+        {
+          "backend": {
+            "generated_tokens": 4,
+            "prompt_tokens": 4,
+            "requests": 4
+          },
+          "response": {
+            "accepted": true,
+            "input_tokens": 1,
+            "output_tokens": 1,
+            "reason": "complete",
+            "text": "tok"
+          },
+          "session_output": 4
+        }
+      ]
+    },
+    {
+      "phase": "positive",
+      "claim": "An ordinary request produces exactly three tokens with corresponding backend work",
+      "matched": true,
+      "observed": {
+        "backend": {
+          "generated_tokens": 3,
+          "prompt_tokens": 2,
+          "requests": 1
+        },
+        "response": {
+          "accepted": true,
+          "input_tokens": 2,
+          "output_tokens": 3,
+          "reason": "complete",
+          "text": "tok tok tok"
+        },
+        "session_output": 3
+      }
+    }
+  ]
+}

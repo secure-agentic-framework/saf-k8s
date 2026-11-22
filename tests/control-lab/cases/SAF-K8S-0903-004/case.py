@@ -1,0 +1,124 @@
+"""Observe exact token policy and fake-model accounting in a disposable Kind Pod."""
+import json
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+POD = "saf-token-accounting"
+IMAGE = ("docker.io/library/python:3.13-slim@sha256:"
+         "e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90")
+SCOPE = (
+    "One owned Kubernetes v1.36.1 Pod runs a deterministic synthetic generation fixture. "
+    "The real process counts whitespace-separated fixture tokens and enforces input, "
+    "per-request output, per-session output, and logical-time generation-rate limits. "
+    "Backend counters are inspected after each request. Real model tokenizer/template, "
+    "streaming and concurrent identity enforcement, real KV cache or GPU memory, and "
+    "production settings require separate evidence."
+)
+
+
+def deploy(lab):
+    lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": POD},
+                "immutable": True, "data": {
+                    name: (HERE / name).read_text() for name in ("worker.py", "fixture.py")}})
+    lab.create({
+        "apiVersion": "v1", "kind": "Pod", "metadata": {"name": POD},
+        "spec": {
+            "automountServiceAccountToken": False, "restartPolicy": "Never",
+            "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
+                                "seccompProfile": {"type": "RuntimeDefault"}},
+            "volumes": [{"name": "fixture", "configMap": {"name": POD}}],
+            "containers": [{
+                "name": "tokens", "image": IMAGE, "imagePullPolicy": "IfNotPresent",
+                "command": ["python", "-B", "-c", "import time; time.sleep(600)"],
+                "resources": {"requests": {"cpu": "10m", "memory": "24Mi"},
+                              "limits": {"cpu": "200m", "memory": "96Mi"}},
+                "volumeMounts": [
+                    {"name": "fixture", "mountPath": "/fixture", "readOnly": True}],
+                "securityContext": {"allowPrivilegeEscalation": False,
+                                    "readOnlyRootFilesystem": True,
+                                    "capabilities": {"drop": ["ALL"]}},
+            }],
+        },
+    })
+    lab.kubectl("wait", "--for=condition=Ready", "pod/" + POD, "--timeout=80s", timeout=90)
+
+
+def read_observations(lab):
+    default = {"max_input_tokens": 4, "max_request_output_tokens": 4,
+               "max_session_output_tokens": 6, "token_rate": 100, "burst": 100}
+    cases = {
+        "red": {"policy": None, "requests": [["red", "a b c d e", 7, 0]]},
+        "input": {"policy": default, "requests": [
+            ["input", "a b c d", 4, 0], ["input", "a b c d e", 1, 0]]},
+        "budget": {"policy": default, "requests": [
+            ["budget", "ok", 9, 0], ["budget", "ok", 9, 0], ["budget", "ok", 1, 0],
+            ["second", "ok", 1, 0]]},
+        "positive": {"policy": default, "requests": [["positive", "one two", 3, 0]]},
+        "rate": {"policy": {**default, "token_rate": 1, "burst": 2}, "requests": [
+            ["rate", "ok", 4, 0], ["rate", "ok", 1, 0], ["rate", "ok", 1, 1],
+            ["rate", "ok", 1, 2]]},
+    }
+    result = lab.kubectl("exec", "-i", "pod/" + POD, "--", "python", "-B",
+                         "/fixture/worker.py", payload=json.dumps(cases), timeout=20)
+    try:
+        observed = json.loads(result.stdout)
+        assert observed.keys() == cases.keys()
+        for name, rows in observed.items():
+            assert len(rows) == len(cases[name]["requests"])
+            assert all(row.keys() == {"response", "backend", "session_output"} for row in rows)
+    except (AttributeError, AssertionError, TypeError, json.JSONDecodeError) as error:
+        lab.block(f"Token fixture returned incomplete observations: {error}")
+    return observed
+
+
+def response(accepted, reason, input_tokens, output_tokens):
+    return {"accepted": accepted, "reason": reason, "input_tokens": input_tokens,
+            "output_tokens": output_tokens, "text": " ".join(["tok"] * output_tokens)}
+
+
+def backend(requests, prompt_tokens, generated_tokens):
+    return {"requests": requests, "prompt_tokens": prompt_tokens,
+            "generated_tokens": generated_tokens}
+
+
+def run(lab):
+    deploy(lab)
+    rows = read_observations(lab)
+    (lab.evidence / "token-accounting.raw.json").write_text(json.dumps(rows, indent=2) + "\n")
+    [red] = rows["red"]
+    lab.check("red", "With token policy disabled, the fake model processes the five-token input and seven outputs",
+              red["response"] == response(True, "unguarded", 5, 7)
+              and red["backend"] == backend(1, 5, 7), red)
+
+    exact, above = rows["input"]
+    lab.check("green", "The exact four-token input is admitted and a fifth token is rejected before backend work",
+              exact["response"] == response(True, "complete", 4, 4)
+              and above["response"] == response(False, "input_limit", 5, 0)
+              and exact["backend"] == above["backend"] == backend(1, 4, 4), rows["input"])
+
+    first, second, exhausted, other = rows["budget"]
+    lab.check("green", "Backend accounting confirms request and cumulative session output caps",
+              [item["response"] for item in rows["budget"][:3]] == [
+                  response(True, "request_budget", 1, 4), response(True, "session_budget", 1, 2),
+                  response(True, "session_budget", 1, 0)]
+              and [item["session_output"] for item in rows["budget"][:3]] == [4, 6, 6]
+              and first["backend"] == backend(1, 1, 4)
+              and second["backend"] == exhausted["backend"] == backend(2, 2, 6),
+              rows["budget"][:3])
+    lab.check("positive", "A distinct fixture session keeps its own output allowance",
+              other["response"] == response(True, "complete", 1, 1)
+              and other["session_output"] == 1 and other["backend"] == backend(3, 3, 7),
+              other)
+
+    lab.check("green", "The two-token burst exhausts at the same tick and refills by one token per tick",
+              [item["response"] for item in rows["rate"]] == [
+                  response(True, "token_rate", 1, 2), response(True, "token_rate", 1, 0),
+                  response(True, "complete", 1, 1), response(True, "complete", 1, 1)]
+              and [item["backend"]["generated_tokens"] for item in rows["rate"]] == [2, 2, 3, 4]
+              and [item["session_output"] for item in rows["rate"]] == [2, 2, 3, 4], rows["rate"])
+
+    [ordinary] = rows["positive"]
+    lab.check("positive", "An ordinary request produces exactly three tokens with corresponding backend work",
+              ordinary["response"] == response(True, "complete", 2, 3)
+              and ordinary["backend"] == backend(1, 2, 3)
+              and ordinary["session_output"] == 3, ordinary)
