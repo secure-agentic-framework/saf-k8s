@@ -1,0 +1,59 @@
+{
+  "fixture_only": true,
+  "notice": "Synthetic defensive metadata and inert mock state. Reserved example identifiers only; no real feeds, targets, models, data, or secrets.",
+  "snapshots": [
+    {
+      "configmap_name": "saf0901004-a",
+      "object": {
+        "apiVersion": "v1",
+        "data": {
+          "checkpoint.json": "{\"epoch\":7,\"status\":\"approved-fixture-a\"}",
+          "metadata.json": "{\"dataset\":\"urn:example:saf:dataset:synthetic-a\",\"schema\":\"mock-v1\"}"
+        },
+        "kind": "ConfigMap",
+        "metadata": {
+          "annotations": {
+            "saf-k8s.example/approval": "urn:example:saf:approval:0901-004-001",
+            "saf-k8s.example/snapshot-set": "SYNTH-SNAPSHOT-SET-0901-004-01"
+          },
+          "labels": {
+            "saf-k8s.example/control": "SAF-K8S-0901-004",
+            "saf-k8s.example/fixture": "true",
+            "saf-k8s.example/state": "approved"
+          },
+          "name": "saf0901004-recovery-state",
+          "namespace": "saf-test"
+        }
+      },
+      "snapshot_id": "SYNTH-SNAPSHOT-0901-004-A",
+      "trusted_sha256": "91114760e82226ad9d9fe33d304c3b7aee608c44b4731244f775a1e7a4d2e5c6"
+    },
+    {
+      "configmap_name": "saf0901004-b",
+      "object": {
+        "apiVersion": "v1",
+        "data": {
+          "checkpoint.json": "{\"epoch\":12,\"status\":\"approved-fixture-b\"}",
+          "metadata.json": "{\"dataset\":\"urn:example:saf:dataset:synthetic-b\",\"schema\":\"mock-v1\"}"
+        },
+        "kind": "ConfigMap",
+        "metadata": {
+          "annotations": {
+            "saf-k8s.example/approval": "urn:example:saf:approval:0901-004-001",
+            "saf-k8s.example/snapshot-id": "SYNTH-SNAPSHOT-0901-004-B",
+            "saf-k8s.example/snapshot-set": "SYNTH-SNAPSHOT-SET-0901-004-01"
+          },
+          "labels": {
+            "saf-k8s.example/control": "SAF-K8S-0901-004",
+            "saf-k8s.example/fixture": "true",
+            "saf-k8s.example/state": "approved"
+          },
+          "name": "saf0901004-recovery-state",
+          "namespace": "saf-test"
+        }
+      },
+      "snapshot_id": "SYNTH-SNAPSHOT-0901-004-B",
+      "trusted_sha256": "cf774bb527d75bf37cbbb3859f41ce06c3d15cfed9c600f6a837d131be4b4313"
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "control_id": "SAF-K8S-0901-004",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "bb5f98b699c374c57671af4c249861035dda0e135c0f930fcd524a86ec5329b5",
+  "scope": "One disposable Kind v1.36.1 cluster and the saf-test namespace; two immutable, case-owned ConfigMaps carrying synthetic named snapshots; a deliberately changed target ConfigMap; one local bounded restore function; and two short digest-pinned Python Jobs. The case checks fixture SHA-256 values, altered-byte rejection, an over-limit retry request, exact approved payload/label/annotation restoration, and Job conditions and Pod counts. It does not exercise an ML framework, training operator, real checkpoint store, distributed training, data re-ingestion, or production retry/rollback configuration.",
+  "review_timing": {
+    "queued_at": "2026-11-22T20:05:29.916262+00:00",
+    "cluster_ready_at": "2026-11-22T20:06:03.640621+00:00",
+    "approval_at": "2026-11-22T20:08:35.926859+00:00",
+    "case_loaded_at": "2026-11-22T20:08:36.097066+00:00"
+  },
+  "cluster": "saf-lab-84ac7eae9d1e",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "d200263769020d916a522d63052c38c07c8a910755b6aa1546f10561a256e4b9",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The bounded restore path rejects altered snapshot bytes before changing the target",
+      "matched": true,
+      "observed": {
+        "restore": {
+          "restored": false,
+          "reason": "digest-mismatch",
+          "attempts": 1,
+          "observed_sha256": "148fcf1ab4bc92c005553a35ea4e9b55bc2438eb074004d3cbe35d2bcfaff2e1",
+          "expected_sha256": "cf774bb527d75bf37cbbb3859f41ce06c3d15cfed9c600f6a837d131be4b4313"
+        },
+        "target_unchanged": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The same restore path refuses attempts beyond its explicit bound",
+      "matched": true,
+      "observed": {
+        "restore": {
+          "restored": false,
+          "reason": "retry-limit-exceeded",
+          "attempts": 3
+        },
+        "target_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The failed integrity Job records digest rejection and bounded Job status",
+      "matched": true,
+      "observed": {
+        "job_condition": "Failed",
+        "backoffLimit": 0,
+        "failed_pods": 1,
+        "pod_count": 1,
+        "logs": "{\"actual_sha256\": \"8d1ea628459813510145e88474464f691dae29f79da470b5b8e78bbc6ed59334\", \"expected_sha256\": \"cf774bb527d75bf37cbbb3859f41ce06c3d15cfed9c600f6a837d131be4b4313\", \"recorded_sha256_matches\": true, \"result\": \"digest-mismatch\", \"snapshot_id\": \"SYNTH-SNAPSHOT-0901-004-B\"}"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A pinned benign Kubernetes Job independently verifies the approved snapshot",
+      "matched": true,
+      "observed": {
+        "job_condition": "Complete",
+        "backoffLimit": 0,
+        "succeeded_pods": 1,
+        "pod_count": 1,
+        "logs": "{\"actual_sha256\": \"cf774bb527d75bf37cbbb3859f41ce06c3d15cfed9c600f6a837d131be4b4313\", \"expected_sha256\": \"cf774bb527d75bf37cbbb3859f41ce06c3d15cfed9c600f6a837d131be4b4313\", \"recorded_sha256_matches\": true, \"result\": \"verified\", \"snapshot_id\": \"SYNTH-SNAPSHOT-0901-004-B\"}"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Recovery restores the exact previously approved bytes and metadata through the API",
+      "matched": true,
+      "observed": {
+        "restore": {
+          "restored": true,
+          "reason": "restored",
+          "attempts": 1,
+          "snapshot_id": "SYNTH-SNAPSHOT-0901-004-B",
+          "sha256": "cf774bb527d75bf37cbbb3859f41ce06c3d15cfed9c600f6a837d131be4b4313",
+          "data": {
+            "checkpoint.json": "{\"epoch\":12,\"status\":\"approved-fixture-b\"}",
+            "metadata.json": "{\"dataset\":\"urn:example:saf:dataset:synthetic-b\",\"schema\":\"mock-v1\"}"
+          },
+          "labels": {
+            "saf-k8s.example/control": "SAF-K8S-0901-004",
+            "saf-k8s.example/fixture": "true",
+            "saf-k8s.example/state": "approved"
+          },
+          "annotations": {
+            "saf-k8s.example/approval": "urn:example:saf:approval:0901-004-001",
+            "saf-k8s.example/snapshot-id": "SYNTH-SNAPSHOT-0901-004-B",
+            "saf-k8s.example/snapshot-set": "SYNTH-SNAPSHOT-SET-0901-004-01"
+          }
+        },
+        "api_observed": {
+          "name": "saf0901004-recovery-state",
+          "namespace": "saf-test",
+          "data": {
+            "checkpoint.json": "{\"epoch\":12,\"status\":\"approved-fixture-b\"}",
+            "metadata.json": "{\"dataset\":\"urn:example:saf:dataset:synthetic-b\",\"schema\":\"mock-v1\"}"
+          },
+          "labels": {
+            "saf-k8s.example/control": "SAF-K8S-0901-004",
+            "saf-k8s.example/fixture": "true",
+            "saf-k8s.example/state": "approved"
+          },
+          "annotations": {
+            "saf-k8s.example/approval": "urn:example:saf:approval:0901-004-001",
+            "saf-k8s.example/snapshot-id": "SYNTH-SNAPSHOT-0901-004-B",
+            "saf-k8s.example/snapshot-set": "SYNTH-SNAPSHOT-SET-0901-004-01"
+          }
+        },
+        "expected": {
+          "name": "saf0901004-recovery-state",
+          "namespace": "saf-test",
+          "data": {
+            "checkpoint.json": "{\"epoch\":12,\"status\":\"approved-fixture-b\"}",
+            "metadata.json": "{\"dataset\":\"urn:example:saf:dataset:synthetic-b\",\"schema\":\"mock-v1\"}"
+          },
+          "labels": {
+            "saf-k8s.example/control": "SAF-K8S-0901-004",
+            "saf-k8s.example/fixture": "true",
+            "saf-k8s.example/state": "approved"
+          },
+          "annotations": {
+            "saf-k8s.example/approval": "urn:example:saf:approval:0901-004-001",
+            "saf-k8s.example/snapshot-id": "SYNTH-SNAPSHOT-0901-004-B",
+            "saf-k8s.example/snapshot-set": "SYNTH-SNAPSHOT-SET-0901-004-01"
+          }
+        }
+      }
+    }
+  ]
+}

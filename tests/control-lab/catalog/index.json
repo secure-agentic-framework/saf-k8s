@@ -1068,6 +1068,12 @@
       "sha256": "e6b3a8574b6f684eb897dd28253ff710f9671a03723f2eb90c4fb3b27cb8cd90",
       "title": "Checkpoint security"
     },
+    "SAF-K8S-0901-004": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "bb5f98b699c374c57671af4c249861035dda0e135c0f930fcd524a86ec5329b5",
+      "title": "Training fault tolerance and security"
+    },
     "SAF-K8S-0901-007": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1556,7 +1562,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "bc811bdb2396e5583e47c83387be7cf46e55bac7",
+  "revision": "04edfdabbbcfaa23a1d0c316425dc10a8b9ec8bb",
   "sha256": "28e2e795c3d0eee859ba13f7c7c1e62c33d93955ba867c40a0060d1dfd1984cb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
