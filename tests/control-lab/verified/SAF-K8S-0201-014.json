@@ -1,0 +1,84 @@
+{
+  "control_id": "SAF-K8S-0201-014",
+  "catalog_revision": "948824b695442ac07ffd3bfcc0b84a66ef9c79de",
+  "catalog_sha256": "4683013a252ee376b5b4290af4175ff5c3d03259413411e866ab1b4ebb8b1664",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "43b1b909b22784a2078ab6159a1d3db8234e5f01720a4d07586e2cd6ce8c6433",
+  "scope": "One disposable kind control plane with a dedicated synthetic CA and CA-issued kubelet serving certificate. An ordinary TLS handshake verifies the live chain and node DNS name. Local public certificate fixtures exercise an unrelated CA, name mismatch and expiration.",
+  "cluster": "saf-lab-b83def699d99",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A separate synthetic trust anchor cannot verify the public serving certificate",
+      "matched": true,
+      "observed": {
+        "unrelated_root_rejected": true,
+        "issuer_reason_present": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "An unrelated DNS identity fails the offline SAN check",
+      "matched": true,
+      "observed": {
+        "name_mismatch_rejected": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The public serving certificate fails validation after expiry",
+      "matched": true,
+      "observed": {
+        "expired_certificate_rejected": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The owned kubelet completes a TLS handshake under the expected CA and DNS identity",
+      "matched": true,
+      "observed": {
+        "trusted_chain_and_dns": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The live peer presents the intended leaf with at least a day of validity",
+      "matched": true,
+      "observed": {
+        "expected_leaf_present": true,
+        "fresh_for_one_day": true
+      }
+    }
+  ]
+}

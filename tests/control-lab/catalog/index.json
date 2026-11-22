@@ -210,6 +210,12 @@
       "sha256": "1ab883f0d94c2ec1e490077bc53c359a05a807dfca40ec700c65eae31c18fb2a",
       "title": "Kubelet client certificate rotation via TLS bootstrap"
     },
+    "SAF-K8S-0201-014": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "43b1b909b22784a2078ab6159a1d3db8234e5f01720a4d07586e2cd6ce8c6433",
+      "title": "Kubelet serving certificate trust and expiry enforcement"
+    },
     "SAF-K8S-0202-002": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -524,7 +530,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "47b6ac3568c1c85f4755212afbd3076f2c626c95",
+  "revision": "355bb43c434bf8c2c61100c8aa79ade3522b9179",
   "sha256": "4683013a252ee376b5b4290af4175ff5c3d03259413411e866ab1b4ebb8b1664",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
