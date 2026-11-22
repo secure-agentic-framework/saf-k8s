@@ -1,5 +1,7 @@
 """Prove one cross-cluster TLS and exact-client-identity boundary."""
 from contextlib import contextmanager
+from copy import deepcopy
+from ipaddress import IPv4Address
 import json
 from pathlib import Path
 import subprocess
@@ -18,6 +20,9 @@ PYTHON_IMAGE = (
 )
 NAMESPACE = "saf-test"
 NODE_PORT = 31443
+ALTERNATE_PORT = 31444
+TLS_APP = "synthetic-tls-client"
+NETWORK_ORACLE = "synthetic-network-oracle"
 HOSTNAME = "server.saf.test"
 ALLOWED_IDENTITY = "spiffe://saf-k8s.test/workload/client-allowed"
 WRONG_IDENTITY = "spiffe://saf-k8s.test/workload/client-wrong"
@@ -30,8 +35,10 @@ SCOPE = (
     "server-authenticated TLS and mandatory mTLS trust plus exact URI SAN allowlisting. "
     "The client uses standard CA and hostname verification. Receipts contain only fixed "
     "phase labels, TLS outcome/status, and allow/deny identity labels; request and "
-    "response bodies, certificate contents, and keys are not retained. This does not "
-    "install MCS, a mesh, or production flow collection."
+    "response bodies, certificate contents, and keys are not retained. A source-cluster egress "
+    "policy then selects exactly one of two verified ports for the same peer cluster and correlates "
+    "source and destination observations. Production mesh, MCS, and centralized flow collection "
+    "remain separate."
 )
 
 
@@ -62,7 +69,9 @@ def serve(conn, require_client):
                 headers[key.strip().lower()] = value.strip()
         phase = headers.get("x-saf-phase", "invalid")
         if phase not in {"baseline-anonymous", "baseline-authorized", "post-absent",
-                         "post-wrong-peer", "post-authorized"}:
+                         "post-wrong-peer", "post-authorized", "pre-network-approved",
+                         "pre-network-alternate", "network-warmup", "network-approved",
+                         "network-alternate", "network-oracle"}:
             phase = "invalid"
         peer = conn.getpeercert() or {}
         identity = "none"
@@ -350,8 +359,8 @@ def workload_manifests():
 
 
 def run_probe(lab, kubeconfig, cluster, address, phase, port, identity=None,
-              server_name=HOSTNAME):
-    args = ["exec", "pod/synthetic-tls-client", "--", "python", "/app/client.py",
+              server_name=HOSTNAME, *, client=TLS_APP, retry_transport=True):
+    args = ["exec", f"pod/{client}", "--", "python", "/app/client.py",
             "--address", address, "--server-name", server_name, "--phase", phase,
             "--port", str(port)]
     if identity:
@@ -365,7 +374,7 @@ def run_probe(lab, kubeconfig, cluster, address, phase, port, identity=None,
             lab.block("The synthetic client returned no bounded JSON flow receipt")
         if not isinstance(receipt, dict) or len(receipt) > 7:
             lab.block("The synthetic client receipt exceeded its fixed field bound")
-        if receipt.get("outcome") != "transport_error" or time.monotonic() >= deadline:
+        if not retry_transport or receipt.get("outcome") != "transport_error" or time.monotonic() >= deadline:
             return receipt
         time.sleep(0.5)
 
@@ -388,6 +397,95 @@ def server_receipts(lab, kubeconfig, cluster, mode):
         if isinstance(item, dict) and len(item) <= 5:
             rows.append(item)
     return rows
+
+
+
+def verify_segmentation(lab, peer, peer_kubeconfig, address, base_service, client_pod):
+    """Prove the source egress policy on two reachable ports on the other Kind node."""
+    peer_address = str(IPv4Address(address))
+    alternate = deepcopy(base_service)
+    alternate["metadata"]["name"] = "synthetic-tls-alternate"
+    alternate["spec"]["ports"][0]["nodePort"] = ALTERNATE_PORT
+    apply(lab, peer_kubeconfig, peer, alternate)
+
+    oracle = deepcopy(client_pod)
+    oracle["metadata"]["name"] = NETWORK_ORACLE
+    oracle["metadata"]["labels"] = {"app": NETWORK_ORACLE}
+    apply(lab, lab.kubeconfig, lab.cluster, oracle)
+    wait_pod(lab, lab.kubeconfig, lab.cluster, NETWORK_ORACLE)
+
+    for role, port in (("approved", NODE_PORT), ("alternate", ALTERNATE_PORT)):
+        receipt = run_probe(lab, lab.kubeconfig, lab.cluster, peer_address,
+                            f"pre-network-{role}", port, "allowed")
+        lab.check("red", f"Before egress isolation, the selected client reaches the peer cluster's {role} port",
+                  receipt.get("outcome") == "http" and receipt.get("status") == 200,
+                  {"peer_port": port, "client_outcome": receipt})
+
+    policy = {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "NetworkPolicy",
+        "metadata": {"name": "saf-0501-006-exact-peer-egress", "namespace": NAMESPACE},
+        "spec": {
+            "podSelector": {"matchLabels": {"app": TLS_APP}},
+            "policyTypes": ["Egress"],
+            "egress": [{
+                "to": [{"ipBlock": {"cidr": f"{peer_address}/32"}}],
+                "ports": [{"protocol": "TCP", "port": NODE_PORT}],
+            }],
+        },
+    }
+    apply(lab, lab.kubeconfig, lab.cluster, policy)
+
+    def network_denied(probe):
+        return (probe.get("outcome") == "transport_error"
+                and probe.get("reason") in {"TimeoutError", "ConnectionRefusedError"})
+
+    deadline = time.monotonic() + 25
+    while time.monotonic() < deadline:
+        canary = run_probe(lab, lab.kubeconfig, lab.cluster, peer_address, "network-warmup",
+                           ALTERNATE_PORT, "allowed", retry_transport=False)
+        if network_denied(canary):
+            break
+        time.sleep(0.25)
+    else:
+        lab.block("The alternate cross-cluster port remained reachable after source egress policy")
+
+    allowed = run_probe(lab, lab.kubeconfig, lab.cluster, peer_address, "network-approved",
+                        NODE_PORT, "allowed")
+    denied = run_probe(lab, lab.kubeconfig, lab.cluster, peer_address, "network-alternate",
+                       ALTERNATE_PORT, "allowed", retry_transport=False)
+    live = run_probe(lab, lab.kubeconfig, lab.cluster, peer_address, "network-oracle",
+                     ALTERNATE_PORT, "allowed", client=NETWORK_ORACLE)
+    lab.check("positive", "The selected client retains access to the exact approved peer port",
+              allowed.get("outcome") == "http" and allowed.get("status") == 200,
+              {"peer_port": NODE_PORT, "client_outcome": allowed})
+    lab.check("green", "The selected client cannot reach the alternate peer port that still serves the independent client",
+              network_denied(denied) and live.get("outcome") == "http" and live.get("status") == 200,
+              {"peer_port": ALTERNATE_PORT, "selected_client_network_denied": network_denied(denied),
+               "unselected_client_http_status": live.get("status")})
+
+    def contains(rows, phase):
+        return any(item.get("event") == "request" and item.get("phase") == phase
+                   and item.get("identity") == ALLOWED_IDENTITY and item.get("status") == 200
+                   for item in rows)
+
+    deadline = time.monotonic() + 5
+    while True:
+        rows = server_receipts(lab, peer_kubeconfig, peer, "required")
+        allowed_at_peer = contains(rows, allowed["phase"])
+        oracle_at_peer = contains(rows, live["phase"])
+        if (allowed_at_peer and oracle_at_peer) or time.monotonic() >= deadline:
+            break
+        time.sleep(0.1)
+    denied_at_peer = any(item.get("event") == "request" and item.get("phase") == denied["phase"]
+                         for item in rows)
+    lab.check("green", "One bounded cross-cluster flow view correlates the allowed request and the healthy denied path",
+              allowed_at_peer and oracle_at_peer and network_denied(denied) and not denied_at_peer,
+              {"allowed": {"flow_id": allowed["phase"], "client_status": allowed.get("status"),
+                           "peer_request_observed": allowed_at_peer},
+               "denied": {"flow_id": denied["phase"], "client_network_denied": network_denied(denied),
+                          "peer_request_observed": denied_at_peer,
+                          "independent_health_flow": live["phase"], "peer_health_observed": oracle_at_peer}})
 
 
 def run(lab):
@@ -484,3 +582,4 @@ def run(lab):
                            "tls_rejections": rejected, "receipt_fields": "phase,identity,decision,status,event"}
                 lab.check("green", "Server-side bounded receipts distinguish absent certificate, authenticated wrong peer, and allowed peer",
                           expected.issubset(observed) and rejected >= 1, summary)
+                verify_segmentation(lab, peer, peer_kubeconfig, server_address, service, client_pod)

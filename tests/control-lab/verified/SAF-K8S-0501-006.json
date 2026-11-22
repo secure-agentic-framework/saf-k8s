@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0501-006",
-  "catalog_revision": "1c6a4fd046794883c99475122e9c111e0d02745d",
-  "catalog_sha256": "31490639f973d1f95ee1465812ef6775f786dc53b54c2e4adc2fb8807bb12799",
+  "catalog_revision": "8499ab6eef453f23e74e24a1ab43555af4bd89f0",
+  "catalog_sha256": "115d55b7443aed0213c5b909968f35b73439c1376fb56857836f63c2b08ce322",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "a16de993105b055e6397f4036f9d74d16144c1d2a9b1c2f16861f168f3fcd8d1",
-  "scope": "Two independently named disposable Kubernetes v1.36.1 kind clusters on one case-owned local Docker bridge, with one synthetic Python client Pod in the runner-owned cluster and one synthetic Python TLS server Pod in a case-owned cluster. A NodePort request demonstrates baseline unauthenticated access, then server-authenticated TLS and mandatory mTLS trust plus exact URI SAN allowlisting. The client uses standard CA and hostname verification. Receipts contain only fixed phase labels, TLS outcome/status, and allow/deny identity labels; request and response bodies, certificate contents, and keys are not retained. This does not install MCS, a mesh, or production flow collection.",
-  "cluster": "saf-lab-8a6596d6cfef",
+  "scope": "Two independently named disposable Kubernetes v1.36.1 kind clusters on one case-owned local Docker bridge, with one synthetic Python client Pod in the runner-owned cluster and one synthetic Python TLS server Pod in a case-owned cluster. A NodePort request demonstrates baseline unauthenticated access, then server-authenticated TLS and mandatory mTLS trust plus exact URI SAN allowlisting. The client uses standard CA and hostname verification. Receipts contain only fixed phase labels, TLS outcome/status, and allow/deny identity labels; request and response bodies, certificate contents, and keys are not retained. A source-cluster egress policy then selects exactly one of two verified ports for the same peer cluster and correlates source and destination observations. Production mesh, MCS, and centralized flow collection remain separate.",
+  "cluster": "saf-lab-c4a81594e081",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -123,6 +123,83 @@
         "expected_requests": 4,
         "tls_rejections": 1,
         "receipt_fields": "phase,identity,decision,status,event"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before egress isolation, the selected client reaches the peer cluster's approved port",
+      "matched": true,
+      "observed": {
+        "peer_port": 31443,
+        "client_outcome": {
+          "hostname_verification": "required",
+          "identity": "allowed",
+          "outcome": "http",
+          "phase": "pre-network-approved",
+          "status": 200,
+          "tls": "TLSv1.3"
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before egress isolation, the selected client reaches the peer cluster's alternate port",
+      "matched": true,
+      "observed": {
+        "peer_port": 31444,
+        "client_outcome": {
+          "hostname_verification": "required",
+          "identity": "allowed",
+          "outcome": "http",
+          "phase": "pre-network-alternate",
+          "status": 200,
+          "tls": "TLSv1.3"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The selected client retains access to the exact approved peer port",
+      "matched": true,
+      "observed": {
+        "peer_port": 31443,
+        "client_outcome": {
+          "hostname_verification": "required",
+          "identity": "allowed",
+          "outcome": "http",
+          "phase": "network-approved",
+          "status": 200,
+          "tls": "TLSv1.3"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The selected client cannot reach the alternate peer port that still serves the independent client",
+      "matched": true,
+      "observed": {
+        "peer_port": 31444,
+        "selected_client_network_denied": true,
+        "unselected_client_http_status": 200
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "One bounded cross-cluster flow view correlates the allowed request and the healthy denied path",
+      "matched": true,
+      "observed": {
+        "allowed": {
+          "flow_id": "network-approved",
+          "client_status": 200,
+          "peer_request_observed": true
+        },
+        "denied": {
+          "flow_id": "network-alternate",
+          "client_network_denied": true,
+          "peer_request_observed": false,
+          "independent_health_flow": "network-oracle",
+          "peer_health_observed": true
+        }
       }
     }
   ]

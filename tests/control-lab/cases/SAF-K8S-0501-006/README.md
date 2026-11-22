@@ -1,30 +1,29 @@
-# SAF-K8S-0501-006 — Multi-cluster transport identity
+# SAF-K8S-0501-006 — Cross-cluster transport identity and network isolation
 
 ```sh
 python3 lab.py test SAF-K8S-0501-006 --docker-context desktop-linux
 ```
 
-The case creates two disposable Kind clusters. An internal Docker bridge
-connects only their owned nodes for the test path. Each API command names
-the exact cluster context and temporary kubeconfig. A synthetic client in
-one cluster sends a harmless `GET /health` to the peer cluster's NodePort.
+The case creates two disposable Kind clusters with an internal bridge between
+their owned nodes. A synthetic client in the source cluster submits a harmless
+`GET /health` to the peer cluster. Each API command selects its own context
+and temporary kubeconfig.
 
-Before enforcement, the service accepts a request without a client
-certificate. The client uses the same trusted CA and TLS hostname checks
-throughout. A mismatched server hostname is rejected.
+The same peer route first accepts a request without client authentication. The
+client rejects a mismatched server hostname. After mutual TLS is enabled, a
+missing certificate fails at TLS, a trusted wrong URI SAN receives 403, and the
+approved certificate stays usable.
 
-The fixture switches the same NodePort to mandatory mutual TLS and waits
-for removal of the baseline server. The missing client certificate fails
-the TLS handshake, a valid certificate with a different URI SAN gets
-HTTP 403, and the same approved client still gets HTTP 200. Both server
-revisions are selected explicitly when verifying bounded flow records.
-The case retains no certificate or key material, request bodies, or
-response bodies. The bridge and independent cluster are cleaned up.
+The source client can initially reach two ports on the peer cluster.
+NetworkPolicy preserves the approved peer IP and TCP port. It denies the
+alternate port while an independent client retains access to it. The fixture
+correlates bounded client and peer events for the permitted flow and checks
+that the denied flow never reaches the peer HTTP handler. Both clusters and
+the bridge are removed.
 
-MCS defines export and discovery primitives. Authenticated peer identity
-and network segmentation require separately enforced policy. Deployed
-mesh, MCS, L3/L4 controls, provider networking, key lifecycle and unified
-multi-cluster flow reporting require additional evidence.
+Deployed mesh, trust rotation, provider networking, and operational flow
+collection require separate evidence.
 
+[Kubernetes v1.36 NetworkPolicy](https://v1-36.docs.kubernetes.io/docs/concepts/services-networking/network-policies/) ·
 [Kubernetes Multi-Cluster Services API](https://github.com/kubernetes/enhancements/tree/master/keps/sig-multicluster/1645-multi-cluster-services-api) ·
 [Python TLS verification](https://docs.python.org/3/library/ssl.html#security-considerations)
