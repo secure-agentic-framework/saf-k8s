@@ -1,0 +1,104 @@
+{
+  "control_id": "SAF-K8S-0902-004",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "0e8fc63bab083af033e7586d20f27c044220a46b8a88dcc0e966fa35ea5c1914",
+  "scope": "One disposable Kind v1.36.1 cluster and one case-owned namespace with two distinct mock model Pods. Each Pod gets a separate 8Mi memory-backed emptyDir mounted at /dev/shm and writes the same benign filename with a different fixed marker. The case reads each Pod's mount namespace and its own marker, verifies distinct Pod UIDs, stored memory requests/limits, and live memory usage/limit from the Python process's own cgroup. Model A makes one routine /healthz request to Model B over a ClusterIP Service using mutual TLS with ephemeral case-only certificates. No external network, real model, feed, target, GPU, ModelMesh, Triton, or deployed service mesh is used.",
+  "cluster": "saf-lab-cc55459481ae",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "model-a has its declared memory request/limit and live own-cgroup accounting",
+      "matched": true,
+      "observed": {
+        "declared_memory_request": "64Mi",
+        "declared_memory_limit": "128Mi",
+        "own_cgroup_usage_measured": true,
+        "own_cgroup_limit_matches": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "model-b has its declared memory request/limit and live own-cgroup accounting",
+      "matched": true,
+      "observed": {
+        "declared_memory_request": "96Mi",
+        "declared_memory_limit": "160Mi",
+        "own_cgroup_usage_measured": true,
+        "own_cgroup_limit_matches": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Two Linux mount namespaces retain different markers at the same bounded tmpfs path",
+      "matched": true,
+      "observed": {
+        "separate_mount_namespaces": true,
+        "distinct_expected_markers_retained": true,
+        "tmpfs_bound_bytes": 8388608
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A one-MiB tmpfs write changes the writing model's cgroup charge independently",
+      "matched": true,
+      "observed": {
+        "writing_cgroup_charged": true,
+        "peer_charge_stable": true,
+        "peer_marker_preserved": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The mock endpoint rejects the TLS connection without the required client certificate",
+      "matched": true,
+      "observed": {
+        "client_connection_rejected": true,
+        "server_confirmed_no_client_certificate": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Model A completes a routine /healthz request to Model B with server and client certificate verification",
+      "matched": true,
+      "observed": {
+        "matched_mutual_tls": true,
+        "peer_common_name": "model-a",
+        "tls_version": "TLSv1.3",
+        "fixed_health_response": "SYNTH-SAF-0902-004-HEALTH-OK"
+      }
+    }
+  ]
+}
