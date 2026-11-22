@@ -4,8 +4,8 @@
   "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "502cb74f3331058a6ff566bf79d5752916df77da0e0b2b37558fdc828adb6a6f",
-  "scope": "Kubernetes v1.36.1 kube-apiserver file audit backend on the runner's fresh, single-control-plane kind cluster. Synthetic impersonated users issue harmless ConfigMap create requests. The audit policy selects ConfigMaps in saf-test and omits saf-audit-omitted; checks distinguish HTTP status, audit annotations, and persisted API effects. Records exact native SubjectAccessReview and Role creation at Request level. Real metrics, other privileged APIs, and production coverage require separate evidence.",
-  "cluster": "saf-lab-87f17dc45911",
+  "scope": "Kubernetes v1.36.1 kube-apiserver file audit backend on the runner's fresh, single-control-plane kind cluster. Synthetic impersonated users issue harmless ConfigMap create requests, a named PodMetrics resource, and a synthetic HTTPS webhook. The audit policy selects ConfigMaps and metrics.k8s.io pods in saf-test and omits saf-audit-omitted; checks distinguish HTTP status, audit annotations, and persisted API effects. Records exact native SubjectAccessReview and Role creation at Request level.",
+  "cluster": "saf-lab-f04ba790c761",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -114,6 +114,79 @@
           "request_rules_match": true,
           "response_body_present": false
         }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact pinned Metrics Server provides the registered TLS-verified APIService",
+      "matched": true,
+      "observed": {
+        "api": "v1beta1.metrics.k8s.io",
+        "image": "registry.k8s.io/metrics-server/metrics-server@sha256:b2d2efaf5ac3b366ed0f839d2412a2c4279d4fc2a2a733f12c52133faed36c41",
+        "aggregation_tls_verified": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The same fixture writer and denied declaration are admitted before webhook registration",
+      "matched": true,
+      "observed": {
+        "returncode": 0
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Authenticated fixture identity without RBAC permission is denied for exact fixture PodMetrics with Metadata audit",
+      "matched": true,
+      "observed": {
+        "audit": {
+          "code": 403,
+          "level": "Metadata",
+          "decision": "forbid"
+        },
+        "stderr": "Error from server (Forbidden): pods.metrics.k8s.io \"saf-metrics-fixture\" is forbidden: User \"saf-lab:metrics-denied\" cannot get resource \"pods\" in API group \"metrics.k8s.io\" in the namespace \"saf-test\"\n"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Authorized metrics read returns genuine named PodMetrics and exact 200 Metadata audit",
+      "matched": true,
+      "observed": {
+        "audit": {
+          "code": 200,
+          "level": "Metadata",
+          "identity": "saf-lab:metrics-reader",
+          "group": "metrics.k8s.io",
+          "resource": "pods",
+          "namespace": "saf-test",
+          "name": "saf-metrics-fixture"
+        },
+        "response": {
+          "kind": "PodMetrics",
+          "apiVersion": "metrics.k8s.io/v1beta1",
+          "name": "saf-metrics-fixture",
+          "namespace": "saf-test",
+          "has_usage": true
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Scoped HTTPS webhook audits exact deny/allow decisions and persists only allowed fixture",
+      "matched": true,
+      "observed": {
+        "deny": {
+          "code": 403,
+          "level": "Metadata",
+          "decision": "deny"
+        },
+        "allow": {
+          "code": 201,
+          "level": "Metadata",
+          "decision": "allow"
+        },
+        "denied_absent": true,
+        "allowed_present": true
       }
     }
   ]

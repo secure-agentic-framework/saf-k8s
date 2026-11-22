@@ -1,25 +1,16 @@
-# SAF-K8S-1001-017 — Audit distinct API authorization and admission decisions
+# SAF-K8S-1001-017 — Native API audit decision attribution
 
 ```sh
 python3 lab.py test SAF-K8S-1001-017 --docker-context desktop-linux
 ```
 
-From the framework checkout, run `python3 tests/control-lab/lab.py`.
-This test configures file audit logging on a disposable Kubernetes v1.36.1
-control plane. It uses inert resources and synthetic users only.
+From the SAF-K8S checkout, run `python3 tests/control-lab/lab.py` with the same arguments. The case starts a fresh Kubernetes v1.36.1 Kind cluster with a narrowly selected file audit policy. It uses curl and OpenSSL for the pinned Metrics Server installation and case-owned serving certificates.
 
-A comparable denial outside the audit scope produces no selected event.
-Within scope, the fixture distinguishes an RBAC denial from a validating
-admission policy denial. It checks the API decision and the exact audit
-annotations including the effective identity. An approved request leaves a
-visible ConfigMap. Request-level rules separately retain the defined inputs
-for an inert Role create and a real SubjectAccessReview. They omit response
-bodies. The raw evidence retains the selected audit events and API responses.
+- Scoped ConfigMap events show the difference between an RBAC 403 and an admission 403 after RBAC authorization. An allowed create returns 201 and persists. The matched omitted-namespace request has no selected audit event.
+- Request-level SubjectAccessReview and Role events preserve the selected input without recording response bodies.
+- The registered HTTPS webhook publishes distinct audit annotations for an exact denial and an allowed create. The denied resource stays absent. The approved object persists.
+- Metrics Server v0.8.1 provides the named fixture PodMetrics resource using TLS-verified kubelet and aggregation endpoints. The exact GET returns 403 for the ungranted fixture identity and 200 for the authorized one. Both outcomes appear at Metadata level.
 
-The [Kubernetes v1.36 audit annotation reference](https://v1-36.docs.kubernetes.io/docs/reference/labels-annotations-taints/audit-annotations/)
-shows which decision details can appear at Metadata level. The
-[validating admission policy documentation](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
-describes the Audit and Deny actions. For the
-[pinned SAF control](https://github.com/secure-agentic-framework/saf-k8s/blob/133a8698a45e2b335b51728bf4c62f7bda98d15f/markdown/controls/SAF-K8S-1001-017.md),
-actual metrics API requests, webhook-specific paths, managed audit systems,
-and the production authorization and operations inventory need further evidence.
+The fixture contains synthetic resources and identities. The generated serving keys remain in the disposable run. Production audit inventory, delivery, retention, other operations and managed-platform coverage require separate evidence.
+
+[Original control](https://github.com/secure-agentic-framework/saf-k8s/blob/133a8698a45e2b335b51728bf4c62f7bda98d15f/markdown/controls/SAF-K8S-1001-017.md) · [Kubernetes audit levels](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/) · [Metrics API](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/resource-metrics-pipeline/) · [Admission response API](https://v1-36.docs.kubernetes.io/docs/reference/config-api/apiserver-admission.v1/)
