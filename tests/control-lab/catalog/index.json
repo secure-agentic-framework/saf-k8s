@@ -309,7 +309,7 @@
     "SAF-K8S-0301-005": {
       "catalog_status": "draft",
       "domain": "D03",
-      "sha256": "d683fdec75a243854ef327457f6e2ca4f00178720ac9272703622c5c96d25445",
+      "sha256": "6a0fab69a8cda93483efaf4b0ddbc81c35c6335cad4390fd8ff99261361f89d7",
       "title": "PSA exemption register and justification tracking"
     },
     "SAF-K8S-0302-001": {
@@ -782,7 +782,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "211038f41da96d687306bb6505438ddc93415666",
-  "sha256": "9b3b6190b973eb3addee410c79d4c34a183e00a420066cc2e0a38653d22866a9",
+  "revision": "91c386e080013e96545d181b06ab6627a28efe49",
+  "sha256": "55d11d8e8dc02459415206ace46a423bd1a0cc8fc11c2a17ddda6bffda944ead",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

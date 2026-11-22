@@ -10,6 +10,9 @@ it refuses the same entry plus separate attempts to omit or blank each of the
 four required declarations. A complete entry persists. Removing its risk
 owner is denied and preserves the stored entry, and a complete revision works.
 
+The real API audit backend retains the selected register write request and
+response at RequestResponse. The same namespace records an ordinary register
+read and creation of an empty Secret at Metadata, without body fields.
 The fixture checks record shape on create and update. Actual exception
 authorizations, scoped policy enforcement, ownership and review history,
 compensating-control effectiveness, and production audit coverage require

@@ -1,12 +1,19 @@
 """Validate a synthetic PSA exception register record through live admission."""
 import json
 from pathlib import Path
+import subprocess
 import time
 
 HERE = Path(__file__).parent
 NAMESPACE = "saf-0301-005-register"
 GROUP = "security.saf-lab.example"
 VERSION = "v1alpha1"
+NODE_IMAGE = (
+    "kindest/node:v1.36.1@sha256:"
+    "3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
+)
+AUDIT_POLICY = "/etc/kubernetes/saf-register-audit.yaml"
+AUDIT_LOG = "/var/log/kubernetes/saf-register-audit.jsonl"
 DENIAL = (
     "PSA exception register requires exact privileges, justification, risk owner, "
     "and compensating controls"
@@ -15,10 +22,65 @@ SCOPE = (
     "Live Kubernetes API admission for one case-owned, namespaced synthetic "
     "PSAExceptionRecord CRD. Compares one incomplete record before and after a "
     "ValidatingAdmissionPolicy, checks each required declaration independently, "
-    "and persists one complete synthetic record. No Pod or other workload is "
-    "created, no PSA exemption is installed, and deployed-exception enforcement, "
-    "production registers, audit backends, and Secret data are out of scope."
+    "and creates and updates one complete synthetic record. Real API audit observes "
+    "the targeted write bodies and Metadata-only reads and empty Secret creation. "
+    "Deployed exception enforcement, approved policy choices, and audit retention "
+    "require environment-specific evidence."
 )
+
+
+def prepare_kind(lab, temporary: Path) -> Path:
+    policy = temporary / "audit-policy.yaml"
+    policy.write_text(f"""apiVersion: audit.k8s.io/v1
+kind: Policy
+omitStages: [RequestReceived]
+rules:
+- level: Metadata
+  resources:
+  - group: ""
+    resources: [secrets]
+- level: RequestResponse
+  verbs: [create, update, patch]
+  namespaces: [{NAMESPACE}]
+  resources:
+  - group: "{GROUP}"
+    resources: [psaexceptionrecords]
+- level: Metadata
+  namespaces: [{NAMESPACE}]
+- level: None
+""")
+    config = temporary / "kind.yaml"
+    config.write_text(f"""kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraMounts:
+  - hostPath: {json.dumps(str(policy))}
+    containerPath: {AUDIT_POLICY}
+    readOnly: true
+kubeadmConfigPatches:
+- |
+  apiVersion: kubeadm.k8s.io/v1beta4
+  kind: ClusterConfiguration
+  apiServer:
+    extraArgs:
+    - name: audit-policy-file
+      value: {AUDIT_POLICY}
+    - name: audit-log-path
+      value: {AUDIT_LOG}
+    extraVolumes:
+    - name: saf-psa-audit-policy
+      hostPath: {AUDIT_POLICY}
+      mountPath: {AUDIT_POLICY}
+      readOnly: true
+      pathType: File
+    - name: saf-psa-audit-log
+      hostPath: /var/log/kubernetes
+      mountPath: /var/log/kubernetes
+      readOnly: false
+      pathType: DirectoryOrCreate
+""")
+    return config
 
 
 def record(name, spec):
@@ -155,3 +217,52 @@ def run(lab):
     lab.check("positive", "A complete update to the evidence record persists",
               repaired == {**COMPLETE_SPEC, "riskOwner": new_owner},
               {"expected_complete_update_persisted": repaired == {**COMPLETE_SPEC, "riskOwner": new_owner}})
+
+
+    empty_secret = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque",
+                    "metadata": {"name": "saf-empty-audit-fixture", "namespace": NAMESPACE}}
+    lab.kubectl("-n", NAMESPACE, "create", "-f", "-", "-o", "name",
+                payload=json.dumps(empty_secret))
+    check_audit_scope(lab, new_owner)
+
+
+def check_audit_scope(lab, owner):
+    node = f"{lab.cluster}-control-plane"
+    deadline = time.monotonic() + 12
+    matched = {}
+    while time.monotonic() < deadline:
+        result = subprocess.run(["docker", "exec", node, "cat", AUDIT_LOG], capture_output=True,
+                                env=lab.env, text=True, timeout=8)
+        if result.returncode != 0:
+            time.sleep(0.3)
+            continue
+        for line in result.stdout.splitlines():
+            event = json.loads(line)
+            ref = event.get("objectRef", {})
+            code = event.get("responseStatus", {}).get("code")
+            if event.get("stage") != "ResponseComplete" or ref.get("namespace") != NAMESPACE:
+                continue
+            resource, verb = ref.get("resource"), event.get("verb")
+            if resource == "psaexceptionrecords" and ref.get("name") == "synthetic-complete" and code == 200:
+                if verb == "patch":
+                    matched["write"] = event
+                elif verb == "get":
+                    matched["read"] = event
+            elif resource == "secrets" and verb == "create" and code == 201:
+                matched["secret"] = event
+        if set(matched) == {"write", "read", "secret"}:
+            break
+        time.sleep(0.3)
+    if set(matched) != {"write", "read", "secret"}:
+        lab.block("Expected exact successful register write/read and empty Secret audit events")
+    write, read, secret = (matched[key] for key in ("write", "read", "secret"))
+    selected_bodies = (write["level"] == "RequestResponse"
+                       and write.get("requestObject", {}).get("spec", {}).get("riskOwner") == owner
+                       and write.get("responseObject", {}).get("spec", {}).get("riskOwner") == owner)
+    lab.check("positive", "The selected register write has the intended request and response evidence",
+              selected_bodies, {"request_response_for_exact_register_write": selected_bodies})
+    metadata_only = all(event["level"] == "Metadata"
+                        and not {"requestObject", "responseObject"}.intersection(event)
+                        for event in (read, secret))
+    lab.check("green", "The same namespace retains register reads and empty Secret creation at Metadata",
+              metadata_only, {"register_read_and_empty_secret": metadata_only, "body_fields_absent": metadata_only})
