@@ -498,6 +498,12 @@
       "sha256": "2a483af2eb348afa97fad9c7ef3c72f161f896e6be2b61291f4d1826216f6069",
       "title": "Default deny ingress and egress network policies"
     },
+    "SAF-K8S-0501-002": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "fff48cefc65151490f384235bd52752805aae0fd293e8609cdb097f950e6465e",
+      "title": "Namespace network isolation patterns"
+    },
     "SAF-K8S-0601-011": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -770,7 +776,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "bb205ae20131e3165be3ea6de3964075e1b07da3",
+  "revision": "b88feffa099495ffe99e6290e80ea893570f96af",
   "sha256": "9b3b6190b973eb3addee410c79d4c34a183e00a420066cc2e0a38653d22866a9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

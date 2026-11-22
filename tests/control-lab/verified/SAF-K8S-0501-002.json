@@ -1,0 +1,324 @@
+{
+  "control_id": "SAF-K8S-0501-002",
+  "catalog_revision": "89f78fbae6d3127ebb4fdc628885140fd8b3debf",
+  "catalog_sha256": "9b3b6190b973eb3addee410c79d4c34a183e00a420066cc2e0a38653d22866a9",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "fff48cefc65151490f384235bd52752805aae0fd293e8609cdb097f950e6465e",
+  "scope": "One disposable kind v0.32.0 cluster on the lab runner's digest-pinned Kubernetes v1.36.1 node image, using the ready bundled kindnet daemonset. Three case-owned namespaces contain three source Pods and two HTTP marker Pods; IPv4 TCP/8080 probes compare no-policy baseline with ingress isolation, namespaceSelector+podSelector conjunction, and one explicit source-to-approved-Service flow. A DNS phase checks the owned Service through the in-cluster kube-dns Service and CoreDNS endpoints, with client egress restricted to CoreDNS UDP/TCP 53 before a separate TCP/8080 application allowance. No external targets, scans, production CNI, monitoring flows, IPv6, hostNetwork/node paths, or admission/generation automation is tested.",
+  "cluster": "saf-lab-9b447611527f",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Pinned kind version and ready bundled kindnet are identified",
+      "matched": true,
+      "observed": {
+        "kind_version": "kind v0.32.0 go1.26.3 darwin/arm64",
+        "kubernetes_version": "v1.36.1",
+        "cni_daemonset": "kube-system/kindnet",
+        "cni_images": [
+          "docker.io/kindest/kindnetd:v20260528-9350166c"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "In-cluster kube-dns Service has ready CoreDNS endpoints and UDP/TCP 53",
+      "matched": true,
+      "observed": {
+        "service": "kube-system/kube-dns",
+        "service_cluster_ip_present": true,
+        "udp_53": true,
+        "tcp_53": true,
+        "service_selector": {
+          "k8s-app": "kube-dns"
+        },
+        "has_ready_pods": true,
+        "has_ready_endpoints": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without policy, source reaches approved owned marker",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-0501-002-trusted",
+        "source_pod": "approved-client",
+        "owned_destination_marker": "saf-0501-002-approved-marker-4f91",
+        "service_dns_path": false,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without policy, source reaches restricted owned marker",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-0501-002-trusted",
+        "source_pod": "approved-client",
+        "owned_destination_marker": "saf-0501-002-restricted-marker-2a73",
+        "service_dns_path": false,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without policy, source reaches approved owned marker",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-0501-002-trusted",
+        "source_pod": "wrong-pod-client",
+        "owned_destination_marker": "saf-0501-002-approved-marker-4f91",
+        "service_dns_path": false,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without policy, source reaches restricted owned marker",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-0501-002-trusted",
+        "source_pod": "wrong-pod-client",
+        "owned_destination_marker": "saf-0501-002-restricted-marker-2a73",
+        "service_dns_path": false,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without policy, source reaches approved owned marker",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-0501-002-untrusted",
+        "source_pod": "wrong-namespace-client",
+        "owned_destination_marker": "saf-0501-002-approved-marker-4f91",
+        "service_dns_path": false,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without policy, source reaches restricted owned marker",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-0501-002-untrusted",
+        "source_pod": "wrong-namespace-client",
+        "owned_destination_marker": "saf-0501-002-restricted-marker-2a73",
+        "service_dns_path": false,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without egress policy, actual cluster DNS resolves the owned Service",
+      "matched": true,
+      "observed": {
+        "expected_resolves": true,
+        "expected_cluster_ip_received": true,
+        "service_fqdn": "approved-http.saf-0501-002-protected.svc.cluster.local",
+        "two_consecutive_observations": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without policy, owned Service DNS routes to its exact marker",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-0501-002-trusted",
+        "source_pod": "approved-client",
+        "owned_destination_marker": "saf-0501-002-approved-marker-4f91",
+        "service_dns_path": true,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Matching namespace and pod labels permit the approved cross-namespace flow",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-0501-002-trusted",
+        "source_pod": "approved-client",
+        "owned_destination_marker": "saf-0501-002-approved-marker-4f91",
+        "service_dns_path": false,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Wrong pod label in the approved namespace is denied",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-0501-002-trusted",
+        "source_pod": "wrong-pod-client",
+        "owned_destination_marker": "saf-0501-002-approved-marker-4f91",
+        "service_dns_path": false,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Matching pod label in an unapproved namespace is denied",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-0501-002-untrusted",
+        "source_pod": "wrong-namespace-client",
+        "owned_destination_marker": "saf-0501-002-approved-marker-4f91",
+        "service_dns_path": false,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Default ingress isolation denies the second owned marker",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-0501-002-trusted",
+        "source_pod": "approved-client",
+        "owned_destination_marker": "saf-0501-002-restricted-marker-2a73",
+        "service_dns_path": false,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Client egress default deny blocks DNS before a DNS exception",
+      "matched": true,
+      "observed": {
+        "expected_resolves": false,
+        "expected_cluster_ip_received": false,
+        "service_fqdn": "approved-http.saf-0501-002-protected.svc.cluster.local",
+        "two_consecutive_observations": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Narrow CoreDNS UDP/TCP 53 allowance restores owned-Service DNS",
+      "matched": true,
+      "observed": {
+        "expected_resolves": true,
+        "expected_cluster_ip_received": true,
+        "service_fqdn": "approved-http.saf-0501-002-protected.svc.cluster.local",
+        "two_consecutive_observations": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "DNS allowance alone does not open the application port",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-0501-002-trusted",
+        "source_pod": "approved-client",
+        "owned_destination_marker": "saf-0501-002-approved-marker-4f91",
+        "service_dns_path": true,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Separate scoped egress allowance preserves owned Service HTTP by DNS name",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "source_namespace": "saf-0501-002-trusted",
+        "source_pod": "approved-client",
+        "owned_destination_marker": "saf-0501-002-approved-marker-4f91",
+        "service_dns_path": true,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both owned HTTP listeners remain locally healthy during policy denial",
+      "matched": true,
+      "observed": {
+        "approved_and_restricted_listeners_healthy": true,
+        "markers": [
+          "saf-0501-002-approved-marker-4f91",
+          "saf-0501-002-restricted-marker-2a73"
+        ]
+      }
+    }
+  ]
+}

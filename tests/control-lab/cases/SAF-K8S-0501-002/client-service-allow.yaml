@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: approved-client-approved-http-egress
+  namespace: saf-0501-002-trusted
+spec:
+  podSelector:
+    matchLabels:
+      saf-k8s.example/0501-002-role: approved-client
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: saf-0501-002-protected
+          podSelector:
+            matchLabels:
+              saf-k8s.example/0501-002-role: approved-http
+      ports:
+        - protocol: TCP
+          port: 8080
