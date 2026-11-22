@@ -1,0 +1,41 @@
+{
+  "releases": {
+    "1.33": {
+      "end_of_life": "2026-06-28",
+      "ga_source": "https://kubernetes.io/blog/2025/04/23/kubernetes-v1-33-release/",
+      "latest_patch_at_snapshot": "1.33.13",
+      "maintenance_start": null,
+      "minor_ga": "2025-04-23"
+    },
+    "1.34": {
+      "end_of_life": "2026-10-27",
+      "ga_source": "https://kubernetes.io/blog/2025/08/27/kubernetes-v1-34-release/",
+      "latest_patch_at_snapshot": "1.34.12",
+      "maintenance_start": "2026-08-27",
+      "minor_ga": "2025-08-27"
+    },
+    "1.35": {
+      "end_of_life": "2027-02-28",
+      "ga_source": "https://kubernetes.io/blog/2025/12/17/kubernetes-v1-35-release/",
+      "latest_patch_at_snapshot": "1.35.9",
+      "maintenance_start": "2026-12-28",
+      "minor_ga": "2025-12-17"
+    },
+    "1.36": {
+      "end_of_life": "2027-06-28",
+      "ga_source": "https://kubernetes.io/blog/2026/04/22/kubernetes-v1-36-release/",
+      "latest_patch_at_snapshot": "1.36.5",
+      "maintenance_start": "2027-04-28",
+      "minor_ga": "2026-04-22"
+    },
+    "1.37": {
+      "end_of_life": "2027-10-28",
+      "ga_source": "https://kubernetes.io/blog/2026/08/26/kubernetes-v1-37-release/",
+      "latest_patch_at_snapshot": "1.37.1",
+      "maintenance_start": "2027-08-28",
+      "minor_ga": "2026-08-26"
+    }
+  },
+  "snapshot_date": "2026-09-15",
+  "source": "https://kubernetes.io/releases/patch-releases/"
+}

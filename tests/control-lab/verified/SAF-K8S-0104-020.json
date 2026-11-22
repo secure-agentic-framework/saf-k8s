@@ -1,0 +1,139 @@
+{
+  "control_id": "SAF-K8S-0104-020",
+  "catalog_revision": "4961d5515b66462382e5403c5640c1965b451eef",
+  "catalog_sha256": "4c894c901242afc4d2a25f8ebaa77085e3c1a94a50cc1ede5866d5381e4bb0cd",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "e514fe73345d5f3e6169a69c34ac3d502a918fd9857a6703cb4dd107caa51815",
+  "scope": "Kubernetes upstream patch-series support from the 2026-09-15 published snapshot. The case checks support boundaries and evaluates live server and kubelet versions. Provider schedules, present-day patch posture and completed upgrades require separate evidence.",
+  "cluster": "saf-lab-24d7c6e1290d",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Upstream support decision for 1.34.12 on 2026-10-27",
+      "matched": true,
+      "observed": {
+        "policy_enabled": false,
+        "status": "disabled"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Upstream support decision for 1.34.0 on 2025-08-26",
+      "matched": true,
+      "observed": {
+        "policy_enabled": true,
+        "status": "outside_window"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Upstream support decision for 1.34.0 on 2025-08-27",
+      "matched": true,
+      "observed": {
+        "policy_enabled": true,
+        "status": "supported"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Upstream support decision for 1.34.11 on 2026-08-27",
+      "matched": true,
+      "observed": {
+        "policy_enabled": true,
+        "status": "limited_maintenance"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Upstream support decision for 1.34.12 on 2026-10-26",
+      "matched": true,
+      "observed": {
+        "policy_enabled": true,
+        "status": "limited_maintenance"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Upstream support decision for 1.34.12 on 2026-10-27",
+      "matched": true,
+      "observed": {
+        "policy_enabled": true,
+        "status": "outside_window"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Upstream support decision for 1.35.1 on 2026-09-15",
+      "matched": true,
+      "observed": {
+        "policy_enabled": true,
+        "status": "supported"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Upstream support decision for 1.33.13 on 2026-09-15",
+      "matched": true,
+      "observed": {
+        "policy_enabled": true,
+        "status": "outside_window"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Upstream support decision for 1.36.99 on 2026-09-15",
+      "matched": true,
+      "observed": {
+        "policy_enabled": true,
+        "status": "unverified"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Live API server and kubelets fall in the snapshot's active support window",
+      "matched": true,
+      "observed": {
+        "reference_date": "2026-09-15",
+        "api_server": "v1.36.1",
+        "kubelets": [
+          "v1.36.1"
+        ],
+        "statuses": [
+          "supported",
+          "supported"
+        ]
+      }
+    }
+  ]
+}

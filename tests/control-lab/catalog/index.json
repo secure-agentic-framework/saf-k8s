@@ -168,6 +168,12 @@
       "sha256": "599bb8dc936e12291b48e232dce801cdc1160ee19323ff23a2a0a1fe690a1dac",
       "title": "CIS Benchmark remediation workflow tracking"
     },
+    "SAF-K8S-0104-020": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "e514fe73345d5f3e6169a69c34ac3d502a918fd9857a6703cb4dd107caa51815",
+      "title": "Kubernetes supported version window compliance"
+    },
     "SAF-K8S-0104-021": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -500,7 +506,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "e6201e60c2dac0f8ee83ba590a46e844c7d39ebb",
+  "revision": "d4e767f6b5cfcd054f21d709444762e228008070",
   "sha256": "4c894c901242afc4d2a25f8ebaa77085e3c1a94a50cc1ede5866d5381e4bb0cd",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
