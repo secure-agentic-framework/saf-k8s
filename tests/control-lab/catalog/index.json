@@ -624,6 +624,12 @@
       "sha256": "abe6baadddd2bcd829d8e8b15c75d6a3b6b56b63557f0c78f43a17ed7b1412a0",
       "title": "Approved DNS resolution path enforcement"
     },
+    "SAF-K8S-0503-016": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "9dab11d4efd2ef04577368bfdb6e5610d74411f6d2223c8aa48b85309ba4905c",
+      "title": "Namespace-scoped DNS service discovery restriction"
+    },
     "SAF-K8S-0505-002": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -932,7 +938,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ad7db58e8605c41809d0c3302b32dd277eca264a",
+  "revision": "4c9444585dd1c33767dbcb4fd74effba02719b95",
   "sha256": "ba2c83990b7e8dabd3521401627a287dc143c1661a28469381ebabfdcef4730b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
