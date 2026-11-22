@@ -1,0 +1,10 @@
+apiVersion: audit.k8s.io/v1
+kind: Policy
+rules:
+  - level: Metadata
+    verbs: [create, update]
+    resources:
+      - group: ""
+        resources: [configmaps]
+    namespaces: [saf-1001-023]
+  - level: None
