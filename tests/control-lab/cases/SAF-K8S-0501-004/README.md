@@ -1,4 +1,4 @@
-# SAF-K8S-0501-004 — Cilium HTTP method enforcement
+# SAF-K8S-0501-004 — Cilium policy enforcement
 
 ```sh
 python3 lab.py test SAF-K8S-0501-004 --docker-context desktop-linux
@@ -9,14 +9,35 @@ published Cilium 1.20.5 Helm archive, and installs it only in the
 runner-owned context. Cilium takes ownership of CNI configuration before
 the case creates its two HTTP Pods. Helm must be available locally.
 
-Before policy, both GET and POST to the same test listener and path return
-the exact harmless marker. The applied CiliumNetworkPolicy allows GET.
-The same listener still answers with its marker on GET, while Cilium denies
-POST with HTTP 403. This is Cilium HTTP policy evidence on the local node.
+The original HTTP-method check remains: before policy, GET and POST to the
+same test listener and path return the exact harmless marker; afterward GET
+still returns it and Cilium denies POST with HTTP 403.
 
-FQDN enforcement, global policy precedence, Calico-specific behavior and
-provider integration require their own evidence.
+Additional checks create two owned HTTP fixtures on a disposable Docker
+`--internal` bridge attached only to the kind node. The case verifies distinct
+fixture IPv4 addresses, starts an owned DNS responder with exact A records for
+two `.test` names, and directs the test client's resolver only to that Pod.
+Before policy both names resolve to their recorded addresses and return their
+individual markers. After policy, selective DNS proxy rules keep both names
+resolvable, while `toFQDNs.matchName` authorizes HTTP only to the approved
+exact name. The alternate HTTP request must fail, and both fixture listeners
+must still return their markers when checked locally inside their containers.
 
-[Cilium policy language](https://docs.cilium.io/en/v1.20/security/policy/language/) ·
+Three additional owned namespaces each have a probe Pod. Namespaced Cilium
+allows first establish real access to the owned HTTP fixture from two
+selected namespaces. A CiliumClusterwideNetworkPolicy then selects only those
+two namespaces and denies the same destination and port. Both selected probes
+must lose access despite the namespaced allows; the third namespace must
+retain access.
+
+All HTTP, DNS, IPs, peers, namespaces and policy resources are case-owned and
+local to this run. This does not establish public DNS behavior, production
+FQDN policy safety, Calico behavior, cloud-provider behavior, or behavior on
+other Cilium versions.
+
+[Cilium 1.20 Layer 3 / `toFQDNs`](https://docs.cilium.io/en/v1.20/security/policy/layer3/) ·
+[Cilium 1.20 DNS proxy / Layer 7](https://docs.cilium.io/en/v1.20/security/policy/layer7/) ·
+[Cilium 1.20 namespace selectors](https://docs.cilium.io/en/v1.20/security/policy/kubernetes/) ·
+[Cilium 1.20 deny precedence](https://docs.cilium.io/en/v1.20/security/policy/deny/) ·
 [Cilium v1.20.5 release](https://github.com/cilium/cilium/releases/tag/v1.20.5) ·
 [Cilium CNI configuration](https://docs.cilium.io/en/v1.20/network/kubernetes/configuration/)

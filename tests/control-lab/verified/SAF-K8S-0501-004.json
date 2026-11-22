@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0501-004",
-  "catalog_revision": "b126a9987a2383122872317e04a923f2137b2591",
-  "catalog_sha256": "b5c2f4a8bfac5aa27b81f5b3a84c72083b81b5210bba5d600c9cb6f4424dca4c",
+  "catalog_revision": "1c6a4fd046794883c99475122e9c111e0d02745d",
+  "catalog_sha256": "31490639f973d1f95ee1465812ef6775f786dc53b54c2e4adc2fb8807bb12799",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "0152c3f905267b688ec83e85ca70913617f27c02beeeab9255bd3e35dfad335d",
-  "scope": "Cilium 1.20.5 L7 ingress policy on kind v0.32.0 / Kubernetes v1.36.1, IPv4 TCP/8080, one case-owned client Pod and one case-owned HTTP server Pod, direct Pod-IP requests to /safe. The scope is method matching. DNS, Service routing, external/public traffic, other protocols, production policy, Calico, or cluster-wide policy is exercised.",
-  "cluster": "saf-lab-b49b741a678d",
+  "scope": "Cilium 1.20.5 on kind v0.32.0 / Kubernetes v1.36.1. The retained L7 ingress claim is IPv4 TCP/8080 between owned Pods with direct Pod-IP requests to /safe. Additional local claims cover toFQDNs against two synthetic .test names on an internal Docker bridge, plus CiliumClusterwideNetworkPolicy selection and deny precedence across two selected namespaces and one unaffected namespace. No public endpoint, production policy, other CNI, or provider integration is exercised.",
+  "cluster": "saf-lab-0d45b463c9f5",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -110,6 +110,267 @@
           "status": 403,
           "body": "Access denied\r\n"
         }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Disposable internal bridge contains only the runner node and two owned peers",
+      "matched": true,
+      "observed": {
+        "internal": true,
+        "attached_containers": 3,
+        "all_owned": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Owned HTTP fixture peers have distinct verified IPv4 addresses",
+      "matched": true,
+      "observed": {
+        "expected_distinct_ipv4": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Owned approved HTTP fixture listener is healthy",
+      "matched": true,
+      "observed": {
+        "role": "approved",
+        "port": 8080,
+        "expected_marker": "saf-0501-004-approved-fqdn-marker-8c21",
+        "healthy": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Owned alternate HTTP fixture listener is healthy",
+      "matched": true,
+      "observed": {
+        "role": "alternate",
+        "port": 8080,
+        "expected_marker": "saf-0501-004-alternate-fqdn-marker-1a73",
+        "healthy": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Owned DNS fixture resolves approved.saf-0501-004.test to its verified bridge IPv4",
+      "matched": true,
+      "observed": {
+        "fqdn": "approved.saf-0501-004.test",
+        "expected_ipv4_matched": true,
+        "resolver_source": "case-owned DNS Pod; DNS policy not yet applied"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy HTTP to approved.saf-0501-004.test returns its fixed owned marker",
+      "matched": true,
+      "observed": {
+        "fqdn": "approved.saf-0501-004.test",
+        "port": 8080,
+        "expected_marker": "saf-0501-004-approved-fqdn-marker-8c21",
+        "observed": {
+          "status": 200,
+          "body": "saf-0501-004-approved-fqdn-marker-8c21"
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Owned DNS fixture resolves alternate.saf-0501-004.test to its verified bridge IPv4",
+      "matched": true,
+      "observed": {
+        "fqdn": "alternate.saf-0501-004.test",
+        "expected_ipv4_matched": true,
+        "resolver_source": "case-owned DNS Pod; DNS policy not yet applied"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy HTTP to alternate.saf-0501-004.test returns its fixed owned marker",
+      "matched": true,
+      "observed": {
+        "fqdn": "alternate.saf-0501-004.test",
+        "port": 8080,
+        "expected_marker": "saf-0501-004-alternate-fqdn-marker-1a73",
+        "observed": {
+          "status": 200,
+          "body": "saf-0501-004-alternate-fqdn-marker-1a73"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Selective DNS proxy permission preserves the approved exact A answer",
+      "matched": true,
+      "observed": {
+        "fqdn": "approved.saf-0501-004.test",
+        "expected_ipv4_matched": true,
+        "dns_match_name": "approved.saf-0501-004.test"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "toFQDNs permits the approved exact name and marker",
+      "matched": true,
+      "observed": {
+        "fqdn": "approved.saf-0501-004.test",
+        "port": 8080,
+        "expected_status": 200,
+        "expected_marker": "saf-0501-004-approved-fqdn-marker-8c21",
+        "observed": {
+          "status": 200,
+          "body": "saf-0501-004-approved-fqdn-marker-8c21"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Selective DNS proxy permission preserves the alternate exact A answer",
+      "matched": true,
+      "observed": {
+        "fqdn": "alternate.saf-0501-004.test",
+        "expected_ipv4_matched": true,
+        "dns_match_name": "alternate.saf-0501-004.test",
+        "toFQDNs_match_name": "approved.saf-0501-004.test"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "DNS answer for the alternate name does not authorize its HTTP path",
+      "matched": true,
+      "observed": {
+        "fqdn": "alternate.saf-0501-004.test",
+        "port": 8080,
+        "expected_status": null,
+        "expected_marker": null,
+        "observed": {
+          "status": null,
+          "error": "TimeoutError"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Alternate DNS answer remains available after its failed HTTP request",
+      "matched": true,
+      "observed": {
+        "fqdn": "alternate.saf-0501-004.test",
+        "expected_ipv4_matched": true,
+        "http_path_previously_failed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both external HTTP fixtures remain healthy after policy denial",
+      "matched": true,
+      "observed": {
+        "listener_health": {
+          "approved": true,
+          "alternate": true
+        },
+        "marker_by_role": {
+          "approved": "saf-0501-004-approved-fqdn-marker-8c21",
+          "alternate": "saf-0501-004-alternate-fqdn-marker-1a73"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Targeted namespaced allow in saf-0501-004-selected-a reaches owned listener",
+      "matched": true,
+      "observed": {
+        "namespace": "saf-0501-004-selected-a",
+        "destination": "approved",
+        "port": 8080,
+        "expected_marker": "saf-0501-004-approved-fqdn-marker-8c21",
+        "observed": {
+          "status": 200,
+          "body": "saf-0501-004-approved-fqdn-marker-8c21"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Targeted namespaced allow in saf-0501-004-selected-b reaches owned listener",
+      "matched": true,
+      "observed": {
+        "namespace": "saf-0501-004-selected-b",
+        "destination": "approved",
+        "port": 8080,
+        "expected_marker": "saf-0501-004-approved-fqdn-marker-8c21",
+        "observed": {
+          "status": 200,
+          "body": "saf-0501-004-approved-fqdn-marker-8c21"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Clusterwide deny overrides the targeted allow in saf-0501-004-selected-a",
+      "matched": true,
+      "observed": {
+        "namespace": "saf-0501-004-selected-a",
+        "destination": "approved",
+        "port": 8080,
+        "namespaced_allow_present": true,
+        "clusterwide_deny_selected": true,
+        "two_consecutive_denied_observations": true,
+        "recognized_network_block": true,
+        "observed": {
+          "status": null,
+          "error": "TimeoutError"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Clusterwide deny overrides the targeted allow in saf-0501-004-selected-b",
+      "matched": true,
+      "observed": {
+        "namespace": "saf-0501-004-selected-b",
+        "destination": "approved",
+        "port": 8080,
+        "namespaced_allow_present": true,
+        "clusterwide_deny_selected": true,
+        "two_consecutive_denied_observations": true,
+        "recognized_network_block": true,
+        "observed": {
+          "status": null,
+          "error": "TimeoutError"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Clusterwide namespace selector leaves the third namespace unaffected",
+      "matched": true,
+      "observed": {
+        "namespace": "saf-0501-004-unaffected",
+        "destination": "approved",
+        "port": 8080,
+        "not_selected_by_clusterwide_deny": true,
+        "two_consecutive_allowed_observations": true,
+        "observed": {
+          "status": 200,
+          "body": "saf-0501-004-approved-fqdn-marker-8c21"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Owned external fixture containers and internal bridge are removed",
+      "matched": true,
+      "observed": {
+        "cleanup_commands_succeeded": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "external_fixture_containers": 2,
+        "network_was_internal": true
       }
     }
   ]
