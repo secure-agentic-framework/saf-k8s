@@ -570,6 +570,12 @@
       "sha256": "a16de993105b055e6397f4036f9d74d16144c1d2a9b1c2f16861f168f3fcd8d1",
       "title": "Multi-cluster network segmentation for federated AI workloads"
     },
+    "SAF-K8S-0502-010": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "74fc2b652f55270a399f34a93767c4a4a34532cdb0009a31a2bc1022463f9ba9",
+      "title": "Kubernetes CNI IP pool exhaustion monitoring and alerting"
+    },
     "SAF-K8S-0601-011": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -860,7 +866,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c5851ee28f9acddd9841d815483ba15fc3551e2f",
+  "revision": "a5e340052314d23433662b700aaa074dfeefbe7b",
   "sha256": "e49cf10ac7e0e6cdfa7c6edb5e9221c7365257496c7df4c6f2e760056cb53a97",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

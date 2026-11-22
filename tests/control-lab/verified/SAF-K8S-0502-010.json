@@ -1,0 +1,95 @@
+{
+  "control_id": "SAF-K8S-0502-010",
+  "catalog_revision": "8499ab6eef453f23e74e24a1ab43555af4bd89f0",
+  "catalog_sha256": "115d55b7443aed0213c5b909968f35b73439c1376fb56857836f63c2b08ce322",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "74fc2b652f55270a399f34a93767c4a4a34532cdb0009a31a2bc1022463f9ba9",
+  "scope": "Kubernetes v1.36.1 on one disposable local kind cluster with a dedicated small IPv4 ServiceCIDR. Reads kube-apiserver's native Service ClusterIP allocator metrics, creates at most nine harmless ClusterIP Services, checks a live Prometheus low-free-capacity alert while addresses remain allocatable, and deletes only its own Services to verify recovery. Pod CIDR, CNI IPAM, provider node pools, and external alert delivery are outside this probe.",
+  "cluster": "saf-lab-9a52b9a684e7",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The API exposes native allocator gauges for the case ServiceCIDR",
+      "matched": true,
+      "observed": {
+        "service_cidr": "10.96.240.0/28",
+        "allocator": {
+          "allocated": 3.0,
+          "available": 11.0
+        },
+        "metric_scope": "Service ClusterIP allocator only",
+        "alert_state": "inactive"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Low-free-capacity rule is active before the Service pool is exhausted",
+      "matched": true,
+      "observed": {
+        "free_fraction_below_threshold": true,
+        "free_addresses_remain": true,
+        "alert_state": "firing",
+        "owned_address_objects_verified": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A further ClusterIP Service is accepted while the low-capacity rule is active",
+      "matched": true,
+      "observed": {
+        "free_addresses_remain": true,
+        "extra_service": "saf-0502-010-extra",
+        "unique_ip_address_object_verified": true,
+        "alert_state": "firing"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Deleting only case-owned Services clears the alert condition and restores baseline allocation",
+      "matched": true,
+      "observed": {
+        "baseline": {
+          "allocated": 3.0,
+          "available": 11.0
+        },
+        "recovered": {
+          "allocated": 3.0,
+          "available": 11.0
+        },
+        "remaining_owned_services": [],
+        "alert_state": "inactive"
+      }
+    }
+  ]
+}

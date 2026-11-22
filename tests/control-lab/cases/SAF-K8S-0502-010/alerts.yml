@@ -1,0 +1,17 @@
+groups:
+  - name: saf-k8s-service-ip-capacity
+    rules:
+      - alert: KubernetesServiceIPPoolLow
+        expr: |
+          kube_apiserver_clusterip_allocator_available_ips
+          /
+          (
+            kube_apiserver_clusterip_allocator_available_ips
+            + kube_apiserver_clusterip_allocator_allocated_ips
+          ) < 0.50
+        labels:
+          severity: warning
+          scope: service-cidr
+        annotations:
+          summary: "Service ClusterIP pool has less than half its measured capacity available"
+          description: "Review ServiceCIDR capacity and allocation trends before service creation is affected."
