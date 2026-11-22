@@ -1,0 +1,135 @@
+{
+  "control_id": "SAF-K8S-0606-026",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "41c0c4b31512f6c2c9c25884ef9a9f4204d1137faf08157563b9f7f5b0217fdc",
+  "scope": "Two exact commits of an inert fixture repository on Kubernetes v1.36.1. A pinned OpenSSF Scorecard process assesses Pinned-Dependencies in local mode, and native Kubernetes admission trusts the independently identified repository and revision. The workflow is never executed and no hosted SCM sites, accounts, or data are assessed. The fixture leaves continuous production assessment and hosted branch controls open.",
+  "cluster": "saf-lab-d58e2fd58812",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The live pinned Scorecard evaluates the weak exact Git snapshot",
+      "matched": true,
+      "observed": {
+        "repository": "fixture-scm",
+        "revision": "0b1f5104e8300fd111855b3f8c46f87cf7a92009",
+        "workflow_sha256": "b79fa529c11dd9492b9970d4b8d54ef32b27953859b02d1adf5ed03883f4e20f",
+        "score": 0,
+        "scorecard_commit": "61e84743356275f6ffca23b1b2f2cb945e19eb96",
+        "check": "Pinned-Dependencies",
+        "checkout_matches": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The live pinned Scorecard evaluates the strong exact Git snapshot",
+      "matched": true,
+      "observed": {
+        "repository": "fixture-scm",
+        "revision": "ccda660342ec11f988b796da0f5d7b4ca6114779",
+        "workflow_sha256": "3c85e4b6a3d5a3691d3a6c434f1148354b9ad99e697318763d8cda8f84614b40",
+        "score": 10,
+        "scorecard_commit": "61e84743356275f6ffca23b1b2f2cb945e19eb96",
+        "check": "Pinned-Dependencies",
+        "checkout_matches": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "With no posture gate, the same low-scoring revision updates the live release marker",
+      "matched": true,
+      "observed": {
+        "api_returncode": 0,
+        "stored": {
+          "repository": "fixture-scm",
+          "revision": "0b1f5104e8300fd111855b3f8c46f87cf7a92009"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The existing release marker was restored before policy activation",
+      "matched": true,
+      "observed": {
+        "stored": {
+          "repository": "unrelated-approved-deployment",
+          "revision": "already-deployed"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The gate denies low-score and keeps the previous release unchanged",
+      "matched": true,
+      "observed": {
+        "api_returncode": 1,
+        "policy_denial": true,
+        "previous_release_unchanged": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The gate denies missing-revision and keeps the previous release unchanged",
+      "matched": true,
+      "observed": {
+        "api_returncode": 1,
+        "policy_denial": true,
+        "previous_release_unchanged": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The gate denies wrong-repository and keeps the previous release unchanged",
+      "matched": true,
+      "observed": {
+        "api_returncode": 1,
+        "policy_denial": true,
+        "previous_release_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The gate accepts the approved repository and its exact passing revision",
+      "matched": true,
+      "observed": {
+        "api_returncode": 0,
+        "stored": {
+          "repository": "fixture-scm",
+          "revision": "ccda660342ec11f988b796da0f5d7b4ca6114779"
+        }
+      }
+    }
+  ]
+}

@@ -762,6 +762,12 @@
       "sha256": "a280b6cb8756f79fba65294731fb3129581c3bfbb88f5e0b5b92612be1909619",
       "title": "Artifact freshness limit enforcement for CI/CD promotion"
     },
+    "SAF-K8S-0606-026": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "41c0c4b31512f6c2c9c25884ef9a9f4204d1137faf08157563b9f7f5b0217fdc",
+      "title": "Automated SCM security posture assessment before promotion reliance"
+    },
     "SAF-K8S-0606-027": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -1142,7 +1148,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "e5b99cf081d91eb6eaef06e5639f1f8d8b2eba52",
+  "revision": "38a47586492295ba58e03df9ff92d2e16893a25e",
   "sha256": "5468afd7544aceb8f79e434b7d58a52fc41eeee0b3084837f4dc587efc72cace",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
