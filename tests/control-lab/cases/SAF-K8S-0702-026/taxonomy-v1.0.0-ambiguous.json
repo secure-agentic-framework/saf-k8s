@@ -1,0 +1,38 @@
+{
+  "taxonomyVersion": "1.0.0",
+  "governance": {
+    "ownerRole": "Data Governance",
+    "reviewerRole": "Security Governance",
+    "reviewedOn": "2026-01-15",
+    "approvalRecord": "SYNTHETIC-RECORD-026"
+  },
+  "categories": [
+    {
+      "name": "public",
+      "definition": "Synthetic information approved for public release.",
+      "synonyms": ["open"],
+      "handling": {
+        "storage": "approved-public-storage",
+        "access": "public",
+        "sharing": "unrestricted",
+        "retention": "follow-public-records-schedule"
+      }
+    },
+    {
+      "name": "internal",
+      "definition": "Synthetic information for routine workforce use.",
+      "synonyms": ["staff-only"],
+      "handling": {
+        "storage": "approved-internal-storage",
+        "access": "workforce",
+        "sharing": "workforce-only",
+        "retention": "follow-internal-schedule"
+      }
+    },
+    {
+      "name": "confidential",
+      "definition": "Synthetic sensitive information with restricted access.",
+      "synonyms": ["staff-only"]
+    }
+  ]
+}

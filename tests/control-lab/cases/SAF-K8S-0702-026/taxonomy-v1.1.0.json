@@ -1,0 +1,63 @@
+{
+  "taxonomyVersion": "1.1.0",
+  "governance": {
+    "ownerRole": "Data Governance",
+    "reviewerRole": "Security Governance",
+    "reviewedOn": "2026-10-20",
+    "approvalRecord": "SYNTHETIC-RECORD-026-V2"
+  },
+  "categories": [
+    {
+      "name": "public",
+      "definition": "Synthetic information approved for public release.",
+      "synonyms": [
+        "open"
+      ],
+      "handling": {
+        "storage": "approved-public-storage",
+        "access": "public",
+        "sharing": "unrestricted",
+        "retention": "follow-public-records-schedule"
+      }
+    },
+    {
+      "name": "internal",
+      "definition": "Synthetic information for routine workforce use.",
+      "synonyms": [
+        "staff-internal"
+      ],
+      "handling": {
+        "storage": "approved-internal-storage",
+        "access": "workforce",
+        "sharing": "workforce-only",
+        "retention": "follow-internal-schedule"
+      }
+    },
+    {
+      "name": "confidential",
+      "definition": "Synthetic sensitive information with restricted access.",
+      "synonyms": [
+        "restricted"
+      ],
+      "handling": {
+        "storage": "approved-restricted-storage",
+        "access": "named-authorized-users",
+        "sharing": "explicit-approval-required",
+        "retention": "follow-restricted-schedule"
+      }
+    },
+    {
+      "name": "regulated",
+      "definition": "Synthetic information governed by an additional handling rule.",
+      "synonyms": [
+        "regulated-fixture"
+      ],
+      "handling": {
+        "storage": "approved-regulated-storage",
+        "access": "named-authorized-users",
+        "sharing": "recorded-owner-approval",
+        "retention": "follow-regulated-schedule"
+      }
+    }
+  ]
+}

@@ -576,6 +576,12 @@
       "sha256": "766d73d0ef57d1b2c2d65c07178fdb0ea089a1053823119f876811aef70693f3",
       "title": "Virtual cluster isolation guarantee and residual risk documentation"
     },
+    "SAF-K8S-0702-026": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "357c599d6274b32073833de490f8d59159b2e275437cbf9b86e58e64cc0b2083",
+      "title": "Pipeline data classification taxonomy definition"
+    },
     "SAF-K8S-0702-027": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -602,7 +608,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "cdb2ef11febb5d3001a81518410e47b044009627",
+  "revision": "0ca6c83364b2bb43cc5aa22f307f7526386f1ddd",
   "sha256": "df105e4d2453b18902086552ec1bae50b698ff889053abd168a340c3f200169b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -1,0 +1,72 @@
+{
+  "control_id": "SAF-K8S-0702-026",
+  "catalog_revision": "7e2e05c327f54bcc2c6aefd64c255880a81ce7c9",
+  "catalog_sha256": "df105e4d2453b18902086552ec1bae50b698ff889053abd168a340c3f200169b",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "357c599d6274b32073833de490f8d59159b2e275437cbf9b86e58e64cc0b2083",
+  "scope": "A disposable Kubernetes v1.36.1 cluster stores and validates synthetic taxonomy versions. Real Jobs distinguish missing handling rules and ambiguous terms from structurally valid documents, while old and newer revisions stay independently selectable. Production adoption, the authority of owners and reviewers, and change cadence require separate evidence.",
+  "cluster": "saf-lab-0154d696d809",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The in-cluster taxonomy consumer rejects ambiguous terms and a missing handling rule",
+      "matched": true,
+      "observed": {
+        "stored_document": true,
+        "ambiguous_term_rejected": true,
+        "missing_handling_rejected": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same consumer accepts a versioned taxonomy with complete categories",
+      "matched": true,
+      "observed": {
+        "valid_version": true,
+        "category_count": 3
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A consumer can select the newer revision while the older record remains available",
+      "matched": true,
+      "observed": {
+        "retained_original": true,
+        "new_version_valid": true,
+        "declared_fixture_approval": true,
+        "new_category_count": 4
+      }
+    }
+  ]
+}
