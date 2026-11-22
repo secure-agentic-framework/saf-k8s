@@ -5,7 +5,14 @@
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "ae619e2acf3f449ead88c2cd738d814119dfc596460c7ac378a51413de16684a",
   "scope": "Namespace policy for projected token requests and actual lifetimes from the configured Kubernetes issuer for Pod projections, default automount, and direct TokenRequest issuance for API and sample relying-party audiences.",
-  "cluster": "saf-lab-e77fb598aea7",
+  "review_timing": {
+    "queued_at": "2026-11-22T23:32:47.595265+00:00",
+    "cluster_ready_at": "2026-11-22T23:33:14.907929+00:00",
+    "approval_at": "2026-11-22T23:34:21.162122+00:00",
+    "case_loaded_at": "2026-11-22T23:34:21.274133+00:00"
+  },
+  "cluster": "saf-lab-1cb8b7ebd7d8",
+  "kind_config_sha256": "f407787df3a0e1a7648eef0269ff6eb2b6889da1f678e9062bf603acc10b2c28",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -35,6 +42,7 @@
       "platform": "linux/arm64"
     }
   },
+  "approved_case_sha256": "44aa633e84216e8e97bb1333c23f3148e1b9db37f2cdec364692baecb6ee621f",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
@@ -68,7 +76,12 @@
       "phase": "positive",
       "claim": "Ready Pod token JWT claims show the requested lifetime",
       "matched": true,
-      "observed": "{\"iat\": 1795292576, \"exp\": 1795293176, \"lifetime\": 600}"
+      "observed": {
+        "iat_positive": true,
+        "requested_lifetime": 600,
+        "observed_lifetime": 600,
+        "within_configured_bounds": true
+      }
     },
     {
       "phase": "green",

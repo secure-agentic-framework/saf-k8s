@@ -117,9 +117,16 @@ def run(lab):
     ready(lab, "bounded-lifetime")
     iat, exp = read_claims(lab, "bounded-lifetime")
     lifetime = exp - iat
+    (lab.evidence / "token-lifetime.raw.json").write_text(json.dumps({
+        "projected_pod_claims": {"iat": iat, "exp": exp, "lifetime": lifetime},
+        "min_requested_seconds": FLOOR_SECONDS, "max_issued_seconds": CAP_SECONDS,
+    }, indent=2, sort_keys=True) + "\n")
     lab.check("positive", "Ready Pod token JWT claims show the requested lifetime",
               iat > 0 and lifetime == FLOOR_SECONDS,
-              json.dumps({"iat": iat, "exp": exp, "lifetime": lifetime}))
+              {"iat_positive": iat > 0,
+               "requested_lifetime": FLOOR_SECONDS,
+               "observed_lifetime": lifetime,
+               "within_configured_bounds": FLOOR_SECONDS <= lifetime <= CAP_SECONDS})
 
     expected = (
         (FLOOR_SECONDS, FLOOR_SECONDS, None),
