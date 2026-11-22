@@ -546,6 +546,12 @@
       "sha256": "e6bbb8c30c0d439ce0b7ac0ae1863b49205737ee7cadcd4533bb9e0f8a7b7309",
       "title": "Dual authorization for retained AI data volume destruction"
     },
+    "SAF-K8S-0701-007": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "93ccad72c17f853ed30c321b50919c792c48d22378af8ae69ecbcc1523bcd78d",
+      "title": "High-performance AI storage backend hardening"
+    },
     "SAF-K8S-0701-008": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -722,7 +728,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "80e947bf6cbcfe572d01ba9fd5257c7c0aa2347b",
+  "revision": "5677fee3014a1b5e7da0043cfae5b6d75a4aec0e",
   "sha256": "e8d024860997c85e65dcb4d9a1c10c9e716416ecfea1f4d4479987609b4092f0",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

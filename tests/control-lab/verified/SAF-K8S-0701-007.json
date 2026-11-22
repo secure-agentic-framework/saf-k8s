@@ -1,0 +1,90 @@
+{
+  "control_id": "SAF-K8S-0701-007",
+  "catalog_revision": "d4328fde2e235c4d4a65baf2e08f7e45cfb81217",
+  "catalog_sha256": "e8d024860997c85e65dcb4d9a1c10c9e716416ecfea1f4d4479987609b4092f0",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "93ccad72c17f853ed30c321b50919c792c48d22378af8ae69ecbcc1523bcd78d",
+  "scope": "Kubernetes v1.36.1 Pod Security Admission in the runner's isolated saf-test namespace. Checks strict admission of synthetic privileged and hostPath declarations by dry-run only, and a real allowed nonroot reader on the bundled local-path provisioner. Dedicated privileged storage drivers, provider hardening, risk review and real datasets require their own evidence.",
+  "cluster": "saf-lab-0617aba26b35",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Unrestricted namespace admits the synthetic privileged storage Pod",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Unrestricted namespace admits the synthetic hostPath storage Pod",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Restricted Pod Security admission rejects the privileged storage Pod",
+      "matched": true,
+      "observed": {
+        "denied": true,
+        "expected_reason": "privileged",
+        "detail": "Error from server (Forbidden): error when creating \"STDIN\": pods \"privileged-probe\" is forbidden: violates PodSecurity \"restricted:v1.36\": privileged (container \"workload\" must not set securityContext.privileged=true), allowPrivilegeEscalation != false (container \"workload\" must set securityContext.allowPrivilegeEscalation=false)"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Restricted Pod Security admission rejects the hostPath storage Pod",
+      "matched": true,
+      "observed": {
+        "denied": true,
+        "expected_reason": "hostPath",
+        "detail": "Error from server (Forbidden): error when creating \"STDIN\": pods \"hostpath-probe\" is forbidden: violates PodSecurity \"restricted:v1.36\": restricted volume types (volume \"storage\" uses restricted volume type \"hostPath\")"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Restricted admission allows a nonroot reader of a real bound PVC with a read-only mount",
+      "matched": true,
+      "observed": {
+        "claim_bound": true,
+        "read_only_mount": true,
+        "marker_matches": true
+      }
+    }
+  ]
+}
