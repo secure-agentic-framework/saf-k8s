@@ -1,0 +1,127 @@
+{
+  "control_id": "SAF-K8S-1005-029",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "dabc116476349e2bd2bb7fcd277f1df51cb9fabcdb2e2b7dfb6d2c53bb26890f",
+  "scope": "One disposable Kind Kubernetes v1.36.1 cluster. The case writes one reserved-placeholder key to the cluster's own etcd, creates and inspects an etcd snapshot, checks a missing incomplete snapshot fails, restores the snapshot into an isolated loopback-only etcd member, and reads back the exact synthetic key. A digest-pinned Python Job writes an inert marker to a PVC, archives and verifies it, rejects corrupted/incomplete archives, and a separate Pod independently reads the restored exact bytes. Snapshot contents and Kubernetes object dumps are never written to evidence. No production data or secrets are inputs. This does not validate production backup infrastructure or recovery outcomes.",
+  "cluster": "saf-lab-7244d6876121",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The disposable API server is Kubernetes v1.36.1",
+      "matched": true,
+      "observed": {
+        "gitVersion": "v1.36.1"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "An absent etcd backup fails offline status verification",
+      "matched": true,
+      "observed": {
+        "returncode": 1,
+        "input": "absent snapshot"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A digest-statused etcd snapshot restores into a separate local data directory",
+      "matched": true,
+      "observed": {
+        "snapshot_revision_present": true,
+        "restored_to_separate_data_directory": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The isolated restored etcd member returns the exact synthetic marker bytes",
+      "matched": true,
+      "observed": {
+        "key": "/saf.example/SAF-K8S-1005-029/synthetic-marker",
+        "expected_bytes": 67,
+        "observed_bytes": 67,
+        "sha256": "2171986b2d7223d729e8b07b75a40c1a0df2c6a2213d5d8559b0821a61c9b755",
+        "marker_sha256": "2171986b2d7223d729e8b07b75a40c1a0df2c6a2213d5d8559b0821a61c9b755",
+        "marker_utf8": "SAF-K8S-1005-029 synthetic model marker; reserved placeholder only."
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Corrupted and incomplete workload archives both fail verification",
+      "matched": true,
+      "observed": {
+        "corrupt": {
+          "bytes": 67,
+          "reason": "marker-mismatch",
+          "sha256": "53d81eeb3629493e52b7c21e5b3f5e5db2301b148c38ea1757c4b7ee4b3b7b34",
+          "valid": false
+        },
+        "incomplete": {
+          "members": [],
+          "reason": "incomplete-or-unexpected-members",
+          "valid": false
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The complete workload backup validates against the exact synthetic marker digest",
+      "matched": true,
+      "observed": {
+        "valid_backup": {
+          "bytes": 67,
+          "reason": "ok",
+          "sha256": "2171986b2d7223d729e8b07b75a40c1a0df2c6a2213d5d8559b0821a61c9b755",
+          "valid": true
+        },
+        "source_sha256": "2171986b2d7223d729e8b07b75a40c1a0df2c6a2213d5d8559b0821a61c9b755",
+        "expected_sha256": "2171986b2d7223d729e8b07b75a40c1a0df2c6a2213d5d8559b0821a61c9b755"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A separate Pod independently observes the exact restored marker bytes on the PVC",
+      "matched": true,
+      "observed": {
+        "sha256": "2171986b2d7223d729e8b07b75a40c1a0df2c6a2213d5d8559b0821a61c9b755",
+        "bytes": 67,
+        "expected_sha256": "2171986b2d7223d729e8b07b75a40c1a0df2c6a2213d5d8559b0821a61c9b755",
+        "expected_bytes": 67,
+        "reader_pod": "saf-1005-029-independent-reader",
+        "backup_verifier_restored_exact": true
+      }
+    }
+  ]
+}

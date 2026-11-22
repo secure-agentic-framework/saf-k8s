@@ -1,0 +1,11 @@
+{
+  "control_id": "SAF-K8S-1005-029",
+  "notice": "Entirely synthetic reserved-placeholder fixture. No real cluster data, secrets, model, feed, target, or incident is represented.",
+  "namespace": "saf-1005-029",
+  "marker_name": "synthetic-model-marker.bin",
+  "marker_utf8": "SAF-K8S-1005-029 synthetic model marker; reserved placeholder only.",
+  "etcd_key": "/saf.example/SAF-K8S-1005-029/synthetic-marker",
+  "etcd_restore_name": "saf-1005-029-restore",
+  "pvc_name": "saf-1005-029-workload-data",
+  "image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
+}

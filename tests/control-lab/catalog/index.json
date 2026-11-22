@@ -1374,6 +1374,12 @@
       "sha256": "c637ed1017cea12bff43fb5ed8ff0c208d2bba7608bb5b792efa16a42869af0f",
       "title": "Model access and training provenance forensic preservation for Kubernetes AI incidents"
     },
+    "SAF-K8S-1005-029": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "dabc116476349e2bd2bb7fcd277f1df51cb9fabcdb2e2b7dfb6d2c53bb26890f",
+      "title": "Kubernetes backup verification for etcd and AI workload data"
+    },
     "SAF-K8S-1006-001": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1424,7 +1430,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "0eb1626712f822cc96514c84bbc5503410ec1860",
+  "revision": "3742321a777d39508506d119a958b5b527eff70c",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
