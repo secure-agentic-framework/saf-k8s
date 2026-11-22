@@ -1368,6 +1368,12 @@
       "sha256": "57c74e217282e6c71bb95d935f03bb8c498d770e13bf2743845a277bcfc1bf6e",
       "title": "Kubernetes incident credential revocation procedures for ServiceAccounts and external access"
     },
+    "SAF-K8S-1005-023": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "6254479bf2ebf42c3413d693b0645185b64967e270ad4dc80d637fc87485e214",
+      "title": "GPU-aware node draining and accelerator workload containment"
+    },
     "SAF-K8S-1005-024": {
       "catalog_status": "draft",
       "domain": "D10",

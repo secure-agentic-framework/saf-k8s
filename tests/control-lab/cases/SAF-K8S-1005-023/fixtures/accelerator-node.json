@@ -1,0 +1,16 @@
+{
+  "case_id": "SAF-K8S-1005-023",
+  "incident_id": "urn:example:saf:incident:1005-023:SYN-001",
+  "fixture_only": true,
+  "node_label": {"key": "saf-k8s.example/accelerator-model", "value": "SYNTHETIC-ACCELERATOR-A"},
+  "node_annotation": {"key": "saf-k8s.example/accelerator-inventory", "value": "fixture-only; no hardware claim"},
+  "workload": {
+    "name": "saf-1005-023-mock-worker",
+    "labels": {"saf-k8s.example/case": "SAF-K8S-1005-023", "saf-k8s.example/role": "mock-accelerator-workload"},
+    "image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90",
+    "behavior": "sleep-only; no network, inference, device access, or model data"
+  },
+  "quarantine": {"taint_key": "saf-k8s.example/quarantine", "taint_value": "SYNTHETIC-INCIDENT-001", "taint_effect": "NoSchedule"},
+  "decision": {"action": "hold-eviction", "reason": "PDB disruptionsAllowed must be zero for the single healthy synthetic replica", "handoff": "mock-only; no external recipient"},
+  "evidence_fixture": "SYNTHETIC-FORENSIC-MARKER-DO-NOT-USE-AS-REAL-EVIDENCE"
+}
