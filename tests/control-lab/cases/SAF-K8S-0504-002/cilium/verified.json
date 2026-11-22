@@ -1,0 +1,141 @@
+{
+  "control_id": "SAF-K8S-0504-002",
+  "catalog_revision": "cb548d38a27108aa0cb3ba2dab7022493cb7ead3",
+  "catalog_sha256": "eb09f73c734ce9fb61334c4114a1c97b53636c859a90ae5fa9dc4148d220bfa8",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "b3b589d90ccaa1051053396388688d80df81c18895935a9c76e3c474efa4a1f2",
+  "scope": "Fresh disposable three-node Kind cluster (one control-plane and two workers), Kubernetes v1.36.1, Cilium 1.20.5 with chart-pinned SPIRE 1.15.5. Only three case-owned Pods exchange ordinary HTTP GETs: one client and one server on the same worker, plus a server on the other worker. Baseline and authenticated requests use direct owned Pod IPs. Independent Cilium agent authentication logs and WireGuard peer/device state are retained as signals. No packet capture, traffic interception, unrelated workload access, or production inference.",
+  "cluster": "saf-lab-358c20ad7b03",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Pinned Cilium 1.20.5 and bundled SPIRE are ready",
+      "matched": true,
+      "observed": {
+        "kind": "kind v0.32.0 go1.26.3 darwin/arm64",
+        "kubernetes": "v1.36.1",
+        "cilium_chart": "1.20.5",
+        "chart_sha256": "0c7592eb75179ecf46dd3ec22145916f0164c4401214ea15afb5b230b1d11a21",
+        "spire_version": "1.15.5",
+        "worker_count": 2,
+        "installed_values_confirmed": true,
+        "encryption": "wireguard enabled"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Cilium assigned identities to each owned fixture Pod",
+      "matched": true,
+      "observed": {
+        "distinct_fixture_identities": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Baseline owned GET reaches owned-server-local",
+      "matched": true,
+      "observed": {
+        "target": "owned-server-local",
+        "response": {
+          "status": 200,
+          "body": "saf-0504-002-owned-inert-response-68d2|/owned/probe"
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Baseline owned GET reaches owned-server-remote",
+      "matched": true,
+      "observed": {
+        "target": "owned-server-remote",
+        "response": {
+          "status": 200,
+          "body": "saf-0504-002-owned-inert-response-68d2|/owned/probe"
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "There is no SPIRE authentication event for either fixture pair before policy",
+      "matched": true,
+      "observed": {
+        "no_fixture_pair_authentication": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Cilium-required-auth owned GET reaches owned-server-local",
+      "matched": true,
+      "observed": {
+        "target": "owned-server-local",
+        "response": {
+          "status": 200,
+          "body": "saf-0504-002-owned-inert-response-68d2|/owned/probe"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Cilium-required-auth owned GET reaches owned-server-remote",
+      "matched": true,
+      "observed": {
+        "target": "owned-server-remote",
+        "response": {
+          "status": 200,
+          "body": "saf-0504-002-owned-inert-response-68d2|/owned/probe"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Cilium agent logs show successful SPIRE authentication on both paths",
+      "matched": true,
+      "observed": {
+        "same_node_exact_identity_pair": true,
+        "cross_node_exact_identity_pair": true,
+        "log_match": "Successfully authenticated; authType=spire; module=agent.controlplane.auth"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Reciprocal WireGuard peers for the two workload nodes have recent handshakes and traffic",
+      "matched": true,
+      "observed": {
+        "reciprocal_peer_and_scope": true,
+        "handshake_window_seconds": 300,
+        "same_node_wireguard_coverage": "outside the documented WireGuard path"
+      }
+    }
+  ]
+}

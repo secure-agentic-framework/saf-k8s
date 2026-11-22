@@ -1,0 +1,32 @@
+# Pinned to the Cilium 1.20.5 Helm chart. Chart archive digest and component
+# image digests are verified by case.py / Cilium's versioned Helm reference.
+ipam:
+  mode: kubernetes
+kubeProxyReplacement: false
+cni:
+  exclusive: true
+  install: true
+enableIPv4Masquerade: true
+ipv6:
+  enabled: false
+l7Proxy: true
+debug:
+  enabled: true
+operator:
+  replicas: 1
+authentication:
+  enabled: true
+  mutual:
+    spire:
+      enabled: true
+      install:
+        enabled: true
+        server:
+          podSecurityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+          dataStorage:
+            enabled: false
+encryption:
+  enabled: true
+  type: wireguard

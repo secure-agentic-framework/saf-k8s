@@ -19,3 +19,7 @@ deployed namespace and protocol coverage, telemetry retention, and performance
 require separate evidence. [Stable upgrade guide](https://docs.cilium.io/en/stable/operations/upgrade/),
 [development upgrade guide](https://docs.cilium.io/en/latest/operations/upgrade/),
 [Cilium WireGuard coverage](https://docs.cilium.io/en/stable/security/network/encryption-wireguard/).
+
+The optional [Cilium runtime case](cilium/README.md) runs the stable
+chart on a separate three-node Kind cluster and checks fixture SPIRE
+authentication and active WireGuard peer state.
