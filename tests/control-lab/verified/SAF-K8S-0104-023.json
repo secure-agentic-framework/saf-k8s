@@ -1,0 +1,221 @@
+{
+  "control_id": "SAF-K8S-0104-023",
+  "catalog_revision": "36d67fc68b5176566299ebffa1c448bea0a6dc2c",
+  "catalog_sha256": "957795ca0841a48dd97f65d6a691d642bc38d11bbf391056ec5ea9b34e1a131b",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "82c1c6d23330706e6e186a332144a2459b299391fe6608c69c98af86258415e6",
+  "scope": "Kubernetes v1.36.1 stage metadata and synthetic governance records. A namespace-local admission example rejects incomplete test records and accepts complete records. Actual risk assessment, reviewer identity and production activation need separate evidence.",
+  "cluster": "saf-lab-ba5ab322ac55",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "green",
+      "claim": "Reject alpha gate without production exception or architecture review",
+      "matched": true,
+      "observed": {
+        "as_of": "2026-11-21",
+        "observed": {
+          "disposition": "reject",
+          "reasons": [
+            "missing_alpha_production_exception",
+            "missing_or_untraceable_architecture_review"
+          ]
+        },
+        "expected": {
+          "disposition": "reject",
+          "reasons": [
+            "missing_alpha_production_exception",
+            "missing_or_untraceable_architecture_review"
+          ]
+        },
+        "feature_gate": "ContainerStopSignals",
+        "governance_decision_is_synthetic": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Accept synthetic beta review with named roles and bounded revisit",
+      "matched": true,
+      "observed": {
+        "as_of": "2026-11-21",
+        "observed": {
+          "disposition": "accept",
+          "reasons": []
+        },
+        "expected": {
+          "disposition": "accept",
+          "reasons": []
+        },
+        "feature_gate": "PodLevelResources",
+        "governance_decision_is_synthetic": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Reject expired synthetic beta authorization",
+      "matched": true,
+      "observed": {
+        "as_of": "2026-11-21",
+        "observed": {
+          "disposition": "reject",
+          "reasons": [
+            "approval_expired"
+          ]
+        },
+        "expected": {
+          "disposition": "reject",
+          "reasons": [
+            "approval_expired"
+          ]
+        },
+        "feature_gate": "PodLevelResources",
+        "governance_decision_is_synthetic": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Reject beta record without traceable security approval or release revisit",
+      "matched": true,
+      "observed": {
+        "as_of": "2026-11-21",
+        "observed": {
+          "disposition": "reject",
+          "reasons": [
+            "missing_or_untraceable_security_engineering",
+            "incomplete_revisit_conditions"
+          ]
+        },
+        "expected": {
+          "disposition": "reject",
+          "reasons": [
+            "missing_or_untraceable_security_engineering",
+            "incomplete_revisit_conditions"
+          ]
+        },
+        "feature_gate": "PodLevelResources",
+        "governance_decision_is_synthetic": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Reject record whose reviewed stage and version do not match upstream fixture",
+      "matched": true,
+      "observed": {
+        "as_of": "2026-11-21",
+        "observed": {
+          "disposition": "reject",
+          "reasons": [
+            "version_mismatch",
+            "stage_mismatch"
+          ]
+        },
+        "expected": {
+          "disposition": "reject",
+          "reasons": [
+            "version_mismatch",
+            "stage_mismatch"
+          ]
+        },
+        "feature_gate": "PodLevelResources",
+        "governance_decision_is_synthetic": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The incomplete alpha example reaches admission before validation exists",
+      "matched": true,
+      "observed": {
+        "admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "API admission reproduces Reject alpha gate without production exception or architecture review",
+      "matched": true,
+      "observed": {
+        "admitted": false,
+        "policy_denial": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "API admission reproduces Accept synthetic beta review with named roles and bounded revisit",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "policy_denial": false,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "API admission reproduces Reject expired synthetic beta authorization",
+      "matched": true,
+      "observed": {
+        "admitted": false,
+        "policy_denial": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "API admission reproduces Reject beta record without traceable security approval or release revisit",
+      "matched": true,
+      "observed": {
+        "admitted": false,
+        "policy_denial": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "API admission reproduces Reject record whose reviewed stage and version do not match upstream fixture",
+      "matched": true,
+      "observed": {
+        "admitted": false,
+        "policy_denial": true,
+        "detail": ""
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An alpha record with the additional exception and architecture review is admitted",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "detail": ""
+      }
+    }
+  ]
+}

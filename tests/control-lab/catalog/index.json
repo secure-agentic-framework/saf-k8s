@@ -186,6 +186,12 @@
       "sha256": "667a3f66058fbfb4411207022bda3990f9bcf036178b3a06e1544c828256f917",
       "title": "Non-default feature gate inventory for production clusters"
     },
+    "SAF-K8S-0104-023": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "82c1c6d23330706e6e186a332144a2459b299391fe6608c69c98af86258415e6",
+      "title": "Stage-based approval and risk assessment for production feature gates"
+    },
     "SAF-K8S-0201-005": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -548,7 +554,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "f40800517b4f85b71f1609951778adb9e39dbaaa",
+  "revision": "5bfdf488b2ff17c33e183b374f201ba37dfd5d0b",
   "sha256": "957795ca0841a48dd97f65d6a691d642bc38d11bbf391056ec5ea9b34e1a131b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

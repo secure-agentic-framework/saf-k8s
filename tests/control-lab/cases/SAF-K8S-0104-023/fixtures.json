@@ -1,0 +1,229 @@
+{
+  "as_of": "2026-11-21",
+  "source_version": "v1.36.1",
+  "required_roles": [
+    "Platform Engineering",
+    "Security Engineering"
+  ],
+  "required_revisit_triggers": [
+    "Kubernetes minor release",
+    "feature-stage transition",
+    "security incident",
+    "expiry date"
+  ],
+  "gates": {
+    "ContainerStopSignals": {
+      "kubernetes_version": "v1.36.1",
+      "stage": "Alpha",
+      "default": false,
+      "since": "1.33",
+      "until": null,
+      "source": "https://github.com/kubernetes/kubernetes/blob/v1.36.1/pkg/features/kube_features.go"
+    },
+    "PodLevelResources": {
+      "kubernetes_version": "v1.36.1",
+      "stage": "Beta",
+      "default": true,
+      "since": "1.34",
+      "until": null,
+      "source": "https://github.com/kubernetes/kubernetes/blob/v1.36.1/pkg/features/kube_features.go"
+    }
+  },
+  "scenarios": [
+    {
+      "name": "Reject alpha gate without production exception or architecture review",
+      "record": {
+        "feature_gate": "ContainerStopSignals",
+        "kubernetes_version": "v1.36.1",
+        "reviewed_version": "v1.36.1",
+        "documented_stage": "Alpha",
+        "target": "production",
+        "change_id": "CHG-SYN-10423-01",
+        "risk_assessment_id": "RISK-SYN-10423-01",
+        "risk_summary": "Synthetic rehearsal only; alpha behavior is excluded from production rollout.",
+        "scope": "fictional cluster group prod-sim-a; kube-apiserver",
+        "approvals": [
+          {
+            "role": "Platform Engineering",
+            "approver": "synthetic-platform-approver",
+            "record_id": "APR-SYN-10423-01"
+          },
+          {
+            "role": "Security Engineering",
+            "approver": "synthetic-security-reviewer",
+            "record_id": "SEC-SYN-10423-01"
+          }
+        ],
+        "expires_on": "2026-12-21",
+        "revisit_triggers": [
+          "Kubernetes minor release",
+          "feature-stage transition",
+          "security incident",
+          "expiry date"
+        ]
+      },
+      "expected": {
+        "disposition": "reject",
+        "reasons": [
+          "missing_alpha_production_exception",
+          "missing_or_untraceable_architecture_review"
+        ]
+      }
+    },
+    {
+      "name": "Accept synthetic beta review with named roles and bounded revisit",
+      "record": {
+        "feature_gate": "PodLevelResources",
+        "kubernetes_version": "v1.36.1",
+        "reviewed_version": "v1.36.1",
+        "documented_stage": "Beta",
+        "target": "production",
+        "change_id": "CHG-SYN-10423-02",
+        "risk_assessment_id": "RISK-SYN-10423-02",
+        "risk_summary": "Synthetic assessment of resource configuration, rollback and monitoring.",
+        "scope": "fictional cluster group prod-sim-b; kube-apiserver",
+        "approvals": [
+          {
+            "role": "Platform Engineering",
+            "approver": "synthetic-platform-approver",
+            "record_id": "APR-SYN-10423-02"
+          },
+          {
+            "role": "Security Engineering",
+            "approver": "synthetic-security-reviewer",
+            "record_id": "SEC-SYN-10423-02"
+          }
+        ],
+        "expires_on": "2026-12-21",
+        "revisit_triggers": [
+          "Kubernetes minor release",
+          "feature-stage transition",
+          "security incident",
+          "expiry date"
+        ]
+      },
+      "expected": {
+        "disposition": "accept",
+        "reasons": []
+      }
+    },
+    {
+      "name": "Reject expired synthetic beta authorization",
+      "record": {
+        "feature_gate": "PodLevelResources",
+        "kubernetes_version": "v1.36.1",
+        "reviewed_version": "v1.36.1",
+        "documented_stage": "Beta",
+        "target": "production",
+        "change_id": "CHG-SYN-10423-03",
+        "risk_assessment_id": "RISK-SYN-10423-03",
+        "risk_summary": "Synthetic assessment of resource configuration, rollback and monitoring.",
+        "scope": "fictional cluster group prod-sim-c; kube-apiserver",
+        "approvals": [
+          {
+            "role": "Platform Engineering",
+            "approver": "synthetic-platform-approver",
+            "record_id": "APR-SYN-10423-03"
+          },
+          {
+            "role": "Security Engineering",
+            "approver": "synthetic-security-reviewer",
+            "record_id": "SEC-SYN-10423-03"
+          }
+        ],
+        "expires_on": "2026-11-20",
+        "revisit_triggers": [
+          "Kubernetes minor release",
+          "feature-stage transition",
+          "security incident",
+          "expiry date"
+        ]
+      },
+      "expected": {
+        "disposition": "reject",
+        "reasons": [
+          "approval_expired"
+        ]
+      }
+    },
+    {
+      "name": "Reject beta record without traceable security approval or release revisit",
+      "record": {
+        "feature_gate": "PodLevelResources",
+        "kubernetes_version": "v1.36.1",
+        "reviewed_version": "v1.36.1",
+        "documented_stage": "Beta",
+        "target": "production",
+        "change_id": "CHG-SYN-10423-04",
+        "risk_assessment_id": "RISK-SYN-10423-04",
+        "risk_summary": "Synthetic assessment of resource configuration, rollback and monitoring.",
+        "scope": "fictional cluster group prod-sim-d; kube-apiserver",
+        "approvals": [
+          {
+            "role": "Platform Engineering",
+            "approver": "synthetic-platform-approver",
+            "record_id": "APR-SYN-10423-04"
+          },
+          {
+            "role": "Security Engineering",
+            "approver": "synthetic-security-reviewer",
+            "record_id": ""
+          }
+        ],
+        "expires_on": "2026-12-21",
+        "revisit_triggers": [
+          "feature-stage transition",
+          "security incident",
+          "expiry date"
+        ]
+      },
+      "expected": {
+        "disposition": "reject",
+        "reasons": [
+          "missing_or_untraceable_security_engineering",
+          "incomplete_revisit_conditions"
+        ]
+      }
+    },
+    {
+      "name": "Reject record whose reviewed stage and version do not match upstream fixture",
+      "record": {
+        "feature_gate": "PodLevelResources",
+        "kubernetes_version": "v1.35.0",
+        "reviewed_version": "v1.35.0",
+        "documented_stage": "Alpha",
+        "target": "production",
+        "change_id": "CHG-SYN-10423-05",
+        "risk_assessment_id": "RISK-SYN-10423-05",
+        "risk_summary": "Synthetic assessment of resource configuration, rollback and monitoring.",
+        "scope": "fictional cluster group prod-sim-e; kube-apiserver",
+        "approvals": [
+          {
+            "role": "Platform Engineering",
+            "approver": "synthetic-platform-approver",
+            "record_id": "APR-SYN-10423-05"
+          },
+          {
+            "role": "Security Engineering",
+            "approver": "synthetic-security-reviewer",
+            "record_id": "SEC-SYN-10423-05"
+          }
+        ],
+        "expires_on": "2026-12-21",
+        "revisit_triggers": [
+          "Kubernetes minor release",
+          "feature-stage transition",
+          "security incident",
+          "expiry date"
+        ]
+      },
+      "expected": {
+        "disposition": "reject",
+        "reasons": [
+          "version_mismatch",
+          "stage_mismatch"
+        ]
+      }
+    }
+  ]
+}
