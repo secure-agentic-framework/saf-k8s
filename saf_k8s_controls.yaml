@@ -8773,7 +8773,7 @@
   control_statement: Model promotion approval workflows must enforce separation of duties between model developers and promotion approvers to prevent self-approval.
   objective: Prevent a single individual from both developing and approving a model for production by enforcing independent approval authority.
   rationale: Without separation of duties, one actor can bypass the intent of the promotion review gate by approving their own model changes for production, reducing the effectiveness of governance and allowing unreviewed or malicious models to advance.
-  scope: Applies to model promotion workflows with human approval gates on Kubernetes-based AI platforms. Covers policy enforcement that prevents self-approval and requires an independent reviewer or approval quorum. Excludes reviewer authentication and audit binding, which are covered by SAF-K8S-0905-024.
+  scope: Applies to model promotion workflows with human approval gates on Kubernetes-based AI platforms. Covers policy enforcement that prevents self-approval and requires an independent reviewer or approval quorum. Excludes reviewer authentication (SAF-K8S-0905-050) and approval audit binding (SAF-K8S-0905-051).
   primary_enforcement_point: Promotion approval policy engine and reviewer-assignment enforcement point.
   implementation_surface: Promotion workflow rules preventing model developers from approving their own releases, multi-party approval policies where required, tenant-scoped approval separation, and enforcement records showing blocked self-approval attempts or required independent approval.
   owner_primary: Governance
