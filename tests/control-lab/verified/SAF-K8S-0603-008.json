@@ -1,0 +1,134 @@
+{
+  "control_id": "SAF-K8S-0603-008",
+  "catalog_revision": "641895cd1e643acb8b7d74bbba2002067ae2e8db",
+  "catalog_sha256": "fc842ab4d46fdce83225faef0975a8e44f736b300242218bc44d9e709727ce55",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "1ac7627f33aee68061f768f048074a00037d45d0734a4322b77ff9017890e974",
+  "scope": "One fresh local Kubernetes v1.36.1 Kind cluster. A builder Job reads two mounted fixture materials (source and dependency), normalizes the source into an intermediate product, and combines that intermediate with the dependency to produce a final artifact. The Job reports the bytes and SHA-256 digests it actually consumed and produced. The host signs separate in-toto Statement v1 DSSE payloads for the material set and artifact products using distinct ephemeral keys. A separate verifier Job checks both signatures and exact expected contents; a validly signed incomplete materials statement must be rejected. This does not establish production builder identity, protected key custody, trusted independent evidence generation, durable storage, or production CI/CD coverage.",
+  "cluster": "saf-lab-1b78e983512b",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Disposable API server is Kubernetes v1.36.1",
+      "matched": true,
+      "observed": {
+        "server": "v1.36.1"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Isolated builder Job consumes both fixture materials and performs the requested transform",
+      "matched": true,
+      "observed": {
+        "job": "complete",
+        "source_consumed": true,
+        "dependency_consumed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Builder intermediate and final output are actual derived fixture bytes",
+      "matched": true,
+      "observed": {
+        "intermediate": "greeting: hello\n",
+        "artifact": "greeting: hello\nsuffix: fixture-v1\n"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Builder reported source digest matches captured bytes",
+      "matched": true,
+      "observed": {
+        "reported": "3679067e0c07c7ea2d50e798de029bcaaf738996e1a10b64538587fe12b25410",
+        "observed": "3679067e0c07c7ea2d50e798de029bcaaf738996e1a10b64538587fe12b25410"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Builder reported dependency digest matches captured bytes",
+      "matched": true,
+      "observed": {
+        "reported": "37832e092d54582aac7bd7392320dbe7f7f6770d010cb17e056ae061a0f8654b",
+        "observed": "37832e092d54582aac7bd7392320dbe7f7f6770d010cb17e056ae061a0f8654b"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Builder reported intermediate digest matches captured bytes",
+      "matched": true,
+      "observed": {
+        "reported": "670a669201db101de8268877d64050582e0c2c2573eac6e78c3add95ea63e0fb",
+        "observed": "670a669201db101de8268877d64050582e0c2c2573eac6e78c3add95ea63e0fb"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Builder reported artifact digest matches captured bytes",
+      "matched": true,
+      "observed": {
+        "reported": "c3f90f16000314ce24c6085870dde9024c8fc3709bcbb7c7291adf595ca2a281",
+        "observed": "c3f90f16000314ce24c6085870dde9024c8fc3709bcbb7c7291adf595ca2a281"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Materials and artifacts attestations have distinct signing keys",
+      "matched": true,
+      "observed": {
+        "distinct_public_keys": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Independent verifier accepts separately signed complete materials and artifact attestations",
+      "matched": true,
+      "observed": {
+        "job": "complete",
+        "signatures_verified": true,
+        "products_verified": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Valid signature over an incomplete materials list is rejected against the complete consumed-input record",
+      "matched": true,
+      "observed": {
+        "job": "failed",
+        "same_trusted_fixture_signer": true,
+        "signatures_verified_before_policy_check": true,
+        "incomplete_materials_rejected": true
+      }
+    }
+  ]
+}

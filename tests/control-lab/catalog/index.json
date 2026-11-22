@@ -684,6 +684,12 @@
       "sha256": "61aa06e22bf3ff24752dc5ad98ea2c3da841db9893153ec159d5551eafba0145",
       "title": "Build environment and process attestations"
     },
+    "SAF-K8S-0603-008": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "1ac7627f33aee68061f768f048074a00037d45d0734a4322b77ff9017890e974",
+      "title": "Build materials and artifact attestations"
+    },
     "SAF-K8S-0605-002": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -956,7 +962,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "051f88cb20f23a666622d558bb1ffb5270dd6868",
-  "sha256": "7040d542bd8a9bd9ca065187dad4aff313fb7abb9bf050f8b306132f8b696fa7",
+  "revision": "0df2209c3449bcea3c6e8b6384c7fffb6fd58177",
+  "sha256": "fc842ab4d46fdce83225faef0975a8e44f736b300242218bc44d9e709727ce55",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

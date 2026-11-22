@@ -1,0 +1,12 @@
+{
+  "format": "saf-k8s-0603-008-fixtures-v1",
+  "materials": {
+    "source.txt": "greeting: hello\r\n",
+    "dependency.txt": "suffix: fixture-v1\n"
+  },
+  "expected_transform": {
+    "intermediate_name": "source.normalized",
+    "artifact_name": "release.txt",
+    "operation": "remove carriage returns from source, then concatenate normalized source and dependency"
+  }
+}
