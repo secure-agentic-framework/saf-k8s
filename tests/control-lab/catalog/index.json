@@ -690,6 +690,12 @@
       "sha256": "df9676b245101c7ce180a52c86a0bd94a9ed66cbca1d850b89808aab2a5e7ad1",
       "title": "GPU spending limits and budget enforcement"
     },
+    "SAF-K8S-0703-010": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "a77cb2435fd4b13331506004c9d472aefe8c15dfd0139322aeb61be0afbe9ddd",
+      "title": "Host-level resource isolation for AI workload nodes"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -704,7 +710,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ad7d65f831f15a9439283dcec101c81e146e150c",
+  "revision": "181ad10b99632ae888aca25ad4d9e291d7f046f5",
   "sha256": "a686bfbe52cded89985495c3a14f05eb580c3499b772f2473beb3accc1c99e38",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

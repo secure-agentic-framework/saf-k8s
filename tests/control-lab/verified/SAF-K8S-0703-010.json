@@ -1,0 +1,92 @@
+{
+  "control_id": "SAF-K8S-0703-010",
+  "catalog_revision": "6838d59c8941c27b2188821ee381e6cd7a852036",
+  "catalog_sha256": "a686bfbe52cded89985495c3a14f05eb580c3499b772f2473beb3accc1c99e38",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "a77cb2435fd4b13331506004c9d472aefe8c15dfd0139322aeb61be0afbe9ddd",
+  "scope": "Kubernetes v1.36.1 multi-node kind. A fractional Pod and one Guaranteed integer-CPU Pod have separate effective CPU sets on the same AI-labeled worker with kubelet CPU Manager static. The nonroot fractional Pod sees its cgroup v2 CPU and memory limits. NUMA, Memory Manager, interconnect, workload throughput and actual GPU or production node behavior require separate evidence.",
+  "cluster": "saf-lab-39627a4764a9",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "AI-affine and ordinary Pods use separate fixture node pools",
+      "matched": true,
+      "observed": {
+        "ai_pool": "ai",
+        "ordinary_pool": "general",
+        "separate_nodes": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An AI-affine Pod lacking the required toleration remains unscheduled",
+      "matched": true,
+      "observed": {
+        "scheduled": false,
+        "reason": "Unschedulable",
+        "taint_confirmed": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Placement alone leaves the fractional Pod in a shared CPU pool",
+      "matched": true,
+      "observed": {
+        "shared_cpu_set_contains_multiple_cpus": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The live nonroot Pod sees the declared CPU and memory bounds in cgroup v2",
+      "matched": true,
+      "observed": {
+        "cpu_fraction_matches": true,
+        "memory_bytes": 33554432,
+        "cgroup": "v2"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "CPU Manager assigns one exclusive CPU and removes it from the colocated shared pool",
+      "matched": true,
+      "observed": {
+        "qos_class": "Guaranteed",
+        "same_ai_node": true,
+        "exclusive_cpu_count": 1,
+        "exclusive_cpu_removed_from_shared_pool": true,
+        "exclusive_pod_memory_bytes": 33554432
+      }
+    }
+  ]
+}
