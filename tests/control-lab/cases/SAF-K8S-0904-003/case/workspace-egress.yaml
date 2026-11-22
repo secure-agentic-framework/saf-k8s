@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: workspace-alice-dataset-egress
+  namespace: saf-test
+spec:
+  podSelector:
+    matchLabels:
+      saf.example/workspace-owner: alice
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              saf.example/dataset-owner: alice
+      ports:
+        - protocol: TCP
+          port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: workspace-bob-dataset-egress
+  namespace: saf-test
+spec:
+  podSelector:
+    matchLabels:
+      saf.example/workspace-owner: bob
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              saf.example/dataset-owner: bob
+      ports:
+        - protocol: TCP
+          port: 8080

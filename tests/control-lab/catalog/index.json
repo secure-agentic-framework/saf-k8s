@@ -1212,6 +1212,12 @@
       "sha256": "3986315f82c3440f01f1fd3f0795fef8a3dcda6643ebf652b056229037b1654c",
       "title": "Pipeline orchestrator hardening"
     },
+    "SAF-K8S-0904-003": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "d0b57a1ca68aec60e4ca9d14eb14c94e299fe8f5eee724abc6465e94f7cbbbdd",
+      "title": "Notebook and experimentation environment security"
+    },
     "SAF-K8S-0904-007": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1706,7 +1712,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "470b328f9b0da428e154038ac15595041e591d9e",
+  "revision": "1b17c7734a124d7f7149133076f16f8bfbc04b79",
   "sha256": "048037b90a24d7ec93c499b5090f5453e3fe06e6708b6dbb8ea5d9294d79cf1b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

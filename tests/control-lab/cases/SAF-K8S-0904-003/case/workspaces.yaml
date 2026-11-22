@@ -1,0 +1,223 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: workspace-alice
+  namespace: saf-test
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: workspace-bob
+  namespace: saf-test
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dataset-alice
+  namespace: saf-test
+  labels:
+    saf.example/fixture: dataset
+    saf.example/dataset-owner: alice
+spec:
+  automountServiceAccountToken: false
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: endpoint
+    image: docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90
+    imagePullPolicy: IfNotPresent
+    command:
+    - python
+    - -u
+    - -c
+    - from http.server import BaseHTTPRequestHandler,HTTPServer; H=type('H',(BaseHTTPRequestHandler,),{'do_GET':lambda
+      s:(s.send_response(200),s.end_headers(),s.wfile.write(b'benign-dataset-alice')),'log_message':lambda
+      *a:None}); HTTPServer(('0.0.0.0',8080),H).serve_forever()
+    ports:
+    - name: http
+      containerPort: 8080
+    readinessProbe:
+      tcpSocket:
+        port: 8080
+      periodSeconds: 1
+      failureThreshold: 45
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 100m
+        memory: 96Mi
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+        - ALL
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dataset-bob
+  namespace: saf-test
+  labels:
+    saf.example/fixture: dataset
+    saf.example/dataset-owner: bob
+spec:
+  automountServiceAccountToken: false
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: endpoint
+    image: docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90
+    imagePullPolicy: IfNotPresent
+    command:
+    - python
+    - -u
+    - -c
+    - from http.server import BaseHTTPRequestHandler,HTTPServer; H=type('H',(BaseHTTPRequestHandler,),{'do_GET':lambda
+      s:(s.send_response(200),s.end_headers(),s.wfile.write(b'benign-dataset-bob')),'log_message':lambda
+      *a:None}); HTTPServer(('0.0.0.0',8080),H).serve_forever()
+    ports:
+    - name: http
+      containerPort: 8080
+    readinessProbe:
+      tcpSocket:
+        port: 8080
+      periodSeconds: 1
+      failureThreshold: 45
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 100m
+        memory: 96Mi
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+        - ALL
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: workspace-alice
+  namespace: saf-test
+  labels:
+    saf.example/workspace: 'true'
+    saf.example/workspace-owner: alice
+spec:
+  serviceAccountName: workspace-alice
+  automountServiceAccountToken: false
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    seccompProfile:
+      type: RuntimeDefault
+    runAsGroup: 100
+    fsGroup: 100
+  containers:
+  - name: workspace
+    image: quay.io/jupyter/base-notebook:2025-04-01@sha256:18691156c62dd82b69951329ee000fa0ca76f1bea6c105ac92c5754a8d92b828
+    imagePullPolicy: IfNotPresent
+    command:
+    - /opt/conda/bin/python
+    - -B
+    - -c
+    - import time; time.sleep(600)
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+        - ALL
+    env:
+    - name: HOME
+      value: /tmp
+    - name: JUPYTER_RUNTIME_DIR
+      value: /tmp
+    - name: IPYTHONDIR
+      value: /tmp/ipython
+    volumeMounts:
+    - name: runtime
+      mountPath: /tmp
+  volumes:
+  - name: runtime
+    emptyDir:
+      sizeLimit: 64Mi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: workspace-bob
+  namespace: saf-test
+  labels:
+    saf.example/workspace: 'true'
+    saf.example/workspace-owner: bob
+spec:
+  serviceAccountName: workspace-bob
+  automountServiceAccountToken: false
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    seccompProfile:
+      type: RuntimeDefault
+    runAsGroup: 100
+    fsGroup: 100
+  containers:
+  - name: workspace
+    image: quay.io/jupyter/base-notebook:2025-04-01@sha256:18691156c62dd82b69951329ee000fa0ca76f1bea6c105ac92c5754a8d92b828
+    imagePullPolicy: IfNotPresent
+    command:
+    - /opt/conda/bin/python
+    - -B
+    - -c
+    - import time; time.sleep(600)
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+        - ALL
+    env:
+    - name: HOME
+      value: /tmp
+    - name: JUPYTER_RUNTIME_DIR
+      value: /tmp
+    - name: IPYTHONDIR
+      value: /tmp/ipython
+    volumeMounts:
+    - name: runtime
+      mountPath: /tmp
+  volumes:
+  - name: runtime
+    emptyDir:
+      sizeLimit: 64Mi

@@ -1,0 +1,39 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-notebook-approved-image
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  matchConditions:
+    - name: workspace-pods
+      expression: >-
+        has(object.metadata.labels) &&
+        "saf.example/workspace" in object.metadata.labels &&
+        object.metadata.labels["saf.example/workspace"] == "true"
+  validations:
+    - expression: >-
+        size(object.spec.containers) > 0 &&
+        object.spec.containers.all(c,
+          c.image == "quay.io/jupyter/base-notebook:2025-04-01@sha256:18691156c62dd82b69951329ee000fa0ca76f1bea6c105ac92c5754a8d92b828") &&
+        (!has(object.spec.initContainers) || object.spec.initContainers.all(c,
+          c.image == "quay.io/jupyter/base-notebook:2025-04-01@sha256:18691156c62dd82b69951329ee000fa0ca76f1bea6c105ac92c5754a8d92b828"))
+      message: "workspace Pod image must match the approved digest-pinned base image"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-notebook-approved-image
+spec:
+  policyName: saf-notebook-approved-image
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf.example/image-policy: enabled

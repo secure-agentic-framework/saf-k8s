@@ -1,0 +1,119 @@
+{
+  "control_id": "SAF-K8S-0904-003",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "d0b57a1ca68aec60e4ca9d14eb14c94e299fe8f5eee724abc6465e94f7cbbbdd",
+  "scope": "One fresh Kind v1.36.1 cluster, two pinned upstream Jupyter base-notebook Pods, and two case-owned benign dataset endpoints. The notebook Pods have distinct non-root UIDs and tokenless service accounts, configured CPU/RAM bounds and restrictive security contexts. Native NetworkPolicy limits each to its labeled endpoint, and native admission enforces the approved image reference. Each real Jupyter kernel executes a fixed harmless cell after policy is active. Kernel exposure, optional extensions, JupyterHub authentication, full provenance and dataset policy, and deployed controls require separate evidence.",
+  "review_timing": {
+    "queued_at": "2026-11-22T22:18:28.176274+00:00",
+    "cluster_ready_at": "2026-11-22T22:19:08.783938+00:00",
+    "approval_at": "2026-11-22T22:21:55.389794+00:00",
+    "case_loaded_at": "2026-11-22T22:21:55.457546+00:00"
+  },
+  "cluster": "saf-lab-ae973000b936",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "28b74e211ca7b7130d70c4bd040754cc181afc59ce73d4b45a6e335413780d52",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "workspace pods have separate non-token service accounts and bounded hardened containers",
+      "matched": true,
+      "observed": "distinct service accounts; token automount disabled; non-root, seccomp, no escalation, dropped capabilities, read-only root, bounded CPU/memory"
+    },
+    {
+      "phase": "red",
+      "claim": "without workspace egress policies, cross-workspace dataset paths are reachable",
+      "matched": true,
+      "observed": "alice-to-bob=ALLOW; bob-to-alice=ALLOW"
+    },
+    {
+      "phase": "green",
+      "claim": "Each workspace reaches its own dataset while both cross-workspace paths remain blocked",
+      "matched": true,
+      "observed": {
+        "alice-to-alice": "ALLOW:benign-dataset-alice",
+        "alice-to-bob": "BLOCKED",
+        "bob-to-bob": "ALLOW:benign-dataset-bob",
+        "bob-to-alice": "BLOCKED",
+        "consecutive_matches": 2
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without the image binding the same unpinned fixture image is admitted by server dry-run",
+      "matched": true,
+      "observed": {
+        "server_dry_run_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The native image policy rejects the same unpinned reference",
+      "matched": true,
+      "observed": {
+        "denied_by_policy": true,
+        "policy": "saf-notebook-approved-image"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact approved notebook image remains admissible",
+      "matched": true,
+      "observed": {
+        "approved_reference": "quay.io/jupyter/base-notebook:2025-04-01@sha256:18691156c62dd82b69951329ee000fa0ca76f1bea6c105ac92c5754a8d92b828",
+        "admitted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The alice workspace executes a fixed cell through its installed Jupyter kernel",
+      "matched": true,
+      "observed": {
+        "kernel": "python3",
+        "stdout": "fixture-notebook-ok\n",
+        "uid": 1000
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The bob workspace executes a fixed cell through its installed Jupyter kernel",
+      "matched": true,
+      "observed": {
+        "kernel": "python3",
+        "stdout": "fixture-notebook-ok\n",
+        "uid": 1001
+      }
+    }
+  ]
+}
