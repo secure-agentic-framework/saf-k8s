@@ -1090,12 +1090,12 @@
   knowledge_area: '1.4'
   control_seq: '021'
   control_title: Kubernetes component version skew compliance
-  control_statement: Production Kubernetes clusters must maintain component versions within the Kubernetes version skew policy across the API server, kubelet, controller-manager, scheduler, and administrative clients.
+  control_statement: Production Kubernetes clusters must maintain applicable control-plane components, kubelets, kube-proxy, and administrative kubectl clients within the upstream Kubernetes version skew policy and any additional provider or deployment-tool constraints.
   objective: Prevent interoperability failures and control-plane instability caused by unsupported version skew between Kubernetes components and clients.
   rationale: Even when clusters are nominally supported, unsupported skew between API servers, kubelets, control-plane components, and administrative clients can create API incompatibilities, unstable behavior, and failed operations. Enforcing skew compliance keeps component interactions inside tested compatibility boundaries.
-  scope: Applies to all production clusters. Covers Kubernetes control-plane components, worker node kubelets, and administrative client versions that must remain within published skew policy boundaries.
+  scope: Applies to production Kubernetes clusters. Inventory all reachable kube-apiserver instances, kubelets, kube-controller-manager, kube-scheduler, kubectl clients, kube-proxy where deployed, and cloud-controller-manager where deployed.
   primary_enforcement_point: Component compatibility governance
-  implementation_surface: Version skew compliance reports, component inventory comparisons against skew policy, and periodic checks of administrative client compatibility.
+  implementation_surface: Version inventories and pre-upgrade and periodic compliance reports. In highly available clusters, verify the API server version spread and evaluate each component against every API server it can reach, including via load balancers. Evaluate kube-proxy against its colocated kubelet as well. Record provider and deployment-tool restrictions separately.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Change Management
   baseline_or_ai_specific: baseline
