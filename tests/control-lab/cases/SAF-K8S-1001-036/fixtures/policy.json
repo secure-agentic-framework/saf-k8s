@@ -1,0 +1,8 @@
+{
+  "control_id": "SAF-K8S-1001-036",
+  "synthetic_minimum_days": 2,
+  "below_minimum_days": 1,
+  "corrected_days": 3,
+  "mode": "GOVERNANCE",
+  "basis": "Fixture-only threshold; not a legal, regulatory, or organizational retention schedule."
+}

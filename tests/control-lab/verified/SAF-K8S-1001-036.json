@@ -1,0 +1,92 @@
+{
+  "control_id": "SAF-K8S-1001-036",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "3b18800a33630a347b38a3c2611cb5a37afa7c8bf11943695743e46d0f7199b5",
+  "scope": "A disposable Kubernetes v1.36.1 kind cluster writes one actual Metadata-level audit event for a case-owned synthetic ConfigMap create. A digest-pinned Versity v1.9.0 S3 gateway stores the event on a case-owned PVC dynamically provisioned by Kind's local-path provisioner. Repeated Jobs run the same checker against measured GetObjectLockConfiguration responses for missing, below-minimum, and corrected synthetic retention policies; the passing state also checks the retrieved GetObjectRetention applied to the stored audit event. No legal schedule is selected. This does not establish a production audit export path, deployed fleet coverage, provider behavior, long-term durability, or retention administration controls.",
+  "cluster": "saf-lab-1d60b47ba1e1",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The Versity S3 gateway is ready on a bound Kind local-path PVC",
+      "matched": true,
+      "observed": {
+        "local_path_provisioner": true,
+        "claim_bound": true,
+        "gateway_mounts_case_pvc": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The checker detects a missing default retention period from the live bucket response",
+      "matched": true,
+      "observed": {
+        "checker_compliant": false,
+        "missing_default_detected": true,
+        "object_lock_enabled": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The checker detects a measured policy below the configured synthetic minimum",
+      "matched": true,
+      "observed": {
+        "checker_compliant": false,
+        "measured_days": 1,
+        "below_synthetic_minimum": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same checker accepts the measured corrected policy and its applied audit object",
+      "matched": true,
+      "observed": {
+        "checker_compliant": true,
+        "measured_days": 3,
+        "object_minimum_satisfied": true,
+        "mode_supported": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The corrected bucket default governs new versions and the checker still flags the earlier version",
+      "matched": true,
+      "observed": {
+        "existing_version_retention_unchanged": true,
+        "existing_version_still_flagged": true
+      }
+    }
+  ]
+}

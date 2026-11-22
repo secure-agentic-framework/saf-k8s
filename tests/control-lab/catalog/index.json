@@ -1170,6 +1170,12 @@
       "sha256": "3e1b5e2274aef7bbc75ba779ceb0ca6107f0af0b6d9e22ddd726527b0c2e05df",
       "title": "Centralized AI log backend immutability and integrity verification"
     },
+    "SAF-K8S-1001-036": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "3b18800a33630a347b38a3c2611cb5a37afa7c8bf11943695743e46d0f7199b5",
+      "title": "Regulatory audit log retention period configuration and compliance verification"
+    },
     "SAF-K8S-1001-037": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1208,7 +1214,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "e75e166e9cafd4c4df9e114e91b592ec0ca22640",
+  "revision": "75eeeeb92d5182cbc30c970d34234aef51390f34",
   "sha256": "872822531716b059a05f969b9bdb15559fa3dd850de26945615e595c3d8e018e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
