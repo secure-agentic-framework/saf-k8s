@@ -1,0 +1,169 @@
+"""Check source-derived upgrade records and the pinned kubelet parser."""
+import json
+from pathlib import Path
+import re
+
+
+CASE_DIR = Path(__file__).resolve().parent
+PLAN_PATH = CASE_DIR / "feature-gate-upgrade.json"
+LOCKED = "KubeletCgroupDriverFromCRI"
+REMOVED = "DevicePluginCDIDevices"
+
+SCOPE = (
+    "Source-derived checks for stale configuration of one locked kubelet gate and "
+    "one removed gate. The v1.36.1 kind node's kubelet binary validates the same flag "
+    "inputs before hitting an intentionally impossible configuration path. This uses "
+    "a separate short-lived command without changing the running kubelet. Actual "
+    "upgrade execution, managed clusters and organization-wide coverage remain separate."
+)
+
+
+def minor(release):
+    match = re.fullmatch(r"v?(\d+)\.(\d+)(?:\.\d+)?", release)
+    if not match:
+        raise ValueError(f"invalid Kubernetes release: {release}")
+    return int(match.group(1)), int(match.group(2))
+
+
+def lifecycle_for(plan, target_release):
+    target = minor(target_release)
+    state = "active"
+    for transition in plan["transitions"]:
+        if target >= minor(transition["release"]):
+            state = transition["lifecycle"]
+    return state
+
+
+def evaluate(plan, observation):
+    findings = []
+    for component in observation["components"]:
+        if component.get("name") != plan["component"]:
+            continue
+        for source in component.get("observations", []):
+            settings = source.get("feature_gates", {})
+            for gate in settings.keys() & plan["gates"].keys():
+                state = lifecycle_for(plan["gates"][gate], observation["target_release"])
+                if state == "active":
+                    continue
+                findings.append({
+                    "gate": gate,
+                    "lifecycle": state,
+                    "source": source.get("source", "unspecified"),
+                    "configured_value": settings[gate],
+                    "message": (
+                        "explicit value is stale: the gate is locked to its default"
+                        if state == "locked-to-default"
+                        else "explicit value refers to a removed gate"
+                    ),
+                })
+    return findings
+
+
+def load_json(path):
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def fixture(name):
+    return load_json(CASE_DIR / "fixtures" / name)
+
+
+def check_fixtures(lab):
+    plan = load_json(PLAN_PATH)
+    unrelated_gate = "GracefulNodeShutdown"
+
+    locked_bad = fixture("locked-stale.json")
+    locked_findings = evaluate(plan, locked_bad)
+    lab.check(
+        "red",
+        "v1.36 locked-to-default fixture detects a stale explicit false value",
+        len(locked_findings) == 1
+        and locked_findings[0]["gate"] == LOCKED
+        and locked_findings[0]["lifecycle"] == "locked-to-default"
+        and locked_findings[0]["configured_value"] is False
+        and locked_findings[0]["source"] == "process-flag",
+        locked_findings,
+    )
+
+    locked_good = fixture("locked-clean.json")
+    lab.check(
+        "green",
+        "v1.36 green fixture removes the locked gate from flag and config observations",
+        evaluate(plan, locked_good) == [],
+        evaluate(plan, locked_good),
+    )
+    lab.check(
+        "positive",
+        "unrelated feature-gate observation is retained without being rewritten",
+        locked_good["unrelated_feature_gates"].get(unrelated_gate) is True,
+        {unrelated_gate: locked_good["unrelated_feature_gates"].get(unrelated_gate)},
+    )
+
+    removed_bad = fixture("removed-stale.json")
+    removed_findings = evaluate(plan, removed_bad)
+    lab.check(
+        "red",
+        "v1.36 removed-gate fixture distinguishes unsupported stale configuration",
+        len(removed_findings) == 1
+        and removed_findings[0]["gate"] == REMOVED
+        and removed_findings[0]["lifecycle"] == "removed"
+        and removed_findings[0]["configured_value"] is True
+        and removed_findings[0]["source"] == "kubelet-config",
+        removed_findings,
+    )
+
+    removed_good = fixture("removed-clean.json")
+    lab.check(
+        "green",
+        "v1.36 clean fixture has no explicit removed gate",
+        evaluate(plan, removed_good) == [],
+        evaluate(plan, removed_good),
+    )
+
+
+def run(lab):
+    check_fixtures(lab)
+    node = f"{lab.cluster}-control-plane"
+    node_status = json.loads(lab.kubectl("get", "node", node, "-o", "json").stdout)["status"]
+    if node_status["nodeInfo"]["kubeletVersion"] != "v1.36.1":
+        lab.block("The pinned kubelet version was not observed")
+
+    # Kubelet applies feature gates before trying to load this intentionally
+    # impossible file. /dev/null cannot contain a file or start a second kubelet.
+    path = "/dev/null/saf-k8s-feature-gate-probe.yaml"
+    for phase, label, setting, expected in (
+        ("red", "Locked kubelet gate rejects the opposite value", f"{LOCKED}=false", "feature is locked to true"),
+        ("red", "Removed kubelet gate is unrecognized", f"{REMOVED}=true", f"unrecognized feature gate: {REMOVED}"),
+        ("positive", "Recognized explicit default reaches the file sentinel", f"{LOCKED}=true", "not a directory"),
+        ("green", "Removing stale flags reaches the file sentinel", None, "not a directory"),
+    ):
+        flags = (f"--feature-gates={setting}",) if setting else ()
+        result = lab.command("docker", "exec", node, "kubelet", *flags, f"--config={path}",
+                             timeout=10, allow_failure=True)
+        outcome = (result.stdout + result.stderr).lower()
+        matched = result.returncode != 0 and expected.lower() in outcome
+        if expected == "not a directory":
+            matched = matched and path in outcome
+        lab.check(phase, label, matched, {"expected_parser_outcome": expected, "matched": matched})
+
+    readiness = lab.kubectl("get", "--raw=/readyz").stdout.strip()
+    lab.check("positive", "The running kind API stays ready", readiness == "ok", {"ready": readiness == "ok"})
+
+
+class StaticReporter:
+    """Small reporter for running only the local JSON fixture checks."""
+
+    def __init__(self):
+        self.failed = False
+
+    def check(self, kind, description, passed, actual=None):
+        status = "PASS" if passed else "FAIL"
+        print(f"{status} [{kind}] {description}")
+        if not passed:
+            print(f"  observed: {actual!r}")
+            self.failed = True
+
+
+if __name__ == "__main__":
+    reporter = StaticReporter()
+    check_fixtures(reporter)
+    raise SystemExit(1 if reporter.failed else 0)

@@ -1,0 +1,134 @@
+{
+  "control_id": "SAF-K8S-0104-009",
+  "catalog_revision": "712139965c407830056ada89a15031c8f9d956cd",
+  "catalog_sha256": "0427a45ac9bf0f2d8256f7f075d12a0ac8ad43daf141990b68d2fba2211f5a21",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "a2851e2294a3881aff1640958bbf0050d72d49f11d9a7e7a1f02bacffdfa2df4",
+  "scope": "Source-derived checks for stale configuration of one locked kubelet gate and one removed gate. The v1.36.1 kind node's kubelet binary validates the same flag inputs before hitting an intentionally impossible configuration path. This uses a separate short-lived command without changing the running kubelet. Actual upgrade execution, managed clusters and organization-wide coverage remain separate.",
+  "cluster": "saf-lab-79488e9e6a39",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "v1.36 locked-to-default fixture detects a stale explicit false value",
+      "matched": true,
+      "observed": [
+        {
+          "gate": "KubeletCgroupDriverFromCRI",
+          "lifecycle": "locked-to-default",
+          "source": "process-flag",
+          "configured_value": false,
+          "message": "explicit value is stale: the gate is locked to its default"
+        }
+      ]
+    },
+    {
+      "phase": "green",
+      "claim": "v1.36 green fixture removes the locked gate from flag and config observations",
+      "matched": true,
+      "observed": []
+    },
+    {
+      "phase": "positive",
+      "claim": "unrelated feature-gate observation is retained without being rewritten",
+      "matched": true,
+      "observed": {
+        "GracefulNodeShutdown": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "v1.36 removed-gate fixture distinguishes unsupported stale configuration",
+      "matched": true,
+      "observed": [
+        {
+          "gate": "DevicePluginCDIDevices",
+          "lifecycle": "removed",
+          "source": "kubelet-config",
+          "configured_value": true,
+          "message": "explicit value refers to a removed gate"
+        }
+      ]
+    },
+    {
+      "phase": "green",
+      "claim": "v1.36 clean fixture has no explicit removed gate",
+      "matched": true,
+      "observed": []
+    },
+    {
+      "phase": "red",
+      "claim": "Locked kubelet gate rejects the opposite value",
+      "matched": true,
+      "observed": {
+        "expected_parser_outcome": "feature is locked to true",
+        "matched": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Removed kubelet gate is unrecognized",
+      "matched": true,
+      "observed": {
+        "expected_parser_outcome": "unrecognized feature gate: DevicePluginCDIDevices",
+        "matched": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Recognized explicit default reaches the file sentinel",
+      "matched": true,
+      "observed": {
+        "expected_parser_outcome": "not a directory",
+        "matched": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Removing stale flags reaches the file sentinel",
+      "matched": true,
+      "observed": {
+        "expected_parser_outcome": "not a directory",
+        "matched": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The running kind API stays ready",
+      "matched": true,
+      "observed": {
+        "ready": true
+      }
+    }
+  ]
+}

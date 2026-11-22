@@ -1,0 +1,23 @@
+{
+  "target_release": "1.36.0",
+  "components": [
+    {
+      "name": "kubelet",
+      "observations": [
+        {
+          "source": "process-flag",
+          "feature_gates": {
+            "KubeletCgroupDriverFromCRI": false
+          }
+        },
+        {
+          "source": "kubelet-config",
+          "feature_gates": {}
+        }
+      ]
+    }
+  ],
+  "unrelated_feature_gates": {
+    "GracefulNodeShutdown": true
+  }
+}

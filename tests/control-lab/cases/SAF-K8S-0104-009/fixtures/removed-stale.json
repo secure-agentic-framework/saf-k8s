@@ -1,0 +1,23 @@
+{
+  "target_release": "1.36.1",
+  "components": [
+    {
+      "name": "kubelet",
+      "observations": [
+        {
+          "source": "process-flag",
+          "feature_gates": {}
+        },
+        {
+          "source": "kubelet-config",
+          "feature_gates": {
+            "DevicePluginCDIDevices": true
+          }
+        }
+      ]
+    }
+  ],
+  "unrelated_feature_gates": {
+    "GracefulNodeShutdown": true
+  }
+}
