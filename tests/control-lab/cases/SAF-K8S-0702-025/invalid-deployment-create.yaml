@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: saf-0702-025-invalid-create
+  namespace: saf-0702-025-tenant-a
+  labels:
+    app.kubernetes.io/name: saf-0702-025-fixture
+    saf-k8s.example/tenant-id: tenant-a
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: saf-0702-025-fixture
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: saf-0702-025-fixture
+        saf-k8s.example/tenant-id: tenant-b
+    spec:
+      containers:
+        - name: placeholder
+          image: registry.k8s.io/pause:3.10

@@ -588,6 +588,12 @@
       "sha256": "bd333cb2f6c19ca0a62eeb307a4aac51ebe41b37c54d81f9a2545acfb55f2804",
       "title": "Tenant namespace-scoped RBAC boundary enforcement"
     },
+    "SAF-K8S-0702-025": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "407e49eff113cf835c1af9b48e1da2f20a44d2efe5842bef70f6b0dea816d70b",
+      "title": "Tenant admission boundary enforcement for cross-tenant resource isolation"
+    },
     "SAF-K8S-0702-026": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -638,7 +644,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "52812f585c75bd59eb42e85bb2593e2f6c899a7c",
+  "revision": "cf835764085164c47b2792cc3a0b8f984ba4cd8d",
   "sha256": "f04a08a1df25c9ac80ba39ed484160d6c7b19dbe0875079da9a9707013d77cf1",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

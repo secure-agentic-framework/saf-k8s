@@ -1,0 +1,69 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0702-025-tenant-labels
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        operations: [CREATE, UPDATE]
+        resources: [deployments]
+  validations:
+    - expression: >-
+        has(object.metadata.labels) &&
+        'saf-k8s.example/tenant-id' in object.metadata.labels &&
+        has(namespaceObject.metadata.labels) &&
+        'saf-k8s.example/tenant-id' in namespaceObject.metadata.labels &&
+        object.metadata.labels['saf-k8s.example/tenant-id'] ==
+          namespaceObject.metadata.labels['saf-k8s.example/tenant-id'] &&
+        has(object.spec.template.metadata.labels) &&
+        'saf-k8s.example/tenant-id' in object.spec.template.metadata.labels &&
+        object.spec.template.metadata.labels['saf-k8s.example/tenant-id'] ==
+          namespaceObject.metadata.labels['saf-k8s.example/tenant-id']
+      message: "tenant resource and Pod template tenant IDs must match the enrolled namespace"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0702-025-enrolled
+spec:
+  policyName: saf-k8s-0702-025-tenant-labels
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/tenant-enrolled: "true"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-k8s-0702-025-rolebinding-subjects
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["rbac.authorization.k8s.io"]
+        apiVersions: ["v1"]
+        operations: [CREATE, UPDATE]
+        resources: [rolebindings]
+  validations:
+    - expression: >-
+        !has(object.subjects) || object.subjects.all(subject, subject.kind != "ServiceAccount" ||
+          !has(subject.namespace) || subject.namespace == "" || subject.namespace == object.metadata.namespace)
+      message: "tenant RoleBinding ServiceAccount subjects must belong to this namespace"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-k8s-0702-025-enrolled-rolebinding
+spec:
+  policyName: saf-k8s-0702-025-rolebinding-subjects
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/tenant-enrolled: "true"

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: saf-0702-025-tenant-a
+  labels:
+    saf-k8s.example/tenant-enrolled: "true"
+    saf-k8s.example/tenant-id: tenant-a
