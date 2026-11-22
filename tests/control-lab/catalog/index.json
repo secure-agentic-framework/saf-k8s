@@ -240,6 +240,12 @@
       "sha256": "43b1b909b22784a2078ab6159a1d3db8234e5f01720a4d07586e2cd6ce8c6433",
       "title": "Kubelet serving certificate trust and expiry enforcement"
     },
+    "SAF-K8S-0201-015": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "a673ba4280f54e2ed90bb6609bd9c2e186cef3829d13eb99ac2775ab94ca9ed0",
+      "title": "Node-level kubelet audit rule coverage"
+    },
     "SAF-K8S-0202-002": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -566,7 +572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "0289afb0efcacdf8ccc4b53791c8e32a7286ff74",
+  "revision": "5f68929db3db0917e38212889f8e1648cce96610",
   "sha256": "957795ca0841a48dd97f65d6a691d642bc38d11bbf391056ec5ea9b34e1a131b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

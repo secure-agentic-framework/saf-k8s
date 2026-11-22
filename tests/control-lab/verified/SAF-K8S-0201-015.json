@@ -1,0 +1,88 @@
+{
+  "control_id": "SAF-K8S-0201-015",
+  "catalog_revision": "36d67fc68b5176566299ebffa1c448bea0a6dc2c",
+  "catalog_sha256": "957795ca0841a48dd97f65d6a691d642bc38d11bbf391056ec5ea9b34e1a131b",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "a673ba4280f54e2ed90bb6609bd9c2e186cef3829d13eb99ac2775ab94ca9ed0",
+  "scope": "Kind confirms the generated kubelet config, kubeconfig and PKI path types. A separate mount-free disposable Debian VM loads Linux Audit watch rules for three inert files and verifies read/write events. Deployed rules, complete node paths, and recurring production coverage require independent evidence.",
+  "cluster": "saf-lab-78775040f63b",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The disposable Kubernetes node has the expected kubelet path types",
+      "matched": true,
+      "observed": {
+        "kubelet_config": true,
+        "kubeconfig": true,
+        "pki_directory": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Unwatched accesses produce no file events while the audit collector is live",
+      "matched": true,
+      "observed": {
+        "baseline_unwatched": true,
+        "collector_canary_logged": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Linux Audit captures successful reads and writes for all three watched paths",
+      "matched": true,
+      "observed": {
+        "watched_config_read_write": true,
+        "watched_kubeconfig_read_write": true,
+        "watched_pki_read_write": true,
+        "no_audit_loss": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The guest returns to a clean loaded rule set",
+      "matched": true,
+      "observed": {
+        "rules_removed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The case deletes the isolated guest instance",
+      "matched": true,
+      "observed": {
+        "guest_deleted": true
+      }
+    }
+  ]
+}
