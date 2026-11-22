@@ -1,0 +1,75 @@
+{
+  "control_id": "SAF-K8S-0905-025",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "07f137c5f6096b60bfdddc60b2a9cc41959fecadbdd0ec2bf33082e1c5bd2bef",
+  "scope": "Kubernetes v1.36.1 native ValidatingAdmissionPolicy on updates to one synthetic ConfigMap release record. Two independently authenticated, short-lived ServiceAccount tokens represent the case developer and an approved reviewer. The policy binds the approver field to request.userInfo.username, preserves the original proposer and fixed release ID, denies developer self-approval, and permits the distinct reviewer to persist the same approval decision. This does not exercise a model registry, production promotion controller, human identity provider, quorum, cross-tenant workflow, artifact verification, or model execution.",
+  "cluster": "saf-lab-81f4ff44b476",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The authenticated case developer can persist the exact self-approval before policy",
+      "matched": true,
+      "observed": {
+        "returncode": 0,
+        "persisted_self_approval": true,
+        "authenticated_username": "system:serviceaccount:saf-test:case-developer"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same authenticated developer update is denied by the targeted native policy",
+      "matched": true,
+      "observed": {
+        "targeted_policy_denial": true,
+        "record_unchanged": true,
+        "returncode": 1,
+        "authenticated_username": "system:serviceaccount:saf-test:case-developer"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The distinct authenticated reviewer persists the same fixed release approval",
+      "matched": true,
+      "observed": {
+        "returncode": 0,
+        "persisted_reviewer_approval": true,
+        "authenticated_username": "system:serviceaccount:saf-test:approved-reviewer",
+        "release_id": "fixture-model-release-v1",
+        "decision": "approved"
+      }
+    }
+  ]
+}
