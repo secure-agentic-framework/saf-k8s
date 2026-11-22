@@ -576,6 +576,12 @@
       "sha256": "766d73d0ef57d1b2c2d65c07178fdb0ea089a1053823119f876811aef70693f3",
       "title": "Virtual cluster isolation guarantee and residual risk documentation"
     },
+    "SAF-K8S-0702-023": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "447594ab65282a8946aef05810e7c49e8bc11d13a46929d7570234ae07564f7c",
+      "title": "Virtual cluster tenant isolation validation and host-cluster access review"
+    },
     "SAF-K8S-0702-024": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -632,7 +638,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "03cd976d7298e378aa860471f45c98ed2fb721b6",
+  "revision": "290c42bcd034194dfaf8658502df159bae23c089",
   "sha256": "4967f071e880774746bffe0d766c8568b2787069d414141da3ee644cbb79acb5",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -1,0 +1,322 @@
+{
+  "control_id": "SAF-K8S-0702-023",
+  "catalog_revision": "8b9352e1d27005030036fef75e277ec01d2ad5a5",
+  "catalog_sha256": "4967f071e880774746bffe0d766c8568b2787069d414141da3ee644cbb79acb5",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "447594ab65282a8946aef05810e7c49e8bc11d13a46929d7570234ae07564f7c",
+  "scope": "One disposable Kubernetes v1.36.1 kind host with two vCluster 0.37.7 APIs installed from the SHA-256-pinned official chart and digest-pinned control-plane images. Two repeated, independent observations read same-named tenant-owned ConfigMaps and custom resources through each tenant's ordinary API, plus a host read confirming the synthetic CRD is not served there. A host administrator uses read-only GETs to inventory RBAC bindings/rules matching named synthetic User identities and authenticated groups. The inventory detects a fixture grant and confirms its removal. The host and tenant control planes share the kind node/kernel. RBAC inventory is configured-rule evidence, not effective-authorization proof; this case does not test production configuration, workloads, network, storage, sync policy, host privilege, or complete isolation.",
+  "cluster": "saf-lab-8f86c396d555",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The official vCluster chart matches its pinned version and digest",
+      "matched": true,
+      "observed": {
+        "chart": "vcluster",
+        "version": "0.37.7",
+        "sha256": "bc858bd6d75b02f09f4397ce3278807eff9f92132a58252b0108145272c50f94"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before tenant fixture creation, host API has no tenant fixture CRD",
+      "matched": true,
+      "observed": {
+        "host_api_result": "NotFound",
+        "crd": "isolationrecords.inventory.example.invalid",
+        "host_access_method": "administrator read-only GET"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Independent observation 1: same-named tenant ConfigMaps retain distinct own-API markers on two reads",
+      "matched": true,
+      "observed": {
+        "apis": [
+          "tenant-a",
+          "tenant-b"
+        ],
+        "same_namespace_and_configmap": "api-object-fixture/same-config",
+        "two_reads_per_tenant": {
+          "tenant-a": [
+            "tenant-a",
+            "tenant-a"
+          ],
+          "tenant-b": [
+            "tenant-b",
+            "tenant-b"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Independent observation 2: same-named tenant custom resources return stable owner markers on two reads",
+      "matched": true,
+      "observed": {
+        "apis": [
+          "tenant-a",
+          "tenant-b"
+        ],
+        "same_crd_name": "isolationrecords.inventory.example.invalid",
+        "custom_resource_name": "same-record",
+        "two_reads_per_tenant": {
+          "tenant-a": [
+            "tenant-a",
+            "tenant-a"
+          ],
+          "tenant-b": [
+            "tenant-b",
+            "tenant-b"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Same-named API objects remain readable in both tenants while the host API does not serve the CRD",
+      "matched": true,
+      "observed": {
+        "tenant_a_crd": true,
+        "tenant_b_crd": true,
+        "host_crd_result": "NotFound",
+        "host_api": "kind host API"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Read-only host review detects and resolves the unexpected synthetic binding",
+      "matched": true,
+      "observed": {
+        "fixture_grant": [
+          {
+            "binding": "rolebindings/saf-vcluster-a/saf-fixture-tenant-a-direct-host-read",
+            "subjects": [
+              {
+                "kind": "User",
+                "name": "saf-tenant-a@review.invalid",
+                "namespace": ""
+              }
+            ],
+            "role_ref": {
+              "kind": "Role",
+              "name": "saf-fixture-read-marker",
+              "namespace": "saf-vcluster-a"
+            },
+            "rules": [
+              {
+                "apiGroups": [
+                  ""
+                ],
+                "resourceNames": [
+                  "saf-fixture-marker"
+                ],
+                "resources": [
+                  "configmaps"
+                ],
+                "verbs": [
+                  "get"
+                ]
+              }
+            ]
+          }
+        ],
+        "binding_scope": "saf-vcluster-a"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Repeat host RBAC review confirms removal and records remaining group grants",
+      "matched": true,
+      "observed": {
+        "direct_user_grants": [],
+        "inventory": {
+          "synthetic_users": [
+            "saf-tenant-a@review.invalid",
+            "saf-tenant-b@review.invalid"
+          ],
+          "group_subjects_included": [
+            "system:authenticated",
+            "system:serviceaccounts",
+            "system:serviceaccounts:tenant-a",
+            "system:serviceaccounts:tenant-b",
+            "system:serviceaccounts:saf-vcluster-a",
+            "system:serviceaccounts:saf-vcluster-b"
+          ],
+          "matching_bindings_and_resolved_rules": [
+            {
+              "binding": "clusterrolebindings//system:basic-user",
+              "subjects": [
+                {
+                  "kind": "Group",
+                  "name": "system:authenticated",
+                  "namespace": ""
+                }
+              ],
+              "role_ref": {
+                "kind": "ClusterRole",
+                "name": "system:basic-user",
+                "namespace": null
+              },
+              "rules": [
+                {
+                  "apiGroups": [
+                    "authorization.k8s.io"
+                  ],
+                  "resources": [
+                    "selfsubjectaccessreviews",
+                    "selfsubjectrulesreviews"
+                  ],
+                  "verbs": [
+                    "create"
+                  ]
+                },
+                {
+                  "apiGroups": [
+                    "authentication.k8s.io"
+                  ],
+                  "resources": [
+                    "selfsubjectreviews"
+                  ],
+                  "verbs": [
+                    "create"
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "clusterrolebindings//system:discovery",
+              "subjects": [
+                {
+                  "kind": "Group",
+                  "name": "system:authenticated",
+                  "namespace": ""
+                }
+              ],
+              "role_ref": {
+                "kind": "ClusterRole",
+                "name": "system:discovery",
+                "namespace": null
+              },
+              "rules": [
+                {
+                  "nonResourceURLs": [
+                    "/api",
+                    "/api/*",
+                    "/apis",
+                    "/apis/*",
+                    "/healthz",
+                    "/livez",
+                    "/openapi",
+                    "/openapi/*",
+                    "/readyz",
+                    "/version",
+                    "/version/"
+                  ],
+                  "verbs": [
+                    "get"
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "clusterrolebindings//system:public-info-viewer",
+              "subjects": [
+                {
+                  "kind": "Group",
+                  "name": "system:authenticated",
+                  "namespace": ""
+                }
+              ],
+              "role_ref": {
+                "kind": "ClusterRole",
+                "name": "system:public-info-viewer",
+                "namespace": null
+              },
+              "rules": [
+                {
+                  "nonResourceURLs": [
+                    "/healthz",
+                    "/livez",
+                    "/readyz",
+                    "/version",
+                    "/version/"
+                  ],
+                  "verbs": [
+                    "get"
+                  ]
+                }
+              ]
+            },
+            {
+              "binding": "clusterrolebindings//system:service-account-issuer-discovery",
+              "subjects": [
+                {
+                  "kind": "Group",
+                  "name": "system:serviceaccounts",
+                  "namespace": ""
+                }
+              ],
+              "role_ref": {
+                "kind": "ClusterRole",
+                "name": "system:service-account-issuer-discovery",
+                "namespace": null
+              },
+              "rules": [
+                {
+                  "nonResourceURLs": [
+                    "/.well-known/openid-configuration",
+                    "/.well-known/openid-configuration/",
+                    "/openid/v1/jwks",
+                    "/openid/v1/jwks/"
+                  ],
+                  "verbs": [
+                    "get"
+                  ]
+                }
+              ]
+            }
+          ],
+          "inventory_counts": {
+            "clusterrolebindings": 62,
+            "rolebindings": 14,
+            "clusterroles": 75,
+            "roles": 15
+          },
+          "interpretation": "Configured RBAC subjects and referenced rules only; no group membership, non-RBAC authorizer, admission, authentication, or effective-access result asserted."
+        }
+      }
+    }
+  ]
+}
