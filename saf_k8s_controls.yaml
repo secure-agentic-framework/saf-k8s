@@ -1150,12 +1150,12 @@
   knowledge_area: '2.1'
   control_seq: '005'
   control_title: Kubelet hostname override governance
-  control_statement: Production Kubernetes clusters must govern the use of the kubelet --hostname-override flag by prohibiting it by default, requiring documented justification for any permitted use (e.g., cloud provider node-naming requirements), and verifying that any override value does not allow a kubelet to assume another node's identity or bypass Node authorization identity binding.
+  control_statement: Production Kubernetes clusters must prohibit kubelet --hostname-override by default and document approved exceptions. For any exception, verify the effective registered node name, its uniqueness, the authenticated node identity, and the bootstrap authorization or provider controls that bind that identity to the intended node.
   objective: Prevent kubelet identity spoofing through hostname override misconfiguration while preserving the ability to use the flag in environments where cloud provider node-naming conventions require it.
-  rationale: The --hostname-override flag changes the node name the kubelet registers with the API server. If set to another node's name, the kubelet could assume that node's identity and access its Secrets, ConfigMaps, and pod specifications, bypassing Node authorization. Cloud environments sometimes require the flag when the default OS hostname does not match the cloud provider's expected node identifier. Without governance, the flag can be set silently during node provisioning, creating an identity confusion vulnerability that is difficult to detect through normal monitoring.
+  rationale: The kubelet selects a node name from the hostname, an explicit override, or the applicable provider naming mechanism. Node authorization evaluates authenticated kubelet credentials. It requires the system:nodes group and a system:node:<nodeName> username whose node name matches the registered Node. Review name selection and enrollment separately to prevent collisions and preserve the intended binding.
   scope: Applies to all production Kubernetes clusters. Covers the kubelet --hostname-override flag in kubelet configuration, systemd unit files, and node provisioning templates. For managed Kubernetes services, verify through provider documentation whether hostname override is used internally and how Node authorization identity binding is maintained.
   primary_enforcement_point: Node provisioning pipeline, kubelet configuration management, and periodic configuration audit scans.
-  implementation_surface: Kubelet provisioning templates, kubelet configuration management, exception registration process, and CIS Benchmark scanning (kube-bench check 4.2.8).
+  implementation_surface: Kubelet provisioning templates and effective arguments, registered Node name inventory, approved exception records, and credential enrollment or provider attestations for the intended identity. Verify Node authorization and NodeRestriction where applicable.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Cloud Platform Engineering
   baseline_or_ai_specific: baseline
