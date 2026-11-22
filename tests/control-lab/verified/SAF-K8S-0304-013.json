@@ -5,7 +5,13 @@
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "991d1055d1a416b802a4a2def609fc1bfdd3e40f8754e4504e18a81f5ee3b252",
   "scope": "Linux emptyDir backing filesystem, Pod replacement, and visibility of node swap and the tmpfs noswap option. Workload writes to other storage, crash dumps and hibernation are outside this fixture.",
-  "cluster": "saf-lab-96aeb2f0e89a",
+  "review_timing": {
+    "queued_at": "2026-11-22T23:32:46.524977+00:00",
+    "cluster_ready_at": "2026-11-22T23:33:14.315949+00:00",
+    "approval_at": "2026-11-22T23:34:21.093176+00:00",
+    "case_loaded_at": "2026-11-22T23:34:21.227575+00:00"
+  },
+  "cluster": "saf-lab-adc205cb4b69",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -35,6 +41,7 @@
       "platform": "linux/arm64"
     }
   },
+  "approved_case_sha256": "ffa9f2690795499463f14e36c8abc1f000aeef7b9f0124c34f3e13f7c81aa4b2",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
@@ -63,7 +70,14 @@
       "phase": "positive",
       "claim": "replacement Pod has the same name and a different UID",
       "matched": true,
-      "observed": "old=98a17b86-1c7d-441a-8a27-f1e9a05222b0 new=18868324-0eb0-48a7-bf6f-bff1744c883c"
+      "observed": {
+        "same_name": true,
+        "old_uid_valid": true,
+        "new_uid_valid": true,
+        "uids_distinct": true,
+        "old_pod_absent_before_recreate": true,
+        "replacement_ready": true
+      }
     },
     {
       "phase": "positive",

@@ -1,5 +1,9 @@
 """Observe emptyDir filesystem types and Pod replacement lifecycle."""
 
+import json
+import re
+import uuid
+
 from fixtures import container, pod, ready
 
 SCOPE = (
@@ -10,6 +14,12 @@ SCOPE = (
 
 POD_NAME = "saf-0304-013-scratch"
 MOUNT_PATH = "/scratch"
+UID_PATTERN = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
+
+
+def valid_pod_uid(value):
+    return bool(UID_PATTERN.fullmatch(value) and str(uuid.UUID(value)) == value.lower())
+
 
 def empty_dir_pod(name, *, memory=False):
     volume = {"name": "scratch", "emptyDir": {}}
@@ -68,11 +78,33 @@ def run(lab):
     lab.check("green", "Node swap is disabled or the actual tmpfs mount has noswap",
               not active_swap or noswap, {"active_swap": active_swap, "noswap": noswap})
 
+    old_name = lab.kubectl("get", "pod", POD_NAME, "-o", "jsonpath={.metadata.name}").stdout.strip()
     old_uid = lab.kubectl("get", "pod", POD_NAME, "-o", "jsonpath={.metadata.uid}").stdout.strip()
     lab.kubectl("delete", "pod", POD_NAME, "--wait=true", "--grace-period=1", "--timeout=30s")
+    old_pod_absent = not lab.kubectl(
+        "get", "pod", POD_NAME, "--ignore-not-found", "-o", "name"
+    ).stdout.strip()
     lab.create(empty_dir_pod(POD_NAME, memory=True))
     ready(lab, POD_NAME)
+    new_name = lab.kubectl("get", "pod", POD_NAME, "-o", "jsonpath={.metadata.name}").stdout.strip()
     new_uid = lab.kubectl("get", "pod", POD_NAME, "-o", "jsonpath={.metadata.uid}").stdout.strip()
+    same_name = old_name == POD_NAME == new_name
+    old_uid_valid = valid_pod_uid(old_uid)
+    new_uid_valid = valid_pod_uid(new_uid)
+    uids_distinct = old_uid != new_uid
+    (lab.evidence / "pod-replacement.raw.json").write_text(json.dumps({
+        "old_pod": {"name": old_name, "uid": old_uid},
+        "new_pod": {"name": new_name, "uid": new_uid},
+        "old_pod_absent_before_recreate": old_pod_absent,
+    }, indent=2, sort_keys=True) + "\n")
     lab.check("positive", "replacement Pod has the same name and a different UID",
-              bool(old_uid and new_uid and old_uid != new_uid), f"old={old_uid} new={new_uid}")
+              same_name and old_uid_valid and new_uid_valid and uids_distinct and old_pod_absent,
+              {
+                  "same_name": same_name,
+                  "old_uid_valid": old_uid_valid,
+                  "new_uid_valid": new_uid_valid,
+                  "uids_distinct": uids_distinct,
+                  "old_pod_absent_before_recreate": old_pod_absent,
+                  "replacement_ready": True,
+              })
     inspect_mount(lab, phase="positive", expected_type="tmpfs", marker_action="check")
