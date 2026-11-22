@@ -1206,6 +1206,12 @@
       "sha256": "6907f4b016c44a7929888513de49873a6992c0b5e03c6c59de26c75fc621f055",
       "title": "Budget-aware inference autoscaling suppression and degraded-service fallback"
     },
+    "SAF-K8S-0904-008": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "e728251555059ac05e29e6b6a23153c0292729db4454feb28e2c097d935896b3",
+      "title": "Feature freshness and integrity monitoring"
+    },
     "SAF-K8S-0907-007": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1688,7 +1694,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c9ce088c5aa00f0724ef72f83e36aa112e1e5eac",
+  "revision": "50cb100195a15ee9e1f143ae13ab456a44d4acab",
   "sha256": "048037b90a24d7ec93c499b5090f5453e3fe06e6708b6dbb8ea5d9294d79cf1b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -1,0 +1,121 @@
+{
+  "control_id": "SAF-K8S-0904-008",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "e728251555059ac05e29e6b6a23153c0292729db4454feb28e2c097d935896b3",
+  "scope": "One disposable Kind v1.36.1 cluster and five short Kubernetes Jobs using a previously used, digest-pinned Python image. Each Job has a read-only ConfigMap input, an init-container gate, and a downstream consumer that records only fixed synthetic dataset metadata. A fixed reference instant tests an inclusive 300-second freshness boundary, one-second staleness, and a canonical JSON SHA-256 mismatch. The case covers this fixture gate only; feature stores, provenance custody, poisoning/anomaly detection, and operational alerting remain unverified.",
+  "review_timing": {
+    "queued_at": "2026-11-22T21:50:02.958713+00:00",
+    "cluster_ready_at": "2026-11-22T21:50:55.716060+00:00",
+    "approval_at": "2026-11-22T21:53:37.985496+00:00",
+    "case_loaded_at": "2026-11-22T21:53:38.146594+00:00"
+  },
+  "cluster": "saf-lab-ea03010f3fa5",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "b2d634e02e32e72899f067009ee2d7028bcea47cd21a05648e54777246221c9b",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "With the validation gate off, the downstream consumer reads the fixed stale sample",
+      "matched": true,
+      "observed": {
+        "age_seconds": null,
+        "consumer": "SYNTH-DOWNSTREAM-0904-008",
+        "dataset_id": "SYNTH-EVENTS-0904-008",
+        "event": "consumed",
+        "orders_30d": 3,
+        "policy_mode": "off",
+        "sha256": "ce5a7af15a1cd190f49300c99992eb3973a2263214316ea9149ba6f8794782e0"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The full gate fails the stale Job before its consumer container starts",
+      "matched": true,
+      "observed": {
+        "job_condition": "Failed",
+        "pod_phase": "Failed",
+        "init_exit": 42,
+        "gate_receipt": {
+          "event": "rejected",
+          "reason": "stale"
+        },
+        "consumer_never_started": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The full gate fails the digest-mismatch Job before its consumer container starts",
+      "matched": true,
+      "observed": {
+        "job_condition": "Failed",
+        "pod_phase": "Failed",
+        "init_exit": 42,
+        "gate_receipt": {
+          "event": "rejected",
+          "reason": "sha256-mismatch"
+        },
+        "consumer_never_started": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The full gate accepts the exact freshness boundary and consumes canonical trusted bytes",
+      "matched": true,
+      "observed": {
+        "age_seconds": 300.0,
+        "consumer": "SYNTH-DOWNSTREAM-0904-008",
+        "dataset_id": "SYNTH-EVENTS-0904-008",
+        "event": "consumed",
+        "orders_30d": 3,
+        "policy_mode": "full",
+        "sha256": "ce5a7af15a1cd190f49300c99992eb3973a2263214316ea9149ba6f8794782e0"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Freshness-only comparator consumes the fixed content-mismatch sample, showing integrity is separate",
+      "matched": true,
+      "observed": {
+        "age_seconds": 300.0,
+        "consumer": "SYNTH-DOWNSTREAM-0904-008",
+        "dataset_id": "SYNTH-EVENTS-0904-008",
+        "event": "consumed",
+        "orders_30d": 4,
+        "policy_mode": "freshness-only",
+        "sha256": "158f7883161da05d9d21daa1bcef1696fe2243d49e5d45a847b11450cb550eaa"
+      }
+    }
+  ]
+}
