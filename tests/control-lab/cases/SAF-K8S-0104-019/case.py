@@ -16,7 +16,7 @@ SCOPE = (
 )
 
 
-def evaluate(lab, mode):
+def evaluate(lab, mode, fixture_config=CONFIG):
     name = "saf-triage-" + mode
     lab.create({
         "apiVersion": "batch/v1", "kind": "Job", "metadata": {"name": name},
@@ -32,7 +32,7 @@ def evaluate(lab, mode):
                                                          "capabilities": {"drop": ["ALL"]}},
                                      "volumeMounts": [{"name": "fixture", "mountPath": "/fixture",
                                                        "readOnly": True}]}],
-                     "volumes": [{"name": "fixture", "configMap": {"name": CONFIG}}],
+                     "volumes": [{"name": "fixture", "configMap": {"name": fixture_config}}],
                  }}},
     })
     lab.kubectl("wait", "--for=condition=Complete", f"job/{name}", "--timeout=105s", timeout=115)

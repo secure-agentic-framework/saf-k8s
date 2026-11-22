@@ -25,3 +25,12 @@ and rankings define the example policy.
 - [NVD API vulnerability and applicability fields](https://nvd.nist.gov/developers/vulnerabilities)
 - [CISA Known Exploited Vulnerabilities Catalog](https://www.cisa.gov/known-exploited-vulnerabilities-catalog)
 - [FIRST CVSS v3.1 specification](https://www.first.org/cvss/v3.1/specification-document)
+
+## Version-scoped evidence and follow-up
+
+Catalog revision `7e2e05c327f54bcc2c6aefd64c255880a81ce7c9` adds a second pair of Jobs.
+It compares generic advisory summaries with a policy that checks exact build
+identifiers. An exact provider record clears a synthetic backported build,
+while two contradictory records and an unknown build stay open with an owner
+and review deadline. An affected fixture preserves its inference impact and
+response deadline. The policy's deadline and source records are invented.

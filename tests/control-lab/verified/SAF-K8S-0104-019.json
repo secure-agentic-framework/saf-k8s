@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0104-019",
-  "catalog_revision": "313f8d57928b85f679837f527199bd655a5999d7",
-  "catalog_sha256": "714d60f6e8e32a103c413c1cd2606e2a70c104217ddfd71bd1a082c4584eb54c",
+  "catalog_revision": "7e2e05c327f54bcc2c6aefd64c255880a81ce7c9",
+  "catalog_sha256": "df105e4d2453b18902086552ec1bae50b698ff889053abd168a340c3f200169b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "3b6db74ba56bf975e9277bb44fc0e0ca441a351cc955872e16fdc733a90af68f",
-  "scope": "Kubernetes runs two Jobs over identical inert advisory metadata and synthetic inventory. The fixture compares the scheduling and triage outputs of severity-only and contextual rules. Live feeds, production inventory and patch SLA enforcement require separate evidence.",
-  "cluster": "saf-lab-b8c363ee23a5",
+  "control_sha256": "c7d6e470a5d64df9c0f56a91bc2390914f79e46f9275f0cc70d5c615ae0c6357",
+  "scope": "Kubernetes Jobs assess inert advisory metadata and synthetic inventory through ranking and build-specific evidence rules. The case retains unresolved cases with assigned review and a fixture deadline. Production inventory, advisories and response workflow remain open.",
+  "cluster": "saf-lab-4b9e6b7dabd9",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -73,6 +73,40 @@
       "matched": true,
       "observed": {
         "upper_boundary_excluded": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The generic summary marks all four builds affected",
+      "matched": true,
+      "observed": {
+        "matched_inventory": true,
+        "backport_marked_affected": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The exact-build advisory supports a traceable closure decision",
+      "matched": true,
+      "observed": {
+        "matching_evidence_and_build": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Conflicting or missing applicability evidence stays open for assigned review",
+      "matched": true,
+      "observed": {
+        "conflict_retained": true,
+        "missing_build_retained": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An affected record retains its owner, deadline and inference impact",
+      "matched": true,
+      "observed": {
+        "owner_deadline_impact_retained": true
       }
     }
   ]

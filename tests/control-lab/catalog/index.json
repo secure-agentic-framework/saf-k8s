@@ -183,7 +183,7 @@
     "SAF-K8S-0104-019": {
       "catalog_status": "draft",
       "domain": "D01",
-      "sha256": "3b6db74ba56bf975e9277bb44fc0e0ca441a351cc955872e16fdc733a90af68f",
+      "sha256": "c7d6e470a5d64df9c0f56a91bc2390914f79e46f9275f0cc70d5c615ae0c6357",
       "title": "Kubernetes CVE risk prioritization framework"
     },
     "SAF-K8S-0104-020": {
@@ -578,7 +578,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c3ca5fb7fadbe6c57bb3c7f23ce4b68dac6a9eb6",
-  "sha256": "714d60f6e8e32a103c413c1cd2606e2a70c104217ddfd71bd1a082c4584eb54c",
+  "revision": "1c0c901fb0bfcb7c8009f430a927a7000865b9e1",
+  "sha256": "df105e4d2453b18902086552ec1bae50b698ff889053abd168a340c3f200169b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

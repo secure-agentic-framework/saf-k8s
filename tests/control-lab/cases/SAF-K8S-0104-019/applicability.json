@@ -1,0 +1,17 @@
+{
+  "reviewed_at": "2026-11-21T12:00:00Z",
+  "policy": {"owner": "synthetic-platform-triage", "response_hours": 24},
+  "builds": [
+    {"id": "managed-backport", "installed": "fixture-managed-003", "policy_result": "not_affected"},
+    {"id": "ambiguous-provider", "installed": "fixture-managed-004", "policy_result": "conflict"},
+    {"id": "unknown-build", "installed": null, "policy_result": "incomplete"},
+    {"id": "inference-component", "installed": "fixture-addon-005", "workload_impact": "inference", "policy_result": "affected"}
+  ],
+  "summary": "affected",
+  "applicability": [
+    {"advisory": "fixture-provider-a", "build": "fixture-managed-003", "status": "not_affected"},
+    {"advisory": "fixture-provider-b", "build": "fixture-managed-004", "status": "not_affected"},
+    {"advisory": "fixture-provider-c", "build": "fixture-managed-004", "status": "affected"},
+    {"advisory": "fixture-maintainer-d", "build": "fixture-addon-005", "status": "affected"}
+  ]
+}
