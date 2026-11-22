@@ -570,6 +570,12 @@
       "sha256": "b0ae805b4d2060d306ba9e5fcc99424da1a19d7acec6cccb0030c8c1dc42b1a3",
       "title": "Namespace quota utilization monitoring and exhaustion alerting for GPU and AI workloads"
     },
+    "SAF-K8S-0702-022": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "766d73d0ef57d1b2c2d65c07178fdb0ea089a1053823119f876811aef70693f3",
+      "title": "Virtual cluster isolation guarantee and residual risk documentation"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -584,7 +590,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "48f3c4a8a1c58555f53adc17bc9b9bcd4492e779",
+  "revision": "3e909f3a838f57d634014af4630502c698d9da68",
   "sha256": "df105e4d2453b18902086552ec1bae50b698ff889053abd168a340c3f200169b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

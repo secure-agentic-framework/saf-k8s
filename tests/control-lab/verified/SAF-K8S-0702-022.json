@@ -1,0 +1,95 @@
+{
+  "control_id": "SAF-K8S-0702-022",
+  "catalog_revision": "7e2e05c327f54bcc2c6aefd64c255880a81ce7c9",
+  "catalog_sha256": "df105e4d2453b18902086552ec1bae50b698ff889053abd168a340c3f200169b",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "766d73d0ef57d1b2c2d65c07178fdb0ea089a1053823119f876811aef70693f3",
+  "scope": "One disposable Kubernetes v1.36.1 kind host with two vCluster 0.37.7 APIs installed from the SHA-256-pinned official chart and digest-pinned control-plane images. Ordinary vCluster-owner API requests show CRD collision within tenant A, the same CRD and namespaced objects in independent tenant APIs, and host API absence. The host and tenant control planes still share the kind node/kernel and cluster administration boundary. Default chart sync settings can create selected real host objects; this case does not test sync policy, workloads, network, storage, host privilege, or complete isolation.",
+  "cluster": "saf-lab-4f151719eb64",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The official vCluster chart matches its pinned version and digest",
+      "matched": true,
+      "observed": {
+        "chart": "vcluster",
+        "version": "0.37.7",
+        "sha256": "bc858bd6d75b02f09f4397ce3278807eff9f92132a58252b0108145272c50f94"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A duplicate CRD name collides within tenant A's owned API",
+      "matched": true,
+      "observed": {
+        "api": "tenant-a",
+        "object": "isolationrecords.inventory.example.invalid",
+        "api_result": "AlreadyExists"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Tenant A and tenant B independently accept the same CRD name",
+      "matched": true,
+      "observed": {
+        "apis": [
+          "tenant-a",
+          "tenant-b"
+        ],
+        "same_crd_name": "isolationrecords.inventory.example.invalid",
+        "same_namespace_and_configmap": "api-object-fixture/same-config",
+        "observed_owner_values": {
+          "tenant-a": "tenant-a",
+          "tenant-b": "tenant-b"
+        },
+        "custom_resource_name": "same-record",
+        "same_named_custom_resource_owner_values": {
+          "tenant-a": "tenant-a",
+          "tenant-b": "tenant-b"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Same-named API objects remain readable in both tenants while the host API does not serve the CRD",
+      "matched": true,
+      "observed": {
+        "tenant_a_crd": true,
+        "tenant_b_crd": true,
+        "host_crd_result": "NotFound",
+        "host_api": "kind host API"
+      }
+    }
+  ]
+}
