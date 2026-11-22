@@ -1,0 +1,17 @@
+{
+  "max_body_bytes": 128,
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["request_id", "input"],
+    "properties": {
+      "request_id": {"type": "string", "minLength": 1},
+      "input": {"type": "string", "minLength": 1}
+    }
+  },
+  "accepted_marker": "SAF-K8S-0902-003-MOCK-ACCEPTED",
+  "fixtures": {
+    "valid": {"request_id": "fixture-0902-003", "input": "synthetic benign input"},
+    "schema_invalid": {"request_id": "fixture-0902-003-invalid", "input": 7}
+  }
+}
