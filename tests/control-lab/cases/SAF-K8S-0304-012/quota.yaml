@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: saf-0304-ephemeral-budget
+  namespace: saf-test
+spec:
+  hard:
+    requests.ephemeral-storage: 12Mi
+    limits.ephemeral-storage: 24Mi

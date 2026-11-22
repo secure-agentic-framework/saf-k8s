@@ -324,6 +324,12 @@
       "sha256": "17e68373f9c3afd71ce662a5bb89e68b51a7f6f38590383ed9132c1dc4f1ba79",
       "title": "Namespace LimitRange and ResourceQuota enforcement"
     },
+    "SAF-K8S-0304-012": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "07d5945c39bf51c6a476596243bddd66517c49b6fe954af4143e2f797343fadd",
+      "title": "Training scratch volume size limits and ephemeral-storage quotas"
+    },
     "SAF-K8S-0304-013": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -494,7 +500,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "194e800b53771bcf7d54039b3cf75aea1d81df55",
-  "sha256": "fd59c6f494f19e72c2c9f756d2481292195dcc71d5d6f5aa774426a49cbc8063",
+  "revision": "e94d3d81a8389251aa687a112a8d123cacfe7ff5",
+  "sha256": "83e0245e2810213d80a33174628c0ea3217f5fe52d7959d2d332a4394d7a7744",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
