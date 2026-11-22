@@ -1191,7 +1191,7 @@
     "SAF-K8S-0903-006": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "5c4582f5be676b74c6d7484a835bea43bd84f6f8dc85e7fe37648270873ca243",
+      "sha256": "b18e08509c82d5ea7dff5611d6cceb075c18f73ad1700fe97be0cc3294000d17",
       "title": "Inference request queue priority, timeout, and depth controls"
     },
     "SAF-K8S-0903-007": {
@@ -1736,7 +1736,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "bfd9d7d3393bc0981b4310615fe950c1ae89d0b1",
-  "sha256": "374fb0c8d76fcd4c6927b5b92577f3e820a08e5a4291a7f27dd0ed4ddf266b58",
+  "revision": "63652d5cd5c4e11a5dbc301fd079ef0a126dd244",
+  "sha256": "eeedce2eeef76ab64b8ac44773b4af80c54c1aacfdef7c46008e349b6b1616d3",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
