@@ -1,0 +1,45 @@
+{
+  "fixture_id": "SYNTH-SAF-K8S-1007-012-MATRIX-001",
+  "classification": "synthetic-only",
+  "description": "Inert compatibility policy data for a local decision-engine demonstration. Component names are roles; version values are reserved synthetic identifiers, not software releases.",
+  "required_api_versions": [
+    "apps/v1"
+  ],
+  "inventory": {
+    "gpu-driver": "SYNTH-GPU-DRIVER-01",
+    "cuda-toolkit": "SYNTH-CUDA-01",
+    "ai-operator": "SYNTH-AI-OPERATOR-01",
+    "device-plugin": "SYNTH-DEVICE-PLUGIN-01",
+    "serving-framework": "SYNTH-SERVING-01"
+  },
+  "decisions": [
+    {
+      "change_id": "SYNTH-CHANGE-BLOCK-001",
+      "target_component": "serving-framework",
+      "expected_current": "SYNTH-SERVING-01",
+      "target_version": "SYNTH-SERVING-02",
+      "requires": {
+        "gpu-driver": "SYNTH-GPU-DRIVER-02",
+        "cuda-toolkit": "SYNTH-CUDA-02",
+        "ai-operator": "SYNTH-AI-OPERATOR-02",
+        "device-plugin": "SYNTH-DEVICE-PLUGIN-02"
+      },
+      "expected_decision": "block"
+    },
+    {
+      "change_id": "SYNTH-CHANGE-PERMIT-001",
+      "target_component": "serving-framework",
+      "expected_current": "SYNTH-SERVING-01",
+      "target_version": "SYNTH-SERVING-01B",
+      "requires": {
+        "gpu-driver": "SYNTH-GPU-DRIVER-01",
+        "cuda-toolkit": "SYNTH-CUDA-01",
+        "ai-operator": "SYNTH-AI-OPERATOR-01",
+        "device-plugin": "SYNTH-DEVICE-PLUGIN-01"
+      },
+      "expected_decision": "permit"
+    }
+  ],
+  "synthetic_metadata_only": true,
+  "real_compatibility_claims": false
+}

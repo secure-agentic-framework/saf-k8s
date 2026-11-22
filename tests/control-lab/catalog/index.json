@@ -1470,6 +1470,12 @@
       "sha256": "422f1f4fab47ac5cfc7c6d1b30634ee1d1cf29ce841d873870e8ab33327304aa",
       "title": "Kubernetes cluster upgrade planning, sequencing, and rollback governance"
     },
+    "SAF-K8S-1007-012": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "207c479d0b537d0fd227012ac2c6a3298b50556356109c4eda64c9a77a75c861",
+      "title": "AI infrastructure compatibility matrix and coordinated component upgrade governance"
+    },
     "SAF-K8S-1007-013": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1490,7 +1496,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "5d8dad0bcf44ff9bb2fe72ad1452ffab6f204ad4",
+  "revision": "dbdfb4288bdf2eac3c454076b40852405fe26e1d",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
