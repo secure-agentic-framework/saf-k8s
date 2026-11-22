@@ -11570,12 +11570,12 @@
   knowledge_area: '10.6'
   control_seq: '007'
   control_title: NIST SSDF v1.1 alignment and gap assessment for Kubernetes AI development
-  control_statement: Organizations must map their Kubernetes and AI/ML development security practices to NIST SSDF v1.1 (SP 800-218) requirements and identify alignment and gaps across the Prepare, Protect the Software, Produce Well-Secured Software, and Respond to Vulnerabilities practice groups.
-  objective: Ensure secure development practices for Kubernetes AI workloads meet the NIST SSDF baseline and expose documented gaps that can be remediated through a defensible secure development program.
-  rationale: Without explicit SSDF alignment and gap assessment, organizations cannot show that their Kubernetes AI development practices meet federal secure software development expectations or maintain a consistent baseline across engineering teams and toolchains.
+  control_statement: Organizations must map their Kubernetes and AI/ML development security practices to NIST SSDF v1.1 (SP 800-218) practices and tasks. Document applicability, supporting evidence, and gaps across Prepare the Organization, Protect the Software, Produce Well-Secured Software, and Respond to Vulnerabilities.
+  objective: Show how secure development practices for Kubernetes AI workloads address applicable NIST SSDF recommendations and document gaps for remediation.
+  rationale: Without explicit SSDF alignment and gap assessment, organizations cannot show that their Kubernetes AI development practices address applicable secure development expectations or maintain a consistent baseline across engineering teams and toolchains.
   scope: Applies to all software development and ML engineering teams building or deploying AI workloads on Kubernetes. Covers the full NIST SSDF v1.1 practice group set and associated baseline secure development gap analysis.
   primary_enforcement_point: Secure development policy documentation, CI/CD compliance checks, and SSDF self-attestation process.
-  implementation_surface: NIST SSDF v1.1 practice group alignment documentation, gap identification and remediation planning across PO, PS, PW, and RV practice groups, CI/CD compliance checks implementing SSDF baseline practices, and SSDF self-attestation or assessment workflows.
+  implementation_surface: NIST SSDF v1.1 practice group alignment documentation, gap identification and remediation planning across PO, PS, PW, and RV practice groups, CI/CD checks for applicable SSDF practices, and SSDF self-attestation or assessment workflows.
   owner_primary: GRC/Compliance
   owner_supporting: AI/ML Engineering; DevOps/Platform Engineering; Security Architecture
   baseline_or_ai_specific: ai-specific
