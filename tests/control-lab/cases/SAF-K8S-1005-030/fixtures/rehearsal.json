@@ -1,0 +1,17 @@
+{
+  "fixture_only": true,
+  "control_id": "SAF-K8S-1005-030",
+  "purpose": "ordinary etcd recovery rehearsal",
+  "object": {
+    "api_version": "v1",
+    "kind": "ConfigMap",
+    "namespace": "saf-1005-030-rehearsal",
+    "name": "recovery-sentinel",
+    "key": "state",
+    "before_backup": "SYNTHETIC-BASELINE-1005-030",
+    "after_backup": "SYNTHETIC-POST-BACKUP-1005-030"
+  },
+  "external_targets": [],
+  "credentials": false,
+  "workloads": false
+}

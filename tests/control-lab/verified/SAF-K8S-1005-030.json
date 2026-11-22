@@ -1,0 +1,78 @@
+{
+  "control_id": "SAF-K8S-1005-030",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "726366b13781c8e608061d54d49137361ad89ee98f92679f9c534dc384e1b08e",
+  "scope": "One fresh, single-control-plane Kind v1.36.1 cluster. Create one labeled, non-sensitive ConfigMap sentinel; snapshot the live etcd member; reject a deliberately truncated copy before any restore action; mutate the sentinel; restore the integrity-checked snapshot into a new data directory with a revision bump and compaction; switch the disposable kubeadm static etcd manifest to that directory; and verify the original sentinel state through the Kubernetes API. The backup contains the cluster's etcd database, but this case never reads, prints, queries, or exports credential objects or values. This does not prove production backup custody, encryption, signer trust, control-plane rebuild, multi-member/external etcd, authorization, business recovery objectives, or organization-wide execution readiness.",
+  "cluster": "saf-lab-14c90278bee9",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A truncated backup is rejected before restore and leaves the API sentinel unchanged",
+      "matched": true,
+      "observed": {
+        "trusted_digest_mismatch": true,
+        "native_snapshot_rejected": true,
+        "restore_attempted": false,
+        "sentinel_unchanged": true,
+        "sentinel_uid_preserved": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "After rejection, the verified backup restores the pre-change object through the Kubernetes API",
+      "matched": true,
+      "observed": {
+        "restored_state": "SYNTHETIC-BASELINE-1005-030",
+        "pre_backup_uid_preserved": true,
+        "control_plane_node_ready": true,
+        "nonzero_snapshot_revision": true,
+        "revision_bump_observed": true,
+        "revision_compaction_requested": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The API continues serving the restored baseline after control-plane readiness",
+      "matched": true,
+      "observed": {
+        "api_readback_matches_restore": true,
+        "current_fixture_state": "SYNTHETIC-BASELINE-1005-030",
+        "no_workloads_created": true,
+        "credential_objects_queried": false
+      }
+    }
+  ]
+}

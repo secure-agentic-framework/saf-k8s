@@ -1386,6 +1386,12 @@
       "sha256": "dabc116476349e2bd2bb7fcd277f1df51cb9fabcdb2e2b7dfb6d2c53bb26890f",
       "title": "Kubernetes backup verification for etcd and AI workload data"
     },
+    "SAF-K8S-1005-030": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "726366b13781c8e608061d54d49137361ad89ee98f92679f9c534dc384e1b08e",
+      "title": "Documented etcd restoration procedures and tested execution readiness"
+    },
     "SAF-K8S-1006-001": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1448,7 +1454,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "382f37afb5600cb25ebb89981e1b05ae86f771cc",
+  "revision": "534bb9a4d07212966aed5ea9a9dfef092064a0c9",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
