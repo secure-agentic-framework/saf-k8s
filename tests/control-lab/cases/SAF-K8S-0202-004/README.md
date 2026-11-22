@@ -1,33 +1,22 @@
 # SAF-K8S-0202-004 — Runtime socket mount prevention
 
-## Case scope
+Run via `lab.py test SAF-K8S-0202-004` in the SAF control lab. The fixture sets
+the namespace's Pod Security Admission (PSA) `enforce=baseline` policy pinned
+to v1.36, confirms two harmless hostPath Pod requests are admitted before the
+policy and denied after it, then proves a restricted no-hostPath Pod is admitted
+and Ready. Both hostPath probes use nonexistent paths and server dry-run only;
+they are never persisted or run.
 
-This case uses the namespace-scoped Kubernetes Pod Security Admission (PSA)
-Baseline profile as the defensive control. Baseline disallows `hostPath`
-volumes, which blocks direct runtime socket mounts and mounts of a parent
-directory that could expose a socket. It is broader than socket-only blocking:
-applications that legitimately need any hostPath will also be denied and need
-a separately reviewed design.
+The case also runs the exact pinned Kaniko v1.28.5 image against a ConfigMap
+build context with `--no-push`, `--no-push-cache`, `--cache=false`, and no
+hostPath. It preserves the original docker-save archive payload check and
+independently verifies the OCI layout index, manifest, config and layer
+descriptors against exact blob bytes and their hashes. `--reproducible` strips
+timestamps; output digests are still retained as raw measurements and are not
+used as stable check observations. `lab.evidence/kaniko-image-measurements.raw.json`
+is the raw measurement filename in the runner's evidence directory.
 
-`fixtures.yaml` contains only inert, deliberately nonexistent example paths.
-Each negative challenge is sent with `--dry-run=server` before and after
-enforcement. The violating Pod objects are never persisted, scheduled, or run.
-No real runtime socket is mounted, inspected, contacted, or used. The positive
-control admits and starts a restricted BusyBox Pod with no hostPath.
-
-## CI/CD builder proof boundary
-
-The case does not include or test a CI/CD builder. A separate builder review
-must establish from its actual configuration and execution environment that
-build steps cannot reach a privileged host daemon or socket and that the
-builder runs rootless and/or daemonless as claimed. Useful evidence would
-include the builder identity and process configuration, socket/device and
-host-path mappings, daemon endpoint configuration, and a benign build result
-under those restrictions. Admission evidence for Kubernetes Pods does not
-prove those pipeline properties.
-
-## Verification status
-
-Prepared for the local lab runner using its pinned Kubernetes 1.36.1 kind node
-image. No cluster run or catalog review was performed while preparing this case;
-PSA enforcement, server dry-run responses, and readiness remain unverified.
+This is a local Kubernetes v1.36.1 fixture result. It does not establish
+production namespace coverage, PSA exemptions or configuration, behavior for
+other admission paths, protection of non-Pod resources, a cluster-wide
+runtime-socket policy, or production CI builder identity/configuration.
