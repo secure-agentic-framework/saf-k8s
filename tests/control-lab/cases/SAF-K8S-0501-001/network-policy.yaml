@@ -1,0 +1,50 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: namespace-default-deny
+  namespace: saf-0501-001
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: approved-http-ingress
+  namespace: saf-0501-001
+spec:
+  podSelector:
+    matchLabels:
+      saf-k8s.example/0501-001: approved-http
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              saf-k8s.example/0501-001: case-client
+      ports:
+        - protocol: TCP
+          port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: approved-http-egress
+  namespace: saf-0501-001
+spec:
+  podSelector:
+    matchLabels:
+      saf-k8s.example/0501-001: case-client
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              saf-k8s.example/0501-001: approved-http
+      ports:
+        - protocol: TCP
+          port: 8080

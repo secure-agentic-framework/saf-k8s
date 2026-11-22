@@ -486,6 +486,12 @@
       "sha256": "f0f7ebe6a67f123f4eb36aa66a0a9d13a9fa0fabac762495e98cdda9e866262e",
       "title": "Secrets KMS key rotation and re-encryption verification"
     },
+    "SAF-K8S-0501-001": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "2a483af2eb348afa97fad9c7ef3c72f161f896e6be2b61291f4d1826216f6069",
+      "title": "Default deny ingress and egress network policies"
+    },
     "SAF-K8S-0601-011": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -758,7 +764,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "b32d8aaeb8d9e2297533c466a7102d328b349800",
-  "sha256": "e8d024860997c85e65dcb4d9a1c10c9e716416ecfea1f4d4479987609b4092f0",
+  "revision": "95203d109e17923be91514e3943897b519660385",
+  "sha256": "9b3b6190b973eb3addee410c79d4c34a183e00a420066cc2e0a38653d22866a9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

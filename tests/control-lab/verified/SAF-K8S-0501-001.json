@@ -1,0 +1,171 @@
+{
+  "control_id": "SAF-K8S-0501-001",
+  "catalog_revision": "89f78fbae6d3127ebb4fdc628885140fd8b3debf",
+  "catalog_sha256": "9b3b6190b973eb3addee410c79d4c34a183e00a420066cc2e0a38653d22866a9",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "2a483af2eb348afa97fad9c7ef3c72f161f896e6be2b61291f4d1826216f6069",
+  "scope": "One disposable kind v1.36.1 cluster with kind v0.32.0 bundled kindnet and one case-owned namespace. Three non-root BusyBox Pods provide one client and two fixed HTTP listeners; ordinary IPv4 TCP/8080 requests establish no-policy reachability, ingress-only denial, egress-only denial, and a joint namespace-wide default-deny policy with one explicit client-to-approved-listener allow path. No external targets, DNS, IPv6, other protocols, production CNI, system namespaces, hostNetwork/node paths, or admission/generation automation is tested.",
+  "cluster": "saf-lab-499d88a35f2d",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Pinned kind version and ready bundled kindnet are identified",
+      "matched": true,
+      "observed": {
+        "kind_version": "kind v0.32.0 go1.26.3 darwin/arm64",
+        "kubernetes_version": "v1.36.1",
+        "cni_daemonset": "kube-system/kindnet",
+        "cni_images": [
+          "docker.io/kindest/kindnetd:v20260528-9350166c"
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without policy, client reaches the approved owned listener and receives its marker",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without policy, client reaches the unapproved owned listener and receives its marker",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Ingress isolation blocks the unapproved listener while client egress is unrestricted",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Ingress allow admits only the approved listener from the case client",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Explicit ingress permits the same unapproved test path before egress enforcement",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Egress isolation blocks the unapproved listener while ingress allows both test paths",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Egress allow admits the case client to the approved listener",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Final namespace-wide ingress and egress default deny blocks the unapproved listener",
+      "matched": true,
+      "observed": {
+        "expected_reachable": false,
+        "observed_reachable": false,
+        "two_consecutive_observations": true,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Final scoped ingress and egress rules preserve the approved HTTP observation",
+      "matched": true,
+      "observed": {
+        "expected_reachable": true,
+        "observed_reachable": true,
+        "two_consecutive_observations": true,
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both owned listeners remain healthy during the final denial",
+      "matched": true,
+      "observed": {
+        "both_local_health_checks_passed": true
+      }
+    }
+  ]
+}
