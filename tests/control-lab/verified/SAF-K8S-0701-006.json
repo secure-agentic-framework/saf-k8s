@@ -1,0 +1,89 @@
+{
+  "control_id": "SAF-K8S-0701-006",
+  "catalog_revision": "6838d59c8941c27b2188821ee381e6cd7a852036",
+  "catalog_sha256": "a686bfbe52cded89985495c3a14f05eb580c3499b772f2473beb3accc1c99e38",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "e6bbb8c30c0d439ce0b7ac0ae1863b49205737ee7cadcd4533bb9e0f8a7b7309",
+  "scope": "A disposable Kubernetes v1.36.1 API server protects one synthetic, unbound Retain PV object. Separate real fixture ServiceAccounts record independent approvals on an exact-UID ledger. Native admission blocks the fixture executor's normal DELETE until both approvals exist. Actual backend destruction, sanitization, approval expiry, governance, and production integration require separate evidence.",
+  "cluster": "saf-lab-f4350c99fc9b",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The authorized executor's dry-run DELETE reaches the API before dual approval is enforced",
+      "matched": true,
+      "observed": {
+        "http_status": 200
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Deletion is refused with zero approvals",
+      "matched": true,
+      "observed": {
+        "http_status": 403,
+        "policy_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The security identity may not record the data owner's vote",
+      "matched": true,
+      "observed": {
+        "http_status": 403,
+        "policy_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Reapplying the same review cannot satisfy the second approval",
+      "matched": true,
+      "observed": {
+        "first_approved": true,
+        "duplicate_approved_idempotently": true,
+        "executor_http_status": 403
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved synthetic PV record can be deleted for the exact ledger UID",
+      "matched": true,
+      "observed": {
+        "approved_ledger_matches_uid": true,
+        "second_vote_accepted": true,
+        "executor_http_status": 200,
+        "pv_record_removed": true
+      }
+    }
+  ]
+}
