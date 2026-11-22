@@ -522,6 +522,12 @@
       "sha256": "f0f7ebe6a67f123f4eb36aa66a0a9d13a9fa0fabac762495e98cdda9e866262e",
       "title": "Secrets KMS key rotation and re-encryption verification"
     },
+    "SAF-K8S-0403-029": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "9c312947f021dbe7357a9f8b66dbe39d8f3d877d44ddfda487bf6827b8eaa97a",
+      "title": "Environment variable secret injection prohibition enforcement"
+    },
     "SAF-K8S-0501-001": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -836,7 +842,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "cb38b6e5ea0246734d7aa78468679a7fde62ad4a",
+  "revision": "662ce8f83189d390ec2ee6ca742a5a925fdb53f2",
   "sha256": "115d55b7443aed0213c5b909968f35b73439c1376fb56857836f63c2b08ce322",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

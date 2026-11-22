@@ -1,0 +1,286 @@
+{
+  "control_id": "SAF-K8S-0403-029",
+  "catalog_revision": "8499ab6eef453f23e74e24a1ab43555af4bd89f0",
+  "catalog_sha256": "115d55b7443aed0213c5b909968f35b73439c1376fb56857836f63c2b08ce322",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "9c312947f021dbe7357a9f8b66dbe39d8f3d877d44ddfda487bf6827b8eaa97a",
+  "scope": "Kubernetes v1.36 native ValidatingAdmissionPolicy against inert, case-owned fixtures. Direct Pod CREATE checks normal and init containers for env[].valueFrom.secretKeyRef and envFrom[].secretRef; the ephemeral-container matrix uses the explicit pods/ephemeralcontainers subresource. A separate Deployment-template VAP is tested. Namespace selector scoping, ConfigMap environment injection, and a Secret volume mount are positive boundaries. No Secret data values are created, read, or emitted.",
+  "cluster": "saf-lab-f8764db1df56",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Pod normal container env is accepted",
+      "matched": true,
+      "observed": {
+        "request_reached_api": true,
+        "admission_outcome": "accepted",
+        "policy_denial_marker": false,
+        "expected_policy_denial": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Pod normal container envFrom is accepted",
+      "matched": true,
+      "observed": {
+        "request_reached_api": true,
+        "admission_outcome": "accepted",
+        "policy_denial_marker": false,
+        "expected_policy_denial": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Pod init container env is accepted",
+      "matched": true,
+      "observed": {
+        "request_reached_api": true,
+        "admission_outcome": "accepted",
+        "policy_denial_marker": false,
+        "expected_policy_denial": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Pod init container envFrom is accepted",
+      "matched": true,
+      "observed": {
+        "request_reached_api": true,
+        "admission_outcome": "accepted",
+        "policy_denial_marker": false,
+        "expected_policy_denial": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Deployment template envFrom.secretRef is accepted",
+      "matched": true,
+      "observed": {
+        "request_reached_api": true,
+        "admission_outcome": "accepted",
+        "policy_denial_marker": false,
+        "expected_policy_denial": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "ephemeral base Pod for env is accepted",
+      "matched": true,
+      "observed": {
+        "request_reached_api": true,
+        "admission_outcome": "accepted",
+        "policy_denial_marker": false,
+        "expected_policy_denial": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "ephemeralcontainers subresource env request is accepted before policy",
+      "matched": true,
+      "observed": {
+        "request_resource": "pods/ephemeralcontainers",
+        "request_operation": "UPDATE",
+        "admission_outcome": "accepted",
+        "policy_denial_marker": false,
+        "expected_policy_denial": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "ephemeral base Pod for envFrom is accepted",
+      "matched": true,
+      "observed": {
+        "request_reached_api": true,
+        "admission_outcome": "accepted",
+        "policy_denial_marker": false,
+        "expected_policy_denial": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "ephemeralcontainers subresource envFrom request is accepted before policy",
+      "matched": true,
+      "observed": {
+        "request_resource": "pods/ephemeralcontainers",
+        "request_operation": "UPDATE",
+        "admission_outcome": "accepted",
+        "policy_denial_marker": false,
+        "expected_policy_denial": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "saf-k8s-0403-029-pod-env-secret is type checked without warnings",
+      "matched": true,
+      "observed": {
+        "type_check_completed": true,
+        "warnings": 0,
+        "observed_current_generation": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "saf-k8s-0403-029-deployment-env-secret is type checked without warnings",
+      "matched": true,
+      "observed": {
+        "type_check_completed": true,
+        "warnings": 0,
+        "observed_current_generation": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Pod normal container env is denied by the scoped policy",
+      "matched": true,
+      "observed": {
+        "request_reached_api": true,
+        "admission_outcome": "denied",
+        "policy_denial_marker": true,
+        "expected_policy_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Pod normal container envFrom is denied by the scoped policy",
+      "matched": true,
+      "observed": {
+        "request_reached_api": true,
+        "admission_outcome": "denied",
+        "policy_denial_marker": true,
+        "expected_policy_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Pod init container env is denied by the scoped policy",
+      "matched": true,
+      "observed": {
+        "request_reached_api": true,
+        "admission_outcome": "denied",
+        "policy_denial_marker": true,
+        "expected_policy_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Pod init container envFrom is denied by the scoped policy",
+      "matched": true,
+      "observed": {
+        "request_reached_api": true,
+        "admission_outcome": "denied",
+        "policy_denial_marker": true,
+        "expected_policy_denial": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "ephemeral base Pod for env is accepted",
+      "matched": true,
+      "observed": {
+        "request_reached_api": true,
+        "admission_outcome": "accepted",
+        "policy_denial_marker": false,
+        "expected_policy_denial": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "ephemeralcontainers subresource env request is denied by the scoped policy",
+      "matched": true,
+      "observed": {
+        "request_resource": "pods/ephemeralcontainers",
+        "request_operation": "UPDATE",
+        "admission_outcome": "denied",
+        "policy_denial_marker": true,
+        "expected_policy_denial": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "ephemeral base Pod for envFrom is accepted",
+      "matched": true,
+      "observed": {
+        "request_reached_api": true,
+        "admission_outcome": "accepted",
+        "policy_denial_marker": false,
+        "expected_policy_denial": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "ephemeralcontainers subresource envFrom request is denied by the scoped policy",
+      "matched": true,
+      "observed": {
+        "request_resource": "pods/ephemeralcontainers",
+        "request_operation": "UPDATE",
+        "admission_outcome": "denied",
+        "policy_denial_marker": true,
+        "expected_policy_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Deployment template envFrom.secretRef is denied by the scoped policy",
+      "matched": true,
+      "observed": {
+        "request_reached_api": true,
+        "admission_outcome": "denied",
+        "policy_denial_marker": true,
+        "expected_policy_denial": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "ConfigMap environment source and empty Secret volume reference is accepted",
+      "matched": true,
+      "observed": {
+        "request_reached_api": true,
+        "admission_outcome": "accepted",
+        "policy_denial_marker": false,
+        "expected_policy_denial": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "same Pod request in unlabeled namespace is accepted",
+      "matched": true,
+      "observed": {
+        "request_reached_api": true,
+        "admission_outcome": "accepted",
+        "policy_denial_marker": false,
+        "expected_policy_denial": false
+      }
+    }
+  ]
+}
