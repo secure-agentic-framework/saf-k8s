@@ -1074,6 +1074,12 @@
       "sha256": "bb5f98b699c374c57671af4c249861035dda0e135c0f930fcd524a86ec5329b5",
       "title": "Training fault tolerance and security"
     },
+    "SAF-K8S-0901-006": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "0b1d02acd0d623612be51764643d1d762fb5a4c57b2c257968cde0799925db4d",
+      "title": "Gang scheduling security (Volcano, Kueue)"
+    },
     "SAF-K8S-0901-007": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1586,7 +1592,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "8662c758e13a9f2917d71d11ca7547ca5902c449",
+  "revision": "5fe83c6222ac185b0aaadf96df3ef8c0527e9884",
   "sha256": "28e2e795c3d0eee859ba13f7c7c1e62c33d93955ba867c40a0060d1dfd1984cb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: saf-0901-006-tenant-quota
+  namespace: saf-0901-006
+  annotations:
+    saf-k8s.example/fixture: synthetic-only
+spec:
+  hard:
+    pods: "4"
+    requests.cpu: 500m
+    requests.memory: 256Mi

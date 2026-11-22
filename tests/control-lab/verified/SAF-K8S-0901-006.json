@@ -1,0 +1,136 @@
+{
+  "control_id": "SAF-K8S-0901-006",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "0b1d02acd0d623612be51764643d1d762fb5a4c57b2c257968cde0799925db4d",
+  "scope": "One fresh Kubernetes v1.36.1 kind cluster. The case compares admission of one synthetic 600m CPU / 128Mi Pod request before and after an ordinary 500m CPU / 256Mi memory namespace ResourceQuota, verifies a low-request Pod remains admissible, and checks projected ServiceAccount authorization for creating Pods and ResourceQuota objects. A synthetic platform identity gets only ResourceQuota create permission. The control cluster is not configured with Volcano or Kueue. This does not exercise GPU resources, gang scheduling, queue admission, fair sharing, priority classes, preemption, cross-namespace isolation, production identity mapping, or quota update/delete governance.",
+  "cluster": "saf-lab-814f4abb7562",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The baseline namespace has no quota before the control is applied",
+      "matched": true,
+      "observed": {
+        "resourcequota_count": 0
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without a namespace quota, the 600m synthetic request is admitted",
+      "matched": true,
+      "observed": {
+        "message": "",
+        "name": "saf-0901-006-baseline",
+        "reason": null,
+        "status": 201
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Tenant ServiceAccount cannot create a ResourceQuota",
+      "matched": true,
+      "observed": {
+        "message": "resourcequotas is forbidden: User \"system:serviceaccount:saf-0901-006:saf-0901-006-tenant\" cannot create resource \"resourcequotas\" in API group \"\" in the namespace \"saf-0901-006\"",
+        "reason": "Forbidden",
+        "status": 403
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The namespace quota has the reviewed ordinary limits",
+      "matched": true,
+      "observed": {
+        "hard": {
+          "pods": "4",
+          "requests.cpu": "500m",
+          "requests.memory": "256Mi"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same 600m request is rejected by the named namespace quota",
+      "matched": true,
+      "observed": {
+        "message": "pods \"saf-0901-006-over-quota\" is forbidden: exceeded quota: saf-0901-006-tenant-quota, requested: requests.cpu=600m, used: requests.cpu=50m, limited: requests.cpu=500m",
+        "reason": "Forbidden",
+        "status": 403
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A low-request synthetic Pod remains admissible within quota",
+      "matched": true,
+      "observed": {
+        "message": "",
+        "name": "saf-0901-006-small",
+        "reason": null,
+        "status": 201
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Tenant remains forbidden from changing namespace quota policy",
+      "matched": true,
+      "observed": {
+        "message": "resourcequotas is forbidden: User \"system:serviceaccount:saf-0901-006:saf-0901-006-tenant\" cannot create resource \"resourcequotas\" in API group \"\" in the namespace \"saf-0901-006\"",
+        "reason": "Forbidden",
+        "status": 403
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The separately bound platform identity can dry-run create a quota",
+      "matched": true,
+      "observed": {
+        "message": "",
+        "name": "saf-0901-006-admin-probe",
+        "reason": null,
+        "status": 201
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The rejected Pod and both dry-run quotas left no persisted objects",
+      "matched": true,
+      "observed": {
+        "over_quota_pod_absent": true,
+        "persisted_resource_quotas": [
+          "saf-0901-006-tenant-quota"
+        ]
+      }
+    }
+  ]
+}
