@@ -371,6 +371,12 @@
       "domain": "D07",
       "sha256": "fb486329606d4b5c7e915ffadac56e9d33f6a4c586384f01f5945424fce829be",
       "title": "Classification metadata preservation across model lifecycle stages"
+    },
+    "SAF-K8S-0702-018": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "af5c1c0dc4d9ae4d08c6ee1a37b039c8da4d372722ee56c262e19750290a3617",
+      "title": "Namespace tenant boundary model and isolation limitation documentation"
     }
   },
   "path": "saf_k8s_controls.yaml",
