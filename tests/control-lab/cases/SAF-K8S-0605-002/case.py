@@ -1,5 +1,6 @@
 """Exercise scoped CEL admission, mutation, and generation with Kyverno."""
 from hashlib import sha256
+import importlib.util
 import json
 from pathlib import Path
 import time
@@ -35,9 +36,9 @@ SCOPE = (
     "violation and its exact PolicyReport, changes that policy to Deny, checks "
     "the exact admission denial, and compares compliant and out-of-scope Pods. "
     "It checks a positive server-dry-run mutation and one inert generated "
-    "ConfigMap companion. Signature verification is outside executable scope: "
-    "the runner lacks Cosign and an owned registry/signing workflow. No image "
-    "signature or attestation claim is established."
+    "ConfigMap companion. A namespace-scoped ImageValidatingPolicy compares "
+    "three inert, locally registered OCI fixtures before and after enforcement "
+    "and checks the same unrelated-signer reference outside the selected namespace."
 )
 
 
@@ -72,7 +73,7 @@ def _helm(lab, *args, timeout=220):
         lab.block(f"pinned Kyverno chart install failed ({type(error).__name__})")
 
 
-def _install_kyverno(lab):
+def _install_kyverno(lab, chart_values):
     directory = lab.kubeconfig.parent
     _helm(lab, "pull", "oci://ghcr.io/kyverno/charts/kyverno", "--version", CHART_VERSION,
           "--destination", str(directory), timeout=90)
@@ -82,6 +83,7 @@ def _install_kyverno(lab):
     _helm(lab, "upgrade", "--install", "kyverno", str(chart),
           "--kubeconfig", str(lab.kubeconfig), "--kube-context", f"kind-{lab.cluster}",
           "--namespace", KYVERNO_NAMESPACE, "--create-namespace", "--wait", "--timeout", "180s",
+          "--values", str(chart_values),
           "--set", "webhooksCleanup.enabled=false", "--set", "features.generateValidatingAdmissionPolicy.enabled=false")
     _kubectl(lab, "-n", KYVERNO_NAMESPACE, "rollout", "status",
              "deployment/kyverno-admission-controller", "--timeout=150s", timeout=160)
@@ -199,11 +201,11 @@ def _legacy_comparison(lab):
               result.returncode == 0, {"noncompliant_dry_run_admitted": result.returncode == 0})
 
 
-def run(lab):
+def _policy_checks(lab, chart_values):
     version = json.loads(lab.kubectl("get", "--raw=/version").stdout)
     lab.check("positive", "Disposable API server is Kubernetes v1.36.1",
               version.get("gitVersion") == "v1.36.1", {"server": version.get("gitVersion")})
-    _install_kyverno(lab)
+    _install_kyverno(lab, chart_values)
     kyverno_pods = json.loads(_kubectl(lab, "-n", KYVERNO_NAMESPACE,
                                        "get", "pods", "-o", "json").stdout)["items"]
     images = sorted({container["image"] for pod in kyverno_pods
@@ -296,3 +298,12 @@ def run(lab):
               outside.returncode == 0,
               {"admitted_outside_scope": outside.returncode == 0,
                "server_side_dry_run": True})
+
+
+def run(lab):
+    spec = importlib.util.spec_from_file_location("kyverno_image_admission", HERE / "image_admission.py")
+    image_admission = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(image_admission)
+    with image_admission.registry(lab) as (fixture, host_port, chart_values):
+        _policy_checks(lab, chart_values)
+        image_admission.run(lab, fixture, host_port)

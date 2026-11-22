@@ -4,8 +4,8 @@
   "catalog_sha256": "44255fd8a87d3147ab0d1d64d71c71ce3ca6d901b304f2df73c21d720d91bb48",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d9a51450beb3e7fbeaa906f62c8b817b17aca389da3e974ea9e1361d9dc3a090",
-  "scope": "One fresh disposable Kubernetes v1.36.1 Kind cluster and Kyverno v1.20.0 from Helm chart 3.10.0. A cluster-scoped GeneratingPolicy reacts only to the case namespace label; namespaced ValidatingPolicy and MutatingPolicy apply only to Pods in saf-0605-002. The case records one persisted Audit violation and its exact PolicyReport, changes that policy to Deny, checks the exact admission denial, and compares compliant and out-of-scope Pods. It checks a positive server-dry-run mutation and one inert generated ConfigMap companion. Signature verification is outside executable scope: the runner lacks Cosign and an owned registry/signing workflow. No image signature or attestation claim is established.",
-  "cluster": "saf-lab-22e43fb42195",
+  "scope": "One fresh disposable Kubernetes v1.36.1 Kind cluster and Kyverno v1.20.0 from Helm chart 3.10.0. A cluster-scoped GeneratingPolicy reacts only to the case namespace label; namespaced ValidatingPolicy and MutatingPolicy apply only to Pods in saf-0605-002. The case records one persisted Audit violation and its exact PolicyReport, changes that policy to Deny, checks the exact admission denial, and compares compliant and out-of-scope Pods. It checks a positive server-dry-run mutation and one inert generated ConfigMap companion. A namespace-scoped ImageValidatingPolicy compares three inert, locally registered OCI fixtures before and after enforcement and checks the same unrelated-signer reference outside the selected namespace.",
+  "cluster": "saf-lab-ad63807d2eaa",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -145,6 +145,70 @@
       "observed": {
         "admitted_outside_scope": true,
         "server_side_dry_run": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Cosign verifies signatures and exact predicate presence and preserves OCI subjects",
+      "matched": true,
+      "observed": {
+        "registry_subjects_unchanged": true,
+        "distinct_signers": true,
+        "signature_only_comparison_verified": true,
+        "cosign": "ghcr.io/sigstore/cosign/cosign:v3.1.4@sha256:0f06154836d2de34f887a5c273506d52ca43edaa1d9e53e6510fa78a48f69c2d",
+        "registry": "docker.io/library/registry:3.0.0@sha256:6c5666b861f3505b116bb9aa9b25175e71210414bd010d92035ff64018f9457e"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "All three exact image fixtures are admitted before applying the image policy",
+      "matched": true,
+      "observed": {
+        "approved": true,
+        "missing-attestation": true,
+        "unrelated-signer": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Kyverno admits the trusted image with the required attestation and payload",
+      "matched": true,
+      "observed": {
+        "admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Kyverno denies missing-attestation with its exact image verification failure",
+      "matched": true,
+      "observed": {
+        "admitted": false,
+        "matched_policy_reason": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Kyverno denies unrelated-signer with its exact image verification failure",
+      "matched": true,
+      "observed": {
+        "admitted": false,
+        "matched_policy_reason": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same unrelated-signer image is admitted outside the enrolled namespace",
+      "matched": true,
+      "observed": {
+        "admitted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The disposable registry container and volume were removed",
+      "matched": true,
+      "observed": {
+        "registry_cleanup": "complete"
       }
     }
   ]

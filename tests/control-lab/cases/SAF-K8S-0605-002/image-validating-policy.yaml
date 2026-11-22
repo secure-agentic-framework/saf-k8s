@@ -1,0 +1,56 @@
+apiVersion: policies.kyverno.io/v1
+kind: ImageValidatingPolicy
+metadata:
+  name: saf-0605-002-owned-image-verification
+spec:
+  validationActions: [Deny]
+  failurePolicy: Fail
+  webhookConfiguration:
+    timeoutSeconds: 20
+  evaluation:
+    background:
+      enabled: false
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE]
+        resources: [pods]
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/image-validation: enrolled
+  matchImageReferences:
+    - glob: "saf-0605-registry-*:5000/fixture/*@*"
+  attestors:
+    - name: operatorKey
+      cosign:
+        key:
+          data: |-
+            __CASE_RUN_PUBLIC_KEY__
+        ctlog:
+          insecureIgnoreSCT: true
+          insecureIgnoreTlog: true
+  attestations:
+    - name: harmlessBuildRecord
+      intoto:
+        type: https://saf-k8s.example/attestations/harmless-build-record/v1
+  validations:
+    - expression: >-
+        images.containers.map(image,
+          verifyImageSignatures(image, [attestors.operatorKey])).all(result, result > 0)
+      message: image must have a valid signature from the enrolled operator key
+    - expression: >-
+        images.containers.map(image,
+          verifyAttestationSignatures(image, attestations.harmlessBuildRecord,
+            [attestors.operatorKey])).all(result, result > 0)
+      message: image must carry a valid harmless-build-record attestation
+    - expression: >-
+        images.containers.map(image,
+          verifyAttestationSignatures(image, attestations.harmlessBuildRecord,
+            [attestors.operatorKey]) > 0
+            ? extractPayload(image, attestations.harmlessBuildRecord).predicate.case
+                == 'saf-lab-0605-002.2'
+              && extractPayload(image, attestations.harmlessBuildRecord).predicate.classification
+                == 'inert'
+            : false).all(result, result)
+      message: attestation must contain the fixed inert case record
