@@ -1,0 +1,104 @@
+{
+  "control_id": "SAF-K8S-1005-020",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "b2944b38e69104e1dd786ab515490a3cdc848cef071f1df5aae5723aa8670d63",
+  "scope": "One offline, one-shot Job classifies synthetic vulnerability-coordination records for missing owners, missing escalation routes, unacknowledged handoffs, open work, and approved closure. The Job reads only a mounted fixture and makes no provider, upstream, external-contact, or Kubernetes API calls. This verifies the fixture evaluator and Job execution in disposable Kind v1.36.1; it does not establish organizational ownership, real acknowledgments, provider processes, contact behavior, or production coverage.",
+  "cluster": "saf-lab-0cdf7d0046a3",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The bounded synthetic coordination Job completes successfully",
+      "matched": true,
+      "observed": {
+        "job_complete": true,
+        "wait_output": "job.batch/synthetic-coordination-review condition met",
+        "wait_error": ""
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without the coordination checks all three incomplete requests would close",
+      "matched": true,
+      "observed": {
+        "missing-owner": "approved_closure",
+        "missing-escalation": "approved_closure",
+        "unacknowledged-handoff": "approved_closure",
+        "ready-open": "open",
+        "approved-closure": "approved_closure"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same requests are withheld for their distinct coordination gaps",
+      "matched": true,
+      "observed": {
+        "missing-owner": "missing_owner",
+        "missing-escalation": "missing_escalation",
+        "unacknowledged-handoff": "unacknowledged_handoff",
+        "ready-open": "open",
+        "approved-closure": "approved_closure"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Acknowledged work can remain open and complete approved work can close",
+      "matched": true,
+      "observed": {
+        "job_succeeded": true,
+        "pod_succeeded": true,
+        "service_account_token_disabled": true,
+        "no_projected_api_token": true,
+        "observed_classifications": {
+          "bypass": {
+            "missing-owner": "approved_closure",
+            "missing-escalation": "approved_closure",
+            "unacknowledged-handoff": "approved_closure",
+            "ready-open": "open",
+            "approved-closure": "approved_closure"
+          },
+          "enforced": {
+            "missing-owner": "missing_owner",
+            "missing-escalation": "missing_escalation",
+            "unacknowledged-handoff": "unacknowledged_handoff",
+            "ready-open": "open",
+            "approved-closure": "approved_closure"
+          }
+        },
+        "pod_owned_by_job": true
+      }
+    }
+  ]
+}

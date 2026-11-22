@@ -1,0 +1,6 @@
+# Synthetic-only records. Columns: id | owner | escalation | handoff_ack_id | closure_approval_id
+missing-owner | - | Security-OnCall-Example | ACK-EXAMPLE-01 | APPROVAL-EXAMPLE-A
+missing-escalation | Riley-Example | - | ACK-EXAMPLE-02 | APPROVAL-EXAMPLE-B
+unacknowledged-handoff | Riley-Example | Security-OnCall-Example | - | APPROVAL-EXAMPLE-C
+ready-open | Riley-Example | Security-OnCall-Example | ACK-EXAMPLE-03 | -
+approved-closure | Riley-Example | Security-OnCall-Example | ACK-EXAMPLE-04 | APPROVAL-EXAMPLE-01

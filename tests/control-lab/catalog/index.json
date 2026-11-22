@@ -1338,6 +1338,12 @@
       "sha256": "63126aa79ee6952eec03f1a5024bc2328f69e43ad1a190e60fd5e00f7ee88238",
       "title": "Vulnerability disclosure policy, intake channels, and triage SLAs for Kubernetes AI infrastructure"
     },
+    "SAF-K8S-1005-020": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "b2944b38e69104e1dd786ab515490a3cdc848cef071f1df5aae5723aa8670d63",
+      "title": "Vulnerability response ownership and multi-party coordination governance for Kubernetes AI infrastructure"
+    },
     "SAF-K8S-1005-022": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1394,7 +1400,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "349f57199369e677bc7c259e991ca4efa2f79fe2",
+  "revision": "5d57438047d7ed4be0c3029890dbd9d42bbfb202",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
