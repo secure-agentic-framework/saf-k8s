@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0302-001",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "0bc0810d752f93dc8696881bf70b640df9fd14e5",
+  "catalog_sha256": "f04a08a1df25c9ac80ba39ed484160d6c7b19dbe0875079da9a9707013d77cf1",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "ebbaae576ecacc2d79550c58be91c7d83f62cad85af1f8a521aa503f49d66a99",
+  "control_sha256": "4c2e3bf1c314ff00fedcd18f2f7f844e769b50f4db623bf7e4feb3c3fcded315",
   "scope": "Pods in the synthetic saf-k8s.example/enforce-container-context namespace: explicit per-container runAsNonRoot=true, positive runAsUser, readOnlyRootFilesystem=true, and allowPrivilegeEscalation=false for app and init containers on Pod CREATE/UPDATE, plus separately added ephemeral debug containers on the ephemeralcontainers subresource. No exception is configured.",
-  "cluster": "saf-lab-6c2e7a66cc7c",
+  "cluster": "saf-lab-c95aa29fb366",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -102,7 +102,7 @@
       "phase": "positive",
       "claim": "The app runs as UID 65534 with read-only root and writable temp",
       "matched": true,
-      "observed": "uid=65534 root_mount=ro,relatime,lowerdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/108/fs,upperdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/110/fs,workdir=/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/110/work,uuid=on,nouserxattr root_write=denied tmp_write=ok"
+      "observed": "uid=65534 root_mount=ro root_write=denied tmp_write=ok"
     },
     {
       "phase": "positive",

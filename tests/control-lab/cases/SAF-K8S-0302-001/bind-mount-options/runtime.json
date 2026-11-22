@@ -1,0 +1,210 @@
+{
+  "architecture": "aarch64",
+  "artifact_sha256": {
+    "bind-options-pod.yaml": "8f07a63365489b50977c1825035d5ca5e48f8a500525e0b394ff314b5ed6af9d",
+    "guest-kubeadm.sh": "1b567edf4aad07ac7182cb115d20a9e92e7e074e789b3547587a4b700d64eedf",
+    "guest-mount-probe.sh": "162b3355b3fcbef0fade132a84b562dd3afd7fe402fc2a66452a7afa8ef84443",
+    "guest-packages.sh": "91d6c46ce4c52405cb36f75038443a3685234e4aba2512061e1182e41a2d8334",
+    "guest-runtime.sh": "1a40fba0e63e9717bde05124037c24bf266f9191a631960ea4b90d2a7970b890",
+    "test-vm.yaml": "7069d871394496a49ce511fc81dba76c70909e4c4bdee06376819b9ec7088d00"
+  },
+  "binary_sha256": {
+    "conmon": "74c5f17bb9a9362369fe755700747d5be1bddeb0e5d9667ebecc387a14ab6ff3",
+    "crictl": "9211ea896a017ed760b2478d019d51799e800016e0e597109e48632665cc10f2",
+    "crio": "9d374eab679391364834d5155f4ff1e6356ce5af8d1c171284ceb0c6ffa67807",
+    "crun": "b6dd14a2e735e20d0e1304656b655cc0d2d2b1bd1ac876330f48ebaeaf6b6015",
+    "kubeadm": "f0fb888ee3eea7ee01c84151ec1ca9df8fa2fc1207e0265dea9aac8db50510dc",
+    "kubectl": "922df28df248cc00a9e025f947704f1d1482de64ece54cfe57e61f19eaf1eef3",
+    "kubelet": "7855ce2c3a3393d3c871fdeedcef32e38531f6852179130764763a9da79e2aa8",
+    "pinns": "6a2ed816ec057d8b6e57d56b6e7cae91c3340e2d615bd42017c7ba5205bce8f5"
+  },
+  "distribution": "Debian 13.6",
+  "guest_kernel": "6.12.95+deb13-cloud-arm64",
+  "host_mounts": [],
+  "image_references": [
+    {
+      "repoDigests": [
+        "docker.io/library/busybox@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+        "docker.io/library/busybox@sha256:d82c2ab94640ded77cf76514ce6a84870761105058a4a9e51b05a8a79be97a6c"
+      ],
+      "repoTags": []
+    },
+    {
+      "repoDigests": [
+        "registry.k8s.io/etcd@sha256:141de174189a9097c2c75c51cb64b4a4d3d2fcb43e5115b854243611ebd0212c",
+        "registry.k8s.io/etcd@sha256:6ecefbe2510c4a30573a62a4d6dd175acf881ca67003fcd91849a16df7a724d5"
+      ],
+      "repoTags": [
+        "registry.k8s.io/etcd:3.7.0-0"
+      ]
+    },
+    {
+      "repoDigests": [
+        "registry.k8s.io/kube-apiserver@sha256:75f6e9a3a617c74c3974865d0803770d05925cfde413fb473817c791bb5713ac",
+        "registry.k8s.io/kube-apiserver@sha256:d1045e5c6d2f016797d22143eba7502e1bb712a4681836a7c35763a9c192dd70"
+      ],
+      "repoTags": [
+        "registry.k8s.io/kube-apiserver:v1.37.0"
+      ]
+    },
+    {
+      "repoDigests": [
+        "registry.k8s.io/kube-controller-manager@sha256:601d0b50a3793f2e583adaa770697786360e648acb234274c511b59e60f681d6",
+        "registry.k8s.io/kube-controller-manager@sha256:997c997924eb8574f63f204a0b0af133aaf33c10df84009c32d34037f4e0e077"
+      ],
+      "repoTags": [
+        "registry.k8s.io/kube-controller-manager:v1.37.0"
+      ]
+    },
+    {
+      "repoDigests": [
+        "registry.k8s.io/kube-scheduler@sha256:174e5f607a6fb2c9446391143dd133b9d9cddbd3962dea826505d02c5a9d5783",
+        "registry.k8s.io/kube-scheduler@sha256:a27622f132aa09cf2461ba077894a070c0186ec607366d14e805912d4804d11f"
+      ],
+      "repoTags": [
+        "registry.k8s.io/kube-scheduler:v1.37.0"
+      ]
+    },
+    {
+      "repoDigests": [
+        "registry.k8s.io/pause@sha256:a433214620b407678934ebd69690a9ed6066247231eacfba181fab20dbc3dbf1",
+        "registry.k8s.io/pause@sha256:f548e0e8e3dc1896ca956272154dde3314e8cc4fde0a57577ee9fa1c63f5baf4"
+      ],
+      "repoTags": [
+        "registry.k8s.io/pause:3.10.2"
+      ]
+    }
+  ],
+  "lima": "2.2.0 VZ",
+  "node": {
+    "kubelet": "v1.37.0",
+    "nodeDeclaresFeature": true,
+    "runtime": "cri-o://1.38.0"
+  },
+  "outcome": "passed",
+  "packages": {
+    "conmon": "2.1.12-4",
+    "conntrack": "1:1.4.8-2+b1",
+    "cri-tools": "1.37.0-1.1",
+    "crun": "1.21-1",
+    "golang-github-containers-common": "0.62.2+ds1-2",
+    "kubeadm": "1.37.0-1.1",
+    "kubectl": "1.37.0-1.1",
+    "kubelet": "1.37.0-1.1",
+    "kubernetes-cni": "1.9.1-1.1",
+    "libgpgme11t64": "1.24.2-3+deb13u1"
+  },
+  "reported_runtime_version": "cri-o://1.38.0",
+  "runs": [
+    {
+      "namespace_cleanup": "deleted",
+      "phase": "Succeeded",
+      "retainedMountOptions": {
+        "guarded": [
+          "noexec",
+          "nodev",
+          "nosuid"
+        ],
+        "reference": []
+      },
+      "termination": {
+        "guarded": {
+          "containerID": "cri-o://a76cf7748ebae547ff726a7a7d5baaaa1dc53e35d45f934c73662ad986782784",
+          "exitCode": 0,
+          "finishedAt": "2026-11-22T04:18:23Z",
+          "observations": {
+            "exec_exit": "126",
+            "exec_output": "/bin/sh: /work/probe.sh: Permission denied",
+            "mount": "rw,nosuid,nodev,noexec,relatime",
+            "result": "ok",
+            "shared_read": "reference"
+          },
+          "reason": "Completed",
+          "startedAt": "2026-11-22T04:18:22Z"
+        },
+        "reference": {
+          "containerID": "cri-o://94fe457025bc2b8276d23cdf790e17568ab2213797ddc6f01db82b7e0d126176",
+          "exitCode": 0,
+          "finishedAt": "2026-11-22T04:18:22Z",
+          "observations": {
+            "exec_exit": "0",
+            "exec_output": "SAF_MOUNT_EXECUTED",
+            "mount": "rw,relatime",
+            "result": "ok",
+            "shared_read": "guarded"
+          },
+          "reason": "Completed",
+          "startedAt": "2026-11-22T04:18:22Z"
+        }
+      }
+    },
+    {
+      "namespace_cleanup": "deleted",
+      "phase": "Succeeded",
+      "retainedMountOptions": {
+        "guarded": [
+          "noexec",
+          "nodev",
+          "nosuid"
+        ],
+        "reference": []
+      },
+      "termination": {
+        "guarded": {
+          "containerID": "cri-o://0164f757298c9b9f5ed5ecf195d05443353c5469b28037e6cac46d60c6b733cb",
+          "exitCode": 0,
+          "finishedAt": "2026-11-22T04:19:57Z",
+          "observations": {
+            "exec_exit": "126",
+            "exec_output": "/bin/sh: /work/probe.sh: Permission denied",
+            "mount": "rw,nosuid,nodev,noexec,relatime",
+            "result": "ok",
+            "shared_read": "reference"
+          },
+          "reason": "Completed",
+          "startedAt": "2026-11-22T04:19:56Z"
+        },
+        "reference": {
+          "containerID": "cri-o://0d824e09cc165c98ea9a2a73a8349b223b254120bda281468c5a9da52e824c1a",
+          "exitCode": 0,
+          "finishedAt": "2026-11-22T04:19:56Z",
+          "observations": {
+            "exec_exit": "0",
+            "exec_output": "SAF_MOUNT_EXECUTED",
+            "mount": "rw,relatime",
+            "result": "ok",
+            "shared_read": "guarded"
+          },
+          "reason": "Completed",
+          "startedAt": "2026-11-22T04:19:56Z"
+        }
+      }
+    }
+  ],
+  "runtime": {
+    "features": {
+      "mount_options": true,
+      "supplemental_groups_policy": true,
+      "user_namespaces_host_network": true
+    },
+    "status": {
+      "conditions": [
+        {
+          "message": "",
+          "reason": "",
+          "status": true,
+          "type": "RuntimeReady"
+        },
+        {
+          "message": "",
+          "reason": "",
+          "status": true,
+          "type": "NetworkReady"
+        }
+      ]
+    }
+  },
+  "scope": "Two independently created fixture Pods on one disposable alpha-enabled Linux Kubernetes v1.37.0 guest. The CRI-O build is an unreleased PR candidate.",
+  "source_commit": "cab6acc7cd24156461b54f94a64f2f33f9be34dc",
+  "vm_cleanup": "deleted"
+}

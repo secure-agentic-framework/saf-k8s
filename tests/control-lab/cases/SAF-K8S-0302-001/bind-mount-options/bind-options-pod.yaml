@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bind-options
+spec:
+  automountServiceAccountToken: false
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  initContainers:
+    - name: prepare
+      image: docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec
+      command:
+        - /bin/sh
+        - -ec
+        - |
+          printf '%s\n' '#!/bin/sh' 'printf "%s\n" SAF_MOUNT_EXECUTED' > /work/probe.sh
+          chmod 0755 /work/probe.sh
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: [ALL]
+      volumeMounts:
+        - name: workspace
+          mountPath: /work
+  containers:
+    - name: guarded
+      image: docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec
+      env:
+        - name: FIXTURE_ARM
+          value: guarded
+      command: &probe
+        - /bin/sh
+        - -ec
+        - |
+          text=ok
+          flags=$(awk '$5=="/work"{print $6}' /proc/self/mountinfo)
+          set +e
+          output=$(/work/probe.sh 2>&1)
+          code=$?
+          set -e
+          if [ "$FIXTURE_ARM" = guarded ]; then
+            other=reference
+            case ",$flags," in *,noexec,*) ;; *) text=bad-flags ;; esac
+            case ",$flags," in *,nodev,*) ;; *) text=bad-flags ;; esac
+            case ",$flags," in *,nosuid,*) ;; *) text=bad-flags ;; esac
+            if [ "$code" -ne 126 ] || ! printf '%s\n' "$output" | grep -qi 'permission denied'; then
+              text=unexpected-execution-result
+            fi
+          else
+            other=guarded
+            case ",$flags," in *,noexec,*) text=bad-flags ;; esac
+            if [ "$code" -ne 0 ] || [ "$output" != SAF_MOUNT_EXECUTED ]; then
+              text=unexpected-execution-result
+            fi
+          fi
+          printf '%s\n' "$FIXTURE_ARM" > "/work/$FIXTURE_ARM.record"
+          tries=0
+          until [ -s "/work/$other.record" ] || [ "$tries" -ge 30 ]; do
+            tries=$((tries+1))
+            sleep 1
+          done
+          seen=$(cat "/work/$other.record" 2>/dev/null || true)
+          if [ "$seen" != "$other" ]; then text=shared-read-failed; fi
+          printf 'mount=%s\nexec_exit=%s\nexec_output=%s\nshared_read=%s\nresult=%s\n' \
+            "$flags" "$code" "$output" "$seen" "$text" > /dev/termination-log
+          test "$text" = ok
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: [ALL]
+      volumeMounts:
+        - name: workspace
+          mountPath: /work
+          bindMountOptions: [noexec, nodev, nosuid]
+    - name: reference
+      image: docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec
+      env:
+        - name: FIXTURE_ARM
+          value: reference
+      command: *probe
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: [ALL]
+      volumeMounts:
+        - name: workspace
+          mountPath: /work
+  volumes:
+    - name: workspace
+      emptyDir: {}

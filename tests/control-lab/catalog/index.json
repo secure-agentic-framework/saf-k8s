@@ -303,7 +303,7 @@
     "SAF-K8S-0302-001": {
       "catalog_status": "draft",
       "domain": "D03",
-      "sha256": "ebbaae576ecacc2d79550c58be91c7d83f62cad85af1f8a521aa503f49d66a99",
+      "sha256": "4c2e3bf1c314ff00fedcd18f2f7f844e769b50f4db623bf7e4feb3c3fcded315",
       "title": "Pod and container security context enforcement"
     },
     "SAF-K8S-0302-002": {
@@ -638,7 +638,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "290c42bcd034194dfaf8658502df159bae23c089",
-  "sha256": "4967f071e880774746bffe0d766c8568b2787069d414141da3ee644cbb79acb5",
+  "revision": "52812f585c75bd59eb42e85bb2593e2f6c899a7c",
+  "sha256": "f04a08a1df25c9ac80ba39ed484160d6c7b19dbe0875079da9a9707013d77cf1",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

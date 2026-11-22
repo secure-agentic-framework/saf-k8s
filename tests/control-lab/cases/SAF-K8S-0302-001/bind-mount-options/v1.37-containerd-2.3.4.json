@@ -1,0 +1,19 @@
+{
+  "server_version": "v1.37.0",
+  "node_image": "kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5",
+  "runtime": "containerd://2.3.4",
+  "node_declares_mount_options": false,
+  "runtime_mount_options_feature": {},
+  "restricted_field_retained": true,
+  "regular_fixture_ready": true,
+  "restricted_phase": "Failed",
+  "restricted_reason": "PodFeatureUnsupported",
+  "restricted_message": "Pod was rejected: Pod requires node features that are not available: VolumeBindMountOptions",
+  "event_reasons": [
+    "PodFeatureUnsupported"
+  ],
+  "mount_event_messages": [
+    "Pod requires node features that are not available: VolumeBindMountOptions"
+  ],
+  "cleanup": "deleted"
+}

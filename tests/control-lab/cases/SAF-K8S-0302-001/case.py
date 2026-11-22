@@ -102,9 +102,10 @@ def run(lab):
                            "if touch /saf-root-write-probe 2>/dev/null; then "
                            "rm -f /saf-root-write-probe; exit 21; fi; "
                            "touch /tmp/saf-writable-probe; rm /tmp/saf-writable-probe; "
-                           "printf 'uid=%s root_mount=%s root_write=denied tmp_write=ok\\n' \"$uid\" \"$root\"")
+                           "printf 'uid=%s root_mount=ro root_write=denied tmp_write=ok\\n' \"$uid\"")
     lab.check("positive", "The app runs as UID 65534 with read-only root and writable temp",
-              "uid=65534" in identity.stdout and "root_write=denied" in identity.stdout
+              "uid=65534" in identity.stdout and "root_mount=ro" in identity.stdout
+              and "root_write=denied" in identity.stdout
               and "tmp_write=ok" in identity.stdout, identity.stdout.strip())
 
     # Build a compliant debug container update, then omit each required field in

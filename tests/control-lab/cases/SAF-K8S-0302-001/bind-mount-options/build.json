@@ -1,0 +1,24 @@
+{
+  "scope": "Successful Linux arm64 compile of auditable unreleased CRI-O source.",
+  "source_commit": "cab6acc7cd24156461b54f94a64f2f33f9be34dc",
+  "archive_sha256": "f5f187169ee5bb43a4c603cf65c089d93f46778d1271b59539d9986d22519374",
+  "compiler_image": "docker.io/library/golang:1.27.4-trixie@sha256:f18c3d73a184fb0582828510722e723b63a93f7188d11dd223d9be6f6880e65d",
+  "toolchain": "go version go1.27.4 linux/arm64",
+  "packages": {
+    "gcc": "4:14.2.0-1",
+    "libbtrfs-dev:arm64": "6.14-1",
+    "libgpgme-dev": "1.24.2-3+deb13u1",
+    "libseccomp-dev:arm64": "2.6.0-2",
+    "libsubid-dev:arm64": "1:4.17.4-2",
+    "libsystemd-dev:arm64": "257.13-1~deb13u1",
+    "make": "4.4.1-2",
+    "pkg-config:arm64": "1.8.1-4"
+  },
+  "binary_sha256": {
+    "crio": "9d374eab679391364834d5155f4ff1e6356ce5af8d1c171284ceb0c6ffa67807",
+    "pinns": "6a2ed816ec057d8b6e57d56b6e7cae91c3340e2d615bd42017c7ba5205bce8f5"
+  },
+  "build_status": "passed",
+  "runtime_status": "passed on unreleased candidate",
+  "runtime_receipt": "runtime.json"
+}
