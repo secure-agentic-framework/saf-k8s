@@ -1,0 +1,33 @@
+{
+  "case_id": "SAF-K8S-1005-024",
+  "namespace": "saf-test",
+  "incident_id": "urn:example:saf:incident:synthetic-1005-024",
+  "labels": {
+    "case": "1005-024",
+    "owner": "synthetic-fixture"
+  },
+  "inference": {
+    "deployment": "saf-1005-024-inference",
+    "service": "saf-1005-024-inference",
+    "route_marker": "SAF_SYNTHETIC_INFERENCE_AVAILABLE"
+  },
+  "healthy_comparator": {
+    "deployment": "saf-1005-024-healthy-fixture",
+    "service": "saf-1005-024-healthy-fixture",
+    "route_marker": "SAF_SYNTHETIC_HEALTHY_FIXTURE_AVAILABLE"
+  },
+  "training": {
+    "job": "saf-1005-024-training-fixture",
+    "pod_marker": "training-fixture"
+  },
+  "checkpoint": {
+    "configmap": "saf-1005-024-checkpoint-fixture",
+    "bytes_ascii": "SAF_K8S_1005_024_SYNTHETIC_CHECKPOINT_V1\nstep=0007\nstate=fixture-only\n"
+  },
+  "incident_metadata": {
+    "response_state": "synthetic-containment-exercise",
+    "evidence_class": "public-inert-fixture",
+    "contains_secrets": false,
+    "feed_or_target_data": false
+  }
+}

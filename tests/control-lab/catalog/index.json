@@ -1356,6 +1356,12 @@
       "sha256": "57c74e217282e6c71bb95d935f03bb8c498d770e13bf2743845a277bcfc1bf6e",
       "title": "Kubernetes incident credential revocation procedures for ServiceAccounts and external access"
     },
+    "SAF-K8S-1005-024": {
+      "catalog_status": "draft",
+      "domain": "D10",
+      "sha256": "9161ce67bcfd0f9fe81a89427391e3a83618022059c9f5126cc3323d75a7d567",
+      "title": "Inference service quarantine and pipeline execution suspension with state preservation"
+    },
     "SAF-K8S-1006-001": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -1406,7 +1412,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "06e9183e730b36822d9d1d650c890b37834ada1e",
+  "revision": "64d37bec77a3166b87d9d31a612ca152efec2e4e",
   "sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
