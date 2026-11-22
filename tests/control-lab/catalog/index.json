@@ -1233,7 +1233,7 @@
     "SAF-K8S-1002-006": {
       "catalog_status": "draft",
       "domain": "D10",
-      "sha256": "b5120c0a1fe39bb3b875eae0149c73b8f046e9be62eab8a5bf730eeb9a8db0ce",
+      "sha256": "f4453e200326e9c8dfd7349fc733f9b4fe68e6011d56f98877f0f446869be598",
       "title": "Sensitive metric redaction and access restriction"
     },
     "SAF-K8S-1006-004": {
@@ -1268,7 +1268,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "580e56076a44db42552aac886ecae548da54d477",
-  "sha256": "0bac9e0c97ccaf174b4670effacf87bef9c2c867073c90c42c73d4a2a61ffafe",
+  "revision": "4181d64f02e0c0feb220e3e23447be757555ddc7",
+  "sha256": "a0136783421c2c5f3387b92e1cbc8722c1faf77205eda1623cee5d4dc8a05bee",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
