@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-0904-012",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "1692a762b6352936fc1fef31614c6551de8d9153",
+  "catalog_sha256": "336a13b294633afe9188edd1b4e3949102ae05dac63a4e67db26f25fc0a5c687",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "1a1d682f4d7f403ae3ce9a49668c616a7b55f01acdec2e32ab6458235b24d431",
+  "control_sha256": "d87dd4de9467b210e164f48404f91bfc7515c1cb8433bca5fe6d51807d7eec95",
   "scope": "One Kind v1.36.1 namespace with a source Pod, bounded transfer gateway, and separate case-owned destination Pods for the public and restricted fixtures. Immutable ConfigMaps provide typed stage scope and exact approval. The cluster restricts receiver ingress to the gateway. Tests compare the same fixed event with the policy off, approval absent, approval mismatched, and approval exact, then verify the separate same-classification path. Production workflow, approval identity, tenancy, persistent stores and derived data need separate evidence.",
-  "review_timing": {
-    "queued_at": "2026-11-22T22:18:29.995078+00:00",
-    "cluster_ready_at": "2026-11-22T22:19:09.674887+00:00",
-    "approval_at": "2026-11-22T22:24:20.364431+00:00",
-    "case_loaded_at": "2026-11-22T22:24:20.505330+00:00"
-  },
-  "cluster": "saf-lab-ddacee147b5d",
+  "cluster": "saf-lab-be4d079221a2",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "5caf0a5809bc27912f751dc200f8eda4d9847b6e935cde773f368b8adb0e9389",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
