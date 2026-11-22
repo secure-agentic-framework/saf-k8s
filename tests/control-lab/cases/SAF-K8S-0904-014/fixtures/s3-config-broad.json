@@ -1,0 +1,20 @@
+{
+  "identities": [
+    {
+      "name": "saf-0904-014-admin-fixture",
+      "credentials": [{"accessKey":"SAF0904014ADMIN","secretKey":"saf-0904-014-public-fixture-admin-key-never-for-production"}],
+      "actions": ["Admin"]
+    },
+    {
+      "name": "saf-0904-014-stage-a-fixture",
+      "credentials": [{"accessKey":"SAF0904014STAGEA","secretKey":"saf-0904-014-public-fixture-stage-a-key-never-for-production"}],
+      "actions": ["Read", "Write"]
+    },
+    {
+      "name": "saf-0904-014-stage-b-fixture",
+      "credentials": [{"accessKey":"SAF0904014STAGEB","secretKey":"saf-0904-014-public-fixture-stage-b-key-never-for-production"}],
+      "actions": ["Read", "Write"]
+    }
+  ],
+  "defaultEffect": "Deny"
+}

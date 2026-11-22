@@ -1,0 +1,8 @@
+<LifecycleConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+  <Rule>
+    <ID>saf-0904-014-stage-a-classification-window</ID>
+    <Filter><Prefix>artifacts/</Prefix></Filter>
+    <Status>Enabled</Status>
+    <Expiration><Days>1</Days></Expiration>
+  </Rule>
+</LifecycleConfiguration>

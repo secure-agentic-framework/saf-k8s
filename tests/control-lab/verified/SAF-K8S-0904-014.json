@@ -1,0 +1,256 @@
+{
+  "control_id": "SAF-K8S-0904-014",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "83b58f488ebb0d373f3a7818c9faaa8828daf1d3eb25c976aeaf58984b9deabb",
+  "scope": "One fresh Kind v1.36.1 cluster runs the digest-pinned SeaweedFS 4.53 mini S3 backend with emptyDir data and a standard-library SigV4 client. Two static stage identities first have broad Read/Write access to both stage buckets, then the mounted static IAM config changes only their action scopes and the same SeaweedFS container process restarts inside the same Pod. The case checks unchanged credentials, Pod UID, Service ClusterIP, image and S3 marker hashes, then verifies cross-bucket denies, own-stage reads/writes, and stage-specific lifecycle config readback. It does not await timed expiration or establish workflow identity federation, production storage, encryption, or backing-byte reclamation.",
+  "cluster": "saf-lab-badf210b519f",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Fresh store creates both stage buckets and round-trips both fixed artifact markers",
+      "matched": true,
+      "observed": {
+        "buckets_created": {
+          "saf0904014-stage-a": 200,
+          "saf0904014-stage-b": 200
+        },
+        "marker_sha256": {
+          "saf0904014-stage-a": "528185100f9bbdee8ad7932bdb51c2909afe1c80e9e4a47a93036044028e4ed9",
+          "saf0904014-stage-b": "909bac768a2e39a14294c7427f293488809bdc60843965641df2b3f5c8a47b40"
+        },
+        "markers_seeded": {
+          "saf0904014-stage-a": 200,
+          "saf0904014-stage-b": 200
+        },
+        "operation": "seed"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Under broad fixture IAM, both stage identities read both stage artifacts and write across stage buckets",
+      "matched": true,
+      "observed": {
+        "identities": {
+          "stage-a": {
+            "cross_put_status": 200,
+            "cross_target_bucket": "saf0904014-stage-b",
+            "cross_target_key": "artifacts/stage-b/from-stage-a.txt",
+            "cross_write_sha256": "e88ba243c53424fa63cb52b384996aa037e21567c129e3b63bce28a8ae3d30f6",
+            "gets": {
+              "saf0904014-stage-a": {
+                "sha256": "528185100f9bbdee8ad7932bdb51c2909afe1c80e9e4a47a93036044028e4ed9",
+                "status": 200
+              },
+              "saf0904014-stage-b": {
+                "sha256": "909bac768a2e39a14294c7427f293488809bdc60843965641df2b3f5c8a47b40",
+                "status": 200
+              }
+            }
+          },
+          "stage-b": {
+            "cross_put_status": 200,
+            "cross_target_bucket": "saf0904014-stage-a",
+            "cross_target_key": "artifacts/stage-a/from-stage-b.txt",
+            "cross_write_sha256": "c04a8e94698ace212201cb688987ccfdab652597a56afe9cd64843e662dc7024",
+            "gets": {
+              "saf0904014-stage-a": {
+                "sha256": "528185100f9bbdee8ad7932bdb51c2909afe1c80e9e4a47a93036044028e4ed9",
+                "status": 200
+              },
+              "saf0904014-stage-b": {
+                "sha256": "909bac768a2e39a14294c7427f293488809bdc60843965641df2b3f5c8a47b40",
+                "status": 200
+              }
+            }
+          }
+        },
+        "operation": "broad"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Same mounted config contains the scoped policy snapshot before process restart",
+      "matched": true,
+      "observed": {
+        "sha256": "0890638b0997e727986734195d8992aad872f5d6452b02b36614983c479006e3"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Policy reload preserved static credentials, SeaweedFS image, Pod, Service endpoint, and seeded S3 data",
+      "matched": true,
+      "observed": {
+        "same_pod_restarted_once": true,
+        "service_endpoint_unchanged": true,
+        "marker_readback": {
+          "saf0904014-stage-a": {
+            "sha256": "528185100f9bbdee8ad7932bdb51c2909afe1c80e9e4a47a93036044028e4ed9",
+            "status": 200
+          },
+          "saf0904014-stage-b": {
+            "sha256": "909bac768a2e39a14294c7427f293488809bdc60843965641df2b3f5c8a47b40",
+            "status": 200
+          }
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Same stage credentials now receive S3 403 for the exact cross-stage reads and writes",
+      "matched": true,
+      "observed": {
+        "identities": {
+          "stage-a": {
+            "allowed_expected_sha256": "791b094272ea19a0cf39b5bbc13acbfbfa52e90e451b2272dc05dc53a437b77f",
+            "allowed_put_status": 200,
+            "allowed_readback_sha256": "791b094272ea19a0cf39b5bbc13acbfbfa52e90e451b2272dc05dc53a437b77f",
+            "allowed_readback_status": 200,
+            "cross_get_status": 403,
+            "cross_put_expected_sha256": "e88ba243c53424fa63cb52b384996aa037e21567c129e3b63bce28a8ae3d30f6",
+            "cross_put_preserved_sha256": "e88ba243c53424fa63cb52b384996aa037e21567c129e3b63bce28a8ae3d30f6",
+            "cross_put_preserved_status": 200,
+            "cross_put_status": 403,
+            "cross_put_target": "saf0904014-stage-b/artifacts/stage-b/from-stage-a.txt",
+            "own_get_sha256": "528185100f9bbdee8ad7932bdb51c2909afe1c80e9e4a47a93036044028e4ed9",
+            "own_get_status": 200
+          },
+          "stage-b": {
+            "allowed_expected_sha256": "63f972981e24ab6b7820893155d472bdeefe9a054bb7ebdf2b536148e3ceb84e",
+            "allowed_put_status": 200,
+            "allowed_readback_sha256": "63f972981e24ab6b7820893155d472bdeefe9a054bb7ebdf2b536148e3ceb84e",
+            "allowed_readback_status": 200,
+            "cross_get_status": 403,
+            "cross_put_expected_sha256": "c04a8e94698ace212201cb688987ccfdab652597a56afe9cd64843e662dc7024",
+            "cross_put_preserved_sha256": "c04a8e94698ace212201cb688987ccfdab652597a56afe9cd64843e662dc7024",
+            "cross_put_preserved_status": 200,
+            "cross_put_status": 403,
+            "cross_put_target": "saf0904014-stage-a/artifacts/stage-a/from-stage-b.txt",
+            "own_get_sha256": "909bac768a2e39a14294c7427f293488809bdc60843965641df2b3f5c8a47b40",
+            "own_get_status": 200
+          }
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Each scoped stage still reads its own artifact and writes/readbacks an own-stage marker",
+      "matched": true,
+      "observed": {
+        "identities": {
+          "stage-a": {
+            "allowed_expected_sha256": "791b094272ea19a0cf39b5bbc13acbfbfa52e90e451b2272dc05dc53a437b77f",
+            "allowed_put_status": 200,
+            "allowed_readback_sha256": "791b094272ea19a0cf39b5bbc13acbfbfa52e90e451b2272dc05dc53a437b77f",
+            "allowed_readback_status": 200,
+            "cross_get_status": 403,
+            "cross_put_expected_sha256": "e88ba243c53424fa63cb52b384996aa037e21567c129e3b63bce28a8ae3d30f6",
+            "cross_put_preserved_sha256": "e88ba243c53424fa63cb52b384996aa037e21567c129e3b63bce28a8ae3d30f6",
+            "cross_put_preserved_status": 200,
+            "cross_put_status": 403,
+            "cross_put_target": "saf0904014-stage-b/artifacts/stage-b/from-stage-a.txt",
+            "own_get_sha256": "528185100f9bbdee8ad7932bdb51c2909afe1c80e9e4a47a93036044028e4ed9",
+            "own_get_status": 200
+          },
+          "stage-b": {
+            "allowed_expected_sha256": "63f972981e24ab6b7820893155d472bdeefe9a054bb7ebdf2b536148e3ceb84e",
+            "allowed_put_status": 200,
+            "allowed_readback_sha256": "63f972981e24ab6b7820893155d472bdeefe9a054bb7ebdf2b536148e3ceb84e",
+            "allowed_readback_status": 200,
+            "cross_get_status": 403,
+            "cross_put_expected_sha256": "c04a8e94698ace212201cb688987ccfdab652597a56afe9cd64843e662dc7024",
+            "cross_put_preserved_sha256": "c04a8e94698ace212201cb688987ccfdab652597a56afe9cd64843e662dc7024",
+            "cross_put_preserved_status": 200,
+            "cross_put_status": 403,
+            "cross_put_target": "saf0904014-stage-a/artifacts/stage-a/from-stage-b.txt",
+            "own_get_sha256": "909bac768a2e39a14294c7427f293488809bdc60843965641df2b3f5c8a47b40",
+            "own_get_status": 200
+          }
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "SeaweedFS stores and reads back distinct stage-bucket lifecycle rules",
+      "matched": true,
+      "observed": [
+        {
+          "bucket": "saf0904014-stage-a",
+          "expected_rules": [
+            {
+              "days": "1",
+              "id": "saf-0904-014-stage-a-classification-window",
+              "prefix": "artifacts/",
+              "status": "Enabled"
+            }
+          ],
+          "get_status": 200,
+          "matches": true,
+          "put_status": 200,
+          "rules": [
+            {
+              "days": "1",
+              "id": "saf-0904-014-stage-a-classification-window",
+              "prefix": "artifacts/",
+              "status": "Enabled"
+            }
+          ]
+        },
+        {
+          "bucket": "saf0904014-stage-b",
+          "expected_rules": [
+            {
+              "days": "2",
+              "id": "saf-0904-014-stage-b-classification-window",
+              "prefix": "artifacts/",
+              "status": "Enabled"
+            }
+          ],
+          "get_status": 200,
+          "matches": true,
+          "put_status": 200,
+          "rules": [
+            {
+              "days": "2",
+              "id": "saf-0904-014-stage-b-classification-window",
+              "prefix": "artifacts/",
+              "status": "Enabled"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
