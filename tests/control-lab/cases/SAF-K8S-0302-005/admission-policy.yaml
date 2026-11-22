@@ -1,0 +1,36 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-0302-005-cpu-profile
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["pods"]
+  validations:
+    - expression: >-
+        object.spec.containers.all(c,
+          has(c.securityContext) &&
+          has(c.securityContext.readOnlyRootFilesystem) &&
+          c.securityContext.readOnlyRootFilesystem &&
+          has(c.securityContext.seccompProfile) &&
+          c.securityContext.seccompProfile.type == 'Localhost' &&
+          has(c.securityContext.seccompProfile.localhostProfile) &&
+          c.securityContext.seccompProfile.localhostProfile == 'saf-k8s-0302-005/ai-cpu-deny-uname.json')
+      message: "the fixture requires its exact profile and a read-only root filesystem"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-0302-005-cpu-profile
+spec:
+  policyName: saf-0302-005-cpu-profile
+  validationActions: ["Deny"]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/cpu-profile-enforcement: "enabled"

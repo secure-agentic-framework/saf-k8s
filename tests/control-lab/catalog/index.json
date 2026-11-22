@@ -210,6 +210,12 @@
       "sha256": "78e98adf6e04701adc979e116d88b77c56415b87e1252a0627ccb738c4ecccd9",
       "title": "Host namespace isolation enforcement"
     },
+    "SAF-K8S-0302-005": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "d3cec1b14f9295c4b2f6bed91dc29e619d5de48e8e618838f884ff57523d1713",
+      "title": "AI workload security context hardening profiles"
+    },
     "SAF-K8S-0302-006": {
       "catalog_status": "draft",
       "domain": "D03",
