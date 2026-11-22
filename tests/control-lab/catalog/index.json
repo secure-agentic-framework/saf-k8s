@@ -720,6 +720,12 @@
       "sha256": "d9a51450beb3e7fbeaa906f62c8b817b17aca389da3e974ea9e1361d9dc3a090",
       "title": "Kyverno admission policies"
     },
+    "SAF-K8S-0605-003": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "0802f034b520de9beefed3bd8a2dacaacb0df3f479c63e71b5bc7156ee0d0ac1",
+      "title": "Kubewarden WebAssembly-based admission policies"
+    },
     "SAF-K8S-0605-006": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -1172,7 +1178,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "f8afc270fad7a7aba809802d9e3ad5d09344816e",
+  "revision": "6767dd22c1ad0c87a8ba279d4e25a86b9467c2a0",
   "sha256": "872822531716b059a05f969b9bdb15559fa3dd850de26945615e595c3d8e018e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

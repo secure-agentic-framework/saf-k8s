@@ -1,0 +1,57 @@
+{
+  "apiVersion": "apiextensions.k8s.io/v1",
+  "kind": "CustomResourceDefinition",
+  "metadata": {
+    "name": "modeldeployments.ai.saf-k8s.example"
+  },
+  "spec": {
+    "group": "ai.saf-k8s.example",
+    "scope": "Namespaced",
+    "names": {
+      "plural": "modeldeployments",
+      "singular": "modeldeployment",
+      "kind": "ModelDeployment",
+      "shortNames": [
+        "mdpl"
+      ]
+    },
+    "versions": [
+      {
+        "name": "v1alpha1",
+        "served": true,
+        "storage": true,
+        "schema": {
+          "openAPIV3Schema": {
+            "type": "object",
+            "required": [
+              "spec"
+            ],
+            "properties": {
+              "apiVersion": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "spec": {
+                "type": "object",
+                "required": [
+                  "model"
+                ],
+                "properties": {
+                  "model": {
+                    "type": "string"
+                  },
+                  "replicas": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "control_id": "SAF-K8S-0605-003",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "0802f034b520de9beefed3bd8a2dacaacb0df3f479c63e71b5bc7156ee0d0ac1",
+  "scope": "One disposable Kubernetes v1.36.1 Kind cluster, pinned Kubewarden v1.36.0, and one signature-checked released WASM policy operating on an inert namespaced ModelDeployment fixture. Covers a baseline, monitor and protect modes, CREATE and UPDATE, a permitted stored declaration and an unenrolled namespace. Custom policy authorship and production policy inventory are outside this fixture.",
+  "cluster": "saf-lab-a6e1dc9edf0f",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The same unapproved model declaration is accepted before installing Kubewarden",
+      "matched": true,
+      "observed": {
+        "returncode": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Predeployment Sigstore verification accepts the exact module only for the trusted signer",
+      "matched": true,
+      "observed": {
+        "module": "registry://ghcr.io/kubewarden/policies/safe-labels@sha256:1d7bd06e95e876ac92277af3b2ac3b3db6f61de5244a59399ca74b7a36c699da",
+        "trusted_signer_exit": 0,
+        "mismatched_signer_exit": 1
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Kubewarden runs the pinned controller and PolicyServer with the signature requirement",
+      "matched": true,
+      "observed": {
+        "charts": [
+          "kubewarden-crds",
+          "kubewarden-controller",
+          "kubewarden-defaults"
+        ],
+        "images": {
+          "controller": "ghcr.io/kubewarden/adm-controller/controller:v1.36.0@sha256:fea974cc8451f47ced796aeffd4c668f8721a1921754eecdd1fcd0054ca382b8",
+          "policy_server": "ghcr.io/kubewarden/adm-controller/policy-server:v1.36.0@sha256:df2c157d0b25ad909f55669d2d22d3f3edfd68617d36fe3968a6c94cb9d5c4ad"
+        },
+        "verification_owner": "kubewarden"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Monitor records that the exact policy would deny while the API admits the request",
+      "matched": true,
+      "observed": {
+        "mode": "monitor",
+        "returncode": 0,
+        "module": "registry://ghcr.io/kubewarden/policies/safe-labels@sha256:1d7bd06e95e876ac92277af3b2ac3b3db6f61de5244a59399ca74b7a36c699da",
+        "would_deny_recorded": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The active protect policy denies the exact request and the object stays absent",
+      "matched": true,
+      "observed": {
+        "mode": "protect",
+        "returncode": 1,
+        "error": "Error from server: error when creating \"STDIN\": admission webhook \"namespaced-saf-test-saf-model-labels.kubewarden.admission\" denied the request: The following mandatory labels are missing: saf-k8s.example/approved\n"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved declaration is persisted by the API",
+      "matched": true,
+      "observed": {
+        "persisted": true,
+        "label": "yes"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Removing the required label on UPDATE is denied and the stored object is preserved",
+      "matched": true,
+      "observed": {
+        "returncode": 1,
+        "stored_label": "yes"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same unapproved declaration is admitted in the unenrolled namespace",
+      "matched": true,
+      "observed": {
+        "returncode": 0,
+        "namespace": "saf-kubewarden-other"
+      }
+    }
+  ]
+}
