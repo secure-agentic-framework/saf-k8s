@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-The post-market monitoring system shall be based on a post-market monitoring plan. The post-market monitoring plan shall be part of the technical documentation referred to in Annex IV. The Commission shall adopt an implementing act laying down detailed provisions establishing a template for the post-market monitoring plan and the list of elements to be included in the plan by 2 February 2026. That implementing act shall be adopted in accordance with the examination procedure referred to in Article 98(2).
-
-SAF-K8S cybersecurity controls directly support monitoring of system robustness and security posture, including network policies (D5), workload isolation (D3), vulnerability scanning (D6 KA 6.1), and runtime security monitoring (D10). Accuracy monitoring is application-layer; cybersecurity monitoring is well-supported by SAF-K8S.
+Sensor coverage and delivery records can substantiate the collection of selected operational data.
 
 ## SAF-K8S Controls
 
@@ -15,9 +13,9 @@ SAF-K8S cybersecurity controls directly support monitoring of system robustness 
 
 - Domain: D02 - Node, Runtime, and OS Security
 - Knowledge Area: 2.4
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-0501-001 - Default deny ingress and egress network policies](../../controls/SAF-K8S-0501-001.md)

@@ -11,15 +11,6 @@ SAF-K8S controls ARE risk management measures for infrastructure-level risks: ne
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0204-001 - Runtime security tool deployment for syscall and network monitoring](../../controls/SAF-K8S-0204-001.md)
-
-- Domain: D02 - Node, Runtime, and OS Security
-- Knowledge Area: 2.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0301-001 - Pod Security Standards level assignment](../../controls/SAF-K8S-0301-001.md)
 
 - Domain: D03 - Workload and Pod Security

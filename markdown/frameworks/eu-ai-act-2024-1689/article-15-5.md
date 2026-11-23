@@ -24,9 +24,9 @@ Risk-appropriate cybersecurity is the fundamental SAF-K8S design principle. Cont
 
 - Domain: D02 - Node, Runtime, and OS Security
 - Knowledge Area: 2.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-0301-001 - Pod Security Standards level assignment](../../controls/SAF-K8S-0301-001.md)

@@ -27,7 +27,7 @@ See [`LICENSE`](LICENSE) for the summary.
 - Domains: 10
 - Knowledge areas: 55
 - Controls: 595
-- Crosswalk rows: 4839
+- Crosswalk rows: 4801
 
 ## YAML Files
 
@@ -195,7 +195,7 @@ This knowledge area focuses on: Controller-manager service account token hardeni
 | [SAF-K8S-0103-010](markdown/controls/SAF-K8S-0103-010.md) | Leader election configuration and lease object RBAC | Practitioner | baseline |
 | [SAF-K8S-0103-012](markdown/controls/SAF-K8S-0103-012.md) | Cloud controller-manager cloud IAM least-privilege scoping | Practitioner | baseline |
 | [SAF-K8S-0103-013](markdown/controls/SAF-K8S-0103-013.md) | Cloud controller-manager workload identity and credential rotation | Practitioner | baseline |
-| [SAF-K8S-0103-014](markdown/controls/SAF-K8S-0103-014.md) | Scheduler API and decision endpoint access restriction | Practitioner | baseline |
+| [SAF-K8S-0103-014](markdown/controls/SAF-K8S-0103-014.md) | Scheduler operational endpoint and placement authorization | Practitioner | baseline |
 | [SAF-K8S-0103-015](markdown/controls/SAF-K8S-0103-015.md) | Scheduler extender authentication and custom scheduler approval | Practitioner | baseline |
 | [SAF-K8S-0103-016](markdown/controls/SAF-K8S-0103-016.md) | Controller-manager and scheduler loopback bind-address enforcement | Foundational | baseline |
 | [SAF-K8S-0103-017](markdown/controls/SAF-K8S-0103-017.md) | Controller-manager and scheduler insecure-port disablement and non-public health-metrics exposure | Foundational | baseline |
@@ -264,7 +264,7 @@ This knowledge area focuses on: Kubelet hostname override governance, Node syste
 
 - Domain: D02 - Node, Runtime, and OS Security
 - Maturity: Foundational
-- Controls: 8
+- Controls: 9
 
 ### Description
 
@@ -774,7 +774,7 @@ This knowledge area focuses on: Sigstore/cosign keyless signing and Rekor transp
 
 ### Description
 
-This knowledge area focuses on: Cryptographic agility and post-quantum readiness, FIPS 140 cryptographic module validation, TUF-based secure software update systems, Build environment and process attestations per NIST SP 800-204D, and Build materials and artifact attestations per NIST SP 800-204D. Additional controls in the table below extend this coverage.
+This knowledge area focuses on: Cryptographic agility and post-quantum readiness, FIPS 140 cryptographic module validation, TUF-based secure software update systems, Build environment and process attestations, and Build materials and artifact attestations. Additional controls in the table below extend this coverage.
 
 ### Controls
 
@@ -783,8 +783,8 @@ This knowledge area focuses on: Cryptographic agility and post-quantum readiness
 | [SAF-K8S-0603-004](markdown/controls/SAF-K8S-0603-004.md) | Cryptographic agility and post-quantum readiness | Advanced | ai-specific |
 | [SAF-K8S-0603-005](markdown/controls/SAF-K8S-0603-005.md) | FIPS 140 cryptographic module validation | Practitioner | baseline |
 | [SAF-K8S-0603-006](markdown/controls/SAF-K8S-0603-006.md) | TUF-based secure software update systems | Advanced | baseline |
-| [SAF-K8S-0603-007](markdown/controls/SAF-K8S-0603-007.md) | Build environment and process attestations per NIST SP 800-204D | Advanced | baseline |
-| [SAF-K8S-0603-008](markdown/controls/SAF-K8S-0603-008.md) | Build materials and artifact attestations per NIST SP 800-204D | Advanced | baseline |
+| [SAF-K8S-0603-007](markdown/controls/SAF-K8S-0603-007.md) | Build environment and process attestations | Advanced | baseline |
+| [SAF-K8S-0603-008](markdown/controls/SAF-K8S-0603-008.md) | Build materials and artifact attestations | Advanced | baseline |
 | [SAF-K8S-0603-009](markdown/controls/SAF-K8S-0603-009.md) | In-toto and SLSA provenance attestation generation | Advanced | baseline |
 | [SAF-K8S-0603-010](markdown/controls/SAF-K8S-0603-010.md) | SBOM attestation binding to image digests | Advanced | baseline |
 | [SAF-K8S-0603-011](markdown/controls/SAF-K8S-0603-011.md) | Attestation policy definition, signing, and change governance | Advanced | baseline |
@@ -996,8 +996,8 @@ This knowledge area focuses on: VPC and security group integration with Kubernet
 | [SAF-K8S-0704-011](markdown/controls/SAF-K8S-0704-011.md) | Network-level blocking of cloud metadata endpoint access for pods | Foundational | baseline |
 | [SAF-K8S-0704-013](markdown/controls/SAF-K8S-0704-013.md) | Unified cloud and Kubernetes audit source onboarding | Practitioner | baseline |
 | [SAF-K8S-0704-014](markdown/controls/SAF-K8S-0704-014.md) | Managed Kubernetes audit log retention enforcement | Practitioner | baseline |
-| [SAF-K8S-0704-015](markdown/controls/SAF-K8S-0704-015.md) | Cloud IAM to Kubernetes RBAC entitlement mapping definition | Practitioner | baseline |
-| [SAF-K8S-0704-016](markdown/controls/SAF-K8S-0704-016.md) | Cloud IAM to Kubernetes RBAC mapping review and drift remediation | Practitioner | baseline |
+| [SAF-K8S-0704-015](markdown/controls/SAF-K8S-0704-015.md) | Effective external identity and Kubernetes API entitlement mapping | Practitioner | baseline |
+| [SAF-K8S-0704-016](markdown/controls/SAF-K8S-0704-016.md) | Effective Kubernetes API entitlement review and drift remediation | Practitioner | baseline |
 | [SAF-K8S-0704-017](markdown/controls/SAF-K8S-0704-017.md) | Least-privilege cloud-to-cluster privileged access boundary enforcement | Practitioner | baseline |
 | [SAF-K8S-0704-018](markdown/controls/SAF-K8S-0704-018.md) | Break-glass cloud identity governance for Kubernetes administration | Practitioner | baseline |
 | [SAF-K8S-0704-019](markdown/controls/SAF-K8S-0704-019.md) | Per-workload cloud identity binding for managed Kubernetes workloads | Foundational | baseline |
@@ -1012,7 +1012,7 @@ This knowledge area focuses on: VPC and security group integration with Kubernet
 
 ### Description
 
-This knowledge area focuses on: GPU device plugin security configuration and hardening, MIG partitioning for hardware-enforced GPU isolation, vGPU virtualization security controls, GPU memory clearing between workload transitions, and GPU topology metadata protection and node label visibility restriction. Additional controls in the table below extend this coverage.
+This knowledge area focuses on: GPU device plugin security configuration and hardening, MIG partitioning for hardware-enforced GPU isolation, vGPU virtualization security controls, GPU memory clearing between workload transitions, and Restrict access to published accelerator inventory and topology metadata. Additional controls in the table below extend this coverage.
 
 ### Controls
 
@@ -1022,11 +1022,11 @@ This knowledge area focuses on: GPU device plugin security configuration and har
 | [SAF-K8S-0801-002](markdown/controls/SAF-K8S-0801-002.md) | MIG partitioning for hardware-enforced GPU isolation | Advanced | ai-specific |
 | [SAF-K8S-0801-004](markdown/controls/SAF-K8S-0801-004.md) | vGPU virtualization security controls | Practitioner | ai-specific |
 | [SAF-K8S-0801-006](markdown/controls/SAF-K8S-0801-006.md) | GPU memory clearing between workload transitions | Advanced | ai-specific |
-| [SAF-K8S-0801-009](markdown/controls/SAF-K8S-0801-009.md) | GPU topology metadata protection and node label visibility restriction | Practitioner | ai-specific |
+| [SAF-K8S-0801-009](markdown/controls/SAF-K8S-0801-009.md) | Restrict access to published accelerator inventory and topology metadata | Practitioner | ai-specific |
 | [SAF-K8S-0801-010](markdown/controls/SAF-K8S-0801-010.md) | Admission validation of authorized GPU resource requests | Practitioner | ai-specific |
 | [SAF-K8S-0801-011](markdown/controls/SAF-K8S-0801-011.md) | MPS and time-slicing residual-risk acceptance and compensating control approval | Advanced | ai-specific |
 | [SAF-K8S-0801-012](markdown/controls/SAF-K8S-0801-012.md) | MPS and time-slicing workload eligibility and same-trust co-location enforcement | Advanced | ai-specific |
-| [SAF-K8S-0801-013](markdown/controls/SAF-K8S-0801-013.md) | MPS and time-slicing memory remnant prevention verification | Advanced | ai-specific |
+| [SAF-K8S-0801-013](markdown/controls/SAF-K8S-0801-013.md) | Evidence for cross-trust eligibility of shared accelerator allocations | Advanced | ai-specific |
 | [SAF-K8S-0801-014](markdown/controls/SAF-K8S-0801-014.md) | MPS and time-slicing side-channel risk assessment | Advanced | ai-specific |
 
 <a id="knowledge-area-8-2"></a>
@@ -1038,7 +1038,7 @@ This knowledge area focuses on: GPU device plugin security configuration and har
 
 ### Description
 
-This knowledge area focuses on: GPU driver lifecycle and vulnerability management, CUDA library and container toolkit security, GPU firmware integrity monitoring, Device plugin socket directory access restriction and unauthorized socket access monitoring, and Device plugin registration authentication monitoring and rogue plugin detection. Additional controls in the table below extend this coverage.
+This knowledge area focuses on: GPU driver lifecycle and vulnerability management, CUDA library and container toolkit security, GPU firmware integrity monitoring, Device plugin socket directory access restriction and unauthorized socket access monitoring, and Device plugin enrollment and registration telemetry reconciliation. Additional controls in the table below extend this coverage.
 
 ### Controls
 
@@ -1048,7 +1048,7 @@ This knowledge area focuses on: GPU driver lifecycle and vulnerability managemen
 | [SAF-K8S-0802-002](markdown/controls/SAF-K8S-0802-002.md) | CUDA library and container toolkit security | Advanced | ai-specific |
 | [SAF-K8S-0802-004](markdown/controls/SAF-K8S-0802-004.md) | GPU firmware integrity monitoring | Advanced | ai-specific |
 | [SAF-K8S-0802-006](markdown/controls/SAF-K8S-0802-006.md) | Device plugin socket directory access restriction and unauthorized socket access monitoring | Practitioner | ai-specific |
-| [SAF-K8S-0802-007](markdown/controls/SAF-K8S-0802-007.md) | Device plugin registration authentication monitoring and rogue plugin detection | Practitioner | ai-specific |
+| [SAF-K8S-0802-007](markdown/controls/SAF-K8S-0802-007.md) | Device plugin enrollment and registration telemetry reconciliation | Practitioner | ai-specific |
 | [SAF-K8S-0802-008](markdown/controls/SAF-K8S-0802-008.md) | GPU kernel module signing and Secure Boot enforcement | Advanced | ai-specific |
 | [SAF-K8S-0802-009](markdown/controls/SAF-K8S-0802-009.md) | GPU driver binary path file integrity monitoring | Advanced | ai-specific |
 
@@ -1103,7 +1103,7 @@ This knowledge area focuses on: TEE-based model and data protection for AI workl
 
 ### Description
 
-This knowledge area focuses on: GPU telemetry collection and anomaly detection, GPU allocation audit trail and workload identity tracking, GPU-based attack detection for cryptomining and memory scraping, and GPU side-channel attack awareness and mitigation.
+This knowledge area focuses on: GPU telemetry collection and anomaly detection, GPU allocation audit trail and workload identity tracking, GPU anomaly triage and authorized incident response, and Accelerator sharing risk and eligible workload placement.
 
 ### Controls
 
@@ -1111,8 +1111,8 @@ This knowledge area focuses on: GPU telemetry collection and anomaly detection, 
 | --- | --- | --- | --- |
 | [SAF-K8S-0805-001](markdown/controls/SAF-K8S-0805-001.md) | GPU telemetry collection and anomaly detection | Practitioner | ai-specific |
 | [SAF-K8S-0805-002](markdown/controls/SAF-K8S-0805-002.md) | GPU allocation audit trail and workload identity tracking | Practitioner | ai-specific |
-| [SAF-K8S-0805-003](markdown/controls/SAF-K8S-0805-003.md) | GPU-based attack detection for cryptomining and memory scraping | Advanced | ai-specific |
-| [SAF-K8S-0805-004](markdown/controls/SAF-K8S-0805-004.md) | GPU side-channel attack awareness and mitigation | Advanced | ai-specific |
+| [SAF-K8S-0805-003](markdown/controls/SAF-K8S-0805-003.md) | GPU anomaly triage and authorized incident response | Advanced | ai-specific |
+| [SAF-K8S-0805-004](markdown/controls/SAF-K8S-0805-004.md) | Accelerator sharing risk and eligible workload placement | Advanced | ai-specific |
 
 <a id="knowledge-area-9-1"></a>
 ## 9.1 - Distributed Training Workload Security

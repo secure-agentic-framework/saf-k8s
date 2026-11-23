@@ -11,15 +11,6 @@ SAF-K8S controls serve as mitigation and control measures for residual risks: mo
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0204-001 - Runtime security tool deployment for syscall and network monitoring](../../controls/SAF-K8S-0204-001.md)
-
-- Domain: D02 - Node, Runtime, and OS Security
-- Knowledge Area: 2.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-1001-016 - Audit policy coverage for AI-specific resource and workflow events](../../controls/SAF-K8S-1001-016.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance

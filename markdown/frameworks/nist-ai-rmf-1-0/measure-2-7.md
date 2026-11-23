@@ -40,10 +40,10 @@ STRIDE threat modeling evaluates security posture across six threat categories. 
 
 - Domain: D02 - Node, Runtime, and OS Security
 - Knowledge Area: 2.4
-- Relation Type: partial
+- Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: partial-coverage
+- Applicability: conditional
+- Strength Reason Code: n/a
 
 ### [SAF-K8S-0403-006 - Per-workload credential scoping for AI jobs](../../controls/SAF-K8S-0403-006.md)
 

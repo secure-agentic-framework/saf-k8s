@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-High-risk AI systems shall be designed and developed in such a way that they achieve an appropriate level of accuracy, robustness, and cybersecurity, and that they perform consistently in those respects throughout their lifecycle.
-
-SAF-K8S directly supports robustness and cybersecurity through workload isolation, runtime security, supply chain integrity, and continuous monitoring. However, accuracy is fundamentally an application-layer and model concern -- SAF-K8S has no controls that directly govern model accuracy levels.
+Runtime monitoring evidence supports the cybersecurity contribution for scoped components and lifecycle activities.
 
 ## SAF-K8S Controls
 
@@ -15,9 +13,9 @@ SAF-K8S directly supports robustness and cybersecurity through workload isolatio
 
 - Domain: D02 - Node, Runtime, and OS Security
 - Knowledge Area: 2.4
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-0301-001 - Pod Security Standards level assignment](../../controls/SAF-K8S-0301-001.md)

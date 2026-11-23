@@ -2540,16 +2540,14 @@
   framework_requirement_id: Article-15.1
   legacy_requirement_id: Art-15:15(1)
   framework_requirement_title: Accuracy, robustness and cybersecurity
-  framework_mapping_notes: |-
-    High-risk AI systems shall be designed and developed in such a way that they achieve an appropriate level of accuracy, robustness, and cybersecurity, and that they perform consistently in those respects throughout their lifecycle.
-
-    SAF-K8S directly supports robustness and cybersecurity through workload isolation, runtime security, supply chain integrity, and continuous monitoring. However, accuracy is fundamentally an application-layer and model concern -- SAF-K8S has no controls that directly govern model accuracy levels.
+  framework_mapping_notes: Runtime monitoring evidence supports the cybersecurity contribution for scoped components
+    and lifecycle activities.
   control_id: SAF-K8S-0204-001
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The high-risk AI system uses selected runtime telemetry to assess cybersecurity
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -2795,16 +2793,15 @@
   framework_requirement_id: Article-15.5
   legacy_requirement_id: Art-15:15(5)-adversarial-resilience
   framework_requirement_title: Accuracy, robustness and cybersecurity
-  framework_mapping_notes: |-
-    High-risk AI systems shall be resilient against attempts by unauthorised third parties to alter their use, outputs or performance by exploiting system vulnerabilities. The technical solutions aiming to ensure the cybersecurity of high-risk AI systems shall be appropriate to the relevant circumstances and the risks. The technical solutions to address AI specific vulnerabilities shall include, where appropriate, measures to prevent, detect, respond to, resolve and control for attacks trying to manipulate the training data set (data poisoning), or pre-trained components used in training (model poisoning), inputs designed to cause the AI model to make a mistake (adversarial examples or model evasion), confidentiality attacks or model flaws.
-
-    Core SAF-K8S scope. Workload isolation, network policies, admission control, RBAC, and runtime security all protect against unauthorized alteration of AI system behavior.
+  framework_mapping_notes: Verified runtime signal coverage supports the monitoring portion of defined cybersecurity
+    measures.
   control_id: SAF-K8S-0204-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The high-risk AI system uses these telemetry signals in its cybersecurity detection and response
+    measures
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -3474,17 +3471,17 @@
   framework_version: 2024/1689
   framework_requirement_id: Article-72.3
   legacy_requirement_id: Art-72:72(4)(d)
-  framework_requirement_title: Post-market monitoring by providers and post-market monitoring plan for high-risk AI systems
-  framework_mapping_notes: |-
-    The post-market monitoring system shall be based on a post-market monitoring plan. The post-market monitoring plan shall be part of the technical documentation referred to in Annex IV. The Commission shall adopt an implementing act laying down detailed provisions establishing a template for the post-market monitoring plan and the list of elements to be included in the plan by 2 February 2026. That implementing act shall be adopted in accordance with the examination procedure referred to in Article 98(2).
-
-    SAF-K8S cybersecurity controls directly support monitoring of system robustness and security posture, including network policies (D5), workload isolation (D3), vulnerability scanning (D6 KA 6.1), and runtime security monitoring (D10). Accuracy monitoring is application-layer; cybersecurity monitoring is well-supported by SAF-K8S.
+  framework_requirement_title: Post-market monitoring by providers and post-market monitoring plan for high-risk AI
+    systems
+  framework_mapping_notes: Sensor coverage and delivery records can substantiate the collection of selected operational
+    data.
   control_id: SAF-K8S-0204-001
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The provider incorporates these relevant records in its documented post-market monitoring
+    system
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -3887,23 +3884,6 @@
     the adoption of appropriate and targeted risk management measures designed to address the risks identified pursuant to point (a).
 
     SAF-K8S controls ARE risk management measures for infrastructure-level risks: network policies, workload isolation, access controls, supply chain integrity, and runtime security all address identified risks.
-  control_id: SAF-K8S-0204-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Article-9.2.d
-  legacy_requirement_id: Art-9:9(2)(d)
-  framework_requirement_title: Risk management system
-  framework_mapping_notes: |-
-    the adoption of appropriate and targeted risk management measures designed to address the risks identified pursuant to point (a).
-
-    SAF-K8S controls ARE risk management measures for infrastructure-level risks: network policies, workload isolation, access controls, supply chain integrity, and runtime security all address identified risks.
   control_id: SAF-K8S-0301-001
   relation_type: direct
   strength_level: strong
@@ -4024,23 +4004,6 @@
 
     SAF-K8S controls implement risk reduction through secure design: minimal base images, least-privilege access, default-deny networking, supply chain integrity, and runtime hardening.
   control_id: SAF-K8S-0601-014
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Article-9.5.b
-  legacy_requirement_id: Art-9:9(5)(b)
-  framework_requirement_title: Risk management system
-  framework_mapping_notes: |-
-    where appropriate, implementation of adequate mitigation and control measures addressing risks that cannot be eliminated;
-
-    SAF-K8S controls serve as mitigation and control measures for residual risks: monitoring, detection, incident response, and containment controls address risks that cannot be eliminated by design.
-  control_id: SAF-K8S-0204-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -5513,14 +5476,16 @@
   framework_name: NIST AI Risk Management Framework
   framework_version: '1.0'
   framework_requirement_id: MEASURE 2.7
-  framework_requirement_title: AI system security and resilience - as identified in the MAP function - are evaluated and documented.
-  framework_mapping_notes: STRIDE threat modeling evaluates security posture across six threat categories. MITRE ATT&CK mapping evaluates defense coverage across attack tactics. ML threat taxonomy evaluates AI-specific attack resilience. Runtime security tools continuously evaluate system security.
+  framework_requirement_title: AI system security and resilience - as identified in the MAP function - are evaluated
+    and documented.
+  framework_mapping_notes: Verified runtime coverage and loss measurements can support the security and resilience evaluation.
   control_id: SAF-K8S-0204-001
-  relation_type: partial
+  relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: partial-coverage
+  applicability: conditional
+  applicability_condition: Telemetry health and coverage results are documented in the AI system security and resilience
+    evaluation
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -17860,22 +17825,6 @@
 
 
     2.4 - Runtime threat detection (anomalous system behavior); 10.1 - Alert design for AI-specific failure modes'
-  control_id: SAF-K8S-0204-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AT-2(4)
-  framework_requirement_title: Suspicious Communications and Anomalous System Behavior
-  framework_mapping_notes: 'Recognizing anomalous agent behaviors
-
-
-    2.4 - Runtime threat detection (anomalous system behavior); 10.1 - Alert design for AI-specific failure modes'
   control_id: SAF-K8S-0204-002
   relation_type: supports
   strength_level: strong
@@ -19604,22 +19553,6 @@
 
 
     2.4 - Runtime threat detection (Falco, Tetragon for automated disclosure monitoring); 9.8 - Automated extraction detection'
-  control_id: SAF-K8S-0204-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-13(1)
-  framework_requirement_title: Use of Automated Tools
-  framework_mapping_notes: 'Automated DLP monitoring for agent outputs
-
-
-    2.4 - Runtime threat detection (Falco, Tetragon for automated disclosure monitoring); 9.8 - Automated extraction detection'
   control_id: SAF-K8S-0204-002
   relation_type: supports
   strength_level: strong
@@ -20788,22 +20721,6 @@
 
 
     10.2 - Alert design for AI-specific failure modes (real-time alerting); 2.4 - Runtime threat detection alerts'
-  control_id: SAF-K8S-0204-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-5(2)
-  framework_requirement_title: Real-time Alerts
-  framework_mapping_notes: 'Real-time alerting on agent audit events
-
-
-    10.2 - Alert design for AI-specific failure modes (real-time alerting); 2.4 - Runtime threat detection alerts'
   control_id: SAF-K8S-0204-002
   relation_type: supports
   strength_level: strong
@@ -21270,22 +21187,6 @@
     10.1 - SIEM integration (audit record review, analysis, correlation rule development)'
   control_id: SAF-K8S-1001-008
   relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-6(1)
-  framework_requirement_title: Automated Process Integration
-  framework_mapping_notes: 'Automated agent log analysis integration
-
-
-    10.1 - SIEM integration (automated forwarding and correlation); 2.4 - Runtime detection automation'
-  control_id: SAF-K8S-0204-001
-  relation_type: supports
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -23953,22 +23854,6 @@
 
 
     6.5 - Admission control (automated enforcement of software installation policies); 2.4 - Drift detection'
-  control_id: SAF-K8S-0204-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-11(3)
-  framework_requirement_title: Automated Enforcement and Monitoring
-  framework_mapping_notes: 'Automated enforcement of agent software policies
-
-
-    6.5 - Admission control (automated enforcement of software installation policies); 2.4 - Drift detection'
   control_id: SAF-K8S-0204-002
   relation_type: supports
   strength_level: strong
@@ -26592,22 +26477,6 @@
 
 
     2.4 - Drift detection (identifying unexpected binary execution); 3.3 - Seccomp profiles for execution control'
-  control_id: SAF-K8S-0204-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-7(2)
-  framework_requirement_title: Prevent Program Execution
-  framework_mapping_notes: 'Preventing unauthorized code execution by agents
-
-
-    2.4 - Drift detection (identifying unexpected binary execution); 3.3 - Seccomp profiles for execution control'
   control_id: SAF-K8S-0204-002
   relation_type: supports
   strength_level: strong
@@ -27104,22 +26973,6 @@
 
 
     6.1 - Image hardening (no shell binaries, minimal attack surface); 2.4 - Drift detection for unexpected binary execution'
-  control_id: SAF-K8S-0204-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-7(8)
-  framework_requirement_title: Binary or Machine Executable Code
-  framework_mapping_notes: 'Controlling binary/executable code in agent environments
-
-
-    6.1 - Image hardening (no shell binaries, minimal attack surface); 2.4 - Drift detection for unexpected binary execution'
   control_id: SAF-K8S-0204-002
   relation_type: supports
   strength_level: strong
@@ -27393,22 +27246,6 @@
 
     10.7 - Automated discovery and classification of AI infrastructure assets; 4.3 - Credential inventory and sprawl governance (SAF-K8S-0403-008)'
   control_id: SAF-K8S-1007-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-8(3)
-  framework_requirement_title: Automated Unauthorized Component Detection
-  framework_mapping_notes: 'Detecting unauthorized agent tools/plugins
-
-
-    2.4 - Drift detection (unauthorized components); 6.5 - Admission control (detecting unauthorized pods)'
-  control_id: SAF-K8S-0204-001
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -36816,22 +36653,6 @@
 
 
     10.5 - Forensic evidence (container snapshots, malicious code analysis); 2.4 - Runtime threat detection'
-  control_id: SAF-K8S-0204-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-4(12)
-  framework_requirement_title: Malicious Code and Forensic Analysis
-  framework_mapping_notes: 'Forensic analysis of malicious agent behavior or injected code
-
-
-    10.5 - Forensic evidence (container snapshots, malicious code analysis); 2.4 - Runtime threat detection'
   control_id: SAF-K8S-0204-002
   relation_type: supports
   strength_level: strong
@@ -36881,22 +36702,6 @@
 
     10.5 - Forensic evidence (container snapshots, malicious code analysis); 2.4 - Runtime threat detection'
   control_id: SAF-K8S-1005-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-4(13)
-  framework_requirement_title: Behavior Analysis
-  framework_mapping_notes: 'Analyzing anomalous agent behavior patterns during incidents
-
-
-    2.4 - Runtime threat detection (behavioral analysis of containers); 9.8 - Model abuse pattern detection'
-  control_id: SAF-K8S-0204-001
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -41248,22 +41053,6 @@
 
 
     2.4 - Runtime threat detection (proactive threat hunting in K8s clusters); 8.5 - GPU-based attack detection'
-  control_id: SAF-K8S-0204-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: RA-10
-  framework_requirement_title: Threat Hunting
-  framework_mapping_notes: 'Threat hunting proactively searches for indicators of compromise in agentic AI systems
-
-
-    2.4 - Runtime threat detection (proactive threat hunting in K8s clusters); 8.5 - GPU-based attack detection'
   control_id: SAF-K8S-0204-002
   relation_type: direct
   strength_level: strong
@@ -41782,22 +41571,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: RA-3(4)
-  framework_requirement_title: Predictive Cyber Analytics
-  framework_mapping_notes: 'Predictive analytics can identify emerging threats to agentic AI systems
-
-
-    2.4 - Runtime threat detection (behavioral analysis, predictive detection rules for K8s attacks)'
-  control_id: SAF-K8S-0204-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -47248,22 +47021,6 @@
 
 
     2.4 - Runtime threat detection (continuous protection through monitoring); 10.1 - Continuous monitoring'
-  control_id: SAF-K8S-0204-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(19)
-  framework_requirement_title: Continuous Protection
-  framework_mapping_notes: 'Continuous protection ensures agent security controls remain active throughout execution
-
-
-    2.4 - Runtime threat detection (continuous protection through monitoring); 10.1 - Continuous monitoring'
   control_id: SAF-K8S-0204-002
   relation_type: direct
   strength_level: strong
@@ -51038,22 +50795,6 @@
 
 
     2.4 - Drift detection (identifying unacceptable code execution); 6.5 - Admission control (corrective actions)'
-  control_id: SAF-K8S-0204-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-18(1)
-  framework_requirement_title: Identify Unacceptable Code and Take Corrective Actions
-  framework_mapping_notes: 'Detecting unacceptable agent plugin or tool code prevents execution of malicious extensions
-
-
-    2.4 - Drift detection (identifying unacceptable code execution); 6.5 - Admission control (corrective actions)'
   control_id: SAF-K8S-0204-002
   relation_type: supports
   strength_level: strong
@@ -52379,22 +52120,6 @@
     2.3 - Minimal host OS (immutable OS distributions, thin node approach); 6.1 - Distroless images'
   control_id: SAF-K8S-0203-004
   relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-26
-  framework_requirement_title: Decoys
-  framework_mapping_notes: 'Decoy agent endpoints (honeypots) detect adversary reconnaissance and attack attempts
-
-
-    2.4 - Runtime threat detection (honeypot/decoy deployment for K8s attack detection and misdirection)'
-  control_id: SAF-K8S-0204-001
-  relation_type: supports
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -53737,22 +53462,6 @@
 
 
     2.4 - Runtime threat detection (honeypots, decoys for concealment and misdirection of attackers)'
-  control_id: SAF-K8S-0204-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-30
-  framework_requirement_title: Concealment and Misdirection
-  framework_mapping_notes: 'Concealing agent infrastructure details from adversaries hinders targeted attacks
-
-
-    2.4 - Runtime threat detection (honeypots, decoys for concealment and misdirection of attackers)'
   control_id: SAF-K8S-0204-002
   relation_type: supports
   strength_level: strong
@@ -55050,22 +54759,6 @@
 
     6.2 - Image signing (integrity protection on immutable, read-only container images and model artifacts)'
   control_id: SAF-K8S-0602-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-35
-  framework_requirement_title: External Malicious Code Identification
-  framework_mapping_notes: 'Detecting malicious code in agent inputs (prompts, tool responses) prevents injection attacks
-
-
-    6.1 - Vulnerability scanning (identifying malicious code in container images); 2.4 - Drift detection'
-  control_id: SAF-K8S-0204-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -56937,22 +56630,6 @@
 
 
     2.4 - Runtime threat detection (sandboxed analysis of suspicious content); 6.1 - Vulnerability scanning'
-  control_id: SAF-K8S-0204-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-44
-  framework_requirement_title: Detonation Chambers
-  framework_mapping_notes: 'Sandboxed detonation environments analyze suspicious agent inputs safely
-
-
-    2.4 - Runtime threat detection (sandboxed analysis of suspicious content); 6.1 - Vulnerability scanning'
   control_id: SAF-K8S-0204-002
   relation_type: supports
   strength_level: strong
@@ -57385,22 +57062,6 @@
 
 
     2.4 - Runtime security tools (relocating/redeploying detection sensors); 10.1 - Monitoring architecture'
-  control_id: SAF-K8S-0204-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-48
-  framework_requirement_title: Sensor Relocation
-  framework_mapping_notes: 'Relocating monitoring sensors for agent systems adapts detection to evolving threats
-
-
-    2.4 - Runtime security tools (relocating/redeploying detection sensors); 10.1 - Monitoring architecture'
   control_id: SAF-K8S-0204-002
   relation_type: supports
   strength_level: strong
@@ -57482,22 +57143,6 @@
 
     2.4 - Runtime security tools (relocating/redeploying detection sensors); 10.1 - Monitoring architecture'
   control_id: SAF-K8S-1001-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-48(1)
-  framework_requirement_title: Dynamic Relocation of Sensors or Monitoring Capabilities
-  framework_mapping_notes: 'Dynamic sensor relocation for agent monitoring prevents adversary evasion
-
-
-    2.4 - Runtime security tools (dynamic redeployment of Falco/Tetragon sensors); 10.1 - Monitoring architecture'
-  control_id: SAF-K8S-0204-001
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -58186,22 +57831,6 @@
 
     7.3 - Resource governance (GPU capacity, bandwidth, redundancy allocation); 9.2 - Inference queue management'
   control_id: SAF-K8S-0902-009
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-5(3)
-  framework_requirement_title: Detection and Monitoring
-  framework_mapping_notes: 'DoS detection and monitoring for agent APIs identifies abuse patterns and attacks
-
-
-    2.4 - Runtime threat detection (DoS detection and monitoring); 9.3 - Autoscaling monitoring'
-  control_id: SAF-K8S-0204-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -58906,22 +58535,6 @@
 
     5.1 - Default deny ingress; 5.3 - Ingress controller WAF integration, request filtering'
   control_id: SAF-K8S-0503-013
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(12)
-  framework_requirement_title: Host-based Protection
-  framework_mapping_notes: 'Host-based boundary protection on agent runtime hosts provides defense in depth
-
-
-    2.5 - Node-level firewall configuration; 2.4 - Runtime threat detection (host-based protection)'
-  control_id: SAF-K8S-0204-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -67094,22 +66707,6 @@
 
 
     6.1 - Vulnerability scanning (malicious code detection in images); 2.4 - Runtime threat detection (malicious code at runtime)'
-  control_id: SAF-K8S-0204-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-3
-  framework_requirement_title: Malicious Code Protection
-  framework_mapping_notes: 'Malicious code protection for agent systems detects injected payloads and compromised tools
-
-
-    6.1 - Vulnerability scanning (malicious code detection in images); 2.4 - Runtime threat detection (malicious code at runtime)'
   control_id: SAF-K8S-0204-002
   relation_type: direct
   strength_level: strong
@@ -67159,22 +66756,6 @@
 
     6.1 - Vulnerability scanning (malicious code detection in images); 2.4 - Runtime threat detection (malicious code at runtime)'
   control_id: SAF-K8S-0905-044
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-3(10)
-  framework_requirement_title: Malicious Code Analysis
-  framework_mapping_notes: 'Analyzing malicious code targeting agents reveals attack techniques and informs defenses
-
-
-    2.4 - Forensic capture (analyzing malicious code); 6.1 - Vulnerability scanning for AI dependencies'
-  control_id: SAF-K8S-0204-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -67334,22 +66915,6 @@
 
 
     6.1 - Vulnerability scanning (testing/verification of protection mechanisms); 2.4 - Detection rule development (testing detection efficacy)'
-  control_id: SAF-K8S-0204-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-3(6)
-  framework_requirement_title: Testing and Verification
-  framework_mapping_notes: 'Testing malicious code detection against agent-specific threats validates protection effectiveness
-
-
-    6.1 - Vulnerability scanning (testing/verification of protection mechanisms); 2.4 - Detection rule development (testing detection efficacy)'
   control_id: SAF-K8S-0204-002
   relation_type: direct
   strength_level: strong
@@ -67383,22 +66948,6 @@
 
     6.1 - Vulnerability scanning (testing/verification of protection mechanisms); 2.4 - Detection rule development (testing detection efficacy)'
   control_id: SAF-K8S-0204-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-3(8)
-  framework_requirement_title: Detect Unauthorized Commands
-  framework_mapping_notes: 'Detecting unauthorized commands in agent tool invocations identifies hijacking and injection
-
-
-    2.4 - Runtime threat detection (detecting unexpected binary execution); 3.3 - Seccomp profiles (blocking unauthorized syscalls)'
-  control_id: SAF-K8S-0204-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -67506,15 +67055,12 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-4
   framework_requirement_title: System Monitoring
-  framework_mapping_notes: 'System monitoring of agent behavior, resource usage, and communications detects anomalies
-
-
-    10.1 - Logging and Audit (comprehensive system monitoring); 2.4 - Runtime security tools'
+  framework_mapping_notes: Verified collection and health for selected runtime signals support documented system monitoring.
   control_id: SAF-K8S-0204-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The selected sources monitor the events and systems in the applicable monitoring objective
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -67671,22 +67217,6 @@
 
     10.1 - Logging and Audit (comprehensive system monitoring); 2.4 - Runtime security tools'
   control_id: SAF-K8S-1001-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(1)
-  framework_requirement_title: System-wide Intrusion Detection System
-  framework_mapping_notes: 'IDS coverage across agent infrastructure detects intrusions and lateral movement
-
-
-    2.4 - Runtime security tools (Falco, Tetragon as intrusion detection); 10.1 - SIEM integration'
-  control_id: SAF-K8S-0204-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -68806,22 +68336,6 @@
 
 
     2.4 - Runtime threat detection (real-time syscall/network monitoring); 10.2 - AI workload telemetry integration'
-  control_id: SAF-K8S-0204-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(2)
-  framework_requirement_title: Automated Tools and Mechanisms for Real-time Analysis
-  framework_mapping_notes: 'Real-time analysis of agent behavior enables immediate detection of compromise and anomalies
-
-
-    2.4 - Runtime threat detection (real-time syscall/network monitoring); 10.2 - AI workload telemetry integration'
   control_id: SAF-K8S-0204-002
   relation_type: direct
   strength_level: strong
@@ -69266,15 +68780,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-4(23)
   framework_requirement_title: Host-based Devices
-  framework_mapping_notes: 'Host-based monitoring on agent runtime hosts detects local compromise and anomalies
-
-
-    2.4 - Runtime security tools (host-based monitoring with Falco/Tetragon); 2.1 - Kubelet and node configuration'
+  framework_mapping_notes: Verified node sensor deployment and effective event settings provide evidence for the selected
+    host-based monitoring.
   control_id: SAF-K8S-0204-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The chosen node classes implement the applicable organization-defined host-based mechanisms
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -69319,22 +68831,6 @@
 
     2.4 - Runtime security tools (host-based monitoring with Falco/Tetragon); 2.1 - Kubelet and node configuration'
   control_id: SAF-K8S-0204-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(24)
-  framework_requirement_title: Indicators of Compromise
-  framework_mapping_notes: 'Indicators of compromise detection for agent systems identifies active threats
-
-
-    10.4 - Threat intelligence integration (consuming IoCs); 2.4 - Detection rule development (IoC-based rules)'
-  control_id: SAF-K8S-0204-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -69606,22 +69102,6 @@
 
 
     10.2 - SIEM integration (integrating monitoring tools); 2.4 - Runtime security tools integration'
-  control_id: SAF-K8S-0204-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(3)
-  framework_requirement_title: Automated Tool and Mechanism Integration
-  framework_mapping_notes: 'Integrating monitoring tools across agent infrastructure provides correlated threat visibility
-
-
-    10.2 - SIEM integration (integrating monitoring tools); 2.4 - Runtime security tools integration'
   control_id: SAF-K8S-0204-002
   relation_type: direct
   strength_level: strong
@@ -69846,22 +69326,6 @@
 
 
     10.2 - Alert design for AI-specific failure modes (system-generated alerts); 2.4 - Runtime detection alerts'
-  control_id: SAF-K8S-0204-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(5)
-  framework_requirement_title: System-generated Alerts
-  framework_mapping_notes: 'System-generated alerts for agent security events enable rapid incident response
-
-
-    10.2 - Alert design for AI-specific failure modes (system-generated alerts); 2.4 - Runtime detection alerts'
   control_id: SAF-K8S-0204-002
   relation_type: direct
   strength_level: strong
@@ -70006,22 +69470,6 @@
 
 
     2.4 - Runtime threat detection (automated response); 10.3 - IR containment strategies (automated containment)'
-  control_id: SAF-K8S-0204-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(7)
-  framework_requirement_title: Automated Response to Suspicious Events
-  framework_mapping_notes: 'Automated response to suspicious agent events contains threats before human intervention
-
-
-    2.4 - Runtime threat detection (automated response); 10.3 - IR containment strategies (automated containment)'
   control_id: SAF-K8S-0204-002
   relation_type: direct
   strength_level: strong
@@ -70098,15 +69546,12 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-4(9)
   framework_requirement_title: Testing of Monitoring Tools and Mechanisms
-  framework_mapping_notes: 'Testing monitoring tools validates detection capabilities against agent-specific threats
-
-
-    2.4 - Detection rule development (testing detection efficacy); 7.3 - Chaos engineering for GPU controls'
+  framework_mapping_notes: Expected, out-of-scope and delivery checks support tests of the selected monitoring mechanisms.
   control_id: SAF-K8S-0204-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The exercised sensor mechanisms are in the approved intrusion monitoring test scope
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -71686,22 +71131,6 @@
 
 
     2.4 - Runtime threat detection (runtime self-protection via Falco/Tetragon/KubeArmor); 3.3 - Mandatory access controls'
-  control_id: SAF-K8S-0204-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-7(17)
-  framework_requirement_title: Runtime Application Self-protection
-  framework_mapping_notes: 'RASP for agent applications detects and blocks attacks during runtime execution
-
-
-    2.4 - Runtime threat detection (runtime self-protection via Falco/Tetragon/KubeArmor); 3.3 - Mandatory access controls'
   control_id: SAF-K8S-0204-002
   relation_type: direct
   strength_level: strong
@@ -71783,22 +71212,6 @@
 
     2.4 - Runtime threat detection (runtime self-protection via Falco/Tetragon/KubeArmor); 3.3 - Mandatory access controls'
   control_id: SAF-K8S-0303-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-7(2)
-  framework_requirement_title: Automated Notifications of Integrity Violations
-  framework_mapping_notes: 'Automated integrity violation notifications enable rapid response to agent tampering
-
-
-    2.4 - Drift detection (automated notification of filesystem changes); 6.6 - Drift detection and remediation'
-  control_id: SAF-K8S-0204-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -71980,22 +71393,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-7(5)
-  framework_requirement_title: Automated Response to Integrity Violations
-  framework_mapping_notes: 'Automated response to agent integrity violations enables immediate containment
-
-
-    6.6 - Drift detection and remediation (automated resync); 2.4 - Runtime threat detection (automated response)'
-  control_id: SAF-K8S-0204-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -72263,22 +71660,6 @@
 
     6.2 - Image signing with Sigstore/cosign (cryptographic integrity); 9.5 - Model signing; 6.3 - Cryptographic agility'
   control_id: SAF-K8S-0905-046
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-7(7)
-  framework_requirement_title: Integration of Detection and Response
-  framework_mapping_notes: 'Integrating integrity detection with response for agents enables automated remediation
-
-
-    2.4 - Runtime threat detection (integrated detection and response); 10.5 - IR lifecycle (detection-to-response integration)'
-  control_id: SAF-K8S-0204-001
   relation_type: direct
   strength_level: strong
   applicability: required

@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-System monitoring of agent behavior, resource usage, and communications detects anomalies
-
-10.1 - Logging and Audit (comprehensive system monitoring); 2.4 - Runtime security tools
+Verified collection and health for selected runtime signals support documented system monitoring.
 
 ## SAF-K8S Controls
 
@@ -15,9 +13,9 @@ System monitoring of agent behavior, resource usage, and communications detects 
 
 - Domain: D02 - Node, Runtime, and OS Security
 - Knowledge Area: 2.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-0204-002 - Kubernetes-specific runtime detection rules](../../controls/SAF-K8S-0204-002.md)
