@@ -1,0 +1,71 @@
+{
+  "control_id": "SAF-K8S-0205-009",
+  "catalog_revision": "9506fce4937d61bfcac471355ec6e4ad4dfaa0a4",
+  "catalog_sha256": "264903bc4aaf01240ab8d93864f96388bcf0f27a4ee05b1d19d0943e4d780c49",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "e1c3ae25827f24161f8b79db9610c52b332f9b1ae294f1460c5437d1b70483f1",
+  "scope": "A native Kind kube-proxy identity receives and loses one unnecessary fixture API permission while its ClusterIP serves traffic.",
+  "cluster": "saf-lab-3f023a4a0ea9",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The active native proxy identity gains an unnecessary owned-object permission when an extra grant is present",
+      "matched": true,
+      "observed": {
+        "baseline_denied": true,
+        "fixture_grant_expanded_access": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Removing the extra grant restores the API boundary while retaining required Service and EndpointSlice access",
+      "matched": true,
+      "observed": {
+        "unnecessary_get_denied_again": true,
+        "required_reads": {
+          "services": true,
+          "endpointslices": true
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The active proxy retains the approved Service behavior after rights are narrowed",
+      "matched": true,
+      "observed": {
+        "owned_service_reachable": true
+      }
+    }
+  ]
+}

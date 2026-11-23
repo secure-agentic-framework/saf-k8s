@@ -582,6 +582,12 @@
       "sha256": "5b553efeda2c1f6c587caea4a7fd5c57fc89fc9fdef4ea42652f83689d6baf1d",
       "title": "kube-proxy or service proxy mode selection governance"
     },
+    "SAF-K8S-0205-009": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "e1c3ae25827f24161f8b79db9610c52b332f9b1ae294f1460c5437d1b70483f1",
+      "title": "Service proxy path hardening for kube-proxy or replacements"
+    },
     "SAF-K8S-0301-001": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -2924,7 +2930,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "641928d55f33c0ffe5370d328de4815a34e16b50",
-  "sha256": "dff289bd66981d9d3345ddc46bf624c18df62470b60e222ce391a8fc88ad6327",
+  "revision": "2771b92a019cc35d421a92d933ff28a5b70c190a",
+  "sha256": "264903bc4aaf01240ab8d93864f96388bcf0f27a4ee05b1d19d0943e4d780c49",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
