@@ -1,0 +1,86 @@
+{
+  "control_id": "SAF-K8S-0905-037",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "bcee3b233b1e23feef9509d81a7bd1a34461a62e1657aef36c7c43246ef2b489",
+  "scope": "A fresh Kubernetes v1.36.1 Kind cluster runs two case-owned lightweight Deployments. A narrow role permits a named responder to read the intended Pod and logs and to scale only the designated Deployment. The responder retains hash-bound evidence in an immutable ConfigMap in a dedicated namespace before initiating the halt. An authorized investigator verifies it after the target Pod is removed. The measured bound is a lab fixture requirement. Real on-call response, incident evidence systems and long-term retention remain open.",
+  "review_timing": {
+    "queued_at": "2026-11-23T01:38:01.417459+00:00",
+    "cluster_ready_at": "2026-11-23T01:38:44.120275+00:00",
+    "approval_at": "2026-11-23T01:39:50.031376+00:00",
+    "case_loaded_at": "2026-11-23T01:39:50.235451+00:00"
+  },
+  "cluster": "saf-lab-0db43ccffdf7",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "84184906591d600c23a3904fd5df4ea00cc3a6b3f851e8826dda954985b23ed9",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "An unprivileged manual halt is forbidden and the exact target remains active",
+      "matched": true,
+      "observed": {
+        "forbidden": true,
+        "same_pod_running": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The responder cannot scale the unrelated Deployment",
+      "matched": true,
+      "observed": {
+        "forbidden": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Authorized manual invocation removes the workload Pods within the fixture response budget",
+      "matched": true,
+      "observed": {
+        "pods_absent_and_zero_replicas": true,
+        "within_response_bound": true,
+        "maximum_seconds": 45
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The investigator reads matching pre-halt evidence and the unrelated workload stays active",
+      "matched": true,
+      "observed": {
+        "evidence_digest_verified": true,
+        "unrelated_pod_unchanged": true,
+        "default_identity_access_denied": true
+      }
+    }
+  ]
+}

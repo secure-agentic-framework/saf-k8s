@@ -1320,6 +1320,12 @@
       "sha256": "1cacba9c6e0a6b7faba354f263e71920e4055453ab92d7270c5cf4d52054300c",
       "title": "Separation of duties enforcement for model promotion approvals"
     },
+    "SAF-K8S-0905-037": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "bcee3b233b1e23feef9509d81a7bd1a34461a62e1657aef36c7c43246ef2b489",
+      "title": "Manual emergency halt governance and forensic evidence preservation"
+    },
     "SAF-K8S-0905-038": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1910,7 +1916,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "f5f74b53f1b5ac8fc0ba5c8bb4bfd76c21f87ec6",
+  "revision": "649c9d62d953f505dcf17e7f15418c35d7c40c24",
   "sha256": "5d300b2f3b1823e3cbb4aee50b95ef1970adf01a5b145ef7ca8309eb785d1ee4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
