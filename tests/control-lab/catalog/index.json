@@ -1578,6 +1578,12 @@
       "sha256": "52e2d9be157499d22b7a7c7cc3c9eed10c38cbeca9c80f2bd25ecc94c1474999",
       "title": "Unified cloud and Kubernetes audit source onboarding"
     },
+    "SAF-K8S-0704-014": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "1b23a47806526aa846d736794ce5215f2b46b3e45c93019b920891e39d9f879f",
+      "title": "Managed Kubernetes audit log retention enforcement"
+    },
     "SAF-K8S-0704-015": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -2492,7 +2498,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6f5991d8497d5e64e21a4ec3d85f9c121ad2a2d3",
-  "sha256": "77523c5f787b863994817882376088268ae5e91f329f8ec8103c5077a6b9e5d4",
+  "revision": "e33e721a6401284e5c0b6e21d7c8f193f719a353",
+  "sha256": "5ca234400032747e044552debc27c2eee8327965df34cec9b6c288c45d2bd14c",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
