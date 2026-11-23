@@ -1050,6 +1050,12 @@
       "sha256": "32612009ac8492a95aeb1b81ac5357dc2dd62192c1e5a667ccf465b10f53eff1",
       "title": "VEX (Vulnerability Exploitability eXchange) publication"
     },
+    "SAF-K8S-0604-007": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "4c735628e3a57d228255f35f20a0c0d89442a893e30a4754df6e35e18a9cc7b0",
+      "title": "Third-party component security requirements documentation"
+    },
     "SAF-K8S-0605-001": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2306,7 +2312,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "473b850c8bed0a116fcd96485e5a30bb1d1c000b",
-  "sha256": "78d75952bbab784c424a7a0f999dad3ff3f8026210525a0e1fb86640f0474dde",
+  "revision": "8d99de5dd2ec900e4d40c9ea7d8a0febf289c87b",
+  "sha256": "ca67b65c05a559cca6f50bec8739178ec488163ddeef64d4b9f3ec637611945b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
