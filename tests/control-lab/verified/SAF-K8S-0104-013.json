@@ -1,0 +1,73 @@
+{
+  "control_id": "SAF-K8S-0104-013",
+  "catalog_revision": "76041739c49fa48a0d2ec1967821b1ef3a6efb95",
+  "catalog_sha256": "18a0e186d4339c31de69672f9f5970344825f669cb52175114becbd3c7465998",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "ba06f8e40960ef6f77fce4e4fe94c74dc3ab0b8d60493a93b75fea97bf8d282e",
+  "scope": "Actual disposable kubeadm minor upgrade and kubelet replacement with a retained public marker. The separately exercised rollback affects only a fixture Deployment.",
+  "cluster": "saf-lab-9813ea0c7baf",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The control plane and kubelet start on the previous minor and the exact target is planned",
+      "matched": true,
+      "observed": {
+        "apiserver": "v1.36.1",
+        "kubelet": "v1.36.1",
+        "explicit_target_planned": true,
+        "preupgrade_marker": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The control plane upgrades first, followed by its kubelet, and the existing marker survives",
+      "matched": true,
+      "observed": {
+        "control_plane_first": true,
+        "apiserver": "v1.37.0",
+        "kubelet": "v1.37.0",
+        "retained_marker": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Reapplying the reviewed workload template restores its readiness on the upgraded control plane",
+      "matched": true,
+      "observed": {
+        "failed_rollout_exposed": true,
+        "workload_recovery_verified": true
+      }
+    }
+  ]
+}
