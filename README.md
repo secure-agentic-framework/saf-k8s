@@ -307,7 +307,7 @@ This knowledge area focuses on: Kernel parameter hardening via sysctl, Secure bo
 | [SAF-K8S-0203-011](markdown/controls/SAF-K8S-0203-011.md) | Immutable node root filesystem enforcement | Foundational | baseline |
 | [SAF-K8S-0203-012](markdown/controls/SAF-K8S-0203-012.md) | Enforce and audit Linux kernel module loading policy | Foundational | baseline |
 | [SAF-K8S-0203-013](markdown/controls/SAF-K8S-0203-013.md) | Kernel lockdown mode enforcement for runtime integrity | Foundational | baseline |
-| [SAF-K8S-0203-014](markdown/controls/SAF-K8S-0203-014.md) | Authenticated cloud metadata service mode enforcement | Foundational | baseline |
+| [SAF-K8S-0203-014](markdown/controls/SAF-K8S-0203-014.md) | Verify provider-specific cloud metadata access modes | Foundational | baseline |
 | [SAF-K8S-0203-015](markdown/controls/SAF-K8S-0203-015.md) | Cloud metadata endpoint restriction settings | Foundational | baseline |
 | [SAF-K8S-0203-016](markdown/controls/SAF-K8S-0203-016.md) | Node time synchronization with authoritative time sources | Foundational | baseline |
 
