@@ -1,0 +1,75 @@
+{
+  "control_id": "SAF-K8S-0104-014",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.34.8@sha256:02722c2dedddcfc00febf5d27fbeb9b7b2c14294c82109ff4a85d89ac9ba3256",
+  "control_sha256": "7f8317448e63a2f00ca378b409d303ff75a700fe67923e43f44ecbe8305012cb",
+  "scope": "Disposable self-managed Kind Kubernetes v1.34.8. Executes a real kube-bench v0.16.0 scan for two selected etcd checks under CIS 1.12 on two ordinary CronJob schedule ticks. Reads the disposable node process view with hostPID, without host filesystem mounts or Kubernetes credentials. Full benchmark and managed-service coverage, production cadence, and post-upgrade profile selection remain open.",
+  "cluster": "saf-lab-31beb939db8b",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "34",
+      "gitVersion": "v1.34.8",
+      "gitCommit": "1f328c5e9dd683d0c5e69f3d7d58f8371278dec2",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:52:48Z",
+      "goVersion": "go1.25.9",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.7.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "34",
+      "emulationMajor": "1",
+      "emulationMinor": "34",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "33",
+      "gitVersion": "v1.34.8",
+      "gitCommit": "1f328c5e9dd683d0c5e69f3d7d58f8371278dec2",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:50:02Z",
+      "goVersion": "go1.25.9",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Suspended scanner creates no Job across a UTC schedule tick",
+      "matched": true,
+      "observed": {
+        "suspended": true,
+        "jobs": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Two separate CronJob-owned Jobs ran on consecutive UTC schedule ticks",
+      "matched": true,
+      "observed": {
+        "jobs": 2,
+        "minute_spacing": true,
+        "version": "v1.34.8"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both actual scanner runs evaluated the pinned etcd checks successfully",
+      "matched": true,
+      "observed": {
+        "profile": "cis-1.12",
+        "target": "etcd",
+        "selected_checks": [
+          "2.2",
+          "2.5"
+        ],
+        "checks_passed_both_times": true
+      }
+    }
+  ]
+}
