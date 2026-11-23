@@ -1,0 +1,114 @@
+{
+  "control_id": "SAF-K8S-0603-013",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "cbdfd4b6b5cf7e64de52ff50df3a3699e22055f80ed33200a0af9784473186c9",
+  "scope": "One disposable Kind cluster and an owned OCI registry. The trusted fixture packages a pinned harmless image, verifies independent signed build and promotion records before release and deployment, and verifies a signed destination observation before downstream use. Registry replication, target platform identity and operational key custody stay under their own deployment review.",
+  "cluster": "saf-lab-833798edc6be",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The registry alone copies the image without an attestation check",
+      "matched": true,
+      "observed": {
+        "unverified_registry_copy_observed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Signed stale and incorrect build material cannot authorize promotion",
+      "matched": true,
+      "observed": {
+        "unapproved_build_material_rejected": true,
+        "stale_build_rejected": true,
+        "promotion_output_still_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved signing identity binds the actual staging subject to the expected input",
+      "matched": true,
+      "observed": {
+        "build_verified_before_promotion": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Promotion preserves the exact verified image bytes in a separate OCI repository",
+      "matched": true,
+      "observed": {
+        "promoted_digest_matches_build": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The deployment gate rejects the wrong identity, predecessor or stale upstream build",
+      "matched": true,
+      "observed": {
+        "wrong_stage_key_rejected": true,
+        "wrong_predecessor_rejected": true,
+        "stale_build_rejected_at_deploy": true,
+        "deployment_still_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A Ready deployment runs the registry's exact immutable digest",
+      "matched": true,
+      "observed": {
+        "ready": true,
+        "exact_digest_used": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The deployment transition verifies the exact build and promotion chain",
+      "matched": true,
+      "observed": {
+        "correct_predecessor_and_promotion_identity": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Downstream use verifies the runtime stage's signed observation for the exact deployment",
+      "matched": true,
+      "observed": {
+        "runtime_digest_matches_promoted_digest": true,
+        "destination_observation_verified": true,
+        "different_workload_uid_rejected": true
+      }
+    }
+  ]
+}

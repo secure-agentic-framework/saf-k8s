@@ -978,6 +978,12 @@
       "sha256": "50a0c2486de2c2c57f546c078fed89cc2d4a8ef5b170dae89a62d05051799877",
       "title": "SBOM attestation binding to image digests"
     },
+    "SAF-K8S-0603-013": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "cbdfd4b6b5cf7e64de52ff50df3a3699e22055f80ed33200a0af9784473186c9",
+      "title": "Lifecycle attestation chain verification across build, promote, and deploy"
+    },
     "SAF-K8S-0605-001": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2234,7 +2240,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "477ea1bdbc1d9a2ffd0626f3cccf83b6276f5278",
+  "revision": "eb08c2bbc74fed875be2042e45f910f4d11a464d",
   "sha256": "1e0788e23530a8952383db62a95b74f3adb91bd678e139c386f77c3c54c4f306",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
