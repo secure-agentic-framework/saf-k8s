@@ -930,12 +930,12 @@
   knowledge_area: '1.4'
   control_seq: '013'
   control_title: Kubernetes upgrade strategy, validation, and rollback planning
-  control_statement: Production Kubernetes clusters must maintain a documented upgrade strategy that includes deprecation tracking, pre-upgrade impact analysis, compatibility validation, upgrade runbooks, rollback procedures, and post-upgrade validation steps for control-plane components, nodes, and critical add-ons.
-  objective: Ensure Kubernetes upgrades are planned and executed with controlled risk rather than ad hoc change activity that causes outages or breaks dependent workloads.
-  rationale: 'Remaining on supported versions requires more than version inventory: organizations need repeatable upgrade planning, API deprecation tracking, validation of workload and add-on compatibility, and tested rollback paths. Without that discipline, upgrades are delayed or create avoidable service disruption.'
-  scope: Applies to all production clusters and to routine as well as urgent version upgrades that affect Kubernetes components, node pools, and critical platform add-ons.
-  primary_enforcement_point: Change Management / Operations
-  implementation_surface: Upgrade planning documentation, validation workflows, rollback procedures, and post-upgrade verification integrated into change execution.
+  control_statement: Maintain a supported Kubernetes upgrade plan with assigned component owners, version skew and sequencing requirements, compatibility and service validation, and an exercised recovery strategy. Define routine and emergency decision rights and record recovery limits.
+  objective: Upgrade through supported component versions while maintaining expected workload and control-plane behavior and recoverability.
+  rationale: Upgrade support depends on the deployed version and distribution, provider responsibility, component ordering and configuration or data changes. Recoverability can require restoration, recreation or a forward fix when a downgrade is unsupported.
+  scope: Applies to governed Kubernetes upgrades and relevant control plane, worker, runtime, network, storage, and supporting add-on boundaries. Inventory supported technology and owned versus provider-operated responsibilities.
+  primary_enforcement_point: Approved versioned upgrade execution and exercised, supported service recovery at each applicable boundary.
+  implementation_surface: Verify supported version edges, preflight compatibility, backup and restoration, API and workload outcomes, and post-upgrade versions. Record an abort threshold, recovery owner and evidence from the applicable restore, recreation, forward fix or supported rollback.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Change Management
   baseline_or_ai_specific: baseline
