@@ -186,6 +186,12 @@
       "sha256": "a2851e2294a3881aff1640958bbf0050d72d49f11d9a7e7a1f02bacffdfa2df4",
       "title": "Feature gate lifecycle transition tracking across Kubernetes upgrades"
     },
+    "SAF-K8S-0104-015": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "efef6f3e918bb652144698a2f8194536d8df3000080576d833daf119e9fcf685",
+      "title": "CIS Benchmark result retention and posture trend reporting"
+    },
     "SAF-K8S-0104-016": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -1970,7 +1976,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "3a512dab542fc20aa2367f701c3b997ff8697173",
+  "revision": "2e8fba084d88617a8b8b0a3ec8c2001c4435352a",
   "sha256": "a98fe4604e6f03e5f1e6b5b7e0f661f80266a0a24c8fb79e000fd63231aac788",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

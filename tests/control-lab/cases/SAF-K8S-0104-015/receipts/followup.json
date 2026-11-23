@@ -1,0 +1,14 @@
+{
+  "synthetic": true,
+  "report_id": "synthetic-cis-k8s-2026-11-22-b",
+  "assessment_date": "2026-11-22",
+  "benchmark": "CIS Kubernetes Benchmark",
+  "benchmark_version": "2.1.0",
+  "profile": "Level 1 control plane (illustrative)",
+  "resource_scope": "case-owned disposable kind control-plane",
+  "schema_attribution": "Trivy Kubernetes detailed JSON report concepts; wrapper and values are synthetic, not Trivy output",
+  "checks": [
+    {"check_id": "1.2.1", "status": "FAIL"},
+    {"check_id": "1.2.2", "status": "PASS"}
+  ]
+}
