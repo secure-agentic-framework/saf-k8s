@@ -2778,6 +2778,12 @@
       "sha256": "4501567842db3075b0f7ad3bf3cbadcbf100fd2e9b713144bedee13b52890683",
       "title": "Differential privacy parameter governance for inference endpoints"
     },
+    "SAF-K8S-0908-010": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "6a619eae2b1dca1574c495f3e550f68ab85c51ea2be2732ac25702dde71ef659",
+      "title": "Inference privacy budget tracking and threshold enforcement"
+    },
     "SAF-K8S-0910-029": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3260,7 +3266,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "b23f119372304bfdc11598f1fdc5bdcd0973ce03",
-  "sha256": "ae796dccb934372d6909e147f18bb1bc8f25acdd0cbbc37ad9be141978733ea4",
+  "revision": "b65ff88fdc25edd505140c6a572b4149e6131f50",
+  "sha256": "a34032d8b95c963a24e699c53e533aff794f68746f4a128bfc21353126647d35",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
