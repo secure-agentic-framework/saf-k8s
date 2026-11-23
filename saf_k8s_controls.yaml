@@ -6990,12 +6990,12 @@
   knowledge_area: '7.3'
   control_seq: '23'
   control_title: Investigation and termination of confirmed unauthorized GPU workloads
-  control_statement: Organizations must investigate confirmed abusive GPU consumption and terminate, quarantine, or otherwise stop non-sanctioned GPU workloads through approved incident response actions that document disposition and preserve evidence needed for follow-up analysis.
-  objective: Respond to confirmed unauthorized GPU consumption quickly enough to halt abusive usage, preserve evidence, and determine whether the event reflects simple misuse or a broader security incident.
-  rationale: Detection alone does not reclaim accelerator capacity or resolve the security risk created by confirmed abuse. A separate response control is required so organizations have governed workflows to investigate, terminate, or quarantine abusive GPU workloads while preserving the evidence needed to understand impact and recurrence.
-  scope: Applies to all confirmed abusive GPU consumption events in Kubernetes clusters, including cryptomining, personal workloads, resource squatting that persists after validation, and other unauthorized GPU use requiring response action.
-  primary_enforcement_point: Incident triage, containment, and workload termination or quarantine workflows for confirmed GPU abuse.
-  implementation_surface: Abuse investigation tickets, termination or quarantine workflows, evidence capture steps, and approved incident response procedures for unauthorized GPU workloads.
+  control_statement: Investigate suspected unauthorized accelerator use under the approved incident procedure. When the designated authority confirms the finding and authorizes containment, identify the exact workload and its controller, preserve applicable evidence, take the approved scoped action, and verify the result.
+  objective: Contain confirmed unauthorized resource use while retaining evidence and confirming workload, capacity and service impact.
+  rationale: Containment actions have distinct effects. Controllers can recreate terminated Pods and a quarantine can leave resource use active. Exact identity, prior authorization, evidence preservation and post-action verification reduce disruption and support follow-up analysis.
+  scope: Applies to confirmed incidents within organizational authority. Identify controller ownership, availability and forensic constraints, supported response actions, storage and retention requirements and any separate quarantine or recovery procedures.
+  primary_enforcement_point: Incident authorization and evidence handling, scoped workload actions, and verification of containment or recovery.
+  implementation_surface: Retain evidence of confirmation, exact object identities and the approval record. Determine the controller or operator before acting, use scoped authorization and supported preconditions, and verify workload status, neighboring services and resource disposition. Record remaining forensic and recovery actions separately.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; ML Engineering
   baseline_or_ai_specific: ai-specific
