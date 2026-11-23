@@ -966,6 +966,12 @@
       "sha256": "216b28639fa2668b7fc7cc3d678e8289001392f7e77dd75da7bb01672f260eab",
       "title": "Kubernetes Secrets KMS key least-privilege access policy"
     },
+    "SAF-K8S-0403-021": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "ad7b6b66c9a7776a67a18faeba569fe83fcae405d8fd69a540c688606299e1ca",
+      "title": "Automated AI workload credential inventory"
+    },
     "SAF-K8S-0403-024": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -3044,7 +3050,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ea3171971de7d6a49a17b54b1e8697e92b4d6c3c",
-  "sha256": "fb958907ffaf20087a8e92cdddaccb4e3e020c64db20784e8188120121675905",
+  "revision": "5f6eec2134adb10ed5428db52708d266d4b1345c",
+  "sha256": "7bd5c83d431c9e088850a6c51a4ba451ff1354116c27e2d04ca0a5618d3ad3c5",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
