@@ -9175,7 +9175,7 @@
   rationale: Even if consumers are expected to use digests, registries that allow tag overwrite or reuse create an avoidable path for confusion, operational drift, and artifact substitution. Registry-side tag immutability prevents approved model tags from being silently retargeted after release.
   scope: Applies to OCI registries and model registries backed by OCI artifacts that store approved models. Covers immutable-tag registry settings, blocked overwrite attempts, and audit visibility into tag mutation enforcement.
   primary_enforcement_point: OCI registry configuration and audit controls for model artifact tags.
-  implementation_surface: OCI registries such as Harbor, ECR, GCR, or ACR configured for immutable tags, registry policies that block tag overwrite or reuse, and audit records showing tag immutability enforcement for model artifacts.
+  implementation_surface: OCI registries such as Harbor, Amazon ECR, Google Artifact Registry, or Azure Container Registry configured for immutable tags, registry policies that block tag overwrite or reuse, and audit records showing tag immutability enforcement for model artifacts.
   owner_primary: ML Platform Engineering
   owner_supporting: Security Engineering; DevOps Engineering
   baseline_or_ai_specific: ai-specific
