@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: saf0505003-headless-ingress
+spec:
+  podSelector:
+    matchLabels:
+      saf.example/case: saf0505003-server
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              saf.example/case: saf0505003-allowed
+      ports:
+        - protocol: TCP
+          port: 8080

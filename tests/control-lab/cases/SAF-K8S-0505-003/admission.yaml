@@ -1,0 +1,27 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf0505003-internal-services
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["services"]
+  matchConditions:
+    - name: owned-internal-namespace
+      expression: request.namespace == "saf-test"
+  validations:
+    - expression: object.spec.type == "ClusterIP"
+      message: Owned internal Services must have ClusterIP type
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf0505003-internal-services
+spec:
+  policyName: saf0505003-internal-services
+  validationActions: [Deny]

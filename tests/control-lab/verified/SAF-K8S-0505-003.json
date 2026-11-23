@@ -1,0 +1,202 @@
+{
+  "control_id": "SAF-K8S-0505-003",
+  "catalog_revision": "3d0d3f8a46b5b33ed6923b1d1ecff99e98b897c8",
+  "catalog_sha256": "82c8181a0369adafde249681e946cf7daa42ac28325e8e01d8ff0e0b7f17a071",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "f80239ceb4452039a5d3b4e758dcf6d3625b3b0da1da45706c00e8a8b1a33e09",
+  "scope": "One fresh Kubernetes v1.36.1 cluster with pinned Cilium 1.20.5. Inspect the API default, selector-backed headless DNS, and an explicit admission policy requiring ClusterIP for services in the owned namespace. An ingress NetworkPolicy protects the selected endpoint on TCP/8080. Both internal clients reach both service types and the pod IP before policy. The unselected client times out on all three routes after policy while the selected client still reaches the marker on each. Production inventory and exceptions remain open.",
+  "cluster": "saf-lab-abcef1879c5b",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The pinned Cilium agent, operator and Envoy are ready",
+      "matched": true,
+      "observed": {
+        "quay.io/cilium/cilium:v1.20.5": true,
+        "quay.io/cilium/cilium-envoy:v1.39.6-1794557904-dee711ff0e84b106edd0abcdd71961af1b870359": true,
+        "quay.io/cilium/operator-generic:v1.20.5": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The API defaults type and headless DNS returns the Ready Pod address",
+      "matched": true,
+      "observed": {
+        "default_type_cluster_ip": true,
+        "ordinary_service_has_virtual_ip": true,
+        "headless_type_cluster_ip": true,
+        "headless_has_no_virtual_ip": true,
+        "headless_dns_matches_only_ready_endpoint": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The saf0505003-allowed fixture reaches the marker through ClusterIP before policy",
+      "matched": true,
+      "observed": {
+        "transport": "http",
+        "status": 200,
+        "body": "saf0505003-fixture-ok"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The saf0505003-allowed fixture reaches the marker through headless DNS before policy",
+      "matched": true,
+      "observed": {
+        "transport": "http",
+        "status": 200,
+        "body": "saf0505003-fixture-ok"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The saf0505003-allowed fixture reaches the marker through direct pod IP before policy",
+      "matched": true,
+      "observed": {
+        "transport": "http",
+        "status": 200,
+        "body": "saf0505003-fixture-ok"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The saf0505003-denied fixture reaches the marker through ClusterIP before policy",
+      "matched": true,
+      "observed": {
+        "transport": "http",
+        "status": 200,
+        "body": "saf0505003-fixture-ok"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The saf0505003-denied fixture reaches the marker through headless DNS before policy",
+      "matched": true,
+      "observed": {
+        "transport": "http",
+        "status": 200,
+        "body": "saf0505003-fixture-ok"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The saf0505003-denied fixture reaches the marker through direct pod IP before policy",
+      "matched": true,
+      "observed": {
+        "transport": "http",
+        "status": 200,
+        "body": "saf0505003-fixture-ok"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The API accepts an explicit NodePort before internal-service admission policy",
+      "matched": true,
+      "observed": {
+        "accepted_explicit_nodeport": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The applied admission policy rejects explicit NodePort in the internal namespace",
+      "matched": true,
+      "observed": {
+        "denied_nodeport_by_expected_rule": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The admission policy still permits an omitted Service type defaulted to ClusterIP",
+      "matched": true,
+      "observed": {
+        "admitted_defaulted_cluster_ip": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The unselected client cannot connect through ClusterIP after network policy",
+      "matched": true,
+      "observed": {
+        "transport": "connect_timeout"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The selected client still receives the marker through ClusterIP",
+      "matched": true,
+      "observed": {
+        "transport": "http",
+        "status": 200,
+        "body": "saf0505003-fixture-ok"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The unselected client cannot connect through headless DNS after network policy",
+      "matched": true,
+      "observed": {
+        "transport": "connect_timeout"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The selected client still receives the marker through headless DNS",
+      "matched": true,
+      "observed": {
+        "transport": "http",
+        "status": 200,
+        "body": "saf0505003-fixture-ok"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The unselected client cannot connect through direct pod IP after network policy",
+      "matched": true,
+      "observed": {
+        "transport": "connect_timeout"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The selected client still receives the marker through direct pod IP",
+      "matched": true,
+      "observed": {
+        "transport": "http",
+        "status": 200,
+        "body": "saf0505003-fixture-ok"
+      }
+    }
+  ]
+}

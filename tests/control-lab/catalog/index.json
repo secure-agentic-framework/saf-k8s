@@ -852,6 +852,12 @@
       "sha256": "e25106f85d3b9744d569df177ace1b4d98296a175b4072d5d801f1f8211e4593",
       "title": "LoadBalancer, NodePort, and ExternalIP restriction policies"
     },
+    "SAF-K8S-0505-003": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "f80239ceb4452039a5d3b4e758dcf6d3625b3b0da1da45706c00e8a8b1a33e09",
+      "title": "Internal service endpoint protection"
+    },
     "SAF-K8S-0505-005": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -2174,7 +2180,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "2105d6342e1403b437bdab0b43e7fd7b6a3658d7",
-  "sha256": "38fe195709eb17028b611697b598230b21982191eb187d26ef672788bfd0c1ac",
+  "revision": "66fb391379202ce7d76c43edd60a23e260dfd6d9",
+  "sha256": "82c8181a0369adafde249681e946cf7daa42ac28325e8e01d8ff0e0b7f17a071",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

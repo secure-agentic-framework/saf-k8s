@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: saf0505003-default
+spec:
+  selector:
+    saf.example/case: saf0505003-server
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: saf0505003-headless
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    saf.example/case: saf0505003-server
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: saf0505003-server
+  labels:
+    saf.example/case: saf0505003-server
+spec:
+  restartPolicy: Never
+  containers:
+  - name: web
+    image: docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec
+    command:
+    - sh
+    - -c
+    - mkdir -p /tmp/saf-web && printf 'saf0505003-fixture-ok\n' > /tmp/saf-web/index.html
+      && exec httpd -f -p 8080 -h /tmp/saf-web
+    ports:
+    - name: http
+      containerPort: 8080
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      runAsNonRoot: true
+      runAsUser: 65534
+      seccompProfile:
+        type: RuntimeDefault
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: saf0505003-allowed
+  labels:
+    saf.example/case: saf0505003-allowed
+spec:
+  restartPolicy: Never
+  containers:
+  - name: probe
+    image: docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90
+    command:
+    - python
+    - -c
+    - import time; time.sleep(600)
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      runAsNonRoot: true
+      runAsUser: 65534
+      seccompProfile:
+        type: RuntimeDefault
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: saf0505003-denied
+  labels:
+    saf.example/case: saf0505003-denied
+spec:
+  restartPolicy: Never
+  containers:
+  - name: probe
+    image: docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90
+    command:
+    - python
+    - -c
+    - import time; time.sleep(600)
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      runAsNonRoot: true
+      runAsUser: 65534
+      seccompProfile:
+        type: RuntimeDefault
