@@ -1,0 +1,7 @@
+profile saf_complain_boundary flags=(attach_disconnected) {
+    /bin/busybox mr,
+    /bin/busybox ix,
+    /dev/console rw,
+    /fixture/allowed r,
+    audit deny /fixture/explicit r,
+}
