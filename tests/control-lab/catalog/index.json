@@ -1074,6 +1074,12 @@
       "sha256": "1810fc93399d1d80b8936348f48548c735f848803c2535efcf34ab7344b0223b",
       "title": "Automated AI workload rebuild and redeployment patch pipelines"
     },
+    "SAF-K8S-0604-011": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "72b054fbbd7e0b2166576f95014ccb681b899ac897d9f560eb6940ce9af6365c",
+      "title": "SLSA provenance generation and target-level governance"
+    },
     "SAF-K8S-0605-001": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2330,7 +2336,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "dbdc3ebfb6e70a05baed15cd778b4fc41dea2cef",
-  "sha256": "26b5f8b6ea7b05810baf8370e8cb4a3f7d9a9e8193277cd9393ef1ff18208709",
+  "revision": "42a320ad154a86884e72fe036b121cd9132e5544",
+  "sha256": "fd8da4f615ba0c95b9789f8bb2529a348390db5c9f96ad195fde1261dd55afe0",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
