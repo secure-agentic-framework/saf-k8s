@@ -2814,6 +2814,12 @@
       "sha256": "bb19120efcc631b267ca5236978d59b4e7c785f49eb7c6164f474a8de55242e2",
       "title": "Classification-aware chunking and vector collection segregation"
     },
+    "SAF-K8S-0909-009": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "cfd35a3f30302707d606864e31f4b8c3b3f76957a5c00b62746906e8206221fa",
+      "title": "Vector database authentication and collection-level access control"
+    },
     "SAF-K8S-0909-011": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3308,7 +3314,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "7013f556ed0ca3c5523b2ebd6a0e4de109e4dd13",
-  "sha256": "e13cdc23386f7894bc628f80bb5f925ebb6048d3c4863bc0baf4c7ba6874e1b2",
+  "revision": "276c22b1f8a8d3cd74b461930f3c5f336bfad0b2",
+  "sha256": "8dbce21837185ad84030bc682f3c2673000f72070cfe41ea85f9fed53e4decb8",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
