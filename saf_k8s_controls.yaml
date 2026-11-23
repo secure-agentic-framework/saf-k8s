@@ -9770,12 +9770,12 @@
   knowledge_area: '9.9'
   control_seq: '005'
   control_title: RAG prompt injection defense
-  control_statement: RAG systems must implement defenses against indirect prompt injection, where adversarial instructions embedded in retrieved documents manipulate the LLM's behavior, including input sanitization of retrieved chunks, instruction-data separation in prompt templates, and monitoring for prompt injection patterns in retrieval results.
-  objective: Prevent adversarial instructions embedded in retrieved documents from manipulating LLM behavior through indirect prompt injection attacks.
-  rationale: Indirect prompt injection is uniquely dangerous in RAG systems because the attack payload lives in the knowledge base, not in the user's query. An attacker plants a document containing adversarial instructions in a location that the RAG ingestion pipeline will index. When a user's query retrieves that document, the adversarial instructions are injected into the LLM's context. This attack bypasses user-facing input validation because the malicious content enters through the retrieval path rather than the query path.
-  scope: Applies to all RAG systems that assemble LLM prompts from retrieved content on Kubernetes. Covers retrieved chunk sanitization, prompt template design with instruction-data separation, and monitoring for prompt injection indicators. Excludes direct prompt injection via user queries (see inference request validation in KA 9.2).
-  primary_enforcement_point: Retrieval-to-prompt assembly middleware, prompt template configuration, and output validation in the RAG serving pipeline.
-  implementation_surface: Retrieval-to-prompt assembly middleware with chunk sanitization rules (escaping instruction overrides, role-playing triggers, delimiter manipulation), prompt template design with structural instruction-data separation and system/user/assistant message roles, model-specific instruction precedence testing and documentation, output validation rules detecting leaked system prompts and policy violations, and monitoring for prompt injection indicators in retrieved chunks (imperative language, system prompt references).
+  control_statement: Treat retrieved records as untrusted data when assembling model requests. Verify source and record constraints, preserve program-controlled instruction roles, and independently authorize any consequential actions. Evaluate and monitor deployed model and tool behavior.
+  objective: Reduce indirect instruction risks from retrieval and preserve independently enforced limits on downstream actions.
+  rationale: Retrieved content is an additional untrusted input. Structured request assembly and source checks reduce the opportunities to grant it application authority. Model behavior and downstream action safety require separate observations.
+  scope: Applies to retrieval-to-model serialization, model and tool pathways, validation and monitoring for governed Kubernetes-hosted applications. Include alternate request paths and data transformations.
+  primary_enforcement_point: The application request assembly boundary and the independently governed output and action interfaces.
+  implementation_surface: Verify trusted source metadata and exact record validation, keep retrieved data separate where the API supports it, enforce independent authorization for actions, and measure deployment-specific behavior, permitted task quality and actual monitoring outcomes.
   owner_primary: ML Platform Engineering
   owner_supporting: Security Engineering; Application Security
   baseline_or_ai_specific: ai-specific
