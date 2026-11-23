@@ -1,0 +1,350 @@
+{
+  "control_id": "SAF-K8S-0905-055",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "86ba644904f34bf61a7b69aa9c316bca2e935f51a289c45052608b176b127bdd",
+  "scope": "Native Kubernetes v1.36.1 admission checks exact HTTPS and OCI values in declared environment fields on Pods, Deployments, StatefulSets, DaemonSets, Jobs and CronJobs in a protected namespace, including normal and init containers. Requests use server dry-run and a real zero-replica Deployment. The test covers an admissible update, allowlist rotation and a missing parameter. The scope is explicit fields, including rejection of valueFrom for those fields. Image pulls, arbitrary application source references, other controllers and production governance are open.",
+  "cluster": "saf-lab-f77396b3ce74",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The exact alternate-source Pod reaches the API before enrollment",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "Pod",
+        "namespace": "saf-test"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The exact alternate-source Deployment reaches the API before enrollment",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "Deployment",
+        "namespace": "saf-test"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The exact alternate-source StatefulSet reaches the API before enrollment",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "StatefulSet",
+        "namespace": "saf-test"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The exact alternate-source DaemonSet reaches the API before enrollment",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "DaemonSet",
+        "namespace": "saf-test"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The exact alternate-source Job reaches the API before enrollment",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "Job",
+        "namespace": "saf-test"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The exact alternate-source CronJob reaches the API before enrollment",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "CronJob",
+        "namespace": "saf-test"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The alternate OCI reference is accepted before enrollment",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "Pod",
+        "namespace": "saf-test"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The alternate indirect value is accepted before enrollment",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "Pod",
+        "namespace": "saf-test"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The alternate init container is accepted before enrollment",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "Pod",
+        "namespace": "saf-test"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The same valid stored Deployment update is accepted before enrollment",
+      "matched": true,
+      "observed": {
+        "update_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enrolled API rejects the alternate-source Pod for the expected policy",
+      "matched": true,
+      "observed": {
+        "api_rejection": true,
+        "expected_policy_named": true,
+        "expected_denial_message": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The enrolled API still accepts approved source values on Pod",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "Pod",
+        "namespace": "saf-test"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enrolled API rejects the alternate-source Deployment for the expected policy",
+      "matched": true,
+      "observed": {
+        "api_rejection": true,
+        "expected_policy_named": true,
+        "expected_denial_message": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The enrolled API still accepts approved source values on Deployment",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "Deployment",
+        "namespace": "saf-test"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enrolled API rejects the alternate-source StatefulSet for the expected policy",
+      "matched": true,
+      "observed": {
+        "api_rejection": true,
+        "expected_policy_named": true,
+        "expected_denial_message": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The enrolled API still accepts approved source values on StatefulSet",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "StatefulSet",
+        "namespace": "saf-test"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enrolled API rejects the alternate-source DaemonSet for the expected policy",
+      "matched": true,
+      "observed": {
+        "api_rejection": true,
+        "expected_policy_named": true,
+        "expected_denial_message": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The enrolled API still accepts approved source values on DaemonSet",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "DaemonSet",
+        "namespace": "saf-test"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enrolled API rejects the alternate-source Job for the expected policy",
+      "matched": true,
+      "observed": {
+        "api_rejection": true,
+        "expected_policy_named": true,
+        "expected_denial_message": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The enrolled API still accepts approved source values on Job",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "Job",
+        "namespace": "saf-test"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enrolled API rejects the alternate-source CronJob for the expected policy",
+      "matched": true,
+      "observed": {
+        "api_rejection": true,
+        "expected_policy_named": true,
+        "expected_denial_message": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The enrolled API still accepts approved source values on CronJob",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "CronJob",
+        "namespace": "saf-test"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A declared OCI reference outside the allowlist is denied",
+      "matched": true,
+      "observed": {
+        "api_rejection": true,
+        "expected_policy_named": true,
+        "expected_denial_message": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A declared source parameter supplied by valueFrom is denied",
+      "matched": true,
+      "observed": {
+        "api_rejection": true,
+        "expected_policy_named": true,
+        "expected_denial_message": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A declared source in an init container is checked",
+      "matched": true,
+      "observed": {
+        "api_rejection": true,
+        "expected_policy_named": true,
+        "expected_denial_message": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The API blocks the same update to the persisted Deployment",
+      "matched": true,
+      "observed": {
+        "api_rejection": true,
+        "expected_policy_named": true,
+        "expected_denial_message": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The alternate source is still admissible outside the enrolled namespace",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "Pod",
+        "namespace": "saf-source-outside"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A bound update removes the previously accepted URL",
+      "matched": true,
+      "observed": {
+        "api_rejection": true,
+        "expected_policy_named": true,
+        "expected_denial_message": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The newly approved URL is admissible after rotation",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "Pod",
+        "namespace": "saf-test"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A missing bound ConfigMap fails closed for otherwise approved input",
+      "matched": true,
+      "observed": {
+        "api_rejection": true,
+        "expected_policy_named": true,
+        "expected_parameter_error": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A missing parameter does not block the outside namespace",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "Pod",
+        "namespace": "saf-source-outside"
+      }
+    }
+  ]
+}
