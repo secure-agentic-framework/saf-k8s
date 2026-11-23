@@ -7189,13 +7189,13 @@
   domain_name: Storage, Multi-tenancy, and Resource Governance
   knowledge_area: '7.4'
   control_seq: '16'
-  control_title: Cloud IAM to Kubernetes RBAC mapping review and drift remediation
-  control_statement: Organizations must review cloud IAM to Kubernetes RBAC entitlement mappings whenever cloud IAM roles, access entries, or Kubernetes RBAC bindings change, and must remediate drift so intended Kubernetes permissions remain accurate over time.
-  objective: Ensure documented IAM-to-RBAC entitlement mappings remain current as cloud IAM roles, access entries, and Kubernetes RBAC bindings evolve.
-  rationale: A documented mapping becomes stale unless it is reviewed and corrected when either side of the managed Kubernetes authorization model changes. Without ongoing review and remediation, access drift accumulates and cloud identities may retain unintended Kubernetes permissions despite nominal documentation.
-  scope: Applies to managed Kubernetes services and any self-managed clusters using cloud IAM or external cloud identity for Kubernetes authentication. Review must cover changes to cloud IAM roles, access entries, identity integrations, and Kubernetes RBAC bindings that affect granted access.
-  primary_enforcement_point: Recurring entitlement review workflows and drift-remediation processes.
-  implementation_surface: Review workflows comparing cloud IAM identities, access entries, and Kubernetes RBAC bindings; drift reports; and remediation actions correcting mismatched or stale IAM-to-RBAC mappings.
+  control_title: Effective Kubernetes API entitlement review and drift remediation
+  control_statement: Reconcile approved Kubernetes API entitlements against effective authentication and authorization on material changes and at a documented cadence. Remediate unexplained differences and repeat scoped authorization checks.
+  objective: Confirm that observed Kubernetes API access continues to match approved entitlements over time.
+  rationale: Changes to identity membership, provider access policy, cluster authentication or authorization, Kubernetes bindings and default grants can change effective permissions. Periodic review detects differences when change signals are incomplete. Verify the resulting allow and deny decisions after remediation.
+  scope: Applies to governed managed and externally authenticated Kubernetes clusters. Review all relevant provider, identity and cluster authorization paths, emergency access, exceptions and explicitly recorded evidence gaps.
+  primary_enforcement_point: Approved entitlement inventory, change-triggered and periodic reconciliation, and paired effective authorization checks after remediation.
+  implementation_surface: Compare dated provider, identity and Kubernetes configuration to the approved inventory. Track removed and missing grants, source identity, effective scope and reviewer actions. Reconcile through the applicable control plane and record the resulting permitted and denied access, along with any unaffected boundaries.
   owner_primary: Cloud Platform Engineering
   owner_supporting: Security Engineering; Platform Engineering
   baseline_or_ai_specific: baseline
