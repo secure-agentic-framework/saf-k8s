@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0501-002",
-  "catalog_revision": "89f78fbae6d3127ebb4fdc628885140fd8b3debf",
-  "catalog_sha256": "9b3b6190b973eb3addee410c79d4c34a183e00a420066cc2e0a38653d22866a9",
+  "catalog_revision": "cebd7ee630a25c40646155cefba526244539cb55",
+  "catalog_sha256": "43de94094630359221f83a05e4556881b2d53e76ac3923c7062b59a892f54314",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "fff48cefc65151490f384235bd52752805aae0fd293e8609cdb097f950e6465e",
   "scope": "One disposable kind v0.32.0 cluster on the lab runner's digest-pinned Kubernetes v1.36.1 node image, using the ready bundled kindnet daemonset. Three case-owned namespaces contain three source Pods and two HTTP marker Pods; IPv4 TCP/8080 probes compare no-policy baseline with ingress isolation, namespaceSelector+podSelector conjunction, and one explicit source-to-approved-Service flow. A DNS phase checks the owned Service through the in-cluster kube-dns Service and CoreDNS endpoints, with client egress restricted to CoreDNS UDP/TCP 53 before a separate TCP/8080 application allowance. No external targets, scans, production CNI, monitoring flows, IPv6, hostNetwork/node paths, or admission/generation automation is tested.",
-  "cluster": "saf-lab-9b447611527f",
+  "cluster": "saf-lab-6e3b785d6fba",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
