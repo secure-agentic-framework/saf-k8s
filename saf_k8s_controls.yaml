@@ -670,12 +670,12 @@
   knowledge_area: '1.3'
   control_seq: 008
   control_title: Cloud controller-manager deployment isolation
-  control_statement: Production Kubernetes clusters using a cloud controller-manager must deploy it separately from the core kube-controller-manager so that cloud-provider-specific controller execution, privileges, and failure modes are isolated from the core control-plane controller process.
-  objective: Limit the blast radius of a cloud controller-manager compromise or failure by separating it from the core controller-manager execution boundary.
-  rationale: Co-deploying the cloud controller-manager with the core controller-manager collapses trust boundaries between cloud-facing automation and core Kubernetes reconciliation logic. This control isolates the deployment and process-boundary requirement so teams can independently verify component separation from cloud IAM and credential lifecycle concerns.
-  scope: Applies to production clusters with cloud controller-manager integrations. Covers separate deployment topology, process boundary, and operational separation from kube-controller-manager.
-  primary_enforcement_point: Component Isolation
-  implementation_surface: Cloud controller-manager deployment manifests, static pod or deployment topology, and component process inventory showing separate execution from kube-controller-manager.
+  control_statement: Where the supported target architecture uses an external cloud controller-manager, execute provider-specific controllers separately from the core Kubernetes controller manager and document distinct controller ownership. Govern migration stages and provider-operated boundaries explicitly.
+  objective: Preserve distinct execution and controller ownership boundaries for provider-specific and core Kubernetes reconciliation.
+  rationale: Separate execution allows independent deployment, identity assignment and maintenance. Effective Kubernetes and cloud privileges, shared dependencies and observed failure isolation require separate checks. A temporary migration can have a different process layout.
+  scope: Applies to governed production integrations using an external cloud controller-manager. Identify Kubernetes and provider versions, steady-state assignments, migration constraints, local owners and applicable provider evidence.
+  primary_enforcement_point: Effective component deployment, running process identity and configured controller ownership.
+  implementation_surface: Verify separate deployment and runtime instances, applicable externally configured provider settings and controller inventories. Exercise expected independent maintenance where supported and separately verify effective permissions and shared dependency risks.
   owner_primary: Platform Engineering
   owner_supporting: Cloud Platform Engineering; Security Engineering
   baseline_or_ai_specific: baseline
