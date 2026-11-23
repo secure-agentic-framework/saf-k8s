@@ -7670,12 +7670,12 @@
   knowledge_area: '8.3'
   control_seq: '003'
   control_title: RDMA memory region and queue pair isolation
-  control_statement: RDMA-enabled AI workloads must enforce memory region access controls with properly scoped remote access keys, isolate queue pairs between tenants, and implement protections against remote memory read/write attacks targeting GPU training buffers.
-  objective: Prevent unauthorized remote direct memory access to GPU training data, model parameters, and gradient buffers by enforcing strict RDMA memory region boundaries and queue pair isolation between workloads.
-  rationale: RDMA allows remote nodes to read and write memory without CPU involvement, using memory registration keys (rkeys) for access control. A compromised or malicious workload that obtains a valid rkey can silently read training data or write corrupted gradients to a victim's memory regions. Shared queue pairs between tenants can enable traffic injection into another tenant's RDMA communication streams, poisoning distributed training collective operations.
-  scope: Applies to Kubernetes pods using RDMA (InfiniBand verbs, RoCE) for distributed training communication libraries (NCCL, Gloo, MPI). Covers memory region registration, protection domain configuration, and queue pair allocation. Workloads not using RDMA are not in scope. Managed RDMA services must verify provider-enforced memory isolation.
-  primary_enforcement_point: RDMA device plugin configuration, libibverbs memory region registration policies, protection domain isolation in RDMA workloads, and kernel-level RDMA access controls (rdma cgroup).
-  implementation_surface: RDMA verbs layer memory region (MR) registration and remote key (rkey) scoping, RDMA queue pair (QP) creation and isolation per training job, RDMA protection domain assignment per tenant, libibverbs memory region registration policies, rdma cgroup controller configuration restricting per-container RDMA resource allocation, NCCL communication channel isolation settings, and RDMA device plugin per-pod protection domain configuration.
+  control_statement: Verify RDMA memory and queue access against approved workload protection domains, scoped access permissions and lifecycle policy. Validate provider and device assignment and peer DMA separately from Kubernetes admission and resource accounting.
+  objective: Constrain approved RDMA registrations and queue ownership to the intended workload trust boundary.
+  rationale: RDMA memory registration and queue configuration occur in the application, provider verbs and hardware layers. Kubernetes admission and Linux RDMA cgroups can govern declarations or resource counts. These observations do not establish protection domain ownership or effective access permissions.
+  scope: Applies to governed RDMA workload paths, including host and accelerator memory, protection domains, queue ownership and lifecycle, supported devices, network and provider-only controls.
+  primary_enforcement_point: Effective workload and provider RDMA access policy, protected lifecycle evidence and independent platform assignment.
+  implementation_surface: Inventory applicable workload and device paths and the reviewed trust boundary. Verify actual memory permissions, protection-domain and queue ownership, registration lifecycle and read-only provider evidence. Restrict declared device access and assess fabric and DMA controls separately. Record missing or stale measurements.
   owner_primary: ML Platform Engineering
   owner_supporting: Network Engineering; GPU Infrastructure Engineering; Security Engineering
   baseline_or_ai_specific: ai-specific
