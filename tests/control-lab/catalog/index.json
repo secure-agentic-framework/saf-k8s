@@ -1320,6 +1320,12 @@
       "sha256": "1cacba9c6e0a6b7faba354f263e71920e4055453ab92d7270c5cf4d52054300c",
       "title": "Separation of duties enforcement for model promotion approvals"
     },
+    "SAF-K8S-0905-040": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "34975efdc8472f9c74cbb1cbc89aebcb0657f44c1f559fb8687e01a568f3216b",
+      "title": "Model registry audit event generation and centralized forwarding"
+    },
     "SAF-K8S-0905-042": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1838,7 +1844,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "a933a0eff31be4c5a65ca13d46fe883659c66506",
+  "revision": "d0c38f3ae0a6926a8c4445710a84d741a269446b",
   "sha256": "119723d33fc0fa432e9da9a56f9490f9f2b56cdeff77405a834a5690eb876c82",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

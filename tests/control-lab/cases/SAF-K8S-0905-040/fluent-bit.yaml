@@ -1,0 +1,37 @@
+service:
+  flush: 1
+  log_level: warn
+pipeline:
+  inputs:
+    - name: tail
+      tag: zot.audit
+      path: /events/audit.jsonl
+      parser: zot_json
+      read_from_head: true
+      refresh_interval: 1
+    - name: tail
+      tag: zot.access
+      path: /events/access.jsonl
+      parser: zot_json
+      read_from_head: true
+      refresh_interval: 1
+  outputs:
+    - name: http
+      match: zot.audit
+      host: sink
+      port: 8080
+      uri: /audit
+      format: json_lines
+      json_date_key: false
+      workers: 1
+    - name: http
+      match: zot.access
+      host: sink
+      port: 8080
+      uri: /access
+      format: json_lines
+      json_date_key: false
+      workers: 1
+parsers:
+  - name: zot_json
+    format: json
