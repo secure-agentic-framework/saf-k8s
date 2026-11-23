@@ -3670,12 +3670,12 @@
   knowledge_area: '4.5'
   control_seq: 009
   control_title: API impersonation RBAC restriction
-  control_statement: Organizations must restrict the Kubernetes API impersonation capability (the impersonate verb on users, groups, serviceaccounts, userextras, and uid resources) to explicitly authorized subjects only, using narrowly scoped RBAC roles and resourceNames that limit which identities may be impersonated.
-  objective: Prevent unauthorized identity assumption through the Kubernetes impersonation API by tightly constraining which subjects can impersonate which identities.
-  rationale: The impersonate verb allows a caller to act as another identity without possessing that identity's credentials. If broadly granted, it bypasses normal RBAC boundaries and enables direct privilege escalation into cluster-admin or sensitive service accounts. Restricting the grant itself is a separate control claim from detecting how approved impersonation is used.
-  scope: Applies to all clusters. Covers RBAC grants for impersonating users, groups, serviceaccounts, userextras, and uid resources. Legitimate CI/CD, multi-tenant controller, and operator use cases must be explicitly approved and scoped to named targets.
-  primary_enforcement_point: RBAC / Authorization
-  implementation_surface: ClusterRoles, Roles, RoleBindings, and ClusterRoleBindings granting impersonate with scoped resourceNames and approved impersonator registry.
+  control_statement: Inventory effective impersonation authorization and permit it only for approved callers and exact identity values. Use the appropriate namespaced or cluster-scoped grants and independently govern the delegated identity's permissions. Verify ordinary and any supported constrained impersonation mechanisms.
+  objective: Allow only approved identity delegation and bound the resulting access to the intended operation and scope.
+  rationale: An ordinary impersonation name grant limits the identity values that may be supplied. Subsequent authorization uses the resolved delegated identity. Assertion or token integrity is an independent authentication responsibility.
+  scope: Applies to governed Kubernetes impersonation grants for users, groups, ServiceAccounts, extra values and UIDs. Identify actual feature availability, namespace scope, authorized caller and approved delegated access.
+  primary_enforcement_point: Effective API authorization for exact impersonation identity values and the resulting governed operation.
+  implementation_surface: Inventory approval, role and effective authorization. Verify allowed and unlisted identity values, namespace scope, a harmless authorized operation and verified grant removal. Review delegated identity permissions and constrained impersonation where supported.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; Security Operations
   baseline_or_ai_specific: baseline
