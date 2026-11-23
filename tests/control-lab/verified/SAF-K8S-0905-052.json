@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-052",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "0fc7b73f37fb6302b0135770d5721e58eeacddc6",
+  "catalog_sha256": "9246a83494e93abb79f73876a57c184c94b68d2ab9366f66d0ea3595a5589eeb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "252a45728a60de7e18bf1900ccd57b52cdf0f77bbf36713784a2aa235dd50902",
   "scope": "One disposable Kubernetes v1.36.1 Kind cluster exercises inert repository, publisher, and registry-namespace/CID approval records. Immutable ConfigMap proposals are read by a restricted review Job. An isolated publisher Job can patch only the named allowlist ConfigMap; a separate unprivileged Job is denied. Red, green, and positive observations use the same in-cluster API path. This tests fixture policy evaluation, Kubernetes authorization, and persistence only; it does not establish that the named approver is a real person or that the documented evidence is true.",
-  "cluster": "saf-lab-54b9fe4e35e8",
+  "cluster": "saf-lab-656b66bf696c",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
