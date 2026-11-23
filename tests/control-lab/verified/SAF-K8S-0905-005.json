@@ -1,0 +1,206 @@
+{
+  "control_id": "SAF-K8S-0905-005",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "1116ec5fef85b0a6d1d7827ad0bee30cd0ba584dbefab4ea3fab0b6329e089da",
+  "scope": "A disposable Kubernetes v1.36.1 cluster runs two copies of a case-owned HTTP promotion gate against the same inert model identity: one enforcement-disabled baseline and one enforcing gate. The enabled gate authenticates a short-lived reporter ServiceAccount token with authentication.k8s.io/v1 TokenReview, accepts evidence only from that exact principal and audience, persists the submitted fixed evidence in a namespace-scoped ConfigMap, reads it back, and requires pass results for security, bias, performance and robustness plus matching builder/model/predicate digests. It records signature verification as unverified. This proves the fixture API/RBAC/TokenReview and deterministic policy path for fixed synthetic records only; it does not prove evaluator efficacy, genuine model quality, cryptographic signature trust, report-writer audit attribution, or production promotion workflow coverage.",
+  "review_timing": {
+    "queued_at": "2026-11-22T23:53:59.549126+00:00",
+    "cluster_ready_at": "2026-11-22T23:54:25.618508+00:00",
+    "approval_at": "2026-11-22T23:58:23.136829+00:00",
+    "case_loaded_at": "2026-11-22T23:58:23.312820+00:00"
+  },
+  "cluster": "saf-lab-ce52426df70b",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "f2448e5b405e751abb3be8515496639836ec50eeca22816c21f71a484c725b44",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The same inert model record is accepted when enforcement is absent",
+      "matched": true,
+      "observed": {
+        "http_status": 200,
+        "gate": "disabled",
+        "synthetic_security_result": "fail"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enforcing gate rejects missing security evidence",
+      "matched": true,
+      "observed": {
+        "gate": "security",
+        "expected": "missing",
+        "observed": "missing",
+        "http_status": 403,
+        "evidence_read_back": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enforcing gate rejects fail security evidence",
+      "matched": true,
+      "observed": {
+        "gate": "security",
+        "expected": "fail",
+        "observed": "fail",
+        "http_status": 403,
+        "evidence_read_back": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enforcing gate rejects missing bias evidence",
+      "matched": true,
+      "observed": {
+        "gate": "bias",
+        "expected": "missing",
+        "observed": "missing",
+        "http_status": 403,
+        "evidence_read_back": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enforcing gate rejects fail bias evidence",
+      "matched": true,
+      "observed": {
+        "gate": "bias",
+        "expected": "fail",
+        "observed": "fail",
+        "http_status": 403,
+        "evidence_read_back": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enforcing gate rejects missing performance evidence",
+      "matched": true,
+      "observed": {
+        "gate": "performance",
+        "expected": "missing",
+        "observed": "missing",
+        "http_status": 403,
+        "evidence_read_back": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enforcing gate rejects fail performance evidence",
+      "matched": true,
+      "observed": {
+        "gate": "performance",
+        "expected": "fail",
+        "observed": "fail",
+        "http_status": 403,
+        "evidence_read_back": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enforcing gate rejects missing robustness evidence",
+      "matched": true,
+      "observed": {
+        "gate": "robustness",
+        "expected": "missing",
+        "observed": "missing",
+        "http_status": 403,
+        "evidence_read_back": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enforcing gate rejects fail robustness evidence",
+      "matched": true,
+      "observed": {
+        "gate": "robustness",
+        "expected": "fail",
+        "observed": "fail",
+        "http_status": 403,
+        "evidence_read_back": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An authenticated but unapproved reporting principal is denied",
+      "matched": true,
+      "observed": {
+        "http_status": 403,
+        "reason": "reporter-not-authorized"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enforcing gate rejects a mismatched artifact subject digest",
+      "matched": true,
+      "observed": {
+        "http_status": 403,
+        "accepted": false,
+        "provenance_matches": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enforcing gate rejects a mismatched predicate digest",
+      "matched": true,
+      "observed": {
+        "http_status": 403,
+        "accepted": false,
+        "provenance_matches": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Matching fixed evidence and artifact/predicate digests permit the inert promotion",
+      "matched": true,
+      "observed": {
+        "http_status": 200,
+        "accepted": true,
+        "reporter": "system:serviceaccount:saf-test:gate-reporter",
+        "gate_results": {
+          "bias": "pass",
+          "performance": "pass",
+          "robustness": "pass",
+          "security": "pass"
+        },
+        "artifact_sha256_matches": true,
+        "artifact_matches": true,
+        "predicate_sha256_matches": true,
+        "provenance_matches": true,
+        "signature_verification": "unverified",
+        "evidence_read_back": true
+      }
+    }
+  ]
+}

@@ -1278,6 +1278,12 @@
       "sha256": "37c58febf4ccbd90e7926bb64dd47a877b3a494325dfb1c6c728fd592988646c",
       "title": "Pipeline definition immutable version storage and controlled rollback governance"
     },
+    "SAF-K8S-0905-005": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "1116ec5fef85b0a6d1d7827ad0bee30cd0ba584dbefab4ea3fab0b6329e089da",
+      "title": "Automated model promotion gates"
+    },
     "SAF-K8S-0905-025": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1778,7 +1784,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ed3570169e21a6ab7ee23000475930ee1668b9dc",
+  "revision": "f37eae9b3a79c86f8ae4a77a988d9dc0828b49af",
   "sha256": "6d92dc4241cfab0152a84b60f7e999d80a82f00ad7cadd178658b2938e801fda",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
