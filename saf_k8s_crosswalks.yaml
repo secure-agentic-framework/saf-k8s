@@ -8197,16 +8197,15 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-2(12)
   framework_requirement_title: Account Monitoring for Atypical Usage
-  framework_mapping_notes: 'Detecting anomalous agent behavior patterns
-
-
-    4.5 - Detect and mitigate identity abuse (anomaly detection for unauthorized retrieval, access audit trails)'
+  framework_mapping_notes: The deployed system monitors applicable system accounts for the organization-defined atypical
+    impersonation activity and reports findings to the defined personnel.
   control_id: SAF-K8S-0405-010
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The deployed system monitors applicable system accounts for the organization-defined atypical
+    impersonation activity and reports findings to the defined personnel
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -15964,22 +15963,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-9(3)
-  framework_requirement_title: Notification of Account Changes
-  framework_mapping_notes: 'Alerting on agent account modifications
-
-
-    4.5 - Privilege escalation detection (monitoring RBAC changes, notification of account modifications); 10.1 - Audit logging'
-  control_id: SAF-K8S-0405-010
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -62658,16 +62641,15 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-4(20)
   framework_requirement_title: Privileged Users
-  framework_mapping_notes: 'Enhanced monitoring of privileged users operating agent systems detects insider threats
-
-
-    4.5 - Privilege escalation detection (monitoring privileged users); 4.1 - RBAC audit (tracking privileged access)'
+  framework_mapping_notes: The deployed system independently verifies the designated additional monitoring and reporting
+    of privileged users.
   control_id: SAF-K8S-0405-010
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The deployed system independently verifies the designated additional monitoring and reporting
+    of privileged users
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
