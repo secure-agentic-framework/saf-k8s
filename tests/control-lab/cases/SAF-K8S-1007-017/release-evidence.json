@@ -1,0 +1,128 @@
+{
+  "schema": "saf-k8s-release-corroboration/v1",
+  "capture": {
+    "captured_at_utc": "2026-11-23T02:16:13Z",
+    "capture_basis": "reference/release-sources.json; official upstream source snapshots; normalized fields below",
+    "runtime_fetch_performed_by_case": false,
+    "release_landing_verified_at_utc": "2026-11-23T03:03:00Z"
+  },
+  "channel_markers": {
+    "stable": {
+      "url": "https://dl.k8s.io/release/stable.txt",
+      "text": "v1.37.2"
+    },
+    "stable-1.35": {
+      "url": "https://dl.k8s.io/release/stable-1.35.txt",
+      "text": "v1.35.10"
+    },
+    "stable-1.36": {
+      "url": "https://dl.k8s.io/release/stable-1.36.txt",
+      "text": "v1.36.6"
+    },
+    "stable-1.37": {
+      "url": "https://dl.k8s.io/release/stable-1.37.txt",
+      "text": "v1.37.2"
+    }
+  },
+  "project_releases": {
+    "v1.35.10": {
+      "url": "https://github.com/kubernetes/kubernetes/releases/tag/v1.35.10",
+      "api_url": "https://api.github.com/repos/kubernetes/kubernetes/releases/tags/v1.35.10",
+      "tag": "v1.35.10",
+      "previous_tag": "v1.35.9",
+      "published_at": "2026-10-28T04:37:28Z",
+      "draft": false,
+      "prerelease": false,
+      "tag_commit": "ae6fece6fea92ecfcccd13af7d5f2ea8cb9b33fe",
+      "previous_commit": "329000efd0b26bd78155e51e4df449130f0fca00",
+      "comparison_url": "https://github.com/kubernetes/kubernetes/compare/v1.35.9...v1.35.10",
+      "comparison": {
+        "status": "ahead",
+        "base_tag": "v1.35.9",
+        "base_commit": "329000efd0b26bd78155e51e4df449130f0fca00",
+        "head_tag": "v1.35.10",
+        "head_commit": "ae6fece6fea92ecfcccd13af7d5f2ea8cb9b33fe"
+      }
+    },
+    "v1.36.6": {
+      "url": "https://github.com/kubernetes/kubernetes/releases/tag/v1.36.6",
+      "api_url": "https://api.github.com/repos/kubernetes/kubernetes/releases/tags/v1.36.6",
+      "tag": "v1.36.6",
+      "previous_tag": "v1.36.5",
+      "published_at": "2026-10-28T04:56:35Z",
+      "draft": false,
+      "prerelease": false,
+      "tag_commit": "1b2171b110bb2a2542e1322035c6583ec86eb976",
+      "previous_commit": "ad950d1cc78b0183c476bd4d3f1934c104229727",
+      "comparison_url": "https://github.com/kubernetes/kubernetes/compare/v1.36.5...v1.36.6",
+      "comparison": {
+        "status": "ahead",
+        "base_tag": "v1.36.5",
+        "base_commit": "ad950d1cc78b0183c476bd4d3f1934c104229727",
+        "head_tag": "v1.36.6",
+        "head_commit": "1b2171b110bb2a2542e1322035c6583ec86eb976"
+      }
+    },
+    "v1.37.2": {
+      "url": "https://github.com/kubernetes/kubernetes/releases/tag/v1.37.2",
+      "api_url": "https://api.github.com/repos/kubernetes/kubernetes/releases/tags/v1.37.2",
+      "tag": "v1.37.2",
+      "previous_tag": "v1.37.1",
+      "published_at": "2026-10-28T04:37:53Z",
+      "draft": false,
+      "prerelease": false,
+      "tag_commit": "c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32",
+      "previous_commit": "f78e722310e50bcaca9276be22276d9e91d91308",
+      "comparison_url": "https://github.com/kubernetes/kubernetes/compare/v1.37.1...v1.37.2",
+      "comparison": {
+        "status": "ahead",
+        "base_tag": "v1.37.1",
+        "base_commit": "f78e722310e50bcaca9276be22276d9e91d91308",
+        "head_tag": "v1.37.2",
+        "head_commit": "c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32"
+      }
+    }
+  },
+  "changelog_observations": {
+    "v1.37.2": {
+      "tagged": {
+        "url": "https://raw.githubusercontent.com/kubernetes/kubernetes/v1.37.2/CHANGELOG/CHANGELOG-1.37.md",
+        "snapshot_sha256": "c8288f21e54efd9d91dfa1dda27ab5d17e065f416811f75c5b0606590f7f2a6d",
+        "latest_heading": "v1.37.1",
+        "evidence": "tagged file's first release heading is # v1.37.1; it does not contain a v1.37.2 section"
+      },
+      "release_landing": {
+        "url": "https://kubernetes.io/releases/",
+        "latest_heading": "v1.37.1",
+        "snapshot_sha256": "f5f9dd1bf747e8c11597bbda057753a88d94865a749e7db4f95b9b6c002cb2f7"
+      },
+      "linked_changelog": {
+        "url": "https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.37.md",
+        "snapshot_sha256": "74ed3c630967ed811dba20b63b442281476e3f63ba4552e412336c72f173bf26",
+        "latest_heading": "v1.37.2",
+        "evidence": "Linked branch changelog contains a v1.37.2 section."
+      }
+    }
+  },
+  "impact_fixture": {
+    "api_version": "networking.k8s.io/v1beta1",
+    "deprecated_in": "v1.19.0",
+    "removed_in": "v1.22.0",
+    "replacement_api_version": "networking.k8s.io/v1",
+    "target_releases": [
+      "v1.35.10",
+      "v1.36.6",
+      "v1.37.2"
+    ],
+    "provenance": "Synthetic impact horizons derived from the checked-in Ingress lifecycle fixture; not Kubernetes release-risk assertions for v1.35-v1.37."
+  },
+  "provenance": {
+    "official_observations": [
+      "channel_markers",
+      "project_releases",
+      "changelog_observations"
+    ],
+    "synthetic_counterfactuals": "Constructed in memory by case/case.py from official-observation baseline; they are not published Kubernetes metadata.",
+    "tag_signature": "The upstream receipt says release tags are unsigned. This fixture corroborates published tag names and commit comparison; it does not claim a cryptographically signed tag."
+  }
+}

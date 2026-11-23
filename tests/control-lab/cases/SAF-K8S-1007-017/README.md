@@ -81,3 +81,18 @@ monitoring record exists yet.
 - [Kubernetes v1.22 release announcement](https://kubernetes.io/blog/2021/08/04/kubernetes-1-22-release-announcement/): confirms removal of deprecated beta APIs including Ingress.
 - [Kubernetes v1.36 Deprecated API Migration Guide, Ingress removal in 1.22](https://v1-36.docs.kubernetes.io/docs/reference/using-api/deprecation-guide/#ingress-v122): records the removed Ingress API versions, stable replacement availability and field changes.
 - [Kubernetes API deprecation policy](https://kubernetes.io/docs/reference/using-api/deprecation-policy/): explains Kubernetes API deprecation/removal guarantees and warning mechanisms.
+
+### Release corroboration fixture
+
+The captured Kubernetes release listing and the v1.37.2 tagged changelog lag
+the published v1.37.2 patch. The fixture corroborates the per-minor download
+marker with the upstream stable release record and same-minor commit comparison.
+It keeps the linked changelog heading as context. The v1.36 check follows its
+own stable marker when the global marker points to v1.37. The isolated
+counterfactuals exercise disagreement, an absent comparison, a draft, a
+prerelease and a comparison across minor releases. The existing Ingress
+checks exercise the removal boundary and live API discovery.
+
+The normalized capture and its source URLs are in `release-evidence.json`.
+The case uses the captured snapshots offline. Production polling, alert
+delivery and validation on an actual upgrade remain separate requirements.

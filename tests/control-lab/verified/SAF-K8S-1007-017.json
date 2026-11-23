@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1007-017",
-  "catalog_revision": "d34b502ac96accb45a26841dfa77094dc4a72d9e",
-  "catalog_sha256": "c3bdef2bfc0aae712ee2fcb1bfd47cebfcedc7415526acfb36b86be77042a93f",
+  "catalog_revision": "bcb97ddb4a9813794bb8ca5961d9b72cbb4f65cb",
+  "catalog_sha256": "a868b4ea141c0e3de49227b6eeabffa4a2330712afd28048221b89ce9b63aa55",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "86bede5c4a8f71a86b0b7f0e14ac9d318020fac42d6bf4cbbc9b625681470614",
-  "scope": "Read-only Kubernetes v1.36.1 API version/discovery inspection plus offline, version-pinned Kubernetes Ingress v1.22 deprecation fixtures. Computes an impact alert for one synthetic legacy manifest and evaluates the corresponding synthetic migration record. It creates no Kubernetes objects and makes no external requests. It does not establish release-feed polling, real cluster inventory completeness, production migration validation, or organization alert triage and distribution.",
-  "cluster": "saf-lab-2ea57ad2f5a9",
+  "scope": "Read-only Kubernetes v1.36.1 API version/discovery inspection plus offline, version-pinned Kubernetes Ingress v1.22 deprecation and release-corroboration fixtures. Release evaluation reads only checked-in normalized upstream observations and synthetic counterfactuals. It makes no external requests. It does not establish recurring feed polling, inventory completeness, production migration validation, or organizational alert triage.",
+  "cluster": "saf-lab-db05fd51d933",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -38,6 +38,81 @@
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
+    {
+      "phase": "positive",
+      "claim": "Pinned stable-1.37 marker, published project release and authoritative same-minor tag comparison agree despite lagging release listing and tagged changelog",
+      "matched": true,
+      "observed": {
+        "target_minor": 37,
+        "candidate": "v1.37.2",
+        "channel": "stable-1.37",
+        "tag_commit": "c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32",
+        "tagged_changelog_latest": "v1.37.1",
+        "landing_latest": "v1.37.1",
+        "linked_changelog_latest": "v1.37.2",
+        "reason": "channel-project-release-and-tag-comparison-agree"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Per-minor stable channel takes precedence over the newer global stable marker for a v1.36 target",
+      "matched": true,
+      "observed": {
+        "target_minor": 36,
+        "selected_candidate": "v1.36.6",
+        "global_stable": "v1.37.2",
+        "channel": "stable-1.36",
+        "reason": "channel-project-release-and-tag-comparison-agree"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The Ingress impact is version-specific: target v1.21 is before removal and v1.22 crosses the removal boundary",
+      "matched": true,
+      "observed": {
+        "api_version": "networking.k8s.io/v1beta1",
+        "before_target": "v1.21.0",
+        "before_target_impacted": false,
+        "removal_release": "v1.22.0",
+        "at_target": "v1.22.0",
+        "at_target_impacted": true,
+        "provenance": "Synthetic impact horizons derived from the checked-in Ingress lifecycle fixture; not Kubernetes release-risk assertions for v1.35-v1.37."
+      }
+    },
+    {
+      "phase": "negative",
+      "claim": "Synthetic channel conflict, missing comparison, prerelease, draft and crossed-minor counterfactuals fail closed",
+      "matched": true,
+      "observed": {
+        "cases": {
+          "channel-conflict": {
+            "closed": false,
+            "reason": "channel-release-tag-conflict",
+            "provenance": "synthetic in-memory counterfactual, not published metadata"
+          },
+          "missing-comparison": {
+            "closed": false,
+            "reason": "missing-authoritative-tag-comparison",
+            "provenance": "synthetic in-memory counterfactual, not published metadata"
+          },
+          "prerelease": {
+            "closed": false,
+            "reason": "release-not-published-stable",
+            "provenance": "synthetic in-memory counterfactual, not published metadata"
+          },
+          "draft": {
+            "closed": false,
+            "reason": "release-not-published-stable",
+            "provenance": "synthetic in-memory counterfactual, not published metadata"
+          },
+          "crossed-minor-baseline": {
+            "closed": false,
+            "reason": "crossed-minor-baseline",
+            "provenance": "synthetic in-memory counterfactual, not published metadata"
+          }
+        }
+      }
+    },
     {
       "phase": "positive",
       "claim": "Live API discovery reports networking.k8s.io/v1 and does not report the removed networking.k8s.io/v1beta1 group version",
