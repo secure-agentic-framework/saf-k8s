@@ -1,0 +1,73 @@
+{
+  "control_id": "SAF-K8S-0405-021",
+  "catalog_revision": "a4bbd3b9081d6dc37456fddbd0dd8913f7a77a6f",
+  "catalog_sha256": "32a96160298bb97dcca99ea0ef32ce384c554b76270cfb0b17b1abe5c223a7a8",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "a19a58297b99a9cdf53190f6dba1563ba6254f60165191120bc1c09afdf21a3d",
+  "scope": "Native admission binds each approval to a distinct authenticated temporary caller, then requires the same scoped approval record at authorizing a named recovery RoleBinding. The actual Kubernetes API permits only the named ordinary read after approved activation. This tests the local authorization workflow and does not establish identity-provider MFA, operational independence or production authority paths.",
+  "cluster": "saf-lab-4ac8df87cac7",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A grant can become effective before the explicit approval control is applied",
+      "matched": true,
+      "observed": {
+        "actual_grant_created_without_approval_gate": true,
+        "ungated_fixture_access_effective": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission binds approval to the real caller and denies single-actor activation",
+      "matched": true,
+      "observed": {
+        "first_actor_can_record_its_own_approval": true,
+        "same_actor_cannot_record_other_approval": true,
+        "single_approval_does_not_activate": true,
+        "recovery_access_remains_unavailable": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The second scoped approval enables only the intended fixture read",
+      "matched": true,
+      "observed": {
+        "independent_approval_accepted": true,
+        "only_exact_activation_is_permitted": true,
+        "approved_recovery_read_effective": true,
+        "approval_record_remains_separately_protected": true
+      }
+    }
+  ]
+}

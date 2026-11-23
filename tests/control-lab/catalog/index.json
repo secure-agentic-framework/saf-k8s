@@ -1128,6 +1128,12 @@
       "sha256": "6acdd0a985151f601e6c5d8496ec5395e149984406853eb038be16400bc3a167",
       "title": "Break-glass recovery exercise validation"
     },
+    "SAF-K8S-0405-021": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "a19a58297b99a9cdf53190f6dba1563ba6254f60165191120bc1c09afdf21a3d",
+      "title": "Break-glass activation multi-party approval enforcement"
+    },
     "SAF-K8S-0405-022": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -3206,7 +3212,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6cc173f779017504bd71ab56196e1dac8b4d2a94",
-  "sha256": "d4fcab0503eb71d48d54bf75adff2f73dfed0c8f8cfd06f51ec61a225a130cce",
+  "revision": "14091f726b483c91dd9c45094fcefed293ccce52",
+  "sha256": "32a96160298bb97dcca99ea0ef32ce384c554b76270cfb0b17b1abe5c223a7a8",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
