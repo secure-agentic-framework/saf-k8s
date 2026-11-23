@@ -972,6 +972,12 @@
       "sha256": "ad7b6b66c9a7776a67a18faeba569fe83fcae405d8fd69a540c688606299e1ca",
       "title": "Automated AI workload credential inventory"
     },
+    "SAF-K8S-0403-022": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "845e922bec482e6f07bbff13ec662646b831959a7374ca4612c5bbb2098c837e",
+      "title": "Orphaned AI workload credential detection and remediation"
+    },
     "SAF-K8S-0403-024": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -3050,7 +3056,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "5f6eec2134adb10ed5428db52708d266d4b1345c",
-  "sha256": "7bd5c83d431c9e088850a6c51a4ba451ff1354116c27e2d04ca0a5618d3ad3c5",
+  "revision": "257e5bb8d32762aa67190813133d44bd97c03ad8",
+  "sha256": "1844b63398800b50327010d3590da84787bf8e464c58702204cf3980553d95ec",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
