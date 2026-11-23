@@ -1,0 +1,74 @@
+{
+  "control_id": "SAF-K8S-0403-003",
+  "catalog_revision": "e12bc130a46839f95736e606f61d91e8a3eb9bd0",
+  "catalog_sha256": "e4bff27795f7d155249333c59729c238a5b856d95a1b091a3328447025326f31",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "6af45f976c6db8e8f841aeaa3d2bcb93125a04e8f9fb04b6657e0fb752faa504",
+  "scope": "Exercise actual Kubernetes Secret directory refresh, subPath and init-copy snapshots, filesystem access and scoped admission. Published markers are public synthetic values. CSI, external injectors, sidecars and production workload behavior need distinct evidence.",
+  "cluster": "saf-lab-6082e56ede82",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The subPath declaration is initially admitted and all three fixture read paths see the initial version",
+      "matched": true,
+      "observed": {
+        "unrestricted_subpath_dry_run_admitted": true,
+        "before_all_three_initial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The selected workload class rejects stale and missing mounts, while an approved live mount works",
+      "matched": true,
+      "observed": {
+        "matched_subpath_denial": true,
+        "matched_missing_mount_denial": true,
+        "approved_reads_marker": true,
+        "file_mode_and_group": "440:65534",
+        "unmounted_probe_inaccessible": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The live directory updates in the same container, while subPath and the init copy retain the first version",
+      "matched": true,
+      "observed": {
+        "live_directory_updated": true,
+        "subpath_unchanged": true,
+        "init_copy_unchanged": true,
+        "same_pod_and_container": true
+      }
+    }
+  ]
+}

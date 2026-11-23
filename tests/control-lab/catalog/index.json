@@ -906,6 +906,12 @@
       "sha256": "2a568afb8031f754c115ce5970cb2e17ea8cc50484b50f99324f46d78b40db51",
       "title": "Long-lived workload token exception governance and retirement tracking"
     },
+    "SAF-K8S-0403-003": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "6af45f976c6db8e8f841aeaa3d2bcb93125a04e8f9fb04b6657e0fb752faa504",
+      "title": "Approved secret injection pattern standards"
+    },
     "SAF-K8S-0403-005": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -2996,7 +3002,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "79e1d5d20b8f5fc2695449ca287c0e2970680ad0",
-  "sha256": "adb0fb469db66ca2d6a7a0277a4c8addba706665f1971d35d4feb0fa927f7558",
+  "revision": "c86c294cb427d244ca34432f63f89431bd4b2454",
+  "sha256": "e4bff27795f7d155249333c59729c238a5b856d95a1b091a3328447025326f31",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
