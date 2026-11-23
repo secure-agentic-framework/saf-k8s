@@ -1740,6 +1740,12 @@
       "sha256": "d1450268e9cb50e9088cd7e65f0337a78ad95cd441a5ca190651f5206bad9158",
       "title": "InfiniBand and RoCE fabric security controls"
     },
+    "SAF-K8S-0803-003": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "92dbd47d3f083736bfcbc4fe9f56a57acf1327bb5244bc980d20bf1864ed463a",
+      "title": "RDMA memory region and queue pair isolation"
+    },
     "SAF-K8S-0901-002": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -2642,7 +2648,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "20ffba78ea9ab0b2e490e088567b66a63b1d89f6",
-  "sha256": "f1cde98be1ad439f9dadbe6239f7a09f6a7aa0f65a2c2031aa16d0402547e98e",
+  "revision": "806d520912d8f25f07ac6951248d61d381ff13c6",
+  "sha256": "a4508cb7c1990f9fba8919ac1748b71f24d653ef7a59602989dc342687beda97",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

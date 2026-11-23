@@ -1,0 +1,69 @@
+{
+  "control_id": "SAF-K8S-0803-003",
+  "catalog_revision": "476a96274d46a7b59b0ac7abf12e237ed540c74a",
+  "catalog_sha256": "a4508cb7c1990f9fba8919ac1748b71f24d653ef7a59602989dc342687beda97",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "92dbd47d3f083736bfcbc4fe9f56a57acf1327bb5244bc980d20bf1864ed463a",
+  "scope": "A real Kubernetes Job reading synthetic accelerator memory-region and queue-scope policy observations.",
+  "cluster": "saf-lab-2547cd6a10cd",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A resource count check alone accepts each conflicting modeled authorization record",
+      "matched": true,
+      "observed": {
+        "count_only_check_accepts_every_record": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The actual policy Job distinguishes scope, permission, freshness and completeness",
+      "matched": true,
+      "observed": {
+        "different-trust": "wrong-trust-boundary",
+        "expired": "stale",
+        "extra-operation": "unapproved-permission",
+        "missing-scope": "incomplete"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The matching reviewed record remains eligible at the fixture policy layer",
+      "matched": true,
+      "observed": {
+        "approved": "consistent-fixture"
+      }
+    }
+  ]
+}
