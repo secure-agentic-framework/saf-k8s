@@ -1,0 +1,17 @@
+apiVersion: audit.k8s.io/v1
+kind: Policy
+omitStages: [RequestReceived]
+rules:
+- level: None
+  resources:
+  - group: ""
+    resources: [serviceaccounts/token, secrets]
+- level: RequestResponse
+  users: ["system:serviceaccount:saf-test:saf-0905-051-approver"]
+  verbs: [patch]
+  namespaces: [saf-test]
+  resources:
+  - group: ""
+    resources: [configmaps]
+    resourceNames: [synthetic-release-approval]
+- level: None

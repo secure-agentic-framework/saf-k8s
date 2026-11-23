@@ -1290,6 +1290,12 @@
       "sha256": "0daaea403024f6a3b3e596b62b20201a20192c1dece9d9eb4bddb51a8f764376",
       "title": "Authenticated reviewer identity validation for model promotion approvals"
     },
+    "SAF-K8S-0905-051": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "bdfe0653a18c27714a75fa43d42a1241eac349ea614e56a0c7a1579136c1dda2",
+      "title": "Model promotion approval audit binding to reviewer identity and model version"
+    },
     "SAF-K8S-0907-007": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1772,7 +1778,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "79d2cc6e1284c27af1b7adeb1125dfa75970ea57",
+  "revision": "ed3570169e21a6ab7ee23000475930ee1668b9dc",
   "sha256": "6d92dc4241cfab0152a84b60f7e999d80a82f00ad7cadd178658b2938e801fda",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

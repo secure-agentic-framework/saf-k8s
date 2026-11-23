@@ -1,0 +1,36 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraMounts:
+  - hostPath: @POLICY_PATH@
+    containerPath: /etc/kubernetes/saf-approval-audit-policy.yaml
+    readOnly: true
+  - hostPath: @AUDIT_DIR@
+    containerPath: /var/log/kubernetes/audit
+kubeadmConfigPatches:
+- |
+  apiVersion: kubeadm.k8s.io/v1beta4
+  kind: ClusterConfiguration
+  apiServer:
+    extraArgs:
+    - name: audit-policy-file
+      value: /etc/kubernetes/saf-approval-audit-policy.yaml
+    - name: audit-log-path
+      value: /var/log/kubernetes/audit/audit.log
+    - name: audit-log-mode
+      value: blocking
+    - name: audit-log-maxsize
+      value: "10"
+    - name: audit-log-maxbackup
+      value: "2"
+    extraVolumes:
+    - name: saf-approval-audit-policy
+      hostPath: /etc/kubernetes/saf-approval-audit-policy.yaml
+      mountPath: /etc/kubernetes/saf-approval-audit-policy.yaml
+      readOnly: true
+      pathType: File
+    - name: saf-approval-audit-logs
+      hostPath: /var/log/kubernetes/audit
+      mountPath: /var/log/kubernetes/audit
+      pathType: DirectoryOrCreate
