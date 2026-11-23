@@ -1970,12 +1970,12 @@
   knowledge_area: '2.5'
   control_seq: '010'
   control_title: Node-level firewall rule restriction for cluster communication
-  control_statement: Kubernetes nodes must implement host-level firewall rules that restrict inbound and outbound traffic to required cluster communication ports and protocols.
-  objective: Provide defense-in-depth network segmentation at the node level by constraining node communication to approved cluster paths.
-  rationale: Node-level firewall rules provide an independent protection layer even if pod-level policy enforcement is bypassed or misconfigured. Restricting allowed ports and protocols is independently auditable from periodic review or change governance because it governs the active network exposure of each node.
-  scope: Applies to all production cluster nodes. Cloud environments may use security groups or VPC firewall rules as the node-level firewall layer. On-premises environments may use iptables, nftables, or firewalld.
-  primary_enforcement_point: Cloud security group or host firewall rules applied through infrastructure provisioning and node bootstrap.
-  implementation_surface: Cloud security groups, VPC firewall rules, NSGs, iptables, nftables, firewalld, and firewall verification scripts for allowed cluster communication paths.
+  control_statement: Restrict governed Kubernetes node traffic with approved host and provider boundary controls where applicable. Define required inbound and outbound flows by endpoint role, interface, IP family, protocol and port. Verify enforcement and cluster connectivity.
+  objective: Constrain node communication to approved flows at the documented boundaries without disrupting required operations.
+  rationale: Host and provider firewall controls govern different traffic paths. The selected interface, routing, address translation and CNI determine their reach and independence from workload policy. Confirm the effective enforcement point for each traffic class.
+  scope: Applies to governed production node profiles. Assign ownership for operating-system, infrastructure and provider controls. Identify required control-plane, node and declared workload or Service paths, authorized exceptions and provider limitations.
+  primary_enforcement_point: Effective host or infrastructure boundary rules on each approved node traffic path.
+  implementation_surface: Record approved rates and required traffic, effective hooks and additional policy planes. Exercise allowed and denied owned paths, attribute enforcement with counters or equivalent evidence, and confirm required health and rollback behavior.
   owner_primary: Network Engineering
   owner_supporting: Platform Engineering; Cloud Infrastructure; Security Engineering
   baseline_or_ai_specific: baseline

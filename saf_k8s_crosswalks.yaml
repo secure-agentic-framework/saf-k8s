@@ -57623,15 +57623,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-7(12)
   framework_requirement_title: Host-based Protection
-  framework_mapping_notes: 'Host-based boundary protection on agent runtime hosts provides defense in depth
-
-
-    2.5 - Node-level firewall configuration; 2.4 - Runtime threat detection (host-based protection)'
+  framework_mapping_notes: Verified host filtering supports the selected host-based boundary mechanisms and their documented
+    paths.
   control_id: SAF-K8S-0205-010
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The selected components implement the organization-defined host boundary mechanisms
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -57932,22 +57930,6 @@
 
     6.5 - Admission webhook failure policies (Fail mode for fail-secure); 9.3 - Circuit breakers'
   control_id: SAF-K8S-0903-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(19)
-  framework_requirement_title: Block Communication from Non-organizationally Configured Hosts
-  framework_mapping_notes: 'Blocking unauthorized hosts from communicating with agents prevents rogue connections
-
-
-    5.1 - Network policies (blocking communication from unauthorized pods); 2.5 - Node-level firewall'
-  control_id: SAF-K8S-0205-010
   relation_type: direct
   strength_level: strong
   applicability: required
