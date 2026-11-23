@@ -1,0 +1,89 @@
+{
+  "control_id": "SAF-K8S-0606-017",
+  "catalog_revision": "61e87e2c4ffd18026aa9f44d0e70390386d3aa44",
+  "catalog_sha256": "4831ce7629e4ba21d7aa53f012f0d1ee34e90f16ce1826807bbdfb15b13be4dc",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "ee27937390652cb9aafe9ceb3c3a36633caf4005fe120f56144fb3f69d9c723d",
+  "scope": "Four distinct checkpoints for a single public fixture workload in Kind.",
+  "cluster": "saf-lab-eeef5edeb6bf",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Without the fixture guardrails, Kubernetes admits both declarations in server dry runs",
+      "matched": true,
+      "observed": {
+        "no_develop_restriction_yet": true,
+        "no_digest_enforcement_yet": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Develop preflight rejects an incomplete restricted Pod specification",
+      "matched": true,
+      "observed": {
+        "approved_manifest_admitted": true,
+        "policy_denial_observed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Distribute rejects the changed artifact and readback matches the approved digest",
+      "matched": true,
+      "observed": {
+        "different_bytes_refused": true,
+        "approved_digest": "sha256:8a051230b668fd780ed5bc8bd71042562988c329fd47caa7121c4261405cac80"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Deploy admission blocks the tag-only candidate and admits the digest-pinned artifact",
+      "matched": true,
+      "observed": {
+        "tag_only_refused": true,
+        "approved_image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Runtime verifies the admitted Pod is Ready and emitted the expected marker",
+      "matched": true,
+      "observed": {
+        "same_workload": true,
+        "ready": true,
+        "marker_matches": true,
+        "different_runtime_expectation_refused": true
+      }
+    }
+  ]
+}

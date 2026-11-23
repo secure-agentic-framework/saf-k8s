@@ -1164,6 +1164,12 @@
       "sha256": "6ef2d894dc87f9c81fa16681e31e716de21a2c2853409fe62e5f08250be1ba22",
       "title": "CI build-time security gate enforcement"
     },
+    "SAF-K8S-0606-017": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "ee27937390652cb9aafe9ceb3c3a36633caf4005fe120f56144fb3f69d9c723d",
+      "title": "CNCF lifecycle phase security coverage"
+    },
     "SAF-K8S-0606-019": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2384,7 +2390,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "0d69f4cdab0bdb191f6e4cb036ff115e863c2390",
-  "sha256": "52ad4a26afa92a2a279d8939b98ae3b3de9b252bc9564b999a1fb2bd9379c788",
+  "revision": "53a6b6f65f2571f6358ab89f835afa5d8158c33a",
+  "sha256": "4831ce7629e4ba21d7aa53f012f0d1ee34e90f16ce1826807bbdfb15b13be4dc",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
