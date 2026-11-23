@@ -5690,12 +5690,12 @@
   knowledge_area: '6.6'
   control_seq: '007'
   control_title: CI/CD build activity monitoring
-  control_statement: Real-time monitoring of CI/CD build server and runner activity must detect tampering, credential exfiltration attempts, and anomalous process execution. Monitoring agents must alert on credential file access, unexpected outbound network connections, and unauthorized process spawning within build environments.
-  objective: Detect build environment compromise and credential theft in real time, providing a detective control layer that complements the preventive hardening of build environments.
-  rationale: Preventive controls (ephemeral runners, credential isolation) reduce the attack surface but cannot eliminate all compromise vectors. Without monitoring, credential theft from build environments goes undetected until the stolen credentials are used in a downstream attack. Real-time detection enables rapid response to build infrastructure compromise before malicious artifacts are signed and promoted.
+  control_statement: Monitor governed build execution environments and CI configuration for selected anomalous process, file and connection activity. Define the covered sources, observation and alert objectives, workloads and detection criteria. Verify sensor state, events, alert routing and applicable loss or latency limits.
+  objective: Provide timely, attributable observations and escalation for selected build security events.
+  rationale: API audit and node-level runtime telemetry cover different actions. An observed file access or connection attempt is a signal that requires context and correlation. Effective detection depends on the actual sensor, operating environment, policy, evidence destination and tested latency.
   scope: Applies to all CI/CD build infrastructure, including self-hosted Kubernetes-based runners, cloud-managed build services, and dedicated build VMs. Covers monitoring of process execution, network connections, and file access within build environments.
-  primary_enforcement_point: Build environment monitoring agents and security information platform.
-  implementation_surface: Build pod process execution monitoring agents (Falco, Tetragon) with rules for credential file access detection (/var/run/secrets/, ~/.docker/config.json, signing key paths), network connection monitoring with alerting on unexpected outbound connections from build pods, CI/CD server audit logging for pipeline configuration changes and credential access events, and SIEM integration for build environment security event correlation and alerting.
+  primary_enforcement_point: Runtime observation and CI or Kubernetes audit collection, with verified detection and alert delivery.
+  implementation_surface: Pin the deployed monitor and verify node coverage, event collection, workload identity and scoped selections for process, path and network events. Configure CI and Kubernetes audit separately and protect sensitive data. Correlate supported events with policy, verify routing and time bounds, and document coverage gaps and loss handling.
   owner_primary: Security Engineering
   owner_supporting: DevSecOps / Release Engineering; SRE / Operations
   baseline_or_ai_specific: baseline
