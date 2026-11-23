@@ -2290,12 +2290,12 @@
   knowledge_area: '3.3'
   control_seq: '005'
   control_title: MAC profile pre-enforcement audit-mode validation
-  control_statement: Organizations must test all generated seccomp, AppArmor, or SELinux profiles in audit or complain mode (seccomp SCMP_ACT_LOG, AppArmor complain, SELinux permissive) before activating enforcement mode, and must confirm that no legitimate workload operations are denied during a defined observation period.
-  objective: Prevent production outages caused by over-restrictive MAC profiles by validating that the generated profile does not block any legitimate workload operation before enforcement mode is activated.
-  rationale: Activating a generated MAC profile directly in enforcement mode can cause immediate production outages if the profiling phase missed any legitimate operations. Audit mode (SCMP_ACT_LOG for seccomp, complain mode for AppArmor, permissive mode for SELinux) logs denied operations without blocking them, allowing operators to verify that no legitimate workload operations would be blocked before committing to enforcement.
-  scope: Applies to all generated MAC profiles prior to their first enforcement-mode deployment and after any significant profile change. The observation period must be long enough to capture infrequent legitimate operations such as periodic health checks, garbage collection syscalls, and scheduled backup operations.
-  primary_enforcement_point: Seccomp SCMP_ACT_LOG mode, AppArmor complain mode, and SELinux permissive mode, monitored via audit logs and alerting before enforcement mode is activated.
-  implementation_surface: Seccomp SCMP_ACT_LOG action for non-blocking violation logging, AppArmor complain mode profile deployment, SELinux permissive domain configuration, audit log monitoring for denied-but-allowed operations, and sign-off workflow requiring zero legitimate denials over a defined observation window.
+  control_statement: Before promoting a governed custom workload profile or material revision, test the exact profile with representative workload paths, expected events and permitted operations using the mechanism supported by the target platform. Validate final enforcing behavior and recovery before production rollout.
+  objective: Identify unexpected decisions and observability gaps before promotion, and preserve workload behavior under the selected enforcing policy.
+  rationale: Seccomp logging actions, AppArmor complain and SELinux permissive operate at different boundaries and have platform-specific logging semantics. AppArmor can still enforce retained explicit or stacked denials. A clean observation interval establishes only the exercised paths and working event collection.
+  scope: Applies to governed custom seccomp, AppArmor and SELinux policies and material revisions on their actual supported kernel, runtime and workload configurations.
+  primary_enforcement_point: A controlled profile staging and promotion process with direct evidence from the mechanism, workload, and audit collector.
+  implementation_surface: Record exact policy and platform versions, active mode and prerequisites, fixture paths and decision expectations, audit availability and exceptions. Exercise representative normal and infrequent paths, an attributable would-be policy event, final enforcing positive and negative checks, and rollback. Replace unsupported modes with a documented supported staging method.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; Application Development teams
   baseline_or_ai_specific: baseline
