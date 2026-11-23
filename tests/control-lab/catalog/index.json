@@ -2808,6 +2808,12 @@
       "sha256": "3f0f8a74d523760241ce43249c4e0197f531a6cc85dd76da0812241a890e706d",
       "title": "Embedding pipeline integrity"
     },
+    "SAF-K8S-0909-005": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "1bbf32c1c7aca652b8eb237b69be25ef712aade2787390662f15b51597408641",
+      "title": "RAG prompt injection defense"
+    },
     "SAF-K8S-0909-006": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3338,7 +3344,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "587bd0641e5172c9efdce9a76b61b0d780472a82",
-  "sha256": "b008534584e8a3ae294d1e139e47dcf83677f2003a8873e1ec87f87173735b50",
+  "revision": "fc9864ebd5d13d2f7e3d2e951b8d50d85294f48f",
+  "sha256": "76ecf5e80478423db0589000d3c61b7c583461960d19fd9bb1a660f39bec611a",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

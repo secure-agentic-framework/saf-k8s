@@ -1,0 +1,93 @@
+{
+  "control_id": "SAF-K8S-0909-005",
+  "catalog_revision": "efd850e4aab23d93c194b573e9d4a325fa190fee",
+  "catalog_sha256": "76ecf5e80478423db0589000d3c61b7c583461960d19fd9bb1a660f39bec611a",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "1bbf32c1c7aca652b8eb237b69be25ef712aade2787390662f15b51597408641",
+  "scope": "Compare one fixed benign synthetic RAG record in two request-assembly modes. The baseline places the record in a system-role message. Governed middleware validates exact schema, approved source/version, metadata, and digest, keeps the record in a typed data field, and uses application-owned message roles. A separate local consumer observes roles and exact records and returns a deterministic approved answer. No model or tools are involved.",
+  "cluster": "saf-lab-f0204d330401",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The benign baseline places retrieved data in the authority-bearing system role",
+      "matched": true,
+      "observed": {
+        "same_fixed_record_observed": true,
+        "baseline_places_record_in_system_role": true,
+        "baseline_returns_benign_deterministic_answer": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Governed assembly validates provenance and keeps record data outside role authority",
+      "matched": true,
+      "observed": {
+        "governed": {
+          "approved_schema_provenance_and_digest_validate": true,
+          "source_record_is_observed_exactly": true,
+          "roles_are_application_owned": true,
+          "messages_are_exact_application_text": true,
+          "metadata_is_not_rendered_as_messages": true,
+          "stable_benign_answer": true,
+          "benign_content_change_is_rejected": true,
+          "unapproved_source_is_rejected": true,
+          "extra_metadata_field_is_rejected": true,
+          "no_rejected_record_reaches_consumer": true
+        },
+        "schema_checks": {
+          "approved_digest": true,
+          "approved_provenance": true,
+          "exact_record": true,
+          "exact_schema": true
+        },
+        "negative_validation": {
+          "benign_content_change_rejected": true,
+          "consumer_count_unchanged": true,
+          "extra_metadata_field_rejected": true,
+          "unapproved_source_rejected": true
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved ordinary question still returns its useful synthetic answer",
+      "matched": true,
+      "observed": {
+        "approved_lookup_remains_useful": true,
+        "approved_record_still_available": true,
+        "request_result_is_stable": true
+      }
+    }
+  ]
+}
