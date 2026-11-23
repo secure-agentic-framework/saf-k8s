@@ -11,15 +11,6 @@ Rate-limiting failed agent authentication attempts
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0405-004 - Security awareness for Kubernetes and GPU administrators](../../controls/SAF-K8S-0405-004.md)
-
-- Domain: D04 - Identity, Access, and Secrets Management
-- Knowledge Area: 4.5
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0405-006 - Attribute-based access control for AI artifacts](../../controls/SAF-K8S-0405-006.md)
 
 - Domain: D04 - Identity, Access, and Secrets Management

@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-SAF-K8S requires security awareness training for Kubernetes and GPU administrators covering platform-specific risks.
+The organization verifies AI risk-management training appropriate to the covered administrator responsibilities.
 
 ## SAF-K8S Controls
 
@@ -15,5 +15,5 @@ SAF-K8S requires security awareness training for Kubernetes and GPU administrato
 - Knowledge Area: 4.5
 - Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Applicability: conditional
+- Strength Reason Code: n/a

@@ -4345,14 +4345,17 @@
   framework_name: NIST AI Risk Management Framework
   framework_version: '1.0'
   framework_requirement_id: GOVERN 2.2
-  framework_requirement_title: The organization's personnel and partners receive AI risk management training to enable them to perform their duties and responsibilities consistent with related policies, procedures, and agreements.
-  framework_mapping_notes: SAF-K8S requires security awareness training for Kubernetes and GPU administrators covering platform-specific risks.
+  framework_requirement_title: The organization's personnel and partners receive AI risk management training to enable
+    them to perform their duties and responsibilities consistent with related policies, procedures, and agreements.
+  framework_mapping_notes: The organization verifies AI risk-management training appropriate to the covered administrator
+    responsibilities.
   control_id: SAF-K8S-0405-004
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
+  applicability: conditional
+  applicability_condition: The organization verifies AI risk-management training appropriate to the covered administrator
+    responsibilities
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -6162,22 +6165,6 @@
 
     7.2 - Namespace isolation (label/annotation standards for AI workload classification); 9.7 - Data classification and privacy attributes'
   control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-16(1)
-  framework_requirement_title: Dynamic Attribute Association
-  framework_mapping_notes: 'Dynamically associating security attributes to agent-processed objects
-
-
-    7.2 - Dynamic label/annotation association for AI workload classification; 4.5 - ABAC dynamically associates security attributes to access decisions based on data classification and model sensitivity'
-  control_id: SAF-K8S-0405-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -8320,22 +8307,6 @@
 
 
     4.5 - Detect and mitigate identity abuse (anomaly detection for unauthorized retrieval, access audit trails)'
-  control_id: SAF-K8S-0405-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-2(12)
-  framework_requirement_title: Account Monitoring for Atypical Usage
-  framework_mapping_notes: 'Detecting anomalous agent behavior patterns
-
-
-    4.5 - Detect and mitigate identity abuse (anomaly detection for unauthorized retrieval, access audit trails)'
   control_id: SAF-K8S-0405-006
   relation_type: supports
   strength_level: strong
@@ -8374,22 +8345,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-2(13)
-  framework_requirement_title: Disable Accounts for High-risk Individuals
-  framework_mapping_notes: 'Disabling agent accounts during security events
-
-
-    4.5 - Detect and mitigate identity abuse; 10.5 - Incident response (revoking credentials, suspending workloads during security events)'
-  control_id: SAF-K8S-0405-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -8720,22 +8675,6 @@
 
     9.4 - Notebook and experimentation environment session timeout policies; outline covers session inactivity controls for interactive AI environments'
   control_id: SAF-K8S-0904-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-2(6)
-  framework_requirement_title: Dynamic Privilege Management
-  framework_mapping_notes: 'Dynamic privilege scoping for agents based on context
-
-
-    4.5 - ABAC for AI artifacts based on data classification, model sensitivity, and deployment environment -- privileges change dynamically by context'
-  control_id: SAF-K8S-0405-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -10696,22 +10635,6 @@
 
 
     9.7 - Protect training data (data classification, privacy controls); 4.5 - ABAC for AI artifacts based on data classification and model sensitivity'
-  control_id: SAF-K8S-0405-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-3(11)
-  framework_requirement_title: Restrict Access to Specific Information Types
-  framework_mapping_notes: 'Restricting agent access to sensitive data classes
-
-
-    9.7 - Protect training data (data classification, privacy controls); 4.5 - ABAC for AI artifacts based on data classification and model sensitivity'
   control_id: SAF-K8S-0405-006
   relation_type: supports
   strength_level: strong
@@ -10878,22 +10801,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-3(13)
-  framework_requirement_title: Attribute-based Access Control
-  framework_mapping_notes: 'ABAC for fine-grained agent authorization
-
-
-    4.5 - Detect and mitigate identity abuse (ABAC for AI artifacts based on data classification, model sensitivity, deployment environment)'
-  control_id: SAF-K8S-0405-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -11605,22 +11512,6 @@
 
     4.1 - Design and enforce RBAC (RBAC primitives: Roles, ClusterRoles, RoleBindings, ClusterRoleBindings)'
   control_id: SAF-K8S-0910-025
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-3(8)
-  framework_requirement_title: Revocation of Access Authorizations
-  framework_mapping_notes: 'Revoking agent permissions in real-time
-
-
-    4.5 - Detect and mitigate identity abuse (credential revocation); 10.5 - Incident response (revoking credentials during containment)'
-  control_id: SAF-K8S-0405-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -16017,22 +15908,6 @@
 
 
     4.5 - Controls for non-organizational privileged users accessing cluster resources; 7.4 - Cloud IAM to K8s RBAC mapping for external users'
-  control_id: SAF-K8S-0405-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-6(6)
-  framework_requirement_title: Privileged Access by Non-organizational Users
-  framework_mapping_notes: 'Third-party agent access controls
-
-
-    4.5 - Controls for non-organizational privileged users accessing cluster resources; 7.4 - Cloud IAM to K8s RBAC mapping for external users'
   control_id: SAF-K8S-0405-006
   relation_type: supports
   strength_level: strong
@@ -16321,22 +16196,6 @@
 
 
     4.5 - Authentication lockout policies (failed attempt thresholds, account lockout duration, lockout bypass prevention) explicitly address unsuccessful logon attempts'
-  control_id: SAF-K8S-0405-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-7
-  framework_requirement_title: Unsuccessful Logon Attempts
-  framework_mapping_notes: 'Rate-limiting failed agent authentication attempts
-
-
-    4.5 - Authentication lockout policies (failed attempt thresholds, account lockout duration, lockout bypass prevention) explicitly address unsuccessful logon attempts'
   control_id: SAF-K8S-0405-006
   relation_type: supports
   strength_level: strong
@@ -16354,22 +16213,6 @@
 
     4.5 - Authentication lockout policies (failed attempt thresholds, account lockout duration, lockout bypass prevention) explicitly address unsuccessful logon attempts'
   control_id: SAF-K8S-0405-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-7(4)
-  framework_requirement_title: Use of Alternate Authentication Factor
-  framework_mapping_notes: 'Fallback authentication for agent systems
-
-
-    4.5 - Fallback and out-of-band authentication for emergency cluster access covers alternate authentication factor usage'
-  control_id: SAF-K8S-0405-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -16482,22 +16325,6 @@
 
     9.4 - Notebook and experimentation environment login banners and acceptable use notifications; 10.6 - Compliance governance'
   control_id: SAF-K8S-1006-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-9(3)
-  framework_requirement_title: Notification of Account Changes
-  framework_mapping_notes: 'Alerting on agent account modifications
-
-
-    4.5 - Privilege escalation detection (monitoring RBAC changes, notification of account modifications); 10.1 - Audit logging'
-  control_id: SAF-K8S-0405-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -16753,22 +16580,6 @@
 
 
     4.5 - Detect identity abuse (insider threat awareness); 7.3 - Detection of GPU resource squatting and unauthorized usage'
-  control_id: SAF-K8S-0405-004
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AT-2(2)
-  framework_requirement_title: Insider Threat
-  framework_mapping_notes: 'Awareness of agent misuse/insider threat vectors
-
-
-    4.5 - Detect identity abuse (insider threat awareness); 7.3 - Detection of GPU resource squatting and unauthorized usage'
   control_id: SAF-K8S-0405-006
   relation_type: supports
   strength_level: moderate
@@ -16909,15 +16720,14 @@
   framework_version: 5.2.0
   framework_requirement_id: AT-2(3)
   framework_requirement_title: Social Engineering and Mining
-  framework_mapping_notes: 'Prompt injection is social engineering of agents
-
-
-    4.5 - Operator security awareness for social engineering and credential phishing targeting Kubernetes administrators'
+  framework_mapping_notes: The actual required literacy training covers recognizing and reporting social engineering
+    for the designated population.
   control_id: SAF-K8S-0405-004
-  relation_type: supports
+  relation_type: direct
   strength_level: strong
-  applicability: required
-  applicability_condition: null
+  applicability: conditional
+  applicability_condition: The actual required literacy training covers recognizing and reporting social engineering
+    for the designated population
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -29513,22 +29323,6 @@
 
 
     4.5 - ABAC for AI artifacts adapts access decisions based on data classification, model sensitivity, and deployment environment -- authentication requirements vary by context'
-  control_id: SAF-K8S-0405-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-10
-  framework_requirement_title: Adaptive Authentication
-  framework_mapping_notes: 'Risk-based adaptive auth for agent access
-
-
-    4.5 - ABAC for AI artifacts adapts access decisions based on data classification, model sensitivity, and deployment environment -- authentication requirements vary by context'
   control_id: SAF-K8S-0405-006
   relation_type: supports
   strength_level: strong
@@ -29969,22 +29763,6 @@
 
 
     4.2 - Projected tokens (audience-scoped token validation); 4.5 - Impersonation control (verification of identity assertions)'
-  control_id: SAF-K8S-0405-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-13(2)
-  framework_requirement_title: Verification of Identity Assertions and Access Tokens
-  framework_mapping_notes: 'Verifying agent tokens and assertions
-
-
-    4.2 - Projected tokens (audience-scoped token validation); 4.5 - Impersonation control (verification of identity assertions)'
   control_id: SAF-K8S-0405-006
   relation_type: direct
   strength_level: strong
@@ -30300,22 +30078,6 @@
 
 
     4.2 - OIDC integration for K8s authentication (organizational user identification); 4.5 - Kubeconfig hygiene'
-  control_id: SAF-K8S-0405-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-2
-  framework_requirement_title: Identification and Authentication (Organizational Users)
-  framework_mapping_notes: 'Authenticating users and agents interacting with agent systems
-
-
-    4.2 - OIDC integration for K8s authentication (organizational user identification); 4.5 - Kubeconfig hygiene'
   control_id: SAF-K8S-0405-006
   relation_type: supports
   strength_level: strong
@@ -30443,22 +30205,6 @@
 
 
     4.5 - Credential management (MFA for cluster-admin access); 4.2 - OIDC with MFA for privileged accounts'
-  control_id: SAF-K8S-0405-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-2(1)
-  framework_requirement_title: Multi-factor Authentication to Privileged Accounts
-  framework_mapping_notes: 'MFA for privileged agent management accounts
-
-
-    4.5 - Credential management (MFA for cluster-admin access); 4.2 - OIDC with MFA for privileged accounts'
   control_id: SAF-K8S-0405-006
   relation_type: supports
   strength_level: strong
@@ -30574,22 +30320,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-2(13)
-  framework_requirement_title: Out-of-band Authentication
-  framework_mapping_notes: 'Out-of-band verification for agent operations
-
-
-    4.5 - Fallback and out-of-band authentication for emergency cluster access explicitly covers out-of-band authentication'
-  control_id: SAF-K8S-0405-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -31602,22 +31332,6 @@
 
 
     4.5 - Detect identity abuse (monitoring user and service account status)'
-  control_id: SAF-K8S-0405-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-4(4)
-  framework_requirement_title: Identify User Status
-  framework_mapping_notes: 'Tracking agent identity status
-
-
-    4.5 - Detect identity abuse (monitoring user and service account status)'
   control_id: SAF-K8S-0405-006
   relation_type: supports
   strength_level: strong
@@ -32078,22 +31792,6 @@
   strength_level: moderate
   applicability: conditional
   applicability_condition: The same governed deployment verifies the actual scoped workload authenticator lifecycle independently
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-5(1)
-  framework_requirement_title: Password-based Authentication
-  framework_mapping_notes: 'Password auth for agent system access
-
-
-    4.5 - Credential management best practices and authentication lockout policies cover password-based authentication controls'
-  control_id: SAF-K8S-0405-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -32792,22 +32490,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-6
-  framework_requirement_title: Authentication Feedback
-  framework_mapping_notes: 'Controlling what authentication feedback agents receive
-
-
-    4.5 - Authentication feedback controls to prevent account enumeration explicitly address authentication feedback requirements'
-  control_id: SAF-K8S-0405-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -34457,22 +34139,6 @@
 
 
     4.5 - Detect identity abuse (insider threat detection); 7.3 - GPU resource squatting and unauthorized usage'
-  control_id: SAF-K8S-0405-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-4(6)
-  framework_requirement_title: Insider Threats
-  framework_mapping_notes: 'Handling insider misuse of agent systems
-
-
-    4.5 - Detect identity abuse (insider threat detection); 7.3 - GPU resource squatting and unauthorized usage'
   control_id: SAF-K8S-0405-006
   relation_type: supports
   strength_level: strong
@@ -36056,22 +35722,6 @@
 
 
     4.5 - Detect identity abuse (insider threat program); 7.3 - Detection of resource squatting and unauthorized usage'
-  control_id: SAF-K8S-0405-004
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-12
-  framework_requirement_title: Insider Threat Program
-  framework_mapping_notes: 'Insider threat applies to agentic AI where privileged operators can manipulate agent behavior
-
-
-    4.5 - Detect identity abuse (insider threat program); 7.3 - Detection of resource squatting and unauthorized usage'
   control_id: SAF-K8S-0405-006
   relation_type: supports
   strength_level: moderate
@@ -37512,22 +37162,6 @@
 
 
     4.5 - Detect identity abuse (revoking access on personnel termination); 10.7 - Decommissioning access grants'
-  control_id: SAF-K8S-0405-004
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PS-4
-  framework_requirement_title: Personnel Termination
-  framework_mapping_notes: 'Personnel termination procedures must address revocation of agent system access and credentials
-
-
-    4.5 - Detect identity abuse (revoking access on personnel termination); 10.7 - Decommissioning access grants'
   control_id: SAF-K8S-0405-006
   relation_type: supports
   strength_level: moderate
@@ -37595,22 +37229,6 @@
   control_id: SAF-K8S-1007-006
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PS-4(2)
-  framework_requirement_title: Automated Actions
-  framework_mapping_notes: 'Automated deprovisioning of agent system access upon termination is a security best practice
-
-
-    4.5 - Automated credential revocation on personnel status changes'
-  control_id: SAF-K8S-0405-004
-  relation_type: supports
-  strength_level: strong
   applicability: required
   applicability_condition: null
   strength_reason_code: null
@@ -64055,22 +63673,6 @@
 
 
     4.5 - Privilege escalation detection (monitoring privileged users); 4.1 - RBAC audit (tracking privileged access)'
-  control_id: SAF-K8S-0405-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(20)
-  framework_requirement_title: Privileged Users
-  framework_mapping_notes: 'Enhanced monitoring of privileged users operating agent systems detects insider threats
-
-
-    4.5 - Privilege escalation detection (monitoring privileged users); 4.1 - RBAC audit (tracking privileged access)'
   control_id: SAF-K8S-0405-006
   relation_type: direct
   strength_level: strong
@@ -70708,13 +70310,16 @@
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
   framework_version: '1.1'
   framework_requirement_id: PO.2.2
-  framework_requirement_title: Provide role-based training for all personnel with responsibilities that contribute to secure development.
-  framework_mapping_notes: SAF-K8S includes a security awareness control for Kubernetes and GPU administrators that covers role-based training for infrastructure personnel.
+  framework_requirement_title: Provide role-based training for all personnel with responsibilities that contribute to
+    secure development.
+  framework_mapping_notes: The applicable roles participate in the organization's secure development program and receive
+    the training appropriate to those duties.
   control_id: SAF-K8S-0405-004
   relation_type: supports
-  strength_level: weak
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The applicable roles participate in the organization's secure development program and receive
+    the training appropriate to those duties
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
