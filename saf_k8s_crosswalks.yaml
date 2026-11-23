@@ -51674,16 +51674,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-18(4)
   framework_requirement_title: Prevent Automatic Execution
-  framework_mapping_notes: 'Preventing automatic execution of agent extensions without validation blocks code injection
-
-
-    3.2 - Security contexts (no-new-privileges flag); 6.5 - Admission policies preventing automatic execution'
+  framework_mapping_notes: Model-format admission can support SC-18(4) where model artifacts carry mobile code and the allowlist prevents its automatic execution. Apply the organization-defined checks before any separately approved mobile-code execution.
   control_id: SAF-K8S-0905-032
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization identifies executable content carried by model artifacts as mobile code for the loading components in scope.
+  strength_reason_code: implementation-specific
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
