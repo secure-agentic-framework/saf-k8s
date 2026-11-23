@@ -1320,6 +1320,12 @@
       "sha256": "1cacba9c6e0a6b7faba354f263e71920e4055453ab92d7270c5cf4d52054300c",
       "title": "Separation of duties enforcement for model promotion approvals"
     },
+    "SAF-K8S-0905-034": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "4e5beaf335e6abbd4c41550c1814c6e80de943fda6767c3ccf0aca7336d4dfc4",
+      "title": "Canary and A/B candidate version isolation and traffic-splitting integrity"
+    },
     "SAF-K8S-0905-037": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1916,7 +1922,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "649c9d62d953f505dcf17e7f15418c35d7c40c24",
+  "revision": "5f104a3e4e5496cdbce7e0737bafac59d792ad97",
   "sha256": "5d300b2f3b1823e3cbb4aee50b95ef1970adf01a5b145ef7ca8309eb785d1ee4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
