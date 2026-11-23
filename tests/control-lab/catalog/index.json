@@ -2604,6 +2604,12 @@
       "sha256": "e079804a923925143376bf4b20ff3500c1b673a174faa40cb59bad46a8df54d5",
       "title": "Safe model format allowlist and unsafe deserialization blocking"
     },
+    "SAF-K8S-0905-033": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "dc9a6721fb0511edb10796b4fc6b7d824f2ec8f407a9ac85feb98eb8beba1a15",
+      "title": "Pre-load model file structure and metadata validation"
+    },
     "SAF-K8S-0905-034": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3386,7 +3392,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "0b6fb6c9f9efdc0d451af24b33702a570e87ae3a",
-  "sha256": "7eb592b88ccf2f175765d75cadab30cd514317057b7f6a74caddce4f22a4461d",
+  "revision": "77aa342c51d45c7e9c6ab7f01edeb854f754c91a",
+  "sha256": "ff928f1c1f5eca015a2086b41f0d10664dbc857fe42d6ae654300bba102179b5",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

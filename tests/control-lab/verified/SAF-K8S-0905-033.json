@@ -1,0 +1,103 @@
+{
+  "control_id": "SAF-K8S-0905-033",
+  "catalog_revision": "ffc51cf694119bc39da617db76e352e5f4d00033",
+  "catalog_sha256": "ff928f1c1f5eca015a2086b41f0d10664dbc857fe42d6ae654300bba102179b5",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "dc9a6721fb0511edb10796b4fc6b7d824f2ec8f407a9ac85feb98eb8beba1a15",
+  "scope": "A live Kind Pod loads an official pinned SafeTensors library. The unchecked baseline loads a valid integer tensor that violates the case's F32 policy. The bounded case preflight rejects that tensor and a fixed wrong-length F32 file before calling the native tensor loader. The approved four-weight payload loads with exact values. This checks only the locked schema.",
+  "cluster": "saf-lab-05523cf08238",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A valid but unapproved dtype reaches the native loader without preflight",
+      "matched": true,
+      "observed": {
+        "decision": "loaded",
+        "dtype": "I32",
+        "native_calls": 1,
+        "shape": [
+          2,
+          2
+        ],
+        "weights": [
+          1,
+          2,
+          3,
+          4
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The bounded preflight refuses both input mismatches before the load call",
+      "matched": true,
+      "observed": {
+        "wrong-dtype": {
+          "decision": "denied",
+          "native_calls": 0,
+          "reason": "dtype-policy"
+        },
+        "wrong-length": {
+          "decision": "denied",
+          "native_calls": 0,
+          "reason": "payload-length"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The pinned native loader returns the exact approved tensor",
+      "matched": true,
+      "observed": {
+        "wheel_sha256": "87eec7ffed2b809f05a398a8becb7d013f19f7837cd15d9748580d6cf30dbaf4",
+        "library": "0.8.0",
+        "result": {
+          "decision": "loaded",
+          "dtype": "F32",
+          "native_calls": 1,
+          "shape": [
+            2,
+            2
+          ],
+          "weights": [
+            0.25,
+            -0.5,
+            1.0,
+            2.0
+          ]
+        }
+      }
+    }
+  ]
+}
