@@ -2350,12 +2350,12 @@
   knowledge_area: '3.3'
   control_seq: 008
   control_title: AppArmor workload profile assignment and unconfined-mode restriction
-  control_statement: Clusters using AppArmor-enabled nodes must assign the appropriate AppArmor profile to each protected workload and must not permit containers to run in unconfined mode unless a documented exception with compensating controls exists and is actively enforced.
-  objective: Enforce workload-specific AppArmor confinement by ensuring pods are explicitly assigned approved profiles and that unconfined execution remains prohibited except through controlled exceptions.
-  rationale: Loading profiles onto nodes is not sufficient if workloads are left unannotated or permitted to run unconfined. Workload-level assignment and exception control ensure AppArmor actually constrains file access, network operations, and capability use for the containers that need confinement.
-  scope: Applies to clusters running on AppArmor-capable nodes such as Ubuntu, Debian, SUSE, and other distributions that use AppArmor as the primary LSM. Does not apply to nodes using SELinux as the primary LSM.
-  primary_enforcement_point: Pod specification validation, admission policy enforcement for AppArmor assignment, and exception governance for unconfined workloads.
-  implementation_surface: Pod annotations (container.apparmor.security.beta.kubernetes.io) or securityContext.appArmorProfile for profile assignment, policy engine rules validating required AppArmor profiles at admission, mutation or defaulting rules for runtime/default where appropriate, and documented exception workflows with compensating controls and periodic review for unconfined containers.
+  control_statement: For each governed AppArmor workload class, require an explicitly approved effective profile for every regular, init and ephemeral container. Define supported placement and deny unconfined execution unless an active workload-scoped exception with approved compensating controls is enforced.
+  objective: Prove profile approval in Kubernetes admission and effective confinement on the actual scheduled runtime.
+  rationale: A Pod-level profile supplies the default and an explicit container profile takes precedence. Omitted AppArmor can leave a Pod unconfined on nodes without support. Admission success alone establishes profile selection. Runtime enforcement depends on node capability and availability of the selected profile.
+  scope: Applies to protected workload classes and their eligible nodes, based on verified AppArmor support and runtime configuration. Support versions and profile availability must be assessed for the actual cluster.
+  primary_enforcement_point: Workload-class admission, including ephemeral-container updates, controlled placement, runtime enforcement and approved exception lifecycle.
+  implementation_surface: Validate securityContext.appArmorProfile on supported structured APIs and document any legacy annotation migration. Verify defaults and overrides across all container lists, allow only approved profile choices, and test current, expired and unmatched exceptions when exceptions are enabled. Retain separate admission, node readiness and runtime behavior evidence.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Application Development teams
   baseline_or_ai_specific: baseline
