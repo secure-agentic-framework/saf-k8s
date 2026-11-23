@@ -308,12 +308,12 @@
   knowledge_area: '1.2'
   control_seq: '006'
   control_title: etcd encryption key rotation scheduling and verification
-  control_statement: Production Kubernetes clusters must enforce automated rotation of etcd encryption keys within organization-defined intervals and verify successful rotation through key version audit logs.
-  objective: Ensure that etcd encryption keys are rotated on a scheduled basis and that rotation events are logged and verifiable, limiting the exposure window of any single compromised key.
-  rationale: Long-lived encryption keys increase the blast radius of a key compromise. Automated rotation within defined intervals limits the time window during which a compromised key can decrypt etcd data. Most cloud KMS implementations support transparent rotation with no operational downtime. Audit logs of rotation events provide evidence for compliance and incident response.
-  scope: Applies to all production Kubernetes clusters using KMS-managed etcd encryption keys (SAF-K8S-0102-001). Covers external KMS key rotation policies and verification that rotation occurred within the policy interval.
-  primary_enforcement_point: Key Management Service
-  implementation_surface: KMS key rotation policy configuration and key version audit log review process.
+  control_statement: Define and exercise a key rotation schedule for applicable Kubernetes API data encryption. Verify active write-key selection, readability and migration of data protected by prior keys, and retirement only after the applicable migration and recovery checks succeed. Verify remote KMS key rotation at the provider boundary.
+  objective: Maintain current approved encryption keys while preserving protected data availability and proving completion of any required storage migration.
+  rationale: Changing provider or key selection for new writes and rewriting previously stored objects are distinct operations. Kubernetes local provider rotation differs from remote key-encryption-key lifecycle and managed control-plane evidence. Use version-specific and applicable provider guidance.
+  scope: Applies to governed Kubernetes API server encryption-at-rest configurations and selected resource coverage. Record local keys, remote key-encryption keys, supported configuration reload, migration, provider responsibilities, version, cadence, exception and rollback requirements.
+  primary_enforcement_point: Effective API server encryption configuration and observed protected object writes and reads, with KMS policy and key lifecycle evidence where provider-managed.
+  implementation_surface: Record the approved interval and rotation trigger, active key selection, prior-key read window, migration progress, retirement criteria and rollback. For remote KMS use approved provider evidence and verify active key identifiers and integration health without retaining key material.
   owner_primary: Key Management/Cryptography
   owner_supporting: null
   baseline_or_ai_specific: baseline
