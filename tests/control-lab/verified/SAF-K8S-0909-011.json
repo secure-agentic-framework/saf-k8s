@@ -1,0 +1,69 @@
+{
+  "control_id": "SAF-K8S-0909-011",
+  "catalog_revision": "8164a85cdfda396dea7ca9fcfef71eb458aea867",
+  "catalog_sha256": "e13cdc23386f7894bc628f80bb5f925ebb6048d3c4863bc0baf4c7ba6874e1b2",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "e683662a1f8965dbffb2dfc25553e0be4c2f9b6ceeb098bacaba24d4a5b0ce3f",
+  "scope": "An owned fixed index supplies benign retrieved chunks. A separate approved record binds each chunk to its source, version and digest. The governed workload computes token relevance before forwarding, limits the accepted count, and records decisions and mutations observed at an independent consumer Service.",
+  "cluster": "saf-lab-883459587dc8",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The ungoverned retrieval path sends a stale benign candidate",
+      "matched": true,
+      "observed": {
+        "stale_owned_bytes_reached_consumer": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The governed retrieval path rejects each fixed invalid or low-relevance candidate",
+      "matched": true,
+      "observed": {
+        "source_version_digest_metadata_and_score_all_checked": true,
+        "low_relevance_was_measured": true,
+        "consumer_received_no_rejected_candidate": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The separate consumer receives the exact approved top result",
+      "matched": true,
+      "observed": {
+        "two_valid_chunks_met_threshold": true,
+        "top_one_forwards_only_the_expected_bound_chunk": true
+      }
+    }
+  ]
+}

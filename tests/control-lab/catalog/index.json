@@ -2814,6 +2814,12 @@
       "sha256": "bb19120efcc631b267ca5236978d59b4e7c785f49eb7c6164f474a8de55242e2",
       "title": "Classification-aware chunking and vector collection segregation"
     },
+    "SAF-K8S-0909-011": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "e683662a1f8965dbffb2dfc25553e0be4c2f9b6ceeb098bacaba24d4a5b0ce3f",
+      "title": "Retrieved context integrity validation and relevance threshold enforcement"
+    },
     "SAF-K8S-0909-014": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3302,7 +3308,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "b1e785965962c16b3d1cfedd36663cca8893a08b",
-  "sha256": "9174da9e9f43bbab67254bbd37638405a72864b72b4e42d48dcfa8a391f3102d",
+  "revision": "7013f556ed0ca3c5523b2ebd6a0e4de109e4dd13",
+  "sha256": "e13cdc23386f7894bc628f80bb5f925ebb6048d3c4863bc0baf4c7ba6874e1b2",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
