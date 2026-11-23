@@ -1,0 +1,6 @@
+FROM docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90
+ARG RUNTIME_REVISION
+ENV SAF_RUNTIME_REVISION=${RUNTIME_REVISION} PYTHONDONTWRITEBYTECODE=1
+COPY runtime.py /app/runtime.py
+USER 65532:65532
+ENTRYPOINT ["python", "-B", "/app/runtime.py"]
