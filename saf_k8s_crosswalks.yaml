@@ -10913,22 +10913,6 @@
 
 
     6.5 - Admission controllers (reference monitor for all API requests); 3.3 - Mandatory access controls (seccomp, AppArmor as enforcement)'
-  control_id: SAF-K8S-0303-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-25
-  framework_requirement_title: Reference Monitor
-  framework_mapping_notes: 'Foundational -- tamperproof policy enforcement for agent actions
-
-
-    6.5 - Admission controllers (reference monitor for all API requests); 3.3 - Mandatory access controls (seccomp, AppArmor as enforcement)'
   control_id: SAF-K8S-0303-004
   relation_type: supports
   strength_level: strong
@@ -11613,16 +11597,14 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-3(15)
   framework_requirement_title: Discretionary and Mandatory Access Control
-  framework_mapping_notes: 'Combined DAC/MAC for agent systems
-
-
-    3.3 - Implement mandatory access controls (seccomp, AppArmor, SELinux); 4.1 - Design and enforce RBAC (discretionary access)'
+  framework_mapping_notes: Effective SELinux MCS provides the mandatory portion. Evidence of discretionary enforcement
+    and combined test coverage is separately required.
   control_id: SAF-K8S-0303-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The selected scope independently verifies both applicable discretionary and mandatory mechanisms
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -11901,16 +11883,14 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-3(3)
   framework_requirement_title: Mandatory Access Control
-  framework_mapping_notes: 'Mandatory access policies for agent trust boundaries
-
-
-    3.3 - Implement mandatory access controls (seccomp, AppArmor, SELinux enforcement)'
+  framework_mapping_notes: Effective SELinux MAC can implement the covered mandatory access policy when the complete
+    selected subject and object scope is enforced and verified.
   control_id: SAF-K8S-0303-003
   relation_type: direct
   strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  applicability: conditional
+  applicability_condition: Uniformly enforced SELinux policy demonstrably covers the selected subjects and objects
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -26272,22 +26252,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-7(2)
-  framework_requirement_title: Prevent Program Execution
-  framework_mapping_notes: 'Preventing unauthorized code execution by agents
-
-
-    2.4 - Drift detection (identifying unexpected binary execution); 3.3 - Seccomp profiles for execution control'
-  control_id: SAF-K8S-0303-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -47730,22 +47694,6 @@
 
 
     5.4 - Service mesh layered security; 3.3 - Layered MAC enforcement (seccomp + AppArmor + SELinux)'
-  control_id: SAF-K8S-0303-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(3)
-  framework_requirement_title: Modularity and Layering
-  framework_mapping_notes: 'Modularity and layering in agent architectures enables isolation and independent security validation
-
-
-    5.4 - Service mesh layered security; 3.3 - Layered MAC enforcement (seccomp + AppArmor + SELinux)'
   control_id: SAF-K8S-0303-004
   relation_type: direct
   strength_level: strong
@@ -50746,22 +50694,6 @@
 
 
     2.2 - RuntimeClass (gVisor, Kata Containers for confined execution); 3.3 - Seccomp/AppArmor confinement'
-  control_id: SAF-K8S-0303-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-18(5)
-  framework_requirement_title: Allow Execution Only in Confined Environments
-  framework_mapping_notes: 'Confining agent plugin execution to sandboxed environments limits compromise impact
-
-
-    2.2 - RuntimeClass (gVisor, Kata Containers for confined execution); 3.3 - Seccomp/AppArmor confinement'
   control_id: SAF-K8S-0303-004
   relation_type: direct
   strength_level: strong
@@ -52737,22 +52669,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-3(5)
-  framework_requirement_title: Layered Structures
-  framework_mapping_notes: 'Layered security structures in agent architectures enable defense in depth
-
-
-    3.3 - Layered MAC (seccomp + AppArmor + SELinux); 5.4 - Zero trust layered security structures'
-  control_id: SAF-K8S-0303-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -57031,16 +56947,14 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-50
   framework_requirement_title: Software-enforced Separation and Policy Enforcement
-  framework_mapping_notes: 'Software-enforced separation for agent processes enforces security policy boundaries
-
-
-    3.3 - Mandatory access controls (software-enforced separation via seccomp/AppArmor/SELinux); 6.5 - Admission control'
+  framework_mapping_notes: Verified SELinux policy can contribute software-enforced separation within the verified workload
+    and object scope.
   control_id: SAF-K8S-0303-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The selected software-enforced trust boundary includes verified workload and object labels
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -65765,22 +65679,6 @@
 
 
     2.4 - Runtime threat detection (detecting unexpected binary execution); 3.3 - Seccomp profiles (blocking unauthorized syscalls)'
-  control_id: SAF-K8S-0303-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-3(8)
-  framework_requirement_title: Detect Unauthorized Commands
-  framework_mapping_notes: 'Detecting unauthorized commands in agent tool invocations identifies hijacking and injection
-
-
-    2.4 - Runtime threat detection (detecting unexpected binary execution); 3.3 - Seccomp profiles (blocking unauthorized syscalls)'
   control_id: SAF-K8S-0303-004
   relation_type: direct
   strength_level: strong
@@ -69538,22 +69436,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-7(17)
-  framework_requirement_title: Runtime Application Self-protection
-  framework_mapping_notes: 'RASP for agent applications detects and blocks attacks during runtime execution
-
-
-    2.4 - Runtime threat detection (runtime self-protection via Falco/Tetragon/KubeArmor); 3.3 - Mandatory access controls'
-  control_id: SAF-K8S-0303-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
