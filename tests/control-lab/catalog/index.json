@@ -1110,6 +1110,12 @@
       "sha256": "0506ced1be01d664a7ccb877ea0a7c3f8820950e5c109b363dbc1cee965fcaf1",
       "title": "API impersonation audit logging and alerting"
     },
+    "SAF-K8S-0405-012": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "bd89364c288eb5a77b548d4b7c667e3648061ffb20d2cf57afaad0812b7e76ce",
+      "title": "Privileged MFA enforcement for cluster administration"
+    },
     "SAF-K8S-0405-017": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -3188,7 +3194,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "a1d55da03377e717debfe4761dd6d7efc1a7ac2d",
-  "sha256": "29e6036cd4d259710e3144b82089b39047a9b7dc66c4f810c7dd0da7b1903392",
+  "revision": "9aa1a94126c05a6ffee743e95e087e6b476bbd66",
+  "sha256": "23e77c7db2923dc6c7c8ed69111130f939bde012ed266333967d7365414f06b6",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
