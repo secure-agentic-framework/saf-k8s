@@ -1,0 +1,93 @@
+{
+  "control_id": "SAF-K8S-0905-059",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "ad8a8f0fc5c3588caf080dbdec127cc1578fe8295dd2e0dfb9fe437eb5d92058",
+  "scope": "One disposable Kind v1.36.1 cluster runs a case-owned OCI Distribution 3.0.0 registry with a case-owned PVC backed by the disposable Kind node. A restricted Python intake Job uses an enforced enrollment function over the registry HTTP API for inert synthetic model bytes. Red first proves direct registry publication accepts a model without lineage. Green rejects missing and unapproved lineage before upload, then admits an approved record bound to the exact OCI manifest digest. The record includes external origin, source digest, a fixture-only JSON structure scan result, fixture internalization date and approval decision. OCI attachment bytes and the approved subject are checked again after registry Pod replacement. This does not test scanner efficacy, human approval authenticity, real model formats, production identity/access controls, organizational registry policy or backup durability.",
+  "cluster": "saf-lab-d9de37c9c94e",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Direct OCI registry publication accepts an inert model before the enrollment gate",
+      "matched": true,
+      "observed": {
+        "manifest_put_status": 201,
+        "lineage_present": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Enrollment rejects missing and unapproved metadata before registry publication",
+      "matched": true,
+      "observed": {
+        "missing": "metadata_incomplete",
+        "unapproved": "decision_not_approved",
+        "wrong_scan_result": "scan_result_mismatch",
+        "rejected_enrollment_tags_absent": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Approved lineage is attached to the exact OCI subject and survives Pod replacement",
+      "matched": true,
+      "observed": {
+        "fields_present": [
+          "date_kind",
+          "decision",
+          "decision_ref",
+          "external_origin",
+          "internalization_date",
+          "scan_result",
+          "source_digest",
+          "subject_digest"
+        ],
+        "subject_matches": true,
+        "fixture_structure_scan_status": "pass",
+        "date_kind": "fixture-date",
+        "persistent_readback": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved external model is retrievable with its complete lineage record",
+      "matched": true,
+      "observed": {
+        "model_retrievable": true,
+        "lineage_retrievable": true,
+        "subject_digest": "sha256:e48ea340745e1ead7eba9d72f5478e0fc70592c66a6726bec90dfd65139caf51"
+      }
+    }
+  ]
+}
