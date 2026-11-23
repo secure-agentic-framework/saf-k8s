@@ -1,0 +1,122 @@
+{
+  "control_id": "SAF-K8S-0909-012",
+  "catalog_revision": "2bbf73a1141bad3529fddcb0d90883109409534a",
+  "catalog_sha256": "60ab2842cd182a68f75c002966689dc1fff94ca0186539d565e410c90ecc909a",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "fd15c9a07441572e5fdc539fa72b702013c2492452096144f3379e7e61acca51",
+  "scope": "Compare a fixed persistent synthetic RAG corpus against an approved generation/source/version/digest registry. Observe an unmonitored baseline with no detection or response, then detect a fixed metadata/content discrepancy, emit a sanitized incident to a separate receiver, hold only the unapproved generation, and restore the approved active pointer. Confirm the held state through a second read-only PVC consumer, then observe a clean monitoring scan and an ordinary approved release.",
+  "cluster": "saf-lab-6ebda453ef9f",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The baseline releases its fixed fixture generation with no detection or response",
+      "matched": true,
+      "observed": {
+        "ordinary_unmonitored_release_occurred": true,
+        "baseline_had_no_detection": true,
+        "baseline_had_no_response": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Integrity monitoring alerts independently and holds the discrepant generation",
+      "matched": true,
+      "observed": {
+        "incident": {
+          "active_generation": "gen-cedar-v1",
+          "alert_receipt": {
+            "received": true
+          },
+          "detections": [
+            {
+              "event": "index-integrity-alert",
+              "expected_sha256": "0fec2eb6cdb9280e9d9bdb2b824d3554766114a6f1ef37c3fd1bea1599ad4c1f",
+              "generation": "gen-unapproved",
+              "observed_sha256": "07b8caa6ce849e56d2d0bf34278c9577f3d8092a3982e1f4a7f6bd3e454953ee",
+              "reason": "metadata_content_digest_mismatch"
+            }
+          ],
+          "held_generations": [
+            "gen-unapproved"
+          ],
+          "incident_action": "held-scoped-generation-and-restored-approved-pointer",
+          "monitoring": true,
+          "scan_count": 1
+        },
+        "held_state": {
+          "active_generation": "gen-cedar-v1",
+          "held_generation_present": true,
+          "held_generations": [
+            "gen-unapproved"
+          ],
+          "monitoring": true,
+          "scan_count": 1,
+          "unapproved_generation_present_in_active_index": false
+        },
+        "alert_count": 1
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The held generation cannot reach the ordinary consumer",
+      "matched": true,
+      "observed": {
+        "consumer_delta": 0,
+        "held_generation_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Monitoring remains clean and an approved ordinary generation is released",
+      "matched": true,
+      "observed": {
+        "alert_count": 1,
+        "approved_ordinary_generation_released": true,
+        "clean_scan_detected_nothing": true,
+        "clean_scan_emitted_no_incident": true,
+        "consumer_delta": 1,
+        "consumer_receipt": {
+          "accepted": true,
+          "generation": "gen-maple-v1",
+          "received": true
+        },
+        "generation": "gen-maple-v1",
+        "held_generations": [
+          "gen-unapproved"
+        ],
+        "monitoring_remains_enabled": true
+      }
+    }
+  ]
+}

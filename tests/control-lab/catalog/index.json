@@ -2826,6 +2826,12 @@
       "sha256": "e683662a1f8965dbffb2dfc25553e0be4c2f9b6ceeb098bacaba24d4a5b0ce3f",
       "title": "Retrieved context integrity validation and relevance threshold enforcement"
     },
+    "SAF-K8S-0909-012": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "fd15c9a07441572e5fdc539fa72b702013c2492452096144f3379e7e61acca51",
+      "title": "Context poisoning monitoring and incident response for RAG retrieval"
+    },
     "SAF-K8S-0909-013": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3320,7 +3326,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "9f548c6e36459efdfc980834572633db39cba942",
-  "sha256": "9a0c94f756c11eb413ef44f98c8bd989e6ebf97f9db2cb5140254ad9b2d9d9a5",
+  "revision": "9a309296acd1666aa29d8c63461eed9bf313618d",
+  "sha256": "60ab2842cd182a68f75c002966689dc1fff94ca0186539d565e410c90ecc909a",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
