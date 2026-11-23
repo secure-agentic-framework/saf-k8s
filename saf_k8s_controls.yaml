@@ -4252,10 +4252,10 @@
   control_title: Cloud load balancer security group configuration
   control_statement: Cloud load balancer security groups and firewall rules must be configured to limit source IP ranges to approved networks for all load balancer resources provisioned by Kubernetes Services.
   objective: Ensure that cloud-provisioned load balancers restrict network-level access to approved source IP ranges, preventing access from unintended network segments even when internal load balancer annotations are correctly applied.
-  rationale: Without cloud security group restrictions, even internal load balancers may be reachable from unintended network segments within the cloud environment. Kubernetes Service manifests control the Kubernetes-level exposure, but cloud-level security groups govern the actual network reachability of the provisioned load balancer resource. Misalignment between Kubernetes configuration and cloud security groups creates gaps in access control.
+  rationale: Internal load balancer scope and source filtering address different requirements. Verify that the installed provider and controller apply the intended source restrictions along each listener-to-backend path and that other network rules preserve that boundary.
   scope: Applies to all cloud-provisioned load balancer resources in production clusters. Security groups must be reviewed for both internet-facing and internal load balancers. Applies to AWS, GCP, and Azure managed Kubernetes environments.
-  primary_enforcement_point: Cloud provider security groups and firewall rules on load balancer resources.
-  implementation_surface: Cloud security groups and firewall rules on load balancer resources (AWS Security Groups on ELB/NLB, GCP firewall rules on forwarding rules, Azure NSGs on load balancer frontends), infrastructure-as-code templates enforcing security group configuration, and audit scripts validating security group source IP ranges against approved network lists.
+  primary_enforcement_point: Effective source filtering in the configured provider's frontend, VPC or VNet, backend interface, and node data plane where applicable.
+  implementation_surface: For AWS NLB, verify frontend security groups and the separate backend security group rules. For GKE passthrough LoadBalancer Services, verify the applicable VPC ingress rules aimed at the Service forwarding address and the node data plane. For AKS, verify the effective VNet or node security rules and host enforcement for the selected source-filtering mode. Reconcile these results with the approved network allowlist and record allowed and denied reachability evidence.
   owner_primary: Cloud Platform Engineering
   owner_supporting: Network Engineering; Security Engineering
   baseline_or_ai_specific: baseline
