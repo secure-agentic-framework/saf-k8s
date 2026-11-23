@@ -1578,6 +1578,12 @@
       "sha256": "52e2d9be157499d22b7a7c7cc3c9eed10c38cbeca9c80f2bd25ecc94c1474999",
       "title": "Unified cloud and Kubernetes audit source onboarding"
     },
+    "SAF-K8S-0704-015": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "ba458528bd1089151cb330c6f395958ade33e412cf1405dc878657ce96c57f91",
+      "title": "Effective external identity and Kubernetes API entitlement mapping"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -2486,7 +2492,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "bf0ab181c2e670b8b99fdc189b2c549d3f72f700",
-  "sha256": "1985380b1c88b5c97fd5343fc6cc704e8aa2f3ccabc8773af10bb088cc8daf56",
+  "revision": "6f5991d8497d5e64e21a4ec3d85f9c121ad2a2d3",
+  "sha256": "77523c5f787b863994817882376088268ae5e91f329f8ec8103c5077a6b9e5d4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

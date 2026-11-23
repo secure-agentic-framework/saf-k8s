@@ -1,0 +1,69 @@
+{
+  "control_id": "SAF-K8S-0704-015",
+  "catalog_revision": "df8499c7e43db0107b3bd154530be60ad274c36d",
+  "catalog_sha256": "77523c5f787b863994817882376088268ae5e91f329f8ec8103c5077a6b9e5d4",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "ba458528bd1089151cb330c6f395958ade33e412cf1405dc878657ce96c57f91",
+  "scope": "Synthetic external identity mapping and actual namespaced Kubernetes RBAC for owned markers.",
+  "cluster": "saf-lab-2d2b5b554295",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The approved fixture identity attributes do not grant access without the documented binding",
+      "matched": true,
+      "observed": {
+        "marker_exists": true,
+        "before_binding": "forbidden"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The fixture inventory resolves to the installed binding and the live API serves the approved marker",
+      "matched": true,
+      "observed": {
+        "named_binding_matches": true,
+        "approved_read": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The unrelated fixture identity and the additional fixture object remain outside the named grant",
+      "matched": true,
+      "observed": {
+        "comparison_object": "forbidden",
+        "unrelated_identity": "forbidden"
+      }
+    }
+  ]
+}
