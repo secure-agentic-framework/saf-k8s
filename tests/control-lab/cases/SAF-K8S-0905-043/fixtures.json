@@ -1,0 +1,35 @@
+{
+  "format": "saf-k8s-0905-043-fixtures-v1",
+  "attached_version": "model-v1",
+  "other_version": "model-v2",
+  "models": {
+    "model-v1": {
+      "name": "synthetic-saf-model",
+      "version": "1.0.0",
+      "payload": {
+        "fixture": "synthetic-public-model-payload",
+        "model": "synthetic-saf-model",
+        "version": "1.0.0",
+        "weights": "non-sensitive-test-bytes-v1"
+      },
+      "components": [
+        {"name": "fixture-tokenizer", "version": "1.0.0", "type": "library"},
+        {"name": "fixture-runtime", "version": "1.0.0", "type": "application"}
+      ]
+    },
+    "model-v2": {
+      "name": "synthetic-saf-model",
+      "version": "2.0.0",
+      "payload": {
+        "fixture": "synthetic-public-model-payload",
+        "model": "synthetic-saf-model",
+        "version": "2.0.0",
+        "weights": "non-sensitive-test-bytes-v2"
+      },
+      "components": [
+        {"name": "fixture-tokenizer", "version": "1.0.0", "type": "library"},
+        {"name": "fixture-runtime", "version": "2.0.0", "type": "application"}
+      ]
+    }
+  }
+}
