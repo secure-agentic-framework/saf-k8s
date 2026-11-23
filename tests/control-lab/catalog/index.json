@@ -1320,6 +1320,12 @@
       "sha256": "1cacba9c6e0a6b7faba354f263e71920e4055453ab92d7270c5cf4d52054300c",
       "title": "Separation of duties enforcement for model promotion approvals"
     },
+    "SAF-K8S-0905-042": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "f1cd96057041cbed85d1b566e8e95bd793c7056297fa3ca41fd7865d3f50ac52",
+      "title": "CTA-2114 ML-BOM generation and lineage metadata capture"
+    },
     "SAF-K8S-0905-050": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1814,7 +1820,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "9aab09d3111b6ae6f2241de9d513a625344941df",
+  "revision": "b480f3f47198c14624ab87ac85fae36ed5f708d8",
   "sha256": "141559b7769339d63e7704ca30c28a6ab8e8d2fbbfefd87b9e9225f3feff5204",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
