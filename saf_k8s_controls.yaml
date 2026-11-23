@@ -6970,12 +6970,12 @@
   knowledge_area: '7.3'
   control_seq: '22'
   control_title: GPU abuse pattern monitoring and detection for Kubernetes AI workloads
-  control_statement: Organizations must monitor GPU-equipped Kubernetes environments for cryptomining, resource squatting, personal workloads, and other unauthorized GPU usage patterns using telemetry, workload fingerprinting, and anomaly detection rules that surface suspicious non-sanctioned GPU consumption for review.
-  objective: Detect unauthorized GPU consumption patterns early enough to prevent sustained waste, tenant impact, or concealed malicious activity on scarce accelerator resources.
-  rationale: Unauthorized GPU usage usually appears first as anomalous utilization, suspicious workload fingerprints, or repeated non-sanctioned consumption patterns. A dedicated detection control is needed so cryptomining, personal workloads, and abuse of shared accelerator capacity are surfaced before they become entrenched or hide broader compromise.
-  scope: Applies to all GPU-equipped nodes and GPU-consuming workloads in Kubernetes clusters. Monitoring must cover GPU utilization anomalies, workload fingerprinting, and alert generation for suspected non-sanctioned consumption patterns.
-  primary_enforcement_point: GPU telemetry monitoring, workload fingerprinting, and anomaly detection rules for suspected GPU abuse.
-  implementation_surface: GPU telemetry pipelines, anomaly detection rules, workload fingerprinting logic, cryptomining signatures, and alert generation for suspicious GPU workload behavior.
+  control_statement: Monitor governed accelerator workloads using documented allocation and device telemetry. Correlate notable signals with workload identity, owners, operating policy and approval context. Route unexplained activity or policy mismatches for adjudication and record the disposition and evidence quality.
+  objective: Surface actionable accelerator activity with enough evidence and context for an authorized reviewer to determine whether response is required.
+  rationale: Intensive accelerator use can be expected for approved work. Activity and workload metadata are triage signals. Reliable attribution and authorization review are needed to establish a policy violation, and incomplete context should remain visible as uncertainty.
+  scope: Applies to selected accelerator environments and their declared telemetry coverage. Document devices, collectors, workload identity mapping, retention, signal definitions and gaps for the deployed resource models.
+  primary_enforcement_point: Accelerator collection and workload attribution, review alert routing, and documented authorized adjudication.
+  implementation_surface: Verify telemetry freshness and coverage and use approved workload identity and policy sources. Evaluate meaningful signal windows, distinguish unknown context from conflict with known policy, and validate both approved high-activity and review-required cases. Retain alert routing and reviewer evidence and qualify any conclusions about cause or intent.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; ML Engineering
   baseline_or_ai_specific: ai-specific
