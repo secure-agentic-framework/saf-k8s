@@ -3790,12 +3790,12 @@
   knowledge_area: '4.5'
   control_seq: '020'
   control_title: Break-glass recovery exercise validation
-  control_statement: Organizations must periodically test break-glass emergency access procedures to verify authorized personnel can successfully regain cluster access when normal authentication pathways are unavailable.
-  objective: Verify through recurring exercises that defined emergency recovery access paths function as intended under realistic outage conditions.
-  rationale: An untested break-glass path may fail during an actual outage because credentials, storage, approvals, or recovery steps are stale or incomplete. Periodic validation reduces recovery risk and exposes procedural drift before an incident.
-  scope: Applies to production Kubernetes clusters that depend on OIDC providers or external identity systems for normal administrative access. Covers documented runbooks, authorized activation steps, storage and retrieval workflow, and periodic validation exercises.
-  primary_enforcement_point: Break-glass exercise execution and recovery validation.
-  implementation_surface: Scheduled break-glass exercises, recovery test execution records, after-action reviews, and validation of emergency kubeconfig or client certificate usability during simulated authentication outages.
+  control_statement: Exercise each approved emergency access procedure at its defined cadence using realistic and authorized failure scenarios. Verify that independently provisioned recovery access reaches the intended cluster operation when the relevant normal dependency is unavailable. Verify restoration and withdrawal of temporary access.
+  objective: Demonstrate that authorized operators can restore defined Kubernetes capabilities during the covered failure and retire emergency access afterward within the approved objectives.
+  rationale: An emergency path may share a failed dependency or contain stale authorization, runbook steps or oversight. Configuration review and the presence of a credential do not establish the resulting recovery behavior. A failed new identity-provider login can differ from validation of a previously issued credential.
+  scope: Applies to the real normal and emergency access paths for each governed cluster. Inventory failure modes, dependent issuers, authorized and independent recovery scope, approval and evidence, safe test limits, after-action review and removal of temporary access.
+  primary_enforcement_point: Observed execution of the authorized recovery exercise through the defined normal and fallback paths.
+  implementation_surface: Observe the intended normal operation, exercise the selected dependency failure, authenticate and authorize the designated recovery operation, verify effective scope and actual outcomes, restore normal access and withdraw emergency grants. Retain provider and API evidence, timing, unresolved differences and accountable follow-up.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; Identity and Access Management
   baseline_or_ai_specific: baseline
