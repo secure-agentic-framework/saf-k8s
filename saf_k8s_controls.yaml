@@ -1850,12 +1850,12 @@
   knowledge_area: '2.5'
   control_seq: '002'
   control_title: NodePort and HostPort restriction policies
-  control_statement: Clusters must enforce admission policies that restrict the use of NodePort services and HostPort pod specifications to approved exceptions only, preventing workloads from exposing services directly on node IP addresses without explicit authorization and security review.
-  objective: Limit node-level network exposure by preventing workloads from binding directly to host network ports, which bypasses ingress controls, load balancer security features, and network policy enforcement.
-  rationale: NodePort services expose a port on every cluster node's external IP address, creating a cluster-wide network entry point that bypasses ingress controller WAF rules, TLS termination, and rate limiting. HostPort specifications bind containers directly to the host network interface, bypassing pod-level network policies entirely. Both mechanisms create direct network paths to workloads that are invisible to standard ingress monitoring and difficult to audit across large clusters. Unrestricted use enables shadow entry points that persist even after intended ingress configurations are updated.
-  scope: Applies to all production cluster namespaces. System namespaces (kube-system, monitoring) may require NodePort or HostPort for infrastructure components (e.g., ingress controllers, node exporters) and must be explicitly whitelisted. Development clusters may relax this control with documented exceptions. Cloud environments should prefer LoadBalancer services or Ingress resources over NodePort exposure.
-  primary_enforcement_point: Admission controllers (Pod Security Admission, OPA Gatekeeper, Kyverno) enforcing policies that deny NodePort services and HostPort specifications except in whitelisted namespaces.
-  implementation_surface: Admission policies (Kyverno, OPA Gatekeeper) validating Service type and pod hostPort fields, NodePort and HostPort denial rules, exemption registration process, and infrastructure component exception documentation (ingress controllers, node exporters).
+  control_statement: Restrict use of Service NodePort allocation and Pod hostPort declarations through separate effective admission rules. Define approved exceptions, compatible exposure alternatives and whether LoadBalancer node-port allocation is allowed. Verify actual reachability separately.
+  objective: Prevent unapproved node-address exposure while preserving authorized connectivity for governed workloads.
+  rationale: NodePort reachability depends on Service mode, node addresses, service proxy, firewall and provider configuration. HostPort introduces a distinct node exposure path whose network enforcement depends on the CNI and node configuration. Pod admission does not validate Service objects.
+  scope: Applies to governed namespaces, Service types and supported Pod paths in production. Record exceptions and verify ownership, effective ingress, alternative exposure and applicable IPv4 and IPv6 paths.
+  primary_enforcement_point: Separate Pod and Service admission. Pod Security Admission can restrict Pod hostPort and a Service validation policy can govern Service type and node-port allocation.
+  implementation_surface: Verify Pod hostPort checks for applicable container types and verify Service create and update decisions, including LoadBalancer allocation, allowed internal Services and scoped exceptions. Check service controller, CNI and firewall evidence for deployed reachability.
   owner_primary: Platform Engineering
   owner_supporting: Network Engineering; Security Engineering
   baseline_or_ai_specific: baseline
