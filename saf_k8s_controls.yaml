@@ -7210,12 +7210,12 @@
   knowledge_area: '7.4'
   control_seq: '17'
   control_title: Least-privilege cloud-to-cluster privileged access boundary enforcement
-  control_statement: Organizations must enforce least-privilege cloud IAM roles for Kubernetes access and must prevent cloud IAM identities from resolving to broader Kubernetes permissions than intended by the RBAC design.
-  objective: Prevent privilege escalation through cloud IAM identities that resolve to excessive Kubernetes permissions in managed Kubernetes environments.
-  rationale: Even with a documented IAM-to-RBAC map, security fails if cloud identities still resolve to broader Kubernetes privileges than intended. Restricting privileged cloud-to-cluster access paths closes the gap between documented intent and actual effective privilege.
-  scope: Applies to managed Kubernetes services and any cloud-authenticated administrative or automation identities that can obtain privileged Kubernetes access. Includes identities mapped to system:masters, cluster-admin, or equivalent broad authorization paths outside governed emergency procedures.
-  primary_enforcement_point: Cloud IAM role design and privileged access boundary controls for Kubernetes administration.
-  implementation_surface: Cloud IAM least-privilege role definitions, audits of system:masters or cluster-admin-equivalent mappings, and remediation evidence showing privileged cloud identities do not exceed intended Kubernetes RBAC boundaries.
+  control_statement: Limit each cloud-authenticated or otherwise externally authenticated principal to the approved effective Kubernetes API permissions across all active authorizers. Review and remediate excessive grants and govern approved privileged exceptions separately.
+  objective: Prevent authorization beyond approved actions, resources and scopes, including alternate and indirect privileged paths.
+  rationale: Provider permissions, resolved Kubernetes identity attributes and bindings can confer overlapping access. Removing one grant may leave another active. Validate the effective decisions and review all relevant authorization stores against approved capabilities.
+  scope: Applies to managed clusters and their cloud-authenticated administrators and automation. Include provider authorization, Kubernetes RBAC as applicable, identity and group claims, broad or indirect permissions, administrative recovery paths and approved exceptions.
+  primary_enforcement_point: Provider and Kubernetes authorization paths with an approved effective permission matrix and observed decisions.
+  implementation_surface: Inventory relevant principals and all active authorizers. Compare approved verbs, resources, namespaces and elevated capabilities with provider and Kubernetes grants and scoped authorization checks. Investigate excess decisions, remediate the contributing grant and repeat both positive and negative observations.
   owner_primary: Cloud Platform Engineering
   owner_supporting: Security Engineering; Platform Engineering
   baseline_or_ai_specific: baseline
