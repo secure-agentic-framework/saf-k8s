@@ -774,6 +774,12 @@
       "sha256": "f244d806ec0e16a6fc671a06a1191ccb35d19baacfdc108ad33c56b8c99595af",
       "title": "Client source IP preservation for external services"
     },
+    "SAF-K8S-0503-014": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "357d420006e30ba31c92dccaa1dd9d007e707de7ca3ea9cceccfbd143485d6a8",
+      "title": "Ingress rate limiting and abuse throttling"
+    },
     "SAF-K8S-0503-015": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -2114,7 +2120,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "97462bc4b079f5f3f0c6e02c3ee6506e657b77e6",
-  "sha256": "7afb8f92fd6b8686ffdff1601407c3a00ec8a124c7321849866ac4bdb5cdf2cc",
+  "revision": "8016fe174a58c38a874beaf5b309fb06f8f2d511",
+  "sha256": "11f00334fa943a3dddac924d2df30f8eb236b8ad9f094470ef2e124e71f607e2",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

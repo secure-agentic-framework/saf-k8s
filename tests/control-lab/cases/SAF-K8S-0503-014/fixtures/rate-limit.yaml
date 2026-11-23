@@ -1,0 +1,15 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: protected-route-local-limit
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: protected
+  rateLimit:
+    local:
+      rules:
+        - limit:
+            requests: 3
+            unit: Minute

@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: protected-marker
+data:
+  green: "PROTECTED_GREEN\n"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: unrelated-marker
+data:
+  green: "UNRELATED_GREEN\n"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: protected-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: protected-backend
+  template:
+    metadata:
+      labels:
+        app: protected-backend
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: nginx
+          image: docker.io/library/nginx:1.27.5-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+          ports:
+            - name: http
+              containerPort: 80
+          volumeMounts:
+            - name: marker
+              mountPath: /usr/share/nginx/html/green
+              subPath: green
+              readOnly: true
+      volumes:
+        - name: marker
+          configMap:
+            name: protected-marker
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: protected-backend
+spec:
+  selector:
+    app: protected-backend
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unrelated-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: unrelated-backend
+  template:
+    metadata:
+      labels:
+        app: unrelated-backend
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: nginx
+          image: docker.io/library/nginx:1.27.5-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+          ports:
+            - name: http
+              containerPort: 80
+          volumeMounts:
+            - name: marker
+              mountPath: /usr/share/nginx/html/green
+              subPath: green
+              readOnly: true
+      volumes:
+        - name: marker
+          configMap:
+            name: unrelated-marker
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: unrelated-backend
+spec:
+  selector:
+    app: unrelated-backend
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 80

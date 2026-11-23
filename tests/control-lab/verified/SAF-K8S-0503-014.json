@@ -1,0 +1,96 @@
+{
+  "control_id": "SAF-K8S-0503-014",
+  "catalog_revision": "2cf67b518c11d86dabd63f64fb72023a57730b08",
+  "catalog_sha256": "11f00334fa943a3dddac924d2df30f8eb236b8ad9f094470ef2e124e71f607e2",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "357d420006e30ba31c92dccaa1dd9d007e707de7ca3ea9cceccfbd143485d6a8",
+  "scope": "An owned Kind Kubernetes v1.36.1 cluster with Envoy Gateway v1.10.0. A single local proxy replica throttles one fixture HTTPRoute at three requests per minute. Four sequential marker requests before and after policy prove the threshold and backend arrivals. An unrelated route stays available. Production WAF, client-key governance, backend capacity, and shared limits across replicas need separate evidence.",
+  "cluster": "saf-lab-ad48e5f637f9",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "One pinned proxy serves the case-owned internal Gateway",
+      "matched": true,
+      "observed": {
+        "cluster_ip_only": true,
+        "proxy_image_pinned": true,
+        "shutdown_manager_image_pinned": true,
+        "proxy_count": 1
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "All four protected requests reach the backend before throttling",
+      "matched": true,
+      "observed": {
+        "http_statuses": [
+          200,
+          200,
+          200,
+          200
+        ],
+        "markers_matched": true,
+        "backend_arrivals": 4
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Envoy rejects the fourth protected request and the backend receives only three",
+      "matched": true,
+      "observed": {
+        "active_limit": 3,
+        "protected_statuses": [
+          200,
+          200,
+          200,
+          429
+        ],
+        "markers_matched": true,
+        "protected_backend_delta": 3,
+        "unrelated_status": 200,
+        "unrelated_backend_arrivals": 1
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Permitted protected requests and unrelated route return their markers",
+      "matched": true,
+      "observed": {
+        "protected_markers": true,
+        "unrelated_marker": true,
+        "unrelated_backend_arrivals": 1
+      }
+    }
+  ]
+}
