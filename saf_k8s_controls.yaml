@@ -6890,12 +6890,12 @@
   knowledge_area: '7.3'
   control_seq: '17'
   control_title: PriorityClass assignment restriction and admission enforcement
-  control_statement: Organizations must restrict which namespaces, service accounts, and workload types may claim elevated AI workload PriorityClasses, and must enforce admission controls that require approved PriorityClass assignment on pods in AI namespaces.
-  objective: Prevent priority abuse and unauthorized workload escalation by governing who may claim elevated AI workload PriorityClasses and by enforcing approved PriorityClass assignment at admission time.
-  rationale: If workloads can self-assign elevated PriorityClasses without restriction, tenants or users can preempt legitimate inference services, bypass intended scheduling policy, and create cross-tenant denial-of-service conditions. Admission enforcement and assignment restrictions are necessary to ensure the declared priority hierarchy cannot be abused by unauthorized workloads.
-  scope: Applies to all Kubernetes clusters with GPU resources or dedicated AI workloads. Restrictions must cover elevated or protected PriorityClasses used for inference, system-critical services, or other reserved AI workload tiers.
-  primary_enforcement_point: Admission policies and authorization checks governing PriorityClassName assignment on AI workload pods.
-  implementation_surface: Admission control policies requiring approved PriorityClassName values on pods in AI namespaces, plus namespace and service-account restrictions that limit use of protected PriorityClasses to authorized workloads.
+  control_statement: Require an explicit approved priorityClassName for governed Pods. Enforce priority tier use through namespace and workload policy, and authorize workload submission and PriorityClass object management separately. Where rules depend on submitter identity or workload type, validate templates at their supported entry points and retain enforcement at Pod admission.
+  objective: Enforce authorized priority assignments for governed workloads and prevent unauthorized changes to the cluster priority-class inventory.
+  rationale: Built-in Priority admission resolves an existing PriorityClass and assigns a numeric priority. RBAC authorizes resource operations. An admission rule or configured priority quota can constrain Pod class references beyond name resolution.
+  scope: Applies to governed Kubernetes namespaces, direct Pod creation and controller-produced Pods that use protected or required priority tiers. Inventory authorized submitters, workload templates, class values and any default class.
+  primary_enforcement_point: Namespace RBAC and ClusterRole policy for resource operations, plus explicit PriorityClass reference rules at Pod and workload-template admission.
+  implementation_surface: Restrict management of cluster-scoped PriorityClass objects to administrators and restrict workload submission by namespace. Apply a namespace-specific reference allowlist or equivalent configured controls, define the behavior for missing and default classes, and test both direct and controller-issued Pod requests. Where identity and type matter, enforce them at original workload admission and account for controller identity at Pod admission.
   owner_primary: Platform Engineering
   owner_supporting: ML Engineering; Security Engineering
   baseline_or_ai_specific: ai-specific
