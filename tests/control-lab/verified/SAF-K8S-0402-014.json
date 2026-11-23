@@ -1,0 +1,156 @@
+{
+  "control_id": "SAF-K8S-0402-014",
+  "catalog_revision": "4e3db156d3971a493bc40b9f40599cac84cf2666",
+  "catalog_sha256": "9667c78a19133e6bd9a0f63bfecc29db1b944c791dd9fd87d0c268de9330b2e6",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "38b41da71725518f0cc79de90e33079452e1ff68b1e159eb9ec0cb25086bf485",
+  "scope": "Pinned Kubernetes v1.36.1 Kind only. Synthetic TokenRequest credentials are bound to disposable Job Pods and reviewed with in-cluster TokenReview; one separate Pod identity is the positive control. No cloud, Vault, offline JWT, or production credential lifecycle is exercised.",
+  "review_timing": {
+    "queued_at": "2026-11-23T04:14:58.811149+00:00",
+    "cluster_ready_at": "2026-11-23T04:15:28.681888+00:00",
+    "approval_at": "2026-11-23T04:19:22.287248+00:00",
+    "case_loaded_at": "2026-11-23T04:19:22.311556+00:00"
+  },
+  "cluster": "saf-lab-0688a694dce9",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "8eeb32a0dbaa623275c16e8dd1efce5d601027f5282c61001b64055e3567dc40",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Disposable server and kubelet are v1.36.1",
+      "matched": true,
+      "observed": {
+        "server": "v1.36.1",
+        "kubelets": [
+          "v1.36.1"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Unrelated Pod-bound identity is valid before cleanup",
+      "matched": true,
+      "observed": {
+        "expected_identity_and_audience": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "train-baseline-success: the original bound credential authenticates",
+      "matched": true,
+      "observed": {
+        "expected_identity_and_audience": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "train-baseline-success: terminal Job with retained Pod still authenticates",
+      "matched": true,
+      "observed": {
+        "terminal": "Complete",
+        "job_present": true,
+        "pod_present": true,
+        "authenticated": true,
+        "credential_exp_still_in_future": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "train-baseline-failure: the original bound credential authenticates",
+      "matched": true,
+      "observed": {
+        "expected_identity_and_audience": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "train-baseline-failure: terminal Job with retained Pod still authenticates",
+      "matched": true,
+      "observed": {
+        "terminal": "Failed",
+        "job_present": true,
+        "pod_present": true,
+        "authenticated": true,
+        "credential_exp_still_in_future": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "train-success: the original bound credential authenticates",
+      "matched": true,
+      "observed": {
+        "expected_identity_and_audience": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "train-success: cascading Job and Pod removal invalidates the original credential",
+      "matched": true,
+      "observed": {
+        "terminal": "Complete",
+        "job_present": false,
+        "pod_present": false,
+        "authenticated": false,
+        "credential_exp_still_in_future": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "train-failure: the original bound credential authenticates",
+      "matched": true,
+      "observed": {
+        "expected_identity_and_audience": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "train-failure: cascading Job and Pod removal invalidates the original credential",
+      "matched": true,
+      "observed": {
+        "terminal": "Failed",
+        "job_present": false,
+        "pod_present": false,
+        "authenticated": false,
+        "credential_exp_still_in_future": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Unrelated permitted identity remains valid after Job cleanup",
+      "matched": true,
+      "observed": {
+        "expected_identity_and_audience": true
+      }
+    }
+  ]
+}
