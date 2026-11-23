@@ -1,0 +1,73 @@
+{
+  "control_id": "SAF-K8S-0403-004",
+  "catalog_revision": "ab1e651d27f0396c8d000e7c841f4c55f1d2cbd6",
+  "catalog_sha256": "9ad5251a5426f4c09cce564aa3e6c7e7d375a00041c3a784fbb7abb8e2114437",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "c66fe6637b1667b3ecfebff1a7d2f593a32eab1e400c2cd4447530074b088cce",
+  "scope": "Use the real Redis ACL authenticator in disposable Kind to distinguish Kubernetes Secret delivery, authorized overlap, and rejection of a retired key on new connections. The fixture uses temporary random credentials. Backend-enforced lease expiry, long-running connection invalidation and provider integrations need separate evidence.",
+  "cluster": "saf-lab-0872aeb69d6e",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Publishing new bytes or an expiry annotation did not rotate the actual accepting backend",
+      "matched": true,
+      "observed": {
+        "initial_consumer_authenticated": true,
+        "anonymous_denied": true,
+        "past_annotation_does_not_expire_login": true,
+        "replacement_delivery_without_authority_change": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The authoritative ACL activates the replacement and a deliberately bounded overlap retains both approved credentials",
+      "matched": true,
+      "observed": {
+        "authority_update": true,
+        "overlap_works": true,
+        "unrelated_credential_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The accepting backend rejects the retired credential and the running consumer keeps approved least-privilege access",
+      "matched": true,
+      "observed": {
+        "old_credential_rejected_on_new_connection": true,
+        "replacement_in_use": true,
+        "unrelated_resource_denied": true
+      }
+    }
+  ]
+}

@@ -918,6 +918,12 @@
       "sha256": "6af45f976c6db8e8f841aeaa3d2bcb93125a04e8f9fb04b6657e0fb752faa504",
       "title": "Approved secret injection pattern standards"
     },
+    "SAF-K8S-0403-004": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "c66fe6637b1667b3ecfebff1a7d2f593a32eab1e400c2cd4447530074b088cce",
+      "title": "Secret rotation and expiration enforcement"
+    },
     "SAF-K8S-0403-005": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -3008,7 +3014,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "1bd6cf74c5285d245b8ae77eba72c661adaff4d7",
-  "sha256": "08e921c1f2aefcbbc6f8736b0e445e6aada028a4e769b84fba159977e377b013",
+  "revision": "f5f4298ba361bf644ee65efa2b9075627184ef2b",
+  "sha256": "9ad5251a5426f4c09cce564aa3e6c7e7d375a00041c3a784fbb7abb8e2114437",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
