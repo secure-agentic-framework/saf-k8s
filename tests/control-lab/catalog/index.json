@@ -114,6 +114,12 @@
       "sha256": "111dbac1de0df05ecf94b68716dbaac9a9625ba60ed2d77073e77b00b77a340d",
       "title": "etcd certificate rotation coverage and execution"
     },
+    "SAF-K8S-0102-015": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "3aa2f9e1c195b769440170105e8650336cc043a7def952125f414d13bf5cf5ae",
+      "title": "etcd certificate rotation testing and recovery validation"
+    },
     "SAF-K8S-0102-018": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -1988,7 +1994,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "0313399240216f8f846787c756b721928ca2df08",
+  "revision": "6ad181032903532bdae1ff59dd92a724f13c37bf",
   "sha256": "a98fe4604e6f03e5f1e6b5b7e0f661f80266a0a24c8fb79e000fd63231aac788",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

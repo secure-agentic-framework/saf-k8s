@@ -1,0 +1,81 @@
+{
+  "control_id": "SAF-K8S-0102-015",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "3aa2f9e1c195b769440170105e8650336cc043a7def952125f414d13bf5cf5ae",
+  "scope": "One fresh, single-node Kind v1.36.1 cluster using kubeadm-managed local PKI and stacked etcd. The case backs up the active etcd server certificate/key inside the disposable node, asks kubeadm to renew that leaf, temporarily combines the original certificate with the renewed private key, restarts etcd, and requires an explicit TLS key/certificate mismatch in etcd logs plus a failed verified health check. A node-local EXIT trap restores the original matching pair. The case then requires etcd health, API readiness, retention of a preexisting ConfigMap, and a new ConfigMap write/read. Private key bytes remain in the node. No host files, other nodes, external PKI, production clusters, or HA behavior are touched.",
+  "review_timing": {
+    "queued_at": "2026-11-23T03:39:15.395206+00:00",
+    "cluster_ready_at": "2026-11-23T03:39:52.507853+00:00",
+    "approval_at": "2026-11-23T03:42:41.960779+00:00",
+    "case_loaded_at": "2026-11-23T03:42:42.275884+00:00"
+  },
+  "cluster": "saf-lab-4ca10d32805a",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "22b3e1dd7392c1e7a4b22e49e3c4a0eeca87b1df87428fb584af75d9f93d9736",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The incomplete replacement is rejected for a certificate/private-key mismatch and verified etcd health fails",
+      "matched": true,
+      "observed": {
+        "staged_pair_mismatched": true,
+        "etcd_log_named_key_certificate_mismatch": true,
+        "verified_health_failed": true,
+        "raw_evidence_file": "certificate-recovery.raw.json"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The original matching certificate/key pair is restored and etcd health recovers",
+      "matched": true,
+      "observed": {
+        "original_pair_restored": true,
+        "etcd_health_after_restore": true,
+        "raw_evidence_file": "certificate-recovery.raw.json"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The recovered control plane retains prior data and serves a permitted API write/read",
+      "matched": true,
+      "observed": {
+        "readyz_ok": true,
+        "preexisting_object_retained": true,
+        "permitted_api_write_readback": true,
+        "raw_evidence_file": "certificate-recovery.raw.json"
+      }
+    }
+  ]
+}
