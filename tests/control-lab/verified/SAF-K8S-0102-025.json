@@ -1,0 +1,81 @@
+{
+  "control_id": "SAF-K8S-0102-025",
+  "catalog_revision": "d725ae56ef97374cc637054c1f7a5349edd083fa",
+  "catalog_sha256": "69566a0243db623500b721b088247138fae212b5c8931155f693f87d6611f986",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "9d01684fac6ebb70505f6e6401b832d5966900a8140bc676c6b7e693bafdeec4",
+  "scope": "Actual Kubernetes Jobs evaluate a synthetic backup event feed and deliver scoped notices to an in-cluster receiver.",
+  "cluster": "saf-lab-d24079700ae5",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Evaluation without configured delivery leaves both review findings unreported",
+      "matched": true,
+      "observed": {
+        "evaluated": 2,
+        "delivered": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The reviewed route delivers separate notices for unusual access and a stale coverage source",
+      "matched": true,
+      "observed": {
+        "notices": [
+          {
+            "event": "unexpected",
+            "kind": "review-access",
+            "source": "fixture-repository",
+            "owner": "fixture-backup-review"
+          },
+          {
+            "event": "fixture-offline-custody",
+            "kind": "review-coverage",
+            "source": "fixture-offline-custody",
+            "owner": "fixture-backup-review"
+          }
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Routine access stays quiet and a replayed event creates one review notice",
+      "matched": true,
+      "observed": {
+        "routine_quiet": true,
+        "duplicate_suppressed": true
+      }
+    }
+  ]
+}
