@@ -2754,6 +2754,12 @@
       "sha256": "1e307f9a96427229b4f42e72ce1d6f9b215ffe2166fd357ea1a42392a95ce9ce",
       "title": "Inference request limits and query monitoring"
     },
+    "SAF-K8S-0908-005": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "8d11189367ac014b62f98c235a45a650617c39024c7befa593ef06014e34db16",
+      "title": "Model abuse logging and alerting"
+    },
     "SAF-K8S-0908-006": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3254,7 +3260,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "4da592e2ac2e921dee8a8ef9746c6dcc575490ca",
-  "sha256": "38bd6cdeb76fd84ab5ac9ab490f33e874b16bf42ae2e661d17e17f40bdae24cf",
+  "revision": "b23f119372304bfdc11598f1fdc5bdcd0973ce03",
+  "sha256": "ae796dccb934372d6909e147f18bb1bc8f25acdd0cbbc37ad9be141978733ea4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
