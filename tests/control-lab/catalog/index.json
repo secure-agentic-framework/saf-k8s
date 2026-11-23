@@ -876,6 +876,12 @@
       "sha256": "611f97e6f1b158e6533d8da724f5df53e10a855a3662d91af48dbcfc1d9eaa29",
       "title": "API server private endpoint and authorized network enforcement"
     },
+    "SAF-K8S-0505-007": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "11f28e603ad1020e63026143ac579d63b0a743ef2b13e344f27b77e729262b9e",
+      "title": "Administrative API server access path via bastion or VPN"
+    },
     "SAF-K8S-0601-011": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2192,7 +2198,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "1c56ca2fce0090547303ac2ac345895964737be8",
-  "sha256": "9fdc876528f6509f50a5ec1298e9e694132574fe4525381f01a71ab7c2ffe40a",
+  "revision": "21c46cc83ed1807728caaa4712f525c8722cabfc",
+  "sha256": "abcc04b16f354be1f6f3ac2d88f257701f01a4ceed1de8c6b8187616e0eaa3a4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -1,0 +1,91 @@
+{
+  "control_id": "SAF-K8S-0505-007",
+  "catalog_revision": "1b28ac9edf9a79dc3d1437eb1280b5dcbed5f519",
+  "catalog_sha256": "abcc04b16f354be1f6f3ac2d88f257701f01a4ceed1de8c6b8187616e0eaa3a4",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "11f28e603ad1020e63026143ac579d63b0a743ef2b13e344f27b77e729262b9e",
+  "scope": "One owned Kind cluster and a loopback-only private relay for a single harmless Kubernetes read. Both verified client identities can read before authorization. After the rule, the other identity receives 403 before an API request, and the approved identity still reads the exact API object. The relay verifies its client and API identities independently and keeps decision records. Production routing, VPN or bastion, MFA, and log delivery require separate evidence.",
+  "cluster": "saf-lab-290e5ed3c104",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Both enrolled clients read the real API fixture before relay authorization",
+      "matched": true,
+      "observed": {
+        "approved": {
+          "status": 200,
+          "body": {
+            "api_marker_verified": true
+          }
+        },
+        "other": {
+          "status": 200,
+          "body": {
+            "api_marker_verified": true
+          }
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The other verified identity is denied before a Kubernetes API request",
+      "matched": true,
+      "observed": {
+        "status": 403,
+        "identity": "spiffe://fixture.saf/admin/other",
+        "decision": "denied",
+        "api_contacted": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved identity still reads the marker through the audited relay",
+      "matched": true,
+      "observed": {
+        "status": 200,
+        "identity": "spiffe://fixture.saf/admin/approved",
+        "decision": "allowed",
+        "api_contacted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The relay records each reviewed management path decision",
+      "matched": true,
+      "observed": {
+        "event_count": 4
+      }
+    }
+  ]
+}
