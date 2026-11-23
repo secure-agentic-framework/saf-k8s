@@ -9850,12 +9850,12 @@
   knowledge_area: '9.9'
   control_seq: '010'
   control_title: Vector database encryption in transit and at rest
-  control_statement: Vector databases used for RAG retrieval must encrypt client connections in transit and encrypt vector storage at rest so embeddings and metadata remain protected on the network and on persistent storage volumes.
-  objective: Protect vector embeddings and related metadata from interception and storage compromise through transport and storage encryption.
-  rationale: Even when access is restricted, embeddings and metadata remain exposed if vector databases do not use TLS for client connections or storage-layer encryption for persistent volumes. Encryption reduces disclosure risk from network interception, stolen disks, snapshots, and underlying storage exposure.
-  scope: Applies to vector database instances used for RAG retrieval on Kubernetes, including self-managed and managed vector database services. Covers TLS for client connections and encryption at rest for vector storage volumes or equivalent managed storage layers. Excludes authentication and collection-level authorization.
-  primary_enforcement_point: TLS configuration for vector database client connections and storage-layer encryption for vector persistence.
-  implementation_surface: TLS certificate configuration for vector database client connections, encryption-at-rest settings for persistent volumes or managed vector storage, and verification that vector storage volumes inherit approved encryption controls.
+  control_statement: Encrypt governed vector database transport and persisted vector and metadata storage, including applicable replicas, snapshots and backups. Verify the effective client and storage boundaries and approved key management.
+  objective: Protect vector content and metadata on the governed network and storage paths and verify authorized recovery.
+  rationale: TLS can authenticate and encrypt the selected connections when endpoint identity is verified. Storage protections depend on the actual provider, covered volumes or exports and separate key custody. Successful persistence or restart alone cannot establish encryption.
+  scope: Applies to governed network listeners and internal paths, active storage, retained snapshots and backups. Use the applicability and evidence required by the deployed engine and provider.
+  primary_enforcement_point: The verified transport endpoint and the active and retained storage layers that provide encryption.
+  implementation_surface: Check trusted certificate chains and server identity, expected plaintext and untrusted denials, enabled encryption on the attached storage and retained copies, key custody and recovery, and positive observations using authorized requests and recovery workflows.
   owner_primary: ML Platform Engineering
   owner_supporting: Security Engineering; Infrastructure Engineering
   baseline_or_ai_specific: ai-specific
