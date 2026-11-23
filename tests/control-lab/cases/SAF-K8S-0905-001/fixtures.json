@@ -1,0 +1,14 @@
+{
+  "registry_name": "saf-0905-001-classification-registry-v1",
+  "registry_version": "fixture-registry-v1",
+  "systems": {
+    "train-locked-synthetic": {
+      "classification": "train-verify-lock",
+      "profile": "integrity-locked"
+    },
+    "continuous-learning-synthetic": {
+      "classification": "continuous-learning",
+      "profile": "update-governed"
+    }
+  }
+}

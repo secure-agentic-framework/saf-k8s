@@ -1278,6 +1278,12 @@
       "sha256": "37c58febf4ccbd90e7926bb64dd47a877b3a494325dfb1c6c728fd592988646c",
       "title": "Pipeline definition immutable version storage and controlled rollback governance"
     },
+    "SAF-K8S-0905-001": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "a60f5e83b4c5c67a4eb5320f7a86fb6aeb1832d2ec5501275b83ebedbff4ce82",
+      "title": "AI system lifecycle classification"
+    },
     "SAF-K8S-0905-005": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1796,7 +1802,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "2dc58cc2efb2ebb269b930b34b134a3afe48aa88",
+  "revision": "ad00449e3f378043ebbcc0ae6d7dc16992d10124",
   "sha256": "141559b7769339d63e7704ca30c28a6ab8e8d2fbbfefd87b9e9225f3feff5204",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
