@@ -1764,6 +1764,12 @@
       "sha256": "bfe5a53c1143a78c746a61187afb67f17db3c5d5bbc76fdc15faadbe270a8381",
       "title": "TEE-based model and data protection for AI workloads"
     },
+    "SAF-K8S-0804-002": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "af70822e079a17aa12b52bfa153c927ead164076fbe8becfc2edb92f9d89d95f",
+      "title": "Remote attestation for TEE integrity verification"
+    },
     "SAF-K8S-0901-002": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -2666,7 +2672,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "08c447b11c475e36f07a20e18c6df8a7e89c2b19",
-  "sha256": "4b8637de7d9b76430088afab788b9952bca47aab5146d26d9274eb55a09008e3",
+  "revision": "825ae944bc2883df6c12fc28da7d89fbaa6d0c68",
+  "sha256": "81517b27c716dcd2183c72168f768a6988b410901f2c97235efab4a7d56fc8d0",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

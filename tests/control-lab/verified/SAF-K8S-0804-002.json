@@ -1,0 +1,72 @@
+{
+  "control_id": "SAF-K8S-0804-002",
+  "catalog_revision": "1e2ef018dd74faa7579db243b9d70e5ccdf6ac2e",
+  "catalog_sha256": "81517b27c716dcd2183c72168f768a6988b410901f2c97235efab4a7d56fc8d0",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "af70822e079a17aa12b52bfa153c927ead164076fbe8becfc2edb92f9d89d95f",
+  "scope": "Actual OpenSSL signature checking and a Kubernetes Job applying fixture binding, freshness, and reuse rules.",
+  "cluster": "saf-lab-2bfbc3fbfadd",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Valid signature bytes alone also pass stale, mismatched and repeated requests",
+      "matched": true,
+      "observed": {
+        "signature_only_passes_expired_and_repeated": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The live Job rejects wrong bindings, stale evidence, an unapproved challenge, changed bytes and reuse",
+      "matched": true,
+      "observed": {
+        "changed": "invalid-signature",
+        "expired": "outside-validity",
+        "repeated": "already-used",
+        "wrong-challenge": "challenge-mismatch",
+        "wrong-measurement": "binding-mismatch",
+        "wrong-subject": "binding-mismatch"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The fresh authentic matching fixture is eligible exactly once",
+      "matched": true,
+      "observed": {
+        "fresh_matching_fixture_eligible": true,
+        "repeated_denied": true
+      }
+    }
+  ]
+}
