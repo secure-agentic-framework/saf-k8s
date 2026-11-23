@@ -1,0 +1,11 @@
+- rule: SAF owned Kubernetes audit read
+  desc: Match an authorized read of one owned public fixture object
+  source: k8s_audit
+  condition: >
+    ka.stage = ResponseComplete and ka.verb = get and
+    ka.target.resource = configmaps and ka.target.namespace = saf-test and
+    ka.target.name = fixture-audit-marker
+  output: >
+    Owned fixture read name=%ka.target.name namespace=%ka.target.namespace
+    actor=%ka.user.name audit_id=%ka.auditid
+  priority: NOTICE

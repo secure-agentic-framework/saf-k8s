@@ -534,6 +534,12 @@
       "sha256": "333bfb3fcffef487f6fee710a45eb8e0a5e041d09f11e0a203e6e93b53d661af",
       "title": "Runtime security tool deployment for syscall and network monitoring"
     },
+    "SAF-K8S-0204-002": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "244378c626e4f89512ec0a07975e1cd092ca863af212091b39c6d72060d6164f",
+      "title": "Kubernetes-specific runtime detection rules"
+    },
     "SAF-K8S-0204-003": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -2888,7 +2894,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "589aa46e57b74a7ecabc831d6b6a23f75cb058e9",
-  "sha256": "b0b0b68f1bf0dc2d39f1caada87cd806111b49945c552ce762f1f8f478f95346",
+  "revision": "cd04a17bdba5239332d1473e4ac3676ed8957128",
+  "sha256": "cac977a792918cc74529e45763d49762ab692c539b68b58bdd492755569553e6",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -1,0 +1,67 @@
+{
+  "control_id": "SAF-K8S-0204-002",
+  "catalog_revision": "449f3c05cfb64a7b365526528d0d827e6c035df0",
+  "catalog_sha256": "cac977a792918cc74529e45763d49762ab692c539b68b58bdd492755569553e6",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "244378c626e4f89512ec0a07975e1cd092ca863af212091b39c6d72060d6164f",
+  "scope": "A pinned userspace Falco audit rule evaluates finite live Kind API events and emits an attributed JSON alert for a public marker.",
+  "cluster": "saf-lab-a115ede1b851",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The same live audit input produces no alerts for a rule with an unmatched target",
+      "matched": true,
+      "observed": {
+        "nonmatching_output_empty": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Falco emits exactly one alert for the owned marker and leaves the ordinary read unalerted",
+      "matched": true,
+      "observed": {
+        "matched_alerts": 1,
+        "ordinary_unalerted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The delivered alert preserves source namespace, actor and audit event identity",
+      "matched": true,
+      "observed": {
+        "alert_context_matches_input": true
+      }
+    }
+  ]
+}

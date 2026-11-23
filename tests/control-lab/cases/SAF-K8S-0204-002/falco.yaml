@@ -1,0 +1,16 @@
+engine:
+  kind: nodriver
+plugins:
+  - name: k8saudit
+    library_path: /usr/share/falco/plugins/libk8saudit.so
+    init_config: ""
+    open_params: /fixture/audit.ndjson
+load_plugins: [k8saudit]
+rules_files: [/fixture/rules.yaml]
+json_output: true
+stdout_output:
+  enabled: true
+webserver:
+  enabled: false
+log_stderr: true
+log_syslog: false
