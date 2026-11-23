@@ -22,9 +22,9 @@ Verified collection and health for selected runtime signals support documented s
 
 - Domain: D02 - Node, Runtime, and OS Security
 - Knowledge Area: 2.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-0204-003 - Container filesystem drift detection](../../controls/SAF-K8S-0204-003.md)
