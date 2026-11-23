@@ -1,0 +1,71 @@
+{
+  "control_id": "SAF-K8S-0405-019",
+  "catalog_revision": "9658f4249699fce4c8b23212248cde2d8b92d34f",
+  "catalog_sha256": "631437da4fe9da4641a1557356a44cfa7b6206af4f381b3a5161afb562649f39",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "3f83b5ca108b4c8c9de386c4a2559a3f2f64c80912734dc67ea3eb6249116d15",
+  "scope": "A real admission policy enforces owner, scope, activation, independent fallback and disengagement fields for a defined Kubernetes runbook record. An authorized reviewer reads the accepted document; unrelated records remain independent. This verifies the documented workflow boundary, while SAF-K8S-0405-020 tests a separate live activation and execution scenario.",
+  "cluster": "saf-lab-994d67effe7d",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Kubernetes alone can store a document without the required recovery procedure",
+      "matched": true,
+      "observed": {
+        "incomplete_record_persists_without_gate": true,
+        "record_has_no_fallback_or_disengagement": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The native gate rejects missing or mismatched recovery procedure details",
+      "matched": true,
+      "observed": {
+        "incomplete_runbook_denied": true,
+        "shared_failure_dependency_denied": true,
+        "out_of_scope_operation_denied": true,
+        "missing_disengagement_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An authorized reviewer can retrieve the complete procedure",
+      "matched": true,
+      "observed": {
+        "complete_reviewable_runbook_persisted": true,
+        "unrelated_resource_unchanged_by_policy": true
+      }
+    }
+  ]
+}
