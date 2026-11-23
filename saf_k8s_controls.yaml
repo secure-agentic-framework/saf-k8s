@@ -588,12 +588,12 @@
   knowledge_area: '1.2'
   control_seq: '025'
   control_title: etcd backup repository access review and alerting
-  control_statement: Production Kubernetes clusters must review etcd backup repository access records or generate alerts for unauthorized or anomalous backup access activity.
-  objective: Ensure etcd backup access activity is not only logged but actively reviewed or alerted so suspicious repository access can be detected and investigated.
-  rationale: Audit records alone do not reduce risk if no one reviews them or if anomalous backup access fails to trigger operator attention. Review workflows and alerting make backup repository misuse operationally detectable before it becomes an undetected path to full cluster-state exposure.
-  scope: Applies to all production clusters. Covers periodic review workflows, alert thresholds, and response routing for etcd backup repository and restore-media access activity.
-  primary_enforcement_point: Backup repository access monitoring review
-  implementation_surface: Periodic access review workflows, anomaly detection or alert rules, and response routing for monitored repository access.
+  control_statement: Review and alert on defined etcd backup access events using the sources that actually observe each customer-controlled path. Monitor coverage gaps and document provider-managed responsibilities, assurance and unavailable event classes.
+  objective: Surface actionable backup access exceptions and loss of visibility with clear ownership, evidence provenance and response deadlines.
+  rationale: Kubernetes API activity, storage object operations, file activity and media custody have distinct recording sources. Missing evidence requires investigation or an approved compensating process. Provider-operated backup events may be unavailable to the customer.
+  scope: Applies to governed production backup, transfer, retention and restore paths. Inventory owners, selected event types, access modes, identified provider boundaries, review schedules, alert routes and evidence retention.
+  primary_enforcement_point: Verified source coverage, accountable review or configured alert rules, protected evidence retention and owned response.
+  implementation_surface: Test applicable allowed and denied marker access and provider or API event delivery. Verify rule evaluation, access-identity context, deduplication where used, alert receipt, response ownership and detection of missing or stale sources.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Backup and Recovery Operations
   baseline_or_ai_specific: baseline
