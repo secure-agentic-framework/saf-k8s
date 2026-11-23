@@ -71679,27 +71679,17 @@
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
   framework_version: '1.1'
   framework_requirement_id: PS.3.1
-  framework_requirement_title: Securely archive the necessary files and supporting data to be retained for each software release.
-  framework_mapping_notes: SAF-K8S requires retention policies for container images and artifacts (SAF-K8S-0601-005), model registry hardening with version retention (SAF-K8S-0905-003), artifact lifecycle management (SAF-K8S-0905-006), and encryption at rest for stored artifacts. Retention policies ensure integrity metadata is preserved alongside the artifacts it describes.
-  control_id: SAF-K8S-0701-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SSDF 1.1
-  framework_code: NIST-SSDF
-  framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
-  framework_version: '1.1'
-  framework_requirement_id: PS.3.1
-  framework_requirement_title: Securely archive the necessary files and supporting data to be retained for each software release.
-  framework_mapping_notes: SAF-K8S requires retention policies for container images and artifacts (SAF-K8S-0601-005), model registry hardening with version retention (SAF-K8S-0905-003), artifact lifecycle management (SAF-K8S-0905-006), and encryption at rest for stored artifacts. Retention policies ensure integrity metadata is preserved alongside the artifacts it describes.
+  framework_requirement_title: Securely archive the necessary files and supporting data to be retained for each software
+    release.
+  framework_mapping_notes: SAF-K8S-0601-010 covers retention for governed release registries. SAF-K8S-0601-011 keeps
+    integrity metadata with each governed artifact. SAF-K8S-0905-006 covers archival of retired model versions. Determine
+    separately which releases and associated evidence the organization archives under PS.3.1.
   control_id: SAF-K8S-0905-006
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: partial-control-coverage
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Archived model artifacts provide release-archival evidence only for the covered scope
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
@@ -72043,26 +72033,16 @@
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
   framework_version: '1.1'
   framework_requirement_id: RV.1.3
-  framework_requirement_title: Have a policy that addresses vulnerability disclosure and remediation, and implement the roles, responsibilities, and processes needed to support that policy.
-  framework_mapping_notes: SAF-K8S-1005-007 requires a vulnerability disclosure policy for Kubernetes infrastructure with defined intake channels, triage SLAs, roles and responsibilities, and coordination processes for multi-party vulnerabilities. Combined with IR lifecycle controls, this provides structured vulnerability disclosure and remediation at the infrastructure level.
+  framework_requirement_title: Have a policy that addresses vulnerability disclosure and remediation, and implement the
+    roles, responsibilities, and processes needed to support that policy.
+  framework_mapping_notes: SAF-K8S-1005-019 covers disclosure policy, intake and triage time limits. SAF-K8S-1005-020
+    covers response ownership, escalation and coordination. SAF-K8S-1005-001 provides incident handling support where
+    that lifecycle is connected to the disclosure and remediation process.
   control_id: SAF-K8S-1005-001
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SSDF 1.1
-  framework_code: NIST-SSDF
-  framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
-  framework_version: '1.1'
-  framework_requirement_id: RV.1.3
-  framework_requirement_title: Have a policy that addresses vulnerability disclosure and remediation, and implement the roles, responsibilities, and processes needed to support that policy.
-  framework_mapping_notes: SAF-K8S-1005-007 requires a vulnerability disclosure policy for Kubernetes infrastructure with defined intake channels, triage SLAs, roles and responsibilities, and coordination processes for multi-party vulnerabilities. Combined with IR lifecycle controls, this provides structured vulnerability disclosure and remediation at the infrastructure level.
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The incident workflow is integrated with the applicable disclosure and remediation process
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
