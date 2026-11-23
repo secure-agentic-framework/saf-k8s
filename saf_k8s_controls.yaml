@@ -4910,12 +4910,12 @@
   knowledge_area: '6.1'
   control_seq: '021'
   control_title: Container registry trusted-source network restriction
-  control_statement: Container registries must enforce network restrictions that limit registry access to trusted sources, approved CIDR ranges, private endpoints, or equivalent managed network paths.
-  objective: Prevent registry access from untrusted networks by enforcing trusted-source network boundaries around container registries.
-  rationale: Even when registry users authenticate correctly, broad network exposure increases the opportunity for credential abuse, scanning, and exfiltration. Network restrictions create a separate boundary that reduces the exposed attack surface for registry services.
-  scope: Applies to all container registries used for storing production, staging, and development images, including model-serving image registries and OCI artifact stores. Public mirror registries must be proxied through an authenticated pull-through cache.
-  primary_enforcement_point: Registry network policy, private endpoint, firewall, and CIDR restriction configuration.
-  implementation_surface: Cloud registry network settings, private endpoints, firewall rules, trusted CIDR restrictions, VPC endpoint policies, and reachability validation for registry access paths.
+  control_statement: Restrict container and OCI registry connections to approved network sources using the mechanisms available in the deployed environment. Verify trusted access and effective denial at each registry entry point.
+  objective: Reduce registry network exposure and preserve access through documented approved paths.
+  rationale: Network policy can prevent unapproved sources from reaching the registry. Request authentication and repository authorization are separate controls.
+  scope: Applies to governed registries, mirrors and caches. Inventory private and public resolution, direct endpoints, service paths and management interfaces. Use approved cache and authentication policy where applicable.
+  primary_enforcement_point: Effective ingress or connection policy at each registry endpoint and associated network boundary.
+  implementation_surface: Verify private endpoint, firewall, CIDR or workload-selector enforcement as applicable. Probe both permitted and denied routes and retain exact path evidence.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; DevSecOps / Release Engineering
   baseline_or_ai_specific: baseline
