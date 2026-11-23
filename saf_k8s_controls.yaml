@@ -9910,12 +9910,12 @@
   knowledge_area: '9.9'
   control_seq: '013'
   control_title: Approved source repository access control and allowlist enforcement for RAG ingestion
-  control_statement: Document ingestion pipelines for RAG must restrict ingestion to approved source repositories and enforce access controls and allowlists that prevent unapproved repositories, publishers, or paths from being read into the ingestion workflow.
-  objective: Prevent unauthorized or out-of-scope content sources from entering the RAG ingestion pipeline by enforcing approved-source access boundaries.
-  rationale: RAG knowledge-base poisoning often begins before document validation, when ingestion workers can read from repositories or paths that were never approved for inclusion. Approved-source access boundaries and allowlists create the admission perimeter for ingestion before any document-level validation occurs.
-  scope: Applies to document ingestion pipelines for RAG systems on Kubernetes. Covers source repository authentication, read-scope restriction, approved-source allowlists, and ingestion service-account permissions. Excludes document-level provenance and integrity validation after a source has been admitted.
-  primary_enforcement_point: Ingestion pipeline repository access control and approved-source allowlist enforcement.
-  implementation_surface: Ingestion pipeline service-account permissions, source repository authentication, repository or path allowlists, and controls restricting ingestion workers to approved document sources only.
+  control_statement: Authenticate governed ingestion workers to approved repositories and verify the repository, publisher and path against a trusted source policy before reading or accepting documents.
+  objective: Permit ingestion only from the source and paths approved for the worker and workflow.
+  rationale: A reachable repository or valid credential does not establish the approved ingestion scope. Verify repository identity, applicable allowed paths and actual destination behavior before producing derived data.
+  scope: Applies to repository identity, ingestion credentials, approved source and path policies and all intake routes. Verify document-level integrity and provenance under the applicable control.
+  primary_enforcement_point: Repository read authorization and intake admission before source retrieval.
+  implementation_surface: Pin approved identities and paths, use scoped credentials, verify effective destinations and applicable redirects, and observe permitted and denied fetches and downstream writes. Monitor policy changes and alternate intake paths.
   owner_primary: Data Engineering
   owner_supporting: Security Engineering; ML Platform Engineering
   baseline_or_ai_specific: ai-specific
