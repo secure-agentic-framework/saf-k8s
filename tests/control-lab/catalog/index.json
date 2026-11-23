@@ -1008,6 +1008,12 @@
       "sha256": "50a0c2486de2c2c57f546c078fed89cc2d4a8ef5b170dae89a62d05051799877",
       "title": "SBOM attestation binding to image digests"
     },
+    "SAF-K8S-0603-011": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "7d5793d473ab851a486832bc898667ddf059c34fe110dc1be172fc4e525c591f",
+      "title": "Attestation policy definition, signing, and change governance"
+    },
     "SAF-K8S-0603-013": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2276,7 +2282,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "7b21dc4b804be3a2e43d5612ba3d34ce946e0a08",
+  "revision": "16fd33a79de90326577b9a353853ab07b6965107",
   "sha256": "2ddcbcadc0dc3876b8db9e9c6493991f07da4dd95f88375ba52e0bbf2f22eca9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
