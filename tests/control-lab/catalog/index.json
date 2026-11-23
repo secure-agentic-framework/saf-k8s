@@ -996,6 +996,12 @@
       "sha256": "d6e773c7b0bd506fb183f12805a9506146f09fc92c282d829960b5db5997d19e",
       "title": "Automated secret leak detection coverage across development and runtime surfaces"
     },
+    "SAF-K8S-0403-026": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "1edef1861affbf1565085bc9b4aa527080185c8ffc93098cbd0468fb3db9fa46",
+      "title": "Secret leak prevention gate and enforcement controls"
+    },
     "SAF-K8S-0403-029": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -3068,7 +3074,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "3666b66ec76da95c8b1dd4d2cfb37b2e1e9cdcca",
-  "sha256": "33080dfd1982b990ce2fa75c6197bde45e382ce1db43352da7865cba2e70074a",
+  "revision": "ad0bec61c1ebb6da8694091734af7133b69cf21c",
+  "sha256": "2fd66729f1ff410bcc6ea5aec0285d70b9b8a2be5b959272d327d502b2fbbaf2",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
