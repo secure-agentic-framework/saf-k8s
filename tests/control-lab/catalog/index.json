@@ -1290,6 +1290,12 @@
       "sha256": "32bea0073124cb47237a7889a2ddb2d2587245513d000547407843bd654e7ed2",
       "title": "Model artifact lifecycle management"
     },
+    "SAF-K8S-0905-009": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "141f52a91c12fe4ee36042bc716580bdd9914e82fef3300986b6d8fa9427020d",
+      "title": "Model provenance verification at deployment"
+    },
     "SAF-K8S-0905-025": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1790,7 +1796,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "369abfce7abe40c33d5aa30096ba18977c11fd14",
+  "revision": "85ebfeb1e8872e98c42047283a76576cba71272b",
   "sha256": "3ffca2df08c7f01c81a0549715aa3fa07eb8a1e6fefe3423d367a358cfe7f901",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

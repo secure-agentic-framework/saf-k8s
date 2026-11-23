@@ -1,0 +1,101 @@
+{
+  "control_id": "SAF-K8S-0905-009",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "141f52a91c12fe4ee36042bc716580bdd9914e82fef3300986b6d8fa9427020d",
+  "scope": "One fresh Kubernetes 1.36.1 Kind cluster and namespace saf-test. A fixture-only HTTPS admission webhook examines CREATE requests for one inert Deployment shape, recomputes the exact fixed OCI manifest and layer digests, verifies an RSA-SHA256 manifest signature, verifies two sorted signed in-toto Statement v1 DSSE approval/provenance materials with matching subjects, and returns a real fail-closed Kubernetes admission denial or allow. Proves only this fixed test key, artifact, policy, Deployment CREATE path, and namespace; not registry retrieval, arbitrary OCI artifacts, UPDATE, production trust custody, all provenance steps, or all model deployments.",
+  "cluster": "saf-lab-846e9465c6b6",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "An untrusted fixed Deployment is admitted before the verifier is installed",
+      "matched": true,
+      "observed": {
+        "outcome": "accepted-before-gate",
+        "name_matches": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The fail-closed webhook denies fixed metadata with an untrusted digest",
+      "matched": true,
+      "observed": {
+        "outcome": "denied",
+        "reason": "model digest mismatch",
+        "expected_controller_decision": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The webhook denies a tampered fixed signature annotation",
+      "matched": true,
+      "observed": {
+        "outcome": "denied",
+        "reason": "model signature mismatch",
+        "expected_controller_decision": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The webhook denies fixed approval and provenance materials in the wrong order",
+      "matched": true,
+      "observed": {
+        "outcome": "denied",
+        "reason": "attestation order mismatch",
+        "expected_controller_decision": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The webhook rejects a signed fixture with incomplete attestation evidence",
+      "matched": true,
+      "observed": {
+        "required_materials": 2,
+        "supplied_materials": 1,
+        "targeted_denial": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Kubernetes admits the trusted signed fixture Deployment",
+      "matched": true,
+      "observed": {
+        "outcome": "accepted",
+        "name_matches": true,
+        "model_digest": "sha256:980f79ef01d474369ae9f4bbf5f4a45422ffe9190f873ce39f5563b9f7e54645"
+      }
+    }
+  ]
+}
