@@ -1080,6 +1080,12 @@
       "sha256": "a61e6407c617f2ee0522a485a593486fd857399615232a87d49f82e2bffdaa80",
       "title": "Kubeconfig security and hygiene"
     },
+    "SAF-K8S-0405-004": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "82c795264117a4e4e5237cee79af84d0cc27caa7a6e3ada2b081ab424222d6d4",
+      "title": "Security awareness for Kubernetes and GPU administrators"
+    },
     "SAF-K8S-0501-001": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -3140,7 +3146,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "91031e808190604348a49716795de5e1ca26dc35",
-  "sha256": "c8134ecc4673e1bd2d7721c5d56733063dc5a37b95789db85abf11a8fc962127",
+  "revision": "5c2accc05544ccd6a62983e49788403bc06b6aa6",
+  "sha256": "637809ee915d1f3ed4451dd9d8256edcfd4ba9cb18559e7ee016de3f8a91c693",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
