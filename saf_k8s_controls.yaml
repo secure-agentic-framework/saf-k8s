@@ -5012,10 +5012,10 @@
   control_title: Notary v2 trust policy and signing identity governance
   control_statement: Organizations using Notary v2 (notation) must configure trust policies that specify authorized signing identities and trusted certificate chains for notation signature validation.
   objective: Establish governed trust policy boundaries for which Notary v2 signing identities are authorized to sign deployable artifacts.
-  rationale: Trust policy governance is an independent control claim from signature storage or admission verification. Without explicit notation trust policies and approved signing identity chains, verification can succeed against unauthorized publishers or unmanaged certificate roots.
+  rationale: Notation requires an applicable trust policy before it can verify an OCI signature. An overly broad policy can accept unintended signer subjects or roots. Verify the repository scope, trusted root store and authorized signer identities separately from signature storage and Kubernetes admission.
   scope: Applies to all container registries and Kubernetes clusters where Notary v2 is the designated or supplementary signing mechanism. Includes environments using Azure Container Registry, AWS ECR, or other registries with native notation support. Organizations exclusively using Sigstore/cosign may document this control as not applicable.
   primary_enforcement_point: Notation trust policy configuration and signing identity trust-root management.
-  implementation_surface: trustpolicy.json configuration, trusted signing identity definitions, certificate chain specifications, organizational PKI support for notation signing identities, and documented trust policy governance for Notary v2.
+  implementation_surface: Configure the version-supported OCI trust policy file with the approved registry scopes, verification level, named trust stores and signing identities. Verify positive and negative signer and chain combinations for the exact artifact digest, and document approval and rotation of roots and identities.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; DevSecOps / Release Engineering
   baseline_or_ai_specific: baseline
