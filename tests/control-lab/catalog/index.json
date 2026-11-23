@@ -1662,6 +1662,12 @@
       "sha256": "8ef335324e14d8c1643429edbb6b77530f1d3610f4a6221a9286e0145ca1847b",
       "title": "Admission validation of authorized GPU resource requests"
     },
+    "SAF-K8S-0801-011": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "51fe873a090906e1ef19fc23ab0293d4e7c2290d2f8fcea41f6ca416ff840fee",
+      "title": "MPS and time-slicing residual-risk acceptance and compensating control approval"
+    },
     "SAF-K8S-0801-012": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -2570,7 +2576,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ae8e69fb19b464a4b18eda48de32ea361c6b4dd3",
-  "sha256": "2cd5ef9b7ce253f31197f34d133bd87c48f8b24505534b3b3030560b57c8e436",
+  "revision": "6d25f45b3af04d0e7f89249f91362c54fc3664f0",
+  "sha256": "149df1ee5638e2de7d5cac6b062e26480dfa5a101b2ab5b814480baffbd3b7c4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
