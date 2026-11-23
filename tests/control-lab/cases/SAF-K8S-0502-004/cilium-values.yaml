@@ -1,0 +1,26 @@
+# SAF-K8S-0502-004 disposable Kind fixture baseline. The chart archive and
+# both Cilium workload images are independently digest checked/pinned.
+ipam:
+  mode: kubernetes
+kubeProxyReplacement: false
+operator:
+  replicas: 1
+  image:
+    genericDigest: sha256:c6e7de6665aa9701db86c4fe46828a75a0d167afe084a9ffb5bce34b2c4fa8c4
+    useDigest: true
+hubble:
+  enabled: false
+  relay:
+    enabled: false
+  ui:
+    enabled: false
+bpf:
+  monitorAggregation: none
+envoy:
+  enabled: false
+l7Proxy: false
+image:
+  repository: quay.io/cilium/cilium
+  tag: v1.20.5
+  digest: sha256:aa72499f075ad729947ea91b026218aceba24f1a8e4534bf36b8368c7c561526
+  useDigest: true

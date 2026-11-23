@@ -1,0 +1,111 @@
+{
+  "control_id": "SAF-K8S-0502-004",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "f06e22c5c452b35b47b329f77be73d5507a0bfdd04d960b30efaec6d29dc09af",
+  "scope": "One fresh harness-owned Kind v0.32.0 / Kubernetes v1.36.1 cluster, with Kind's default CNI disabled and Cilium 1.20.5 installed from the checked OCI chart archive. The case verifies the chart and Cilium agent/operator image pins, then checks one TCP marker request between two case-owned pods in the cluster. A deliberately invalid readiness-probe threshold is submitted through Helm with and without --atomic. The case requires API rejection for both attempts, a deployed rollback revision for the atomic trial, restored user values, and the same marker request afterward. This does not assess a production baseline, CVE status or patch timeliness, provider SLAs, RBAC process, PSA configuration, or production-scale availability.",
+  "cluster": "saf-lab-0e6e71d55a75",
+  "kind_ready_wait": "0s",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Baseline Cilium agent and operator images match digest pins",
+      "matched": true,
+      "observed": {
+        "agent_images": [
+          "quay.io/cilium/cilium:v1.20.5@sha256:aa72499f075ad729947ea91b026218aceba24f1a8e4534bf36b8368c7c561526"
+        ],
+        "operator_images": [
+          "quay.io/cilium/operator-generic:v1.20.5@sha256:c6e7de6665aa9701db86c4fe46828a75a0d167afe084a9ffb5bce34b2c4fa8c4"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Baseline in-cluster marker service is reachable",
+      "matched": true,
+      "observed": {
+        "returncode": 0,
+        "marker_received": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A failed non-atomic upgrade has no automatic rollback revision",
+      "matched": true,
+      "observed": {
+        "api_rejected_readiness_threshold": true,
+        "new_revision_statuses": [
+          "failed"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same invalid upgrade triggers atomic rollback to approved values",
+      "matched": true,
+      "observed": {
+        "api_rejected_readiness_threshold": true,
+        "new_revision_statuses": [
+          "failed",
+          "deployed"
+        ],
+        "values_restored": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Rollback restored the digest-pinned CNI workloads",
+      "matched": true,
+      "observed": {
+        "agent_images": [
+          "quay.io/cilium/cilium:v1.20.5@sha256:aa72499f075ad729947ea91b026218aceba24f1a8e4534bf36b8368c7c561526"
+        ],
+        "operator_images": [
+          "quay.io/cilium/operator-generic:v1.20.5@sha256:c6e7de6665aa9701db86c4fe46828a75a0d167afe084a9ffb5bce34b2c4fa8c4"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Post-rollback marker service remains reachable",
+      "matched": true,
+      "observed": {
+        "returncode": 0,
+        "marker_received": true
+      }
+    }
+  ]
+}
