@@ -1,0 +1,78 @@
+{
+  "control_id": "SAF-K8S-0403-028",
+  "catalog_revision": "86b37ee1ed8688df501fb598316de71254272fbe",
+  "catalog_sha256": "44f2fa4b13d757d198115169e85cbae92e509d838b0afdd82335b8f902f6c1d9",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "3aa263adda25ca22e9e2ead865246f0e44e22c638cf4ab1a9528abe55b03935e",
+  "scope": "A public test report refers to two case-owned credentials without reporting the credentials themselves. Live TLS Vault proves issuer-side invalidation, preserves a separate trusted consumer path, and reissues only the still-needed credential. External issuers, detection, provider-specific action policies and production timing need independent evidence.",
+  "cluster": "saf-lab-3e1c8ba884b9",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Removing the fixture report leaves issuer access active and a workload cannot revoke it",
+      "matched": true,
+      "observed": {
+        "active_access_survives_report_cleanup": true,
+        "retired_access_survives_report_cleanup": true,
+        "unapproved_revocation_rejected": true,
+        "unapproved_action_leaves_access_active": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The scoped incident operator verifies actual issuer denial before the fixture deadline",
+      "matched": true,
+      "observed": {
+        "authority_confirmed_both_requests": true,
+        "old_authority_decisions": {
+          "continues": 403,
+          "retired": 403
+        },
+        "confirmed_within_fixture_target": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The affected consumer continues only with its replacement and unrelated access survives",
+      "matched": true,
+      "observed": {
+        "replacement_distinct_and_observed": true,
+        "old_credential_stays_denied": true,
+        "unrelated_credential_survives": true,
+        "retired_credential_stays_denied": true,
+        "separate_dispositions_retained": true
+      }
+    }
+  ]
+}
