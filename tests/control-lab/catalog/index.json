@@ -1704,6 +1704,12 @@
       "sha256": "164326c412a3c45dbe76e73c0e18317110ec9677d93376fff67090a91d7b8f1c",
       "title": "GPU firmware integrity monitoring"
     },
+    "SAF-K8S-0802-006": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "aca10e02f11429632eb0d060296d4e128b342f6c5cdee277f47e67e1f3fb8388",
+      "title": "Device plugin socket directory access restriction and unauthorized socket access monitoring"
+    },
     "SAF-K8S-0901-002": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -2606,7 +2612,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "0bb91bbd1e4bbe9d464445c63f21998acbe151fa",
-  "sha256": "30b4a0862d9b2e7916f9383d0076a525efe64eb83e7bfd1941001f5eeac21cc3",
+  "revision": "f114befc5ebb652040816f1ea180bbe4745729c1",
+  "sha256": "0baf825518ca66ce67dcf695ed6496cfcb5ffcde3f4b6f1a4e1147fced125f5c",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
