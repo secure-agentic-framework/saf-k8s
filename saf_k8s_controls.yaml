@@ -6330,12 +6330,12 @@
   knowledge_area: '7.2'
   control_seq: '010'
   control_title: Virtual cluster deployment for high-isolation multi-tenant Kubernetes environments
-  control_statement: Organizations requiring stronger tenant isolation than namespace-level controls provide must evaluate and implement virtual cluster technologies or equivalent tenant control-plane separation mechanisms to achieve API-server-level isolation between tenants while sharing underlying infrastructure.
-  objective: Provide stronger tenant isolation than namespace boundaries alone by deploying virtual cluster or equivalent control-plane separation for high-isolation tenants on shared infrastructure.
-  rationale: Namespace isolation has inherent limitations because cluster-scoped resources and host control-plane surfaces remain shared. Virtual clusters or equivalent tenant control-plane separation reduce the blast radius of tenant misconfiguration, privileged tenant actions, and cross-tenant interference in shared Kubernetes environments.
-  scope: Applies to multi-tenant Kubernetes environments where namespace-level isolation is insufficient for the threat model, including external tenants, cross-business-unit sharing, or mixed data classification levels. Not required for single-tenant or dedicated-cluster deployments.
-  primary_enforcement_point: Virtual cluster provisioning system, host cluster admission controls restricting tenant access to the host API server, and tenant isolation architecture review.
-  implementation_surface: vCluster or equivalent virtual control-plane deployments, host cluster admission controls, dedicated control-plane separation patterns for high-isolation tenants, provisioning workflows for tenant virtual clusters, and compensating controls for shared-kernel or shared-node residual exposure.
+  control_statement: Use a tenant-specific virtual control plane or dedicated cluster when the threat model requires stronger API separation than namespace-scoped controls provide. Restrict host access, review configured synchronization, and enforce any required runtime boundaries independently.
+  objective: Provide distinct, verified tenant API and control-plane boundaries and document the remaining shared infrastructure.
+  rationale: Kubernetes namespaces provide namespaced scope within one API and do not create separate cluster-scoped object stores. Virtual control planes can provide independent API state while host administrators, synchronized resources, nodes and runtime components may remain shared.
+  scope: Applies where namespace-only isolation does not meet tenant API or administrative requirements. Record tenant and host identities, worker placement, shared infrastructure, synchronized resources and independent network, storage, device and runtime requirements.
+  primary_enforcement_point: Tenant control-plane provisioning, scoped credentials and host authorization, synchronization policy, and independently verified runtime controls.
+  implementation_surface: Pin the tested virtual cluster configuration and worker model. Test independent tenant API state, tenant and service identity scopes, and relevant host authorization. Inventory synced resources and host permissions. Verify required workload, network, storage and node isolation and record residual risk.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Cloud Platform Engineering
   baseline_or_ai_specific: baseline
