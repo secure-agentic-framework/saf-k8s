@@ -1392,6 +1392,12 @@
       "sha256": "11f28e603ad1020e63026143ac579d63b0a743ef2b13e344f27b77e729262b9e",
       "title": "Administrative API server access path via bastion or VPN"
     },
+    "SAF-K8S-0601-008": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "7d501ffd87a686604a9bab884a172a24bc85dae21d80588b2f40b8178b169f18",
+      "title": "CI/CD build-time container image vulnerability scanning"
+    },
     "SAF-K8S-0601-010": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -3380,7 +3386,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "945b8ee849714da13a473824ee9b1af5b940f8b8",
-  "sha256": "cbae4c66841adb325f0cbd5a9efded2d03572c3b279a4136ba23f626a1cd0e5d",
+  "revision": "0b6fb6c9f9efdc0d451af24b33702a570e87ae3a",
+  "sha256": "7eb592b88ccf2f175765d75cadab30cd514317057b7f6a74caddce4f22a4461d",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
