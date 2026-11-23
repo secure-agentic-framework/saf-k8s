@@ -1560,6 +1560,12 @@
       "sha256": "20255e4fa2d01a1cee6e01575a84d9eb4bbcae05a3b006a5958d39ef1bdf39f6",
       "title": "Cloud provider contingency plans for managed Kubernetes services"
     },
+    "SAF-K8S-0704-008": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "0fe42f53d968b5514c32c15fdb5adf9d827fc518a34ef2b4ae2d13397783d928",
+      "title": "Cloud-to-Kubernetes event correlation for incident investigation"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -2468,7 +2474,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "fa386365563d856006d2049c3bf7f30cb902dd4c",
-  "sha256": "c85ec3f277f9a3f5b7ae549a6c90e441f0d42d98be9f29de41864caaaf2ad8d9",
+  "revision": "625052305c0018d3e489010ea53f012915817e96",
+  "sha256": "15ee16753290b3b17d23a115091140101a22fa44985a70cdf09a714ed241fec4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

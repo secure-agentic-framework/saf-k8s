@@ -1,0 +1,72 @@
+{
+  "control_id": "SAF-K8S-0704-008",
+  "catalog_revision": "865c403c12a6a92009b83dfbb5948a05ed5a8f65",
+  "catalog_sha256": "15ee16753290b3b17d23a115091140101a22fa44985a70cdf09a714ed241fec4",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "0fe42f53d968b5514c32c15fdb5adf9d827fc518a34ef2b4ae2d13397783d928",
+  "scope": "Actual Kubernetes metadata audit events and synthetic cloud rows and identity links.",
+  "cluster": "saf-lab-956c762c1652",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A timestamp-only join offers matches even for an unmapped synthetic principal",
+      "matched": true,
+      "observed": {
+        "different_audit_ids": true,
+        "time_only_false_candidates": 2
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Explicit correlation keeps a many-candidate time window and an unmapped event unresolved",
+      "matched": true,
+      "observed": {
+        "dispositions": {
+          "link": "matched",
+          "multiple": "ambiguous",
+          "outside": "unmatched"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The explicit fixture reference selects the exact metadata-only audit event",
+      "matched": true,
+      "observed": {
+        "exact_event_matched": true,
+        "metadata_only": true
+      }
+    }
+  ]
+}
