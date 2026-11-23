@@ -1284,6 +1284,12 @@
       "sha256": "7465d9fd5d3c507373bbd19f18809a808ff41e72dce6df0e101344a420c64145",
       "title": "Automated model promotion gates"
     },
+    "SAF-K8S-0905-006": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "32bea0073124cb47237a7889a2ddb2d2587245513d000547407843bd654e7ed2",
+      "title": "Model artifact lifecycle management"
+    },
     "SAF-K8S-0905-025": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1784,7 +1790,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "7813825050bbf61c6010954b3387a8aa45262c31",
+  "revision": "369abfce7abe40c33d5aa30096ba18977c11fd14",
   "sha256": "3ffca2df08c7f01c81a0549715aa3fa07eb8a1e6fefe3423d367a358cfe7f901",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
