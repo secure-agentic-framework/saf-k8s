@@ -1,0 +1,68 @@
+{
+  "control_id": "SAF-K8S-0204-001",
+  "catalog_revision": "ba25ef6ac02d50fc50b4e7a5c0928d13651d318f",
+  "catalog_sha256": "198e47ae4cc589b87d0da9f360badfd8afbe4b708e5c29006927bb956ac63abc",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "333bfb3fcffef487f6fee710a45eb8e0a5e041d09f11e0a203e6e93b53d661af",
+  "scope": "Observe selected real Linux events from an owned child workload in a restricted Kubernetes Job.",
+  "cluster": "saf-lab-5f5605ad8696",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The public workload completes without creating a trace when collection is disabled",
+      "matched": true,
+      "observed": {
+        "disabled_capture_observed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The real syscall collector sees the owned file, network and process markers",
+      "matched": true,
+      "observed": {
+        "owned_file_open": true,
+        "loopback_connection": true,
+        "known_child_executed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The owned workload retains all expected operations under scoped observation",
+      "matched": true,
+      "observed": {
+        "owned_workload_remains_functional": true
+      }
+    }
+  ]
+}
