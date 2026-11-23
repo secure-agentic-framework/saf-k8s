@@ -336,6 +336,12 @@
       "sha256": "b2c26f8f26b0c8c56997c8b4190044e5e13ecc701c925780619b62369b6b9f90",
       "title": "Container runtime socket root-only protection"
     },
+    "SAF-K8S-0202-010": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "757c2e14158c4d560260a27cded805dae6b9619279f147f4c0688a378582e416",
+      "title": "Node default seccomp profile enforcement"
+    },
     "SAF-K8S-0202-012": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -1994,7 +2000,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6ad181032903532bdae1ff59dd92a724f13c37bf",
+  "revision": "c76947e24ae8d99294195eae7ef1988e6aab10f2",
   "sha256": "a98fe4604e6f03e5f1e6b5b7e0f661f80266a0a24c8fb79e000fd63231aac788",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
