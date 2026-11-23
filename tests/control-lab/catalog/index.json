@@ -2808,6 +2808,12 @@
       "sha256": "5487b62ecd7e7c3558d508cd31452ff835470db576ec8dc9a315a1ac9ac2405d",
       "title": "Vector index lifecycle management"
     },
+    "SAF-K8S-0909-008": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "bb19120efcc631b267ca5236978d59b4e7c785f49eb7c6164f474a8de55242e2",
+      "title": "Classification-aware chunking and vector collection segregation"
+    },
     "SAF-K8S-0910-029": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3290,7 +3296,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "b4c0eaedf1d92bf85b6ae84e60ede78d4c9bd7ad",
-  "sha256": "8800073c8b21c3b2c0bc18bacef91cec4635628270bad99a423c16d5cf1381ae",
+  "revision": "3b4638aeabee60618099745b0f59bc4ca5a1b2cf",
+  "sha256": "81cdfaf9b164ed973a39e36bafdf465f4c6975833862cc72a87b2abc84c6fd9a",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
