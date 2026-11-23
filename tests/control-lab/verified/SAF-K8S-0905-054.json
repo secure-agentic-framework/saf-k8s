@@ -1,0 +1,164 @@
+{
+  "control_id": "SAF-K8S-0905-054",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "b6c7afe0bfa2fdbff093a0b33e27448baa30dc6efd73baab4cc497518b3c3e09",
+  "scope": "A disposable Kubernetes v1.36.1 cluster with bundled kindnet compares the same protected client's HTTP model downloads before and after a native NetworkPolicy. The policy allows CoreDNS and the exact labeled proxy namespace and Pods. The case checks in-cluster Service and direct Pod IP paths and a case-owned off-cluster Docker peer on an internal bridge. The unselected namespace can still reach denied targets. The synthetic JSON requests use TCP/8080. Production telemetry, public-hub and domain identity, proxy upstream governance, provider paths and non-Pod consumers are open.",
+  "cluster": "saf-lab-609aaf5b2d31",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Before enforcement the protected client downloads from the proxy service",
+      "matched": true,
+      "observed": {
+        "source_namespace": "saf-model-protected",
+        "reachable": true,
+        "consecutive_observations": 2,
+        "model_sha256": "b46c60efee5f8bcf914f0137d42680ceab97091a7f5b90d2ec7a08ec336fb364"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before enforcement the protected client downloads from the in-cluster direct hub service",
+      "matched": true,
+      "observed": {
+        "source_namespace": "saf-model-protected",
+        "reachable": true,
+        "consecutive_observations": 2,
+        "model_sha256": "ce42f66aeed41b026118182c110615eaba9f5c9f1a22cd5b826d3e67b314d528"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before enforcement the protected client downloads from the in-cluster hub Pod IP",
+      "matched": true,
+      "observed": {
+        "source_namespace": "saf-model-protected",
+        "reachable": true,
+        "consecutive_observations": 2,
+        "model_sha256": "ce42f66aeed41b026118182c110615eaba9f5c9f1a22cd5b826d3e67b314d528"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before enforcement the protected client downloads from the off-cluster private hub",
+      "matched": true,
+      "observed": {
+        "source_namespace": "saf-model-protected",
+        "reachable": true,
+        "consecutive_observations": 2,
+        "model_sha256": "cd8093e5072d946edfa2165583a804d18c6eee8c82acb983b90a3fe31a6a1e9a"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Protected namespace denies the same direct hub through its Service",
+      "matched": true,
+      "observed": {
+        "source_namespace": "saf-model-protected",
+        "reachable": false,
+        "consecutive_observations": 2,
+        "model_sha256": null
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Protected namespace denies the same hub Pod IP",
+      "matched": true,
+      "observed": {
+        "source_namespace": "saf-model-protected",
+        "reachable": false,
+        "consecutive_observations": 2,
+        "model_sha256": null
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Protected namespace denies the same off-cluster hub IP",
+      "matched": true,
+      "observed": {
+        "source_namespace": "saf-model-protected",
+        "reachable": false,
+        "consecutive_observations": 2,
+        "model_sha256": null
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same protected client retrieves exact approved model bytes through its proxy",
+      "matched": true,
+      "observed": {
+        "source_namespace": "saf-model-protected",
+        "reachable": true,
+        "consecutive_observations": 2,
+        "model_sha256": "b46c60efee5f8bcf914f0137d42680ceab97091a7f5b90d2ec7a08ec336fb364"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The in-cluster hub remains live from the unselected namespace",
+      "matched": true,
+      "observed": {
+        "source_namespace": "saf-model-control",
+        "reachable": true,
+        "consecutive_observations": 2,
+        "model_sha256": "ce42f66aeed41b026118182c110615eaba9f5c9f1a22cd5b826d3e67b314d528"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The off-cluster fixture remains live from the unselected namespace",
+      "matched": true,
+      "observed": {
+        "source_namespace": "saf-model-control",
+        "reachable": true,
+        "consecutive_observations": 2,
+        "model_sha256": "cd8093e5072d946edfa2165583a804d18c6eee8c82acb983b90a3fe31a6a1e9a"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both Kubernetes DNS records still resolve and the protected client is unchanged",
+      "matched": true,
+      "observed": {
+        "services_resolve": {
+          "proxy": true,
+          "hub": true
+        },
+        "same_pod_uid": true
+      }
+    }
+  ]
+}

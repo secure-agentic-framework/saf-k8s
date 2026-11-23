@@ -1380,6 +1380,12 @@
       "sha256": "bdfe0653a18c27714a75fa43d42a1241eac349ea614e56a0c7a1579136c1dda2",
       "title": "Model promotion approval audit binding to reviewer identity and model version"
     },
+    "SAF-K8S-0905-054": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "b6c7afe0bfa2fdbff093a0b33e27448baa30dc6efd73baab4cc497518b3c3e09",
+      "title": "External model source NetworkPolicy enforcement for protected namespaces"
+    },
     "SAF-K8S-0907-007": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1862,7 +1868,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "9bb961091a705671c4ce88142d9089ef4e72cd05",
+  "revision": "944292e3cf264efd3b78878844816697b31c7d33",
   "sha256": "9246a83494e93abb79f73876a57c184c94b68d2ab9366f66d0ea3595a5589eeb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
