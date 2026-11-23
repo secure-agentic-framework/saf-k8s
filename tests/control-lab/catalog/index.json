@@ -1632,6 +1632,12 @@
       "sha256": "2a7a809c996cf911ed223c74d4a219605f537eb3990669b12d4e00fc467bbe76",
       "title": "GPU device plugin security configuration and hardening"
     },
+    "SAF-K8S-0801-002": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "f109efc6c090ffff14741b8808048587674095fe696cb4e8433cfc421e4e09fa",
+      "title": "MIG partitioning for hardware-enforced GPU isolation"
+    },
     "SAF-K8S-0801-009": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -2552,7 +2558,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "2dbdc3975ff2623d1e2d2cfd9e37f6b387e0d164",
-  "sha256": "7a28badc5e3a74a2232d83ef1b54c79e5ef9235017577e593aecf4bca2c13451",
+  "revision": "d980b31a4f5142d161249c70027b853ac9b66498",
+  "sha256": "35b4e3482c3767a6e6dc6f70565bbee4c48fd762c3a8a3393fd93b67bd5bc29f",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
