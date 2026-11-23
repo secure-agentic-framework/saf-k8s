@@ -5710,12 +5710,12 @@
   knowledge_area: '6.6'
   control_seq: 009
   control_title: SSDF v1.1 alignment for secure development practices
-  control_statement: Development practices must align with NIST SSDF v1.1 (Secure Software Development Framework) task groups (Prepare the Organization, Protect the Software, Produce Well-Secured Software, Respond to Vulnerabilities) for secure development lifecycle requirements. Organizations must maintain documented SSDF task mappings and audit evidence demonstrating alignment.
-  objective: Ensure secure development practices are systematic and auditable by aligning with the NIST SSDF v1.1 framework rather than relying on ad hoc practices.
-  rationale: Without SSDF alignment, secure development practices are ad hoc and inconsistent across teams. SSDF v1.1 provides a structured framework that maps development activities to security outcomes, enabling organizations to identify gaps, demonstrate compliance to auditors, and progressively improve their development security posture. The framework is particularly relevant for organizations subject to federal supply chain security requirements.
-  scope: Applies to all software development practices across the organization producing artifacts deployed to Kubernetes clusters. Covers all four SSDF task groups (PS, PW, PO, RV). Organizations not subject to federal requirements may use SSDF as a voluntary maturity benchmark.
+  control_statement: Use NIST SP 800-218 SSDF v1.1 to select and document secure development practices for the approved scope. Record accountable owners, task selection or exclusion rationale, collected evidence and remediation of gaps. Identify any binding obligations from their applicable sources.
+  objective: Provide a reviewable, risk-based record of the secure development practices selected for the approved software and lifecycle scope.
+  rationale: The SSDF provides a common vocabulary and high-level recommendations for integrating secure development into a software lifecycle. Task selection, deployment evidence and any binding obligations require an applicable source and an approved organizational decision.
+  scope: The accountable owner records the software, teams, lifecycle stages and environments in scope, including Kubernetes artifacts where selected. Assess the four practice groups as applicable to that scope.
   primary_enforcement_point: Development governance and compliance review processes.
-  implementation_surface: SSDF v1.1 task mapping (PS - Prepare the Organization, PW - Protect the Software, PO - Produce Well-Secured Software, RV - Respond to Vulnerabilities) for secure development lifecycle audit evidence, organizational self-assessment against SSDF tasks, gap analysis and remediation tracking, and periodic compliance review documentation.
+  implementation_surface: Map selected tasks using the SSDF v1.1 practice identifiers. PO is Prepare the Organization, PS is Protect the Software, PW is Produce Well-Secured Software, and RV is Respond to Vulnerabilities. Record rationale, owners and evidence. For PO.3.2, identify the governed tools and toolchain, verify their selected security practices and retain operating and maintenance evidence.
   owner_primary: Compliance / GRC
   owner_supporting: DevSecOps / Release Engineering; Security Engineering
   baseline_or_ai_specific: baseline
