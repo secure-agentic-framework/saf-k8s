@@ -1,0 +1,68 @@
+{
+  "control_id": "SAF-K8S-0802-009",
+  "catalog_revision": "d6a8022b3e7b441174f34a3af439b98fbf552c41",
+  "catalog_sha256": "fa4897b9899484547c048ebe7fd98c2f8355fddd889c4dcb1d7f37cbdba2ef55",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "7547f4a1945644598c0d32f139ffda22b47d55f2a7949200c697b43514b4ac7f",
+  "scope": "Live container file integrity detection over owned inert bytes, without a host mount or driver binary.",
+  "cluster": "saf-lab-56aa51d51121",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The ordinary path check still succeeds after changing the owned file bytes",
+      "matched": true,
+      "observed": {
+        "approved_initially_matches": true,
+        "same_path_exists_after_replacement": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The running monitor detects a mismatch against the independent baseline",
+      "matched": true,
+      "observed": {
+        "replacement_detected": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The monitor remains read-only and recognizes approved bytes after restoration",
+      "matched": true,
+      "observed": {
+        "monitor_write_denied": true,
+        "approved_bytes_verified": true
+      }
+    }
+  ]
+}
