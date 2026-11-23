@@ -1690,12 +1690,12 @@
   knowledge_area: '2.3'
   control_seq: '013'
   control_title: Kernel lockdown mode enforcement for runtime integrity
-  control_statement: Kubernetes nodes must enable kernel lockdown mode where supported so runtime loading of unsigned or unauthorized kernel code and direct kernel modification interfaces are restricted after boot.
-  objective: Reduce post-boot kernel tampering opportunities through kernel lockdown enforcement where supported.
-  rationale: Kernel lockdown mode restricts even privileged processes from loading unsigned modules or modifying kernel memory after boot, providing defense-in-depth when an attacker gains root on the node. This is distinct from module blacklisting because it enforces runtime integrity boundaries inside the kernel itself.
-  scope: Applies to all production cluster nodes regardless of boot verification support. Nodes requiring specific kernel modules (e.g., GPU drivers, InfiniBand) must whitelist only required modules and document exceptions. DKMS-signed modules must have their signing keys validated.
-  primary_enforcement_point: Node boot and runtime kernel integrity settings for supported platforms and node pools.
-  implementation_surface: Kernel lockdown mode configuration and validation via runtime securityfs status checks, plus supported-platform exception handling.
+  control_statement: Require the approved Linux kernel lockdown mode on applicable governed node images and pools. Verify the reported effective mode, image identity and kernel support. Track provider obligations and approved exceptions for unsupported or unobservable nodes.
+  objective: Reduce opportunities for post-boot kernel modification through a supported and verified Linux lockdown policy.
+  rationale: Lockdown is a Linux Security Module with distinct supported modes and version-specific restrictions. Secure Boot status and boot arguments are inputs and do not independently prove the effective lockdown mode. Signer and module-name policies have separate enforcement boundaries.
+  scope: Applies to supported governed production Linux node images and pools. Document the approved integrity or confidentiality mode, compatible required operations, provider-owned assurance, and time-bounded exceptions.
+  primary_enforcement_point: Effective running-kernel lockdown mode, supported boot configuration, and separately governed module or signer policy.
+  implementation_surface: Record the approved mode and observe the effective running state through securityfs or provider-supported evidence. Retain kernel and image identity, check required functions and applicable privileges, and review expected limitations and exception handling.
   owner_primary: OS/Infrastructure
   owner_supporting: Platform Engineering; Security Engineering
   baseline_or_ai_specific: baseline
