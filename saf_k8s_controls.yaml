@@ -9870,12 +9870,12 @@
   knowledge_area: '9.9'
   control_seq: '011'
   control_title: Retrieved context integrity validation and relevance threshold enforcement
-  control_statement: RAG retrieval services must validate retrieved context before prompt assembly by enforcing chunk metadata integrity checks, source attribution or provenance verification, retrieval audit logging, and relevance thresholds that prevent low-confidence or malformed results from entering the LLM prompt.
-  objective: Ensure that only high-integrity, sufficiently relevant retrieved context reaches prompt assembly in RAG systems.
-  rationale: Retrieval integrity failures do not always require a poisoned index; weak chunk validation, absent provenance checks, or permissive similarity thresholds can allow malformed, stale, or low-confidence content into the prompt even when the vector index itself has not been maliciously altered.
-  scope: Applies to RAG retrieval services on Kubernetes. Covers chunk metadata validation, source attribution or provenance verification at retrieval time, similarity threshold enforcement, top-K result limiting, and retrieval audit logging. Excludes vector index monitoring and incident response for poisoning events.
-  primary_enforcement_point: Retrieval service context validation and relevance-threshold configuration before prompt assembly.
-  implementation_surface: Retrieval service similarity-threshold configuration, chunk metadata validation logic, source attribution or provenance verification checks, top-K result limiting, and retrieval audit logging for prompt assembly.
+  control_statement: Before assembling retrieved context, verify approved source and chunk identity, version and integrity. Apply documented relevance and result count limits to eligible results and retain the acceptance and denial evidence.
+  objective: Deliver only authorized, intact and sufficiently relevant retrieved material to the approved context consumer.
+  rationale: Retrieval integrity, relevance and downstream semantic safety require separate observations. The relevance score depends on the selected method and calibration; it does not establish provenance or the behavior of prompt processing.
+  scope: Applies to governed retrieval, reranking and context forwarding routes and their audit records. Include metadata validation, approved references and actual model-context integration.
+  primary_enforcement_point: The retrieval result gate before the governed context consumer.
+  implementation_surface: Bind retrieved results to trusted metadata and content digests. Measure and calibrate relevance thresholds and count limits against approved results. Verify the actual downstream output and absence of rejected content, with audit records for alternate and ordinary routes.
   owner_primary: ML Platform Engineering
   owner_supporting: Security Engineering; Security Operations
   baseline_or_ai_specific: ai-specific
