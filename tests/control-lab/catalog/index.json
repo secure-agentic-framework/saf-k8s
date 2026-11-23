@@ -504,6 +504,12 @@
       "sha256": "0087ce4091b18273007439f69bdffd7dc66f0d2dd33f9c486b1fd2652c8346fc",
       "title": "Enforce and audit Linux kernel module loading policy"
     },
+    "SAF-K8S-0203-013": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "6263b7602443772af9c15156fb4aa336f01a76f2820a04807affdea439f4463f",
+      "title": "Kernel lockdown mode enforcement for runtime integrity"
+    },
     "SAF-K8S-0203-016": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -2852,7 +2858,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "909b1277b0b48d42479d86e40bd39d966f1caa54",
-  "sha256": "3b03e21fceacf14bd14c47f72dfc1cf586236eae57687297782a86105109ffd7",
+  "revision": "4f99e46cc4a184c589d8bb27cb0fef50945ec956",
+  "sha256": "2635d91680dd0c8c5c91992dcf0ed2e9956053a865af2939f668db6edaa1a877",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
