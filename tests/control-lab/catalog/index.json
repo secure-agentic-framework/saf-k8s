@@ -972,6 +972,12 @@
       "sha256": "1ac7627f33aee68061f768f048074a00037d45d0734a4322b77ff9017890e974",
       "title": "Build materials and artifact attestations"
     },
+    "SAF-K8S-0603-009": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "5931725b9b43cee483fcac24307d776f0ba0f9b73c3de43a559cd15dc6327ebe",
+      "title": "In-toto and SLSA provenance attestation generation"
+    },
     "SAF-K8S-0603-010": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2240,7 +2246,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "eb08c2bbc74fed875be2042e45f910f4d11a464d",
-  "sha256": "1e0788e23530a8952383db62a95b74f3adb91bd678e139c386f77c3c54c4f306",
+  "revision": "ca0e5090a755285a763de30d8f43ddfa22163c20",
+  "sha256": "a92faa42bddd6658da649984ffe571aba84790e9d388eb4b6334e1e841d8f612",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
