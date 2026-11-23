@@ -288,6 +288,12 @@
       "sha256": "775c222b9f0d7176731e4939c205846805c278649a8da37fec48c8aa6a9677b2",
       "title": "Kubelet webhook authentication and authorization enforcement"
     },
+    "SAF-K8S-0201-012": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "754b1ae3650a1343684f0a34f1d11215f8e984b625332e3f4e7947b1601a23b3",
+      "title": "Kubelet anonymous access and read-only port lockdown"
+    },
     "SAF-K8S-0201-013": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -2012,7 +2018,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "64a459d1cbfdd2214ac25a9ee1b92e38abfcb7eb",
-  "sha256": "32a437f7c021a0a6866f34d8110509fc2a4b595329c3296345bfd117673decd4",
+  "revision": "6ab8dd5c7500b8e8bf0219d1abae89fe021d64cb",
+  "sha256": "5c7c007e081bd31d322ebcf6b4eb3e920ff0e8cbe2b6a57cd7f4247620ec7c85",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

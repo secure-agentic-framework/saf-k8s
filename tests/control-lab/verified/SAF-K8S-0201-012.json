@@ -1,0 +1,77 @@
+{
+  "control_id": "SAF-K8S-0201-012",
+  "catalog_revision": "805b8b36781891190b8b1371cad6a574873138d3",
+  "catalog_sha256": "5c7c007e081bd31d322ebcf6b4eb3e920ff0e8cbe2b6a57cd7f4247620ec7c85",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "754b1ae3650a1343684f0a34f1d11215f8e984b625332e3f4e7947b1601a23b3",
+  "scope": "One disposable Kubernetes v1.36.1 Kind control-plane node. Measures the authenticated effective kubelet configuration, native local listeners and read-only credential-less HTTPS /healthz using a verified certificate chain. Uses the trusted Kubernetes API proxy for the permitted comparison. No insecure listeners are enabled.",
+  "cluster": "saf-lab-75235df47128",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A verified HTTPS kubelet health request has no credentials and is denied",
+      "matched": true,
+      "observed": {
+        "http_status": "401",
+        "tls_verification_passed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The effective kubelet configuration disables anonymous authentication and the read-only port",
+      "matched": true,
+      "observed": {
+        "anonymous_enabled": false,
+        "read_only_port": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The secure listener serves TCP and the legacy read-only listener is absent",
+      "matched": true,
+      "observed": {
+        "secure_listener_present": true,
+        "legacy_listener_present": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An authenticated Kubernetes API proxy request reaches the same kubelet health endpoint",
+      "matched": true,
+      "observed": {
+        "authenticated_health_read": true
+      }
+    }
+  ]
+}
