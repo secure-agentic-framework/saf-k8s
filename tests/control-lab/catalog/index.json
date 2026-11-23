@@ -144,6 +144,12 @@
       "sha256": "5da4478231b6f7c0f50f762986200a91e694129d80f92706bf8730c5241eaf5a",
       "title": "etcd backup repository least-privilege access restriction"
     },
+    "SAF-K8S-0102-024": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "0211b7222d1d3636cb2ecfac1789bbe117714117c5a603a66626d17a1397ec8a",
+      "title": "etcd backup repository access audit logging"
+    },
     "SAF-K8S-0103-001": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -2720,7 +2726,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "131f9ee9909ba9c83bcc1625c9dc23eafc8350fe",
-  "sha256": "5d71956210bfd1e910e50cef79d6b0c92ddc0d9aa93c754bc6b32b1ed170b1ce",
+  "revision": "805e7fa3e3181864cf1d842dc7b5bc60b2d08f00",
+  "sha256": "4f16f3d0327a5272cca2930e0e18e5a60a383d1fdb530671723000c4160f0aaf",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
