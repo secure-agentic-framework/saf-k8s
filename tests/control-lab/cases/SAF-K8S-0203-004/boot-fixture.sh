@@ -1,0 +1,52 @@
+#!/bin/sh
+set -eu
+umask 077
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+cd "$work"
+firmware=/usr/share/AAVMF
+guid=2067fbb7-5652-4b54-9de5-f24c522a7ac8
+openssl req -new -x509 -newkey rsa:2048 -nodes -days 2 -sha256 \
+    -subj '/CN=SAF disposable verified boot signer' -keyout signer.key -out signer.crt 2>openssl.log
+cp "$firmware/AAVMF_VARS.fd" baseline.vars
+virt-fw-vars --input "$firmware/AAVMF_VARS.fd" --output approved.vars \
+    --set-pk "$guid" signer.crt --add-kek "$guid" signer.crt --add-db "$guid" signer.crt \
+    --no-microsoft --secure-boot >vars.log 2>&1 || { cat vars.log >&2; exit 1; }
+cp approved.vars denied.vars
+mkdir -p unsigned/EFI/BOOT signed/EFI/BOOT
+cp /fixture/marker.efi unsigned/EFI/BOOT/BOOTAA64.EFI
+sbsign --key signer.key --cert signer.crt --output signed/EFI/BOOT/BOOTAA64.EFI \
+    unsigned/EFI/BOOT/BOOTAA64.EFI >sign.log 2>&1 || { cat sign.log >&2; exit 1; }
+sbverify --cert signer.crt signed/EFI/BOOT/BOOTAA64.EFI >verify.log 2>&1 || { cat verify.log >&2; exit 1; }
+
+boot() {
+    vars="$1"
+    disk="$2"
+    output="$3"
+    status=0
+    timeout 22s qemu-system-aarch64 -machine virt -accel tcg -cpu cortex-a57 -m 256M \
+      -nodefaults -display none -serial stdio -monitor none -nic none \
+      -drive "if=pflash,format=raw,file=$firmware/AAVMF_CODE.secboot.fd,readonly=on" \
+      -drive "if=pflash,format=raw,file=$vars" \
+      -drive "if=none,id=bootfs,file=fat:$work/$disk,format=raw,readonly=on" \
+      -device virtio-blk-device,drive=bootfs,bootindex=1 >"$output" 2>&1 || status=$?
+    if test "$status" -ne 0 && test "$status" -ne 124; then
+        tail -25 "$output" >&2
+        exit "$status"
+    fi
+}
+boot baseline.vars unsigned baseline.log
+grep -Fq 'SAF-BOOT-MARKER: disabled' baseline.log || { tail -25 baseline.log >&2; exit 1; }
+echo unsigned_runs_without_enforcement
+
+boot denied.vars unsigned denied.log
+if grep -Fq 'SAF-BOOT-MARKER:' denied.log; then
+    echo 'Unsigned fixture unexpectedly executed with enforcement selected' >&2
+    exit 1
+fi
+grep -Eiq 'Security Violation|Access Denied' denied.log || { tail -25 denied.log >&2; exit 1; }
+echo enforcement_refuses_unsigned
+
+boot approved.vars signed approved.log
+grep -Fq 'SAF-BOOT-MARKER: enforcing' approved.log || { tail -25 approved.log >&2; exit 1; }
+echo signed_runs_under_enforcement

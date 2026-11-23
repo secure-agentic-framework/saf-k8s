@@ -468,6 +468,12 @@
       "sha256": "00f49c361501550fca3fe62fc14619550cf47ea4437c2b66407ba7fe99b3d182",
       "title": "Kernel parameter hardening via sysctl"
     },
+    "SAF-K8S-0203-004": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "8723dfae216a1b429be7d46fb08cfc24168cfb14616bb7f5b77e745739100481",
+      "title": "Secure boot and verified boot chain enforcement"
+    },
     "SAF-K8S-0203-016": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -2816,7 +2822,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "a7a4ac67a75f5f298a5ca38d23ba4649083f6c11",
-  "sha256": "b2c63d22a8763312830439bb29e05fd7627cc02fd685a2557834fcc2bf220084",
+  "revision": "9a711995b81b6b921f795d651cfce493be098330",
+  "sha256": "fa333296dec49970d46cdf51594b957e5b293c180444ab02dfe2196c65430f8e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
