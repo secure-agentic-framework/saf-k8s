@@ -3590,12 +3590,12 @@
   knowledge_area: '4.5'
   control_seq: '003'
   control_title: Kubeconfig security and hygiene
-  control_statement: Organizations must enforce secure kubeconfig management practices including encrypted storage, credential expiry aligned with session policies, restricted context configurations for shared environments, and periodic kubeconfig audits to detect stale or overprivileged configurations.
-  objective: Prevent unauthorized cluster access through stolen, shared, or stale kubeconfig files that may contain long-lived credentials, cluster endpoints, and context configurations.
-  rationale: 'Kubeconfig files often contain the keys to cluster access: client certificates, bearer tokens, or OIDC refresh tokens paired with cluster API endpoints. In shared environments such as jump boxes, CI/CD runners, and developer workstations, kubeconfig files accumulate contexts for multiple clusters with varying privilege levels. Stolen or leaked kubeconfig files provide immediate authenticated access. Without expiry enforcement, a kubeconfig from a departed employee may remain valid indefinitely.'
-  scope: Applies to all kubeconfig files used by human operators, CI/CD systems, and automation tools. Covers developer workstations, shared jump hosts, CI/CD runner environments, and any system where kubeconfig files are stored. Includes both interactive kubectl usage and programmatic API access using kubeconfig credentials.
-  primary_enforcement_point: Workstation security policies for kubeconfig file permissions, OIDC credential plugins with session expiry, CI/CD pipeline kubeconfig injection with ephemeral credentials, and periodic kubeconfig audits.
-  implementation_surface: Kubeconfig file permissions (600 owner-only), OIDC credential plugins (kubelogin) replacing embedded certificates and static tokens, CI/CD pipeline ephemeral kubeconfig injection via environment variables, workstation security policies for kubeconfig storage locations, periodic kubeconfig audit scanning of developer workstations and CI/CD runners, and offboarding checklists including kubeconfig credential revocation.
+  control_statement: Manage kubeconfigs and their referenced credentials under approved storage, endpoint trust, identity and authorization requirements. Restrict intended contexts and credential mechanisms, verify actual credential lifetime and retirement, and audit access and local exposure.
+  objective: Limit misuse of exposed, stale or unapproved kubeconfig access paths while preserving explicitly approved operation.
+  rationale: Kubeconfig contains routing and authentication configuration; lifetime and revocation depend on the effective credential and actual verifier. File permissions, encryption, trusted plugins, identity verification and authorization protect separate parts of that path.
+  scope: Applies to governed human, CI/CD and automation kubeconfig files and referenced trust and credentials. Record approved use cases, endpoints, custody, plugin policy and exposure handling.
+  primary_enforcement_point: Approved client and endpoint configuration, host or runner policy, and independently verified authentication and authorization at the accepting platform.
+  implementation_surface: Inventory effective profiles and contexts, trust sources and credential mechanisms. Test file access, endpoint trust, approved identity, actual least privilege, issuer lifetime and offboarding. Verify storage encryption and trusted plugin execution where applicable.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; Developer Experience
   baseline_or_ai_specific: baseline
