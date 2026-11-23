@@ -1,0 +1,80 @@
+{
+  "control_id": "SAF-K8S-0606-011",
+  "catalog_revision": "3c1f2788647a453f6a8095330a2f2be2489f533e",
+  "catalog_sha256": "db32431ea58abad7377a7a0357d07cc8757399c216bc7b4a7c8567513a4d2631",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "6ef2d894dc87f9c81fa16681e31e716de21a2c2853409fe62e5f08250be1ba22",
+  "scope": "A Kubernetes promotion boundary with fictional check records for one public fixture artifact.",
+  "cluster": "saf-lab-c92027b3e3ff",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Before admission enforcement, a promotion with a failed check can reach the API",
+      "matched": true,
+      "observed": {
+        "unchecked_failed_result_accepted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Live admission denies failed, missing, or skipped check records",
+      "matched": true,
+      "observed": {
+        "failed": true,
+        "missing": true,
+        "skipped": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Live admission rejects evidence for a different artifact, source, tests or policy",
+      "matched": true,
+      "observed": {
+        "artifact-digest": true,
+        "source-revision": true,
+        "test-revision": true,
+        "policy-revision": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A matching release record with passed checks persists after admission",
+      "matched": true,
+      "observed": {
+        "same_api_object": true,
+        "artifact": "sha256:b4b174338b8d9a77775a04cf757595330bff1746acb9394a145fa68c5c0525ff"
+      }
+    }
+  ]
+}

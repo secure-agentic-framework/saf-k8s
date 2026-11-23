@@ -1158,6 +1158,12 @@
       "sha256": "d2b8e1bbbe26fe390f75770fcd31beeebed0a67ea53a420736b4f0cee7b1de60",
       "title": "SSDF v1.1 alignment for secure development practices"
     },
+    "SAF-K8S-0606-011": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "6ef2d894dc87f9c81fa16681e31e716de21a2c2853409fe62e5f08250be1ba22",
+      "title": "CI build-time security gate enforcement"
+    },
     "SAF-K8S-0606-021": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2372,7 +2378,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "fb75efe8822451c432a8a8cae5d8101d16936f20",
-  "sha256": "99048c7c5e30336e2a77304832015185e3d557c14d25c64fba0bfee70cb51f97",
+  "revision": "652aea4ffa84b0309c3a4761aa9346f59758ee3d",
+  "sha256": "db32431ea58abad7377a7a0357d07cc8757399c216bc7b4a7c8567513a4d2631",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
