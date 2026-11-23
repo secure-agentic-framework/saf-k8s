@@ -1386,6 +1386,12 @@
       "sha256": "252a45728a60de7e18bf1900ccd57b52cdf0f77bbf36713784a2aa235dd50902",
       "title": "Approved external model source allowlist definition and maintenance"
     },
+    "SAF-K8S-0905-053": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "8472d25543014601cbcc9541cdec519fe5265d8da54d1e21438cdded1e6fbdd9",
+      "title": "Approved external model source periodic review and allowlist update governance"
+    },
     "SAF-K8S-0905-054": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1880,7 +1886,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "71bc215d4a158e7390c8f9b17aacd45f3b0de85b",
+  "revision": "cd97f190ee63506786690f6226d6a4e6afa45671",
   "sha256": "9246a83494e93abb79f73876a57c184c94b68d2ab9366f66d0ea3595a5589eeb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
