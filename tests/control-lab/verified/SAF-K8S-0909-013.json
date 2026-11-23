@@ -1,0 +1,79 @@
+{
+  "control_id": "SAF-K8S-0909-013",
+  "catalog_revision": "8269036dd7f0067ad6f53641b7302ee996b3eba6",
+  "catalog_sha256": "9a0c94f756c11eb413ef44f98c8bd989e6ebf97f9db2cb5140254ad9b2d9d9a5",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "5ff83aba0d2dd614ed901c4714b65680dbbdb520017905b2af1cd9952482fa8e",
+  "scope": "In runner-managed namespace saf-test, two owned HTTPS repository services expose fixed benign bytes and two distinct PVC-backed consumers persist received bytes. An immutable registry binds one exact synthetic repository ID to the approved service endpoint and uses a separately mounted read credential. The red check shows an ordinary unregistered ID can be fetched and written to both consumers with the gate disabled. The green check enables admission and requires rejection before any source fetch or either downstream write. The positive check requires an approved ID to fetch and persist the expected exact bytes at both consumers. All names, paths, endpoints, and content are fixed local fixtures; this is not production repository identity, network isolation, or general RAG security evidence.",
+  "cluster": "saf-lab-c4c0ca0426e6",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "With admission disabled, a fixed unregistered source reaches both consumers",
+      "matched": true,
+      "observed": {
+        "decision": "accepted",
+        "unregistered_source_fetches": 1,
+        "consumer_a_has_expected_bytes": true,
+        "consumer_b_has_expected_bytes": true,
+        "expected_sha256": "2fa31890ca799a9f2b05c51bc3f22d600b2113c0569575bbe6bd63d92be5b46e"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enabled registry gate rejects before fetch or either consumer write",
+      "matched": true,
+      "observed": {
+        "decision": "rejected",
+        "reason": "repository_id_not_registered",
+        "source_fetch_count_unchanged": true,
+        "consumer_a_unchanged": true,
+        "consumer_b_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An approved repository is fetched and its exact bytes persist at both consumers",
+      "matched": true,
+      "observed": {
+        "registry_match": true,
+        "approved_source_fetches": 2,
+        "unauthenticated_read_denied": true,
+        "expected_digest": "d247c878c66741efa6cf7772f168561e315b2a219687388b92d628f6fc19f20f",
+        "consumer_a_persisted": true,
+        "consumer_b_persisted": true
+      }
+    }
+  ]
+}
