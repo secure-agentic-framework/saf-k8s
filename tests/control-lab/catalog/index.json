@@ -960,6 +960,12 @@
       "sha256": "848a516166b5565b0a7262900f67df8efcfed5658289dde41f4063b3cd861bba",
       "title": "Admission signature bypass and emergency break-glass governance"
     },
+    "SAF-K8S-0603-004": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "6e218f968d5f5fd3fe2a9c5e01484eae9d9dcffac5c11fa46218ae5957a940fe",
+      "title": "Cryptographic agility and post-quantum readiness"
+    },
     "SAF-K8S-0603-006": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2252,7 +2258,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "93161f38f85cb6841a0460ddf1a18655b497ee9f",
-  "sha256": "de36bf947da0d4e4ef851ebeea82845dcdf0f1d069a6251e2d03f465aec010f3",
+  "revision": "262c7536f3069a9ce4239be6f859dc52636ed29f",
+  "sha256": "2d00aabcb6a52d1dff2b856af9d272a8ad444de82957029ce4aa5366b33fd871",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
