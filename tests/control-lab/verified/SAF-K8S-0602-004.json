@@ -1,0 +1,101 @@
+{
+  "control_id": "SAF-K8S-0602-004",
+  "catalog_revision": "810d06814c4cbcf432943902aa311817f0d98c86",
+  "catalog_sha256": "ef8b0ea24e4aa4e3cdfdc0d0bc175c312b4a1188cf4a5cc70220453a2f131ce8",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "706ea711b974f378d83bbdd24928dbbd72479adbe6813b3fc7ef04baa4e93883",
+  "scope": "One disposable Kubernetes v1.36.1 cluster and pinned Distribution registry. Three owned manifest digests have real Notation 1.3.2 signatures: the approved identity from the approved CA, another identity from the same CA, and the approved subject name from a separate CA. All verify with both roots and unrestricted identities; the scoped policy then accepts only the approved root and identity. A Ready Deployment runs that exact verified image. Production identity issuance, rotation and coverage remain separate.",
+  "cluster": "saf-lab-7bdfcc222ad9",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "A genuinely signed digest cannot verify without a trust policy",
+      "matched": true,
+      "observed": {
+        "missing_trust_policy_denied": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Each real signature verifies when both issuers and all subjects are trusted",
+      "matched": true,
+      "observed": {
+        "approved": true,
+        "different-subject": true,
+        "different-root": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The trusted CA is insufficient for a different signing subject",
+      "matched": true,
+      "observed": {
+        "different_subject_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The exact subject name is insufficient under a different root",
+      "matched": true,
+      "observed": {
+        "different_root_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved identity and valid root still verify the exact digest",
+      "matched": true,
+      "observed": {
+        "approved_subject_and_root_verified": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A Ready deployment runs the registry's exact immutable digest",
+      "matched": true,
+      "observed": {
+        "ready": true,
+        "exact_digest_used": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The owned registry and its network were removed",
+      "matched": true,
+      "observed": {
+        "fixture_resources_removed": true
+      }
+    }
+  ]
+}

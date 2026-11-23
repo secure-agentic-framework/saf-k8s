@@ -936,6 +936,12 @@
       "sha256": "ff47361e188d8ba90439351dc0aea68fad4f40f6edeb660c5e8b8705a048317f",
       "title": "Kubelet authorization for cached private images"
     },
+    "SAF-K8S-0602-004": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "706ea711b974f378d83bbdd24928dbbd72479adbe6813b3fc7ef04baa4e93883",
+      "title": "Notary v2 trust policy and signing identity governance"
+    },
     "SAF-K8S-0602-005": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2216,7 +2222,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "80f4586e1cda1b5ec12c8d8553ae47405c9fb7d5",
-  "sha256": "f5d8a4ba5040dceb6c6cfdba71755b9600b9540105d72db91bf73537cc2b0854",
+  "revision": "5d5a441637adc54d62b939bbeefe151a8cb68605",
+  "sha256": "ef8b0ea24e4aa4e3cdfdc0d0bc175c312b4a1188cf4a5cc70220453a2f131ce8",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
