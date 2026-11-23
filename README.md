@@ -27,7 +27,7 @@ See [`LICENSE`](LICENSE) for the summary.
 - Domains: 10
 - Knowledge areas: 55
 - Controls: 595
-- Crosswalk rows: 4405
+- Crosswalk rows: 4389
 
 ## YAML Files
 
@@ -1319,13 +1319,13 @@ This knowledge area focuses on: Training data privacy controls, Feature store ac
 
 ### Description
 
-This knowledge area focuses on: Oracle attack prevention, Inference API information exposure controls, Model watermarking and fingerprinting, Model abuse logging and alerting, and Secure aggregation for privacy-preserving model outputs. Additional controls in the table below extend this coverage.
+This knowledge area focuses on: Inference request limits and query monitoring, Inference API information exposure controls, Model watermarking and fingerprinting, Model abuse logging and alerting, and Secure aggregation for privacy-preserving model outputs. Additional controls in the table below extend this coverage.
 
 ### Controls
 
 | Control ID | Title | Maturity | Class |
 | --- | --- | --- | --- |
-| [SAF-K8S-0908-001](markdown/controls/SAF-K8S-0908-001.md) | Oracle attack prevention | Advanced | ai-specific |
+| [SAF-K8S-0908-001](markdown/controls/SAF-K8S-0908-001.md) | Inference request limits and query monitoring | Advanced | ai-specific |
 | [SAF-K8S-0908-002](markdown/controls/SAF-K8S-0908-002.md) | Inference API information exposure controls | Advanced | ai-specific |
 | [SAF-K8S-0908-003](markdown/controls/SAF-K8S-0908-003.md) | Model watermarking and fingerprinting | Advanced | ai-specific |
 | [SAF-K8S-0908-005](markdown/controls/SAF-K8S-0908-005.md) | Model abuse logging and alerting | Advanced | ai-specific |
