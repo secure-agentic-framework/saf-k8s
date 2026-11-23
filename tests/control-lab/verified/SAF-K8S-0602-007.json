@@ -1,0 +1,109 @@
+{
+  "control_id": "SAF-K8S-0602-007",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "848a516166b5565b0a7262900f67df8efcfed5658289dde41f4063b3cd861bba",
+  "scope": "One disposable Kind cluster. RBAC and native admission restrict an inert ConfigMap containing a synthetic review request, exact SHA-256 digest, and fixed approval window. The example preserves separate actor identities and refuses excess privileges and changes to signed-off request fields. The record has no link to image admission or workload execution. Production approval, audit delivery, trusted time and lifecycle need separate evidence.",
+  "cluster": "saf-lab-274d8e4b1319",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "RBAC alone permits a reviewer to edit the other review in this record",
+      "matched": true,
+      "observed": {
+        "baseline_cross_vote_admitted_by_dry_run": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The admission policy denies a reviewer's cross-vote",
+      "matched": true,
+      "observed": {
+        "cross_vote_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The requester has read access and cannot approve their own record",
+      "matched": true,
+      "observed": {
+        "requester_write_denied_by_rbac": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Approval cannot change the record's targetDigest",
+      "matched": true,
+      "observed": {
+        "field": "targetDigest",
+        "mutation_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Approval cannot change the record's expiresAt",
+      "matched": true,
+      "observed": {
+        "field": "expiresAt",
+        "mutation_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Approval cannot change the record's requestId",
+      "matched": true,
+      "observed": {
+        "field": "requestId",
+        "mutation_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Two independent reviewers can record votes on the same exact request",
+      "matched": true,
+      "observed": {
+        "separate_approvals_persisted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The inert record confers no Pod-create permission on the requester",
+      "matched": true,
+      "observed": {
+        "requester_can_create_pods": false
+      }
+    }
+  ]
+}

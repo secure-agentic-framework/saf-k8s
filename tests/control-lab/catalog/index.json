@@ -948,6 +948,12 @@
       "sha256": "26be60d06b9528e968fd23a334dd0a00f21b10d97bc3718d606fbcfb8bf5d326",
       "title": "Notary v2 OCI signature artifact registry integration"
     },
+    "SAF-K8S-0602-007": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "848a516166b5565b0a7262900f67df8efcfed5658289dde41f4063b3cd861bba",
+      "title": "Admission signature bypass and emergency break-glass governance"
+    },
     "SAF-K8S-0603-007": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2222,7 +2228,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "5d5a441637adc54d62b939bbeefe151a8cb68605",
+  "revision": "60cdbb1cf54de8da06a9e5993d3bde1da2969d0c",
   "sha256": "ef8b0ea24e4aa4e3cdfdc0d0bc175c312b4a1188cf4a5cc70220453a2f131ce8",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
