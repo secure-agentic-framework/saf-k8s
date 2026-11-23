@@ -1,0 +1,92 @@
+{
+  "control_id": "SAF-K8S-0504-006",
+  "catalog_revision": "4b92e6a233aebf9ce9f89d7be21f6dc301090b87",
+  "catalog_sha256": "d5b9975954dbf7a12a2b143ff52c21ce718f33101175cda56c4a1df4cb7fa8bf",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "1a6c89de44b7567908f0713f4b34df73d07e797dc747cbac2e542c8b3469034b",
+  "scope": "One Kubernetes v1.36.1 Kind node, SPIRE 1.16.0 with projected token node attestation, and Kubernetes workload selectors over the authenticated kubelet endpoint. The Workload API denies issuance before registration, issues a verified short-lived credential to the registered workload, and delivers an updated lifetime for the same ID to its watcher. Production availability, mesh integration and cross-trust-domain federation need separate evidence.",
+  "cluster": "saf-lab-9a3f09e35d29",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The owned kubelet has a cluster-signed serving credential for its actual endpoint",
+      "matched": true,
+      "observed": {
+        "valid_serving_signer": true,
+        "owned_endpoint_in_csr": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The same selected workload is denied before its registration exists",
+      "matched": true,
+      "observed": {
+        "pod_exit_failed": true,
+        "workload_api_permission_denial": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The issued X.509-SVID has the intended URI and completes bundle-authenticated TLS",
+      "matched": true,
+      "observed": {
+        "spiffe_id": "spiffe://saf.test/ns/saf-test/sa/saf-workload",
+        "trusted_by_local_bundle": true,
+        "valid_now": true,
+        "short_lived": true,
+        "local_tls_handshake": true,
+        "private_material_logged": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An independent unregistered workload still receives no identity",
+      "matched": true,
+      "observed": {
+        "pod_exit_failed": true,
+        "workload_api_permission_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same registered workload observes automatic SVID renewal",
+      "matched": true,
+      "observed": {
+        "spiffe_id_stable": true,
+        "short_lifetime_retained": true,
+        "newer_expiration_received": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-svid-verifier
+data:
+  verify.py: |
+    import json, os, ssl, socket, threading, time
+    base = "/run/svid"
+    cert, key, bundle = (base + "/svid.0.pem", base + "/svid.0.key", base + "/bundle.0.pem")
+    deadline = time.monotonic() + 120
+    while time.monotonic() < deadline and not all(os.path.exists(p) for p in (cert, key, bundle)):
+        time.sleep(0.25)
+    if not all(os.path.exists(p) for p in (cert, key, bundle)):
+        raise SystemExit("missing in-memory SVID files")
+    decoded = ssl._ssl._test_decode_cert(cert)
+    uris = [v for k, v in decoded.get("subjectAltName", ()) if k == "URI"]
+    expected = "spiffe://saf.test/ns/saf-test/sa/saf-workload"
+    if uris != [expected]:
+        raise SystemExit("unexpected SPIFFE URI SAN")
+    cert_times = (ssl.cert_time_to_seconds(decoded["notBefore"]), ssl.cert_time_to_seconds(decoded["notAfter"]))
+    now = time.time()
+    if not cert_times[0] <= now < cert_times[1]:
+        raise SystemExit("SVID is outside its validity interval")
+    lifetime = cert_times[1] - cert_times[0]
+    if not 0 < lifetime <= 135:
+        raise SystemExit("SVID exceeded the configured short lifetime")
+    server = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    server.load_cert_chain(cert, key)
+    client = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    client.check_hostname = False
+    client.load_verify_locations(cafile=bundle)
+    left, right = socket.socketpair()
+    left.settimeout(6)
+    right.settimeout(6)
+    outcome = []
+    def serve():
+        try:
+            with server.wrap_socket(left, server_side=True) as conn:
+                conn.recv(1)
+        except Exception as exc:
+            outcome.append(exc)
+    thread = threading.Thread(target=serve, daemon=True)
+    thread.start()
+    with client.wrap_socket(right, server_hostname=None) as conn:
+        conn.send(b"x")
+    thread.join(timeout=5)
+    if outcome or thread.is_alive():
+        raise SystemExit("local bundle did not authenticate the SVID")
+    for path in (cert, key, bundle):
+        os.unlink(path)
+    print(json.dumps({"spiffe_id": expected, "trusted_by_local_bundle": True,
+                      "valid_now": True, "short_lived": 0 < lifetime <= 135,
+                      "local_tls_handshake": True, "private_material_logged": False}))
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: identity-positive
+  labels:
+    app: identity-positive
+spec:
+  restartPolicy: Never
+  automountServiceAccountToken: false
+  serviceAccountName: saf-workload
+  containers:
+    - name: fetcher
+      image: ghcr.io/spiffe/spire-agent:1.16.0@sha256:ab3a8ce70435374cc5d84c81eabf0278dc046ddbc0a736d59694ba9e5975b1b6
+      command: ["/opt/spire/bin/spire-agent"]
+      args: ["api", "fetch", "x509", "-socketPath", "/run/spire/sockets/agent.sock", "-write", "/run/svid", "-silent", "-timeout", "25s"]
+      volumeMounts:
+        - name: sockets
+          mountPath: /run/spire/sockets
+          readOnly: true
+        - name: svid
+          mountPath: /run/svid
+    - name: verifier
+      image: docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90
+      command: ["python", "/verify/verify.py"]
+      volumeMounts:
+        - name: svid
+          mountPath: /run/svid
+        - name: verifier
+          mountPath: /verify
+          readOnly: true
+  volumes:
+    - name: sockets
+      hostPath:
+        path: /run/spire/sockets
+        type: Directory
+    - name: svid
+      emptyDir:
+        medium: Memory
+    - name: verifier
+      configMap:
+        name: saf-svid-verifier

@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: identity-watch
+  labels:
+    app: identity-positive
+spec:
+  restartPolicy: Never
+  automountServiceAccountToken: false
+  serviceAccountName: saf-workload
+  containers:
+    - name: fetcher
+      image: ghcr.io/spiffe/spire-agent:1.16.0@sha256:ab3a8ce70435374cc5d84c81eabf0278dc046ddbc0a736d59694ba9e5975b1b6
+      command: ["/opt/spire/bin/spire-agent"]
+      args: ["api", "watch", "-socketPath", "/run/spire/sockets/agent.sock"]
+      volumeMounts:
+        - name: socket
+          mountPath: /run/spire/sockets
+          readOnly: true
+  volumes:
+    - name: socket
+      hostPath:
+        path: /run/spire/sockets
+        type: Directory

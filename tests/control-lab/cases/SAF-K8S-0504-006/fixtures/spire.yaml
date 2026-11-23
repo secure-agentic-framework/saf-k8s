@@ -1,0 +1,125 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spire-server
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-spire-agent
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-workload
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spire-server-config
+data:
+  server.conf: |
+    server {
+      bind_address = "0.0.0.0"
+      bind_port = 8081
+      trust_domain = "saf.test"
+      data_dir = "/run/spire/data"
+      log_level = "INFO"
+      default_x509_svid_ttl = "120s"
+    }
+    plugins {
+      DataStore "sql" {
+        plugin_data {
+          database_type = "sqlite3"
+          connection_string = "/run/spire/data/datastore.sqlite3"
+        }
+      }
+      KeyManager "memory" { plugin_data {} }
+      NodeAttestor "k8s_psat" {
+        plugin_data {
+          clusters = {
+            "saf-local" = {
+              service_account_allow_list = ["saf-test:saf-spire-agent"]
+            }
+          }
+        }
+      }
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spire-server
+spec:
+  selector:
+    app: spire-server
+  ports:
+    - name: server
+      port: 8081
+      targetPort: 8081
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: spire-server
+spec:
+  serviceName: spire-server
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spire-server
+  template:
+    metadata:
+      labels:
+        app: spire-server
+    spec:
+      serviceAccountName: spire-server
+      containers:
+        - name: server
+          image: ghcr.io/spiffe/spire-server:1.16.0@sha256:ff546f4c62dafc479a0cd79eae9a7b6df2975754d75efd31706098e0d7548837
+          command: ["/opt/spire/bin/spire-server"]
+          args: ["run", "-config", "/run/spire/config/server.conf"]
+          ports:
+            - containerPort: 8081
+          readinessProbe:
+            tcpSocket:
+              port: 8081
+            periodSeconds: 2
+            failureThreshold: 30
+          volumeMounts:
+            - name: config
+              mountPath: /run/spire/config
+              readOnly: true
+            - name: data
+              mountPath: /run/spire/data
+      volumes:
+        - name: config
+          configMap:
+            name: spire-server-config
+        - name: data
+          emptyDir: {}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: saf-spire-psat-review
+rules:
+  - apiGroups: [authentication.k8s.io]
+    resources: [tokenreviews]
+    verbs: [create]
+  - apiGroups: [""]
+    resources: [pods, nodes]
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: saf-spire-psat-review
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: saf-spire-psat-review
+subjects:
+  - kind: ServiceAccount
+    name: spire-server
+    namespace: saf-test
