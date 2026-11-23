@@ -2760,6 +2760,12 @@
       "sha256": "a05fa0d7cb3572067dac5a8cbbb577311d6b4e9552635d656eef7eb762f00fe9",
       "title": "Secure aggregation for privacy-preserving model outputs"
     },
+    "SAF-K8S-0908-009": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "4501567842db3075b0f7ad3bf3cbadcbf100fd2e9b713144bedee13b52890683",
+      "title": "Differential privacy parameter governance for inference endpoints"
+    },
     "SAF-K8S-0910-029": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3242,7 +3248,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "e8638330465e693762c164c7ad78592201cde7cd",
-  "sha256": "2fa178f066ecc648288f4be7d2c33aa3cb3f1e537c4f7e57966d162565b087da",
+  "revision": "925d4d5dd287a2e22e125df04b02dd8b08df9ce1",
+  "sha256": "89ee0d9f88ac487481b05ffff6ea0483c1af50308956f8ed5b456250674959ad",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

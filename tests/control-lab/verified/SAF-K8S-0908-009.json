@@ -1,0 +1,72 @@
+{
+  "control_id": "SAF-K8S-0908-009",
+  "catalog_revision": "385ce30ebc2847fd719a26d8cc821c41e67511a3",
+  "catalog_sha256": "89ee0d9f88ac487481b05ffff6ea0483c1af50308956f8ed5b456250674959ad",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "4501567842db3075b0f7ad3bf3cbadcbf100fd2e9b713144bedee13b52890683",
+  "scope": "Native Kubernetes admission rejects unapproved binary randomized-response parameters for one named fixture deployment. Its actual worker validates the mounted approval and the case enumerates the executed mechanism's finite outcomes for replacing one bit. The running loopback service returns only a sampled bit. This tests the declared pure local differential privacy bound for this mechanism and neighbor relation.",
+  "cluster": "saf-lab-fdc548f2e769",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The cluster alone admits a parameter configuration outside the approved bound",
+      "matched": true,
+      "observed": {
+        "unreviewed_configuration_admitted_without_policy": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The live gate requires the approved mechanism, unit, bound and review",
+      "matched": true,
+      "observed": {
+        "weaker_bound_denied": true,
+        "different_privacy_unit_denied": true,
+        "unapproved_mechanism_denied": true,
+        "missing_review_denied": true,
+        "exact_reviewed_configuration_persisted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The deployed fixture mechanism realizes the declared finite bound and releases one bit",
+      "matched": true,
+      "observed": {
+        "known_counts": true,
+        "exact_common_support_and_approved_ratio": true,
+        "actual_release_has_only_binary_result": true
+      }
+    }
+  ]
+}
