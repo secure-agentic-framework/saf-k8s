@@ -5050,12 +5050,12 @@
   knowledge_area: '6.2'
   control_seq: '006'
   control_title: Fail-closed admission enforcement of image signature verification
-  control_statement: Kubernetes clusters must deploy an admission controller configured to reject any container image that lacks a valid cryptographic signature from an authorized signing identity, and the admission policy must fail closed when verification is unavailable.
-  objective: Enforce image signature verification at the Kubernetes admission layer so unsigned or tampered images cannot run even during admission component failure conditions.
-  rationale: Mandatory admission-time verification is a distinct control claim from exception governance. Without fail-closed enforcement, a webhook outage or policy-controller error silently degrades image integrity protection and allows unsigned images to deploy.
+  control_statement: Require authorized image signatures for each in-scope Kubernetes workload admission request. Verify each governed image and deny the request when the signature cannot be verified or the required admission webhook is unavailable.
+  objective: Prevent new or changed in-scope workloads from being admitted without verified signatures. Evaluate previously admitted workloads and runtime image integrity separately.
+  rationale: Kubernetes webhook failure policy governs communication errors when a matching registered webhook is called. The verifier must also deny requests when signature lookup or validation cannot complete. Verify that effective webhook registration and matching persist through controller outages, upgrades and restarts.
   scope: Applies to all production and staging Kubernetes clusters. All namespaces must be covered unless explicitly exempted in a documented policy (e.g., kube-system for provider-managed components). Emergency break-glass procedures must be audited and time-limited.
   primary_enforcement_point: Kubernetes validating admission webhook and image verification policy configuration.
-  implementation_surface: 'ValidatingWebhookConfiguration with failurePolicy: Fail, admission controller deployments, signature verification rules, verifyImages or equivalent policy configuration, and audit logs for rejected unsigned images.'
+  implementation_surface: Verify effective webhook registration, matching namespaces and API operations, applicable container classes, signature formats and approved signer identities. Probe unsigned and allowed images, dependency errors and webhook transport failure separately. Validate cache behavior, exclusions, restart and upgrade lifecycle, and audit evidence for the deployed configuration.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; DevSecOps / Release Engineering
   baseline_or_ai_specific: baseline
