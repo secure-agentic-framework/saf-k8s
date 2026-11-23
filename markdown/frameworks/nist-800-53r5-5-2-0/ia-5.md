@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Managing agent credentials/tokens/keys
-
-4.3 - Manage secrets (authenticator lifecycle: rotation policies, expiration, revocation, leak detection; per-workload credential scoping SAF-K8S-0403-006; credential inventory and sprawl governance SAF-K8S-0403-008)
+Governed external authenticator storage, distribution and scoped recipient identity are independently verified.
 
 ## SAF-K8S Controls
 
@@ -15,9 +13,9 @@ Managing agent credentials/tokens/keys
 
 - Domain: D04 - Identity, Access, and Secrets Management
 - Knowledge Area: 4.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-0403-004 - Secret rotation and expiration enforcement](../../controls/SAF-K8S-0403-004.md)
