@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0605-002",
-  "catalog_revision": "712ff2cd08322bfc77e3061a70aea50b53250333",
-  "catalog_sha256": "44255fd8a87d3147ab0d1d64d71c71ce3ca6d901b304f2df73c21d720d91bb48",
+  "catalog_revision": "8bf9429844f95ed36b9d7ccf1fbf20ca9ab97ce9",
+  "catalog_sha256": "a868b4ea141c0e3de49227b6eeabffa4a2330712afd28048221b89ce9b63aa55",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d9a51450beb3e7fbeaa906f62c8b817b17aca389da3e974ea9e1361d9dc3a090",
   "scope": "One fresh disposable Kubernetes v1.36.1 Kind cluster and Kyverno v1.20.0 from Helm chart 3.10.0. A cluster-scoped GeneratingPolicy reacts only to the case namespace label; namespaced ValidatingPolicy and MutatingPolicy apply only to Pods in saf-0605-002. The case records one persisted Audit violation and its exact PolicyReport, changes that policy to Deny, checks the exact admission denial, and compares compliant and out-of-scope Pods. It checks a positive server-dry-run mutation and one inert generated ConfigMap companion. A namespace-scoped ImageValidatingPolicy compares three inert, locally registered OCI fixtures before and after enforcement and checks the same unrelated-signer reference outside the selected namespace.",
-  "cluster": "saf-lab-ad63807d2eaa",
+  "cluster": "saf-lab-ba8bced915e4",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
