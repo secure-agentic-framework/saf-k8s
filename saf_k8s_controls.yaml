@@ -3310,12 +3310,12 @@
   knowledge_area: '4.3'
   control_seq: '025'
   control_title: Automated secret leak detection coverage across development and runtime surfaces
-  control_statement: Organizations must deploy automated secret leak detection across source repositories, container images, CI/CD artifacts, runtime logs, and log aggregation systems to identify credential exposure before or immediately after publication.
-  objective: Ensure credential leaks are automatically detected across the artifact and runtime surfaces where they commonly appear.
-  rationale: Detection coverage is independently auditable from preventive enforcement and response. This control isolates the requirement to scan the major development, artifact, and runtime surfaces where secrets may leak so teams can verify that exposure is observable across the platform.
-  scope: Applies to source repositories, developer workflows, container image registries, CI/CD artifacts, runtime logs, and centralized log platforms where credentials may be exposed. Covers scanning coverage and alert generation for detected leaks. Preventive blocking and push-protection enforcement remain governed by SAF-K8S-0403-026, and incident response remains governed by SAF-K8S-0403-015.
-  primary_enforcement_point: Automated secret scanning coverage across development, artifact, and runtime platforms.
-  implementation_surface: Repository scanning, image and artifact scanning, CI/CD secret discovery, runtime log scanning, and log aggregation pattern detection with alert routing.
+  control_statement: Define automated secret detection and alert routing for each applicable repository, image, build artifact, workload log source and centralized log platform. Test each surface against its declared rule coverage and detection and notification targets.
+  objective: Verify separately that covered content is scanned and findings reach the expected owner within the defined operating window.
+  rationale: A repository finding does not demonstrate that image layers, retained artifacts or live logs are examined. Coverage and latency depend on configured scanners, supported formats and event and alert delivery.
+  scope: Applies to governed development and runtime surfaces that may carry credentials. Identify any format, asset, tenant and source gaps and exceptions. Preventive blocking and incident response are separately governed.
+  primary_enforcement_point: Asset-specific detector configuration, coverage tests, alert route and source-attributable findings.
+  implementation_surface: Inventory sources, content formats, rules, exclusions, trigger timing and expected recipients. Prove each applicable surface detects a case-owned public marker and continues to handle a benign control, and verify timely delivery and source coverage.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; Application Development
   baseline_or_ai_specific: baseline
