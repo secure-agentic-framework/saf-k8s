@@ -3750,12 +3750,12 @@
   knowledge_area: '4.5'
   control_seq: 018
   control_title: Secure credential storage and lifecycle governance
-  control_statement: Organizations must enforce secure credential storage and credential lifecycle handling requirements for Kubernetes cluster and AI infrastructure authentication pathways.
-  objective: Ensure authentication credentials are protected at rest and governed through secure lifecycle handling so theft, reuse, or unmanaged persistence do not become initial access paths into the cluster.
-  rationale: Secure storage and lifecycle handling are independently auditable from baseline credential strength policy. This control isolates the protection and lifecycle governance claim so teams can verify that credentials are stored securely and handled under controlled lifecycle standards.
-  scope: Applies to authentication pathways for Kubernetes clusters, OIDC integrations, and cloud provider IAM integrations that rely on managed credentials. Covers secure storage controls, password or secret storage protections, certificate-based authentication policy baselines, and administrative credential lifecycle standards. Baseline credential policy requirements remain governed by SAF-K8S-0405-017.
-  primary_enforcement_point: Credential storage and lifecycle controls in identity providers, IAM systems, and cluster authentication systems.
-  implementation_surface: Password and secret storage protections, certificate-based authentication handling, and administrative credential lifecycle standards in OIDC providers, cloud IAM, and related authentication systems.
+  control_statement: Protect governed credential material at rest and enforce each credential class's approved lifecycle. Identify the accountable issuer, storage and relying verifier. Verify actual storage protection, least-privilege access, replacement and the rejection of retired credentials where applicable.
+  objective: Reduce credential exposure and ensure that governed replacements and retirement take effect at the actual enforcement boundaries.
+  rationale: Secret encoding is distinct from encryption, and ciphertext does not by itself limit which API callers can read a Secret. Credential replacement and retirement depend on the actual issuer and relying authentication or authorization mechanism.
+  scope: Applies to inventoried administrative and workload credentials for Kubernetes and governed AI infrastructure, including credentials maintained by external identity and cloud providers. Identify approved storage, issuance, lifetime, replacement and retirement for each. See SAF-K8S-0405-017 for human password selection policy.
+  primary_enforcement_point: Observed protection at the storage provider, and verified lifecycle controls at the issuer and relying boundary.
+  implementation_surface: Verify encrypted or otherwise approved storage and protected keys and backups, named permissions, actual credential issuance and replacement, relying-verifier rejection of retired material, independent approved access and retained audit evidence.
   owner_primary: Identity and Access Management
   owner_supporting: Platform Engineering; Security Engineering
   baseline_or_ai_specific: baseline
