@@ -822,6 +822,12 @@
       "sha256": "1f113c43feabe75e2a9d5f94c550cab97ec85915adc1b6e05d95198d29723531",
       "title": "Cloud workload identity federation for AI services"
     },
+    "SAF-K8S-0402-007": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "ee851d9d93f4f3164a9b5d16518477d5480ecd3bde4260ed1a010574d1c4c97b",
+      "title": "OIDC authentication integration"
+    },
     "SAF-K8S-0402-008": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -2990,7 +2996,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "431ee0b19ee6cada8a707f0096585221ce97e709",
-  "sha256": "28379246e9ddcabf3e19a6bde6ff480b08b075f995507805e7e60ad8f6561beb",
+  "revision": "79e1d5d20b8f5fc2695449ca287c0e2970680ad0",
+  "sha256": "adb0fb469db66ca2d6a7a0277a4c8addba706665f1971d35d4feb0fa927f7558",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

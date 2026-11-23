@@ -1,0 +1,86 @@
+{
+  "control_id": "SAF-K8S-0402-007",
+  "catalog_revision": "df7a620d8821d6d4e192925c155646db30836dd8",
+  "catalog_sha256": "adb0fb469db66ca2d6a7a0277a4c8addba706665f1971d35d4feb0fa927f7558",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "ee851d9d93f4f3164a9b5d16518477d5480ecd3bde4260ed1a010574d1c4c97b",
+  "scope": "Exercise structured human JWT authentication and separate RBAC decisions on an owned Kind API with a loopback HTTPS issuer and ephemeral in-memory test credentials. Enterprise identity provider login, MFA, session and offboarding systems require distinct evidence.",
+  "cluster": "saf-lab-8a4e9765f705",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A correctly signed fixture credential is unauthenticated before configuring the OIDC issuer",
+      "matched": true,
+      "observed": {
+        "before_issuer_http": 401
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The API maps the approved human claims and rejects invalid issuer, audience, signature, expiry and class",
+      "matched": true,
+      "observed": {
+        "claim_mapping_matches": true,
+        "negative_http": {
+          "audience": 401,
+          "issuer": 401,
+          "expired": 401,
+          "required_claim": 401,
+          "signature": 401
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The mapped grant only authorizes its group and RBAC removal leaves the unexpired JWT authenticated",
+      "matched": true,
+      "observed": {
+        "marker_read": true,
+        "unbound_group_http": 403,
+        "authorization_removed_http": 403,
+        "authentication_remained_http": 201,
+        "grant_restored": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The restored API is ready and rejects the temporary issuer again",
+      "matched": true,
+      "observed": {
+        "restored_api_ready": true,
+        "fixture_issuer_disabled_http": 401
+      }
+    }
+  ]
+}
