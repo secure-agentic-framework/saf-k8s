@@ -5030,12 +5030,12 @@
   knowledge_area: '6.2'
   control_seq: '005'
   control_title: Notary v2 OCI signature artifact registry integration
-  control_statement: Organizations using Notary v2 (notation) must maintain registry integration that stores notation signatures as OCI-compliant artifacts alongside their corresponding image manifests.
-  objective: Ensure notation signatures remain discoverable and synchronized with their corresponding registry artifacts through OCI-compliant storage integration.
+  control_statement: For each in-scope Notation registry, store each signature artifact in the corresponding image repository and verify discovery from the exact subject manifest digest. Validate the OCI Referrers API or the Referrers Tag fallback for each supported registry and client pair.
+  objective: Keep OCI signatures discoverable for their exact immutable subject digests throughout supported registry operations.
   rationale: Registry integration for notation signatures is distinct from trust policy governance and admission verification. If signatures are stored outside OCI artifact flows or drift from image manifests, verification becomes brittle and signature discovery can fail across registries and toolchains.
-  scope: Applies to all container registries and Kubernetes clusters where Notary v2 is the designated or supplementary signing mechanism. Includes environments using Azure Container Registry, AWS ECR, or other registries with native notation support. Organizations exclusively using Sigstore/cosign may document this control as not applicable.
+  scope: Applies to OCI stores that publish or replicate Notation signatures and clusters that consume them. Record the registry and client versions, native discovery or tag fallback, and applicable repositories and replication paths.
   primary_enforcement_point: Registry-level signature artifact storage configuration and notation registry integration.
-  implementation_surface: OCI artifact signature storage, registry integration for notation signatures in Azure Container Registry, AWS ECR, Harbor, or equivalent registries, and notation push or discovery workflows tied to image manifests.
+  implementation_surface: Verify the signature manifest subject descriptor, discovery and successful verification from the exact image digest. Test API and supported fallback as applicable and verify propagation, retention, garbage collection and registry replication separately.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; DevSecOps / Release Engineering
   baseline_or_ai_specific: baseline
