@@ -2760,6 +2760,12 @@
       "sha256": "a05fa0d7cb3572067dac5a8cbbb577311d6b4e9552635d656eef7eb762f00fe9",
       "title": "Secure aggregation for privacy-preserving model outputs"
     },
+    "SAF-K8S-0908-008": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "de97072fe7ef9a6d9154fb3aeffca0aee8efb35ff92094472d143d5e4052b366",
+      "title": "Inference output perturbation and privacy-preserving response shaping"
+    },
     "SAF-K8S-0908-009": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3248,7 +3254,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "925d4d5dd287a2e22e125df04b02dd8b08df9ce1",
-  "sha256": "89ee0d9f88ac487481b05ffff6ea0483c1af50308956f8ed5b456250674959ad",
+  "revision": "4da592e2ac2e921dee8a8ef9746c6dcc575490ca",
+  "sha256": "38bd6cdeb76fd84ab5ac9ab490f33e874b16bf42ae2e661d17e17f40bdae24cf",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

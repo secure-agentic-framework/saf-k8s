@@ -1,0 +1,76 @@
+{
+  "control_id": "SAF-K8S-0908-008",
+  "catalog_revision": "f9a51e228f3c37cbbde6bb5db54a44cc913afce7",
+  "catalog_sha256": "38bd6cdeb76fd84ab5ac9ab490f33e874b16bf42ae2e661d17e17f40bdae24cf",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "de97072fe7ef9a6d9154fb3aeffca0aee8efb35ff92094472d143d5e4052b366",
+  "scope": "Separate baseline and governed synthetic HTTP services test the same benign inputs. The governed response coarsens a normalized vector, removes raw scores and stays within a fixed utility bound. Deployment disclosure risk, actual model utility and a formal privacy guarantee require their own evidence.",
+  "cluster": "saf-lab-ca0e36d72325",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The unshaped synthetic response exposes confidence scores at six-decimal precision",
+      "matched": true,
+      "observed": {
+        "fixed_input_count": 2,
+        "raw_precision_exceeds_one_decimal": true,
+        "raw_schema_has_scores": true,
+        "raw_score_precision_decimal_places": 6
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The shaped response uses the approved schema and one-decimal probabilities",
+      "matched": true,
+      "observed": {
+        "fixed_input_count": 2,
+        "probabilities_sum_to_one": true,
+        "probability_precision_at_most_one_decimal": true,
+        "shaped_schema_exact": true,
+        "unshaped_route_unavailable_in_protected_service": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The fixed benign fixture retains top-one utility within the predefined bound",
+      "matched": true,
+      "observed": {
+        "max_mean_absolute_probability_error": 0.030452,
+        "predefined_error_bound": 0.05,
+        "top_one_agreement": 1.0,
+        "utility_within_bound": true
+      }
+    }
+  ]
+}
