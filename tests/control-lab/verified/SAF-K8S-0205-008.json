@@ -1,0 +1,70 @@
+{
+  "control_id": "SAF-K8S-0205-008",
+  "catalog_revision": "b351589305b3017e753d00814e14b84d232fa779",
+  "catalog_sha256": "dff289bd66981d9d3345ddc46bf624c18df62470b60e222ce391a8fc88ad6327",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "5b553efeda2c1f6c587caea4a7fd5c57fc89fc9fdef4ea42652f83689d6baf1d",
+  "scope": "One fresh Linux Kind node with explicit nftables kube-proxy and two owned IPv4 ClusterIP backends.",
+  "cluster": "saf-lab-a0025a771473",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The running backend fails a conflicting iptables declaration and an empty Service cannot return a marker",
+      "matched": true,
+      "observed": {
+        "conflicting_mode_detected": true,
+        "empty_service_unavailable": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Configured and observed nftables mode programs the exact ClusterIP tuple and reaches its selected endpoint",
+      "matched": true,
+      "observed": {
+        "effective_nftables": true,
+        "programmed_service_tuple": true,
+        "owned_endpoint_reachable": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same programmed ClusterIP follows an approved endpoint change and returns the replacement marker",
+      "matched": true,
+      "observed": {
+        "changed_endpoint_reachable": true,
+        "service_stays_programmed": true
+      }
+    }
+  ]
+}

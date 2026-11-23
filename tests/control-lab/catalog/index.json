@@ -576,6 +576,12 @@
       "sha256": "c4c405b2ec95bed523fe30c838503ae7008b9e7214fb3f443ad360d52bc2732f",
       "title": "Node firewall compatibility validation with CNI and network policy"
     },
+    "SAF-K8S-0205-008": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "5b553efeda2c1f6c587caea4a7fd5c57fc89fc9fdef4ea42652f83689d6baf1d",
+      "title": "kube-proxy or service proxy mode selection governance"
+    },
     "SAF-K8S-0301-001": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -2918,7 +2924,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "73e52d491832f14f0e924e9ceb180aa08d64539e",
-  "sha256": "62da6271ae8faae1044840367623931af1b76f4807215b4de476d871a0f8ab26",
+  "revision": "641928d55f33c0ffe5370d328de4815a34e16b50",
+  "sha256": "dff289bd66981d9d3345ddc46bf624c18df62470b60e222ce391a8fc88ad6327",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
