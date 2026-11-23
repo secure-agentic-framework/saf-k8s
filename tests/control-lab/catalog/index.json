@@ -1062,6 +1062,12 @@
       "sha256": "f3e8340df07ef7f266fa1058320eb5d37e50a46d970b1b93436cfa9e87639e97",
       "title": "AI workload vulnerability exposure classification"
     },
+    "SAF-K8S-0604-009": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "c42f1bfc38ab752b4e6c45f81832628b2329dbf8b6cc60beb7578c1ff6e9bd4c",
+      "title": "AI workload vulnerability prioritization and remediation SLAs"
+    },
     "SAF-K8S-0605-001": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2318,7 +2324,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "0a4a5a2ce3ff51e2409c22c7fbb1ff8a1f3cfb31",
-  "sha256": "986ed382d6f1907988d9741e0fe0216503289aa1cb19e72954fc8c03a2fda2e9",
+  "revision": "11190262715006d3955c3b72c6d234408af3381c",
+  "sha256": "1b3316819f5b20996f783f3f4c2200a76d108f63c4cb0bb101c9135c66359578",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
