@@ -1,0 +1,71 @@
+{
+  "control_id": "SAF-K8S-0606-019",
+  "catalog_revision": "89c1d87c09336eddc5d3609d181acc13a6b7172f",
+  "catalog_sha256": "52ad4a26afa92a2a279d8939b98ae3b3de9b252bc9564b999a1fb2bd9379c788",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "66b4d75d6335dbc0d45d2e4ecbb2072643c03ac58c72614d0c50c765d50595c7",
+  "scope": "Helm package provenance for an owned chart that installs one inert ConfigMap.",
+  "cluster": "saf-lab-6dc3d0871e1c",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Without provenance verification Helm installs the changed fixture archive",
+      "matched": true,
+      "observed": {
+        "changed_marker_reached_api": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native Helm verification refuses missing provenance, changed bytes and an unapproved signer",
+      "matched": true,
+      "observed": {
+        "digest_mismatch": true,
+        "unapproved_signer": true,
+        "missing_provenance": true,
+        "no_denied_resources": true,
+        "no_denied_releases": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Using the trusted key ring Helm installs the approved exact package",
+      "matched": true,
+      "observed": {
+        "exact_archive_digest_verified": true,
+        "approved_marker_reached_api": true
+      }
+    }
+  ]
+}
