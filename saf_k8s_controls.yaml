@@ -5770,12 +5770,12 @@
   knowledge_area: '6.6'
   control_seq: 018
   control_title: Zero-trust CI/CD handoff verification and independent evidence generation
-  control_statement: CI/CD pipelines must verify trust at every stage transition through authenticated handoffs, artifact integrity verification, and independently generated evidence artifacts whose trust does not depend solely on the build process, consistent with NIST SP 800-204D zero-trust CI/CD principles.
-  objective: Ensure stage-to-stage trust in CI/CD is explicitly verified and supported by evidence sources that remain trustworthy even if the build process itself is compromised.
-  rationale: A compromised CI/CD system can falsify success if downstream stages trust pipeline assertions without independent verification. Zero-trust CI/CD requires authenticated handoffs and independently trusted evidence so compromise in one stage does not automatically invalidate assurance for the rest of the delivery chain.
-  scope: Applies to all CI/CD pipelines that transfer artifacts, attestations, or deployment intent between stages prior to Kubernetes deployment. Covers authenticated stage transitions, integrity checks, and independent evidence generation components.
-  primary_enforcement_point: Inter-stage trust verification, authenticated stage identities, and evidence generation components.
-  implementation_surface: Artifact digest verification between stages, authenticated handoff mechanisms such as OIDC or workload identities, independently generated signatures and attestations, and pipeline trust models showing evidence generation components are logically separate from and more trusted than the build step they validate.
+  control_statement: Authenticate and authorize the responsible actors for each governed CI/CD handoff. Before use, verify the exact artifact or intent and the required evidence against receiving-stage policy. Where release relies on build evidence, bind it to the evaluated subject and collect it through a protected component whose isolation or trust is stronger than the build step it evaluates.
+  objective: Establish which identity performed each handoff, which artifact and evidence were accepted, and which receiving-stage checks supported that decision.
+  rationale: NIST SP 800-204D describes recurring trust establishment and verification of integrity across CI/CD handoffs. Verified evidence supports only its observed, bound claims. The security of evidence generation depends on actual isolation, authorization and key custody.
+  scope: Applies to governed transfers of source, inputs, artifacts, evidence or deployment intent. Document each handoff, the participating actors, the subject and the applicable receiving policy.
+  primary_enforcement_point: Stage-specific identity authorization, artifact integrity checks and protected verification of build evidence at handoff.
+  implementation_surface: Define approved actors, permissions, evidence producers, subject digests and receiving policy for each handoff. Confirm verified authorization, approved signer or evidence identity, integrity and required claim binding before use. Protect evidence and keys from build-controlled modification and validate the higher-trust boundary with deployed evidence. Use the selected identity and attestation mechanisms appropriate to the pipeline.
   owner_primary: DevSecOps / Release Engineering
   owner_supporting: Security Engineering; Platform Engineering
   baseline_or_ai_specific: baseline
