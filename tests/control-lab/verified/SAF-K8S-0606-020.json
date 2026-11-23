@@ -1,0 +1,84 @@
+{
+  "control_id": "SAF-K8S-0606-020",
+  "catalog_revision": "09b5f0181cd8fcb0f57f3c553846b144f2b01587",
+  "catalog_sha256": "180c4e582ab91c70d57d14467a9be75f5a501be8433acb5e72444e0d2a4a0d7d",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "c189cc738866de2ca46783c66c2b1e299d18007d90e398f6bb6b2b2579dd9e16",
+  "scope": "An owned Helm chart and vendored dependency that create public ConfigMaps in Kind.",
+  "cluster": "saf-lab-b74da1115af8",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The chart without schema accepts the extra public marker value",
+      "matched": true,
+      "observed": {
+        "unchecked_override_reached_api": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Helm validates the merged values and refuses the same unapproved override",
+      "matched": true,
+      "observed": {
+        "schema_denied_override": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "An unchanged Chart.lock permits reconstruction with different same-version fixture bytes",
+      "matched": true,
+      "observed": {
+        "lock_unchanged": true,
+        "changed_payload_rendered": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The independent archive digest gate stops the different dependency before install",
+      "matched": true,
+      "observed": {
+        "changed_dependency_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The allowed CLI value and exact approved dependency are deployed",
+      "matched": true,
+      "observed": {
+        "merged_value_confirmed": true,
+        "approved_dependency_confirmed": true
+      }
+    }
+  ]
+}

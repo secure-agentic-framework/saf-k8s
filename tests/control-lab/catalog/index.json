@@ -1182,6 +1182,12 @@
       "sha256": "66b4d75d6335dbc0d45d2e4ecbb2072643c03ac58c72614d0c50c765d50595c7",
       "title": "Helm chart provenance and signature verification"
     },
+    "SAF-K8S-0606-020": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "c189cc738866de2ca46783c66c2b1e299d18007d90e398f6bb6b2b2579dd9e16",
+      "title": "Helm values override restriction and dependency integrity governance"
+    },
     "SAF-K8S-0606-021": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2396,7 +2402,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "92eccaf50b5dab8db49b39d54c2fa3153a72f665",
-  "sha256": "05cdf2f89b9024a4ca7f878a76c1b6640b47da98db46638b0a4ff22ead91e3f0",
+  "revision": "e3c27a6dcf9880c722a35deb85fcf0a8e19d4a08",
+  "sha256": "180c4e582ab91c70d57d14467a9be75f5a501be8433acb5e72444e0d2a4a0d7d",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
