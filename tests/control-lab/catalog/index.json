@@ -2760,6 +2760,12 @@
       "sha256": "46d3cb8984ef4e4171c3115669dc9ff3a9a30ac5beb59b68d4c9a8d4aafcbf90",
       "title": "Inference API information exposure controls"
     },
+    "SAF-K8S-0908-003": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "71ab7d66d531f991703160e9786e1e1616e5c269059d02fd0f98cdee935a6393",
+      "title": "Model watermarking and fingerprinting"
+    },
     "SAF-K8S-0908-005": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3272,7 +3278,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "797b1a4df805e94020adec6a698193b5139d6e68",
-  "sha256": "cc611c25db836a408099445e7b9f2bf19c5da17673a93d11cd7eb49d953ee98c",
+  "revision": "c53a52820463656ab5b515078eb8a5c8032af134",
+  "sha256": "a61a9e3b12da078990d7c5db1e5b911f48acf4f44d811672f88482cc49fe64fe",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

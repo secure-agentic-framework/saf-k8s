@@ -1,0 +1,67 @@
+{
+  "control_id": "SAF-K8S-0908-003",
+  "catalog_revision": "d608bdf254d03f4574017a533c05f6e9414d25b4",
+  "catalog_sha256": "a61a9e3b12da078990d7c5db1e5b911f48acf4f44d811672f88482cc49fe64fe",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "71ab7d66d531f991703160e9786e1e1616e5c269059d02fd0f98cdee935a6393",
+  "scope": "Two live services emit fixed benign text with and without the configured keyed marker. A separate detector workload verifies ten template positions with the authorized key. The comparator handles one predefined normalization and rejects one unrelated document.",
+  "cluster": "saf-lab-7faa08dae3fc",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The unchanged unmarked baseline does not contain the fixture marker",
+      "matched": true,
+      "observed": {
+        "baseline_serves_unmarked_text": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The separate detector verifies governed serving output",
+      "matched": true,
+      "observed": {
+        "separate_detector_observes_marked_output": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved normalization preserves the marker and unrelated text stays unmarked",
+      "matched": true,
+      "observed": {
+        "defined_case_and_punctuation_normalization_preserves_marker": true,
+        "separate_unrelated_public_fixture_remains_unmarked": true
+      }
+    }
+  ]
+}
