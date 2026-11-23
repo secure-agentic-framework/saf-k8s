@@ -1281,7 +1281,7 @@
     "SAF-K8S-0905-005": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "1116ec5fef85b0a6d1d7827ad0bee30cd0ba584dbefab4ea3fab0b6329e089da",
+      "sha256": "7465d9fd5d3c507373bbd19f18809a808ff41e72dce6df0e101344a420c64145",
       "title": "Automated model promotion gates"
     },
     "SAF-K8S-0905-025": {
@@ -1784,7 +1784,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "f37eae9b3a79c86f8ae4a77a988d9dc0828b49af",
-  "sha256": "6d92dc4241cfab0152a84b60f7e999d80a82f00ad7cadd178658b2938e801fda",
+  "revision": "7813825050bbf61c6010954b3387a8aa45262c31",
+  "sha256": "3ffca2df08c7f01c81a0549715aa3fa07eb8a1e6fefe3423d367a358cfe7f901",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
