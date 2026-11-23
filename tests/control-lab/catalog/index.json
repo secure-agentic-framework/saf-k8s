@@ -1170,6 +1170,12 @@
       "sha256": "ee27937390652cb9aafe9ceb3c3a36633caf4005fe120f56144fb3f69d9c723d",
       "title": "CNCF lifecycle phase security coverage"
     },
+    "SAF-K8S-0606-018": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "7f0504ea90320730c842e226800b0dbc78c08198d8b88d03389b8c975569e1b6",
+      "title": "Zero-trust CI/CD handoff verification and independent evidence generation"
+    },
     "SAF-K8S-0606-019": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2390,7 +2396,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "53a6b6f65f2571f6358ab89f835afa5d8158c33a",
-  "sha256": "4831ce7629e4ba21d7aa53f012f0d1ee34e90f16ce1826807bbdfb15b13be4dc",
+  "revision": "92eccaf50b5dab8db49b39d54c2fa3153a72f665",
+  "sha256": "05cdf2f89b9024a4ca7f878a76c1b6640b47da98db46638b0a4ff22ead91e3f0",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
