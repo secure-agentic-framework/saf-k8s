@@ -1,0 +1,117 @@
+{
+  "control_id": "SAF-K8S-0501-007",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "28346bb80960e21bd084354fb6fb8923d8e2720399bf0da891d860f5cab6118b",
+  "scope": "One fresh local Kind v0.32.0 / Kubernetes v1.36.1 cluster with Cilium 1.20.5 and its embedded Hubble observer. Three case-owned namespaces represent training, inference, and pipeline. Only fixed-marker IPv4 TCP/18080 requests between the training client and the two case-owned responders are examined. The red phase runs without NetworkPolicy; the green phase applies default deny and permits training to pipeline while denying training to inference. A named synthetic segment rule labels the training-to-inference flow as expected-denied and reports whether authentic Hubble telemetry agrees. No production workloads, external destinations, packet capture, model/data inspection, SIEM, baseline learning, or production anomaly detection are evaluated.",
+  "cluster": "saf-lab-df64b812431c",
+  "kind_ready_wait": "0s",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The pinned Cilium agent and Hubble observer are ready",
+      "matched": true,
+      "observed": {
+        "expected_agent_image": true,
+        "observer_healthy": true,
+        "cilium_release": "1.20.5"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "red inference flow matches synthetic segment rule",
+      "matched": true,
+      "observed": {
+        "source": "saf-0501-007-training/synthetic-client",
+        "destination": "saf-0501-007-inference/inference-sink",
+        "protocol": "TCP/18080",
+        "expected_verdict": "FORWARDED",
+        "direction": "EGRESS",
+        "matching_hubble_events": true,
+        "identity_fields_verified": true,
+        "segment_rule": "synthetic-segment-training-to-inference-tcp-18080",
+        "application_observation": "fixed-marker-received"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "red pipeline flow matches synthetic segment rule",
+      "matched": true,
+      "observed": {
+        "source": "saf-0501-007-training/synthetic-client",
+        "destination": "saf-0501-007-pipeline/pipeline-sink",
+        "protocol": "TCP/18080",
+        "expected_verdict": "FORWARDED",
+        "direction": "EGRESS",
+        "matching_hubble_events": true,
+        "identity_fields_verified": true,
+        "segment_rule": "synthetic-segment-training-to-pipeline-tcp-18080",
+        "application_observation": "fixed-marker-received"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "green inference flow matches synthetic segment rule",
+      "matched": true,
+      "observed": {
+        "source": "saf-0501-007-training/synthetic-client",
+        "destination": "saf-0501-007-inference/inference-sink",
+        "protocol": "TCP/18080",
+        "expected_verdict": "DROPPED",
+        "direction": "EGRESS",
+        "matching_hubble_events": true,
+        "identity_fields_verified": true,
+        "segment_rule": "synthetic-segment-training-to-inference-tcp-18080",
+        "application_observation": "bounded-timeout"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "positive pipeline flow matches synthetic segment rule",
+      "matched": true,
+      "observed": {
+        "source": "saf-0501-007-training/synthetic-client",
+        "destination": "saf-0501-007-pipeline/pipeline-sink",
+        "protocol": "TCP/18080",
+        "expected_verdict": "FORWARDED",
+        "direction": "EGRESS",
+        "matching_hubble_events": true,
+        "identity_fields_verified": true,
+        "segment_rule": "synthetic-segment-training-to-pipeline-tcp-18080",
+        "application_observation": "fixed-marker-received"
+      }
+    }
+  ]
+}

@@ -672,6 +672,12 @@
       "sha256": "a16de993105b055e6397f4036f9d74d16144c1d2a9b1c2f16861f168f3fcd8d1",
       "title": "Multi-cluster network segmentation for federated AI workloads"
     },
+    "SAF-K8S-0501-007": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "28346bb80960e21bd084354fb6fb8923d8e2720399bf0da891d860f5cab6118b",
+      "title": "East-west AI workload traffic monitoring"
+    },
     "SAF-K8S-0501-008": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -2048,7 +2054,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "5dd4ef798cd14c98c98a92463f8ebc4f3ba753af",
+  "revision": "6baeb1f9a6da488f4f6fab48c913aba95bac9160",
   "sha256": "9667c78a19133e6bd9a0f63bfecc29db1b944c791dd9fd87d0c268de9330b2e6",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
