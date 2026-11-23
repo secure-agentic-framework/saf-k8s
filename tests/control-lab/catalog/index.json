@@ -1074,6 +1074,12 @@
       "sha256": "dbf19c6040b63829138e9815573c40342e3902a3e76b266eb036bbed8e1427d4",
       "title": "Privilege escalation detection and monitoring"
     },
+    "SAF-K8S-0405-003": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "a61e6407c617f2ee0522a485a593486fd857399615232a87d49f82e2bffdaa80",
+      "title": "Kubeconfig security and hygiene"
+    },
     "SAF-K8S-0501-001": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -3134,7 +3140,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ce2b8c2dcc98adf41493bbac86595093534b8d91",
-  "sha256": "8f2cdf0ce998f80a155c3f235dfd06267fbccdf60960273d466525bbe5fc10f5",
+  "revision": "91031e808190604348a49716795de5e1ca26dc35",
+  "sha256": "c8134ecc4673e1bd2d7721c5d56733063dc5a37b95789db85abf11a8fc962127",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
