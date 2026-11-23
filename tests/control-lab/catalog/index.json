@@ -672,6 +672,12 @@
       "sha256": "44ec63bc8f618058b65b879db5b3e626e8104ca8f0b2fbe373b3e823b8837eb1",
       "title": "Seccomp profile enforcement"
     },
+    "SAF-K8S-0303-007": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "b841f1423a0a2ff4bdb77930726ef0450ef74ba9d14127d179fddce00df596bc",
+      "title": "AppArmor profile distribution and node readiness"
+    },
     "SAF-K8S-0304-003": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -2942,7 +2948,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "a7108b2c0e2f7aa71200ee1b98a430996121844b",
-  "sha256": "b60195d011d50e358480b104bd8e0945a096455fd30def7e5d16f1de3357a086",
+  "revision": "6228c80851d3b3f910ed4fd8d17ace25c96e19e3",
+  "sha256": "b354310236026071a6d362326132c3325dd10def181047d64509cad88b4753c6",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

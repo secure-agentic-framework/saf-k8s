@@ -1,0 +1,71 @@
+{
+  "control_id": "SAF-K8S-0303-007",
+  "catalog_revision": "0e3662f9fde4bdea6415bbed71e44d85a1788887",
+  "catalog_sha256": "b354310236026071a6d362326132c3325dd10def181047d64509cad88b4753c6",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "b841f1423a0a2ff4bdb77930726ef0450ef74ba9d14127d179fddce00df596bc",
+  "scope": "Deliver an immutable AppArmor profile through Kubernetes, demonstrate enforcement and restoration inside a disconnected guest, and exercise explicitly labeled eligibility. Guest profile readiness supplies only a lab marker for the scheduling exercise.",
+  "cluster": "saf-lab-9338286d410b",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Without the readiness label the Pod is unschedulable, and the guest reports the missing named profile",
+      "matched": true,
+      "observed": {
+        "initial_selector_unsatisfied": true,
+        "missing_guest_profile": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The guest loads the exact delivered profile in enforce mode, denies the inert canary and restores on removal",
+      "matched": true,
+      "observed": {
+        "profile_sha256": "ab5f1e3d47229df2ebbefb857614b99cd9db886220ebb5b703feb2e7800a23f3",
+        "enforced": true,
+        "restored": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The scheduler places the marker on the eligible node, and the next Pod waits after label withdrawal",
+      "matched": true,
+      "observed": {
+        "selected_expected_node": true,
+        "marker": "SAF-AA-ELIGIBLE",
+        "blocked_after_withdrawal": true
+      }
+    }
+  ]
+}

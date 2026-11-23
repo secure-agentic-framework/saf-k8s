@@ -1,0 +1,9 @@
+profile saf_read_boundary flags=(attach_disconnected) {
+    /bin/busybox mr,
+    /bin/busybox ix,
+    /dev/console rw,
+    /proc/*/attr/current r,
+    /proc/*/attr/apparmor/current r,
+    /fixture/allowed r,
+    audit deny /fixture/denied r,
+}
