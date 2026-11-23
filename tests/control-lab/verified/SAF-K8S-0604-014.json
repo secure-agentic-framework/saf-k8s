@@ -1,0 +1,88 @@
+{
+  "control_id": "SAF-K8S-0604-014",
+  "catalog_revision": "e08e47091560e62254b27cf1c6284b11959bb225",
+  "catalog_sha256": "734b9f25c15538e10d83dba4374a465746cb24c7999bbe8f438305b407e90d9f",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "f01ec18e9e1d0cf8f052847f8e3194623199d9300e0475b2f88ed82e095e2f85",
+  "scope": "A case-owned inert Git repository is committed with fixed metadata and checked against an approved commit/tree snapshot. BuildKit builds only git-archive output with pinned lock/config inputs, exports a real OCI image and SLSA Provenance v1, and Kind must execute the exact exported manifest digest. Cosign authenticates the fixture build claims. Production trust and reproduced bytes require separate evidence.",
+  "cluster": "saf-lab-57146656e65e",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The exact image exists before its signed source linkage is present",
+      "matched": true,
+      "observed": {
+        "unsigned_artifact_present": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The release rejects incorrect source, lock, configuration and image claims",
+      "matched": true,
+      "observed": {
+        "unapproved_commit_rejected": true,
+        "signed_wrong_lock_rejected": true,
+        "wrong_subject_rejected": true,
+        "wrong_config_rejected": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Authenticated BuildKit evidence binds the approved archive and inputs to the exact manifest",
+      "matched": true,
+      "observed": {
+        "signed_source_link_verified": true,
+        "working_copy_change_excluded": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Kind executed the exact BuildKit output manifest digest",
+      "matched": true,
+      "observed": {
+        "requested_digest_exact": true,
+        "runtime_digest_exact": true,
+        "payload": "SAF-K8S-0604-014 inert build output"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The disposable registry container and volume were removed",
+      "matched": true,
+      "observed": {
+        "registry_cleanup": "complete"
+      }
+    }
+  ]
+}

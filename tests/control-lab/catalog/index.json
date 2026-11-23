@@ -1086,6 +1086,12 @@
       "sha256": "8f382b6937d101bc8cdd13218a6b4dadd20c24890b55edc311e2ca520af896bf",
       "title": "Hermetic build execution and pinned dependency input control"
     },
+    "SAF-K8S-0604-014": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "f01ec18e9e1d0cf8f052847f8e3194623199d9300e0475b2f88ed82e095e2f85",
+      "title": "Source-to-artifact integrity linkage for built images"
+    },
     "SAF-K8S-0605-001": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2342,7 +2348,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ec3336fa5a02e95fd7e25e9a54b369c022e6bc8e",
-  "sha256": "5c2244c401a9e974d72c4e8c850215faecf6128c80b111715e713b7c774dc0b5",
+  "revision": "40ebb6b98a68455002057056768467324a9f7e96",
+  "sha256": "734b9f25c15538e10d83dba4374a465746cb24c7999bbe8f438305b407e90d9f",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

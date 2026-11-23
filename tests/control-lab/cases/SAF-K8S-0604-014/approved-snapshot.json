@@ -1,0 +1,9 @@
+{
+  "source_uri": "git+https://saf-k8s.invalid/cases/0604-014/inert-source",
+  "commit": "8b81ef7e5e35a8f2083398841e58bb8eda7b2796",
+  "tree": "e105e0759dd21716dda4331c4205e7d5a8af89e3",
+  "lock_sha256": "91d9ddd2364a0b5bb9e8d72c7a8bc2b38d24113f4e1497632c237ee7ec6bdf2b",
+  "config_sha256": "05f51520c052ee3bf7043c96ab306360a29e78ea9960bd53f240e7316a606e8c",
+  "git_author_time": "2025-01-01T00:00:00+0000",
+  "commit_message": "SAF approved inert source snapshot"
+}

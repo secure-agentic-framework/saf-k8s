@@ -1,0 +1,1 @@
+{"buildkit":"docker.io/moby/buildkit:v0.28.0@sha256:37539dd4d60fc70968d164d3850d903a2c56f6402214a1953fbf9fcb81ada731","frontend":"dockerfile.v0","platforms":["linux/amd64","linux/arm64"],"target":"default"}
