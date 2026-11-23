@@ -1,0 +1,73 @@
+{
+  "control_id": "SAF-K8S-0704-020",
+  "catalog_revision": "164191c8f4756fa72febbb039f10c3e60e9f902a",
+  "catalog_sha256": "4d0c8e79086c28878db220ebac36719329dceda413bd601e3297ca479da8bbda",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "0f933168ba3e3dd9ebab5ca3a9d566f977b6db1d19fa838706572055d40d02f9",
+  "scope": "Live Kubernetes authorization for modeled provider node and workload roles against owned markers.",
+  "cluster": "saf-lab-c2b3395b0156",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The modeled broad node grant and the distinct workload grant initially both authorize the workload resource",
+      "matched": true,
+      "observed": {
+        "node_infrastructure": true,
+        "node_workload_data": true,
+        "workload_infrastructure": false,
+        "workload_data": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Narrowing only the modeled node role removes its workload read without breaking either required decision",
+      "matched": true,
+      "observed": {
+        "node_infrastructure": true,
+        "node_workload_data": false,
+        "workload_infrastructure": false,
+        "workload_data": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The two synthetic subjects still complete their own permitted marker reads",
+      "matched": true,
+      "observed": {
+        "required_node_read": true,
+        "required_workload_read": true
+      }
+    }
+  ]
+}

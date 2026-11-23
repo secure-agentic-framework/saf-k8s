@@ -1614,6 +1614,12 @@
       "sha256": "a8b9f8aa902a7c96eba35333f03b0a306c018619082118663cda2d44175b34c7",
       "title": "Per-workload cloud identity binding for managed Kubernetes workloads"
     },
+    "SAF-K8S-0704-020": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "0f933168ba3e3dd9ebab5ca3a9d566f977b6db1d19fa838706572055d40d02f9",
+      "title": "Node-level cloud identity restriction for managed Kubernetes workloads"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -2522,7 +2528,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6e43a18a48ead8fc82642865844c86a70c3901aa",
-  "sha256": "1325f9bad56735b647f630fbe7750324ae216e0f211f1a53663e971c9ec51c3d",
+  "revision": "1c75664f7efcb4a418736881dc41a42580fef6ac",
+  "sha256": "4d0c8e79086c28878db220ebac36719329dceda413bd601e3297ca479da8bbda",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
