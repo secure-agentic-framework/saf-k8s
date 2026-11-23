@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-009",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "a9aebc29705cd8452fb8c8097872168b9e46b124",
+  "catalog_sha256": "bb4ffcf89092b7c899d9f76144b611eaee59f74265f76f7949f9c36c089ad9ba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "141f52a91c12fe4ee36042bc716580bdd9914e82fef3300986b6d8fa9427020d",
+  "control_sha256": "a0a216b8360fe0051580903d91e59e3f0c7759d2b2f802b1154b9c092768e71c",
   "scope": "One fresh Kubernetes 1.36.1 Kind cluster and namespace saf-test. A fixture-only HTTPS admission webhook examines CREATE requests for one inert Deployment shape, recomputes the exact fixed OCI manifest and layer digests, verifies an RSA-SHA256 manifest signature, verifies two sorted signed in-toto Statement v1 DSSE approval/provenance materials with matching subjects, and returns a real fail-closed Kubernetes admission denial or allow. Proves only this fixed test key, artifact, policy, Deployment CREATE path, and namespace; not registry retrieval, arbitrary OCI artifacts, UPDATE, production trust custody, all provenance steps, or all model deployments.",
-  "cluster": "saf-lab-846e9465c6b6",
+  "cluster": "saf-lab-ae8d417ff10c",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
