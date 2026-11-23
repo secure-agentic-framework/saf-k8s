@@ -1,0 +1,34 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    extraMounts:
+      - hostPath: @POLICY_PATH@
+        containerPath: /etc/kubernetes/audit-policy.yaml
+        readOnly: true
+      - hostPath: @AUDIT_DIR@
+        containerPath: /var/log/kubernetes/audit
+        readOnly: false
+kubeadmConfigPatches:
+  - |
+    apiVersion: kubeadm.k8s.io/v1beta4
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        - name: audit-policy-file
+          value: /etc/kubernetes/audit-policy.yaml
+        - name: audit-log-path
+          value: /var/log/kubernetes/audit/audit.log
+        - name: audit-log-mode
+          value: blocking
+      extraVolumes:
+        - name: audit-policy
+          hostPath: /etc/kubernetes/audit-policy.yaml
+          mountPath: /etc/kubernetes/audit-policy.yaml
+          readOnly: true
+          pathType: File
+        - name: audit-log
+          hostPath: /var/log/kubernetes/audit
+          mountPath: /var/log/kubernetes/audit
+          readOnly: false
+          pathType: DirectoryOrCreate

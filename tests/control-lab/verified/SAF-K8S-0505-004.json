@@ -1,0 +1,108 @@
+{
+  "control_id": "SAF-K8S-0505-004",
+  "catalog_revision": "51a07ab4780106fe4c487bd763e901c3a7c44726",
+  "catalog_sha256": "12f5ae7ad13e150ef5c7408150cbb2ebaa76912a1651f82b3b8fded7a3dba295",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "4f7cfaa4752b1b836b02f2aa683ecccbdbe21aa4035e74eec0d5e4d3d4cdfd5d",
+  "scope": "One isolated Kubernetes v1.36.1 API server with a blocking Metadata audit policy. Three exact-name, case-owned ConfigMap reads use the same scoped ServiceAccount via Kubernetes impersonation. The ordinary and role-denied reads produce completed metadata events. An explicitly omitted successful read produces no event. A local detector evaluates only the collected metadata and correlates one 403 with the effective identity and recorded source path. Forwarded addresses remain context. Production collection, origin verification and alert delivery need separate evidence.",
+  "cluster": "saf-lab-22405d147bd2",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The role permits the ordinary read routine-included",
+      "matched": true,
+      "observed": {
+        "allowed_by_role": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The role permits the ordinary read routine-excluded",
+      "matched": true,
+      "observed": {
+        "allowed_by_role": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The API rejects the exact read outside the fixture Role",
+      "matched": true,
+      "observed": {
+        "forbidden_by_role": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The blocking audit policy omits its explicit excluded read",
+      "matched": true,
+      "observed": {
+        "excluded_request_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Captured completed metadata records the actor, status, and peer context",
+      "matched": true,
+      "observed": {
+        "200": true,
+        "403": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The captured denial has no alert while the rule is absent",
+      "matched": true,
+      "observed": {
+        "finding_count": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The activated rule correlates exactly the captured denial",
+      "matched": true,
+      "observed": {
+        "finding_count": 1,
+        "matched_exact_audit_id": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The ordinary captured request generates no finding",
+      "matched": true,
+      "observed": {
+        "ordinary_request_preserved": true
+      }
+    }
+  ]
+}

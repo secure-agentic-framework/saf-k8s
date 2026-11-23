@@ -858,6 +858,12 @@
       "sha256": "f80239ceb4452039a5d3b4e758dcf6d3625b3b0da1da45706c00e8a8b1a33e09",
       "title": "Internal service endpoint protection"
     },
+    "SAF-K8S-0505-004": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "4f7cfaa4752b1b836b02f2aa683ecccbdbe21aa4035e74eec0d5e4d3d4cdfd5d",
+      "title": "API server audit log analysis for network-based attack detection"
+    },
     "SAF-K8S-0505-005": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -2180,7 +2186,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "66fb391379202ce7d76c43edd60a23e260dfd6d9",
-  "sha256": "82c8181a0369adafde249681e946cf7daa42ac28325e8e01d8ff0e0b7f17a071",
+  "revision": "215cde8894b29c266a721aa89b70f9740eb4b12f",
+  "sha256": "12f5ae7ad13e150ef5c7408150cbb2ebaa76912a1651f82b3b8fded7a3dba295",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
