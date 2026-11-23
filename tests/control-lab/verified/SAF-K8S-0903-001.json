@@ -1,0 +1,169 @@
+{
+  "control_id": "SAF-K8S-0903-001",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "76f2e18c7c8661276bf9d15ba8367d70b2fb29206011202fce6ba0c9f512b8d3",
+  "scope": "One Kubernetes v1.36.1 Kind cluster with enforcing NetworkPolicy. Two case-owned workloads implement an inert inference stand-in and a fixed synthetic explanation. Compare the same marked benign request before and after deterministic rejection, check the backend counter and content-free rejection record, then compare a named ordinary Pod and a monitoring-labeled Pod accessing the same explanation port. A clean inference request remains functional. Production detector quality, real explanations, identity and label governance, alternate paths, rate limits and audit retention require separate evidence.",
+  "cluster": "saf-lab-68ff10bb6a78",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "With input rejection disabled the fixed marked request reaches inference",
+      "matched": true,
+      "observed": {
+        "response": {
+          "body": {
+            "backend_call": 1,
+            "prediction": "fixture-class"
+          },
+          "status": 200
+        },
+        "backend_counters": {
+          "explanation_calls": 0,
+          "rejection_records": [],
+          "rejections": 0,
+          "backend_calls": 1
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Enabled rejection blocks inference and retains only the fixed ID and reason",
+      "matched": true,
+      "observed": {
+        "response": {
+          "body": {
+            "reason": "fixture_marker_rejected",
+            "rejection_id": "reject-0903-0001"
+          },
+          "status": 422
+        },
+        "counters": {
+          "explanation_calls": 0,
+          "rejection_records": [
+            {
+              "reason": "fixture_marker_rejected",
+              "rejection_id": "reject-0903-0001"
+            }
+          ],
+          "rejections": 1,
+          "backend_calls": 1
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without network isolation the ordinary Pod reaches the exact explanation listener",
+      "matched": true,
+      "observed": {
+        "response": {
+          "body": {
+            "features": [
+              {
+                "name": "signal_a",
+                "value": 0.25
+              },
+              {
+                "name": "signal_b",
+                "value": 0.75
+              }
+            ],
+            "fixture_id": "SAF-K8S-0903-001-benign-v1"
+          },
+          "status": 200
+        },
+        "explanation_calls": 1
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Only the monitoring Pod receives explanation output through the designated listener",
+      "matched": true,
+      "observed": {
+        "ordinary_listener": {
+          "transport": "timeout"
+        },
+        "monitor_listener": {
+          "body": {
+            "features": [
+              {
+                "name": "signal_a",
+                "value": 0.25
+              },
+              {
+                "name": "signal_b",
+                "value": 0.75
+              }
+            ],
+            "fixture_id": "SAF-K8S-0903-001-benign-v1"
+          },
+          "status": 200
+        },
+        "inference_listener": {
+          "body": {
+            "reason": "not_found"
+          },
+          "status": 404
+        },
+        "explanation_calls": 2
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Ordinary inference still runs after both controls are enabled",
+      "matched": true,
+      "observed": {
+        "response": {
+          "body": {
+            "backend_call": 2,
+            "prediction": "fixture-class"
+          },
+          "status": 200
+        },
+        "counters": {
+          "explanation_calls": 2,
+          "rejection_records": [
+            {
+              "reason": "fixture_marker_rejected",
+              "rejection_id": "reject-0903-0001"
+            }
+          ],
+          "rejections": 1,
+          "backend_calls": 2
+        }
+      }
+    }
+  ]
+}
