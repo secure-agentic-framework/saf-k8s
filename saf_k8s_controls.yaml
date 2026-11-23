@@ -7569,13 +7569,13 @@
   domain_name: GPU, Accelerator, and Confidential Computing
   knowledge_area: '8.2'
   control_seq: '007'
-  control_title: Device plugin registration authentication monitoring and rogue plugin detection
-  control_statement: Device plugin registration with the kubelet must be authenticated and continuously monitored, and unauthorized or rogue GPU device plugin registration or interface abuse attempts must be detected and blocked.
-  objective: Ensure only approved GPU device plugins can register with the kubelet and that rogue plugin behavior or manipulated health reporting is detected before it can influence GPU allocation decisions.
-  rationale: Even if socket-directory access is restricted, organizations still need assurance that only authorized plugins register and that abnormal registration, fake device advertisement, or manipulated health reporting is detected. This is a separate obligation from filesystem protection because it focuses on registration integrity and runtime detection of rogue plugin behavior.
-  scope: Applies to all Kubernetes nodes where GPU device plugins register with the kubelet. Covers plugin registration events, kubelet authorization or attestation of approved plugins, and monitoring of device health reporting or rogue registration behavior.
-  primary_enforcement_point: Device-Plugin Registration Integrity Monitoring
-  implementation_surface: kubelet device plugin registration logs, approved plugin inventory and attestation, runtime security tooling for rogue registration detection, and monitoring of device health reporting callbacks or anomalous plugin behavior.
+  control_title: Device plugin enrollment and registration telemetry reconciliation
+  control_statement: Restrict node-local device-plugin registration access to approved platform components. Maintain an authorized deployment and resource inventory and reconcile available registration, socket lifecycle, device health and node allocation evidence.
+  objective: Limit unapproved influence over device allocation and identify discrepancies among actual deployment, registration, device reports and independently verified inventory.
+  rationale: Kubernetes registration is a local interface whose request describes the plugin endpoint and resource. Plugin-reported health drives Kubernetes resource availability. Identity assurance and independent device validation require additional controls and evidence.
+  scope: Applies to governed Kubernetes nodes with device plugins, their approved platform components, node-local telemetry, reported resources, and independent host and device observations.
+  primary_enforcement_point: Host access policy, approved deployment provenance and reconciliation of node-local and Kubernetes inventory.
+  implementation_surface: Verify approved plugin deployments and actual host access policy. Collect available registration and health evidence with node identity, source, time and monitoring coverage. Reconcile source records, resource and health changes, and independently sourced expected inventory and record unknown or inconsistent observations.
   owner_primary: Platform Engineering
   owner_supporting: ML Platform Engineering; Security Engineering
   baseline_or_ai_specific: ai-specific
