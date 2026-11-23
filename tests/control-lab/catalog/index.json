@@ -1746,6 +1746,12 @@
       "sha256": "92dbd47d3f083736bfcbc4fe9f56a57acf1327bb5244bc980d20bf1864ed463a",
       "title": "RDMA memory region and queue pair isolation"
     },
+    "SAF-K8S-0803-005": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "f2ac8180aff99c241d25773577670031417be6226ca95740a3d3ac0d3ce445dc",
+      "title": "DPU and SmartNIC firmware cryptographic verification and Secure Boot integrity"
+    },
     "SAF-K8S-0901-002": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -2648,7 +2654,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "806d520912d8f25f07ac6951248d61d381ff13c6",
-  "sha256": "a4508cb7c1990f9fba8919ac1748b71f24d653ef7a59602989dc342687beda97",
+  "revision": "be49bed9967f1fba04d278b32ad39865fa2fb225",
+  "sha256": "e47a23ee3166cc3e2ed013dc24d287f2a970549094df16dbc8c681c14d51f9c8",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -1,0 +1,70 @@
+{
+  "control_id": "SAF-K8S-0803-005",
+  "catalog_revision": "90ae99da1d522ad7351f8efb95d24fa03f96c8b6",
+  "catalog_sha256": "e47a23ee3166cc3e2ed013dc24d287f2a970549094df16dbc8c681c14d51f9c8",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "f2ac8180aff99c241d25773577670031417be6226ca95740a3d3ac0d3ce445dc",
+  "scope": "Real integrity verification for inert evidence bytes and a Kubernetes Job evaluating modeled DPU state.",
+  "cluster": "saf-lab-763d2e6b5635",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Authentic bytes alone leave device binding, freshness and independent boot evidence unresolved",
+      "matched": true,
+      "observed": {
+        "signature_only_passes_wrong_device_stale_and_missing_boot": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The running policy Job distinguishes untrusted bytes and independent deployment mismatches",
+      "matched": true,
+      "observed": {
+        "boot-missing": "boot-evidence-missing",
+        "changed": "invalid-signature",
+        "revision-mismatch": "unexpected-revision",
+        "stale": "stale-evidence",
+        "wrong-device": "wrong-device"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The authentic fixture report and matching modeled observation remain eligible",
+      "matched": true,
+      "observed": {
+        "matching_fixture_eligible": true
+      }
+    }
+  ]
+}
