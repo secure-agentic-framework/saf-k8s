@@ -510,6 +510,12 @@
       "sha256": "6263b7602443772af9c15156fb4aa336f01a76f2820a04807affdea439f4463f",
       "title": "Kernel lockdown mode enforcement for runtime integrity"
     },
+    "SAF-K8S-0203-014": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "f8d28f3c2c44ee01bc356594f5dccdd74fbb68751b864de06e5d531eb218f0dc",
+      "title": "Verify provider-specific cloud metadata access modes"
+    },
     "SAF-K8S-0203-016": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -2858,7 +2864,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "4f99e46cc4a184c589d8bb27cb0fef50945ec956",
-  "sha256": "2635d91680dd0c8c5c91992dcf0ed2e9956053a865af2939f668db6edaa1a877",
+  "revision": "ad4eaf6a87a53f568ec23c303b1f6854d8fa68d9",
+  "sha256": "863b377e625c78c0af692318668a1b486d585ae4e917dd947b326dcaa02b3ea6",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

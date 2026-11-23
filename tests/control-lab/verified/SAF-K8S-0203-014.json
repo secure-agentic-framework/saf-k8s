@@ -1,0 +1,68 @@
+{
+  "control_id": "SAF-K8S-0203-014",
+  "catalog_revision": "ab59fe1432d4ac14bb2459dbff6d361e8700527b",
+  "catalog_sha256": "863b377e625c78c0af692318668a1b486d585ae4e917dd947b326dcaa02b3ea6",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "f8d28f3c2c44ee01bc356594f5dccdd74fbb68751b864de06e5d531eb218f0dc",
+  "scope": "A restricted Kubernetes Job compares two loopback-only marker access contracts. Cloud provider enforcement requires separate evidence.",
+  "cluster": "saf-lab-5985b170ea93",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "An HTTP marker accepts the fixed intent header without a fixture-issued session",
+      "matched": true,
+      "observed": {
+        "missing_intent": 400,
+        "fixed_intent_accepted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The separate session-required route refuses missing or incorrect fixture sessions",
+      "matched": true,
+      "observed": {
+        "missing_session": 401,
+        "incorrect_session": 401
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An issued fixture session retains authorized access to the same public marker",
+      "matched": true,
+      "observed": {
+        "issued_session_accepted": true
+      }
+    }
+  ]
+}
