@@ -1,0 +1,42 @@
+{
+  "fixture-customer-profile": {
+    "definition_version": "profile-v1",
+    "online": {
+      "entity": "customer-001",
+      "risk_band": "green",
+      "event_time": "2026-01-02T00:00:00Z"
+    },
+    "offline": [
+      {
+        "entity": "customer-001",
+        "risk_band": "amber",
+        "event_time": "2026-01-01T00:00:00Z"
+      },
+      {
+        "entity": "customer-001",
+        "risk_band": "green",
+        "event_time": "2026-01-02T00:00:00Z"
+      }
+    ]
+  },
+  "fixture-device-health": {
+    "definition_version": "health-v1",
+    "online": {
+      "entity": "device-001",
+      "health_score": 82,
+      "event_time": "2026-01-02T00:00:00Z"
+    },
+    "offline": [
+      {
+        "entity": "device-001",
+        "health_score": 79,
+        "event_time": "2026-01-01T00:00:00Z"
+      },
+      {
+        "entity": "device-001",
+        "health_score": 82,
+        "event_time": "2026-01-02T00:00:00Z"
+      }
+    ]
+  }
+}

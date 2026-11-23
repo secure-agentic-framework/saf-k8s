@@ -1,0 +1,75 @@
+{
+  "control_id": "SAF-K8S-0907-004",
+  "catalog_revision": "6a2050e9248715b863747aa67f20d4ef74aab54f",
+  "catalog_sha256": "f35e09cb17fa5da47d64090d1f1dc490e6820728d7e53aa301b10a36c2077955",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "1abc5fa75b98e26f966b011709433921591adab326a9ad42146d0d7116698646",
+  "scope": "A named ServiceAccount presents a short-lived projected token for the feature-store audience. Both owned TLS gateways call live Kubernetes TokenReview; a coarse authenticated baseline reads two fixed synthetic groups while a scoped gateway allows only one named group across separate online and offline read paths. Rows retain status, returned fixed values, group, store, and definition version. The Kubernetes API also enforces object-specific rights on separate immutable backing ConfigMaps. Evidence contains no bearer tokens.",
+  "cluster": "saf-lab-f4f921165474",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Coarse authenticated identity can read both owned groups in both stores",
+      "matched": true,
+      "observed": {
+        "authenticated_reader_reads_both_groups_and_both_stores": true,
+        "offline_rows_retain_history": true,
+        "online_rows_return_latest_only": true,
+        "definition_versions_are_explicit": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Scoped permission allows the named group and blocks the other group before retrieval",
+      "matched": true,
+      "observed": {
+        "live_backend_rbac_checks_both_gateways_and_stores": true,
+        "named_group_allowed_in_both_stores": true,
+        "other_named_group_denied_in_both_stores_without_data": true,
+        "unknown_definition_version_has_no_data": true,
+        "offline_is_historical_and_online_is_latest": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Unauthenticated reads fail while the named reader retains allowed access",
+      "matched": true,
+      "observed": {
+        "credential_is_required": true,
+        "named_reader_retains_authorized_historical_access": true,
+        "scoped_gateway_events_match_decisions": true
+      }
+    }
+  ]
+}
