@@ -888,6 +888,12 @@
       "sha256": "ae619e2acf3f449ead88c2cd738d814119dfc596460c7ac378a51413de16684a",
       "title": "Projected service account token lifetime bounds enforcement"
     },
+    "SAF-K8S-0402-023": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "2a568afb8031f754c115ce5970cb2e17ea8cc50484b50f99324f46d78b40db51",
+      "title": "Long-lived workload token exception governance and retirement tracking"
+    },
     "SAF-K8S-0403-005": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -2978,7 +2984,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ced92dfc7c44c5dd9a1217fbd4a6879b08d51ce3",
-  "sha256": "6a21ded49bbe077acd0b2be81bd60f13cc04410d298f4470477174b42118c1d4",
+  "revision": "be5694cc106602ba706b0c6c92378fc15d1b3dbf",
+  "sha256": "ab805cc4529889ce993cdb1e0b5d2998c68e6e61d6075b6d8178cca7da70e59e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

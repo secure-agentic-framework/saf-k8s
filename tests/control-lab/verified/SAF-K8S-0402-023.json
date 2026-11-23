@@ -1,0 +1,80 @@
+{
+  "control_id": "SAF-K8S-0402-023",
+  "catalog_revision": "4e1131c91c0ae8c8dd4a6fef1a4197e1dfb1cf0e",
+  "catalog_sha256": "ab805cc4529889ce993cdb1e0b5d2998c68e6e61d6075b6d8178cca7da70e59e",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "2a568afb8031f754c115ce5970cb2e17ea8cc50484b50f99324f46d78b40db51",
+  "scope": "Use metadata from two owned Kubernetes Secret-backed token fixtures, an inert projected token declaration and separate approval records to distinguish token classes, overdue review and actual retirement. No token bytes are retrieved into evidence.",
+  "cluster": "saf-lab-37a71c604078",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Metadata distinguishes the two Secret classes, neither had an exception, and projected intent stays separate",
+      "matched": true,
+      "observed": {
+        "secret_classes": {
+          "fixture-legacy-linked": "legacy-linked",
+          "fixture-manual-unlinked": "manual-unlinked"
+        },
+        "initial_decisions": {
+          "fixture-legacy-linked": "missing-or-mismatched",
+          "fixture-manual-unlinked": "missing-or-mismatched"
+        },
+        "projected_requested_seconds": "600"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The review identifies the overdue exception and preserves the current, exact exception",
+      "matched": true,
+      "observed": {
+        "fixture-legacy-linked": "action-due",
+        "fixture-manual-unlinked": "current-exception"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Retirement removes the exact Secret from the inventory and leaves the separate current exception",
+      "matched": true,
+      "observed": {
+        "remaining_classes": {
+          "fixture-manual-unlinked": "manual-unlinked"
+        },
+        "remaining_decisions": {
+          "fixture-manual-unlinked": "current-exception"
+        }
+      }
+    }
+  ]
+}
