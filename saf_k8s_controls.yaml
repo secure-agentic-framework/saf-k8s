@@ -1810,12 +1810,12 @@
   knowledge_area: '2.4'
   control_seq: '003'
   control_title: Container filesystem drift detection
-  control_statement: Production workloads must be monitored for container filesystem drift, detecting and alerting on unexpected binary execution, library loading, or configuration file modifications that deviate from the original container image contents.
-  objective: Detect post-deployment tampering with container filesystems that may indicate malware installation, backdoor deployment, or attacker tool staging within running containers.
-  rationale: Containers are designed to be immutable after deployment; any runtime filesystem modification is inherently suspicious. Attackers who gain code execution inside a container frequently download additional tools, modify configuration files to disable security controls, or drop persistent backdoors. Without drift detection, these modifications go unnoticed even when the initial intrusion vector is eventually patched. Drift detection provides a high-signal, low-false-positive detection layer because legitimate containers rarely modify their own filesystems.
-  scope: Applies to all production workloads deployed from container images. Workloads that legitimately write to the container filesystem (e.g., applications with local caching or temporary file creation) must have drift detection rules tuned to distinguish between expected writable paths and unexpected binary or configuration modifications. Init containers and sidecar containers are also in scope.
-  primary_enforcement_point: Runtime security tool configuration with container image baseline comparison and filesystem monitoring policies.
-  implementation_surface: Drift detection tool configuration (Falco, Tetragon, Sysdig drift control, Aqua drift prevention), readOnlyRootFilesystem enforcement, exclusion path definitions for legitimate writes (model cache, checkpoints, emptyDir), and binary execution alerting from writable paths.
+  control_statement: For governed container workloads, define approved image-backed paths and writable exceptions. Use a supported integrity comparison or runtime change detector for selected paths. Verify image identity, detected unauthorized changes and alert delivery. Govern read-only root enforcement, process events and library loading as separate observations.
+  objective: Detect relevant changes from a known container filesystem baseline and distinguish approved writable state.
+  rationale: Image provenance establishes the approved baseline. A write or file-open event alone does not prove a persistent content change, successful execution or a library load. A read-only root protects the relevant mount boundaries while permitted volumes have independent behavior.
+  scope: Applies to selected governed container and node classes. Identify source image digests, covered filesystem and mount paths, approved ephemeral or persistent state, sensor limitations, unavailable baselines and exceptions.
+  primary_enforcement_point: Effective runtime integrity comparison or change telemetry tied to an approved image identity and explicit monitored and excluded paths.
+  implementation_surface: Compare approved and observed content or path state using harmless owned files. Confirm narrow writable exceptions, retain positive and negative tests, verify relevant monitoring and delivery, and exercise read-only root or process and loader signals independently where required.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; Application Development
   baseline_or_ai_specific: baseline
