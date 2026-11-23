@@ -7169,13 +7169,13 @@
   domain_name: Storage, Multi-tenancy, and Resource Governance
   knowledge_area: '7.4'
   control_seq: '15'
-  control_title: Cloud IAM to Kubernetes RBAC entitlement mapping definition
-  control_statement: Organizations must establish and maintain a documented mapping between cloud provider IAM identities and Kubernetes RBAC bindings for managed Kubernetes services so intended Kubernetes permissions remain explicit and traceable.
-  objective: Ensure cloud IAM identities are intentionally translated into Kubernetes permissions through an explicit, documented entitlement mapping rather than implicit or undocumented access paths.
-  rationale: Managed Kubernetes environments bridge cloud IAM and Kubernetes RBAC, creating a two-layer authorization model. Without a documented entitlement mapping, teams cannot reliably determine which cloud identities resolve to which Kubernetes permissions, and access paths become opaque to design, review, and investigation.
-  scope: Applies to managed Kubernetes services and any self-managed clusters using cloud IAM or external cloud identity for Kubernetes authentication. The mapping must cover administrative users, automation identities, CI/CD roles, monitoring roles, and any other cloud identity granted Kubernetes access.
-  primary_enforcement_point: Cloud IAM identity definitions and Kubernetes authentication-to-RBAC mapping documentation.
-  implementation_surface: EKS access entries or aws-auth mappings, GKE IAM-to-cluster role bindings, AKS Entra ID or equivalent identity integration, and documented mapping matrices tying cloud identities to Kubernetes RBAC subjects and grants.
+  control_title: Effective external identity and Kubernetes API entitlement mapping
+  control_statement: Maintain a reviewed inventory linking every in-scope external principal to the Kubernetes API authentication path, resolved subject attributes, effective authorizers and permitted resource actions. Trace grants through Kubernetes RBAC, provider authorization policies or other configured authorizers as applicable.
+  objective: Make effective Kubernetes API access attributable to the source identity, resolved attributes, authorizer and scoped grant.
+  rationale: Authentication supplies the request identity. Kubernetes RBAC, provider access policies or other active authorizers can independently affect permissions. A traceable inventory and effective authorization checks support access design, review and incident investigation.
+  scope: Applies to managed clusters and self-managed clusters accepting external identities. Cover human administrators, automation and workload principals where applicable, group resolution, all active authorizers and approved exceptions.
+  primary_enforcement_point: External identity configuration, cluster authentication and authorization, and evidence-backed access inventory.
+  implementation_surface: Record the effective cluster mode, identity source, resolved subjects, named authorizers and policy or binding scopes. Reconcile inventory entries with actual provider settings and Kubernetes objects. Verify and retain representative permitted and denied requests for each applicable path.
   owner_primary: Cloud Platform Engineering
   owner_supporting: Security Engineering; Platform Engineering
   baseline_or_ai_specific: baseline
