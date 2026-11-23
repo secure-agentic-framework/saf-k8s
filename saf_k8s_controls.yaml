@@ -9810,12 +9810,12 @@
   knowledge_area: '9.9'
   control_seq: 008
   control_title: Classification-aware chunking and vector collection segregation
-  control_statement: RAG document chunking and indexing pipelines must apply classification-aware chunking strategies, preserve source classification metadata on each chunk, and prevent cross-classification content mixing within the same vector collection or retrieval scope.
-  objective: Preserve document classification boundaries through chunking and indexing so that retrieval cannot silently mix content across classification levels or tenant trust zones.
-  rationale: Chunking is where document-level security boundaries are often lost. If confidential and lower-sensitivity content are mixed in the same collection or retrieval scope, downstream retrieval can leak higher-classification content even when the source repository was properly controlled. Classification-aware chunking and collection segregation preserve those boundaries inside the vector layer.
-  scope: Applies to chunking and indexing pipelines for RAG systems on Kubernetes. Covers chunk boundary strategy, metadata tagging, collection-level separation by classification, and retrieval-scope segregation. Excludes source repository authentication and initial document provenance admission checks.
-  primary_enforcement_point: Chunking configuration, chunk metadata tagging, vector collection design, and retrieval scope enforcement in the vector database.
-  implementation_surface: Classification-aware chunking configuration, chunk metadata tagging with source document classification, separate vector collections or equivalent retrieval scopes per classification level, and chunk overlap controls that avoid mixing differently classified content.
+  control_statement: Derive chunk labels from approved source or section classification before indexing. Preserve the labels and retain provenance when routing vectors into approved collections or equivalent enforced retrieval scopes.
+  objective: Keep each chunk and its vector inside the classifications authorized for indexing and retrieval.
+  rationale: Chunks or overlaps that span incompatible sections can carry higher classification data into other scopes. Both the write path and the read path require enforceable classification rules and observable acceptance and denial evidence.
+  scope: Applies to classification assignment, chunk boundaries and overlap, metadata propagation, collection selection and authorization on deployed retrieval paths. Coordinate separately with source identity and provenance validation.
+  primary_enforcement_point: Trusted classification input, chunk boundary and storage admission checks, and authorization on actual retrieval.
+  implementation_surface: Use authoritative classification metadata and an approved rule for mixed sections, reject missing labels and wrong destination writes, and verify scoped retrieval for independently authenticated principals. Confirm alternate indexes, caches and update paths preserve the same policy.
   owner_primary: Data Engineering
   owner_supporting: Security Engineering; ML Platform Engineering
   baseline_or_ai_specific: ai-specific
