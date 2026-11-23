@@ -1506,6 +1506,12 @@
       "sha256": "e32d14e97817cb1d64a618bfb4819dd7fd8dcf775dbc4a591c093dd940906111",
       "title": "PriorityClass assignment restriction and admission enforcement"
     },
+    "SAF-K8S-0703-021": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "ec85c2b0e74d0e00918b0099ee706be0c1c6b4c7a1bacb1b2b650f3b4b0532c1",
+      "title": "GPU admission enforcement against unauthorized access and quota bypass"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -2414,7 +2420,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "f82e6651f1be0c5efbad0507425f2d78b265f694",
-  "sha256": "2eb04d56b1000249ca36d033527b82ef1b2dbbaf974bac286dcb002c8e4fb4a5",
+  "revision": "5e42ea60f5713c06127623010140f37f99f2a632",
+  "sha256": "0fc795283778ad9bce9a686e0adf4f4526fc73c53d6b68784718a8e8763c0ee2",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

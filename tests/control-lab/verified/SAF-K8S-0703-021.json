@@ -1,0 +1,77 @@
+{
+  "control_id": "SAF-K8S-0703-021",
+  "catalog_revision": "25775b61b5d447468f37045c44e148e6341db4f6",
+  "catalog_sha256": "0fc795283778ad9bce9a686e0adf4f4526fc73c53d6b68784718a8e8763c0ee2",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "ec85c2b0e74d0e00918b0099ee706be0c1c6b4c7a1bacb1b2b650f3b4b0532c1",
+  "scope": "Scoped Pod CREATE admission and namespace quota for a synthetic accelerator slot in Kind.",
+  "cluster": "saf-lab-9278c4bf8518",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Namespace Pod creation and quota alone accept a valid fixture request in a dry run",
+      "matched": true,
+      "observed": {
+        "comparison_request_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission requires the approved principal and an explicit synthetic resource declaration",
+      "matched": true,
+      "observed": {
+        "other_principal_denied": true,
+        "missing_declaration_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved Pod reaches Ready on the synthetic node and consumes one quota unit",
+      "matched": true,
+      "observed": {
+        "right_resource_scheduled": true,
+        "namespace_quota_used": 1
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Namespace quota denies a second valid request while the node still advertises two slots",
+      "matched": true,
+      "observed": {
+        "quota_denial_verified": true,
+        "node_slots": 2
+      }
+    }
+  ]
+}
