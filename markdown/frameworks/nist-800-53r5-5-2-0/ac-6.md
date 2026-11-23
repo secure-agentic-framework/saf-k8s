@@ -87,9 +87,9 @@ Foundational -- agents must operate with minimum necessary permissions
 
 - Domain: D04 - Identity, Access, and Secrets Management
 - Knowledge Area: 4.2
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-0402-007 - OIDC authentication integration](../../controls/SAF-K8S-0402-007.md)

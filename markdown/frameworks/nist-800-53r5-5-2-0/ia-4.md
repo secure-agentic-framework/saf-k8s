@@ -43,8 +43,8 @@ Managing agent identifiers (non-human identity registry)
 - Domain: D04 - Identity, Access, and Secrets Management
 - Knowledge Area: 4.2
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
+- Strength: moderate
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-0402-007 - OIDC authentication integration](../../controls/SAF-K8S-0402-007.md)
