@@ -1410,6 +1410,12 @@
       "sha256": "f104b3732ebbc3497fcfd126169452cbfe9a508c4252639e2fe6349bd81d3ee8",
       "title": "External model publisher identity and provenance metadata verification"
     },
+    "SAF-K8S-0905-057": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "e89d38d2fcaf9349f20c74351508adf0bdd184a6d60dc4c99dde88145eb0967e",
+      "title": "External model trust-signal assessment and approval review"
+    },
     "SAF-K8S-0907-007": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1892,7 +1898,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "f464385cc319205293aca817d8056aa298fe8928",
+  "revision": "bd3d46d108b38e3738fb1fd9243c278b4deb58b4",
   "sha256": "9246a83494e93abb79f73876a57c184c94b68d2ab9366f66d0ea3595a5589eeb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
