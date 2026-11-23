@@ -1020,6 +1020,12 @@
       "sha256": "9c312947f021dbe7357a9f8b66dbe39d8f3d877d44ddfda487bf6827b8eaa97a",
       "title": "Environment variable secret injection prohibition enforcement"
     },
+    "SAF-K8S-0403-030": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "e5ac5b38e54c61b5d98456805213abcafb5b6cb466b69e80aade6abce9bf1c02",
+      "title": "Environment variable secret injection exception governance"
+    },
     "SAF-K8S-0404-008": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -3086,7 +3092,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "161f9bc8cf9b41c428eeca8d9608737e196ef32b",
-  "sha256": "44f2fa4b13d757d198115169e85cbae92e509d838b0afdd82335b8f902f6c1d9",
+  "revision": "848886ec1824ba385fa87b4919962a4e28d9ad0f",
+  "sha256": "12f6519c44f433c424b1c7104925daf4c7e14950d4db614af1050b4a660b6b65",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
