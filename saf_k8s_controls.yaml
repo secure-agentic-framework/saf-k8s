@@ -1910,12 +1910,12 @@
   knowledge_area: '2.5'
   control_seq: '007'
   control_title: Node firewall compatibility validation with CNI and network policy
-  control_statement: Node-level firewall rules must be validated for compatibility with the cluster CNI plugin's overlay and network policy enforcement requirements so that node firewalls do not create conflicts, blind spots, or broken cluster communication paths.
-  objective: Ensure node firewalls complement rather than disrupt CNI overlays and Kubernetes network policy enforcement.
-  rationale: Improperly configured node firewalls can break CNI overlays, bypass intended policy paths, or create gaps between node and pod-layer enforcement. This control isolates compatibility validation so teams can independently prove that firewall rules and CNI requirements are aligned.
-  scope: Applies to all production cluster nodes using CNI plugins or cloud networking models with specific overlay, encapsulation, or enforcement path requirements such as VXLAN, Geneve, or WireGuard.
-  primary_enforcement_point: Compatibility validation between node firewall layer and pod-network enforcement layer.
-  implementation_surface: CNI port allowance configuration, documented compatibility validation, and network connectivity tests confirming legitimate cluster communication functions correctly.
+  control_statement: Validate node firewall compatibility with the selected CNI, workload policy and Service proxy for each governed node profile. Record required and denied flows, applicable rule hooks and expected behavior, and collect attributable observations before and after changes.
+  objective: Preserve documented cluster connectivity while demonstrating that node and workload enforcement produces the intended results.
+  rationale: Firewall and workload policy may enforce at different hooks on the same traffic path. Routing, encapsulation, proxy implementation and IP family affect where decisions occur. A rule or reachable endpoint alone does not establish interaction between the components.
+  scope: Applies to governed Kubernetes node profiles. Record actual kernel, CNI, proxy mode, firewall ownership, interfaces, address families and required host, workload and Service paths. Review after platform, routing, firewall or policy changes.
+  primary_enforcement_point: Effective node firewall and CNI enforcement along each documented path, with change review and runtime evidence.
+  implementation_surface: Exercise owned allowed and denied paths before and after representative rule changes. Collect policy state, attributable rules or counters, observed application outcomes, required control flows and rollback results. Track unsupported or externally enforced paths with their evidence owner.
   owner_primary: Network Engineering
   owner_supporting: Platform Engineering; Cloud Infrastructure; Security Engineering
   baseline_or_ai_specific: baseline
