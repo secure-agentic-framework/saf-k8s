@@ -3070,12 +3070,12 @@
   knowledge_area: '4.3'
   control_seq: '004'
   control_title: Secret rotation and expiration enforcement
-  control_statement: Organizations must enforce secret rotation on a defined schedule, set expiration policies for all secrets, and implement revocation procedures for compromised credentials to limit the useful lifetime of any individual secret.
-  objective: Limit the useful lifetime of any individual secret through enforced rotation and expiration, reducing the window of opportunity for credential-based attacks.
-  rationale: Secrets that are never rotated remain valid indefinitely, giving attackers unlimited time to exploit stolen credentials. Without expiration enforcement, accumulated secrets create an ever-growing attack surface. Enforced rotation and expiration ensure that even if a credential is compromised, it becomes invalid within a bounded time window.
-  scope: 'Applies to all secret types across all clusters: API keys, database credentials, TLS private keys, service account tokens, and cloud provider credentials. Covers rotation schedules, expiration policies, and revocation runbooks.'
-  primary_enforcement_point: External secrets management rotation policies and credential expiration enforcement in secret stores.
-  implementation_surface: External secrets manager rotation policies (Vault dynamic secret TTLs, AWS Secrets Manager rotation lambdas, GCP Secret Manager rotation schedules), credential expiration enforcement in secret stores, and incident response runbooks for credential revocation.
+  control_statement: Define and exercise renewal, effective expiry or an approved compensating lifecycle, and revocation for each governed credential class. Verify adoption by the consumer and rejection of retired credentials by the accepting authority.
+  objective: Bound the useful life of governed credentials and verify continuity and retirement across controlled replacement.
+  rationale: Kubernetes Secret objects deliver data. A changed Secret or provider schedule does not itself alter the credentials accepted by a separate service. Leased credentials, static passwords and keys, certificates and Kubernetes tokens have different expiry and revocation properties.
+  scope: Applies to governed credential identities and dependencies. Record trust relationship, issuer and verifier, supported effective lifetime or replacement window, applicable existing-session behavior and approved exceptions.
+  primary_enforcement_point: The credential issuer and accepting authority, with separately validated delivery, consumer adoption, retirement, and incident procedures.
+  implementation_surface: Record actual credential versions, authoritative validity, receiver behavior, delivery and reload. Exercise missed or failed rotation, scoped overlap, effective expiry or explicit retirement, legacy credential rejection and continued authorized access. Verify termination of existing sessions where required and tool support allows.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; Application Development
   baseline_or_ai_specific: baseline

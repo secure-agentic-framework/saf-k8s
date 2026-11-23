@@ -22,9 +22,9 @@ Governed external authenticator storage, distribution and scoped recipient ident
 
 - Domain: D04 - Identity, Access, and Secrets Management
 - Knowledge Area: 4.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-0403-005 - AI pipeline secret leakage prevention](../../controls/SAF-K8S-0403-005.md)

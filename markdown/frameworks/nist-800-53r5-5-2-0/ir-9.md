@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Responding when agents leak sensitive data
-
-4.3 - Secret leakage prevention; 9.7 - PII handling (information spillage response for AI training data)
+The exercised credential revocation process is an approved part of the actual information-spillage response procedure.
 
 ## SAF-K8S Controls
 
@@ -16,8 +14,8 @@ Responding when agents leak sensitive data
 - Domain: D04 - Identity, Access, and Secrets Management
 - Knowledge Area: 4.3
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
+- Strength: moderate
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-0403-005 - AI pipeline secret leakage prevention](../../controls/SAF-K8S-0403-005.md)
