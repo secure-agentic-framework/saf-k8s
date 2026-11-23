@@ -108,6 +108,12 @@
       "sha256": "aafa570f4a87f5fdb9d353e4ee2ca123f3cdd771c35d787bb787480673e7fb4a",
       "title": "etcd compaction and periodic defragmentation"
     },
+    "SAF-K8S-0102-018": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "5029eeace7bca39a9b11e183eb475e167af0661caaa03a19fa0ca1a04c2b2085",
+      "title": "etcd client and peer certificate authentication"
+    },
     "SAF-K8S-0102-020": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -1964,7 +1970,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "42bb3577b9a0c9ac68912b57cb38d04d84c8269a",
+  "revision": "3a512dab542fc20aa2367f701c3b997ff8697173",
   "sha256": "a98fe4604e6f03e5f1e6b5b7e0f661f80266a0a24c8fb79e000fd63231aac788",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
