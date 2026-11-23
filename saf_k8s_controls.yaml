@@ -3230,12 +3230,12 @@
   knowledge_area: '4.3'
   control_seq: '021'
   control_title: Automated AI workload credential inventory
-  control_statement: Organizations running AI workloads at scale must maintain an automated credential inventory tracking all active secrets, tokens, and keys issued to AI workloads.
-  objective: Provide continuous visibility into the active credential surface of AI workloads across platforms and secret types.
-  rationale: Inventorying issued credentials is a distinct obligation from cleaning up abandoned ones. This control isolates the requirement to continuously enumerate active workload credentials so teams can independently verify that the platform knows what credentials exist and where they are bound.
-  scope: Applies to all credentials issued to AI and ML workloads including Vault dynamic secrets, cloud IAM temporary credentials, Kubernetes service account tokens, API keys for external services, and model registry authentication tokens. Covers automated inventory collection and correlation to workload identity and ownership. Orphaned credential cleanup remains governed by SAF-K8S-0403-022.
-  primary_enforcement_point: Credential inventory system and credential-to-workload correlation records.
-  implementation_surface: Vault audit logs and lease inventory, cloud IAM credential reports, Kubernetes service account token tracking, model registry credential inventories, and pipeline orchestrator identity issuance records.
+  control_statement: Reconcile non-secret workload credential metadata for the owner-approved issuer inventory within a defined freshness objective. Mark unavailable, denied, stale or unsupported source coverage explicitly.
+  objective: Identify which governed workload credentials are issuer-valid, who owns them, and where active state cannot be verified.
+  rationale: Issuer records, leases, issuance events and workload binding declarations provide different views. Passing an inventory query supports only its registered source scope. Kubernetes projected credentials are not enumerated by listing long-lived Secret objects.
+  scope: Applies to registered workload credential issuers and managed projections across governed platforms and workloads. Record collection prerequisites, authority and ownership boundaries, and unmanaged or unsupported cases.
+  primary_enforcement_point: Scoped issuer collectors, stable identity reconciliation and freshness monitoring with protected inventory metadata.
+  implementation_surface: Register supported Kubernetes, Vault, identity-provider and external-service sources by credential type. Reconcile issuer and workload identity, scope and lifecycle metadata without storing credential values. Verify at defined intervals and expose incomplete, stale or uncollected sources separately from confirmed zero credentials.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; ML Engineering; Cloud Platform Engineering
   baseline_or_ai_specific: ai-specific
