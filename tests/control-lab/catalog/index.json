@@ -1056,6 +1056,12 @@
       "sha256": "4c735628e3a57d228255f35f20a0c0d89442a893e30a4754df6e35e18a9cc7b0",
       "title": "Third-party component security requirements documentation"
     },
+    "SAF-K8S-0604-008": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "f3e8340df07ef7f266fa1058320eb5d37e50a46d970b1b93436cfa9e87639e97",
+      "title": "AI workload vulnerability exposure classification"
+    },
     "SAF-K8S-0605-001": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2312,7 +2318,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "8d99de5dd2ec900e4d40c9ea7d8a0febf289c87b",
-  "sha256": "ca67b65c05a559cca6f50bec8739178ec488163ddeef64d4b9f3ec637611945b",
+  "revision": "0a4a5a2ce3ff51e2409c22c7fbb1ff8a1f3cfb31",
+  "sha256": "986ed382d6f1907988d9741e0fe0216503289aa1cb19e72954fc8c03a2fda2e9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

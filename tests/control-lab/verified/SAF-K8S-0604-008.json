@@ -1,0 +1,88 @@
+{
+  "control_id": "SAF-K8S-0604-008",
+  "catalog_revision": "8907fc3e0877bd10611d9e7ef12b8f475b902962",
+  "catalog_sha256": "986ed382d6f1907988d9741e0fe0216503289aa1cb19e72954fc8c03a2fda2e9",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "f3e8340df07ef7f266fa1058320eb5d37e50a46d970b1b93436cfa9e87639e97",
+  "scope": "A live Job, Deployment, Pods, Node and EndpointSlice are correlated with a reviewed fixture purpose record and fictional node and container inventories. A private in-cluster request reaches the actual inference fixture. GPU/driver presence and public reachability require separate evidence.",
+  "cluster": "saf-lab-8427d27a4f89",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Findings alone leave component locus and workload exposure unclassified",
+      "matched": true,
+      "observed": {
+        "before_context": [
+          "unknown",
+          "unknown"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Observed owner chains and reviewed fixture metadata distinguish the two workload contexts",
+      "matched": true,
+      "observed": {
+        "phases": [
+          "training",
+          "inference",
+          "unknown"
+        ],
+        "owner_and_runtime_observed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Exact node and runtime image identities govern fictional component classification",
+      "matched": true,
+      "observed": {
+        "correlated_node_record": "node-driver",
+        "correlated_container_record": "container-library",
+        "missing_record": "unknown",
+        "disagreeing_sources": "conflict",
+        "wrong_image_record": "conflict"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact inference fixture answers privately and public reachability remains unknown",
+      "matched": true,
+      "observed": {
+        "private_marker": true,
+        "correct_ready_backend": true,
+        "public_reachability": "unknown"
+      }
+    }
+  ]
+}
