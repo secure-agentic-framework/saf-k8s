@@ -1638,6 +1638,12 @@
       "sha256": "8ef335324e14d8c1643429edbb6b77530f1d3610f4a6221a9286e0145ca1847b",
       "title": "Admission validation of authorized GPU resource requests"
     },
+    "SAF-K8S-0801-012": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "46bffef107bfa8377b67aa7bc3dddf4254fa8dadf3ff8079cc75d45925b73279",
+      "title": "MPS and time-slicing workload eligibility and same-trust co-location enforcement"
+    },
     "SAF-K8S-0901-002": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -2540,7 +2546,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "58692ed6fb9f9c811463243babc74128a650b3b3",
-  "sha256": "cf2db2275a9b7ea3d44b06f8e0be3ca7ffdbcf938f0a22b15c114ed8477d3267",
+  "revision": "0dbab9df56e7a8d1e097305fc35c747d8b4021fb",
+  "sha256": "1f8d3a5649479bcd03aae073d450a673d30a2da2ad35c8d0f93385abf3176592",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
