@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-053",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "b2389cd8ad415fa08793398e76516191e8931c81",
+  "catalog_sha256": "9246a83494e93abb79f73876a57c184c94b68d2ab9366f66d0ea3595a5589eeb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "8472d25543014601cbcc9541cdec519fe5265d8da54d1e21438cdded1e6fbdd9",
   "scope": "A real UTC CronJob controller in disposable Kubernetes v1.36.1 schedules two review Jobs under a restricted ServiceAccount. Inert decisions model monthly revalidation. The Kubernetes object stores the updated allowlist and decision record in one update, with exact timestamps and CronJob owner evidence collected independently. The test uses a one-minute accelerated cadence and verifies a repeat run is idempotent. Actual organization review timing, source ownership and trust, audit retention and consumer rollout remain open.",
-  "cluster": "saf-lab-ae1d24ae5abb",
+  "cluster": "saf-lab-01065b2c4de3",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
