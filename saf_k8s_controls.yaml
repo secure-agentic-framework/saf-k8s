@@ -7270,12 +7270,12 @@
   knowledge_area: '7.4'
   control_seq: '020'
   control_title: Node-level cloud identity restriction for managed Kubernetes workloads
-  control_statement: Organizations must restrict node-level instance profiles or managed identities to node bootstrap and infrastructure operations and must prevent pods from relying on node-scoped cloud identities for workload API access.
-  objective: Eliminate node-scoped cloud credentials as a pod access path so a compromised workload cannot inherit broad cloud permissions intended only for the Kubernetes node or platform infrastructure.
-  rationale: Node-level instance profiles and managed identities create a broad blast radius when pods can obtain or rely on them for cloud API access. Restricting those identities to node operations only and requiring workload-scoped credentials narrows authorization scope and reduces credential reuse across co-located workloads.
-  scope: Applies to managed Kubernetes worker nodes and any node-level instance profiles or managed identities that could otherwise be used by pods. Covers permission restriction, node-role review, and validation that workload access uses workload-scoped identities instead.
-  primary_enforcement_point: Node-Scoped Cloud Identity Restriction
-  implementation_surface: Node instance profile or managed identity configuration, IAM permission scoping, node bootstrap role review, and validation that workloads do not use node-scoped identities for cloud API access.
+  control_statement: Limit each managed Kubernetes node identity to documented bootstrap, node and platform agent duties. Verify provider controls that restrict application access to node credentials. Grant application access through approved workload identities and govern necessary exceptions.
+  objective: Preserve needed node and platform functions while limiting shared node authority and verifying the identity used for application cloud operations.
+  rationale: Node IAM policy, credential endpoint reachability and workload identity authorization are separate protections. Their enforcement depends on provider, network mode and node or platform responsibilities. Verify retained permissions and approved exceptions independently.
+  scope: Applies to governed managed worker pools, node identities and associated provider grants, workload identities and alternate credential paths. Include required system components and explicitly approved exceptions.
+  primary_enforcement_point: Effective provider node identity permissions and credential isolation, with separate workload identity authorization.
+  implementation_surface: Inventory node duties, platform dependencies and workload requirements. Scope active provider grants and trust, verify credential paths and network modes, and observe actual node and workload authorization and attribution with scoped approved probes.
   owner_primary: Cloud Platform Engineering
   owner_supporting: Platform Engineering; Security Engineering
   baseline_or_ai_specific: baseline
