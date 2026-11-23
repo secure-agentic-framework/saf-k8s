@@ -5790,12 +5790,12 @@
   knowledge_area: '6.6'
   control_seq: 019
   control_title: Helm chart provenance and signature verification
-  control_statement: Helm charts used for Kubernetes deployments must have verified provenance and validated signatures before installation or reconciliation, and externally sourced charts must be accepted only from approved repositories after authenticity validation.
-  objective: Prevent deployment of tampered or spoofed Helm charts by requiring provenance and signature verification before charts are installed or reconciled.
-  rationale: A Helm chart can fully define privileged Kubernetes resources, hooks, and dependent sub-charts. If teams install charts without verifying provenance and signatures, an attacker can substitute a malicious chart or repository source and obtain execution inside the cluster. Independent provenance validation is therefore a distinct control from dependency governance or values-hardening.
-  scope: Applies to Helm charts used in staging and production Kubernetes environments, including charts for AI platforms, operators, and application workloads. Covers internal and external chart sources.
-  primary_enforcement_point: Helm chart verification step in CI/CD and GitOps reconciliation before installation.
-  implementation_surface: Helm provenance files (.prov), helm verify execution, chart signature validation in CI/CD or GitOps workflows, and repository acceptance controls for external charts prior to use.
+  control_statement: Authorize the exact Helm chart artifact and signer before every governed install or reconciliation. Require successful verification using the deployed tool and approved source and identity policy. Fail closed when the required artifact or verification evidence is missing, mismatched, or signed by an unapproved identity.
+  objective: Prevent unapproved Helm packages and chart manifests from entering the governed deployment path.
+  rationale: Package integrity and signer authorization are separate requirements. A native Helm provenance record authenticates a package checksum against the configured OpenPGP key ring. OCI manifest signing and verification can use a separate mechanism with a different subject and identity policy.
+  scope: Applies to approved staging and production Helm chart deployment paths, including internal and external charts. Verify each chart transport and reconciliation tool in use.
+  primary_enforcement_point: The approved CI or reconciliation path before rendering and deployment of the selected chart artifact.
+  implementation_surface: For packaged chart provenance, run native Helm verification with a governed public key ring and the matching .prov record. An OCI registry can carry Helm provenance as a chart layer; verify that the deployed Helm or controller supports the chosen flow. If using OCI artifact signatures, verify the exact manifest digest and expected signer with the selected verifier. Enforce approved source and identity allowlists, trusted key lifecycle and fail-closed behavior at the installation boundary.
   owner_primary: DevSecOps / Release Engineering
   owner_supporting: Platform Engineering; Security Engineering
   baseline_or_ai_specific: baseline
