@@ -5490,12 +5490,12 @@
   knowledge_area: '6.4'
   control_seq: '014'
   control_title: Source-to-artifact integrity linkage for built images
-  control_statement: Build pipelines must maintain source-to-artifact integrity links tying each deployed image to its exact source commit, dependency lock files, and build configuration.
-  objective: Preserve an auditable chain from source and dependency state to the produced artifact so investigators and reviewers can prove exactly what produced each deployed image.
-  rationale: Hermetic builds and pinned inputs reduce tampering opportunities, but organizations still need a durable linkage from source state and build configuration to the resulting artifact digest. Source-to-artifact integrity records provide that traceability and make downstream review reproducible.
+  control_statement: Record and verify a durable link between the exact deployed OCI artifact and its approved source revision, resolved dependency integrity records and applied build configuration. Capture authenticated build evidence for the exact subject and verify it at release or admission.
+  objective: Enable reviewers to trace a deployed manifest or index to the authenticated recorded inputs, invocation and build platform.
+  rationale: A source reference or image label records a claim. Verify the approved source snapshot, consumed lock and configuration and exact output with authenticated provenance and a trusted builder. Independently corroborate the authenticity of build claims and any reproducibility assertion.
   scope: Applies to all CI/CD pipelines producing deployable Kubernetes artifacts, including application images, AI workload images, and infrastructure operator images.
-  primary_enforcement_point: Build provenance capture and artifact metadata binding at image production time.
-  implementation_surface: Source commit capture, dependency lock file references, build configuration records, and integrity metadata linking those inputs to produced image digests or equivalent artifact identifiers.
+  primary_enforcement_point: Build provenance capture, producer authentication and downstream verification of the exact OCI subject and approved input evidence.
+  implementation_surface: Record the canonical source repository and immutable revision or archive hash, expected dependency and configuration digests, applied build parameters and identity. Verify the provenance signature and subject, enforce matching expectations, and retain the immutable evidence across promotion and rollout. Verify reproducibility independently by comparing rebuilt outputs.
   owner_primary: DevSecOps / Release Engineering
   owner_supporting: Security Engineering; Platform Engineering
   baseline_or_ai_specific: baseline
