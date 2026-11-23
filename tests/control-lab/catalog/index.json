@@ -2796,6 +2796,12 @@
       "sha256": "6a619eae2b1dca1574c495f3e550f68ab85c51ea2be2732ac25702dde71ef659",
       "title": "Inference privacy budget tracking and threshold enforcement"
     },
+    "SAF-K8S-0909-006": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "5487b62ecd7e7c3558d508cd31452ff835470db576ec8dc9a315a1ac9ac2405d",
+      "title": "Vector index lifecycle management"
+    },
     "SAF-K8S-0910-029": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3278,7 +3284,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c53a52820463656ab5b515078eb8a5c8032af134",
-  "sha256": "a61a9e3b12da078990d7c5db1e5b911f48acf4f44d811672f88482cc49fe64fe",
+  "revision": "8a9d13b14b3bbab758676ecb357b2d17963d3645",
+  "sha256": "a99449eff779078174574b1a634fe89a77a5d7c065c5ba26c22174f05edb54e4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
