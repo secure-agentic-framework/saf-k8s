@@ -486,6 +486,12 @@
       "sha256": "5e353d4fbbb211e49e927179400a96900623e53c9264e4bbdfb4a4c79c819856",
       "title": "Workload identity replacement for cloud API access"
     },
+    "SAF-K8S-0203-010": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "2dfa59f95fc7fdb2eb2ee0a64ff97c9eb1f8f217f0b0691385afcde46097c928",
+      "title": "Minimal purpose-built node OS baseline"
+    },
     "SAF-K8S-0203-016": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -2834,7 +2840,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "1bd6189246d4f266633cdc0d493019e1d0d3e607",
-  "sha256": "32b70923f43dc58d7939cdb50afca687f2a37f5f1bc0d41c90c831c8f7a97fe0",
+  "revision": "0450f33de022a6a80214af589bd53a7538961858",
+  "sha256": "f50b1b6337d5e3e6140b2e9fde445c6e281fbc6e52d55faba11456395acf9f1f",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -1,0 +1,72 @@
+{
+  "control_id": "SAF-K8S-0203-010",
+  "catalog_revision": "caee2067b1642a67cc0be2ac0f3695c7d532cea4",
+  "catalog_sha256": "f50b1b6337d5e3e6140b2e9fde445c6e281fbc6e52d55faba11456395acf9f1f",
+  "node_image": "sha256:9f93191d4452f58ca7a8e15d26275a03ebc8739fc8c46d9e16d8b054f4762d9f",
+  "control_sha256": "2dfa59f95fc7fdb2eb2ee0a64ff97c9eb1f8f217f0b0691385afcde46097c928",
+  "scope": "Compare the pinned stock Kind image to a test-owned variant without APT, then run a fresh Kubernetes workload on the variant.",
+  "cluster": "saf-lab-ff68b2b2e7d3",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The source node image includes the selected package manager",
+      "matched": true,
+      "observed": {
+        "stock_image_apt_present": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The effective node image removes the named package without changing the other package versions",
+      "matched": true,
+      "observed": {
+        "selected_package_absent": true,
+        "removed": [
+          "apt"
+        ],
+        "added": [],
+        "changed_versions": []
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The reduced node retains the required runtime and executes a fresh Kubernetes workload",
+      "matched": true,
+      "observed": {
+        "required_services_active": true,
+        "fresh_workload_completed": true
+      }
+    }
+  ]
+}
