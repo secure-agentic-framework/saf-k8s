@@ -1,0 +1,70 @@
+{
+  "control_id": "SAF-K8S-0801-010",
+  "catalog_revision": "31414185ec1e6481aec2f04a599d3258a5221d39",
+  "catalog_sha256": "cf2db2275a9b7ea3d44b06f8e0be3ca7ffdbcf938f0a22b15c114ed8477d3267",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "8ef335324e14d8c1643429edbb6b77530f1d3610f4a6221a9286e0145ca1847b",
+  "scope": "Live Kubernetes Pod admission and namespace quota for a synthetic extended accelerator resource.",
+  "cluster": "saf-lab-688045c5d62e",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The ordinary user can submit the synthetic request before admission enforcement",
+      "matched": true,
+      "observed": {
+        "ordinary_request_admitted_before_policy": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission rejects the unauthorized application and init-container requests and an unapproved profile",
+      "matched": true,
+      "observed": {
+        "ordinary_request_rejected": true,
+        "init_request_rejected": true,
+        "unapproved_profile_rejected": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The allowed synthetic workload runs, the namespace quota rejects a second unit, and ordinary CPU admission works",
+      "matched": true,
+      "observed": {
+        "allowed_workload_scheduled": true,
+        "extra_unit_denied_by_quota": true,
+        "ordinary_cpu_admitted": true
+      }
+    }
+  ]
+}

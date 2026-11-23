@@ -1632,6 +1632,12 @@
       "sha256": "65f395d30a7c9a6a36b2296a65f0982ab2da20c55b33e38aaef6b180df4eba6b",
       "title": "Restrict access to published accelerator inventory and topology metadata"
     },
+    "SAF-K8S-0801-010": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "8ef335324e14d8c1643429edbb6b77530f1d3610f4a6221a9286e0145ca1847b",
+      "title": "Admission validation of authorized GPU resource requests"
+    },
     "SAF-K8S-0901-002": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -2534,7 +2540,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "1b1a97209772c41785dfc3185d3d541b3b48cfb6",
-  "sha256": "300933c68e2acb80c1c94e800247097c258be0ba48e83f9375466c8b85fb0079",
+  "revision": "58692ed6fb9f9c811463243babc74128a650b3b3",
+  "sha256": "cf2db2275a9b7ea3d44b06f8e0be3ca7ffdbcf938f0a22b15c114ed8477d3267",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
