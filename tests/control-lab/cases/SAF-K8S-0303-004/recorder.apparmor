@@ -1,0 +1,5 @@
+profile saf_record_boundary flags=(attach_disconnected) {
+    /bin/busybox mr,
+    /bin/busybox ix,
+    /dev/console rw,
+}

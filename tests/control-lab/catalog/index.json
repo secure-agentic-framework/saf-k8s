@@ -678,6 +678,12 @@
       "sha256": "c31e6c194d122e6d94547e6a0e45b1d7e3b499e23eee3f00c2ec80163837c05e",
       "title": "SELinux context assignment and multi-tenancy isolation"
     },
+    "SAF-K8S-0303-004": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "143af459cf476bb64f1b07b4406d2c3e928b25be637bc077f5c4a00ec268efcd",
+      "title": "MAC profile generation from runtime behavior"
+    },
     "SAF-K8S-0303-005": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -2972,7 +2978,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "4124141d434340915d5fd692ea8ce0a623883835",
-  "sha256": "9a0cefb430f7e0a590144d651a38f2510ced056096cd8932059e927fe69c107e",
+  "revision": "ced92dfc7c44c5dd9a1217fbd4a6879b08d51ce3",
+  "sha256": "6a21ded49bbe077acd0b2be81bd60f13cc04410d298f4470477174b42118c1d4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
