@@ -570,6 +570,12 @@
       "sha256": "84c5b2699575fda21d247ff07c53558d1ddf7f90a2bd365a3873938dc687776e",
       "title": "eBPF program integrity verification and loading monitoring"
     },
+    "SAF-K8S-0205-007": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "c4c405b2ec95bed523fe30c838503ae7008b9e7214fb3f443ad360d52bc2732f",
+      "title": "Node firewall compatibility validation with CNI and network policy"
+    },
     "SAF-K8S-0301-001": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -2912,7 +2918,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "4f6f90386e6b01f366ad77ae8413a4c1dffe14f8",
-  "sha256": "c9fdb66f7804a743147280c03ef7e8708ea3cb698ef29cf9f66c051c62128ea2",
+  "revision": "73e52d491832f14f0e924e9ceb180aa08d64539e",
+  "sha256": "62da6271ae8faae1044840367623931af1b76f4807215b4de476d871a0f8ab26",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

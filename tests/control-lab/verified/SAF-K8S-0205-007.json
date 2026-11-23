@@ -1,0 +1,87 @@
+{
+  "control_id": "SAF-K8S-0205-007",
+  "catalog_revision": "c5a6bc9ba59a79081d0640532d690b472fdcc234",
+  "catalog_sha256": "62da6271ae8faae1044840367623931af1b76f4807215b4de476d871a0f8ab26",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "c4c405b2ec95bed523fe30c838503ae7008b9e7214fb3f443ad360d52bc2732f",
+  "scope": "Owned cross-node Kind IPv4 Pod traffic with kindnet policy and a case-only nftables forward table.",
+  "cluster": "saf-lab-1054e1aeda97",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "All three cross-node fixture paths reach the marker before either control is applied",
+      "matched": true,
+      "observed": {
+        "fixture-firewall-allowed": "owned-firewall-marker",
+        "fixture-firewall-filtered": "owned-firewall-marker",
+        "fixture-policy-filtered": "owned-firewall-marker"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The node counter attributes its selected drop and NetworkPolicy denies the additional source",
+      "matched": true,
+      "observed": {
+        "node_firewall_counter_increased": true,
+        "node_only": {
+          "fixture-firewall-allowed": "owned-firewall-marker",
+          "fixture-firewall-filtered": "no-marker",
+          "fixture-policy-filtered": "owned-firewall-marker"
+        },
+        "combined": {
+          "fixture-firewall-allowed": "owned-firewall-marker",
+          "fixture-firewall-filtered": "no-marker",
+          "fixture-policy-filtered": "no-marker"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Removing each test control restores only its affected paths and keeps the approved path available",
+      "matched": true,
+      "observed": {
+        "policy_removed": {
+          "fixture-firewall-allowed": "owned-firewall-marker",
+          "fixture-firewall-filtered": "no-marker",
+          "fixture-policy-filtered": "owned-firewall-marker"
+        },
+        "rules_removed": {
+          "fixture-firewall-allowed": "owned-firewall-marker",
+          "fixture-firewall-filtered": "owned-firewall-marker",
+          "fixture-policy-filtered": "owned-firewall-marker"
+        }
+      }
+    }
+  ]
+}
