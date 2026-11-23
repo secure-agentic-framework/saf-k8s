@@ -1,0 +1,122 @@
+"""Defensive synthetic dataset-integrity Kind fixture; harness entry point run(lab)."""
+import importlib.util
+import json
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+SIBLING = HERE.parent / "SAF-K8S-0908-001" / "case.py"
+NS = "saf-test"
+APP = "dataset-integrity-fixture"
+PVC = "dataset-integrity-data"
+CODE = "dataset-integrity-code"
+MANIFEST = "dataset-integrity-manifest"
+
+SCOPE = (
+    "A local Kind lab streams four fixed synthetic 4 KiB partitions in 257-byte chunks, "
+    "compares inventory, lengths, SHA-256 digests and a Merkle root to an immutable trusted "
+    "manifest, denies deterministic changed or missing content, and accepts the explicitly "
+    "named approved synthetic dataset. Hashing uses at most two workers and emits only a "
+    "bounded sanitized summary. This is representative control wiring only; it does not "
+    "establish production storage durability, integrity provenance, scale, throughput, "
+    "latency, or deployment security."
+)
+
+
+def _load_module(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Cannot load required case module: {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_runtime(lab):
+    """Import the actual adjacent published helper and use its runtime setup."""
+    if not SIBLING.is_file():
+        lab.block("Required adjacent SAF-K8S-0908-001/case.py is unavailable")
+    helper = _load_module("saf_k8s_0908_001_case", SIBLING)
+    return helper.load_runtime(lab)
+
+
+def _create(lab, kind, name, api="v1", **fields):
+    return lab.create({
+        "apiVersion": api,
+        "kind": kind,
+        "metadata": {"name": name, "namespace": NS},
+        **fields,
+    })
+
+
+def run(lab):
+    """Create one bounded PVC consumer and record deterministic lab assertions."""
+    image = load_runtime(lab)
+    _create(lab, "ConfigMap", CODE, immutable=True,
+            data={"dataset_fixture.py": (HERE / "dataset_fixture.py").read_text(encoding="utf-8")})
+    _create(lab, "ConfigMap", MANIFEST, immutable=True,
+            data={"manifest.json": (HERE / "manifest.json").read_text(encoding="utf-8")})
+    _create(lab, "PersistentVolumeClaim", PVC, spec={
+        "accessModes": ["ReadWriteOnce"],
+        "resources": {"requests": {"storage": "64Mi"}},
+    })
+    # The consumer is created before any wait so WaitForFirstConsumer storage can bind.
+    _create(lab, "Pod", APP, spec={
+        "restartPolicy": "Never",
+        "automountServiceAccountToken": False,
+        "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
+                            "fsGroup": 65534, "fsGroupChangePolicy": "OnRootMismatch",
+                            "seccompProfile": {"type": "RuntimeDefault"}},
+        "containers": [{
+            "name": "fixture",
+            "image": image,
+            "imagePullPolicy": "Never",
+            "command": ["python", "/fixture/dataset_fixture.py", "/data/segments", "/manifest/manifest.json"],
+            "env": [{"name": "PYTHONDONTWRITEBYTECODE", "value": "1"}],
+            "volumeMounts": [
+                {"name": "code", "mountPath": "/fixture", "readOnly": True},
+                {"name": "manifest", "mountPath": "/manifest", "readOnly": True},
+                {"name": "dataset", "mountPath": "/data"},
+            ],
+            "resources": {"requests": {"cpu": "10m", "memory": "32Mi"},
+                          "limits": {"cpu": "200m", "memory": "96Mi"}},
+            "securityContext": {"allowPrivilegeEscalation": False,
+                                "readOnlyRootFilesystem": True,
+                                "capabilities": {"drop": ["ALL"]}},
+        }],
+        "volumes": [
+            {"name": "code", "configMap": {"name": CODE}},
+            {"name": "manifest", "configMap": {"name": MANIFEST}},
+            {"name": "dataset", "persistentVolumeClaim": {"claimName": PVC}},
+        ],
+    })
+    lab.kubectl("-n", NS, "wait", "--for=jsonpath={.status.phase}=Succeeded",
+                f"pod/{APP}", "--timeout=95s", timeout=105)
+    raw = lab.kubectl("-n", NS, "logs", f"pod/{APP}").stdout.strip()
+    observations = json.loads(raw.splitlines()[-1])
+
+    red = observations["red"]
+    lab.check("red", "Baseline accepts deterministic altered synthetic partition; governed verifier denies it",
+              red == {"baseline_accepted_deterministic_change": True,
+                      "baseline_partition_count": 4, "governed_denied_change": True}, red)
+
+    missing = observations["missing"]
+    lab.check("green", "Governed verifier denies a missing partition and a mismatched Merkle root",
+              missing == {"governed_denied_missing_partition": True,
+                          "governed_denied_wrong_root": True,
+                          "reason": "inventory_or_dataset_id"}, missing)
+
+    positive = observations["positive"]
+    expected_positive = {
+        "approved_dataset_id": "synthetic-approved-v1",
+        "approved_dataset_accepted": True,
+        "partition_count": 4,
+        "max_parallel_workers": 2,
+        "bounded_output_partitions": 4,
+        "stream_chunk_bytes": 257,
+        "merkle_root": "b7c253078bb623fdab4352f577115c434eb1fef43622e5f925623d845f80f94b",
+    }
+    lab.check("positive", "Explicit approved dataset streams and verifies with bounded parallel output",
+              positive == expected_positive, positive)
+    (lab.evidence / "dataset-integrity-observations.json").write_text(
+        json.dumps(observations, sort_keys=True, indent=2) + "\n"
+    )

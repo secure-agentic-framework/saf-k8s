@@ -1,0 +1,24 @@
+{
+  "algorithm": "sha256",
+  "dataset_id": "synthetic-approved-v1",
+  "merkle_root": "b7c253078bb623fdab4352f577115c434eb1fef43622e5f925623d845f80f94b",
+  "partition_count": 4,
+  "partitions": {
+    "part-00.bin": {
+      "sha256": "6896d9ea3f73a4434f5832bc65714e7d066f177373f36f34dc8a6f735daa41b1",
+      "size": 4096
+    },
+    "part-01.bin": {
+      "sha256": "725bcd6c66d02acf6ebeab9c92410e010ea22e336876256aaf05a211f4ce1902",
+      "size": 4096
+    },
+    "part-02.bin": {
+      "sha256": "b23f99e1f653e62fa5bc14cc528a9ec3b6d11be482b2ee51b519d1d6ad8c5466",
+      "size": 4096
+    },
+    "part-03.bin": {
+      "sha256": "267e5d2bb42138bdf23ccb5fbdea09385169de4c686f7c12034ccd7bb0c6899d",
+      "size": 4096
+    }
+  }
+}

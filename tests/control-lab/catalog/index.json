@@ -2742,6 +2742,12 @@
       "sha256": "ad8a8f0fc5c3588caf080dbdec127cc1578fe8295dd2e0dfb9fe437eb5d92058",
       "title": "External-origin annotation and internal registry enrollment for approved external models"
     },
+    "SAF-K8S-0906-002": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "fffde1c88876a23a32bd81aa6aa2d39f27591879f5bbd918f3e924d01c1e54db",
+      "title": "Large-scale data integrity verification"
+    },
     "SAF-K8S-0907-004": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3350,7 +3356,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "e1e1f45920e263a92c1cf38a4d204099a8d06016",
-  "sha256": "f35e09cb17fa5da47d64090d1f1dc490e6820728d7e53aa301b10a36c2077955",
+  "revision": "6347f77dfe54be45546a105b33d20d0501f79868",
+  "sha256": "deae6983a7f768a55f82f1f7cfe506da1b8daa06d9aec89bf21345e82d37a993",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
