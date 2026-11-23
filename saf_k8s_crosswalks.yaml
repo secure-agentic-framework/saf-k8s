@@ -76926,13 +76926,16 @@
   framework_version: '1.1'
   framework_requirement_id: PW.4.1
   framework_requirement_title: Acquire and maintain well-secured software components from commercial, open-source, and other third-party developers.
-  framework_mapping_notes: 'SAF-K8S enforces vetting of third-party components at admission: image vulnerability scanning, signature verification, public model quarantine workflows, and approved source allowlists.'
+  framework_mapping_notes: >-
+    A curated list of approved model sources supports selection and provenance review
+    for external models used as software components. PW.4.1 additionally covers
+    evaluation, acquisition and maintenance of the components themselves.
   control_id: SAF-K8S-0905-052
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: null
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
