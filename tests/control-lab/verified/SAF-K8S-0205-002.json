@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0205-002",
-  "catalog_revision": "e537b98e3f2f84f40f5883e72a8397fefedc2b7e",
-  "catalog_sha256": "b51e20f32aa6f35275beab6647f00f0aa0b0ffb7c6dc2841d6af53f3d8885108",
+  "catalog_revision": "8c85ddfdaedae582ce9fc2b3d264ecdee62b3271",
+  "catalog_sha256": "cac977a792918cc74529e45763d49762ab692c539b68b58bdd492755569553e6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "01be03c8b64a911475ce3664a60a8030c677a19c3e27e7cf75352716e20659ba",
   "scope": "Test real Pod Security Admission and Service ValidatingAdmissionPolicy on inert server-side dry-runs.",
-  "cluster": "saf-lab-b75c0ccd7e95",
+  "cluster": "saf-lab-03a5573b25ca",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
