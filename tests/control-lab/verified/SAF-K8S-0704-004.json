@@ -1,0 +1,81 @@
+{
+  "control_id": "SAF-K8S-0704-004",
+  "catalog_revision": "ce71c8e6ace0ad6237b9569b4e9aac1752c618fd",
+  "catalog_sha256": "3e0c905e6f556138005103b7fbb0af33d934bf75bea38a6fba4b702212ce9ead",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "04af032f032b1732427fb233b86fc0dc0eb980a408e3265da44d1bad3e9bb5e8",
+  "scope": "Read synthetic inventory records and exercise session-required access to a case-owned public marker.",
+  "cluster": "saf-lab-963028ccc34f",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Without the fixture session requirement the owned public marker is returned",
+      "matched": true,
+      "observed": {
+        "optional_marker_visible": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The session-required fixture rejects missing and expired sessions",
+      "matched": true,
+      "observed": {
+        "missing_status": 401,
+        "expired_status": 401
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The evidence gate separates effective settings, drift, endpoint disabled and incomplete observations",
+      "matched": true,
+      "observed": {
+        "invented_inventory_classification": {
+          "approved-current": "session-required",
+          "declared-only": "unverified",
+          "drifted-current": "session-not-required",
+          "pending-change": "unverified",
+          "disabled-endpoint": "no-endpoint"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The live fixture returns the marker during its issued session",
+      "matched": true,
+      "observed": {
+        "in_session_public_marker": true
+      }
+    }
+  ]
+}
