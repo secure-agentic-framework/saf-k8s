@@ -3730,12 +3730,12 @@
   knowledge_area: '4.5'
   control_seq: '017'
   control_title: Credential policy baseline requirements
-  control_statement: Organizations must enforce credential policy baseline requirements including credential complexity standards for Kubernetes cluster and AI infrastructure authentication pathways.
-  objective: Ensure authentication credentials meet baseline strength requirements so weak credentials do not become an initial access path into the cluster.
-  rationale: Credential policy requirements are independently auditable from the secure storage and lifecycle handling of those credentials. This control isolates the baseline policy claim so teams can verify that credential strength requirements are actually enforced in the identity systems used for cluster and AI infrastructure access.
-  scope: Applies to authentication pathways for Kubernetes clusters, OIDC integrations, and cloud provider IAM integrations that rely on managed credentials. Covers credential complexity and baseline policy requirements. Secure storage and lifecycle handling remain governed by SAF-K8S-0405-018.
-  primary_enforcement_point: Credential policy controls in identity providers and authentication systems.
-  implementation_surface: Credential complexity and baseline policy settings in OIDC providers, cloud IAM, and cluster authentication systems.
+  control_statement: Define and verify the applicable human password policy at each actual password verifier used for governed Kubernetes or AI infrastructure access. Identify the governing standard and separately verify credential class requirements for paths that do not use passwords.
+  objective: Require appropriate password selection and verifier safeguards with evidence of effective enforcement on each governed human password path.
+  rationale: Password policy is enforced by the actual verifier, which may be upstream of a federated Kubernetes or cloud access path. Password length, common and compromised value checks and failed-attempt protection are distinct from storage, authenticator lifecycle and multifactor requirements.
+  scope: Applies to governed human password verifiers and their integration paths. Inventory the accountable verifier, applicable policy and covered subjects. Evaluate non-password tokens, certificates and workload credentials under applicable mechanism-specific controls. See SAF-K8S-0405-018 for managed credential storage and lifecycle.
+  primary_enforcement_point: Effective human password policy at the accountable identity provider or other covered verifier.
+  implementation_surface: Verify the governing rules and observed acceptance and rejection of candidate password changes at the proper verifier. Where NIST SP 800-63B-4 applies, verify password minimum length, an approved blocklist and required effective rate limiting, without imposing character-class composition requirements. Verify actual policy coverage or provider-specific exceptions separately.
   owner_primary: Identity and Access Management
   owner_supporting: Platform Engineering; Security Engineering
   baseline_or_ai_specific: baseline
