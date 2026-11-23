@@ -525,7 +525,7 @@
     "SAF-K8S-0203-016": {
       "catalog_status": "draft",
       "domain": "D02",
-      "sha256": "80d9be0e7c4fdd3da8e46cdbb878f0528a955ce21e13a21185504dc3bff192e2",
+      "sha256": "6b621e1689c6dc99011a15fb0df87b32a69d478eb8915162ad86c0abd2870437",
       "title": "Node time synchronization with authoritative time sources"
     },
     "SAF-K8S-0301-001": {
@@ -2870,7 +2870,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "909df2d6e846baf82a087b285c739d7cde6965db",
-  "sha256": "e52f44e87736aa764cfbff8a606c243fd4005a599e06b67feba3639994faa7d8",
+  "revision": "22d06b64a111093e1ec55a016f70c375c6f76da9",
+  "sha256": "259c7be1471c1b80adc09a664c9e5fb92efdf70e11f6605cab766dc4b0be0810",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
