@@ -770,12 +770,12 @@
   knowledge_area: '1.3'
   control_seq: '015'
   control_title: Scheduler extender authentication and custom scheduler approval
-  control_statement: Production Kubernetes clusters must require authentication and authorization for all scheduler extenders and webhook endpoints, and must permit custom schedulers only after security review and approval.
-  objective: Prevent unauthorized or untrusted scheduler extensions from influencing workload placement decisions without authenticated integration and explicit governance.
-  rationale: Unauthenticated scheduler extenders allow external parties to influence placement decisions, while unreviewed custom schedulers can bypass security-aware scheduling constraints entirely. Requiring authenticated extender integration and explicit approval for custom schedulers preserves trust in placement decisions while still allowing platform-specific scheduling extensions.
-  scope: Applies to all production clusters. Covers scheduler extender webhook endpoints, extender TLS and auth configuration, and governance for custom scheduler deployments including third-party GPU-oriented schedulers.
-  primary_enforcement_point: Scheduler extension authentication and governance
-  implementation_surface: Scheduler extender webhook TLS and authentication configuration, admission or deployment approval records for custom schedulers, and periodic review of deployed scheduler extensions.
+  control_statement: Require encrypted scheduler extender transport with verified server identity, authenticated scheduler identity and effective caller authorization. Approve custom schedulers and enforce approved Pod scheduler names at the applicable admission and deployment boundaries.
+  objective: Keep scheduler extension decisions and custom scheduler use within reviewed and authorized integration boundaries.
+  rationale: Transport trust, caller authorization, Kubernetes API access and organizer approval apply at distinct points. Scheduler extender configuration can supply client and server trust settings while endpoint policy must enforce the actual caller boundary.
+  scope: Applies to governed scheduler extender endpoints and alternate schedulers. Inventory endpoints, versioned configuration, identities, applicable controller RBAC, approved scheduler inventory and applicable admission paths.
+  primary_enforcement_point: Effective extender caller and server trust, endpoint authorization, least-privilege API roles and enforced scheduler approval.
+  implementation_surface: Verify TLS trust and authenticated scheduler calls against owned expected routes, endpoint authorization, and evidence of approved Pod placement. Check rejection of unapproved scheduler references and periodically review deployed ownership and integration.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Application Platform teams
   baseline_or_ai_specific: baseline
