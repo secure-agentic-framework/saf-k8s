@@ -6870,12 +6870,12 @@
   knowledge_area: '7.3'
   control_seq: '16'
   control_title: AI workload PriorityClass hierarchy and preemption protection
-  control_statement: Organizations must define PriorityClass objects for system-critical, production inference, training, and development AI workload tiers, and must configure preemption policies that preserve inference availability by preventing lower-value or lower-priority workloads from displacing protected serving capacity.
-  objective: Ensure that production inference workloads maintain availability during resource contention by establishing explicit AI workload priority tiers with preemption protection.
-  rationale: Without defined priority tiers, Kubernetes may treat latency-sensitive inference, batch training, and development notebooks as equivalent competitors for scarce GPU capacity. Without explicit preemption behavior, lower-value workloads can crowd out or displace protected inference services during saturation, degrading production availability and creating avoidable service interruptions.
-  scope: Applies to all Kubernetes clusters with GPU resources or dedicated AI workloads. PriorityClass definitions must cover at minimum system-critical, inference-production, training-default, and development-low tiers. Single-tenant dedicated clusters may use simplified hierarchies with documented justification.
-  primary_enforcement_point: PriorityClass objects and preemptionPolicy settings applied to AI workload tiers.
-  implementation_surface: PriorityClass objects (scheduling.k8s.io/v1) with tiered value hierarchy and preemptionPolicy configuration (PreemptLowerPriority, Never) protecting inference and cluster-critical workloads from lower-priority displacement.
+  control_statement: Define and govern PriorityClasses for the applicable workload tiers. Select the allowed preemption behavior for each tier. A higher-priority Pod with PreemptLowerPriority may preempt eligible lower-priority Pods when it makes scheduling feasible. A Pod with Never cannot initiate preemption and remains eligible to be preempted by a higher-priority Pod.
+  objective: Make scheduling priority and preemption decisions explicit and separately verify the controls needed for inference availability.
+  rationale: Priority orders eligible pending work and can make lower-priority Pods eligible for preemption. PodDisruptionBudget consideration during preemption is best effort. Availability also depends on reserved or available capacity, placement, admission controls, replicas and recovery.
+  scope: Applies to governed scheduling tiers for inference, training, development and any protected platform workloads. Validate actual GPU admission and availability on the applicable accelerator-backed deployment.
+  primary_enforcement_point: PriorityClass definitions, Pod admission and scheduling policy, with separate serving continuity controls.
+  implementation_surface: Document approved numeric priorities and preemption behavior for each tier. Verify actual scheduler decisions under representative contention and enforce who may use each tier. Protect the serving capacity objective with the identified topology, capacity and disruption controls, and collect operating and recovery evidence separately.
   owner_primary: Platform Engineering
   owner_supporting: ML Engineering; FinOps
   baseline_or_ai_specific: ai-specific
