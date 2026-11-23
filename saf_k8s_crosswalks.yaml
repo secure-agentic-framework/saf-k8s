@@ -52721,16 +52721,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-24
   framework_requirement_title: Fail in Known State
-  framework_mapping_notes: 'Agents must fail to a known secure state preserving audit data and revoking permissions
-
-
-    9.3 - Circuit breakers, graceful degradation (fail in known state); 6.5 - Webhook Fail mode'
+  framework_mapping_notes: Context and generation limits can support SC-24 where declared resource-exhaustion failures enter an organization-defined bounded state and the required system-state information is preserved during those failures.
   control_id: SAF-K8S-0903-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The organization designates covered inference failures and a bounded response state implemented by the token or cache controls and verifies preservation of the selected state information.
+  strength_reason_code: implementation-specific
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
