@@ -1,0 +1,68 @@
+{
+  "control_id": "SAF-K8S-0205-011",
+  "catalog_revision": "f5421f4c1486c9670ad7b6f0646916dac56e0f9d",
+  "catalog_sha256": "b60195d011d50e358480b104bd8e0945a096455fd30def7e5d16f1de3357a086",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "2890ced46167af45bfdebc8ab576f08474b5ddb3185b5f60b6f17867594706e4",
+  "scope": "Read-only comparison of a case-owned detached nftables table in one Kind node against immutable approval records.",
+  "cluster": "saf-lab-2de49c6f656f",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A changed live rule is detected against the immutable approved snapshot",
+      "matched": true,
+      "observed": {
+        "unapproved_rule_detected": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The observed drift cannot silently replace the stored approved digest",
+      "matched": true,
+      "observed": {
+        "approved_snapshot_immutable": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A checked rule change records the new exact snapshot and rollback reconciles to the first approval",
+      "matched": true,
+      "observed": {
+        "check_did_not_apply": true,
+        "new_approved_state_reconciles": true,
+        "rollback_matches": true
+      }
+    }
+  ]
+}

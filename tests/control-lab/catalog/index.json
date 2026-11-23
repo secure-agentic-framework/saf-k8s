@@ -594,6 +594,12 @@
       "sha256": "42e53ce971f1c38cf6ed646605d90cfadb66da6e9ab1f08894b2a9745618c818",
       "title": "Node-level firewall rule restriction for cluster communication"
     },
+    "SAF-K8S-0205-011": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "2890ced46167af45bfdebc8ab576f08474b5ddb3185b5f60b6f17867594706e4",
+      "title": "Node firewall audit and change governance"
+    },
     "SAF-K8S-0301-001": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -2936,7 +2942,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "9585cd5149825ab3c26e683d90214fafdcdddaa9",
-  "sha256": "9b155f5e921ceec7fe41aea293edea67673217846b3df860393f9505233302c3",
+  "revision": "a7108b2c0e2f7aa71200ee1b98a430996121844b",
+  "sha256": "b60195d011d50e358480b104bd8e0945a096455fd30def7e5d16f1de3357a086",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
