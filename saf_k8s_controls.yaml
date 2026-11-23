@@ -7790,12 +7790,12 @@
   knowledge_area: '8.4'
   control_seq: '005'
   control_title: Attestation-conditioned enclave key release
-  control_statement: Encryption keys protecting models and data within confidential computing enclaves must be managed through a hardware-rooted key management system with key release conditioned on successful TEE attestation.
-  objective: Ensure cryptographic keys for model decryption and data access are released only to verified TEE environments that present approved attestation evidence.
-  rationale: If model or data encryption keys are released without attestation-conditioned policy checks, a compromised host or operator can retrieve the keys and decrypt protected assets outside the enclave. This obligation is distinct from sealed storage because it governs live key release decisions made by the KMS at access time.
-  scope: Applies to confidential AI workloads where encrypted models or data require key release into a TEE enclave. Covers hardware-rooted KMS integration, attestation-conditioned release policies, and audit of key release decisions tied to attestation results.
-  primary_enforcement_point: Attestation-Conditioned KMS Release Policy
-  implementation_surface: Hardware-rooted key management systems, attestation-conditioned key release policies, audit correlation between attestation verification and key release, and enclave model decryption workflows using KMS-mediated release.
+  control_statement: Release governed decryption keys or authorized equivalent resource access only when the configured verifier and relying-party policy confirm fresh, approved evidence for the intended workload, recipient and resource. Deny untrusted, mismatched or expired evidence and retain attributable release decisions.
+  objective: Restrict sensitive key or resource access to the approved attestation-bound recipient and current authorized purpose.
+  rationale: Hardware evidence, verifier appraisal, protected resource authorization and recipient binding can be handled by separate components. Provider implementations differ. Workload identity, placement and an available broker do not by themselves establish a valid release decision.
+  scope: Applies to governed confidential workloads using attestation-conditioned model or data access. Document actual trust roots, verifier and relying-party policy, supported recipient protections, evidence freshness, key custody, audit and revocation behavior.
+  primary_enforcement_point: Effective verifier and configured resource release authority, with scoped recipient binding and decision audit.
+  implementation_surface: Verify supported evidence and caller bindings, recipient-specific protection and resource authorization. Exercise denial for invalid, stale and mismatched evidence, and verify authorized release and future requests following revocation. Document withdrawal limits for already released material and keep sensitive values out of logs.
   owner_primary: Security Engineering
   owner_supporting: Key Management; ML Platform Engineering; GPU Infrastructure Engineering
   baseline_or_ai_specific: ai-specific
