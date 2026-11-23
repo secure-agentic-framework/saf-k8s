@@ -870,6 +870,12 @@
       "sha256": "73e8439efa4fc914bde4348c6f4ebbfe6108405f2c624cf17e61dc32296cd950",
       "title": "Identity-based internal service access control"
     },
+    "SAF-K8S-0505-006": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "611f97e6f1b158e6533d8da724f5df53e10a855a3662d91af48dbcfc1d9eaa29",
+      "title": "API server private endpoint and authorized network enforcement"
+    },
     "SAF-K8S-0601-011": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2186,7 +2192,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "215cde8894b29c266a721aa89b70f9740eb4b12f",
-  "sha256": "12f5ae7ad13e150ef5c7408150cbb2ebaa76912a1651f82b3b8fded7a3dba295",
+  "revision": "1c56ca2fce0090547303ac2ac345895964737be8",
+  "sha256": "9fdc876528f6509f50a5ec1298e9e694132574fe4525381f01a71ab7c2ffe40a",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
