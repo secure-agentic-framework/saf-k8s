@@ -1110,6 +1110,12 @@
       "sha256": "0506ced1be01d664a7ccb877ea0a7c3f8820950e5c109b363dbc1cee965fcaf1",
       "title": "API impersonation audit logging and alerting"
     },
+    "SAF-K8S-0405-017": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "a01cdcc785c5adb0df81f316bfa8347d845009d39b44e9848c18f9274ddaa453",
+      "title": "Credential policy baseline requirements"
+    },
     "SAF-K8S-0501-001": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -3176,7 +3182,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "e2c9d22f48d7de2ac95422bc017ddd5d5d8028b8",
-  "sha256": "2741dbbe57978336dabe521d726f2b1ee8686cd7b577a54fd35b459657b19f93",
+  "revision": "6fe02a0bda0073db6bdbf3da6b5af663395cab51",
+  "sha256": "cf19a49962609c22f0886329c893af3c85833208755ab9bf30be9142321e8f00",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
