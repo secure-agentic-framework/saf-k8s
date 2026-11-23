@@ -450,6 +450,12 @@
       "sha256": "f6d876e81207fd8f72f7bba6ef88027feee033eec1d899f149c3b7c3312bae89",
       "title": "QoS class assignment for workload stability"
     },
+    "SAF-K8S-0304-004": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "dd831f9f78d6d6ab881f40e52e13238b5d70ba2ca7c8b81d861ea189e1bc28bc",
+      "title": "Ephemeral container security context enforcement"
+    },
     "SAF-K8S-0304-006": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -2018,7 +2024,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6ab8dd5c7500b8e8bf0219d1abae89fe021d64cb",
-  "sha256": "5c7c007e081bd31d322ebcf6b4eb3e920ff0e8cbe2b6a57cd7f4247620ec7c85",
+  "revision": "9bd73508f36ff9253262169f2ca802dcdc364b9b",
+  "sha256": "64d0066a6bfd998e0225765d321c3dd45a8d2b177bcd4dad0aa6403bd50c1aa6",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

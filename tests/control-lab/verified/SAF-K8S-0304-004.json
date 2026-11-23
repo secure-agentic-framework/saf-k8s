@@ -1,0 +1,137 @@
+{
+  "control_id": "SAF-K8S-0304-004",
+  "catalog_revision": "456e71d02285cd34320d6492624b4840b5cca23e",
+  "catalog_sha256": "64d0066a6bfd998e0225765d321c3dd45a8d2b177bcd4dad0aa6403bd50c1aa6",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "dd831f9f78d6d6ab881f40e52e13238b5d70ba2ca7c8b81d861ea189e1bc28bc",
+  "scope": "Fresh harness-owned Kind cluster; namespace saf-test; native Pod Security Admission restricted v1.36; RBAC for one case-owned pod's ephemeralcontainers subresource.",
+  "review_timing": {
+    "queued_at": "2026-11-23T03:56:26.103289+00:00",
+    "cluster_ready_at": "2026-11-23T03:56:58.368608+00:00",
+    "approval_at": "2026-11-23T03:58:26.367764+00:00",
+    "case_loaded_at": "2026-11-23T03:58:26.499337+00:00"
+  },
+  "cluster": "saf-lab-ca0389a5ed99",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "a258a60096b93050b3969129142cce67b5da692a600b132f76e472614c26f5aa",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "insecure ordinary Pod is admitted before restricted PSA",
+      "matched": true,
+      "observed": {
+        "server_dry_run_accepted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "restricted PSA rejects the same insecure ordinary Pod",
+      "matched": true,
+      "observed": {
+        "reason_is_restricted_psa": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "init container remains in its own immutable field",
+      "matched": true,
+      "observed": "{\"initContainers\": [\"init\"], \"ephemeralContainers\": []}"
+    },
+    {
+      "phase": "green",
+      "claim": "Unauthorized identity cannot update the ephemeralcontainers subresource",
+      "matched": true,
+      "observed": {
+        "denied_by_rbac": true,
+        "target_subresource": "ephemeralcontainers"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Restricted PSA rejects the authorized identity's noncompliant ephemeral update",
+      "matched": true,
+      "observed": {
+        "denied_by_psa": true,
+        "violation": "runAsNonRoot"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The ephemeral subresource rejects an existing init container name",
+      "matched": true,
+      "observed": {
+        "duplicate_init_name_rejected": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The ordinary Pod update route refuses ephemeral additions",
+      "matched": true,
+      "observed": {
+        "ordinary_update_denied": true,
+        "target_unmodified": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Authorized compliant ephemeral update succeeds",
+      "matched": true,
+      "observed": {
+        "subresource_update_accepted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "permitted marker preserves scheduled pod identity and init field",
+      "matched": true,
+      "observed": {
+        "pod_identity_and_node_preserved": true,
+        "ephemeral_names": [
+          "debug-marker"
+        ],
+        "init_names": [
+          "init"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The permitted ephemeral marker actually runs non-root with a seccomp filter",
+      "matched": true,
+      "observed": {
+        "marker_exit_zero": true,
+        "non_root_filtered_process_observed": true
+      }
+    }
+  ]
+}
