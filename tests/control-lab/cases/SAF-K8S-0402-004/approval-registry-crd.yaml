@@ -1,0 +1,42 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: workloadidentityapprovals.security.saf-lab.example
+spec:
+  group: security.saf-lab.example
+  scope: Namespaced
+  names:
+    plural: workloadidentityapprovals
+    singular: workloadidentityapproval
+    kind: WorkloadIdentityApproval
+    shortNames: [wia]
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        required: [spec]
+        properties:
+          spec:
+            type: object
+            required: [serviceAccounts, namespaces]
+            properties:
+              serviceAccounts:
+                type: array
+                items:
+                  type: object
+                  required: [namespace, name, value]
+                  properties:
+                    namespace: {type: string}
+                    name: {type: string}
+                    value: {type: string}
+              namespaces:
+                type: array
+                items:
+                  type: object
+                  required: [name, value]
+                  properties:
+                    name: {type: string}
+                    value: {type: string}

@@ -1,0 +1,140 @@
+{
+  "control_id": "SAF-K8S-0402-004",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "2a42ea31a94fd07df74d336b9720384407bcdea42876e120000386d2c17139c9",
+  "scope": "Fresh local Kind Kubernetes v1.36.1 only. Uses synthetic case-owned ServiceAccounts, one synthetic namespace, a namespaced approval-registry CRD, narrowly scoped RBAC, and two ValidatingAdmissionPolicy bindings. Demonstrates baseline acceptance of unapproved metadata, RBAC denial for an ordinary workload identity, typed admission denial for an RBAC-authorized registrar with stored-value preservation, and approved metadata registration/readback. RequestResponse audit covers updates to the named synthetic ServiceAccount and namespace. Secret and token resources are excluded. Does not establish production policy coverage, cloud federation behavior, token audiences, or audit retention outside this disposable cluster.",
+  "cluster": "saf-lab-2098b4bc0ce5",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Registrar RBAC permits the baseline unapproved ServiceAccount annotation before admission",
+      "matched": true,
+      "observed": {
+        "pre_policy_mutation_succeeded": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Registrar RBAC permits the baseline unapproved namespace label before admission",
+      "matched": true,
+      "observed": {
+        "pre_policy_mutation_succeeded": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Ordinary workload identity cannot update the case ServiceAccount",
+      "matched": true,
+      "observed": {
+        "denied_by_rbac": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Ordinary workload identity cannot update the case namespace",
+      "matched": true,
+      "observed": {
+        "denied_by_rbac": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission rejects registrar's unapproved annotation and preserves the original value",
+      "matched": true,
+      "observed": {
+        "policy_denial": true,
+        "original_value_preserved": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission rejects registrar's unapproved namespace label and preserves the original value",
+      "matched": true,
+      "observed": {
+        "policy_denial": true,
+        "original_value_preserved": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Registrar can register and read back the exact approved ServiceAccount annotation",
+      "matched": true,
+      "observed": {
+        "approved_value_read_back": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Registrar can register and read back the exact approved namespace label",
+      "matched": true,
+      "observed": {
+        "approved_value_read_back": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Registrar cannot remove either protected registered attribute",
+      "matched": true,
+      "observed": {
+        "both_removals_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An ordinary namespace metadata update leaves named-object enforcement in place",
+      "matched": true,
+      "observed": {
+        "unrelated_update_allowed": true,
+        "named_serviceaccount_still_protected": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "API audit retains approved and denied outcomes for both protected attributes",
+      "matched": true,
+      "observed": {
+        "serviceaccounts": {
+          "approved_request_and_response_recorded": true,
+          "denied_update_recorded": true
+        },
+        "namespaces": {
+          "approved_request_and_response_recorded": true,
+          "denied_update_recorded": true
+        }
+      }
+    }
+  ]
+}

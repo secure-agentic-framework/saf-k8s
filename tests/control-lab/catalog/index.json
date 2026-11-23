@@ -546,6 +546,12 @@
       "sha256": "f559012f897daaf820103fb3ab47e2f4c23fc941d3d46af2b24e88207c188bfe",
       "title": "Service account identifier exposure prevention"
     },
+    "SAF-K8S-0402-004": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "2a42ea31a94fd07df74d336b9720384407bcdea42876e120000386d2c17139c9",
+      "title": "Workload identity attribute integrity"
+    },
     "SAF-K8S-0402-008": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -2030,7 +2036,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "81d368f1063afa6d2516538952118fa62a4104d8",
+  "revision": "aa9aea46de7fb993c64b9efa9162ee30eb3786c2",
   "sha256": "64d0066a6bfd998e0225765d321c3dd45a8d2b177bcd4dad0aa6403bd50c1aa6",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
