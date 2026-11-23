@@ -5650,12 +5650,12 @@
   knowledge_area: '6.5'
   control_seq: '010'
   control_title: AI custom resource webhook abuse resistance and resource hardening
-  control_statement: Webhook endpoints that validate AI custom resources must be hardened against abuse and denial-of-service through rate limiting, resource constraints, and deployment protections that preserve validation service availability under expected and adversarial load.
-  objective: Keep AI-CRD validation services available and resistant to abuse so adversaries cannot disable or degrade policy enforcement by overwhelming webhook backends.
-  rationale: Even when validation logic is correct, weakly resourced or unprotected webhook endpoints can be exhausted by bursty or malicious request patterns, creating denial-of-service conditions and pressure to weaken enforcement. Endpoint hardening preserves operational resilience for AI admission controls.
-  scope: Applies to all validating admission webhooks dedicated to AI/ML operator CRDs in production, staging, and shared development clusters with GPU node pools.
-  primary_enforcement_point: Webhook backend deployment and serving infrastructure for AI CRD validation.
-  implementation_surface: Webhook backend rate limits, container resource requests and limits, concurrency controls, and deployment hardening for KServe, Kubeflow Training Operator, KubeRay, Volcano, and similar AI operator admission services.
+  control_statement: For governed AI custom-resource validating webhooks, define a serving availability objective and enforce the selected resource, timeout and failure settings. Verify Ready backends and admission behavior during ordinary replacement and recovery. Size rate and concurrency controls for measured deployment needs and document their measured scope.
+  objective: Preserve required validation during expected operational changes and bound the outcome when the admission service is unavailable.
+  rationale: Kubernetes uses webhook timeout and failure policy for call errors, while a valid explicit denial rejects the request. Resource settings and requested replicas guide operation. Observe serving endpoints and admission outcomes, and assess capacity independently for the deployed workload.
+  scope: Applies to the validating webhooks that govern scoped AI operator resources in each deployed environment. Verify the actual webhook service, operator versions and node placement.
+  primary_enforcement_point: Webhook serving configuration, narrow admission registration and deployment availability controls.
+  implementation_surface: Record explicit timeout and failure policy, enforced per-container resources, effective Ready replicas and service endpoints, and ordered replacement results. Verify the required response for unavailable backends. Require separate evidence for rate and concurrency policy, production sizing and availability under each claimed load profile.
   owner_primary: Platform Engineering
   owner_supporting: ML Platform Engineering; Security Engineering
   baseline_or_ai_specific: ai-specific
