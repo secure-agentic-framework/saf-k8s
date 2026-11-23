@@ -1790,12 +1790,12 @@
   knowledge_area: '2.4'
   control_seq: '002'
   control_title: Kubernetes-specific runtime detection rules
-  control_statement: Runtime security tools must include detection rules specifically tuned for Kubernetes-native threats including container escape attempts, in-container privilege escalation, lateral movement between pods or nodes, and cryptomining indicators such as unexpected CPU-intensive processes or connections to known mining pool endpoints.
-  objective: Ensure that runtime detection capabilities address the specific threat landscape of containerized Kubernetes environments rather than relying solely on generic host-based detection signatures.
-  rationale: Generic host-based detection rules miss Kubernetes-specific attack patterns such as nsenter-based container escape, /proc/self/exe exploitation, service account token theft for lateral movement, and cryptomining processes that disguise themselves within container namespaces. Without purpose-built detection rules, Kubernetes-native attacks can progress through kill chain stages undetected. Regular rule tuning is necessary as new container escape CVEs and Kubernetes-specific exploitation techniques emerge.
-  scope: Applies to all runtime security tool deployments on production cluster nodes. Detection rules must be reviewed and updated at least quarterly or upon publication of new Kubernetes-relevant CVEs. Rules must be tested in non-production environments before deployment to avoid false positive disruption in production workloads.
-  primary_enforcement_point: Runtime security tool rule configuration, managed through version-controlled rule repositories and automated deployment pipelines.
-  implementation_surface: Runtime detection rule definitions (Falco rules, Tetragon TracingPolicy), detection categories (container escape, privilege escalation, lateral movement, cryptomining, credential theft), MITRE ATT&CK mapping, rule testing frameworks, and quarterly rule review procedures.
+  control_statement: Maintain approved Kubernetes-aware detection rules with explicit data sources, monitored behavior and retained identity context. Exercise rule loading, expected alerts, negative cases, alert delivery and safe disablement before rollout. Authorize blocking separately.
+  objective: Produce attributable and testable detections for selected Kubernetes runtime behavior.
+  rationale: Kernel events, Kubernetes API audit events, network flow metadata and resource signals observe different behavior. A runtime action alone does not prove a particular attacker objective. Correlation, activity scope and delivery depend on the supported sources and rule configuration.
+  scope: Applies to selected governed compute classes and their detection pipelines. Inventory driver, tool and rule versions, data completeness, rule coverage, approved exceptions, retention, event loss and failure ownership.
+  primary_enforcement_point: Version-controlled detection configuration and supported source ingestion, Kubernetes workload identity enrichment and monitored alert delivery.
+  implementation_surface: Map each rule to explicit observed fields, documented detection hypotheses and expected test events. Exercise harmless positive and negative fixtures, missing identity or unavailable sources, controlled rollout and alert-only behavior. Review relevant changes in platform versions and threat exposure.
   owner_primary: Security Engineering
   owner_supporting: Security Operations (SOC); Threat Intelligence
   baseline_or_ai_specific: baseline
