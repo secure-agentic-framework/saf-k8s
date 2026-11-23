@@ -948,6 +948,12 @@
       "sha256": "7a63512b4c789a3f48ca71ce395729fdcaf73dd6b48d2d8f203bf9cf0913be9e",
       "title": "AI platform key-domain hierarchy and envelope encryption architecture"
     },
+    "SAF-K8S-0403-018": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "b46271b82453484ec9137f8dd755f23eb3d22b4e09d65052ae372dda3a2a92eb",
+      "title": "AI platform cryptographic key access domain separation"
+    },
     "SAF-K8S-0403-019": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -3032,7 +3038,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "0abaa135b1261f597aa3c20d1e47f1b0523b55c0",
-  "sha256": "cb8505dc43d22cf5337db392487725a77a587ed59f1394f199046ac2651b3c5e",
+  "revision": "59526fe39a2ec4100d41f4bd43497f7eb769a9c7",
+  "sha256": "51762c7f2acb36ddc1982dafb85e789938deb3dd5d009fc4ef9b50b35bf68082",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
