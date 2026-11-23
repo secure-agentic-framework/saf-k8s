@@ -1534,15 +1534,18 @@
   framework_requirement_id: Article-10.2
   legacy_requirement_id: Art-10:10(2)
   framework_requirement_title: Data and data governance
-  framework_mapping_notes: |-
-    Training, validation and testing data sets shall be subject to data governance and management practices appropriate for the intended purpose of the high-risk AI system. Those practices shall concern in particular:
+  framework_mapping_notes: 'Training, validation and testing data sets shall be subject to data governance and management
+    practices appropriate for the intended purpose of the high-risk AI system. Those practices shall concern in particular:
 
-    SAF-K8S enforces data governance at the infrastructure level through storage access controls (D7 KA 7.1), namespace isolation (D7 KA 7.2), data classification labels (SAF-K8S-0702-006), and pipeline stage isolation (D9 KA 9.4). However, determining what governance practices are appropriate for the intended purpose is an organizational and application-layer decision.
+
+    SAF-K8S-0701-001 supplies limited storage-access evidence. SAF-K8S-0702-027 addresses application and coverage of
+    classification labels across governed pipelines. Evidence of those mechanisms supports the applicable infrastructure
+    portions of data governance. Suitability for the intended purpose remains a provider assessment.'
   control_id: SAF-K8S-0701-001
   relation_type: partial
   strength_level: moderate
   applicability: required
-  applicability_condition:
+  applicability_condition: null
   strength_reason_code: framework-language-interpretation
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
@@ -1551,15 +1554,18 @@
   framework_requirement_id: Article-10.2
   legacy_requirement_id: Art-10:10(2)
   framework_requirement_title: Data and data governance
-  framework_mapping_notes: |-
-    Training, validation and testing data sets shall be subject to data governance and management practices appropriate for the intended purpose of the high-risk AI system. Those practices shall concern in particular:
+  framework_mapping_notes: 'Training, validation and testing data sets shall be subject to data governance and management
+    practices appropriate for the intended purpose of the high-risk AI system. Those practices shall concern in particular:
 
-    SAF-K8S enforces data governance at the infrastructure level through storage access controls (D7 KA 7.1), namespace isolation (D7 KA 7.2), data classification labels (SAF-K8S-0702-006), and pipeline stage isolation (D9 KA 9.4). However, determining what governance practices are appropriate for the intended purpose is an organizational and application-layer decision.
+
+    SAF-K8S-0702-019 supplies limited namespace and access isolation evidence. SAF-K8S-0702-027 addresses classification-label
+    application, propagation and coverage across governed pipelines. Suitability of the overall data governance practices
+    for the intended purpose remains a provider assessment.'
   control_id: SAF-K8S-0702-019
   relation_type: partial
   strength_level: moderate
   applicability: required
-  applicability_condition:
+  applicability_condition: null
   strength_reason_code: framework-language-interpretation
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
@@ -1568,15 +1574,18 @@
   framework_requirement_id: Article-10.2.b
   legacy_requirement_id: Art-10:10(2)(b)
   framework_requirement_title: Data and data governance
-  framework_mapping_notes: |-
-    data collection processes and the origin of data, and in the case of personal data, the original purpose of the data collection;
+  framework_mapping_notes: 'data collection processes and the origin of data, and in the case of personal data, the original
+    purpose of the data collection;
 
-    SAF-K8S training data provenance controls (SAF-K8S-0906-001) and ML-BOM generation (SAF-K8S-0604-002) capture data origin and collection metadata at the infrastructure level. The legal assessment of original purpose is out of scope.
+
+    SAF-K8S-0906-006 supplies training-data origin and lineage records. SAF-K8S-0604-002 can record available dataset
+    descriptors. Those records support infrastructure evidence for data origin and collection processes. The original
+    purpose of collecting personal data requires separate evidence.'
   control_id: SAF-K8S-0604-002
   relation_type: partial
   strength_level: moderate
   applicability: required
-  applicability_condition:
+  applicability_condition: null
   strength_reason_code: framework-language-interpretation
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
@@ -1590,40 +1599,6 @@
 
     SAF-K8S pipeline security controls (D9 KA 9.4) enforce isolation and integrity of data preparation pipelines. The specific data preparation operations are application-layer concerns.
   control_id: SAF-K8S-0904-001
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Article-10.5
-  legacy_requirement_id: Art-10:10(5)
-  framework_requirement_title: Data and data governance
-  framework_mapping_notes: |-
-    To the extent that it is strictly necessary for the purpose of ensuring bias detection and correction in relation to the high-risk AI systems in accordance with paragraph (2), points (f) and (g) of this Article, the providers of such systems may exceptionally process special categories of personal data, subject to appropriate safeguards for the fundamental rights and freedoms of natural persons. In addition to the provisions set out in Regulations (EU) 2016/679 and (EU) 2018/1725 and Directive (EU) 2016/680, all the following conditions must be met in order for such processing to occur:
-
-    The authorization to process special category data is a legal obligation. However, SAF-K8S access controls (D4), encryption (D7 KA 7.1), and data classification labels (SAF-K8S-0702-006) provide the technical safeguards referenced in sub-points (b) through (e): technical limitations on re-use, security measures, access controls, and deletion enforcement.
-  control_id: SAF-K8S-0401-001
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Article-10.5
-  legacy_requirement_id: Art-10:10(5)
-  framework_requirement_title: Data and data governance
-  framework_mapping_notes: |-
-    To the extent that it is strictly necessary for the purpose of ensuring bias detection and correction in relation to the high-risk AI systems in accordance with paragraph (2), points (f) and (g) of this Article, the providers of such systems may exceptionally process special categories of personal data, subject to appropriate safeguards for the fundamental rights and freedoms of natural persons. In addition to the provisions set out in Regulations (EU) 2016/679 and (EU) 2018/1725 and Directive (EU) 2016/680, all the following conditions must be met in order for such processing to occur:
-
-    The authorization to process special category data is a legal obligation. However, SAF-K8S access controls (D4), encryption (D7 KA 7.1), and data classification labels (SAF-K8S-0702-006) provide the technical safeguards referenced in sub-points (b) through (e): technical limitations on re-use, security measures, access controls, and deletion enforcement.
-  control_id: SAF-K8S-0701-003
   relation_type: partial
   strength_level: moderate
   applicability: required
@@ -2302,15 +2277,19 @@
   framework_requirement_id: Article-13.3.b.vi
   legacy_requirement_id: Art-13:13(3)(b)(vi)
   framework_requirement_title: Transparency and provision of information to deployers
-  framework_mapping_notes: |-
-    when appropriate, specifications for the input data, or any other relevant information in terms of the training, validation and testing data sets used, taking into account the intended purpose of the high-risk AI system;
+  framework_mapping_notes: 'when appropriate, specifications for the input data, or any other relevant information in
+    terms of the training, validation and testing data sets used, taking into account the intended purpose of the high-risk
+    AI system;
 
-    SAF-K8S ML-BOM (SAF-K8S-0604-002) and training data provenance controls (SAF-K8S-0906-001) capture dataset specifications at the infrastructure level. The obligation to include them in instructions is organizational.
+
+    SAF-K8S-0604-002 records available dataset descriptors, and SAF-K8S-0906-006 supplies applicable training-data lineage
+    evidence. These records may support preparing instructions for use. The provider determines and includes the relevant
+    input and dataset information.'
   control_id: SAF-K8S-0604-002
   relation_type: partial
   strength_level: moderate
   applicability: required
-  applicability_condition:
+  applicability_condition: null
   strength_reason_code: framework-language-interpretation
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
@@ -2319,16 +2298,20 @@
   framework_requirement_id: Article-13.3.e
   legacy_requirement_id: Art-13:13(3)(e)
   framework_requirement_title: Transparency and provision of information to deployers
-  framework_mapping_notes: |-
-    the computational and hardware resources needed, the expected lifetime of the high-risk AI system and any necessary maintenance and care measures, including their frequency, to ensure the proper functioning of that AI system, including as regards software updates;
+  framework_mapping_notes: 'the computational and hardware resources needed, the expected lifetime of the high-risk AI
+    system and any necessary maintenance and care measures, including their frequency, to ensure the proper functioning
+    of that AI system, including as regards software updates;
 
-    SAF-K8S ML-BOM captures computational resource requirements, framework versions, and infrastructure dependencies. Kubernetes resource specifications (requests/limits) and upgrade planning (SAF-K8S-1007-001) provide the infrastructure data for this documentation requirement.
+
+    SAF-K8S-0304-010 supplies declared Pod resource inputs. SAF-K8S-1007-011 covers cluster, node and add-on upgrade
+    planning relevant to infrastructure maintenance. These are inputs to the provider''s instructions covering actual
+    hardware needs, system lifetime and applicable maintenance.'
   control_id: SAF-K8S-0304-010
   relation_type: partial
   strength_level: moderate
   applicability: required
-  applicability_condition:
-  strength_reason_code:
+  applicability_condition: null
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -2336,15 +2319,19 @@
   framework_requirement_id: Article-13.3.e
   legacy_requirement_id: Art-13:13(3)(e)
   framework_requirement_title: Transparency and provision of information to deployers
-  framework_mapping_notes: |-
-    the computational and hardware resources needed, the expected lifetime of the high-risk AI system and any necessary maintenance and care measures, including their frequency, to ensure the proper functioning of that AI system, including as regards software updates;
+  framework_mapping_notes: 'the computational and hardware resources needed, the expected lifetime of the high-risk AI
+    system and any necessary maintenance and care measures, including their frequency, to ensure the proper functioning
+    of that AI system, including as regards software updates;
 
-    SAF-K8S ML-BOM captures computational resource requirements, framework versions, and infrastructure dependencies. Kubernetes resource specifications (requests/limits) and upgrade planning (SAF-K8S-1007-001) provide the infrastructure data for this documentation requirement.
+
+    SAF-K8S-0604-002 supplies available inventory and dependency information. SAF-K8S-1007-011 covers relevant infrastructure
+    upgrades. Those records are limited documentation inputs. System lifetime, needed resources and maintenance measures
+    still require provider evidence.'
   control_id: SAF-K8S-0604-002
   relation_type: partial
   strength_level: moderate
   applicability: required
-  applicability_condition:
+  applicability_condition: null
   strength_reason_code: framework-language-interpretation
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT

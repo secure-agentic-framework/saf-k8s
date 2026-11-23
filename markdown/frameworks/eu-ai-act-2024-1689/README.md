@@ -2,8 +2,8 @@
 
 - Framework Code: EU-AI-ACT
 - Version: 2024/1689
-- Total Reverse Mappings: 252
-- Distinct Requirements Mapped: 87
+- Total Reverse Mappings: 250
+- Distinct Requirements Mapped: 86
 
 ## Requirements
 
@@ -43,7 +43,6 @@
 - [Article-10.2 - Data and data governance](article-10-2.md)
 - [Article-10.2.b - Data and data governance](article-10-2-b.md)
 - [Article-10.2.c - Data and data governance](article-10-2-c.md)
-- [Article-10.5 - Data and data governance](article-10-5.md)
 - [Article-10.5.b - Data and data governance](article-10-5-b.md)
 - [Article-10.5.c - Data and data governance](article-10-5-c.md)
 - [Article-10.5.e - Data and data governance](article-10-5-e.md)

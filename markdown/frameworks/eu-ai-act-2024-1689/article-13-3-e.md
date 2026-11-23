@@ -7,7 +7,7 @@
 
 the computational and hardware resources needed, the expected lifetime of the high-risk AI system and any necessary maintenance and care measures, including their frequency, to ensure the proper functioning of that AI system, including as regards software updates;
 
-SAF-K8S ML-BOM captures computational resource requirements, framework versions, and infrastructure dependencies. Kubernetes resource specifications (requests/limits) and upgrade planning (SAF-K8S-1007-001) provide the infrastructure data for this documentation requirement.
+SAF-K8S-0304-010 supplies declared Pod resource inputs. SAF-K8S-1007-011 covers cluster, node and add-on upgrade planning relevant to infrastructure maintenance. These are inputs to the provider's instructions covering actual hardware needs, system lifetime and applicable maintenance.
 
 ## SAF-K8S Controls
 

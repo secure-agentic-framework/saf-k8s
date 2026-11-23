@@ -7,7 +7,7 @@
 
 Training, validation and testing data sets shall be subject to data governance and management practices appropriate for the intended purpose of the high-risk AI system. Those practices shall concern in particular:
 
-SAF-K8S enforces data governance at the infrastructure level through storage access controls (D7 KA 7.1), namespace isolation (D7 KA 7.2), data classification labels (SAF-K8S-0702-006), and pipeline stage isolation (D9 KA 9.4). However, determining what governance practices are appropriate for the intended purpose is an organizational and application-layer decision.
+SAF-K8S-0701-001 supplies limited storage-access evidence. SAF-K8S-0702-027 addresses application and coverage of classification labels across governed pipelines. Evidence of those mechanisms supports the applicable infrastructure portions of data governance. Suitability for the intended purpose remains a provider assessment.
 
 ## SAF-K8S Controls
 

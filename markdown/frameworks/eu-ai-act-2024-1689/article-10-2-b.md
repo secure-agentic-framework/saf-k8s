@@ -7,7 +7,7 @@
 
 data collection processes and the origin of data, and in the case of personal data, the original purpose of the data collection;
 
-SAF-K8S training data provenance controls (SAF-K8S-0906-001) and ML-BOM generation (SAF-K8S-0604-002) capture data origin and collection metadata at the infrastructure level. The legal assessment of original purpose is out of scope.
+SAF-K8S-0906-006 supplies training-data origin and lineage records. SAF-K8S-0604-002 can record available dataset descriptors. Those records support infrastructure evidence for data origin and collection processes. The original purpose of collecting personal data requires separate evidence.
 
 ## SAF-K8S Controls
 
