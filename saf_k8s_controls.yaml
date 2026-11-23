@@ -9890,12 +9890,12 @@
   knowledge_area: '9.9'
   control_seq: '012'
   control_title: Context poisoning monitoring and incident response for RAG retrieval
-  control_statement: RAG platforms must monitor vector index changes for unauthorized or anomalous insertions and modifications, generate alerts for suspected context poisoning, and investigate or contain poisoning events before manipulated retrieval results can influence LLM responses.
-  objective: Detect, investigate, and contain context poisoning attacks that manipulate RAG retrieval outputs through compromised or tampered vector index state.
-  rationale: Context poisoning is an operational detection and response problem as much as a retrieval-quality problem. Even with retrieval validation, poisoned indexes can continue to influence responses unless index changes are monitored, alerts are triaged, and suspicious insertions or modifications are investigated and contained.
-  scope: Applies to RAG retrieval platforms on Kubernetes. Covers vector index change monitoring, poisoning alert generation, alert triage, and incident investigation or containment records for suspected poisoned retrieval state. Excludes generic retrieval relevance threshold tuning and chunk-level prompt assembly validation.
-  primary_enforcement_point: Vector index monitoring, poisoning alerting, and incident investigation workflow.
-  implementation_surface: Vector index snapshot or diff monitoring, alert rules for unauthorized insertions or modifications, retrieval integrity monitoring dashboards, and incident handling records for suspected context poisoning events.
+  control_statement: Monitor governed vector index and retrieval state against approved integrity and change evidence. Alert on applicable discrepancies and verify containment, investigation and authorized recovery at the affected release boundaries.
+  objective: Detect unexpected retrieval state and contain the affected scope while preserving approved retrieval and incident evidence.
+  rationale: Index changes can persist across releases and affect retrieval. Detection alone does not establish that suspicious state was quarantined, that downstream release was blocked, or that recovery was authorized.
+  scope: Applies to approved integrity monitors, alert routing, scoped containment and investigation, and independently verified restoration. Account for monitoring timing and all affected consumption paths.
+  primary_enforcement_point: The vector integrity monitor, incident receiver and actual quarantine and release enforcement.
+  implementation_surface: Verify approved change and digest references, alert receipt and triage, scoped hold or rollback, downstream rejection and approved recovery. Preserve enough minimal evidence to reconstruct the event and measure approved operating tolerance.
   owner_primary: ML Platform Engineering
   owner_supporting: Security Engineering; Security Operations
   baseline_or_ai_specific: ai-specific
