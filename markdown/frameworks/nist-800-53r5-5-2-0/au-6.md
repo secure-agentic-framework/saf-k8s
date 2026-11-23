@@ -29,15 +29,6 @@ Reviewing agent audit trails
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0905-053 - Approved external model source periodic review and allowlist update governance](../../controls/SAF-K8S-0905-053.md)
-
-- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
-- Knowledge Area: 9.5
-- Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0910-017 - Centralized audit logging for cross-cluster orchestration actions](../../controls/SAF-K8S-0910-017.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
