@@ -1752,6 +1752,12 @@
       "sha256": "f2ac8180aff99c241d25773577670031417be6226ca95740a3d3ac0d3ce445dc",
       "title": "DPU and SmartNIC firmware cryptographic verification and Secure Boot integrity"
     },
+    "SAF-K8S-0803-006": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "59d3fe09ee62a1fb9dff4b880b9bf7509743be861622d93d986d725d0c0e694d",
+      "title": "DPU and SmartNIC host trust boundary definition and policy engine administrative restriction"
+    },
     "SAF-K8S-0901-002": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -2654,7 +2660,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "be49bed9967f1fba04d278b32ad39865fa2fb225",
-  "sha256": "e47a23ee3166cc3e2ed013dc24d287f2a970549094df16dbc8c681c14d51f9c8",
+  "revision": "4679921a383c19aa47902f98a7ef2b344ed176d9",
+  "sha256": "5737cbee29c5e7c8db557efdbe9d3db24731dc8519fbe2f42f29c746f6d29082",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
