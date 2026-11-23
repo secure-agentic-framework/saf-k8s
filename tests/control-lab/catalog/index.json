@@ -1404,6 +1404,12 @@
       "sha256": "86ba644904f34bf61a7b69aa9c316bca2e935f51a289c45052608b176b127bdd",
       "title": "Admission-time rejection of unapproved external model source references"
     },
+    "SAF-K8S-0905-056": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "f104b3732ebbc3497fcfd126169452cbfe9a508c4252639e2fe6349bd81d3ee8",
+      "title": "External model publisher identity and provenance metadata verification"
+    },
     "SAF-K8S-0907-007": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1886,7 +1892,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "af85408264bd6ec319d1db8c0e7e27c48d71740f",
+  "revision": "f464385cc319205293aca817d8056aa298fe8928",
   "sha256": "9246a83494e93abb79f73876a57c184c94b68d2ab9366f66d0ea3595a5589eeb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

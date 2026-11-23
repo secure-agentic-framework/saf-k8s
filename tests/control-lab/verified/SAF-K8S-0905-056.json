@@ -1,0 +1,114 @@
+{
+  "control_id": "SAF-K8S-0905-056",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "f104b3732ebbc3497fcfd126169452cbfe9a508c4252639e2fe6349bd81d3ee8",
+  "scope": "A fresh Kubernetes v1.36.1 cluster runs a restricted intake Job using OpenSSL 3.3.2. The fixture generates a genuine local Git commit, exact model and card bytes and a signed release. An out-of-band public key and exact expected repository commit bind publisher and release metadata before persisting the approval. The test covers missing signature, untrusted signature, changed publisher metadata and content mismatch. Production provenance coverage, actual publisher identity, trust-root lifecycle, and cryptographic attestation of a public platform account are open.",
+  "review_timing": {
+    "queued_at": "2026-11-23T01:22:24.956927+00:00",
+    "cluster_ready_at": "2026-11-23T01:22:57.878841+00:00",
+    "approval_at": "2026-11-23T01:25:13.324403+00:00",
+    "case_loaded_at": "2026-11-23T01:25:13.529337+00:00"
+  },
+  "cluster": "saf-lab-d9877e4b3442",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "53bbaeb73f45913c010fbc884987c129edf71698ab6a550e09876030874d6399",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The same unsigned release crosses the intake approval boundary with verification disabled",
+      "matched": true,
+      "observed": {
+        "accepted_with_no_signature": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Intake rejects the unknown-signature fixture with its expected decision marker",
+      "matched": true,
+      "observed": {
+        "approved": false,
+        "expected_rejection": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Intake rejects the missing-signature fixture with its expected decision marker",
+      "matched": true,
+      "observed": {
+        "approved": false,
+        "expected_rejection": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Intake rejects the publisher-metadata fixture with its expected decision marker",
+      "matched": true,
+      "observed": {
+        "approved": false,
+        "expected_rejection": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Intake rejects the changed-model fixture with its expected decision marker",
+      "matched": true,
+      "observed": {
+        "approved": false,
+        "expected_rejection": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Intake rejects the changed-card fixture with its expected decision marker",
+      "matched": true,
+      "observed": {
+        "approved": false,
+        "expected_rejection": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The stored approval binds the trusted publisher, source commit, release and model and card hashes",
+      "matched": true,
+      "observed": {
+        "publisher": "urn:saf:fixture:publisher:cardinal",
+        "source": "https://models.example.invalid/fixture/cardinal",
+        "commit": "77bb4e4bd21bc1313a90cc54eb1b609d82430fcf",
+        "release": "fixture-v1",
+        "model_and_card_verified": true
+      }
+    }
+  ]
+}
