@@ -1806,6 +1806,12 @@
       "sha256": "d0d9d217733713c850abb096d70282959a995fb33dcd3d7ebcfae1c42871c158",
       "title": "GPU anomaly triage and authorized incident response"
     },
+    "SAF-K8S-0805-004": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "4c62a2a6ad6efce51d02f4ee5d7cff36297948fb9d66f256ec3cf592dfbc9716",
+      "title": "Accelerator sharing risk and eligible workload placement"
+    },
     "SAF-K8S-0901-002": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -2708,7 +2714,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "772d18f39bb92c4b85eeed67872e6c2b3ddeccec",
-  "sha256": "c6ddb5c366c88c64e4003464e42bf72e6373a453ce2538fb366d437d749b6aaa",
+  "revision": "c82d428f0c71d9ec89a963b19aebcba5debce1ff",
+  "sha256": "aaff66f6378fae48dc67b891d3e807737cc0e5a559001472c9884e3a3328bd27",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
