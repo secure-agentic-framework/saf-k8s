@@ -11,15 +11,6 @@ Personnel termination procedures must address revocation of agent system access 
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0405-007 - Authentication endpoint availability and DoS protection](../../controls/SAF-K8S-0405-007.md)
-
-- Domain: D04 - Identity, Access, and Secrets Management
-- Knowledge Area: 4.5
-- Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-1007-004 - Continuous security posture management for AI clusters](../../controls/SAF-K8S-1007-004.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance

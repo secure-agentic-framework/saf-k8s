@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Rate-limiting failed agent authentication attempts
-
-4.5 - Authentication lockout policies (failed attempt thresholds, account lockout duration, lockout bypass prevention) explicitly address unsuccessful logon attempts
+The selected credential authority separately implements and verifies required unsuccessful logon handling without treating concurrency control as that mechanism.
 
 ## SAF-K8S Controls
 
@@ -16,6 +14,6 @@ Rate-limiting failed agent authentication attempts
 - Domain: D04 - Identity, Access, and Secrets Management
 - Knowledge Area: 4.5
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
+- Strength: moderate
+- Applicability: conditional
 - Strength Reason Code: n/a

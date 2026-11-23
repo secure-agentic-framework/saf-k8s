@@ -3650,12 +3650,12 @@
   knowledge_area: '4.5'
   control_seq: '007'
   control_title: Authentication endpoint availability and DoS protection
-  control_statement: Organizations must protect Kubernetes authentication endpoints against denial-of-service attacks through API server rate limiting, API Priority and Fairness configuration, connection throttling, and availability monitoring to ensure authentication infrastructure remains accessible during attacks or high-load conditions.
-  objective: Ensure that authentication endpoints remain available and resilient against brute force and denial-of-service attacks that could lock out legitimate users or degrade cluster operations during an incident.
-  rationale: Authentication endpoints (API server, OIDC providers, webhook token reviewers) are vulnerable to denial-of-service attacks that can prevent legitimate administrators from accessing the cluster during an incident. Rate limiting and connection throttling protect against brute force credential attacks and ensure authentication infrastructure availability under load.
-  scope: Applies to all Kubernetes API server authentication endpoints, OIDC provider endpoints, webhook token review services, and cloud provider authentication integrations. Covers rate limiting, API Priority and Fairness configuration, and availability monitoring.
-  primary_enforcement_point: API server rate limiting configurations (--max-requests-inflight, APF priority levels) and monitoring/alerting for authentication endpoint availability and error rates.
-  implementation_surface: API server rate limiting flags (--max-requests-inflight, --max-mutating-requests-inflight), API Priority and Fairness (APF) FlowSchema and PriorityLevelConfiguration resources, authentication endpoint availability monitoring and SLA dashboards, and authentication error rate alerting (401/403 spike detection).
+  control_statement: Define availability requirements, overload safeguards and measurements for the actual API authentication and identity-provider paths. Verify effective API-server configuration and APF classification, and separately verify provider protection and response targets.
+  objective: Preserve authorized access within defined availability objectives and distinguish request classification, authentication errors and authorization outcomes.
+  rationale: API-server in-flight flags set concurrency behavior. APF classifies and manages eligible API requests. The API authenticator, external identity providers and authorization decisions have distinct failure modes and protection controls.
+  scope: Applies to the authorized Kubernetes API path and independently identified issuer, discovery, webhook and managed identity dependencies. Document provider boundaries, measurement scope and unsupported behavior.
+  primary_enforcement_point: Effective, observed request-path controls and monitored health at each actual service and dependency.
+  implementation_surface: Inventory authentication paths and dependencies. Validate real APF classification under ordinary traffic, distinct status and health signals, configured provider-side protections, recovery and approved monitoring objectives. Treat capacity and failure behavior as separately observed deployment evidence.
   owner_primary: Platform Engineering
   owner_supporting: Identity and Access Management; Security Engineering
   baseline_or_ai_specific: baseline

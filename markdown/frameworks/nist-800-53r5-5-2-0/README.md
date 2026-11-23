@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 3997
-- Distinct Requirements Mapped: 783
+- Total Reverse Mappings: 3972
+- Distinct Requirements Mapped: 775
 
 ## Requirements
 
@@ -40,7 +40,6 @@
 - [AC-2(3) - Disable Accounts](ac-2-3.md)
 - [AC-2(4) - Automated Audit Actions](ac-2-4.md)
 - [AC-2(5) - Inactivity Logout](ac-2-5.md)
-- [AC-2(6) - Dynamic Privilege Management](ac-2-6.md)
 - [AC-2(7) - Privileged User Accounts](ac-2-7.md)
 - [AC-2(8) - Dynamic Account Management](ac-2-8.md)
 - [AC-2(9) - Restrictions on Use of Shared and Group Accounts](ac-2-9.md)
@@ -113,7 +112,6 @@
 - [AC-6(8) - Privilege Levels for Code Execution](ac-6-8.md)
 - [AC-6(9) - Log Use of Privileged Functions](ac-6-9.md)
 - [AC-7 - Unsuccessful Logon Attempts](ac-7.md)
-- [AC-7(4) - Use of Alternate Authentication Factor](ac-7-4.md)
 - [AC-8 - System Use Notification](ac-8.md)
 - [AC-9(3) - Notification of Account Changes](ac-9-3.md)
 - [AT-1 - Policy and Procedures](at-1.md)
@@ -296,7 +294,6 @@
 - [CP-9(7) - Dual Authorization for Deletion or Destruction](cp-9-7.md)
 - [CP-9(8) - Cryptographic Protection](cp-9-8.md)
 - [IA-1 - Policy and Procedures](ia-1.md)
-- [IA-10 - Adaptive Authentication](ia-10.md)
 - [IA-11 - Re-authentication](ia-11.md)
 - [IA-13 - Identity Providers and Authorization Servers](ia-13.md)
 - [IA-13(1) - Protection of Cryptographic Keys](ia-13-1.md)
@@ -305,7 +302,6 @@
 - [IA-2 - Identification and Authentication (Organizational Users)](ia-2.md)
 - [IA-2(1) - Multi-factor Authentication to Privileged Accounts](ia-2-1.md)
 - [IA-2(10) - Single Sign-on](ia-2-10.md)
-- [IA-2(13) - Out-of-band Authentication](ia-2-13.md)
 - [IA-2(2) - Multi-factor Authentication to Non-privileged Accounts](ia-2-2.md)
 - [IA-2(5) - Individual Authentication with Group Authentication](ia-2-5.md)
 - [IA-2(8) - Access to Accounts -- Replay Resistant](ia-2-8.md)
@@ -315,13 +311,11 @@
 - [IA-3(4) - Device Attestation](ia-3-4.md)
 - [IA-4 - Identifier Management](ia-4.md)
 - [IA-4(1) - Prohibit Account Identifiers as Public Identifiers](ia-4-1.md)
-- [IA-4(4) - Identify User Status](ia-4-4.md)
 - [IA-4(5) - Dynamic Management](ia-4-5.md)
 - [IA-4(6) - Cross-organization Management](ia-4-6.md)
 - [IA-4(8) - Pairwise Pseudonymous Identifiers](ia-4-8.md)
 - [IA-4(9) - Attribute Maintenance and Protection](ia-4-9.md)
 - [IA-5 - Authenticator Management](ia-5.md)
-- [IA-5(1) - Password-based Authentication](ia-5-1.md)
 - [IA-5(10) - Dynamic Credential Binding](ia-5-10.md)
 - [IA-5(13) - Expiration of Cached Authenticators](ia-5-13.md)
 - [IA-5(14) - Managing Content of PKI Trust Stores](ia-5-14.md)
@@ -331,7 +325,6 @@
 - [IA-5(7) - No Embedded Unencrypted Static Authenticators](ia-5-7.md)
 - [IA-5(8) - Multiple System Accounts](ia-5-8.md)
 - [IA-5(9) - Federated Credential Management](ia-5-9.md)
-- [IA-6 - Authentication Feedback](ia-6.md)
 - [IA-7 - Cryptographic Module Authentication](ia-7.md)
 - [IA-8 - Identification and Authentication (Non-organizational Users)](ia-8.md)
 - [IA-8(2) - Acceptance of External Authenticators](ia-8-2.md)
@@ -419,7 +412,6 @@
 - [PM-7(1) - Offloading](pm-7-1.md)
 - [PM-9 - Risk Management Strategy](pm-9.md)
 - [PS-4 - Personnel Termination](ps-4.md)
-- [PS-4(2) - Automated Actions](ps-4-2.md)
 - [PS-5 - Personnel Transfer](ps-5.md)
 - [PS-6 - Access Agreements](ps-6.md)
 - [PS-7 - External Personnel Security](ps-7.md)
