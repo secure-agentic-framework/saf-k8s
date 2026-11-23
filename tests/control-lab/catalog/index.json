@@ -2820,6 +2820,12 @@
       "sha256": "cfd35a3f30302707d606864e31f4b8c3b3f76957a5c00b62746906e8206221fa",
       "title": "Vector database authentication and collection-level access control"
     },
+    "SAF-K8S-0909-010": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "6950d8439f938f85dc0f092d7f19360cf8f3f773b8daf2104f6c3ca09e02b566",
+      "title": "Vector database encryption in transit and at rest"
+    },
     "SAF-K8S-0909-011": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3326,7 +3332,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "9a309296acd1666aa29d8c63461eed9bf313618d",
-  "sha256": "60ab2842cd182a68f75c002966689dc1fff94ca0186539d565e410c90ecc909a",
+  "revision": "252561b336d38862262a8d6d208bb75001328c63",
+  "sha256": "24fb53c9bf7eb0d4935aa528c8799c459741bbbefd5b3a750cb6d9dc27734c6b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
