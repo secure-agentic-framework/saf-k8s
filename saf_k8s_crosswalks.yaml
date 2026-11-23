@@ -47289,15 +47289,14 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-9(6)
   framework_requirement_title: Organization-controlled Cryptographic Keys
-  framework_mapping_notes: 'Organization-controlled keys for agent communications and data encryption ensure sovereignty
-
-
-    4.3 - Manage secrets (KMS providers -- org-controlled encryption keys for secrets and persistent volumes)'
+  framework_mapping_notes: The selected external storage service demonstrably preserves exclusive organizational key
+    control for its covered data.
   control_id: SAF-K8S-0403-017
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The selected external storage service demonstrably preserves exclusive organizational key
+    control for its covered data
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -47753,15 +47752,14 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-12
   framework_requirement_title: Cryptographic Key Establishment and Management
-  framework_mapping_notes: 'Key management for agent authentication, encryption, and signing is foundational
-
-
-    4.4 - cert-manager; 4.3 - KMS providers and AI platform key hierarchy (SAF-K8S-0403-007); 6.3 - TUF key management (key establishment and management)'
+  framework_mapping_notes: The approved lifecycle governs actual key generation, use, storage, rotation and retirement
+    for the covered domain.
   control_id: SAF-K8S-0403-017
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The approved lifecycle governs actual key generation, use, storage, rotation and retirement
+    for the covered domain
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -47993,15 +47991,14 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-12(2)
   framework_requirement_title: Symmetric Keys
-  framework_mapping_notes: 'Symmetric key management for agent session encryption and data protection
-
-
-    1.1 - Encryption at rest (EncryptionConfiguration symmetric keys); 4.3 - KMS symmetric key management and AI platform key hierarchy (SAF-K8S-0403-007 envelope encryption with domain-specific DEKs)'
+  framework_mapping_notes: The deployment verifies controlled production, management and use of the covered symmetric
+    keys with its approved technology.
   control_id: SAF-K8S-0403-017
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The deployment verifies controlled production, management and use of the covered symmetric
+    keys with its approved technology
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -50337,15 +50334,12 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-28(3)
   framework_requirement_title: Cryptographic Keys
-  framework_mapping_notes: 'Protecting cryptographic keys used by agent systems prevents compromise of encrypted data
-
-
-    4.3 - KMS providers (protecting cryptographic keys at rest); 8.4 - TEE key management and sealed storage'
+  framework_mapping_notes: Independent evidence verifies the selected protection and custody for stored domain keys.
   control_id: SAF-K8S-0403-017
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Independent evidence verifies the selected protection and custody for stored domain keys
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
