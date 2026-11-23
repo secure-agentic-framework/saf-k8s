@@ -6930,12 +6930,12 @@
   knowledge_area: '7.3'
   control_seq: '19'
   control_title: GPU chargeback and showback reporting accountability
-  control_statement: Organizations must generate and distribute GPU chargeback or showback reports to accountable team owners and use those reports in periodic cost accountability review processes.
-  objective: Create accountability for GPU consumption by translating attributed usage data into recurring chargeback or showback reporting that is reviewed by responsible team owners.
-  rationale: Attribution data alone does not change behavior if it is not turned into accountable reporting. Chargeback or showback reporting is what makes GPU consumption visible to the teams that control workloads, enabling cost review, optimization pressure, and ownership for waste reduction.
-  scope: Applies to all Kubernetes clusters with GPU resources where multiple teams, projects, or cost centers consume shared AI infrastructure. Reporting may be chargeback or showback depending on organizational cost policy, but accountable review is required.
-  primary_enforcement_point: Chargeback or showback reporting pipelines and cost accountability review workflows.
-  implementation_surface: Recurring GPU spend reports by team, namespace, or project, report distribution workflows to accountable owners, and review records demonstrating that attributed GPU cost is examined and acted on through FinOps governance.
+  control_statement: Produce recurring GPU cost allocation reports for accountable owners and verify their availability and periodic review. Distinguish informational showback from any approved financial chargeback, which is carried out separately under Finance and Accounting policy.
+  objective: Give responsible owners an auditable view of GPU cost allocations, assumptions and exceptions, and document the review or financial action where required.
+  rationale: A reproducible allocation report can inform cost review and capacity decisions. Report generation, authorized distribution, documented owner review and financial posting each require evidence appropriate to their separate decisions.
+  scope: Applies to governed shared GPU workloads and reporting periods. Define the owner and rate sources, cost and currency basis, shared and idle amounts, exceptions and cadence. A financial posting is in scope only when selected through approved policy.
+  primary_enforcement_point: FinOps reporting and scoped distribution, documented accountable review, and authorized financial workflows where applicable.
+  implementation_surface: Retain versioned usage, ownership and pricing inputs and reproducible report totals. Disclose shared, unallocated, unpriced and disputed records. Verify access by intended recipients and retain review evidence and remediation records separately. Reconcile and authorize any financial posting through the approved Finance and Accounting process.
   owner_primary: FinOps
   owner_supporting: Platform Engineering; ML Engineering
   baseline_or_ai_specific: ai-specific
