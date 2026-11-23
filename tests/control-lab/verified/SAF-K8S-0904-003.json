@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-0904-003",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "cebd7ee630a25c40646155cefba526244539cb55",
+  "catalog_sha256": "43de94094630359221f83a05e4556881b2d53e76ac3923c7062b59a892f54314",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d0b57a1ca68aec60e4ca9d14eb14c94e299fe8f5eee724abc6465e94f7cbbbdd",
   "scope": "One fresh Kind v1.36.1 cluster, two pinned upstream Jupyter base-notebook Pods, and two case-owned benign dataset endpoints. The notebook Pods have distinct non-root UIDs and tokenless service accounts, configured CPU/RAM bounds and restrictive security contexts. Native NetworkPolicy limits each to its labeled endpoint, and native admission enforces the approved image reference. Each real Jupyter kernel executes a fixed harmless cell after policy is active. Kernel exposure, optional extensions, JupyterHub authentication, full provenance and dataset policy, and deployed controls require separate evidence.",
-  "review_timing": {
-    "queued_at": "2026-11-22T22:18:28.176274+00:00",
-    "cluster_ready_at": "2026-11-22T22:19:08.783938+00:00",
-    "approval_at": "2026-11-22T22:21:55.389794+00:00",
-    "case_loaded_at": "2026-11-22T22:21:55.457546+00:00"
-  },
-  "cluster": "saf-lab-ae973000b936",
+  "cluster": "saf-lab-6ec9d7c99690",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "28b74e211ca7b7130d70c4bd040754cc181afc59ce73d4b45a6e335413780d52",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
