@@ -1,0 +1,92 @@
+{
+  "control_id": "SAF-K8S-0905-047",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "ede65249c33c2fbe92fe21f9f4c2e0c50ee58b5a22ba6a42cf50952ca0e2d365",
+  "scope": "One disposable Kind cluster runs separate restricted training, packaging and attestation Jobs over synthetic linear regression records. The attestor generates two in-toto Statement v1 DSSE envelopes with SLSA Provenance v1 predicates and an ephemeral RSA key. An independent host verifier checks DSSE authentication, expected step roles and hashes from measured inputs and outputs. Two envelopes are attached by OCI package digest and retrieved with byte verification through the Distribution 3.0.0 referrers tag fallback. SLSA level, trusted production builder identity, managed key custody, durable registry retention and production workflow coverage remain unverified.",
+  "cluster": "saf-lab-affd8300a49c",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Training and packaging produce the permitted release",
+      "matched": true,
+      "observed": {
+        "model_parameters": {
+          "bias": 1.0,
+          "weight": 2.0
+        },
+        "package_sha256": "892d5af662c6c7ab93a59456f9edadefbbe18bd3b761b4a95c965b0c88d68727"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before attestation generation the model package is retrievable, but has no attestation index",
+      "matched": true,
+      "observed": {
+        "index_status": 404
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Each authenticated step statement binds its exact inputs and outputs",
+      "matched": true,
+      "observed": {
+        "steps": {
+          "training": [
+            1,
+            2
+          ],
+          "packaging": [
+            3,
+            2
+          ]
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The two verified OCI attachments round-trip by digest for the original package",
+      "matched": true,
+      "observed": {
+        "subject": "sha256:e6f175810759404382dd787980e50637509d483d61c405a1dc112001b919ba9f",
+        "attestation_steps": [
+          "packaging",
+          "training"
+        ],
+        "attachment_bytes_match": true
+      }
+    }
+  ]
+}
