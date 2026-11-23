@@ -3350,12 +3350,12 @@
   knowledge_area: '4.3'
   control_seq: '027'
   control_title: Secret leak incident triage and containment workflow
-  control_statement: Organizations must implement incident response procedures for secret leak events that drive rapid triage, containment, escalation, and documented response actions when leaked secrets are detected.
-  objective: Ensure detected secret leaks trigger a defined response workflow that contains exposure quickly and records the incident for follow-up.
-  rationale: Incident triage and containment are independently auditable from the credential lifecycle actions that revoke or replace the exposed secret. This control isolates the response workflow so teams can verify that leak findings trigger timely containment, escalation, and incident documentation.
-  scope: Applies to any detected exposure of credentials, tokens, keys, or secrets in repositories, images, CI/CD artifacts, logs, and runtime outputs. Covers response initiation, containment, escalation, and incident documentation. Credential revocation and replacement remain governed by SAF-K8S-0403-028.
-  primary_enforcement_point: Incident response workflow triggered by secret leak findings.
-  implementation_surface: Secret leak triage workflows, containment actions, notification and escalation paths, and incident records showing response timing and handling.
+  control_statement: Maintain and exercise a governed workflow for credential-leak findings. Verify and prioritize each report, assign an accountable responder, use authorized containment actions, escalate under the defined response policy and retain observed decisions and timestamps.
+  objective: Determine whether a valid finding reached the right owner and whether the selected containment took effect within the organization-defined target.
+  rationale: A finding, a routed escalation and an effective containment action supply distinct evidence. Record unresolved decisions and link provider-side credential lifecycle work under SAF-K8S-0403-028.
+  scope: Applies to governed development, artifact, log and runtime exposure reports. Define intake and alert sources, ownership, escalation and isolation actions appropriate to each exposure surface.
+  primary_enforcement_point: Authorized response workflow, confirmation and prioritization records, escalation handoff, and verification of resulting containment.
+  implementation_surface: Exercise a public fixture finding through intake, confirmation, ownership, escalation, and a bounded containment action. Verify the affected path is contained, necessary unaffected access stays available, and the record preserves timing, actions and handoffs.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; Application Development
   baseline_or_ai_specific: baseline
