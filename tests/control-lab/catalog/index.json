@@ -2760,6 +2760,12 @@
       "sha256": "fffde1c88876a23a32bd81aa6aa2d39f27591879f5bbd918f3e924d01c1e54db",
       "title": "Large-scale data integrity verification"
     },
+    "SAF-K8S-0906-005": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "c775cc2f7c87b02606abf45ad3c585ab9e2e883667877582c8352c902cfd30c9",
+      "title": "Annotation pipeline integrity and targeted label attack detection"
+    },
     "SAF-K8S-0906-006": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3392,7 +3398,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "77aa342c51d45c7e9c6ab7f01edeb854f754c91a",
-  "sha256": "ff928f1c1f5eca015a2086b41f0d10664dbc857fe42d6ae654300bba102179b5",
+  "revision": "ffc276f6d0c8de9228c62a71e8d839cb17f2ed13",
+  "sha256": "fc8f5b4a89186e84364f8182c34b50e803b2494bff7161fe549aaa8087b7827c",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
