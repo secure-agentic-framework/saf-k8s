@@ -9708,22 +9708,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AC-23
-  framework_requirement_title: Data Mining Protection
-  framework_mapping_notes: 'Preventing unauthorized data mining by agents
-
-
-    9.8 - Prevent model abuse and extraction (oracle attacks, model extraction, membership inference); 9.7 - Privacy controls'
-  control_id: SAF-K8S-0908-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AC-24
   framework_requirement_title: Access Control Decisions
   framework_mapping_notes: 'Policy decision points for agent authorization
@@ -17886,16 +17870,15 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-13
   framework_requirement_title: Monitoring for Information Disclosure
-  framework_mapping_notes: 'Detecting agent data leakage
-
-
-    9.8 - Prevent model abuse (monitoring for information disclosure via model endpoints); 4.3 - Secret leak detection'
+  framework_mapping_notes: The approved program independently monitors designated public sources and investigates applicable
+    unauthorized disclosures.
   control_id: SAF-K8S-0908-005
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The approved program independently monitors designated public sources and investigates applicable
+    unauthorized disclosures
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -17934,16 +17917,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-13(1)
   framework_requirement_title: Use of Automated Tools
-  framework_mapping_notes: 'Automated DLP monitoring for agent outputs
-
-
-    2.4 - Runtime threat detection (Falco, Tetragon for automated disclosure monitoring); 9.8 - Automated extraction detection'
+  framework_mapping_notes: The scoped external disclosure workflow uses and verifies approved automated monitoring.
   control_id: SAF-K8S-0908-005
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The scoped external disclosure workflow uses and verifies approved automated monitoring
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -17982,16 +17962,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-13(2)
   framework_requirement_title: Review of Monitored Sites
-  framework_mapping_notes: 'Reviewing where agent outputs appear
-
-
-    9.8 - Monitoring external sites and channels for leaked or stolen model outputs covers review of monitored sites'
+  framework_mapping_notes: The operator periodically reviews and records the approved external monitoring source list.
   control_id: SAF-K8S-0908-005
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The operator periodically reviews and records the approved external monitoring source list
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -18110,16 +18087,15 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-13(3)
   framework_requirement_title: Unauthorized Replication of Information
-  framework_mapping_notes: 'Detecting unauthorized agent data replication
-
-
-    9.8 - Prevent model extraction (unauthorized replication detection); 9.5 - OCI artifact access controls'
+  framework_mapping_notes: The approved external disclosure program separately verifies discovery and handling of unauthorized
+    replication.
   control_id: SAF-K8S-0908-005
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The approved external disclosure program separately verifies discovery and handling of unauthorized
+    replication
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -32960,16 +32936,13 @@
   framework_version: 5.2.0
   framework_requirement_id: IR-4(13)
   framework_requirement_title: Behavior Analysis
-  framework_mapping_notes: 'Analyzing anomalous agent behavior patterns during incidents
-
-
-    2.4 - Runtime threat detection (behavioral analysis of containers); 9.8 - Model abuse pattern detection'
+  framework_mapping_notes: The deployment conducts verified incident behavior analysis for the designated resources.
   control_id: SAF-K8S-0908-005
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The deployment conducts verified incident behavior analysis for the designated resources
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -37608,22 +37581,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: RA-5(4)
-  framework_requirement_title: Discoverable Information
-  framework_mapping_notes: 'Discoverable information analysis identifies exposed agent endpoints and metadata
-
-
-    9.8 - Information exposure controls (minimizing discoverable model and data information via serving endpoints)'
-  control_id: SAF-K8S-0908-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -48363,22 +48320,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SC-30(2)
-  framework_requirement_title: Randomness
-  framework_mapping_notes: 'Randomization of agent deployment characteristics prevents predictable attack patterns
-
-
-    5.2 - IPAM (randomized IP assignment); 9.8 - Differential privacy (output randomization for information protection)'
-  control_id: SAF-K8S-0908-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SC-30(3)
   framework_requirement_title: Change Processing and Storage Locations
   framework_mapping_notes: 'Dynamic relocation of agent processing increases adversary difficulty in targeting
@@ -48599,22 +48540,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-30(4)
-  framework_requirement_title: Misleading Information
-  framework_mapping_notes: 'Deceptive responses from agent honeypots mislead adversaries about system architecture
-
-
-    9.8 - Watermarking and fingerprinting (misleading information for model theft detection)'
-  control_id: SAF-K8S-0908-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -55940,22 +55865,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-10(4)
-  framework_requirement_title: Timing Interactions
-  framework_mapping_notes: 'Timing interaction controls for agent inputs prevent race conditions and time-of-check attacks
-
-
-    9.3 - Inference-time resource controls (timing/timeout enforcement); 9.8 - Rate limiting (timing-based controls)'
-  control_id: SAF-K8S-0908-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-10(5)
   framework_requirement_title: Restrict Inputs to Trusted Sources and Approved Formats
   framework_mapping_notes: 'Restricting agent inputs to trusted sources and formats prevents injection attacks
@@ -56320,22 +56229,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-11
-  framework_requirement_title: Error Handling
-  framework_mapping_notes: 'Agent error handling must not reveal sensitive information or create exploitable states
-
-
-    9.3 - Inference overload handling (graceful degradation, circuit breakers); 9.8 - Information exposure controls'
-  control_id: SAF-K8S-0908-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -58052,22 +57945,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-15
-  framework_requirement_title: Information Output Filtering
-  framework_mapping_notes: 'Output filtering for agent responses prevents information leakage and injection propagation
-
-
-    9.2 - Response filtering and output controls (preventing model output leakage); 9.8 - Information exposure controls'
-  control_id: SAF-K8S-0908-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-16
   framework_requirement_title: Memory Protection
   framework_mapping_notes: 'Memory protection for agent processes prevents exploitation of memory corruption vulnerabilities
@@ -59076,22 +58953,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-19(3)
-  framework_requirement_title: Release
-  framework_mapping_notes: 'De-identification before agent data release prevents re-identification of individuals
-
-
-    9.8 - Information exposure controls (de-identification before release); 9.2 - Response filtering (PII filtering on output)'
-  control_id: SAF-K8S-0908-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-19(4)
   framework_requirement_title: Removal, Masking, Encryption, Hashing, or Replacement of Direct Identifiers
   framework_mapping_notes: 'Removal, masking, or encryption of direct identifiers in agent data protects privacy
@@ -59200,22 +59061,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-19(5)
-  framework_requirement_title: Statistical Disclosure Control
-  framework_mapping_notes: 'Statistical disclosure control prevents re-identification in agent analytics outputs
-
-
-    9.8 - Differential privacy and output perturbation; 9.6 - Information exposure controls (statistical disclosure prevention)'
-  control_id: SAF-K8S-0908-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -59360,22 +59205,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-19(6)
-  framework_requirement_title: Differential Privacy
-  framework_mapping_notes: 'Differential privacy techniques protect individual data in agent analytics and model training
-
-
-    9.8 - Differential privacy and output perturbation controls; 9.1 - Federated learning differential privacy for gradient updates'
-  control_id: SAF-K8S-0908-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -59552,22 +59381,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-19(8)
-  framework_requirement_title: Motivated Intruder
-  framework_mapping_notes: 'Testing against motivated intruder re-identification validates agent privacy protections
-
-
-    9.8 - Oracle attack prevention (motivated intruder model  -- systematic querying); 10.3 - Threat modeling (adversary profiling)'
-  control_id: SAF-K8S-0908-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -61483,22 +61296,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-4(11)
-  framework_requirement_title: Analyze Communications Traffic Anomalies
-  framework_mapping_notes: 'Traffic anomaly analysis for agent communications identifies unusual patterns and attacks
-
-
-    5.1 - East-west traffic monitoring for anomalous AI workload communication; 9.8 - Query pattern analysis'
-  control_id: SAF-K8S-0908-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-4(12)
   framework_requirement_title: Automated Organization-generated Alerts
   framework_mapping_notes: 'Automated alert generation for agent security events reduces detection latency
@@ -61772,16 +61569,15 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-4(13)
   framework_requirement_title: Analyze Traffic and Event Patterns
-  framework_mapping_notes: 'Analyzing agent traffic and event patterns identifies sophisticated multi-stage attacks
-
-
-    9.8 - Query pattern analysis (analyzing inference traffic patterns); 5.1 - AI workload network segmentation'
+  framework_mapping_notes: The monitored system analyzes common traffic and event patterns and uses their profiles to
+    tune monitoring.
   control_id: SAF-K8S-0908-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The monitored system analyzes common traffic and event patterns and uses their profiles to
+    tune monitoring
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -62054,22 +61850,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(18)
-  framework_requirement_title: Analyze Traffic and Covert Exfiltration
-  framework_mapping_notes: 'Detecting covert data exfiltration through agent traffic analysis prevents data loss
-
-
-    5.3 - DNS exfiltration prevention; 9.8 - Model extraction prevention (detecting covert exfiltration)'
-  control_id: SAF-K8S-0908-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5

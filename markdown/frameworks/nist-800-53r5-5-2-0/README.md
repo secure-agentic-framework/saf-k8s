@@ -2,7 +2,7 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 3953
+- Total Reverse Mappings: 3940
 - Distinct Requirements Mapped: 775
 
 ## Requirements
