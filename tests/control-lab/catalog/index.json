@@ -1068,6 +1068,12 @@
       "sha256": "b85376ac47d4bfd781fd0558c420d0b50730fdda7ca1456862a76fc57d1309d0",
       "title": "Post-compromise certificate recovery validation"
     },
+    "SAF-K8S-0405-002": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "dbf19c6040b63829138e9815573c40342e3902a3e76b266eb036bbed8e1427d4",
+      "title": "Privilege escalation detection and monitoring"
+    },
     "SAF-K8S-0501-001": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -3128,7 +3134,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "82876642527c0a314c932fa3def9a305605f5c3d",
-  "sha256": "b0c50d14a9b85b1ba7d025e07456da49fb7019e1c15eb8391ce47a19eb3daef8",
+  "revision": "ce2b8c2dcc98adf41493bbac86595093534b8d91",
+  "sha256": "8f2cdf0ce998f80a155c3f235dfd06267fbccdf60960273d466525bbe5fc10f5",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

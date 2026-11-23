@@ -1,0 +1,71 @@
+{
+  "control_id": "SAF-K8S-0405-002",
+  "catalog_revision": "4617f36ff94ae8e9e22834af6115500f541fc86e",
+  "catalog_sha256": "8f2cdf0ce998f80a155c3f235dfd06267fbccdf60960273d466525bbe5fc10f5",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "dbf19c6040b63829138e9815573c40342e3902a3e76b266eb036bbed8e1427d4",
+  "scope": "Native API audit records approved and unexpected administrative changes to a case-owned RoleBinding for public test data, and one ordinary authorization denial. The test separates audit coverage, review policy and alert delivery to an owned queue. No attack, secret access, live credential theft, production privileges, or external monitoring integration is exercised.",
+  "cluster": "saf-lab-740e6ce941ca",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Real audit records alone leave the review queue empty",
+      "matched": true,
+      "observed": {
+        "api_denies_ordinary_workload_mutation": true,
+        "audit_events_present": true,
+        "no_alert_queue_without_consumer": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The detector routes the two distinct review signals using only metadata",
+      "matched": true,
+      "observed": {
+        "approved_change_distinguished": true,
+        "source_has_no_request_or_response_payload": true,
+        "review_queue_has_distinct_decisions": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Review can remove the unexpected fixture grant and preserve legitimate access",
+      "matched": true,
+      "observed": {
+        "approved_public_read_preserved": true,
+        "incident_signals_retained": true
+      }
+    }
+  ]
+}
