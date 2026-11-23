@@ -4172,10 +4172,10 @@
   control_title: Kubernetes CNI IPAM capacity sizing
   control_statement: IP address management for Kubernetes networking must be configured with adequate pod, service, and node CIDR capacity so IP pools support workload scheduling and service operation without avoidable exhaustion.
   objective: Maintain sufficient IP address capacity for workload scheduling and service operation by correctly sizing pod, service, and node CIDR allocations.
-  rationale: Undersized pod, service, or node CIDR ranges cause scheduling failures and service disruption. Separate sizing governance from monitoring so capacity design can be independently reviewed and validated.
+  rationale: An exhausted Service pool rejects new ClusterIP allocations. A depleted Pod address pool can prevent a scheduled Pod sandbox from obtaining its IP. Node prefix exhaustion can prevent new nodes from receiving PodCIDRs in designs that allocate a prefix per node. Evaluate these limits and their load signals separately.
   scope: Applies to all Kubernetes clusters. Covers pod CIDR, service CIDR, and node CIDR range sizing, utilization monitoring, exhaustion thresholds, and alerting for IP address pool depletion.
-  primary_enforcement_point: CNI plugin IPAM capacity planning and allocation design.
-  implementation_surface: CNI plugin IPAM configuration for pod, service, and node CIDR allocation sizing, pool reservation strategy, and operational review of remaining address capacity.
+  primary_enforcement_point: Kubernetes Service IP allocation, CNI Pod IPAM configuration, and the mechanism that assigns node PodCIDRs where applicable.
+  implementation_surface: Size each Service, Pod and node address pool for the requirements of its allocator. Verify ServiceCIDR capacity and expansion when supported, CNI Pod allocation behavior and node prefix limits. Monitor allocator-specific remaining capacity and relevant errors.
   owner_primary: Network Engineering
   owner_supporting: Platform Engineering; Security Operations
   baseline_or_ai_specific: baseline
