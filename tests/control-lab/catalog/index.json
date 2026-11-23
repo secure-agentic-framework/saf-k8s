@@ -546,6 +546,12 @@
       "sha256": "13d18c4ebf508edaa11e2fb272067b4a84a6d90b73e871c4cab6e878b2fc3d8f",
       "title": "Container filesystem drift detection"
     },
+    "SAF-K8S-0204-004": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "be914f5c7943133bb2cd697d069187a9fc55a7873dc543f4b22b4b604217a22f",
+      "title": "Forensic capture capabilities for container incident investigation"
+    },
     "SAF-K8S-0205-002": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -2894,7 +2900,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "fa65bef3ef0bf890a64150d4fc909ed5edf81ef2",
-  "sha256": "cac977a792918cc74529e45763d49762ab692c539b68b58bdd492755569553e6",
+  "revision": "cd9a23a90202fe5d1240a2938c4a64e92276bb04",
+  "sha256": "e1b005e71efe450175550cd4abc2b4bca289d084bb64583afffc8b90d63cb66a",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
