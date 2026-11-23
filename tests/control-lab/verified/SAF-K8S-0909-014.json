@@ -1,0 +1,95 @@
+{
+  "control_id": "SAF-K8S-0909-014",
+  "catalog_revision": "5fb624b06d2c9e67aeca43be19bf3ab359b74881",
+  "catalog_sha256": "9174da9e9f43bbab67254bbd37638405a72864b72b4e42d48dcfa8a391f3102d",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "bfabe6c7cf30f9cb00c3d96ab0fde24874a59183aff65e43fd3073b1a2b16aab",
+  "scope": "An offline Cosign init checks a signed approval before ingestion starts. The workload binds the signed source and digest to an owned synthetic document before chunking. A separate read-only Pod observes unchanged rejected storage or approved chunks, vectors, the source receipt and a known retrieval.",
+  "cluster": "saf-lab-a17f55b0c318",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The unlocked fixed-source baseline indexes the benign alternate document",
+      "matched": true,
+      "observed": {
+        "alternate_accepted": true,
+        "signature_verification_disabled": true,
+        "chunks_persisted": 2,
+        "source_id_fixed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An altered signed manifest fails verification before ingestion starts",
+      "matched": true,
+      "observed": {
+        "cryptographic_rejection_observed": true,
+        "verifier_failed": true,
+        "ingestion_did_not_start": true,
+        "invalid_approval_pvc_remains_empty": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The signed path rejects the alternate bytes before chunking or writes",
+      "matched": true,
+      "observed": {
+        "signature_valid_manifest_rejected_for_bytes": true,
+        "reason": "document_digest_mismatch",
+        "chunk_calls": 0,
+        "writes": 0,
+        "persisted_files": []
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved document persists expected chunks, vectors, receipt, and retrieval",
+      "matched": true,
+      "observed": {
+        "approved_digest_match": true,
+        "expected_chunks_persisted": true,
+        "source_receipt_valid": true,
+        "vector_index_persisted": true,
+        "retrieval_access_verified": true,
+        "storage_files": [
+          "approval-manifest.json",
+          "approval.sig",
+          "chunks.json",
+          "source-receipt.json",
+          "vector-index.json"
+        ]
+      }
+    }
+  ]
+}
