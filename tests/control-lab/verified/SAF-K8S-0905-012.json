@@ -1,0 +1,140 @@
+{
+  "control_id": "SAF-K8S-0905-012",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "e9fe2c88f109de6df909ca6247e367af99d390c1441680b8db45830fa2dea9b9",
+  "scope": "A disposable Kubernetes v1.36.1 Kind cluster uses saf-test as a training namespace and a case-owned production namespace. Two fixed ServiceAccounts access only inert, application-owned synthetic ConfigMaps. Matched SubjectAccessReview decisions show no access before scoped Roles, then namespace-scoped own-reference access while cross-environment access remains denied. A stable ValidatingAdmissionPolicy denies an inference Pod volume referencing the training ConfigMap; server dry-run compares the same request before and after policy enrollment, and admits the valid inference reference. This establishes bounded namespace/RBAC and Pod-volume admission behavior for synthetic references only. Cloud workload identity federation, real credentials or data, production clusters, other reference forms, and organization-wide production coverage require separate evidence.",
+  "cluster": "saf-lab-1222e24033b1",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Both fixed subjects lack access to the application-owned references before grants",
+      "matched": true,
+      "observed": {
+        "training_own": {
+          "allowed": false,
+          "denied": false,
+          "reason": "",
+          "evaluationError": ""
+        },
+        "training_cross": {
+          "allowed": false,
+          "denied": false,
+          "reason": "",
+          "evaluationError": ""
+        },
+        "production_own": {
+          "allowed": false,
+          "denied": false,
+          "reason": "",
+          "evaluationError": ""
+        },
+        "production_cross": {
+          "allowed": false,
+          "denied": false,
+          "reason": "",
+          "evaluationError": ""
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Namespace-scoped Roles allow each fixed subject its own named reference and deny both cross-environment reads",
+      "matched": true,
+      "observed": {
+        "training_own": {
+          "allowed": true,
+          "denied": false,
+          "reason": "RBAC: allowed by RoleBinding \"saf-0905-012-local-fixture-reader/saf-test\" of Role \"saf-0905-012-local-fixture-reader\" to ServiceAccount \"saf-0905-012-training-runner/saf-test\"",
+          "evaluationError": ""
+        },
+        "training_cross": {
+          "allowed": false,
+          "denied": false,
+          "reason": "",
+          "evaluationError": ""
+        },
+        "production_own": {
+          "allowed": true,
+          "denied": false,
+          "reason": "RBAC: allowed by RoleBinding \"saf-0905-012-local-fixture-reader/saf-test-production\" of Role \"saf-0905-012-local-fixture-reader\" to ServiceAccount \"saf-0905-012-inference-runner/saf-test-production\"",
+          "evaluationError": ""
+        },
+        "production_cross": {
+          "allowed": false,
+          "denied": false,
+          "reason": "",
+          "evaluationError": ""
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The same cross-environment inference Pod structure is admitted before policy enrollment",
+      "matched": true,
+      "observed": {
+        "returncode": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Production admission denies the training ConfigMap volume for the stated policy reason",
+      "matched": true,
+      "observed": {
+        "returncode": 1,
+        "policy_denial": true,
+        "stderr": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0905-012-cross-reference\" is forbidden: ValidatingAdmissionPolicy 'saf-0905-012-production-configmap-boundary' with binding 'saf-0905-012-production-configmap-boundary' denied request: production Pods cannot reference the training input ConfigMap"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A valid inference Pod using its own synthetic production reference remains admissible",
+      "matched": true,
+      "observed": {
+        "returncode": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The stored inference Pod completes and reads the expected inert production reference",
+      "matched": true,
+      "observed": {
+        "read_reference": "app://synthetic/production/input-v1"
+      }
+    }
+  ]
+}
