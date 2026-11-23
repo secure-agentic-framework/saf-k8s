@@ -7690,12 +7690,12 @@
   knowledge_area: '8.3'
   control_seq: '005'
   control_title: DPU and SmartNIC firmware cryptographic verification and Secure Boot integrity
-  control_statement: DPU and SmartNIC devices used for AI workload acceleration or network offload must maintain firmware integrity through cryptographic verification and Secure Boot validation of the DPU firmware chain.
-  objective: Ensure programmable offload devices boot only approved firmware and that unauthorized firmware modification is detectable before DPU or SmartNIC services influence AI workload traffic or storage paths.
-  rationale: DPUs operate below the host OS trust boundary with direct access to traffic and storage I/O. Cryptographic firmware verification and Secure Boot validation are separate trust anchors that ensure the DPU firmware chain itself has not been replaced or tampered with before the device begins enforcing policies or processing workload traffic.
-  scope: Applies to Kubernetes nodes equipped with DPUs or SmartNICs with programmable firmware. Covers firmware signature verification, Secure Boot attestation for the DPU boot chain, and monitoring for unauthorized firmware version changes.
-  primary_enforcement_point: DPU Firmware Chain Integrity
-  implementation_surface: DPU firmware management platforms, Secure Boot configuration for DPU firmware chain, firmware cryptographic signature verification, and firmware version attestation or monitoring.
+  control_statement: On governed DPU and SmartNIC models, require supported firmware integrity and device boot-chain controls for the approved operating mode. Verify actual device identity, effective boot policy, approved firmware and current evidence for the relevant boot stages.
+  objective: Restrict device operation to supported trusted firmware states and detect unsupported or unexplained changes.
+  rationale: A verified artifact, effective device Secure Boot, independent measurement and runtime firmware inventory have distinct evidentiary scopes. Signature verification can be part of the boot trust chain and is not necessarily a separate trust anchor. Host measurements do not by themselves establish the state of an offload device.
+  scope: Applies to governed programmable offload devices and supported firmware, boot stages, management paths and trust features. Identify vendor, device, platform configuration, authorized revision, required report binding and unsupported claims.
+  primary_enforcement_point: Vendor-supported device root of trust and boot policy, independently bound measurements and approved firmware inventory.
+  implementation_surface: Verify configuration-specific vendor evidence of approved signers, effective policy and relevant boot components. Independently obtain current device-bound evidence and approved version state, check freshness and provenance, and investigate changes or unsupported observations.
   owner_primary: Network Engineering
   owner_supporting: GPU Infrastructure Engineering; Security Engineering; Platform Engineering
   baseline_or_ai_specific: ai-specific
