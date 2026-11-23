@@ -1,0 +1,81 @@
+{
+  "control_id": "SAF-K8S-0702-010",
+  "catalog_revision": "889ff69c03e0e87523b4daf14162a532f34d53b3",
+  "catalog_sha256": "7a28badc5e3a74a2232d83ef1b54c79e5ef9235017577e593aecf4bca2c13451",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "80c8532a4fec27084e1feab6a00d97a5ce46c8de9b691551e3cdf251b6b7f3a5",
+  "scope": "A real local host API and two vCluster tenant APIs on a shared Kind node, with scoped host authorization reviews.",
+  "cluster": "saf-lab-d7269371d661",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The same host cluster-scoped object collides when requested from a different namespace argument",
+      "matched": true,
+      "observed": {
+        "cluster_scoped_collision_across_host_namespaces": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Both live tenant APIs independently accept the same cluster-scoped CRD and retain distinct marker values",
+      "matched": true,
+      "observed": {
+        "virtual_marker_matches": {
+          "tenant-a": true,
+          "tenant-b": true
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The virtual namespace is absent from the host API and owned tenant subjects have no tested host grant",
+      "matched": true,
+      "observed": {
+        "virtual_namespace_absent_on_host": true,
+        "host_authorization": {
+          "tenant-a": {
+            "host_nodes_allowed": false,
+            "host_synced_namespace_read_allowed": false,
+            "host_crd_create_allowed": false
+          },
+          "tenant-b": {
+            "host_nodes_allowed": false,
+            "host_synced_namespace_read_allowed": false,
+            "host_crd_create_allowed": false
+          }
+        }
+      }
+    }
+  ]
+}

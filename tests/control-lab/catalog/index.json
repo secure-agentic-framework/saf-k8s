@@ -1338,6 +1338,12 @@
       "sha256": "688e3eff7e674662fb6e50487c571f5ce9c9888d3aa16ddb8669db1b861e231f",
       "title": "Admission control enforcement of workload classification label requirements"
     },
+    "SAF-K8S-0702-010": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "80c8532a4fec27084e1feab6a00d97a5ce46c8de9b691551e3cdf251b6b7f3a5",
+      "title": "Virtual cluster deployment for high-isolation multi-tenant Kubernetes environments"
+    },
     "SAF-K8S-0702-013": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -2546,7 +2552,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "0dbab9df56e7a8d1e097305fc35c747d8b4021fb",
-  "sha256": "1f8d3a5649479bcd03aae073d450a673d30a2da2ad35c8d0f93385abf3176592",
+  "revision": "2dbdc3975ff2623d1e2d2cfd9e37f6b387e0d164",
+  "sha256": "7a28badc5e3a74a2232d83ef1b54c79e5ef9235017577e593aecf4bca2c13451",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
