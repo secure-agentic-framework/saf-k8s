@@ -138,6 +138,12 @@
       "sha256": "c95e66f3b19cc2dc0d05702b830ba638ee104c0d8cc03bb5dfc368b45aa19f82",
       "title": "etcd certificate expiration monitoring and lead-time alerting"
     },
+    "SAF-K8S-0102-022": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "5da4478231b6f7c0f50f762986200a91e694129d80f92706bf8730c5241eaf5a",
+      "title": "etcd backup repository least-privilege access restriction"
+    },
     "SAF-K8S-0103-001": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -2714,7 +2720,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c82d428f0c71d9ec89a963b19aebcba5debce1ff",
-  "sha256": "aaff66f6378fae48dc67b891d3e807737cc0e5a559001472c9884e3a3328bd27",
+  "revision": "131f9ee9909ba9c83bcc1625c9dc23eafc8350fe",
+  "sha256": "5d71956210bfd1e910e50cef79d6b0c92ddc0d9aa93c754bc6b32b1ed170b1ce",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
