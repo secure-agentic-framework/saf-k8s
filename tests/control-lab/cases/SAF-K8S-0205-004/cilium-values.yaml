@@ -1,0 +1,11 @@
+ipam:
+  mode: kubernetes
+kubeProxyReplacement: false
+cni:
+  exclusive: true
+  install: true
+l7Proxy: true
+envoy:
+  enabled: true
+operator:
+  replicas: 1

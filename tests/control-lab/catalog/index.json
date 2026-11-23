@@ -558,6 +558,12 @@
       "sha256": "01be03c8b64a911475ce3664a60a8030c677a19c3e27e7cf75352716e20659ba",
       "title": "NodePort and HostPort restriction policies"
     },
+    "SAF-K8S-0205-004": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "0f31eb9f7f1702839174c422ebfa3b482d613fe0558f429f8f5972d2587627f6",
+      "title": "eBPF-based kernel-level network policy enforcement"
+    },
     "SAF-K8S-0301-001": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -2900,7 +2906,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "a703e817b38203679b50180c871da0bd079bd488",
-  "sha256": "e1b005e71efe450175550cd4abc2b4bca289d084bb64583afffc8b90d63cb66a",
+  "revision": "09429d7da9a2ffd64c5b46ddad179754ea8c9773",
+  "sha256": "73c30d7c762cf9c303d8a0112bb11660eb3a3b6dea69bfe1c60c4486b8dfcd21",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
