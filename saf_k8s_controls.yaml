@@ -2854,8 +2854,8 @@
   objective: Ensure long-running training jobs maintain valid credentials without requiring excessively long-lived tokens, reducing the exposure window while sustaining job continuity.
   rationale: Long-running training jobs may outlast short-lived credential TTLs. Without automatic rotation, jobs either fail on credential expiry or require long-lived tokens that create unacceptable exposure windows. Automatic rotation maintains access while constraining each individual token lifetime.
   scope: Applies to training jobs with expected durations exceeding the initial credential validity period, covering Kubernetes projected token refresh, Vault lease renewal, and cloud credential refresh mechanisms.
-  primary_enforcement_point: Job controller credential refresh configuration, Vault lease renewal policies, and cloud IAM token refresh mechanisms for long-running workloads.
-  implementation_surface: Kubernetes projected ServiceAccountToken automatic refresh, Vault agent credential renewal, Kubeflow TrainingJob and Argo Workflow credential rotation hooks, and cloud SDK automatic token refresh configuration.
+  primary_enforcement_point: Kubelet refresh of a projected service account token and workload reload of the mounted token file, Vault lease renewal policies, and cloud IAM token refresh mechanisms.
+  implementation_surface: Project the Kubernetes serviceAccountToken into the Job Pod and have each client reopen the mounted token file so it uses the refreshed token. Use Vault Agent renewal, supported Kubeflow TrainingJob or Argo Workflow integration, and cloud SDK refresh where applicable.
   owner_primary: ML Engineering
   owner_supporting: Platform Engineering; Security Engineering
   baseline_or_ai_specific: ai-specific
