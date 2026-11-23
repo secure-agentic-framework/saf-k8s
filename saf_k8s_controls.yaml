@@ -4490,12 +4490,12 @@
   knowledge_area: '5.4'
   control_seq: '006'
   control_title: SPIFFE/SPIRE workload identity issuance and lifecycle management
-  control_statement: Workload identity must be established using SPIFFE-compliant identities issued by SPIRE or an equivalent workload identity provider, with workload registration, attestation, issuance, and automatic identity rotation configured to maintain verifiable service identity over time.
+  control_statement: Issue SPIFFE Verifiable Identity Documents to eligible workloads using SPIRE or an equivalent provider. Verify registration and attestation, then verify automatic renewal of short-lived documents for the intended stable SPIFFE ID.
   objective: Provide cryptographically verifiable workload identities that enable identity-based access control independent of network location.
   rationale: Without cryptographic workload identity issuance and rotation, services fall back to network-based trust that can be spoofed or bypassed. Separating identity lifecycle management from federation governance makes local workload identity controls independently auditable.
-  scope: Applies to all production Kubernetes clusters implementing zero trust networking. SPIRE server and agent deployments must follow high-availability patterns. Trust domain naming must align with organizational boundaries. Cross-cluster federation applies where workloads in separate clusters need to authenticate to each other.
+  scope: Applies to production Kubernetes workloads that use SPIFFE identity. Verify server and agent availability, trust-domain governance, and the service mesh or application integration where applicable. Evaluate cross-trust-domain federation under SAF-K8S-0504-007.
   primary_enforcement_point: SPIFFE/SPIRE workload identity issuance and attestation controls.
-  implementation_surface: SPIRE server and agent deployments, workload registration entries, workload attestation plugins, SVID issuance, automatic SVID renewal, and integration with service mesh or application-level mTLS for identity-based access control.
+  implementation_surface: Configure workload registration, node and workload attestation, SVID lifetime and automatic renewal. Verify the SPIFFE URI, the relevant trust bundle, permitted and denied issuance, and consumer behavior during renewal. Retain evidence for the actual server, agent and relying application paths.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; Network Engineering
   baseline_or_ai_specific: baseline
