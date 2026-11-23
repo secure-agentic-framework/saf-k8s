@@ -1596,6 +1596,12 @@
       "sha256": "052f2eb05e3adc3eefaab6ab2b895a254de3d534275b522f03fae0688ebbbc78",
       "title": "Effective Kubernetes API entitlement review and drift remediation"
     },
+    "SAF-K8S-0704-017": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "1d7a2d6d3ad121fb2ec90341854cc69234907a0a6090a7dec535891007a2e684",
+      "title": "Least-privilege cloud-to-cluster privileged access boundary enforcement"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -2504,7 +2510,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "04a5c277a6effa8eaeaa84c643d26c707c891e21",
-  "sha256": "bbd86d9789bf576dfb286c0bbc253b717eaaddfe4283f2ccb6e29fded9b5374f",
+  "revision": "14538f9c6ce4784213dcf24dc175c44504aa3d6a",
+  "sha256": "784059a92b43e8cae92510eaf3459647f5dfb48bb5c2e6ecfe938933b0c37a6e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

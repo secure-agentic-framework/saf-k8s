@@ -1,0 +1,74 @@
+{
+  "control_id": "SAF-K8S-0704-017",
+  "catalog_revision": "f1dc7ac59b32578340d7f56894d09ab7d5dfe290",
+  "catalog_sha256": "784059a92b43e8cae92510eaf3459647f5dfb48bb5c2e6ecfe938933b0c37a6e",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "1d7a2d6d3ad121fb2ec90341854cc69234907a0a6090a7dec535891007a2e684",
+  "scope": "Live authorization reviews of one synthetic identity under two additive namespaced RBAC grants.",
+  "cluster": "saf-lab-2e2b82e56126",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The second owned grant produces an effective allow outside the approved matrix",
+      "matched": true,
+      "observed": {
+        "approved_marker": true,
+        "other_marker": true,
+        "different_namespace": false,
+        "enlarge_grant": false,
+        "read_secrets": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Removing the extra binding restores the exact reviewed authorization matrix",
+      "matched": true,
+      "observed": {
+        "approved_marker": true,
+        "other_marker": false,
+        "different_namespace": false,
+        "enlarge_grant": false,
+        "read_secrets": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved owned ConfigMap remains readable through the live request",
+      "matched": true,
+      "observed": {
+        "approved_marker_read_succeeded": true
+      }
+    }
+  ]
+}
