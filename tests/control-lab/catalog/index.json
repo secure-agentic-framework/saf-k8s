@@ -534,6 +534,12 @@
       "sha256": "333bfb3fcffef487f6fee710a45eb8e0a5e041d09f11e0a203e6e93b53d661af",
       "title": "Runtime security tool deployment for syscall and network monitoring"
     },
+    "SAF-K8S-0204-003": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "13d18c4ebf508edaa11e2fb272067b4a84a6d90b73e871c4cab6e878b2fc3d8f",
+      "title": "Container filesystem drift detection"
+    },
     "SAF-K8S-0205-002": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -2882,7 +2888,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "4dd3488737b35463c95ee48d708e3f354e370dd1",
-  "sha256": "b51e20f32aa6f35275beab6647f00f0aa0b0ffb7c6dc2841d6af53f3d8885108",
+  "revision": "589aa46e57b74a7ecabc831d6b6a23f75cb058e9",
+  "sha256": "b0b0b68f1bf0dc2d39f1caada87cd806111b49945c552ce762f1f8f478f95346",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
