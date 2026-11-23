@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-035",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "ec62d42dcfa1b6917d7bb483b9272ba79b7d673b",
+  "catalog_sha256": "5d300b2f3b1823e3cbb4aee50b95ef1970adf01a5b145ef7ca8309eb785d1ee4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6dfa572280c25fa12f67873e47d99f71aaa47715efd865199660e1777ea8a9a4",
   "scope": "A fresh Kind v1.36.1 cluster runs stable and candidate HTTP fixtures through live Kubernetes Services. A scoped rollout-analysis Job observes four candidate requests per episode. It atomically changes the route and records a reason if at least three requests are HTTP errors or cross the fixture latency limit. Independent live requests read the stable response after each automatic change. Production rollout controllers, real model health, candidate scaling, transaction recovery and policy deployment remain open.",
-  "review_timing": {
-    "queued_at": "2026-11-23T01:38:01.322505+00:00",
-    "cluster_ready_at": "2026-11-23T01:38:44.078000+00:00",
-    "approval_at": "2026-11-23T01:42:54.114584+00:00",
-    "case_loaded_at": "2026-11-23T01:42:54.325309+00:00"
-  },
-  "cluster": "saf-lab-a79deb2236bf",
+  "cluster": "saf-lab-8ed84339b15d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "c39a243df58e4ac9c216314bc92f69392ea3ef6733d1db97c799b3fea658385f",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
