@@ -744,6 +744,12 @@
       "sha256": "74fc2b652f55270a399f34a93767c4a4a34532cdb0009a31a2bc1022463f9ba9",
       "title": "Kubernetes CNI IP pool exhaustion monitoring and alerting"
     },
+    "SAF-K8S-0503-004": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "911cad12b613f8d526585d644e076e69502b79a58c0eab57c68ec3d36aabc479",
+      "title": "Internal load balancer annotation enforcement"
+    },
     "SAF-K8S-0503-007": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -2108,7 +2114,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "a632e6e2dc866b2f96644965fd8fcb0b7828418d",
-  "sha256": "20ca22daf42e12ce0f71b976106bbb2dfddf56391fa6f121392f25627cfe297a",
+  "revision": "97462bc4b079f5f3f0c6e02c3ee6506e657b77e6",
+  "sha256": "7afb8f92fd6b8686ffdff1601407c3a00ec8a124c7321849866ac4bdb5cdf2cc",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

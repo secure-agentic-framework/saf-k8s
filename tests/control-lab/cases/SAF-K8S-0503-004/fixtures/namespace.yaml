@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: saf-test
+  labels:
+    saf-control: "0503-004"
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: saf-approvers
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tenant
+  namespace: saf-test
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: lb-exception-approver
+  namespace: saf-approvers

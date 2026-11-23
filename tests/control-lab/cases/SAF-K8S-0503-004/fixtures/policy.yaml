@@ -1,0 +1,40 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-0503-004-service-scheme
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["services"]
+        scope: Namespaced
+  validations:
+    - expression: >-
+        object.spec.type != 'LoadBalancer' ||
+        ((has(object.metadata.annotations) &&
+          'service.beta.kubernetes.io/aws-load-balancer-scheme' in object.metadata.annotations &&
+          object.metadata.annotations['service.beta.kubernetes.io/aws-load-balancer-scheme'] == 'internal') ||
+         (has(object.metadata.annotations) &&
+          'service.beta.kubernetes.io/aws-load-balancer-scheme' in object.metadata.annotations &&
+          object.metadata.annotations['service.beta.kubernetes.io/aws-load-balancer-scheme'] == 'internet-facing' &&
+          request.userInfo.username == 'system:serviceaccount:saf-approvers:lb-exception-approver' &&
+          has(object.spec.loadBalancerSourceRanges) &&
+          size(object.spec.loadBalancerSourceRanges) > 0 &&
+          object.spec.loadBalancerSourceRanges.all(r,
+            r in ['198.51.100.0/24', '2001:db8:1234::/48'])))
+      message: "LoadBalancer must use the internal scheme or an authorized bounded-CIDR exception."
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-0503-004-service-scheme
+spec:
+  policyName: saf-0503-004-service-scheme
+  validationActions: ["Deny"]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-control: "0503-004"
