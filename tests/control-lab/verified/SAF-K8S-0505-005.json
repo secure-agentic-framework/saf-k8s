@@ -1,0 +1,212 @@
+{
+  "control_id": "SAF-K8S-0505-005",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "73e8439efa4fc914bde4348c6f4ebbfe6108405f2c624cf17e61dc32296cd950",
+  "scope": "One owned Kind cluster with pinned Istio 1.32.0 sidecars and STRICT destination mTLS. The authorized ServiceAccount and a different namespace's same-named account both establish mTLS and reach the same protected HTTP route before authorization. Fresh proxies after policy keep the approved namespace and account authorized. The same name in the other namespace receives HTTP 403 from the destination proxy, which records both exact verified SPIFFE URI SANs. Production policy, identity issuance governance, and other authorization implementations need their own evidence.",
+  "cluster": "saf-lab-0ba56652ebe9",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Istio control plane uses the pinned pilot image",
+      "matched": true,
+      "observed": {
+        "istio_version": "1.32.0",
+        "pilot_image_matches_pin": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "saf-test/saf-0505-005-target runs with its exact service account and pinned sidecar",
+      "matched": true,
+      "observed": {
+        "service_account": "saf-0505-005-target",
+        "proxy_image_matches_pin": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "saf-test/saf-0505-005-approved runs with its exact service account and pinned sidecar",
+      "matched": true,
+      "observed": {
+        "service_account": "saf-0505-005-approved",
+        "proxy_image_matches_pin": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "saf-test/saf-0505-005-denied runs with its exact service account and pinned sidecar",
+      "matched": true,
+      "observed": {
+        "service_account": "saf-0505-005-denied",
+        "proxy_image_matches_pin": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "saf-neighbor/saf-0505-005-approved runs with its exact service account and pinned sidecar",
+      "matched": true,
+      "observed": {
+        "service_account": "saf-0505-005-approved",
+        "proxy_image_matches_pin": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "saf-0505-005-approved gets HTTP 200 for /sensitive with measured mTLS identity",
+      "matched": true,
+      "observed": {
+        "identity": "saf-0505-005-approved",
+        "expected_peer_uri_san": "spiffe://cluster.local/ns/saf-test/sa/saf-0505-005-approved",
+        "path": "/sensitive",
+        "method": "GET",
+        "http_status": 200,
+        "response_body_matches": true,
+        "destination_proxy_observed_authenticated_mtls_peer": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "saf-0505-005-denied gets HTTP 200 for /sensitive with measured mTLS identity",
+      "matched": true,
+      "observed": {
+        "identity": "saf-0505-005-denied",
+        "expected_peer_uri_san": "spiffe://cluster.local/ns/saf-test/sa/saf-0505-005-denied",
+        "path": "/sensitive",
+        "method": "GET",
+        "http_status": 200,
+        "response_body_matches": true,
+        "destination_proxy_observed_authenticated_mtls_peer": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "same account name in the other namespace gets HTTP 200 for /sensitive with measured mTLS identity",
+      "matched": true,
+      "observed": {
+        "identity": "same account name in the other namespace",
+        "expected_peer_uri_san": "spiffe://cluster.local/ns/saf-neighbor/sa/saf-0505-005-approved",
+        "path": "/sensitive",
+        "method": "GET",
+        "http_status": 200,
+        "response_body_matches": true,
+        "destination_proxy_observed_authenticated_mtls_peer": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "saf-test/saf-0505-005-approved-fresh runs with its exact service account and pinned sidecar",
+      "matched": true,
+      "observed": {
+        "service_account": "saf-0505-005-approved",
+        "proxy_image_matches_pin": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "saf-test/saf-0505-005-denied-fresh runs with its exact service account and pinned sidecar",
+      "matched": true,
+      "observed": {
+        "service_account": "saf-0505-005-denied",
+        "proxy_image_matches_pin": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "saf-neighbor/saf-0505-005-approved-fresh runs with its exact service account and pinned sidecar",
+      "matched": true,
+      "observed": {
+        "service_account": "saf-0505-005-approved",
+        "proxy_image_matches_pin": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "same account name in the other namespace gets HTTP 403 for /sensitive with measured mTLS identity",
+      "matched": true,
+      "observed": {
+        "identity": "same account name in the other namespace",
+        "expected_peer_uri_san": "spiffe://cluster.local/ns/saf-neighbor/sa/saf-0505-005-approved",
+        "path": "/sensitive",
+        "method": "GET",
+        "http_status": 403,
+        "response_body_matches": true,
+        "destination_proxy_observed_authenticated_mtls_peer": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "saf-0505-005-denied gets HTTP 403 for /sensitive with measured mTLS identity",
+      "matched": true,
+      "observed": {
+        "identity": "saf-0505-005-denied",
+        "expected_peer_uri_san": "spiffe://cluster.local/ns/saf-test/sa/saf-0505-005-denied",
+        "path": "/sensitive",
+        "method": "GET",
+        "http_status": 403,
+        "response_body_matches": true,
+        "destination_proxy_observed_authenticated_mtls_peer": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "saf-0505-005-approved gets HTTP 403 for /other with measured mTLS identity",
+      "matched": true,
+      "observed": {
+        "identity": "saf-0505-005-approved",
+        "expected_peer_uri_san": "spiffe://cluster.local/ns/saf-test/sa/saf-0505-005-approved",
+        "path": "/other",
+        "method": "GET",
+        "http_status": 403,
+        "response_body_matches": true,
+        "destination_proxy_observed_authenticated_mtls_peer": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "saf-0505-005-approved gets HTTP 200 for /sensitive with measured mTLS identity",
+      "matched": true,
+      "observed": {
+        "identity": "saf-0505-005-approved",
+        "expected_peer_uri_san": "spiffe://cluster.local/ns/saf-test/sa/saf-0505-005-approved",
+        "path": "/sensitive",
+        "method": "GET",
+        "http_status": 200,
+        "response_body_matches": true,
+        "destination_proxy_observed_authenticated_mtls_peer": true
+      }
+    }
+  ]
+}
