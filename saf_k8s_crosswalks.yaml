@@ -36092,12 +36092,14 @@
   framework_version: 5.2.0
   framework_requirement_id: PT-3(2)
   framework_requirement_title: Automation
-  framework_mapping_notes: The verified pipeline automatically enforces documented authorized processing purposes.
+  framework_mapping_notes: The deployed automated workflow tracks documented processing purposes for the covered personal
+    information.
   control_id: SAF-K8S-0907-002
   relation_type: supports
   strength_level: moderate
   applicability: conditional
-  applicability_condition: The verified pipeline automatically enforces documented authorized processing purposes
+  applicability_condition: The deployed automated workflow tracks documented processing purposes for the covered personal
+    information
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -57694,21 +57696,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-19(2)
-  framework_requirement_title: Archiving
-  framework_mapping_notes: A production de-identification process verifies the specified transformation of covered direct
-    identifiers.
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: moderate
-  applicability: conditional
-  applicability_condition: A production de-identification process verifies the specified transformation of covered direct
-    identifiers
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-19(3)
   framework_requirement_title: Release
   framework_mapping_notes: 'De-identification before agent data release prevents re-identification of individuals
@@ -57839,14 +57826,14 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-19(4)
   framework_requirement_title: Removal, Masking, Encryption, Hashing, or Replacement of Direct Identifiers
-  framework_mapping_notes: A separately established release assessment evaluates and documents re-identification risk
-    as required.
+  framework_mapping_notes: The deployed workflow verifies removal, masking, encryption, hashing or replacement of identified
+    direct identifiers in the covered dataset.
   control_id: SAF-K8S-0907-002
   relation_type: supports
   strength_level: moderate
   applicability: conditional
-  applicability_condition: A separately established release assessment evaluates and documents re-identification risk
-    as required
+  applicability_condition: The deployed workflow verifies removal, masking, encryption, hashing or replacement of identified
+    direct identifiers in the covered dataset
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
