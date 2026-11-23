@@ -216,6 +216,12 @@
       "sha256": "6506db10fca59b09e8b3de45893941219a6ae67d9b919fdd784235daaa7815ab",
       "title": "Cloud controller-manager cloud IAM least-privilege scoping"
     },
+    "SAF-K8S-0103-013": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "7d7459098e6a89690e87db239ddcf30aa4b97bf83b89b223fbaac21e8fb5305c",
+      "title": "Cloud controller-manager workload identity and credential rotation"
+    },
     "SAF-K8S-0103-014": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -2768,7 +2774,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "9c489f77707fe9d22c5f0c916995d63f9dbe16f8",
-  "sha256": "8b54cb9feabb862684f7e9ef8b5b557d387489c9614f3a3f5be15dad9a73fee2",
+  "revision": "521511d024a6a58b1fc6f20facd75c5adf43ebe0",
+  "sha256": "e90b01a0cdade9aad3ec60ce817b6a84cf9867ab8fadd404720d4b025b4044a2",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

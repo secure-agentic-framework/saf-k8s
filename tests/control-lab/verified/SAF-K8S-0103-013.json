@@ -1,0 +1,70 @@
+{
+  "control_id": "SAF-K8S-0103-013",
+  "catalog_revision": "19f7c095c10c122fd8f8725ef5ebaffb5e33b655",
+  "catalog_sha256": "e90b01a0cdade9aad3ec60ce817b6a84cf9867ab8fadd404720d4b025b4044a2",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "7d7459098e6a89690e87db239ddcf30aa4b97bf83b89b223fbaac21e8fb5305c",
+  "scope": "Kubernetes-issued credentials bound to a disposable fixture Pod and audience. No external identity provider is accessed.",
+  "cluster": "saf-lab-12c4093a5353",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A broad audience credential is accepted by an unrelated intended verifier",
+      "matched": true,
+      "observed": {
+        "additional_audience_initially_accepted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A short-lived audience-scoped credential works only for its intended verifier and Pod",
+      "matched": true,
+      "observed": {
+        "intended_pod_accepted": true,
+        "other_audience_denied": true,
+        "duration_at_most_600_seconds": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Credential reissue binds to the replacement Pod and deletion invalidates the old binding",
+      "matched": true,
+      "observed": {
+        "distinct_reissue": true,
+        "old_binding_denied": true,
+        "replacement_accepted": true
+      }
+    }
+  ]
+}
