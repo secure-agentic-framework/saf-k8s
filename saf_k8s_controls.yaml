@@ -3053,7 +3053,7 @@
   control_statement: Define approved Secret delivery patterns by workload and consumption requirements. Verify effective access permissions, delivery and refresh behavior, and how the application adopts changes for each approved pattern.
   objective: Limit secret exposure and preserve the availability and freshness needed by the receiving workload.
   rationale: A regular Kubernetes Secret volume updates eventually and a subPath mount retains its earlier content. An init-only copy is normally a startup snapshot. CSI and sidecar refresh depend on their actual driver, provider and configuration. Delivering new bytes does not establish application reload.
-  scope: Applies to governed Kubernetes secret consumers and their approved native volume, CSI, init and sidecar patterns. Environment delivery has its own scope in SAF-K8S-0403-016.
+  scope: Applies to governed Kubernetes secret consumers and their approved native volume, CSI, init and sidecar patterns. Production Secret-backed environment restrictions and exceptions are covered by SAF-K8S-0403-029 and SAF-K8S-0403-030.
   primary_enforcement_point: Approved workload delivery policy, observed Pod mount and access behavior, supported provider or agent configuration, and independently verified application adoption.
   implementation_surface: Record approved patterns, versions, mount permissions, persistence and freshness requirements. Verify allowed and denied modes, directory and subPath behavior, actual CSI rotation and optional synchronization, init or sidecar lifecycle, and effective workload reload or controlled restart.
   owner_primary: Application Development
