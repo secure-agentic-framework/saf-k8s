@@ -1191,7 +1191,7 @@
   control_seq: '007'
   control_title: Node eviction threshold tuning for workload pressure
   control_statement: Kubernetes nodes must set hard eviction thresholds that trigger before workload resource exhaustion destabilizes kubelet, the container runtime, or operating system processes, and those thresholds must be tuned for node instance type and workload behavior.
-  objective: Maintain node stability during memory, storage, or other pressure conditions by triggering eviction early enough to preserve kubelet responsiveness and graceful workload shedding.
+  objective: Maintain node stability during memory, storage, or other pressure conditions by reclaiming resources before exhaustion and preserving kubelet responsiveness. When a hard threshold is met, the kubelet can immediately terminate selected Pods without honoring the Pod's configured termination grace period or PodDisruptionBudget.
   rationale: Reserved resources alone do not protect node stability if eviction thresholds are absent or tuned too late. Correct eviction settings let the kubelet reclaim resources before pressure conditions become cascading node failures or denial-of-service events affecting all workloads on the node.
   scope: Applies to all production cluster nodes, with particular attention to nodes hosting GPU workloads or AI training jobs that can exhibit sudden memory spikes. Managed Kubernetes services that expose allocatable resource configuration must have these values tuned for the node instance type. Exemptions require documented risk acceptance.
   primary_enforcement_point: Node provisioning templates and kubelet configuration files specifying evictionHard and related reclaim thresholds.
