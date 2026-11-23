@@ -4373,9 +4373,9 @@
   control_statement: Ingress controllers protecting internet-facing services must apply rate limiting controls appropriate to the exposed service so backend systems are protected from abuse, credential stuffing, and application-layer denial-of-service attacks.
   objective: Throttle abusive ingress traffic before it can overwhelm backend services or enable high-volume online attacks.
   rationale: Request filtering and rate limiting address different attack modes. Separating abuse throttling from WAF integration makes capacity protection and request-shaping controls independently auditable.
-  scope: Applies to internet-facing ingress controllers and to internal ingress paths where risk assessment requires request filtering or abuse throttling. Covers WAF integrations, request filtering rules, and per-route or per-client rate limiting.
+  scope: Applies to internet-facing ingress paths and internal routes subject to abuse-throttling requirements. Covers traffic limits, the selected client or route key, scope across proxy replicas, and evidence of enforcement. Evaluate request filtering and WAF integration under SAF-K8S-0503-013.
   primary_enforcement_point: Ingress abuse throttling controls.
-  implementation_surface: Ingress annotations, CRDs, or gateway policies implementing per-route or per-client rate limiting, plus telemetry showing abuse throttling triggers and enforcement.
+  implementation_surface: Use the installed ingress or gateway controller's supported rate-limit policy. Define governed routes or client keys, thresholds, burst behavior, and per-instance or shared enforcement. Verify the configured throttle response, allowed traffic, backend arrival counts or limiter telemetry, and behavior with the deployed number of proxy replicas.
   owner_primary: Network Engineering
   owner_supporting: Application Security; Platform Engineering
   baseline_or_ai_specific: baseline
