@@ -450,6 +450,12 @@
       "sha256": "757c2e14158c4d560260a27cded805dae6b9619279f147f4c0688a378582e416",
       "title": "Node default seccomp profile enforcement"
     },
+    "SAF-K8S-0202-011": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "d8125d652cbf5785299aa3d3e4a6959d61d9ae8f503810625a05dd74422eaa03",
+      "title": "Node mandatory access control activation for container workloads"
+    },
     "SAF-K8S-0202-012": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -2810,7 +2816,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "0f2f2c5d2e81d8401b1059cbceb7d52d501aff6e",
-  "sha256": "75b5894d086f4f1b7930663cfae6ee4bdee3021b6dd75ce21633e114debb45d5",
+  "revision": "a7a4ac67a75f5f298a5ca38d23ba4649083f6c11",
+  "sha256": "b2c63d22a8763312830439bb29e05fd7627cc02fd685a2557834fcc2bf220084",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
