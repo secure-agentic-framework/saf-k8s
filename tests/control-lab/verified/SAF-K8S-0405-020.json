@@ -1,0 +1,72 @@
+{
+  "control_id": "SAF-K8S-0405-020",
+  "catalog_revision": "98931990fff19cc83f284692e1b1b0712b8b81bd",
+  "catalog_sha256": "29e6036cd4d259710e3144b82089b39047a9b7dc66c4f810c7dd0da7b1903392",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "6acdd0a985151f601e6c5d8496ec5395e149984406853eb038be16400bc3a167",
+  "scope": "The actual Kubernetes API verifies a narrowly scoped routine credential before and after its own bound input is removed. An independently provisioned fixture credential can perform only the approved read. Reissuing the routine path restores normal operation. This tests a defined local credential-unavailability scenario and selected authorization; external provider dependencies, production privileges and emergency governance require independent real-site evidence.",
+  "cluster": "saf-lab-df4bbb8f0c97",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Normal access and independent recovery authorization have different prerequisites",
+      "matched": true,
+      "observed": {
+        "routine_context_works": true,
+        "separate_unapproved_context_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Actual routine authentication becomes unavailable and the approved recovery read still works",
+      "matched": true,
+      "observed": {
+        "routine_context_unavailable": true,
+        "already_approved_recovery_context_reads": true,
+        "recovery_context_cannot_read_other_scope": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Routine operation is restored and the temporary access is removed",
+      "matched": true,
+      "observed": {
+        "replacement_authority_object_has_new_uid": true,
+        "new_routine_context_restores_operation": true,
+        "old_routine_context_stays_invalid": true,
+        "withdrawal_removes_temporary_recovery_access": true
+      }
+    }
+  ]
+}

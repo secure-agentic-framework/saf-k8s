@@ -1116,6 +1116,12 @@
       "sha256": "a01cdcc785c5adb0df81f316bfa8347d845009d39b44e9848c18f9274ddaa453",
       "title": "Credential policy baseline requirements"
     },
+    "SAF-K8S-0405-020": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "6acdd0a985151f601e6c5d8496ec5395e149984406853eb038be16400bc3a167",
+      "title": "Break-glass recovery exercise validation"
+    },
     "SAF-K8S-0501-001": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -3182,7 +3188,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6fe02a0bda0073db6bdbf3da6b5af663395cab51",
-  "sha256": "cf19a49962609c22f0886329c893af3c85833208755ab9bf30be9142321e8f00",
+  "revision": "a1d55da03377e717debfe4761dd6d7efc1a7ac2d",
+  "sha256": "29e6036cd4d259710e3144b82089b39047a9b7dc66c4f810c7dd0da7b1903392",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
