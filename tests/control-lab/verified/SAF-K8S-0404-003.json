@@ -1,0 +1,69 @@
+{
+  "control_id": "SAF-K8S-0404-003",
+  "catalog_revision": "d96c64fb292e4e82ab923403e2f46b0eb1c7421e",
+  "catalog_sha256": "c09541417907cc7248bdd4fb884d3f081daf444f4eb3271930a59b44ef557ec0",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "56778e018331207a65c8ffb6779d8a1e720fd4c9902c6a24a7afb866f184012a",
+  "scope": "Actual TLS 1.3 between owned Kubernetes Pods verifies a server name, server trust, and client certificate trust. An explicit service decision separate from the TLS handshake limits the verified client identity. Automatic issuance, service mesh, all production flows, revocation and authorization surfaces need separate evidence.",
+  "cluster": "saf-lab-689e2a9adbf1",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Server-only TLS permits an unidentified fixture client to perform the public operation",
+      "matched": true,
+      "observed": {
+        "unidentified_client_reaches_server_only_operation": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Actual TLS verification rejects missing and untrusted clients and a mismatched server name",
+      "matched": true,
+      "observed": {
+        "no_certificate_denied": true,
+        "untrusted_client_denied": true,
+        "wrong_server_identity_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An authenticated peer can still be denied by the separate operation policy",
+      "matched": true,
+      "observed": {
+        "approved_identity_completed_operation": true,
+        "authenticated_neighbor_was_not_authorized": true
+      }
+    }
+  ]
+}
