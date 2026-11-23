@@ -1152,6 +1152,12 @@
       "sha256": "aa290124d1a198240da8a4b624f78363424dc85ef233490d1b338f9e1e9adc89",
       "title": "Break-glass access audit logging coverage"
     },
+    "SAF-K8S-0405-024": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "4477cbe688f9d2c0a148889501c134d2bda807cd41ff90498a8204d58740450c",
+      "title": "Break-glass credential automatic expiration and revocation enforcement"
+    },
     "SAF-K8S-0501-001": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -3218,7 +3224,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6cd94e957973fe7f900e9199f95c9cd0b9e613c5",
-  "sha256": "631437da4fe9da4641a1557356a44cfa7b6206af4f381b3a5161afb562649f39",
+  "revision": "07a6d854ae6c2fec2c7588579340b325cd18260b",
+  "sha256": "0a58efdfe2710037988c60463441b0fb568e00d8d3d947dee87674e94e9775e9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
