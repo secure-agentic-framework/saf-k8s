@@ -7430,12 +7430,12 @@
   knowledge_area: '8.1'
   control_seq: '012'
   control_title: MPS and time-slicing workload eligibility and same-trust co-location enforcement
-  control_statement: Clusters using NVIDIA MPS or GPU time-slicing must restrict shared-GPU use to approved workload classes and enforce same-trust co-location and scheduling controls so incompatible or sensitive workloads cannot share weaker GPU contexts.
-  objective: Prevent incompatible workloads from sharing weaker GPU contexts by enforcing workload eligibility, same-trust co-location, and scheduling restrictions for MPS or time-sliced GPU pools.
-  rationale: Where MPS or time-slicing is permitted, the primary protection is not hardware isolation but limiting which workloads may share the GPU. Admission rules, node affinity, taints, and pool-specific scheduling constraints are required to keep different-trust or sensitive workloads off shared GPU contexts.
-  scope: Applies to Kubernetes clusters using NVIDIA MPS or GPU time-slicing for shared GPU allocation. Covers workload eligibility rules, same-trust co-location constraints, and pool-specific scheduling or admission enforcement for shared GPU modes.
-  primary_enforcement_point: Shared-GPU Eligibility and Co-Location Enforcement
-  implementation_surface: Admission control policies, GPU Operator time-slicing configuration, NVIDIA MPS usage restrictions, node affinity, taints, and scheduling policies enforcing approved workload classes and same-trust placement for shared GPU contexts.
+  control_statement: Restrict approved NVIDIA MPS or time-slicing pools to workloads with a compatible recorded trust classification. Enforce eligibility and placement through the deployed admission, scheduler and resource allocation paths.
+  objective: Prevent workloads outside the approved trust boundary from being admitted to or allocated resources in a shared accelerator pool.
+  rationale: A kubelet shared-resource advertisement reports scheduling capacity. It does not establish that workloads are mutually trusted or that hardware isolation meets the workload requirement. Treat sharing mode, workload eligibility and actual placement as separate facts.
+  scope: Applies to governed accelerator sharing pools and each supported submission, scheduling and allocation path. Inventory workload-controller identities, resource names, pool modes, trust assignments and approved exceptions.
+  primary_enforcement_point: Effective submission admission, scheduler placement constraints and deployed sharing mode and allocation checks.
+  implementation_surface: Define protected pool labels and trust rosters. Enforce eligible authenticated submitters or verified workload ownership and required placement. Review node assignment and any alternate scheduling paths. Verify the installed plugin mode and actual allocations and keep sensitive workloads on approved dedicated or protected resources.
   owner_primary: ML Platform Engineering
   owner_supporting: Security Engineering; Data Protection Office
   baseline_or_ai_specific: ai-specific
