@@ -42,9 +42,9 @@ Authenticating users and agents interacting with agent systems
 
 - Domain: D04 - Identity, Access, and Secrets Management
 - Knowledge Area: 4.2
-- Relation Type: supports
+- Relation Type: direct
 - Strength: strong
-- Applicability: required
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-0402-008 - Distinct identity assignment for AI workload types](../../controls/SAF-K8S-0402-008.md)

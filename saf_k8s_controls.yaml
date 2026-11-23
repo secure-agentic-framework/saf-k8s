@@ -2750,12 +2750,12 @@
   knowledge_area: '4.2'
   control_seq: '007'
   control_title: OIDC authentication integration
-  control_statement: Kubernetes clusters must authenticate human users through an external OIDC identity provider with validated token signatures, configured audience restrictions, and group claim mappings for RBAC integration, rather than relying on static credentials or client certificates for user access.
-  objective: Centralize human user authentication through an enterprise identity provider, enabling consistent identity governance, multi-factor authentication enforcement, and automatic deprovisioning when users leave the organization.
-  rationale: Without OIDC integration, clusters rely on client certificates or static tokens for user authentication. Client certificates cannot be revoked without rotating the entire cluster CA, and static tokens do not expire. OIDC integration ties cluster access to the enterprise identity provider, enabling MFA, session expiry, group-based RBAC, and immediate access revocation when users are deprovisioned from the identity provider.
-  scope: Applies to all clusters where human users access the Kubernetes API directly. Covers API server OIDC configuration, token validation parameters, group claim mappings, and client tooling (kubectl, dashboard). Service-to-service authentication is addressed separately by workload identity controls.
-  primary_enforcement_point: API server OIDC flags (--oidc-issuer-url, --oidc-client-id, --oidc-groups-claim), kubectl credential plugin configuration, and periodic validation of OIDC provider trust settings.
-  implementation_surface: Kubernetes API server OIDC configuration flags (--oidc-issuer-url, --oidc-client-id, --oidc-groups-claim, --oidc-username-claim), external identity provider OIDC client registration, kubectl credential plugins (kubelogin), OIDC token signature validation, group claim-to-RBAC group mappings, MFA enforcement at the identity provider, and session expiry policies for interactive cluster access.
+  control_statement: Authenticate governed human Kubernetes API access through an approved identity provider. Verify trusted token issuer, signature, audience, expiry and applicable claims. Bind mapped human identities and groups to reviewed RBAC, and establish a measured offboarding interval.
+  objective: Attribute approved human API access to distinct identities, enforce least privilege, and verify how authentication and authorization end during offboarding.
+  rationale: API JWT validation can accept an already issued token until expiry while RBAC independently changes access. Identity-provider login, MFA, reauthentication, refresh and session invalidation depend on the deployed integration, policy and client. Verify each of these layers for the selected use.
+  scope: Applies to human Kubernetes API users and related interactive access paths. Treat workload identities and emergency access as separately governed paths. Document the supported Kubernetes and provider integration versions.
+  primary_enforcement_point: Kubernetes JWT authentication and separate reviewed RBAC, with upstream identity provider login and offboarding policy.
+  implementation_surface: Use structured AuthenticationConfiguration where supported or a documented compatible OIDC configuration. Verify signature, issuer, audience, lifetime, required claims, reserved name handling and mapped RBAC. Exercise loss of access, outstanding token validity, refresh or reissuance, and provider-specific support for required MFA and session rules.
   owner_primary: Identity and Access Management
   owner_supporting: Platform Engineering; Security Engineering
   baseline_or_ai_specific: baseline
