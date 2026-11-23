@@ -1,0 +1,210 @@
+{
+  "control_id": "SAF-K8S-0905-041",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "6770e418486a532ccff9a3942c34ee0b2db57981d3937e106cdd3dc407da8c0a",
+  "scope": "A disposable Kind cluster runs a case-owned monitor after the normalized forwarded-event boundary. Fixed registry events exercise sensitive-operation rules, a reported anomalous pull, source-label validation, out-of-scope handling and replay deduplication. Kubernetes RBAC restricts writing the named analyst disposition. Provider event completeness, real anomaly detection, durable SIEM storage, analyst response and production roles require separate evidence.",
+  "cluster": "saf-lab-cea197b49aed",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The inactive monitor receives all eight normalized events without alerting",
+      "matched": true,
+      "observed": {
+        "alerts": {},
+        "duplicates": 0,
+        "events": [
+          "audit-001",
+          "audit-002",
+          "audit-003",
+          "audit-004",
+          "audit-005",
+          "audit-006",
+          "audit-007",
+          "audit-008"
+        ],
+        "input_sha256": "8d387a8f885b079aabc14117075a0dad25f66acbd201b89292a9f115a6db4989",
+        "quiet": [
+          "audit-001",
+          "audit-002",
+          "audit-003",
+          "audit-004",
+          "audit-005",
+          "audit-006",
+          "audit-007",
+          "audit-008"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same event corpus produces the five scoped alerts and leaves ordinary and out-of-scope events quiet",
+      "matched": true,
+      "observed": {
+        "alerts": {
+          "alert-audit-001": {
+            "actor": "fixture-publisher",
+            "event_id": "audit-001",
+            "repository": "saf-test/model-a",
+            "rule": "sensitive-publish"
+          },
+          "alert-audit-003": {
+            "actor": "fixture-reader",
+            "event_id": "audit-003",
+            "repository": "saf-test/model-a",
+            "rule": "anomalous-pull"
+          },
+          "alert-audit-004": {
+            "actor": "fixture-maintainer",
+            "event_id": "audit-004",
+            "repository": "saf-test/model-a",
+            "rule": "sensitive-delete"
+          },
+          "alert-audit-005": {
+            "actor": "fixture-maintainer",
+            "event_id": "audit-005",
+            "repository": "saf-test/model-a",
+            "rule": "sensitive-permission-change"
+          },
+          "alert-audit-006": {
+            "actor": "fixture-admin",
+            "event_id": "audit-006",
+            "repository": "saf-test/model-a",
+            "rule": "sensitive-administration"
+          }
+        },
+        "duplicates": 0,
+        "events": [
+          "audit-001",
+          "audit-002",
+          "audit-003",
+          "audit-004",
+          "audit-005",
+          "audit-006",
+          "audit-007",
+          "audit-008"
+        ],
+        "input_sha256": "8d387a8f885b079aabc14117075a0dad25f66acbd201b89292a9f115a6db4989",
+        "quiet": [
+          "audit-002",
+          "audit-007",
+          "audit-008"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Replay preserves exactly those alerts and a request with incorrect source metadata is rejected",
+      "matched": true,
+      "observed": {
+        "replayed": {
+          "alerts": {
+            "alert-audit-001": {
+              "actor": "fixture-publisher",
+              "event_id": "audit-001",
+              "repository": "saf-test/model-a",
+              "rule": "sensitive-publish"
+            },
+            "alert-audit-003": {
+              "actor": "fixture-reader",
+              "event_id": "audit-003",
+              "repository": "saf-test/model-a",
+              "rule": "anomalous-pull"
+            },
+            "alert-audit-004": {
+              "actor": "fixture-maintainer",
+              "event_id": "audit-004",
+              "repository": "saf-test/model-a",
+              "rule": "sensitive-delete"
+            },
+            "alert-audit-005": {
+              "actor": "fixture-maintainer",
+              "event_id": "audit-005",
+              "repository": "saf-test/model-a",
+              "rule": "sensitive-permission-change"
+            },
+            "alert-audit-006": {
+              "actor": "fixture-admin",
+              "event_id": "audit-006",
+              "repository": "saf-test/model-a",
+              "rule": "sensitive-administration"
+            }
+          },
+          "duplicates": 8,
+          "events": [
+            "audit-001",
+            "audit-002",
+            "audit-003",
+            "audit-004",
+            "audit-005",
+            "audit-006",
+            "audit-007",
+            "audit-008"
+          ],
+          "input_sha256": "8d387a8f885b079aabc14117075a0dad25f66acbd201b89292a9f115a6db4989",
+          "quiet": [
+            "audit-002",
+            "audit-007",
+            "audit-008"
+          ]
+        },
+        "invalid_source": {
+          "body": {
+            "error": "invalid-event-provenance"
+          },
+          "status": 422
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The ordinary Kubernetes account cannot change the existing alert disposition",
+      "matched": true,
+      "observed": {
+        "forbidden": true,
+        "unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The scoped analyst can save a disposition and an independent read confirms the same alert identifier",
+      "matched": true,
+      "observed": {
+        "alert_id": "alert-audit-003",
+        "disposition": "reviewed-benign-fixture"
+      }
+    }
+  ]
+}

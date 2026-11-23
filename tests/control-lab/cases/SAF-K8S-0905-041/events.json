@@ -1,0 +1,82 @@
+[
+  {
+    "event_id": "audit-001",
+    "source": "fixture-forwarded-normalized-audit",
+    "provider": "zot-fixture",
+    "provider_action": "PUT",
+    "normalized_action": "publish",
+    "repository": "saf-test/model-a",
+    "actor": "fixture-publisher",
+    "classification": "sensitive-operation"
+  },
+  {
+    "event_id": "audit-002",
+    "source": "fixture-forwarded-normalized-audit",
+    "provider": "zot-fixture",
+    "provider_action": "GET",
+    "normalized_action": "pull",
+    "repository": "saf-test/model-a",
+    "actor": "fixture-reader",
+    "classification": "ordinary"
+  },
+  {
+    "event_id": "audit-003",
+    "source": "fixture-forwarded-normalized-audit",
+    "provider": "zot-fixture",
+    "provider_action": "GET",
+    "normalized_action": "pull",
+    "repository": "saf-test/model-a",
+    "actor": "fixture-reader",
+    "classification": "fixture-anomalous"
+  },
+  {
+    "event_id": "audit-004",
+    "source": "fixture-forwarded-normalized-audit",
+    "provider": "zot-fixture",
+    "provider_action": "DELETE",
+    "normalized_action": "delete",
+    "repository": "saf-test/model-a",
+    "actor": "fixture-maintainer",
+    "classification": "sensitive-operation"
+  },
+  {
+    "event_id": "audit-005",
+    "source": "fixture-forwarded-normalized-audit",
+    "provider": "zot-fixture",
+    "provider_action": "PATCH",
+    "normalized_action": "permission-change",
+    "repository": "saf-test/model-a",
+    "actor": "fixture-maintainer",
+    "classification": "sensitive-operation"
+  },
+  {
+    "event_id": "audit-006",
+    "source": "fixture-forwarded-normalized-audit",
+    "provider": "zot-fixture",
+    "provider_action": "POST",
+    "normalized_action": "administration",
+    "repository": "saf-test/model-a",
+    "actor": "fixture-admin",
+    "classification": "sensitive-operation"
+  },
+  {
+    "event_id": "audit-007",
+    "source": "fixture-forwarded-normalized-audit",
+    "provider": "zot-fixture",
+    "provider_action": "GET",
+    "normalized_action": "pull",
+    "repository": "outside-saf-test/ordinary-model",
+    "actor": "fixture-reader",
+    "classification": "ordinary"
+  },
+  {
+    "event_id": "audit-008",
+    "source": "fixture-forwarded-normalized-audit",
+    "provider": "zot-fixture",
+    "provider_action": "PUT",
+    "normalized_action": "publish",
+    "repository": "outside-saf-test/ordinary-model",
+    "actor": "fixture-publisher",
+    "classification": "sensitive-operation"
+  }
+]
