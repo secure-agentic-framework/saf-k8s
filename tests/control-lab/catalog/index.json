@@ -1122,6 +1122,12 @@
       "sha256": "a01cdcc785c5adb0df81f316bfa8347d845009d39b44e9848c18f9274ddaa453",
       "title": "Credential policy baseline requirements"
     },
+    "SAF-K8S-0405-018": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "a3b23fc175d6055822b3408be4eeae89471841e58b276c6fc3526a8e8b1d4d50",
+      "title": "Secure credential storage and lifecycle governance"
+    },
     "SAF-K8S-0405-019": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -3224,7 +3230,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "07a6d854ae6c2fec2c7588579340b325cd18260b",
-  "sha256": "0a58efdfe2710037988c60463441b0fb568e00d8d3d947dee87674e94e9775e9",
+  "revision": "f8ba2ba7c5675e5c621cc25e0318c2389da150fb",
+  "sha256": "11033777199b88d84222227bd013dc7b0783bf396189abb0f9a57a532f8a7ba7",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

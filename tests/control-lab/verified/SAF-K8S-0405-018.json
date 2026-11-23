@@ -1,0 +1,75 @@
+{
+  "control_id": "SAF-K8S-0405-018",
+  "catalog_revision": "bfc911dcc960c9e2d07c6178d20955f04b14973e",
+  "catalog_sha256": "11033777199b88d84222227bd013dc7b0783bf396189abb0f9a57a532f8a7ba7",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "a3b23fc175d6055822b3408be4eeae89471841e58b276c6fc3526a8e8b1d4d50",
+  "scope": "A disposable API server rewrites one named test Secret from identity storage into an encrypted envelope. It then stores only short-lived synthetic credentials in that encrypted scope. A temporary reader cannot retrieve the store. Replacing the bound Secret invalidates the original credential after convergence, while replacement and independent reads work. Keys and credential bytes remain private to the disposable fixture.",
+  "cluster": "saf-lab-e3afd613fc49",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "An unprotected named Secret exposes its inert comparator in raw storage",
+      "matched": true,
+      "observed": {
+        "plaintext_marker_visible_before_protection": true,
+        "unprotected_record_has_no_envelope": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Protected storage conceals the actual fixture credential and preserves least privilege",
+      "matched": true,
+      "observed": {
+        "actual_protected_record_uses_envelope": true,
+        "credential_bytes_absent_from_exact_raw_record": true,
+        "selected_privileged_storage_path_matches": true,
+        "scoped_credential_performs_allowed_read": true,
+        "ordinary_caller_cannot_read_store": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Replacement and independent access survive retirement of the previous credential",
+      "matched": true,
+      "observed": {
+        "replacement_secret_has_new_identity": true,
+        "previous_bound_credential_rejected": true,
+        "replacement_credential_reads_approved_resource": true,
+        "replacement_is_protected_at_rest": true,
+        "independent_reader_unchanged": true
+      }
+    }
+  ]
+}
