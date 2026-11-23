@@ -1734,6 +1734,12 @@
       "sha256": "ed4744c4e2c0c7c122d2ba7e1cb3d3b38beb539bdde80728cede80ece93f9440",
       "title": "NVLink and NVSwitch traffic isolation for multi-GPU training"
     },
+    "SAF-K8S-0803-002": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "d1450268e9cb50e9088cd7e65f0337a78ad95cd441a5ca190651f5206bad9158",
+      "title": "InfiniBand and RoCE fabric security controls"
+    },
     "SAF-K8S-0901-002": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -2636,7 +2642,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "40d9508ea380d03baa86117fc56665d66c10c22d",
-  "sha256": "83854ad483aaad1d0ad490ca57e6bfc21e9be1d1a872c16f431d66995c4b3817",
+  "revision": "20ffba78ea9ab0b2e490e088567b66a63b1d89f6",
+  "sha256": "f1cde98be1ad439f9dadbe6239f7a09f6a7aa0f65a2c2031aa16d0402547e98e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
