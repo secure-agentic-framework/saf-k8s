@@ -3410,12 +3410,12 @@
   knowledge_area: '4.3'
   control_seq: '030'
   control_title: Environment variable secret injection exception governance
-  control_statement: Organizations must maintain an exception registry for any approved environment variable secret usage with documented compensating controls and mandatory re-review dates.
-  objective: Ensure any rare approved use of environment variable secret injection is explicitly governed, time-bounded, and subject to compensating controls.
-  rationale: Exception governance is independently auditable from the enforcement of the default prohibition. This control isolates approval, compensating-control documentation, and re-review so teams can verify that deviations are rare, tracked, and actively governed.
-  scope: Applies to all approved deviations from the production prohibition on environment variable secret injection. Covers exception registry maintenance, documented compensating controls, approval metadata, and mandatory re-review dates. Default admission blocking remains governed by SAF-K8S-0403-029.
-  primary_enforcement_point: Exception registry and re-review workflow for env-var secret usage.
-  implementation_surface: Exception registry entries, approval records, compensating control documentation, and re-review workflow records for approved environment-variable secret use.
+  control_statement: Record each approved production deviation from the Secret-backed environment restriction in an authoritative exception registry. Require a bounded workload scope, owner, approver, rationale, compensating controls and mandatory review or expiry, and verify what happens when an exception becomes overdue.
+  objective: Allow only justified, attributable and timely exceptions and require verified action when a deviation loses approval.
+  rationale: Secret-backed environment delivery can expose values through process output and diagnostics. An exception record must be bound to its governed scope and remain current so evidence supports each deviation.
+  scope: Applies to deviations covered by SAF-K8S-0403-029. Identify applicable workload and injection paths, approval roles and processes for existing workloads when exceptions expire.
+  primary_enforcement_point: Authoritative exception approvals, deadline reconciliation, and evidence connecting the registry and actual admission or remediation.
+  implementation_surface: Reconcile detected uses with the exception registry. Record scope, compensating settings, reviewer and due date. Verify current, incomplete, unlisted and overdue exceptions at the governed boundary, and document remediation of existing deviations.
   owner_primary: Application Development
   owner_supporting: Security Engineering; Platform Engineering
   baseline_or_ai_specific: baseline
