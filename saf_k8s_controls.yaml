@@ -3010,12 +3010,12 @@
   knowledge_area: '4.2'
   control_seq: '023'
   control_title: Long-lived workload token exception governance and retirement tracking
-  control_statement: Organizations must inventory any remaining legacy, manually created, or extended-lifetime workload service account tokens, drive that population toward zero, and require documented, re-reviewed exceptions for any non-expiring or extended-lifetime token use that remains.
-  objective: Prevent insecure long-lived workload token use from becoming a hidden persistent exception by forcing explicit tracking and governance until it is eliminated.
-  rationale: Time-bounded projected tokens do not remove risk if organizations still tolerate legacy or manually created long-lived workload tokens without active governance. Inventory, trend monitoring, and re-reviewed exception handling prevent those exceptional credentials from becoming permanent blind spots.
-  scope: Applies to any remaining legacy token secrets, manually created long-lived service account tokens, or extended-lifetime workload tokens retained for constrained compatibility scenarios.
-  primary_enforcement_point: Legacy token discovery, exception review, and retirement governance for long-lived workload credentials.
-  implementation_surface: Legacy token inventory and trend reports, documented long-lived token exceptions, and re-review records showing retirement progress.
+  control_statement: Inventory Secret-backed Kubernetes service account tokens and identify separately any approved extended-validity Kubernetes TokenRequest or projection configurations. Retire non-expiring tokens where supported and require exact, time-bounded exceptions and re-review for retained non-expiring or explicitly extended uses.
+  objective: Make retained long-lived Kubernetes credential risks, approval, coverage, and retirement independently verifiable.
+  rationale: Legacy auto-generated and manual token Secrets can share the same object type but have different lifecycle evidence. Projected or directly requested Kubernetes tokens have finite lifetimes that depend on applicable settings and managed compatibility behavior. A credential exchanged with a provider has a separate lifecycle.
+  scope: Applies to Secret-backed Kubernetes service account tokens and defined extended-validity Kubernetes token configurations. Record cluster and provider coverage, actual object and workload identities, observed validity, and uncovered environments, and track cloud credentials under the relevant identity controls.
+  primary_enforcement_point: Metadata-safe inventory, compatibility and exception review, tracked retirement, and separate effective lifetime verification for time-bound paths.
+  implementation_surface: Classify Secret-backed tokens by ServiceAccount references, type and version-specific lifecycle data. Scope each exception by cluster, namespace and actual workload identity with an owner, approval, reason, review deadline and retirement milestone. Verify effective lifetime and retirement by token class. Retain coverage and unknowns without saving token values.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Application Development
   baseline_or_ai_specific: baseline
