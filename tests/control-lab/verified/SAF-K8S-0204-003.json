@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0204-003",
-  "catalog_revision": "7d1e52914f58af214e2a07a91102ce66fc7c48a9",
-  "catalog_sha256": "b0b0b68f1bf0dc2d39f1caada87cd806111b49945c552ce762f1f8f478f95346",
+  "catalog_revision": "a074aef703b87c7d92d7ed16badfee012616a166",
+  "catalog_sha256": "cac977a792918cc74529e45763d49762ab692c539b68b58bdd492755569553e6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "13d18c4ebf508edaa11e2fb272067b4a84a6d90b73e871c4cab6e878b2fc3d8f",
   "scope": "Two restricted Kind Jobs measure owned image-file digests and separately writable volumes from the same image.",
-  "cluster": "saf-lab-3f74c0bfd4af",
+  "cluster": "saf-lab-bef062293b5f",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
