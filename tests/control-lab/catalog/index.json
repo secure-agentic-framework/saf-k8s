@@ -2754,6 +2754,12 @@
       "sha256": "7f010a0e230ac7767753b81bda449327ad4512b58bd3c219606d38261fb08ed7",
       "title": "Training data provenance tracking from ingestion through model training"
     },
+    "SAF-K8S-0906-007": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "2ecaa80500a951af3cb610c5a7a3051ae8bdbe27f25c45709523a44e90dd5878",
+      "title": "Integrity verification at each training data transformation stage"
+    },
     "SAF-K8S-0907-004": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3362,7 +3368,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "71150bbbbcd42d25e9e3a0368be46e36e3f48176",
-  "sha256": "d43370ab2b4e06678dc9c6ef7bd94b6aaa7b322ba7cd8aedd49c3bdb34781c3a",
+  "revision": "733acf43628fd7e652321844ddeef7ce4413f680",
+  "sha256": "718c1fc41747ebe1e4f1bdfc08bc8afde041d6950742cd7e108f76c6a6898e30",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
