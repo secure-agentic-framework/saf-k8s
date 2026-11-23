@@ -1,0 +1,70 @@
+{
+  "control_id": "SAF-K8S-0704-019",
+  "catalog_revision": "e2190e375f86930ca35431fd7b69b0f78f50fe84",
+  "catalog_sha256": "1325f9bad56735b647f630fbe7750324ae216e0f211f1a53663e971c9ec51c3d",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "a8b9f8aa902a7c96eba35333f03b0a306c018619082118663cda2d44175b34c7",
+  "scope": "Live Kubernetes admission and Pod API state for distinct fixture ServiceAccounts and an explicitly projected audience.",
+  "cluster": "saf-lab-4186c7d2eb03",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "With no workload mapping rule, Kubernetes accepts the other fixture ServiceAccount",
+      "matched": true,
+      "observed": {
+        "incorrect_subject_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission denies the other workload's ServiceAccount and a default-account declaration",
+      "matched": true,
+      "observed": {
+        "incorrect_subject_denied": true,
+        "default_subject_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both approved Pods run with different expected ServiceAccounts and the declared projection",
+      "matched": true,
+      "observed": {
+        "approved_workload_specs": {
+          "fixture-workload-a": true,
+          "fixture-workload-b": true
+        }
+      }
+    }
+  ]
+}
