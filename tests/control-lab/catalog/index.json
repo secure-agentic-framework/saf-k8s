@@ -1026,6 +1026,12 @@
       "sha256": "e12b8bf2904186c63bd9d6a997a42b1c754e3fefcd52225332b84ba3a6a2bd36",
       "title": "Fail-closed admission enforcement for attestation requirements"
     },
+    "SAF-K8S-0604-001": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "72f4fbe4a05d6d17a1cece970943dd69645f542b78ee313556f56c6c063202de",
+      "title": "SBOM generation for container and AI artifacts"
+    },
     "SAF-K8S-0605-001": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2282,7 +2288,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "16fd33a79de90326577b9a353853ab07b6965107",
-  "sha256": "2ddcbcadc0dc3876b8db9e9c6493991f07da4dd95f88375ba52e0bbf2f22eca9",
+  "revision": "74b3ade64bbda2a26b62562eaa0a4267b8aea085",
+  "sha256": "fbf800d0765546c53083698f3c4adfb3e32019c73bc8aef4db17996195292f8d",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

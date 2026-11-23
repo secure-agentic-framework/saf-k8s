@@ -1,0 +1,104 @@
+{
+  "control_id": "SAF-K8S-0604-001",
+  "catalog_revision": "7fb4f9d274abd706eff5dda99b52826f2a3468f9",
+  "catalog_sha256": "fbf800d0765546c53083698f3c4adfb3e32019c73bc8aef4db17996195292f8d",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "72f4fbe4a05d6d17a1cece970943dd69645f542b78ee313556f56c6c063202de",
+  "scope": "A pinned scanner catalogs Python package metadata from two runnable OCI images. A release check binds the CycloneDX inventory to the assembled image digest and holds an image when a required transitive dependency is absent from the inventory. This fixture leaves production SBOM retention, native package coverage and AI artifact inventory for separate review.",
+  "cluster": "saf-lab-426d3432873b",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The runnable comparison loses only its unregistered transitive package from the inventory",
+      "matched": true,
+      "observed": {
+        "known_dependency_executed": true,
+        "uncataloged_transitive_package": [
+          [
+            "saf-fixture-leaf",
+            "3.0"
+          ]
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Release validation holds the image with incomplete inventory coverage",
+      "matched": true,
+      "observed": {
+        "withheld": true,
+        "release_tag_absent": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The generated CycloneDX inventory includes every declared Python fixture package",
+      "matched": true,
+      "observed": {
+        "observed": [
+          [
+            "saf-fixture-leaf",
+            "3.0"
+          ],
+          [
+            "saf-fixture-middle",
+            "2.0"
+          ],
+          [
+            "saf-fixture-root",
+            "1.0"
+          ]
+        ],
+        "generator_version": "1.57.1"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Kind ran the exact inventoried manifest and exercised all fixture modules",
+      "matched": true,
+      "observed": {
+        "ran_exact_digest": true,
+        "transitive_module_executed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The disposable registry container and volume were removed",
+      "matched": true,
+      "observed": {
+        "registry_cleanup": "complete"
+      }
+    }
+  ]
+}
