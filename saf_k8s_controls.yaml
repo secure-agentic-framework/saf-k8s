@@ -7350,12 +7350,12 @@
   knowledge_area: '8.1'
   control_seq: '006'
   control_title: GPU memory clearing between workload transitions
-  control_statement: Organizations must ensure that GPU memory is cleared between workload transitions to prevent data remnants from one workload being accessible to subsequent workloads on the same GPU device, particularly when GPU devices are shared across tenants or sensitivity levels.
-  objective: Prevent cross-workload data leakage through GPU memory remnants by ensuring that GPU device memory is sanitized between workload transitions.
-  rationale: GPU memory is not automatically cleared when a workload completes and releases its GPU allocation. Training data, model weights, gradients, and intermediate activations may persist in GPU memory and be accessible to the next workload scheduled on the same device. In multi-tenant environments or when GPU devices transition between workloads of different sensitivity levels, this creates a data leakage vector that bypasses Kubernetes namespace isolation.
-  scope: Applies to all Kubernetes clusters where GPU devices are shared between workloads, particularly in multi-tenant environments or when workloads of different sensitivity levels share GPU node pools. Covers GPU memory clearing mechanisms, verification testing, and scheduling controls.
-  primary_enforcement_point: GPU memory clearing configuration on workload completion, scheduling policies preventing cross-sensitivity workload transitions without clearing, and periodic verification testing.
-  implementation_surface: CUDA memory management APIs for explicit GPU memory clearing, device plugin configuration for post-allocation cleanup, node-level cleanup scripts triggered on pod termination, admission policies restricting multi-sensitivity GPU sharing without clearing, and GPU memory scan tools for verification testing.
+  control_statement: Prevent cross-trust reuse of a GPU allocation until an approved, configuration-specific device or provider sanitization outcome is verified. Where suitable sanitization evidence is unavailable, retain quarantine or use an independently verified isolation or dedicated allocation boundary.
+  objective: Prevent unverified cross-trust reassignment of accelerator resources that could retain prior workload data.
+  rationale: Device release, process teardown, reset and physical memory sanitization have distinct semantics. Kubernetes can enforce reassignment policy. Establish any sanitization or isolated allocation property for the exact device, firmware, driver, virtualization and provider configuration.
+  scope: Applies to accelerator allocation transitions across governed trust or sensitivity boundaries. Include retained allocations and handling of failed, missing, stale or ambiguous evidence and approved dedicated-pool exceptions.
+  primary_enforcement_point: Enforced allocation release and quarantine, backed by configuration-specific approved provider or vendor evidence.
+  implementation_surface: Define the allocation and transition identity, trustworthy evidence producer, verified mechanism and acceptance criteria. Deny reassignment when evidence is missing, stale, mismatched or unsuccessful. Record operating conditions and authorize alternatives such as dedicated allocations when the requested sanitization property cannot be verified.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; AI/ML Engineering
   baseline_or_ai_specific: ai-specific
