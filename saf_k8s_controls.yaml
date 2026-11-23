@@ -4070,12 +4070,12 @@
   knowledge_area: '5.2'
   control_seq: '002'
   control_title: Pod-to-pod traffic encryption
-  control_statement: Pod-to-pod network traffic must be encrypted in transit using WireGuard, IPsec, or equivalent transparent encryption provided by the CNI plugin, ensuring that all inter-pod communication is protected against eavesdropping and tampering without requiring application-level changes.
-  objective: Protect the confidentiality and integrity of data in transit between pods by encrypting all pod-to-pod communication at the network layer.
+  control_statement: Protect pod-to-pod traffic crossing nodes in transit using WireGuard, IPsec, or equivalent encryption on the paths covered by the selected CNI. Identify any required paths outside that coverage and verify an appropriate encryption mechanism for each.
+  objective: Protect the confidentiality and integrity of cross-node pod traffic. Verify the encryption boundary and assess intra-node protection requirements separately.
   rationale: Pod-to-pod traffic within a Kubernetes cluster traverses shared node networks and potentially physical or virtual switches accessible to other tenants or compromised nodes. Without encryption, an attacker with network access (via a compromised node, misconfigured network tap, or cloud provider vulnerability) can eavesdrop on inter-pod communication including API tokens, database queries, and sensitive application data.
   scope: Applies to all production Kubernetes clusters. Transparent encryption must cover all pod-to-pod traffic across nodes. Intra-node pod traffic encryption is recommended where the CNI supports it. Performance impact must be evaluated and documented, particularly for high-throughput workloads.
-  primary_enforcement_point: CNI plugin encryption configuration (Cilium WireGuard, Calico WireGuard or IPsec), validated via network traffic capture and encryption verification.
-  implementation_surface: 'CNI plugin encryption configuration (Cilium Helm values encryption.enabled/encryption.type: wireguard, Calico felixconfiguration wireguardEnabled patch via calicoctl), WireGuard kernel module, IPsec configuration, cilium encrypt status verification, tcpdump packet capture for encryption validation, and performance benchmarking tooling comparing encrypted vs. unencrypted throughput.'
+  primary_enforcement_point: CNI encryption configuration and data-plane verification for the workload paths in scope.
+  implementation_surface: Enable and verify the selected CNI encryption mode. For Cilium WireGuard, check effective encryption status, expected peers, and cross-node traffic, including applicable service paths. Cilium WireGuard leaves same-node traffic outside its encryption boundary. Validate any additional mechanisms required by the threat model and measure performance impact on representative workloads.
   owner_primary: Network Engineering
   owner_supporting: Platform Engineering; Security Engineering
   baseline_or_ai_specific: baseline
