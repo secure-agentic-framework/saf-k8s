@@ -1626,6 +1626,12 @@
       "sha256": "2a7a809c996cf911ed223c74d4a219605f537eb3990669b12d4e00fc467bbe76",
       "title": "GPU device plugin security configuration and hardening"
     },
+    "SAF-K8S-0801-009": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "65f395d30a7c9a6a36b2296a65f0982ab2da20c55b33e38aaef6b180df4eba6b",
+      "title": "Restrict access to published accelerator inventory and topology metadata"
+    },
     "SAF-K8S-0901-002": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -2528,7 +2534,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "1c75664f7efcb4a418736881dc41a42580fef6ac",
-  "sha256": "4d0c8e79086c28878db220ebac36719329dceda413bd601e3297ca479da8bbda",
+  "revision": "1b1a97209772c41785dfc3185d3d541b3b48cfb6",
+  "sha256": "300933c68e2acb80c1c94e800247097c258be0ba48e83f9375466c8b85fb0079",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
