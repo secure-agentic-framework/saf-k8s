@@ -2330,12 +2330,12 @@
   knowledge_area: '3.3'
   control_seq: '007'
   control_title: AppArmor profile distribution and node readiness
-  control_statement: Clusters using AppArmor-enabled nodes must distribute approved AppArmor profiles to all applicable nodes through provisioning automation and must verify that each node pool consistently loads the required profiles before workloads that depend on them are scheduled.
-  objective: Ensure AppArmor protections are actually available on every applicable node by making profile distribution and node readiness a managed platform control rather than a best-effort host configuration task.
-  rationale: AppArmor enforcement fails silently when required profiles are missing from some nodes. Consistent profile distribution and node readiness verification prevent scheduling gaps where a workload lands on a node that cannot enforce its expected AppArmor confinement.
-  scope: Applies to clusters running on AppArmor-capable nodes such as Ubuntu, Debian, SUSE, and other distributions that use AppArmor as the primary LSM. Does not apply to nodes using SELinux as the primary LSM. Profile loading must be consistent across all nodes in a node pool.
-  primary_enforcement_point: Node provisioning automation, machine image preparation, DaemonSet-based profile loading, and node readiness verification for AppArmor profile availability.
-  implementation_surface: AppArmor profile files loaded on nodes via DaemonSets, cloud-init, Ansible, or machine image baking; node provisioning automation for consistent profile distribution; node-level AppArmor verification such as sys/module/apparmor/parameters/enabled and aa-status; and scheduling gates or readiness checks that confirm required profiles are present before dependent workloads run.
+  control_statement: Verify that every node eligible for AppArmor-dependent workloads supports enforcement and has the approved revision of each required profile loaded. Gate workload placement on trusted current readiness, and define the response to missing profiles, drift and readiness loss.
+  objective: Keep AppArmor-dependent workloads on eligible nodes with current, verified profile readiness and observable enforcement.
+  rationale: Kubernetes scheduling does not inspect AppArmor profile availability. The kubelet rejects an explicitly requested Localhost profile when the requested policy is unavailable. An omitted profile can admit a workload without runtime-default AppArmor confinement on a node where AppArmor is disabled.
+  scope: Applies to eligible nodes and workload pools that require AppArmor. Determine applicability from the node kernel and runtime, the actual profile class and the workload placement rules.
+  primary_enforcement_point: Trusted node provisioning and profile verification, workload placement policy, and kubelet and runtime startup checks.
+  implementation_surface: Inventory eligible nodes, bind approvals to profile identity and revision, and verify node-local loaded mode and a harmless enforcement check. Exercise absent, stale and withdrawn readiness, and review scheduled and running workloads after changes.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Application Development teams
   baseline_or_ai_specific: baseline
