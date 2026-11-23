@@ -1338,6 +1338,12 @@
       "sha256": "6dfa572280c25fa12f67873e47d99f71aaa47715efd865199660e1777ea8a9a4",
       "title": "Automatic canary rollback on error-rate and latency degradation"
     },
+    "SAF-K8S-0905-036": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "586695e27a2ab7c04ee215460514faf53db4800de288513a2075fd10d1bc703c",
+      "title": "Automated AI workload circuit-breaker threshold enforcement"
+    },
     "SAF-K8S-0905-037": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1934,7 +1940,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "66646d761cd2edff2ea92aa731f150433f022821",
+  "revision": "1e6258eadda53bdf7f42e364c728c21ad3fb5a59",
   "sha256": "5d300b2f3b1823e3cbb4aee50b95ef1970adf01a5b145ef7ca8309eb785d1ee4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

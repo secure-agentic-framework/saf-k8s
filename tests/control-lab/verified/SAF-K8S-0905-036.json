@@ -1,0 +1,153 @@
+{
+  "control_id": "SAF-K8S-0905-036",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "586695e27a2ab7c04ee215460514faf53db4800de288513a2075fd10d1bc703c",
+  "scope": "One disposable Kubernetes v1.36.1 Kind cluster runs a namespace-scoped Python control loop against a case-owned numeric telemetry ConfigMap. The loop reads an explicit enabled flag and threshold, records a deterministic decision ConfigMap, and when enabled and value >= threshold patches only the target Deployment scale subresource to zero. The halt stays latched across restart. The test observes Deployment status and EndpointSlices and retains a separate available control Deployment. It proves this synthetic controller/API/RBAC path only; it does not establish production telemetry authenticity, policy governance, workload coverage, response-time objectives, serving-layer isolation, or training/pipeline Job behavior.",
+  "cluster": "saf-lab-161634b8fed6",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "An over-threshold metric is observed but does not halt while policy is disabled",
+      "matched": true,
+      "observed": {
+        "decision": {
+          "action": "continue",
+          "enabled": false,
+          "metric": 95,
+          "reason": "threshold_disabled",
+          "target": "threshold-target",
+          "threshold": 80
+        },
+        "target_status": {
+          "desired": 1,
+          "replicas": 1,
+          "ready": 1,
+          "available": 1
+        },
+        "ready_endpoints": 1
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Enabled policy continues at a numeric value below threshold",
+      "matched": true,
+      "observed": {
+        "decision": {
+          "action": "continue",
+          "enabled": true,
+          "metric": 79,
+          "reason": "below_threshold",
+          "target": "threshold-target",
+          "threshold": 80
+        },
+        "target_status": {
+          "desired": 1,
+          "replicas": 1,
+          "ready": 1,
+          "available": 1
+        },
+        "ready_endpoints": 1
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "At the inclusive threshold the controller scales down the target and removes ready endpoints",
+      "matched": true,
+      "observed": {
+        "decision": {
+          "action": "scale_to_zero",
+          "enabled": true,
+          "last_observed_metric": 80,
+          "metric": 80,
+          "reason": "threshold_breached",
+          "state": "enforced",
+          "target": "threshold-target",
+          "threshold": 80
+        },
+        "target_status": {
+          "desired": 0,
+          "replicas": 0,
+          "ready": 0,
+          "available": 0
+        },
+        "ready_endpoints": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The replacement controller preserves the original halt decision after the metric clears",
+      "matched": true,
+      "observed": {
+        "controller_replaced": true,
+        "trigger_preserved": true,
+        "target_still_halted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Unaffected control workload remains available through its Service",
+      "matched": true,
+      "observed": {
+        "control_status": {
+          "desired": 1,
+          "replicas": 1,
+          "ready": 1,
+          "available": 1
+        },
+        "ready_endpoints": 1,
+        "live_response": "threshold-control"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Controller RBAC permits only named telemetry reads, decision writes and target scale patch",
+      "matched": true,
+      "observed": {
+        "can_i": {
+          "get:configmaps:threshold-telemetry": "yes",
+          "get:configmaps:threshold-policy": "yes",
+          "get:configmaps:threshold-decision": "yes",
+          "list:configmaps:*": "no",
+          "patch:configmaps:threshold-decision": "yes",
+          "patch:configmaps:threshold-policy": "no",
+          "patch:deployments/scale:threshold-target": "yes",
+          "patch:deployments/scale:threshold-control": "no",
+          "patch:deployments:threshold-target": "no"
+        }
+      }
+    }
+  ]
+}
