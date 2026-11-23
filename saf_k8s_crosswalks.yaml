@@ -2850,16 +2850,15 @@
   framework_requirement_id: Article-15.5
   legacy_requirement_id: Art-15:15(5)-ai-specific-attacks
   framework_requirement_title: Accuracy, robustness and cybersecurity
-  framework_mapping_notes: |-
-    High-risk AI systems shall be resilient against attempts by unauthorised third parties to alter their use, outputs or performance by exploiting system vulnerabilities. The technical solutions aiming to ensure the cybersecurity of high-risk AI systems shall be appropriate to the relevant circumstances and the risks. The technical solutions to address AI specific vulnerabilities shall include, where appropriate, measures to prevent, detect, respond to, resolve and control for attacks trying to manipulate the training data set (data poisoning), or pre-trained components used in training (model poisoning), inputs designed to cause the AI model to make a mistake (adversarial examples or model evasion), confidentiality attacks or model flaws.
-
-    Directly maps to SAF-K8S D9 controls: data poisoning defense (KA 9.6), model supply chain integrity (KA 9.5), adversarial input defense (KA 9.3), model extraction prevention (KA 9.8), and inference request validation (KA 9.2).
+  framework_mapping_notes: Where the actual high-risk AI system has a relevant training-data integrity risk, validated
+    screening and hold procedures can support part of its cybersecurity measures.
   control_id: SAF-K8S-0906-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition:
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Where the actual high-risk AI system has a relevant training-data integrity risk, validated
+    screening and hold procedures can support part of its cybersecurity measures
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -4961,19 +4960,6 @@
   framework_mapping_notes: ML threat taxonomy (CTA-2114) characterizes AI-specific harms including data poisoning, model disclosure, and evasion attacks. MITRE ATT&CK mapping documents infrastructure attack surfaces and potential harms.
   control_id: SAF-K8S-1004-001
   relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
-- mapping_set_name: SAF-K8S to NIST AI RMF 1.0
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
-  framework_requirement_id: MAP 3.3
-  framework_requirement_title: Representativeness and relevance of the AI system's training, testing, and evaluation data is analyzed and documented.
-  framework_mapping_notes: Training data provenance and pipeline integrity controls establish data lineage. Data poisoning and label attack detection identifies data quality issues that may affect representativeness.
-  control_id: SAF-K8S-0906-004
-  relation_type: partial
   strength_level: moderate
   applicability: required
   applicability_condition: null

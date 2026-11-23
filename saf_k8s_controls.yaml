@@ -9410,12 +9410,12 @@
   knowledge_area: '9.6'
   control_seq: '004'
   control_title: Statistical drift, outlier, and input validation for training data poisoning detection
-  control_statement: Training data pipelines must implement statistical drift detection, outlier analysis, and input validation to detect poisoned, tampered, or anomalous training data before it reaches model training.
-  objective: Detect broad data poisoning attacks in training data pipelines by identifying anomalous patterns, distribution shifts, and schema or value violations before training begins.
-  rationale: Broad data poisoning attacks are often subtle enough to blend into large training corpora unless the pipeline continuously checks distributions, outliers, and input validity. These statistical and validation controls provide the pre-training quality gate that prevents poisoned or corrupted data from silently entering the model-development lifecycle.
-  scope: Applies to all training data ingestion and feature-refresh pipelines on Kubernetes. Covers statistical analysis of incoming training data, schema and value validation, and pre-training quality gates. Excludes annotation-pipeline-specific label integrity controls.
-  primary_enforcement_point: Data ingestion validation stages and pre-training data quality gate configurations.
-  implementation_surface: Statistical drift detection on feature distributions, outlier analysis in feature space, input schema and value-range validation, and pre-training quality gates for incoming datasets and refreshed feature values.
+  control_statement: Before training, verify approved dataset schema, input bounds and selected statistical quality indicators against a representative versioned baseline. Hold invalid data for review and document the limits of those checks.
+  objective: Keep invalid or anomalous data out of the governed training pipeline until reviewed.
+  rationale: Schema, drift and outlier checks detect only defined discrepancies. Establish data provenance, access and integrity alongside statistical screening, and use independent evidence to investigate causes.
+  scope: Applies to governed training intake and feature refresh. Verify deployed datasets, sampling and shifts, configured thresholds, action on invalid data, and relevant integrity controls.
+  primary_enforcement_point: Pre-training quality policy and the durable release gate.
+  implementation_surface: Record the eligible baseline and sampled inputs, schema and bounds, comparison outputs, authorized investigation and release decisions. Evaluate representative deployment coverage, sensitivity and operational limits.
   owner_primary: Data Engineering
   owner_supporting: Security Engineering; ML Engineering
   baseline_or_ai_specific: ai-specific

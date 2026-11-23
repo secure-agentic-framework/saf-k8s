@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-AI-RMF
 - Version: 1.0
-- Total Reverse Mappings: 126
-- Distinct Requirements Mapped: 51
+- Total Reverse Mappings: 125
+- Distinct Requirements Mapped: 50
 
 ## Requirements
 
@@ -41,7 +41,6 @@
 - [MAP 2.3 - Scientific integrity and TEVV considerations are identified and documented, including those related to experimental design, data collection and selection, and measurement.](map-2-3.md)
 - [MAP 3.1 - Potential benefits and costs, including potential harms to individuals, communities, organizations, and society, are understood and documented by the team or function performing the mapping.](map-3-1.md)
 - [MAP 3.2 - Potential harms to people, organizations, and ecosystems arising from the AI system's intended use - and if relevant, across the lifecycle - are understood, characterized, and documented.](map-3-2.md)
-- [MAP 3.3 - Representativeness and relevance of the AI system's training, testing, and evaluation data is analyzed and documented.](map-3-3.md)
 - [MAP 3.5 - Likelihood and magnitude of each identified risk based on expected use, past uses of similar systems, public incident reports, feedback from those external to the team that developed or deployed the AI system, or other data are assessed and documented.](map-3-5.md)
 - [MAP 4.1 - Approaches for mapping AI technology and legal risks of its components - including the use of third-party data or software - are in place, followed, and documented, as are risks of infringement of a third-party's intellectual property or other rights.](map-4-1.md)
 - [MAP 4.2 - Internal risk controls for components of the AI system, including third-party AI technologies, are identified and documented.](map-4-2.md)
