@@ -4230,12 +4230,12 @@
   knowledge_area: '5.3'
   control_seq: '005'
   control_title: DNS exfiltration detection
-  control_statement: DNS query logging and anomaly detection must be enabled to detect and prevent DNS-based data exfiltration, including detection of DNS tunneling indicators such as high-entropy subdomain labels, high-frequency queries, and anomalous TXT record queries.
-  objective: Detect and prevent covert data exfiltration channels that abuse the DNS protocol, which is rarely blocked and often overlooked in monitoring.
-  rationale: DNS exfiltration is particularly dangerous because DNS traffic is rarely blocked and often overlooked in monitoring. Attackers encode stolen data in DNS queries (long subdomain labels, TXT record queries) to bypass network egress controls. Without DNS query logging and anomaly detection, these covert channels operate undetected.
+  control_statement: Enable query logging on the approved cluster DNS path and use a detection pipeline to alert on reviewed DNS anomaly signals. Verify alert coverage and use separate enforcement controls where the organization requires prevention.
+  objective: Detect suspicious DNS activity and provide actionable evidence for incident response.
+  rationale: CoreDNS query logging supplies observations for a detector. Validate the signals against normal traffic and representative harmless fixtures. Logging and alerting do not enforce DNS or network policy.
   scope: Applies to all production clusters with CoreDNS. DNS query logs must be forwarded to a centralized analysis platform. Detection rules must cover DNS tunneling indicators including high-entropy subdomain labels, anomalous query volume, and unusual record types.
   primary_enforcement_point: DNS query log analysis pipelines and SIEM detection rules for DNS tunneling indicators.
-  implementation_surface: CoreDNS log plugin for query logging, DNS query log analysis pipelines, SIEM detection rules for DNS tunneling indicators (long subdomain labels, high-frequency queries, anomalous TXT record queries), Cilium DNS proxy logging, and DNS exfiltration anomaly detection tooling.
+  implementation_surface: Enable CoreDNS query logging on the intended path and forward the approved fields to the detection pipeline. Define and test alert thresholds, scope, suppression and normal-traffic behavior. Review practical coverage and data retention. Verify authorized DNS routing and enforcement separately under SAF-K8S-0503-015.
   owner_primary: Security Operations
   owner_supporting: Network Engineering; Platform Engineering
   baseline_or_ai_specific: baseline
