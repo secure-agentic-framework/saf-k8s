@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-049",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "57297d75ec0b8018444ed6a7ad5abadb6acfa1a1",
+  "catalog_sha256": "119723d33fc0fa432e9da9a56f9490f9f2b56cdeff77405a834a5690eb876c82",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "dd8c8e22684092b8006a95ddbefe54f323a7e2966549b7320a9a7c09f62e9d25",
+  "control_sha256": "e409dce07e676c29ccd25040adbfd28f26eb968f7028e33b4a87c6afde98e0e6",
   "scope": "A single kind cluster runs isolated Zot v2.1.23 registries for one exact repo and authenticated case-owned OCI Distribution API client. The open policy allows read/create/update/delete; the guarded policy allows read/create only. Two fixed inert OCI manifests exercise initial tag creation, same-tag overwrite, digest readback, and manifest deletion/recreation. The case checks the native audit file and filtered HTTP access events for these operations. Cloud-vendor controls, durable audit forwarding, administrator controls, sync/retention behavior, or protections against registry storage administrators.",
-  "cluster": "saf-lab-78c272e8e685",
+  "cluster": "saf-lab-c236ce3fc804",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
