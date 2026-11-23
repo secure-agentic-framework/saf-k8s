@@ -750,6 +750,12 @@
       "sha256": "911cad12b613f8d526585d644e076e69502b79a58c0eab57c68ec3d36aabc479",
       "title": "Internal load balancer annotation enforcement"
     },
+    "SAF-K8S-0503-005": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "b37638ff5168a2ea39c4c99f97721839300728a8ccd4bc0d8a64b6a393d71fb4",
+      "title": "DNS exfiltration detection"
+    },
     "SAF-K8S-0503-006": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -2132,7 +2138,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "b9d1788c747424e4a549b2c12e6bb1366d3eb55f",
-  "sha256": "16c7bd640f0a38249ed34de92c3b42081d5230837fed31da29ab446efccf9d54",
+  "revision": "7374a51559a594c2c8a5e32466d1f400b0b3c502",
+  "sha256": "5cdae1ac8e840efcd1bbef91e3b059258a719f1105eb1a2d6060368490ee36e2",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
