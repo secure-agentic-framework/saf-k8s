@@ -114,9 +114,9 @@ Risk-appropriate cybersecurity is the fundamental SAF-K8S design principle. Cont
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.8
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-1007-004 - Continuous security posture management for AI clusters](../../controls/SAF-K8S-1007-004.md)
