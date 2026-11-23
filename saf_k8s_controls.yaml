@@ -9390,12 +9390,12 @@
   knowledge_area: '9.6'
   control_seq: '002'
   control_title: Large-scale data integrity verification
-  control_statement: Large training datasets must be protected using hierarchical hashing, manifest-based integrity verification, and segmented integrity checking across distributed storage, with resilience strategies (erasure coding or mirroring) selected based on ML data availability and integrity requirements.
-  objective: Detect tampering or corruption in large training datasets efficiently through scalable integrity verification mechanisms that work across distributed storage systems.
-  rationale: Training datasets can be terabytes to petabytes in size, stored across distributed file systems and object stores. Flat hashing of entire datasets is computationally infeasible for verification. Without hierarchical and segmented integrity checking, small targeted modifications (e.g., poisoning a subset of training images) go undetected. Without appropriate resilience strategies, storage failures that corrupt training data are not recoverable, and the wrong resilience choice can trade integrity for availability or vice versa.
-  scope: Applies to all training datasets stored on persistent volumes, distributed file systems, or object storage on Kubernetes that exceed single-node verification capacity. Covers hierarchical hashing, manifest generation, segmented verification, and storage resilience configuration. Excludes small datasets that can be verified with flat hashing.
-  primary_enforcement_point: Data storage configuration, dataset manifest generation tooling, and integrity verification job configurations in data pipeline orchestrators.
-  implementation_surface: Hierarchical hashing with Merkle tree construction over dataset segments, signed dataset manifests listing segment hashes, sizes, and locations, segmented integrity verification jobs in data pipeline orchestrators, storage resilience configuration (erasure coding, mirroring, object versioning) on distributed file systems and object storage, and incremental verification for changed segments.
+  control_statement: Verify the exact approved dataset version before training. Bind the expected inventory, immutable segment identifiers, lengths and digests to an independently trusted manifest. Use a canonical hierarchical commitment for distributed or incremental checks when it fits the verification model. Select and exercise recovery independently.
+  objective: Detect missing, changed or substituted segments before training consumes the dataset and exercise the storage recovery policy.
+  rationale: A validated streaming digest detects changed bytes relative to a trusted expectation. Partitioning and tree commitments support independent and incremental checks. Durability and agreement with an authorized dataset version require separate evidence.
+  scope: Applies to governed datasets on persistent volumes, distributed file systems and object or artifact stores. Set segment size, verification cadence and proof mode based on the workload and storage. Verify the deployment and recovery at operational scale.
+  primary_enforcement_point: Dataset approval and manifest provenance, pre-consumption integrity verification and the storage recovery policy.
+  implementation_surface: Record versioned storage identifiers in an authenticated manifest. Verify exact inventory and bounded streaming segment hashes and validate any tree root or inclusion proofs against the trusted commitment. Fail closed before training and exercise recovery on the real storage.
   owner_primary: Data Engineering
   owner_supporting: Storage Engineering; ML Platform Engineering
   baseline_or_ai_specific: ai-specific

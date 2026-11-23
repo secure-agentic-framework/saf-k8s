@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 3906
-- Distinct Requirements Mapped: 773
+- Total Reverse Mappings: 3892
+- Distinct Requirements Mapped: 769
 
 ## Requirements
 
@@ -393,9 +393,7 @@
 - [PM-18 - Privacy Program Plan](pm-18.md)
 - [PM-2 - Information Security Program Leadership Role](pm-2.md)
 - [PM-21 - Accounting of Disclosures](pm-21.md)
-- [PM-22 - Personally Identifiable Information Quality Management](pm-22.md)
 - [PM-23 - Data Governance Body](pm-23.md)
-- [PM-24 - Data Integrity Board](pm-24.md)
 - [PM-25 - Minimization of Personally Identifiable Information Used in Testing, Training, and Research](pm-25.md)
 - [PM-27 - Privacy Reporting](pm-27.md)
 - [PM-28 - Risk Framing](pm-28.md)
@@ -687,7 +685,6 @@
 - [SI-18 - Personally Identifiable Information Quality Operations](si-18.md)
 - [SI-18(1) - Automation Support](si-18-1.md)
 - [SI-18(2) - Data Tags](si-18-2.md)
-- [SI-18(3) - Collection](si-18-3.md)
 - [SI-18(4) - Individual Requests](si-18-4.md)
 - [SI-18(5) - Notice of Correction or Deletion](si-18-5.md)
 - [SI-19 - De-identification](si-19.md)
@@ -695,7 +692,6 @@
 - [SI-19(2) - Archiving](si-19-2.md)
 - [SI-19(3) - Release](si-19-3.md)
 - [SI-19(4) - Removal, Masking, Encryption, Hashing, or Replacement of Direct Identifiers](si-19-4.md)
-- [SI-19(5) - Statistical Disclosure Control](si-19-5.md)
 - [SI-19(6) - Differential Privacy](si-19-6.md)
 - [SI-19(7) - Validated Algorithms and Software](si-19-7.md)
 - [SI-19(8) - Motivated Intruder](si-19-8.md)

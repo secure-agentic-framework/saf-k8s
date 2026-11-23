@@ -5,11 +5,18 @@
 
 ## Mapping Notes
 
-Software and information integrity for agent systems prevents unauthorized modifications
-
-6.2 - Image signing and verification (software integrity); 8.2 - GPU firmware integrity; 9.5 - Model signing and provenance; 1.4 - Control plane configuration file integrity verification
+The actual deployment uses integrity checks and verifies the required response for the selected information.
 
 ## SAF-K8S Controls
+
+### [SAF-K8S-0906-002 - Large-scale data integrity verification](../../controls/SAF-K8S-0906-002.md)
+
+- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
+- Knowledge Area: 9.6
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: n/a
 
 ### [SAF-K8S-0104-005 - Control plane configuration file permissions](../../controls/SAF-K8S-0104-005.md)
 

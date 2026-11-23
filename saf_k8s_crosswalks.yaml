@@ -230,6 +230,37 @@
   applicability: required
   applicability_condition:
   strength_reason_code:
+- mapping_set_name: SAF-K8S to NIST AI RMF 1.0
+  framework_code: NIST-AI-RMF
+  framework_name: NIST AI Risk Management Framework
+  framework_version: '1.0'
+  framework_requirement_id: MAP 4.2
+  framework_requirement_title: Internal risk controls for components of the AI system, including third-party AI technologies,
+    are identified and documented.
+  framework_mapping_notes: The implemented and verified dataset integrity control is identified in the AI system risk
+    documentation.
+  control_id: SAF-K8S-0906-002
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The implemented and verified dataset integrity control is identified in the AI system risk
+    documentation
+  strength_reason_code: null
+- mapping_set_name: SAF-K8S to NIST SP 800-53r5
+  framework_code: NIST-800-53R5
+  framework_name: NIST SP 800-53 Revision 5
+  framework_version: 5.2.0
+  framework_requirement_id: SI-7
+  framework_requirement_title: Software, Firmware, and Information Integrity
+  framework_mapping_notes: The actual deployment uses integrity checks and verifies the required response for the selected
+    information.
+  control_id: SAF-K8S-0906-002
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The actual deployment uses integrity checks and verifies the required response for the selected
+    information
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -237,13 +268,15 @@
   framework_requirement_id: Annex-IV.2.d
   legacy_requirement_id: Annex-IV:IV(1)(e)
   framework_requirement_title: Technical documentation referred to in Article 11(1)
-  framework_mapping_notes: "where relevant, the data requirements in terms of datasheets describing the training methodologies and techniques and the training data sets used, including a general description of these data sets, information about their provenance, scope and main characteristics; how the data was obtained and selected; labelling procedures (e.g. for supervised learning), data cleaning methodologies (e.g. outliers detection);\n\nSAF-K8S D9 controls cover training data integrity, data pipeline provenance, and storage access controls for datasets. Dataset documentation (datasheets) is an application-layer responsibility, but SAF-K8S enforces access controls and audit trails on data stores."
+  framework_mapping_notes: Verified integrity results can support provenance records used in applicable high-risk AI
+    technical documentation.
   control_id: SAF-K8S-0906-002
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Verified integrity results can support provenance records used in applicable high-risk AI
+    technical documentation
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -1210,17 +1243,17 @@
   framework_version: 2024/1689
   framework_requirement_id: Annex-XI.1.2.c
   legacy_requirement_id: Annex-XI:XI(1)(d)
-  framework_requirement_title: Technical documentation referred to in Article 53(1), point (a) — technical documentation for providers of general-purpose AI models
-  framework_mapping_notes: |-
-    information on the data used for training, testing and validation, where applicable, including the type and provenance of data and curation methodologies (e.g. cleaning, filtering, etc.), the number of data points, their scope and main characteristics; how the data was obtained and selected as well as all other measures to detect the unsuitability of data sources and methods to detect identifiable biases, where applicable;
-
-    SAF-K8S D9 controls manage training data pipeline security, storage access controls, and data integrity verification (checksums, immutable storage). Data documentation, source descriptions, and quality narratives are application-layer deliverables.
+  framework_requirement_title: "Technical documentation referred to in Article 53(1), point (a) \u2014 technical documentation\
+    \ for providers of general-purpose AI models"
+  framework_mapping_notes: Verified integrity results can support data records used in applicable general-purpose AI
+    technical documentation.
   control_id: SAF-K8S-0906-002
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Verified integrity results can support data records used in applicable general-purpose AI
+    technical documentation
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -1517,16 +1550,13 @@
   framework_requirement_id: Article-10.1
   legacy_requirement_id: Art-10:10(1)
   framework_requirement_title: Data and data governance
-  framework_mapping_notes: |-
-    High-risk AI systems which make use of techniques involving the training of AI models with data shall be developed on the basis of training, validation and testing data sets that meet the quality criteria referred to in paragraphs 2 to 5 whenever such data sets are used.
-
-    Data quality criteria are application-layer concerns. SAF-K8S provides the infrastructure to enforce data governance: storage access controls, pipeline isolation, data provenance tracking, and data integrity verification (D7, D9 KA 9.6, 9.7).
+  framework_mapping_notes: Maintain evidence of dataset integrity as part of separately assessed high-risk AI data governance.
   control_id: SAF-K8S-0906-002
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Maintain evidence of dataset integrity as part of separately assessed high-risk AI data governance
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -2686,16 +2716,15 @@
   framework_requirement_id: Article-15.4
   legacy_requirement_id: Art-15:15(4)-feedback-loops
   framework_requirement_title: Accuracy, robustness and cybersecurity
-  framework_mapping_notes: |-
-    High-risk AI systems shall be as resilient as possible regarding errors, faults or inconsistencies that may occur within the system or the environment in which the system operates, in particular due to their interaction with natural persons or other systems. Technical and organisational measures shall be taken in this regard. The robustness of high-risk AI systems may be achieved through technical redundancy solutions, which may include backup or fail-safe plans. High-risk AI systems that continue to learn after being placed on the market or put into service shall be developed in such a way as to eliminate or reduce as far as possible the risk of possibly biased outputs influencing input for future operations (feedback loops), and as to ensure that any such feedback loops are duly addressed with appropriate mitigation measures.
-
-    Feedback loop mitigation is primarily an application-layer concern (model design). However, SAF-K8S pipeline integrity controls (D9 KA 9.4, 9.6) and data governance controls can enforce separation between training and inference data paths at the infrastructure level.
+  framework_mapping_notes: Verify integrity-failure detection and recovery as part of applicable robustness and resilience
+    evidence.
   control_id: SAF-K8S-0906-002
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Verify integrity-failure detection and recovery as part of applicable robustness and resilience
+    evidence
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -4995,19 +5024,6 @@
   applicability_condition: The actual accepting services verify least privilege over approved resources and actions for
     each covered workload
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST AI RMF 1.0
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
-  framework_requirement_id: MAP 3.4
-  framework_requirement_title: Risks and benefits of all datasets used for training, testing, and operation of the AI system are mapped, including those provided by third parties.
-  framework_mapping_notes: Training data provenance tracks dataset origin and integrity. Large-scale data integrity verification validates dataset completeness. Data type classification labels categorize data flowing through pipelines.
-  control_id: SAF-K8S-0906-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -9412,22 +9428,6 @@
     6.5 - Admission controllers make automated policy decisions on API requests; 9.5 - Model promotion gates automate security scan pass/fail decisions before production deployment'
   control_id: SAF-K8S-0910-031
   relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-21(2)
-  framework_requirement_title: Information Search and Retrieval
-  framework_mapping_notes: 'Controlling agent search/retrieval scope (RAG, tool use)
-
-
-    9.7 - Data access controls from notebook environments; 9.6 - Oracle attack prevention (controlling information search/retrieval)'
-  control_id: SAF-K8S-0906-002
-  relation_type: supports
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -22002,22 +22002,6 @@
 
     10.7 - Automated discovery and classification of AI infrastructure assets'
   control_id: SAF-K8S-1007-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-13
-  framework_requirement_title: Data Action Mapping
-  framework_mapping_notes: 'Mapping agent data actions for privacy
-
-
-    9.6 - Training data provenance (data action mapping from ingestion through feature engineering); 10.2 - Distributed tracing'
-  control_id: SAF-K8S-0906-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -35198,22 +35182,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: PM-22
-  framework_requirement_title: Personally Identifiable Information Quality Management
-  framework_mapping_notes: 'PII quality management is relevant when agentic AI systems process and transform personal data
-
-
-    9.6 - Data integrity (PII quality management in training data and feature stores)'
-  control_id: SAF-K8S-0906-002
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: PM-23
   framework_requirement_title: Data Governance Body
   framework_mapping_notes: 'Data governance body provides oversight for agentic AI data handling practices
@@ -35253,22 +35221,6 @@
 
     10.6 - Enforce compliance and governance (data governance body for K8s AI environments)'
   control_id: SAF-K8S-1006-005
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-24
-  framework_requirement_title: Data Integrity Board
-  framework_mapping_notes: 'Data integrity oversight applies to agentic AI systems that process and modify data
-
-
-    9.6 - Data integrity at scale (data integrity oversight board for training data governance)'
-  control_id: SAF-K8S-0906-002
   relation_type: supports
   strength_level: moderate
   applicability: required
@@ -55078,22 +55030,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-10
-  framework_requirement_title: Information Input Validation
-  framework_mapping_notes: 'Input validation for agent prompts, tool responses, and data is critical for preventing injection
-
-
-    9.2 - Input validation and sanitization for inference requests; 9.6 - Data poisoning detection (input validation)'
-  control_id: SAF-K8S-0906-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-10(1)
   framework_requirement_title: Manual Override Capability
   framework_mapping_notes: 'Manual override of agent input validation enables human intervention for edge cases
@@ -55693,22 +55629,6 @@
 
     9.2 - Input validation (request format enforcement, payload size controls); 9.6 - Secure data pipeline ingestion'
   control_id: SAF-K8S-0902-009
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-10(5)
-  framework_requirement_title: Restrict Inputs to Trusted Sources and Approved Formats
-  framework_mapping_notes: 'Restricting agent inputs to trusted sources and formats prevents injection attacks
-
-
-    9.2 - Input validation (request format enforcement, payload size controls); 9.6 - Secure data pipeline ingestion'
-  control_id: SAF-K8S-0906-002
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -58024,22 +57944,6 @@
 
 
     9.6 - Data poisoning detection (automated drift detection, outlier analysis); 10.1 - Centralized logging (automated PII redaction)'
-  control_id: SAF-K8S-0906-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-18(1)
-  framework_requirement_title: Automation Support
-  framework_mapping_notes: 'Automated PII quality checks in agent data pipelines maintain data accuracy at scale
-
-
-    9.6 - Data poisoning detection (automated drift detection, outlier analysis); 10.1 - Centralized logging (automated PII redaction)'
   control_id: SAF-K8S-1001-004
   relation_type: direct
   strength_level: strong
@@ -58126,38 +58030,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-18(2)
-  framework_requirement_title: Data Tags
-  framework_mapping_notes: 'Data tags for PII quality tracking enable agents to assess data reliability
-
-
-    7.2 - Label and annotation standards for AI workload classification; 9.6 - Training data provenance (data classification tags)'
-  control_id: SAF-K8S-0906-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-18(3)
-  framework_requirement_title: Collection
-  framework_mapping_notes: 'Collection quality controls ensure accurate PII is captured by agent systems
-
-
-    9.6 - Training data provenance tracking (data collection lineage); 9.6 - Secure data pipeline ingestion'
-  control_id: SAF-K8S-0906-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -58329,22 +58201,6 @@
 
     9.7 - Privacy controls for training data (anonymization); 10.1 - Inference logs with PII redaction'
   control_id: SAF-K8S-1001-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-19(1)
-  framework_requirement_title: Collection
-  framework_mapping_notes: 'De-identification at collection prevents agents from storing unnecessary identifiers
-
-
-    9.6 - Training data provenance (de-identification at collection); 9.7 - Privacy controls (anonymization during ingestion)'
-  control_id: SAF-K8S-0906-002
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -58649,22 +58505,6 @@
 
     9.7 - Privacy controls (PII handling -- anonymization techniques); 10.1 - Sensitive metric redaction'
   control_id: SAF-K8S-1001-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-19(5)
-  framework_requirement_title: Statistical Disclosure Control
-  framework_mapping_notes: 'Statistical disclosure control prevents re-identification in agent analytics outputs
-
-
-    9.8 - Differential privacy and output perturbation; 9.6 - Information exposure controls (statistical disclosure prevention)'
-  control_id: SAF-K8S-0906-002
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -59810,22 +59650,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-20
-  framework_requirement_title: Tainting
-  framework_mapping_notes: 'Data tainting tracks untrusted input through agent processing pipelines to prevent injection
-
-
-    9.6 - Data poisoning detection (tainted/poisoned data identification); 7.2 - Label and annotation standards (tainting for classification)'
-  control_id: SAF-K8S-0906-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-21
   framework_requirement_title: Information Refresh
   framework_mapping_notes: 'Refreshing agent data from authoritative sources prevents reliance on stale or corrupted information
@@ -60009,22 +59833,6 @@
 
     9.6 - Data integrity at scale (diversity in data sources for resilience); 9.1 - Federated learning (diverse participant data)'
   control_id: SAF-K8S-0901-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-22
-  framework_requirement_title: Information Diversity
-  framework_mapping_notes: 'Information diversity in agent inputs enables cross-validation and reduces manipulation risk
-
-
-    9.6 - Data integrity at scale (diversity in data sources for resilience); 9.1 - Federated learning (diverse participant data)'
-  control_id: SAF-K8S-0906-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -63668,22 +63476,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-7(12)
-  framework_requirement_title: Integrity Verification
-  framework_mapping_notes: 'Integrity verification of agent components validates authenticity before execution
-
-
-    9.5 - Model origin verification at deploy time; 6.2 - Image signature verification; 9.6 - Data integrity at scale'
-  control_id: SAF-K8S-0906-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-7(15)
   framework_requirement_title: Code Authentication
   framework_mapping_notes: 'Code authentication for agent software and plugins verifies provenance before loading
@@ -66249,22 +66041,6 @@
 
     9.6 - Training data provenance tracking (lineage from ingestion to training); 10.2 - Distributed tracing for ML pipelines'
   control_id: SAF-K8S-0905-059
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-4(2)
-  framework_requirement_title: Track and Trace
-  framework_mapping_notes: 'Track and trace of AI model and tool artifacts through the supply chain
-
-
-    9.6 - Training data provenance tracking (lineage from ingestion to training); 10.2 - Distributed tracing for ML pipelines'
-  control_id: SAF-K8S-0906-002
   relation_type: direct
   strength_level: strong
   applicability: required

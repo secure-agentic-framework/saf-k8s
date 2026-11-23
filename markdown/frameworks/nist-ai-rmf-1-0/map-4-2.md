@@ -5,9 +5,18 @@
 
 ## Mapping Notes
 
-Compliance mapping maintains documented control-to-framework mappings. Automated audit readiness generates continuous compliance evidence showing control coverage.
+The implemented and verified dataset integrity control is identified in the AI system risk documentation.
 
 ## SAF-K8S Controls
+
+### [SAF-K8S-0906-002 - Large-scale data integrity verification](../../controls/SAF-K8S-0906-002.md)
+
+- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
+- Knowledge Area: 9.6
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: n/a
 
 ### [SAF-K8S-1006-001 - Regulatory compliance mapping for Kubernetes AI platforms](../../controls/SAF-K8S-1006-001.md)
 
