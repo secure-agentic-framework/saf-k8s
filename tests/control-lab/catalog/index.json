@@ -1134,6 +1134,12 @@
       "sha256": "1c5c3ed8623fb4fe89e05e2d878f1862dd915c0525abce67b71bd15b2f94182c",
       "title": "AI custom resource validation and policy constraint enforcement"
     },
+    "SAF-K8S-0605-010": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "284caef9609e4d851a0fee0ea5ec8754c50f91f63b302010bb8f5aec11d62d63",
+      "title": "AI custom resource webhook abuse resistance and resource hardening"
+    },
     "SAF-K8S-0606-021": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2348,7 +2354,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "40ebb6b98a68455002057056768467324a9f7e96",
-  "sha256": "734b9f25c15538e10d83dba4374a465746cb24c7999bbe8f438305b407e90d9f",
+  "revision": "3780664c3bc8ae4357fd47c4719ca520f13438c8",
+  "sha256": "eeaa402b6f2833d1b222bd1ea4266ddea4175eef5d106e11b6366db003c4d037",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
