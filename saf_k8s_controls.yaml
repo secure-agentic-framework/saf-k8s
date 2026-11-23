@@ -7369,13 +7369,13 @@
   domain_name: GPU, Accelerator, and Confidential Computing
   knowledge_area: '8.1'
   control_seq: 009
-  control_title: GPU topology metadata protection and node label visibility restriction
-  control_statement: Kubernetes node labels, device plugin advertisements, and topology information exposing GPU hardware details must be restricted so unauthorized users and workloads cannot enumerate sensitive accelerator metadata.
-  objective: Prevent reconnaissance and tenant-placement inference by limiting exposure of GPU topology and hardware metadata.
-  rationale: GPU feature discovery and device plugin metadata can reveal hardware models, interconnect layouts, driver versions, MIG capabilities, and co-tenant placement clues. Restricting visibility reduces the value of topology information for targeted attacks and reconnaissance against shared GPU infrastructure.
-  scope: Applies to all Kubernetes clusters with GPU nodes where device plugin advertisements or GPU Feature Discovery labels expose accelerator metadata. Visibility exceptions require documented justification.
-  primary_enforcement_point: GPU metadata publication controls and RBAC restrictions on node and label visibility.
-  implementation_surface: GPU Feature Discovery configuration, node label exposure controls, device plugin metadata filtering, and RBAC limiting node object and label reads.
+  control_title: Restrict access to published accelerator inventory and topology metadata
+  control_statement: Minimize sensitive accelerator metadata published to users and workloads. Restrict Node API reads to approved principals and review other interfaces that expose accelerator inventory, topology or placement. Verify separately any narrower disclosure controls.
+  objective: Reduce unnecessary disclosure of accelerator details and placement information while preserving required scheduling and operations.
+  rationale: Node labels and status may contain accelerator inventory and allocatable counts. Kubernetes RBAC governs access to Node objects and operations. Other resources, including visible Pod placement and provider-specific reporting, have independent disclosure boundaries.
+  scope: Applies to clusters publishing governed accelerator details through Node labels or status, feature-discovery outputs, or authorized provider and device interfaces. Document required operator reads, protected fields, alternative interfaces and exceptions.
+  primary_enforcement_point: Metadata publication and whole-object Node authorization, with separate controls for selective disclosure and other interfaces.
+  implementation_surface: Inventory actual enabled discovery and device plugin outputs. Restrict Node get, list and watch per approved principal and verify effective decisions. Review placement and external telemetry separately and use an approved minimized view when sharing selected fields.
   owner_primary: ML Platform Engineering
   owner_supporting: Platform Engineering; Security Engineering
   baseline_or_ai_specific: ai-specific
