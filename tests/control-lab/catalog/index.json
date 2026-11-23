@@ -1686,6 +1686,12 @@
       "sha256": "a0075972126688df6d8d8336c450c2b2d9071b8890e621877e034ba9392fa24d",
       "title": "MPS and time-slicing side-channel risk assessment"
     },
+    "SAF-K8S-0802-001": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "0683ad6727c6e8a5c43ddded19047c3fb8d349b748640b3cbd5ee90e73d0a60e",
+      "title": "GPU driver lifecycle and vulnerability management"
+    },
     "SAF-K8S-0901-002": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -2588,7 +2594,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "227f865bf2133a95f258e88885e84f4c32ee9275",
-  "sha256": "2b9bc85164813130cecd5bff1628e1b38550ae99d0208f35ede10b6a4ae43caf",
+  "revision": "4b3b24c93847989663ed19f87c88c48ceed07ab8",
+  "sha256": "28c645ea691a0b28d041a4a4fb409978ddf3e7bc3fd83afc15fa7f67910498fc",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
