@@ -1,0 +1,77 @@
+{
+  "control_id": "SAF-K8S-0703-018",
+  "catalog_revision": "2c9963289ae8be9c0dfd289e35a09cbc3ae69004",
+  "catalog_sha256": "1b2d2f3cdc1f33ac18996f85841b4988f5d1acc060716106284efb1b01729e07",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "9dc3617e7de691571d6bf2f7c6f301df579d2cb833e225e3b7f63f6449d773c7",
+  "scope": "Kind workload identities and scheduling; synthetic signals, billing intervals and charges.",
+  "cluster": "saf-lab-bfec4749bc12",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Name-only attribution mislabels a delayed sample after actual Pod name reuse",
+      "matched": true,
+      "observed": {
+        "actual_name_reuse": true,
+        "naive_join_selected_replacement": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Pod UID and half-open sample windows retain the correct workload and reject the delayed sample",
+      "matched": true,
+      "observed": {
+        "joined_runs": [
+          "amber-first",
+          "amber-next",
+          "blue-first",
+          null
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Synthetic charge allocations reconcile while zero activity and unmatched charges remain visible",
+      "matched": true,
+      "observed": {
+        "team_minor_units": {
+          "amber": 800,
+          "blue": 400
+        },
+        "unallocated": 200,
+        "zero_activity_keeps_allocated_share": true
+      }
+    }
+  ]
+}

@@ -1506,6 +1506,12 @@
       "sha256": "e32d14e97817cb1d64a618bfb4819dd7fd8dcf775dbc4a591c093dd940906111",
       "title": "PriorityClass assignment restriction and admission enforcement"
     },
+    "SAF-K8S-0703-018": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "9dc3617e7de691571d6bf2f7c6f301df579d2cb833e225e3b7f63f6449d773c7",
+      "title": "GPU cost attribution metering and billing correlation"
+    },
     "SAF-K8S-0703-021": {
       "catalog_status": "draft",
       "domain": "D07",
@@ -2420,7 +2426,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "5e42ea60f5713c06127623010140f37f99f2a632",
-  "sha256": "0fc795283778ad9bce9a686e0adf4f4526fc73c53d6b68784718a8e8763c0ee2",
+  "revision": "efce2ce15a12bcdb62ff8b533178dd944e3fe088",
+  "sha256": "1b2d2f3cdc1f33ac18996f85841b4988f5d1acc060716106284efb1b01729e07",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
