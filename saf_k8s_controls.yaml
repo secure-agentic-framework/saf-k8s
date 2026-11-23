@@ -6910,12 +6910,12 @@
   knowledge_area: '7.3'
   control_seq: '18'
   control_title: GPU cost attribution metering and billing correlation
-  control_statement: Organizations must measure and attribute GPU consumption at the namespace, team, and job level by correlating Kubernetes workload metadata with billing and utilization telemetry.
-  objective: Provide granular, trustworthy visibility into GPU consumption so organizations can identify which namespaces, teams, and jobs are responsible for incurred GPU spend.
-  rationale: Without reliable attribution, organizations cannot determine which workloads are driving GPU cost, cannot distinguish productive consumption from waste, and cannot make defensible budget, capacity, or optimization decisions for expensive AI infrastructure.
-  scope: Applies to all Kubernetes clusters with GPU resources. Attribution must cover per-namespace, per-team, and per-job granularity and must align Kubernetes labels or namespaces with cloud billing or equivalent cost telemetry sources.
-  primary_enforcement_point: GPU monitoring and cost attribution tooling integrated with billing and workload metadata sources.
-  implementation_surface: Cloud billing tags or labels mapped to Kubernetes namespace, team, project, and job dimensions, plus cost monitoring tools that calculate attributable GPU spend from workload and utilization telemetry.
+  control_statement: Record GPU requests and assigned capacity, observed device telemetry, and provider or internal cost records separately. Use stable workload identities and validity intervals to attribute each applicable measure to namespace, team and run. Reconcile charge records and disclose shared, estimated and unallocated amounts.
+  objective: Produce auditable workload-level attribution with a traceable distinction between capacity, measured activity and source charges.
+  rationale: Resource requests and allocations represent capacity. Device exporters measure specific hardware signals. Provider charges use provider meters and financial rules. Reliable attribution joins these different records through validated identities, times and allocation policy.
+  scope: Applies to scoped GPU clusters and reporting periods. Define applicable device models, telemetry semantics, mapping coverage, provider meters, charge and rate basis, shared costs and missing or delayed data treatment.
+  primary_enforcement_point: Workload and device inventory, monitoring collection, validated identity and time joins, and reconciliation to the authoritative cost export.
+  implementation_surface: Retain workload UID, container, job and team ownership with resource identity and effective time. Validate telemetry joins and billing resource identifiers separately. Reconcile source charges, apply versioned allocation rules, and retain classified totals, unmatched records, adjustments and estimates with their basis.
   owner_primary: FinOps
   owner_supporting: Platform Engineering; ML Engineering
   baseline_or_ai_specific: ai-specific
