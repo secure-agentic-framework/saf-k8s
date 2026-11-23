@@ -1494,6 +1494,12 @@
       "sha256": "f21270a988ca6faa0e57d488a7d40c59c2f4b14090a4394472fdc51320795299",
       "title": "Chaos engineering validation for AI resource governance controls"
     },
+    "SAF-K8S-0703-017": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "e32d14e97817cb1d64a618bfb4819dd7fd8dcf775dbc4a591c093dd940906111",
+      "title": "PriorityClass assignment restriction and admission enforcement"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -2402,7 +2408,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "e3c27a6dcf9880c722a35deb85fcf0a8e19d4a08",
-  "sha256": "180c4e582ab91c70d57d14467a9be75f5a501be8433acb5e72444e0d2a4a0d7d",
+  "revision": "9bb1da6ac9cc02f296116a615dc19afcdcf36b71",
+  "sha256": "034874c70e516638bfab750dbbf4f8dd33a83edf02146ee433405cb0d86ba259",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
