@@ -1470,12 +1470,12 @@
   knowledge_area: '2.2'
   control_seq: 009
   control_title: Container runtime secure baseline settings and debug endpoint disablement
-  control_statement: Container runtimes must be configured according to an approved security baseline that enforces secure default settings and disables unnecessary features such as deprecated API versions or debug endpoints.
-  objective: Minimize container runtime attack surface through approved baseline configuration settings.
-  rationale: Even when socket access is restricted, insecure runtime defaults and exposed debug or deprecated interfaces expand the runtime attack surface. An approved runtime baseline with unnecessary features disabled is a distinct hardening obligation from filesystem protection of the socket itself.
-  scope: Applies to all nodes running containerd or CRI-O in production clusters. Managed Kubernetes services where the runtime is provider-managed satisfy this control through provider security documentation and compensating network controls. Custom or alternative CRI implementations must demonstrate equivalent hardening.
-  primary_enforcement_point: Node image build pipeline and container runtime configuration files.
-  implementation_surface: containerd config.toml, CRI-O crio.conf, debug endpoint settings, deprecated API toggles, and approved secure default runtime options.
+  control_statement: Maintain version-specific secure runtime profiles with explicit supported CRI and diagnostic interfaces. Disable unneeded diagnostics or restrict approved exceptions, and verify effective listeners and retained workload operation.
+  objective: Constrain the runtime's exposed interfaces while preserving its required Kubernetes CRI services.
+  rationale: A runtime configuration schema, CRI protocol, diagnostics and metrics are distinct. Runtime defaults and effective address settings vary by implementation, version, service and imported configuration.
+  scope: Applies to governed production container runtimes and applicable managed-node responsibility. Inventory version, runtime config and imports, service and socket units, local and network listeners, exceptions and supporting provider evidence.
+  primary_enforcement_point: Effective runtime and service configuration, actual listeners and exercised required CRI behavior.
+  implementation_surface: Verify supported CRI protocol, approved runtime options, active diagnostic and metrics endpoints and relevant access controls. Exercise available diagnostics only as authorized, verify unneeded listeners absent, and prove a new workload starts with the reviewed effective configuration.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; OS/Infrastructure
   baseline_or_ai_specific: baseline
