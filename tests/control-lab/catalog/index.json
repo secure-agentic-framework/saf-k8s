@@ -1572,6 +1572,12 @@
       "sha256": "6cd4d533c23b04bfc2e25a090599adfb864afa0e715ef9daa4783b56508fb9fe",
       "title": "Network-level blocking of cloud metadata endpoint access for pods"
     },
+    "SAF-K8S-0704-013": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "52e2d9be157499d22b7a7c7cc3c9eed10c38cbeca9c80f2bd25ecc94c1474999",
+      "title": "Unified cloud and Kubernetes audit source onboarding"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -2480,7 +2486,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "8d3c0c2539c428220a5f021e60dea1773aa189ef",
-  "sha256": "d4cb55b6578f9bfced93f4d9321339637315f1bef65d27ffe88dabc604ed88ec",
+  "revision": "bf0ab181c2e670b8b99fdc189b2c549d3f72f700",
+  "sha256": "1985380b1c88b5c97fd5343fc6cc704e8aa2f3ccabc8773af10bb088cc8daf56",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
