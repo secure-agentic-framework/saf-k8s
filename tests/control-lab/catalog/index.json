@@ -696,6 +696,12 @@
       "sha256": "131e22652ab4358f71b1159f11b0b87e572d813d82fab2facfb1bc2980d0af73",
       "title": "AI workload type network microsegmentation"
     },
+    "SAF-K8S-0501-009": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "dfdb0e72c806a5a10f2a9b3acb18fbfd44273722e838aecefe92eb28e9e69477",
+      "title": "Model download path isolation from training data paths"
+    },
     "SAF-K8S-0502-010": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -2066,7 +2072,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6ef3dba573961c21d234972799ed93a0ecf2a6b0",
-  "sha256": "b109965d306e90d448820cddec49c87895b8d44b6ff62c67ad1d18d710ef3ffb",
+  "revision": "ef46d53355ffe707de4ab39565e9966f71bd840f",
+  "sha256": "7f7046ebc01a38b5aa686c0b793b8c82b20bcf22ff3228726c8840fdd123525d",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
