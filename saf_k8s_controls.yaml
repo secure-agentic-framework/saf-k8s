@@ -3190,12 +3190,12 @@
   knowledge_area: '4.3'
   control_seq: 019
   control_title: Kubernetes Secrets external KMS provider integration
-  control_statement: Kubernetes Secrets encryption at rest must use an external KMS provider as the key management backend.
-  objective: Ensure Kubernetes Secrets encryption relies on a key management service outside the cluster trust boundary.
-  rationale: Externalizing key management is a distinct control claim from governing the permissions on the key itself. This control isolates KMS backend integration so teams can independently verify that Kubernetes Secrets encryption uses an external KMS provider or customer-managed key path.
-  scope: Applies to all production Kubernetes clusters. Covers KMS provider selection and integration, Kubernetes EncryptionConfiguration KMS backends, KMS v2 adoption, and customer-managed key configuration for managed Kubernetes services. Key policy restrictions remain governed by SAF-K8S-0403-020, and the underlying API-resource encryption mechanism remains governed by SAF-K8S-0101-003.
-  primary_enforcement_point: Kubernetes EncryptionConfiguration and managed-service customer-managed key integration settings.
-  implementation_surface: Kubernetes EncryptionConfiguration with KMS provider plugins, KMS v2 API integration, and customer-managed key configuration for managed Kubernetes services.
+  control_statement: Verify that governed Kubernetes Secrets persist under application-layer envelope encryption that uses a supported external KMS authority. Demonstrate the effective write provider and check coverage of previously stored objects after adopting or changing the integration.
+  objective: Keep key-encryption authority external to the API storage boundary and verify effective protection of the governed Secret records.
+  rationale: A self-managed Kubernetes KMS plugin runs with the API server and uses a distinct remote key authority. Local-only storage encryption, a configured provider and the effective stored envelope are distinct. A managed KMS may use a provider-managed or customer-managed key according to the supported implementation and custody policy.
+  scope: Applies to governed Kubernetes Secrets on actual self-managed and managed cluster versions. Identify the selected KMS integration, supported resource scope, key custody and existing-record migration evidence.
+  primary_enforcement_point: Effective kube-apiserver storage transformation and backend KMS operations, or verified equivalent provider-managed application-layer evidence.
+  implementation_surface: For supported self-managed versions verify KMS v2 selection for writes, approved remote authority, actual encrypted Secret envelopes and rewrite of pre-existing records. For managed services verify the version-specific application-layer scope and documented effective state, with appropriate custody and migration evidence.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Key Management/Cryptography; Cloud Platform Engineering
   baseline_or_ai_specific: baseline
