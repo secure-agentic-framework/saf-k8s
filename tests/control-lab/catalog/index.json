@@ -1332,6 +1332,12 @@
       "sha256": "80d1c788b0fe97edf34d52c35bb31d0adf7fc74f9fcb4f674615a542eee21f5f",
       "title": "Durable ML-BOM attachment to model artifacts and versions"
     },
+    "SAF-K8S-0905-048": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "9cfc884fd61cdb5cb52e80dc826623d180ca144f09944b40467fff589261c6f3",
+      "title": "OCI model artifact digest pinning in deployment and promotion workflows"
+    },
     "SAF-K8S-0905-050": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1826,7 +1832,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "1d21c338ff492ddfdd41469ccb6b5a76f464a4b4",
+  "revision": "b5f891d4dab0dfe323d649765d4e28eebbe13938",
   "sha256": "141559b7769339d63e7704ca30c28a6ab8e8d2fbbfefd87b9e9225f3feff5204",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

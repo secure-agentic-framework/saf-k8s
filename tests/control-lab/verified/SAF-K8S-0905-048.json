@@ -1,0 +1,113 @@
+{
+  "control_id": "SAF-K8S-0905-048",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "9cfc884fd61cdb5cb52e80dc826623d180ca144f09944b40467fff589261c6f3",
+  "scope": "A pinned Distribution registry stores two harmless model versions in one disposable cluster. Native Kubernetes admission compares a Pod's model reference and release annotation with a named registry digest record. The same mutable tag is admitted before policy and rejected after activation. A correct digest passes admission and resolves to the original manifest and blob bytes even after the separate mutable tag is updated. This exercises server dry-run admission and a fixture registry consumer.",
+  "review_timing": {
+    "queued_at": "2026-11-23T00:23:12.036945+00:00",
+    "cluster_ready_at": "2026-11-23T00:23:42.965609+00:00",
+    "approval_at": "2026-11-23T00:28:26.528124+00:00",
+    "case_loaded_at": "2026-11-23T00:28:26.561744+00:00"
+  },
+  "cluster": "saf-lab-b46828af9c8e",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "f5be047d70e96d053df7a8951b5646ee9a6f7aa8e8b2a682c127cc2f3fa71577",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The release record persists the reviewed registry manifest digest",
+      "matched": true,
+      "observed": {
+        "repository": "saf-048-registry:5000/saf-fixture/model",
+        "fixture_version": "reviewed-v1",
+        "manifest_digest": "sha256:189ab8f8a76e02aacaa6819597b3334c6c0a68cf2a164ab25da03d2e9f1169ae",
+        "payload_digest": "sha256:ee09cb7eb341be7f47fb762af4b7936dcedab7233508a338d6762c55e1030f97"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The exact mutable-tag request passes before policy activation",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "expected_policy_named": false,
+        "expected_denial_message": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same mutable-tag request receives the named policy denial",
+      "matched": true,
+      "observed": {
+        "admitted": false,
+        "expected_policy_named": true,
+        "expected_denial_message": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The unconstrained fixture tag can be advanced to a different manifest",
+      "matched": true,
+      "observed": {
+        "fixture_version": "replacement-v2",
+        "manifest_digest": "sha256:6ad3cb355de4e36901771a74d3f9b28148cca34d445508da7f355ad16706b7ca",
+        "payload_digest": "sha256:c450b283076d98d1edba7317a8753164a3a042ec22a0a8e146622bd4d81fd611"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A well-formed digest with matching self-declared metadata still needs the trusted release record",
+      "matched": true,
+      "observed": {
+        "admitted": false,
+        "expected_policy_named": true,
+        "expected_denial_message": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The admitted reference retrieves the exact reviewed manifest and blob after the tag moves",
+      "matched": true,
+      "observed": {
+        "admitted": "saf-048-registry:5000/saf-fixture/model@sha256:189ab8f8a76e02aacaa6819597b3334c6c0a68cf2a164ab25da03d2e9f1169ae",
+        "retrieved": {
+          "fixture_version": "reviewed-v1",
+          "manifest_digest": "sha256:189ab8f8a76e02aacaa6819597b3334c6c0a68cf2a164ab25da03d2e9f1169ae",
+          "payload_digest": "sha256:ee09cb7eb341be7f47fb762af4b7936dcedab7233508a338d6762c55e1030f97"
+        }
+      }
+    }
+  ]
+}
