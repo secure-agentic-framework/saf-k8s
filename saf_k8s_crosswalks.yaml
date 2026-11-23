@@ -57141,15 +57141,15 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-45(2)
   framework_requirement_title: Secondary Authoritative Time Source
-  framework_mapping_notes: 'Redundant time sources ensure agent audit accuracy even during primary source failure
+  framework_mapping_notes: 'Requires a geographically distinct authoritative secondary and demonstrated synchronization to it when the primary is unavailable
 
 
     2.3 - Host OS and Kernel Hardening (redundant or resilient time source configuration for Kubernetes nodes); 10.1 - Logging architecture (redundant time sources for audit reliability)'
   control_id: SAF-K8S-0203-016
   relation_type: supports
   strength_level: strong
-  applicability: required
-  applicability_condition: null
+  applicability: conditional
+  applicability_condition: Selected profile requires SC-45(2) regional fallback
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
