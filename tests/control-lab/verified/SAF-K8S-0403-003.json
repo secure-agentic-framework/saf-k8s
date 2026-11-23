@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0403-003",
-  "catalog_revision": "e12bc130a46839f95736e606f61d91e8a3eb9bd0",
-  "catalog_sha256": "e4bff27795f7d155249333c59729c238a5b856d95a1b091a3328447025326f31",
+  "catalog_revision": "01b7155bc869f2950e36fa360c8252d8916cb445",
+  "catalog_sha256": "8af25caa2946e36ffe6dc9d9943c7c950e6eb00422fba46e6e11c291271a7de8",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "6af45f976c6db8e8f841aeaa3d2bcb93125a04e8f9fb04b6657e0fb752faa504",
+  "control_sha256": "faafd6803e0b5d88b80f8e292efc840242fa32778e7c71990cfb1d90556d1643",
   "scope": "Exercise actual Kubernetes Secret directory refresh, subPath and init-copy snapshots, filesystem access and scoped admission. Published markers are public synthetic values. CSI, external injectors, sidecars and production workload behavior need distinct evidence.",
-  "cluster": "saf-lab-6082e56ede82",
+  "cluster": "saf-lab-78ea1dedb227",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

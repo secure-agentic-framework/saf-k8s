@@ -867,7 +867,7 @@
     "SAF-K8S-0402-015": {
       "catalog_status": "draft",
       "domain": "D04",
-      "sha256": "a22140b61b87b22376929e5a939d6c888e301de1fb13e2a319f7273cb2c2d3e4",
+      "sha256": "1ae388b84ef9d7e1f1ccd6023431ae7241e22d00f6e88002a9e64a8a0ff3d5d3",
       "title": "Legacy service account token secret removal"
     },
     "SAF-K8S-0402-018": {
@@ -915,7 +915,7 @@
     "SAF-K8S-0403-003": {
       "catalog_status": "draft",
       "domain": "D04",
-      "sha256": "6af45f976c6db8e8f841aeaa3d2bcb93125a04e8f9fb04b6657e0fb752faa504",
+      "sha256": "faafd6803e0b5d88b80f8e292efc840242fa32778e7c71990cfb1d90556d1643",
       "title": "Approved secret injection pattern standards"
     },
     "SAF-K8S-0403-004": {
@@ -3153,7 +3153,7 @@
     "SAF-K8S-1007-004": {
       "catalog_status": "draft",
       "domain": "D10",
-      "sha256": "71ead8fa4d98f66edf41f9d398a53c3956222497b4c6bd7bcc6dcb062897a4cd",
+      "sha256": "3851049878e612a02b34e15f8233da5a5349117f1b032d4fbb0615edc9ac2cb9",
       "title": "Continuous security posture management for AI clusters"
     },
     "SAF-K8S-1007-005": {
@@ -3230,7 +3230,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "f8ba2ba7c5675e5c621cc25e0318c2389da150fb",
-  "sha256": "11033777199b88d84222227bd013dc7b0783bf396189abb0f9a57a532f8a7ba7",
+  "revision": "45cb05ab1ae2c3a5f8a7cb8b569a4cdc5d4e86d3",
+  "sha256": "e858a89789bf710145cabbe00353976b1761697a82fd99091709ffa58715069a",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
