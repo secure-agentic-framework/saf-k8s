@@ -4858,14 +4858,18 @@
   framework_name: NIST AI Risk Management Framework
   framework_version: '1.0'
   framework_requirement_id: MAP 1.6
-  framework_requirement_title: System requirements (e.g., "the system shall respect the privacy of its users") are elicited from and understood by relevant AI actors. Design decisions take socio-technical implications into account to address AI risks.
-  framework_mapping_notes: AI system classification captures security requirements per system type. Training data privacy controls and differential privacy mechanisms enforce privacy requirements at the infrastructure level.
+  framework_requirement_title: System requirements (e.g., "the system shall respect the privacy of its users") are elicited
+    from and understood by relevant AI actors. Design decisions take socio-technical implications into account to address
+    AI risks.
+  framework_mapping_notes: Dataset controls implement elicited privacy requirements when the system documents and traces
+    those requirements.
   control_id: SAF-K8S-0907-002
-  relation_type: partial
+  relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: partial-control-coverage
+  applicability: conditional
+  applicability_condition: Dataset controls implement elicited privacy requirements when the system documents and traces
+    those requirements
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -5212,13 +5216,15 @@
   framework_version: '1.0'
   framework_requirement_id: MEASURE 2.10
   framework_requirement_title: Privacy risk of the AI system - as identified in the MAP function - is examined and documented.
-  framework_mapping_notes: Training data privacy controls enforce data handling policies. Differential privacy and output perturbation mitigate inference privacy risks. Centralized logging with PII redaction prevents sensitive data exposure in observability systems.
+  framework_mapping_notes: Data-minimization and access results can inform the documented examination of system privacy
+    risks.
   control_id: SAF-K8S-0907-002
-  relation_type: partial
+  relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: compound-control-split-required
+  applicability: conditional
+  applicability_condition: Data-minimization and access results can inform the documented examination of system privacy
+    risks
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -6085,15 +6091,12 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-16
   framework_requirement_title: Security and Privacy Attributes
-  framework_mapping_notes: 'Security labels/attributes on agent-processed data
-
-
-    7.2 - Namespace isolation (label/annotation standards for AI workload classification); 9.7 - Data classification and privacy attributes'
+  framework_mapping_notes: Defined and maintained security or privacy attributes govern data access and handling.
   control_id: SAF-K8S-0907-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Defined and maintained security or privacy attributes govern data access and handling
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -9246,15 +9249,14 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-21
   framework_requirement_title: Information Sharing
-  framework_mapping_notes: 'Controlling how agents share information across boundaries
-
-
-    9.7 - Protect training data (data sharing controls across teams); 7.2 - Multi-tenancy (cross-namespace information sharing)'
+  framework_mapping_notes: Controlled and documented sharing of training data implements the selected information-sharing
+    policy.
   control_id: SAF-K8S-0907-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Controlled and documented sharing of training data implements the selected information-sharing
+    policy
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -9438,15 +9440,12 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-21(2)
   framework_requirement_title: Information Search and Retrieval
-  framework_mapping_notes: 'Controlling agent search/retrieval scope (RAG, tool use)
-
-
-    9.7 - Data access controls from notebook environments; 9.6 - Oracle attack prevention (controlling information search/retrieval)'
+  framework_mapping_notes: Training-data search or retrieval services enforce explicit sharing restrictions.
   control_id: SAF-K8S-0907-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Training-data search or retrieval services enforce explicit sharing restrictions
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -9636,22 +9635,6 @@
     9.2 - Model endpoint authentication (controlling public access to inference); 5.5 - Service exposure restriction'
   control_id: SAF-K8S-0902-009
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-23
-  framework_requirement_title: Data Mining Protection
-  framework_mapping_notes: 'Preventing unauthorized data mining by agents
-
-
-    9.8 - Prevent model abuse and extraction (oracle attacks, model extraction, membership inference); 9.7 - Privacy controls'
-  control_id: SAF-K8S-0907-002
-  relation_type: direct
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -10392,15 +10375,12 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-3(11)
   framework_requirement_title: Restrict Access to Specific Information Types
-  framework_mapping_notes: 'Restricting agent access to sensitive data classes
-
-
-    9.7 - Protect training data (data classification, privacy controls); 4.5 - ABAC for AI artifacts based on data classification and model sensitivity'
+  framework_mapping_notes: The actual enforcement point restricts access to approved defined data types.
   control_id: SAF-K8S-0907-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The actual enforcement point restricts access to approved defined data types
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -11249,15 +11229,12 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-3(9)
   framework_requirement_title: Controlled Release
-  framework_mapping_notes: 'Controlling agent data release across boundaries
-
-
-    9.7 - Controlled release of training data across trust boundaries with data access controls and authorization requirements'
+  framework_mapping_notes: A governed release boundary enforces the approved release decision for the covered information.
   control_id: SAF-K8S-0907-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: A governed release boundary enforces the approved release decision for the covered information
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -11457,15 +11434,14 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-4(1)
   framework_requirement_title: Object Security and Privacy Attributes
-  framework_mapping_notes: 'Security labels on data flowing between agents
-
-
-    9.7 - Protect training data (data provenance, classification); 7.2 - Namespace isolation (label/annotation standards for AI workload classification)'
+  framework_mapping_notes: Verified classification attributes are applied to the covered data objects and enforced by
+    flow rules.
   control_id: SAF-K8S-0907-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Verified classification attributes are applied to the covered data objects and enforced by
+    flow rules
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -11691,22 +11667,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(12)
-  framework_requirement_title: Data Type Identifiers
-  framework_mapping_notes: 'Typing data in agent flows to prevent type confusion
-
-
-    7.2 - Data type classification labels for pipeline data flows provide data type identifiers; 9.7 - Data classification and provenance tracking'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -13008,15 +12968,14 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-4(23)
   framework_requirement_title: Modify Non-releasable Information
-  framework_mapping_notes: 'Sanitizing non-releasable data before agent output
-
-
-    9.7 - Privacy controls for training data (PII handling, anonymization); 9.2 - Response filtering to prevent sensitive data leakage'
+  framework_mapping_notes: The applicable release rules verify the modification needed before transfer of the affected
+    data.
   control_id: SAF-K8S-0907-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The applicable release rules verify the modification needed before transfer of the affected
+    data
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -13376,15 +13335,12 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-4(25)
   framework_requirement_title: Data Sanitization
-  framework_mapping_notes: 'Sanitizing data in agent pipelines
-
-
-    9.2 - Harden inference (input validation and sanitization); 9.7 - Protect training data (PII handling during feature engineering)'
+  framework_mapping_notes: An effective sanitization step enforces the prescribed information-flow policy.
   control_id: SAF-K8S-0907-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: An effective sanitization step enforces the prescribed information-flow policy
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -14229,22 +14185,6 @@
 
     9.7 - Metadata access controls for data provenance records; 9.4 - Experiment tracking security with metadata access controls'
   control_id: SAF-K8S-0904-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(6)
-  framework_requirement_title: Metadata
-  framework_mapping_notes: 'Controlling metadata in agent communications
-
-
-    9.7 - Metadata access controls for data provenance records; 9.4 - Experiment tracking security with metadata access controls'
-  control_id: SAF-K8S-0907-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -16624,22 +16564,6 @@
 
 
     9.7 - Protect training data (PII handling during feature engineering); 10.6 - Regulatory compliance (EU AI Act, privacy)'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AT-3(5)
-  framework_requirement_title: Processing Personally Identifiable Information
-  framework_mapping_notes: 'PII handling training for agent system operators
-
-
-    9.7 - Protect training data (PII handling during feature engineering); 10.6 - Regulatory compliance (EU AI Act, privacy)'
   control_id: SAF-K8S-1006-001
   relation_type: supports
   strength_level: strong
@@ -17740,15 +17664,14 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-12(4)
   framework_requirement_title: Query Parameter Audits of Personally Identifiable Information
-  framework_mapping_notes: 'Auditing agent PII queries
-
-
-    9.7 - Privacy controls (auditing queries accessing PII in training data); 10.1 - PII redaction in logs'
+  framework_mapping_notes: An in-scope application records the required query parameters for datasets containing personal
+    information.
   control_id: SAF-K8S-0907-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: An in-scope application records the required query parameters for datasets containing personal
+    information
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -18248,22 +18171,6 @@
 
     10.1 - SIEM integration (sharing audit information with security operations and external systems)'
   control_id: SAF-K8S-1001-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-16(3)
-  framework_requirement_title: Disassociability
-  framework_mapping_notes: 'De-identifying agent audit data for privacy
-
-
-    9.7 - Privacy controls (PII anonymization/disassociability in shared audit logs); 10.1 - PII redaction'
-  control_id: SAF-K8S-0907-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -30609,22 +30516,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: IA-4(8)
-  framework_requirement_title: Pairwise Pseudonymous Identifiers
-  framework_mapping_notes: 'Privacy-preserving agent identifiers
-
-
-    9.7 - Privacy engineering controls explicitly cover pairwise pseudonymous identifiers for privacy protection'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: IA-4(9)
   framework_requirement_title: Attribute Maintenance and Protection
   framework_mapping_notes: 'Protecting agent identity attributes
@@ -31868,22 +31759,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-8(6)
-  framework_requirement_title: Disassociability
-  framework_mapping_notes: 'Privacy-preserving external agent auth
-
-
-    9.7 - Privacy engineering controls explicitly cover disassociability between user identity and AI processing'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -33791,22 +33666,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: IR-9
-  framework_requirement_title: Information Spillage Response
-  framework_mapping_notes: 'Responding when agents leak sensitive data
-
-
-    4.3 - Secret leakage prevention; 9.7 - PII handling (information spillage response for AI training data)'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: IR-9(2)
   framework_requirement_title: Training
   framework_mapping_notes: 'Training for agent information spillage response
@@ -33830,22 +33689,6 @@
 
     10.5 - Post-incident activity (post-spill operations and recovery for AI data environments)'
   control_id: SAF-K8S-1005-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-9(4)
-  framework_requirement_title: Exposure to Unauthorized Personnel
-  framework_mapping_notes: 'Handling agent data exposed to unauthorized parties
-
-
-    9.7 - Data access controls (preventing unauthorized access to training data after spillage)'
-  control_id: SAF-K8S-0907-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -35054,22 +34897,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: PM-18
-  framework_requirement_title: Privacy Program Plan
-  framework_mapping_notes: 'Privacy program planning is important for agentic AI systems processing personal data
-
-
-    9.7 - Privacy controls (privacy program plan for AI training data and model outputs)'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: PM-2
   framework_requirement_title: Information Security Program Leadership Role
   framework_mapping_notes: 'Security leadership role is needed to oversee agentic AI security program governance
@@ -35111,22 +34938,6 @@
   control_id: SAF-K8S-1006-005
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-21
-  framework_requirement_title: Accounting of Disclosures
-  framework_mapping_notes: 'Accounting of data disclosures by agentic AI systems is important for privacy compliance
-
-
-    9.7 - Data access audit trails; 10.1 - Audit logging (accounting of data disclosures)'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
   applicability: required
   applicability_condition: null
   strength_reason_code: null
@@ -35232,15 +35043,14 @@
   framework_version: 5.2.0
   framework_requirement_id: PM-25
   framework_requirement_title: Minimization of Personally Identifiable Information Used in Testing, Training, and Research
-  framework_mapping_notes: 'PII minimization is critical for AI model training data and agent testing environments
-
-
-    9.7 - Privacy controls (minimizing PII in ML training, testing, and research datasets)'
+  framework_mapping_notes: The organization implements minimization policy, approval and periodic review for personal
+    information used to train models.
   control_id: SAF-K8S-0907-002
   relation_type: direct
   strength_level: strong
-  applicability: required
-  applicability_condition: null
+  applicability: conditional
+  applicability_condition: The organization implements minimization policy, approval and periodic review for personal
+    information used to train models
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -35806,22 +35616,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: PM-5(1)
-  framework_requirement_title: Inventory of Personally Identifiable Information
-  framework_mapping_notes: 'PII inventory is critical for agentic AI systems that process personal data in prompts and context
-
-
-    9.7 - Privacy controls (inventory of PII in training data, features, and model outputs)'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: PM-6
   framework_requirement_title: Measures of Performance
   framework_mapping_notes: 'Security performance metrics track effectiveness of agentic AI security controls
@@ -36222,38 +36016,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: PT-1
-  framework_requirement_title: Policy and Procedures
-  framework_mapping_notes: 'PII processing policy is essential for agentic AI systems handling personal data
-
-
-    9.7 - Privacy controls (PII processing policy and procedures for AI training data)'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PT-2
-  framework_requirement_title: Authority to Process Personally Identifiable Information
-  framework_mapping_notes: 'Authority to process PII must be established for agentic AI systems accessing personal data
-
-
-    9.7 - Privacy controls (authority to process PII in training and feature engineering workflows)'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: PT-2(1)
   framework_requirement_title: Data Tagging
   framework_mapping_notes: 'Data tagging enables agentic AI systems to identify and properly handle PII in context
@@ -36350,33 +36112,14 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: PT-3
-  framework_requirement_title: Personally Identifiable Information Processing Purposes
-  framework_mapping_notes: 'PII processing purpose limitation applies to constraining agent data access and usage
-
-
-    9.7 - Privacy controls (defining authorized purposes for PII usage in AI training)'
+  framework_requirement_id: PT-3(1)
+  framework_requirement_title: Data Tagging
+  framework_mapping_notes: The implementation attaches the required processing-purpose identifiers to the covered information.
   control_id: SAF-K8S-0907-002
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PT-3(1)
-  framework_requirement_title: Data Tagging
-  framework_mapping_notes: 'Data tagging for PII processing purposes helps agents respect data usage constraints
-
-
-    9.7 - Data classification (tagging PII processing purposes in training datasets)'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  applicability: conditional
+  applicability_condition: The implementation attaches the required processing-purpose identifiers to the covered information
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -36384,79 +36127,12 @@
   framework_version: 5.2.0
   framework_requirement_id: PT-3(2)
   framework_requirement_title: Automation
-  framework_mapping_notes: 'Automated purpose enforcement is directly relevant to constraining agentic AI data access
-
-
-    9.7 - Automated data classification (automated PII purpose tagging in pipelines)'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PT-4
-  framework_requirement_title: Consent
-  framework_mapping_notes: 'User consent management is important when agentic AI systems process personal data
-
-
-    9.7 - Privacy controls (consent management for training data containing PII)'
+  framework_mapping_notes: The verified pipeline automatically enforces documented authorized processing purposes.
   control_id: SAF-K8S-0907-002
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PT-4(1)
-  framework_requirement_title: Tailored Consent
-  framework_mapping_notes: 'Tailored consent allows granular control over how agents process different data types
-
-
-    9.7 - Granular consent per data usage purpose provides tailored consent for different data processing purposes in ML workflows'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PT-4(2)
-  framework_requirement_title: Just-in-time Consent
-  framework_mapping_notes: 'Just-in-time consent is relevant for agent actions that trigger new data processing
-
-
-    9.7 - Consent management for training data (just-in-time consent prompts for interactive data access in notebook environments)'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PT-4(3)
-  framework_requirement_title: Revocation
-  framework_mapping_notes: 'Consent revocation must propagate to agentic AI systems to stop processing personal data
-
-
-    9.7 - Consent revocation and model retraining workflows explicitly cover revocation propagation through AI data processing'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  applicability: conditional
+  applicability_condition: The verified pipeline automatically enforces documented authorized processing purposes
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -36533,38 +36209,6 @@
 
     9.4 - Notebook environment login banners (privacy notices); 10.6 - Regulatory compliance (privacy notice requirements)'
   control_id: SAF-K8S-1006-005
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PT-5(1)
-  framework_requirement_title: Just-in-time Notice
-  framework_mapping_notes: 'Just-in-time privacy notices are relevant when agents initiate new data processing actions
-
-
-    9.7 - Privacy notice requirements for AI data processing (just-in-time notices for data access decisions)'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PT-7
-  framework_requirement_title: Specific Categories of Personally Identifiable Information
-  framework_mapping_notes: 'Identifying sensitive PII categories is important for agentic AI data handling policies
-
-
-    9.7 - Privacy controls (handling specific PII categories in training data and feature stores)'
-  control_id: SAF-K8S-0907-002
   relation_type: supports
   strength_level: moderate
   applicability: required
@@ -36714,22 +36358,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: RA-2
-  framework_requirement_title: Security Categorization
-  framework_mapping_notes: 'Security categorization of agentic AI systems drives control selection and rigor
-
-
-    7.2 - Label/annotation standards (security categorization of AI workloads); 9.7 - Data classification'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -37509,22 +37137,6 @@
 
     10.3 - Threat modeling (risk response strategies for identified K8s AI threats)'
   control_id: SAF-K8S-1003-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: RA-8
-  framework_requirement_title: Privacy Impact Assessments
-  framework_mapping_notes: 'Privacy impact assessments are essential for agentic AI systems processing personal data
-
-
-    9.7 - Privacy impact assessments for AI data processing workflows explicitly covers privacy impact assessment requirements'
-  control_id: SAF-K8S-0907-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -38832,15 +38444,14 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-15(12)
   framework_requirement_title: Minimize Personally Identifiable Information
-  framework_mapping_notes: 'PII minimization in agent development prevents unnecessary personal data in training and testing
-
-
-    9.7 - Privacy controls (minimizing PII in development, training, and testing datasets)'
+  framework_mapping_notes: Training data is used in a governed development process that verifies the applicable minimization
+    requirement.
   control_id: SAF-K8S-0907-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Training data is used in a governed development process that verifies the applicable minimization
+    requirement
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -40750,22 +40361,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SA-3(2)
-  framework_requirement_title: Use of Live or Operational Data
-  framework_mapping_notes: 'Use of live data in agentic AI development and testing requires strict controls
-
-
-    9.7 - Privacy controls (managing live/operational data in development and testing, PII handling)'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SA-3(3)
   framework_requirement_title: Technology Refresh
   framework_mapping_notes: 'Technology refresh planning for AI models, frameworks, and tools prevents obsolescence risks
@@ -40933,22 +40528,6 @@
 
     10.6 - Enforce compliance (verifying functional properties of security controls in acquisitions)'
   control_id: SAF-K8S-1006-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-4(12)
-  framework_requirement_title: Data Ownership
-  framework_mapping_notes: 'Data ownership for AI training data, agent context, and generated outputs must be established
-
-
-    9.7 - Data access controls (data ownership for training data, models, and feature stores)'
-  control_id: SAF-K8S-0907-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -43727,15 +43306,12 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-8(33)
   framework_requirement_title: Minimization
-  framework_mapping_notes: 'Minimization principle limits agent data collection and processing to what is necessary
-
-
-    6.1 - Minimal images (minimization principle); 9.7 - PII minimization in training data and features'
+  framework_mapping_notes: The selected engineering design demonstrates the applicable minimization principle.
   control_id: SAF-K8S-0907-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The selected engineering design demonstrates the applicable minimization principle
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -46269,22 +45845,6 @@
 
     9.4 - Notebook environment security (non-privileged user interfaces for AI experimentation)'
   control_id: SAF-K8S-0904-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-2(2)
-  framework_requirement_title: Disassociability
-  framework_mapping_notes: 'Disassociability prevents linking agent interactions back to specific individuals when not required
-
-
-    9.7 - Privacy engineering controls cover disassociability between user identity and AI processing to prevent unnecessary linkage'
-  control_id: SAF-K8S-0907-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -50685,38 +50245,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SC-42(4)
-  framework_requirement_title: Notice of Collection
-  framework_mapping_notes: 'Notice of data collection by agent systems ensures user awareness and consent
-
-
-    9.7 - Privacy engineering controls cover notice of data collection in training pipelines; privacy notice requirements for AI data processing include disclosure of data usage'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-42(5)
-  framework_requirement_title: Collection Minimization
-  framework_mapping_notes: 'Minimizing agent data collection reduces privacy risk and attack surface
-
-
-    9.7 - Privacy controls for training data (PII handling, data minimization); 10.1 - Sensitive metric redaction'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SC-42(5)
   framework_requirement_title: Collection Minimization
   framework_mapping_notes: 'Minimizing agent data collection reduces privacy risk and attack surface
@@ -53433,22 +52961,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SC-7(24)
-  framework_requirement_title: Personally Identifiable Information
-  framework_mapping_notes: 'Boundary controls must protect PII flowing through agent communication channels
-
-
-    9.7 - Privacy controls (PII protection at network boundaries and data flow interfaces)'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SC-7(28)
   framework_requirement_title: Connections to Public Networks
   framework_mapping_notes: 'Agent connections to public networks must be controlled and monitored
@@ -55931,22 +55443,6 @@
 
 
     10.1 - Log retention policies; 9.5 - Artifact lifecycle management (retention); 9.7 - Data access audit trails'
-  control_id: SAF-K8S-0907-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-12
-  framework_requirement_title: Information Management and Retention
-  framework_mapping_notes: 'Information retention policies for agent logs, context, and generated data govern lifecycle
-
-
-    10.1 - Log retention policies; 9.5 - Artifact lifecycle management (retention); 9.7 - Data access audit trails'
   control_id: SAF-K8S-1001-004
   relation_type: direct
   strength_level: strong
@@ -56007,15 +55503,14 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-12(1)
   framework_requirement_title: Limit Personally Identifiable Information Elements
-  framework_mapping_notes: 'Limiting PII in agent data stores reduces privacy risk and breach impact
-
-
-    9.7 - Privacy controls for training data (PII handling); 10.1 - Inference request/response logs with PII redaction'
+  framework_mapping_notes: The covered data workflows verify that only approved personal-information elements are collected
+    and retained.
   control_id: SAF-K8S-0907-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The covered data workflows verify that only approved personal-information elements are collected
+    and retained
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -56103,15 +55598,14 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-12(2)
   framework_requirement_title: Minimize Personally Identifiable Information in Testing, Training, and Research
-  framework_mapping_notes: 'PII minimization in AI model training and agent testing protects privacy
-
-
-    9.7 - Privacy controls for training data (PII handling, anonymization); 9.4 - Notebook security (data access controls)'
+  framework_mapping_notes: The workflow uses and documents the required measures to minimize personal information in
+    training.
   control_id: SAF-K8S-0907-002
   relation_type: direct
   strength_level: strong
-  applicability: required
-  applicability_condition: null
+  applicability: conditional
+  applicability_condition: The workflow uses and documents the required measures to minimize personal information in
+    training
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -57922,22 +57416,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-18
-  framework_requirement_title: Personally Identifiable Information Quality Operations
-  framework_mapping_notes: 'PII quality operations ensure accuracy of personal data processed by agent systems
-
-
-    9.7 - Privacy controls for training data (PII handling); 9.5 - Data poisoning detection (data quality)'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-18(1)
   framework_requirement_title: Automation Support
   framework_mapping_notes: 'Automated PII quality checks in agent data pipelines maintain data accuracy at scale
@@ -58034,22 +57512,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-18(4)
-  framework_requirement_title: Individual Requests
-  framework_mapping_notes: 'Individual data correction requests must propagate through agent data stores
-
-
-    9.7 - Individual data rights management covers data correction and deletion requests propagated through training data stores and derived models'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-18(5)
   framework_requirement_title: Notice of Correction or Deletion
   framework_mapping_notes: 'Correction and deletion notices must update all agent caches and derived data
@@ -58130,33 +57592,16 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-18(5)
-  framework_requirement_title: Notice of Correction or Deletion
-  framework_mapping_notes: 'Correction and deletion notices must update all agent caches and derived data
-
-
-    9.5 - Propagation of data correction and deletion notices to derived model artifacts; 9.7 - Individual data rights management covers correction and deletion request propagation'
-  control_id: SAF-K8S-0907-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-19
   framework_requirement_title: De-identification
-  framework_mapping_notes: 'De-identification of data processed by agents protects privacy in analytics and logging
-
-
-    9.7 - Privacy controls for training data (anonymization); 10.1 - Inference logs with PII redaction'
+  framework_mapping_notes: A separately evaluated de-identification technique is selected and applied to the covered
+    data.
   control_id: SAF-K8S-0907-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: A separately evaluated de-identification technique is selected and applied to the covered
+    data
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -58210,22 +57655,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-19(1)
-  framework_requirement_title: Collection
-  framework_mapping_notes: 'De-identification at collection prevents agents from storing unnecessary identifiers
-
-
-    9.6 - Training data provenance (de-identification at collection); 9.7 - Privacy controls (anonymization during ingestion)'
-  control_id: SAF-K8S-0907-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-19(2)
   framework_requirement_title: Archiving
   framework_mapping_notes: 'De-identification of archived agent data protects privacy in long-term storage
@@ -58308,15 +57737,14 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-19(2)
   framework_requirement_title: Archiving
-  framework_mapping_notes: 'De-identification of archived agent data protects privacy in long-term storage
-
-
-    9.5 - Artifact lifecycle management (archival of model artifacts); 9.7 - Data access audit trails'
+  framework_mapping_notes: A production de-identification process verifies the specified transformation of covered direct
+    identifiers.
   control_id: SAF-K8S-0907-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: A production de-identification process verifies the specified transformation of covered direct
+    identifiers
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -58452,15 +57880,14 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-19(4)
   framework_requirement_title: Removal, Masking, Encryption, Hashing, or Replacement of Direct Identifiers
-  framework_mapping_notes: 'Removal, masking, or encryption of direct identifiers in agent data protects privacy
-
-
-    9.7 - Privacy controls (PII handling -- anonymization techniques); 10.1 - Sensitive metric redaction'
+  framework_mapping_notes: A separately established release assessment evaluates and documents re-identification risk
+    as required.
   control_id: SAF-K8S-0907-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: A separately established release assessment evaluates and documents re-identification risk
+    as required
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -61230,22 +60657,6 @@
 
     9.7 - Privacy controls for training data (PII handling, risk to individuals); 9.2 - Response filtering (preventing PII leakage)'
   control_id: SAF-K8S-0902-009
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(19)
-  framework_requirement_title: Risk for Individuals
-  framework_mapping_notes: 'Monitoring for risks to individuals from agent processing protects privacy
-
-
-    9.7 - Privacy controls for training data (PII handling, risk to individuals); 9.2 - Response filtering (preventing PII leakage)'
-  control_id: SAF-K8S-0907-002
   relation_type: supports
   strength_level: strong
   applicability: required

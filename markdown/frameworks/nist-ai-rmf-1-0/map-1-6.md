@@ -22,7 +22,7 @@ AI system classification captures security requirements per system type. Trainin
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.7
-- Relation Type: partial
+- Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: partial-control-coverage
+- Applicability: conditional
+- Strength Reason Code: n/a

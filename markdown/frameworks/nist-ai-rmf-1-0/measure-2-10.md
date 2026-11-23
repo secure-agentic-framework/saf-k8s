@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-Training data privacy controls enforce data handling policies. Differential privacy and output perturbation mitigate inference privacy risks. Centralized logging with PII redaction prevents sensitive data exposure in observability systems.
+Data-minimization and access results can inform the documented examination of system privacy risks.
 
 ## SAF-K8S Controls
 
@@ -13,7 +13,7 @@ Training data privacy controls enforce data handling policies. Differential priv
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.7
-- Relation Type: partial
+- Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: compound-control-split-required
+- Applicability: conditional
+- Strength Reason Code: n/a

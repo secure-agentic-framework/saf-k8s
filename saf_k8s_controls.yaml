@@ -9490,12 +9490,12 @@
   knowledge_area: '9.7'
   control_seq: '002'
   control_title: Training data privacy controls
-  control_statement: Training data must be subject to PII handling procedures, data classification, anonymization or pseudonymization where required, and data access audit trails that record who accessed which datasets and when.
-  objective: Protect personal and sensitive information within training datasets through classification, handling controls, and comprehensive access auditing to support regulatory compliance and breach investigation.
-  rationale: Training datasets frequently contain PII, proprietary information, or data subject to regulatory requirements. Without data classification, sensitive data is treated identically to public data, lacking appropriate protections. Without anonymization, PII can be memorized by models and exposed through inference. Without access audit trails, organizations cannot demonstrate compliance with data protection regulations or investigate unauthorized data access during security incidents.
-  scope: 'Applies to all training datasets on Kubernetes, including raw data, processed data, and feature data containing PII or sensitive information. Covers data classification, PII handling, anonymization, and access audit trails. References Appendix A: AI Data Privacy Governance for consent management, privacy notices, and individual data rights. Excludes inference-time data controls.'
-  primary_enforcement_point: Data classification tooling, anonymization pipeline configuration, and storage and compute platform access audit logging settings.
-  implementation_surface: Data classification tooling and labels (public, internal, confidential, restricted), PII detection and scanning at data ingestion, anonymization and pseudonymization pipelines with k-anonymity/l-diversity/t-closeness validation, automated residual PII scanning, data access audit logging (principal, dataset ID, version, timestamp) shipped to centralized SIEM, and storage platform access audit configuration for PersistentVolumes, object storage, and feature stores.
+  control_statement: Classify and approve each training dataset version for its intended use before processing. Minimize direct identifiers and unnecessary fields. Restrict actual data-plane access to approved identities, and retain attributable records of dataset version, operation, decision and time.
+  objective: Limit exposure of personal and sensitive data in training and retain access evidence for investigation and oversight.
+  rationale: Labels express intended handling. Storage and application enforcement determine who can read actual records. Field minimization addresses selected exposure risks and requires separate evaluation of disclosure and re-identification risk.
+  scope: Applies to governed raw, processed and feature data used for training. Review actual authority and intended purpose, access enforcement, de-identification claims, storage and application auditing, and audit retention separately.
+  primary_enforcement_point: Dataset approval and schema validation, actual storage or gateway access policy, and data-access event collection.
+  implementation_surface: Bind approval to the dataset version and use, hold unapproved inputs, enforce a reviewed field schema, restrict storage reads and record scoped data-access decisions. Verify Kubernetes API audits separately from kernel, storage and application reads.
   owner_primary: Data Engineering
   owner_supporting: Privacy Engineering; Security Engineering; Compliance
   baseline_or_ai_specific: ai-specific
