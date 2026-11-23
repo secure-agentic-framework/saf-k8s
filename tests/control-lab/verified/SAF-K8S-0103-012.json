@@ -1,0 +1,75 @@
+{
+  "control_id": "SAF-K8S-0103-012",
+  "catalog_revision": "679d567de9e279819d4ddd0b4a1a6b13d7ae911f",
+  "catalog_sha256": "8b54cb9feabb862684f7e9ef8b5b557d387489c9614f3a3f5be15dad9a73fee2",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "6506db10fca59b09e8b3de45893941219a6ae67d9b919fdd784235daaa7815ab",
+  "scope": "Real Kubernetes authorization for separate synthetic service, route and storage responsibility records.",
+  "cluster": "saf-lab-a061f3a450fb",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The broad modeled grant permits disabled, separately owned and unneeded operations",
+      "matched": true,
+      "observed": {
+        "unneeded_route": "allowed",
+        "storage_owned_elsewhere": "allowed",
+        "unneeded_delete": "allowed"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Effective policy denies disabled duties, unrelated records and unnecessary actions",
+      "matched": true,
+      "observed": {
+        "disabled_route": "denied",
+        "other_service": "denied",
+        "storage_owned_elsewhere": "denied",
+        "unneeded_delete": "denied",
+        "namespace_inventory": "denied"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The separate identities still perform their own enabled actions",
+      "matched": true,
+      "observed": {
+        "service_update": "allowed",
+        "storage_update": "allowed",
+        "storage_service_read": "denied",
+        "owned_updates_retained": true
+      }
+    }
+  ]
+}
