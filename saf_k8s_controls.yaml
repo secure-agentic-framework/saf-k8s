@@ -9530,12 +9530,12 @@
   knowledge_area: '9.7'
   control_seq: '005'
   control_title: Feature engineering privacy controls and leakage validation
-  control_statement: Feature engineering and preprocessing jobs must enforce PII handling controls, validate outputs before publication, and detect feature leakage or target leakage so that sensitive data is protected during feature creation and models are not trained on invalid or future-dependent features.
-  objective: Protect sensitive data during feature engineering and prevent feature or target leakage that undermines model validity and privacy.
-  rationale: Preprocessing and feature engineering pipelines frequently touch raw or derived sensitive data before features are published. Without privacy-aware handling, output validation, and leakage detection, preprocessing jobs can expose PII, publish unsafe features, or introduce target and temporal leakage that invalidates models and leaks sensitive future-state information.
-  scope: Applies to feature engineering and preprocessing jobs that create or update features for training or batch scoring. Covers PII handling controls, preprocessing output validation, and feature leakage or target leakage detection. Excludes feature store access boundaries and serving authentication, which are covered separately.
-  primary_enforcement_point: Preprocessing job security and privacy controls, feature publication validation gates, and leakage-detection pipelines.
-  implementation_surface: Preprocessing job manifests and runtime controls for PII handling, anonymization or pseudonymization where required, validation checks on derived feature outputs, temporal consistency enforcement, and automated feature leakage or target leakage analysis before publication.
+  control_statement: Validate and minimize feature data before publication. Independently check for disallowed identifiers, known target derivations and features unavailable at the intended prediction time. Hold any failed candidate before downstream reads.
+  objective: Limit sensitive exposure and preserve valid training features for the applicable prediction time.
+  rationale: Direct identifiers, target-derived signals and future observations are distinct risks and need independent evidence. An output schema and cutoff can address selected failure modes. Feature lineage and point-in-time joins require separate checks.
+  scope: Applies to preprocessing and feature publication for training and batch scoring. Verify actual source clocks, label availability, joins, producer and consumer paths, and audit retention.
+  primary_enforcement_point: Preprocessing and feature publication gates, downstream reads and approved dataset policy.
+  implementation_surface: Use a versioned feature schema, identifier minimization, verified availability timestamps, feature and label lineage, and point-in-time join checks. Retain sanitized records for rejected and accepted candidates.
   owner_primary: Data Engineering
   owner_supporting: ML Platform Engineering; Security Engineering; Privacy Engineering
   baseline_or_ai_specific: ai-specific
