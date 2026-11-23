@@ -3710,12 +3710,12 @@
   knowledge_area: '4.5'
   control_seq: '012'
   control_title: Privileged MFA enforcement for cluster administration
-  control_statement: Organizations must enforce multi-factor authentication for all privileged human access to Kubernetes clusters and AI infrastructure, with explicitly governed non-interactive workload exceptions and emergency access dependencies handled through approved break-glass procedures.
-  objective: Ensure privileged administrative access requires a second factor so compromise of a single password or primary credential does not grant cluster-administrative control.
-  rationale: Privileged access without MFA leaves the cluster vulnerable to straightforward credential theft and phishing. MFA for human administrators materially reduces the chance that a single compromised credential yields full control over cluster or AI infrastructure administration.
-  scope: Applies to privileged human access paths for Kubernetes clusters, OIDC provider-backed administration, and cloud-provider administrative integrations. Covers MFA enforcement for administrators and clarified exceptions for non-interactive workload identities.
-  primary_enforcement_point: MFA enforcement policy in identity providers and privileged access paths for cluster administration.
-  implementation_surface: OIDC provider MFA policies, cloud IAM privileged access requirements, API server authentication integrations, and documented exception handling for non-interactive service identities and break-glass dependencies.
+  control_statement: Enforce the approved multifactor assurance policy on all defined privileged human access paths to Kubernetes clusters and AI infrastructure. Verify actual provider challenges and resulting privileged access. Record separately governed workload identities and emergency access exceptions.
+  objective: Prevent a single compromised primary credential from granting governed human administrative access and verify the enforcement and assurance of each covered path.
+  rationale: Cluster access may rely on upstream identity-provider or cloud assurance. Kubernetes role assignment, a configured issuer or a fixture assertion does not establish the factor the human completed. Effective protection depends on the authenticator type and every available path.
+  scope: Applies to designated privileged human access including covered federation, cloud administration and direct or fallback credentials. Inventory the pathway, provider and required assurance. Review non-interactive workload access and emergency paths with their distinct approvals and safeguards.
+  primary_enforcement_point: Effective multifactor policy at the authoritative verifier and verified assurance at the relying privileged access boundary.
+  implementation_surface: Exercise valid primary credentials without an approved second factor, authorized use after actual factor completion, and separately governed fallback or emergency paths. Verify authoritative provider events, issued identity assurance and Kubernetes or cloud effective access. Verify phishing resistance where required by the applicable assurance policy.
   owner_primary: Identity and Access Management
   owner_supporting: Platform Engineering; Security Engineering
   baseline_or_ai_specific: baseline
