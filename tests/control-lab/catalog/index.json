@@ -1086,6 +1086,12 @@
       "sha256": "82c795264117a4e4e5237cee79af84d0cc27caa7a6e3ada2b081ab424222d6d4",
       "title": "Security awareness for Kubernetes and GPU administrators"
     },
+    "SAF-K8S-0405-006": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "4ead55dc0f470227a043d370d55a378e72a690d811a166661289b2c7487024c6",
+      "title": "Attribute-based access control for AI artifacts"
+    },
     "SAF-K8S-0501-001": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -3146,7 +3152,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "5c2accc05544ccd6a62983e49788403bc06b6aa6",
-  "sha256": "637809ee915d1f3ed4451dd9d8256edcfd4ba9cb18559e7ee016de3f8a91c693",
+  "revision": "4d3047e4386bdb7914f11ea528a8a7d6ab697bd7",
+  "sha256": "8ecd02f78cbc319e3674743b42545b08917af33d749a87ce2958dc691e640821",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
