@@ -1,0 +1,84 @@
+{
+  "control_id": "SAF-K8S-0405-009",
+  "catalog_revision": "e79ac695927051d0fa0a76fd30a87047af7e4742",
+  "catalog_sha256": "adeeaafa7314f7b89fab9f52e2cc63a104f417ed2208b7ffe1a0bfa427954f54",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "9f461dc64d2d2e906a7dfd54e780d2c32e771f20ebca99bcc36417be0cc4d87b",
+  "scope": "Real authorization reviews inspect exact approved and unrelated synthetic targets for users, groups, namespaced serviceaccounts, user extras and UIDs. One authorized delegation performs a harmless ConfigMap read. All fixture identities are temporary, and no elevated delegation, external target or production resources are exercised.",
+  "cluster": "saf-lab-d8739dc22845",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The actual caller has neither identity delegation nor the separate read",
+      "matched": true,
+      "observed": {
+        "no_target_granted_initially": true,
+        "caller_cannot_read_regular_api_object": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Name-scoped authorization grants only the tested identities and the intended ServiceAccount namespace",
+      "matched": true,
+      "observed": {
+        "approved_identity_types": {
+          "user": true,
+          "group": true,
+          "serviceaccount": true,
+          "extra": true,
+          "uid": true
+        },
+        "unrelated_values_denied": {
+          "user": true,
+          "group": true,
+          "serviceaccount": true,
+          "extra": true,
+          "uid": true
+        },
+        "other_namespace_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "One permitted delegation reaches the public fixture and removing its grant retires it",
+      "matched": true,
+      "observed": {
+        "authorized_delegated_read_observed": true,
+        "same_caller_still_has_no_direct_access": true,
+        "removed_grant_no_longer_authorizes": true,
+        "separate_namespaced_approval_remains": true
+      }
+    }
+  ]
+}

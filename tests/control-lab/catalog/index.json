@@ -1098,6 +1098,12 @@
       "sha256": "ddf761996f12a3ea0b18e2b75eaf4347880ab5c3e7998a9187f8b3316e79085e",
       "title": "Authentication endpoint availability and DoS protection"
     },
+    "SAF-K8S-0405-009": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "9f461dc64d2d2e906a7dfd54e780d2c32e771f20ebca99bcc36417be0cc4d87b",
+      "title": "API impersonation RBAC restriction"
+    },
     "SAF-K8S-0501-001": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -3158,7 +3164,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ddf62670a637c1bf7e6e48d2119c58460d8dfe8b",
-  "sha256": "d80b214ac224c8aae44690ab21a77b6c5572659c0ad3fc7af1800f4d4c8821f9",
+  "revision": "47e33163fbe30f77a1449b6c1a70a62629bf707a",
+  "sha256": "adeeaafa7314f7b89fab9f52e2cc63a104f417ed2208b7ffe1a0bfa427954f54",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
