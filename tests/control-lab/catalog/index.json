@@ -534,6 +534,12 @@
       "sha256": "333bfb3fcffef487f6fee710a45eb8e0a5e041d09f11e0a203e6e93b53d661af",
       "title": "Runtime security tool deployment for syscall and network monitoring"
     },
+    "SAF-K8S-0205-002": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "01be03c8b64a911475ce3664a60a8030c677a19c3e27e7cf75352716e20659ba",
+      "title": "NodePort and HostPort restriction policies"
+    },
     "SAF-K8S-0301-001": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -2876,7 +2882,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "95059fe3b7385592fb1c0757f49a2b1178520daf",
-  "sha256": "198e47ae4cc589b87d0da9f360badfd8afbe4b708e5c29006927bb956ac63abc",
+  "revision": "4dd3488737b35463c95ee48d708e3f354e370dd1",
+  "sha256": "b51e20f32aa6f35275beab6647f00f0aa0b0ffb7c6dc2841d6af53f3d8885108",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
