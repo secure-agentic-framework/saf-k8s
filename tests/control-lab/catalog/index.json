@@ -672,6 +672,12 @@
       "sha256": "44ec63bc8f618058b65b879db5b3e626e8104ca8f0b2fbe373b3e823b8837eb1",
       "title": "Seccomp profile enforcement"
     },
+    "SAF-K8S-0303-003": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "c31e6c194d122e6d94547e6a0e45b1d7e3b499e23eee3f00c2ec80163837c05e",
+      "title": "SELinux context assignment and multi-tenancy isolation"
+    },
     "SAF-K8S-0303-007": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -2954,7 +2960,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "2a80aa0f36f687715e38358b6455e499543f8b21",
-  "sha256": "fdf08fc7aaabdb508c82e0c305db0fc50a3a086cd522e808e2b0e5dffe9a1802",
+  "revision": "99930cfbc0c510a85b1236169722a0368262d017",
+  "sha256": "ed731a08c9eacf7e613192a50d8fa9f745719f8a23751a352a7ebca396ef5afb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
