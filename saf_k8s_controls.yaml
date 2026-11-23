@@ -1630,12 +1630,12 @@
   knowledge_area: '2.3'
   control_seq: '010'
   control_title: Minimal purpose-built node OS baseline
-  control_statement: Kubernetes node host operating systems must use minimal, purpose-built OS distributions or hardened minimal installations with unnecessary packages, services, and user accounts removed.
-  objective: Minimize host OS attack surface by eliminating unnecessary software components and post-exploitation utilities from Kubernetes nodes.
-  rationale: General-purpose operating systems include package managers, shell utilities, compilers, and services that are unnecessary on Kubernetes nodes and provide tooling for post-exploitation activity. A minimal purpose-built node OS is independently auditable from immutability because it governs what software and services are present on the host image at baseline.
-  scope: Applies to all production cluster node OS images. Cloud-managed node pools must use the provider's hardened or minimal node image options. Custom node images must document their base image, removed packages, and hardening steps. Development clusters may use standard OS images with documented exceptions.
-  primary_enforcement_point: Node OS image build pipeline, base image selection, package and service removal standards, and OS image compliance scanning.
-  implementation_surface: Minimal OS distributions such as Bottlerocket, Flatcar, Talos, Ubuntu Minimal, or RHEL CoreOS, plus node image manifests, package inventories, and service enumeration controls.
+  control_statement: Select an approved and supported Kubernetes node OS image with a reviewed inventory. Exclude components outside required Kubernetes, platform, security and authorized operations. Verify the selected image and effective node service behavior.
+  objective: Reduce the node OS software and service surface without removing required or approved operational functions.
+  rationale: A purpose-built or reduced OS image can limit unnecessary components. Its effective surface includes packages, services, accounts, extensions and management paths. Image immutability and upgrade support require independent evidence.
+  scope: Applies to governed node images and pools. Inventory the base artifact and version, packages, service and account policy, approved extensions, image lifecycle, provider ownership and applicable exceptions.
+  primary_enforcement_point: Effective node image build, provider selection, image provenance, and observed software and required runtime behavior.
+  implementation_surface: Review the approved component inventory and actual image contents and running services. Exercise expected package or service exclusions while verifying Kubernetes functions. Document permissions, maintenance, recovered approved versions and provider evidence.
   owner_primary: Platform Engineering
   owner_supporting: OS/Infrastructure; Security Engineering
   baseline_or_ai_specific: baseline
