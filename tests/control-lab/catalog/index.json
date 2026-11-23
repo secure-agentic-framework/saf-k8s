@@ -2760,6 +2760,12 @@
       "sha256": "2ecaa80500a951af3cb610c5a7a3051ae8bdbe27f25c45709523a44e90dd5878",
       "title": "Integrity verification at each training data transformation stage"
     },
+    "SAF-K8S-0907-002": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "09ffdcb1ae437ad07bd3bb9fcd8a4f812e73aa9fa343150b105dc89e57893f7a",
+      "title": "Training data privacy controls"
+    },
     "SAF-K8S-0907-004": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3374,7 +3380,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "fb58d25a9d690d90fbcfaae6a0154db579c826af",
-  "sha256": "646713538c863b7977ad1114419f6c8cd1852dead35d1e74b728e0e6deac3af8",
+  "revision": "945b8ee849714da13a473824ee9b1af5b940f8b8",
+  "sha256": "cbae4c66841adb325f0cbd5a9efded2d03572c3b279a4136ba23f626a1cd0e5d",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

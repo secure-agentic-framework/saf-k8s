@@ -1,0 +1,72 @@
+{
+  "control_id": "SAF-K8S-0907-002",
+  "catalog_revision": "b1a7202a5e73ad7b590125e9be85906ae77e3e4b",
+  "catalog_sha256": "cbae4c66841adb325f0cbd5a9efded2d03572c3b279a4136ba23f626a1cd0e5d",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "09ffdcb1ae437ad07bd3bb9fcd8a4f812e73aa9fa343150b105dc89e57893f7a",
+  "scope": "On local Kind, an unchecked baseline publishes invented identifiers and an unapproved data version. A governed processor minimizes the approved version and creates only a hold receipt for the second. Distinct read-only UIDs with different supplemental groups exercise actual file reads. Kubernetes separately enforces exact ConfigMap and Pod log read permissions. Pod logs are application data-access evidence, not API-server or provider-level auditing.",
+  "cluster": "saf-lab-d5fb0bc84d2b",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Unchecked intake publishes identifiers and an unapproved version",
+      "matched": true,
+      "observed": {
+        "direct_identifiers_reached_unchecked_storage": true,
+        "unapproved_version_reached_unchecked_storage": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Governed intake holds unapproved data and denies out-of-scope reads",
+      "matched": true,
+      "observed": {
+        "held_file_absent": true,
+        "invented_direct_identifier_fields_and_values_removed": true,
+        "unapproved_uid_denied_at_file_boundary": true,
+        "named_kubernetes_api_scope_enforced": true,
+        "unapproved_reader_cannot_read_someone_elses_audit_log": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Authorized reader and scoped auditor can use the minimized data path",
+      "matched": true,
+      "observed": {
+        "approved_uid_reads_exact_minimized_bytes": true,
+        "scoped_auditor_queries_both_timestamped_events": true
+      }
+    }
+  ]
+}
