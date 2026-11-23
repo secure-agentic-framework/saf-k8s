@@ -1650,12 +1650,12 @@
   knowledge_area: '2.3'
   control_seq: '011'
   control_title: Immutable node root filesystem enforcement
-  control_statement: Kubernetes node operating systems must enforce immutable root filesystems where supported by the platform so persistent host-level modifications are prevented or made directly detectable through image drift.
-  objective: Prevent persistent host compromise by enforcing immutable node root filesystems where the platform supports it.
-  rationale: Immutable root filesystems prevent persistent rootkits and unauthorized host modifications from surviving reboot or image replacement. This is a distinct obligation from minimizing installed software because it governs host mutability and drift resistance after deployment.
-  scope: Applies to all production cluster node OS images. Cloud-managed node pools must use the provider's hardened or minimal node image options. Custom node images must document their base image, removed packages, and hardening steps. Development clusters may use standard OS images with documented exceptions.
-  primary_enforcement_point: Node OS image selection, platform immutability settings, and validation of immutable root filesystem behavior on supported node pools.
-  implementation_surface: Immutable OS distributions, root filesystem immutability settings, dm-verity or equivalent platform enforcement, and validation of host drift resistance.
+  control_statement: Use a supported immutable or effectively read-only OS root for applicable governed nodes. Define the protected root scope, explicitly permitted writable state, approved update and recovery paths, and separate integrity evidence.
+  objective: Constrain unauthorized root filesystem changes and make writable state and authorized version transitions observable.
+  rationale: Read-only root and authenticated image integrity provide different properties. Writable storage, configuration APIs and process state can persist independently across reboot or replacement. Define the effective trust and persistence boundaries.
+  scope: Applies to governed node OS deployments with supported immutability. Inventory applicable root enforcement, allowed writable and persistent paths, provisioning owner, update and rollback model, provider responsibility and exceptions.
+  primary_enforcement_point: Effective root media or mount policy, separately allowed state, supported image lifecycle and integrity evidence as applicable.
+  implementation_surface: Verify root write rejection on a harmless owned path, permitted managed state, and observed persistence across an approved image transition. Validate image integrity, drift monitoring and provider ownership separately.
   owner_primary: Platform Engineering
   owner_supporting: OS/Infrastructure; Security Engineering
   baseline_or_ai_specific: baseline
