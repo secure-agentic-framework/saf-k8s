@@ -1092,6 +1092,12 @@
       "sha256": "4ead55dc0f470227a043d370d55a378e72a690d811a166661289b2c7487024c6",
       "title": "Attribute-based access control for AI artifacts"
     },
+    "SAF-K8S-0405-007": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "ddf761996f12a3ea0b18e2b75eaf4347880ab5c3e7998a9187f8b3316e79085e",
+      "title": "Authentication endpoint availability and DoS protection"
+    },
     "SAF-K8S-0501-001": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -3152,7 +3158,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "4d3047e4386bdb7914f11ea528a8a7d6ab697bd7",
-  "sha256": "8ecd02f78cbc319e3674743b42545b08917af33d749a87ce2958dc691e640821",
+  "revision": "ddf62670a637c1bf7e6e48d2119c58460d8dfe8b",
+  "sha256": "d80b214ac224c8aae44690ab21a77b6c5572659c0ad3fc7af1800f4d4c8821f9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
