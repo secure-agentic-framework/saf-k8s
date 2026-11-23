@@ -354,6 +354,12 @@
       "sha256": "00f49c361501550fca3fe62fc14619550cf47ea4437c2b66407ba7fe99b3d182",
       "title": "Kernel parameter hardening via sysctl"
     },
+    "SAF-K8S-0203-016": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "80d9be0e7c4fdd3da8e46cdbb878f0528a955ce21e13a21185504dc3bff192e2",
+      "title": "Node time synchronization with authoritative time sources"
+    },
     "SAF-K8S-0301-001": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -2000,7 +2006,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c76947e24ae8d99294195eae7ef1988e6aab10f2",
+  "revision": "d3f105a08d07adc68d3cc8da4b37fd651ed8e64f",
   "sha256": "a98fe4604e6f03e5f1e6b5b7e0f661f80266a0a24c8fb79e000fd63231aac788",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
