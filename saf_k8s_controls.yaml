@@ -850,12 +850,12 @@
   knowledge_area: '1.3'
   control_seq: 019
   control_title: API server load-balancer health-check failover
-  control_statement: Production Kubernetes clusters must expose the API server through a load balancer with automated health-check failover so control-plane endpoint reachability does not depend on a single node or static upstream target.
-  objective: Maintain API server availability during node or component failures by enforcing automated endpoint failover for the control-plane access path.
-  rationale: A multi-replica control plane still becomes unavailable if clients depend on a single API server endpoint or if upstream failover is manual. Requiring health-checked load-balancer failover ensures clients are redirected away from failed API server instances quickly enough to preserve control-plane access during outages.
-  scope: Applies to production clusters. Covers API server endpoint load-balancing, upstream health checks, and automatic failover behavior. For managed Kubernetes, verify provider-managed API endpoint failover architecture and SLA claims.
-  primary_enforcement_point: API endpoint failover architecture
-  implementation_surface: Load balancer health checks, upstream pool configuration, API endpoint failover behavior, and availability SLO dashboards or failover validation evidence.
+  control_statement: For approved production API endpoint designs with multiple backends, configure automated health-based selection and verify endpoint continuity within the documented availability objective. Govern equivalent provider-managed or alternate access designs and retain applicable availability evidence.
+  objective: Preserve the supported Kubernetes API access path through backend failures and recovery within defined availability limits.
+  rationale: API endpoint availability depends on clients, load balancers, backend health and shared dependencies. TCP liveness and API readiness convey different evidence. Automatic failover, client retry and failback behavior need deployment-specific verification.
+  scope: Applies to governed production API access paths. Inventory endpoint architecture, backend instances and failure domains, health probe and criteria, removal and recovery thresholds, client behavior and applicable provider assurances.
+  primary_enforcement_point: Effective supported control-plane endpoint routing, health evaluation and tested failover and recovery.
+  implementation_surface: Observe approved healthy traffic, induce a bounded backend outage in authorized scope, measure endpoint continuity and re-entry, and verify reporting with no eligible backend where feasible. Retain probe semantics, timing, client behavior and applicable provider SLA scope.
   owner_primary: Platform Engineering
   owner_supporting: Site Reliability Engineering; Security Engineering
   baseline_or_ai_specific: baseline
