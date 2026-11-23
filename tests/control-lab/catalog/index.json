@@ -366,6 +366,12 @@
       "sha256": "e2870408e7ea5a280c731018ac220345b884eac77f9c148eb24153a8914cef81",
       "title": "Kubelet configuration and credential file ownership and permissions"
     },
+    "SAF-K8S-0201-009": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "b2204360a4321bd32b0a074f759248d06be92389fefeb11bfd6bc83c1c68fb0b",
+      "title": "Kubelet systemd unit hardening"
+    },
     "SAF-K8S-0201-011": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -2798,7 +2804,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "5a714a9380eefd40e81cd7a8438cf9b280876cb3",
-  "sha256": "18a0e186d4339c31de69672f9f5970344825f669cb52175114becbd3c7465998",
+  "revision": "c9626ab03387d1e588e8461f174b42ddbe507d6e",
+  "sha256": "1c799db9a34efa61218af64797d992659e3d88d1189b93fbd3dc4c21aa9dbc5b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
