@@ -1,0 +1,96 @@
+{
+  "control_id": "SAF-K8S-0403-006",
+  "catalog_revision": "4d4e7fac5a652ff6e5feb6e6f706a289c55ffdc1",
+  "catalog_sha256": "4fc75bf38c3c41287f800ef137f61a783813f1033cadf919012e58310d414ef3",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "9d4a9c9ced65c4bc64b0f1ba855a96105c666a4231fbcd17abb2ce973251b74b",
+  "scope": "Assess per-job Kubernetes identity and actual resource-by-resource access with two owned Kubernetes Jobs and public ConfigMaps. Cloud paths, separate data-service permissions, orchestrator privileges, and production identity lifecycle are distinct evidence.",
+  "cluster": "saf-lab-d6c59e584336",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The unspecialized grant allows both real jobs to read both owned resources and permits an identity mismatch",
+      "matched": true,
+      "observed": {
+        "identity_mismatch_initially_admitted": true,
+        "initial_access": {
+          "fixture-evaluate": {
+            "fixture-training-data": "200 expected-marker",
+            "fixture-evaluation-data": "200 expected-marker"
+          },
+          "fixture-train": {
+            "fixture-training-data": "200 expected-marker",
+            "fixture-evaluation-data": "200 expected-marker"
+          }
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same actual Jobs retain only their own resource and cannot list or patch with scoped grants",
+      "matched": true,
+      "observed": {
+        "scoped_access": {
+          "fixture-evaluate": {
+            "fixture-training-data": "403",
+            "fixture-evaluation-data": "200 expected-marker"
+          },
+          "fixture-train": {
+            "fixture-training-data": "200 expected-marker",
+            "fixture-evaluation-data": "403"
+          }
+        },
+        "other_actions": {
+          "fixture-evaluate": {
+            "list": "403",
+            "patch": "403"
+          },
+          "fixture-train": {
+            "list": "403",
+            "patch": "403"
+          }
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The live Job admission policy denies the swapped identity and accepts both approved assignments",
+      "matched": true,
+      "observed": {
+        "swapped_identity_denied": true,
+        "approved_assignments_allowed": true
+      }
+    }
+  ]
+}

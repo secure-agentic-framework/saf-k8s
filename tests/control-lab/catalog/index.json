@@ -930,6 +930,12 @@
       "sha256": "5bceccd60b9178d97b15c75e0b0ab8874bd0fe7e9ce0a6665c6e8868efa96e41",
       "title": "AI pipeline secret leakage prevention"
     },
+    "SAF-K8S-0403-006": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "9d4a9c9ced65c4bc64b0f1ba855a96105c666a4231fbcd17abb2ce973251b74b",
+      "title": "Per-workload credential scoping for AI jobs"
+    },
     "SAF-K8S-0403-011": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -3014,7 +3020,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "f5f4298ba361bf644ee65efa2b9075627184ef2b",
-  "sha256": "9ad5251a5426f4c09cce564aa3e6c7e7d375a00041c3a784fbb7abb8e2114437",
+  "revision": "f43963420613646a87486ad1471e8b6c1d4c11e7",
+  "sha256": "4fc75bf38c3c41287f800ef137f61a783813f1033cadf919012e58310d414ef3",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
