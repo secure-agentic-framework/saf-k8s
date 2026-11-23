@@ -53,7 +53,7 @@ Central management of security controls is important for governing distributed a
 - Knowledge Area: 9.10
 - Relation Type: direct
 - Strength: strong
-- Applicability: required
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-1006-001 - Regulatory compliance mapping for Kubernetes AI platforms](../../controls/SAF-K8S-1006-001.md)

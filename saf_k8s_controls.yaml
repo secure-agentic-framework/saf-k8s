@@ -10230,12 +10230,12 @@
   knowledge_area: '9.10'
   control_seq: '031'
   control_title: Centralized multi-cluster secret, certificate, and incident governance coordination
-  control_statement: Organizations operating AI workloads across multiple Kubernetes clusters must coordinate centralized secret governance, certificate lifecycle governance, and incident response operations across the federation so critical security operations are managed consistently across cluster boundaries.
-  objective: Coordinate high-impact governance operations across multi-cluster AI platforms so secret, certificate, and incident handling do not fragment by cluster.
-  rationale: Even with consistent policy and compliance reporting, governance fails when secrets and certificates are managed inconsistently across clusters or incidents are handled cluster by cluster without federation-wide coordination. Centralized multi-cluster governance operations reduce synchronization gaps and ensure cross-cluster response authority, timing, and lifecycle controls remain coherent.
-  scope: Applies to organizations operating AI workloads across multiple Kubernetes clusters. Covers centralized secret governance, certificate lifecycle coordination, and multi-cluster incident coordination across the federation. Excludes unified compliance reporting and evidence aggregation.
-  primary_enforcement_point: Coordinated governance operations process for secrets, certificates, and multi-cluster incidents.
-  implementation_surface: Centralized secret management with per-cluster authentication, coordinated certificate lifecycle governance across clusters, and multi-cluster incident response procedures, escalation paths, and exercises.
+  control_statement: Coordinate approved secret lifecycle, certificate management and incident operations across the defined Kubernetes federation. Scope authority and actions to the intended targets, verify actual resulting state at each cluster, and retain unresolved or denied targets for reconciliation.
+  objective: Apply accountable centrally governed lifecycle and incident decisions consistently across the defined cluster set and verify their actual effect.
+  rationale: A central approval does not establish that each target cluster could execute it or reached the intended state. Cluster-specific identity boundaries, providers and permissions affect convergence.
+  scope: Applies to approved federation secret revisions, governed certificate distribution and incident coordination. Record issuer and cluster boundaries and actual mechanisms. Cryptographic key establishment, custody and unified compliance reporting are distinct requirements.
+  primary_enforcement_point: Approved coordination record, authorized per-cluster operations and reconciled evidence of effective state and outstanding failures.
+  implementation_surface: Inventory cluster, lifecycle and incident authority. Exercise an approved change and a target that declines it. Verify exact per-cluster versions, leaf identity, affected authorization and independent access, disposition for unresolved targets, authorized retries and governed recovery. Evaluate actual certificate and key use separately.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; GRC/Compliance; ML Platform Engineering
   baseline_or_ai_specific: ai-specific

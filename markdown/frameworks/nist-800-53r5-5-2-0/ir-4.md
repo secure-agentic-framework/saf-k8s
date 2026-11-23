@@ -34,8 +34,8 @@ Core incident handling for agent security events
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.10
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
+- Strength: moderate
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-0910-033 - Investigation of anomalous cross-cluster AI communication](../../controls/SAF-K8S-0910-033.md)

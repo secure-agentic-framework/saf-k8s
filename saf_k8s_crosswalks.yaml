@@ -32798,15 +32798,14 @@
   framework_version: 5.2.0
   framework_requirement_id: IR-4
   framework_requirement_title: Incident Handling
-  framework_mapping_notes: 'Core incident handling for agent security events
-
-
-    10.5 - IR lifecycle (detection, analysis, containment, eradication, recovery for K8s AI environments)'
+  framework_mapping_notes: Verified central incident workflows support the approved procedures and per-cluster incident
+    actions.
   control_id: SAF-K8S-0910-029
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Verified central incident workflows support the approved procedures and per-cluster incident
+    actions
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -34710,15 +34709,14 @@
   framework_version: 5.2.0
   framework_requirement_id: PL-9
   framework_requirement_title: Central Management
-  framework_mapping_notes: 'Central management of security controls is important for governing distributed agent systems
-
-
-    6.6 - GitOps (Git as centralized management source of truth); 10.6 - Policy-as-code central management'
+  framework_mapping_notes: The organization centrally manages the designated controls and verifies their effective per-cluster
+    state.
   control_id: SAF-K8S-0910-029
   relation_type: direct
   strength_level: strong
-  applicability: required
-  applicability_condition: null
+  applicability: conditional
+  applicability_condition: The organization centrally manages the designated controls and verifies their effective per-cluster
+    state
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -45360,22 +45358,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SC-12
-  framework_requirement_title: Cryptographic Key Establishment and Management
-  framework_mapping_notes: 'Key management for agent authentication, encryption, and signing is foundational
-
-
-    4.4 - cert-manager; 4.3 - KMS providers and AI platform key hierarchy (SAF-K8S-0403-007); 6.3 - TUF key management (key establishment and management)'
-  control_id: SAF-K8S-0910-029
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SC-12(2)
   framework_requirement_title: Symmetric Keys
   framework_mapping_notes: SAF-K8S-0101-003 deploys encryption at rest for the applicable API objects. Verify symmetric
@@ -46005,15 +45987,14 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-17
   framework_requirement_title: Public Key Infrastructure Certificates
-  framework_mapping_notes: 'PKI certificates enable agent identity verification and secure communications
-
-
-    4.4 - cert-manager deployment and configuration (PKI certificate lifecycle management)'
+  framework_mapping_notes: The approved certificate policy and relying-party trust stores are independently evidenced
+    on the applicable clusters.
   control_id: SAF-K8S-0910-029
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The approved certificate policy and relying-party trust stores are independently evidenced
+    on the applicable clusters
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
