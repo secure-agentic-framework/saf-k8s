@@ -1,0 +1,97 @@
+{
+  "control_id": "SAF-K8S-0905-039",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "d786230cd985fa5e8248489738317756017445bea3cadffa5cef906f4936a0f4",
+  "scope": "One disposable Kind cluster runs pinned Zot 2.1.23, a PVC-backed registry with a fixed inert OCI artifact. An approved fixture inventory identifies a standing read grant to remove. The same credential reads before review and receives an authorization denial after a registry restart. An independent reader still obtains the same digest. Organizational periodic review, identity lifecycle, every repository and other registry products require deployed evidence. The approved inventory and entitlement age are synthetic.",
+  "cluster": "saf-lab-4c4b06d29fd5",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Standing identity reads the fixture repository before review",
+      "matched": true,
+      "observed": {
+        "method": "GET",
+        "path": "/v2/team/model/manifests/stable",
+        "identity": "reviewed",
+        "status": 200,
+        "digest_matches_seed": true,
+        "synthetic_operation_approved": true,
+        "approval_type": "manually_simulated_fixture_input"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Review finds aged read grant outside owner-approved fixture inventory",
+      "matched": true,
+      "observed": {
+        "declared_age_days": 120,
+        "review_interval_days": 30,
+        "owner_approved_actions": [],
+        "declared_actions": [
+          "read"
+        ],
+        "age_exceeds_interval": true,
+        "inventory_mismatch": true,
+        "approval_type": "manually_simulated_fixture_input"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Same identity and manifest read are denied after policy remediation",
+      "matched": true,
+      "observed": {
+        "method": "GET",
+        "path": "/v2/team/model/manifests/stable",
+        "identity": "reviewed",
+        "status": 403,
+        "same_identity_and_request": true,
+        "policy_grant_removed_on_readback": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Independent identity retains same-repository read and persistent data",
+      "matched": true,
+      "observed": {
+        "method": "GET",
+        "path": "/v2/team/model/manifests/stable",
+        "status": 200,
+        "digest_matches_seed": true,
+        "same_bound_claim_after_registry_rollout": true
+      }
+    }
+  ]
+}

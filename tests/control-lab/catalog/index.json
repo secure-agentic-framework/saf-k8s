@@ -1362,6 +1362,12 @@
       "sha256": "67d36273e210e0f5ec66efd45c75d6b95dbfd70f7a4aa7241c1ad80f43c60f20",
       "title": "Model registry RBAC and workload pull authorization scoping"
     },
+    "SAF-K8S-0905-039": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "d786230cd985fa5e8248489738317756017445bea3cadffa5cef906f4936a0f4",
+      "title": "Model registry access review and stale-permission remediation"
+    },
     "SAF-K8S-0905-040": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1946,7 +1952,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "e5b928a31eb29f5d14bff4756ac788119b3b2d73",
+  "revision": "a193fb600cb8dbf5d43dc334e7ef42ec1254b2e0",
   "sha256": "5d300b2f3b1823e3cbb4aee50b95ef1970adf01a5b145ef7ca8309eb785d1ee4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
