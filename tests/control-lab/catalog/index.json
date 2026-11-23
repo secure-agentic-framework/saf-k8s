@@ -750,6 +750,12 @@
       "sha256": "911cad12b613f8d526585d644e076e69502b79a58c0eab57c68ec3d36aabc479",
       "title": "Internal load balancer annotation enforcement"
     },
+    "SAF-K8S-0503-006": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "6836897ca3074cb344516d90a369184f7fd4366c75e2d5f3488e77be6e33eb3f",
+      "title": "Cloud load balancer security group configuration"
+    },
     "SAF-K8S-0503-007": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -2120,7 +2126,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "8016fe174a58c38a874beaf5b309fb06f8f2d511",
-  "sha256": "11f00334fa943a3dddac924d2df30f8eb236b8ad9f094470ef2e124e71f607e2",
+  "revision": "0697402433f3761dddd50f86ff07a6d5da3246a3",
+  "sha256": "bdb04d55e3747fb59a71a48784c5cb63e34a329e629a663dd7cc8f3f353e615d",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
