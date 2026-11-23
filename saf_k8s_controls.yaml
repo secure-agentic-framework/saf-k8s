@@ -3270,12 +3270,12 @@
   knowledge_area: '4.3'
   control_seq: '023'
   control_title: Credential scope drift monitoring for AI workloads
-  control_statement: Organizations running AI workloads at scale must monitor credential scope drift by comparing granted permissions with actual usage and identifying over-broad or exception-expanded credentials.
-  objective: Provide governance over credential breadth by detecting when issued AI workload credentials exceed their actually used privilege scope.
-  rationale: Scope drift is independently auditable from aggregate lifecycle metrics. This control isolates the requirement to compare granted versus used permissions so teams can prove that broadening credential scope and exceptions are being detected and governed.
-  scope: Applies to all credentials issued to AI and ML workloads including Vault dynamic secrets, cloud IAM temporary credentials, Kubernetes service account tokens, API keys for external services, and model registry authentication tokens. Covers scope drift analysis, exception identification, and governance review of over-broad credentials. Lifecycle metric publication remains governed by SAF-K8S-0403-024.
-  primary_enforcement_point: Credential scope drift analysis and over-broad permission review workflow.
-  implementation_surface: Granted-versus-used permission analysis, exception review queues, IAM policy usage data, and governance review records for over-scoped workload credentials.
+  control_statement: Compare effective workload grants with approved intent, time-bounded exceptions, and attributable usage within explicitly covered observation windows. Route unapproved changes or candidate unused grants for distinct decisions and preserve unknown usage when telemetry is incomplete.
+  objective: Detect newly effective permissions outside approved scope and enable evidence-based review of existing and exception grants.
+  rationale: Identity credentials, effective authorization and usage events answer different questions. An unapproved grant can exist without being used. Unobserved use can reflect a standby requirement or a source gap.
+  scope: Applies to governed AI and ML workload identities where grants can be determined. Identify unsupported issuer and usage sources explicitly. Credential lifecycle metrics remain governed by SAF-K8S-0403-024.
+  primary_enforcement_point: Effective authorization snapshots and approved baselines, attributable usage collection, and an owner-reviewed grant and exception workflow.
+  implementation_surface: Inventory entitlement sources, workload bindings, approved exceptions and review dates. Check effective current authorization and grant changes separately from observed use, with a recorded window and telemetry health. Verify the result of approved permission changes.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; ML Engineering; Cloud Platform Engineering
   baseline_or_ai_specific: ai-specific
