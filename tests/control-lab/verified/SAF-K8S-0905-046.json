@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-046",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "a8acad1da282bc44c77c8ab087abb3ace83c84eb",
+  "catalog_sha256": "9246a83494e93abb79f73876a57c184c94b68d2ab9366f66d0ea3595a5589eeb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "a0c35b062de938fd84bf43d3cdaa6fb807ac7e3175fa7ea91cca76d434d38bb6",
+  "control_sha256": "1da84b8822d315db9c5c64d4447f8bd1259629bb249c3e6480dbf5ce386bb731",
   "scope": "Disposable Kind v1.36.1; restricted builder, isolated signer and separate verifier Jobs. Synthetic input manifest, intermediate, model, packaged release and provenance record are signed with an ephemeral OpenSSL key generated only inside the signer pod. Verifier checks signatures, bounded identity and actual bytes; disabled signature, tampered model and wrong-key probes must fail. Does not prove production key custody, signer-to-pipeline binding, external producer authenticity, durable storage or production CI/CD adoption.",
-  "cluster": "saf-lab-491f48397793",
+  "cluster": "saf-lab-4ae6a9c5807d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

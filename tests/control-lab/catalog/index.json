@@ -1347,7 +1347,7 @@
     "SAF-K8S-0905-046": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "a0c35b062de938fd84bf43d3cdaa6fb807ac7e3175fa7ea91cca76d434d38bb6",
+      "sha256": "1da84b8822d315db9c5c64d4447f8bd1259629bb249c3e6480dbf5ce386bb731",
       "title": "ML artifact cryptographic signing with Sigstore or equivalent"
     },
     "SAF-K8S-0905-047": {
@@ -1862,7 +1862,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "9d2482c0931bbb2fbaff90d184a3134114b0e197",
-  "sha256": "119723d33fc0fa432e9da9a56f9490f9f2b56cdeff77405a834a5690eb876c82",
+  "revision": "14849992588853ccd6e245b21a4cf32e4d9162ba",
+  "sha256": "9246a83494e93abb79f73876a57c184c94b68d2ab9366f66d0ea3595a5589eeb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
