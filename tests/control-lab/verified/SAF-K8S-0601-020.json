@@ -1,0 +1,102 @@
+{
+  "control_id": "SAF-K8S-0601-020",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "06bf68b2b65e2f842781a39b3a5a02fb9a0b241b4e874b5bc7a2a15ccbe78938",
+  "scope": "A disposable Kind cluster, a private loopback OCI Distribution 3.0.0 registry, and a local fixture token issuer using a per-run signing key. The registry validates real signed repository scopes. The same authenticated identity can publish before the scoped rules and can only pull afterward. An authorized publisher can write only its approved repository. The test also rejects unauthenticated requests and bad credentials. Identity lifecycle, transport policy and production IAM remain separate.",
+  "cluster": "saf-lab-46a30552ad5d",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The authenticated reader can publish before repository roles restrict it",
+      "matched": true,
+      "observed": {
+        "manifest_status": 201
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The registry protects both operations and the issuer rejects bad credentials",
+      "matched": true,
+      "observed": {
+        "anonymous_read_challenged": true,
+        "anonymous_write_challenged": true,
+        "bad_credentials_rejected": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Registry scope prevents the authenticated reader from publishing",
+      "matched": true,
+      "observed": {
+        "reader_write_insufficient_scope": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The reader still fetches the exact original manifest",
+      "matched": true,
+      "observed": {
+        "reader_got_original": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The publisher lacks read and write permissions in the other owned repository",
+      "matched": true,
+      "observed": {
+        "cross_repo_pull_denied": true,
+        "cross_repo_push_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The publisher can publish in its approved repository and the reader can fetch it",
+      "matched": true,
+      "observed": {
+        "approved_publish": true,
+        "approved_readback": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The owned registry and its temporary storage were removed",
+      "matched": true,
+      "observed": {
+        "fixture_resources_removed": true
+      }
+    }
+  ]
+}

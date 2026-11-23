@@ -912,6 +912,12 @@
       "sha256": "514d8d6226656695e57e314b954a968bf062575cf8d8786b01cea44cb4afe74b",
       "title": "Multi-stage build and stripped runtime image minimization"
     },
+    "SAF-K8S-0601-020": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "06bf68b2b65e2f842781a39b3a5a02fb9a0b241b4e874b5bc7a2a15ccbe78938",
+      "title": "Container registry authentication and role-based authorization"
+    },
     "SAF-K8S-0601-022": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2204,7 +2210,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "aab6cdab4f152cf902f4cc40f147b7ceac045bc6",
+  "revision": "2cdc2013b88f79a5cfd07d3cd3a8e652db26950d",
   "sha256": "abcc04b16f354be1f6f3ac2d88f257701f01a4ceed1de8c6b8187616e0eaa3a4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
