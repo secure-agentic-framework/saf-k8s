@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0501-009",
-  "catalog_revision": "d9b729da47925332b83b23d6ea8dff0ee4485439",
+  "catalog_revision": "f3e9b06f150b13a9f4efafafda64d5888135b178",
   "catalog_sha256": "7f7046ebc01a38b5aa686c0b793b8c82b20bcf22ff3228726c8840fdd123525d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "dfdb0e72c806a5a10f2a9b3acb18fbfd44273722e838aecefe92eb28e9e69477",
   "scope": "One disposable kind v0.32.0 cluster using its bundled kindnet and Kubernetes v1.36.1; three case-owned namespaces with two non-root BusyBox clients and three inert HTTP Pods. The case proves the four model/training client-to-model-mirror/training-store TCP/8080 marker paths before policy; then applies pod-selected egress NetworkPolicies and proves model-client->model-mirror and training-client->training-store remain useful while the two cross-domain paths time out. A third listener serves separate /model and /training HTTP paths; a permitted model-client-to-listener network path can fetch both markers, demonstrating that native NetworkPolicy does not distinguish URI paths. No Services, DNS, external targets, IPv6, production CNI, external model/data sources, artifact integrity, TLS, application authorization, or production routing are evaluated. A denied probe is attributed only to this controlled scenario after healthy endpoints and a successful no-policy baseline; NetworkPolicy exposes no per-packet drop reason.",
-  "cluster": "saf-lab-c3020e197052",
+  "cluster": "saf-lab-5ad214c59152",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
