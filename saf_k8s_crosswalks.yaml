@@ -51784,22 +51784,6 @@
 
 
     5.3 - Harden DNS (CoreDNS configuration, authoritative DNS security for cluster services)'
-  control_id: SAF-K8S-0503-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-20
-  framework_requirement_title: Secure Name/Address Resolution Service (Authoritative Source)
-  framework_mapping_notes: 'Secure DNS for agent service discovery prevents redirection to malicious endpoints
-
-
-    5.3 - Harden DNS (CoreDNS configuration, authoritative DNS security for cluster services)'
   control_id: SAF-K8S-0503-005
   relation_type: direct
   strength_level: strong
@@ -51833,22 +51817,6 @@
 
     5.3 - Harden DNS (CoreDNS configuration, authoritative DNS security for cluster services)'
   control_id: SAF-K8S-0503-009
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-20(2)
-  framework_requirement_title: Data Origin and Integrity
-  framework_mapping_notes: 'DNS data origin authentication prevents agent service discovery poisoning
-
-
-    5.3 - DNS security (data origin and integrity verification for DNS responses)'
-  control_id: SAF-K8S-0503-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -51912,22 +51880,6 @@
 
 
     5.3 - DNS security (CoreDNS caching resolver security, DNS policy enforcement)'
-  control_id: SAF-K8S-0503-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-21
-  framework_requirement_title: Secure Name/Address Resolution Service (Recursive or Caching Resolver)
-  framework_mapping_notes: 'Secure DNS resolution for agents prevents cache poisoning attacks
-
-
-    5.3 - DNS security (CoreDNS caching resolver security, DNS policy enforcement)'
   control_id: SAF-K8S-0503-005
   relation_type: direct
   strength_level: strong
@@ -51961,22 +51913,6 @@
 
     5.3 - DNS security (CoreDNS caching resolver security, DNS policy enforcement)'
   control_id: SAF-K8S-0503-009
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-22
-  framework_requirement_title: Architecture and Provisioning for Name/Address Resolution Service
-  framework_mapping_notes: 'DNS architecture for agent infrastructure must be fault-tolerant and secure
-
-
-    5.3 - Harden DNS (CoreDNS architecture and provisioning for cluster name/address resolution)'
-  control_id: SAF-K8S-0503-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -59001,22 +58937,6 @@
 
 
     5.1 - East-west traffic monitoring for anomalous patterns; 5.3 - DNS exfiltration prevention'
-  control_id: SAF-K8S-0503-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(10)
-  framework_requirement_title: Prevent Exfiltration
-  framework_mapping_notes: 'Preventing data exfiltration through agent communications channels is critical
-
-
-    5.1 - East-west traffic monitoring for anomalous patterns; 5.3 - DNS exfiltration prevention'
   control_id: SAF-K8S-0503-005
   relation_type: direct
   strength_level: strong
@@ -62551,22 +62471,6 @@
 
     9.2 - Input validation (request format enforcement, payload size controls); 9.6 - Secure data pipeline ingestion'
   control_id: SAF-K8S-0906-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-10(6)
-  framework_requirement_title: Injection Prevention
-  framework_mapping_notes: 'Injection prevention is paramount for agent systems facing prompt injection and command injection
-
-
-    9.2 - Input validation (injection attack prevention for inference); 5.3 - WAF integration (request filtering)'
-  control_id: SAF-K8S-0503-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -69014,22 +68918,6 @@
 
 
     5.3 - DNS exfiltration prevention; 9.8 - Model extraction prevention (detecting covert exfiltration)'
-  control_id: SAF-K8S-0503-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(18)
-  framework_requirement_title: Analyze Traffic and Covert Exfiltration
-  framework_mapping_notes: 'Detecting covert data exfiltration through agent traffic analysis prevents data loss
-
-
-    5.3 - DNS exfiltration prevention; 9.8 - Model extraction prevention (detecting covert exfiltration)'
   control_id: SAF-K8S-0503-005
   relation_type: direct
   strength_level: strong
@@ -70311,22 +70199,6 @@
 
     5.1 - Network policies (monitoring inbound/outbound traffic); 5.3 - Ingress/egress hardening'
   control_id: SAF-K8S-0501-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(4)
-  framework_requirement_title: Inbound and Outbound Communications Traffic
-  framework_mapping_notes: 'Monitoring inbound and outbound agent communications detects data exfiltration and C2 traffic
-
-
-    5.1 - Network policies (monitoring inbound/outbound traffic); 5.3 - Ingress/egress hardening'
-  control_id: SAF-K8S-0503-004
   relation_type: direct
   strength_level: strong
   applicability: required
