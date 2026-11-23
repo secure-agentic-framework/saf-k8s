@@ -1,0 +1,2 @@
+SYNTH-DOC/1
+kind controls vector integrity!

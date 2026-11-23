@@ -1,0 +1,91 @@
+{
+  "control_id": "SAF-K8S-0909-002",
+  "catalog_revision": "2d98e02d0c565f25a999043d666f5d4cf8aa41cd",
+  "catalog_sha256": "8800073c8b21c3b2c0bc18bacef91cec4635628270bad99a423c16d5cf1381ae",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "3f0f8a74d523760241ce43249c4e0197f531a6cc85dd76da0812241a890e706d",
+  "scope": "A pinned Cosign init container verifies a local ECDSA signature over exact synthetic model bytes. The workload independently checks model and input digest pins, rejects a format-invalid document before the embedding call, and reproduces the expected vector in separate live Kubernetes Pods.",
+  "cluster": "saf-lab-160e464991dc",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "An unapproved but valid model artifact changes the emitted vector",
+      "matched": true,
+      "observed": {
+        "unapproved_model_accepted": true,
+        "vector_changed": true,
+        "vector_emitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The pinned verifier rejects a signature for different model bytes before startup",
+      "matched": true,
+      "observed": {
+        "invalid_signature_reported": true,
+        "verifier_rejected": true,
+        "embedding_did_not_start": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The approved digest also rejects signed alternate bytes before vector output",
+      "matched": true,
+      "observed": {
+        "rejected_before_embedding": true,
+        "reason": "digest_mismatch",
+        "embed_calls": 0,
+        "vector_emitted": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Pinned valid input is validated and maps to the expected vector twice",
+      "matched": true,
+      "observed": {
+        "malformed_rejected_before_embedding": true,
+        "malformed_reason": "format_invalid",
+        "malformed_embed_calls": 0,
+        "malformed_event_precedes_embedding": true,
+        "independent_workloads_match": true,
+        "expected_vector_match": true,
+        "vector": [
+          0.5,
+          0.75,
+          1.0
+        ]
+      }
+    }
+  ]
+}
