@@ -714,6 +714,12 @@
       "sha256": "f2b05df0a860730a36e69b0b59316f93c4f996e6206e02418f1b666fa47a91bc",
       "title": "AI workload data path encryption in transit"
     },
+    "SAF-K8S-0502-008": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "0650397116219ba7ba4b7379a33770bd199c040c16c8fd6ecd553aacd7cec573",
+      "title": "Network policy design for AI-specific traffic patterns"
+    },
     "SAF-K8S-0502-010": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -2084,7 +2090,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "9ed7698156fb0d58de8357405f3014de5f5a2f63",
-  "sha256": "7f7046ebc01a38b5aa686c0b793b8c82b20bcf22ff3228726c8840fdd123525d",
+  "revision": "c4a34526bab90adad6c8e7b163ce950bb9e33cbd",
+  "sha256": "bf04d00ac83be08f1aafc5af3e01de2cfca52fd6df573d9a86b1af113ca932a3",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

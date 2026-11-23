@@ -1,0 +1,670 @@
+{
+  "control_id": "SAF-K8S-0502-008",
+  "catalog_revision": "cff2a3c509042b6df396141c977dce85807100e7",
+  "catalog_sha256": "bf04d00ac83be08f1aafc5af3e01de2cfca52fd6df573d9a86b1af113ca932a3",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "0650397116219ba7ba4b7379a33770bd199c040c16c8fd6ecd553aacd7cec573",
+  "scope": "One disposable kind v0.32.0 cluster with Kubernetes v1.36.1 and its bundled kindnet. Case-owned training, registry, inference, gateway, and untrusted namespaces use non-root BusyBox Pods and synthetic TCP/HTTP markers only. It measures no-policy baseline routes, then checks a job-label-scoped TCP interval using the CNI-supported endPort field, an adjacent out-of-range port, a same-port neighbor with another job label, an approved versus unapproved registry Pod, and inference ingress allowed only from a fixture gateway. No DNS, Services, external traffic, NCCL process, GPU, RDMA, production CNI, label authorization/integrity, real registry, application authentication, or production deployment is evaluated. A timeout is attributed to this controlled policy scenario only after healthy endpoints and a successful no-policy baseline; the NetworkPolicy API itself does not report a packet drop reason.",
+  "cluster": "saf-lab-27c788f63f7f",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Runner is pinned to kind v0.32.0 / Kubernetes v1.36.1 with kindnet",
+      "matched": true,
+      "observed": {
+        "kind_version": "kind v0.32.0 go1.26.3 darwin/arm64",
+        "kubernetes_version": "v1.36.1",
+        "network_plugin": "bundled kindnet"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline job-a-client reaches job-a-peer:31000",
+      "matched": true,
+      "observed": {
+        "client": "job-a-client",
+        "port": 31000,
+        "expected": {
+          "outcome": "marker",
+          "marker": "job-a-31000"
+        },
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "job-a-31000"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-a-31000"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-a-31000"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "fixed case-owned marker"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline job-a-client reaches job-b-peer:31000",
+      "matched": true,
+      "observed": {
+        "client": "job-a-client",
+        "port": 31000,
+        "expected": {
+          "outcome": "marker",
+          "marker": "job-b-31000"
+        },
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "job-b-31000"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-b-31000"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-b-31000"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "fixed case-owned marker"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline job-a-client reaches job-a-peer:31001",
+      "matched": true,
+      "observed": {
+        "client": "job-a-client",
+        "port": 31001,
+        "expected": {
+          "outcome": "marker",
+          "marker": "job-a-31001"
+        },
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "job-a-31001"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-a-31001"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-a-31001"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "fixed case-owned marker"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline job-a-client reaches job-b-peer:31001",
+      "matched": true,
+      "observed": {
+        "client": "job-a-client",
+        "port": 31001,
+        "expected": {
+          "outcome": "marker",
+          "marker": "job-b-31001"
+        },
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "job-b-31001"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-b-31001"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-b-31001"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "fixed case-owned marker"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline job-a-client reaches job-a-peer:31002",
+      "matched": true,
+      "observed": {
+        "client": "job-a-client",
+        "port": 31002,
+        "expected": {
+          "outcome": "marker",
+          "marker": "job-a-31002"
+        },
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "job-a-31002"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-a-31002"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-a-31002"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "fixed case-owned marker"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline job-a-client reaches job-b-peer:31002",
+      "matched": true,
+      "observed": {
+        "client": "job-a-client",
+        "port": 31002,
+        "expected": {
+          "outcome": "marker",
+          "marker": "job-b-31002"
+        },
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "job-b-31002"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-b-31002"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-b-31002"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "fixed case-owned marker"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline reaches same-job port just outside interval",
+      "matched": true,
+      "observed": {
+        "client": "job-a-client",
+        "port": 31003,
+        "expected": {
+          "outcome": "marker",
+          "marker": "job-a-31003"
+        },
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "job-a-31003"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-a-31003"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-a-31003"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "fixed case-owned marker"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline registry client reaches approved-registry",
+      "matched": true,
+      "observed": {
+        "client": "registry-client",
+        "port": 8080,
+        "expected": {
+          "outcome": "marker",
+          "marker": "approved-model"
+        },
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "approved-model"
+          },
+          {
+            "outcome": "marker",
+            "marker": "approved-model"
+          },
+          {
+            "outcome": "marker",
+            "marker": "approved-model"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "fixed case-owned marker"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline registry client reaches other-registry",
+      "matched": true,
+      "observed": {
+        "client": "registry-client",
+        "port": 8080,
+        "expected": {
+          "outcome": "marker",
+          "marker": "other-model"
+        },
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "other-model"
+          },
+          {
+            "outcome": "marker",
+            "marker": "other-model"
+          },
+          {
+            "outcome": "marker",
+            "marker": "other-model"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "fixed case-owned marker"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline gateway reaches inference marker",
+      "matched": true,
+      "observed": {
+        "client": "gateway",
+        "port": 8080,
+        "expected": {
+          "outcome": "marker",
+          "marker": "inference-ready"
+        },
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "inference-ready"
+          },
+          {
+            "outcome": "marker",
+            "marker": "inference-ready"
+          },
+          {
+            "outcome": "marker",
+            "marker": "inference-ready"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "fixed case-owned marker"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline untrusted reaches inference marker",
+      "matched": true,
+      "observed": {
+        "client": "untrusted",
+        "port": 8080,
+        "expected": {
+          "outcome": "marker",
+          "marker": "inference-ready"
+        },
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "inference-ready"
+          },
+          {
+            "outcome": "marker",
+            "marker": "inference-ready"
+          },
+          {
+            "outcome": "marker",
+            "marker": "inference-ready"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "fixed case-owned marker"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline another job can initiate toward job A",
+      "matched": true,
+      "observed": {
+        "client": "job-b-peer",
+        "port": 31001,
+        "expected": {
+          "outcome": "marker",
+          "marker": "job-a-31001"
+        },
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "job-a-31001"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-a-31001"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-a-31001"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "fixed case-owned marker"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Same-job path remains allowed on reviewed port 31000",
+      "matched": true,
+      "observed": {
+        "client": "job-a-client",
+        "port": 31000,
+        "expected": {
+          "outcome": "marker",
+          "marker": "job-a-31000"
+        },
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "job-a-31000"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-a-31000"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-a-31000"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "fixed case-owned marker"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Same-job path remains allowed on reviewed port 31001",
+      "matched": true,
+      "observed": {
+        "client": "job-a-client",
+        "port": 31001,
+        "expected": {
+          "outcome": "marker",
+          "marker": "job-a-31001"
+        },
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "job-a-31001"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-a-31001"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-a-31001"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "fixed case-owned marker"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Same-job path remains allowed on reviewed port 31002",
+      "matched": true,
+      "observed": {
+        "client": "job-a-client",
+        "port": 31002,
+        "expected": {
+          "outcome": "marker",
+          "marker": "job-a-31002"
+        },
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "job-a-31002"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-a-31002"
+          },
+          {
+            "outcome": "marker",
+            "marker": "job-a-31002"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "fixed case-owned marker"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Model client reaches approved registry marker",
+      "matched": true,
+      "observed": {
+        "client": "registry-client",
+        "port": 8080,
+        "expected": {
+          "outcome": "marker",
+          "marker": "approved-model"
+        },
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "approved-model"
+          },
+          {
+            "outcome": "marker",
+            "marker": "approved-model"
+          },
+          {
+            "outcome": "marker",
+            "marker": "approved-model"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "fixed case-owned marker"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Fixture gateway reaches inference marker",
+      "matched": true,
+      "observed": {
+        "client": "gateway",
+        "port": 8080,
+        "expected": {
+          "outcome": "marker",
+          "marker": "inference-ready"
+        },
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "inference-ready"
+          },
+          {
+            "outcome": "marker",
+            "marker": "inference-ready"
+          },
+          {
+            "outcome": "marker",
+            "marker": "inference-ready"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "fixed case-owned marker"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Training egress denies same-port neighboring job",
+      "matched": true,
+      "observed": {
+        "client": "job-a-client",
+        "port": 31001,
+        "expected": {
+          "outcome": "timeout"
+        },
+        "observations": [
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "controlled policy scenario; API has no packet drop reason"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Training ingress denies same-port neighboring job",
+      "matched": true,
+      "observed": {
+        "client": "job-b-peer",
+        "port": 31001,
+        "expected": {
+          "outcome": "timeout"
+        },
+        "observations": [
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "controlled policy scenario; API has no packet drop reason"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Same-job port outside reviewed interval is denied",
+      "matched": true,
+      "observed": {
+        "client": "job-a-client",
+        "port": 31003,
+        "expected": {
+          "outcome": "timeout"
+        },
+        "observations": [
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "controlled policy scenario; API has no packet drop reason"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Unapproved registry endpoint is denied",
+      "matched": true,
+      "observed": {
+        "client": "registry-client",
+        "port": 8080,
+        "expected": {
+          "outcome": "timeout"
+        },
+        "observations": [
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "controlled policy scenario; API has no packet drop reason"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Inference denies non-gateway fixture source",
+      "matched": true,
+      "observed": {
+        "client": "untrusted",
+        "port": 8080,
+        "expected": {
+          "outcome": "timeout"
+        },
+        "observations": [
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          }
+        ],
+        "three_consecutive": true,
+        "attribution": "controlled policy scenario; API has no packet drop reason"
+      }
+    }
+  ]
+}
