@@ -1,0 +1,123 @@
+{
+  "control_id": "SAF-K8S-0910-029",
+  "catalog_revision": "1c42ae964dbabcd74b5e58795ce80f3ebf615d1b",
+  "catalog_sha256": "8ff25a11a26004f40e242d34ecd79787058ba804e942b2db38dc404b6fabe196",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "65227d17293dd7bee4e0cb852267c319967faaa8091cedc74fc0c9860b45f433",
+  "scope": "Two independent owned Kubernetes clusters apply an approved coordination revision to a public Secret version, an actual fixture TLS certificate object and an incident access decision. Scoped RBAC refuses one cluster first. Reconciliation retains that cluster as unresolved and reports convergence only after the approved change and independently observed effects. This case does not establish enterprise federation, production identities, trusted key custody or on-wire TLS.",
+  "cluster": "saf-lab-2ab2fdc93ee3",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A central approval record alone leaves both clusters on their previous state",
+      "matched": true,
+      "observed": {
+        "east": {
+          "version": "fixture-v1",
+          "certificate": "prior",
+          "incident_status": "pending",
+          "incident_owner": "unassigned",
+          "affected_access": true,
+          "approved_neighbor_access": true
+        },
+        "west": {
+          "version": "fixture-v1",
+          "certificate": "prior",
+          "incident_status": "pending",
+          "incident_owner": "unassigned",
+          "affected_access": true,
+          "approved_neighbor_access": true
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The workflow retains the unauthorized target as unresolved while resolving the approved one",
+      "matched": true,
+      "observed": {
+        "coordination_receipt": {
+          "east": "updated",
+          "west": "authorization-unresolved"
+        },
+        "per_cluster_observations": {
+          "east": {
+            "version": "fixture-v2",
+            "certificate": "replacement",
+            "incident_status": "contained",
+            "incident_owner": "fixture-incident-operator",
+            "affected_access": false,
+            "approved_neighbor_access": true
+          },
+          "west": {
+            "version": "fixture-v1",
+            "certificate": "prior",
+            "incident_status": "pending",
+            "incident_owner": "unassigned",
+            "affected_access": true,
+            "approved_neighbor_access": true
+          }
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both owned clusters converge only after the approved second grant is effective",
+      "matched": true,
+      "observed": {
+        "completion": {
+          "east": "updated",
+          "west": "updated"
+        },
+        "per_cluster_observations": {
+          "east": {
+            "version": "fixture-v2",
+            "certificate": "replacement",
+            "incident_status": "contained",
+            "incident_owner": "fixture-incident-operator",
+            "affected_access": false,
+            "approved_neighbor_access": true
+          },
+          "west": {
+            "version": "fixture-v2",
+            "certificate": "replacement",
+            "incident_status": "contained",
+            "incident_owner": "fixture-incident-operator",
+            "affected_access": false,
+            "approved_neighbor_access": true
+          }
+        }
+      }
+    }
+  ]
+}

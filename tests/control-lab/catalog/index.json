@@ -2688,6 +2688,12 @@
       "sha256": "c2c0bdee1c3fc5ca2557fc215cfd0d53b20deae60657f890e6fb3a0a9bc28425",
       "title": "Model deployment authorization and namespace-scoped release control"
     },
+    "SAF-K8S-0910-029": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "65227d17293dd7bee4e0cb852267c319967faaa8091cedc74fc0c9860b45f433",
+      "title": "Centralized multi-cluster secret, certificate, and incident governance coordination"
+    },
     "SAF-K8S-1001-004": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -3164,7 +3170,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "47e33163fbe30f77a1449b6c1a70a62629bf707a",
-  "sha256": "adeeaafa7314f7b89fab9f52e2cc63a104f417ed2208b7ffe1a0bfa427954f54",
+  "revision": "2e3fdb81d42848075fb9a25c3f50d5f089e82176",
+  "sha256": "8ff25a11a26004f40e242d34ecd79787058ba804e942b2db38dc404b6fabe196",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
