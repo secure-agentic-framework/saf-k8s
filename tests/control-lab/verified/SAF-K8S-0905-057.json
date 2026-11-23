@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-057",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "9a5381f99eaf1d9f8b4d73edd71b80f1589aebcc",
+  "catalog_sha256": "756c26b78ba8a8bc34e315da04553f18f72d768e614a38f3594335a9cdf0a423",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "e89d38d2fcaf9349f20c74351508adf0bdd184a6d60dc4c99dde88145eb0967e",
+  "control_sha256": "bf05c02f5b6f019337884702e9f83784d23b69338e8fcbf3a7ee58599c1aa83e",
   "scope": "One disposable Kind v1.36.1 cluster. Inert candidates carry equally verified provenance handoff records and separately supplied fictional trust evidence. A restricted Job persists disposition, rationale and reviewer data in Kubernetes. An admission policy using that record allows the reviewed artifact digest and rejects the discrepant one. This establishes the fixture decision path. Human review quality, real publisher or community signals, independent provenance verification and production coverage are open.",
-  "review_timing": {
-    "queued_at": "2026-11-23T01:22:24.915142+00:00",
-    "cluster_ready_at": "2026-11-23T01:22:57.874554+00:00",
-    "approval_at": "2026-11-23T01:23:41.476974+00:00",
-    "case_loaded_at": "2026-11-23T01:23:41.609022+00:00"
-  },
-  "cluster": "saf-lab-3fb5b90caa0c",
+  "cluster": "saf-lab-cb7c8f968297",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "781ffd444deff28316200ffb7f2c7f41bb4495136bd8ac33560823157add2168",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [

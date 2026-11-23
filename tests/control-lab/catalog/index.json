@@ -1413,7 +1413,7 @@
     "SAF-K8S-0905-057": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "e89d38d2fcaf9349f20c74351508adf0bdd184a6d60dc4c99dde88145eb0967e",
+      "sha256": "bf05c02f5b6f019337884702e9f83784d23b69338e8fcbf3a7ee58599c1aa83e",
       "title": "External model trust-signal assessment and approval review"
     },
     "SAF-K8S-0907-007": {
@@ -1898,7 +1898,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "bd3d46d108b38e3738fb1fd9243c278b4deb58b4",
-  "sha256": "9246a83494e93abb79f73876a57c184c94b68d2ab9366f66d0ea3595a5589eeb",
+  "revision": "47341db9058c3fee020ebec5c9e713bd96cf4a03",
+  "sha256": "756c26b78ba8a8bc34e315da04553f18f72d768e614a38f3594335a9cdf0a423",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
