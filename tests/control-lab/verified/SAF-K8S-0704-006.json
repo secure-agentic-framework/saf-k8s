@@ -1,0 +1,70 @@
+{
+  "control_id": "SAF-K8S-0704-006",
+  "catalog_revision": "082c14ff00175a465a30f64a7958806e45f4162b",
+  "catalog_sha256": "c85ec3f277f9a3f5b7ae549a6c90e441f0d42d98be9f29de41864caaaf2ad8d9",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "20255e4fa2d01a1cee6e01575a84d9eb4bbcae05a3b006a5958d39ef1bdf39f6",
+  "scope": "A controlled application outage and checkpoint restore within an owned Kind cluster.",
+  "cluster": "saf-lab-1c7bf7b72d5f",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The primary serves a newer write before the controlled outage and then becomes unavailable",
+      "matched": true,
+      "observed": {
+        "last_primary_sequence": 8,
+        "observed_primary_outage": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The backup is bound to its exact digest and rejects changed data",
+      "matched": true,
+      "observed": {
+        "export_integrity_verified": true,
+        "changed_export_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The standby service returns the approved checkpoint from a separate PVC within the fixture objective",
+      "matched": true,
+      "observed": {
+        "separate_pvcs": true,
+        "recovery_bound_met": true,
+        "checkpoint_sequence_lag": 1
+      }
+    }
+  ]
+}

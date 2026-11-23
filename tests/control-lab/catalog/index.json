@@ -1554,6 +1554,12 @@
       "sha256": "3d3f5c3d965e5de9d49eb6b5ece1665420b5bc5c77ed88927bb167532e9756af",
       "title": "Restricted use policies for non-organizationally owned systems and external AI services"
     },
+    "SAF-K8S-0704-006": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "20255e4fa2d01a1cee6e01575a84d9eb4bbcae05a3b006a5958d39ef1bdf39f6",
+      "title": "Cloud provider contingency plans for managed Kubernetes services"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -2462,7 +2468,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "f8228e3b592cc0cf8431a9e06efec8e654ba0ce0",
-  "sha256": "483ec67ff5c9a22bb6ac81351af23bfbdb88324b11944fb85e4f4e07953cffba",
+  "revision": "fa386365563d856006d2049c3bf7f30cb902dd4c",
+  "sha256": "c85ec3f277f9a3f5b7ae549a6c90e441f0d42d98be9f29de41864caaaf2ad8d9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
