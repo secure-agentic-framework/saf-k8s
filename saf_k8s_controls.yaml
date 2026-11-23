@@ -4030,12 +4030,12 @@
   knowledge_area: '5.1'
   control_seq: 009
   control_title: Model download path isolation from training data paths
-  control_statement: Model download paths must be isolated from training data paths through distinct network policy and egress controls so that external model retrieval cannot contaminate training data flows.
-  objective: Separate software supply-chain ingress from training data ingress to prevent malicious or unreviewed model artifacts from traversing the same paths as training data sources.
+  control_statement: Separate model artifact retrieval from training-data access using least-privilege egress rules for distinct workload and destination identities. Verify artifact provenance and integrity independently, and enforce application-layer access where endpoints are shared.
+  objective: Reduce cross-domain network reachability between artifact retrieval and training-data access. Verify that only approved artifacts and approved training-data flows enter the training environment.
   rationale: Model download traffic and training data traffic serve different trust domains and attack surfaces. Isolating them reduces the chance that a compromised artifact source, registry, or download mirror can influence or masquerade as a trusted training data path.
   scope: Applies to AI training and model preparation environments that retrieve external model artifacts, base models, weights, or dependencies while also accessing training data stores.
   primary_enforcement_point: Egress and path-isolation controls on AI training environments and artifact retrieval components.
-  implementation_surface: Network policies, egress controls, and path validation between model registries, artifact mirrors, training data stores, and model preparation workloads.
+  implementation_surface: Use a CNI that enforces NetworkPolicy for supported network-layer traffic and test intended and crossed connections. For shared hosts and ports, apply application-layer route authorization or use separate network identities. Verify accepted artifacts with provenance and integrity checks before promotion.
   owner_primary: Network Engineering
   owner_supporting: ML Platform Engineering
   baseline_or_ai_specific: ai-specific
