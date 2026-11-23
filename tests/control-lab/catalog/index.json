@@ -1062,6 +1062,12 @@
       "sha256": "624fc9673026f66089f436abcf4780c186b8828c0c8cd2840727f09de5b5851f",
       "title": "Compromised certificate revocation and re-issuance execution"
     },
+    "SAF-K8S-0404-010": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "b85376ac47d4bfd781fd0558c420d0b50730fdda7ca1456862a76fc57d1309d0",
+      "title": "Post-compromise certificate recovery validation"
+    },
     "SAF-K8S-0501-001": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -3122,7 +3128,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "5563265902e3b9eb53eee3ab2f8ba18fe8c2057b",
-  "sha256": "c3984bb5ad327ea17fddb0be5abec04aca1b6490edd436004135b4d4b9889987",
+  "revision": "82876642527c0a314c932fa3def9a305605f5c3d",
+  "sha256": "b0c50d14a9b85b1ba7d025e07456da49fb7019e1c15eb8391ce47a19eb3daef8",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

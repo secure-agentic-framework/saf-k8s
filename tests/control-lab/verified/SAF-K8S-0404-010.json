@@ -1,0 +1,71 @@
+{
+  "control_id": "SAF-K8S-0404-010",
+  "catalog_revision": "10c0210961571c8ae40adf37b033718e15b2d2ca",
+  "catalog_sha256": "b0c50d14a9b85b1ba7d025e07456da49fb7019e1c15eb8391ce47a19eb3daef8",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "b85376ac47d4bfd781fd0558c420d0b50730fdda7ca1456862a76fc57d1309d0",
+  "scope": "A real Kubernetes Service and independent client prove which server certificate is in use. The test observes a stale endpoint after replacement issuance, confirms the old endpoint is rejected after CRL publication, switches traffic, and confirms scoped dependent and unaffected service reads against the intended active credentials.",
+  "cluster": "saf-lab-4434c4642258",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A staged replacement is present but the dependent client still sees the old active leaf",
+      "matched": true,
+      "observed": {
+        "new_credential_not_yet_served": true,
+        "separate_key_issued": true,
+        "independent_endpoint_healthy": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Actual dependent health remains failed while traffic still reaches the revoked serving leaf",
+      "matched": true,
+      "observed": {
+        "stale_endpoint_rejected_by_revocation_aware_client": true,
+        "chain_only_call_still_observes_old_leaf": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The dependent client verifies the intended replacement on real fresh service connections",
+      "matched": true,
+      "observed": {
+        "expected_replacement_leaf_and_operation_verified": true,
+        "independent_service_continuity": true,
+        "replacement_stable_across_fresh_connections": true
+      }
+    }
+  ]
+}
