@@ -1590,12 +1590,12 @@
   knowledge_area: '2.3'
   control_seq: 008
   control_title: Pod metadata endpoint network path blocking
-  control_statement: Cloud-hosted Kubernetes clusters must implement network-level controls that prevent pod workloads from directly accessing cloud metadata endpoints, including host-network and local-routing paths where applicable.
-  objective: Block pod reachability to cloud metadata services so SSRF, host-network abuse, or compromised workloads cannot retrieve node-scoped cloud credentials through metadata endpoints.
-  rationale: Even when cloud metadata services support hardened modes, pod workloads may still attempt to reach metadata endpoints through routable local addresses. This control isolates the network-path blocking obligation so teams can independently verify that pod traffic cannot reach metadata services.
-  scope: Applies to cloud-hosted Kubernetes clusters where pods can otherwise route to metadata endpoints such as 169.254.169.254. Covers NetworkPolicy, host firewall, iptables, and CNI controls used to block metadata paths from pod networks.
-  primary_enforcement_point: Node and cluster networking controls for pod credential access paths.
-  implementation_surface: NetworkPolicy or host-level filtering for metadata endpoints and validation tests confirming pods cannot reach metadata services.
+  control_statement: Prevent unapproved workload access to node-scoped cloud metadata using effective platform-supported network controls for each governed source class. Preserve explicitly approved workload identity services and required node functions.
+  objective: Deny unintended metadata connectivity while preserving required platform and workload identity paths.
+  rationale: Pod network, host-network and node-local routes can have different enforcement boundaries. Providers can implement metadata proxies and distinct identity modes, and Kubernetes NetworkPolicy applies only to paths supported by the chosen network implementation.
+  scope: Applies to governed cloud workloads and relevant IPv4, IPv6, DNS and proxied metadata endpoints as supported. Inventory ordinary, host-network, local-routing and node service paths, approved exceptions and evidence ownership.
+  primary_enforcement_point: Effective provider, node, or workload network control at the path that mediates the governed metadata access.
+  implementation_surface: Verify the configured endpoint and policy inventory and approved source classes. Exercise representative allowed and denied owned paths under the actual enforcement implementation, independently verify host and node controls, and preserve required workload identity connectivity.
   owner_primary: Cloud Infrastructure
   owner_supporting: Platform Engineering; Security Engineering
   baseline_or_ai_specific: baseline
