@@ -2766,6 +2766,12 @@
       "sha256": "1abc5fa75b98e26f966b011709433921591adab326a9ad42146d0d7116698646",
       "title": "Feature store access boundary enforcement and serving authentication"
     },
+    "SAF-K8S-0907-005": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "a2869648962f9c00a04fc96262b5c0bec336a5acb0aa09443c1479710ac3e8bf",
+      "title": "Feature engineering privacy controls and leakage validation"
+    },
     "SAF-K8S-0907-006": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3368,7 +3374,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "733acf43628fd7e652321844ddeef7ce4413f680",
-  "sha256": "718c1fc41747ebe1e4f1bdfc08bc8afde041d6950742cd7e108f76c6a6898e30",
+  "revision": "fb58d25a9d690d90fbcfaae6a0154db579c826af",
+  "sha256": "646713538c863b7977ad1114419f6c8cd1852dead35d1e74b728e0e6deac3af8",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

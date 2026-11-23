@@ -1,0 +1,71 @@
+{
+  "control_id": "SAF-K8S-0907-005",
+  "catalog_revision": "2157a169993c5be228bbc014f63c5bba3b788985",
+  "catalog_sha256": "646713538c863b7977ad1114419f6c8cd1852dead35d1e74b728e0e6deac3af8",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "a2869648962f9c00a04fc96262b5c0bec336a5acb0aa09443c1479710ac3e8bf",
+  "scope": "Local Kind Jobs run fixed invented records through a baseline and a publication gate. The gate rejects a direct identifier in features, a known target-derived feature, and a record at or after the cutoff. A separate read-only Job verifies the exact approved output on the claim. Production feature lineage and audit retention need separate evidence.",
+  "cluster": "saf-lab-269c2956211b",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Unchecked publication persists all three synthetic defects",
+      "matched": true,
+      "observed": {
+        "all_unchecked_jobs_published": true,
+        "independent_reader_saw_all_three_defects": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Each producer rejects its own reason and leaves no published output",
+      "matched": true,
+      "observed": {
+        "direct-id": true,
+        "target-derived": true,
+        "after-cutoff": true,
+        "no_rejected_outputs_on_claim": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A separate read-only consumer accepts the exact minimized features",
+      "matched": true,
+      "observed": {
+        "approved_producer_succeeded": true,
+        "read_only_consumer_verified_minimized_output": true
+      }
+    }
+  ]
+}
