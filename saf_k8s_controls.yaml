@@ -1730,12 +1730,12 @@
   knowledge_area: '2.3'
   control_seq: '015'
   control_title: Cloud metadata endpoint restriction settings
-  control_statement: Kubernetes nodes on cloud infrastructure must apply restrictive metadata endpoint or hop-limit settings appropriate to the provider so metadata access cannot traverse unintended network paths or permissive platform defaults.
-  objective: Constrain provider metadata endpoint behavior through restrictive instance or node-pool settings beyond authenticated access mode alone.
-  rationale: Even when authenticated metadata modes are enabled, permissive hop limits or endpoint behaviors can still expose metadata access through unintended local routing paths, host-network reachability, or provider-default settings. Restrictive endpoint or hop-limit settings are independently auditable from metadata protocol mode enforcement.
-  scope: Applies to Kubernetes nodes on AWS, GCP, Azure, and other cloud providers exposing instance metadata services. Covers node group, VM, or managed service metadata configuration that customers can set or must verify through provider documentation and platform APIs.
-  primary_enforcement_point: Cloud infrastructure provisioning and managed service configuration governing metadata endpoint behavior on node instances or managed node pools.
-  implementation_surface: Provider-specific endpoint enablement flags, hop-limit settings, local-routing constraints, and managed service verification of restrictive metadata endpoint defaults.
+  control_statement: Apply supported endpoint, path and exposure restrictions for each governed provider metadata service. Define the endpoint and caller classes covered, approved node dependencies, and expected behavior for legacy versions, IP families and routed paths. Verify actual reachability.
+  objective: Constrain effective metadata exposure to approved service paths and callers while retaining required node behavior.
+  rationale: Endpoint disablement, retirement of a legacy route, a response hop limit, and Pod traffic filtering cover different paths. A restrictive setting alone does not establish node, Pod, managed identity or protocol coverage.
+  scope: Applies to governed cloud nodes and pools whose platform provides metadata services. Document product, supported endpoint and IP versions, relevant node and workload sources, provider defaults and customizations, exceptions and required services.
+  primary_enforcement_point: Effective provider endpoint and routing settings and supported network controls at each relevant caller boundary.
+  implementation_surface: Inventory actual endpoint modes, applicable response hop limits, caller classes and retained dependencies. Verify denied and allowed harmless paths in authorized fixtures or deployments. Obtain provider and node evidence independently of application-level request guards.
   owner_primary: Cloud Infrastructure
   owner_supporting: Platform Engineering; Security Engineering
   baseline_or_ai_specific: baseline
