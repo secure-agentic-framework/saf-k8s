@@ -9830,12 +9830,12 @@
   knowledge_area: '9.9'
   control_seq: 009
   control_title: Vector database authentication and collection-level access control
-  control_statement: Vector databases used for RAG retrieval must enforce authentication for all client connections and implement collection-level access controls that restrict which applications and principals can read from or write to each vector collection.
-  objective: Prevent unauthorized access to vector embeddings and unauthorized modification of vector collections by enforcing authenticated client identity and collection-scoped authorization.
-  rationale: RAG vector databases expose high-value embeddings that encode organizational knowledge. Without authenticated client identity and collection-level authorization, unauthorized principals can enumerate, read, or poison vector collections across applications or tenants.
-  scope: Applies to vector database instances used for RAG retrieval on Kubernetes, including Milvus, Weaviate, Qdrant, pgvector, Chroma, and equivalent managed services. Covers client authentication, RBAC or equivalent collection-level authorization, and tenant- or application-scoped access boundaries. Excludes encryption at rest and in transit.
-  primary_enforcement_point: Vector database authentication and collection-level authorization configuration.
-  implementation_surface: Vector database authentication enablement, Kubernetes ServiceAccount tokens or mTLS for service identity, collection-level RBAC or equivalent authorization policies, and tenant- or application-scoped collection access restrictions.
+  control_statement: Require approved client authentication and enforce read, write and administrative permissions for each governed collection or equivalent scope. Verify controls on the effective listeners and API paths for the selected backend.
+  objective: Authorize each governed principal to perform only the approved vector data operations within its assigned scope.
+  rationale: Authentication establishes a caller or credential identity. Access to embeddings, metadata and mutations depends on separate operation and collection authorization. The available authorization surfaces differ by backend and deployment.
+  scope: Applies to client vector database interfaces and their applicable administration and service identity boundaries. Assess peer authentication in distributed deployments and encryption in their applicable controls.
+  primary_enforcement_point: The live vector backend or an enforced approved authorization boundary for each client path.
+  implementation_surface: Enable approved authentication and define collection permissions for read, write and administration. Exercise unauthenticated and out-of-scope denials and in-scope access on the actual interfaces, including direct and proxy routes. Verify credential lifecycle and any privileged exceptions.
   owner_primary: ML Platform Engineering
   owner_supporting: Security Engineering; Infrastructure Engineering
   baseline_or_ai_specific: ai-specific
