@@ -11,15 +11,6 @@ Rate-limiting failed agent authentication attempts
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0405-002 - Privilege escalation detection and monitoring](../../controls/SAF-K8S-0405-002.md)
-
-- Domain: D04 - Identity, Access, and Secrets Management
-- Knowledge Area: 4.5
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0405-003 - Kubeconfig security and hygiene](../../controls/SAF-K8S-0405-003.md)
 
 - Domain: D04 - Identity, Access, and Secrets Management
