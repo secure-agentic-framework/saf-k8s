@@ -9470,12 +9470,12 @@
   knowledge_area: '9.6'
   control_seq: '007'
   control_title: Integrity verification at each training data transformation stage
-  control_statement: Organizations must enforce integrity checks at each data transformation stage in the training data pipeline to detect tampering or corruption before altered data propagates downstream.
-  objective: Detect tampering or corruption at each transformation stage in training pipelines before poisoned or corrupted data reaches model training.
-  rationale: Without integrity checks at transformation stages, an attacker can inject poisoned or corrupted data at any point in the pipeline and the corruption propagates undetected through downstream transformations into the trained model.
-  scope: Applies to all training data pipelines on Kubernetes from ingestion through feature engineering to model training input. Covers stage-level integrity verification, hash or manifest comparison, and validation hooks at data transformation steps. Excludes end-to-end provenance recordkeeping.
-  primary_enforcement_point: Integrity verification hooks at pipeline transformation stages.
-  implementation_surface: Integrity check logs at each transformation stage, pipeline configuration showing validation hooks, manifest or hash verification between pipeline stages, and alerting or rejection records for failed stage-integrity checks.
+  control_statement: Verify exact inputs and outputs at governed training transformation boundaries. Bind them to trusted stage identities and expectations, and prevent unverified or inconsistent artifacts from reaching downstream consumers.
+  objective: Reject missing, altered or inconsistent stage artifacts before they propagate to training.
+  rationale: A successful stage and valid schema alone leave output integrity unknown. Verification can bind exact bytes to a trusted stage expectation and gate downstream use.
+  scope: Applies to governed transformations through the input consumed by training. Pin expected hashes where outputs are deterministic and independently approved. Verify provenance and configured invariants for variable outputs.
+  primary_enforcement_point: Stage input and output verification with downstream release or consumption gates.
+  implementation_surface: Record immutable stage artifacts and producer identities, verify digests and applicable invariants, reject incorrect or mislabeled outputs and verify the downstream consumer uses the approved artifact.
   owner_primary: Data Engineering
   owner_supporting: ML Platform Engineering; Security Engineering
   baseline_or_ai_specific: ai-specific
