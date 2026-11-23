@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0605-003",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "ad6eb0cc46496279ff54aa57e55cf7ad07baba9e",
+  "catalog_sha256": "a868b4ea141c0e3de49227b6eeabffa4a2330712afd28048221b89ce9b63aa55",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "0802f034b520de9beefed3bd8a2dacaacb0df3f479c63e71b5bc7156ee0d0ac1",
   "scope": "One disposable Kubernetes v1.36.1 Kind cluster, pinned Kubewarden v1.36.0, and one signature-checked released WASM policy operating on an inert namespaced ModelDeployment fixture. Covers a baseline, monitor and protect modes, CREATE and UPDATE, a permitted stored declaration and an unenrolled namespace. Custom policy authorship and production policy inventory are outside this fixture.",
-  "cluster": "saf-lab-a6e1dc9edf0f",
+  "cluster": "saf-lab-18fd852f009a",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
