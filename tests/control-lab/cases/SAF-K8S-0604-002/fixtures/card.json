@@ -1,0 +1,31 @@
+{
+  "modelParameters": {
+    "approach": {
+      "type": "supervised"
+    },
+    "task": "synthetic two-feature binary classification",
+    "architectureFamily": "linear model",
+    "modelArchitecture": "two-input logistic demo",
+    "datasets": [
+      {
+        "type": "dataset",
+        "bom-ref": "dataset-training"
+      },
+      {
+        "type": "dataset",
+        "bom-ref": "dataset-validation"
+      }
+    ]
+  },
+  "considerations": {
+    "users": [
+      "fixture demonstration only"
+    ],
+    "useCases": [
+      "offline schema and binding demonstration"
+    ],
+    "technicalLimitations": [
+      "synthetic records; no real-world performance claim"
+    ]
+  }
+}

@@ -1,0 +1,4 @@
+feature_a,feature_b,label
+0.0,0.1,0
+0.9,0.8,1
+0.2,0.1,0

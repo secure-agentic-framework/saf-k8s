@@ -1,0 +1,5 @@
+SAF harmless synthetic model artifact
+model=synthetic-linear-demo
+revision=synthetic-linear-demo/1.0.0
+weights=0.25,-0.10
+bias=0.05
