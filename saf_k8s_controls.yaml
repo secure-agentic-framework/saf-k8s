@@ -4710,12 +4710,12 @@
   knowledge_area: '6.1'
   control_seq: 008
   control_title: CI/CD build-time container image vulnerability scanning
-  control_statement: All container images must undergo automated vulnerability scanning during the CI/CD build stage before they are pushed to any registry, and images with unmitigated critical or high-severity vulnerabilities must be blocked from promotion unless a documented risk acceptance is approved.
-  objective: Catch known vulnerabilities early in the image lifecycle by enforcing build-time scanning and promotion gates before vulnerable images enter shared registries.
-  rationale: Build-time scanning is the earliest scalable point to stop vulnerable images from propagating downstream. If critical findings are not blocked before push, the same vulnerable image can spread across registries, environments, and workloads. This is a distinct control claim from post-push and runtime exposure monitoring.
-  scope: Applies to all container images built for production and pre-production Kubernetes workloads, including AI/ML images with native CUDA, cuDNN, NCCL, and framework-specific dependency chains.
-  primary_enforcement_point: CI/CD Build Stage
-  implementation_surface: CI pipeline scanning tools, build promotion gates, and pre-push risk acceptance workflow.
+  control_statement: Scan each governed candidate image before registry promotion. Bind trustworthy scan evidence to the exact image manifest digest and fail closed for unavailable, outdated or mismatched evidence and unmitigated findings at the approved severity threshold. Allow only explicitly scoped, authorized and expiring exceptions.
+  objective: Prevent governed build paths from publishing unreviewed images or images with unresolved blocking component findings.
+  rationale: A scanner finding and the promotion decision have distinct responsibilities. The gate requires evidence for the exact artifact, including valid completion and advisory freshness. Restrict other writers independently.
+  scope: Applies to governed image build and import paths and applicable architecture manifests, including native accelerator and model runtime dependencies. Verify actual scanner coverage, evidence carriage and access to the registry.
+  primary_enforcement_point: Trusted build scan evidence, promotion decision and restricted registry push credentials.
+  implementation_surface: Scan packaged images, bind evidence to immutable manifest and scan configuration, validate completeness and age, and reject blocking findings before push. Verify scoped exception expiry, exact manifest publication and absent blocked tags independently.
   owner_primary: DevSecOps / Release Engineering
   owner_supporting: ML Platform Engineering; Security Engineering
   baseline_or_ai_specific: ai-specific

@@ -1333,23 +1333,6 @@
     A detailed description of the evaluation strategies, including evaluation results, on the basis of available public evaluation protocols and tools or otherwise of other evaluation methodologies. Evaluation strategies shall include evaluation criteria, metrics and the methodology on the identification of limitations.
 
     SAF-K8S CI/CD pipeline controls (D6) enforce security testing gates, vulnerability scanning, and automated evaluation pipelines. However, model evaluation processes (accuracy, fairness, robustness testing) go beyond security scanning and require application-layer test design and analysis.
-  control_id: SAF-K8S-0601-008
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Annex-XI.2.1
-  legacy_requirement_id: Annex-XI:XI(4)(a)
-  framework_requirement_title: Technical documentation referred to in Article 53(1), point (a) — technical documentation for providers of general-purpose AI models
-  framework_mapping_notes: |-
-    A detailed description of the evaluation strategies, including evaluation results, on the basis of available public evaluation protocols and tools or otherwise of other evaluation methodologies. Evaluation strategies shall include evaluation criteria, metrics and the methodology on the identification of limitations.
-
-    SAF-K8S CI/CD pipeline controls (D6) enforce security testing gates, vulnerability scanning, and automated evaluation pipelines. However, model evaluation processes (accuracy, fairness, robustness testing) go beyond security scanning and require application-layer test design and analysis.
   control_id: SAF-K8S-0606-011
   relation_type: partial
   strength_level: moderate
@@ -1419,23 +1402,6 @@
 
     SAF-K8S provides infrastructure-level safety measures: workload isolation (D3), resource limits (D8), network segmentation (D5), and monitoring (D10). Application-layer safety measures (guardrails, content filtering) are outside SAF-K8S scope but run on SAF-K8S-managed infrastructure.
   control_id: SAF-K8S-0304-011
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Annex-XI.2.2
-  legacy_requirement_id: Annex-XI:XI(4)(a)
-  framework_requirement_title: Technical documentation referred to in Article 53(1), point (a) — technical documentation for providers of general-purpose AI models
-  framework_mapping_notes: |-
-    Where applicable, a detailed description of the measures put in place for the purpose of conducting internal and/or external adversarial testing (e.g. red teaming), model adaptations, including alignment and fine-tuning.
-
-    SAF-K8S CI/CD pipeline controls (D6) enforce security testing gates, vulnerability scanning, and automated evaluation pipelines. However, model evaluation processes (accuracy, fairness, robustness testing) go beyond security scanning and require application-layer test design and analysis.
-  control_id: SAF-K8S-0601-008
   relation_type: partial
   strength_level: moderate
   applicability: required
@@ -3885,16 +3851,15 @@
   framework_requirement_id: Article-9.2.d
   legacy_requirement_id: Art-9:9(2)(d)
   framework_requirement_title: Risk management system
-  framework_mapping_notes: |-
-    the adoption of appropriate and targeted risk management measures designed to address the risks identified pursuant to point (a).
-
-    SAF-K8S controls ARE risk management measures for infrastructure-level risks: network policies, workload isolation, access controls, supply chain integrity, and runtime security all address identified risks.
+  framework_mapping_notes: For an in-scope high-risk AI system, a verified promotion gate can address image risks identified
+    and evaluated in its risk-management system.
   control_id: SAF-K8S-0601-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: For an in-scope high-risk AI system, a verified promotion gate can address image risks identified
+    and evaluated in its risk-management system
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -67695,13 +67660,14 @@
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
   framework_version: '1.1'
   framework_requirement_id: PW.4.1
-  framework_requirement_title: Acquire and maintain well-secured software components from commercial, open-source, and other third-party developers.
-  framework_mapping_notes: 'SAF-K8S enforces vetting of third-party components at admission: image vulnerability scanning, signature verification, public model quarantine workflows, and approved source allowlists.'
+  framework_requirement_title: Acquire and maintain well-secured software components from commercial, open-source, and
+    other third-party developers.
+  framework_mapping_notes: Digest-bound image scanning contributes evidence for maintaining well-secured software components.
   control_id: SAF-K8S-0601-008
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
+  applicability: conditional
+  applicability_condition: Digest-bound image scanning contributes evidence for maintaining well-secured software components
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF

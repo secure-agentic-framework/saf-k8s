@@ -11,15 +11,6 @@ SAF-K8S CI/CD pipeline controls (D6) enforce security testing gates, vulnerabili
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0601-008 - CI/CD build-time container image vulnerability scanning](../../controls/SAF-K8S-0601-008.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.1
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0606-011 - CI build-time security gate enforcement](../../controls/SAF-K8S-0606-011.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control

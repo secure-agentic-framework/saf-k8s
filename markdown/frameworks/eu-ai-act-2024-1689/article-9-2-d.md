@@ -42,7 +42,7 @@ SAF-K8S controls ARE risk management measures for infrastructure-level risks: ne
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.1
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
 - Strength Reason Code: n/a
