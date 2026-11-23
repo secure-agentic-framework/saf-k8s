@@ -1347,7 +1347,7 @@
     "SAF-K8S-0905-036": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "586695e27a2ab7c04ee215460514faf53db4800de288513a2075fd10d1bc703c",
+      "sha256": "01bcdd0957e5868e1a21b936fc0c19b4e03b61a305343903877804ee71dfd7e5",
       "title": "Automated AI workload circuit-breaker threshold enforcement"
     },
     "SAF-K8S-0905-037": {
@@ -1958,7 +1958,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "5c4320c495fc9e49c4547151470f23789628cff0",
-  "sha256": "5d300b2f3b1823e3cbb4aee50b95ef1970adf01a5b145ef7ca8309eb785d1ee4",
+  "revision": "2f632f51cc13c5829199eb3c7024ee0145b00d3e",
+  "sha256": "a868b4ea141c0e3de49227b6eeabffa4a2330712afd28048221b89ce9b63aa55",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-036",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "cfbdd2886845897e10aef29a646a823328d5ff6e",
+  "catalog_sha256": "a868b4ea141c0e3de49227b6eeabffa4a2330712afd28048221b89ce9b63aa55",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "586695e27a2ab7c04ee215460514faf53db4800de288513a2075fd10d1bc703c",
+  "control_sha256": "01bcdd0957e5868e1a21b936fc0c19b4e03b61a305343903877804ee71dfd7e5",
   "scope": "One disposable Kubernetes v1.36.1 Kind cluster runs a namespace-scoped Python control loop against a case-owned numeric telemetry ConfigMap. The loop reads an explicit enabled flag and threshold, records a deterministic decision ConfigMap, and when enabled and value >= threshold patches only the target Deployment scale subresource to zero. The halt stays latched across restart. The test observes Deployment status and EndpointSlices and retains a separate available control Deployment. It proves this synthetic controller/API/RBAC path only; it does not establish production telemetry authenticity, policy governance, workload coverage, response-time objectives, serving-layer isolation, or training/pipeline Job behavior.",
-  "cluster": "saf-lab-161634b8fed6",
+  "cluster": "saf-lab-4ab97596516c",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
