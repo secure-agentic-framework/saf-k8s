@@ -1104,6 +1104,12 @@
       "sha256": "9f461dc64d2d2e906a7dfd54e780d2c32e771f20ebca99bcc36417be0cc4d87b",
       "title": "API impersonation RBAC restriction"
     },
+    "SAF-K8S-0405-010": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "0506ced1be01d664a7ccb877ea0a7c3f8820950e5c109b363dbc1cee965fcaf1",
+      "title": "API impersonation audit logging and alerting"
+    },
     "SAF-K8S-0501-001": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -3170,7 +3176,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "2e3fdb81d42848075fb9a25c3f50d5f089e82176",
-  "sha256": "8ff25a11a26004f40e242d34ecd79787058ba804e942b2db38dc404b6fabe196",
+  "revision": "e2c9d22f48d7de2ac95422bc017ddd5d5d8028b8",
+  "sha256": "2741dbbe57978336dabe521d726f2b1ee8686cd7b577a54fd35b459657b19f93",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

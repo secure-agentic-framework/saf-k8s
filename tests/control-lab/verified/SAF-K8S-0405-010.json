@@ -1,0 +1,74 @@
+{
+  "control_id": "SAF-K8S-0405-010",
+  "catalog_revision": "d5aa28945f12b3701e4c5da4d5d6e55f2190b4c8",
+  "catalog_sha256": "2741dbbe57978336dabe521d726f2b1ee8686cd7b577a54fd35b459657b19f93",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "0506ced1be01d664a7ccb877ea0a7c3f8820950e5c109b363dbc1cee965fcaf1",
+  "scope": "Real metadata-only API audit records identify the authenticated and impersonated principals for successful reads of a case-owned public ConfigMap. An independent fixture allowlist classifies the authorized caller pairs and persists one unexpected-use alert. The test covers a disposable cluster and fixture queue; retention, incident response and deployed audit pipelines require separate evidence.",
+  "cluster": "saf-lab-66561f29ee5b",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Real audit records do not themselves deliver a policy alert",
+      "matched": true,
+      "observed": {
+        "separate_reads_reached_resource": true,
+        "selected_events_emitted": true,
+        "audit_without_detector_leaves_queue_empty": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Observe exact attribution and route the unexpected pair without payload capture",
+      "matched": true,
+      "observed": {
+        "two_distinct_audit_requests": true,
+        "record_both_principals_and_object": true,
+        "metadata_without_object_bodies": true,
+        "approved_pair_separate": true,
+        "unexpected_attributed_pair_reaches_queue": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Repeated approved use stays observable and generates no additional alert",
+      "matched": true,
+      "observed": {
+        "existing_approved_use_still_works": true,
+        "another_approved_audit_event_was_emitted": true,
+        "same_unexpected_pair_only": true
+      }
+    }
+  ]
+}
