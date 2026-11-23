@@ -1570,12 +1570,12 @@
   knowledge_area: '2.3'
   control_seq: '004'
   control_title: Secure boot and verified boot chain enforcement
-  control_statement: Kubernetes nodes must enable UEFI Secure Boot or equivalent verified boot chain mechanisms to ensure only signed bootloaders and kernels execute, establishing hardware-rooted trust in the node boot process.
-  objective: Establish hardware-rooted trust in the node boot process so that only verified, signed software executes from firmware through kernel initialization.
-  rationale: Without verified boot, an attacker with host access can replace the kernel or bootloader with a compromised version that disables security controls before the container runtime starts. Secure Boot validates cryptographic signatures at each stage of the boot chain, preventing tampered kernels from executing and ensuring that all subsequent security controls (container isolation, runtime monitoring, mandatory access control) operate on a trusted foundation.
-  scope: Applies to all production cluster nodes where the hardware and OS support UEFI Secure Boot. Cloud environments must enable Secure Boot on instance types that support it. Nodes on hardware that does not support Secure Boot must document this as a risk acceptance with compensating controls such as measured boot with remote attestation.
-  primary_enforcement_point: Cloud instance launch templates with Secure Boot enabled and node image build pipeline with signed kernel verification.
-  implementation_surface: UEFI Secure Boot configuration, cloud instance launch templates (AWS, GCP, Azure Secure Boot settings), node image build pipeline boot chain verification, and measured boot attestation where available.
+  control_statement: Require supported verified boot for applicable governed node profiles. Verify effective enforcement against the approved trust policy and documented stage coverage. Define approved exceptions and separately governed measured-boot appraisal where applicable.
+  objective: Maintain an evidenced, configuration-specific boot trust chain for governed nodes.
+  rationale: Secure Boot and verified boot apply to specified stages and enrolled trust policy. Measured boot reports state for appraisal. Neither establishes unrestricted trust in the running node or in every subsequent component.
+  scope: Applies to governed production nodes with relevant platform support. Inventory effective firmware and trust policy, boot stages, provider responsibilities, approved image and keys, measured evidence where used and documented exceptions.
+  primary_enforcement_point: Effective firmware or verified boot policy and trusted image and signing lifecycle, with separate attestation evidence where applicable.
+  implementation_surface: Record actual boot policy, image provenance and supported stage coverage. Verify approved boot and refusal of an unapproved inert image where feasible, remediation, key updates and fallback ownership. Evaluate provider and hardware evidence at the relevant boundary.
   owner_primary: Cloud Infrastructure
   owner_supporting: OS/Infrastructure; Security Engineering
   baseline_or_ai_specific: baseline
