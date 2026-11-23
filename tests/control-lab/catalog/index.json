@@ -270,6 +270,12 @@
       "sha256": "ed9a72dfd7fba791f1628bcaf9da4f51862c09cfca5b9bc65873942b8b7d9bdb",
       "title": "Node system and kube reserved resource allocations"
     },
+    "SAF-K8S-0201-007": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "76ea93db85b08f5d8ed928c0cf898fb17b549691d1a09d19ecc251b12867738e",
+      "title": "Node eviction threshold tuning for workload pressure"
+    },
     "SAF-K8S-0201-008": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -2006,7 +2012,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "d3f105a08d07adc68d3cc8da4b37fd651ed8e64f",
-  "sha256": "a98fe4604e6f03e5f1e6b5b7e0f661f80266a0a24c8fb79e000fd63231aac788",
+  "revision": "64a459d1cbfdd2214ac25a9ee1b92e38abfcb7eb",
+  "sha256": "32a437f7c021a0a6866f34d8110509fc2a4b595329c3296345bfd117673decd4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
