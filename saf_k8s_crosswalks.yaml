@@ -25599,31 +25599,14 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-8(2)
   framework_requirement_title: Automated Maintenance
-  framework_mapping_notes: 'Automated agent component inventory
-
-
-    10.7 - Automated discovery and classification of AI infrastructure assets; 4.3 - Credential inventory and sprawl governance (SAF-K8S-0403-008)'
-  control_id: SAF-K8S-0403-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-8(2)
-  framework_requirement_title: Automated Maintenance
-  framework_mapping_notes: 'Automated agent component inventory
-
-
-    10.7 - Automated discovery and classification of AI infrastructure assets; 4.3 - Credential inventory and sprawl governance (SAF-K8S-0403-008)'
+  framework_mapping_notes: SAF-K8S-1007-013 covers automated AI infrastructure inventory. Limit CM-8(2) evidence to current
+    and accurate records of applicable system components. Posture management supports this outcome where it maintains
+    those records.
   control_id: SAF-K8S-1007-004
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The posture platform verifies automated maintenance of the designated system-component inventory.
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -25631,31 +25614,15 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-8(2)
   framework_requirement_title: Automated Maintenance
-  framework_mapping_notes: 'Automated agent component inventory
-
-
-    10.7 - Automated discovery and classification of AI infrastructure assets; 4.3 - Credential inventory and sprawl governance (SAF-K8S-0403-008)'
-  control_id: SAF-K8S-1007-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-8(2)
-  framework_requirement_title: Automated Maintenance
-  framework_mapping_notes: 'Automated agent component inventory
-
-
-    10.7 - Automated discovery and classification of AI infrastructure assets; 4.3 - Credential inventory and sprawl governance (SAF-K8S-0403-008)'
+  framework_mapping_notes: SAF-K8S-1007-013 covers automated AI infrastructure inventory. Limit CM-8(2) evidence to current
+    and accurate records of applicable system components. Decommissioning supports this specific requirement where the
+    workflow updates the automated component inventory.
   control_id: SAF-K8S-1007-006
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The decommissioning workflow has a verified automated integration that maintains the system-component
+    inventory.
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -31681,15 +31648,14 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-5
   framework_requirement_title: Authenticator Management
-  framework_mapping_notes: 'Managing agent credentials/tokens/keys
-
-
-    4.3 - Manage secrets (authenticator lifecycle: rotation policies, expiration, revocation, leak detection; per-workload credential scoping SAF-K8S-0403-006; credential inventory and sprawl governance SAF-K8S-0403-008)'
+  framework_mapping_notes: SAF-K8S-0403-005 supports protection from disclosure in governed AI pipelines. SAF-K8S-0403-004
+    covers related authenticator rotation, effective expiry and revocation.
   control_id: SAF-K8S-0403-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The applicable deployed pipeline controls verify protection of designated authenticators from
+    disclosure.
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -46123,22 +46089,6 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-12
   framework_requirement_title: Cryptographic Key Establishment and Management
-  framework_mapping_notes: 'Key management for agent authentication, encryption, and signing is foundational
-
-
-    4.4 - cert-manager; 4.3 - KMS providers and AI platform key hierarchy (SAF-K8S-0403-007); 6.3 - TUF key management (key establishment and management)'
-  control_id: SAF-K8S-0403-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-12
-  framework_requirement_title: Cryptographic Key Establishment and Management
   framework_mapping_notes: The approved lifecycle governs actual key generation, use, storage, rotation and retirement
     for the covered domain.
   control_id: SAF-K8S-0403-017
@@ -46169,47 +46119,15 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-12
   framework_requirement_title: Cryptographic Key Establishment and Management
-  framework_mapping_notes: 'Key management for agent authentication, encryption, and signing is foundational
-
-
-    4.4 - cert-manager; 4.3 - KMS providers and AI platform key hierarchy (SAF-K8S-0403-007); 6.3 - TUF key management (key establishment and management)'
-  control_id: SAF-K8S-0603-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-12
-  framework_requirement_title: Cryptographic Key Establishment and Management
-  framework_mapping_notes: 'Key management for agent authentication, encryption, and signing is foundational
-
-
-    4.4 - cert-manager; 4.3 - KMS providers and AI platform key hierarchy (SAF-K8S-0403-007); 6.3 - TUF key management (key establishment and management)'
-  control_id: SAF-K8S-0603-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-12
-  framework_requirement_title: Cryptographic Key Establishment and Management
-  framework_mapping_notes: 'Key management for agent authentication, encryption, and signing is foundational
-
-
-    4.4 - cert-manager; 4.3 - KMS providers and AI platform key hierarchy (SAF-K8S-0403-007); 6.3 - TUF key management (key establishment and management)'
+  framework_mapping_notes: SAF-K8S-0603-006 can support approved TUF key custody, rotation and recovery. SAF-K8S-0403-017
+    covers independent key domains and lifecycle. SAF-K8S-0403-018 covers operation permissions and SAF-K8S-0403-019
+    covers Kubernetes Secrets KMS integration.
   control_id: SAF-K8S-0603-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Verify the actual TUF key establishment, custody, rotation and recovery against the approved
+    key-management policy.
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -46233,63 +46151,15 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-12(2)
   framework_requirement_title: Symmetric Keys
-  framework_mapping_notes: 'Symmetric key management for agent session encryption and data protection
-
-
-    1.1 - Encryption at rest (EncryptionConfiguration symmetric keys); 4.3 - KMS symmetric key management and AI platform key hierarchy (SAF-K8S-0403-007 envelope encryption with domain-specific DEKs)'
+  framework_mapping_notes: SAF-K8S-0101-003 deploys encryption at rest for the applicable API objects. Verify symmetric
+    key management independently. SAF-K8S-0403-017 covers envelope domains, SAF-K8S-0403-019 covers external KMS custody,
+    and SAF-K8S-0403-011 covers the applicable key rotation and re-encryption evidence.
   control_id: SAF-K8S-0101-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-12(2)
-  framework_requirement_title: Symmetric Keys
-  framework_mapping_notes: 'Symmetric key management for agent session encryption and data protection
-
-
-    1.1 - Encryption at rest (EncryptionConfiguration symmetric keys); 4.3 - KMS symmetric key management and AI platform key hierarchy (SAF-K8S-0403-007 envelope encryption with domain-specific DEKs)'
-  control_id: SAF-K8S-0101-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-12(2)
-  framework_requirement_title: Symmetric Keys
-  framework_mapping_notes: 'Symmetric key management for agent session encryption and data protection
-
-
-    1.1 - Encryption at rest (EncryptionConfiguration symmetric keys); 4.3 - KMS symmetric key management and AI platform key hierarchy (SAF-K8S-0403-007 envelope encryption with domain-specific DEKs)'
-  control_id: SAF-K8S-0101-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-12(2)
-  framework_requirement_title: Symmetric Keys
-  framework_mapping_notes: 'Symmetric key management for agent session encryption and data protection
-
-
-    1.1 - Encryption at rest (EncryptionConfiguration symmetric keys); 4.3 - KMS symmetric key management and AI platform key hierarchy (SAF-K8S-0403-007 envelope encryption with domain-specific DEKs)'
-  control_id: SAF-K8S-0403-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The actual API encryption deployment uses an approved symmetric key lifecycle and its supported
+    custody and rotation controls.
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
