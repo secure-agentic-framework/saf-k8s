@@ -1,0 +1,68 @@
+{
+  "control_id": "SAF-K8S-0303-006",
+  "catalog_revision": "731b18e823d6429087e1420623dd891a7e0a3c08",
+  "catalog_sha256": "9a0cefb430f7e0a590144d651a38f2510ced056096cd8932059e927fe69c107e",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "da5a1f9d456863a6fccdd1cdb1cf88197bd9800b6f3a8fc31fc279d31e437bfe",
+  "scope": "Verify AppArmor workload coverage and selective profile refinement in a disconnected Linux guest run by a restricted Kind Job. Two clean ordinary cycles are compared with an exercised recovery path, an excluded canary and final enforcement.",
+  "cluster": "saf-lab-f3e6025e7845",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Two clean ordinary cycles miss a recovery violation found by the expanded, audit-calibrated probe",
+      "matched": true,
+      "observed": {
+        "matched_input_revisions": true,
+        "ordinary_cycles_clean": true,
+        "recovery_gap_confirmed_under_enforcement": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The exact revised profile allows normal and recovery reads while still denying the excluded canary",
+      "matched": true,
+      "observed": {
+        "revised_enforcement_matches_intent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Removing the fixture profile leaves its named execution unavailable",
+      "matched": true,
+      "observed": {
+        "revision_removed": true
+      }
+    }
+  ]
+}

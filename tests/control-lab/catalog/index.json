@@ -684,6 +684,12 @@
       "sha256": "ce626ff91107449417a66a1c99746033be1bc245e864ca3a5eb5657cfccc7069",
       "title": "MAC profile pre-enforcement audit-mode validation"
     },
+    "SAF-K8S-0303-006": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "da5a1f9d456863a6fccdd1cdb1cf88197bd9800b6f3a8fc31fc279d31e437bfe",
+      "title": "MAC profile iterative refinement cycle"
+    },
     "SAF-K8S-0303-007": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -2966,7 +2972,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "5d8eeeec036e61599bf380fc611bde6c5038d27c",
-  "sha256": "55abcac54f1534bc0633855bbb29e96368c65e270ec609f5aa38bea4542f4b47",
+  "revision": "4124141d434340915d5fd692ea8ce0a623883835",
+  "sha256": "9a0cefb430f7e0a590144d651a38f2510ced056096cd8932059e927fe69c107e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
