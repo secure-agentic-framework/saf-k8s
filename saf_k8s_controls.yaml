@@ -7090,12 +7090,12 @@
   knowledge_area: '7.4'
   control_seq: 008
   control_title: Cloud-to-Kubernetes event correlation for incident investigation
-  control_statement: Organizations must implement and maintain correlation logic that links cloud-level actions to their Kubernetes-level effects so investigators can reconstruct end-to-end attack chains, administrative changes, and security-relevant operational events in managed Kubernetes environments.
-  objective: Enable end-to-end incident investigation by correlating cloud infrastructure actions with Kubernetes control plane and workload effects.
-  rationale: Cloud and Kubernetes audit data only becomes operationally useful when investigators can connect cause and effect across the shared-responsibility boundary. Correlation rules close that gap by linking cloud IAM, infrastructure, and service-provider events to the Kubernetes actions and workload impacts they produce.
-  scope: Applies to all managed Kubernetes clusters on cloud providers (EKS, GKE, AKS). Correlation logic must cover at minimum IAM role changes affecting Kubernetes access, node provisioning events, load balancer modifications, storage operations, and other cloud actions with Kubernetes impact.
-  primary_enforcement_point: Correlation rule design, identity linking across cloud IAM and Kubernetes audit records, investigation workflow validation, and analytic tuning.
-  implementation_surface: Correlation rules linking cloud IAM identities to Kubernetes user identities via IAM-to-RBAC mapping, cloud request identifiers to Kubernetes audit metadata, timestamp-based event windows, and investigation playbooks for high-priority scenarios such as IAM role assumption followed by cluster-admin activity or infrastructure changes followed by workload impact.
+  control_statement: Maintain correlation logic for selected cloud and Kubernetes events using validated source coverage, bounded timestamps and effective identity and resource mappings. Record exact links, ambiguous and unmatched candidates separately. Confirm cause or workload effect with additional evidence where required.
+  objective: Support investigations with traceable cross-source event relationships and explicit confidence and coverage boundaries.
+  rationale: Provider activity records and Kubernetes audit events have distinct scopes, identities, time semantics and identifiers. Adjacent timestamps can suggest a candidate relationship. Reliable linkage requires documented keys and context, and observed correlation alone cannot establish causation.
+  scope: Applies to governed managed Kubernetes environments and selected incident scenarios. Inventory supported provider streams, Kubernetes audit scope, time windows, identity mapping and gaps for relevant identity, infrastructure and workload events.
+  primary_enforcement_point: Audit source enrollment, validated identity and resource mappings, correlation rules and investigator adjudication.
+  implementation_surface: Retain source event IDs, source and effective identity evidence, timestamps and record lineage. Verify explicit correlation keys per integration and test matched, unmatched, stale and ambiguous candidates. Correlate workload impact with independently observed evidence and retain uncertainty and investigative disposition.
   owner_primary: Security Engineering
   owner_supporting: Cloud Platform Engineering; Platform Engineering; SOC
   baseline_or_ai_specific: baseline
