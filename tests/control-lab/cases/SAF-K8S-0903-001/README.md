@@ -6,4 +6,4 @@ The fixture sends the same fixed benign request through a Service with a determi
 
 The fixture compares two Pods against the same explanation listener before and after a namespace- and label-scoped NetworkPolicy. The monitoring Pod can still read a fixed synthetic explanation. The inference listener has no explanation route. Running the case requires a Kubernetes network implementation that enforces NetworkPolicy.
 
-The case requires separate deployment evidence for detector effectiveness, explanation fidelity and rate limits, label and identity governance, alternate routes, production redaction and evidence retention. The committed draft awaits live lab and independent framework runs.
+The case requires separate deployment evidence for detector effectiveness, explanation fidelity and rate limits, label and identity governance, alternate routes, production redaction and evidence retention. The lab and independent framework runs passed on separate Kubernetes v1.36.1 kind clusters. The framework retains the passing receipt under tests/control-lab/verified/.
