@@ -1,0 +1,141 @@
+{
+  "control_id": "SAF-K8S-0603-006",
+  "catalog_revision": "3949c990789ab869914718b048db47bfe3e1b6af",
+  "catalog_sha256": "de36bf947da0d4e4ef851ebeea82845dcdf0f1d069a6251e2d03f465aec010f3",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "61a54c759f2ae0941e6bcde710843d9d5d624bc9b5c0f03fd412b984a20a7f6e",
+  "scope": "python-tuf 7.0.1 on Kubernetes v1.36.1 with a case-owned Service and two Pods. An authenticated fixture root controls a synthetic repository with local Ed25519 signing. The case exercises digest and version binding, distinct signatures, metadata limits, expiry, persisted rollback protection, exact target acceptance and root rotation. Live custody, managed services and signing ceremonies require separate evidence.",
+  "cluster": "saf-lab-e6ef2ff4482d",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Raw HTTP returns alternate fixture bytes without an update verification check",
+      "matched": true,
+      "observed": {
+        "alternate_target_received_without_integrity_check": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The reference client rejects different-snapshot without accepting a target",
+      "matched": true,
+      "observed": {
+        "expected_error": "LengthOrHashMismatchError",
+        "no_accepted_target": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The reference client rejects different-version without accepting a target",
+      "matched": true,
+      "observed": {
+        "expected_error": "BadVersionNumberError",
+        "no_accepted_target": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The reference client rejects expired without accepting a target",
+      "matched": true,
+      "observed": {
+        "expected_error": "ExpiredMetadataError",
+        "no_accepted_target": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The reference client rejects one-signature without accepting a target",
+      "matched": true,
+      "observed": {
+        "expected_error": "UnsignedMetadataError",
+        "no_accepted_target": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The reference client rejects other-target without accepting a target",
+      "matched": true,
+      "observed": {
+        "expected_error": "LengthOrHashMismatchError",
+        "no_accepted_target": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The reference client rejects oversize without accepting a target",
+      "matched": true,
+      "observed": {
+        "expected_error": "DownloadLengthMismatchError",
+        "no_accepted_target": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The reference client rejects unapproved-rotation without accepting a target",
+      "matched": true,
+      "observed": {
+        "expected_error": "UnsignedMetadataError",
+        "no_accepted_target": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The seeded client rejects an older signed release and keeps trusted metadata",
+      "matched": true,
+      "observed": {
+        "no_accepted_target": true,
+        "rollback_rejected": true,
+        "trusted_versions_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The reference client accepts root rotation signed by both root delegations",
+      "matched": true,
+      "observed": {
+        "new_root_and_exact_target_verified": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The authorized 2-of-3 targets role delivers the exact selected payload",
+      "matched": true,
+      "observed": {
+        "verified_tuf_version": "7.0.1",
+        "target_exact": true,
+        "target_sha256": "c8055bc0038781dbf2a057c137ff84c4eeb06e9a13e416141e338beb2f6b4bd4"
+      }
+    }
+  ]
+}
