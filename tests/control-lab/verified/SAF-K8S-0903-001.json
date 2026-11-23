@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0903-001",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "d7096e4e8469c6ca41786a2932577aa946a35018",
+  "catalog_sha256": "a868b4ea141c0e3de49227b6eeabffa4a2330712afd28048221b89ce9b63aa55",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "76f2e18c7c8661276bf9d15ba8367d70b2fb29206011202fce6ba0c9f512b8d3",
   "scope": "One Kubernetes v1.36.1 Kind cluster with enforcing NetworkPolicy. Two case-owned workloads implement an inert inference stand-in and a fixed synthetic explanation. Compare the same marked benign request before and after deterministic rejection, check the backend counter and content-free rejection record, then compare a named ordinary Pod and a monitoring-labeled Pod accessing the same explanation port. A clean inference request remains functional. Production detector quality, real explanations, identity and label governance, alternate paths, rate limits and audit retention require separate evidence.",
-  "cluster": "saf-lab-68ff10bb6a78",
+  "cluster": "saf-lab-384eb1f789af",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
