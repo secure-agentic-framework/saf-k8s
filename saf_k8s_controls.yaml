@@ -1990,12 +1990,12 @@
   knowledge_area: '2.5'
   control_seq: '011'
   control_title: Node firewall audit and change governance
-  control_statement: Node-level firewall rules must be audited periodically and changes to those rules must follow controlled change management so unauthorized or drifted firewall modifications are detectable and reviewable.
-  objective: Ensure node firewall policy remains governed, reviewable, and resistant to unauthorized change over time.
-  rationale: Even if an initial rule set is restrictive, unmanaged changes or configuration drift can reopen node communication paths. Periodic audit and controlled change management make firewall governance independently auditable from the rule content itself.
-  scope: Applies to all production cluster nodes. Cloud environments may use security groups or VPC firewall rules as the node-level firewall layer. On-premises environments may use iptables, nftables, or firewalld.
-  primary_enforcement_point: Firewall audit workflows, change records, and periodic verification of node firewall policy state.
-  implementation_surface: Firewall verification scripts, change tickets, security group audit logs, NSG review workflows, and periodic attestation of node firewall rule state.
+  control_statement: Maintain an approved, versioned baseline for each applicable node firewall plane. At defined intervals and after approved changes, compare effective observed rules with the baseline. Record authorization, drift, exceptions and remediation decisions.
+  objective: Detect unauthorized or unexpected firewall rule changes and make approved changes and their results reviewable.
+  rationale: Host firewall, provider and CNI policy can change independently. Approval records show authorized intent, while observed effective configuration and change provenance provide separate audit evidence.
+  scope: Applies to governed production node and provider firewall planes with named change and observation owners. Define collection cadence, stable comparison semantics, retained evidence, approved exceptions and escalation criteria.
+  primary_enforcement_point: Firewall change approval and effective read-only state collection, reconciliation, and resolved drift records.
+  implementation_surface: Record approved baseline provenance and exact scope. Reconcile normalized effective snapshots, exercise a controlled mismatch and authorized recovery, retain independent evidence, and verify periodic execution and accountable exceptions in production.
   owner_primary: Network Engineering
   owner_supporting: Platform Engineering; Cloud Infrastructure; Security Engineering
   baseline_or_ai_specific: baseline
