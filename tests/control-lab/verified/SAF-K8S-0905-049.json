@@ -1,0 +1,119 @@
+{
+  "control_id": "SAF-K8S-0905-049",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "dd8c8e22684092b8006a95ddbefe54f323a7e2966549b7320a9a7c09f62e9d25",
+  "scope": "A single kind cluster runs isolated Zot v2.1.23 registries for one exact repo and authenticated case-owned OCI Distribution API client. The open policy allows read/create/update/delete; the guarded policy allows read/create only. Two fixed inert OCI manifests exercise initial tag creation, same-tag overwrite, digest readback, and manifest deletion/recreation. The case checks the native audit file and filtered HTTP access events for these operations. Cloud-vendor controls, durable audit forwarding, administrator controls, sync/retention behavior, or protections against registry storage administrators.",
+  "cluster": "saf-lab-78c272e8e685",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Open policy permits initial creation and digest read",
+      "matched": true,
+      "observed": {
+        "initial_status": 201,
+        "artifact_a_digest": "sha256:97d0fa08f35c8e10cedf62f8f8ff9a2fc14a709815d0ad64c5ac9b4f1c4a79b9"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Unrestricted Zot accepts same-tag overwrite and manifest delete/recreation",
+      "matched": true,
+      "observed": {
+        "initial_status": 201,
+        "overwrite_status": 201,
+        "overwrite_digest": "sha256:899e3e72c578c0010e709538765cf95664194f8c8385bc13da1d1984fb7ff6a2",
+        "artifact_b_digest": "sha256:899e3e72c578c0010e709538765cf95664194f8c8385bc13da1d1984fb7ff6a2",
+        "delete_status": 202,
+        "recreate_status": 201,
+        "recreated_digest": "sha256:97d0fa08f35c8e10cedf62f8f8ff9a2fc14a709815d0ad64c5ac9b4f1c4a79b9",
+        "artifact_a_digest": "sha256:97d0fa08f35c8e10cedf62f8f8ff9a2fc14a709815d0ad64c5ac9b4f1c4a79b9"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Read/create-only policy permits initial tag creation and digest read",
+      "matched": true,
+      "observed": {
+        "initial_status": 201,
+        "artifact_a_digest": "sha256:97d0fa08f35c8e10cedf62f8f8ff9a2fc14a709815d0ad64c5ac9b4f1c4a79b9"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Read/create-only policy blocks overwrite; post-read digest is unchanged",
+      "matched": true,
+      "observed": {
+        "initial_status": 201,
+        "overwrite_status": 403,
+        "after_overwrite_digest": "sha256:97d0fa08f35c8e10cedf62f8f8ff9a2fc14a709815d0ad64c5ac9b4f1c4a79b9",
+        "artifact_a_digest": "sha256:97d0fa08f35c8e10cedf62f8f8ff9a2fc14a709815d0ad64c5ac9b4f1c4a79b9"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Read/create-only policy blocks digest deletion and preserves the tag",
+      "matched": true,
+      "observed": {
+        "delete_status": 403,
+        "after_delete_digest": "sha256:97d0fa08f35c8e10cedf62f8f8ff9a2fc14a709815d0ad64c5ac9b4f1c4a79b9",
+        "artifact_a_digest": "sha256:97d0fa08f35c8e10cedf62f8f8ff9a2fc14a709815d0ad64c5ac9b4f1c4a79b9"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Read/create-only policy still allows a distinct first tag and digest pull",
+      "matched": true,
+      "observed": {
+        "positive_create_status": 201,
+        "positive_digest": "sha256:899e3e72c578c0010e709538765cf95664194f8c8385bc13da1d1984fb7ff6a2",
+        "artifact_b_digest": "sha256:899e3e72c578c0010e709538765cf95664194f8c8385bc13da1d1984fb7ff6a2"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native audit records the allowed tag creation and the access stream records both denied mutations",
+      "matched": true,
+      "observed": {
+        "native_audit_success": true,
+        "native_audit_denial_count": 0,
+        "http_denied_methods": [
+          "DELETE",
+          "PUT"
+        ]
+      }
+    }
+  ]
+}

@@ -1338,6 +1338,12 @@
       "sha256": "9cfc884fd61cdb5cb52e80dc826623d180ca144f09944b40467fff589261c6f3",
       "title": "OCI model artifact digest pinning in deployment and promotion workflows"
     },
+    "SAF-K8S-0905-049": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "dd8c8e22684092b8006a95ddbefe54f323a7e2966549b7320a9a7c09f62e9d25",
+      "title": "OCI model registry tag immutability and overwrite prevention"
+    },
     "SAF-K8S-0905-050": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1832,7 +1838,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "b5f891d4dab0dfe323d649765d4e28eebbe13938",
+  "revision": "025ec9a6105dc5d934dc86cf9534eb6d53109852",
   "sha256": "141559b7769339d63e7704ca30c28a6ab8e8d2fbbfefd87b9e9225f3feff5204",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
