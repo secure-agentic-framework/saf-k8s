@@ -516,6 +516,12 @@
       "sha256": "f8d28f3c2c44ee01bc356594f5dccdd74fbb68751b864de06e5d531eb218f0dc",
       "title": "Verify provider-specific cloud metadata access modes"
     },
+    "SAF-K8S-0203-015": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "0c19a4fe3ded0583a7046745be7fe28e1761bd85e7fa84e134a0059d46292fa3",
+      "title": "Cloud metadata endpoint restriction settings"
+    },
     "SAF-K8S-0203-016": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -2864,7 +2870,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ad4eaf6a87a53f568ec23c303b1f6854d8fa68d9",
-  "sha256": "863b377e625c78c0af692318668a1b486d585ae4e917dd947b326dcaa02b3ea6",
+  "revision": "909df2d6e846baf82a087b285c739d7cde6965db",
+  "sha256": "e52f44e87736aa764cfbff8a606c243fd4005a599e06b67feba3639994faa7d8",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
