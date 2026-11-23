@@ -1698,6 +1698,12 @@
       "sha256": "43f23aa7101137dae5665a065ddb58c7fb554982a64ef5822f6fe0327732587d",
       "title": "CUDA library and container toolkit security"
     },
+    "SAF-K8S-0802-004": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "164326c412a3c45dbe76e73c0e18317110ec9677d93376fff67090a91d7b8f1c",
+      "title": "GPU firmware integrity monitoring"
+    },
     "SAF-K8S-0901-002": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -2600,7 +2606,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "370928bc34f713a2ffffe8c2ef7554bd84e5a266",
-  "sha256": "3c4ca3036accfe729be8dc6299a6eb63b2a00fc835f3fec3047a7da785236505",
+  "revision": "0bb91bbd1e4bbe9d464445c63f21998acbe151fa",
+  "sha256": "30b4a0862d9b2e7916f9383d0076a525efe64eb83e7bfd1941001f5eeac21cc3",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
