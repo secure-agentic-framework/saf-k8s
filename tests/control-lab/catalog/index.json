@@ -438,6 +438,12 @@
       "sha256": "b2c26f8f26b0c8c56997c8b4190044e5e13ecc701c925780619b62369b6b9f90",
       "title": "Container runtime socket root-only protection"
     },
+    "SAF-K8S-0202-009": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "48b2b9d6762a652723c82cc4ab7aa621b43ac0a2ed258df18d2cf11fa4a7b843",
+      "title": "Container runtime secure baseline settings and debug endpoint disablement"
+    },
     "SAF-K8S-0202-010": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -2804,7 +2810,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c9626ab03387d1e588e8461f174b42ddbe507d6e",
-  "sha256": "1c799db9a34efa61218af64797d992659e3d88d1189b93fbd3dc4c21aa9dbc5b",
+  "revision": "0f2f2c5d2e81d8401b1059cbceb7d52d501aff6e",
+  "sha256": "75b5894d086f4f1b7930663cfae6ee4bdee3021b6dd75ce21633e114debb45d5",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
