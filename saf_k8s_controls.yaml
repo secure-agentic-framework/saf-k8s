@@ -5730,12 +5730,12 @@
   knowledge_area: '6.6'
   control_seq: '011'
   control_title: CI build-time security gate enforcement
-  control_statement: CI pipelines must enforce mandatory build-time security gates including SAST, DAST where applicable, SCA scanning, secret scanning with push protection, and dependency review before artifact promotion. Pipelines must block artifacts that fail any mandatory gate unless an approved exception exists.
-  objective: Prevent vulnerable code, leaked credentials, and unsafe dependencies from progressing through CI by enforcing automated build-time security gates and promotion blocking.
-  rationale: Security defects and hardcoded secrets are cheapest and most reliably stopped before artifacts leave the build stage. Mandatory CI gates and enforced promotion blocking are a distinct obligation from freshness or repository posture checks, and they directly determine whether unsafe artifacts are allowed to move downstream.
-  scope: Applies to all CI pipelines producing deployable artifacts for Kubernetes clusters. DAST is required for externally facing services; SAST, SCA, secret scanning, and dependency review are required for all pipelines.
-  primary_enforcement_point: CI Build Gate
-  implementation_surface: CI pipeline gate configuration, SCM push-protection settings, dependency review bots, and artifact promotion policies.
+  control_statement: Enforce applicable security checks before promoting governed Kubernetes artifacts. Tie decisions to the exact artifact digest, source revision, test revision and policy revision. Block failed, missing and skipped required checks unless a separately governed exception applies. Manage source-control push protection at the repository boundary.
+  objective: Give required build checks a verifiable effect on whether the exact artifact proceeds to release.
+  rationale: Source-control protections, CI evaluation and artifact promotion protect different stages. Binding results to the exact artifact and relevant revisions prevents a passing decision for one candidate from authorizing another candidate.
+  scope: For governed CI and artifact classes, document applicable source analysis, component analysis, credential detection, dependency change review, artifact checks and dynamic testing as appropriate to deployment stage, risk and approved policy.
+  primary_enforcement_point: Required CI checks and release promotion policy, with source-control protections enforced at the repository boundary.
+  implementation_surface: Configure required checks from approved evidence producers, reject absent or unsuccessful applicable checks and verify digest and revision bindings at promotion. Record source-control protections and exceptions separately. Govern exception approvers, allowed reasons, artifact and check scope, expiry, and auditing. Require separate verification of the evidence writer and release permissions.
   owner_primary: DevSecOps / Release Engineering
   owner_supporting: Security Engineering; Development Teams
   baseline_or_ai_specific: baseline
