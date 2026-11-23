@@ -8915,7 +8915,7 @@
   rationale: AI workloads can cross safety, integrity, or resource-risk thresholds faster than operators can respond manually. Automated circuit-breaker enforcement limits blast radius when training jobs, inference services, or pipeline stages begin exhibiting anomalous or unsafe behavior.
   scope: Applies to AI training jobs, inference services, and pipeline stages running on Kubernetes where automated threshold-triggered containment is implemented.
   primary_enforcement_point: Automated workload controller and serving-layer enforcement that halts, scales down, or isolates workloads when configured thresholds are exceeded.
-  implementation_surface: Kubernetes Job limits, Deployment scale-to-zero or quarantine actions, HPA or KEDA triggers, service mesh circuit-breakers, custom controller health checks, and automated remediation policies.
+  implementation_surface: Use activeDeadlineSeconds for a Job run-time limit. To enforce an application or safety metric, use a workload controller or serving policy that evaluates the configured threshold and applies an explicit halt, scale-to-zero, or traffic isolation action to the affected workload. Verify any autoscaler scale-to-zero prerequisites and define whether and how containment can be reset.
   owner_primary: AI/ML Engineering
   owner_supporting: Security Operations; SRE
   baseline_or_ai_specific: ai-specific

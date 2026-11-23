@@ -52765,13 +52765,10 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-24
   framework_requirement_title: Fail in Known State
-  framework_mapping_notes: 'Agents must fail to a known secure state preserving audit data and revoking permissions
-
-
-    9.3 - Circuit breakers, graceful degradation (fail in known state); 6.5 - Webhook Fail mode'
+  framework_mapping_notes: An automated halt supports SC-24 when the organization designates the halt as the known state for the relevant failure and defines which system state information to preserve.
   control_id: SAF-K8S-0905-036
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
   strength_reason_code: null
