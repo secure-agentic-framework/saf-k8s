@@ -570,6 +570,12 @@
       "sha256": "4e6db540cc9ade6e126d5823b28805dc2b752a84f2d0184976c7831108583afe",
       "title": "Cross-environment static credential prohibition"
     },
+    "SAF-K8S-0402-012": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "c03bd7eed91a1d5a784ec93d441ce01f7094fc42dea24bb0f64187b3940cdc68",
+      "title": "Ephemeral training job credential expiration"
+    },
     "SAF-K8S-0402-014": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -2054,7 +2060,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6baeb1f9a6da488f4f6fab48c913aba95bac9160",
-  "sha256": "9667c78a19133e6bd9a0f63bfecc29db1b944c791dd9fd87d0c268de9330b2e6",
+  "revision": "09cac9fb74fb89cfff6580f53b9b82fcbc662dbf",
+  "sha256": "f329e1d1d5f39ca9d14d451bdbb44ecb9aacaf1b625650b3c202603d0c88b91c",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

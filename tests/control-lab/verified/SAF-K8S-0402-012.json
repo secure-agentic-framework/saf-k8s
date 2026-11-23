@@ -1,0 +1,83 @@
+{
+  "control_id": "SAF-K8S-0402-012",
+  "catalog_revision": "f82b3c044d3c6ba7f88d331ab27b73086ea2ed68",
+  "catalog_sha256": "f329e1d1d5f39ca9d14d451bdbb44ecb9aacaf1b625650b3c202603d0c88b91c",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "c03bd7eed91a1d5a784ec93d441ce01f7094fc42dea24bb0f64187b3940cdc68",
+  "scope": "Fresh runner-owned Kind cluster using Kubernetes v1.36.1. Synthetic Jobs project an explicit relying-party audience with expirationSeconds=600. A completed Job's retained Pod token still authenticates to TokenReview while within its issued TTL. A second Job's original token is checked before and after expiry on its still-running bound Pod; a fresh credential from another Job continues to authenticate. No changed clocks, external systems, or persistent credentials.",
+  "cluster": "saf-lab-78d2062201f7",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A completed Job's retained Pod token remains usable before its requested TTL expires",
+      "matched": true,
+      "observed": {
+        "job_complete": true,
+        "pod_retained": true,
+        "issued_ttl_seconds": 600,
+        "authenticated_before_completion": true,
+        "authenticated_after_completion": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The original projected token is accepted before its own exp while the Job is running",
+      "matched": true,
+      "observed": {
+        "authenticated": true,
+        "issued_ttl_seconds": 600
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The API rejects the original token after expiration with its bound Pod still running",
+      "matched": true,
+      "observed": {
+        "authenticated": false,
+        "same_bound_pod_running": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A fresh same-scope projected token still performs TokenReview authentication after old-token expiry",
+      "matched": true,
+      "observed": {
+        "authenticated": true,
+        "same_audience": true,
+        "same_service_account": true,
+        "different_pod": true
+      }
+    }
+  ]
+}
