@@ -1,0 +1,72 @@
+{
+  "control_id": "SAF-K8S-0908-006",
+  "catalog_revision": "df636280e9dafc2df2b68a3b728f5416f9a1723a",
+  "catalog_sha256": "2fa178f066ecc648288f4be7d2c33aa3cb3f1e537c4f7e57966d162565b087da",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "a05fa0d7cb3572067dac5a8cbbb577311d6b4e9552635d656eef7eb762f00fe9",
+  "scope": "Two temporary contributors create complementary modular shares with fresh masks in actual pods. Separately authenticated aggregators process only their respective share records. A release principal reads only lane totals, withholds an undersized cohort, and returns the correct two-contributor sum. The fixture assumes honest parties and non-colluding lanes. Production protocol review, collusion resistance, release privacy and managed operator isolation require their own evidence.",
+  "cluster": "saf-lab-73a6d0e8d3e1",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A directly granted path exposes an individual synthetic input",
+      "matched": true,
+      "observed": {
+        "direct_aggregate_boundary_has_access_to_original_input": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Share and result boundaries independently enforce their configured conditions",
+      "matched": true,
+      "observed": {
+        "contributor_submitted_two_shares": true,
+        "separated_lanes_summed_only_one_contributor": true,
+        "release_cannot_read_original_or_shares": true,
+        "lane_cannot_read_the_other_share": true,
+        "undersized_cohort_has_no_result": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The intended cohort receives only the correct released aggregate",
+      "matched": true,
+      "observed": {
+        "second_contributor_submits_two_shares": true,
+        "both_lanes_process_the_two_named_inputs": true,
+        "exact_aggregate_only_result": true
+      }
+    }
+  ]
+}
