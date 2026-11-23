@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0501-006",
-  "catalog_revision": "8499ab6eef453f23e74e24a1ab43555af4bd89f0",
-  "catalog_sha256": "115d55b7443aed0213c5b909968f35b73439c1376fb56857836f63c2b08ce322",
+  "catalog_revision": "cebd7ee630a25c40646155cefba526244539cb55",
+  "catalog_sha256": "43de94094630359221f83a05e4556881b2d53e76ac3923c7062b59a892f54314",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "a16de993105b055e6397f4036f9d74d16144c1d2a9b1c2f16861f168f3fcd8d1",
   "scope": "Two independently named disposable Kubernetes v1.36.1 kind clusters on one case-owned local Docker bridge, with one synthetic Python client Pod in the runner-owned cluster and one synthetic Python TLS server Pod in a case-owned cluster. A NodePort request demonstrates baseline unauthenticated access, then server-authenticated TLS and mandatory mTLS trust plus exact URI SAN allowlisting. The client uses standard CA and hostname verification. Receipts contain only fixed phase labels, TLS outcome/status, and allow/deny identity labels; request and response bodies, certificate contents, and keys are not retained. A source-cluster egress policy then selects exactly one of two verified ports for the same peer cluster and correlates source and destination observations. Production mesh, MCS, and centralized flow collection remain separate.",
-  "cluster": "saf-lab-c4a81594e081",
+  "cluster": "saf-lab-16b4d9b0a452",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
