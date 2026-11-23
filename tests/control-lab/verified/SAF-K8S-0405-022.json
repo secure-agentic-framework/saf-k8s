@@ -1,0 +1,70 @@
+{
+  "control_id": "SAF-K8S-0405-022",
+  "catalog_revision": "6aead7211c2001ce71b69feb328caa4cd3886d0d",
+  "catalog_sha256": "4ea6ea3d1655829b57225ee457e177a32523686e73a962bcb952f78ce55a4962",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "e4e23c05028b61de16b5322a4934e35612c7ec45c8de90bc95c1fad5dfc5359f",
+  "scope": "Two real temporary Kubernetes credentials read only named case-owned ConfigMaps. Withdrawing the extra tenant grant removes the actual cross-namespace read despite the caller and credential remaining unchanged. An independently authorized neighbor still reads its own record. The fixture exercises namespace RBAC, with deployed tenant boundaries and external access paths requiring their own evidence.",
+  "cluster": "saf-lab-264f43078382",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A context and credential do not themselves enforce the intended tenant boundary",
+      "matched": true,
+      "observed": {
+        "approved_tenant_read_allowed": true,
+        "excess_role_allows_other_tenant": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The effective authorization limits the original caller to its intended tenant and object",
+      "matched": true,
+      "observed": {
+        "actual_cross_tenant_read_denied": true,
+        "approved_named_tenant_read_remains_allowed": true,
+        "unrelated_object_in_same_tenant_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The correction preserves the independent authorized workflow",
+      "matched": true,
+      "observed": {
+        "neighbor_independently_reads_own_record": true,
+        "neighbor_cannot_read_the_original_tenant": true
+      }
+    }
+  ]
+}

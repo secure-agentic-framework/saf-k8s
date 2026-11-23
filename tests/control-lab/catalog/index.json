@@ -1128,6 +1128,12 @@
       "sha256": "6acdd0a985151f601e6c5d8496ec5395e149984406853eb038be16400bc3a167",
       "title": "Break-glass recovery exercise validation"
     },
+    "SAF-K8S-0405-022": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "e4e23c05028b61de16b5322a4934e35612c7ec45c8de90bc95c1fad5dfc5359f",
+      "title": "Tenant-scoped break-glass credential boundary enforcement"
+    },
     "SAF-K8S-0501-001": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -3194,7 +3200,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "9aa1a94126c05a6ffee743e95e087e6b476bbd66",
-  "sha256": "23e77c7db2923dc6c7c8ed69111130f939bde012ed266333967d7365414f06b6",
+  "revision": "4a23beb2aee02bd656bb6c59bf6e4cd68a7dd045",
+  "sha256": "4ea6ea3d1655829b57225ee457e177a32523686e73a962bcb952f78ce55a4962",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
