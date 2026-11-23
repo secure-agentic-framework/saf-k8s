@@ -564,6 +564,12 @@
       "sha256": "0f31eb9f7f1702839174c422ebfa3b482d613fe0558f429f8f5972d2587627f6",
       "title": "eBPF-based kernel-level network policy enforcement"
     },
+    "SAF-K8S-0205-005": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "84c5b2699575fda21d247ff07c53558d1ddf7f90a2bd365a3873938dc687776e",
+      "title": "eBPF program integrity verification and loading monitoring"
+    },
     "SAF-K8S-0301-001": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -2906,7 +2912,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "09429d7da9a2ffd64c5b46ddad179754ea8c9773",
-  "sha256": "73c30d7c762cf9c303d8a0112bb11660eb3a3b6dea69bfe1c60c4486b8dfcd21",
+  "revision": "4f6f90386e6b01f366ad77ae8413a4c1dffe14f8",
+  "sha256": "c9fdb66f7804a743147280c03ef7e8708ea3cb698ef29cf9f66c051c62128ea2",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
