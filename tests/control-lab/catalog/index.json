@@ -1758,6 +1758,12 @@
       "sha256": "59d3fe09ee62a1fb9dff4b880b9bf7509743be861622d93d986d725d0c0e694d",
       "title": "DPU and SmartNIC host trust boundary definition and policy engine administrative restriction"
     },
+    "SAF-K8S-0804-001": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "bfe5a53c1143a78c746a61187afb67f17db3c5d5bbc76fdc15faadbe270a8381",
+      "title": "TEE-based model and data protection for AI workloads"
+    },
     "SAF-K8S-0901-002": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -2660,7 +2666,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "4679921a383c19aa47902f98a7ef2b344ed176d9",
-  "sha256": "5737cbee29c5e7c8db557efdbe9d3db24731dc8519fbe2f42f29c746f6d29082",
+  "revision": "08c447b11c475e36f07a20e18c6df8a7e89c2b19",
+  "sha256": "4b8637de7d9b76430088afab788b9952bca47aab5146d26d9274eb55a09008e3",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

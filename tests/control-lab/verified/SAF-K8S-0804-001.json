@@ -1,0 +1,68 @@
+{
+  "control_id": "SAF-K8S-0804-001",
+  "catalog_revision": "621756c1cddd317b7bd4c144505f721098525002",
+  "catalog_sha256": "4b8637de7d9b76430088afab788b9952bca47aab5146d26d9274eb55a09008e3",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "bfe5a53c1143a78c746a61187afb67f17db3c5d5bbc76fdc15faadbe270a8381",
+  "scope": "Live admission and scheduler behavior for a modeled reviewed runtime and node label; no TEE is used.",
+  "cluster": "saf-lab-e29ff1b85b77",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The ordinary runtime is admitted before the sensitive workload policy",
+      "matched": true,
+      "observed": {
+        "ordinary_runtime_admitted_initially": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission requires declared scope, and the actual scheduler waits for the approved node label",
+      "matched": true,
+      "observed": {
+        "ordinary_runtime_denied": true,
+        "missing_placement_denied": true,
+        "approved_fixture_waits_without_node_label": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same pending fixture schedules and becomes Ready after the modeled host approval label",
+      "matched": true,
+      "observed": {
+        "same_fixture_ready_in_approved_scope": true
+      }
+    }
+  ]
+}
