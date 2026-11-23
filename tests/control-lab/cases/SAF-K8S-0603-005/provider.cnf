@@ -1,0 +1,18 @@
+config_diagnostics = 1
+openssl_conf = openssl_init
+
+.include /opt/saf-openssl/etc/fipsmodule.cnf
+
+[openssl_init]
+providers = providers
+alg_section = properties
+
+[providers]
+fips = fips_sect
+base = base_sect
+
+[base_sect]
+activate = 1
+
+[properties]
+default_properties = fips=yes

@@ -972,6 +972,12 @@
       "sha256": "6e218f968d5f5fd3fe2a9c5e01484eae9d9dcffac5c11fa46218ae5957a940fe",
       "title": "Cryptographic agility and post-quantum readiness"
     },
+    "SAF-K8S-0603-005": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "0bcbbc59b20cf12ee3179d2e5dbe35aab98f02c9b97b13b289c028e91591f37f",
+      "title": "FIPS 140 cryptographic module validation"
+    },
     "SAF-K8S-0603-006": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2264,7 +2270,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "f895e856e7823da23281fc72004564754c9cf65c",
-  "sha256": "3c16fb356a0d2bec646b189b9595506f0f25d3a3392e63607b984d19fdc9cd41",
+  "revision": "1e50262bf94a8b7cb3cefe705b34c78324c9a77b",
+  "sha256": "2ddcbcadc0dc3876b8db9e9c6493991f07da4dd95f88375ba52e0bbf2f22eca9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
