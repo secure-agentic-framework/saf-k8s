@@ -15,15 +15,13 @@ MODEL_CM = "saf-0905-058-model"
 DENIAL = "model must match the approved digest and organization signature record"
 MODEL = b'{"fixture":"synthetic-linear-model-v1","weights":[0.25,-0.5,1.0]}\n'
 DIGEST = hashlib.sha256(MODEL).hexdigest()
-ORG = "organization-fixture"
-PUBLISHER = "publisher-fixture"
 SCOPE = (
     "One disposable Kubernetes v1.36.1 cluster. A real OCI registry stores an inert model "
     "by manifest and blob digest. Separate publisher and organization OpenSSL Jobs generate "
     "ephemeral keys and sign the identical model bytes. An independent verifier checks those "
     "signatures before a digest-bound immutable promotion record is written. Native admission "
     "uses that record to gate a model consumer Pod. The allowed Pod fetches and checks exact "
-    "registry bytes. Production key custody, registry identity, signer authority, worktree and "
+    "registry bytes. Production key custody, registry identity, signer authority, "
     "namespace coverage, and policy enrollment are open."
 )
 PYTHON = "docker.io/library/python:3.13.2-alpine@sha256:323a717dc4a010fee21e3f1aac738ee10bb485de4e7593ce242b36ee48d6b352"

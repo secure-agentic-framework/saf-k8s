@@ -1419,7 +1419,7 @@
     "SAF-K8S-0905-058": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "fd2b7055c890c3a1a1d534adb4383efe23d19cea2db7fe61083bedaaf98c6eaa",
+      "sha256": "e636fe6ee817b011211f2b01221ea5e0c959d5cb4359c53ed7a0c85219e58cab",
       "title": "Internal re-signing of approved external models before deployment eligibility"
     },
     "SAF-K8S-0905-059": {
@@ -1910,7 +1910,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "434e59c172b72d3a3edcce46bcb57378809b10d3",
-  "sha256": "756c26b78ba8a8bc34e315da04553f18f72d768e614a38f3594335a9cdf0a423",
+  "revision": "f5f74b53f1b5ac8fc0ba5c8bb4bfd76c21f87ec6",
+  "sha256": "5d300b2f3b1823e3cbb4aee50b95ef1970adf01a5b145ef7ca8309eb785d1ee4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -12,7 +12,6 @@ BASE = "http://model-promotion-registry:5000"
 REPO = f"{BASE}/v2/inert/models"
 MANIFEST = "application/vnd.oci.image.manifest.v1+json"
 INDEX = "application/vnd.oci.image.index.v1+json"
-DSSE = "application/vnd.dsse.envelope.v1+json"
 EMPTY_TYPE = "application/vnd.oci.empty.v1+json"
 
 
@@ -52,14 +51,12 @@ def put_blob(raw):
         raise RuntimeError("blob upload failed")
 
 
-def manifest(artifact_type, raw, media, *, subject=None):
+def manifest(artifact_type, raw, media):
     config = b"{}"
     put_blob(config)
     put_blob(raw)
     value = {"schemaVersion": 2, "mediaType": MANIFEST, "artifactType": artifact_type,
              "config": descriptor(EMPTY_TYPE, config), "layers": [descriptor(media, raw)]}
-    if subject is not None:
-        value["subject"] = subject
     return canonical(value)
 
 
@@ -67,13 +64,6 @@ def put_manifest(ref, raw, media=MANIFEST):
     status, _, _ = request("PUT", REPO + "/manifests/" + ref, raw, media)
     if status != 201:
         raise RuntimeError(f"manifest publication returned {status}")
-
-
-def expect_raw(url, wanted):
-    status, _, actual = request("GET", url)
-    if status != 200 or actual != wanted:
-        raise RuntimeError(f"fixture readback returned {status} or different bytes")
-    return actual
 
 
 def operate(phase):
