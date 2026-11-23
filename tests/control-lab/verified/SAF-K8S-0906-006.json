@@ -1,0 +1,83 @@
+{
+  "control_id": "SAF-K8S-0906-006",
+  "catalog_revision": "976021d02e8856b5e4ce8c3afa83676706539f1c",
+  "catalog_sha256": "d43370ab2b4e06678dc9c6ef7bd94b6aaa7b322ba7cd8aedd49c3bdb34781c3a",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "7f010a0e230ac7767753b81bda449327ad4512b58bd3c219606d38261fb08ed7",
+  "scope": "A live, local Kind fixture persists invented source bytes, source receipt, transformed bytes, transformation receipt, and trained artifact on separate PVCs. It compares a benign ungoverned training job with missing provenance, denies training and release binding before approval, then trains and binds an artifact only when approval digests and receipt lineage match exactly.",
+  "cluster": "saf-lab-16f383c11f91",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The ungoverned comparison accepts a benign mismatched fixture without provenance linkage",
+      "matched": true,
+      "observed": {
+        "ungoverned_job_accepted_missing_linkage": true,
+        "ungoverned_input_differs_from_approved_source": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Training and release bind the artifact to the exact approved data and receipt lineage",
+      "matched": true,
+      "observed": {
+        "training_denied_before_approval": true,
+        "release_denied_before_training_or_approval": true,
+        "denied_attempts_left_no_governed_model_or_binding": true,
+        "source_bytes_digest_matches_approval": true,
+        "transformation_receipt_matches_approved_digest": true,
+        "valid_approval_still_rejects_mismatched_receipt": true,
+        "training_checks_all_pass": true,
+        "release_binding_created_after_lineage_validation": true,
+        "release_binding_contains_exact_approved_edges": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A fully linked approved training artifact reaches the fixture release binding",
+      "matched": true,
+      "observed": {
+        "separate_persistent_objects_used": true,
+        "approved_source_digest": "d3a5fcb54688a9377553f913caea54717e6a5862c8bc4f5255972571adecba9c",
+        "approved_transformed_digest": "f4888552d6e0bb9225ad22339a949faa3951bd99ff2493f1531bc415f72c994b",
+        "artifact_digest_present": true,
+        "training_receipt_digest": "fcfd6d9e24ab9b233318aeddc3a1bc99bd49bc9f88abd0ea1abbd0a181bfa459",
+        "source_receipt_digest": "7d2c0244e8b00de74242a70a926d6a27b0359148a2e8337ca05e473350070f28",
+        "transformation_receipt_digest": "32cd82bb89d4fa2e5e12302a9c1a36587bfd931e0932f035a7690ff0ea8d5fdc",
+        "binding_artifact_digest": "e2837c803d89486e982d2cbd64023f657f959529a13faf86556d1b22dcb169dc",
+        "approved_release_decision": true
+      }
+    }
+  ]
+}
