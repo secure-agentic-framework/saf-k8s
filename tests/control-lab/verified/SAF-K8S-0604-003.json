@@ -1,0 +1,127 @@
+{
+  "control_id": "SAF-K8S-0604-003",
+  "catalog_revision": "47478542c33dd217109cda1e77cee1b0bceff5db",
+  "catalog_sha256": "2a4083610a48967abdb0ac6053a6d0801b649194fd1f4149649821e51b8ff707",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "fea99dea4335fa6e8df6b5afbb33ae73a648d4ecc378ebe70a5785427e7f7f4d",
+  "scope": "Disposable TLS Zot and Distribution registries illustrate OCI referrers discovery and a real 404-triggered referrers-tag fallback. In-cluster consumers verify manifest, subject, blob and approved attachment identity. Zot exercises test publisher and reader permissions. Production identity, retention, audit, pagination and provider-specific discovery require separate evidence.",
+  "cluster": "saf-lab-7539be6abe54",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The tag path initially returns no SBOM for the exact image digest",
+      "matched": true,
+      "observed": {
+        "discovery": "tag",
+        "inventory_missing": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The Kind consumer detects exact-subject, approval and content failures via tag",
+      "matched": true,
+      "observed": {
+        "different_subject": "subject-mismatch",
+        "discovery": "tag",
+        "exact_subject_components": [
+          "fixture-approved"
+        ],
+        "unapproved_artifact": "attachment-not-approved",
+        "wrong_blob_bytes": "bom-bytes-mismatch"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The owned registry serves the observed tag discovery path",
+      "matched": true,
+      "observed": {
+        "observed_statuses": [
+          404,
+          200
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The api path initially returns no SBOM for the exact image digest",
+      "matched": true,
+      "observed": {
+        "discovery": "api",
+        "inventory_missing": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The repository denies anonymous discovery and read-only publication or deletion",
+      "matched": true,
+      "observed": {
+        "anonymous_discovery_status": 401,
+        "reader_write_status": 403,
+        "reader_delete_status": 403
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The Kind consumer detects exact-subject, approval and content failures via api",
+      "matched": true,
+      "observed": {
+        "different_subject": "subject-mismatch",
+        "discovery": "api",
+        "exact_subject_components": [
+          "fixture-approved"
+        ],
+        "unapproved_artifact": "attachment-not-approved",
+        "wrong_blob_bytes": "bom-bytes-mismatch"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The owned registry serves the observed api discovery path",
+      "matched": true,
+      "observed": {
+        "observed_statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The disposable registries and volumes were removed",
+      "matched": true,
+      "observed": {
+        "registry_cleanup": "complete"
+      }
+    }
+  ]
+}

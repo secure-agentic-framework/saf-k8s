@@ -1038,6 +1038,12 @@
       "sha256": "e2fda10498fa2c6a7c742d86d7fecfea7529ad4e2c4a828f35b3c90c5dcfb2a2",
       "title": "ML-BOM (ML Bill of Materials) generation"
     },
+    "SAF-K8S-0604-003": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "fea99dea4335fa6e8df6b5afbb33ae73a648d4ecc378ebe70a5785427e7f7f4d",
+      "title": "SBOM storage and distribution as OCI artifacts"
+    },
     "SAF-K8S-0605-001": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2294,7 +2300,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "4c189a552897a6f11524c2efdbe540d3058b0df3",
-  "sha256": "156cd3a84bb6feb02e94c9bc44e794b8712af2241d904d0cba01a193db4cceb7",
+  "revision": "15ce7e2518185c094df96f2ea2fb123d121820c2",
+  "sha256": "2a4083610a48967abdb0ac6053a6d0801b649194fd1f4149649821e51b8ff707",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
