@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 3924
-- Distinct Requirements Mapped: 775
+- Total Reverse Mappings: 3906
+- Distinct Requirements Mapped: 773
 
 ## Requirements
 
@@ -440,7 +440,6 @@
 - [RA-5 - Vulnerability Monitoring and Scanning](ra-5.md)
 - [RA-5(10) - Correlate Scanning Information](ra-5-10.md)
 - [RA-5(11) - Public Disclosure Program](ra-5-11.md)
-- [RA-5(4) - Discoverable Information](ra-5-4.md)
 - [RA-5(6) - Automated Trend Analyses](ra-5-6.md)
 - [RA-5(8) - Review Historic Audit Logs](ra-5-8.md)
 - [RA-7 - Risk Response](ra-7.md)
@@ -595,7 +594,6 @@
 - [SC-3(5) - Layered Structures](sc-3-5.md)
 - [SC-30(2) - Randomness](sc-30-2.md)
 - [SC-30(3) - Change Processing and Storage Locations](sc-30-3.md)
-- [SC-30(4) - Misleading Information](sc-30-4.md)
 - [SC-30(5) - Concealment of System Components](sc-30-5.md)
 - [SC-31 - Covert Channel Analysis](sc-31.md)
 - [SC-31(1) - Test Covert Channels for Exploitability](sc-31-1.md)

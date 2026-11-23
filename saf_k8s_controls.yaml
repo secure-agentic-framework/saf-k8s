@@ -9630,12 +9630,12 @@
   knowledge_area: '9.8'
   control_seq: '003'
   control_title: Model watermarking and fingerprinting
-  control_statement: Production model serving infrastructure must integrate watermarking or fingerprinting mechanisms that embed verifiable markers in model outputs to enable detection of stolen or unauthorized copies of model outputs.
-  objective: Enable detection and attribution of stolen model outputs by embedding imperceptible but verifiable markers that survive downstream use.
-  rationale: Even with extraction prevention controls, determined adversaries may successfully copy model behavior through distillation or output scraping. Without watermarking or fingerprinting, organizations cannot prove that a competitor's model was derived from their proprietary model, limiting legal and contractual recourse. Output watermarks provide forensic evidence of model theft that persists in downstream applications.
-  scope: Applies to production inference endpoints serving models with significant intellectual property value on Kubernetes. Covers watermark embedding at the serving layer, fingerprint verification tooling, and marker durability testing. Excludes internal-only models where theft attribution is not a concern.
-  primary_enforcement_point: Inference server output postprocessing configuration and watermark embedding middleware deployed as part of the model serving pipeline.
-  implementation_surface: Inference server output postprocessing configuration for watermark embedding (output watermarking for token sequence patterns in LLM output), model weight watermarking integrated into training pipelines, fingerprinting via adversarial example databases, radioactive data marking in training data pipelines, watermark verification key storage in Kubernetes Secrets or external secret stores, and external model output scanning and monitoring services for watermark detection on public platforms.
+  control_statement: Where an assessed provenance need warrants output watermarking or fingerprinting, implement an approved marking and detection scheme for eligible serving paths. Document and verify the detector operating criteria, key custody, acceptable quality impact, and supported content transformations.
+  objective: Provide a measured provenance signal for selected generated content with documented detector limitations.
+  rationale: A detector decision indicates consistency with a particular marking scheme under its tested assumptions. Detection reliability varies with content, length, operating threshold and transformations. Attribution and model derivation require independently corroborated evidence.
+  scope: Applies to the eligible production outputs and deployed detection workflows named by the approved provenance plan. Assess model-weights watermarking and signed content provenance separately.
+  primary_enforcement_point: The actual serving output marker and approved detector workflow.
+  implementation_surface: Define the governed output and detector version, representative positive and negative corpora, measured detection and false-positive rates, approved transformations and quality criteria, keys and audit. Record unresolved detection scope and separate provenance evidence.
   owner_primary: Security Engineering
   owner_supporting: ML Platform Engineering; Legal
   baseline_or_ai_specific: ai-specific
