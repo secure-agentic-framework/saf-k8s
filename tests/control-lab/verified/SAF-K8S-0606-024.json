@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-024",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "87ebf4d6e483c5ff70c33eb6b38b7ceebe64db17",
+  "catalog_sha256": "119723d33fc0fa432e9da9a56f9490f9f2b56cdeff77405a834a5690eb876c82",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6206d048f801ff4d5a7dc6837da9cc1ee3fee9fb54fe306367a88299315f2cbc",
   "scope": "A local case-owned bare Git repository protects its main ref with a pinned approved policy tree. Kubernetes v1.36.1 RBAC authorizes a fixture ServiceAccount to promote the exact committed policies. A scoped native ValidatingAdmissionPolicy denies a case-owned Role declaring Secret reads and admits a read-only Pod Role. No live credential, external Git host or other cluster is used. Production approval, revision authorization and other governance families require separate evidence.",
-  "cluster": "saf-lab-7fb94a22309d",
+  "cluster": "saf-lab-e9f3c33bcf4d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
