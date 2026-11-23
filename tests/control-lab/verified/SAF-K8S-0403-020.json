@@ -1,0 +1,77 @@
+{
+  "control_id": "SAF-K8S-0403-020",
+  "catalog_revision": "24dbf7dabe09aefb8ccff0cc033715e750cda935",
+  "catalog_sha256": "fb958907ffaf20087a8e92cdddaccb4e3e020c64db20784e8188120121675905",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "216b28639fa2668b7fc7cc3d678e8289001392f7e77dd75da7bb01672f260eab",
+  "scope": "Exercise the actual Kubernetes KMS v2 plugin at the API storage boundary and separate Vault policies for the authorized API integration and a distinct fixture workload; verify remote operation attribution and deny unrelated keys and administration. Cloud provider key policy, service grants, managed identity and HSM configuration need separate evidence.",
+  "cluster": "saf-lab-f9451f01555f",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A workload with an over-broad key grant can use the Secrets wrapping key",
+      "matched": true,
+      "observed": {
+        "broad_workload_wrap_and_unwrap": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The actual API writes an encrypted envelope while Vault denies unwanted keys and administration",
+      "matched": true,
+      "observed": {
+        "authority_http_denials": {
+          "workload_wrapping": 403,
+          "workload_unwrapping": 403,
+          "integration_unrelated_key": 403,
+          "integration_policy_admin": 403
+        },
+        "approved_workload_other_key": true,
+        "actual_secret_envelope": {
+          "kms_envelope": true,
+          "marker_visible": false
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A fresh API reads its Secret and provider audit attributes both key operations to the integration",
+      "matched": true,
+      "observed": {
+        "cold_api_read": true,
+        "authority_wrap_and_unwrap_attributed": true
+      }
+    }
+  ]
+}
