@@ -5450,12 +5450,12 @@
   knowledge_area: '6.4'
   control_seq: '011'
   control_title: SLSA provenance generation and target-level governance
-  control_statement: Build pipelines must generate SLSA provenance for deployable artifacts at the target SLSA level defined by organizational policy, and the required target level and improvement roadmap must be documented, reviewed, and verifiable through policy or admission checks before artifacts are trusted downstream.
-  objective: Establish auditable provenance records and an explicit SLSA assurance target so the organization can prove how each artifact was built and what provenance threshold governed its acceptance.
-  rationale: Without standardized SLSA provenance and a documented target assurance level, organizations cannot reliably distinguish approved builds from artifacts produced by tampered or weakly controlled pipelines. Provenance generation plus target-level governance makes build trust decisions explicit, reviewable, and enforceable.
+  control_statement: Specify the approved SLSA Build track version and target for each governed release path. Generate provenance for each exact artifact as required by that target. Verify the subject, applicable signature and trusted builder identity, expected build parameters and minimum assurance against an independently maintained trust policy before accepting the release.
+  objective: Retain auditable evidence of the artifact, verified build claims, assessed builder capabilities and policy that authorized acceptance.
+  rationale: Verified provenance authenticates recorded build assertions for its subject. SLSA Build levels depend on assessed properties of the actual producer, build platform and provenance protection. Determine the applicable level from configured trust and assessment evidence. A predicate field or signature alone is insufficient.
   scope: Applies to all CI/CD pipelines producing deployable Kubernetes artifacts, including application images, AI workload images, and infrastructure operator images. The target SLSA level and roadmap must be reviewed at least annually or when pipeline risk materially changes.
-  primary_enforcement_point: CI/CD provenance generation step and provenance policy verification gate.
-  implementation_surface: SLSA provenance generation tooling, provenance attachment to image digests, documented target SLSA level policy, roadmap records, and admission or policy-engine verification of required provenance level.
+  primary_enforcement_point: Build platform provenance generation, independent builder assessment and release or admission verification.
+  implementation_surface: Record the approved target, policy authority, covered release path, recognized signer and builder identity, trusted maximum level and assessment evidence. Verify the exact subject, provenance and applicable expectations. Track review dates, improvement actions and exceptions independently from self-reported build claims.
   owner_primary: DevSecOps / Release Engineering
   owner_supporting: Security Engineering; Platform Engineering
   baseline_or_ai_specific: baseline
