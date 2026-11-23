@@ -1,0 +1,68 @@
+{
+  "control_id": "SAF-K8S-0203-008",
+  "catalog_revision": "4a451d880aacfab8ede32290e61c76773e9b8bc2",
+  "catalog_sha256": "d0e0a793b2a517c32f30c21b4e103b728ef921c09794eecca3de263c9469ce95",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "6356b7e239cf8e511e7f680736e0ce720f72944282dae22b9076575b462458e0",
+  "scope": "Actual Kind egress and restricted admission over synthetic metadata and approved identity marker Pods.",
+  "cluster": "saf-lab-4dbb48669914",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Before the egress policy, the governed Pod reaches both inert marker paths",
+      "matched": true,
+      "observed": {
+        "fixture-node-marker": "fixture-node-marker",
+        "fixture-identity-marker": "fixture-identity-marker"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Actual egress denies the node metadata marker and admission rejects a governed host-network declaration",
+      "matched": true,
+      "observed": {
+        "inert_node_path_denied": true,
+        "host_network_declaration_rejected": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The allowed identity fixture remains reachable while the unapproved path stays denied",
+      "matched": true,
+      "observed": {
+        "approved_identity_path_reachable": true
+      }
+    }
+  ]
+}

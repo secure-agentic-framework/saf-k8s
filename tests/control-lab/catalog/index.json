@@ -474,6 +474,12 @@
       "sha256": "8723dfae216a1b429be7d46fb08cfc24168cfb14616bb7f5b77e745739100481",
       "title": "Secure boot and verified boot chain enforcement"
     },
+    "SAF-K8S-0203-008": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "6356b7e239cf8e511e7f680736e0ce720f72944282dae22b9076575b462458e0",
+      "title": "Pod metadata endpoint network path blocking"
+    },
     "SAF-K8S-0203-016": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -2822,7 +2828,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "9a711995b81b6b921f795d651cfce493be098330",
-  "sha256": "fa333296dec49970d46cdf51594b957e5b293c180444ab02dfe2196c65430f8e",
+  "revision": "a32a6b289ff9f1646ea2ddfdb1a952146de2a7ba",
+  "sha256": "d0e0a793b2a517c32f30c21b4e103b728ef921c09794eecca3de263c9469ce95",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
