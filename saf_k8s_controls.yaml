@@ -4650,12 +4650,12 @@
   knowledge_area: '5.5'
   control_seq: '006'
   control_title: API server private endpoint and authorized network enforcement
-  control_statement: Kubernetes API server endpoints must be exposed only through private cluster endpoints or authorized network allowlists and firewall rules that limit reachability to approved management networks.
-  objective: Reduce control-plane attack surface by limiting API server network reachability to explicitly approved management networks.
-  rationale: Private endpoints, authorized network allowlists, and firewall restrictions prevent direct discovery and reachability of the API server from unapproved networks, eliminating a large portion of opportunistic and credential-driven attacks before authentication is even attempted.
-  scope: Applies to all production Kubernetes clusters. Managed Kubernetes services must use private endpoint or authorized network features. Self-managed clusters must place API servers on private networks with bastion or VPN access. Non-production clusters with access to production secrets or infrastructure must also restrict API server access.
-  primary_enforcement_point: Cloud provider private cluster configuration, API server authorized network settings, and VPC firewall or security-group rules restricting API server endpoint reachability.
-  implementation_surface: Cloud provider private cluster settings (GKE private endpoint and master authorized networks, EKS endpointPublicAccess and endpointPrivateAccess, AKS private cluster and authorized IP ranges), self-managed API server bind and advertise addresses, VPC firewall rules, cloud security groups, and external reachability validation for port 6443.
+  control_statement: Restrict each enabled Kubernetes API server endpoint to approved management access paths. Use a verified private network boundary, an authorized-source policy on applicable endpoints, or an equivalent provider-supported control. Check every enabled endpoint and address family.
+  objective: Reduce API server exposure by limiting management reachability to approved networks and verifying the working administrative path.
+  rationale: Enforce the network boundary before API authentication where the endpoint design permits it. DNS visibility, IP reachability and API authentication are separate. A private address still requires verification of reachable sources and routes.
+  scope: Applies to production Kubernetes control planes and non-production endpoints with access to production secrets or infrastructure. Inventory enabled IP and DNS endpoints, cloud management paths, node and automation access, and approved exceptions.
+  primary_enforcement_point: Effective provider endpoint controls or self-managed listener routing and firewalls.
+  implementation_surface: For GKE, review DNS endpoint IAM and perimeter controls separately from IP endpoint authorized networks, including internal enforcement settings. For EKS, verify public endpoint CIDRs and private endpoint security-group rules independently. For AKS, distinguish public authorized ranges from private-cluster controls. For each topology, verify approved and denied paths to every actual endpoint and configured port, including DNS and address-family behavior.
   owner_primary: Platform Engineering
   owner_supporting: Network Engineering; Security Engineering; Cloud Platform Engineering
   baseline_or_ai_specific: baseline
