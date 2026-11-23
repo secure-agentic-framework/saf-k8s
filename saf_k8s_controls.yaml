@@ -7449,13 +7449,13 @@
   domain_name: GPU, Accelerator, and Confidential Computing
   knowledge_area: '8.1'
   control_seq: '013'
-  control_title: MPS and time-slicing memory remnant prevention verification
-  control_statement: Clusters using NVIDIA MPS or GPU time-slicing must verify that GPU memory remnants are not recoverable between workload transitions and must validate the effectiveness of memory clearing or reset controls for shared GPU contexts.
-  objective: Provide technical assurance that weaker GPU-sharing modes do not expose recoverable memory remnants between co-located or successive workloads on the same GPU context.
-  rationale: Approving weaker GPU-sharing modes is insufficient without independent evidence that prior workload data cannot be recovered from shared GPU memory. This control focuses on testable remnant-prevention outcomes and validation of the memory clearing mechanisms used to support those outcomes.
-  scope: Applies to any Kubernetes cluster using NVIDIA MPS or GPU time-slicing. Covers GPU memory remnant testing and validation of memory clearing or reset behavior between workload transitions in shared GPU deployments.
-  primary_enforcement_point: Shared-GPU Memory Remnant Prevention Verification
-  implementation_surface: GPU memory isolation verification tests, GPU reset or clearing validation, and technical evidence showing no recoverable data remnants across workload transitions in shared GPU modes.
+  control_title: Evidence for cross-trust eligibility of shared accelerator allocations
+  control_statement: Authorize cross-trust use of shared accelerator allocations only when approved, configuration-specific evidence supports the required memory confidentiality boundary. Otherwise prohibit cross-trust use and assign a verified alternative or keep the allocation unavailable.
+  objective: Prevent exposure from unverified shared allocation reuse by enforcing an evidence-backed trust and eligibility decision.
+  rationale: The sharing mode, hardware memory isolation and sequential sanitization are distinct properties. A device allocation, workload exit, reset or sharing configuration alone cannot establish those security properties. Verify the actual product, mode, version and transition.
+  scope: Applies to governed MPS, time-sliced and equivalent sharing configurations used across trust domains or sensitivity levels, including successive allocations and approved alternatives.
+  primary_enforcement_point: Configuration-specific confidentiality evidence and effective allocation eligibility, quarantine or verified separation.
+  implementation_surface: Inventory hardware, firmware, software and effective mode. Record applicable vendor or provider properties and independently reviewed evidence, scope the eligibility decision to the relevant allocation and workloads, and verify the deployed policy and handling of missing or stale evidence.
   owner_primary: ML Platform Engineering
   owner_supporting: Security Engineering; Data Protection Office
   baseline_or_ai_specific: ai-specific
