@@ -1326,6 +1326,12 @@
       "sha256": "4e5beaf335e6abbd4c41550c1814c6e80de943fda6767c3ccf0aca7336d4dfc4",
       "title": "Canary and A/B candidate version isolation and traffic-splitting integrity"
     },
+    "SAF-K8S-0905-035": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "6dfa572280c25fa12f67873e47d99f71aaa47715efd865199660e1777ea8a9a4",
+      "title": "Automatic canary rollback on error-rate and latency degradation"
+    },
     "SAF-K8S-0905-037": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1922,7 +1928,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "5f104a3e4e5496cdbce7e0737bafac59d792ad97",
+  "revision": "ec8d666640b45c51374c9f5c3fe4fedcd1cf3f12",
   "sha256": "5d300b2f3b1823e3cbb4aee50b95ef1970adf01a5b145ef7ca8309eb785d1ee4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
