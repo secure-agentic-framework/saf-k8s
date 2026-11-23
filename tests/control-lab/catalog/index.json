@@ -936,6 +936,12 @@
       "sha256": "ff47361e188d8ba90439351dc0aea68fad4f40f6edeb660c5e8b8705a048317f",
       "title": "Kubelet authorization for cached private images"
     },
+    "SAF-K8S-0602-005": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "26be60d06b9528e968fd23a334dd0a00f21b10d97bc3718d606fbcfb8bf5d326",
+      "title": "Notary v2 OCI signature artifact registry integration"
+    },
     "SAF-K8S-0603-007": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2210,7 +2216,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "2cdc2013b88f79a5cfd07d3cd3a8e652db26950d",
-  "sha256": "abcc04b16f354be1f6f3ac2d88f257701f01a4ceed1de8c6b8187616e0eaa3a4",
+  "revision": "80f4586e1cda1b5ec12c8d8553ae47405c9fb7d5",
+  "sha256": "f5d8a4ba5040dceb6c6cfdba71755b9600b9540105d72db91bf73537cc2b0854",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

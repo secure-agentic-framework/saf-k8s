@@ -1,0 +1,117 @@
+{
+  "control_id": "SAF-K8S-0602-005",
+  "catalog_revision": "6251186b4b765e64bad3a06685fa08862a56928b",
+  "catalog_sha256": "f5d8a4ba5040dceb6c6cfdba71755b9600b9540105d72db91bf73537cc2b0854",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "26be60d06b9528e968fd23a334dd0a00f21b10d97bc3718d606fbcfb8bf5d326",
+  "scope": "One owned Kubernetes v1.36.1 Kind cluster, Notation 1.3.2, and pinned disposable Zot and OCI Distribution registries. Both seeded image manifests begin unsigned. The test signs one exact digest and checks genuine OCI referrers discovery, subject association and cryptographic verification on both backend types. The unrelated digest stays unsigned. The native-mode subject is used by a live Kubernetes deployment. Replication, production trust policy, and cluster admission remain separate.",
+  "cluster": "saf-lab-f5721717e674",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "A Ready deployment runs the registry's exact immutable digest",
+      "matched": true,
+      "observed": {
+        "ready": true,
+        "exact_digest_used": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "native-referrers discovers neither signature before signing either subject",
+      "matched": true,
+      "observed": {
+        "api_status": 200,
+        "distinct_unsigned_subjects": true,
+        "initial_verify_rejected": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "native-referrers stores and verifies the signature for the exact image digest",
+      "matched": true,
+      "observed": {
+        "registry_subject_digest_matches": true,
+        "notation_lists_signature": true,
+        "notation_verified_digest": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "native-referrers retains the unchanged signed image and the unrelated unsigned image",
+      "matched": true,
+      "observed": {
+        "image_digest_unchanged": true,
+        "unrelated_stays_unsigned": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "tag-fallback discovers neither signature before signing either subject",
+      "matched": true,
+      "observed": {
+        "api_status": 404,
+        "distinct_unsigned_subjects": true,
+        "initial_verify_rejected": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "tag-fallback stores and verifies the signature for the exact image digest",
+      "matched": true,
+      "observed": {
+        "registry_subject_digest_matches": true,
+        "notation_lists_signature": true,
+        "notation_verified_digest": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "tag-fallback retains the unchanged signed image and the unrelated unsigned image",
+      "matched": true,
+      "observed": {
+        "image_digest_unchanged": true,
+        "unrelated_stays_unsigned": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both temporary registries and their private network were removed",
+      "matched": true,
+      "observed": {
+        "fixture_resources_removed": true
+      }
+    }
+  ]
+}
