@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0501-007",
-  "catalog_revision": "cebd7ee630a25c40646155cefba526244539cb55",
-  "catalog_sha256": "43de94094630359221f83a05e4556881b2d53e76ac3923c7062b59a892f54314",
+  "catalog_revision": "7dae56b771cfddc1666de3630ee3cb0b2e07d930",
+  "catalog_sha256": "4de662fec02c2f5278b143f16828f0b54badc7e54ec878cde0661c8ab52a4ea7",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "28346bb80960e21bd084354fb6fb8923d8e2720399bf0da891d860f5cab6118b",
+  "control_sha256": "e66fafc771019e2c3e06c73b998766b91cf8391a95de55c1af2ea15490a5c701",
   "scope": "One fresh local Kind v0.32.0 / Kubernetes v1.36.1 cluster with Cilium 1.20.5 and its embedded Hubble observer. Three case-owned namespaces represent training, inference, and pipeline. Only fixed-marker IPv4 TCP/18080 requests between the training client and the two case-owned responders are examined. The red phase runs without NetworkPolicy; the green phase applies default deny and permits training to pipeline while denying training to inference. A named synthetic segment rule labels the training-to-inference flow as expected-denied and reports whether authentic Hubble telemetry agrees. No production workloads, external destinations, packet capture, model/data inspection, SIEM, baseline learning, or production anomaly detection are evaluated.",
-  "cluster": "saf-lab-5d150f69ffe9",
+  "cluster": "saf-lab-569e39cc02a8",
   "kind_ready_wait": "0s",
   "kubernetes": {
     "clientVersion": {

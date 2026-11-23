@@ -1197,7 +1197,7 @@
     "SAF-K8S-0501-007": {
       "catalog_status": "draft",
       "domain": "D05",
-      "sha256": "28346bb80960e21bd084354fb6fb8923d8e2720399bf0da891d860f5cab6118b",
+      "sha256": "e66fafc771019e2c3e06c73b998766b91cf8391a95de55c1af2ea15490a5c701",
       "title": "East-west AI workload traffic monitoring"
     },
     "SAF-K8S-0501-008": {
@@ -3236,7 +3236,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "7fc08dc067cc1b7a2eeb0aeac0e4f209b8cef3c1",
-  "sha256": "4484a631b761f8f8d5825887ce5c46593225a3b816411d444791b59d28fe3a71",
+  "revision": "f8d4cbb5c85c4dfcc5a6d3a7e100a73eaadcc038",
+  "sha256": "4de662fec02c2f5278b143f16828f0b54badc7e54ec878cde0661c8ab52a4ea7",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
