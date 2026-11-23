@@ -12644,22 +12644,6 @@
 
 
     5.4 - Implement zero trust (SPIFFE/SPIRE workload identity, cross-domain authentication); 4.4 - Certificate management and mTLS'
-  control_id: SAF-K8S-0404-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(17)
-  framework_requirement_title: Domain Authentication
-  framework_mapping_notes: 'Authenticating agent communication domains
-
-
-    5.4 - Implement zero trust (SPIFFE/SPIRE workload identity, cross-domain authentication); 4.4 - Certificate management and mTLS'
   control_id: SAF-K8S-0404-003
   relation_type: supports
   strength_level: strong
@@ -30261,22 +30245,6 @@
 
 
     4.4 - cert-manager (certificate key protection); 6.3 - TUF HSM-based key storage for signing roles'
-  control_id: SAF-K8S-0404-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-13(1)
-  framework_requirement_title: Protection of Cryptographic Keys
-  framework_mapping_notes: 'Protecting IdP keys for agent auth
-
-
-    4.4 - cert-manager (certificate key protection); 6.3 - TUF HSM-based key storage for signing roles'
   control_id: SAF-K8S-0404-003
   relation_type: supports
   strength_level: strong
@@ -31593,22 +31561,6 @@
 
 
     4.2 - Projected tokens (time-bound, audience-scoped, replay-resistant); 4.4 - Certificate rotation'
-  control_id: SAF-K8S-0404-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-2(8)
-  framework_requirement_title: Access to Accounts -- Replay Resistant
-  framework_mapping_notes: 'Replay-resistant agent authentication
-
-
-    4.2 - Projected tokens (time-bound, audience-scoped, replay-resistant); 4.4 - Certificate rotation'
   control_id: SAF-K8S-0404-003
   relation_type: direct
   strength_level: strong
@@ -31707,22 +31659,6 @@
     2.1 - Kubelet TLS bootstrapping (node device identification); 8.4 - Remote attestation for TEE devices'
   control_id: SAF-K8S-0910-021
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-3(1)
-  framework_requirement_title: Cryptographic Bidirectional Authentication
-  framework_mapping_notes: 'Mutual TLS for agent-to-agent authentication
-
-
-    5.4 - Implement zero trust (mTLS bidirectional cryptographic authentication); 4.4 - Certificate management'
-  control_id: SAF-K8S-0404-002
-  relation_type: direct
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -33094,15 +33030,14 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-5(14)
   framework_requirement_title: Managing Content of PKI Trust Stores
-  framework_mapping_notes: 'Managing agent trust stores
-
-
-    4.4 - cert-manager (Issuers, ClusterIssuers, PKI trust store management); 5.4 - SPIFFE trust domains'
+  framework_mapping_notes: The organization governs approved API extension trust anchors and independently verifies distribution
+    and removal.
   control_id: SAF-K8S-0404-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization governs approved API extension trust anchors and independently verifies distribution
+    and removal
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -33195,22 +33130,6 @@
 
     4.4 - cert-manager (PKI-based authentication); 1.2 - etcd client certificate auth; 6.2 - Cosign key management'
   control_id: SAF-K8S-0102-018
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-5(2)
-  framework_requirement_title: Public Key-based Authentication
-  framework_mapping_notes: 'PKI for agent authentication (mTLS, JWT signing)
-
-
-    4.4 - cert-manager (PKI-based authentication); 1.2 - etcd client certificate auth; 6.2 - Cosign key management'
-  control_id: SAF-K8S-0404-002
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -33654,22 +33573,6 @@
 
 
     6.3 - Cryptographic module authentication and FIPS 140 compliance for signing and verification operations; 4.4 - TLS/mTLS configuration'
-  control_id: SAF-K8S-0404-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-7
-  framework_requirement_title: Cryptographic Module Authentication
-  framework_mapping_notes: 'Cryptographic module auth for agent systems
-
-
-    6.3 - Cryptographic module authentication and FIPS 140 compliance for signing and verification operations; 4.4 - TLS/mTLS configuration'
   control_id: SAF-K8S-0404-003
   relation_type: supports
   strength_level: strong
@@ -34066,15 +33969,14 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-9
   framework_requirement_title: Service Identification and Authentication
-  framework_mapping_notes: 'Core -- agent service-to-service authentication
-
-
-    5.4 - SPIFFE/SPIRE workload identity (service-to-service identification and authentication); 4.4 - mTLS'
+  framework_mapping_notes: The actual API path verifies the expected certificate-backed identity of each selected extension
+    endpoint.
   control_id: SAF-K8S-0404-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The actual API path verifies the expected certificate-backed identity of each selected extension
+    endpoint
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -44174,22 +44076,6 @@
 
 
     5.4 - SPIFFE/SPIRE trust domains (hierarchical trust chains); 4.4 - PKI trust hierarchy via cert-manager'
-  control_id: SAF-K8S-0404-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(10)
-  framework_requirement_title: Hierarchical Trust
-  framework_mapping_notes: 'Hierarchical trust models govern how agents delegate authority and validate subordinate actions
-
-
-    5.4 - SPIFFE/SPIRE trust domains (hierarchical trust chains); 4.4 - PKI trust hierarchy via cert-manager'
   control_id: SAF-K8S-0404-003
   relation_type: direct
   strength_level: strong
@@ -47642,22 +47528,6 @@
 
 
     4.4 - cert-manager; 4.3 - KMS providers and AI platform key hierarchy (SAF-K8S-0403-007); 6.3 - TUF key management (key establishment and management)'
-  control_id: SAF-K8S-0404-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-12
-  framework_requirement_title: Cryptographic Key Establishment and Management
-  framework_mapping_notes: 'Key management for agent authentication, encryption, and signing is foundational
-
-
-    4.4 - cert-manager; 4.3 - KMS providers and AI platform key hierarchy (SAF-K8S-0403-007); 6.3 - TUF key management (key establishment and management)'
   control_id: SAF-K8S-0404-003
   relation_type: direct
   strength_level: strong
@@ -47724,22 +47594,6 @@
     4.4 - cert-manager; 4.3 - KMS providers and AI platform key hierarchy (SAF-K8S-0403-007); 6.3 - TUF key management (key establishment and management)'
   control_id: SAF-K8S-0910-029
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-12(1)
-  framework_requirement_title: Availability
-  framework_mapping_notes: 'Cryptographic key availability ensures agent systems can authenticate and encrypt when needed
-
-
-    4.4 - Certificate rotation (key availability for mTLS, API server TLS continuity)'
-  control_id: SAF-K8S-0404-002
-  relation_type: direct
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -47851,22 +47705,6 @@
   strength_level: moderate
   applicability: conditional
   applicability_condition: The covered asymmetric key policy governs actual issuance, custody, operational use and replacement
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-12(3)
-  framework_requirement_title: Asymmetric Keys
-  framework_mapping_notes: 'Asymmetric key management for agent identity, code signing, and mutual authentication
-
-
-    4.4 - cert-manager (asymmetric key pairs for TLS); 6.2 - Cosign signing key management'
-  control_id: SAF-K8S-0404-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -48447,15 +48285,12 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-17
   framework_requirement_title: Public Key Infrastructure Certificates
-  framework_mapping_notes: 'PKI certificates enable agent identity verification and secure communications
-
-
-    4.4 - cert-manager deployment and configuration (PKI certificate lifecycle management)'
+  framework_mapping_notes: The serving certificate policy and approved API extension CA trust are both separately verified.
   control_id: SAF-K8S-0404-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The serving certificate policy and approved API extension CA trust are both separately verified
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -49561,15 +49396,12 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-23(5)
   framework_requirement_title: Allowed Certificate Authorities
-  framework_mapping_notes: 'Restricting CAs for agent TLS certificates limits trust to verified authorities
-
-
-    4.4 - cert-manager (Issuers, ClusterIssuers -- configuring allowed certificate authorities)'
+  framework_mapping_notes: The selected API server connection verifies only the approved TLS certificate authorities.
   control_id: SAF-K8S-0404-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The selected API server connection verifies only the approved TLS certificate authorities
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5

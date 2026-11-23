@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Core -- agent service-to-service authentication
-
-5.4 - SPIFFE/SPIRE workload identity (service-to-service identification and authentication); 4.4 - mTLS
+The actual API path verifies the expected certificate-backed identity of each selected extension endpoint.
 
 ## SAF-K8S Controls
 
@@ -15,9 +13,9 @@ Core -- agent service-to-service authentication
 
 - Domain: D04 - Identity, Access, and Secrets Management
 - Knowledge Area: 4.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-0404-003 - mTLS for service-to-service authentication](../../controls/SAF-K8S-0404-003.md)
