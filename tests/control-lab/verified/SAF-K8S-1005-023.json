@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1005-023",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
-  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "6254479bf2ebf42c3413d693b0645185b64967e270ad4dc80d637fc87485e214",
-  "scope": "One disposable Kind v1.36.1 cluster and case-owned synthetic resources in saf-test. The lab node is marked with inert accelerator inventory metadata; no GPU/device plugin is installed and no accelerator resource is requested. A digest-pinned Python container runs a sleep-only mock on the selected node. The case captures baseline API objects, cordons and taints that node, checks scheduling quarantine, and checks a PDB-protected eviction hold. It does not establish real GPU-aware drain/checkpoint behavior, hardware isolation, evidence durability/tamper resistance, or production incident readiness.",
-  "cluster": "saf-lab-438257042f3a",
+  "catalog_revision": "56def792c2756497347fa14f14e5a60230a1d3ce",
+  "catalog_sha256": "a98fe4604e6f03e5f1e6b5b7e0f661f80266a0a24c8fb79e000fd63231aac788",
+  "node_image": "sha256:6ad6ca9763951272b61fdcb440179720ab865edcae8c25d98b316f961ad06e9d",
+  "control_sha256": "ab73f89a33f6de9c286fb799e818d56e45bdc4d8c82ba4a0ccf1f8cd93889ac5",
+  "scope": "Disposable Kind v1.37.2 cluster. The pinned upstream mock DRA driver provides two inert devices. Exercises authorized device containment, continued service on the other allocation, and the existing isolated node scheduling and pod disruption budget checks. No real accelerator, production workload, vendor backport, or incident process is exercised.",
+  "cluster": "saf-lab-65eddc55fe0f",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -21,16 +21,16 @@
     "kustomizeVersion": "v5.8.1",
     "serverVersion": {
       "major": "1",
-      "minor": "36",
+      "minor": "37",
       "emulationMajor": "1",
-      "emulationMinor": "36",
+      "emulationMinor": "37",
       "minCompatibilityMajor": "1",
-      "minCompatibilityMinor": "35",
-      "gitVersion": "v1.36.1",
-      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "minCompatibilityMinor": "36",
+      "gitVersion": "v1.37.2",
+      "gitCommit": "c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32",
       "gitTreeState": "clean",
-      "buildDate": "2026-05-12T09:51:34Z",
-      "goVersion": "go1.26.2",
+      "buildDate": "2026-10-27T12:01:06Z",
+      "goVersion": "go1.26.10",
       "compiler": "gc",
       "platform": "linux/arm64"
     }
@@ -38,6 +38,43 @@
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
+    {
+      "phase": "red",
+      "claim": "DRA extended-resource baseline has two distinct allocated devices and a working service",
+      "matched": true,
+      "observed": {
+        "two_distinct_devices_allocated_in_same_driver_pool": true,
+        "resource_slices_confirm_both_allocations": true,
+        "victim_claim_associated_with_exact_pod_uid": true,
+        "service_http_marker_identified_unaffected_pod_before_and_after": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Only the selected device is quarantined and its victim is evicted under approved identity",
+      "matched": true,
+      "observed": {
+        "exact_rule_none_selected_one_allocated_device_and_one_pod": true,
+        "ordinary_identity_received_forbidden": true,
+        "ordinary_forbidden_left_spec_and_generation_unchanged": true,
+        "responder_named_rule_update_succeeded": true,
+        "responder_changed_effect_only_to_noexecute": true,
+        "selected_victim_deleted_or_terminal": true,
+        "victim_uid_absent_after_device_eviction": true,
+        "eviction_controller_condition_false": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Unaffected Service remains Ready and serves through its distinct device after quarantine",
+      "matched": true,
+      "observed": {
+        "unaffected_service_pod_ready_and_endpoint_preserved": true,
+        "service_http_marker_identified_unaffected_pod_before_and_after": true,
+        "no_unrelated_pod_uid_disappeared": true,
+        "selected_devices_differ": true
+      }
+    },
     {
       "phase": "red",
       "claim": "Before quarantine, a synthetic accelerator-selected Pod can schedule to the target node",

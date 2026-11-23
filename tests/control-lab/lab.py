@@ -162,8 +162,8 @@ def load_approved_case(control_id, index, marker, timeout, destination, report, 
         target.write_bytes(raw)
         target.chmod(mode)
     case = load_case(control_id, approval["control_sha256"], directory=destination)
-    if case is None or getattr(case, "prepare_kind", None):
-        raise InfrastructureError("Early startup requires an executable case without a generated Kind profile")
+    if case is None or getattr(case, "prepare_kind", None) or getattr(case, "LOCAL_NODE_VERSION", None):
+        raise InfrastructureError("Early startup requires an executable case using the standard Kind node image and a static profile")
     report["review_timing"]["approval_at"] = datetime.fromtimestamp(approved_at, timezone.utc).isoformat()
     report["review_timing"]["case_loaded_at"] = datetime.now(timezone.utc).isoformat()
     report["approved_case_sha256"] = approval["case_sha256"]
@@ -175,13 +175,15 @@ def interrupt_approval_run(_signum, _frame):
 
 
 def run(control_id, control_case, index, docker_context, *, approval_file=None, approval_timeout=180,
-        reviewed_kind_config=None):
+        reviewed_kind_config=None, local_node_image=None):
     evidence = ROOT / "evidence" / control_id / (
         datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8]
     )
     prepare_kind = getattr(control_case, "prepare_kind", None)
-    node_image = control_case.NODE_IMAGE if prepare_kind else NODE_IMAGE
-    if not re.fullmatch(r"kindest/node:v\d+\.\d+\.\d+@sha256:[0-9a-f]{64}", node_image):
+    local_node_version = getattr(control_case, "LOCAL_NODE_VERSION", None)
+    node_image = local_node_image or (control_case.NODE_IMAGE if prepare_kind else NODE_IMAGE)
+    if local_node_image is None and not re.fullmatch(
+            r"kindest/node:v\d+\.\d+\.\d+@sha256:[0-9a-f]{64}", node_image):
         raise ValueError(f"Invalid digest-pinned kind image for {control_id}")
     evidence.mkdir(parents=True, mode=0o700)
     report = {
@@ -204,6 +206,11 @@ def run(control_id, control_case, index, docker_context, *, approval_file=None, 
                 raise InfrastructureError(f"Select a local Docker Unix socket, got {endpoint!r}")
             lab.command("docker", "version", "--format", "{{.Server.Version}}")
             lab.command("kind", "version")
+            if local_node_image is not None:
+                local_id = lab.command("docker", "image", "inspect", "--format", "{{.Id}}",
+                                       local_node_image).stdout.strip()
+                if local_id != local_node_image:
+                    raise InfrastructureError("Locally built Kind node image ID does not match the pin")
             clusters = lab.command("kind", "get", "clusters")
             if lab.cluster in clusters.stdout.splitlines():
                 raise InfrastructureError(f"Cluster already exists: {lab.cluster}")
@@ -223,6 +230,10 @@ def run(control_id, control_case, index, docker_context, *, approval_file=None, 
                         "--kubeconfig", str(lab.kubeconfig), "--wait", "90s",
                         *config_args, timeout=480)
             report["kubernetes"] = json.loads(lab.kubectl("version", "-o", "json").stdout)
+            if local_node_version is not None:
+                server_version = report["kubernetes"]["serverVersion"]["gitVersion"]
+                if server_version != local_node_version:
+                    raise InfrastructureError(f"Expected Kubernetes {local_node_version}, got {server_version}")
             lab.kubectl("create", "namespace", NAMESPACE)
             lab.kubectl("wait", "--for=create", "serviceaccount/default", "--timeout=20s")
             if approval_file is not None:
@@ -279,6 +290,8 @@ def main():
                       help="Start with these already-reviewed static kind.yaml bytes while awaiting case approval")
     test.add_argument("--approval-timeout", type=int, default=180, metavar="SECONDS",
                       help="Seconds to wait for approval after the fresh cluster is ready")
+    test.add_argument("--local-node-image", metavar="SHA256:ID",
+                      help="Use the exact local Docker image ID for a case that requires a patched Kind build")
     approval = commands.add_parser("approve", help="Approve the reviewed case and catalog snapshot")
     approval.add_argument("id", type=str.upper)
     approval.add_argument("file", type=Path)
@@ -303,6 +316,8 @@ def main():
     if args.reviewed_kind_config is not None and args.await_approval is None:
         parser.error("--reviewed-kind-config requires --await-approval")
     if args.await_approval is not None:
+        if args.local_node_image is not None:
+            parser.error("--local-node-image requires loading the case before cluster startup")
         if args.await_approval.exists() or args.await_approval.is_symlink():
             parser.error("Use a new approval file for each run")
         if args.approval_timeout < 1:
@@ -329,7 +344,13 @@ def main():
     if control_case is None:
         print(f"No executable case for {args.id}. See bd show saf-lab-{args.id[8:]}.")
         return 2
-    return run(args.id, control_case, index, args.docker_context)
+    local_node_version = getattr(control_case, "LOCAL_NODE_VERSION", None)
+    if local_node_version and args.local_node_image is None:
+        parser.error(f"This case requires a local Kind build of Kubernetes {local_node_version} and --local-node-image")
+    if args.local_node_image is not None and (
+            not local_node_version or not re.fullmatch(r"sha256:[0-9a-f]{64}", args.local_node_image)):
+        parser.error("--local-node-image requires a full Docker image ID and a case that supports it")
+    return run(args.id, control_case, index, args.docker_context, local_node_image=args.local_node_image)
 
 
 if __name__ == "__main__":

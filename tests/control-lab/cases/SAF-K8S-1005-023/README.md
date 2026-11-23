@@ -86,3 +86,41 @@ limits, workload-specific checkpoint and recovery validation, evidence custody
 and retention, decision approvals, and measured impact on unaffected workloads.
 A passing synthetic run is evidence only for the recorded Kind API observations;
 it is not evidence of production implementation or control effectiveness.
+
+## Patched device-level quarantine
+
+The revised control additionally runs on Kubernetes v1.37.2. The original
+catalog digest still selects the earlier node-only case. The revised digest
+selects the device fixture first and repeats the node scheduling and Pod
+Disruption Budget checks on the same patched profile.
+
+Use the official Linux ARM64 server release archive and verify its SHA-256
+before building. The following commands use the repository root and a local
+Docker Desktop context. Kind v0.32.0 was used for the ARM64 reference run.
+
+```sh
+archive=/path/to/kubernetes-server-linux-arm64.tar.gz
+printf '%s  %s\n' ceb27d43ca10db57ba79b2c224d5d8e169a0e6a5611f47db8c7b8d611afab13d "$archive" |
+  shasum -a 256 -c
+DOCKER_CONTEXT=desktop-linux kind build node-image "$archive" --type file --arch arm64 \
+  --base-image kindest/base@sha256:f10f029b85aa89e7b47a2e6afacf560595c8abcefaa0e96096b854361b740127 \
+  --image saf-lab-kind-node:v1.37.2-arm64
+node_id=$(docker --context desktop-linux image inspect saf-lab-kind-node:v1.37.2-arm64 --format '{{.Id}}')
+python3 tests/control-lab/lab.py test SAF-K8S-1005-023 --docker-context desktop-linux --local-node-image "$node_id"
+```
+
+The mock driver manifest is a rendering of the upstream
+[dra-example-driver v0.5.0 Helm chart](https://github.com/kubernetes-sigs/dra-example-driver/tree/93ff610f3c3bfd603c592d1c281a236c1463edb9/deployments/helm/dra-example-driver)
+with two GPU mock devices, the stable resource API, and the official driver
+image index pinned by digest. The driver runs inside a disposable Kind node.
+The HTTP service and device workloads use synthetic payloads.
+
+- [Official Kubernetes v1.37.2 Linux ARM64 archive](https://dl.k8s.io/v1.37.2/kubernetes-server-linux-arm64.tar.gz)
+- [Kubernetes device taints and tolerations](https://kubernetes.io/docs/concepts/resource-management/dynamic-resource-allocation/device-taints/)
+
+The two mock workloads use no device-taint toleration. The case captures the
+dry-run rule, the ordinary identity's authorization response, the approved
+update, the selected Pod's UID, the independent Service endpoint and the HTTP
+readbacks. The responder's RBAC applies to one rule name. Field-level
+selector restrictions, finite or indefinite tolerations, release criteria,
+hardware recovery and vendor backports remain deployed-evidence work.
