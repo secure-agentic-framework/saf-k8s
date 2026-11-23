@@ -1344,6 +1344,12 @@
       "sha256": "80d1c788b0fe97edf34d52c35bb31d0adf7fc74f9fcb4f674615a542eee21f5f",
       "title": "Durable ML-BOM attachment to model artifacts and versions"
     },
+    "SAF-K8S-0905-046": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "a0c35b062de938fd84bf43d3cdaa6fb807ac7e3175fa7ea91cca76d434d38bb6",
+      "title": "ML artifact cryptographic signing with Sigstore or equivalent"
+    },
     "SAF-K8S-0905-048": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1850,7 +1856,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "0857a8b0d34b8876cedf1d13a55137642f8d6339",
+  "revision": "4434b2313db729907f738585e27232f8c747d78f",
   "sha256": "119723d33fc0fa432e9da9a56f9490f9f2b56cdeff77405a834a5690eb876c82",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
