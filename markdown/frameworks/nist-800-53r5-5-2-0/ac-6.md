@@ -5,11 +5,18 @@
 
 ## Mapping Notes
 
-Foundational -- agents must operate with minimum necessary permissions
-
-4.1 - Design and enforce RBAC (least-privilege access design); 4.2 - Default SA restrictions, disabling auto-mount of tokens; 1.4 - Control plane configuration file permissions (least-privilege file ownership and modes)
+The actual accepting services verify least privilege over approved resources and actions for each covered workload.
 
 ## SAF-K8S Controls
+
+### [SAF-K8S-0403-006 - Per-workload credential scoping for AI jobs](../../controls/SAF-K8S-0403-006.md)
+
+- Domain: D04 - Identity, Access, and Secrets Management
+- Knowledge Area: 4.3
+- Relation Type: direct
+- Strength: strong
+- Applicability: conditional
+- Strength Reason Code: n/a
 
 ### [SAF-K8S-0104-005 - Control plane configuration file permissions](../../controls/SAF-K8S-0104-005.md)
 

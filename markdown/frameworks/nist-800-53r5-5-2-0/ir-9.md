@@ -27,15 +27,6 @@ The exercised credential revocation process is an approved part of the actual in
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0403-006 - Per-workload credential scoping for AI jobs](../../controls/SAF-K8S-0403-006.md)
-
-- Domain: D04 - Identity, Access, and Secrets Management
-- Knowledge Area: 4.3
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
-
 ### [SAF-K8S-0907-002 - Training data privacy controls](../../controls/SAF-K8S-0907-002.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines

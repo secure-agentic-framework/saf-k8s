@@ -5081,19 +5081,21 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: framework-language-interpretation
-- mapping_set_name: SAF-K8S to NIST AI RMF 1.0
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
-  framework_requirement_id: MAP 3.4
-  framework_requirement_title: Risks and benefits of all datasets used for training, testing, and operation of the AI system are mapped, including those provided by third parties.
-  framework_mapping_notes: Training data provenance tracks dataset origin and integrity. Large-scale data integrity verification validates dataset completeness. Data type classification labels categorize data flowing through pipelines.
+- mapping_set_name: SAF-K8S to NIST SP 800-53r5
+  framework_code: NIST-800-53R5
+  framework_name: NIST SP 800-53 Revision 5
+  framework_version: 5.2.0
+  framework_requirement_id: AC-6
+  framework_requirement_title: Least Privilege
+  framework_mapping_notes: The actual accepting services verify least privilege over approved resources and actions for
+    each covered workload.
   control_id: SAF-K8S-0403-006
-  relation_type: supports
-  strength_level: weak
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: semantic-mismatch-candidate
+  relation_type: direct
+  strength_level: strong
+  applicability: conditional
+  applicability_condition: The actual accepting services verify least privilege over approved resources and actions for
+    each covered workload
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -5491,14 +5493,17 @@
   framework_name: NIST AI Risk Management Framework
   framework_version: '1.0'
   framework_requirement_id: MEASURE 2.7
-  framework_requirement_title: AI system security and resilience - as identified in the MAP function - are evaluated and documented.
-  framework_mapping_notes: STRIDE threat modeling evaluates security posture across six threat categories. MITRE ATT&CK mapping evaluates defense coverage across attack tactics. ML threat taxonomy evaluates AI-specific attack resilience. Runtime security tools continuously evaluate system security.
+  framework_requirement_title: AI system security and resilience - as identified in the MAP function - are evaluated
+    and documented.
+  framework_mapping_notes: Actual workload authorization tests contribute to a documented assessment of identified AI
+    system security risks.
   control_id: SAF-K8S-0403-006
   relation_type: supports
   strength_level: weak
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: semantic-mismatch-candidate
+  applicability: conditional
+  applicability_condition: Actual workload authorization tests contribute to a documented assessment of identified AI
+    system security risks
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -7958,22 +7963,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-17(6)
-  framework_requirement_title: Protection of Mechanism Information
-  framework_mapping_notes: 'Protecting agent access mechanism details
-
-
-    4.3 - Manage secrets securely (protecting authentication mechanism data, credentials, access tokens)'
-  control_id: SAF-K8S-0403-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -12517,22 +12506,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(15)
-  framework_requirement_title: Detection of Unsanctioned Information
-  framework_mapping_notes: 'Detecting unauthorized data in agent flows (DLP)
-
-
-    9.2 - Harden inference (response filtering to prevent PII/sensitive data leakage); 4.3 - Secret leak detection and prevention'
-  control_id: SAF-K8S-0403-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -18995,22 +18968,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-13
-  framework_requirement_title: Monitoring for Information Disclosure
-  framework_mapping_notes: 'Detecting agent data leakage
-
-
-    9.8 - Prevent model abuse (monitoring for information disclosure via model endpoints); 4.3 - Secret leak detection'
-  control_id: SAF-K8S-0403-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -26390,22 +26347,6 @@
 
 
     10.7 - Automated discovery and classification of AI infrastructure assets; 4.3 - Credential inventory and sprawl governance (SAF-K8S-0403-008)'
-  control_id: SAF-K8S-0403-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-8(2)
-  framework_requirement_title: Automated Maintenance
-  framework_mapping_notes: 'Automated agent component inventory
-
-
-    10.7 - Automated discovery and classification of AI infrastructure assets; 4.3 - Credential inventory and sprawl governance (SAF-K8S-0403-008)'
   control_id: SAF-K8S-1007-004
   relation_type: supports
   strength_level: strong
@@ -29781,22 +29722,6 @@
 
 
     7.1 - Encryption at rest for PVs; 1.2 - etcd encryption; 4.3 - Secrets encryption at rest'
-  control_id: SAF-K8S-0403-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-9(8)
-  framework_requirement_title: Cryptographic Protection
-  framework_mapping_notes: 'Encrypting agent backups
-
-
-    7.1 - Encryption at rest for PVs; 1.2 - etcd encryption; 4.3 - Secrets encryption at rest'
   control_id: SAF-K8S-0701-001
   relation_type: direct
   strength_level: strong
@@ -30807,16 +30732,15 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-13(3)
   framework_requirement_title: Token Management
-  framework_mapping_notes: 'Agent token lifecycle management
-
-
-    4.2 - Projected service account tokens (token lifecycle management); 4.3 - Secret rotation and expiration'
+  framework_mapping_notes: A governed workload token implementation verifies the applicable issuance, renewal, validity
+    and revocation evidence.
   control_id: SAF-K8S-0403-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: A governed workload token implementation verifies the applicable issuance, renewal, validity
+    and revocation evidence
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -32903,16 +32827,13 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-5
   framework_requirement_title: Authenticator Management
-  framework_mapping_notes: 'Managing agent credentials/tokens/keys
-
-
-    4.3 - Manage secrets (authenticator lifecycle: rotation policies, expiration, revocation, leak detection; per-workload credential scoping SAF-K8S-0403-006; credential inventory and sprawl governance SAF-K8S-0403-008)'
+  framework_mapping_notes: The same governed deployment verifies the actual scoped workload authenticator lifecycle independently.
   control_id: SAF-K8S-0403-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The same governed deployment verifies the actual scoped workload authenticator lifecycle independently
+  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -33235,22 +33156,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: IA-5(13)
-  framework_requirement_title: Expiration of Cached Authenticators
-  framework_mapping_notes: 'Expiring cached agent tokens
-
-
-    4.2 - Projected tokens (time-bound expiration of cached authenticators); 4.3 - Secret rotation policies'
-  control_id: SAF-K8S-0403-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: IA-5(14)
   framework_requirement_title: Managing Content of PKI Trust Stores
   framework_mapping_notes: 'Managing agent trust stores
@@ -33459,22 +33364,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: IA-5(5)
-  framework_requirement_title: Change Authenticators Prior to Delivery
-  framework_mapping_notes: 'Changing default agent credentials
-
-
-    4.3 - Manage secrets (rotating default credentials before deployment)'
-  control_id: SAF-K8S-0403-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: IA-5(6)
   framework_requirement_title: Protection of Authenticators
   framework_mapping_notes: The approved store, transport, Kubernetes copies and mounts demonstrably protect the selected
@@ -33502,22 +33391,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-5(6)
-  framework_requirement_title: Protection of Authenticators
-  framework_mapping_notes: 'Protecting agent secrets/tokens
-
-
-    4.3 - Manage secrets (secret injection patterns, encryption at rest); 6.6 - CI credential isolation'
-  control_id: SAF-K8S-0403-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -33597,22 +33470,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-5(7)
-  framework_requirement_title: No Embedded Unencrypted Static Authenticators
-  framework_mapping_notes: 'No hardcoded agent credentials
-
-
-    4.3 - Prevention of secret leakage through training logs, model artifacts, and pipeline metadata'
-  control_id: SAF-K8S-0403-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -36355,22 +36212,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-9
-  framework_requirement_title: Information Spillage Response
-  framework_mapping_notes: 'Responding when agents leak sensitive data
-
-
-    4.3 - Secret leakage prevention; 9.7 - PII handling (information spillage response for AI training data)'
-  control_id: SAF-K8S-0403-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -47452,22 +47293,6 @@
 
 
     4.3 - Manage secrets (KMS providers -- org-controlled encryption keys for secrets and persistent volumes)'
-  control_id: SAF-K8S-0403-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-9(6)
-  framework_requirement_title: Organization-controlled Cryptographic Keys
-  framework_mapping_notes: 'Organization-controlled keys for agent communications and data encryption ensure sovereignty
-
-
-    4.3 - Manage secrets (KMS providers -- org-controlled encryption keys for secrets and persistent volumes)'
   control_id: SAF-K8S-0403-017
   relation_type: direct
   strength_level: strong
@@ -47932,22 +47757,6 @@
 
 
     4.4 - cert-manager; 4.3 - KMS providers and AI platform key hierarchy (SAF-K8S-0403-007); 6.3 - TUF key management (key establishment and management)'
-  control_id: SAF-K8S-0403-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-12
-  framework_requirement_title: Cryptographic Key Establishment and Management
-  framework_mapping_notes: 'Key management for agent authentication, encryption, and signing is foundational
-
-
-    4.4 - cert-manager; 4.3 - KMS providers and AI platform key hierarchy (SAF-K8S-0403-007); 6.3 - TUF key management (key establishment and management)'
   control_id: SAF-K8S-0403-017
   relation_type: direct
   strength_level: strong
@@ -48178,22 +47987,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-12(2)
-  framework_requirement_title: Symmetric Keys
-  framework_mapping_notes: 'Symmetric key management for agent session encryption and data protection
-
-
-    1.1 - Encryption at rest (EncryptionConfiguration symmetric keys); 4.3 - KMS symmetric key management and AI platform key hierarchy (SAF-K8S-0403-007 envelope encryption with domain-specific DEKs)'
-  control_id: SAF-K8S-0403-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -50148,22 +49941,6 @@
 
 
     1.2 - etcd encryption at rest; 7.1 - PV encryption; 4.3 - Secrets encryption at rest (KMS providers)'
-  control_id: SAF-K8S-0403-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-28
-  framework_requirement_title: Protection of Information at Rest
-  framework_mapping_notes: 'Protecting agent data at rest (models, context, memory, credentials) prevents unauthorized access
-
-
-    1.2 - etcd encryption at rest; 7.1 - PV encryption; 4.3 - Secrets encryption at rest (KMS providers)'
   control_id: SAF-K8S-0701-001
   relation_type: direct
   strength_level: strong
@@ -50554,22 +50331,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-28(3)
-  framework_requirement_title: Cryptographic Keys
-  framework_mapping_notes: 'Protecting cryptographic keys used by agent systems prevents compromise of encrypted data
-
-
-    4.3 - KMS providers (protecting cryptographic keys at rest); 8.4 - TEE key management and sealed storage'
-  control_id: SAF-K8S-0403-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5

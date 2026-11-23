@@ -51,8 +51,8 @@ STRIDE threat modeling evaluates security posture across six threat categories. 
 - Knowledge Area: 4.3
 - Relation Type: supports
 - Strength: weak
-- Applicability: required
-- Strength Reason Code: semantic-mismatch-candidate
+- Applicability: conditional
+- Strength Reason Code: n/a
 
 ### [SAF-K8S-1003-001 - STRIDE threat modeling for Kubernetes AI systems](../../controls/SAF-K8S-1003-001.md)
 
