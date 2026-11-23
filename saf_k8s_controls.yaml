@@ -730,12 +730,12 @@
   knowledge_area: '1.3'
   control_seq: '013'
   control_title: Cloud controller-manager workload identity and credential rotation
-  control_statement: Production Kubernetes clusters using a cloud controller-manager must enforce workload identity or equivalent federated credential use, or automated rotation and short-lived issuance, for all cloud credentials used by the cloud controller-manager.
-  objective: Reduce cloud-environment blast radius by ensuring the cloud controller-manager does not rely on long-lived static cloud credentials and instead uses federated identity, short-lived credentials, or automated rotation.
-  rationale: Long-lived cloud credentials create a persistent pivot point from cluster compromise into the cloud account. Separating workload identity and credential rotation from IAM scope makes it possible to audit whether the controller uses non-persistent credentials even when the granted permissions are already minimal.
-  scope: Applies to production clusters on cloud providers with cloud controller-manager integrations. Covers workload identity or equivalent federation, short-lived credential issuance, automated credential rotation, and supporting review records.
-  primary_enforcement_point: Cloud Credential Lifecycle
-  implementation_surface: Workload identity or equivalent credential federation configuration, cloud controller-manager credential rotation automation, short-lived credential issuance settings, and credential lifecycle review evidence.
+  control_statement: Use a provider-supported managed or federated identity with bounded credentials for governed cloud controllers. Inventory effective credential sources and fallbacks. Require approved exceptions with bounded lifetime, automated renewal and retirement of superseded credentials.
+  objective: Limit controller credential exposure and preserve supported reconciliation through verified issuance, refresh and revocation.
+  rationale: Credential federation, provider issuance, refresh and effective permissions are distinct. Short-lived identity reduces exposure only when the running controller uses the intended source and consumes refreshed credentials. Provider-managed control planes can have tenant visibility limits.
+  scope: Applies to governed controller cloud credential paths, including provider-managed, self-managed and in-cluster operation where relevant. Identify audience and trust, issuer, credential chain, baseline lifetime, fallback, approved exceptions and evidence ownership.
+  primary_enforcement_point: Resolved credential source and effective provider trust and issuance at the controller runtime, with verified refresh and retirement.
+  implementation_surface: Exercise expected issuance, wrong audience or unauthorized subject handling where supported, consumer refresh, superseded session revocation and provider audit evidence. Inventory static and alternate credentials, approved exceptions and associated lifetime limits separately from effective IAM.
   owner_primary: Platform Engineering
   owner_supporting: Cloud Platform Engineering; Security Engineering
   baseline_or_ai_specific: baseline
