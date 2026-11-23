@@ -108,6 +108,12 @@
       "sha256": "aafa570f4a87f5fdb9d353e4ee2ca123f3cdd771c35d787bb787480673e7fb4a",
       "title": "etcd compaction and periodic defragmentation"
     },
+    "SAF-K8S-0102-014": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "111dbac1de0df05ecf94b68716dbaac9a9625ba60ed2d77073e77b00b77a340d",
+      "title": "etcd certificate rotation coverage and execution"
+    },
     "SAF-K8S-0102-018": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -1976,7 +1982,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "2e8fba084d88617a8b8b0a3ec8c2001c4435352a",
+  "revision": "8e1321cab9f7076961ee351243cedd95c4e62221",
   "sha256": "a98fe4604e6f03e5f1e6b5b7e0f661f80266a0a24c8fb79e000fd63231aac788",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
