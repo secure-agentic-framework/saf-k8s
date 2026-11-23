@@ -84,6 +84,12 @@
       "sha256": "32fee529548d9131bc18e1ce761f29e1dcd9249d6ecefcc21347d649b534cbbf",
       "title": "API server approved admission controller chain configuration"
     },
+    "SAF-K8S-0102-006": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "f121308c9a8db57aea8885107b94affe4e07bf05a87698bce6b16d612df92bab",
+      "title": "etcd encryption key rotation scheduling and verification"
+    },
     "SAF-K8S-0102-007": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -2738,7 +2744,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "1bb475e027423a0aee4357aa551aeab06ae5681d",
-  "sha256": "69566a0243db623500b721b088247138fae212b5c8931155f693f87d6611f986",
+  "revision": "9e584fc55b7d1b4d6ab9419d94e4b76722e56812",
+  "sha256": "5f2ee9cc6d0aa7b2009df54cb7c958b99e0be0197aa4e522ca5344bc55625e51",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

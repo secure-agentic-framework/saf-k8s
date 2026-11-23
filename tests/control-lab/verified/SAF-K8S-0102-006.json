@@ -1,0 +1,80 @@
+{
+  "control_id": "SAF-K8S-0102-006",
+  "catalog_revision": "8a2e4993302c08a93f2094440c015e832d865ec7",
+  "catalog_sha256": "5f2ee9cc6d0aa7b2009df54cb7c958b99e0be0197aa4e522ca5344bc55625e51",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "f121308c9a8db57aea8885107b94affe4e07bf05a87698bce6b16d612df92bab",
+  "scope": "Native Secretbox key rotation for a dedicated custom resource on one disposable Kubernetes API server.",
+  "cluster": "saf-lab-3ed1d363179a",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The existing record initially requires the old envelope",
+      "matched": true,
+      "observed": {
+        "label": "fixture-old-key",
+        "marker_visible": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Changing the write key protects new writes and preserves prior reads without rewriting prior data",
+      "matched": true,
+      "observed": {
+        "new_write": {
+          "label": "fixture-new-key",
+          "marker_visible": false
+        },
+        "old_record": {
+          "label": "fixture-old-key",
+          "marker_visible": false
+        },
+        "old_record_readable": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact API rewrite migrates the old record and both markers remain readable after retirement",
+      "matched": true,
+      "observed": {
+        "rewrite_observed": true,
+        "only_current_key_configured": true,
+        "retained": {
+          "pre-rotation": true,
+          "post-rotation": true
+        }
+      }
+    }
+  ]
+}
