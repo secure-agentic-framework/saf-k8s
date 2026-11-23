@@ -1,0 +1,71 @@
+{
+  "control_id": "SAF-K8S-0404-009",
+  "catalog_revision": "d14ad2a19dc3d9dccd65d71a94945122930c6306",
+  "catalog_sha256": "c3984bb5ad327ea17fddb0be5abec04aca1b6490edd436004135b4d4b9889987",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "624fc9673026f66089f436abcf4780c186b8828c0c8cd2840727f09de5b5851f",
+  "scope": "A disposable CA explicitly revokes one synthetic client certificate, signs an updated CRL, and issues a fresh key and replacement leaf with the expected identity. A real TLS service uses the published CRL; actual prior-peer rejection and unaffected access are observed. Other issuers, control-plane consumers, propagation objectives and recovery remain separate.",
+  "cluster": "saf-lab-cb19cb397ec8",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Issuance and a distinct key leave both certificates valid before revocation",
+      "matched": true,
+      "observed": {
+        "old_peer_still_admitted_after_replacement_issued": true,
+        "new_key_differs": true,
+        "replacement_peer_can_use_expected_identity": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The issuing authority records compromise and the actual verifier rejects that exact peer",
+      "matched": true,
+      "observed": {
+        "old_exact_serial_revoked_for_key_compromise": true,
+        "live_service_rejects_revoked_peer": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Replacement and unrelated live peers remain accepted under the same CRL",
+      "matched": true,
+      "observed": {
+        "replacement_peer_operates": true,
+        "unrelated_peer_operates": true,
+        "retired_peer_remains_denied": true
+      }
+    }
+  ]
+}

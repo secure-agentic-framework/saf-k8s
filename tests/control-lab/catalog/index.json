@@ -1056,6 +1056,12 @@
       "sha256": "ad1f6bb96814a2d9b61ef9dc3fdd3859add09049569400cd840a123da2acc5de",
       "title": "Certificate expiry monitoring and alerting"
     },
+    "SAF-K8S-0404-009": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "624fc9673026f66089f436abcf4780c186b8828c0c8cd2840727f09de5b5851f",
+      "title": "Compromised certificate revocation and re-issuance execution"
+    },
     "SAF-K8S-0501-001": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -3116,7 +3122,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "fc0ffcac496d3755d648939d80f0f29375eb7335",
-  "sha256": "e673d5b20ffce1acbd7e7ad68cb919854226a6e36a4a1328569bdc8f184e5fcc",
+  "revision": "5563265902e3b9eb53eee3ab2f8ba18fe8c2057b",
+  "sha256": "c3984bb5ad327ea17fddb0be5abec04aca1b6490edd436004135b4d4b9889987",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
