@@ -1,0 +1,74 @@
+{
+  "control_id": "SAF-K8S-0908-002",
+  "catalog_revision": "422b1e456c5ac58da459fd7043ed079e897521fa",
+  "catalog_sha256": "cc611c25db836a408099445e7b9f2bf19c5da17673a93d11cd7eb49d953ee98c",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "46d3cb8984ef4e4171c3115669dc9ff3a9a30ac5beb59b68d4c9a8d4aafcbf90",
+  "scope": "Owned synthetic inference services demonstrate field allowlists on live success and error paths. The TLS diagnostics route uses a projected audience-restricted caller identity, TokenReview and an independent Kubernetes authorization decision for one named record.",
+  "cluster": "saf-lab-087a113a3498",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Baseline public response and diagnostics expose named synthetic fixture fields",
+      "matched": true,
+      "observed": {
+        "public_success_leaks_named_logits": true,
+        "public_success_leaks_feature_and_architecture": true,
+        "malformed_error_leaks_details": true,
+        "diagnostic_view_publicly_exposes_feature_and_architecture": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Public success and malformed error use exact allowlists; diagnostics deny unauthorized callers",
+      "matched": true,
+      "observed": {
+        "public_success_exact_allowlist": true,
+        "malformed_error_exact_allowlist": true,
+        "diagnostics_requires_identity": true,
+        "independent_rbac_denies_unapproved": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Valid public inference and independently RBAC-approved diagnostic record both work",
+      "matched": true,
+      "observed": {
+        "public_inference_remains_available": true,
+        "approved_diagnostic_record_available": true,
+        "diagnostic_view_only_for_named_owned_record": true
+      }
+    }
+  ]
+}
