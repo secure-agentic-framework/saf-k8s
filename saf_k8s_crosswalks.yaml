@@ -28173,22 +28173,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: CP-10(2)
-  framework_requirement_title: Transaction Recovery
-  framework_mapping_notes: 'Recovering agent transactions (rollback)
-
-
-    9.1 - Training fault tolerance (checkpoint recovery, rollback strategies for training state)'
-  control_id: SAF-K8S-0905-035
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: CP-10(4)
   framework_requirement_title: Restore Within Time Period
   framework_mapping_notes: 'RTO for agent system restoration
