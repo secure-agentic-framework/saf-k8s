@@ -1716,6 +1716,12 @@
       "sha256": "6fcc17da3a848d9cf7cc9e7f99a04e90d5142302ebd1c349aa2df6faf7942f43",
       "title": "Device plugin enrollment and registration telemetry reconciliation"
     },
+    "SAF-K8S-0802-008": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "309c13de6f2d2b4c81fec387f66acbf4997c1c654c720028016f875467c446b6",
+      "title": "GPU kernel module signing and Secure Boot enforcement"
+    },
     "SAF-K8S-0802-009": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -2624,7 +2630,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "cd7ffb82ddd846c65d10138583b5aea1479bec27",
-  "sha256": "4231fb8fbe9c32302fb4b4417bfe1bdaa53ce0803fbd4e1574ca09abbefb568a",
+  "revision": "edf9de92eb1494f5bb54e50038ba6575e5c3a7c3",
+  "sha256": "78a9cabcbb24c4ad908856efb6fb3b8d27811f90010d4e627ee54d6f19045b6d",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

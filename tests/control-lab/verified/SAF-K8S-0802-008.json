@@ -1,0 +1,73 @@
+{
+  "control_id": "SAF-K8S-0802-008",
+  "catalog_revision": "3f9c9b8f5c578fd6339e2a2544d655fe31e937a7",
+  "catalog_sha256": "78a9cabcbb24c4ad908856efb6fb3b8d27811f90010d4e627ee54d6f19045b6d",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "309c13de6f2d2b4c81fec387f66acbf4997c1c654c720028016f875467c446b6",
+  "scope": "Real signature checks over inert fixture bytes and Kubernetes admission over modeled kernel and boot evidence.",
+  "cluster": "saf-lab-94a35f3f8512",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A cryptographically valid alternate signature and claimed boot state alone leave the fixture admissible",
+      "matched": true,
+      "observed": {
+        "alternate_signature_self_valid": true,
+        "admitted_without_policy": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The live policy requires approved signature, restrictive modeled policy and independent boot evidence",
+      "matched": true,
+      "observed": {
+        "unapproved_signature_denied": true,
+        "permissive_policy_denied": true,
+        "missing_boot_evidence_denied": true,
+        "alternate_signer_rejected": true,
+        "changed_bytes_rejected": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A Pod runs only once the trusted fixture record applies to its exact digest",
+      "matched": true,
+      "observed": {
+        "trusted_signature": true,
+        "mismatched_digest_denied": true,
+        "fixture_ready": true
+      }
+    }
+  ]
+}
