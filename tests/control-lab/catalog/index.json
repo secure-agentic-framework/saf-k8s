@@ -726,6 +726,12 @@
       "sha256": "0650397116219ba7ba4b7379a33770bd199c040c16c8fd6ecd553aacd7cec573",
       "title": "Network policy design for AI-specific traffic patterns"
     },
+    "SAF-K8S-0502-009": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "f85b269e4db761a9f1fef109aa59bef37489a131b3fcb623f6ef7ead75ee6c1c",
+      "title": "Kubernetes CNI IPAM capacity sizing"
+    },
     "SAF-K8S-0502-010": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -2096,7 +2102,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "30acdd860251d5420f01720115cb320a75d3965a",
-  "sha256": "43de94094630359221f83a05e4556881b2d53e76ac3923c7062b59a892f54314",
+  "revision": "f6f30e2190bdce513ddf5f948dbb2284e8b494f5",
+  "sha256": "1a03ceb6640631ae309f3f6597c1384ee040e1d7141831b96052702b1e653474",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -1,0 +1,79 @@
+{
+  "control_id": "SAF-K8S-0502-009",
+  "catalog_revision": "892f1ff28c1eb2b4b7d9d2684f1e1ef12d700c15",
+  "catalog_sha256": "1a03ceb6640631ae309f3f6597c1384ee040e1d7141831b96052702b1e653474",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "f85b269e4db761a9f1fef109aa59bef37489a131b3fcb623f6ef7ead75ee6c1c",
+  "scope": "A single-node local Kind v0.32.0 and Kubernetes v1.36.1 cluster. The API server allocates all remaining addresses in a deliberately small IPv4 ServiceCIDR. A second ServiceCIDR adds capacity, and the original and new ClusterIP Services both serve the same owned marker through cluster DNS. Node PodCIDR containment is inspected. Deployed CNI Pod IPAM sizing, node pool exhaustion, dual-stack, telemetry, and alerts require separate evidence.",
+  "cluster": "saf-lab-45454d3e74de",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The node's allocated PodCIDR stays within the declared Pod subnet",
+      "matched": true,
+      "observed": {
+        "pod_subnet_contains_node_prefix": true,
+        "service_pool_disjoint": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A new Service is rejected after all usable addresses are allocated",
+      "matched": true,
+      "observed": {
+        "all_usable_addresses_allocated": true,
+        "range_is_full": true,
+        "original_service_still_works": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A second ServiceCIDR permits the previously rejected Service creation",
+      "matched": true,
+      "observed": {
+        "extra_pool": "10.96.1.0/28",
+        "assigned_from_extra_pool": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both original and expanded ClusterIP Services return the marker through DNS",
+      "matched": true,
+      "observed": {
+        "original_service_route": true,
+        "expanded_service_route": true
+      }
+    }
+  ]
+}
