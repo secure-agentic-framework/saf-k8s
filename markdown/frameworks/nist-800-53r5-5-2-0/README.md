@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 4431
-- Distinct Requirements Mapped: 791
+- Total Reverse Mappings: 4423
+- Distinct Requirements Mapped: 790
 
 ## Requirements
 
@@ -98,7 +98,6 @@
 - [AC-4(4) - Flow Control of Encrypted Information](ac-4-4.md)
 - [AC-4(5) - Embedded Data Types](ac-4-5.md)
 - [AC-4(6) - Metadata](ac-4-6.md)
-- [AC-4(7) - One-way Flow Mechanisms](ac-4-7.md)
 - [AC-4(8) - Security and Privacy Policy Filters](ac-4-8.md)
 - [AC-4(9) - Human Reviews](ac-4-9.md)
 - [AC-5 - Separation of Duties](ac-5.md)
