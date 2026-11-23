@@ -3370,12 +3370,12 @@
   knowledge_area: '4.3'
   control_seq: 028
   control_title: Exposed credential revocation and replacement execution
-  control_statement: Organizations must revoke and replace exposed credentials on defined timelines when secret leaks are detected so compromised secrets do not remain usable after discovery.
-  objective: Ensure exposed credentials are actually revoked and reissued promptly after a leak is detected.
-  rationale: Revocation and replacement are independently auditable from the broader incident workflow. This control isolates the credential-lifecycle action so teams can verify that exposed secrets, tokens, and keys are invalidated and replaced within defined response windows.
-  scope: Applies to any detected exposure of credentials, tokens, keys, or secrets in repositories, images, CI/CD artifacts, logs, and runtime outputs. Covers credential revocation timing, replacement or reissuance, and evidence that exposed secrets no longer remain valid. Incident triage and containment remain governed by SAF-K8S-0403-027.
-  primary_enforcement_point: Credential revocation and reissuance process triggered by secret leak findings.
-  implementation_surface: Credential revocation procedures, replacement or reissuance workflows, and records showing exposed credentials were invalidated within required response windows.
+  control_statement: Invalidate exposed credentials at their enforcing authority within an organization-defined, risk-based response window. Issue and deploy a scoped replacement when legitimate use continues, and verify old denial and continued authorized operation.
+  objective: Remove the exposed credential's effective access on time and restore authorized use only where it remains approved.
+  rationale: Removing the leaked copy does not establish issuer-side invalidation. Credential disposal, required replacement, relying-party propagation and actual authorization decisions need distinct evidence.
+  scope: Applies to credentials covered by the incident and issuer inventories. Classify authority-side invalidation or containment mechanisms and propagation constraints. Link triage and containment under SAF-K8S-0403-027.
+  primary_enforcement_point: Authorized issuer-side lifecycle action, observed old-credential denial and applicable replacement verification.
+  implementation_surface: Capture finding time, authorized operator, issuer reference without credential values, defined deadline, action and effective denial. Qualify residual-validity windows and separately verify any replacement and the legitimate consumer's successful operation.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; Application Development
   baseline_or_ai_specific: baseline
