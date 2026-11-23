@@ -8850,12 +8850,12 @@
   knowledge_area: '9.5'
   control_seq: '033'
   control_title: Pre-load model file structure and metadata validation
-  control_statement: Organizations must validate model file structure, header metadata, and format-specific integrity characteristics before loading model artifacts so malformed, unexpected, or policy-violating model files are rejected prior to deserialization.
-  objective: Detect malformed, deceptive, or policy-violating model artifacts before load by validating file structure and metadata rather than relying only on file extension or claimed format.
-  rationale: Even when a model claims to use an approved format, malformed headers, inconsistent metadata, unsafe operators, or deceptive container structures can still bypass naive controls. Pre-load validation checks the actual file structure and metadata so invalid or suspicious artifacts are rejected before model loading begins.
-  scope: Applies to all model loading operations on Kubernetes, including inference servers, training pipelines loading pretrained weights, and fine-tuning jobs. Covers header and magic-byte checks, metadata validation, size and structure verification, and format-specific policy checks before model load. Excludes the safe-format allowlist and unsafe deserialization enforcement decisions, which are addressed separately.
-  primary_enforcement_point: Model intake validation logic and promotion or admission verification point.
-  implementation_surface: Model file structure validation, header magic-byte checks, size bounds, ONNX operator allowlists, TensorFlow custom-op validation, metadata verification, and pre-load inspection results demonstrating suspicious or malformed artifacts are rejected.
+  control_statement: Validate model bytes before calling the format-specific loader. Require trusted size and format limits, schema and metadata policy, exact data bounds, and any format-specific operation restrictions. Fail closed and record the disposition.
+  objective: Stop unexpected or policy-violating model files at the intake boundary before the loader consumes their data.
+  rationale: A valid filename or supported format leaves the actual contents and application-specific metadata unverified. Early bounded checks reduce invalid and unapproved loading paths.
+  scope: Applies to model intake for serving, fine-tuning and training. Define and test the exact checks and loader versions for formats and routes actually used.
+  primary_enforcement_point: Bounded preflight at the model intake and loader boundary.
+  implementation_surface: Verify format structure, size, types and offsets, expected metadata and any applicable operators against pinned policy. Bind the decision to exact bytes and retain sanitized rejection and approved-load evidence.
   owner_primary: ML Platform Engineering
   owner_supporting: Security Engineering; ML Engineering
   baseline_or_ai_specific: ai-specific

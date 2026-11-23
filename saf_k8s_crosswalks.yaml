@@ -54493,15 +54493,12 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-10
   framework_requirement_title: Information Input Validation
-  framework_mapping_notes: 'Input validation for agent prompts, tool responses, and data is critical for preventing injection
-
-
-    9.2 - Input validation and sanitization for inference requests; 9.6 - Data poisoning detection (input validation)'
+  framework_mapping_notes: Deployed validation checks enforce defined boundaries for the actual model artifact inputs.
   control_id: SAF-K8S-0905-033
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Deployed validation checks enforce defined boundaries for the actual model artifact inputs
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -54925,15 +54922,12 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-10(3)
   framework_requirement_title: Predictable Behavior
-  framework_mapping_notes: 'Predictable agent behavior on invalid input prevents exploitation of error handling paths
-
-
-    9.2 - Inference request format enforcement (predictable input processing); 6.5 - Admission control (predictable policy behavior)'
+  framework_mapping_notes: Invalid model inputs receive a defined rejection and cannot proceed to the production loader.
   control_id: SAF-K8S-0905-033
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
+  applicability: conditional
+  applicability_condition: Invalid model inputs receive a defined rejection and cannot proceed to the production loader
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
