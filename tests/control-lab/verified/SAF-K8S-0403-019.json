@@ -1,0 +1,74 @@
+{
+  "control_id": "SAF-K8S-0403-019",
+  "catalog_revision": "dba84b550856f4eccda8f22370864e1de298e880",
+  "catalog_sha256": "886ada14b8b36531b874ba421fd8454580a73a6e1daf2ed77919866faee11b69",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "d2249d940ba54b22b37895896fde82855a5030f5c0ba30809215b3b3c744cd85",
+  "scope": "Use native Kubernetes KMS v2 with an authenticated Unix plugin and a distinct isolated TLS wrapping service. Inspect exact owned Secret records, rewrite a pre-existing record and restart the API to exercise remote decryption. Actual managed-cloud custody, HSMs, IAM and production lifecycle require distinct evidence.",
+  "cluster": "saf-lab-2a0b53d35aeb",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The unconfigured API writes the exact original Secret without a KMS envelope",
+      "matched": true,
+      "observed": {
+        "kms_envelope": false,
+        "marker_visible": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native new writes use the KMS v2 envelope and the distinct remote authority wraps a key",
+      "matched": true,
+      "observed": {
+        "new_envelope": {
+          "kms_envelope": true,
+          "marker_visible": false
+        },
+        "existing_record_initially_unchanged": true,
+        "remote_wrap_called": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Rewriting the old Secret migrates its envelope, and a fresh API reads both with remote key operations",
+      "matched": true,
+      "observed": {
+        "prior_record_migrated": true,
+        "both_api_reads_valid": true,
+        "new_remote_unwrap_after_restart": true
+      }
+    }
+  ]
+}

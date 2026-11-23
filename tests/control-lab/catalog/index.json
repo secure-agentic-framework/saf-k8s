@@ -942,6 +942,12 @@
       "sha256": "f0f7ebe6a67f123f4eb36aa66a0a9d13a9fa0fabac762495e98cdda9e866262e",
       "title": "Secrets KMS key rotation and re-encryption verification"
     },
+    "SAF-K8S-0403-019": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "d2249d940ba54b22b37895896fde82855a5030f5c0ba30809215b3b3c744cd85",
+      "title": "Kubernetes Secrets external KMS provider integration"
+    },
     "SAF-K8S-0403-024": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -3020,7 +3026,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "f43963420613646a87486ad1471e8b6c1d4c11e7",
-  "sha256": "4fc75bf38c3c41287f800ef137f61a783813f1033cadf919012e58310d414ef3",
+  "revision": "86187d52f4f0bc53ec99c7ac627def32b6cbb502",
+  "sha256": "886ada14b8b36531b874ba421fd8454580a73a6e1daf2ed77919866faee11b69",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
