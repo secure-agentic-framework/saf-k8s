@@ -568,12 +568,12 @@
   knowledge_area: '1.2'
   control_seq: '024'
   control_title: etcd backup repository access audit logging
-  control_statement: Production Kubernetes clusters must generate auditable records for all access to etcd backup repositories and restore media.
-  objective: Ensure access to etcd backup repositories is observable through complete audit logging of backup and restore-media access activity.
-  rationale: Least-privilege backup access controls are difficult to enforce and investigate without a durable record of who accessed backup repositories or restore media. Dedicated access logging preserves the evidentiary trail needed to detect misuse and reconstruct backup-related activity.
-  scope: Applies to all production clusters. Covers object storage access logging, repository audit trails, and restore-media access records for etcd backup repositories.
-  primary_enforcement_point: Backup repository access logging
-  implementation_surface: Backup repository access logs, object storage audit events, restore-media access records, and centralized retention of those records.
+  control_statement: Generate and retain attributable records for defined access events to governed etcd backups and restore copies at each system that mediates access. Verify applicable success and denial coverage, protected delivery and retention, and document unsupported events and compensating evidence.
+  objective: Reconstruct backup and restore-media access from attributable, time-stamped events with known coverage and observed delivery.
+  rationale: Kubernetes API auditing covers configured API requests. Repository object access, file operations and offline custody require evidence at their own access boundaries. Durable logging and independently enforced authorization support investigation.
+  scope: Applies to governed production etcd backups and restore copies in repositories, snapshot services, mounted storage and offline media. Include ordinary, automation, provider and exceptional paths and applicable data and configuration actions.
+  primary_enforcement_point: Actual API, repository, host or media recording points and protected log collection with scope, delivery and retention checks.
+  implementation_surface: Inventory covered paths and selected events. Exercise representative permitted and denied actions, recording actor, target, operation, outcome and time. Correlate across sources where possible. Verify delivery, integrity protection, retention, retrieval and detection of pipeline failure.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Backup and Recovery Operations
   baseline_or_ai_specific: baseline
