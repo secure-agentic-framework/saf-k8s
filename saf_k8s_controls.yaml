@@ -1930,12 +1930,12 @@
   knowledge_area: '2.5'
   control_seq: 008
   control_title: kube-proxy or service proxy mode selection governance
-  control_statement: Clusters must select and document the kube-proxy mode or kube-proxy replacement implementation based on a security and performance tradeoff analysis appropriate to the cluster workload and networking architecture.
-  objective: Ensure the service proxy layer is deliberately chosen based on documented security and performance tradeoffs rather than inherited defaults.
-  rationale: iptables, IPVS, and eBPF-based replacements have different kernel surface, auditability, and operational implications. Deliberate mode selection with documented tradeoffs is independently auditable from hardening because it governs architectural choice before implementation-specific safeguards are applied.
-  scope: Applies to all production clusters using kube-proxy or kube-proxy replacement implementations. Clusters using eBPF-based CNI plugins that fully replace kube-proxy (e.g., Cilium kube-proxy replacement) must document the replacement and apply equivalent hardening. Managed Kubernetes services must document the provider-selected mode and any available hardening options.
-  primary_enforcement_point: Cluster provisioning templates, architecture decision records, and service proxy mode configuration at cluster bootstrap.
-  implementation_surface: kube-proxy mode configuration (iptables or IPVS) or kube-proxy replacement selection (for example Cilium replacement), plus architecture decision records and provider-mode verification.
+  control_statement: Require an approved and version-specific Service proxy decision for governed node profiles. Record the effective kube-proxy backend or supported replacement, workload requirements, compatibility and operations tradeoffs, and evidence for the selected datapath.
+  objective: Keep the Service proxy choice deliberate, observable and compatible with the required Service paths.
+  rationale: Linux kube-proxy modes and supported replacements differ in prerequisites, Service semantics, observability and policy interaction. Mode availability and lifecycle vary by Kubernetes release and platform. Platform requirements and representative measurements inform the decision.
+  scope: Applies to governed Kubernetes node profiles and provider-managed replacements. Identify supported Linux and Windows modes separately. Record approval, reviewed exceptions, provider limits and triggers for reevaluation.
+  primary_enforcement_point: Approved versioned decision, applied configuration, running proxy or CNI status and evidence of actual Service traffic.
+  implementation_surface: Record available backends and versions, including Linux nftables where supported. Verify configured mode, effective runtime or provider state, selected endpoint behavior, lifecycle and required traffic. Assess applicable hardening and performance with separate scoped evidence.
   owner_primary: Platform Engineering
   owner_supporting: Network Engineering; Security Engineering
   baseline_or_ai_specific: baseline
