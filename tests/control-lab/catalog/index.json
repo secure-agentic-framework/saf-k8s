@@ -1794,6 +1794,12 @@
       "sha256": "d9fe935772818b512ae5513582dab136d11750e8acf73053abd6a8ce135e0c97",
       "title": "GPU telemetry collection and anomaly detection"
     },
+    "SAF-K8S-0805-002": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "9e98f83a2ba43dedc57714b725665594d98c56df8c910c4549e102eb489fa76e",
+      "title": "GPU allocation audit trail and workload identity tracking"
+    },
     "SAF-K8S-0901-002": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -2696,7 +2702,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "7ce2abbc0dcf003c73cdd290f8cbda4b1d6acff5",
-  "sha256": "56fdc984824947bd1cd1434941938f4f186b7fe45d37ea5be128d7d50fd67086",
+  "revision": "8776ae1b951a8f01d8e2820c75395e4d95cfadb2",
+  "sha256": "184933441b51d5d1eaa6dd4cde77cedd1bfd08c7460e5a6d0afe3c76156e9943",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
