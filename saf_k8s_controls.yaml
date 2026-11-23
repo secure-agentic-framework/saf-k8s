@@ -9510,12 +9510,12 @@
   knowledge_area: '9.7'
   control_seq: '004'
   control_title: Feature store access boundary enforcement and serving authentication
-  control_statement: Feature stores must enforce authorization on feature definitions and feature views, maintain distinct access policies for online and offline stores, and authenticate feature serving requests so that only approved workloads and principals can discover or retrieve feature data.
-  objective: Protect feature stores from unauthorized discovery and access by enforcing feature view authorization, online and offline store separation, and authenticated serving paths.
-  rationale: Feature stores centralize reusable features for many models and teams. Without strong access boundaries and serving authentication, unauthorized principals can enumerate schemas, query sensitive feature views, or pivot from real-time serving access into broader historical feature data.
-  scope: Applies to Kubernetes-hosted and managed feature store deployments, including Feast, Tecton, Vertex Feature Store, and equivalent platforms. Covers feature definition authorization, online and offline access separation, and authenticated feature serving requests. Excludes training-data privacy handling and leakage validation controls implemented inside preprocessing jobs.
-  primary_enforcement_point: Feature store RBAC and authorization policies, online and offline store separation controls, and feature serving authentication settings.
-  implementation_surface: Feature store RBAC on feature definitions and views, distinct policies for online and offline stores, workload identity or service-account authentication for serving requests, and tenant-scoped access boundaries for shared feature stores.
+  control_statement: Authenticate feature-serving workloads using short-lived audience-bound credentials. Authorize feature definition discovery and reads by principal, tenant, named view and definition version. Enforce separate least-privilege access policies for online and offline data paths, including direct backend access and materialization identities.
+  objective: Restrict feature definition discovery, online serving and offline historical retrieval to explicitly authorized principals and workloads.
+  rationale: Feature registries, online stores and offline engines expose different data and operations. A successful serving check establishes the behavior of that endpoint. Alternate paths and direct store permissions require their own verification.
+  scope: Applies to Kubernetes-hosted and managed feature stores and their registries, serving endpoints, historical queries, materialization jobs and backing stores. Verify each deployed provider and identity path. The runnable example exercises an owned Kubernetes gateway and synthetic backing objects.
+  primary_enforcement_point: Feature registry and gateway authorization, serving workload authentication and native access policy on each backing store.
+  implementation_surface: Use audience-scoped workload identity, per-tenant and per-view policy, explicit definition versions, independent online and offline store privileges and store-side access evidence. Test both allowed and denied discovery and reads through application and direct backend paths.
   owner_primary: Data Engineering
   owner_supporting: ML Platform Engineering; Security Engineering; Privacy Engineering
   baseline_or_ai_specific: ai-specific
