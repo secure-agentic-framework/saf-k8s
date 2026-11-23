@@ -7330,12 +7330,12 @@
   knowledge_area: '8.1'
   control_seq: '004'
   control_title: vGPU virtualization security controls
-  control_statement: Hypervisor-based vGPU deployments must enforce vendor-specific security controls including vGPU profile isolation, resource allocation limits, hypervisor escape prevention, and validated driver compatibility between host and guest vGPU components.
-  objective: Ensure that virtualized GPU resources maintain isolation guarantees enforced by the hypervisor layer, preventing guest-to-host escapes and cross-VM GPU resource interference in virtualized Kubernetes environments.
-  rationale: vGPU implementations rely on hypervisor-mediated GPU access where a vulnerability in the vGPU manager or driver can enable hypervisor escape from a GPU-enabled VM. Misconfigured vGPU profiles can allow a single VM to consume all GPU memory or compute, causing denial of service to other tenants. Driver version mismatches between host vGPU manager and guest drivers create instability and potential security gaps.
-  scope: Applies to Kubernetes clusters running on virtualized infrastructure (VMware vSphere, KVM/QEMU, Citrix) with NVIDIA vGPU, Intel GVT-g, or equivalent GPU virtualization. Bare-metal GPU deployments using MIG or passthrough are covered by other controls. Cloud provider virtual GPU instances must verify provider security controls meet organizational requirements.
-  primary_enforcement_point: Hypervisor vGPU manager configuration, vGPU profile assignments, host-guest driver compatibility validation, and VM security policy settings for GPU passthrough restrictions.
-  implementation_surface: Hypervisor vGPU manager configuration (NVIDIA GRID/vGPU, Intel GVT-g), vGPU profile assignments and resource allocation limits, host-guest GPU driver version compatibility matrices, hypervisor security patch management (VMware vSphere, KVM/QEMU, Citrix), VM security policy settings for GPU passthrough restrictions, and hypervisor escape vulnerability scanning for GPU virtualization components.
+  control_statement: For virtualized GPU worker nodes, approve and enforce a vendor-supported virtualization mode, profile, software combination and allocation policy. Verify the documented isolation and resource properties and track relevant host and guest security updates and exceptions.
+  objective: Constrain virtual GPU assignment to supported configurations with independently evidenced isolation and capacity properties.
+  rationale: Hypervisor mediation, vendor partition mode, host and guest driver compatibility and Kubernetes scheduling address different layers. Supported modes can provide different memory, compute and fault guarantees. A configured profile or scheduled resource alone does not establish host or cross-VM isolation.
+  scope: Applies to governed Kubernetes worker VMs using virtualized accelerators, including managed offerings. Record product, mode, hardware, hypervisor, host and guest software versions, license support, versioned vendor evidence, approved assignment and exceptions.
+  primary_enforcement_point: Approved host and guest platform compatibility, hypervisor policy, and independent review of observed device assignment and isolation.
+  implementation_surface: Maintain a versioned support and assignment record. Verify applicable platform security updates, hypervisor-mode isolation, relevant guest and host configuration and approved observed allocation and capacity. Separately validate Kubernetes resource exposure, admission and namespace quotas where used.
   owner_primary: GPU Infrastructure Engineering
   owner_supporting: Virtualization Engineering; ML Platform Engineering; Security Engineering
   baseline_or_ai_specific: ai-specific
