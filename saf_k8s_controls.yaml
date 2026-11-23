@@ -1950,12 +1950,12 @@
   knowledge_area: '2.5'
   control_seq: 009
   control_title: Service proxy path hardening for kube-proxy or replacements
-  control_statement: Clusters must harden the selected service proxy path by restricting kube-proxy or replacement permissions, enabling strict conntrack or equivalent state controls, and removing unnecessary service proxy capabilities.
-  objective: Reduce attack surface in the active service proxy implementation after the mode or replacement choice is made.
-  rationale: Even after a mode is selected, permissive kube-proxy privileges, loose conntrack behavior, or unnecessary service proxy capabilities can widen attack surface or undermine network policy expectations. Hardening the chosen implementation is a distinct obligation from choosing the implementation in the first place.
-  scope: Applies to all production clusters using kube-proxy or kube-proxy replacement implementations. Clusters using eBPF-based CNI plugins that fully replace kube-proxy (e.g., Cilium kube-proxy replacement) must document the replacement and apply equivalent hardening. Managed Kubernetes services must document the provider-selected mode and any available hardening options.
-  primary_enforcement_point: kube-proxy ConfigMap or DaemonSet configuration, replacement DaemonSet configuration, and node networking hardening settings for the active service proxy path.
-  implementation_surface: kube-proxy RBAC, conntrack tuning, kube-proxy ConfigMap or replacement DaemonSet settings, and removal of unnecessary proxy capabilities in the selected service routing path.
+  control_statement: Harden the active Service proxy using supported version-specific settings. Review effective Kubernetes API permissions, node or container privileges, and applicable connection tracking settings separately. Preserve required Service behavior after approved changes.
+  objective: Constrain unnecessary access and features in the effective Service proxy without losing required forwarding.
+  rationale: API authorization and host privileges act at different boundaries. Connection tracking settings govern distinct resource and protocol behaviors and depend on the selected implementation. Workload network policy requires independent datapath evidence.
+  scope: Applies to governed kube-proxy, replacement and supported hybrid or provider-managed paths. Identify the active implementation and version for each path and record required privileges, settings, exceptions and owner.
+  primary_enforcement_point: Effective API authorization, supported process privileges and applicable settings of the active proxy path.
+  implementation_surface: Verify required and denied API operations, effective process or node privileges, and the supported connection tracking and interface settings selected for the deployment. Exercise required Service traffic after changes. Record separately applicable CNI policy and provider evidence.
   owner_primary: Platform Engineering
   owner_supporting: Network Engineering; Security Engineering
   baseline_or_ai_specific: baseline
