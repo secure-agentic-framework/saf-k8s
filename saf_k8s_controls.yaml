@@ -5470,12 +5470,12 @@
   knowledge_area: '6.4'
   control_seq: '013'
   control_title: Hermetic build execution and pinned dependency input control
-  control_statement: Build pipelines must use hermetic build configurations that prevent uncontrolled network access or live dependency resolution during build execution and must enforce committed dependency lock files and pinned dependency inputs.
-  objective: Prevent dependency confusion, typosquatting, and uncontrolled build-time input changes by ensuring builds execute from approved, pre-resolved, and pinned dependency sources.
-  rationale: Non-hermetic builds that resolve dependencies dynamically can ingest malicious or unexpected content at build time even when provenance exists. Hermetic execution and pinned dependency inputs reduce that attack surface and make dependency state reproducible for review.
+  control_statement: Resolve and stage approved dependency inputs before restricted build execution. Pin sources and verify each required artifact against reviewed committed integrity data. Deny uncontrolled network access for dependency-consuming steps and fail when a required artifact or its expected digest is missing or mismatched. Govern builder and other build inputs separately.
+  objective: Constrain live dependency selection and retain verifiable identity for the exact consumed inputs.
+  rationale: A restricted BuildKit RUN network applies to that instruction. Builder, frontend, base image, context and cache inputs can be resolved elsewhere. Verify the complete declared boundary before claiming hermeticity. Verify reproducibility by independently comparing named build outputs.
   scope: Applies to all CI/CD pipelines producing deployable Kubernetes artifacts, including application images, AI workload images, and infrastructure operator images. Approved mirrors, proxies, or caches may be used when they preserve pinned dependency and integrity guarantees.
-  primary_enforcement_point: CI/CD build environment configuration and dependency resolution controls.
-  implementation_surface: Hermetic build settings, no-egress build workers, approved dependency mirrors, committed lock files with hash validation, and enforcement of pinned dependency inputs during build execution.
+  primary_enforcement_point: Dependency resolution and integrity verification, build step network policy and complete builder input management.
+  implementation_surface: Review complete lock coverage including transitive dependencies. Stage pinned dependency artifacts and verify immutable expected digests. Test missing and altered inputs and an owned comparison for step network isolation. Verify worker egress, remotely resolved frontends, base images, contexts and caches separately, and compare output bytes if claiming reproducibility.
   owner_primary: DevSecOps / Release Engineering
   owner_supporting: Security Engineering; Platform Engineering
   baseline_or_ai_specific: baseline
