@@ -1680,6 +1680,12 @@
       "sha256": "8b224fd8d0fdf9d0571027405bab7cece5439848c99c1e9ab21e1b5e4f652927",
       "title": "Evidence for cross-trust eligibility of shared accelerator allocations"
     },
+    "SAF-K8S-0801-014": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "a0075972126688df6d8d8336c450c2b2d9071b8890e621877e034ba9392fa24d",
+      "title": "MPS and time-slicing side-channel risk assessment"
+    },
     "SAF-K8S-0901-002": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -2582,7 +2588,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "675ee5d46a7019329245404ea96a550d31e3734b",
-  "sha256": "d3747e5d8719a6eb46406a6029b398c97abdc8c6924b599e4611e0a0bad44a62",
+  "revision": "227f865bf2133a95f258e88885e84f4c32ee9275",
+  "sha256": "2b9bc85164813130cecd5bff1628e1b38550ae99d0208f35ede10b6a4ae43caf",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
