@@ -1152,6 +1152,12 @@
       "sha256": "050633de1e56700ff57feadc9a46024367a9b868901b7a7ebae693398f40a8c9",
       "title": "CI/CD build activity monitoring"
     },
+    "SAF-K8S-0606-009": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "d2b8e1bbbe26fe390f75770fcd31beeebed0a67ea53a420736b4f0cee7b1de60",
+      "title": "SSDF v1.1 alignment for secure development practices"
+    },
     "SAF-K8S-0606-021": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2366,7 +2372,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "80dfabec7577b043832609a32373ac0ec3b9e2a2",
-  "sha256": "54f7bc8e466639bd50fec02cbcca8ccec10ebf404c378e507892fe7321ce2354",
+  "revision": "fb75efe8822451c432a8a8cae5d8101d16936f20",
+  "sha256": "99048c7c5e30336e2a77304832015185e3d557c14d25c64fba0bfee70cb51f97",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
