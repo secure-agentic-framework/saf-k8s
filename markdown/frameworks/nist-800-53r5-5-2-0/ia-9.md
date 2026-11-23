@@ -24,7 +24,7 @@ The actual API path verifies the expected certificate-backed identity of each se
 - Knowledge Area: 4.4
 - Relation Type: direct
 - Strength: strong
-- Applicability: required
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-0504-001 - Zero trust networking principles for Kubernetes](../../controls/SAF-K8S-0504-001.md)

@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 4112
-- Distinct Requirements Mapped: 784
+- Total Reverse Mappings: 4103
+- Distinct Requirements Mapped: 783
 
 ## Requirements
 
@@ -561,7 +561,6 @@
 - [SC-11 - Trusted Path](sc-11.md)
 - [SC-11(1) - Irrefutable Communications Path](sc-11-1.md)
 - [SC-12 - Cryptographic Key Establishment and Management](sc-12.md)
-- [SC-12(1) - Availability](sc-12-1.md)
 - [SC-12(2) - Symmetric Keys](sc-12-2.md)
 - [SC-12(3) - Asymmetric Keys](sc-12-3.md)
 - [SC-13 - Cryptographic Protection](sc-13.md)

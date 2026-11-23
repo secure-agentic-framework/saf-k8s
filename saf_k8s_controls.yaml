@@ -3470,12 +3470,12 @@
   knowledge_area: '4.4'
   control_seq: '003'
   control_title: mTLS for service-to-service authentication
-  control_statement: Clusters must implement mutual TLS (mTLS) for service-to-service authentication, ensuring that both the client and server present valid certificates during the TLS handshake, with certificates bootstrapped through an automated identity framework or service mesh.
-  objective: Establish cryptographic mutual authentication between services, preventing unauthorized services from communicating with cluster workloads and enabling identity-based authorization at the transport layer.
-  rationale: Standard TLS only authenticates the server to the client. Without mTLS, any pod in the cluster that can reach a service endpoint can communicate with it, regardless of identity. An attacker who gains execution in any pod can reach and interact with services that accept unauthenticated connections. mTLS ensures both parties present verified certificates, enabling transport-layer identity verification and restricting communication to authorized workloads only.
-  scope: Applies to all service-to-service communication within production clusters. Implementation may use a service mesh (Istio, Linkerd, Cilium) or standalone SPIFFE/SPIRE identity framework. Exceptions for performance-critical paths (e.g., high-throughput GPU training communication) must document compensating network segmentation controls.
-  primary_enforcement_point: Service mesh mTLS mode configuration (STRICT mode), SPIFFE/SPIRE workload attestation and SVID issuance, or application-level TLS configuration with client certificate verification.
-  implementation_surface: Service mesh mTLS configuration (Istio PeerAuthentication STRICT mode, Linkerd automatic mTLS, Cilium mutual authentication), SPIFFE/SPIRE workload attestation agents and SVID-based mTLS, application-level TLS client certificate verification, cert-manager Certificate resources for service identities, and documented mTLS exemptions for high-throughput GPU training communication (NCCL) with compensating network segmentation controls.
+  control_statement: Require mutually authenticated transport for covered service communications. Verify both peer identities under the approved trust, enrollment, expiry and expected-name policies, and enforce separately approved source, destination and operation authorization.
+  objective: Authenticate the service peers and use their verified identities in the effective communication authorization decision.
+  rationale: mTLS establishes authenticated possession of trusted credentials. Endpoint policy determines which authenticated identities may communicate or use an operation. Policy modes and enrollment do not establish live data-path behavior.
+  scope: Applies to communication paths required by the organization, including covered control and data planes. Document protocol and deployment-specific equivalents, exemptions, limitations and approved compensating controls.
+  primary_enforcement_point: Actual peer identity verification and independently enforced service authorization on the selected communication path.
+  implementation_surface: Verify certificate issuance and trust roots, expected service identities, actual bidirectional handshakes, denial of missing or unapproved credentials and an authenticated but unauthorized peer, rotation, residual access paths and policy for designated training traffic.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Application Development
   baseline_or_ai_specific: baseline
