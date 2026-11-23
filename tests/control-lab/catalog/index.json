@@ -1524,6 +1524,12 @@
       "sha256": "ec85c2b0e74d0e00918b0099ee706be0c1c6b4c7a1bacb1b2b650f3b4b0532c1",
       "title": "GPU admission enforcement against unauthorized access and quota bypass"
     },
+    "SAF-K8S-0703-023": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "f68f1b55bd14519f83a8b3ee2ae7d50f3809f5c02d81fe1ed91dd2fbc4675410",
+      "title": "Investigation and termination of confirmed unauthorized GPU workloads"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -2432,7 +2438,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "88184dbc9b0ef6da68a0ebb4959ea3102fecf51c",
-  "sha256": "c041dc4fa8b2257b7a72c41b5cc588f84498aa21c35c076a67eb3f24d5ba8d60",
+  "revision": "2191bbeb06c380aab8d5e82ff2b83668503d325b",
+  "sha256": "01bb70fd2756232325b4776f9d6655097cf22e25793c657bcf7c3867b8d0a641",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
