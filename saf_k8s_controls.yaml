@@ -1870,12 +1870,12 @@
   knowledge_area: '2.5'
   control_seq: '004'
   control_title: eBPF-based kernel-level network policy enforcement
-  control_statement: Clusters using eBPF-based networking (Cilium, Calico eBPF mode) must configure kernel-level network policy enforcement, validate kernel version compatibility for required eBPF features, and verify that network policies are correctly translated to eBPF programs in the kernel data path.
-  objective: Leverage eBPF's kernel-level network policy enforcement capabilities to provide high-performance, granular network segmentation that operates directly in the kernel data path.
-  rationale: eBPF-based networking provides superior performance and more granular network policy enforcement than iptables-based approaches by operating directly in the kernel data path. Kernel-level enforcement eliminates iptables rule scaling limitations and enables identity-aware, L7-capable network policies. However, eBPF features depend on specific kernel versions, and misconfiguration can silently degrade to permissive behavior. Explicit validation of policy enforcement ensures that declared network segmentation is actually applied at the kernel level.
-  scope: Applies to all clusters using eBPF-based CNI plugins or kube-proxy replacements. Clusters using traditional iptables-based networking are exempt. Managed Kubernetes services offering eBPF-based networking must document provider-managed configuration. Kernel version requirements for eBPF features must be documented and validated.
-  primary_enforcement_point: CNI plugin configuration and deployment with validated kernel version compatibility.
-  implementation_surface: CNI plugin eBPF mode configuration (Cilium, Calico), kernel version requirements documentation, network policy enforcement verification tests, eBPF datapath validation tools, and kube-proxy replacement configuration.
+  control_statement: Use a supported eBPF-capable network policy implementation for governed datapaths where required by the platform profile. Specify the supported kernel, agent, policy API, source and destination paths, protocol scope, and positive and negative behavior. Verify effective datapath enforcement after changes.
+  objective: Enforce the approved Kubernetes network access decisions on defined paths and make their effective implementation observable.
+  rationale: Kubernetes policy intent depends on the selected implementation and supported protocols. Some eBPF-based products pair kernel datapaths with application proxies. Compatibility, startup, disruption behavior and comparative performance are implementation- and workload-specific.
+  scope: Applies to governed Kubernetes node and workload paths that use eBPF-capable networking. Record kernel and agent versions, feature prerequisites, network path classes, ingress and egress coverage, policy convergence, and approved unsupported paths.
+  primary_enforcement_point: Effective CNI policy implementation in the applicable kernel datapath and separately identified companion enforcement points.
+  implementation_surface: Verify required features and selected policy state. Exercise harmless expected allow and deny paths for owned endpoints and observe convergence and applicable failures. Measure performance and system impact separately under representative load.
   owner_primary: Platform Engineering
   owner_supporting: Network Engineering
   baseline_or_ai_specific: baseline
