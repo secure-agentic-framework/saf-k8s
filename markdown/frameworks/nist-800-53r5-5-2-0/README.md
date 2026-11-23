@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 4286
-- Distinct Requirements Mapped: 790
+- Total Reverse Mappings: 4250
+- Distinct Requirements Mapped: 784
 
 ## Requirements
 
@@ -445,7 +445,6 @@
 - [RA-3(1) - Supply Chain Risk Assessment](ra-3-1.md)
 - [RA-3(2) - Use of All-source Intelligence](ra-3-2.md)
 - [RA-3(3) - Dynamic Threat Awareness](ra-3-3.md)
-- [RA-3(4) - Predictive Cyber Analytics](ra-3-4.md)
 - [RA-5 - Vulnerability Monitoring and Scanning](ra-5.md)
 - [RA-5(10) - Correlate Scanning Information](ra-5-10.md)
 - [RA-5(11) - Public Disclosure Program](ra-5-11.md)
@@ -591,7 +590,6 @@
 - [SC-23(5) - Allowed Certificate Authorities](sc-23-5.md)
 - [SC-24 - Fail in Known State](sc-24.md)
 - [SC-25 - Thin Nodes](sc-25.md)
-- [SC-26 - Decoys](sc-26.md)
 - [SC-27 - Platform-independent Applications](sc-27.md)
 - [SC-28 - Protection of Information at Rest](sc-28.md)
 - [SC-28(1) - Cryptographic Protection](sc-28-1.md)
@@ -604,7 +602,6 @@
 - [SC-3(3) - Minimize Nonsecurity Functionality](sc-3-3.md)
 - [SC-3(4) - Module Coupling and Cohesiveness](sc-3-4.md)
 - [SC-3(5) - Layered Structures](sc-3-5.md)
-- [SC-30 - Concealment and Misdirection](sc-30.md)
 - [SC-30(2) - Randomness](sc-30-2.md)
 - [SC-30(3) - Change Processing and Storage Locations](sc-30-3.md)
 - [SC-30(4) - Misleading Information](sc-30-4.md)
@@ -617,7 +614,6 @@
 - [SC-34 - Non-modifiable Executable Programs](sc-34.md)
 - [SC-34(1) - No Writable Storage](sc-34-1.md)
 - [SC-34(2) - Integrity Protection on Read-only Media](sc-34-2.md)
-- [SC-35 - External Malicious Code Identification](sc-35.md)
 - [SC-36 - Distributed Processing and Storage](sc-36.md)
 - [SC-36(1) - Polling Techniques](sc-36-1.md)
 - [SC-36(2) - Synchronization](sc-36-2.md)
@@ -634,7 +630,6 @@
 - [SC-42(4) - Notice of Collection](sc-42-4.md)
 - [SC-42(5) - Collection Minimization](sc-42-5.md)
 - [SC-43 - Usage Restrictions](sc-43.md)
-- [SC-44 - Detonation Chambers](sc-44.md)
 - [SC-45 - System Time Synchronization](sc-45.md)
 - [SC-45(1) - Synchronization with Authoritative Time Source](sc-45-1.md)
 - [SC-45(2) - Secondary Authoritative Time Source](sc-45-2.md)
@@ -729,7 +724,6 @@
 - [SI-3 - Malicious Code Protection](si-3.md)
 - [SI-3(10) - Malicious Code Analysis](si-3-10.md)
 - [SI-3(4) - Updates Only by Privileged Users](si-3-4.md)
-- [SI-3(6) - Testing and Verification](si-3-6.md)
 - [SI-3(8) - Detect Unauthorized Commands](si-3-8.md)
 - [SI-4 - System Monitoring](si-4.md)
 - [SI-4(1) - System-wide Intrusion Detection System](si-4-1.md)

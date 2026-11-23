@@ -11,15 +11,6 @@ Malicious code protection for agent systems detects injected payloads and compro
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0204-004 - Forensic capture capabilities for container incident investigation](../../controls/SAF-K8S-0204-004.md)
-
-- Domain: D02 - Node, Runtime, and OS Security
-- Knowledge Area: 2.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0905-044 - Public model quarantine isolation and malicious artifact scanning](../../controls/SAF-K8S-0905-044.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines

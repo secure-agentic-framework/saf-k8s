@@ -36,15 +36,6 @@ Verified collection and health for selected runtime signals support documented s
 - Applicability: conditional
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0204-004 - Forensic capture capabilities for container incident investigation](../../controls/SAF-K8S-0204-004.md)
-
-- Domain: D02 - Node, Runtime, and OS Security
-- Knowledge Area: 2.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0905-035 - Automatic canary rollback on error-rate and latency degradation](../../controls/SAF-K8S-0905-035.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
