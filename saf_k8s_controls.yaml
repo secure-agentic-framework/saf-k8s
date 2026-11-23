@@ -4353,9 +4353,9 @@
   control_statement: Ingress controllers protecting internet-facing services must integrate with a web application firewall that applies request filtering rules appropriate to the exposed application risk.
   objective: Reduce exploit delivery and malicious request exposure at the ingress layer by filtering abusive or malformed traffic before it reaches backend services.
   rationale: TLS alone does not stop injection payloads, malformed requests, or exploit probes. Separating WAF integration from rate limiting makes request filtering and abuse throttling independently auditable.
-  scope: Applies to internet-facing ingress controllers and to internal ingress paths where risk assessment requires request filtering or abuse throttling. Covers WAF integrations, request filtering rules, and per-route or per-client rate limiting.
+  scope: Applies to internet-facing ingress and internal routes whose risk requires application-layer request filtering. Covers WAF attachment, managed and custom request-filtering rules, request inspection boundaries, and evidence of configured actions. Evaluate ingress throttling under SAF-K8S-0503-014.
   primary_enforcement_point: Ingress request filtering controls.
-  implementation_surface: WAF policy configuration, managed rule attachments, custom request filtering rules, and enforcement telemetry for blocked or challenged traffic.
+  implementation_surface: Record the installed WAF, attached managed rule versions, custom rules, inspected request components, exceptions and blocking mode. Verify a harmless policy canary and permitted traffic at the actual ingress path and retain WAF decisions and backend observations.
   owner_primary: Network Engineering
   owner_supporting: Application Security; Platform Engineering
   baseline_or_ai_specific: baseline
