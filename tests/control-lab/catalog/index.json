@@ -1140,6 +1140,12 @@
       "sha256": "284caef9609e4d851a0fee0ea5ec8754c50f91f63b302010bb8f5aec11d62d63",
       "title": "AI custom resource webhook abuse resistance and resource hardening"
     },
+    "SAF-K8S-0606-002": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "18e71b28a969447b482e8099f547ca77a4de9b20bfffc6832afffe13b74c89c7",
+      "title": "CI/CD build environment hardening"
+    },
     "SAF-K8S-0606-021": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2354,7 +2360,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "3780664c3bc8ae4357fd47c4719ca520f13438c8",
-  "sha256": "eeaa402b6f2833d1b222bd1ea4266ddea4175eef5d106e11b6366db003c4d037",
+  "revision": "17459e10bf4d0532e5080126da16437f3c5e0240",
+  "sha256": "b23156ac73fd1681b03930cda73dce580315e19891cc5d2005810adee982d715",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
