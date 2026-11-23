@@ -1,0 +1,118 @@
+{
+  "control_id": "SAF-K8S-0905-058",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "fd2b7055c890c3a1a1d534adb4383efe23d19cea2db7fe61083bedaaf98c6eaa",
+  "scope": "One disposable Kubernetes v1.36.1 cluster. A real OCI registry stores an inert model by manifest and blob digest. Separate publisher and organization OpenSSL Jobs generate ephemeral keys and sign the identical model bytes. An independent verifier checks those signatures before a digest-bound immutable promotion record is written. Native admission uses that record to gate a model consumer Pod. The allowed Pod fetches and checks exact registry bytes. Production key custody, registry identity, signer authority, worktree and namespace coverage, and policy enrollment are open.",
+  "review_timing": {
+    "queued_at": "2026-11-23T01:22:22.920066+00:00",
+    "cluster_ready_at": "2026-11-23T01:22:52.210753+00:00",
+    "approval_at": "2026-11-23T01:29:50.784757+00:00",
+    "case_loaded_at": "2026-11-23T01:29:50.831149+00:00"
+  },
+  "cluster": "saf-lab-535e9612c070",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "bab6b62dd0eee38b28123687403d196a6a7bdb6d11eb35d0355c8af78ee9a1d5",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "green",
+      "claim": "The organization signer rejects the exact model until approval is present",
+      "matched": true,
+      "observed": {
+        "unapproved_signing_refused": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The exact upstream-only signed model request is admitted before the promotion control",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "named_policy": false,
+        "expected_denial": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Independent verification accepts both correct signatures and rejects the wrong trust key and changed model",
+      "matched": true,
+      "observed": {
+        "publisher_signature_valid": true,
+        "organization_signature_valid": true,
+        "publisher_signature_rejected_under_organization_key": true,
+        "changed_model_bytes_rejected": true,
+        "distinct_signing_keys": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The exact pre-control upstream-only declaration receives the named admission denial",
+      "matched": true,
+      "observed": {
+        "admitted": false,
+        "named_policy": true,
+        "expected_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Kubernetes rejects the approved digest with the publisher key fingerprint",
+      "matched": true,
+      "observed": {
+        "admitted": false,
+        "named_policy": true,
+        "expected_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Kubernetes rejects a mismatched consumer registry manifest even with the correct recorded signer",
+      "matched": true,
+      "observed": {
+        "admitted": false,
+        "named_policy": true,
+        "expected_denial": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The organization-signed declaration is admitted and consumes the exact registry artifact",
+      "matched": true,
+      "observed": {
+        "consumed_model_sha256": "99a51410b6a61f0331d0d14787dc34587404285c5115cff3235762e60da7afa5",
+        "same_registry_manifest": true
+      }
+    }
+  ]
+}
