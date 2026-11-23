@@ -882,6 +882,12 @@
       "sha256": "11f28e603ad1020e63026143ac579d63b0a743ef2b13e344f27b77e729262b9e",
       "title": "Administrative API server access path via bastion or VPN"
     },
+    "SAF-K8S-0601-010": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "015d710dce285ee49cef00f78e7730a14f737cc8d672f0bebbcda33c9c8bf01b",
+      "title": "Artifact retention period and lifecycle enforcement"
+    },
     "SAF-K8S-0601-011": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2198,7 +2204,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "21c46cc83ed1807728caaa4712f525c8722cabfc",
+  "revision": "aab6cdab4f152cf902f4cc40f147b7ceac045bc6",
   "sha256": "abcc04b16f354be1f6f3ac2d88f257701f01a4ceed1de8c6b8187616e0eaa3a4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
