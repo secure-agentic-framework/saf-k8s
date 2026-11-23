@@ -1,0 +1,125 @@
+{
+  "control_id": "SAF-K8S-0603-014",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "e12b8bf2904186c63bd9d6a997a42b1c754e3fefcd52225332b84ba3a6a2bd36",
+  "scope": "A disposable Kubernetes v1.36.1 cluster with Kyverno 1.20.0, a test-owned TLS registry, and independent ephemeral in-toto build and promotion attestors. The case verifies two digest-bound attestations and their record linkage at Pod CREATE in one enrolled namespace, with uncached registry and API-to-webhook failures. Additional workload types, stages, cached verification, and production coverage require separate evidence.",
+  "cluster": "saf-lab-8e40eed796be",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The identical incomplete chain is admitted before policy activation",
+      "matched": true,
+      "observed": {
+        "incomplete_baseline_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The policy rejects the same digest with no promotion attestation",
+      "matched": true,
+      "observed": {
+        "missing_promotion_attestation_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission explicitly denies wrong-promoter",
+      "matched": true,
+      "observed": {
+        "policy_denial_matches_expected_reason": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission explicitly denies unlinked",
+      "matched": true,
+      "observed": {
+        "policy_denial_matches_expected_reason": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both verified attestations on the digest form an admitted chain",
+      "matched": true,
+      "observed": {
+        "approved_chain_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The reachable verifier rejects a fresh complete chain when registry lookup fails",
+      "matched": true,
+      "observed": {
+        "reachable_webhook_rejected_registry_failure": true,
+        "owned_registry_stopped": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same complete chain is admitted when registry lookup recovers",
+      "matched": true,
+      "observed": {
+        "recovered_registry_chain_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The API rejects attested admission when its required webhook cannot be reached",
+      "matched": true,
+      "observed": {
+        "mutating_policy": "Fail",
+        "validating_policy": "Fail",
+        "webhook_call_failed_and_request_rejected": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The fresh complete chain is admitted after its required webhook recovers",
+      "matched": true,
+      "observed": {
+        "recovered_webhook_chain_admitted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The disposable registry container and volume were removed",
+      "matched": true,
+      "observed": {
+        "registry_cleanup": "complete"
+      }
+    }
+  ]
+}

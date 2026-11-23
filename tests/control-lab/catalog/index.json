@@ -1014,6 +1014,12 @@
       "sha256": "cbdfd4b6b5cf7e64de52ff50df3a3699e22055f80ed33200a0af9784473186c9",
       "title": "Lifecycle attestation chain verification across build, promote, and deploy"
     },
+    "SAF-K8S-0603-014": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "e12b8bf2904186c63bd9d6a997a42b1c754e3fefcd52225332b84ba3a6a2bd36",
+      "title": "Fail-closed admission enforcement for attestation requirements"
+    },
     "SAF-K8S-0605-001": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2270,7 +2276,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "1e50262bf94a8b7cb3cefe705b34c78324c9a77b",
+  "revision": "7b21dc4b804be3a2e43d5612ba3d34ce946e0a08",
   "sha256": "2ddcbcadc0dc3876b8db9e9c6493991f07da4dd95f88375ba52e0bbf2f22eca9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
