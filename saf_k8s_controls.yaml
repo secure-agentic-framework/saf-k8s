@@ -5430,12 +5430,12 @@
   knowledge_area: '6.4'
   control_seq: '010'
   control_title: Automated AI workload rebuild and redeployment patch pipelines
-  control_statement: Organizations must maintain automated rebuild and redeployment pipelines that can patch AI workload images and supporting components without requiring model retraining.
-  objective: Enable timely patching of AI workloads without the operational cost and delay of retraining models for routine image and dependency fixes.
-  rationale: If patching an AI workload requires retraining or manual repackaging of model artifacts, teams will defer remediation and accept unnecessary exposure. Automated rebuild and redeployment pipelines break that dependency by separating model weights from patchable runtime images and by validating that patched images can be promoted without retraining the underlying model.
+  control_statement: Maintain an automated rebuild and release path for governed AI runtime patches. Identify the exact candidate runtime and approved model artifact. Verify compatibility, model identity and required release evidence before rollout. Use the existing approved model when compatible, and define a hold, remediation or rollback path for incompatible candidates.
+  objective: Roll out compatible runtime patches on time while preserving verified model behavior and identity and retaining recovery evidence.
+  rationale: A separately versioned or otherwise reproducibly identified model lets teams reuse approved model bytes during compatible runtime updates. Compatibility depends on the changed runtime, libraries, accelerator requirements and model format. Verify the release combination and protect the prior healthy release.
   scope: Applies to AI and ML workload container images, supporting runtime components, and deployment pipelines in Kubernetes. Covers base image and dependency patch rebuilds, redeployment automation, and validation that patched runtime images do not require model retraining. Does not cover vulnerability classification or SLA prioritization, which are addressed by SAF-K8S-0604-008 and SAF-K8S-0604-009.
-  primary_enforcement_point: CI/CD rebuild and redeployment pipeline triggers for patched AI workload images.
-  implementation_surface: Automated CI/CD rebuild and redeployment pipelines triggered by base image or dependency patches, model weight loading at runtime from model registries rather than baking models into container images, regression test automation for patched AI workload images, promotion workflows for patched runtime images, and deployment records demonstrating patch rollout without model retraining.
+  primary_enforcement_point: CI rebuild and candidate verification, approved release promotion, Kubernetes rollout health and recovery checks.
+  implementation_surface: Pin build inputs and trigger rebuilds for the applicable base and dependency changes. Bind model and runtime identities in the release record. Test model load, behavior and relevant accelerator and operational requirements. Enforce compatibility and approval, measure digest-specific health, recover a known healthy release on failure, and retain evidence of the model and runtime served.
   owner_primary: Security Engineering
   owner_supporting: ML Platform Engineering; DevSecOps / Release Engineering
   baseline_or_ai_specific: ai-specific
