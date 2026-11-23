@@ -1674,6 +1674,12 @@
       "sha256": "46bffef107bfa8377b67aa7bc3dddf4254fa8dadf3ff8079cc75d45925b73279",
       "title": "MPS and time-slicing workload eligibility and same-trust co-location enforcement"
     },
+    "SAF-K8S-0801-013": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "8b224fd8d0fdf9d0571027405bab7cece5439848c99c1e9ab21e1b5e4f652927",
+      "title": "Evidence for cross-trust eligibility of shared accelerator allocations"
+    },
     "SAF-K8S-0901-002": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -2576,7 +2582,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6d25f45b3af04d0e7f89249f91362c54fc3664f0",
-  "sha256": "149df1ee5638e2de7d5cac6b062e26480dfa5a101b2ab5b814480baffbd3b7c4",
+  "revision": "675ee5d46a7019329245404ea96a550d31e3734b",
+  "sha256": "d3747e5d8719a6eb46406a6029b398c97abdc8c6924b599e4611e0a0bad44a62",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
