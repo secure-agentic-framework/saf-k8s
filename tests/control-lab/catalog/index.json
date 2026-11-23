@@ -1590,6 +1590,12 @@
       "sha256": "ba458528bd1089151cb330c6f395958ade33e412cf1405dc878657ce96c57f91",
       "title": "Effective external identity and Kubernetes API entitlement mapping"
     },
+    "SAF-K8S-0704-016": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "052f2eb05e3adc3eefaab6ab2b895a254de3d534275b522f03fae0688ebbbc78",
+      "title": "Effective Kubernetes API entitlement review and drift remediation"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -2498,7 +2504,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "e33e721a6401284e5c0b6e21d7c8f193f719a353",
-  "sha256": "5ca234400032747e044552debc27c2eee8327965df34cec9b6c288c45d2bd14c",
+  "revision": "04a5c277a6effa8eaeaa84c643d26c707c891e21",
+  "sha256": "bbd86d9789bf576dfb286c0bbc253b717eaaddfe4283f2ccb6e29fded9b5374f",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
