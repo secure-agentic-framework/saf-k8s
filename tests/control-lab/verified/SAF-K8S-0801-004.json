@@ -1,0 +1,70 @@
+{
+  "control_id": "SAF-K8S-0801-004",
+  "catalog_revision": "4e6b58c6ff5b5dff2d63d28abc433a5311eedda0",
+  "catalog_sha256": "e45666aee3efcd1aa48ec677260934b9c00a5419033cb114c0d1823305d2ec10",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "efcdbb254914709049e8213c7921d586eb072874ce4d8033d1bef0df4f5b1a93",
+  "scope": "Live workload admission based on an inert owner-reviewed vGPU compatibility record.",
+  "cluster": "saf-lab-f85dc6bb8ffd",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Without the compatibility policy, admission accepts a workload before its platform record has been approved",
+      "matched": true,
+      "observed": {
+        "admitted_without_enforcement": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The pending vGPU compatibility record blocks the fixture and workload submitters cannot edit that record",
+      "matched": true,
+      "observed": {
+        "initial_record_denied": true,
+        "incomplete_approved_record_denied": true,
+        "fixture_submitter_cannot_patch_record": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved compatibility record permits the correct workload and rejects a different stack or a superseded record",
+      "matched": true,
+      "observed": {
+        "authorized_workload_ran": true,
+        "mismatched_request_denied": true,
+        "reopened_request_denied_after_closure": true
+      }
+    }
+  ]
+}

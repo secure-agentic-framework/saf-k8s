@@ -1638,6 +1638,12 @@
       "sha256": "f109efc6c090ffff14741b8808048587674095fe696cb4e8433cfc421e4e09fa",
       "title": "MIG partitioning for hardware-enforced GPU isolation"
     },
+    "SAF-K8S-0801-004": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "efcdbb254914709049e8213c7921d586eb072874ce4d8033d1bef0df4f5b1a93",
+      "title": "vGPU virtualization security controls"
+    },
     "SAF-K8S-0801-009": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -2558,7 +2564,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "d980b31a4f5142d161249c70027b853ac9b66498",
-  "sha256": "35b4e3482c3767a6e6dc6f70565bbee4c48fd762c3a8a3393fd93b67bd5bc29f",
+  "revision": "7944c68668701bd43ebedd1048dacd31eeb43d01",
+  "sha256": "e45666aee3efcd1aa48ec677260934b9c00a5419033cb114c0d1823305d2ec10",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
