@@ -1,0 +1,87 @@
+{
+  "control_id": "SAF-K8S-0402-006",
+  "catalog_revision": "30b604c664c443dc64766223b48b343cd01ac021",
+  "catalog_sha256": "28379246e9ddcabf3e19a6bde6ff480b08b075f995507805e7e60ad8f6561beb",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "1f113c43feabe75e2a9d5f94c550cab97ec85915adc1b6e05d95198d29723531",
+  "scope": "Use real Kubernetes projected service-account tokens and TokenReview in disposable Kind, apply a scope-specific static-key admission policy, and distinguish identity validation from an exact local exchange allow rule. Provider exchanges, IAM, account settings and credential rotation in cloud deployments are separate evidence.",
+  "cluster": "saf-lab-a8f3de59d9e7",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Before the policy, admission accepts all fixture shapes that reference the designated static key",
+      "matched": true,
+      "observed": {
+        "secret_volume": true,
+        "projected_secret_volume": true,
+        "env_secret": true,
+        "init_env_from": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The scoped policy rejects designated static-key references and permits unrelated declared material",
+      "matched": true,
+      "observed": {
+        "designated_reference_denials": {
+          "secret_volume": true,
+          "projected_secret_volume": true,
+          "env_secret": true,
+          "init_env_from": true
+        },
+        "unrelated_allowed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The explicit mounted token authenticates its bounded identity and an exact local exchange rule authorizes only the approved subject",
+      "matched": true,
+      "observed": {
+        "matched_identity_and_audience": true,
+        "bounded_projection": true,
+        "default_mount_absent": true,
+        "ephemeral_secret_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Deleting the bound Pod withdraws its Kubernetes token while the other fixture credential remains authenticated",
+      "matched": true,
+      "observed": {
+        "retired_bound_token": true,
+        "other_remains_authenticated": true
+      }
+    }
+  ]
+}

@@ -816,6 +816,12 @@
       "sha256": "2a42ea31a94fd07df74d336b9720384407bcdea42876e120000386d2c17139c9",
       "title": "Workload identity attribute integrity"
     },
+    "SAF-K8S-0402-006": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "1f113c43feabe75e2a9d5f94c550cab97ec85915adc1b6e05d95198d29723531",
+      "title": "Cloud workload identity federation for AI services"
+    },
     "SAF-K8S-0402-008": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -2984,7 +2990,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "be5694cc106602ba706b0c6c92378fc15d1b3dbf",
-  "sha256": "ab805cc4529889ce993cdb1e0b5d2998c68e6e61d6075b6d8178cca7da70e59e",
+  "revision": "431ee0b19ee6cada8a707f0096585221ce97e709",
+  "sha256": "28379246e9ddcabf3e19a6bde6ff480b08b075f995507805e7e60ad8f6561beb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
