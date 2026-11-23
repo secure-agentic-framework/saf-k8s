@@ -4551,11 +4551,11 @@
   control_seq: 009
   control_title: API-aware request contract validation
   control_statement: Service-level access control must include API-aware security policies that validate request patterns against expected service contracts so malformed or unexpected operations are rejected before reaching backend logic.
-  objective: Validate request behavior against expected API contracts so allowed clients cannot abuse application-layer interfaces with unexpected request patterns.
+  objective: Reject requests that violate the declared application protocol contract before they reach backend logic, while retaining permitted requests.
   rationale: Authorized traffic can still abuse services through unexpected request shapes or unsupported operations. Separating API contract validation from L7 authorization makes request-shape enforcement independently auditable.
-  scope: Applies to production clusters running a service mesh or CNI with L7 policy support. Priority should be given to services handling sensitive data, admin operations, or cross-trust-boundary communication. L7 policies require application protocol awareness and may not apply to non-HTTP workloads without protocol-specific support.
+  scope: Applies to in-scope service routes enforced by a standalone API gateway, mesh gateway, or dedicated protocol-aware validation component. Prioritize sensitive data, administration and cross-trust-boundary routes. Verify the inspected protocol, request parts and applicable backend paths.
   primary_enforcement_point: API-aware request validation controls.
-  implementation_surface: API gateway or envoy policy enforcement validating requests against OpenAPI or expected service contracts, plus tests showing invalid request patterns are rejected.
+  implementation_surface: Configure an API gateway or dedicated validator that supports the required contract format and request parts. Record the approved schema revision, route coverage and behavior for malformed, out-of-schema and permitted requests. Method, path and header matching alone does not validate an HTTP body schema.
   owner_primary: Security Engineering
   owner_supporting: Network Engineering; Application Development
   baseline_or_ai_specific: baseline
