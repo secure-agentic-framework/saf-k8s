@@ -7610,12 +7610,12 @@
   knowledge_area: '8.2'
   control_seq: 009
   control_title: GPU driver binary path file integrity monitoring
-  control_statement: GPU driver binary and shared library paths must be monitored with file integrity tools to detect unauthorized replacement, tampering, or drift from approved baselines.
-  objective: Detect unauthorized replacement or tampering of GPU driver binaries and shared libraries on the filesystem before compromised driver code is used by workloads.
-  rationale: Driver binary replacement on the filesystem can subvert GPU workloads even when kernel module trust controls are in place. File integrity monitoring is a distinct detection obligation because it validates the integrity of driver binary paths and shared libraries linked by workloads after installation.
-  scope: Applies to all Kubernetes GPU nodes running NVIDIA driver shared libraries and binaries. Covers approved GPU driver binary paths, baseline establishment, and monitoring for unauthorized modification or replacement.
-  primary_enforcement_point: Driver Binary Path Integrity Monitoring
-  implementation_surface: File integrity monitoring tools on GPU driver binary paths and shared libraries, approved baseline capture for libnvidia paths, and alerting on unauthorized replacement or tampering.
+  control_statement: Maintain a protected, versioned inventory and integrity baseline for the effective accelerator driver files. Detect and report unauthorized changes and verify any separately required pre-use appraisal.
+  objective: Detect drift in governed accelerator driver files and identify whether a separately verified control prevents use of changed files.
+  rationale: Driver file detection depends on an explicit inventory, trustworthy baseline and evidence from the actual filesystem. A read-only monitor can observe a mismatch after a file changes. Blocking use requires a separate enforcement mechanism and evidence.
+  scope: Applies to governed accelerator platforms and installation modes, including host-installed, operator-managed and provider-managed driver files where observable. Record covered paths, baseline sources, exclusions and exceptions.
+  primary_enforcement_point: Effective host file monitoring against a protected baseline and separately verified appraisal where required.
+  implementation_surface: Map exact effective file paths and versions to a trusted package or approved build. Protect baseline and alert records, verify observed detection and approved replacement handling, and review actual pre-use appraisal scope independently if required.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; GPU Infrastructure Engineering
   baseline_or_ai_specific: ai-specific
