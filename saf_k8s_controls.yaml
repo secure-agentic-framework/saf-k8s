@@ -3810,12 +3810,12 @@
   knowledge_area: '4.5'
   control_seq: '021'
   control_title: Break-glass activation multi-party approval enforcement
-  control_statement: Organizations must ensure break-glass access activation requires MFA or equivalent dual-authorization so emergency privileges cannot be enabled by a single actor without strong approval controls.
-  objective: Constrain break-glass activation through strong multi-party approval so emergency access does not become a single-actor privileged bypass.
-  rationale: Emergency access is inherently high risk because it bypasses normal identity paths. Requiring MFA or equivalent dual-authorization at activation reduces the likelihood that one person can improperly enable powerful recovery access during an incident.
-  scope: Applies to all break-glass credentials, kubeconfigs, or certificates issued for production Kubernetes clusters, including managed and multi-tenant environments. Covers activation controls, MFA or equivalent dual-authorization, and tenant-scoped emergency credentials where applicable.
-  primary_enforcement_point: Break-glass activation approval controls.
-  implementation_surface: MFA or equivalent dual-authorization at emergency access activation, activation approval workflows, and emergency access authorization records.
+  control_statement: Require separately attributable approval by at least two authorized parties for governed emergency access activation. Enforce the approval decision on the exact intended grant and verify any separately required authentication assurance.
+  objective: Keep one party from unilaterally approving and enabling a governed emergency grant while preserving the authorized scoped recovery operation.
+  rationale: Multiple factors can authenticate one participant. Multiparty authorization requires distinct approved actors and a decision tied to the same request, scope and lifetime.
+  scope: Applies to the inventoried emergency privileges and approved activation paths. Define approver independence and authority, idempotence and expiry, scoped provisioners and evidence for any exceptions. Verify required human MFA separately.
+  primary_enforcement_point: Actual activation authorization that uses independently attributable approvals for the same exact request.
+  implementation_surface: Exercise missing, single, conflicting and valid distinct approvals, authenticated approver attribution, exact target, expiry and activation scope. Test the approved operation and independently verify required MFA and withdrawal.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; Identity and Access Management
   baseline_or_ai_specific: baseline
