@@ -2742,6 +2742,12 @@
       "sha256": "ad8a8f0fc5c3588caf080dbdec127cc1578fe8295dd2e0dfb9fe437eb5d92058",
       "title": "External-origin annotation and internal registry enrollment for approved external models"
     },
+    "SAF-K8S-0907-006": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "00841cab38ef05c3c1ac1b11698fcd3f6350d32a48c35e13a319eb9c20e02a27",
+      "title": "Training dataset access restriction across storage backends"
+    },
     "SAF-K8S-0907-007": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3332,7 +3338,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "252561b336d38862262a8d6d208bb75001328c63",
-  "sha256": "24fb53c9bf7eb0d4935aa528c8799c459741bbbefd5b3a750cb6d9dc27734c6b",
+  "revision": "587bd0641e5172c9efdce9a76b61b0d780472a82",
+  "sha256": "b008534584e8a3ae294d1e139e47dcf83677f2003a8873e1ec87f87173735b50",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
