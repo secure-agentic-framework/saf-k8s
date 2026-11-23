@@ -1,0 +1,110 @@
+{
+  "control_id": "SAF-K8S-0905-032",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "e079804a923925143376bf4b20ff3500c1b673a174faa40cb59bad46a8df54d5",
+  "scope": "Runs one fixture-owned Kubernetes Job in the precreated saf-test namespace. All inputs are constants: fixed inert legacy bytes and a tiny F32[2] SafeTensors-shaped payload. Red records a permissive decision reaching only a counted stub; green denies the same bytes before loader invocation; positive checks approved-format values and rejection of mislabeled inert bytes before value access. This does not test a production model loader, PyTorch, hostile payload behavior, general SafeTensors compatibility, or 0905-033 structure/metadata checks.",
+  "cluster": "saf-lab-a31764adf2e4",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The permissive policy routes the fixed inert representation to a counted stub",
+      "matched": true,
+      "observed": {
+        "counters": {
+          "deny_count": 0,
+          "loader_calls": 0,
+          "stub_calls": 1,
+          "values_read": 0
+        },
+        "declared_format": "legacy-inert",
+        "sha256": "2bb25e3edbca0ff0324ce97c301941c26ce3c739ba196d8def6ff914bf97a118",
+        "status": "STUB_ONLY"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The allowlist denies the same input before invoking any loader",
+      "matched": true,
+      "observed": {
+        "counters": {
+          "deny_count": 1,
+          "loader_calls": 0,
+          "stub_calls": 0,
+          "values_read": 0
+        },
+        "declared_format": "legacy-inert",
+        "sha256": "2bb25e3edbca0ff0324ce97c301941c26ce3c739ba196d8def6ff914bf97a118",
+        "status": "DENY_FORMAT"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same allowlist routes approved bytes to the loader and returns the exact fixture values",
+      "matched": true,
+      "observed": {
+        "counters": {
+          "deny_count": 0,
+          "loader_calls": 1,
+          "stub_calls": 0,
+          "values_read": 2
+        },
+        "declared_format": "safetensors",
+        "sha256": "1fa6bcfde3b5c5b07623e9b282bc92f89dc8ae9e2ebfd9d2097b1d6e1aa76548",
+        "status": "SAFE_LOADED",
+        "values": [
+          1.25,
+          -2.5
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Mislabeling the same inert bytes does not cause the approved parser to consume model values",
+      "matched": true,
+      "observed": {
+        "counters": {
+          "deny_count": 0,
+          "loader_calls": 1,
+          "stub_calls": 0,
+          "values_read": 0
+        },
+        "declared_format": "safetensors",
+        "sha256": "2bb25e3edbca0ff0324ce97c301941c26ce3c739ba196d8def6ff914bf97a118",
+        "status": "REJECTED_BEFORE_VALUES"
+      }
+    }
+  ]
+}

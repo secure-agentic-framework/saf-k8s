@@ -1326,6 +1326,12 @@
       "sha256": "95a828d37e78f02ba1ea5da944324c8165c4646a50749c9281c4471a711f9764",
       "title": "ML framework and Python dependency vulnerability management"
     },
+    "SAF-K8S-0905-032": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "e079804a923925143376bf4b20ff3500c1b673a174faa40cb59bad46a8df54d5",
+      "title": "Safe model format allowlist and unsafe deserialization blocking"
+    },
     "SAF-K8S-0905-034": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1940,7 +1946,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "1e6258eadda53bdf7f42e364c728c21ad3fb5a59",
+  "revision": "e5b928a31eb29f5d14bff4756ac788119b3b2d73",
   "sha256": "5d300b2f3b1823e3cbb4aee50b95ef1970adf01a5b145ef7ca8309eb785d1ee4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
