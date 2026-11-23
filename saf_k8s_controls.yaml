@@ -1610,12 +1610,12 @@
   knowledge_area: '2.3'
   control_seq: 009
   control_title: Workload identity replacement for cloud API access
-  control_statement: Cloud-hosted Kubernetes clusters must replace metadata-derived cloud credentials with workload identity federation where the platform supports it so pod workloads use dedicated short-lived identities instead of node instance credentials.
-  objective: Eliminate operational dependence on node metadata credentials by shifting workloads to dedicated workload identities for cloud API access.
-  rationale: Blocking metadata paths reduces exposure, but durable risk reduction requires removing the need for pods to use node instance credentials at all. This control isolates the workload identity replacement obligation so teams can independently verify that cloud API access uses federated pod identities rather than metadata-derived credentials.
-  scope: Applies to cloud-hosted Kubernetes clusters supporting workload identity federation features such as IRSA, EKS Pod Identity, GKE Workload Identity, and Azure Workload Identity.
-  primary_enforcement_point: Workload identity configuration for pod credential issuance.
-  implementation_surface: Workload identity federation configuration replacing node instance credentials for cloud API access.
+  control_statement: Use provider-supported workload identity with scoped temporary credentials for eligible workload cloud API operations. Verify the actual selected principal and approved permissions, and govern alternate or fallback node identity paths separately.
+  objective: Make cloud API calls attributable to approved workload-specific identities with the required scope and lifetime.
+  rationale: Supported providers use different forms of workload identity, issuance and credential mediation. A pod-facing identity binding does not remove required node identities and does not by itself establish actual provider principal selection.
+  scope: Applies to eligible governed workloads using supported cloud API identity mechanisms. Inventory workload identity bindings, active issuer, audience or association, provider principal, effective permissions, node fallback and exception ownership.
+  primary_enforcement_point: Actual workload identity linkage, provider issuance and authorization, and effective workload credential sourcing.
+  implementation_surface: Exercise intended issuance, authorized calls, denied alternate subject or audience and unsupported fallbacks as applicable. Verify provider-side identity and lifetime, applicable network restrictions and role boundaries, and retain sanitized audit evidence.
   owner_primary: Cloud Infrastructure
   owner_supporting: Platform Engineering; Security Engineering
   baseline_or_ai_specific: baseline
