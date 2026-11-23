@@ -4510,12 +4510,12 @@
   knowledge_area: '5.4'
   control_seq: '007'
   control_title: SPIFFE trust domain scoping and cross-cluster federation governance
-  control_statement: SPIFFE trust domains must be explicitly configured and scoped to organizational boundaries, and cross-cluster workload identity federation must use explicit trust bundle exchange and enrolled federation relationships rather than implicit trust.
-  objective: Enable secure cross-cluster identity trust only where intended by governing trust-domain boundaries and explicit federation exchange.
-  rationale: Improperly scoped trust domains or implicit federation relationships allow workloads in one environment to impersonate identities from another. Separating federation governance from local identity issuance makes trust-boundary control independently auditable.
-  scope: Applies to all production Kubernetes clusters implementing zero trust networking. SPIRE server and agent deployments must follow high-availability patterns. Trust domain naming must align with organizational boundaries. Cross-cluster federation applies where workloads in separate clusters need to authenticate to each other.
+  control_statement: Govern SPIFFE trust domains as security and administrative boundaries. Configure explicit federation when eligible workloads authenticate across different trust domains. Keep the approved bundle bound to its issuing domain and authorize the intended peer identity separately.
+  objective: Authenticate approved foreign trust domains and authorize the intended identities across those boundaries.
+  rationale: Kubernetes cluster boundaries and SPIFFE trust domains can differ. Bind each foreign bundle to the intended issuing domain so it can validate only the corresponding credentials. Authentication of a foreign credential enables a separate authorization decision for that identity.
+  scope: Applies wherever Kubernetes workloads authenticate across distinct SPIFFE trust domains, including deployments within one Kubernetes cluster or across several. Workloads that already share the same SPIFFE trust domain use that domain's trust. Verify organizational domain boundaries and the relying party's policy.
   primary_enforcement_point: Trust domain and federation boundary governance.
-  implementation_surface: Trust domain configuration and naming, federation endpoint configuration, explicit trust bundle exchange, and approval of cross-cluster identity trust relationships.
+  implementation_surface: Document trust domains, authenticated federation endpoints, expected endpoint identity, bundle refresh and failure handling. Preserve the trust-domain-to-bundle association and verify relying-party authorization using complete peer SPIFFE IDs. Test accepted and rejected peer identities.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; Network Engineering
   baseline_or_ai_specific: baseline
