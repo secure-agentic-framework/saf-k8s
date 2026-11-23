@@ -1,0 +1,70 @@
+{
+  "control_id": "SAF-K8S-0404-002",
+  "catalog_revision": "fe6157945e0411e5f840825a35d10e88fa3d5225",
+  "catalog_sha256": "0c22d6f8c53d6747a15984176532e05339c81989b8458bd761b1375135d42da3",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "9982d3d3098a8318200ede5025cfabe1d879510670fc51e0c7beb7d071969b23",
+  "scope": "Separate native Kubernetes admission and API aggregation paths use the same case-owned HTTPS server. Actual API-server decisions distinguish trusted CA, service DNS identity, and an explicit admission denial. Workload-to-workload transports, extension-client authentication, CA reload and production trust policy need independent verification.",
+  "cluster": "saf-lab-8e98cca4d32b",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The API server rejects both extension paths when the trust bundle excludes the actual issuer",
+      "matched": true,
+      "observed": {
+        "admission": true,
+        "aggregation": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same trusted chain is denied on both paths when the Service DNS name does not match",
+      "matched": true,
+      "observed": {
+        "admission": true,
+        "aggregation": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both trusted paths work and a valid webhook decision remains distinct from failed TLS",
+      "matched": true,
+      "observed": {
+        "accepted_trusted_admission": true,
+        "trusted_api_aggregation_marker_read": true,
+        "explicit_valid_webhook_denial": true
+      }
+    }
+  ]
+}

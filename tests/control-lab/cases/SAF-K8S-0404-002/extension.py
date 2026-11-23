@@ -1,0 +1,51 @@
+"""Minimal case-owned HTTPS admission and aggregation endpoints."""
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import json
+import ssl
+from urllib.parse import urlsplit
+
+GROUP = "extension-fixture.saf-k8s.example"
+VERSION = GROUP + "/v1"
+
+
+class Handler(BaseHTTPRequestHandler):
+    def answer(self, status, data):
+        payload = json.dumps(data).encode()
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
+
+    def do_GET(self):
+        path = urlsplit(self.path).path
+        print("fixture GET " + path, flush=True)
+        if path == "/apis/" + VERSION:
+            self.answer(200, {"apiVersion": "v1", "kind": "APIResourceList", "groupVersion": VERSION,
+                              "resources": [{"name": "fixturemarkers", "singularName": "fixturemarker",
+                                             "namespaced": False, "kind": "FixtureMarker", "verbs": ["list"]}]})
+        elif path == "/apis/" + VERSION + "/fixturemarkers":
+            self.answer(200, {"apiVersion": VERSION, "kind": "FixtureMarkerList", "metadata": {},
+                              "items": [{"apiVersion": VERSION, "kind": "FixtureMarker",
+                                         "metadata": {"name": "owned-aggregation-marker"}}]})
+        else:
+            self.answer(404, {"message": "unknown fixture path"})
+
+    def do_POST(self):
+        review = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+        request = review["request"]
+        allowed = "deny" not in request["object"].get("data", {})
+        response = {"uid": request["uid"], "allowed": allowed}
+        if not allowed:
+            response["status"] = {"message": "Owned extension deliberately denies this public fixture"}
+        self.answer(200, {"apiVersion": "admission.k8s.io/v1", "kind": "AdmissionReview", "response": response})
+
+    def log_message(self, *_):
+        pass
+
+
+listener = HTTPServer(("0.0.0.0", 8443), Handler)
+context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+context.load_cert_chain("/tls/tls.crt", "/tls/tls.key")
+listener.socket = context.wrap_socket(listener.socket, server_side=True)
+listener.serve_forever()

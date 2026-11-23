@@ -1032,6 +1032,12 @@
       "sha256": "52a935c8648f79240f7187e2b7375e8a7cb63a06c7b36f4f0324020f8c952f8d",
       "title": "cert-manager deployment and Issuer configuration"
     },
+    "SAF-K8S-0404-002": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "9982d3d3098a8318200ede5025cfabe1d879510670fc51e0c7beb7d071969b23",
+      "title": "TLS provisioning for webhooks, API aggregation, and internal services"
+    },
     "SAF-K8S-0404-008": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -3098,7 +3104,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ff6ac39b0efd83256e073bffb009a1c5d79315d1",
-  "sha256": "27e016121c761914fd4408db1d825835a64e31d07025642c389095d65dcdf4e1",
+  "revision": "62c4ec9e26e56c931dd74360944fee3111df2d08",
+  "sha256": "0c22d6f8c53d6747a15984176532e05339c81989b8458bd761b1375135d42da3",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
