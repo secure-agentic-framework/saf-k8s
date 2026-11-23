@@ -1320,6 +1320,12 @@
       "sha256": "1cacba9c6e0a6b7faba354f263e71920e4055453ab92d7270c5cf4d52054300c",
       "title": "Separation of duties enforcement for model promotion approvals"
     },
+    "SAF-K8S-0905-028": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "95a828d37e78f02ba1ea5da944324c8165c4646a50749c9281c4471a711f9764",
+      "title": "ML framework and Python dependency vulnerability management"
+    },
     "SAF-K8S-0905-034": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1928,7 +1934,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "aff14aa1b8d40694ffe9ee938db6344c7533c090",
+  "revision": "66646d761cd2edff2ea92aa731f150433f022821",
   "sha256": "5d300b2f3b1823e3cbb4aee50b95ef1970adf01a5b145ef7ca8309eb785d1ee4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

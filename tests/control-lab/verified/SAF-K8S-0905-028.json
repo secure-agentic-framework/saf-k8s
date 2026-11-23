@@ -1,0 +1,149 @@
+{
+  "control_id": "SAF-K8S-0905-028",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "95a828d37e78f02ba1ea5da944324c8165c4646a50749c9281c4471a711f9764",
+  "scope": "One disposable Kubernetes cluster job builds tiny metadata-only wheels for two fictitious packages, installs them with pip --no-index from local wheelhouse directories, and inspects installed metadata. The red observation records the same flagged installation as promotable under an explicitly inactive gate; green blocks it; positive installs a fresh patched fixture and confirms its direct-to-transitive dependency path. No real third-party package, CVE, package code, vulnerability behavior, or production promotion system is involved.",
+  "cluster": "saf-lab-dd66997ea1fb",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The inactive gate writes a promotion record for the pinned dependency with a fixture advisory",
+      "matched": true,
+      "observed": {
+        "decision": "accepted",
+        "enforced": false,
+        "installed": {
+          "saf-fixture-core": {
+            "requires": [],
+            "version": "0.4.0"
+          },
+          "saf-ml-fixture": {
+            "requires": [
+              "saf-fixture-core>=0.4,<1"
+            ],
+            "version": "1.0.0"
+          }
+        },
+        "matches": [
+          {
+            "id": "SAF-FAB-2026-0905-028-001",
+            "package": "saf-fixture-core",
+            "version": "0.4.0"
+          }
+        ],
+        "promoted_record": {
+          "installed": {
+            "saf-fixture-core": {
+              "requires": [],
+              "version": "0.4.0"
+            },
+            "saf-ml-fixture": {
+              "requires": [
+                "saf-fixture-core>=0.4,<1"
+              ],
+              "version": "1.0.0"
+            }
+          }
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The active gate withholds promotion of the same installed dependency and records the exact match",
+      "matched": true,
+      "observed": {
+        "decision": "blocked",
+        "enforced": true,
+        "installed": {
+          "saf-fixture-core": {
+            "requires": [],
+            "version": "0.4.0"
+          },
+          "saf-ml-fixture": {
+            "requires": [
+              "saf-fixture-core>=0.4,<1"
+            ],
+            "version": "1.0.0"
+          }
+        },
+        "matches": [
+          {
+            "id": "SAF-FAB-2026-0905-028-001",
+            "package": "saf-fixture-core",
+            "version": "0.4.0"
+          }
+        ],
+        "promoted_record": null
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A fresh installation replaces the flagged transitive dependency and produces a promotion record",
+      "matched": true,
+      "observed": {
+        "decision": "accepted",
+        "enforced": true,
+        "installed": {
+          "saf-fixture-core": {
+            "requires": [],
+            "version": "0.4.1"
+          },
+          "saf-ml-fixture": {
+            "requires": [
+              "saf-fixture-core>=0.4,<1"
+            ],
+            "version": "1.0.0"
+          }
+        },
+        "matches": [],
+        "promoted_record": {
+          "installed": {
+            "saf-fixture-core": {
+              "requires": [],
+              "version": "0.4.1"
+            },
+            "saf-ml-fixture": {
+              "requires": [
+                "saf-fixture-core>=0.4,<1"
+              ],
+              "version": "1.0.0"
+            }
+          }
+        }
+      }
+    }
+  ]
+}
