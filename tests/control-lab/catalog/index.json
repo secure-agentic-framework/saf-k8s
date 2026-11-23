@@ -948,6 +948,12 @@
       "sha256": "26be60d06b9528e968fd23a334dd0a00f21b10d97bc3718d606fbcfb8bf5d326",
       "title": "Notary v2 OCI signature artifact registry integration"
     },
+    "SAF-K8S-0602-006": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "4d1a745f2a713a1395e25f8c127e552bdb89c2622402778ab87ff2f444771da6",
+      "title": "Fail-closed admission enforcement of image signature verification"
+    },
     "SAF-K8S-0602-007": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2228,7 +2234,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "60cdbb1cf54de8da06a9e5993d3bde1da2969d0c",
-  "sha256": "ef8b0ea24e4aa4e3cdfdc0d0bc175c312b4a1188cf4a5cc70220453a2f131ce8",
+  "revision": "477ea1bdbc1d9a2ffd0626f3cccf83b6276f5278",
+  "sha256": "1e0788e23530a8952383db62a95b74f3adb91bd678e139c386f77c3c54c4f306",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -1,0 +1,120 @@
+{
+  "control_id": "SAF-K8S-0602-006",
+  "catalog_revision": "7e40abda941b517a195737ac8238f5b8a1016100",
+  "catalog_sha256": "1e0788e23530a8952383db62a95b74f3adb91bd678e139c386f77c3c54c4f306",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "4d1a745f2a713a1395e25f8c127e552bdb89c2622402778ab87ff2f444771da6",
+  "scope": "Kubernetes Pod CREATE server-side dry-run in one enrolled Kind namespace with a pinned Kyverno installation, an owned TLS registry, immutable image references and one ephemeral Cosign identity. Tests signature denial, registry lookup failure, webhook unavailability, and recovery. Production coverage and existing workloads require independent evidence.",
+  "cluster": "saf-lab-d36f7394187c",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The same unsigned digest is admitted before enabling the signature policy",
+      "matched": true,
+      "observed": {
+        "unsigned_baseline_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Kyverno rejects the identical unsigned digest",
+      "matched": true,
+      "observed": {
+        "signature_denied": true,
+        "effective_validating_failure_policy": "Fail"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The already signed approved image is admitted",
+      "matched": true,
+      "observed": {
+        "signed_baseline_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A reachable verifier denies a new signed digest while the registry is unavailable",
+      "matched": true,
+      "observed": {
+        "registry_dependency_denied": true,
+        "webhook_endpoint_ready": true,
+        "owned_registry_running": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Registry recovery permits the same signed digest",
+      "matched": true,
+      "observed": {
+        "same_signed_digest_admitted_after_registry_recovery": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The API fails closed when it cannot reach its registered signature webhooks",
+      "matched": true,
+      "observed": {
+        "mutating_failure_policy": "Fail",
+        "validating_failure_policy": "Fail",
+        "api_reported_failed_mutating_webhook_call": true,
+        "verifier_and_registry_remained_available_in_cluster": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Webhook recovery admits the webhook-outage digest",
+      "matched": true,
+      "observed": {
+        "signed_digest_admitted_after_webhook_recovery": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Webhook recovery admits the recovered digest",
+      "matched": true,
+      "observed": {
+        "signed_digest_admitted_after_webhook_recovery": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The disposable registry container and volume were removed",
+      "matched": true,
+      "observed": {
+        "registry_cleanup": "complete"
+      }
+    }
+  ]
+}
