@@ -810,6 +810,12 @@
       "sha256": "9dab11d4efd2ef04577368bfdb6e5610d74411f6d2223c8aa48b85309ba4905c",
       "title": "Namespace-scoped DNS service discovery restriction"
     },
+    "SAF-K8S-0504-001": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "741d6736c68e18e1ac7f84995b551cb983a879ab04bda31155afda202c564e5f",
+      "title": "Zero trust networking principles for Kubernetes"
+    },
     "SAF-K8S-0504-002": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -2156,7 +2162,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "18f076c2773639b81b12cdd065afa970d9b2bf6f",
+  "revision": "3d5f64316faad5ad17994422d8c64f8a6f25b4fc",
   "sha256": "d5b9975954dbf7a12a2b143ff52c21ce718f33101175cda56c4a1df4cb7fa8bf",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
