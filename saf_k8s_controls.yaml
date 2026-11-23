@@ -2310,12 +2310,12 @@
   knowledge_area: '3.3'
   control_seq: '006'
   control_title: MAC profile iterative refinement cycle
-  control_statement: Organizations must iteratively refine MAC profiles through successive audit-mode test cycles, incorporating any legitimate operations observed as denied into revised profile versions, and must require at least two consecutive clean audit cycles before activating enforcement mode.
-  objective: Ensure MAC profiles are complete and accurate for all workload code paths, including infrequent paths such as health checks, garbage collection, and scheduled operations, before enforcement is activated, by requiring systematic iterative refinement until successive clean cycles confirm profile completeness.
-  rationale: A single audit-mode observation cycle may not exercise all legitimate workload code paths, particularly infrequent operations such as periodic health checks, garbage collection syscalls, checkpoint saves, or emergency error-handling paths. Requiring iterative refinement across multiple cycles ensures that profiles are complete before enforcement is activated, preventing operational disruptions caused by profiles that are accurate for common paths but miss edge cases.
-  scope: Applies to all generated MAC profiles before enforcement mode activation and after any workload update that could introduce new syscalls or file access patterns. The iterative cycle must be repeated whenever the workload binary, its dependencies, or the underlying runtime environment changes significantly.
-  primary_enforcement_point: Profile version control and change management process, with iterative cycle completion verified before enforcement mode is approved in the deployment pipeline.
-  implementation_surface: Version-controlled profile files with change history documenting additions between refinement iterations, iterative refinement workflow across model load, training epoch, checkpoint, inference, and health check code paths, cycle completion tracking, and deployment pipeline gates requiring documented clean audit cycles before enforcement.
+  control_statement: Refine governed workload profiles whenever relevant workload, dependency or runtime changes alter expected operations. Promote an exact revision only after representative use cases, required policy events, final enforcing decisions and recovery are verified.
+  objective: Keep the profile aligned with approved workload behavior across exercised operational paths and preserve restrictions on operations outside that approval.
+  rationale: Repeated clean observation cycles can miss the same unexercised path or uncollected event. A local cycle threshold is a change-management criterion. Verified path coverage, accurate event collection and enforcing tests determine the supported evidence.
+  scope: Applies to governed workload profiles and material workload, runtime, hardware or policy changes. Define each applicable operating and recovery path and supported observation mode.
+  primary_enforcement_point: Versioned profile review, scoped workload and telemetry checks, final enforcement verification, promotion approval and rollback.
+  implementation_surface: Bind exact profile revisions to the workload and supported platform. Use an explicit path inventory, calibrate event collection, distinguish legitimate from incidental or excluded operations, test selective changes under enforcement and exercise recovery. Reassess the affected paths after material changes.
   owner_primary: Security Engineering
   owner_supporting: Platform Engineering; Application Development teams
   baseline_or_ai_specific: baseline
