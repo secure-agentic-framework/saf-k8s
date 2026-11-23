@@ -588,6 +588,12 @@
       "sha256": "e1c3ae25827f24161f8b79db9610c52b332f9b1ae294f1460c5437d1b70483f1",
       "title": "Service proxy path hardening for kube-proxy or replacements"
     },
+    "SAF-K8S-0205-010": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "42e53ce971f1c38cf6ed646605d90cfadb66da6e9ab1f08894b2a9745618c818",
+      "title": "Node-level firewall rule restriction for cluster communication"
+    },
     "SAF-K8S-0301-001": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -2930,7 +2936,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "2771b92a019cc35d421a92d933ff28a5b70c190a",
-  "sha256": "264903bc4aaf01240ab8d93864f96388bcf0f27a4ee05b1d19d0943e4d780c49",
+  "revision": "9585cd5149825ab3c26e683d90214fafdcdddaa9",
+  "sha256": "9b155f5e921ceec7fe41aea293edea67673217846b3df860393f9505233302c3",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
