@@ -1644,6 +1644,12 @@
       "sha256": "efcdbb254914709049e8213c7921d586eb072874ce4d8033d1bef0df4f5b1a93",
       "title": "vGPU virtualization security controls"
     },
+    "SAF-K8S-0801-006": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "6d2f8c9fd07dd3ef280fc027f1df1f24b00bcbf0c01d191434417a6de312cc26",
+      "title": "GPU memory clearing between workload transitions"
+    },
     "SAF-K8S-0801-009": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -2564,7 +2570,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "7944c68668701bd43ebedd1048dacd31eeb43d01",
-  "sha256": "e45666aee3efcd1aa48ec677260934b9c00a5419033cb114c0d1823305d2ec10",
+  "revision": "ae8e69fb19b464a4b18eda48de32ea361c6b4dd3",
+  "sha256": "2cd5ef9b7ce253f31197f34d133bd87c48f8b24505534b3b3030560b57c8e436",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

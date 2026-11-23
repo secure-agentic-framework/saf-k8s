@@ -1,0 +1,70 @@
+{
+  "control_id": "SAF-K8S-0801-006",
+  "catalog_revision": "3f1a3a3a05bc3935d2ecf370ece122960b811c5e",
+  "catalog_sha256": "2cd5ef9b7ce253f31197f34d133bd87c48f8b24505534b3b3030560b57c8e436",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "6d2f8c9fd07dd3ef280fc027f1df1f24b00bcbf0c01d191434417a6de312cc26",
+  "scope": "Live reassignment admission based on an inert transition record; no physical device, memory or reset involved.",
+  "cluster": "saf-lab-66e59df34e16",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Without transition enforcement, platform admission accepts a cross-trust request while the modeled record is quarantined",
+      "matched": true,
+      "observed": {
+        "admitted_without_enforcement": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The modeled reset alone does not release quarantine and workload submitters cannot edit the platform record",
+      "matched": true,
+      "observed": {
+        "initial_record_denied": true,
+        "incomplete_approved_record_denied": true,
+        "fixture_submitter_cannot_patch_record": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The matching reviewed transition permits the workload while a mismatched or later transition is denied",
+      "matched": true,
+      "observed": {
+        "authorized_workload_ran": true,
+        "mismatched_request_denied": true,
+        "reopened_request_denied_after_closure": true
+      }
+    }
+  ]
+}
