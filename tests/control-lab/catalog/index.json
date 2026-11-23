@@ -480,6 +480,12 @@
       "sha256": "6356b7e239cf8e511e7f680736e0ce720f72944282dae22b9076575b462458e0",
       "title": "Pod metadata endpoint network path blocking"
     },
+    "SAF-K8S-0203-009": {
+      "catalog_status": "draft",
+      "domain": "D02",
+      "sha256": "5e353d4fbbb211e49e927179400a96900623e53c9264e4bbdfb4a4c79c819856",
+      "title": "Workload identity replacement for cloud API access"
+    },
     "SAF-K8S-0203-016": {
       "catalog_status": "draft",
       "domain": "D02",
@@ -2828,7 +2834,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "a32a6b289ff9f1646ea2ddfdb1a952146de2a7ba",
-  "sha256": "d0e0a793b2a517c32f30c21b4e103b728ef921c09794eecca3de263c9469ce95",
+  "revision": "30c637c8db263299461d5ea0dde7af350bc9fa2a",
+  "sha256": "32b70923f43dc58d7939cdb50afca687f2a37f5f1bc0d41c90c831c8f7a97fe0",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
