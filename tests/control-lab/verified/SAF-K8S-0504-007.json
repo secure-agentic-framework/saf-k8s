@@ -1,0 +1,109 @@
+{
+  "control_id": "SAF-K8S-0504-007",
+  "catalog_revision": "9b27271891a25688d99d37856eca2e42873cd507",
+  "catalog_sha256": "38fe195709eb17028b611697b598230b21982191eb187d26ef672788bfd0c1ac",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "ce36d0f118ea863c966c70b6743a3ed2cabdac7c6f3a3991b36e32ce255cffdb",
+  "scope": "Two independently attested SPIRE 1.16.0 trust domains in separate namespaces of one isolated Kubernetes v1.36.1 Kind cluster. A genuine B X.509-SVID fails client certificate verification before cross-domain trust is configured. A gives its verifier the B bundle through the SPIRE Workload API after an authenticated federation endpoint refresh. The eligible B identity then completes mTLS and receives HTTP 200, while another verified B identity receives HTTP 403. Separate-cluster deployment and ongoing lifecycle governance require separate evidence.",
+  "cluster": "saf-lab-ba1305c47442",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The owned kubelet has a cluster-signed serving credential for its actual endpoint",
+      "matched": true,
+      "observed": {
+        "valid_serving_signer": true,
+        "owned_endpoint_in_csr": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both SPIRE providers attest an agent and own distinct public roots",
+      "matched": true,
+      "observed": {
+        "independent_roots": true,
+        "agents_attested": 2
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without foreign trust the eligible credential fails chain validation before HTTP",
+      "matched": true,
+      "observed": {
+        "client_rejected": true,
+        "server_rejected_untrusted_issuer": true,
+        "no_request_before_tls": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "SPIRE A refreshes the exact B trust bundle from its authenticated endpoint",
+      "matched": true,
+      "observed": {
+        "refresh_succeeded": true,
+        "foreign_roots_match": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The verifier receives the exact foreign roots from its own Workload API",
+      "matched": true,
+      "observed": {
+        "foreign_roots_delivered": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The TLS-verified identity spiffe://b.saf.test/lab/approved receives HTTP 200",
+      "matched": true,
+      "observed": {
+        "verified_client_uri": "spiffe://b.saf.test/lab/approved",
+        "server_uri_verified": true,
+        "http_status": 200,
+        "server_decision_observed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The TLS-verified identity spiffe://b.saf.test/lab/other receives HTTP 403",
+      "matched": true,
+      "observed": {
+        "verified_client_uri": "spiffe://b.saf.test/lab/other",
+        "server_uri_verified": true,
+        "http_status": 403,
+        "server_decision_observed": true
+      }
+    }
+  ]
+}

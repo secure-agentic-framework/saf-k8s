@@ -1,0 +1,117 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spire-agent-config
+  namespace: saf-fed-b
+data:
+  agent.conf: "agent {\n  data_dir = \"/run/spire/data\"\n  log_level = \"INFO\"\n\
+    \  server_address = \"spire-server\"\n  server_port = 8081\n  socket_path = \"\
+    /run/spire/sockets/agent.sock\"\n  trust_bundle_path = \"/run/spire/bootstrap/bundle.pem\"\
+    \n  trust_domain = \"b.saf.test\"\n}\nplugins {\n  NodeAttestor \"k8s_psat\" {\n\
+    \    plugin_data {\n      cluster = \"saf-b\"\n      token_path = \"/run/spire/psat/token\"\
+    \n    }\n  }\n  KeyManager \"memory\" { plugin_data {} }\n  WorkloadAttestor \"\
+    k8s\" {\n    plugin_data {\n      kubelet_secure_port = 10250\n      kubelet_ca_path\
+    \ = \"/var/run/secrets/kubernetes.io/serviceaccount/ca.crt\"\n      token_path\
+    \ = \"/var/run/secrets/kubernetes.io/serviceaccount/token\"\n      node_name_env\
+    \ = \"K8S_NODE_ADDRESS\"\n    }\n  }\n  WorkloadAttestor \"unix\" { plugin_data\
+    \ {} }\n}\n"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: saf-spire-kubelet-inspect-b
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - nodes/pods
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: saf-spire-kubelet-inspect-b
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: saf-spire-kubelet-inspect-b
+subjects:
+- kind: ServiceAccount
+  name: saf-spire-agent
+  namespace: saf-fed-b
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: spire-agent
+  namespace: saf-fed-b
+spec:
+  selector:
+    matchLabels:
+      app: spire-agent
+  template:
+    metadata:
+      labels:
+        app: spire-agent
+    spec:
+      serviceAccountName: saf-spire-agent
+      hostPID: true
+      containers:
+      - name: agent
+        image: ghcr.io/spiffe/spire-agent:1.16.0@sha256:ab3a8ce70435374cc5d84c81eabf0278dc046ddbc0a736d59694ba9e5975b1b6
+        command:
+        - /opt/spire/bin/spire-agent
+        args:
+        - run
+        - -config
+        - /run/spire/config/agent.conf
+        readinessProbe:
+          exec:
+            command:
+            - /opt/spire/bin/spire-agent
+            - healthcheck
+            - -socketPath
+            - /run/spire/sockets/agent.sock
+          periodSeconds: 2
+          failureThreshold: 30
+        env:
+        - name: K8S_NODE_ADDRESS
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        volumeMounts:
+        - name: config
+          mountPath: /run/spire/config
+          readOnly: true
+        - name: bootstrap
+          mountPath: /run/spire/bootstrap
+          readOnly: true
+        - name: sockets
+          mountPath: /run/spire/sockets
+        - name: data
+          mountPath: /run/spire/data
+        - name: projected-psat
+          mountPath: /run/spire/psat
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: spire-agent-config
+      - name: bootstrap
+        configMap:
+          name: spire-agent-bootstrap
+      - name: sockets
+        hostPath:
+          path: /run/spire/federation-b
+          type: DirectoryOrCreate
+      - name: data
+        emptyDir: {}
+      - name: projected-psat
+        projected:
+          sources:
+          - serviceAccountToken:
+              audience: spire-server
+              expirationSeconds: 900
+              path: token

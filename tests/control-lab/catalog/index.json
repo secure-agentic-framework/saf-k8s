@@ -828,6 +828,12 @@
       "sha256": "1a6c89de44b7567908f0713f4b34df73d07e797dc747cbac2e542c8b3469034b",
       "title": "SPIFFE/SPIRE workload identity issuance and lifecycle management"
     },
+    "SAF-K8S-0504-007": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "ce36d0f118ea863c966c70b6743a3ed2cabdac7c6f3a3991b36e32ce255cffdb",
+      "title": "SPIFFE trust domain scoping and cross-cluster federation governance"
+    },
     "SAF-K8S-0504-008": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -2168,7 +2174,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "bde894fbe351b27b9949ff8be4245e3837e9c9dc",
-  "sha256": "d5b9975954dbf7a12a2b143ff52c21ce718f33101175cda56c4a1df4cb7fa8bf",
+  "revision": "2105d6342e1403b437bdab0b43e7fd7b6a3658d7",
+  "sha256": "38fe195709eb17028b611697b598230b21982191eb187d26ef672788bfd0c1ac",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
