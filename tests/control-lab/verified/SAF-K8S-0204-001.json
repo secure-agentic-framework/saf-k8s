@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0204-001",
-  "catalog_revision": "ba25ef6ac02d50fc50b4e7a5c0928d13651d318f",
-  "catalog_sha256": "198e47ae4cc589b87d0da9f360badfd8afbe4b708e5c29006927bb956ac63abc",
+  "catalog_revision": "b48fcd75f18478d35324bbfd874c9a8b420b8080",
+  "catalog_sha256": "cac977a792918cc74529e45763d49762ab692c539b68b58bdd492755569553e6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "333bfb3fcffef487f6fee710a45eb8e0a5e041d09f11e0a203e6e93b53d661af",
   "scope": "Observe selected real Linux events from an owned child workload in a restricted Kubernetes Job.",
-  "cluster": "saf-lab-5f5605ad8696",
+  "cluster": "saf-lab-c7f6fc06231a",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
