@@ -1548,6 +1548,12 @@
       "sha256": "04af032f032b1732427fb233b86fc0dc0eb980a408e3265da44d1bad3e9bb5e8",
       "title": "IMDSv2 enforcement on Kubernetes nodes"
     },
+    "SAF-K8S-0704-005": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "3d3f5c3d965e5de9d49eb6b5ece1665420b5bc5c77ed88927bb167532e9756af",
+      "title": "Restricted use policies for non-organizationally owned systems and external AI services"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -2456,7 +2462,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "bcb12c121335b49e837c761ea2650ca877694ee1",
-  "sha256": "3e0c905e6f556138005103b7fbb0af33d934bf75bea38a6fba4b702212ce9ead",
+  "revision": "f8228e3b592cc0cf8431a9e06efec8e654ba0ce0",
+  "sha256": "483ec67ff5c9a22bb6ac81351af23bfbdb88324b11944fb85e4f4e07953cffba",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
