@@ -1,0 +1,71 @@
+{
+  "control_id": "SAF-K8S-0403-002",
+  "catalog_revision": "600aa46d14fe8d377dfcf9e668cd23fc68951d9b",
+  "catalog_sha256": "08e921c1f2aefcbbc6f8736b0e445e6aada028a4e769b84fba159977e377b013",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "67376295ae2c53441357f62b5428120b3110bfd2e7c8c6107c0035365ea11b88",
+  "scope": "Test External Secrets Operator against a separate, disposable HTTPS provider with public markers. Verify an approved controller write, synchronized Secret, actual application directory read, source failure indication and recovery. Managed cloud stores, CSI direct mounts, authority-side actual credential rotation and production provider audit are separate.",
+  "cluster": "saf-lab-451e1ba09eb0",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Before the policy and reconciliation, a manual write is allowed and no synchronized Secret exists",
+      "matched": true,
+      "observed": {
+        "manual_dry_run_accepted": true,
+        "initial_copy_missing": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The manual API write is denied while the real controller creates an owned synchronized copy",
+      "matched": true,
+      "observed": {
+        "manual_target_write_denied": true,
+        "controller_copy_owned": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A real source outage is visible while the last copy remains, and recovery updates the running reader",
+      "matched": true,
+      "observed": {
+        "first_value_delivered": true,
+        "failed_reconciliation_observed": true,
+        "retained_while_unavailable": true,
+        "recovered_reader": true
+      }
+    }
+  ]
+}
