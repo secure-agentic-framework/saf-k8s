@@ -2748,6 +2748,12 @@
       "sha256": "c2c0bdee1c3fc5ca2557fc215cfd0d53b20deae60657f890e6fb3a0a9bc28425",
       "title": "Model deployment authorization and namespace-scoped release control"
     },
+    "SAF-K8S-0908-001": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "1e307f9a96427229b4f42e72ce1d6f9b215ffe2166fd357ea1a42392a95ce9ce",
+      "title": "Inference request limits and query monitoring"
+    },
     "SAF-K8S-0910-029": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3230,7 +3236,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "45cb05ab1ae2c3a5f8a7cb8b569a4cdc5d4e86d3",
-  "sha256": "e858a89789bf710145cabbe00353976b1761697a82fd99091709ffa58715069a",
+  "revision": "7fc08dc067cc1b7a2eeb0aeac0e4f209b8cef3c1",
+  "sha256": "4484a631b761f8f8d5825887ce5c46593225a3b816411d444791b59d28fe3a71",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

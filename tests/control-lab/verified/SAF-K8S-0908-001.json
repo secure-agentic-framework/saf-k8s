@@ -1,0 +1,73 @@
+{
+  "control_id": "SAF-K8S-0908-001",
+  "catalog_revision": "6c01cb477b116d804c598fd929d6fea779c47cd7",
+  "catalog_sha256": "4484a631b761f8f8d5825887ce5c46593225a3b816411d444791b59d28fe3a71",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "1e307f9a96427229b4f42e72ce1d6f9b215ffe2166fd357ea1a42392a95ce9ce",
+  "scope": "Real Kubernetes TokenReview authenticates two temporary pod identities to a fixture TLS gateway. A bounded quota refuses one ordinary request before the independent synthetic predictor and emits a minimal attributed event. The other identity remains within its budget. This demonstrates the named serving safeguard and event path.",
+  "cluster": "saf-lab-a373df13c037",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Without the quota the same principal can invoke the predictor three times",
+      "matched": true,
+      "observed": {
+        "all_three_ordinary_requests_reach_predictor": true,
+        "predictor_records_the_three_targets": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The real authenticated quota stops forwarding and emits the expected event",
+      "matched": true,
+      "observed": {
+        "two_ordinary_requests_still_work": true,
+        "third_returns_scoped_quota_signal": true,
+        "one_minimal_attributed_alert": true,
+        "refused_request_never_reaches_predictor": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An independent approved principal can still reach the predictor",
+      "matched": true,
+      "observed": {
+        "independent_approved_principal_keeps_access": true,
+        "credential_required": true,
+        "original_principal_recovers_after_window": true,
+        "only_two_additional_predictions_forwarded": true
+      }
+    }
+  ]
+}
