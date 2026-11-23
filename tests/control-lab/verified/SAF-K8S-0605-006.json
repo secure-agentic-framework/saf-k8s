@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0605-006",
-  "catalog_revision": "619c1478dc53b82ee7825214d7a3dd81af588371",
-  "catalog_sha256": "ba2c83990b7e8dabd3521401627a287dc143c1661a28469381ebabfdcef4730b",
+  "catalog_revision": "b5de1f015eae03619494337bc98b89c24403a7a4",
+  "catalog_sha256": "a868b4ea141c0e3de49227b6eeabffa4a2330712afd28048221b89ce9b63aa55",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "804bd486bad4f21d2077d8c894816580205f04657ea3d5a3d2cf6280d90dde87",
   "scope": "One fresh Kubernetes v1.36.1 kind cluster. Server-side dry-run compares the same schema-valid, inert pause Pod with only runAsNonRoot changed, before and after Restricted PSA labels are applied to one typed synthetic AI namespace. A ValidatingAdmissionPolicy requires immutable AI classification and Restricted enforce/audit/warn labels pinned to v1.36. A separate ordinary namespace checks namespace matching. Native metadata audit events record the proposed Baseline AI namespace and its Pod-level Restricted violation. All Pod requests are server-side dry-run. Production coverage and central audit delivery require deployment evidence.",
-  "cluster": "saf-lab-8730c903a9b6",
+  "cluster": "saf-lab-6e8408f43a60",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
