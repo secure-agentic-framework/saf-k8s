@@ -816,6 +816,12 @@
       "sha256": "b3b589d90ccaa1051053396388688d80df81c18895935a9c76e3c474efa4a1f2",
       "title": "Service mesh mTLS and authorization policies"
     },
+    "SAF-K8S-0504-009": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "3d7a363b5b33328ad8ab38325e45385eb85a81169fa58a3215346e5f256c1ac1",
+      "title": "API-aware request contract validation"
+    },
     "SAF-K8S-0505-002": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -2138,7 +2144,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "7374a51559a594c2c8a5e32466d1f400b0b3c502",
-  "sha256": "5cdae1ac8e840efcd1bbef91e3b059258a719f1105eb1a2d6060368490ee36e2",
+  "revision": "8be2a910044f32a71fc1e09487e8a2756292243e",
+  "sha256": "6b56819b08a1e8118a395ca4e29ad2cf834ec8bb168d9124e8c6465a8ece7699",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

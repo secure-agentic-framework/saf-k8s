@@ -1,0 +1,9 @@
+apisix:
+  node_listen: 9080
+  enable_admin: false
+deployment:
+  role: data_plane
+  role_data_plane:
+    config_provider: json
+plugins:
+  - request-validation

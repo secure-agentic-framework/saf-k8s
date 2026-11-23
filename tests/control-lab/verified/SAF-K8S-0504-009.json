@@ -1,0 +1,105 @@
+{
+  "control_id": "SAF-K8S-0504-009",
+  "catalog_revision": "02f5b9a75a277cfd76b054ba32084d901e032c0e",
+  "catalog_sha256": "6b56819b08a1e8118a395ca4e29ad2cf834ec8bb168d9124e8c6465a8ece7699",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "3d7a363b5b33328ad8ab38325e45385eb85a81169fa58a3215346e5f256c1ac1",
+  "scope": "A pinned APISIX 3.21.0 standalone gateway in a fresh Kubernetes v1.36.1 Kind cluster. Its method, path and header route matching is already active before a separate JSON body contract is loaded. Exact owned requests verify out-of-schema rejection before backend processing. Other protocol, authentication, schema and deployment paths need separate evidence.",
+  "cluster": "saf-lab-e6a7443af66d",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The same three JSON contract violations reach the backend before schema enforcement",
+      "matched": true,
+      "observed": {
+        "marker_checks": {
+          "type": true,
+          "additional_field": true,
+          "range": true
+        },
+        "backend_arrivals": [
+          "type-1",
+          "field-2",
+          "range-3"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The existing route matcher rejects a wrong header without body validation",
+      "matched": true,
+      "observed": {
+        "http_status": 404,
+        "backend_unchanged": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "APISIX emits exact 422 policy results and no contract violation reaches the backend",
+      "matched": true,
+      "observed": {
+        "contract_rejections": {
+          "type": {
+            "http_status": 422,
+            "exact_policy_response": true
+          },
+          "additional_field": {
+            "http_status": 422,
+            "exact_policy_response": true
+          },
+          "range": {
+            "http_status": 422,
+            "exact_policy_response": true
+          }
+        },
+        "backend_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A schema-valid request with alternative JSON formatting reaches the backend",
+      "matched": true,
+      "observed": {
+        "marker_matched": true,
+        "http_status": 200,
+        "backend_arrivals": [
+          "type-1",
+          "field-2",
+          "range-3",
+          "good-1"
+        ]
+      }
+    }
+  ]
+}

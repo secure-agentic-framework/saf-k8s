@@ -1,0 +1,20 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "marker": {
+      "pattern": "^[a-z]+-[0-9]+$",
+      "type": "string"
+    },
+    "quantity": {
+      "maximum": 99,
+      "minimum": 1,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "marker",
+    "quantity"
+  ],
+  "title": "Synthetic submit request",
+  "type": "object"
+}
