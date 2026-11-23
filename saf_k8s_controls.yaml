@@ -7470,12 +7470,12 @@
   knowledge_area: '8.1'
   control_seq: '014'
   control_title: MPS and time-slicing side-channel risk assessment
-  control_statement: Clusters using NVIDIA MPS or GPU time-slicing must assess side-channel leakage risks for shared GPU deployments and document whether timing, contention, or memory access pattern channels create unacceptable cross-workload exposure.
-  objective: Provide technical assurance that shared GPU deployments have undergone explicit side-channel risk assessment before multi-tenant or mixed-sensitivity use is permitted.
-  rationale: Even when memory remnants are prevented, shared GPU deployments may still expose timing, contention, cache, or memory access pattern channels. This control is separate from remnant prevention because it requires threat-informed assessment of leakage mechanisms that are not resolved solely by clearing memory between workload transitions.
-  scope: Applies to any Kubernetes cluster using NVIDIA MPS or GPU time-slicing. Covers side-channel assessment activities, documented findings, and risk characterization for shared GPU deployments.
-  primary_enforcement_point: Shared-GPU Side-Channel Assessment
-  implementation_surface: Threat-informed side-channel assessment processes, shared GPU leakage testing, and documented findings or risk determinations for MPS and time-sliced GPU deployments.
+  control_statement: Assess shared-accelerator side-channel risks for the exact deployed mode and approved workload trust boundary, using applicable vendor documentation, public advisories and configuration evidence. Restrict or quarantine unsupported mixed-trust configurations and record review, mitigations and exceptions.
+  objective: Use configuration-specific evidence to decide which workloads may share accelerator resources and enforce that decision.
+  rationale: Different sharing modes have different documented hardware, visibility and scheduling guarantees. Memory sanitization addresses a separate property from ongoing shared-resource exposure. Reliance on a shared mode requires a documented threat and residual-risk decision.
+  scope: Applies to MPS, time-sliced and equivalent governed pools accepting sensitive or mutually untrusted workloads. Include exact platform versions and mode, tenant classifications, approved control paths and review triggers.
+  primary_enforcement_point: Threat and configuration review and verified admission and allocation eligibility by workload risk class.
+  implementation_surface: Maintain a reviewed configuration and risk record using applicable primary evidence and advisory disposition. Enforce verified workload and pool eligibility, reserve a reviewed alternative as required, and track configuration changes, exceptions and reassessment. Unavailable evidence keeps mixed-trust approval unresolved.
   owner_primary: ML Platform Engineering
   owner_supporting: Security Engineering; Data Protection Office
   baseline_or_ai_specific: ai-specific
