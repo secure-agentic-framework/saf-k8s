@@ -24480,16 +24480,15 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-14
   framework_requirement_title: Signed Components
-  framework_mapping_notes: 'Cryptographic signing of agent components/models
-
-
-    6.2 - Image signing (Sigstore/cosign signed components); 9.4 - Model signing and provenance verification'
+  framework_mapping_notes: For covered model components, internal signing supports deployment
+    verification under trusted signing material. CM-14 requires a recognized and organization-approved
+    signing certificate. Approved external certificates can also satisfy that requirement.
   control_id: SAF-K8S-0905-058
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: null
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -51104,16 +51103,14 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-16(3)
   framework_requirement_title: Cryptographic Binding
-  framework_mapping_notes: 'Cryptographic binding of security attributes to agent messages ensures authenticity
-
-
-    6.2 - Sigstore (cryptographic binding of signatures to artifacts); 9.5 - Model signing cryptographic binding'
+  framework_mapping_notes: Model signing can support cryptographic binding when the verified
+    signature covers the required security or privacy attributes and the transmitted model.
   control_id: SAF-K8S-0905-058
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Where model transfers carry security or privacy attributes with an explicitly verified binding.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -76845,13 +76842,15 @@
   framework_version: '1.1'
   framework_requirement_id: PS.2.1
   framework_requirement_title: Make software integrity verification information available to software acquirers.
-  framework_mapping_notes: SAF-K8S requires image signing (cosign/Sigstore, Notary v2), SLSA provenance, and transparency logging to provide integrity verification for container images, ML models, and deployment artifacts.
+  framework_mapping_notes: Making model signatures and their verification information available
+    can support software integrity checks by acquirers. PS.2.1 covers the information made available
+    to acquirers and leaves the choice of signing workflow to the organization.
   control_id: SAF-K8S-0905-058
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: null
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'

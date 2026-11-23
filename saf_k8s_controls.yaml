@@ -9352,7 +9352,7 @@
   control_title: Internal re-signing of approved external models before deployment eligibility
   control_statement: Organizations must internally re-sign approved external models with organizational signing infrastructure before the models become deployable within organizational environments.
   objective: Convert approved external artifacts into internally governed deployable assets through organizational cryptographic signing before deployment eligibility.
-  rationale: Using externally sourced models directly from outside repositories breaks the organization's trust boundary. Internal re-signing establishes organizational cryptographic custody and ensures that only internally governed artifacts become deployable.
+  rationale: An internal approval and re-signing workflow keeps the upstream provenance and records the organization's decision for the exact approved artifact. The deployment gate verifies the artifact digest and the signature under an authorized organizational signing identity before granting eligibility.
   scope: Applies to externally sourced models approved for internal use. Covers internal artifact signing and the requirement that only internally re-signed versions become deployable. Excludes external-origin annotation and registry enrollment recordkeeping.
   primary_enforcement_point: Internal signing process before deployment eligibility.
   implementation_surface: Internal artifact signing, signed external-model derivatives, and promotion logic that marks only internally re-signed external models as eligible for deployment.
