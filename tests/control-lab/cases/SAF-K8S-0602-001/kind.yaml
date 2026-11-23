@@ -1,0 +1,14 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    apiVersion: kubeadm.k8s.io/v1beta4
+    apiServer:
+      extraArgs:
+        - name: service-account-issuer
+          value: https://kubernetes.default.svc.cluster.local
+        - name: service-account-jwks-uri
+          value: https://kubernetes.default.svc/openid/v1/jwks

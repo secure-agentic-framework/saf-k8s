@@ -936,6 +936,12 @@
       "sha256": "ff47361e188d8ba90439351dc0aea68fad4f40f6edeb660c5e8b8705a048317f",
       "title": "Kubelet authorization for cached private images"
     },
+    "SAF-K8S-0602-001": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "a04bb85dfdaee2b6a48f14ac0f1400666289fc5691df686a106f924062b4ba03",
+      "title": "Sigstore/cosign keyless signing and Rekor transparency logging"
+    },
     "SAF-K8S-0602-004": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2258,7 +2264,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "262c7536f3069a9ce4239be6f859dc52636ed29f",
-  "sha256": "2d00aabcb6a52d1dff2b856af9d272a8ad444de82957029ce4aa5366b33fd871",
+  "revision": "f895e856e7823da23281fc72004564754c9cf65c",
+  "sha256": "3c16fb356a0d2bec646b189b9595506f0f25d3a3392e63607b984d19fdc9cd41",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
