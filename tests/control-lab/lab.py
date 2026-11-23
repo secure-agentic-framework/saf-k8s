@@ -180,6 +180,12 @@ def run(control_id, control_case, index, docker_context, *, approval_file=None, 
         datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8]
     )
     prepare_kind = getattr(control_case, "prepare_kind", None)
+    installs_cni = getattr(control_case, "INSTALLS_CNI", False)
+    if installs_cni and not prepare_kind:
+        raise InfrastructureError("A case installing its CNI must prepare its Kind profile")
+    # Before its CNI is installed, the API server can run while Nodes are NotReady.
+    # Such a case verifies Node readiness after installing its reviewed CNI.
+    kind_ready_wait = "0s" if installs_cni else "90s"
     local_node_version = getattr(control_case, "LOCAL_NODE_VERSION", None)
     node_image = local_node_image or (control_case.NODE_IMAGE if prepare_kind else NODE_IMAGE)
     if local_node_image is None and not re.fullmatch(
@@ -227,8 +233,10 @@ def run(control_id, control_case, index, docker_context, *, approval_file=None, 
             print(f"Starting {lab.cluster} on Docker context {docker_context}", flush=True)
             owned = True
             lab.command("kind", "create", "cluster", "--name", lab.cluster, "--image", node_image,
-                        "--kubeconfig", str(lab.kubeconfig), "--wait", "90s",
+                        "--kubeconfig", str(lab.kubeconfig), "--wait", kind_ready_wait,
                         *config_args, timeout=480)
+            if installs_cni:
+                report["kind_ready_wait"] = kind_ready_wait
             report["kubernetes"] = json.loads(lab.kubectl("version", "-o", "json").stdout)
             if local_node_version is not None:
                 server_version = report["kubernetes"]["serverVersion"]["gitVersion"]
