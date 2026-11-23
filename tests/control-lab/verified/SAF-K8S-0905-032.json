@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-032",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "6ddb3e164586a225c981db44dcebf3648fbc0fdf",
+  "catalog_sha256": "a868b4ea141c0e3de49227b6eeabffa4a2330712afd28048221b89ce9b63aa55",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e079804a923925143376bf4b20ff3500c1b673a174faa40cb59bad46a8df54d5",
   "scope": "Runs one fixture-owned Kubernetes Job in the precreated saf-test namespace. All inputs are constants: fixed inert legacy bytes and a tiny F32[2] SafeTensors-shaped payload. Red records a permissive decision reaching only a counted stub; green denies the same bytes before loader invocation; positive checks approved-format values and rejection of mislabeled inert bytes before value access. This does not test a production model loader, PyTorch, hostile payload behavior, general SafeTensors compatibility, or 0905-033 structure/metadata checks.",
-  "cluster": "saf-lab-a31764adf2e4",
+  "cluster": "saf-lab-0c299ee7612d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
