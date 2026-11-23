@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: saf-waf
+  namespace: saf-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: saf-waf
+  template:
+    metadata:
+      labels:
+        app: saf-waf
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: modsecurity-crs
+          image: owasp/modsecurity-crs:4.30.0-nginx-alpine-202611190211@sha256:f7b4ec036553aa65e65fe792394099f597d6130465e63ff58d84f087617f5412
+          env:
+            - name: BACKEND
+              value: http://saf-marker.saf-test.svc.cluster.local:8080
+            - name: SERVER_NAME
+              value: waf.lab.test
+            - name: PORT
+              value: "8080"
+            - name: MODSEC_RULE_ENGINE
+              value: "On"
+            - name: MODSEC_AUDIT_ENGINE
+              value: "On"
+            - name: MODSEC_AUDIT_LOG
+              value: /dev/stdout
+            - name: MODSEC_AUDIT_LOG_FORMAT
+              value: JSON
+            - name: MODSEC_AUDIT_LOG_TYPE
+              value: Serial
+            - name: NGINX_WORKER_PROCESSES
+              value: "1"
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 2
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: custom-rules
+              mountPath: /etc/modsecurity.d/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
+              subPath: REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
+              readOnly: true
+      volumes:
+        - name: custom-rules
+          configMap:
+            name: saf-waf-policy
+            defaultMode: 0444
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: saf-waf
+  namespace: saf-test
+spec:
+  selector:
+    app: saf-waf
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

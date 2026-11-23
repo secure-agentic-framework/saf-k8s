@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-waf-policy
+  namespace: saf-test
+data:
+  REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf: ""

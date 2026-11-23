@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-marker-files
+  namespace: saf-test
+data:
+  marker.cgi: |
+    #!/bin/sh
+    set -eu
+    marker=${HTTP_X_SAF_LAB_MARKER:-missing}
+    printf '%s\n' "$marker" >> /data/arrivals.log
+    count=$(wc -l < /data/arrivals.log)
+    printf 'Status: 200 OK\r\nContent-Type: text/plain\r\n\r\n'
+    printf 'backend=owned-marker arrivals=%s marker=%s\n' "$count" "$marker"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: saf-marker
+  namespace: saf-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: saf-marker
+  template:
+    metadata:
+      labels:
+        app: saf-marker
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: marker
+          image: docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec
+          command:
+            - sh
+            - -c
+            - >-
+              mkdir -p /www/cgi-bin /data &&
+              cp /fixture/marker.cgi /www/cgi-bin/marker.cgi &&
+              chmod 0755 /www/cgi-bin/marker.cgi &&
+              httpd -f -p 8080 -h /www
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 2
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: marker-script
+              mountPath: /fixture
+              readOnly: true
+            - name: web-root
+              mountPath: /www
+            - name: arrivals
+              mountPath: /data
+      volumes:
+        - name: marker-script
+          configMap:
+            name: saf-marker-files
+            defaultMode: 0444
+        - name: web-root
+          emptyDir: {}
+        - name: arrivals
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: saf-marker
+  namespace: saf-test
+spec:
+  selector:
+    app: saf-marker
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

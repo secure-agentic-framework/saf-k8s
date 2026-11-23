@@ -780,6 +780,12 @@
       "sha256": "f244d806ec0e16a6fc671a06a1191ccb35d19baacfdc108ad33c56b8c99595af",
       "title": "Client source IP preservation for external services"
     },
+    "SAF-K8S-0503-013": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "bcc2400d44997de9c917f24b668fa4bb5f80bcb0cc3803a2bac6fcfd23519898",
+      "title": "Ingress web application firewall integration and request filtering"
+    },
     "SAF-K8S-0503-014": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -2126,7 +2132,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "0697402433f3761dddd50f86ff07a6d5da3246a3",
-  "sha256": "bdb04d55e3747fb59a71a48784c5cb63e34a329e629a663dd7cc8f3f353e615d",
+  "revision": "b9d1788c747424e4a549b2c12e6bb1366d3eb55f",
+  "sha256": "16c7bd640f0a38249ed34de92c3b42081d5230837fed31da29ab446efccf9d54",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

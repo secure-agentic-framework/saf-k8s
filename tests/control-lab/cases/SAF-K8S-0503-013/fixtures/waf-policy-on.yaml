@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-waf-policy
+  namespace: saf-test
+data:
+  REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf: |
+    # Synthetic canary: match only the fixed harmless lab header marker.
+    SecRule REQUEST_HEADERS:X-SAF-Lab-Marker "@streq deny-example" "id:10503013,phase:1,deny,status:403,log,auditlog,msg:'SAF synthetic fixed-marker canary'"
