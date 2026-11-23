@@ -702,6 +702,12 @@
       "sha256": "dfdb0e72c806a5a10f2a9b3acb18fbfd44273722e838aecefe92eb28e9e69477",
       "title": "Model download path isolation from training data paths"
     },
+    "SAF-K8S-0502-002": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "2eba99e3d5279e50e8e051655b51473586494eba85b86e010e9fff36d7cad817",
+      "title": "Pod-to-pod traffic encryption"
+    },
     "SAF-K8S-0502-004": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -2090,7 +2096,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c4a34526bab90adad6c8e7b163ce950bb9e33cbd",
-  "sha256": "bf04d00ac83be08f1aafc5af3e01de2cfca52fd6df573d9a86b1af113ca932a3",
+  "revision": "ffaa220d4130d024986139c129c61940d3277035",
+  "sha256": "43de94094630359221f83a05e4556881b2d53e76ac3923c7062b59a892f54314",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
