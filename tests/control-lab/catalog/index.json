@@ -1536,6 +1536,12 @@
       "sha256": "f68f1b55bd14519f83a8b3ee2ae7d50f3809f5c02d81fe1ed91dd2fbc4675410",
       "title": "Investigation and termination of confirmed unauthorized GPU workloads"
     },
+    "SAF-K8S-0704-002": {
+      "catalog_status": "draft",
+      "domain": "D07",
+      "sha256": "0b29d9c9512aaf973429772eadb902e31f21daff87a7e1632a0d96caaef40f34",
+      "title": "VPC and security group integration with Kubernetes network policies"
+    },
     "SAF-K8S-0801-001": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -2444,7 +2450,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "12235e15da2098d20869adea7fea9401c5a0f5aa",
-  "sha256": "6a656806bb202ced76159061c70a2e4745ef716ccd94e9e13ff68f50da4eae65",
+  "revision": "8a53c44826f7024fb5e8f763fefbd8f3db57e7d8",
+  "sha256": "394514b767cc051199159ef49a948fd07fd47f80dde76cc3d73a929b44068b66",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
