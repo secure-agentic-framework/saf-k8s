@@ -30400,22 +30400,6 @@
 
 
     1.2 - Access-controlled backup storage (separate storage for critical backups); 7.1 - PV reclaim policy'
-  control_id: SAF-K8S-0102-022
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-9(3)
-  framework_requirement_title: Separate Storage for Critical Information
-  framework_mapping_notes: 'Separating critical agent data backups
-
-
-    1.2 - Access-controlled backup storage (separate storage for critical backups); 7.1 - PV reclaim policy'
   control_id: SAF-K8S-0701-001
   relation_type: supports
   strength_level: strong
