@@ -1,0 +1,914 @@
+{
+  "control_id": "SAF-K8S-0501-008",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "131e22652ab4358f71b1159f11b0b87e572d813d82fab2facfb1bc2980d0af73",
+  "scope": "One disposable kind v0.32.0 cluster using its bundled kindnet and Kubernetes v1.36.1; four case-owned namespaces for training, inference, pipeline, and notebook, each with one non-root BusyBox client and one fixed-marker HTTP responder. The case verifies all 12 directed cross-class IPv4 TCP/8080 paths before policy, then applies namespace-wide default-deny ingress and egress plus explicit selector-based ingress and egress rules. Four cross-class directions are allowed (training<->pipeline, pipeline->inference, notebook->training); the remaining eight are denied. One same-class path per namespace is also permitted. No Services, DNS, external targets, IPv6, other protocols, system namespaces, hostNetwork/node paths, production CNI, or cluster-wide policies are evaluated. A failed negative probe is attributed only to the controlled policy scenario after baseline reachability, healthy case-owned endpoints, and repeated timeout outcomes; the Kubernetes API does not identify a specific policy drop.",
+  "cluster": "saf-lab-15812b5de044",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Runner is kind v0.32.0 / Kubernetes v1.36.1 with ready bundled kindnet",
+      "matched": true,
+      "observed": {
+        "kind_version": "kind v0.32.0 go1.26.3 darwin/arm64",
+        "kubernetes_version": "v1.36.1",
+        "daemonset": "kube-system/kindnet",
+        "images": [
+          "docker.io/kindest/kindnetd:v20260528-9350166c"
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline reaches inference from training with its marker",
+      "matched": true,
+      "observed": {
+        "source_class": "training",
+        "destination_class": "inference",
+        "expected_outcome": "marker",
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-inference-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-inference-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-inference-fixed-marker"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "fixed marker returned by the selected case-owned responder"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline reaches pipeline from training with its marker",
+      "matched": true,
+      "observed": {
+        "source_class": "training",
+        "destination_class": "pipeline",
+        "expected_outcome": "marker",
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-pipeline-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-pipeline-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-pipeline-fixed-marker"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "fixed marker returned by the selected case-owned responder"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline reaches notebook from training with its marker",
+      "matched": true,
+      "observed": {
+        "source_class": "training",
+        "destination_class": "notebook",
+        "expected_outcome": "marker",
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-notebook-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-notebook-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-notebook-fixed-marker"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "fixed marker returned by the selected case-owned responder"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline reaches training from inference with its marker",
+      "matched": true,
+      "observed": {
+        "source_class": "inference",
+        "destination_class": "training",
+        "expected_outcome": "marker",
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-training-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-training-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-training-fixed-marker"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "fixed marker returned by the selected case-owned responder"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline reaches pipeline from inference with its marker",
+      "matched": true,
+      "observed": {
+        "source_class": "inference",
+        "destination_class": "pipeline",
+        "expected_outcome": "marker",
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-pipeline-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-pipeline-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-pipeline-fixed-marker"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "fixed marker returned by the selected case-owned responder"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline reaches notebook from inference with its marker",
+      "matched": true,
+      "observed": {
+        "source_class": "inference",
+        "destination_class": "notebook",
+        "expected_outcome": "marker",
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-notebook-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-notebook-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-notebook-fixed-marker"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "fixed marker returned by the selected case-owned responder"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline reaches training from pipeline with its marker",
+      "matched": true,
+      "observed": {
+        "source_class": "pipeline",
+        "destination_class": "training",
+        "expected_outcome": "marker",
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-training-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-training-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-training-fixed-marker"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "fixed marker returned by the selected case-owned responder"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline reaches inference from pipeline with its marker",
+      "matched": true,
+      "observed": {
+        "source_class": "pipeline",
+        "destination_class": "inference",
+        "expected_outcome": "marker",
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-inference-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-inference-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-inference-fixed-marker"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "fixed marker returned by the selected case-owned responder"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline reaches notebook from pipeline with its marker",
+      "matched": true,
+      "observed": {
+        "source_class": "pipeline",
+        "destination_class": "notebook",
+        "expected_outcome": "marker",
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-notebook-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-notebook-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-notebook-fixed-marker"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "fixed marker returned by the selected case-owned responder"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline reaches training from notebook with its marker",
+      "matched": true,
+      "observed": {
+        "source_class": "notebook",
+        "destination_class": "training",
+        "expected_outcome": "marker",
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-training-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-training-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-training-fixed-marker"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "fixed marker returned by the selected case-owned responder"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline reaches inference from notebook with its marker",
+      "matched": true,
+      "observed": {
+        "source_class": "notebook",
+        "destination_class": "inference",
+        "expected_outcome": "marker",
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-inference-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-inference-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-inference-fixed-marker"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "fixed marker returned by the selected case-owned responder"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "No-policy baseline reaches pipeline from notebook with its marker",
+      "matched": true,
+      "observed": {
+        "source_class": "notebook",
+        "destination_class": "pipeline",
+        "expected_outcome": "marker",
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-pipeline-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-pipeline-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-pipeline-fixed-marker"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "fixed marker returned by the selected case-owned responder"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Policy matrix denies training->inference",
+      "matched": true,
+      "observed": {
+        "source_class": "training",
+        "destination_class": "inference",
+        "expected_outcome": "timeout",
+        "observations": [
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "controlled policy scenario; NetworkPolicy API does not identify a specific drop"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Policy matrix allows training->pipeline",
+      "matched": true,
+      "observed": {
+        "source_class": "training",
+        "destination_class": "pipeline",
+        "expected_outcome": "marker",
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-pipeline-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-pipeline-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-pipeline-fixed-marker"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "fixed marker returned by the selected case-owned responder"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Policy matrix denies training->notebook",
+      "matched": true,
+      "observed": {
+        "source_class": "training",
+        "destination_class": "notebook",
+        "expected_outcome": "timeout",
+        "observations": [
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "controlled policy scenario; NetworkPolicy API does not identify a specific drop"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Policy matrix denies inference->training",
+      "matched": true,
+      "observed": {
+        "source_class": "inference",
+        "destination_class": "training",
+        "expected_outcome": "timeout",
+        "observations": [
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "controlled policy scenario; NetworkPolicy API does not identify a specific drop"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Policy matrix denies inference->pipeline",
+      "matched": true,
+      "observed": {
+        "source_class": "inference",
+        "destination_class": "pipeline",
+        "expected_outcome": "timeout",
+        "observations": [
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "controlled policy scenario; NetworkPolicy API does not identify a specific drop"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Policy matrix denies inference->notebook",
+      "matched": true,
+      "observed": {
+        "source_class": "inference",
+        "destination_class": "notebook",
+        "expected_outcome": "timeout",
+        "observations": [
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "controlled policy scenario; NetworkPolicy API does not identify a specific drop"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Policy matrix allows pipeline->training",
+      "matched": true,
+      "observed": {
+        "source_class": "pipeline",
+        "destination_class": "training",
+        "expected_outcome": "marker",
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-training-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-training-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-training-fixed-marker"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "fixed marker returned by the selected case-owned responder"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Policy matrix allows pipeline->inference",
+      "matched": true,
+      "observed": {
+        "source_class": "pipeline",
+        "destination_class": "inference",
+        "expected_outcome": "marker",
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-inference-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-inference-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-inference-fixed-marker"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "fixed marker returned by the selected case-owned responder"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Policy matrix denies pipeline->notebook",
+      "matched": true,
+      "observed": {
+        "source_class": "pipeline",
+        "destination_class": "notebook",
+        "expected_outcome": "timeout",
+        "observations": [
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "controlled policy scenario; NetworkPolicy API does not identify a specific drop"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Policy matrix allows notebook->training",
+      "matched": true,
+      "observed": {
+        "source_class": "notebook",
+        "destination_class": "training",
+        "expected_outcome": "marker",
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-training-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-training-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-training-fixed-marker"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "fixed marker returned by the selected case-owned responder"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Policy matrix denies notebook->inference",
+      "matched": true,
+      "observed": {
+        "source_class": "notebook",
+        "destination_class": "inference",
+        "expected_outcome": "timeout",
+        "observations": [
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "controlled policy scenario; NetworkPolicy API does not identify a specific drop"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Policy matrix denies notebook->pipeline",
+      "matched": true,
+      "observed": {
+        "source_class": "notebook",
+        "destination_class": "pipeline",
+        "expected_outcome": "timeout",
+        "observations": [
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          },
+          {
+            "outcome": "timeout"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "controlled policy scenario; NetworkPolicy API does not identify a specific drop"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Explicit same-class path remains useful in training",
+      "matched": true,
+      "observed": {
+        "source_class": "training",
+        "destination_class": "training",
+        "expected_outcome": "marker",
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-training-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-training-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-training-fixed-marker"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "fixed marker returned by the selected case-owned responder"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Explicit same-class path remains useful in inference",
+      "matched": true,
+      "observed": {
+        "source_class": "inference",
+        "destination_class": "inference",
+        "expected_outcome": "marker",
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-inference-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-inference-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-inference-fixed-marker"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "fixed marker returned by the selected case-owned responder"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Explicit same-class path remains useful in pipeline",
+      "matched": true,
+      "observed": {
+        "source_class": "pipeline",
+        "destination_class": "pipeline",
+        "expected_outcome": "marker",
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-pipeline-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-pipeline-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-pipeline-fixed-marker"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "fixed marker returned by the selected case-owned responder"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Explicit same-class path remains useful in notebook",
+      "matched": true,
+      "observed": {
+        "source_class": "notebook",
+        "destination_class": "notebook",
+        "expected_outcome": "marker",
+        "observations": [
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-notebook-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-notebook-fixed-marker"
+          },
+          {
+            "outcome": "marker",
+            "marker": "saf-0501-008-notebook-fixed-marker"
+          }
+        ],
+        "three_consecutive_observations": true,
+        "transport": "IPv4 TCP",
+        "destination_port": 8080,
+        "controlled_endpoints_ready": true,
+        "attribution_limit": "fixed marker returned by the selected case-owned responder"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "All case-owned clients and responders remain ready after the matrix",
+      "matched": true,
+      "observed": {
+        "pod_readiness": {
+          "training/client": {
+            "phase": "Running",
+            "ready": true
+          },
+          "training/responder": {
+            "phase": "Running",
+            "ready": true
+          },
+          "inference/client": {
+            "phase": "Running",
+            "ready": true
+          },
+          "inference/responder": {
+            "phase": "Running",
+            "ready": true
+          },
+          "pipeline/client": {
+            "phase": "Running",
+            "ready": true
+          },
+          "pipeline/responder": {
+            "phase": "Running",
+            "ready": true
+          },
+          "notebook/client": {
+            "phase": "Running",
+            "ready": true
+          },
+          "notebook/responder": {
+            "phase": "Running",
+            "ready": true
+          }
+        },
+        "network_policies_by_namespace": {
+          "saf-0501-008-training": [
+            "allow-egress-training-to-pipeline",
+            "allow-egress-training-to-training",
+            "allow-ingress-notebook-to-training",
+            "allow-ingress-pipeline-to-training",
+            "allow-ingress-training-to-training",
+            "default-deny-ingress-egress"
+          ],
+          "saf-0501-008-inference": [
+            "allow-egress-inference-to-inference",
+            "allow-ingress-inference-to-inference",
+            "allow-ingress-pipeline-to-inference",
+            "default-deny-ingress-egress"
+          ],
+          "saf-0501-008-pipeline": [
+            "allow-egress-pipeline-to-inference",
+            "allow-egress-pipeline-to-pipeline",
+            "allow-egress-pipeline-to-training",
+            "allow-ingress-pipeline-to-pipeline",
+            "allow-ingress-training-to-pipeline",
+            "default-deny-ingress-egress"
+          ],
+          "saf-0501-008-notebook": [
+            "allow-egress-notebook-to-notebook",
+            "allow-egress-notebook-to-training",
+            "allow-ingress-notebook-to-notebook",
+            "default-deny-ingress-egress"
+          ]
+        }
+      }
+    }
+  ]
+}
