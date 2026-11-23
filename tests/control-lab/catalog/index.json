@@ -1728,6 +1728,12 @@
       "sha256": "7547f4a1945644598c0d32f139ffda22b47d55f2a7949200c697b43514b4ac7f",
       "title": "GPU driver binary path file integrity monitoring"
     },
+    "SAF-K8S-0803-001": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "ed4744c4e2c0c7c122d2ba7e1cb3d3b38beb539bdde80728cede80ece93f9440",
+      "title": "NVLink and NVSwitch traffic isolation for multi-GPU training"
+    },
     "SAF-K8S-0901-002": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -2630,7 +2636,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "edf9de92eb1494f5bb54e50038ba6575e5c3a7c3",
-  "sha256": "78a9cabcbb24c4ad908856efb6fb3b8d27811f90010d4e627ee54d6f19045b6d",
+  "revision": "40d9508ea380d03baa86117fc56665d66c10c22d",
+  "sha256": "83854ad483aaad1d0ad490ca57e6bfc21e9be1d1a872c16f431d66995c4b3817",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

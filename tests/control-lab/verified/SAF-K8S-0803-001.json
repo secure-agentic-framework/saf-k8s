@@ -1,0 +1,71 @@
+{
+  "control_id": "SAF-K8S-0803-001",
+  "catalog_revision": "f5e19f0c58d11fae0230a2406be8e6c8afbce69d",
+  "catalog_sha256": "83854ad483aaad1d0ad490ca57e6bfc21e9be1d1a872c16f431d66995c4b3817",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "ed4744c4e2c0c7c122d2ba7e1cb3d3b38beb539bdde80728cede80ece93f9440",
+  "scope": "Real Kubernetes admission and scheduling on separate Kind nodes for modeled accelerator domains.",
+  "cluster": "saf-lab-ebc7e7fa2704",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The API accepts the contrary modeled domain before placement enforcement",
+      "matched": true,
+      "observed": {
+        "unapproved_domain_initially_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission denies the contrary selector and requires scheduler-mediated placement",
+      "matched": true,
+      "observed": {
+        "contrary_domain_denied": true,
+        "direct_assignment_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both approved fixture Pods run on their separate intended nodes",
+      "matched": true,
+      "observed": {
+        "approved_placement": {
+          "tenant-a": true,
+          "tenant-b": true
+        },
+        "distinct_nodes": 2
+      }
+    }
+  ]
+}
