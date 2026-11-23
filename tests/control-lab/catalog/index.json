@@ -942,6 +942,12 @@
       "sha256": "f0f7ebe6a67f123f4eb36aa66a0a9d13a9fa0fabac762495e98cdda9e866262e",
       "title": "Secrets KMS key rotation and re-encryption verification"
     },
+    "SAF-K8S-0403-017": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "7a63512b4c789a3f48ca71ce395729fdcaf73dd6b48d2d8f203bf9cf0913be9e",
+      "title": "AI platform key-domain hierarchy and envelope encryption architecture"
+    },
     "SAF-K8S-0403-019": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -3026,7 +3032,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "86187d52f4f0bc53ec99c7ac627def32b6cbb502",
-  "sha256": "886ada14b8b36531b874ba421fd8454580a73a6e1daf2ed77919866faee11b69",
+  "revision": "0abaa135b1261f597aa3c20d1e47f1b0523b55c0",
+  "sha256": "cb8505dc43d22cf5337db392487725a77a587ed59f1394f199046ac2651b3c5e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
