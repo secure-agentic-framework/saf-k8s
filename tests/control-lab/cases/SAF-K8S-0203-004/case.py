@@ -1,21 +1,43 @@
 """Exercise actual virtual UEFI boot verification using only owned EFI markers."""
 
+import hashlib
 import json
 from pathlib import Path
 
 SCOPE = "An unprivileged Kind Job drives three isolated QEMU UEFI boots of the same benign EFI program."
-TOOLS = "saf-lab-uefi-fixture:trixie"
+LABEL = "org.saf.fixture.toolchain-source"
 NAME = "fixture-uefi-boot"
 HERE = Path(__file__).resolve().parent
 
 
+def toolchain(lab):
+    source = hashlib.sha256()
+    for name in ("Dockerfile", "marker.c"):
+        source.update(name.encode())
+        source.update(b"\0")
+        source.update((HERE / name).read_bytes())
+    fingerprint = source.hexdigest()
+    image = "saf-lab-uefi-fixture:source-" + fingerprint[:24]
+    lookup = lab.command("docker", "image", "inspect", "--format", "{{.Id}}", image, allow_failure=True)
+    if lookup.returncode:
+        lab.command("docker", "build", "-q", "-t", image, "--label", f"{LABEL}={fingerprint}",
+                    "-f", str(HERE / "Dockerfile"), str(HERE), timeout=420)
+    report = lab.command("docker", "image", "inspect", "--format", "{{json .}}", image).stdout
+    metadata = json.loads(report)
+    if metadata["Config"]["Labels"].get(LABEL) != fingerprint or not metadata["Id"].startswith("sha256:"):
+        lab.block("The local UEFI fixture image did not match the expected toolchain source label")
+    packages = lab.command("docker", "run", "--rm", "--network=none", "--entrypoint=dpkg-query",
+                           metadata["Id"], "-W").stdout
+    return image, metadata["Id"], hashlib.sha256(packages.encode()).hexdigest(), fingerprint
+
+
 def run(lab):
     lab.kubectl("label", "namespace", "saf-test", "pod-security.kubernetes.io/enforce=restricted")
-    lab.command("docker", "build", "-q", "-t", TOOLS, "-f", str(HERE / "Dockerfile"), str(HERE), timeout=420)
-    lab.command("kind", "load", "docker-image", TOOLS, "--name", lab.cluster, timeout=180)
+    image, digest, packages, source = toolchain(lab)
+    lab.command("kind", "load", "docker-image", image, "--name", lab.cluster, timeout=180)
     lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": NAME},
                 "data": {"boot.sh": (HERE / "boot-fixture.sh").read_text()}})
-    unit = {"name": "boot", "image": TOOLS, "imagePullPolicy": "Never",
+    unit = {"name": "boot", "image": image, "imagePullPolicy": "Never",
             "command": ["sh", "/test/boot.sh"],
             "volumeMounts": [{"name": "fixture", "mountPath": "/test", "readOnly": True},
                              {"name": "temporary", "mountPath": "/tmp"}],
@@ -35,6 +57,12 @@ def run(lab):
     result = lab.kubectl("logs", "job/" + NAME, allow_failure=True)
     if complete.returncode != 0 or result.returncode != 0:
         lab.block("The virtual UEFI fixture did not complete; inspect the isolated Job logs")
+    pods = json.loads(lab.kubectl("get", "pods", "-l", f"job-name={NAME}", "-o", "json").stdout)["items"]
+    worker, = pods
+    status, = worker["status"]["containerStatuses"]
+    actual_image = status.get("imageID", "")
+    if "sha256:" not in actual_image:
+        lab.block("Kubernetes did not report the virtual boot container image identity")
     rows = set(result.stdout.splitlines())
     uncovered = "unsigned_runs_without_enforcement" in rows
     enforced = "enforcement_refuses_unsigned" in rows
@@ -44,9 +72,11 @@ def run(lab):
     lab.check("green", "The enforced firmware reports a security refusal for the unsigned application",
               enforced, {"unsigned_application_refused": enforced})
     lab.check("positive", "The same application signed by the enrolled signer executes with Secure Boot enabled",
-              approved, {"approved_application_started_under_enforcement": approved})
+              approved, {"approved_application_started_under_enforcement": approved, "tool_image": digest, "running_image": actual_image})
     (lab.evidence / "uefi-verified-boot-observations.json").write_text(json.dumps({
         "mechanism": "virtual UEFI with fixture-enrolled platform and signer keys",
+        "docker_image": digest, "container_image": actual_image, "package_inventory_sha256": packages,
+        "toolchain_source_sha256": source,
         "unsigned_disabled_runs": uncovered, "unsigned_enforced_denied": enforced,
         "approved_signed_enforced_runs": approved, "physical_node_or_measured_boot_tested": False,
     }, indent=2) + "\n")
