@@ -1,0 +1,71 @@
+{
+  "control_id": "SAF-K8S-0103-008",
+  "catalog_revision": "cb8bc214d1d30ccaa26f5f99d6bf7864ac48205d",
+  "catalog_sha256": "968c7761d3e7448e82e2016f9937be91078d13d1d8a706853850c43f5dac0d30",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "fa3454956d65379197ea013a7db087e08ce9f4f0d6a83a66f57ebb7789a3bcde",
+  "scope": "Real native Kubernetes deployment reconciliation plus a separate cloud-controller fixture without cloud credentials.",
+  "cluster": "saf-lab-d6b992d5d541",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "A separate workload can still touch both owned fixture markers when it has broad permissions",
+      "matched": true,
+      "observed": {
+        "fixture_update": 200,
+        "other_marker_update": 200
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The separate reviewed workload updates its own marker and cannot alter the core marker or lease",
+      "matched": true,
+      "observed": {
+        "fixture_update": 200,
+        "other_marker_update": 403,
+        "independent_pod_and_identity": true,
+        "native_lease_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native deployment reconciliation succeeds after the fixture controller is removed",
+      "matched": true,
+      "observed": {
+        "same_native_controller": true,
+        "native_owned_workload_ready": true
+      }
+    }
+  ]
+}

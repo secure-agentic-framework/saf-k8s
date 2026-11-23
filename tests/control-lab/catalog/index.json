@@ -198,6 +198,12 @@
       "sha256": "4275274216b123df460b9d6c90f2ad9cc64989a2d35a4b44dc139548ccda8a53",
       "title": "Profiling endpoint disablement for controller-manager and scheduler"
     },
+    "SAF-K8S-0103-008": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "fa3454956d65379197ea013a7db087e08ce9f4f0d6a83a66f57ebb7789a3bcde",
+      "title": "Cloud controller-manager deployment isolation"
+    },
     "SAF-K8S-0103-010": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -2756,7 +2762,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "388698f56933f6a35ffcded60ddc04eb9fcc0284",
-  "sha256": "b8ebccaf71340f871e94a8ae863928a490bff7417de2318c53f245ee15de6f27",
+  "revision": "dde818fa066129e7bf2537aaecace7543cb78fcd",
+  "sha256": "968c7761d3e7448e82e2016f9937be91078d13d1d8a706853850c43f5dac0d30",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
