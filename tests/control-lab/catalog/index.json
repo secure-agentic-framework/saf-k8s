@@ -1710,6 +1710,12 @@
       "sha256": "aca10e02f11429632eb0d060296d4e128b342f6c5cdee277f47e67e1f3fb8388",
       "title": "Device plugin socket directory access restriction and unauthorized socket access monitoring"
     },
+    "SAF-K8S-0802-007": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "6fcc17da3a848d9cf7cc9e7f99a04e90d5142302ebd1c349aa2df6faf7942f43",
+      "title": "Device plugin enrollment and registration telemetry reconciliation"
+    },
     "SAF-K8S-0802-009": {
       "catalog_status": "draft",
       "domain": "D08",
@@ -2618,7 +2624,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "3e45d6de4447071ed2f22f5e366cf53b76fbc87d",
-  "sha256": "fa4897b9899484547c048ebe7fd98c2f8355fddd889c4dcb1d7f37cbdba2ef55",
+  "revision": "cd7ffb82ddd846c65d10138583b5aea1479bec27",
+  "sha256": "4231fb8fbe9c32302fb4b4417bfe1bdaa53ce0803fbd4e1574ca09abbefb568a",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
