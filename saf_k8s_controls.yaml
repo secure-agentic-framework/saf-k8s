@@ -5750,12 +5750,12 @@
   knowledge_area: '6.6'
   control_seq: '017'
   control_title: CNCF lifecycle phase security coverage
-  control_statement: CI/CD pipelines must apply required security controls across all CNCF lifecycle phases (Develop, Distribute, Deploy), with explicit phase-completion gates preventing artifact promotion or deployment until the controls for that phase have executed and passed.
-  objective: Ensure CI/CD security coverage is defined and enforced at each CNCF lifecycle phase so supply chain controls are not concentrated in only one stage of the delivery path.
-  rationale: A pipeline can implement strong point controls but still leave major lifecycle gaps if develop-time, distribute-time, or deploy-time protections are missing. Treating Develop, Distribute, and Deploy as distinct control checkpoints ensures that security coverage is complete across the software delivery path rather than assumed from a single successful gate.
-  scope: Applies to all CI/CD pipelines that build, promote, sign, attest, or deploy artifacts to Kubernetes clusters. Covers phase coverage from source and build activity through artifact distribution and deployment gating.
-  primary_enforcement_point: CI/CD pipeline phase definitions, promotion gates, and deployment approval logic.
-  implementation_surface: CI/CD pipeline definitions covering Develop, Distribute, and Deploy phases, with required stage-specific controls, promotion criteria, and evidence that artifacts do not advance when a lifecycle phase gate is incomplete or failed.
+  control_statement: For each governed Kubernetes delivery pipeline enforce locally required checks at the Develop, Distribute, and Deploy transitions. Bind each decision to the evaluated artifact. Address Runtime as the fourth CNCF lifecycle phase with separately owned operational checks and response evidence.
+  objective: Identify the checks and admission or promotion decisions at each delivery transition and verify applicable runtime controls after deployment.
+  rationale: CNCF TAG Security describes four continuous lifecycle phases named Develop, Distribute, Deploy, and Runtime. This SAF control defines local transition checks for the first three and requires separate runtime operating evidence.
+  scope: Applies to selected CI or GitOps delivery paths and their governed Kubernetes artifacts. Document local phase mappings and control applicability, and identify which operating environments and runtime checks follow deployment.
+  primary_enforcement_point: CI and delivery transition gates, cluster admission, and documented Runtime monitoring and response.
+  implementation_surface: Map required pre-runtime checks to their actual CI, distribution and deployment boundaries. Retain pass or fail evidence for the exact artifact or configuration, prevent progression after a required check fails, and assess Runtime separately with deployed identity, policy, telemetry and response evidence appropriate to the workload.
   owner_primary: DevSecOps / Release Engineering
   owner_supporting: Security Engineering; Platform Engineering
   baseline_or_ai_specific: baseline
