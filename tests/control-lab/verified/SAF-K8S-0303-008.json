@@ -1,0 +1,78 @@
+{
+  "control_id": "SAF-K8S-0303-008",
+  "catalog_revision": "6ddcd6981a0c720955f9edccfb76a891208d422f",
+  "catalog_sha256": "fdf08fc7aaabdb508c82e0c305db0fc50a3a086cd522e808e2b0e5dffe9a1802",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "a83792951c856fe5ef43c5321ea0c69df547730b3992cca23f8061d74b1858de",
+  "scope": "Test explicit AppArmor approval, inheritance and overrides for ordinary, init and ephemeral containers on the Kubernetes API. Use scheduling gates for named-profile fixtures so their API acceptance does not imply node enforcement.",
+  "cluster": "saf-lab-38ed170f1989",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The API accepts omission and an unconfined ephemeral override before the scoped policy",
+      "matched": true,
+      "observed": {
+        "omission_accepted": true,
+        "ephemeral_override_accepted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The named-profile policy denies missing, unapproved and unconfined requests across every container list",
+      "matched": true,
+      "observed": {
+        "omission": true,
+        "wrong_pod_profile": true,
+        "unconfined_app_override": true,
+        "unapproved_init_override": true,
+        "runtime_default_not_the_approved_class": true,
+        "deprecated_annotation": true,
+        "unconfined_ephemeral_override": true,
+        "unapproved_ephemeral_override": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Approved inheritance and explicit profiles pass, including ephemeral updates, and the unselected namespace is unaffected",
+      "matched": true,
+      "observed": {
+        "inherit_pod_default": true,
+        "explicit_per_container": true,
+        "ephemeral_inherits": true,
+        "ephemeral_explicit": true,
+        "unselected_namespace": true
+      }
+    }
+  ]
+}

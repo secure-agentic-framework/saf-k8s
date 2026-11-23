@@ -678,6 +678,12 @@
       "sha256": "b841f1423a0a2ff4bdb77930726ef0450ef74ba9d14127d179fddce00df596bc",
       "title": "AppArmor profile distribution and node readiness"
     },
+    "SAF-K8S-0303-008": {
+      "catalog_status": "draft",
+      "domain": "D03",
+      "sha256": "a83792951c856fe5ef43c5321ea0c69df547730b3992cca23f8061d74b1858de",
+      "title": "AppArmor workload profile assignment and unconfined-mode restriction"
+    },
     "SAF-K8S-0304-003": {
       "catalog_status": "draft",
       "domain": "D03",
@@ -2948,7 +2954,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6228c80851d3b3f910ed4fd8d17ace25c96e19e3",
-  "sha256": "b354310236026071a6d362326132c3325dd10def181047d64509cad88b4753c6",
+  "revision": "2a80aa0f36f687715e38358b6455e499543f8b21",
+  "sha256": "fdf08fc7aaabdb508c82e0c305db0fc50a3a086cd522e808e2b0e5dffe9a1802",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
