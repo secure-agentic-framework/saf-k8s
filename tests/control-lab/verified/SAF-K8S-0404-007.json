@@ -1,0 +1,74 @@
+{
+  "control_id": "SAF-K8S-0404-007",
+  "catalog_revision": "26b73d9102fcfef52706fc3d495005cd8064cbe3",
+  "catalog_sha256": "e673d5b20ffce1acbd7e7ad68cb919854226a6e36a4a1328569bdc8f184e5fcc",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "7d5b30f5e69b4653bcf881bfae06ccc2448c1ff2c1068f830594d2ca5c16be10",
+  "scope": "Live cert-manager schedules renewal at distinct points for two case-owned Certificates. The short-cycle leaf is reissued with a distinct key before expiry without mutation of the Certificate spec. A real workload reloads its mounted Secret and a verifying client serves a public probe across the transition. Other Kubernetes certificate fleets and loading behavior require independent implementation and evidence.",
+  "cluster": "saf-lab-06bec6a8e04b",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Both leaves begin valid while the ordinary schedule is outside the lab interval",
+      "matched": true,
+      "observed": {
+        "old_leaf_in_use": true,
+        "short_cycle_due_before_control": true,
+        "both_initial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Only the due Certificate is automatically renewed with a fresh key before expiry",
+      "matched": true,
+      "observed": {
+        "actual_timer_renewed_after_due": true,
+        "issued_before_expiry": true,
+        "distinct_leaf_and_key": true,
+        "no_certificate_spec_change": true,
+        "later_scheduled_control_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The client validates the active replacement leaf and reads the service marker",
+      "matched": true,
+      "observed": {
+        "verified_live_service_switched_leaf": true,
+        "switch_observed_before_old_expiry": true,
+        "service_health_observed": true
+      }
+    }
+  ]
+}

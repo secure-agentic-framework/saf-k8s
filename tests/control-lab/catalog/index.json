@@ -1044,6 +1044,12 @@
       "sha256": "56778e018331207a65c8ffb6779d8a1e720fd4c9902c6a24a7afb866f184012a",
       "title": "mTLS for service-to-service authentication"
     },
+    "SAF-K8S-0404-007": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "7d5b30f5e69b4653bcf881bfae06ccc2448c1ff2c1068f830594d2ca5c16be10",
+      "title": "Automated certificate rotation before expiry"
+    },
     "SAF-K8S-0404-008": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -3110,7 +3116,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "b635a1c4bca85d00993c58d81254c470f6312268",
-  "sha256": "c09541417907cc7248bdd4fb884d3f081daf444f4eb3271930a59b44ef557ec0",
+  "revision": "fc0ffcac496d3755d648939d80f0f29375eb7335",
+  "sha256": "e673d5b20ffce1acbd7e7ad68cb919854226a6e36a4a1328569bdc8f184e5fcc",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
