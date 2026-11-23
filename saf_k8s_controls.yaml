@@ -7710,12 +7710,12 @@
   knowledge_area: '8.3'
   control_seq: '006'
   control_title: DPU and SmartNIC host trust boundary definition and policy engine administrative restriction
-  control_statement: DPU and SmartNIC devices used for AI workload acceleration or network offload must enforce clear trust boundaries between offloaded and host-processed functions, and policy enforcement capabilities on the device must be restricted to authorized administrators.
-  objective: Prevent DPUs and SmartNICs from becoming opaque enforcement points that bypass host security controls or permit unauthorized changes to offloaded networking and storage policies.
-  rationale: The host-to-DPU offload boundary introduces a security gap where policies enforced on the device may not be visible to host monitoring. Clear trust-boundary definition and restricted administration of DPU policy engines are distinct from firmware integrity because they govern how offloaded functions are delegated, observed, and changed after the device has booted trusted firmware.
-  scope: Applies to Kubernetes nodes equipped with DPUs or SmartNICs with programmable policy engines. Covers documented host-to-DPU trust boundaries, visibility of offloaded enforcement, and administrative restriction of DPU policy engines or management interfaces.
-  primary_enforcement_point: DPU Offload Trust Boundary and Policy Engine Governance
-  implementation_surface: Host-to-DPU trust boundary documentation and configuration, DPU policy engine access controls, DPU-enforced policy consistency checks against Kubernetes and host controls, and management interface RBAC restricting unauthorized administrative access.
+  control_statement: Define effective host and offload-device trust and administrative boundaries for the deployed operating mode. Restrict policy changes on every applicable management path, preserve authorized visibility, and verify which data-plane rules the device actually enforces.
+  objective: Make offloaded policy ownership and effective administrative and data-plane permissions verifiable.
+  rationale: Host, device operating system, out-of-band controller and Kubernetes management surfaces can confer different privileges. Kubernetes RBAC governs Kubernetes API requests. Device access and offloaded enforcement require separate controls and evidence.
+  scope: Applies to governed programmable offload paths and all related host, device, BMC, operator and API surfaces. Inventory operating mode, owners, effective policy, telemetry and approved exceptions.
+  primary_enforcement_point: Effective vendor device and management access controls, scoped host delegation and Kubernetes operator RBAC, and independent offload observations.
+  implementation_surface: Record the actual host and device ownership boundary and applicable administrative paths. Restrict and audit device policy changes and Kubernetes management separately. Verify effective offload rules and observation coverage and compare with intended host policy.
   owner_primary: Network Engineering
   owner_supporting: GPU Infrastructure Engineering; Security Engineering; Platform Engineering
   baseline_or_ai_specific: ai-specific
