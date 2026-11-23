@@ -7,7 +7,7 @@
 
 to intervene in the operation of the high-risk AI system or interrupt the system through a stop button or a similar procedure that allows the system to come to a halt in a safe state.
 
-Kubernetes provides infrastructure-level stop mechanisms: scaling replicas to zero, applying deny-all network policies, suspending workloads, and containment procedures (SAF-K8S-1005-002). These are the platform-level "stop button" capabilities.
+Verified network isolation can contribute to a stop procedure where trained overseers have actual authority to use it. SAF-K8S-1005-024 supplies limited quarantine and suspension mechanisms in incident response. Independently verify the safe-state behavior and the available procedure.
 
 ## SAF-K8S Controls
 
@@ -15,16 +15,16 @@ Kubernetes provides infrastructure-level stop mechanisms: scaling replicas to ze
 
 - Domain: D05 - Network Security and Communication
 - Knowledge Area: 5.1
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: partial
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1005-001 - Kubernetes incident response lifecycle](../../controls/SAF-K8S-1005-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.5
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: partial
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
