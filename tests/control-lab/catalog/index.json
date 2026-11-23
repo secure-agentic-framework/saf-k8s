@@ -1308,6 +1308,12 @@
       "sha256": "e9fe2c88f109de6df909ca6247e367af99d390c1441680b8db45830fa2dea9b9",
       "title": "Development-to-production environment separation for AI workloads"
     },
+    "SAF-K8S-0905-015": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "348cf339218a7f732e8084f8729a73fa8a357caf2f01120514fa727f106b1a61",
+      "title": "AI system control profile enforcement"
+    },
     "SAF-K8S-0905-025": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -1808,7 +1814,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "34bf09fa4ba9bf2ccc6989c67212d21cd1ec3926",
+  "revision": "9aab09d3111b6ae6f2241de9d513a625344941df",
   "sha256": "141559b7769339d63e7704ca30c28a6ab8e8d2fbbfefd87b9e9225f3feff5204",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
