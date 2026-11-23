@@ -15492,22 +15492,6 @@
 
 
     5.1 - Implement network policies (egress controls, one-way restrictions); 9.4 - Pipeline step isolation to prevent data leakage between stages'
-  control_id: SAF-K8S-0501-009
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(7)
-  framework_requirement_title: One-way Flow Mechanisms
-  framework_mapping_notes: 'Unidirectional data flows for agent isolation
-
-
-    5.1 - Implement network policies (egress controls, one-way restrictions); 9.4 - Pipeline step isolation to prevent data leakage between stages'
   control_id: SAF-K8S-0904-001
   relation_type: supports
   strength_level: strong
@@ -51450,16 +51434,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-18(3)
   framework_requirement_title: Prevent Downloading and Execution
-  framework_mapping_notes: 'Preventing unauthorized downloads of agent extensions blocks malicious tool installation
-
-
-    5.1 - Egress controls (preventing unauthorized downloads); 6.5 - Admission control (blocking unauthorized execution)'
+  framework_mapping_notes: 'Destination egress restrictions can narrow sources from which workloads acquire model artifacts or dependencies. Evaluate mobile-code classification and prevention of unacceptable downloads and execution separately.'
   control_id: SAF-K8S-0501-009
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: 'Applies where the assessment selects SC-18(3) and its defined unacceptable mobile-code sources are addressed by the deployed egress controls.'
+  strength_reason_code: framework-language-interpretation
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -61000,16 +60981,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-7(9)
   framework_requirement_title: Restrict Threatening Outgoing Communications Traffic
-  framework_mapping_notes: 'Restricting outbound agent traffic prevents data exfiltration and command-and-control
-
-
-    5.1 - Egress controls (restricting threatening outbound traffic, DNS-based egress policies)'
+  framework_mapping_notes: 'Workload egress segmentation supports destination restriction at the boundary. Evaluate threat detection, denial of threatening traffic to external systems, and identity audit evidence separately.'
   control_id: SAF-K8S-0501-009
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: 'Applies where the assessment selects SC-7(9) and the deployed egress controls support the managed boundary in scope.'
+  strength_reason_code: framework-language-interpretation
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
