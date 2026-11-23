@@ -702,6 +702,12 @@
       "sha256": "dfdb0e72c806a5a10f2a9b3acb18fbfd44273722e838aecefe92eb28e9e69477",
       "title": "Model download path isolation from training data paths"
     },
+    "SAF-K8S-0502-001": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "c2ebb6c3053c0b59fcac5e6c47bef5af801c00da53afb30eaae8fe96cae8584e",
+      "title": "CNI plugin security selection criteria"
+    },
     "SAF-K8S-0502-002": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -2102,7 +2108,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "f6f30e2190bdce513ddf5f948dbb2284e8b494f5",
-  "sha256": "1a03ceb6640631ae309f3f6597c1384ee040e1d7141831b96052702b1e653474",
+  "revision": "a632e6e2dc866b2f96644965fd8fcb0b7828418d",
+  "sha256": "20ca22daf42e12ce0f71b976106bbb2dfddf56391fa6f121392f25627cfe297a",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

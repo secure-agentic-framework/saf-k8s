@@ -1,0 +1,200 @@
+{
+  "control_id": "SAF-K8S-0502-001",
+  "catalog_revision": "1cafd2144238a4f7573ffad61e2beb87ec82f376",
+  "catalog_sha256": "20ca22daf42e12ce0f71b976106bbb2dfddf56391fa6f121392f25627cfe297a",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "c2ebb6c3053c0b59fcac5e6c47bef5af801c00da53afb30eaae8fe96cae8584e",
+  "scope": "One harness-owned local Kind v0.32.0 / Kubernetes v1.36.1 cluster runs pinned Cilium 1.20.5 with embedded Hubble; one case-owned local Kind cluster runs the kindnet bundled in the same digest-pinned node image. Fixed-marker IPv4 TCP/18080 requests use only case-owned pods and namespaces. Both candidates receive actual baseline, denied, and explicitly permitted fixed-marker probes. The synthetic profile also requires scoped structured flow evidence through its named Hubble JSON observer interface. Bundled kindnet's lack of this specific integration does not imply it lacks NetworkPolicy enforcement or all telemetry. The profile also requires pinned artifact evidence. Encryption, FQDN/L7 policy, performance, production selection, managed-provider gaps, and compensating controls are not evaluated. No workload fixture requests an external destination.",
+  "cluster": "saf-lab-d19c2dcecae2",
+  "kind_ready_wait": "0s",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Bundled kindnet is ready and there is no Cilium daemon for the named observer",
+      "matched": true,
+      "observed": {
+        "daemonsets": [
+          "kindnet",
+          "kube-proxy"
+        ],
+        "kindnet_counts": {
+          "desiredNumberScheduled": 1,
+          "updatedNumberScheduled": 1,
+          "numberReady": 1,
+          "numberAvailable": 1
+        },
+        "kindnet_images": [
+          "docker.io/kindest/kindnetd:v20260528-9350166c"
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Bundled kindnet red inference marker path matches the policy expectation",
+      "matched": true,
+      "observed": {
+        "observation": "fixed-marker-received",
+        "port": 18080
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Bundled kindnet red pipeline marker path matches the policy expectation",
+      "matched": true,
+      "observed": {
+        "observation": "fixed-marker-received",
+        "port": 18080
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Bundled kindnet green inference marker path matches the policy expectation",
+      "matched": true,
+      "observed": {
+        "observation": "bounded-timeout",
+        "port": 18080
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Bundled kindnet positive pipeline marker path matches the policy expectation",
+      "matched": true,
+      "observed": {
+        "observation": "fixed-marker-received",
+        "port": 18080
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Owned kindnet peer was deleted and is absent from the cluster inventory",
+      "matched": true,
+      "observed": {
+        "owned_peer_clusters": 1,
+        "deleted_peer_clusters": 1
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Pinned Cilium agent and embedded Hubble observer are ready",
+      "matched": true,
+      "observed": {
+        "expected_agent_image": "quay.io/cilium/cilium:v1.20.5@sha256:aa72499f075ad729947ea91b026218aceba24f1a8e4534bf36b8368c7c561526",
+        "observed_agent_image_match": true,
+        "daemonset_status": {
+          "desiredNumberScheduled": 1,
+          "updatedNumberScheduled": 1,
+          "numberReady": 1,
+          "numberAvailable": 1
+        },
+        "daemonset_ready": true,
+        "observer_healthy": true,
+        "cilium_release": "1.20.5",
+        "chart_sha256": "0c7592eb75179ecf46dd3ec22145916f0164c4401214ea15afb5b230b1d11a21"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Cilium red inference request matches synthetic minimum profile",
+      "matched": true,
+      "observed": {
+        "source": "saf-0502-001-training/synthetic-client",
+        "destination": "saf-0502-001-inference/inference-sink",
+        "protocol": "TCP/18080",
+        "expected_verdict": "FORWARDED",
+        "matching_hubble_events": true,
+        "identity_fields_verified": true,
+        "application_observation": "fixed-marker-received"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Cilium red pipeline request matches synthetic minimum profile",
+      "matched": true,
+      "observed": {
+        "source": "saf-0502-001-training/synthetic-client",
+        "destination": "saf-0502-001-pipeline/pipeline-sink",
+        "protocol": "TCP/18080",
+        "expected_verdict": "FORWARDED",
+        "matching_hubble_events": true,
+        "identity_fields_verified": true,
+        "application_observation": "fixed-marker-received"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Cilium green inference request matches synthetic minimum profile",
+      "matched": true,
+      "observed": {
+        "source": "saf-0502-001-training/synthetic-client",
+        "destination": "saf-0502-001-inference/inference-sink",
+        "protocol": "TCP/18080",
+        "expected_verdict": "DROPPED",
+        "matching_hubble_events": true,
+        "identity_fields_verified": true,
+        "application_observation": "bounded-timeout"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Cilium positive pipeline request matches synthetic minimum profile",
+      "matched": true,
+      "observed": {
+        "source": "saf-0502-001-training/synthetic-client",
+        "destination": "saf-0502-001-pipeline/pipeline-sink",
+        "protocol": "TCP/18080",
+        "expected_verdict": "FORWARDED",
+        "matching_hubble_events": true,
+        "identity_fields_verified": true,
+        "application_observation": "fixed-marker-received"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Both configurations enforce the same marker policy and the required observer changes the selection",
+      "matched": true,
+      "observed": {
+        "bundled_kindnet": {
+          "policy_checks_passed": true,
+          "named_observer_available": false,
+          "profile_pass": false
+        },
+        "cilium": {
+          "policy_checks_passed": true,
+          "named_observer_available": true,
+          "profile_pass": true
+        }
+      }
+    }
+  ]
+}
