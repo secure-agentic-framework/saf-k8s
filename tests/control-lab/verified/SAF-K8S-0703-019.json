@@ -1,0 +1,74 @@
+{
+  "control_id": "SAF-K8S-0703-019",
+  "catalog_revision": "c52b2c7790fa7b56c3e69e30e6e2af0a3dff4618",
+  "catalog_sha256": "c041dc4fa8b2257b7a72c41b5cc588f84498aa21c35c076a67eb3f24d5ba8d60",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "ebca6bb979b780669c5d6555a204f8b3fbff34721fe05337136aa1f6a546663f",
+  "scope": "Informational report generation and in-cluster availability with synthetic usage and amounts.",
+  "cluster": "saf-lab-ce10cef56b92",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Reporting only named owners omits priced unowned and shared fixture amounts",
+      "matched": true,
+      "observed": {
+        "owner_only_omission_minor_units": 325
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The report retains shared, unallocated and unpriced inputs with explicit classifications",
+      "matched": true,
+      "observed": {
+        "owner_minor_units": {
+          "amber": 500,
+          "indigo": 375,
+          "unallocated": 125
+        },
+        "shared_minor_units": 200,
+        "priced_total": 1200,
+        "input_hash_matched": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The authorized readers can retrieve their informational report and receive cross-team denial",
+      "matched": true,
+      "observed": {
+        "own_reports_retrievable": true,
+        "cross_team_reads_denied": true
+      }
+    }
+  ]
+}
