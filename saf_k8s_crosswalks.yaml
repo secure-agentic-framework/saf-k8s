@@ -54217,22 +54217,6 @@
 
 
     5.5 - Private cluster configuration (concealing API server); 8.1 - GPU topology metadata concealment'
-  control_id: SAF-K8S-0505-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-30(5)
-  framework_requirement_title: Concealment of System Components
-  framework_mapping_notes: 'Concealing agent system components from adversary discovery prevents targeted attacks
-
-
-    5.5 - Private cluster configuration (concealing API server); 8.1 - GPU topology metadata concealment'
   control_id: SAF-K8S-0505-004
   relation_type: direct
   strength_level: strong
@@ -59161,22 +59145,6 @@
 
 
     5.5 - Protect API server (restricting networked privileged access to control plane endpoints)'
-  control_id: SAF-K8S-0505-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(15)
-  framework_requirement_title: Networked Privileged Accesses
-  framework_mapping_notes: 'Privileged access to agent management interfaces must traverse managed boundary points
-
-
-    5.5 - Protect API server (restricting networked privileged access to control plane endpoints)'
   control_id: SAF-K8S-0505-004
   relation_type: direct
   strength_level: strong
@@ -59993,22 +59961,6 @@
 
 
     5.5 - Protect service exposure (controlling connections to public networks for AI services)'
-  control_id: SAF-K8S-0505-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(28)
-  framework_requirement_title: Connections to Public Networks
-  framework_mapping_notes: 'Agent connections to public networks must be controlled and monitored
-
-
-    5.5 - Protect service exposure (controlling connections to public networks for AI services)'
   control_id: SAF-K8S-0505-004
   relation_type: direct
   strength_level: strong
@@ -60218,22 +60170,6 @@
 
     5.3 - Harden ingress (managed access points); 5.5 - Protect API server and service exposure (LoadBalancer, NodePort, ExternalIP restriction)'
   control_id: SAF-K8S-0505-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(3)
-  framework_requirement_title: Access Points
-  framework_mapping_notes: 'Limiting network access points to agent systems reduces attack surface
-
-
-    5.3 - Harden ingress (managed access points); 5.5 - Protect API server and service exposure (LoadBalancer, NodePort, ExternalIP restriction)'
-  control_id: SAF-K8S-0505-003
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -69351,22 +69287,6 @@
 
     5.1 - Default deny network policies (detecting unauthorized services); 5.5 - Service exposure protection'
   control_id: SAF-K8S-0505-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(22)
-  framework_requirement_title: Unauthorized Network Services
-  framework_mapping_notes: 'Detecting unauthorized network services from agent systems identifies compromise
-
-
-    5.1 - Default deny network policies (detecting unauthorized services); 5.5 - Service exposure protection'
-  control_id: SAF-K8S-0505-003
   relation_type: direct
   strength_level: strong
   applicability: required
