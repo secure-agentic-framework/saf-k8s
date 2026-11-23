@@ -1,0 +1,67 @@
+{
+  "control_id": "SAF-K8S-0704-011",
+  "catalog_revision": "9f45ee6100863ea8e2bed436be4bb046ea628ff5",
+  "catalog_sha256": "d4cb55b6578f9bfced93f4d9321339637315f1bef65d27ffe88dabc604ed88ec",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "6cd4d533c23b04bfc2e25a090599adfb864afa0e715ef9daa4783b56508fb9fe",
+  "scope": "Local Pod egress and genuine Kubernetes projected identity against owned cluster endpoints.",
+  "cluster": "saf-lab-67c607ca3756",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The excluded endpoint is healthy and reachable before fixture egress policy",
+      "matched": true,
+      "observed": {
+        "comparison_marker_reached": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The omitted path is denied, and the reachable approved endpoint still requires identity",
+      "matched": true,
+      "observed": {
+        "omitted_path_denied": true,
+        "allowed_endpoint_requires_authentication": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An actual audience-bound workload identity permits the approved request",
+      "matched": true,
+      "observed": {
+        "projected_identity_and_marker_verified": true
+      }
+    }
+  ]
+}
