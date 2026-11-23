@@ -1,0 +1,132 @@
+{
+  "control_id": "SAF-K8S-0402-013",
+  "catalog_revision": "6739837745e2f871d6c40077744ba2e243de9387",
+  "catalog_sha256": "b109965d306e90d448820cddec49c87895b8d44b6ff62c67ad1d18d710ef3ffb",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "d7fb7bca316bb875bd7529baa262d72273ec4bbe75ab029062634aef2893baad",
+  "scope": "One disposable kind Job runs a synthetic non-root BusyBox workload for up to 30 minutes. Its ServiceAccount and Pod disable default automount; a separate projected serviceAccountToken requests audience saf-0402-013.synthetic for 600 seconds. The harness captures only this Pod's token file into subprocess memory, locally decodes exp/iat/aud, and sends tokens only in TokenReview request bodies. Raw token bytes never enter command arguments, logs, stdout, or evidence. Checks cover initial authentication, rejection for an unrelated audience, kubelet file refresh, stale-client expiry, a reopened file's valid token after old-token expiry, and continuity of Job/Pod/ServiceAccount identity. This does not test Vault, cloud SDKs, other training controllers, production outages, or application-specific reload implementations.",
+  "review_timing": {
+    "queued_at": "2026-11-23T04:14:57.823802+00:00",
+    "cluster_ready_at": "2026-11-23T04:15:29.045054+00:00",
+    "approval_at": "2026-11-23T04:19:22.183696+00:00",
+    "case_loaded_at": "2026-11-23T04:19:22.345608+00:00"
+  },
+  "cluster": "saf-lab-7b78d74de892",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "approved_case_sha256": "b77cab5929990629710e1d3df4bebaf6c9d4dc5a5e26e66eab3fd244f9a36d9d",
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "The tested API server is the pinned Kubernetes v1.36.1 target",
+      "matched": true,
+      "observed": {
+        "server_git_version": "v1.36.1",
+        "expected": "v1.36.1"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A continuing Job uses one explicit projected-token Pod with default automount disabled",
+      "matched": true,
+      "observed": {
+        "phase": "Running",
+        "default_automount_disabled": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Initial short-lived token authenticates for its exact intended audience",
+      "matched": true,
+      "observed": {
+        "authenticated": true,
+        "username": "system:serviceaccount:saf-test:saf-0402-013",
+        "audience_match": true,
+        "ttl_seconds": 600
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The custom-audience token is not accepted for an unrelated audience",
+      "matched": true,
+      "observed": {
+        "authenticated": false,
+        "audiences": []
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A client that caches the original token does not follow the mounted-file replacement",
+      "matched": true,
+      "observed": {
+        "cached_reader_unchanged": true,
+        "reopened_file_changed": true,
+        "reopened_exp_is_later": true,
+        "reopened_ttl_seconds": 600
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Reopening the projected path obtains a current token accepted for the same Pod identity",
+      "matched": true,
+      "observed": {
+        "authenticated": true,
+        "username": "system:serviceaccount:saf-test:saf-0402-013",
+        "audience_match": true,
+        "reload_before_initial_exp": true,
+        "ttl_seconds": 600
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A stale cached token is rejected after its JWT expiry plus 60 seconds",
+      "matched": true,
+      "observed": {
+        "authenticated": false,
+        "checked_after_exp_and_leeway": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A reopened current token remains valid after the original token expires",
+      "matched": true,
+      "observed": {
+        "authenticated": true,
+        "username": "system:serviceaccount:saf-test:saf-0402-013",
+        "audience_match": true,
+        "pod_still_running": true,
+        "same_job_uid": true,
+        "same_pod_uid": true
+      }
+    }
+  ]
+}

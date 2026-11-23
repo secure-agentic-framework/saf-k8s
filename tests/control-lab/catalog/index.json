@@ -576,6 +576,12 @@
       "sha256": "c03bd7eed91a1d5a784ec93d441ce01f7094fc42dea24bb0f64187b3940cdc68",
       "title": "Ephemeral training job credential expiration"
     },
+    "SAF-K8S-0402-013": {
+      "catalog_status": "draft",
+      "domain": "D04",
+      "sha256": "d7fb7bca316bb875bd7529baa262d72273ec4bbe75ab029062634aef2893baad",
+      "title": "Ephemeral training job credential rotation"
+    },
     "SAF-K8S-0402-014": {
       "catalog_status": "draft",
       "domain": "D04",
@@ -2060,7 +2066,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "09cac9fb74fb89cfff6580f53b9b82fcbc662dbf",
-  "sha256": "f329e1d1d5f39ca9d14d451bdbb44ecb9aacaf1b625650b3c202603d0c88b91c",
+  "revision": "6ef3dba573961c21d234972799ed93a0ecf2a6b0",
+  "sha256": "b109965d306e90d448820cddec49c87895b8d44b6ff62c67ad1d18d710ef3ffb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
