@@ -1,0 +1,71 @@
+{
+  "control_id": "SAF-K8S-0102-019",
+  "catalog_revision": "5b106d48d65c8d20f9f90a785afbabda6e142328",
+  "catalog_sha256": "7d8cd831d56da43bc19a25cb64a6ea3195739c9eca60cff1ae8fc26b51c22e8c",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "4b79df314eca542a372da8108acf2b0c42e80c690e94ea965fa41c59a82853c4",
+  "scope": "Real Kind Pod networking for two modeled etcd listener classes using only public marker endpoints.",
+  "cluster": "saf-lab-b4b069b781c6",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Both inert listeners are reachable from the ordinary Pod before ingress policy",
+      "matched": true,
+      "observed": {
+        "client": "client-marker",
+        "peer": "peer-marker"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Workload ingress and unintended cross-class paths are denied",
+      "matched": true,
+      "observed": {
+        "ordinary_client": "timed-out",
+        "ordinary_peer": "timed-out",
+        "client_on_peer": "timed-out",
+        "peer_on_client": "timed-out"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved client and member each retain their intended connectivity",
+      "matched": true,
+      "observed": {
+        "client": "client-marker",
+        "peer": "peer-marker"
+      }
+    }
+  ]
+}

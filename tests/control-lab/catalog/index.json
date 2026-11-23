@@ -132,6 +132,12 @@
       "sha256": "5029eeace7bca39a9b11e183eb475e167af0661caaa03a19fa0ca1a04c2b2085",
       "title": "etcd client and peer certificate authentication"
     },
+    "SAF-K8S-0102-019": {
+      "catalog_status": "draft",
+      "domain": "D01",
+      "sha256": "4b79df314eca542a372da8108acf2b0c42e80c690e94ea965fa41c59a82853c4",
+      "title": "etcd endpoint network isolation from worker and workload traffic"
+    },
     "SAF-K8S-0102-020": {
       "catalog_status": "draft",
       "domain": "D01",
@@ -2744,7 +2750,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "9e584fc55b7d1b4d6ab9419d94e4b76722e56812",
-  "sha256": "5f2ee9cc6d0aa7b2009df54cb7c958b99e0be0197aa4e522ca5344bc55625e51",
+  "revision": "a925d65ac82c8e756a671c39046b5b5a20efaab0",
+  "sha256": "7d8cd831d56da43bc19a25cb64a6ea3195739c9eca60cff1ae8fc26b51c22e8c",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
