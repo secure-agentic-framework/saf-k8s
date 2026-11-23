@@ -3490,12 +3490,12 @@
   knowledge_area: '4.4'
   control_seq: '007'
   control_title: Automated certificate rotation before expiry
-  control_statement: Organizations must automate certificate rotation before expiry across cluster and workload PKI assets.
-  objective: Prevent certificate-expiry outages by ensuring certificate renewal occurs before certificates expire.
-  rationale: Executing renewal before expiry is independently auditable from the telemetry used to observe upcoming expirations. This control isolates renewal automation so teams can verify that PKI assets are configured to rotate before their notAfter date without manual intervention.
-  scope: Applies to API server, etcd peer, kubelet, webhook, service mesh, and application certificates managed in the cluster. Covers rotation configuration and renew-before settings. Expiry monitoring and alerting remain governed by SAF-K8S-0404-008.
-  primary_enforcement_point: Certificate renewal configuration for cluster PKI assets.
-  implementation_surface: cert-manager Certificate resources with renewBefore settings, issuer integrations, and automated renewal workflows for cluster and workload certificates.
+  control_statement: For each supported cluster and workload certificate class, apply an approved renewal mechanism and verify issuance before expiry. Demonstrate timely certificate delivery, activation and relying-party acceptance for the consumers that use the renewed credential.
+  objective: Reduce expiry-related failure by verifying renewal and active use of the resulting certificate within defined time and availability targets.
+  rationale: Renewal mechanisms differ across certificate classes. The issuer schedule, actual issuance, key replacement, distribution, active certificate and application health are independently observable outcomes.
+  scope: Applies to governed API server, etcd, kubelet, webhook, service mesh and application certificates. Identify the actual issuer and controller for each class and record exceptions and managed service boundaries. Expiry monitoring is covered by SAF-K8S-0404-008.
+  primary_enforcement_point: Effective certificate class renewal policy, observed timely issuance, and verification of active credential use by relying workloads.
+  implementation_surface: Inventory issuers, certificate validity and renewal policy, including cert-manager renewBefore where applicable and independent kubelet or control-plane paths. Observe issuance on schedule with the approved key treatment, service adoption, and trusted client behavior before the old expiry.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Security Operations
   baseline_or_ai_specific: baseline
