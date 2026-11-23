@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0204-004",
-  "catalog_revision": "7f09427dd1ca4aa9842cd1dc13ca4fc5f9f5dc18",
+  "catalog_revision": "6f981f934d25067830d532059398d0d4f266f411",
   "catalog_sha256": "e1b005e71efe450175550cd4abc2b4bca289d084bb64583afffc8b90d63cb66a",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "be914f5c7943133bb2cd697d069187a9fc55a7873dc543f4b22b4b604217a22f",
   "scope": "A named fixture collector uses the Kubernetes API to copy an owned volatile file, verifies custody and observes workload continuity.",
-  "cluster": "saf-lab-bebdda162313",
+  "cluster": "saf-lab-3f754e8f656a",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
