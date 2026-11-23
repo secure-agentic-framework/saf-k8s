@@ -9710,12 +9710,12 @@
   knowledge_area: '9.8'
   control_seq: 009
   control_title: Differential privacy parameter governance for inference endpoints
-  control_statement: Inference endpoints serving models trained on sensitive data must configure differential privacy parameters with documented privacy guarantees so that epsilon, delta, and related calibration choices are approved, reviewable, and aligned to the intended privacy and utility bounds before responses are served.
-  objective: Govern differential privacy parameter selection and formal privacy guarantees for sensitive inference endpoints.
-  rationale: Differential privacy is only defensible when privacy parameters are explicitly selected, documented, and reviewed against the intended guarantees. Without parameter governance, teams can deploy arbitrary epsilon and delta values that overstate privacy claims or silently erode utility and protection.
-  scope: Applies to Kubernetes-hosted inference endpoints serving models trained on sensitive data where formal differential privacy guarantees are required. Covers parameter configuration, guarantee documentation, and validation of the claimed privacy posture. Excludes cumulative privacy budget accounting and threshold enforcement over repeated access.
-  primary_enforcement_point: Differential privacy parameter configuration and guarantee documentation for inference endpoints.
-  implementation_surface: Differential privacy parameter settings per model or endpoint, documented epsilon and delta selections, guarantee review records, and privacy audit validation of the formal privacy claims attached to deployed endpoints.
+  control_statement: Before deploying a formal differential privacy claim, approve and document the actual mechanism, privacy unit and neighboring relation, parameters, data boundary and intended utility. Verify that the deployed implementation and its configuration match the reviewed guarantee.
+  objective: Ensure each formal differential privacy claim applies to a defined mechanism and protected population under reviewed assumptions.
+  rationale: Numerical privacy parameters describe a guarantee only together with the mechanism, protected unit and implementation assumptions. A review record is necessary governance evidence, while correctness and utility require their own verification.
+  scope: Applies to governed inference and release systems that claim formal differential privacy. Identify the relevant training, input or release mechanism and applicable guarantee. Verify additional cumulative releases under SAF-K8S-0908-010 where they consume privacy budget.
+  primary_enforcement_point: The actual deployed mechanism and approved configuration and review at its serving boundary.
+  implementation_surface: Verify the approved mechanism and implementation version, privacy unit and neighboring relation, exact or bounded parameters, applicable trust and utility assumptions, conformance evidence and fail-closed handling of unapproved settings.
   owner_primary: Security Engineering
   owner_supporting: ML Platform Engineering; Privacy Engineering
   baseline_or_ai_specific: ai-specific
