@@ -1,0 +1,70 @@
+{
+  "control_id": "SAF-K8S-0804-006",
+  "catalog_revision": "4e9b1a9e92333890066d0e7a43a60813d91a4119",
+  "catalog_sha256": "00c04b46e887eee0a77b3680c5384e272c2405c975885446b002142d3565d647",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "6a40c1172a4bd3a66052c5590924dc5c3ab3781c3341db293c805d3b749f68de",
+  "scope": "Local AES-GCM round trip through an immutable Kubernetes ConfigMap, using an inert public marker and modeled identity and policy. The randomized fixture key and nonce stay inside one local process.",
+  "cluster": "saf-lab-0282c8d23868",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Authenticating the declared context prevents the unbound baseline behavior",
+      "matched": true,
+      "observed": {
+        "unbound_artifact_opened_without_identity": true,
+        "bound_artifact_requires_context": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A changed measurement, policy, or ciphertext causes authentication to fail",
+      "matched": true,
+      "observed": {
+        "different_measurement_denied": true,
+        "changed_policy_denied": true,
+        "tampered_ciphertext_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The intended context opens the artifact retrieved from the Kubernetes API",
+      "matched": true,
+      "observed": {
+        "approved_context_opened": true,
+        "api_round_trip_retained_immutable_record": true
+      }
+    }
+  ]
+}

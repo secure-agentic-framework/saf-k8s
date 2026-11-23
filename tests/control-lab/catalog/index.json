@@ -1782,6 +1782,12 @@
       "sha256": "dcb8e2dddfa3b419b5f58d19d29e9ad4b1bc1d44a108dfa81b2be365e488c613",
       "title": "Attestation-conditioned enclave key release"
     },
+    "SAF-K8S-0804-006": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "6a40c1172a4bd3a66052c5590924dc5c3ab3781c3341db293c805d3b749f68de",
+      "title": "Sealed storage binding of encrypted AI artifacts to enclave measurements"
+    },
     "SAF-K8S-0901-002": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -2684,7 +2690,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "a519492e9721161122c11738ec84cdf1684772d2",
-  "sha256": "ae8d7f52b03aff887877d626abd88aba00fe9cfdb0826c6d1d51d06f8cbcac6c",
+  "revision": "51a56b1f921083b9e18c8ac93fc5b9cd675aac26",
+  "sha256": "00c04b46e887eee0a77b3680c5384e272c2405c975885446b002142d3565d647",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
