@@ -1044,6 +1044,12 @@
       "sha256": "fea99dea4335fa6e8df6b5afbb33ae73a648d4ecc378ebe70a5785427e7f7f4d",
       "title": "SBOM storage and distribution as OCI artifacts"
     },
+    "SAF-K8S-0604-004": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "32612009ac8492a95aeb1b81ac5357dc2dd62192c1e5a667ccf465b10f53eff1",
+      "title": "VEX (Vulnerability Exploitability eXchange) publication"
+    },
     "SAF-K8S-0605-001": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -2300,7 +2306,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "15ce7e2518185c094df96f2ea2fb123d121820c2",
-  "sha256": "2a4083610a48967abdb0ac6053a6d0801b649194fd1f4149649821e51b8ff707",
+  "revision": "473b850c8bed0a116fcd96485e5a30bb1d1c000b",
+  "sha256": "78d75952bbab784c424a7a0f999dad3ff3f8026210525a0e1fb86640f0474dde",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

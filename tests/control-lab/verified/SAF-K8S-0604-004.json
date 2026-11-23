@@ -1,0 +1,98 @@
+{
+  "control_id": "SAF-K8S-0604-004",
+  "catalog_revision": "9786a9d84f213c4c66c7351a50045e46481901e1",
+  "catalog_sha256": "78d75952bbab784c424a7a0f999dad3ff3f8026210525a0e1fb86640f0474dde",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "32612009ac8492a95aeb1b81ac5357dc2dd62192c1e5a667ccf465b10f53eff1",
+  "scope": "Pinned vexctl checks OpenVEX vocabulary on fictional identifiers. A disposable Kind Pod enforces an explicit signed-document and exact released-artifact matching policy over synthetic findings. No vulnerability scanner or real advisory is used. Production evidence and version-specific scanner integration require separate verification.",
+  "cluster": "saf-lab-18f14e7cf2e4",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "green",
+      "claim": "Pinned OpenVEX CLI uses four defined statuses and rejects the catalog's mixed label",
+      "matched": true,
+      "observed": {
+        "statuses": [
+          "affected",
+          "not_affected",
+          "fixed",
+          "under_investigation"
+        ],
+        "mixed_label_rejected": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without authenticated assessment evidence the fixture retains every finding for review",
+      "matched": true,
+      "observed": {
+        "all_findings_still_active": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Invalid source, altered bytes, invalid release version and missing explanation keep findings active",
+      "matched": true,
+      "observed": {
+        "untrusted": true,
+        "changed-bytes": true,
+        "obsolete": true,
+        "missing-explanation": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Only the independently corroborated marking changes priority for the exact artifact and component",
+      "matched": true,
+      "observed": {
+        "absent": true,
+        "remediate": true,
+        "investigate": true,
+        "claimed-fixed": true,
+        "adjacent-artifact": true,
+        "adjacent-component": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Conflicting or unsupported assertions keep review active and retain the original report",
+      "matched": true,
+      "observed": {
+        "conflicting_finding_active": true,
+        "uncorroborated_finding_active": true,
+        "all_original_findings_retained": true
+      }
+    }
+  ]
+}
