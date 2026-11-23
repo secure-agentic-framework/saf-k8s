@@ -7390,12 +7390,12 @@
   knowledge_area: '8.1'
   control_seq: '010'
   control_title: Admission validation of authorized GPU resource requests
-  control_statement: Admission control policies must validate GPU resource requests against authorized workload scope, namespace quotas, and approved accelerator profiles to prevent unauthorized or excessive GPU allocation.
-  objective: Ensure only authorized workloads receive GPU resources and that requested accelerator quantities or profiles remain within approved limits.
-  rationale: Without admission validation, workloads can request accelerators beyond their authorization, manipulate placement, or bypass intended resource governance. Policy-driven request validation prevents unauthorized consumption and reduces opportunities for adversarial co-location or resource abuse.
-  scope: Applies to all Kubernetes clusters that schedule GPU workloads, including managed services where accelerator request validation is enforced through admission controls or equivalent policy gates.
-  primary_enforcement_point: Admission policies validating GPU resource requests before scheduling.
-  implementation_surface: OPA Gatekeeper, Kyverno, or equivalent admission controls validating GPU counts, MIG profiles, workload authorization, and namespace-level accelerator quotas.
+  control_statement: Validate accelerator requests before scheduling against approved workload submitters or controller ownership, allowable resource profiles and quantities. Apply effective namespace quotas to governed extended resources and verify admitted allocation through the installed device stack.
+  objective: Limit admitted accelerator requests to approved scopes and budgets and verify the intended resource is allocated by the deployed stack.
+  rationale: Identity and profile policy, namespace quota, scheduling, and runtime device allocation enforce different boundaries. Validate the actual admission fields and resource names used by the installed plugin, including applicable container types and workload controllers.
+  scope: Applies to governed accelerator workloads, Pod and supported workload-controller submission paths, approved profile resources, quantity limits and namespaces. Review applicable alternate scheduling or allocation interfaces.
+  primary_enforcement_point: Pod admission policy, effective extended-resource quota and observed scheduler and device allocation behavior.
+  implementation_surface: Use approved identity and ownership rules and validate actual resource request and limit fields for covered containers. Set requests-prefixed namespace quotas for applicable extended resources. Verify approved, unapproved and over-quota outcomes and observe an authorized allocation with the intended driver and plugin.
   owner_primary: ML Platform Engineering
   owner_supporting: Platform Engineering; Security Engineering
   baseline_or_ai_specific: ai-specific
