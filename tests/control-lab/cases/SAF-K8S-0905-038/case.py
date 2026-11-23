@@ -11,7 +11,7 @@ SCOPE = (
     "a permissive baseline and a scoped policy. A running Kubernetes inference client receives "
     "only a case-owned read credential; a publisher can read/create in training/model; and a "
     "separate steward can read/create/update/delete there. The registry enforces authentication "
-    "and repository/action decisions at OCI Distribution endpoints. The Kubernetes service "
+    "and repository/action decisions at OCI Distribution manifest and model blob endpoints. The Kubernetes service "
     "account labels/binds the inference workload only; it is not federated to Zot. This does not "
     "test OIDC/IAM federation, Harbor/MLflow/Hugging Face Hub, real model payloads, production "
     "TLS/secret management, human-role governance, or deployed registry operations."
@@ -190,9 +190,11 @@ def run(lab):
 
     baseline_pull = _probe(lab, "inference-client", "zot-baseline", "inference-scope", "inference")
     lab.check("red", "Before scoping, inference can read the other repository and write in its serving repository",
-              baseline_pull["training_status"] == 200 and baseline_pull["serving_write_status"] == 201,
+              baseline_pull["training_status"] == 200 and baseline_pull["serving_write_status"] == 201
+              and baseline_pull["training_blob_status"] == 200,
               {"method": "GET", "path": "/v2/training/model/manifests/stable",
                "cross_repository_read": baseline_pull["training_status"],
+               "cross_repository_blob_read": baseline_pull["training_blob_status"],
                "serving_write": baseline_pull["serving_write_status"]})
     baseline_write = _probe(lab, "publisher-client", "zot-baseline", "publisher-cycle", "publisher")
     lab.check("red", "Before scoping, publisher can overwrite and delete a manifest",
@@ -206,10 +208,11 @@ def run(lab):
     inference = _probe(lab, "inference-client", "zot-scoped", "inference-scope", "inference")
     lab.check("green", "Inference pulls only from the approved repository and cannot publish there",
               inference["serving_status"] == 200 and inference["training_status"] == 403
-              and inference["serving_write_status"] == 403,
+              and inference["serving_write_status"] == 403 and inference["training_blob_status"] == 403,
               {"serving_get_status": inference["serving_status"],
                "training_get_path": "/v2/training/model/manifests/stable",
                "training_get_status": inference["training_status"],
+               "training_blob_status": inference["training_blob_status"],
                "serving_write_status": inference["serving_write_status"]})
     publisher = _probe(lab, "publisher-client", "zot-scoped", "publisher-cycle", "publisher")
     lab.check("green", "Publisher creates a new tag but receives 403 for update and delete",
@@ -235,10 +238,13 @@ def run(lab):
                "delete_status": steward["delete_status"], "updated_digest_matches": steward["updated_digest_matches"],
                "post_delete_status": steward["post_delete_status"]})
     lab.check("positive", "Inference client receives only its scoped credential and still pulls the approved model",
-              inference["serving_status"] == 200 and inference["serving_digest_matches"] is True,
+              inference["serving_status"] == 200 and inference["serving_digest_matches"] is True
+              and inference["serving_blob_status"] == 200 and inference["serving_blob_bytes_match"] is True,
               {"method": "GET", "path": "/v2/serving/model/manifests/stable",
                "status": inference["serving_status"],
-               "content_digest_matches": inference["serving_digest_matches"]})
+               "manifest_digest_matches": inference["serving_digest_matches"],
+               "model_blob_status": inference["serving_blob_status"],
+               "model_blob_matches": inference["serving_blob_bytes_match"]})
 
     (lab.evidence / "zot-rbac-observations.json").write_text(
         json.dumps({"baseline": {"pull": baseline_pull, "publisher": baseline_write},

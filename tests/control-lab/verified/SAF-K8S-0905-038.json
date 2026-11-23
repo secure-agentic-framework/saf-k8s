@@ -4,8 +4,8 @@
   "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "67d36273e210e0f5ec66efd45c75d6b95dbfd70f7a4aa7241c1ad80f43c60f20",
-  "scope": "A disposable Kind cluster runs two Zot v2.1.23 registries with identical fixture accounts: a permissive baseline and a scoped policy. A running Kubernetes inference client receives only a case-owned read credential; a publisher can read/create in training/model; and a separate steward can read/create/update/delete there. The registry enforces authentication and repository/action decisions at OCI Distribution endpoints. The Kubernetes service account labels/binds the inference workload only; it is not federated to Zot. This does not test OIDC/IAM federation, Harbor/MLflow/Hugging Face Hub, real model payloads, production TLS/secret management, human-role governance, or deployed registry operations.",
-  "cluster": "saf-lab-3492e89755e6",
+  "scope": "A disposable Kind cluster runs two Zot v2.1.23 registries with identical fixture accounts: a permissive baseline and a scoped policy. A running Kubernetes inference client receives only a case-owned read credential; a publisher can read/create in training/model; and a separate steward can read/create/update/delete there. The registry enforces authentication and repository/action decisions at OCI Distribution manifest and model blob endpoints. The Kubernetes service account labels/binds the inference workload only; it is not federated to Zot. This does not test OIDC/IAM federation, Harbor/MLflow/Hugging Face Hub, real model payloads, production TLS/secret management, human-role governance, or deployed registry operations.",
+  "cluster": "saf-lab-e28a00424514",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -46,6 +46,7 @@
         "method": "GET",
         "path": "/v2/training/model/manifests/stable",
         "cross_repository_read": 200,
+        "cross_repository_blob_read": 200,
         "serving_write": 201
       }
     },
@@ -68,6 +69,7 @@
         "serving_get_status": 200,
         "training_get_path": "/v2/training/model/manifests/stable",
         "training_get_status": 403,
+        "training_blob_status": 403,
         "serving_write_status": 403
       }
     },
@@ -80,7 +82,7 @@
         "create_status": 201,
         "update_path": "/v2/training/model/manifests/stable",
         "update_status": 403,
-        "delete_path": "/v2/training/model/manifests/sha256:7e4037025d9709bd6a96d89cf6026995dc7aeda053a5f3d611e5061621ce0ace",
+        "delete_path": "/v2/training/model/manifests/sha256:41181580ee806f2d8707e316b2631f2cf0b6017ae40a306d1dd55ed79c43b95f",
         "delete_status": 403,
         "cross_repo_create_path": "/v2/serving/model/manifests/cross-repo",
         "cross_repo_create_status": 403,
@@ -94,7 +96,7 @@
       "observed": {
         "update_path": "/v2/training/model/manifests/stable",
         "update_status": 201,
-        "delete_path": "/v2/training/model/manifests/sha256:c2a35086c9450f39975e014c36f8dd1762711721511bccf781a3da4610be49f8",
+        "delete_path": "/v2/training/model/manifests/sha256:c73916eadf8a0e3a4dd28446ff35e2dde35cb593bf8c76eb9f8f05ae545d547f",
         "delete_status": 202,
         "updated_digest_matches": true,
         "post_delete_status": 404
@@ -108,7 +110,9 @@
         "method": "GET",
         "path": "/v2/serving/model/manifests/stable",
         "status": 200,
-        "content_digest_matches": true
+        "manifest_digest_matches": true,
+        "model_blob_status": 200,
+        "model_blob_matches": true
       }
     }
   ]

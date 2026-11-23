@@ -10,6 +10,8 @@ from urllib.request import Request, urlopen
 
 
 MANIFEST_TYPE = "application/vnd.oci.image.manifest.v1+json"
+MODEL_TYPE = "application/vnd.saf.fixture.model.v1+json"
+MODEL = b'{"algorithm":"fixture-linear","bias":1.0,"weight":2.0}'
 
 
 def _digest(body):
@@ -41,7 +43,7 @@ def _manifest(label):
         "annotations": {"org.opencontainers.image.title": label},
         "config": {"mediaType": "application/vnd.oci.empty.v1+json",
                    "digest": config_digest, "size": len(config)},
-        "layers": [],
+        "layers": [{"mediaType": MODEL_TYPE, "digest": _digest(MODEL), "size": len(MODEL)}],
     }, sort_keys=True, separators=(",", ":")).encode()
     return config, config_digest, body, _digest(body)
 
@@ -76,6 +78,7 @@ def _request_url(url, username, method, body, content_type):
 def _push(base, username, repository, tag, label):
     config, config_digest, manifest, manifest_digest = _manifest(label)
     _push_blob(base, username, repository, config, config_digest)
+    _push_blob(base, username, repository, MODEL, _digest(MODEL))
     status, _, _ = _request(base, username, "PUT",
                             f"/v2/{repository}/manifests/{tag}", manifest, MANIFEST_TYPE)
     return status, manifest_digest
@@ -102,15 +105,23 @@ def _seed(base, username, repository):
 
 
 def _inference_scope(base, username):
-    serving_status, serving_digest, _ = _get(base, username, "serving/model", "stable")
+    serving_status, serving_digest, serving_manifest = _get(base, username, "serving/model", "stable")
     training_status, _, _ = _get(base, username, "training/model", "stable")
     if serving_status != 200 or serving_digest is None:
         raise RuntimeError("approved serving repository was not readable")
+    layer, = json.loads(serving_manifest)["layers"]
+    if layer != {"mediaType": MODEL_TYPE, "digest": _digest(MODEL), "size": len(MODEL)}:
+        raise RuntimeError("ready manifest does not reference the expected fixture model")
+    path = f"/blobs/{layer['digest']}"
+    serving_blob_status, _, serving_blob = _request(base, username, "GET", "/v2/serving/model" + path)
+    training_blob_status, _, _ = _request(base, username, "GET", "/v2/training/model" + path)
     write_status, _, _ = _request(base, username, "PUT", "/v2/serving/model/manifests/inference-v1",
                                _manifest("inference-new")[2], MANIFEST_TYPE)
     return {"ok": True, "serving_status": serving_status,
             "serving_digest_matches": serving_digest == _manifest("seed-serving/model")[3],
-            "training_status": training_status, "serving_write_status": write_status}
+            "training_status": training_status, "serving_write_status": write_status,
+            "serving_blob_status": serving_blob_status, "training_blob_status": training_blob_status,
+            "serving_blob_bytes_match": serving_blob == MODEL and _digest(serving_blob) == layer["digest"]}
 
 
 def _pull_training(base, username):

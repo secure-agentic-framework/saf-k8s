@@ -2,7 +2,7 @@
 
 Run `python3 tests/control-lab/lab.py test SAF-K8S-0905-038 --docker-context desktop-linux` from the framework checkout. The runner host needs `htpasswd`.
 
-A baseline and a scoped Zot registry receive matching requests from the same fixture identities. A running inference client pulls a digest-checked manifest from the approved repository. With repository scoping enabled it cannot read the training repository or publish to the serving repository. A separate publisher can create training tags and receives denials for update and deletion. The steward can update and delete the training manifest, with digest and deletion readback.
+A baseline and a scoped Zot registry receive matching requests from the same fixture identities. A running inference client pulls a digest-checked manifest and its exact synthetic model blob from the approved repository. With repository scoping enabled it cannot fetch either manifests or blobs from the training repository or publish to the serving repository. A separate publisher can create training tags and receives denials for update and deletion. The steward can update and delete the training manifest, with digest and deletion readback.
 
 The inference Pod uses an explicit Kubernetes ServiceAccount with token automount disabled and a distinct registry credential mounted from its own Secret. The fixture covers Zot native repository authorization. Verify OIDC or IAM federation, human account governance, all environment boundaries, credential rotation and production registry integrations separately.
 
