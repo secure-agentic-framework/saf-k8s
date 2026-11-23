@@ -1776,6 +1776,12 @@
       "sha256": "cf5d4ac4d0f15d7055e2c0468078f52b909c69ab6726ca41b992bc8598ce363c",
       "title": "Confidential AI workload operational constraints and risk assessment"
     },
+    "SAF-K8S-0804-005": {
+      "catalog_status": "draft",
+      "domain": "D08",
+      "sha256": "dcb8e2dddfa3b419b5f58d19d29e9ad4b1bc1d44a108dfa81b2be365e488c613",
+      "title": "Attestation-conditioned enclave key release"
+    },
     "SAF-K8S-0901-002": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -2678,7 +2684,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "4eb774a960c4b978f3b6881fdc4b356b2992dd1d",
-  "sha256": "e6304ce26138f6ae02cec7d0d427a361df2e754a2a87758b723e00d981e912f1",
+  "revision": "a519492e9721161122c11738ec84cdf1684772d2",
+  "sha256": "ae8d7f52b03aff887877d626abd88aba00fe9cfdb0826c6d1d51d06f8cbcac6c",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
