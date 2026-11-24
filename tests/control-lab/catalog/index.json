@@ -2958,6 +2958,12 @@
       "sha256": "de8b2ce95d33be5050fb4c7c7e01ef755c3546019b12868f16bda59424b19f28",
       "title": "Cross-cluster endpoint and workload authentication for AI communication"
     },
+    "SAF-K8S-0910-022": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "ac6a1d91b91e8d4a016ea04a5aa9d22b6f59f0b73988f7819b64e67e5541fe8f",
+      "title": "Cross-cluster communication authorization policy enforcement"
+    },
     "SAF-K8S-0910-029": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3440,7 +3446,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "17edb09fb28012f5bd22e85b5707301e6b3530e7",
-  "sha256": "2994c2d1961555edc3d817148614cd266c503e0ed900f08ea814bf0b4118ebb7",
+  "revision": "275307e2effa407e943b13528c6b22c78cead8d4",
+  "sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
