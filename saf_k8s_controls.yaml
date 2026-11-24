@@ -5510,12 +5510,28 @@
   knowledge_area: '6.5'
   control_seq: '001'
   control_title: OPA/Gatekeeper policies for Kubernetes and AI workloads
-  control_statement: Kubernetes clusters must deploy OPA/Gatekeeper with constraint templates and constraints that enforce organizational security policies, including AI-workload-specific admission policies for GPU resource request validation, image provenance verification, and runtime class enforcement for GPU-enabled workloads. Constraint templates must be version-controlled and tested before deployment.
-  objective: Enforce Kubernetes security policies at admission time using OPA/Gatekeeper, including AI-specific constraints that govern GPU allocation, image trust, and runtime class selection for ML workloads.
-  rationale: Without admission-time policy enforcement, workloads can be deployed with excessive GPU resource requests (causing resource exhaustion or cost overruns), from untrusted image sources (enabling supply chain attacks), or with incorrect runtime classes (bypassing GPU isolation or security boundaries). OPA/Gatekeeper provides declarative, auditable policy enforcement that prevents non-compliant workloads from entering the cluster.
-  scope: Applies to all Kubernetes clusters running AI/ML workloads. Constraint templates must cover both general Kubernetes security policies and AI-specific policies. Clusters not running AI workloads may omit GPU-specific constraints. Policy exceptions must be namespaced and documented.
+  control_statement: Kubernetes clusters must deploy OPA/Gatekeeper with constraint templates and constraints that
+    enforce organizational security policies, including AI-workload-specific admission policies for GPU resource
+    request validation, image provenance verification, and runtime class enforcement for GPU-enabled workloads.
+    Constraint templates must be version-controlled and tested before deployment.
+  objective: Enforce Kubernetes security policies at admission time using OPA/Gatekeeper, including AI-specific
+    constraints that govern GPU allocation, image trust, and runtime class selection for ML workloads.
+  rationale: Without admission-time policy enforcement, workloads can be deployed with excessive GPU resource requests
+    (causing resource exhaustion or cost overruns), from untrusted image sources (enabling supply chain attacks),
+    or with incorrect runtime classes (bypassing GPU isolation or security boundaries). OPA/Gatekeeper provides
+    declarative, auditable policy enforcement that prevents non-compliant workloads from entering the cluster.
+  scope: Applies to all Kubernetes clusters running AI/ML workloads. Constraint templates must cover both general
+    Kubernetes security policies and AI-specific policies. Clusters not running AI workloads may omit GPU-specific
+    constraints. Policy exceptions must be namespaced and documented.
   primary_enforcement_point: Kubernetes OPA/Gatekeeper validating admission webhook.
-  implementation_surface: OPA/Gatekeeper deployment on Kubernetes clusters, Rego-based constraint templates and constraint resources for AI-specific policies, GPU resource request validation constraints (nvidia.com/gpu resource limits), image provenance verification constraints requiring cosign signatures for GPU pods, RuntimeClass enforcement constraints for nvidia RuntimeClass on GPU workloads, AI CRD resource limit constraints for TrainingJob GPU quotas, gator test CLI for constraint template testing, and version-controlled constraint template Git repositories deployed via GitOps.
+  implementation_surface: Use version-controlled Rego constraints and Gator tests for approved GitOps promotion.
+    Validate effective GPU resource declarations on Pods, including admitted defaults and init and sidecar accounting.
+    Require the RuntimeClass approved for the cluster's configured GPU runtime. For GPU Pod image provenance, have
+    a Gatekeeper constraint require an immutable image digest and verify a trusted Cosign signature through an authenticated
+    verifier. Reject missing or invalid verification and test the verifier failure path. For each supported training
+    API and runtime topology, check the version-specific declared GPU resources and replica or node counts. For
+    example, Kubeflow Trainer v2 uses TrainJob. Use separate evidence for generated workloads, namespace quota,
+    accelerator allocation, and runtime operation.
   owner_primary: Platform Engineering
   owner_supporting: ML Platform Engineering; Security Engineering
   baseline_or_ai_specific: ai-specific
@@ -5523,7 +5539,7 @@
   status: draft
   superseded_by_control_id: null
   date_created: '2026-02-28'
-  date_modified: '2026-03-17'
+  date_modified: '2026-11-23'
 - control_id: SAF-K8S-0605-002
   domain_code: D06
   domain_name: Supply Chain, Images, and Admission Control
