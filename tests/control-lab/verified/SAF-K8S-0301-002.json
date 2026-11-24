@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0301-002",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "bb430613dec364c80ffc54d746635ef299d3b39a",
+  "catalog_sha256": "b06938210bf61ac88a1df7930a1c5f1fdcbdc6577c5ad5560bb3f8aaa060c5dd",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "cb2182819d0df02b2795af527692b6934bfbeada40f03774c105131657f8652d",
-  "scope": "Admission of managed production-like Namespace PSA labels and local Pod Security Admission behavior for pinned policy versions. Does not verify managed-provider upgrade behavior, exemptions, or provider control planes.",
-  "cluster": "saf-lab-92cae5a1d08a",
+  "control_sha256": "b28907a465927e4343de90b99146f4da0ada34e783f6a73ecd7dd38db8fc2525",
+  "scope": "Admission of managed production-like Namespace PSA labels and local Pod Security Admission behavior, including an independently observed audit annotation, for pinned policy versions.",
+  "cluster": "saf-lab-4d5c6f002d38",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -51,6 +51,12 @@
       "observed": "server dry-run accepted"
     },
     {
+      "phase": "red",
+      "claim": "The API accepts unclassified staging pins before the namespace policy",
+      "matched": true,
+      "observed": "server dry-run accepted"
+    },
+    {
       "phase": "green",
       "claim": "The policy denies missing pins on Namespace CREATE",
       "matched": true,
@@ -61,6 +67,21 @@
       "claim": "The policy denies floating pins on Namespace CREATE",
       "matched": true,
       "observed": "Error from server (Forbidden): error when creating \"STDIN\": namespaces \"saf-0301-002-latest\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-002-psa-version-pins' with binding 'saf-k8s-0301-002-psa-version-pins' denied request: managed production-like Namespaces must set enforce, audit, and warn levels and explicit Kubernetes minor version pins (v1.NN)"
+    },
+    {
+      "phase": "green",
+      "claim": "The policy denies unclassified staging pins on Namespace CREATE",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": namespaces \"saf-0301-002-staging-unclassified\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-002-psa-version-pins' with binding 'saf-k8s-0301-002-psa-version-pins' denied request: managed production-like Namespaces must set enforce, audit, and warn levels and explicit Kubernetes minor version pins (v1.NN)"
+    },
+    {
+      "phase": "positive",
+      "claim": "Explicit supported profiles are accepted while an unrelated fixture namespace is out of scope",
+      "matched": true,
+      "observed": {
+        "outside_fixture_unchallenged": true,
+        "explicit_privileged_profile_accepted": true
+      }
     },
     {
       "phase": "green",
@@ -77,6 +98,24 @@
     {
       "phase": "green",
       "claim": "The policy denies missing warn version on Namespace UPDATE",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when replacing \"STDIN\": namespaces \"saf-0301-002-production\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-002-psa-version-pins' with binding 'saf-k8s-0301-002-psa-version-pins' denied request: managed production-like Namespaces must set enforce, audit, and warn levels and explicit Kubernetes minor version pins (v1.NN)"
+    },
+    {
+      "phase": "green",
+      "claim": "The policy denies missing enforce level on Namespace UPDATE",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when replacing \"STDIN\": namespaces \"saf-0301-002-production\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-002-psa-version-pins' with binding 'saf-k8s-0301-002-psa-version-pins' denied request: managed production-like Namespaces must set enforce, audit, and warn levels and explicit Kubernetes minor version pins (v1.NN)"
+    },
+    {
+      "phase": "green",
+      "claim": "The policy denies missing audit level on Namespace UPDATE",
+      "matched": true,
+      "observed": "Error from server (Forbidden): error when replacing \"STDIN\": namespaces \"saf-0301-002-production\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-002-psa-version-pins' with binding 'saf-k8s-0301-002-psa-version-pins' denied request: managed production-like Namespaces must set enforce, audit, and warn levels and explicit Kubernetes minor version pins (v1.NN)"
+    },
+    {
+      "phase": "green",
+      "claim": "The policy denies missing warn level on Namespace UPDATE",
       "matched": true,
       "observed": "Error from server (Forbidden): error when replacing \"STDIN\": namespaces \"saf-0301-002-production\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-002-psa-version-pins' with binding 'saf-k8s-0301-002-psa-version-pins' denied request: managed production-like Namespaces must set enforce, audit, and warn levels and explicit Kubernetes minor version pins (v1.NN)"
     },
@@ -130,13 +169,23 @@
       "phase": "green",
       "claim": "Pinned Restricted enforcement denies the test Pod",
       "matched": true,
-      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0301-002-psa-dry-run\" is forbidden: violates PodSecurity \"restricted:v1.36\": allowPrivilegeEscalation != false (container \"probe\" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container \"probe\" must set securityContext.capabilities.drop=[\"ALL\"])"
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-enforce-pin\" is forbidden: violates PodSecurity \"restricted:v1.36\": allowPrivilegeEscalation != false (container \"probe\" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container \"probe\" must set securityContext.capabilities.drop=[\"ALL\"])"
     },
     {
       "phase": "positive",
       "claim": "Separately pinned Restricted warning reports the admitted Baseline probe",
       "matched": true,
       "observed": "Warning: would violate PodSecurity \"restricted:v1.36\": allowPrivilegeEscalation != false (container \"probe\" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container \"probe\" must set securityContext.capabilities.drop=[\"ALL\"])"
+    },
+    {
+      "phase": "positive",
+      "claim": "The pinned audit profile independently records a violation without warning or denying the request",
+      "matched": true,
+      "observed": {
+        "audit_log_violation": true,
+        "no_client_warning": true,
+        "audit_and_compliant_allowed": true
+      }
     }
   ]
 }

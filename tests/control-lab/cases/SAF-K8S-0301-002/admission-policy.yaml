@@ -15,6 +15,8 @@ spec:
       expression: "'saf-k8s.example/managed-production-like'"
     - name: managed
       expression: >-
+        object.metadata.name.startsWith('saf-0301-002-production') ||
+        object.metadata.name.startsWith('saf-0301-002-staging') ||
         (has(object.metadata.labels) && variables.managedKey in object.metadata.labels &&
           object.metadata.labels[variables.managedKey] == 'true') ||
         (oldObject != null && has(oldObject.metadata.labels) &&
@@ -31,9 +33,9 @@ spec:
         "pod-security.kubernetes.io/audit-version" in object.metadata.labels &&
         "pod-security.kubernetes.io/warn" in object.metadata.labels &&
         "pod-security.kubernetes.io/warn-version" in object.metadata.labels &&
-        object.metadata.labels["pod-security.kubernetes.io/enforce"] in ['baseline', 'restricted'] &&
-        object.metadata.labels["pod-security.kubernetes.io/audit"] in ['baseline', 'restricted'] &&
-        object.metadata.labels["pod-security.kubernetes.io/warn"] in ['baseline', 'restricted'] &&
+        object.metadata.labels["pod-security.kubernetes.io/enforce"] in ['privileged', 'baseline', 'restricted'] &&
+        object.metadata.labels["pod-security.kubernetes.io/audit"] in ['privileged', 'baseline', 'restricted'] &&
+        object.metadata.labels["pod-security.kubernetes.io/warn"] in ['privileged', 'baseline', 'restricted'] &&
         object.metadata.labels["pod-security.kubernetes.io/enforce-version"] in ['v1.36'] &&
         object.metadata.labels["pod-security.kubernetes.io/audit-version"] in ['v1.36'] &&
         object.metadata.labels["pod-security.kubernetes.io/warn-version"] in ['v1.36'])
