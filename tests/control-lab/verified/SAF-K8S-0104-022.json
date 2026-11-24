@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0104-022",
-  "catalog_revision": "c62a40551eb5c880e5b9894cdc26bb7a929a5a29",
-  "catalog_sha256": "f8e0cf1e01bc0de4b00f018afbbd50ede74ea9107afc25c95416adf9c3533f88",
+  "catalog_revision": "106a06a2dc0d923a072c3326f194ceed2923ed86",
+  "catalog_sha256": "b13085fffcc414b504ce34f1a8df0fae3520e701b0adca01e92c2c2add5002cb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "667a3f66058fbfb4411207022bda3990f9bcf036178b3a06e1544c828256f917",
   "scope": "Paired disposable Kubernetes v1.36.1 clusters. The stock API server supplies the effective default and the second API server enables one alpha gate. The test inventories that component and gate. A separate pinned Kubernetes v1.37.0 peer cluster checks kubelet declared-feature reporting and default-scheduler placement for one opted-in and one explicitly disabled worker, then changes only the opted-in worker's provisioned gate and checks restart-driven report refresh, scheduling, and ordinary Pod viability. This is an upgrade-compatibility observation, not an authorization control. Full production component inventory and declared-feature expiration governance need separate evidence.",
-  "cluster": "saf-lab-97f78bd0bc64",
+  "cluster": "saf-lab-ee809b30565f",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -99,6 +99,19 @@
     },
     {
       "phase": "positive",
+      "claim": "An explicit API server setting equal to the default remains visible",
+      "matched": true,
+      "observed": {
+        "gate": "ContainerStopSignals",
+        "stock_effective": false,
+        "stock_explicit": false,
+        "configured_effective": false,
+        "configured_explicit": true,
+        "observed_alpha_stage": true
+      }
+    },
+    {
+      "phase": "positive",
       "claim": "Fresh peer is named and its Docker nodes are exact-label scoped",
       "matched": true,
       "observed": {
@@ -150,6 +163,25 @@
           "ready": true,
           "kubelet_version": "v1.37.0",
           "feature_reported": true
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The peer inventory preserves explicit equal-default and overridden kubelet settings",
+      "matched": true,
+      "observed": {
+        "disabled": {
+          "effective": false,
+          "documented_default": true,
+          "flag_corroborates": true,
+          "classification": "explicit-non-default"
+        },
+        "enabled": {
+          "effective": true,
+          "documented_default": true,
+          "flag_corroborates": true,
+          "classification": "explicit-equal-default"
         }
       }
     },

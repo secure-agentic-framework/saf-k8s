@@ -81,3 +81,28 @@ still need their own evidence under the relevant controls.
 - [Tagged v1.37.0 declared-feature interface](https://github.com/kubernetes/kubernetes/blob/v1.37.0/staging/src/k8s.io/component-helpers/nodedeclaredfeatures/types.go) — `MaxVersion` bounds each feature's scheduling relevance.
 - [Kubeadm kubelet integration](https://v1-37.docs.kubernetes.io/docs/setup/production-environment/tools/kubeadm/kubelet-integration/) — kubeadm-managed `/var/lib/kubelet/kubeadm-flags.env` and kubelet restart workflow.
 - [KEP-5328: Node Declared Features](https://www.kubernetes.dev/resources/keps/5328/) — feature-lifecycle policy, version-skew rationale, and the superseded fixed-expiration proposal.
+
+## Verify your implementation
+
+1. Inventory configurable gates by component instance and version. Pin the
+   component's registry, release documentation and its versioned default,
+   including the emulation version or provider release channel where relevant.
+2. Capture the active configuration and effective state using authorized
+   sources. Compare provisioning configuration, component arguments or config,
+   and scoped metrics or provider evidence. Keep an explicit value equal to the
+   default distinct from an implicit default. Retain explicit overrides with the
+   component, release, source and observed behavior.
+3. Record access gaps, unsupported surfaces or inconsistent evidence as
+   unverified. A workload capability declaration describes that capability
+   and does not inventory all gates. Corroborate that declaration with the
+   component and configuration version for the gates it covers.
+4. Reconcile the inventory after a rollout, restart or upgrade and after
+   feature-gate defaults, stage, dependencies or lock state change. Retain
+   the approved configuration revision, effective observation, ownership,
+   drift and exception or removal evidence.
+
+The added API server comparison keeps an explicit false alpha setting
+visible even though its effective value matches the stock default. The peer
+corroborates the selected kubelet gate with scoped kubeadm arguments and its
+live Node declaration. The explicit true worker matches the versioned
+default, and the explicit false worker overrides it.

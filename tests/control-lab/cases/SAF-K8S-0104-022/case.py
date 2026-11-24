@@ -32,6 +32,7 @@ PLUGIN_REASON = "node(s) didn't match Pod's required features"
 PEER_NAMESPACE = "saf-ndf-probe"
 GATE = "TaintTolerationComparisonOperators"
 COMPONENT = "kube-apiserver"
+EXPLICIT_DEFAULT_GATE = "ContainerStopSignals"
 SCOPE = (
     "Paired disposable Kubernetes v1.36.1 clusters. The stock API server supplies the "
     "effective default and the second API server enables one alpha gate. The test inventories "
@@ -64,14 +65,14 @@ def prepare_kind(lab, temporary: Path) -> Path:
         "  apiServer:\n"
         "    extraArgs:\n"
         "      - name: feature-gates\n"
-        f"        value: {GATE}=true\n",
+        f"        value: {GATE}=true,{EXPLICIT_DEFAULT_GATE}=false\n",
         encoding="utf-8",
     )
     config.chmod(0o600)
     return config
 
 
-def _metric_observation(metrics):
+def _metric_observation(metrics, gate):
     pattern = re.compile(
         r'^kubernetes_feature_enabled\{(?P<labels>[^}]*)\}\s+(?P<value>[01](?:\.0+)?)$')
     matches = []
@@ -80,12 +81,12 @@ def _metric_observation(metrics):
         if not match:
             continue
         labels = dict(re.findall(r'([A-Za-z_][A-Za-z0-9_]*)="([^"]*)"', match["labels"]))
-        if labels.get("name") == GATE:
-            matches.append({"component": COMPONENT, "feature": GATE,
+        if labels.get("name") == gate:
+            matches.append({"component": COMPONENT, "feature": gate,
                             "enabled": float(match["value"]) == 1.0,
                             "stage": labels.get("stage")})
     if len(matches) != 1:
-        raise ValueError(f"expected one API server metric for {GATE}; found {len(matches)}")
+        raise ValueError(f"expected one API server metric for {gate}; found {len(matches)}")
     return matches[0]
 
 
@@ -97,7 +98,12 @@ def _component_arguments(pod):
     return component.get("command", []) + component.get("args", [])
 
 
-def observe(lab):
+def configured_flags(arguments):
+    flags = [arg.partition("=")[2] for arg in arguments if arg.startswith("--feature-gates=")]
+    return {setting for flag in flags for setting in flag.split(",")}
+
+
+def observe(lab, gate=GATE):
     response = subprocess.run(
         ["kubectl", "--kubeconfig", str(lab.kubeconfig), "--context", f"kind-{lab.cluster}",
          "--request-timeout=20s", "get", "--raw", "/metrics"],
@@ -105,7 +111,7 @@ def observe(lab):
     )
     if response.returncode:
         lab.block("The owned kube-apiserver metrics were unavailable")
-    return _metric_observation(response.stdout)
+    return _metric_observation(response.stdout, gate)
 
 
 def observe_stock(lab):
@@ -116,12 +122,16 @@ def observe_stock(lab):
         stock.command("kind", "create", "cluster", "--name", stock.cluster, "--image", NODE_IMAGE,
                       "--kubeconfig", str(stock.kubeconfig), "--wait", "90s", timeout=480)
         data = observe(stock)
+        default_gate = observe(stock, EXPLICIT_DEFAULT_GATE)
+        pod_name = f"kube-apiserver-{stock.cluster}-control-plane"
+        pod = json.loads(stock.kubectl("get", "pod", "-n", "kube-system", pod_name, "-o", "json").stdout)
+        explicit = f"{EXPLICIT_DEFAULT_GATE}=false" in configured_flags(_component_arguments(pod))
         version = json.loads(stock.kubectl("version", "-o", "json").stdout)["serverVersion"]["gitVersion"]
     finally:
         stock.command("kind", "delete", "cluster", "--name", stock.cluster,
                       "--kubeconfig", str(stock.kubeconfig), timeout=90)
     deleted = stock.cluster not in stock.command("kind", "get", "clusters").stdout.splitlines()
-    return data, version, deleted
+    return data, version, deleted, default_gate, explicit
 
 
 def peer_kubectl(lab, kubeconfig, cluster, *args, payload=None, timeout=45, allow_failure=False):
@@ -554,6 +564,32 @@ def run_declared_feature_peer(lab):
                 {name: {key: item[key] for key in ("ready", "kubelet_version", "feature_reported")}
                  for name, item in report.items()},
             )
+            classifications = {}
+            for label, state in report.items():
+                # The peer nodes were verified against this fixture's exact Docker labels.
+                gate_tokens = lab.command(
+                    "docker", "--context", lab.context, "exec", state["node"],
+                    "grep", "-oE", f"{DECLARED_FEATURE}=(true|false)",
+                    "/var/lib/kubelet/kubeadm-flags.env",
+                ).stdout.splitlines()
+                configured = len(gate_tokens) == 1 and gate_tokens[0].endswith(
+                    "=true" if state["feature_reported"] else "=false")
+                classification = ("explicit-equal-default" if state["feature_reported"]
+                                  else "explicit-non-default") if configured else "unknown"
+                classifications[label] = {"effective": state["feature_reported"],
+                                          "documented_default": True,
+                                          "flag_corroborates": configured,
+                                          "classification": classification}
+            peer_inventory = {
+                "disabled": {"effective": False, "documented_default": True, "flag_corroborates": True,
+                             "classification": "explicit-non-default"},
+                "enabled": {"effective": True, "documented_default": True, "flag_corroborates": True,
+                            "classification": "explicit-equal-default"},
+            }
+            lab.check("green", "The peer inventory preserves explicit equal-default and overridden kubelet settings",
+                      classifications == peer_inventory, classifications)
+            (lab.evidence / "worker-feature-inventory.raw.json").write_text(
+                json.dumps(classifications, indent=2, sort_keys=True) + "\n")
             peer_kubectl(lab, kubeconfig, cluster, "create", "namespace", PEER_NAMESPACE)
 
             ordinary = test_pod("ordinary-on-disabled", "disabled", feature_required=False)
@@ -644,7 +680,7 @@ def run(lab):
     baseline = json.loads((HERE / "baseline.json").read_text(encoding="utf-8"))
     expected = json.loads((HERE / "expected-effective.json").read_text(encoding="utf-8"))
 
-    stock, stock_version, stock_deleted = observe_stock(lab)
+    stock, stock_version, stock_deleted, stock_default_gate, stock_was_explicit = observe_stock(lab)
     default_inventory = evaluator.evaluate(baseline, [stock])
     lab.check("red", "The stock API server reports the versioned default and no override",
               stock["enabled"] == baseline["default"] and default_inventory == []
@@ -656,7 +692,8 @@ def run(lab):
     pod = json.loads(lab.kubectl("get", "pod", "-n", "kube-system", pod_name,
                                   "-o", "json").stdout)
     args = _component_arguments(pod)
-    configured = f"--feature-gates={GATE}=true" in args
+    explicit_flags = configured_flags(args)
+    configured = f"{GATE}=true" in explicit_flags
     effective = observe(lab)
     inventory = evaluator.evaluate(baseline, [effective])
     expected_inventory = expected["expected_inventory"]
@@ -670,4 +707,15 @@ def run(lab):
               {"api_server_feature_gate_argument_present": configured,
                "effective_metric_enabled": effective["enabled"],
                "metric_source": "kube-apiserver /metrics via read-only Kubernetes API GET"})
+    explicit_default = observe(lab, EXPLICIT_DEFAULT_GATE)
+    selected = {
+        "gate": EXPLICIT_DEFAULT_GATE, "stock_effective": stock_default_gate["enabled"],
+        "stock_explicit": stock_was_explicit, "configured_effective": explicit_default["enabled"],
+        "configured_explicit": f"{EXPLICIT_DEFAULT_GATE}=false" in explicit_flags,
+        "observed_alpha_stage": explicit_default["stage"] == stock_default_gate["stage"] == "ALPHA",
+    }
+    lab.check("positive", "An explicit API server setting equal to the default remains visible",
+              not selected["stock_effective"] and not selected["stock_explicit"]
+              and not selected["configured_effective"] and selected["configured_explicit"]
+              and selected["observed_alpha_stage"], selected)
     run_declared_feature_peer(lab)
