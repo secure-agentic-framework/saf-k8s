@@ -1,0 +1,31 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-0202-require-gvisor
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - apiGroups: [""]
+      apiVersions: ["v1"]
+      operations: ["CREATE", "UPDATE"]
+      resources: ["pods"]
+      scope: Namespaced
+  validations:
+  - expression: >-
+      has(object.spec.runtimeClassName) &&
+      object.spec.runtimeClassName == 'saf-gvisor'
+    message: "gvisor-profile namespace workloads must select RuntimeClass saf-gvisor"
+    reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-0202-require-gvisor
+spec:
+  policyName: saf-0202-require-gvisor
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s-0202-002.profile: gvisor

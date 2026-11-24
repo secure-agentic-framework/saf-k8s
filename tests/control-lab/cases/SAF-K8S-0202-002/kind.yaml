@@ -8,6 +8,11 @@ containerdConfigPatches:
 - |-
   [plugins."io.containerd.cri.v1.runtime".containerd.runtimes.saf-runc]
     runtime_type = "io.containerd.runc.v2"
-    [plugins."io.containerd.cri.v1.runtime".containerd.runtimes.saf-runc.options]
-      SystemdCgroup = false
-      Root = "/run/saf-runtimeclass-runc"
+  [plugins."io.containerd.cri.v1.runtime".containerd.runtimes.saf-runc.options]
+    SystemdCgroup = false
+    Root = "/run/saf-runtimeclass-runc"
+  [plugins."io.containerd.cri.v1.runtime".containerd.runtimes.saf-gvisor]
+    runtime_type = "io.containerd.runsc.v1"
+  [plugins."io.containerd.cri.v1.runtime".containerd.runtimes.saf-gvisor.options]
+    TypeUrl = "io.containerd.runsc.v1.options"
+    ConfigPath = "/etc/containerd/runsc-saf-gvisor.toml"
