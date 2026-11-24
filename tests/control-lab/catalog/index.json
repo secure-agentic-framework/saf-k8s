@@ -2940,6 +2940,12 @@
       "sha256": "bfabe6c7cf30f9cb00c3d96ab0fde24874a59183aff65e43fd3073b1a2b16aab",
       "title": "Document provenance and integrity validation before RAG chunking and indexing"
     },
+    "SAF-K8S-0910-004": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "bf7e4c8150a2cb7e28cd74cf0f37ad760dc038b20d2c1e89fa0acf35ccd411ea",
+      "title": "Federated learning cross-cluster coordination security"
+    },
     "SAF-K8S-0910-017": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3512,7 +3518,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "4694d569ec00b2f39e8024c9ef32f5765caf9e2e",
+  "revision": "deb66238f52143ce0023e86ee3be2a7f5247b260",
   "sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

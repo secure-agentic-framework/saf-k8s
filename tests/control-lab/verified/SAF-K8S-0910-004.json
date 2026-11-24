@@ -1,0 +1,242 @@
+{
+  "control_id": "SAF-K8S-0910-004",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "bf7e4c8150a2cb7e28cd74cf0f37ad760dc038b20d2c1e89fa0acf35ccd411ea",
+  "scope": "Two distinct, disposable Kind clusters host one mTLS round receiver and one participant each. A pinned Python fixture accepts a stale synthetic vector in an explicitly unenforced baseline, then enforces exact round, protocol, membership, and duplicate checks. A separately identified read-only observer reads the receiver's service state before and after refusal and after the approved round. This covers one toy coordination path, not production FL, secure aggregation, differential privacy, Byzantine tolerance, or cluster-wide audit controls.",
+  "cluster": "saf-lab-86754f1538d7",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The unenforced baseline accepts a stale fixture round",
+      "matched": true,
+      "observed": {
+        "response": {
+          "cluster": "cluster-a",
+          "decision": "contribution_recorded",
+          "round": "toy-round-2026-11-22-01",
+          "status": 200
+        },
+        "receiver_state": {
+          "aggregate": null,
+          "contributions": [
+            {
+              "cluster": "cluster-a",
+              "counts": [
+                1,
+                0,
+                2
+              ],
+              "protocol": "toy-vector-counts-v0",
+              "round": "toy-round-2026-11-22-01"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Round, protocol, and membership refusals leave receiver state unchanged",
+      "matched": true,
+      "observed": {
+        "policy_enabled": {
+          "decision": "round_policy_enabled",
+          "round": "toy-round-2026-11-23-01",
+          "status": 200
+        },
+        "before": {
+          "aggregate": null,
+          "contributions": [
+            {
+              "cluster": "cluster-a",
+              "counts": [
+                1,
+                0,
+                2
+              ],
+              "protocol": "toy-vector-counts-v0",
+              "round": "toy-round-2026-11-22-01"
+            }
+          ]
+        },
+        "round_refusal": {
+          "decision": "round_mismatch",
+          "expected": "toy-round-2026-11-23-01",
+          "received": "toy-round-2026-11-22-01",
+          "status": 409
+        },
+        "after_round_refusal": {
+          "aggregate": null,
+          "contributions": [
+            {
+              "cluster": "cluster-a",
+              "counts": [
+                1,
+                0,
+                2
+              ],
+              "protocol": "toy-vector-counts-v0",
+              "round": "toy-round-2026-11-22-01"
+            }
+          ]
+        },
+        "protocol_refusal": {
+          "decision": "protocol_mismatch",
+          "expected": "toy-vector-counts-v1",
+          "received": "toy-vector-counts-v0",
+          "status": 409
+        },
+        "after_protocol_refusal": {
+          "aggregate": null,
+          "contributions": [
+            {
+              "cluster": "cluster-a",
+              "counts": [
+                1,
+                0,
+                2
+              ],
+              "protocol": "toy-vector-counts-v0",
+              "round": "toy-round-2026-11-22-01"
+            }
+          ]
+        },
+        "membership_refusal": {
+          "cluster": "cluster-a",
+          "decision": "round_member_refused",
+          "status": 403
+        },
+        "after_membership_refusal": {
+          "aggregate": null,
+          "contributions": [
+            {
+              "cluster": "cluster-a",
+              "counts": [
+                1,
+                0,
+                2
+              ],
+              "protocol": "toy-vector-counts-v0",
+              "round": "toy-round-2026-11-22-01"
+            }
+          ]
+        },
+        "state_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both approved clusters contribute and the observer reads the exact deterministic aggregate",
+      "matched": true,
+      "observed": {
+        "participant_a": {
+          "cluster": "cluster-a",
+          "decision": "contribution_recorded",
+          "round": "toy-round-2026-11-23-01",
+          "status": 200
+        },
+        "participant_b": {
+          "cluster": "cluster-b",
+          "decision": "contribution_recorded",
+          "round": "toy-round-2026-11-23-01",
+          "status": 200
+        },
+        "duplicate_refusal": {
+          "cluster": "cluster-a",
+          "decision": "duplicate_contribution_refused",
+          "round": "toy-round-2026-11-23-01",
+          "status": 409
+        },
+        "state_unchanged_after_duplicate": true,
+        "observer_state": {
+          "aggregate": {
+            "mean_counts": [
+              3,
+              5,
+              7
+            ],
+            "members": [
+              "cluster-a",
+              "cluster-b"
+            ],
+            "protocol": "toy-vector-counts-v1",
+            "round": "toy-round-2026-11-23-01",
+            "sum_counts": [
+              6,
+              10,
+              14
+            ]
+          },
+          "contributions": [
+            {
+              "cluster": "cluster-a",
+              "counts": [
+                1,
+                0,
+                2
+              ],
+              "protocol": "toy-vector-counts-v0",
+              "round": "toy-round-2026-11-22-01"
+            },
+            {
+              "cluster": "cluster-a",
+              "counts": [
+                2,
+                4,
+                6
+              ],
+              "protocol": "toy-vector-counts-v1",
+              "round": "toy-round-2026-11-23-01"
+            },
+            {
+              "cluster": "cluster-b",
+              "counts": [
+                4,
+                6,
+                8
+              ],
+              "protocol": "toy-vector-counts-v1",
+              "round": "toy-round-2026-11-23-01"
+            }
+          ]
+        },
+        "participant_read_refused": {
+          "decision": "observer_read_refused",
+          "status": 403
+        }
+      }
+    }
+  ]
+}
