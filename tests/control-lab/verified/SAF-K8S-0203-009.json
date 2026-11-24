@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0203-009",
-  "catalog_revision": "e3fa5f9136c0984394463f437cc84e5ea9b754cc",
-  "catalog_sha256": "32b70923f43dc58d7939cdb50afca687f2a37f5f1bc0d41c90c831c8f7a97fe0",
+  "catalog_revision": "cd9b9fa347ecdeecfe38bd00d3339c6771f3a2d1",
+  "catalog_sha256": "6c62a9ab38837b70dbe3d92571eb93f33722e18e15a26a688854bcfd3cadd6b4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "5e353d4fbbb211e49e927179400a96900623e53c9264e4bbdfb4a4c79c819856",
-  "scope": "Projected Kubernetes credentials plus a TLS-protected fixture identity mapping; no provider is contacted.",
-  "cluster": "saf-lab-10efb25add2c",
+  "scope": "Verify real Kubernetes projected identity and Vault\u2019s native JWT exchange, scoped KV operations, and expiry using disposable fixtures.",
+  "cluster": "saf-lab-9d82679c1f2d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -61,6 +61,41 @@
       "matched": true,
       "observed": {
         "approved_identity_mapped": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Vault rejects a Kubernetes token with the wrong audience or subject",
+      "matched": true,
+      "observed": {
+        "native_wrong_audience_denied": true,
+        "native_wrong_subject_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native exchange issues a bounded, nonrenewable credential for the approved identity and policy",
+      "matched": true,
+      "observed": {
+        "approved_entity_and_policy": true,
+        "lease_seconds": 16
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The issued credential reads its owned public marker but has neither wider read nor write access",
+      "matched": true,
+      "observed": {
+        "approved_read": true,
+        "wider_read_and_write_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same credential loses access after its native lease expires",
+      "matched": true,
+      "observed": {
+        "expired_read_denied": true
       }
     }
   ]

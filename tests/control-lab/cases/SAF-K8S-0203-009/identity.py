@@ -40,7 +40,7 @@ class Identity(BaseHTTPRequestHandler):
         if subject not in allowed:
             self.send_error(403)
             return
-        payload = json.dumps({"provider_principal": "fixture-workload-role", "public_marker": "authorized fixture"}).encode()
+        payload = json.dumps({"fixture_principal": "fixture-workload-role", "public_marker": "authorized fixture"}).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(payload)))
