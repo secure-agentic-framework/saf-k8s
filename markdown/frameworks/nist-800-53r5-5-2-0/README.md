@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 3696
-- Distinct Requirements Mapped: 739
+- Total Reverse Mappings: 3690
+- Distinct Requirements Mapped: 736
 
 ## Requirements
 
@@ -459,7 +459,6 @@
 - [SA-17(2) - Security-relevant Components](sa-17-2.md)
 - [SA-17(3) - Formal Correspondence](sa-17-3.md)
 - [SA-17(4) - Informal Correspondence](sa-17-4.md)
-- [SA-17(5) - Conceptually Simple Design](sa-17-5.md)
 - [SA-17(6) - Structure for Testing](sa-17-6.md)
 - [SA-17(7) - Structure for Least Privilege](sa-17-7.md)
 - [SA-17(8) - Orchestration](sa-17-8.md)
@@ -554,7 +553,6 @@
 - [SC-23(3) - Unique System-generated Session Identifiers](sc-23-3.md)
 - [SC-23(5) - Allowed Certificate Authorities](sc-23-5.md)
 - [SC-24 - Fail in Known State](sc-24.md)
-- [SC-25 - Thin Nodes](sc-25.md)
 - [SC-27 - Platform-independent Applications](sc-27.md)
 - [SC-28 - Protection of Information at Rest](sc-28.md)
 - [SC-28(1) - Cryptographic Protection](sc-28-1.md)
@@ -564,7 +562,6 @@
 - [SC-29(1) - Virtualization Techniques](sc-29-1.md)
 - [SC-3 - Security Function Isolation](sc-3.md)
 - [SC-3(2) - Access and Flow Control Functions](sc-3-2.md)
-- [SC-3(3) - Minimize Nonsecurity Functionality](sc-3-3.md)
 - [SC-3(4) - Module Coupling and Cohesiveness](sc-3-4.md)
 - [SC-3(5) - Layered Structures](sc-3-5.md)
 - [SC-30(2) - Randomness](sc-30-2.md)

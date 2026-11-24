@@ -1550,12 +1550,12 @@
   knowledge_area: '2.3'
   control_seq: '002'
   control_title: Kernel parameter hardening via sysctl
-  control_statement: Kubernetes nodes must apply hardened kernel parameters via sysctl configuration covering network stack protections (IP forwarding restrictions, reverse path filtering, SYN flood mitigation), memory protections (ASLR enforcement, restricted core dumps), and namespace isolation settings appropriate for containerized workloads.
-  objective: Harden the Linux kernel attack surface on cluster nodes by enforcing security-relevant kernel parameters that limit network-level attacks, memory exploitation, and inter-namespace information leakage.
-  rationale: Default kernel parameters are tuned for general-purpose compatibility rather than security. Without hardened sysctl settings, nodes are vulnerable to SYN flood denial-of-service, IP spoofing through disabled reverse path filtering, memory exploitation through disabled ASLR, and cross-namespace information leakage. Container workloads that share the host kernel inherit these weaknesses, making kernel-level hardening a critical defense layer beneath container isolation.
-  scope: Applies to all cluster node kernels in production environments. Specific sysctl values must be validated against workload requirements, as some AI/ML networking configurations (e.g., RDMA, high-performance networking) may require adjusted network stack parameters with documented risk acceptance. Managed services where kernel parameters are provider-controlled require provider hardening attestation.
+  control_statement: Define and enforce a versioned sysctl profile for each governed Linux node role. Record the kernel key, approved value, scope, applicability and exception for each setting. Verify the effective values after provisioning and reboot, and validate required Kubernetes network, workload and device behavior.
+  objective: Apply reviewed kernel settings to the applicable node or Pod namespace while preserving required network and workload functions.
+  rationale: Kernel versions, namespaces and node roles determine the effects of sysctl values. Review IPv4 forwarding and reverse path validation against CNI routing. SYN cookies provide a fallback on backlog overflow. ASLR, privileged-process dump restrictions and kernel-information visibility each address distinct behavior.
+  scope: Applies to applicable Linux Kubernetes node roles and supported Pod namespaces. Review role-specific CNI, asymmetric routing, RDMA and accelerator dependencies. For provider-controlled settings, retain versioned evidence for the affected node pools and approved exceptions.
   primary_enforcement_point: Node provisioning templates applying sysctl configuration via /etc/sysctl.d/ drop-in files or cloud-init scripts.
-  implementation_surface: Sysctl configuration files (/etc/sysctl.d/), kernel parameter hardening values, cloud-init or configuration management provisioning, CIS Benchmark verification, and RDMA/high-performance networking parameter tuning for AI workloads.
+  implementation_surface: Versioned sysctl.d provisioning, effective procfs observations after provisioning and reboot, approved Pod-safe namespaced settings, observable normal-path checks for the affected CNI and workloads, and a pool-specific exception and recovery record.
   owner_primary: Platform Engineering
   owner_supporting: OS/Infrastructure; Security Engineering
   baseline_or_ai_specific: baseline
@@ -1563,7 +1563,7 @@
   status: draft
   superseded_by_control_id: null
   date_created: '2026-02-28'
-  date_modified: '2026-03-17'
+  date_modified: '2026-11-24'
 - control_id: SAF-K8S-0203-004
   domain_code: D02
   domain_name: Node, Runtime, and OS Security

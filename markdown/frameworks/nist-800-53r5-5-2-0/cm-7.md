@@ -42,10 +42,10 @@ Agents should expose minimum necessary functionality
 
 - Domain: D02 - Node, Runtime, and OS Security
 - Knowledge Area: 2.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0601-014 - Container image runtime hardening with non-root and read-only filesystem](../../controls/SAF-K8S-0601-014.md)
 
