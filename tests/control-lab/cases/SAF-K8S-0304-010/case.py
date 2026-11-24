@@ -1,6 +1,7 @@
 """Contrast pre-admission declarations with Kubernetes admission/defaulting."""
 import json
 from pathlib import Path
+import runpy
 import subprocess
 import sys
 import time
@@ -9,7 +10,7 @@ from fixtures import container, pod, ready
 
 SCOPE = ("Explicit CPU, memory and ephemeral-storage declarations for regular and init containers. "
          "The source check sees the raw manifest. Admission sees defaulted resource values. "
-         "The test runs without GPU hardware or device plugins.")
+         "An upstream kubelet device plugin supplies exactly two synthetic device allocations without GPU hardware.")
 HERE = Path(__file__).parent
 CHECKER = HERE / "resource-declarations.py"
 RESOURCES = {
@@ -90,3 +91,6 @@ def run(lab):
     lab.create(valid)
     ready(lab, "valid-resources")
     lab.check("positive", "A Pod with explicit declarations reaches Ready", True, "Ready")
+
+    accelerator = runpy.run_path(str(HERE / "accelerator" / "case.py"))
+    accelerator["run"](lab)

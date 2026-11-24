@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0304-010",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "ec32ade7ee098d23771a1d1c262e81f99e1f0790",
+  "catalog_sha256": "d382873340c3e9384f61d030f52d546f81f937d3e168e046cb5c6924df022675",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "cdb0b886591eee425910bc51be18aa0c6d69799441ccfc94ba57d1f0f3103ebd",
-  "scope": "Explicit CPU, memory and ephemeral-storage declarations for regular and init containers. The source check sees the raw manifest. Admission sees defaulted resource values. The test runs without GPU hardware or device plugins.",
-  "cluster": "saf-lab-a673429b6bbf",
+  "scope": "Explicit CPU, memory and ephemeral-storage declarations for regular and init containers. The source check sees the raw manifest. Admission sees defaulted resource values. An upstream kubelet device plugin supplies exactly two synthetic device allocations without GPU hardware.",
+  "cluster": "saf-lab-5d1700a4227e",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -169,6 +169,82 @@
       "claim": "A Pod with explicit declarations reaches Ready",
       "matched": true,
       "observed": "Ready"
+    },
+    {
+      "phase": "positive",
+      "claim": "One fixture node advertises exactly two synthetic device-plugin units",
+      "matched": true,
+      "observed": {
+        "capacity": "2",
+        "allocatable": "2"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Kubernetes defaults the synthetic device request from its explicit limit",
+      "matched": true,
+      "observed": {
+        "defaulted_request": "1"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native API validation rejects unequal extended-resource values",
+      "matched": true,
+      "observed": {
+        "unequal_quantity_rejected": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before enforcing the enrollment rule, both fixture declaration gaps are admitted",
+      "matched": true,
+      "observed": {
+        "admitted_before_policy": {
+          "missing": true,
+          "wrong": true
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The named conditional policy rejects both missing and wrong extended-resource keys",
+      "matched": true,
+      "observed": {
+        "rejected_by_policy": {
+          "missing": true,
+          "wrong": true
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Separate running Pods see distinct files mounted by the kubelet Allocate response",
+      "matched": true,
+      "observed": {
+        "allocated_device_markers": [
+          "Dev-1",
+          "Dev-2"
+        ],
+        "one_marker_per_enrolled_pod": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The CPU-only control runs with no synthetic device mount",
+      "matched": true,
+      "observed": {
+        "cpu_only_has_no_device_marker": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A third enrolled request remains unscheduled with the exact insufficient-device reason",
+      "matched": true,
+      "observed": {
+        "pending": true,
+        "insufficient_resource": "example.com/resource"
+      }
     }
   ]
 }

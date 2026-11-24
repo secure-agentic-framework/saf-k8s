@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: saf-sample-device-plugin
+  namespace: kube-system
+  labels:
+    app: saf-sample-device-plugin
+spec:
+  selector:
+    matchLabels:
+      app: saf-sample-device-plugin
+  template:
+    metadata:
+      labels:
+        app: saf-sample-device-plugin
+    spec:
+      tolerations:
+      - operator: Exists
+      containers:
+      - name: plugin
+        image: registry.k8s.io/e2e-test-images/sample-device-plugin:1.8.0@sha256:2227c6949af186356919c2e63c35d68f07f4722d810e55cd97c7850e368d080d
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: PLUGIN_SOCK_DIR
+          value: /var/lib/kubelet/device-plugins
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: device-plugins
+          mountPath: /var/lib/kubelet/device-plugins
+        - name: node-fixture-tmp
+          mountPath: /tmp
+      volumes:
+      - name: device-plugins
+        hostPath:
+          path: /var/lib/kubelet/device-plugins
+          type: Directory
+      - name: node-fixture-tmp
+        hostPath:
+          path: /tmp
+          type: Directory
+      automountServiceAccountToken: false

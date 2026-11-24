@@ -1,0 +1,44 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-lab-0304-010-conditional-accelerator
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - apiGroups: [""]
+      apiVersions: ["v1"]
+      operations: ["CREATE", "UPDATE"]
+      resources: ["pods"]
+  validations:
+  - expression: >-
+      !has(object.metadata.labels) ||
+      !('saf.example.com/accelerator-required' in object.metadata.labels) ||
+      object.metadata.labels['saf.example.com/accelerator-required'] != 'true' ||
+      object.spec.containers.all(c,
+        has(c.resources) && has(c.resources.limits) &&
+        'example.com/resource' in c.resources.limits &&
+        quantity(string(c.resources.limits['example.com/resource'])).compareTo(quantity('1')) == 0 &&
+        (!has(c.resources.requests) ||
+         !('example.com/resource' in c.resources.requests) ||
+         quantity(string(c.resources.requests['example.com/resource'])).compareTo(quantity('1')) == 0)) &&
+      (!has(object.spec.initContainers) || object.spec.initContainers.all(c,
+        has(c.resources) && has(c.resources.limits) &&
+        'example.com/resource' in c.resources.limits &&
+        quantity(string(c.resources.limits['example.com/resource'])).compareTo(quantity('1')) == 0 &&
+        (!has(c.resources.requests) ||
+         !('example.com/resource' in c.resources.requests) ||
+         quantity(string(c.resources.requests['example.com/resource'])).compareTo(quantity('1')) == 0)))
+    message: enrolled Pods must declare exactly one example.com/resource in each regular and init container
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-lab-0304-010-conditional-accelerator
+spec:
+  policyName: saf-lab-0304-010-conditional-accelerator
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: saf-lab-0304-010-accelerator
