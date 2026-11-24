@@ -38,15 +38,6 @@ Isolating security functions in agent systems prevents compromise of authorizati
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0202-002 - RuntimeClass configuration for workload-appropriate isolation](../../controls/SAF-K8S-0202-002.md)
-
-- Domain: D02 - Node, Runtime, and OS Security
-- Knowledge Area: 2.2
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0202-004 - Runtime socket mount prevention](../../controls/SAF-K8S-0202-004.md)
 
 - Domain: D02 - Node, Runtime, and OS Security

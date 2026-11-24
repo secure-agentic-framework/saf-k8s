@@ -1370,12 +1370,12 @@
   knowledge_area: '2.2'
   control_seq: '002'
   control_title: RuntimeClass configuration for workload-appropriate isolation
-  control_statement: Clusters must define RuntimeClass resources that map workloads to appropriate container runtime handlers, ensuring that security-sensitive or AI/ML workloads use sandboxed runtimes (gVisor, Kata Containers) where required, and that GPU-accelerated workloads use validated GPU-compatible runtime configurations.
+  control_statement: Define and enforce approved RuntimeClass assignments for governed workloads. Verify that each class selects the intended configured handler on eligible nodes. Select a supported sandbox where the workload risk requires one, and separately validate the required runtime, driver and device functions for accelerator workloads.
   objective: Enable workload-specific runtime isolation by assigning appropriate container runtime sandboxing levels based on workload risk profile, with particular attention to AI/ML workloads requiring GPU access.
-  rationale: A single default runtime provides uniform isolation regardless of workload risk. Untrusted or multi-tenant AI workloads sharing a standard runc runtime can exploit kernel vulnerabilities to escape container boundaries. Without RuntimeClass configuration, GPU-accelerated workloads may require overly permissive security contexts to function, or sandboxed runtimes may block legitimate GPU device access. Explicit RuntimeClass mapping ensures each workload receives the appropriate isolation level.
+  rationale: RuntimeClass selects a configured CRI handler and can constrain scheduling to eligible nodes. Isolation and device behavior depend on the actual handler, runtime version, node platform and workload settings. Validate those properties using a representative workload and retain evidence of the actual handler selection.
   scope: Applies to all production clusters running mixed workload types or AI/ML workloads requiring GPU access. Clusters running exclusively trusted first-party workloads with homogeneous isolation requirements may document a single-runtime exception. Managed services must configure available RuntimeClass options or document provider-enforced isolation equivalents.
-  primary_enforcement_point: Kubernetes RuntimeClass resource definitions and admission policies enforcing RuntimeClass assignment for designated namespaces or workload labels.
-  implementation_surface: Kubernetes RuntimeClass API resource definitions, runtime handler configuration (nvidia, runsc, kata), node selectors for GPU scheduling, GPU compatibility validation matrix (runtime/driver/CUDA versions), and admission policies enforcing RuntimeClass selection.
+  primary_enforcement_point: RuntimeClass definitions, trusted workload classification, admission policy, node readiness inventory and effective runtime handler configuration.
+  implementation_surface: Verified runtime handlers and approved class assignments, trusted namespace or workload classification, eligible node scheduling and readiness labels, actual Pod-to-CRI runtime evidence, and GPU/runtime compatibility tests where applicable.
   owner_primary: Platform Engineering
   owner_supporting: AI/ML Platform; Security Engineering
   baseline_or_ai_specific: ai-specific
@@ -1383,7 +1383,7 @@
   status: draft
   superseded_by_control_id: null
   date_created: '2026-02-28'
-  date_modified: '2026-03-17'
+  date_modified: '2026-11-24'
 - control_id: SAF-K8S-0202-003
   domain_code: D02
   domain_name: Node, Runtime, and OS Security
