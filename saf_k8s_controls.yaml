@@ -1170,12 +1170,12 @@
   knowledge_area: '2.1'
   control_seq: '006'
   control_title: Node system and kube reserved resource allocations
-  control_statement: Kubernetes nodes must configure system-reserved and kube-reserved resource allocations so that kubelet, the container runtime, and operating system processes retain sufficient CPU, memory, and storage to remain responsive under workload pressure.
-  objective: Prevent user workloads from starving node-level control processes by reserving sufficient capacity for kubelet, runtime, and operating system functions on every production node.
-  rationale: Node stability depends on protecting core system processes from workload contention. Explicit system and kube reservations prevent AI training or inference workloads from consuming the resources needed for health checks, logging, networking, and pod lifecycle operations.
-  scope: Applies to all production cluster nodes, with particular attention to nodes hosting GPU workloads or AI training jobs that can exhibit sudden memory spikes. Managed Kubernetes services that expose allocatable resource configuration must have these values tuned for the node instance type. Exemptions require documented risk acceptance.
+  control_statement: Configure and verify measured kubeReserved and systemReserved headroom for governed node pools. Verify Node Allocatable for the selected resources and independently validate any daemon cgroup placement and enforcement needed by the node baseline.
+  objective: Reserve documented capacity for system and Kubernetes daemons based on measured current and peak demand. Verify effective allocatable, applicable resource enforcement, workload recovery and daemon responsiveness in representative approved tests.
+  rationale: The kubelet accounts for selected reservations when it calculates Node Allocatable, which affects workload placement. Daemon cgroup placement and enforcement require separate settings. Measure contention and approved limits so the reservations and their enforcement support node workload and daemon requirements.
+  scope: Applies to applicable node pools and their OS, runtime and Kubernetes daemons. Review control plane, worker, provider-managed and accelerator node pools according to their supported resources, startup requirements and measured headroom. Review GPU device resources through their own controls.
   primary_enforcement_point: Node provisioning templates and kubelet configuration files specifying systemReserved and kubeReserved settings.
-  implementation_surface: KubeletConfiguration resource reservation settings for systemReserved and kubeReserved, GPU driver and node agent resource accounting, node capacity planning tooling, and node allocatable validation in provisioning pipelines.
+  implementation_surface: KubeletConfiguration systemReserved, kubeReserved and enforceNodeAllocatable settings, approved cgroup paths when used, advertised Node Allocatable, and repeatable measurements of daemon and workload headroom, health and recovery.
   owner_primary: Platform Engineering
   owner_supporting: Workload Teams; Capacity Planning
   baseline_or_ai_specific: baseline
@@ -1183,7 +1183,7 @@
   status: draft
   superseded_by_control_id: null
   date_created: '2026-03-13'
-  date_modified: '2026-03-17'
+  date_modified: '2026-11-24'
 - control_id: SAF-K8S-0201-007
   domain_code: D02
   domain_name: Node, Runtime, and OS Security
