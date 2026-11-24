@@ -14663,22 +14663,6 @@
 
 
     3.1 - Pod Security Standards (Restricted profile prevents privileged execution); 3.2 - allowPrivilegeEscalation=false'
-  control_id: SAF-K8S-0302-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-6(10)
-  framework_requirement_title: Prohibit Non-privileged Users from Executing Privileged Functions
-  framework_mapping_notes: 'Preventing unprivileged agents from escalating
-
-
-    3.1 - Pod Security Standards (Restricted profile prevents privileged execution); 3.2 - allowPrivilegeEscalation=false'
   control_id: SAF-K8S-0302-006
   relation_type: supports
   strength_level: strong
@@ -14696,22 +14680,6 @@
 
     3.2 - Configure security contexts (runAsNonRoot, non-root execution for inference servers and training jobs)'
   control_id: SAF-K8S-0302-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-6(2)
-  framework_requirement_title: Non-privileged Access for Nonsecurity Functions
-  framework_mapping_notes: 'Agents should run unprivileged for routine tasks
-
-
-    3.2 - Configure security contexts (runAsNonRoot, non-root execution for inference servers and training jobs)'
-  control_id: SAF-K8S-0302-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -14932,22 +14900,6 @@
 
 
     4.1 - Design and enforce RBAC (separation of duties, cluster-admin restrictions); 3.2 - Privilege escalation prevention'
-  control_id: SAF-K8S-0302-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-6(5)
-  framework_requirement_title: Privileged Accounts
-  framework_mapping_notes: 'Restricting privileged agent accounts
-
-
-    4.1 - Design and enforce RBAC (separation of duties, cluster-admin restrictions); 3.2 - Privilege escalation prevention'
   control_id: SAF-K8S-0401-001
   relation_type: supports
   strength_level: strong
@@ -15125,22 +15077,6 @@
 
     3.2 - Security contexts (runAsUser, allowPrivilegeEscalation); 3.1 - Pod Security Standards (Baseline, Restricted)'
   control_id: SAF-K8S-0302-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-6(8)
-  framework_requirement_title: Privilege Levels for Code Execution
-  framework_mapping_notes: 'Agent code execution privilege levels
-
-
-    3.2 - Security contexts (runAsUser, allowPrivilegeEscalation); 3.1 - Pod Security Standards (Baseline, Restricted)'
-  control_id: SAF-K8S-0302-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -21233,22 +21169,6 @@
 
 
     1.4 - Apply CIS benchmarks (baseline configuration); 3.2 - AI workload security context patterns as baseline'
-  control_id: SAF-K8S-0302-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-2
-  framework_requirement_title: Baseline Configuration
-  framework_mapping_notes: 'Agent system baseline configs
-
-
-    1.4 - Apply CIS benchmarks (baseline configuration); 3.2 - AI workload security context patterns as baseline'
   control_id: SAF-K8S-0910-026
   relation_type: direct
   strength_level: strong
@@ -22776,22 +22696,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: CM-5(6)
-  framework_requirement_title: Limit Library Privileges
-  framework_mapping_notes: 'Restricting agent library/dependency access
-
-
-    3.2 - Linux capability management (drop ALL, add only required); 6.1 - Minimal images (reduced library surface)'
-  control_id: SAF-K8S-0302-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: CM-6
   framework_requirement_title: Configuration Settings
   framework_mapping_notes: 'Secure config settings for agent systems
@@ -23479,22 +23383,6 @@
 
     2.2 - RuntimeClass (gVisor, Kata Containers for confined execution); 3.2 - Security contexts with limited privileges'
   control_id: SAF-K8S-0302-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-7(6)
-  framework_requirement_title: Confined Environments with Limited Privileges
-  framework_mapping_notes: 'Agent sandboxing with limited privileges
-
-
-    2.2 - RuntimeClass (gVisor, Kata Containers for confined execution); 3.2 - Security contexts with limited privileges'
-  control_id: SAF-K8S-0302-002
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -36827,22 +36715,6 @@
 
 
     6.1 - Minimal images (distroless, attack surface reduction); 3.2 - Drop ALL capabilities'
-  control_id: SAF-K8S-0302-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-15(5)
-  framework_requirement_title: Attack Surface Reduction
-  framework_mapping_notes: 'Attack surface reduction in agent design minimizes exposed interfaces and tool endpoints
-
-
-    6.1 - Minimal images (distroless, attack surface reduction); 3.2 - Drop ALL capabilities'
   control_id: SAF-K8S-0601-014
   relation_type: direct
   strength_level: strong
@@ -39195,22 +39067,6 @@
 
 
     6.1 - Minimal images; 3.2 - Drop ALL capabilities (minimized security elements and attack surface)'
-  control_id: SAF-K8S-0302-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(13)
-  framework_requirement_title: Minimized Security Elements
-  framework_mapping_notes: 'Minimizing security-critical agent components reduces the trusted computing base
-
-
-    6.1 - Minimal images; 3.2 - Drop ALL capabilities (minimized security elements and attack surface)'
   control_id: SAF-K8S-0601-014
   relation_type: direct
   strength_level: strong
@@ -39239,16 +39095,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-8(14)
   framework_requirement_title: Least Privilege
-  framework_mapping_notes: 'Least privilege is fundamental to constraining agent permissions and tool access
-
-
-    4.1 - RBAC least-privilege design; 3.2 - runAsNonRoot, minimal capabilities for workloads'
+  framework_mapping_notes: Dropping all Linux capabilities and approving the minimum verified additions supports least privilege for scoped container processes. Retain observed effective settings and workload behavior.
   control_id: SAF-K8S-0302-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The Linux workload is subject to an enforced capability policy, with effective runtime evidence.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -43246,22 +43099,6 @@
 
 
     3.2 - Security contexts (no-new-privileges flag); 6.5 - Admission policies preventing automatic execution'
-  control_id: SAF-K8S-0302-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-18(4)
-  framework_requirement_title: Prevent Automatic Execution
-  framework_mapping_notes: 'Preventing automatic execution of agent extensions without validation blocks code injection
-
-
-    3.2 - Security contexts (no-new-privileges flag); 6.5 - Admission policies preventing automatic execution'
   control_id: SAF-K8S-0302-006
   relation_type: direct
   strength_level: strong
@@ -45690,22 +45527,6 @@
 
 
     3.2 - readOnlyRootFilesystem; 9.2 - Read-only model mounts for inference servers (no writable storage)'
-  control_id: SAF-K8S-0302-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-34(1)
-  framework_requirement_title: No Writable Storage
-  framework_mapping_notes: 'Read-only agent containers prevent persistent compromise through filesystem immutability
-
-
-    3.2 - readOnlyRootFilesystem; 9.2 - Read-only model mounts for inference servers (no writable storage)'
   control_id: SAF-K8S-0902-001
   relation_type: direct
   strength_level: strong
@@ -46552,22 +46373,6 @@
 
     2.2 - Container runtime isolation (process isolation); 3.2 - Security contexts (process-level isolation); 8.1 - MIG GPU partitioning'
   control_id: SAF-K8S-0302-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-39
-  framework_requirement_title: Process Isolation
-  framework_mapping_notes: 'Process isolation between agents prevents cross-contamination and lateral movement
-
-
-    2.2 - Container runtime isolation (process isolation); 3.2 - Security contexts (process-level isolation); 8.1 - MIG GPU partitioning'
-  control_id: SAF-K8S-0302-002
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -53225,22 +53030,6 @@
 
 
     3.2 - readOnlyRootFilesystem (non-persistent container state); 6.1 - Minimal images (ephemeral, non-persistent workloads)'
-  control_id: SAF-K8S-0302-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-14
-  framework_requirement_title: Non-persistence
-  framework_mapping_notes: 'Non-persistent agent environments (ephemeral containers) eliminate persistent compromise
-
-
-    3.2 - readOnlyRootFilesystem (non-persistent container state); 6.1 - Minimal images (ephemeral, non-persistent workloads)'
   control_id: SAF-K8S-0601-014
   relation_type: direct
   strength_level: strong
@@ -53767,22 +53556,6 @@
 
     8.1 - GPU memory isolation verification; 8.5 - GPU memory scraping detection; 3.2 - Security contexts (memory protections)'
   control_id: SAF-K8S-0302-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-16
-  framework_requirement_title: Memory Protection
-  framework_mapping_notes: 'Memory protection for agent processes prevents exploitation of memory corruption vulnerabilities
-
-
-    8.1 - GPU memory isolation verification; 8.5 - GPU memory scraping detection; 3.2 - Security contexts (memory protections)'
-  control_id: SAF-K8S-0302-002
   relation_type: direct
   strength_level: strong
   applicability: required

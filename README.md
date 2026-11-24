@@ -27,7 +27,7 @@ See [`LICENSE`](LICENSE) for the summary.
 - Domains: 10
 - Knowledge areas: 55
 - Controls: 595
-- Crosswalk rows: 4069
+- Crosswalk rows: 4055
 
 ## YAML Files
 
@@ -392,7 +392,7 @@ This knowledge area focuses on: Pod and container security context enforcement, 
 | Control ID | Title | Maturity | Class |
 | --- | --- | --- | --- |
 | [SAF-K8S-0302-001](markdown/controls/SAF-K8S-0302-001.md) | Pod and container security context enforcement | Foundational | baseline |
-| [SAF-K8S-0302-002](markdown/controls/SAF-K8S-0302-002.md) | Linux capability drop-all and least-privilege add-back | Foundational | ai-specific |
+| [SAF-K8S-0302-002](markdown/controls/SAF-K8S-0302-002.md) | Linux capability drop-all and least-privilege add-back | Foundational | baseline |
 | [SAF-K8S-0302-004](markdown/controls/SAF-K8S-0302-004.md) | Host namespace isolation enforcement | Foundational | baseline |
 | [SAF-K8S-0302-005](markdown/controls/SAF-K8S-0302-005.md) | AI workload security context hardening profiles | Foundational | ai-specific |
 | [SAF-K8S-0302-006](markdown/controls/SAF-K8S-0302-006.md) | No-new-privileges execution enforcement | Foundational | baseline |

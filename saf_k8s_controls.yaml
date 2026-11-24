@@ -2130,15 +2130,15 @@
   knowledge_area: '3.2'
   control_seq: '002'
   control_title: Linux capability drop-all and least-privilege add-back
-  control_statement: All Linux containers must drop ALL capabilities and add back only the specific capabilities required for the workload to function, with GPU workloads documenting which elevated capabilities (e.g., SYS_ADMIN, SYS_RAWIO) are required for device access and whether least-privilege alternatives (device plugins, CDI) can replace them.
-  objective: Minimize the kernel-level privileges available to containers by enforcing a drop-all-then-add-back capability model, preventing unnecessary access to dangerous kernel interfaces including those commonly over-provisioned for GPU workloads.
-  rationale: Linux capabilities grant fine-grained kernel privileges that attackers can use for container escape, network manipulation, or host filesystem access. GPU workloads are frequently granted SYS_ADMIN or SYS_RAWIO for device access, but these capabilities also enable mount namespace manipulation and raw I/O to any device. Without a drop-all baseline, containers inherit a default capability set that includes NET_RAW, enabling network-level attacks within the cluster.
-  scope: Applies to Linux containers in production clusters. GPU and accelerator workloads must document required Linux capabilities and demonstrate that device-plugin or CDI-based alternatives have been evaluated before elevated capabilities are approved.
+  control_statement: Require every Linux container to drop ALL capabilities and request only workload-approved additions. For accelerator workloads, verify the minimum effective capability set, successful device use and available least-privilege alternatives before approving an exception.
+  objective: Constrain the privileges available to workload processes while preserving their approved operations.
+  rationale: Linux capabilities are process credentials. Defaults and effective capabilities vary with the runtime, process identity and executable. Admission approves the requested configuration. Verify the effective capabilities and required operations at runtime. A device plugin or CDI supplies device configuration and does not by itself establish the capabilities the workload needs.
+  scope: Applies to Linux regular, init and ephemeral containers. Accelerator validation applies where the workload uses a device or RDMA path.
   primary_enforcement_point: Pod Security Admission at the Restricted level requires Linux containers to drop ALL and permits adding only NET_BIND_SERVICE. Use an approved workload-class policy for any Linux capability exception outside Restricted enforcement.
-  implementation_surface: 'Container securityContext.capabilities (drop: ALL, add: specific capabilities), Pod Security Admission (Restricted level), policy engine allowlists for per-workload-class capability grants. For NVIDIA CDI device allocation, use a strategy supported by the pinned device plugin, such as --device-list-strategy=cdi-annotations, with a compatible driver, CDI-enabled runtime and verified device specifications. Verify actual device access and minimum required Linux capabilities for each accelerator workload, including RDMA only where used.'
+  implementation_surface: Set container securityContext.capabilities with drop containing ALL and only approved additions. Verify admission coverage and measure the bounding and effective sets from the actual workload process. Record the device path tested and the approved retained capabilities. For NVIDIA CDI, verify the strategy supported by the pinned plugin, such as --device-list-strategy=cdi-annotations, and the actual driver, CDI-enabled runtime, device specification and workload operations.
   owner_primary: Application Development teams
   owner_supporting: Platform Engineering; AI/ML Platform team; Security Engineering
-  baseline_or_ai_specific: ai-specific
+  baseline_or_ai_specific: baseline
   maturity: Foundational
   status: draft
   superseded_by_control_id: null
