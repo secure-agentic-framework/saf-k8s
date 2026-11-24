@@ -17,10 +17,14 @@ node through the request subject and authenticated renewal identity.
 The enabled worker receives a distinct replacement before expiry, reports
 the expected native certificate TTL, and advances its node Lease after the
 initial certificates expire. The disabled worker enrolls initially, then has
-no replacement and a stale Lease. The first control-plane node contributes
-rotation configuration and liveness observations. The test's 150-second
-signing duration is reserved for disposable clusters. The actual initial
-control-plane certificate replacement remains a separate exercise.
+no replacement and a stale Lease. The first control-plane
+rehearsal uses kubeadm's initial kubelet provisioning phase to create a
+short-lived seed in a protected, disposable directory. The running kubelet
+uses that directory and reports the seed's TTL. It installs the exact new
+native, approved client certificate before seed expiry, and the same node
+writes a fresh Lease after expiry. The case restores the original service
+paths and deletes the temporary seed. The 150-second lifetime is reserved
+for this disposable test.
 
 ## Verify your implementation
 

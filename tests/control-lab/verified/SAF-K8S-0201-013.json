@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0201-013",
-  "catalog_revision": "695585a02380bd4e6825debd7504320b839bed6e",
+  "catalog_revision": "dc3aa01fc89666348df2e84f358c625cfef19c68",
   "catalog_sha256": "be3b7814f2810a26dcaa0f08c86b42a1f17331b77218f42795160372c0ab8525",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b5517aee0c7ad38fbaccc53d2c0aa42273cc031e7be0ea98d683b99f24b77122",
-  "scope": "Native kubeadm worker client-certificate bootstrap and renewal with paired rotation-enabled and rotation-disabled workers; first Kind control-plane effective rotation setting and Lease liveness; shortened disposable-fixture certificate lifetime.",
-  "cluster": "saf-lab-ce0f2f0dec5e",
+  "scope": "Native kubeadm worker client-certificate bootstrap and renewal with paired rotation-enabled and rotation-disabled workers; first kubeadm control-plane seed replacement, post-expiry Lease and restoration; shortened disposable-fixture certificate lifetime.",
+  "cluster": "saf-lab-72cae88cba62",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -66,6 +66,14 @@
     },
     {
       "phase": "red",
+      "claim": "The active control-plane client is still using the short-lived seed before native replacement",
+      "matched": true,
+      "observed": {
+        "live_seed_ttl_matches": true
+      }
+    },
+    {
+      "phase": "red",
       "claim": "The disabled-rotation worker first enrolls with an API-server-trusted certificate",
       "matched": true,
       "observed": {
@@ -112,11 +120,29 @@
       }
     },
     {
-      "phase": "positive",
-      "claim": "The initial control-plane lease advances during the worker rotation interval",
+      "phase": "green",
+      "claim": "The first control plane installs the exact native client renewal before its seed expires",
       "matched": true,
       "observed": {
-        "initial_control_plane_lease_advanced": true
+        "exact_trusted_control_plane_renewal": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same control-plane node remains Ready and renews its lease after seed expiry",
+      "matched": true,
+      "observed": {
+        "control_plane_ready": true,
+        "same_control_plane_node": true,
+        "lease_after_seed_expiry": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Restoration returns the initial control plane to its original kubelet credential paths",
+      "matched": true,
+      "observed": {
+        "original_kubelet_paths_restored": true
       }
     }
   ]

@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 import json
 import math
 from pathlib import Path
+from runpy import run_path
 import re
 import ssl
 import subprocess
@@ -12,7 +13,8 @@ import time
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures.json"
 CLIENT_SIGNER = "kubernetes.io/kube-apiserver-client-kubelet"
-SCOPE = "Native kubeadm worker client-certificate bootstrap and renewal with paired rotation-enabled and rotation-disabled workers; first Kind control-plane effective rotation setting and Lease liveness; shortened disposable-fixture certificate lifetime."
+SCOPE = "Native kubeadm worker client-certificate bootstrap and renewal with paired rotation-enabled and rotation-disabled workers; first kubeadm control-plane seed replacement, post-expiry Lease and restoration; shortened disposable-fixture certificate lifetime."
+CONTROL_PLANE = run_path(str(Path(__file__).with_name("control_plane.py")))
 CERTIFICATE_TTL = timedelta(seconds=150)
 METRIC_TTL = "kubelet_certificate_manager_client_ttl_seconds"
 METRIC_RENEW_ERRORS = "kubelet_certificate_manager_client_expiration_renew_errors"
@@ -165,10 +167,22 @@ def kubelet_config(lab, node):
         lab.block(f"Effective kubelet configz was unavailable for {node}")
 
 
-def kubelet_metrics(lab, node):
-    result = kubectl_capture(lab, "get", "--raw", f"/api/v1/nodes/{node}/proxy/metrics").decode()
+def kubelet_metrics(lab, node, *, restarting=False):
+    route = f"/api/v1/nodes/{node}/proxy/metrics"
+    if restarting:
+        command = ["kubectl", "--kubeconfig", str(lab.kubeconfig),
+                   "--context", f"kind-{lab.cluster}", "--request-timeout=5s", "get", "--raw", route]
+        result = subprocess.run(command, capture_output=True, env=lab.env, timeout=8)
+        if result.returncode:
+            if any(reason in result.stderr for reason in
+                   (b"connection refused", b"ServiceUnavailable", b"connection reset by peer")):
+                return {}
+            lab.block("The seeded control-plane metric request failed outside the expected restart interval")
+        raw = result.stdout.decode()
+    else:
+        raw = kubectl_capture(lab, "get", "--raw", route).decode()
     values = {}
-    for line in result.splitlines():
+    for line in raw.splitlines():
         if line.startswith((METRIC_TTL, METRIC_RENEW_ERRORS)) and not line.startswith("#"):
             name, raw = line.split(None, 1)
             if name in (METRIC_TTL, METRIC_RENEW_ERRORS):
@@ -253,6 +267,20 @@ def run(lab):
               {"control_plane_rotation_enabled": effective_control_rotation, "fresh_lease": (
                   datetime.now(timezone.utc) - control_lease) < timedelta(seconds=45)})
 
+    _, existing = worker_certificates(lab, control)
+    serials_before = {row[2].lower().lstrip("0") for row in existing}
+    with CONTROL_PLANE["use_seeded_profile"](lab, control) as state:
+        seed, _ = state
+        sample = CONTROL_PLANE["observe_seed"](
+            lab, control, seed, lambda node: kubelet_metrics(lab, node, restarting=True).get(METRIC_TTL),
+        )
+        worker, native = exercise_workers(lab, enabled, disabled, control, state, serials_before, sample)
+    worker["initial_control_plane"] = native
+    (lab.evidence / "kubelet-client-lifecycle.json").write_text(
+        json.dumps(worker, indent=2, default=lambda value: value.isoformat()) + "\n")
+
+
+def exercise_workers(lab, enabled, disabled, control, seed_state, serials_before, sample):
     initial = monitoring_state(lab, enabled)
     comparator = monitoring_state(lab, disabled)
     old_enabled, _ = worker_certificates(lab, enabled)
@@ -271,6 +299,42 @@ def run(lab):
     lab.check("positive", "The enabled worker reports the expected client certificate TTL and healthy native enrollment",
               active_monitor, {"trusted_chain_and_live_certificate_metric": bool(active_monitor)})
 
+    import concurrent.futures
+
+    def replacement():
+        return CONTROL_PLANE["prove_replacement"](lab, control, seed_state, serials_before,
+                                                    sample, worker_certificates)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(replacement)
+        worker_raw = compare_workers(lab, enabled, disabled, baseline_expiry, initial, comparator)
+        native = future.result()
+
+    lab.check("green", "The first control plane installs the exact native client renewal before its seed expires",
+              native["pre_expiry"], {"exact_trusted_control_plane_renewal": native["pre_expiry"]})
+    expiry = datetime.fromisoformat(native["seed_expiry"])
+    fresh = CONTROL_PLANE["wait"](
+        lab, lambda: lease_after(lab, control, expiry), "a fresh control-plane lease after seed expiry",
+        max(0, (expiry - datetime.now(timezone.utc)).total_seconds()) + 48,
+    )
+    current = json.loads(kubectl_capture(lab, "get", "node", control, "-o", "json"))
+    still_ready = any(row["type"] == "Ready" and row["status"] == "True"
+                      for row in current["status"]["conditions"])
+    same_node = current["metadata"]["uid"] == native["source_node_uid"]
+    lab.check("positive", "The same control-plane node remains Ready and renews its lease after seed expiry",
+              fresh > expiry and still_ready and same_node,
+              {"control_plane_ready": still_ready, "same_control_plane_node": same_node,
+               "lease_after_seed_expiry": fresh > expiry})
+    native.update({"lease_after_seed_expiry": fresh.isoformat(), "same_control_plane_node": same_node})
+    return worker_raw, native
+
+
+def lease_after(lab, node, expiry):
+    lease = worker_lease(lab, node)
+    return lease if lease > expiry + timedelta(seconds=6) else None
+
+
+def compare_workers(lab, enabled, disabled, baseline_expiry, initial, comparator):
     first, renewed = wait_for_renewal(lab, enabled)
     lab.check("green", "The scoped worker renewal produces a distinct API-server-trusted client certificate before expiry",
               renewed and first is not None, {"trusted_pre_expiry_renewal": renewed})
@@ -297,17 +361,12 @@ def run(lab):
     lab.check("positive", "The monitoring signals and fresh lease confirm usable worker identity after the initial expiry",
               monitor_healthy and allowed, {"replacement_and_metric_valid": monitor_healthy,
                                             "enabled_lease_fresh": lease_advanced, "worker_ready": allowed})
-    control_lease_after = worker_lease(lab, control)
-    lab.check("positive", "The initial control-plane lease advances during the worker rotation interval",
-              control_lease_after > control_lease, {"initial_control_plane_lease_advanced": control_lease_after > control_lease})
-    (lab.evidence / "kubelet-client-lifecycle.json").write_text(json.dumps({
+    return {
         "enabled_before": initial, "disabled_before": comparator,
         "enabled_after": after, "disabled_cluster_records_after": comparison,
         "enabled_bootstrap_expires_at": first[0], "disabled_bootstrap_expires_at": baseline_expiry,
         "pre_expiry_worker_renewal": renewed, "enabled_lease_after_expiry": lease_advanced,
-        "initial_control_plane_rotation_enabled": effective_control_rotation,
-        "initial_control_plane_lease_advanced": control_lease_after > control_lease,
-    }, indent=2, default=lambda value: value.isoformat()) + "\n")
+    }
 
 
 class StaticReporter:
