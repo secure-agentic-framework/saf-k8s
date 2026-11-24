@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0203-016",
-  "catalog_revision": "263debd6db64738bfadf09f91e1b04a8c9fe1883",
-  "catalog_sha256": "259c7be1471c1b80adc09a664c9e5fb92efdf70e11f6605cab766dc4b0be0810",
+  "catalog_revision": "17c9327022f6674f5645fa8f74106eede79620b6",
+  "catalog_sha256": "6c62a9ab38837b70dbe3d92571eb93f33722e18e15a26a688854bcfd3cadd6b4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6b621e1689c6dc99011a15fb0df87b32a69d478eb8915162ad86c0abd2870437",
-  "scope": "Observe actual Chrony reference selection in a restricted Job with two owned loopback sources and clock adjustment disabled.",
-  "cluster": "saf-lab-b5a8eee3ed60",
+  "scope": "Measure Chrony clock offset, preferred and alternate selection, loss and recovery in a restricted Job with clock adjustment disabled.",
+  "cluster": "saf-lab-e96f17c8eeb9",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -40,26 +40,51 @@
   "checks": [
     {
       "phase": "red",
-      "claim": "With no usable source, the running Chrony client reports no selected reference",
+      "claim": "Loss of both owned sources makes the reference unavailable and fails the profile check",
       "matched": true,
       "observed": {
-        "absent_reference_reported": true
-      }
-    },
-    {
-      "phase": "green",
-      "claim": "The same live client selects the available alternate after the preferred source stops",
-      "matched": true,
-      "observed": {
-        "alternate_reference_selected": true
+        "selected": null,
+        "profile_ok": false
       }
     },
     {
       "phase": "positive",
-      "claim": "The client selects the preferred source when both approved fixture sources are present",
+      "claim": "Chrony selects the expected preferred source with a fresh measurement in the nominal band",
       "matched": true,
       "observed": {
-        "preferred_reference_selected": true
+        "phase": "preferred",
+        "expected_source_selected": true,
+        "nominal_profile_ok": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Chrony selects the expected alternate source with a fresh measurement in the nominal band",
+      "matched": true,
+      "observed": {
+        "phase": "alternate",
+        "expected_source_selected": true,
+        "nominal_profile_ok": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Chrony selects the expected recovered source with a fresh measurement in the nominal band",
+      "matched": true,
+      "observed": {
+        "phase": "recovered",
+        "expected_source_selected": true,
+        "nominal_profile_ok": true
+      }
+    },
+    {
+      "phase": "counterfactual",
+      "claim": "The same fresh measured offset passes the nominal policy and exceeds a tighter bound",
+      "matched": true,
+      "observed": {
+        "fixture_offset_within_expected_band": true,
+        "nominal_profile_ok": true,
+        "tight_profile_ok": false
       }
     }
   ]

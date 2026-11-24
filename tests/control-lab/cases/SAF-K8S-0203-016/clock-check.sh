@@ -1,6 +1,7 @@
 #!/bin/sh
 set -eu
 umask 077
+export LC_ALL=C
 work=$(mktemp -d)
 primary_pid=
 secondary_pid=
@@ -37,8 +38,8 @@ if ! kill -0 "$primary_pid" "$secondary_pid" 2>/dev/null; then
     exit 1
 fi
 cat >client.conf <<CONF
-server 127.0.0.1 port 12123 minpoll 0 maxpoll 0 iburst prefer
-server 127.0.0.2 port 12124 minpoll 0 maxpoll 0 iburst
+server 127.0.0.1 port 12123 minpoll 0 maxpoll 0 iburst offset 0.050 prefer
+server 127.0.0.2 port 12124 minpoll 0 maxpoll 0 iburst offset 0.050
 maxdistance 0.1
 maxclockerror 20000
 cmdport 13230
@@ -50,13 +51,25 @@ chronyd -n -x -U -f client.conf >client.log 2>&1 &
 client_pid=$!
 wait_for() {
     target="$1"
+    phase="$2"
     tick=0
     while [ "$tick" -lt 24 ]; do
         if ! kill -0 "$client_pid" 2>/dev/null; then break; fi
         # Require a working loopback status listener before evaluating each source-selection state.
         if chronyc -h 127.0.0.1 -p 13230 -n -c sources >sources.log 2>&1; then
             selected=$(awk -F, '$2=="*" {print $3}' sources.log)
-            if [ "$selected" = "$target" ]; then return 0; fi
+            if [ "$selected" = "$target" ] &&
+                chronyc -h 127.0.0.1 -p 13230 -n tracking >tracking.log 2>&1; then
+                offset=$(awk '/^System time/ {print $4}' tracking.log)
+                # Selection may precede a settled estimate. Wait for the independently known fixture band.
+                if [ -z "$target" ] ||
+                    awk -v offset="$offset" 'BEGIN {exit !(offset >= 0.025 && offset <= 0.075)}'; then
+                    printf 'sample %s %s\n' "$phase" "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+                    sed "s/^/sources $phase /" sources.log
+                    sed "s/^/tracking $phase /" tracking.log
+                    return 0
+                fi
+            fi
         fi
         sleep 1
         tick=$((tick + 1))
@@ -64,17 +77,18 @@ wait_for() {
     cat client.log sources.log >&2
     exit 1
 }
-wait_for 127.0.0.1
-echo preferred_reference_selected
+wait_for 127.0.0.1 preferred
 
 kill "$primary_pid"
 wait "$primary_pid" || true
 primary_pid=
-wait_for 127.0.0.2
-echo alternate_reference_selected
+wait_for 127.0.0.2 alternate
 
 kill "$secondary_pid"
 wait "$secondary_pid" || true
 secondary_pid=
-wait_for ''
-echo absent_reference_reported
+wait_for '' unavailable
+
+chronyd -n -x -U -f primary.conf >primary.log 2>&1 &
+primary_pid=$!
+wait_for 127.0.0.1 recovered
