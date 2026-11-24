@@ -30979,22 +30979,6 @@
 
 
     4.4 - cert-manager (PKI-based authentication); 1.2 - etcd client certificate auth; 6.2 - Cosign key management'
-  control_id: SAF-K8S-0102-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-5(2)
-  framework_requirement_title: Public Key-based Authentication
-  framework_mapping_notes: 'PKI for agent authentication (mTLS, JWT signing)
-
-
-    4.4 - cert-manager (PKI-based authentication); 1.2 - etcd client certificate auth; 6.2 - Cosign key management'
   control_id: SAF-K8S-0102-018
   relation_type: direct
   strength_level: strong
@@ -46281,10 +46265,8 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-28
   framework_requirement_title: Protection of Information at Rest
-  framework_mapping_notes: 'Protecting agent data at rest (models, context, memory, credentials) prevents unauthorized access
-
-
-    1.2 - etcd encryption at rest; 7.1 - PV encryption; 4.3 - Secrets encryption at rest (KMS providers)'
+  framework_mapping_notes: >-
+    Storage-layer encryption protects the confidentiality of organization-defined etcd data and WAL at rest on governed media. Assess effective device and snapshot coverage and key custody for each deployment.
   control_id: SAF-K8S-0102-001
   relation_type: direct
   strength_level: strong
@@ -46424,16 +46406,14 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-28(1)
   framework_requirement_title: Cryptographic Protection
-  framework_mapping_notes: 'Encryption of agent data at rest protects sensitive information stored by agent systems
-
-
-    1.2 - etcd KMS encryption; 7.1 - dm-crypt/LUKS volume encryption; 8.4 - Sealed storage in TEEs'
+  framework_mapping_notes: >-
+    Whole-media encryption supports confidentiality for governed etcd data and WAL. Apply this relationship where the media also uses cryptographic integrity protection against unauthorized modification. The isolated media fixture verifies confidentiality and recovery.
   control_id: SAF-K8S-0102-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Governed media also uses cryptographic integrity protection against unauthorized modification at rest.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
