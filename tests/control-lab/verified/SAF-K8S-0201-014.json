@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0201-014",
-  "catalog_revision": "948824b695442ac07ffd3bfcc0b84a66ef9c79de",
-  "catalog_sha256": "4683013a252ee376b5b4290af4175ff5c3d03259413411e866ab1b4ebb8b1664",
+  "catalog_revision": "c775ec096578b3620fde65ac2b42b9507fe3cc32",
+  "catalog_sha256": "1c0b649521e9e169c032fb817f17c92fc197a31bf04619bf9dd2853bcc461c35",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "43b1b909b22784a2078ab6159a1d3db8234e5f01720a4d07586e2cd6ce8c6433",
-  "scope": "One disposable kind control plane with a dedicated synthetic CA and CA-issued kubelet serving certificate. An ordinary TLS handshake verifies the live chain and node DNS name. Local public certificate fixtures exercise an unrelated CA, name mismatch and expiration.",
-  "cluster": "saf-lab-b83def699d99",
+  "control_sha256": "4777f993f859ba0a6301529f561957aada96c7481c580435c7bfcc89317f0a17",
+  "scope": "A disposable v1.36.1 control-plane node using native serving TLS bootstrap, fixture approval of the exact authenticated node and SANs, and controller-manager signing. Checks pre-approval trust, verified endpoint, pre-expiry replacement, TTL monotonicity, API-server validated logs, and offline name, CA and expiry rejection.",
+  "cluster": "saf-lab-b42514d0e7d1",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -40,44 +40,90 @@
   "checks": [
     {
       "phase": "red",
-      "claim": "A separate synthetic trust anchor cannot verify the public serving certificate",
+      "claim": "The connected kubelet has no trusted leaf while its native serving CSR remains pending",
       "matched": true,
       "observed": {
-        "unrelated_root_rejected": true,
-        "issuer_reason_present": true
-      }
-    },
-    {
-      "phase": "red",
-      "claim": "An unrelated DNS identity fails the offline SAN check",
-      "matched": true,
-      "observed": {
-        "name_mismatch_rejected": true
-      }
-    },
-    {
-      "phase": "red",
-      "claim": "The public serving certificate fails validation after expiry",
-      "matched": true,
-      "observed": {
-        "expired_certificate_rejected": true
+        "pending_unsigned": true,
+        "peer_leaf_absent": true
       }
     },
     {
       "phase": "green",
-      "claim": "The owned kubelet completes a TLS handshake under the expected CA and DNS identity",
+      "claim": "The controlled approver binds the exact authenticated node, usage and complete SAN set",
       "matched": true,
       "observed": {
-        "trusted_chain_and_dns": true
+        "exact_identity_and_sans": true,
+        "unexpected_san_denied": true
       }
     },
     {
       "phase": "positive",
-      "claim": "The live peer presents the intended leaf with at least a day of validity",
+      "claim": "The signed leaf is served live and the API-server verified kubelet metrics path reports a TTL",
       "matched": true,
       "observed": {
-        "expected_leaf_present": true,
-        "fresh_for_one_day": true
+        "initial_leaf_ca_and_dns_match": true,
+        "finite_initial_native_ttl": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The offline verifier rejects the public leaf for wrong_ca",
+      "matched": true,
+      "observed": {
+        "expected_validation_failure": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The offline verifier rejects the public leaf for wrong_dns",
+      "matched": true,
+      "observed": {
+        "expected_validation_failure": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The offline verifier rejects the public leaf for expired",
+      "matched": true,
+      "observed": {
+        "expected_validation_failure": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The native TTL crosses the rehearsal threshold while the unsigned replacement is pending",
+      "matched": true,
+      "observed": {
+        "first_cert_still_trusted": true,
+        "near_expiry_observed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The controlled approver binds the exact authenticated node, usage and complete SAN set",
+      "matched": true,
+      "observed": {
+        "exact_identity_and_sans": true,
+        "unexpected_san_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A different signed leaf replaces the first before expiry and resets its native TTL",
+      "matched": true,
+      "observed": {
+        "renewed_before_expiry": true,
+        "expiry_extended": true,
+        "native_ttl_returned_above_rehearsal_floor": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "After original expiry the replacement remains trusted and the API server retrieves live workload logs",
+      "matched": true,
+      "observed": {
+        "same_replacement_still_served": true,
+        "api_server_fetches_expected_logs": true
       }
     }
   ]

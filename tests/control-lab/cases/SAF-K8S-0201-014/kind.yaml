@@ -1,0 +1,20 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+kubeadmConfigPatches:
+  - |
+    apiVersion: kubeadm.k8s.io/v1beta4
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        - name: kubelet-certificate-authority
+          value: /etc/kubernetes/pki/ca.crt
+    controllerManager:
+      extraArgs:
+        - name: cluster-signing-duration
+          value: "150s"
+  - |
+    apiVersion: kubelet.config.k8s.io/v1beta1
+    kind: KubeletConfiguration
+    serverTLSBootstrap: true
+nodes:
+  - role: control-plane
