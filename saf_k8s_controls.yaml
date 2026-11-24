@@ -1449,7 +1449,7 @@
   domain_name: Node, Runtime, and OS Security
   knowledge_area: '2.2'
   control_seq: 008
-  control_title: Container runtime socket root-only protection
+  control_title: Container runtime socket access protection
   control_statement: Runtime control sockets for rootful daemons must be owned by root and accessible only to authorized host principals. For approved rootless daemons, restrict access to the dedicated daemon identity and explicitly authorized administrators. Prevent workload access to the host socket.
   objective: Prevent unauthorized local access to the container runtime control socket on cluster nodes.
   rationale: The container runtime socket provides full control over container lifecycle operations. If non-root users, compromised workloads, or local processes can reach the socket, they can create privileged containers, escape isolation boundaries, or interfere with other workloads. Socket ownership and permission controls are independently auditable from broader runtime configuration settings.
@@ -1463,7 +1463,7 @@
   status: draft
   superseded_by_control_id: null
   date_created: '2026-03-16'
-  date_modified: '2026-03-17'
+  date_modified: '2026-11-24'
 - control_id: SAF-K8S-0202-009
   domain_code: D02
   domain_name: Node, Runtime, and OS Security

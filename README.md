@@ -268,7 +268,7 @@ This knowledge area focuses on: Kubelet hostname override governance, Node syste
 
 ### Description
 
-This knowledge area focuses on: RuntimeClass configuration for workload-appropriate isolation, Container runtime patching and version management, Runtime socket mount prevention, Pod user namespace isolation, and Container runtime socket root-only protection. Additional controls in the table below extend this coverage.
+This knowledge area focuses on: RuntimeClass configuration for workload-appropriate isolation, Container runtime patching and version management, Runtime socket mount prevention, Pod user namespace isolation, and Container runtime socket access protection. Additional controls in the table below extend this coverage.
 
 ### Controls
 
@@ -278,7 +278,7 @@ This knowledge area focuses on: RuntimeClass configuration for workload-appropri
 | [SAF-K8S-0202-003](markdown/controls/SAF-K8S-0202-003.md) | Container runtime patching and version management | Foundational | baseline |
 | [SAF-K8S-0202-004](markdown/controls/SAF-K8S-0202-004.md) | Runtime socket mount prevention | Foundational | baseline |
 | [SAF-K8S-0202-007](markdown/controls/SAF-K8S-0202-007.md) | Pod user namespace isolation | Foundational | baseline |
-| [SAF-K8S-0202-008](markdown/controls/SAF-K8S-0202-008.md) | Container runtime socket root-only protection | Foundational | baseline |
+| [SAF-K8S-0202-008](markdown/controls/SAF-K8S-0202-008.md) | Container runtime socket access protection | Foundational | baseline |
 | [SAF-K8S-0202-009](markdown/controls/SAF-K8S-0202-009.md) | Container runtime secure baseline settings and debug endpoint disablement | Foundational | baseline |
 | [SAF-K8S-0202-010](markdown/controls/SAF-K8S-0202-010.md) | Node default seccomp profile enforcement | Foundational | baseline |
 | [SAF-K8S-0202-011](markdown/controls/SAF-K8S-0202-011.md) | Node mandatory access control activation for container workloads | Foundational | baseline |
