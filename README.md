@@ -1554,7 +1554,7 @@ This knowledge area focuses on: Regulatory compliance mapping for Kubernetes AI 
 | [SAF-K8S-1006-005](markdown/controls/SAF-K8S-1006-005.md) | Policy-as-code enforcement for AI workload compliance | Practitioner | ai-specific |
 | [SAF-K8S-1006-007](markdown/controls/SAF-K8S-1006-007.md) | NIST SSDF v1.1 alignment and gap assessment for Kubernetes AI development | Advanced | ai-specific |
 | [SAF-K8S-1006-008](markdown/controls/SAF-K8S-1006-008.md) | NIST SP 800-218A AI/ML profile alignment for Kubernetes AI development | Advanced | ai-specific |
-| [SAF-K8S-1006-009](markdown/controls/SAF-K8S-1006-009.md) | Continuous policy decision evidence generation and export for AI workload compliance | Practitioner | ai-specific |
+| [SAF-K8S-1006-009](markdown/controls/SAF-K8S-1006-009.md) | Policy decision evidence and export | Practitioner | baseline |
 | [SAF-K8S-1006-010](markdown/controls/SAF-K8S-1006-010.md) | Policy exception approval and expiration governance for AI workload compliance | Practitioner | ai-specific |
 
 <a id="knowledge-area-10-7"></a>
