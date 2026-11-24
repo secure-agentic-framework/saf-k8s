@@ -1,0 +1,14 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: SafGPUImageSignature
+metadata:
+  name: saf-gpu-provenance
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: [Pod]
+    namespaces:
+      - saf-0605-001-ai
+  parameters:
+    provider: ratify-provider

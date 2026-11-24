@@ -19,8 +19,8 @@ before policy deployment.
 
 Both fixture RuntimeClasses map to runc. The test asserts API enforcement
 and the stored Pod declaration. Production hardware allocation, runtime
-isolation, init and sidecar accounting, image provenance, AI custom
-resources and GitOps rollout require additional evidence.
+isolation, actual training-controller reconciliation and GitOps rollout
+require separate deployment evidence.
 
 See [the pinned SAF control](https://github.com/secure-agentic-framework/saf-k8s/blob/133a8698a45e2b335b51728bf4c62f7bda98d15f/markdown/controls/SAF-K8S-0605-001.md),
 [Gatekeeper usage](https://open-policy-agent.github.io/gatekeeper/website/docs/howto/),
@@ -33,6 +33,8 @@ Kubeflow Trainer v2.3.0 TrainJob schema and tests the explicit per-node limits
 and node counts for the fixture runtime reference through server-side dry runs.
 Physical GPU allocation and the training controller require deployment evidence.
 
-The same cluster runs the maintained SAF-K8S-0605-002 signed-image fixture.
-Cosign and Kyverno verify the image signature and attestation. Gatekeeper
-evaluates the GPU resource and runtime declarations.
+The registry from SAF-K8S-0605-002 supplies digest-pinned images signed with
+separate fixture keys. Gatekeeper calls the pinned Ratify v1.4.8 external
+data provider over HTTPS and requires the approved Cosign signature for
+the GPU Pod. The comparison checks wrong-signer admission and provider
+unavailability. No Kyverno policies are applied by this fixture.

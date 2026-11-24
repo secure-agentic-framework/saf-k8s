@@ -1,0 +1,90 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: safgpuimagesignature
+spec:
+  crd:
+    spec:
+      names:
+        kind: SafGPUImageSignature
+      validation:
+        openAPIV3Schema:
+          type: object
+          required: [provider]
+          properties:
+            provider:
+              type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package safgpuimagesignature
+
+        gpu_container(c) {
+          resources := object.get(c, "resources", {})
+          requests := object.get(resources, "requests", {})
+          object.get(requests, "nvidia.com/gpu", "") != ""
+        }
+
+        gpu_container(c) {
+          resources := object.get(c, "resources", {})
+          limits := object.get(resources, "limits", {})
+          object.get(limits, "nvidia.com/gpu", "") != ""
+        }
+
+        pod_containers := all {
+          spec := input.review.object.spec
+          regular := object.get(spec, "containers", [])
+          init := object.get(spec, "initContainers", [])
+          ephemeral := object.get(spec, "ephemeralContainers", [])
+          all := array.concat(regular, array.concat(init, ephemeral))
+        }
+
+        gpu_pod {
+          c := pod_containers[_]
+          gpu_container(c)
+        }
+
+        image_refs := [c.image | c := pod_containers[_]]
+
+        remote := response {
+          response := external_data({
+            "provider": input.parameters.provider,
+            "keys": image_refs,
+          })
+        }
+
+        violation[{"msg": msg}] {
+          gpu_pod
+          image := image_refs[_]
+          not regex.match("^.+@sha256:[0-9a-f]{64}$", image)
+          msg := sprintf("SAF-K8S-0605-001.1 constraint saf-gpu-provenance requires a digest-pinned image; subject=%s", [image])
+        }
+
+        violation[{"msg": msg}] {
+          gpu_pod
+          remote.system_error != ""
+          msg := sprintf("SAF-K8S-0605-001.1 constraint saf-gpu-provenance Ratify provider unavailable; subjects=%v; error=%s", [image_refs, remote.system_error])
+        }
+
+        violation[{"msg": msg}] {
+          gpu_pod
+          item := object.get(remote, "errors", [])[_]
+          msg := sprintf("SAF-K8S-0605-001.1 constraint saf-gpu-provenance Ratify returned an error for subject=%s: %s", [item[0], item[1]])
+        }
+
+        violation[{"msg": msg}] {
+          gpu_pod
+          image := image_refs[_]
+          not successful_cosign_result(image)
+          msg := sprintf("SAF-K8S-0605-001.1 constraint saf-gpu-provenance requires a verified Cosign signature; subject=%s", [image])
+        }
+
+        successful_cosign_result(image) {
+          pair := object.get(remote, "responses", [])[_]
+          pair[0] == image
+          result := pair[1]
+          result.isSuccess == true
+          verifier := result.verifierReports[_]
+          verifier.type == "cosign"
+          verifier.isSuccess == true
+        }

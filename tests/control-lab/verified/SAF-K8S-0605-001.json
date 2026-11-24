@@ -1,27 +1,31 @@
 {
   "control_id": "SAF-K8S-0605-001",
-  "catalog_revision": "3baf7589c5dcc18c3e21a3224dceac08a38de3a1",
-  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
+  "catalog_revision": "22e1e9d6859018643f7f9d7c355edc81f5e58ba4",
+  "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "922107a7471cb33873d4fc159a6263ba783339d73c613d0d7a966b193d32ab1f",
-  "scope": "Kubernetes v1.36.1 and digest-pinned Gatekeeper v3.23.1. A Rego ConstraintTemplate and namespace-selected constraint check aggregate regular-container requests for nvidia.com/gpu and require an approved RuntimeClass for those Pods. A real denied CREATE, actual approved persistence, audit of an existing violation, and a namespace comparison are observed. Fixture classes use runc and synthetic GPU resources. The extension checks init and sidecar accounting and TrainJob declarations. The same cluster runs the signed-image admission comparison.",
-  "cluster": "saf-lab-5c9d8fe071d7",
+  "control_sha256": "5690c05dac3dca7439c37531206367d9b0057485196f29fc55fe365f9550cd72",
+  "scope": "Kubernetes v1.36.1 and digest-pinned Gatekeeper v3.23.1. A Rego ConstraintTemplate and namespace-selected constraint check aggregate regular-container requests for nvidia.com/gpu and require an approved RuntimeClass for those Pods. A real denied CREATE, actual approved persistence, audit of an existing violation, and a namespace comparison are observed. Fixture classes use runc and synthetic GPU resources. The extension checks init and sidecar accounting and TrainJob declarations. The same cluster tests Gatekeeper admission with Ratify verification of the approved Cosign signature and a provider outage.",
+  "cluster": "saf-lab-9469a87f1a22",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
-      "minor": "32",
-      "gitVersion": "v1.32.3",
-      "gitCommit": "32cc146f75aad04beaaa245a7157eb35063a9f99",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
       "gitTreeState": "clean",
-      "buildDate": "2025-03-11T19:52:20Z",
-      "goVersion": "go1.24.1",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
       "compiler": "gc",
       "platform": "darwin/arm64"
     },
-    "kustomizeVersion": "v5.5.0",
+    "kustomizeVersion": "v5.8.1",
     "serverVersion": {
       "major": "1",
       "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
       "gitVersion": "v1.36.1",
       "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
       "gitTreeState": "clean",
@@ -279,167 +283,81 @@
     },
     {
       "phase": "positive",
-      "claim": "Disposable API server is Kubernetes v1.36.1",
+      "claim": "The Ratify provider uses a pinned image and a CA-authenticated HTTPS endpoint",
       "matched": true,
       "observed": {
-        "server": "v1.36.1"
-      }
-    },
-    {
-      "phase": "positive",
-      "claim": "Kyverno controller workloads use their pinned v1.20.0 images",
-      "matched": true,
-      "observed": {
-        "chart": "3.10.0",
-        "images": [
-          "reg.kyverno.io/kyverno/background-controller:v1.20.0",
-          "reg.kyverno.io/kyverno/cleanup-controller:v1.20.0",
-          "reg.kyverno.io/kyverno/kyverno:v1.20.0",
-          "reg.kyverno.io/kyverno/reports-controller:v1.20.0"
-        ]
-      }
-    },
-    {
-      "phase": "green",
-      "claim": "Scoped GeneratingPolicy creates its inert ConfigMap companion",
-      "matched": true,
-      "observed": {
-        "resource": "saf-0605-002-companion",
-        "generated_by_label": "saf-0605-002-namespace-companion"
-      }
-    },
-    {
-      "phase": "positive",
-      "claim": "Kyverno v1.20 explicitly rejects creation of the legacy policy",
-      "matched": true,
-      "observed": {
-        "legacy_write_explicitly_retired": true
+        "image": "ghcr.io/notaryproject/ratify:v1.4.8@sha256:69d48986d1f120fd62c334eab3a71a85f405aea2e1f9e31df7a3f490852be790",
+        "chart_sha256": "f8b06edb2b1ca7d010ff9d8222bb49ca7db1911462e6284652b8ec97cf051fd2",
+        "provider_url": "https://ratify.gatekeeper-system:6001/ratify/gatekeeper/v1/verify",
+        "tls_ca_configured": true
       }
     },
     {
       "phase": "red",
-      "claim": "Legacy Enforce policy cannot supply this label admission check on Kyverno v1.20",
+      "claim": "All exact fixture subjects reach API admission before the signature constraint",
       "matched": true,
       "observed": {
-        "noncompliant_dry_run_admitted": true
-      }
-    },
-    {
-      "phase": "red",
-      "claim": "Same-policy noncompliant Pod is admitted in Audit mode with exact report evidence",
-      "matched": true,
-      "observed": {
-        "admitted_in_audit": true,
-        "policy": "saf-0605-002-pod-baseline",
-        "result": "fail",
-        "message": "SAF-K8S-0605-002: pod requires label saf-k8s.example/required=yes and spec.securityContext.runAsNonRoot=true",
-        "resource": "saf-0605-002-audit-violation"
-      }
-    },
-    {
-      "phase": "green",
-      "claim": "Scoped Enforce change rejects the violation with its exact message",
-      "matched": true,
-      "observed": {
-        "denied": true,
-        "kyverno_webhook_denied": true,
-        "policy_named": true,
-        "exact_violation": true,
-        "correct_namespace": "saf-0605-002"
-      }
-    },
-    {
-      "phase": "positive",
-      "claim": "MutatingPolicy adds label and pod security defaults before validation",
-      "matched": true,
-      "observed": {
-        "admitted": true,
-        "mutation_observed": true,
-        "labels": {
-          "saf-k8s.example/case": "0605-002",
-          "saf-k8s.example/mutated": "true",
-          "saf-k8s.example/required": "yes"
-        },
-        "security_context": {
-          "runAsNonRoot": true,
-          "seccompProfile": {
-            "type": "RuntimeDefault"
-          }
+        "before_policy_admitted": {
+          "approved": true,
+          "wrong": true,
+          "unsigned": true
         }
       }
     },
     {
       "phase": "positive",
-      "claim": "Compliant Pod remains admitted under Enforce",
+      "claim": "Every Gatekeeper webhook Pod starts with the external response cache disabled",
       "matched": true,
       "observed": {
-        "admitted": true,
-        "server_side_dry_run": true
+        "webhook_cache_disabled": true
       }
     },
     {
       "phase": "positive",
-      "claim": "Same violation remains outside the namespaced policy scope",
+      "claim": "Gatekeeper admits and stores the GPU Pod whose digest Ratify verified with the approved key",
       "matched": true,
       "observed": {
-        "admitted_outside_scope": true,
-        "server_side_dry_run": true
+        "verified_subject_persisted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Gatekeeper denies the exact GPU subject signed by the unrelated fixture key",
+      "matched": true,
+      "observed": {
+        "wrong_signer_rejected_by_exact_constraint": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Gatekeeper denies a GPU subject whose repository has no signature",
+      "matched": true,
+      "observed": {
+        "unsigned_subject_denied_and_absent": true
       }
     },
     {
       "phase": "positive",
-      "claim": "Cosign verifies signatures and exact predicate presence and preserves OCI subjects",
+      "claim": "The same wrong-signer subject reaches admission outside the selected namespace",
       "matched": true,
       "observed": {
-        "registry_subjects_unchanged": true,
-        "distinct_signers": true,
-        "signature_only_comparison_verified": true,
-        "cosign": "ghcr.io/sigstore/cosign/cosign:v3.1.4@sha256:0f06154836d2de34f887a5c273506d52ca43edaa1d9e53e6510fa78a48f69c2d",
-        "registry": "docker.io/library/registry:3.0.0@sha256:6c5666b861f3505b116bb9aa9b25175e71210414bd010d92035ff64018f9457e"
-      }
-    },
-    {
-      "phase": "red",
-      "claim": "All three exact image fixtures are admitted before applying the image policy",
-      "matched": true,
-      "observed": {
-        "approved": true,
-        "missing-attestation": true,
-        "unrelated-signer": true
+        "admitted_outside_fixture_scope": true
       }
     },
     {
       "phase": "green",
-      "claim": "Kyverno admits the trusted image with the required attestation and payload",
+      "claim": "With no running provider Pod or endpoint, Gatekeeper denies the previously admitted GPU subject",
       "matched": true,
       "observed": {
-        "admitted": true
-      }
-    },
-    {
-      "phase": "green",
-      "claim": "Kyverno denies missing-attestation with its exact image verification failure",
-      "matched": true,
-      "observed": {
-        "admitted": false,
-        "matched_policy_reason": true
-      }
-    },
-    {
-      "phase": "green",
-      "claim": "Kyverno denies unrelated-signer with its exact image verification failure",
-      "matched": true,
-      "observed": {
-        "admitted": false,
-        "matched_policy_reason": true
+        "rejected_by_signature_constraint_during_outage": true
       }
     },
     {
       "phase": "positive",
-      "claim": "The same unrelated-signer image is admitted outside the enrolled namespace",
+      "claim": "The same subject is admitted when the signature verifier returns",
       "matched": true,
       "observed": {
-        "admitted": true
+        "previously_approved_subject_admitted_after_recovery": true
       }
     },
     {

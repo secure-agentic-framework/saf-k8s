@@ -1653,7 +1653,7 @@
     "SAF-K8S-0605-001": {
       "catalog_status": "draft",
       "domain": "D06",
-      "sha256": "922107a7471cb33873d4fc159a6263ba783339d73c613d0d7a966b193d32ab1f",
+      "sha256": "5690c05dac3dca7439c37531206367d9b0057485196f29fc55fe365f9550cd72",
       "title": "OPA/Gatekeeper policies for Kubernetes and AI workloads"
     },
     "SAF-K8S-0605-002": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c805c03b0607378ac0c0883f6f36e7a830d70f7a",
-  "sha256": "d382873340c3e9384f61d030f52d546f81f937d3e168e046cb5c6924df022675",
+  "revision": "e320f455b95771956f7cde268182f4fbeaa0debf",
+  "sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -37,7 +37,7 @@ SCOPE = (
     "and namespace-selected constraint check aggregate regular-container requests for nvidia.com/gpu "
     "and require an approved RuntimeClass for those Pods. A real denied CREATE, actual "
     "approved persistence, audit of an existing violation, and a namespace comparison "
-    "are observed. Fixture classes use runc and synthetic GPU resources. The extension checks init and sidecar accounting and TrainJob declarations. The same cluster runs the signed-image admission comparison."
+    "are observed. Fixture classes use runc and synthetic GPU resources. The extension checks init and sidecar accounting and TrainJob declarations. The same cluster tests Gatekeeper admission with Ratify verification of the approved Cosign signature and a provider outage."
 )
 
 
@@ -117,6 +117,10 @@ def install_gatekeeper(lab):
     text = text.replace(raw_image + "\n        imagePullPolicy: Always",
                         f"image: {staged}\n        imagePullPolicy: Never")
     text = text.replace("- --operation=audit", "- --operation=audit\n        - --audit-interval=8")
+    if text.count("- --operation=webhook") != 1:
+        lab.block("Upstream Gatekeeper webhook arguments differ from the reviewed release")
+    text = text.replace("- --operation=webhook",
+                        "- --operation=webhook\n        - --external-data-provider-response-cache-ttl=0s")
     text = text.replace("replicas: 3", "replicas: 1")
     lab.kubectl("-n", "gatekeeper-system", "apply", "-f", "-", payload=text, timeout=85)
     # Gatekeeper can create its initial mount before the rotator publishes the certificate.
@@ -269,4 +273,5 @@ def run(lab):
     advanced = runpy.run_path(str(HERE / "advanced" / "case.py"))
     advanced["run"](lab, gator)
     sibling = HERE.parent / "SAF-K8S-0605-002" / "case.py"
-    runpy.run_path(str(sibling))["run"](lab)
+    provenance = runpy.run_path(str(HERE / "provenance" / "case.py"))
+    provenance["run"](lab, sibling.with_name("image_admission.py"))
