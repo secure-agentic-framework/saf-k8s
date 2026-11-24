@@ -25,9 +25,9 @@ Analyzing impact of changes on agent security
 - Domain: D01 - Control Plane and Cluster Hardening
 - Knowledge Area: 1.4
 - Relation Type: supports
-- Strength: strong
+- Strength: moderate
 - Applicability: required
-- Strength Reason Code: n/a
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0104-013 - Kubernetes upgrade strategy, validation, and rollback planning](../../controls/SAF-K8S-0104-013.md)
 

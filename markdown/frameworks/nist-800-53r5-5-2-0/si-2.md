@@ -24,10 +24,10 @@ Flaw remediation for agent software, models, and dependencies prevents exploitat
 
 - Domain: D01 - Control Plane and Cluster Hardening
 - Knowledge Area: 1.4
-- Relation Type: direct
-- Strength: strong
+- Relation Type: supports
+- Strength: moderate
 - Applicability: required
-- Strength Reason Code: n/a
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0604-001 - SBOM generation for container and AI artifacts](../../controls/SAF-K8S-0604-001.md)
 
