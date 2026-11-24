@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0804-004",
-  "catalog_revision": "43dd61cb8892a979457eab40d099c61a938e22db",
-  "catalog_sha256": "e6304ce26138f6ae02cec7d0d427a361df2e754a2a87758b723e00d981e912f1",
+  "catalog_revision": "3a67b25ea650343be7d8e847482ecc89ec64ba5e",
+  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "cf5d4ac4d0f15d7055e2c0468078f52b909c69ab6726ca41b992bc8598ce363c",
   "scope": "Actual Kubernetes RuntimeClass overhead accounting and fixture completion, with no confidential runtime or GPU.",
-  "cluster": "saf-lab-87552efb553a",
+  "cluster": "saf-lab-1ce7cfa61de7",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
