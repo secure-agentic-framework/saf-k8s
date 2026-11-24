@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1004-002",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "45ba98d1864bca187304bd96710a08edc4ce9114",
+  "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "5a2d9c710fead43289eab97a7f60d3b06f0b9fe05cab19cbb9aaad7ce04f2835",
   "scope": "A synthetic promotion gate checks signed builder provenance, source, and the digest of a deterministically generated configuration artifact. The allowed bytes are mounted in a digest-pinned Kubernetes Job and independently read and hashed there. This covers a selected CI/CD provenance control and artifact propagation check. Production trust, image admission, organization-wide threat modeling, AI pipeline coverage and ongoing deployment monitoring need separate evidence.",
-  "cluster": "saf-lab-c91f6fe8e474",
+  "cluster": "saf-lab-27ee9953b072",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
