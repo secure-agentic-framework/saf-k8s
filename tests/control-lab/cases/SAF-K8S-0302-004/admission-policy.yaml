@@ -15,7 +15,7 @@ spec:
         ((!has(object.spec.hostPID) || !object.spec.hostPID) &&
          (!has(object.spec.hostIPC) || !object.spec.hostIPC) &&
          (!has(object.spec.hostNetwork) || !object.spec.hostNetwork)) ||
-        (object.metadata.namespace == 'saf-0302-hostnetwork-exception' &&
+        (request.dryRun == true && object.metadata.namespace == 'saf-0302-hostnetwork-exception' &&
          request.userInfo.username == 'saf-0302-operator' &&
          object.metadata.name == 'saf-0302-approved-hostnetwork-probe' &&
          has(object.metadata.annotations) &&
