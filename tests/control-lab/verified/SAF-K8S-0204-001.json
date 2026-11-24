@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0204-001",
-  "catalog_revision": "b48fcd75f18478d35324bbfd874c9a8b420b8080",
-  "catalog_sha256": "cac977a792918cc74529e45763d49762ab692c539b68b58bdd492755569553e6",
+  "catalog_revision": "64d692431afbf80130f553d042735989a381876c",
+  "catalog_sha256": "18dd1c4f1cb4f76c9d58276abee0c2b6d7162859bfdbdb495fd51cd09e9f9425",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "333bfb3fcffef487f6fee710a45eb8e0a5e041d09f11e0a203e6e93b53d661af",
-  "scope": "Observe selected real Linux events from an owned child workload in a restricted Kubernetes Job.",
-  "cluster": "saf-lab-c7f6fc06231a",
+  "scope": "Collect selected real syscalls from an owned child and confirm attributed delivery to an independent Kind receiver.",
+  "cluster": "saf-lab-15da4996bb3c",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -48,20 +48,36 @@
     },
     {
       "phase": "green",
-      "claim": "The real syscall collector sees the owned file, network and process markers",
+      "claim": "Native tracing observes the three selected actions and timestamps each",
       "matched": true,
       "observed": {
-        "owned_file_open": true,
-        "loopback_connection": true,
-        "known_child_executed": true
+        "all_three_selected_signals": true,
+        "source_timestamps_present": true
       }
     },
     {
       "phase": "positive",
-      "claim": "The owned workload retains all expected operations under scoped observation",
+      "claim": "The workload completes and its out-of-scope file open is excluded from forwarded telemetry",
       "matched": true,
       "observed": {
-        "owned_workload_remains_functional": true
+        "delivery_scope_respected": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The collector observes the receiver outage and retries the same scoped batch",
+      "matched": true,
+      "observed": {
+        "failed_delivery_visible": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The separate receiver confirms every event exactly once with the actual Kubernetes workload identity",
+      "matched": true,
+      "observed": {
+        "identity_matches_pod": true,
+        "all_events_accepted_once": true
       }
     }
   ]
