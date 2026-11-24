@@ -4,6 +4,7 @@ from hashlib import sha256
 import json
 from pathlib import Path
 import re
+import runpy
 import shutil
 import time
 
@@ -32,7 +33,9 @@ SCOPE = (
     "full Git commit, Argo Application sync and health status, a Ready inert "
     "Deployment, the controller's argocd_app_info metric, a manifest-source "
     "failure, and recovery on the original fixture commit. Coverage is "
-    "native Argo CD status and metrics on this fixture."
+    "native Argo CD status and metrics on this fixture. Flux v2.9.0 also reconciles an exact "
+    "approved commit over Smart HTTP, exposes a fresh failed request through Kubernetes "
+    "API status and kube-state-metrics, and returns to that same approved commit."
 )
 
 
@@ -275,3 +278,6 @@ def run(lab):
               and recovered["revision"] == approved_commit,
               {"recovery": recovered, "workload_unchanged": recovered_workload == baseline_workload,
                "approved_commit": approved_commit})
+
+    flux = runpy.run_path(str(HERE / "flux" / "case.py"))
+    flux["run"](lab)

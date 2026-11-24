@@ -24,3 +24,11 @@ The [retained monitoring test](monitor/README.md) exercises delivered alerts
 and recorded reconciliation history from Prometheus and Alertmanager.
 The [freshness test](stalled/README.md) checks alert firing and resolution
 while the application continues to report Healthy and Synced.
+
+The case also runs Flux v2.9.0 using the existing SAF-K8S-0606-028 release
+and Smart HTTP Git serving fixture. It checks the exact approved Git reference,
+Flux source and Kustomization status, and the exported resource state from
+kube-state-metrics v2.20.0. A missing path triggers an ArtifactFailed condition
+and a fresh observed reconciliation request. Restoring the path reestablishes
+Ready for the same approved revision. The previously applied test workload
+remains available across both transitions.

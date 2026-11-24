@@ -1,0 +1,134 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-flux-state
+  namespace: saf-test
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: saf-flux-state-discovery
+rules:
+  - apiGroups: [apiextensions.k8s.io]
+    resources: [customresourcedefinitions]
+    verbs: [list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: saf-flux-state-discovery
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: saf-flux-state-discovery
+subjects:
+  - kind: ServiceAccount
+    name: saf-flux-state
+    namespace: saf-test
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-flux-state
+  namespace: saf-test
+rules:
+  - apiGroups: [kustomize.toolkit.fluxcd.io]
+    resources: [kustomizations]
+    verbs: [list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-flux-state
+  namespace: saf-test
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-flux-state
+subjects:
+  - kind: ServiceAccount
+    name: saf-flux-state
+    namespace: saf-test
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-flux-state
+  namespace: saf-test
+data:
+  config.yaml: |
+    kind: CustomResourceStateMetrics
+    spec:
+      resources:
+        - groupVersionKind:
+            group: kustomize.toolkit.fluxcd.io
+            version: v1
+            kind: Kustomization
+          metricNamePrefix: gotk
+          labelsFromPath:
+            name: [metadata, name]
+            exported_namespace: [metadata, namespace]
+          metrics:
+            - name: resource_info
+              help: Flux Kustomization reconciliation state and last applied revision
+              each:
+                type: Info
+                info:
+                  labelsFromPath:
+                    ready: [status, conditions, "[type=Ready]", status]
+                    reason: [status, conditions, "[type=Ready]", reason]
+                    revision: [status, lastAppliedRevision]
+                    request: [status, lastHandledReconcileAt]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: saf-flux-state
+  namespace: saf-test
+spec:
+  selector:
+    matchLabels: {app: saf-flux-state}
+  template:
+    metadata:
+      labels: {app: saf-flux-state}
+    spec:
+      serviceAccountName: saf-flux-state
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: metrics
+          image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0@sha256:42cfe3723a5f058171c627537fb57a3ea0f26e4380fa18555a95cb1a1b4cfc5b
+          args:
+            - --namespaces=saf-test
+            - --custom-resource-state-only=true
+            - --custom-resource-state-config-file=/config/config.yaml
+          ports:
+            - {name: http, containerPort: 8080}
+            - {name: telemetry, containerPort: 8081}
+          readinessProbe:
+            httpGet: {path: /readyz, port: telemetry}
+            periodSeconds: 2
+          resources:
+            requests: {cpu: 20m, memory: 32Mi}
+            limits: {cpu: 300m, memory: 128Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          volumeMounts:
+            - {name: config, mountPath: /config, readOnly: true}
+      volumes:
+        - name: config
+          configMap: {name: saf-flux-state}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: saf-flux-state
+  namespace: saf-test
+spec:
+  selector: {app: saf-flux-state}
+  ports:
+    - {name: http, port: 8080, targetPort: http}

@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flux-health-fixture
+data:
+  version: approved-v1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flux-health-fixture
+  labels:
+    app: flux-health-fixture
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flux-health-fixture
+  template:
+    metadata:
+      labels:
+        app: flux-health-fixture
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: fixture
+          image: docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec
+          command: ["sh", "-c", "sleep 3600"]
+          env:
+            - name: FIXTURE_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: flux-health-fixture
+                  key: version
+          resources:
+            requests:
+              cpu: 10m
+              memory: 24Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-031",
-  "catalog_revision": "ca41959a726b562ca2323b8b41988498f829bc90",
-  "catalog_sha256": "ddeb6cd8a0c19f388ae9ef9e35085987a44668dbcc5d1557792bf8a3b1b5799c",
+  "catalog_revision": "50724508524b5f67b27a4d750de0116c47488588",
+  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "3785a778973d9bbaa88fbe270dd39ebe9729b9ce4691fdb83cf8a56790bb2e66",
-  "scope": "One disposable kind cluster with Argo CD v3.6.1 watching a case-owned, read-only static Git repository in saf-test. The case observes an approved full Git commit, Argo Application sync and health status, a Ready inert Deployment, the controller's argocd_app_info metric, a manifest-source failure, and recovery on the original fixture commit. Coverage is native Argo CD status and metrics on this fixture.",
-  "cluster": "saf-lab-41eb3f74fa00",
+  "scope": "One disposable kind cluster with Argo CD v3.6.1 watching a case-owned, read-only static Git repository in saf-test. The case observes an approved full Git commit, Argo Application sync and health status, a Ready inert Deployment, the controller's argocd_app_info metric, a manifest-source failure, and recovery on the original fixture commit. Coverage is native Argo CD status and metrics on this fixture. Flux v2.9.0 also reconciles an exact approved commit over Smart HTTP, exposes a fresh failed request through Kubernetes API status and kube-state-metrics, and returns to that same approved commit.",
+  "cluster": "saf-lab-b360decfe8fb",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -151,6 +151,68 @@
         },
         "workload_unchanged": true,
         "approved_commit": "6663c522a4fee2374bace27221e664933ba1acec"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The source and downstream consumer use the pinned Flux v2.9.0 component images",
+      "matched": true,
+      "observed": {
+        "source_controller": [
+          "ghcr.io/fluxcd/source-controller:v1.9.1@sha256:773a90fa26e014d4f23d5c6a48ca5875c4686bdc6aac2ea73951b9cd9fda48dd"
+        ],
+        "kustomize_controller": [
+          "ghcr.io/fluxcd/kustomize-controller:v1.9.1@sha256:ae1a90c0c76d518618c5e2a64b82b6476c8213aa7a2b17ec8b94828f0230a6b8"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Flux applied the exact approved Git commit and exported that revision and Ready status",
+      "matched": true,
+      "observed": {
+        "workload_available": true,
+        "git_commit": "90c675a1998f3d61a5389d322ef8847bb3338f45",
+        "metric": {
+          "name": "flux-health-fixture",
+          "exported_namespace": "saf-test",
+          "ready": "True",
+          "reason": "ReconciliationSucceeded",
+          "revision": "sha1:90c675a1998f3d61a5389d322ef8847bb3338f45",
+          "request": "approved"
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Flux exports the fresh native path failure and preserves the previously applied workload",
+      "matched": true,
+      "observed": {
+        "available_workload_unchanged": true,
+        "metric": {
+          "name": "flux-health-fixture",
+          "exported_namespace": "saf-test",
+          "ready": "False",
+          "reason": "ArtifactFailed",
+          "revision": "sha1:90c675a1998f3d61a5389d322ef8847bb3338f45",
+          "request": "owned-path-failure"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Flux restores Ready and the metric binds recovery to the same exact Git revision",
+      "matched": true,
+      "observed": {
+        "available_workload_unchanged": true,
+        "metric": {
+          "name": "flux-health-fixture",
+          "exported_namespace": "saf-test",
+          "ready": "True",
+          "reason": "ReconciliationSucceeded",
+          "revision": "sha1:90c675a1998f3d61a5389d322ef8847bb3338f45",
+          "request": "approved-restored"
+        }
       }
     }
   ]
