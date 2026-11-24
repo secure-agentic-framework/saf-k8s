@@ -2455,7 +2455,7 @@
   rationale: Temporary checkpoints can contain sensitive model state and training data derivatives, and they influence future training outcomes. Without encryption, scoped access control, and integrity verification, checkpoints can be read, altered, or replayed to introduce model backdoors or leak sensitive information.
   scope: Applies to temporary or intermediate checkpoint storage used during AI training workflows, whether stored on ephemeral local disks, attached temporary volumes, or short-lived persistent storage prior to promotion or deletion. Long-term persistent volume encryption remains governed by storage security controls.
   primary_enforcement_point: Checkpoint storage configuration and integrity validation processes for temporary training checkpoints.
-  implementation_surface: Temporary checkpoint storage encryption settings, service account or workload identity-based access controls on checkpoint locations, checksum or signature verification before checkpoint resume, and operational controls governing checkpoint lifecycle and cleanup.
+  implementation_surface: Configure temporary storage encryption and scope read and write access to the approved workload identities. Before resume, reuse, or promotion, verify the checkpoint with authenticated encryption, a signature, a MAC, or a digest obtained from an authenticated source. Bind verification to the expected run and step and validate the applicable freshness and rollback policy against trusted state. Manage the lifetime and deletion of the checkpoint and its keys.
   owner_primary: AI/ML Platform team
   owner_supporting: Platform Engineering; Security Engineering
   baseline_or_ai_specific: ai-specific
