@@ -1,0 +1,79 @@
+{
+  "control_id": "SAF-K8S-0910-016",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "9cee42c1b40128e67899036732d5937ade1f75fab9ce8530e96f7a65d695d4e3",
+  "scope": "Two distinct owned Kind APIs. A source-cluster orchestrator calls one private peer-cluster mTLS gateway. The gateway measures the certificate URI and gates one exact deployment placement; its separate Kubernetes service account is limited to Deployment CREATE in the target namespace, and target admission independently constrains the resource name and fixture labels. Baseline accepts a same-CA alternate URI; enforced mode refuses that identity and an alternate placement, then allows the approved request to persist on the peer API.",
+  "cluster": "saf-lab-e3633907c040",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Trusted-chain baseline accepts a same-CA alternate orchestration identity",
+      "matched": true,
+      "observed": {
+        "same_ca_alternate_identity_received_created": true,
+        "baseline_workload_persisted_on_peer_api": true,
+        "decision": {
+          "decision": "created",
+          "principal": "spiffe://saf.test/ns/saf-test/sa/fixture-orchestrator-alternate",
+          "status": 201
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Federated identity and exact placement policy refuse scoped alternatives",
+      "matched": true,
+      "observed": {
+        "alternate_identity_refused_for_approved_placement": true,
+        "approved_identity_refused_for_alternate_placement": true,
+        "refused_identity_never_persisted_target": true,
+        "refused_action_never_persisted_target": true,
+        "target_admission_independently_refuses_alternate_name": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Approved federation action persists at its exact peer placement",
+      "matched": true,
+      "observed": {
+        "approved_request_reached_target_api": true,
+        "exact_deployment_persisted_on_peer_api": true,
+        "peer_gateway_event_binds_identity_to_exact_target": true,
+        "native_admission_policy_persisted_and_deny_bound": true
+      }
+    }
+  ]
+}
