@@ -1392,6 +1392,12 @@
       "sha256": "11f28e603ad1020e63026143ac579d63b0a743ef2b13e344f27b77e729262b9e",
       "title": "Administrative API server access path via bastion or VPN"
     },
+    "SAF-K8S-0601-007": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "982b6524729f4c3ebd0997559a3d3728c219b99bb01ef4303e484e65aad33cba",
+      "title": "AI GPU and ML framework base image validation"
+    },
     "SAF-K8S-0601-008": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -3530,7 +3536,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "394c79cd51515eeb911d009329fe839d841d8163",
+  "revision": "7bc96c349cf534471f53fa57f0eb57a3ead6818f",
   "sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
