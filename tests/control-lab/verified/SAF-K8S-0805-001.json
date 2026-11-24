@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0805-001",
-  "catalog_revision": "4089c8ff8be8bbdde66ef7a888c0071a5e0ad5b5",
-  "catalog_sha256": "56fdc984824947bd1cd1434941938f4f186b7fe45d37ea5be128d7d50fd67086",
+  "catalog_revision": "df95d5021d5822c42dcfbba337ae1dec0c1ba22d",
+  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d9fe935772818b512ae5513582dab136d11750e8acf73053abd6a8ce135e0c97",
   "scope": "Actual in-cluster Prometheus scrape and evaluation of deliberately synthetic telemetry from owned Pods.",
-  "cluster": "saf-lab-a32c00aac04c",
+  "cluster": "saf-lab-0608838bced9",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -72,9 +72,9 @@
       "matched": true,
       "observed": {
         "up": {
+          "missing": 1.0,
           "high": 1.0,
-          "normal": 1.0,
-          "missing": 1.0
+          "normal": 1.0
         },
         "utilization": {
           "high": 0.95,
