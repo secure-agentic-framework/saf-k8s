@@ -1,0 +1,53 @@
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
+metadata:
+  name: saf-lab-1006-010-runtime-exception
+spec:
+  failurePolicy: Fail
+  validationActions: [Deny]
+  evaluation:
+    background:
+      enabled: false
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [apps]
+        apiVersions: [v1]
+        operations: [CREATE]
+        resources: [deployments]
+  matchConditions:
+    - name: exact-fixture-request
+      expression: >-
+        object.metadata.namespace == 'saf-test' &&
+        object.metadata.name == 'saf-ai-exception-workload' &&
+        has(object.metadata.annotations) &&
+        'saf-lab.example/policy-exception' in object.metadata.annotations &&
+        object.metadata.annotations['saf-lab.example/policy-exception'] == 'exact-approved'
+  variables:
+    - name: exception
+      expression: >-
+        resource.Get('saf-lab.example/v1alpha1', 'policyexceptions',
+                     object.metadata.namespace,
+                     object.metadata.annotations['saf-lab.example/policy-exception'])
+  validations:
+    - message: >-
+        SAF-LAB-1006-010: scoped fixture exception is missing
+      expression: 'has(variables.exception.spec)'
+    - message: >-
+        SAF-LAB-1006-010: fixture exception is outside its approved scope
+      expression: >-
+        !has(variables.exception.spec) ||
+        (variables.exception.spec.policyRef == 'ai-workload-compliance' &&
+        variables.exception.spec.scope.namespace == object.metadata.namespace &&
+        variables.exception.spec.scope.kind == 'Deployment' &&
+        variables.exception.spec.scope.name == object.metadata.name)
+    - message: >-
+        SAF-LAB-1006-010: exception requires an approval attributed to this caller
+      expression: >-
+        !has(variables.exception.spec) ||
+        (variables.exception.spec.approval.status == 'approved' &&
+        variables.exception.spec.approval.approverIdentity == request.userInfo.username &&
+        size(variables.exception.spec.approval.justification.trim()) > 0)
+    - message: >-
+        SAF-LAB-1006-010: fixture exception expired
+      expression: >-
+        !has(variables.exception.spec) || timestamp(variables.exception.spec.expiresAt) > time.now()

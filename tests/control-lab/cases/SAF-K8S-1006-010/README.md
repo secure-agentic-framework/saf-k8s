@@ -24,3 +24,14 @@ Recurring review, trusted cutoff advancement, and expiry at the real policy
 consumer require separate evidence.
 
 [Kubernetes v1.36 ValidatingAdmissionPolicy documentation](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
+
+The runtime extension executes the same harmless Deployment dry-run against a live Kyverno
+1.20.0 consumer. The request is admitted before the fixture policy is applied. With the policy
+active it is refused while its record is absent, admitted after scoped approval, and refused
+again after the approved UTC expiry with the stored exception unchanged. The case saves
+API-server UTC timestamp brackets and the distinct denial responses. This evidence covers the
+fixture clock and exact admission path. Managed clock trust and deployment-specific policy
+coverage require separate evidence. The case requires Helm and the reviewed Kyverno chart.
+
+- [Kyverno installation and chart versions](https://kyverno.io/docs/installation/installation/)
+- [Kyverno CEL resource and time libraries](https://kyverno.io/docs/policy-types/cel-libraries/)

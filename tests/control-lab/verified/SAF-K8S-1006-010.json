@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1006-010",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "9672d1ef113c4d79b983b4e31cd24cd611d32be9",
+  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "74f21e8e1240e6edb5f6f7cd1a02dd7a22f02c984b6c1a5e713ce16410801fa7",
-  "scope": "Kubernetes v1.36.1. A namespaced exception record is tested before and after governance, using an authenticated scoped fixture approver and an observer without record write permission. The case checks exact scope, attributable approval, metadata, and a protected admission cutoff.",
-  "cluster": "saf-lab-9879c0b2e6db",
+  "scope": "Kubernetes v1.36.1. A namespaced exception record is tested before and after governance, using an authenticated scoped fixture approver and an observer without record write permission. The case checks exact scope, attributable approval, metadata, and a protected admission cutoff. Kyverno independently consumes the same scoped record before and after its automatic expiry.",
+  "cluster": "saf-lab-e55b524188c2",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -139,6 +139,59 @@
       "matched": true,
       "observed": {
         "expiry_rule_matched": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The running policy consumer uses the reviewed Kyverno release",
+      "matched": true,
+      "observed": {
+        "images": [
+          "reg.kyverno.io/kyverno/kyverno:v1.20.0"
+        ],
+        "expected_tag": "v1.20.0"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before the consumer policy the harmless request is admitted without the exception",
+      "matched": true,
+      "observed": {
+        "unprotected_request_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The active consumer refuses the request when its scoped record is absent",
+      "matched": true,
+      "observed": {
+        "consumer_reports_missing_record": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The published admission policy accepts the exact attributed record",
+      "matched": true,
+      "observed": {
+        "approved_record_admitted": true,
+        "expiry_seconds": 45
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The active consumer admits the exact request within the approved time window",
+      "matched": true,
+      "observed": {
+        "request_admitted_before_expiry": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The consumer refuses the identical request after the unchanged exception expires",
+      "matched": true,
+      "observed": {
+        "consumer_expired_denial": true,
+        "record_unchanged": true
       }
     }
   ]

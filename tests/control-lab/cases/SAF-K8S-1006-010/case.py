@@ -2,6 +2,7 @@
 import copy
 import json
 import os
+import runpy
 import subprocess
 import time
 from pathlib import Path
@@ -15,7 +16,7 @@ CLOCK = "fixture-exception-clock"
 POLICY = "saf-lab-1006-010-exception-governance"
 SCOPE = ("Kubernetes v1.36.1. A namespaced exception record is tested before and after governance, "
          "using an authenticated scoped fixture approver and an observer without record write permission. "
-         "The case checks exact scope, attributable approval, metadata, and a protected admission cutoff.")
+         "The case checks exact scope, attributable approval, metadata, and a protected admission cutoff. Kyverno independently consumes the same scoped record before and after its automatic expiry.")
 
 
 def _client(lab, config, namespace, *args, payload=None):
@@ -163,3 +164,6 @@ def run(lab):
     expired = wait_denial(lambda: submit(lab, approver, exact), expiry)
     lab.check("green", "The same previously approved record is refused after the protected cutoff advances",
               denied_by_policy(expired, expiry), {"expiry_rule_matched": denied_by_policy(expired, expiry)})
+
+    runtime = runpy.run_path(str(CASE_DIR / "runtime_expiry.py"))
+    runtime["run"](lab, approver, exact)
