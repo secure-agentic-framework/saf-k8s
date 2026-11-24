@@ -459,7 +459,7 @@
     "SAF-K8S-0202-012": {
       "catalog_status": "draft",
       "domain": "D02",
-      "sha256": "97bd0eb0f91a693f025f4fb7f1fe47ae74f5f8a312c75ae95ef91eed2d098833",
+      "sha256": "2b04b985704b36272f41118f927cf8bbdcde80846d81d0e1115903f0bf0ec8dd",
       "title": "Rootless node verification and placement eligibility"
     },
     "SAF-K8S-0203-002": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "eff5f86bb6bf7756dc56af925237ab1fc915402a",
-  "sha256": "e8dc75eca92121d30e77394607cef4720273bed4d3a2d799f3eba7f6148199eb",
+  "revision": "ce5e6f4bb3828a921040095d0a710d0f568e92dd",
+  "sha256": "31e2432280afe6547d4bbe5974b5e26eb506ee72c3fa69a8c1d4f8997bc3a3c1",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

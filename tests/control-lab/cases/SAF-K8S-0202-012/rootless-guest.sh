@@ -78,12 +78,64 @@ for process in kubelet containerd kube-proxy kindnetd; do
     printf 'same_namespace_%s=true\n' "$process"
 done
 
-# Enroll a workload with a trusted selector and exercise the actual scheduler.
+# The guest collects process evidence and delegates the Node write to a separate identity.
 kube create namespace saf-rootless
 label=saf.test.node-restriction.kubernetes.io/rootless
+issuer=system:serviceaccount:saf-rootless:eligibility-issuer
+node_uid=$(kube get node "$node" -o 'jsonpath={.metadata.uid}')
+test -n "$node_uid"
+kube -n saf-rootless create serviceaccount eligibility-issuer
+kube create clusterrole saf-rootless-eligibility \
+    --verb=get,patch --resource=nodes --resource-name="$node"
+kube create clusterrolebinding saf-rootless-eligibility --clusterrole=saf-rootless-eligibility \
+    --serviceaccount=saf-rootless:eligibility-issuer
+test "$(kube --as="$issuer" auth can-i patch "node/$node")" = yes
+test "$(kube --as="$issuer" auth can-i patch node/unverified-fixture-node)" = no
+printf 'issuer_is_independent_and_node_scoped=true\n'
+
+# On the owned node, server-side dry-run reaches NodeRestriction with a fixture
+# node identity. An ordinary label is the authorization control for the comparison.
+node_client=(--as="system:node:$node" --as-group=system:nodes --as-group=system:authenticated)
+kube "${node_client[@]}" label node "$node" saf.test/ordinary=fixture --dry-run=server -o name |
+    grep -Fx "node/$node"
+if deny=$(kube "${node_client[@]}" label node "$node" "$label=verified" --dry-run=server 2>&1); then
+    printf 'The node identity could write the protected rootless label\n' >&2
+    exit 1
+fi
+printf '%s\n' "$deny" | grep -F 'is not allowed to modify labels' | grep -F "$label"
+printf 'node_restriction_denied_own_label=true\n'
+
+evidence_deadline() {
+    local renew process actual
+    test "$(kube get node "$node" -o 'jsonpath={.metadata.uid}')" = "$node_uid" || return 1
+    test "$(kube get node "$node" -o 'jsonpath={.status.nodeInfo.runningInUserNamespace}')" = true || return 1
+    test "$(kube get node "$node" -o 'jsonpath={.status.conditions[?(@.type=="Ready")].status}')" = True || return 1
+    test "$(readlink "/proc/$node_pid/ns/user")" = "$node_namespace" || return 1
+    for process in kubelet containerd kube-proxy kindnetd; do
+        actual=$(podman exec "$node" sh -ec 'proc=$(pgrep -xo "$1"); readlink "/proc/$proc/ns/user"' sh "$process") || return 1
+        test "$actual" = "$node_namespace" || return 1
+    done
+    renew=$(kube -n kube-node-lease get lease "$node" -o 'jsonpath={.spec.renewTime}') || return 1
+    test -n "$renew" || return 1
+    local last_renew
+    last_renew=$(date -u -d "$renew" +%s) || return 1
+    # A fixture-specific freshness limit allows ordinary kubelet renewals.
+    printf '%s\n' "$((last_renew + 90))"
+}
+reconcile() {
+    local deadline=$1
+    local now
+    now=$(date -u +%s)
+    if [[ "$deadline" =~ ^[0-9]+$ ]] && (( now <= deadline )); then
+        kube --as="$issuer" label node "$node" "$label=verified" --overwrite
+    else
+        kube --as="$issuer" label node "$node" "$label-"
+    fi
+}
 pod_image=docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec
 create_workload() {
     local pod_name=$1
+    local payload=${2:-"printf 'saf-rootless-eligible'"}
     kube -n saf-rootless create -f - <<POD
 apiVersion: v1
 kind: Pod
@@ -102,7 +154,7 @@ spec:
   containers:
   - name: check
     image: $pod_image
-    command: ["sh", "-c", "printf 'saf-rootless-eligible'"]
+    command: ["sh", "-c", "$payload"]
     securityContext:
       allowPrivilegeEscalation: false
       capabilities:
@@ -118,12 +170,32 @@ cannot_schedule() {
 create_workload enrolled
 cannot_schedule enrolled
 printf 'unlabelled_node_workload_pending=true\n'
-kube label node "$node" "$label=verified"
+first_deadline=$(evidence_deadline)
+reconcile "$first_deadline"
 kube -n saf-rootless wait --timeout=100s '--for=jsonpath={.status.phase}=Succeeded' pod/enrolled
 test "$(kube -n saf-rootless get pod enrolled -o 'jsonpath={.spec.nodeName}')" = "$node"
 test "$(kube -n saf-rootless logs pod/enrolled)" = saf-rootless-eligible
 printf 'verified_label_workload_succeeded=true\n'
-kube label node "$node" "$label-"
+
+create_workload retained 'sleep 240'
+kube -n saf-rootless wait --timeout=30s --for=condition=Ready pod/retained
+prior_uid=$(kube -n saf-rootless get pod retained -o 'jsonpath={.metadata.uid}')
+test -n "$prior_uid"
+stale_deadline=$(($(date -u +%s) - 1))
+reconcile "$stale_deadline"
 create_workload post-revocation
 cannot_schedule post-revocation
-printf 'removed_label_new_workload_pending=true\n'
+printf 'stale_evidence_revoked_new_placement=true\n'
+test "$(kube -n saf-rootless get pod retained -o 'jsonpath={.metadata.uid},{.spec.nodeName},{.status.phase}')" = "$prior_uid,$node,Running"
+printf 'previous_workload_remained_running=true\n'
+
+renewed_deadline=$(evidence_deadline)
+reconcile "$renewed_deadline"
+kube -n saf-rootless wait --timeout=45s '--for=jsonpath={.status.phase}=Succeeded' pod/post-revocation
+test "$(kube -n saf-rootless logs pod/post-revocation)" = saf-rootless-eligible
+printf 'fresh_evidence_restored_pending_placement=true\n'
+
+reconcile ""
+create_workload missing-evidence
+cannot_schedule missing-evidence
+printf 'absent_evidence_revoked_new_placement=true\n'

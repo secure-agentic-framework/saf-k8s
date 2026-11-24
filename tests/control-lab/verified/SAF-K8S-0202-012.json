@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0202-012",
-  "catalog_revision": "8499ab6eef453f23e74e24a1ab43555af4bd89f0",
-  "catalog_sha256": "115d55b7443aed0213c5b909968f35b73439c1376fb56857836f63c2b08ce322",
+  "catalog_revision": "b0674be2b4360894fd692eee37240a898aa19ef5",
+  "catalog_sha256": "31e2432280afe6547d4bbe5974b5e26eb506ee72c3fa69a8c1d4f8997bc3a3c1",
   "node_image": "kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5",
-  "control_sha256": "97bd0eb0f91a693f025f4fb7f1fe47ae74f5f8a312c75ae95ef91eed2d098833",
-  "scope": "Kubernetes v1.37.0 on a rootful Docker kind node and a separate rootless Podman kind node in a mount-free Linux guest on macOS ARM64. Verify effective node/kernel namespace membership and one scheduler selector with an independently managed label. Provider support, production runtime/CNI/CSI combinations, attestation, and automatic label issuance or revocation remain separate.",
-  "cluster": "saf-lab-c441a747c11e",
+  "control_sha256": "2b04b985704b36272f41118f927cf8bbdcde80846d81d0e1115903f0bf0ec8dd",
+  "scope": "Kubernetes v1.37.0 on rootful Docker kind nodes and a separate rootless Podman kind node in a mount-free Linux guest on macOS ARM64. Verify effective node/kernel namespace membership and one scheduler selector with an independently managed label. The fixture checks a scoped issuer, NodeRestriction, freshness loss and recovery, and the scheduler's handling of existing workloads. Provider-specific support, runtime/CNI/CSI combinations and external attestation require adopter evidence.",
+  "cluster": "saf-lab-09abf90167e1",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -49,6 +49,16 @@
       }
     },
     {
+      "phase": "red",
+      "claim": "A v1.37 kubelet with reporting disabled omits the Node field",
+      "matched": true,
+      "observed": {
+        "version_is_fixture": true,
+        "feature_explicitly_disabled": true,
+        "node_status_field_absent": true
+      }
+    },
+    {
       "phase": "green",
       "claim": "The Node signal agrees with live namespace membership on rootless Linux",
       "matched": true,
@@ -68,13 +78,25 @@
       }
     },
     {
+      "phase": "green",
+      "claim": "The scoped issuer can assign eligibility and the fixture node identity cannot",
+      "matched": true,
+      "observed": {
+        "issuer_is_independent_and_node_scoped": true,
+        "node_restriction_denied_own_label": true
+      }
+    },
+    {
       "phase": "positive",
-      "claim": "Scheduler eligibility follows the protected label lifecycle",
+      "claim": "Scheduler eligibility follows corroborated freshness and existing placement persists",
       "matched": true,
       "observed": {
         "unlabelled_node_workload_pending": true,
         "verified_label_workload_succeeded": true,
-        "removed_label_new_workload_pending": true
+        "stale_evidence_revoked_new_placement": true,
+        "previous_workload_remained_running": true,
+        "fresh_evidence_restored_pending_placement": true,
+        "absent_evidence_revoked_new_placement": true
       }
     },
     {

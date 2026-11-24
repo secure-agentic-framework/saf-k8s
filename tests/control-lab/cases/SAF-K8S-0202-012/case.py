@@ -12,11 +12,12 @@ NODE_IMAGE = "kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a2659
 VM = "rootless-fixture"
 FIELD = "runningInUserNamespace"
 SCOPE = (
-    "Kubernetes v1.37.0 on a rootful Docker kind node and a separate rootless Podman "
+    "Kubernetes v1.37.0 on rootful Docker kind nodes and a separate rootless Podman "
     "kind node in a mount-free Linux guest on macOS ARM64. Verify effective node/kernel "
     "namespace membership and one scheduler selector with an independently managed label. "
-    "Provider support, production runtime/CNI/CSI combinations, attestation, and automatic "
-    "label issuance or revocation remain separate."
+    "The fixture checks a scoped issuer, NodeRestriction, freshness loss and recovery, "
+    "and the scheduler's handling of existing workloads. Provider-specific support, "
+    "runtime/CNI/CSI combinations and external attestation require adopter evidence."
 )
 
 GUEST_LAUNCH = '''set -euo pipefail
@@ -53,6 +54,21 @@ def rootful_report(lab):
               observed)
 
 
+def absent_status_report(lab):
+    worker = f"{lab.cluster}-worker"
+    lab.kubectl("wait", "--for=condition=Ready", f"node/{worker}", "--timeout=90s", timeout=105)
+    node = json.loads(lab.kubectl("get", "node", worker, "-o", "json").stdout)
+    status = node["status"]["nodeInfo"]
+    args = lab.command("docker", "exec", worker, "cat", "/var/lib/kubelet/kubeadm-flags.env").stdout
+    observed = {
+        "version_is_fixture": status.get("kubeletVersion") == "v1.37.0",
+        "feature_explicitly_disabled": "--feature-gates=KubeletInUserNamespace=false" in args,
+        "node_status_field_absent": FIELD not in status,
+    }
+    lab.check("red", "A v1.37 kubelet with reporting disabled omits the Node field",
+              all(observed.values()), observed)
+
+
 def rootless_report(lab):
     temp_root = "/private/tmp"
     with TemporaryDirectory(dir=temp_root, prefix="saf-rless-") as local:
@@ -76,7 +92,10 @@ def rootless_report(lab):
         "node_namespace_differs_from_guest_initial", "node_uid_map", "node_gid_map",
         "same_namespace_kubelet", "same_namespace_containerd", "same_namespace_kube-proxy",
         "same_namespace_kindnetd", "unlabelled_node_workload_pending", "verified_label_workload_succeeded",
-        "removed_label_new_workload_pending", "owned_node_deleted",
+        "issuer_is_independent_and_node_scoped", "node_restriction_denied_own_label",
+        "stale_evidence_revoked_new_placement", "absent_evidence_revoked_new_placement",
+        "previous_workload_remained_running", "fresh_evidence_restored_pending_placement",
+        "owned_node_deleted",
     }
     return {
         name: value.strip()
@@ -99,6 +118,7 @@ def run(lab):
     if platform.system() != "Darwin" or platform.machine() != "arm64" or not shutil.which("limactl"):
         lab.block("The reproducible rootless leg requires Lima VZ on macOS ARM64")
     rootful_report(lab)
+    absent_status_report(lab)
     observed = rootless_report(lab)
     uid_map, gid_map = (delegated_map(observed.get(f"node_{kind}_map", "")) for kind in ("uid", "gid"))
     components = {item: observed.get(f"same_namespace_{item}") == "true"
@@ -116,12 +136,21 @@ def run(lab):
               namespace["rootless_podman_with_cgroupv2_systemd"] and namespace["kubelet_version"] == "v1.37.0"
               and namespace["node_reports_rootless"] and namespace["independent_guest_namespace"]
               and namespace["uid_and_gid_are_delegated"] and all(components.values()), namespace)
-    eligibility = {
-        "unlabelled_node_workload_pending": observed.get("unlabelled_node_workload_pending") == "true",
-        "verified_label_workload_succeeded": observed.get("verified_label_workload_succeeded") == "true",
-        "removed_label_new_workload_pending": observed.get("removed_label_new_workload_pending") == "true",
+    identity = {
+        name: observed.get(name) == "true" for name in (
+            "issuer_is_independent_and_node_scoped", "node_restriction_denied_own_label",
+        )
     }
-    lab.check("positive", "Scheduler eligibility follows the protected label lifecycle",
+    lab.check("green", "The scoped issuer can assign eligibility and the fixture node identity cannot",
+              all(identity.values()), identity)
+    eligibility = {
+        name: observed.get(name) == "true" for name in (
+            "unlabelled_node_workload_pending", "verified_label_workload_succeeded",
+            "stale_evidence_revoked_new_placement", "previous_workload_remained_running",
+            "fresh_evidence_restored_pending_placement", "absent_evidence_revoked_new_placement",
+        )
+    }
+    lab.check("positive", "Scheduler eligibility follows corroborated freshness and existing placement persists",
               all(eligibility.values()), eligibility)
     lab.check("positive", "The independently owned rootless cluster and Linux guest were removed",
               observed.get("owned_node_deleted") == "true",
