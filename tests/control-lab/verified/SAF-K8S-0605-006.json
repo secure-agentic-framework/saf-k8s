@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0605-006",
-  "catalog_revision": "b5de1f015eae03619494337bc98b89c24403a7a4",
-  "catalog_sha256": "a868b4ea141c0e3de49227b6eeabffa4a2330712afd28048221b89ce9b63aa55",
+  "catalog_revision": "c6ddf5d303ce6f0eb4ac9710bb498499f6a3824e",
+  "catalog_sha256": "89325da228788a434f2e003f265722b10870eb26c9d02a8c8acefe4207cda783",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "804bd486bad4f21d2077d8c894816580205f04657ea3d5a3d2cf6280d90dde87",
-  "scope": "One fresh Kubernetes v1.36.1 kind cluster. Server-side dry-run compares the same schema-valid, inert pause Pod with only runAsNonRoot changed, before and after Restricted PSA labels are applied to one typed synthetic AI namespace. A ValidatingAdmissionPolicy requires immutable AI classification and Restricted enforce/audit/warn labels pinned to v1.36. A separate ordinary namespace checks namespace matching. Native metadata audit events record the proposed Baseline AI namespace and its Pod-level Restricted violation. All Pod requests are server-side dry-run. Production coverage and central audit delivery require deployment evidence.",
-  "cluster": "saf-lab-6e8408f43a60",
+  "scope": "One fresh Kubernetes v1.36.1 kind cluster. Server-side dry-run compares the same schema-valid, inert pause Pod with only runAsNonRoot changed, before and after Restricted PSA labels are applied to one typed synthetic AI namespace. A ValidatingAdmissionPolicy requires immutable AI classification and Restricted enforce/audit/warn labels pinned to v1.36. A separate ordinary namespace checks namespace matching. Native metadata audit events record the proposed Baseline AI namespace and its Pod-level Restricted violation. All Pod requests are server-side dry-run. Read-only label, policy and binding evidence steps are exercised against this fixture. Adopters verify their namespace inventory, exceptions and audit delivery in their environment.",
+  "cluster": "saf-lab-61651f732167",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -147,6 +147,17 @@
         "pod-security.kubernetes.io/audit-version": "v1.36",
         "pod-security.kubernetes.io/warn": "restricted",
         "pod-security.kubernetes.io/warn-version": "v1.36"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The adoption guide's API readback shows the active namespace policy and exact labels",
+      "matched": true,
+      "observed": {
+        "six_pinned_labels_visible": true,
+        "namespace_create_and_update_covered": true,
+        "binding_references_policy": true,
+        "deny_and_audit_active": true
       }
     }
   ]

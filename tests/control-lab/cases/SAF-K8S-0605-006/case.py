@@ -33,7 +33,8 @@ SCOPE = (
     "enforce/audit/warn labels pinned to v1.36. A separate ordinary namespace checks "
     "namespace matching. Native metadata audit events record the proposed Baseline AI namespace "
     "and its Pod-level Restricted violation. All Pod requests are server-side dry-run. "
-    "Production coverage and central audit delivery require deployment evidence."
+    "Read-only label, policy and binding evidence steps are exercised against this fixture. "
+    "Adopters verify their namespace inventory, exceptions and audit delivery in their environment."
 )
 
 
@@ -299,3 +300,27 @@ def run(lab):
     lab.check("positive", "AI namespace retains all six Restricted PSA labels pinned to v1.36",
               all(actual.get(key) == value for key, value in PSA_LABELS.items()),
               {key: actual.get(key) for key in PSA_LABELS})
+
+    # The adoption guide uses these read-only views to capture the live policy.
+    label_template = " ".join(
+        "{.metadata.labels." + key.replace(".", "\\.") + "}" for key in PSA_LABELS
+    )
+    scope_view = lab.kubectl("get", "namespace", AI_NAMESPACE,
+                             "-o", "jsonpath=" + label_template).stdout.split()
+    policy = json.loads(lab.kubectl("get", "validatingadmissionpolicy", NAMESPACE_GUARD,
+                                   "-o", "json").stdout)
+    binding = json.loads(lab.kubectl("get", "validatingadmissionpolicybinding", NAMESPACE_GUARD,
+                                    "-o", "json").stdout)
+    namespaces_guarded = any(
+        set(rule.get("operations", [])) == {"CREATE", "UPDATE"}
+        and rule.get("resources") == ["namespaces"]
+        for rule in policy["spec"]["matchConstraints"]["resourceRules"]
+    )
+    guidance = {
+        "six_pinned_labels_visible": scope_view == list(PSA_LABELS.values()),
+        "namespace_create_and_update_covered": namespaces_guarded,
+        "binding_references_policy": binding["spec"]["policyName"] == policy["metadata"]["name"],
+        "deny_and_audit_active": set(binding["spec"]["validationActions"]) == {"Deny", "Audit"},
+    }
+    lab.check("positive", "The adoption guide's API readback shows the active namespace policy and exact labels",
+              all(guidance.values()), guidance)
