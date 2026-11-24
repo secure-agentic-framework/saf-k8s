@@ -25554,22 +25554,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: CP-11
-  framework_requirement_title: Alternate Communications Protocols
-  framework_mapping_notes: 'Fallback communication protocols for agents
-
-
-    5.2 - CNI plugin selection covers alternate communication protocol capabilities; 8.3 - Interconnect alternatives (InfiniBand, RoCE, DPU/SmartNIC) provide fallback communication paths'
-  control_id: SAF-K8S-0803-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: CP-12
   framework_requirement_title: Safe Mode
   framework_mapping_notes: 'Agent safe/degraded mode operation
@@ -47813,22 +47797,6 @@
 
 
     8.5 - GPU covert channels (side-channel analysis via GPU shared memory); 8.3 - Interconnect traffic analysis'
-  control_id: SAF-K8S-0803-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-31
-  framework_requirement_title: Covert Channel Analysis
-  framework_mapping_notes: 'Covert channel analysis identifies hidden data exfiltration paths in agent communications
-
-
-    8.5 - GPU covert channels (side-channel analysis via GPU shared memory); 8.3 - Interconnect traffic analysis'
   control_id: SAF-K8S-0805-001
   relation_type: direct
   strength_level: strong
@@ -48902,22 +48870,6 @@
 
     9.1 - Distributed training (synchronization of multi-node GPU processing); 8.3 - NVLink/NVSwitch traffic isolation'
   control_id: SAF-K8S-0803-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-36(2)
-  framework_requirement_title: Synchronization
-  framework_mapping_notes: 'Synchronization controls ensure distributed agent state consistency and prevent split-brain
-
-
-    9.1 - Distributed training (synchronization of multi-node GPU processing); 8.3 - NVLink/NVSwitch traffic isolation'
-  control_id: SAF-K8S-0803-003
   relation_type: direct
   strength_level: strong
   applicability: required
