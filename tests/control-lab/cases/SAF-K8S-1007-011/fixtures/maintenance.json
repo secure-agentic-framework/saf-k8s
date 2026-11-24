@@ -22,7 +22,6 @@
     "candidate_release": "fixture-candidate-001",
     "baseline_ref": "urn:example:saf:cluster-fixture:stable-000",
     "candidate_ref": "urn:example:saf:cluster-fixture:candidate-001",
-    "candidate_health": "synthetic-failed",
     "rollback_target": "urn:example:saf:cluster-fixture:stable-000"
   }
 }

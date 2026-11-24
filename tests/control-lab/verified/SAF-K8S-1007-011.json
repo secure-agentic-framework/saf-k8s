@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1007-011",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "5aae2e7e7c580d89263b1185b29bc618aff40778",
+  "catalog_sha256": "b135c6c1c3ced83a52f2c84d0bbe057a079c508964f6bd63f7291058e8ff928e",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "422f1f4fab47ac5cfc7c6d1b30634ee1d1cf29ce841d873870e8ab33327304aa",
-  "scope": "One disposable default-profile Kind v1.36.1 cluster. The case reads live API server, kubectl, controller-manager, scheduler, kubelet, and kube-proxy versions; evaluates a synthetic one-minor maintenance sequence against the official Kubernetes v1.36 skew policy; and records a deliberately out-of-order/incompatible plan as red. A single-replica, tokenless Python Deployment performs no network I/O and carries reserved fixture release markers. The case applies a candidate marker, consumes a synthetic failed-health fixture to choose a rollback target, and verifies Kubernetes API rollout back to the stable marker. It does not upgrade Kubernetes components, cordon/drain nodes, install or upgrade add-ons, perform a Kubernetes version downgrade, or exercise production recovery. It does not establish organizational change approval, managed-service coordination, vendor add-on compatibility, or production service health.",
-  "cluster": "saf-lab-38bc58aa3ca3",
+  "control_sha256": "612faaca8e23b0a3bd83116d49846265d4e381506fd7a6efcd632ed8d9f0881e",
+  "scope": "One disposable Kubernetes v1.36.1 Kind cluster with a control plane and a worker. Reads live component versions and compares rejected and allowed synthetic minor upgrade plans. Performs real PDB-coordinated eviction, cordon/drain and uncordon on the owned worker. A tokenless workload reports an actual fixture HTTP health code for the stable and candidate revision. An explicitly pinned workload rollback restores the stable marker and health. Platform upgrades, add-on changes and infrastructure recovery use their separate adopter rehearsals.",
+  "cluster": "saf-lab-2601927278c5",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -50,7 +50,8 @@
           "scheduler": "v1.36.1",
           "kube_proxy": "v1.36.1",
           "kubelets": {
-            "control-plane": "v1.36.1"
+            "control-plane": "v1.36.1",
+            "worker": "v1.36.1"
           }
         },
         "candidate_version": "v1.37.0",
@@ -85,7 +86,8 @@
           "scheduler": "v1.36.1",
           "kube_proxy": "v1.36.1",
           "kubelets": {
-            "control-plane": "v1.36.1"
+            "control-plane": "v1.36.1",
+            "worker": "v1.36.1"
           }
         },
         "observed_versions_are_live_api_observations": true,
@@ -95,6 +97,7 @@
           "controller_manager_not_newer_and_within_one_minor": true,
           "scheduler_not_newer_and_within_one_minor": true,
           "kubelet_control-plane_not_newer_and_within_three_minors": true,
+          "kubelet_worker_not_newer_and_within_three_minors": true,
           "kube_proxy_not_newer_and_within_three_minors_of_api_server": true,
           "kube_proxy_within_three_minors_of_each_kubelet": true,
           "kubectl_within_one_minor_of_api_server": true
@@ -121,13 +124,15 @@
                 "scheduler": "v1.36.1",
                 "kube_proxy": "v1.36.1",
                 "kubelets": {
-                  "control-plane": "v1.36.1"
+                  "control-plane": "v1.36.1",
+                  "worker": "v1.36.1"
                 }
               },
               "findings": {
                 "controller_manager_not_newer_and_within_one_minor": true,
                 "scheduler_not_newer_and_within_one_minor": true,
                 "kubelet_control-plane_not_newer_and_within_three_minors": true,
+                "kubelet_worker_not_newer_and_within_three_minors": true,
                 "kube_proxy_not_newer_and_within_three_minors_of_api_server": true,
                 "kube_proxy_within_three_minors_of_each_kubelet": true,
                 "kubectl_within_one_minor_of_api_server": true
@@ -142,13 +147,15 @@
                 "scheduler": "v1.37.0",
                 "kube_proxy": "v1.36.1",
                 "kubelets": {
-                  "control-plane": "v1.36.1"
+                  "control-plane": "v1.36.1",
+                  "worker": "v1.36.1"
                 }
               },
               "findings": {
                 "controller_manager_not_newer_and_within_one_minor": true,
                 "scheduler_not_newer_and_within_one_minor": true,
                 "kubelet_control-plane_not_newer_and_within_three_minors": true,
+                "kubelet_worker_not_newer_and_within_three_minors": true,
                 "kube_proxy_not_newer_and_within_three_minors_of_api_server": true,
                 "kube_proxy_within_three_minors_of_each_kubelet": true,
                 "kubectl_within_one_minor_of_api_server": true
@@ -163,13 +170,15 @@
                 "scheduler": "v1.37.0",
                 "kube_proxy": "v1.36.1",
                 "kubelets": {
-                  "control-plane": "v1.37.0"
+                  "control-plane": "v1.37.0",
+                  "worker": "v1.37.0"
                 }
               },
               "findings": {
                 "controller_manager_not_newer_and_within_one_minor": true,
                 "scheduler_not_newer_and_within_one_minor": true,
                 "kubelet_control-plane_not_newer_and_within_three_minors": true,
+                "kubelet_worker_not_newer_and_within_three_minors": true,
                 "kube_proxy_not_newer_and_within_three_minors_of_api_server": true,
                 "kube_proxy_within_three_minors_of_each_kubelet": true,
                 "kubectl_within_one_minor_of_api_server": true
@@ -184,13 +193,15 @@
                 "scheduler": "v1.37.0",
                 "kube_proxy": "v1.37.0",
                 "kubelets": {
-                  "control-plane": "v1.37.0"
+                  "control-plane": "v1.37.0",
+                  "worker": "v1.37.0"
                 }
               },
               "findings": {
                 "controller_manager_not_newer_and_within_one_minor": true,
                 "scheduler_not_newer_and_within_one_minor": true,
                 "kubelet_control-plane_not_newer_and_within_three_minors": true,
+                "kubelet_worker_not_newer_and_within_three_minors": true,
                 "kube_proxy_not_newer_and_within_three_minors_of_api_server": true,
                 "kube_proxy_within_three_minors_of_each_kubelet": true,
                 "kubectl_within_one_minor_of_api_server": true
@@ -205,13 +216,15 @@
                 "scheduler": "v1.37.0",
                 "kube_proxy": "v1.37.0",
                 "kubelets": {
-                  "control-plane": "v1.37.0"
+                  "control-plane": "v1.37.0",
+                  "worker": "v1.37.0"
                 }
               },
               "findings": {
                 "controller_manager_not_newer_and_within_one_minor": true,
                 "scheduler_not_newer_and_within_one_minor": true,
                 "kubelet_control-plane_not_newer_and_within_three_minors": true,
+                "kubelet_worker_not_newer_and_within_three_minors": true,
                 "kube_proxy_not_newer_and_within_three_minors_of_api_server": true,
                 "kube_proxy_within_three_minors_of_each_kubelet": true,
                 "kubectl_within_one_minor_of_api_server": true
@@ -232,22 +245,25 @@
     },
     {
       "phase": "positive",
-      "claim": "Synthetic failure selects the exact inert prior fixture and API-observed rollout undo restores it",
+      "claim": "Measured HTTP health selects the exact stable workload revision and verifies recovery",
       "matched": true,
       "observed": {
         "decision": "rollback_mock_workload_to_fixture_baseline",
         "target": "urn:example:saf:cluster-fixture:stable-000",
         "baseline_marker": [
           "fixture-stable-000",
-          "urn:example:saf:cluster-fixture:stable-000"
+          "urn:example:saf:cluster-fixture:stable-000",
+          200
         ],
         "candidate_marker": [
           "fixture-candidate-001",
-          "urn:example:saf:cluster-fixture:candidate-001"
+          "urn:example:saf:cluster-fixture:candidate-001",
+          503
         ],
         "rollback_marker": [
           "fixture-stable-000",
-          "urn:example:saf:cluster-fixture:stable-000"
+          "urn:example:saf:cluster-fixture:stable-000",
+          200
         ],
         "same_deployment_uid": true,
         "rollback_deployment": {
@@ -263,6 +279,26 @@
           "available_replicas": 1
         },
         "kubernetes_version_downgrade_performed": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Actual worker maintenance honors the effective disruption budget",
+      "matched": true,
+      "observed": {
+        "worker_cordoned": true,
+        "denial_matches_disruption_budget": true,
+        "admitted_workload_remains": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A permitted drain and uncordon reschedule the exact pending replacement",
+      "matched": true,
+      "observed": {
+        "different_pod_replaced_evicted_pod": true,
+        "same_pending_replacement_became_ready": true,
+        "ready_replacement_on_maintained_worker": true
       }
     }
   ]

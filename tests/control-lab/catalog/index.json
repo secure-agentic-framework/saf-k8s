@@ -3525,7 +3525,7 @@
     "SAF-K8S-1007-011": {
       "catalog_status": "draft",
       "domain": "D10",
-      "sha256": "422f1f4fab47ac5cfc7c6d1b30634ee1d1cf29ce841d873870e8ab33327304aa",
+      "sha256": "612faaca8e23b0a3bd83116d49846265d4e381506fd7a6efcd632ed8d9f0881e",
       "title": "Kubernetes cluster upgrade planning, sequencing, and rollback governance"
     },
     "SAF-K8S-1007-012": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "e74a4a4dba75cc67ee01d7f16296130835520a29",
-  "sha256": "ea9f5c0e0fb93068e9566cca8c429df2d8dd9f2f05e8c8c98b06b13021e43372",
+  "revision": "5953b5e9139c756a4177f83074ba3f2c4c50250b",
+  "sha256": "b135c6c1c3ced83a52f2c84d0bbe057a079c508964f6bd63f7291058e8ff928e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

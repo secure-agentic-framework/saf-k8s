@@ -3,8 +3,16 @@ from copy import deepcopy
 import json
 from pathlib import Path
 import re
+import shutil
+import time
+
+from fixtures import BUSYBOX_IMAGE
 
 
+NODE_IMAGE = (
+    "kindest/node:v1.36.1@sha256:"
+    "3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
+)
 HERE = Path(__file__).resolve().parent
 FIXTURE_PATH = HERE / "fixtures" / "maintenance.json"
 CONTROL_ID = "SAF-K8S-1007-011"
@@ -16,18 +24,25 @@ PYTHON_IMAGE = (
     "e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 )
 SCOPE = (
-    "One disposable default-profile Kind v1.36.1 cluster. The case reads live API server, "
-    "kubectl, controller-manager, scheduler, kubelet, and kube-proxy versions; evaluates a "
-    "synthetic one-minor maintenance sequence against the official Kubernetes v1.36 skew "
-    "policy; and records a deliberately out-of-order/incompatible plan as red. A single-replica, "
-    "tokenless Python Deployment performs no network I/O and carries reserved fixture "
-    "release markers. The case applies a candidate marker, consumes a synthetic failed-health "
-    "fixture to choose a rollback target, and verifies Kubernetes API rollout back to the stable "
-    "marker. It does not upgrade Kubernetes components, cordon/drain nodes, install or upgrade "
-    "add-ons, perform a Kubernetes version downgrade, or exercise production recovery. It does "
-    "not establish organizational change approval, managed-service coordination, vendor add-on "
-    "compatibility, or production service health."
+    "One disposable Kubernetes v1.36.1 Kind cluster with a control plane and a worker. "
+    "Reads live component versions and compares rejected and allowed synthetic minor upgrade "
+    "plans. Performs real PDB-coordinated eviction, cordon/drain and uncordon on the owned worker. "
+    "A tokenless workload reports an actual fixture HTTP health code for the stable and candidate "
+    "revision. An explicitly pinned workload rollback restores the stable marker and health. "
+    "Platform upgrades, add-on changes and infrastructure recovery use their separate "
+    "adopter rehearsals."
 )
+
+HEALTH_SERVER = """import os
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+class FixtureHealth(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(int(os.environ['SAF_FIXTURE_HEALTH']))
+        self.end_headers()
+
+HTTPServer(('127.0.0.1', 8080), FixtureHealth).serve_forever()
+"""
 
 
 VERSION_RE = re.compile(r"(?:^|[^0-9])(\d+)\.(\d+)\.(\d+)(?:[^0-9]|$)")
@@ -59,6 +74,93 @@ def _minor_distance(left, right):
     if left_major != right_major:
         return None
     return right_minor - left_minor
+
+
+def prepare_kind(_lab, temporary):
+    profile = temporary / "kind.yaml"
+    shutil.copyfile(Path(__file__).with_name("kind.yaml"), profile)
+    return profile
+
+
+def _worker_maintenance(lab):
+    worker = f"{lab.cluster}-worker"
+    name = "saf-worker-maintenance"
+    labels = {"app": name}
+    pod = {
+        "automountServiceAccountToken": False,
+        "nodeSelector": {"kubernetes.io/hostname": worker},
+        "securityContext": {"runAsNonRoot": True, "runAsUser": 65532,
+                            "seccompProfile": {"type": "RuntimeDefault"}},
+        "containers": [{"name": "inert",
+                        "image": BUSYBOX_IMAGE, "command": ["sleep", "300"],
+                        "securityContext": {"allowPrivilegeEscalation": False,
+                                            "capabilities": {"drop": ["ALL"]}}}],
+    }
+    lab.create({
+        "apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": name},
+        "spec": {"replicas": 1, "selector": {"matchLabels": labels},
+                 "template": {"metadata": {"labels": labels}, "spec": pod}},
+    })
+    lab.kubectl("rollout", "status", f"deployment/{name}", "--timeout=90s", timeout=100)
+    prior = json.loads(lab.kubectl("get", "pods", "-l", f"app={name}", "-o", "json").stdout)["items"]
+    if len(prior) != 1 or prior[0]["spec"].get("nodeName") != worker:
+        lab.block("The owned worker did not host the exact maintenance Pod")
+    prior_meta = prior[0]["metadata"]
+    lab.create({
+        "apiVersion": "policy/v1", "kind": "PodDisruptionBudget", "metadata": {"name": name},
+        "spec": {"minAvailable": 1, "selector": {"matchLabels": labels}},
+    })
+    lab.kubectl("wait", "--for=jsonpath={.status.currentHealthy}=1", f"pdb/{name}", "--timeout=35s")
+    lab.kubectl("cordon", worker)
+    eviction = lab.kubectl(
+        "create", f"--raw=/api/v1/namespaces/{NAMESPACE}/pods/{prior_meta['name']}/eviction",
+        "-f", "-", payload=json.dumps({
+            "apiVersion": "policy/v1", "kind": "Eviction",
+            "metadata": {"name": prior_meta["name"], "namespace": NAMESPACE},
+            "deleteOptions": {"preconditions": {"uid": prior_meta["uid"]}},
+        }), allow_failure=True,
+    )
+    retained = json.loads(lab.kubectl("get", "pod", prior_meta["name"], "-o", "json").stdout)
+    readback = json.loads(lab.kubectl("get", "node", worker, "-o", "json").stdout)
+    protected = {
+        "worker_cordoned": readback["spec"].get("unschedulable") is True,
+        "denial_matches_disruption_budget": eviction.returncode != 0
+        and "would violate the pod's disruption budget" in eviction.stderr.lower(),
+        "admitted_workload_remains": retained["metadata"]["uid"] == prior_meta["uid"]
+        and not retained["metadata"].get("deletionTimestamp"),
+    }
+    lab.check("red", "Actual worker maintenance honors the effective disruption budget",
+              all(protected.values()), protected)
+
+    lab.kubectl("patch", "pdb", name, "--type=merge", "-p", '{"spec":{"minAvailable":0}}')
+    lab.kubectl("wait", "--for=jsonpath={.status.disruptionsAllowed}=1", f"pdb/{name}", "--timeout=35s")
+    lab.kubectl("drain", worker, "--ignore-daemonsets", "--timeout=65s", timeout=80)
+    lab.kubectl("wait", "--for=create", "pod", "-l", f"app={name}", "--timeout=35s")
+    for _ in range(30):
+        replacement_rows = json.loads(lab.kubectl("get", "pods", "-l", f"app={name}", "-o", "json").stdout)["items"]
+        replacements = [item for item in replacement_rows if item["metadata"]["uid"] != prior_meta["uid"]]
+        if len(replacements) == 1:
+            candidate = replacements[0]
+            if (not candidate["spec"].get("nodeName") and any(
+                condition.get("type") == "PodScheduled" and condition.get("reason") == "Unschedulable"
+                for condition in candidate["status"].get("conditions", [])
+            )):
+                break
+        time.sleep(1)
+    else:
+        lab.block("The replacement did not show live unschedulable evidence while the worker was cordoned")
+    lab.kubectl("uncordon", worker)
+    lab.kubectl("wait", "--for=condition=Ready", f"pod/{candidate['metadata']['name']}", "--timeout=45s", timeout=60)
+    after = json.loads(lab.kubectl("get", "pod", candidate["metadata"]["name"], "-o", "json").stdout)
+    observed = {
+        "different_pod_replaced_evicted_pod": after["metadata"]["uid"] != prior_meta["uid"],
+        "same_pending_replacement_became_ready": after["metadata"]["uid"] == candidate["metadata"]["uid"]
+        and any(condition.get("type") == "Ready" and condition.get("status") == "True"
+                for condition in after["status"].get("conditions", [])),
+        "ready_replacement_on_maintained_worker": after["spec"].get("nodeName") == worker,
+    }
+    lab.check("positive", "A permitted drain and uncordon reschedule the exact pending replacement",
+              all(observed.values()), observed)
 
 
 def _component_versions(lab):
@@ -122,9 +224,12 @@ def _component_versions(lab):
                 raise ValueError(f"Expected one {component} Pod in the default Kind profile")
             components[component] = observed["version"]
         raw_pods.append(observed)
-    if len(nodes) != 1:
-        lab.block("Expected one node in the default Kind profile")
-    node = nodes[0]
+    by_name = {item["name"]: item for item in nodes}
+    node = by_name.get(control_plane)
+    worker = by_name.get(f"{lab.cluster}-worker")
+    if len(nodes) != 2 or not node or not worker or not worker["ready"] or not worker["kubelet"]:
+        lab.block("Expected the owned Ready control-plane and worker")
+
     if not (node["ready"] and node["kubelet"] and node["name"] and node["uid"]
             and "node-role.kubernetes.io/control-plane" in node["role_labels"]):
         lab.block("Control-plane node identity, version, or Ready evidence is incomplete")
@@ -139,7 +244,7 @@ def _component_versions(lab):
         "controller_manager": components["controller_manager"],
         "scheduler": components["scheduler"],
         "kube_proxy": components["kube_proxy"],
-        "kubelets": {"control-plane": node["kubelet"]},
+        "kubelets": {"control-plane": node["kubelet"], "worker": worker["kubelet"]},
     }
     raw = {"version_response": version_doc, "nodes": node_doc, "component_pods": raw_pods}
     return versions, raw, node
@@ -221,7 +326,7 @@ def _evaluate_sequence(versions, order, target, policy):
             "stages": stages}
 
 
-def _deployment(fixture, release, release_ref):
+def _deployment(fixture, release, release_ref, health_code):
     labels = {LABEL_KEY: CONTROL_ID, "saf-lab.example/fixture": "synthetic"}
     return {
         "apiVersion": "apps/v1", "kind": "Deployment",
@@ -240,9 +345,13 @@ def _deployment(fixture, release, release_ref):
                               "containers": [{
                                   "name": "mock-workload", "image": fixture["image"],
                                   "imagePullPolicy": "IfNotPresent",
-                                  "command": ["python", "-B", "-c", "import time; time.sleep(3600)"],
+                                  "command": ["python", "-B", "-c", HEALTH_SERVER],
+                                  "readinessProbe": {"exec": {"command": [
+                                      "python", "-B", "-c", "import socket; socket.create_connection(('127.0.0.1', 8080), 2).close()",
+                                  ]}, "periodSeconds": 2},
                                   "env": [{"name": "SAF_FIXTURE_RELEASE", "value": release},
-                                          {"name": "SAF_FIXTURE_RELEASE_REF", "value": release_ref}],
+                                          {"name": "SAF_FIXTURE_RELEASE_REF", "value": release_ref},
+                                          {"name": "SAF_FIXTURE_HEALTH", "value": str(health_code)}],
                                   "resources": {"requests": {"cpu": "10m", "memory": "16Mi"},
                                                 "limits": {"cpu": "100m", "memory": "64Mi"}},
                                   "securityContext": {"allowPrivilegeEscalation": False,
@@ -302,8 +411,11 @@ def _ready_marker(lab):
         raise ValueError("Expected exactly one Ready case-owned mock Pod")
     pod_name = ready[0]["metadata"]["name"]
     probe = (
-        "import json, os; print(json.dumps([os.environ['SAF_FIXTURE_RELEASE'], "
-        "os.environ['SAF_FIXTURE_RELEASE_REF']]))"
+        "import http.client, json, os; "
+        "client = http.client.HTTPConnection('127.0.0.1', 8080, timeout=3); "
+        "client.request('GET', '/health'); "
+        "print(json.dumps([os.environ['SAF_FIXTURE_RELEASE'], "
+        "os.environ['SAF_FIXTURE_RELEASE_REF'], client.getresponse().status])); client.close()"
     )
     return json.loads(lab.kubectl("-n", NAMESPACE, "exec", f"pod/{pod_name}", "--", "python", "-c", probe).stdout)
 
@@ -316,6 +428,7 @@ def run(lab):
     if workload.get("image") != PYTHON_IMAGE:
         lab.block("Mock workload image differs from the reviewed digest-pinned reference")
 
+    lab.kubectl("wait", "--for=condition=Ready", "nodes", "--all", "--timeout=80s", timeout=95)
     versions, raw_versions, node = _component_versions(lab)
     policy = fixture["version_policy"]
     baseline_findings = _skew_findings(versions, policy=policy)
@@ -369,33 +482,33 @@ def run(lab):
     if not green_plan["accepted"]:
         lab.block("Ordered synthetic maintenance plan did not pass all intermediate skew checks")
 
-    baseline = _deployment(workload, workload["baseline_release"], workload["baseline_ref"])
+    baseline = _deployment(workload, workload["baseline_release"], workload["baseline_ref"], 200)
     _apply(lab, baseline)
     _wait_rollout(lab)
     baseline_live = _deployment_live(lab)
     baseline_view = _view(baseline_live)
     baseline_marker = _ready_marker(lab)
     baseline_ready = (baseline_view["ready_replicas"] == 1
-                      and baseline_marker == [workload["baseline_release"], workload["baseline_ref"]])
+                      and baseline_marker == [workload["baseline_release"], workload["baseline_ref"], 200])
     if not baseline_ready:
         lab.block("Stable mock workload did not become Ready with its fixture marker")
 
-    candidate = _deployment(workload, workload["candidate_release"], workload["candidate_ref"])
+    candidate = _deployment(workload, workload["candidate_release"], workload["candidate_ref"], 503)
     _apply(lab, candidate)
     _wait_rollout(lab)
     candidate_live = _deployment_live(lab)
     candidate_view = _view(candidate_live)
     candidate_marker = _ready_marker(lab)
     candidate_ready = (candidate_view["ready_replicas"] == 1
-                       and candidate_marker == [workload["candidate_release"], workload["candidate_ref"]])
+                       and candidate_marker == [workload["candidate_release"], workload["candidate_ref"], 503])
     if not candidate_ready:
         lab.block("Candidate mock workload did not become Ready with its fixture marker")
     candidate_result = {
         "candidate_ref": workload["candidate_ref"],
-        "health": workload["candidate_health"],
+        "observed_http_status": candidate_marker[2],
         "fixture_only": True,
     }
-    should_rollback = candidate_result["health"] == "synthetic-failed"
+    should_rollback = candidate_result["observed_http_status"] == 503
     decision = {
         "decision_id": "urn:example:saf:decision:maintenance-fixture-011-001",
         "fixture_only": True,
@@ -408,14 +521,15 @@ def run(lab):
         "candidate_workload": candidate_result,
         "decision": "rollback_mock_workload_to_fixture_baseline" if should_rollback else "retain_candidate_fixture",
         "rollback_target": workload["rollback_target"],
-        "reason": "Synthetic candidate health fixture is failed; this decision changes only the named sleeping mock Deployment.",
+        "reason": "The live fixture health request returned HTTP 503 for the candidate.",
         "production_readiness": "unverified",
         "kubernetes_version_downgrade_performed": False,
     }
     _save_raw(lab, "mock-rollback-decision.raw.json", decision)
     if not should_rollback or decision["rollback_target"] != workload["baseline_ref"]:
         lab.block("Synthetic rollback fixture did not select the exact stable fixture reference")
-    lab.kubectl("-n", NAMESPACE, "rollout", "undo", f"deployment/{DEPLOYMENT}", timeout=90)
+    lab.kubectl("-n", NAMESPACE, "rollout", "undo", f"deployment/{DEPLOYMENT}",
+                f"--to-revision={baseline_view['revision']}", timeout=90)
     _wait_rollout(lab)
     rollback_live = _deployment_live(lab)
     rollback_view = _view(rollback_live)
@@ -428,7 +542,7 @@ def run(lab):
                 and rollback_view["release_ref"] == workload["rollback_target"]
                 and rollback_view["ready_replicas"] == 1
                 and rollback_view["observed_generation"] == rollback_view["generation"]
-                and rollback_marker == [workload["baseline_release"], workload["rollback_target"]]
+                and rollback_marker == [workload["baseline_release"], workload["rollback_target"], 200]
                 and rollback_view["revision"] != baseline_view["revision"])
     _save_raw(lab, "mock-workload-rollback.raw.json", {
         "decision": decision,
@@ -439,7 +553,7 @@ def run(lab):
         "candidate_marker": candidate_marker,
         "rollback_marker": rollback_marker,
     })
-    lab.check("positive", "Synthetic failure selects the exact inert prior fixture and API-observed rollout undo restores it",
+    lab.check("positive", "Measured HTTP health selects the exact stable workload revision and verifies recovery",
               should_rollback and restored,
               {"decision": decision["decision"], "target": decision["rollback_target"],
                "baseline_marker": baseline_marker, "candidate_marker": candidate_marker,
@@ -447,3 +561,4 @@ def run(lab):
                "rollback_deployment": {key: value for key, value in rollback_view.items()
                                        if key != "uid"},
                "kubernetes_version_downgrade_performed": False})
+    _worker_maintenance(lab)

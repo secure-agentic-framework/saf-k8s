@@ -1,67 +1,59 @@
-# SAF-K8S-1007-011 — Cluster maintenance sequence and rollback decision
+# SAF-K8S-1007-011 — Cluster maintenance sequence and recovery
 
-Run with the existing control-lab runner:
+Run from the SAF-K8S framework root.
 
 ```sh
-python3 lab.py test SAF-K8S-1007-011 --docker-context desktop-linux
+python3 tests/control-lab/lab.py test SAF-K8S-1007-011 --docker-context desktop-linux
 ```
 
-The runner provisions its disposable, default-profile Kind cluster from the digest-pinned
-`kindest/node:v1.36.1` image. No custom Kind profile is required. The case captures the API
-server and kubectl versions, the controller-manager and scheduler image versions, each
-Node's kubelet version and readiness, and kube-proxy image versions from Kubernetes API
-objects. The raw snapshots contain only version and cluster metadata for this fresh,
-case-owned cluster; the case creates no Secret objects and does not collect credentials.
+The digest-pinned, two-node Kubernetes v1.36.1 Kind fixture reads live control
+plane, worker and add-on versions. It rejects a kubelet-first plan and evaluates
+a synthetic one-minor sequence against the pinned skew constraints. The
+`v1.37.0` candidate in the decision receipt is a modeled version. The control
+plane and worker runtime continue to run v1.36.1.
 
-The case derives a one-minor target from the observed API server version. It first rejects
-an intentionally invalid plan that places kubelet before the control plane and models a
-newer kubelet while the API server is still old. The green plan then checks every synthetic
-intermediate component state against the official Kubernetes v1.36 version-skew rules:
-API server first, control-plane components next, drain-before-kubelet maintenance, then
-optional kube-proxy update and post-upgrade validation. Each run writes
-`component-versions.raw.json`, `red-maintenance-plan.raw.json`, and
-`green-maintenance-plan.raw.json` to the runner's evidence directory.
-The modeled candidate uses the next minor's `.0` version string to exercise the minor
-boundary; it is not a release recommendation. Kubernetes recommends choosing the latest
-patch of the current and target minor before a real upgrade.
+On the owned worker the real Eviction API rejects disruption under the
+effective PodDisruptionBudget. After the fixture explicitly permits disruption,
+the drain completes. The new workload stays Pending while the node is
+cordoned. The exact Pending replacement becomes Ready after uncordon.
 
-This is a **plan and policy simulation**, not a Kubernetes upgrade. The default Kind
-cluster has a single control-plane node; the case does not drain it or claim an observed
-worker-node maintenance. It does not install a second Kubernetes version or mutate
-control-plane, kubelet, or kube-proxy binaries. The version-skew checks are based on live
-versions observed for the cluster under test, but the proposed next-minor versions and
-intermediate states are modeled fixture data.
+A separate workload fixture independently measures HTTP 200 for the stable
+release, HTTP 503 for the candidate, and HTTP 200 after reverting to the exact
+previous Deployment revision. An observed health response triggers the fixture
+decision. The health comparison and worker maintenance produce distinct
+evidence. Control plane or node version recovery uses its supported
+distribution procedure.
 
-For a separate rollback exercise, a single-replica, tokenless Deployment runs the official
-Python mock image pinned by digest. Its only process sleeps; it does not initiate network
-I/O or read mounted input. The candidate Pod is observed Ready, while its failed-health
-signal is an explicit synthetic fixture value rather than measured service health. The case
-changes a reserved stable marker to a candidate marker, consumes a
-fixture-only failed health outcome, records a mock rollback decision referencing the
-exact stable fixture URN, and calls `kubectl rollout undo` on this Deployment only. The
-positive check verifies the new API-observed Deployment revision, generation, readiness,
-and release markers. `mock-rollback-decision.raw.json` and
-`mock-workload-rollback.raw.json` preserve those observations. This is workload revision
-rollback inside the fixture; it is not Kubernetes control-plane/node downgrade or
-disaster-recovery evidence, and this case makes no claim about the availability or support
-of a true Kubernetes downgrade path.
+## Verify your implementation
 
-## Coverage and limits
-
-The case provides independently recorded red, green, and positive outcomes for (1) an
-out-of-order / incompatible version plan, (2) an ordered one-minor synthetic plan against
-the observed component versions and upstream skew policy, and (3) a fixture-only mock
-workload rollback. It does not establish change approval, actual component upgrades,
-production maintenance sequencing, multi-control-plane behavior, worker draining, or
-successful recovery from a Kubernetes version downgrade. Do not infer a true Kubernetes
-downgrade or recovery capability from Deployment rollout undo.
-
-Add-on compatibility is not established. Real clusters must separately inventory and
-validate their CNI, CoreDNS, CSI/storage drivers, device plugins and GPU operators,
-admission webhooks, observability agents, and managed-service components against their
-own compatibility and upgrade guidance. Production upgrade windows, backups, etcd
-recovery, application health, availability impact, authorization, and provider coordination
-also require separate evidence. No production environment or external target is contacted.
+1. Record the current and intended versions and artifacts for each API server,
+   controller manager, scheduler, node, kubectl client and relevant add-on.
+   Collect live version and Node identity observations for the exact cluster.
+   List the CNI, CSI, DNS, admission and accelerator dependencies and their
+   supported versions. Determine the supported upgrade path using the target
+   distribution or provider runbook and version-specific Kubernetes policy.
+2. Document approved sequencing, maintenance owners, capacity and health gates,
+   pause and recovery triggers, and the authority for each change. Verify
+   skew at each intermediate state against all serving API servers. Include
+   mixed-version control-plane limits and one-node-at-a-time disruption where
+   required. Record the specific compatibility and version evidence.
+3. Rehearse worker cordon, eviction and drain with the real PDBs and scheduling
+   constraints in a disposable representative environment. Confirm a prohibited
+   disruption blocks. Use an approved maintenance window or capacity plan to
+   permit disruption, then verify the exact replacement identity, readiness
+   and application health before proceeding. Preserve rollout, readiness and
+   volume or accelerator recovery evidence.
+4. Rehearse component-specific recovery for an approved simulated failure.
+   Restore the exact prior workload or add-on revision where the component
+   supports it, replace affected nodes where required, and exercise the
+   distribution's supported control-plane recovery. For self-managed etcd
+   recovery, test snapshot integrity and recovery per SAF-K8S-0102-008 and
+   SAF-K8S-1005-030. For managed clusters use the provider-supported recovery
+   or replacement procedure and verify its limits at the exact release.
+5. Retain measured pre-change, failed-candidate and post-recovery health,
+   exact versions, affected resources, RTO/RPO where applicable, ownership
+   and decision records. Repeat the rehearsal after changes to versions,
+   configuration or recovery dependencies.
 
 ## Official primary sources
 
