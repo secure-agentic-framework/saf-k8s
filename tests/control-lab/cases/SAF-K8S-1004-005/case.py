@@ -35,7 +35,8 @@ HTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
 SCOPE = (
     "A disposable Kubernetes v1.36.1 Kind cluster runs one digest-pinned Python mock workload "
     "that serves only checked-in synthetic review metadata. The case validates namespace, "
-    "freshness, evidence references, and five NIST AI 100-2e2025 review dimensions; it detects "
+    "freshness, evidence references, predictive and generative classification metadata, and five "
+    "NIST AI 100-2e2025 review dimensions; it detects "
     "a synthetic marker-only overclaim, rejects stale/incomplete records, and preserves unknowns "
     "without assigning an attack class. It does not connect to feeds or external targets, run an "
     "AI model, establish an actual incident, prove deployed controls, or validate a production "
@@ -144,6 +145,22 @@ def run(lab):
                "review_state": valid["review_state"], "unknown_dimensions": unknowns,
                "actual_incident": candidate["actual_incident"],
                "candidate_attack_class": candidate["candidate_attack_class"]})
+
+    both = {name: by_id[name]["dimensions"]["system_type"]["value"] for name in
+            ("reviewable-abstract-001", "reviewable-generative-008")}
+    covered = (set(both.values()) == {"predictive", "generative"}
+               and all(results[name]["review_state"] == "pending_human_review" for name in both))
+    lab.check("positive", "Predictive and generative evidence records both reach pending human review",
+              covered, {"both_system_types_reviewable": covered})
+    concrete = results["conflicting-branch-009"]
+    explicit_unknown = results["reviewable-ambiguous-010"]
+    conflict_detected = concrete["errors"] == ["conflicting_system_type_evidence"]
+    pending_unknown = (explicit_unknown["review_state"] == "pending_human_review"
+                       and by_id["reviewable-ambiguous-010"]["dimensions"]["system_type"]["value"] == "unknown"
+                       and by_id["reviewable-ambiguous-010"]["actual_incident"] is False)
+    lab.check("green", "Conflicting type evidence rejects a concrete claim and preserves an explicit unknown for review",
+              conflict_detected and pending_unknown,
+              {"unsupported_concrete_type_rejected": conflict_detected, "ambiguous_record_pending": pending_unknown})
 
     evidence = {"fixture_id": raw["fixture_id"], "taxonomy": raw["taxonomy"],
                 "freshness_policy_days": raw["freshness_policy_days"],

@@ -14,3 +14,13 @@ library require separate evidence.
 
 - [2019 NIST draft](https://csrc.nist.gov/pubs/ir/8269/ipd)
 - [Final NIST AI 100-2e2025](https://csrc.nist.gov/pubs/ai/100/2/e2025/final)
+
+The complementary records use synthetic metadata for both the predictive and
+generative branches of the final publication. The in-cluster evaluator accepts
+both evidence-backed records for human review. If scoped source records disagree
+on system type, the evaluator rejects the asserted concrete type and accepts an
+explicit unknown with rationale for review. All inputs are abstract metadata.
+Deployed detections, incident attribution, and analyst workflow need deployment
+evidence.
+
+- [NIST AI 100-2e2025, Sections 2 and 3](https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-2e2025.pdf)

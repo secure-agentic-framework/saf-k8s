@@ -38,9 +38,16 @@ def _validation(record, fixture):
             if any((item.get("tenant"), item.get("namespace"))
                    != (record.get("tenant"), record.get("namespace")) for item in cited):
                 errors.append("evidence_scope_mismatch:" + name)
-            if name == "system_type" and not any(
-                    value["values"].get("system_type") == item["value"] for value in cited):
-                errors.append("evidence_value_mismatch:" + name)
+            if name == "system_type":
+                types = {value["values"].get("system_type") for value in cited}
+                resolved = types & {"predictive", "generative"}
+                if item["value"] in ("unknown", "undetermined_from_observation"):
+                    if len(resolved) != 2 and item["value"] not in types:
+                        errors.append("evidence_value_mismatch:" + name)
+                elif len(resolved) > 1:
+                    errors.append("conflicting_system_type_evidence")
+                elif item["value"] not in resolved:
+                    errors.append("evidence_value_mismatch:" + name)
             if name == "learning_method_and_lifecycle_stage" and not any(
                     item["value"] == {"learning_method": value["values"].get("learning_method"),
                                       "stage": value["values"].get("lifecycle_stage")}

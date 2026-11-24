@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1004-005",
-  "catalog_revision": "5f53add3913d8005ea96023cfc796191fb89cfea",
-  "catalog_sha256": "33956f720f066941851029bbc899f83d9bc6a34f860dc3ea3ae2e1c2e981c361",
+  "catalog_revision": "c130572fdc3bc7c6a095ee3d98402f1aedaddb06",
+  "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "432091281f901c3b96dcd7eb26835ce2ea62ea4fe4b2065643744e863bb63515",
-  "scope": "A disposable Kubernetes v1.36.1 Kind cluster runs one digest-pinned Python mock workload that serves only checked-in synthetic review metadata. The case validates namespace, freshness, evidence references, and five NIST AI 100-2e2025 review dimensions; it detects a synthetic marker-only overclaim, rejects stale/incomplete records, and preserves unknowns without assigning an attack class. It does not connect to feeds or external targets, run an AI model, establish an actual incident, prove deployed controls, or validate a production classification workflow.",
-  "cluster": "saf-lab-378c3d177015",
+  "scope": "A disposable Kubernetes v1.36.1 Kind cluster runs one digest-pinned Python mock workload that serves only checked-in synthetic review metadata. The case validates namespace, freshness, evidence references, predictive and generative classification metadata, and five NIST AI 100-2e2025 review dimensions; it detects a synthetic marker-only overclaim, rejects stale/incomplete records, and preserves unknowns without assigning an attack class. It does not connect to feeds or external targets, run an AI model, establish an actual incident, prove deployed controls, or validate a production classification workflow.",
+  "cluster": "saf-lab-377ae8f5c3eb",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -108,6 +108,23 @@
         },
         "actual_incident": false,
         "candidate_attack_class": null
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Predictive and generative evidence records both reach pending human review",
+      "matched": true,
+      "observed": {
+        "both_system_types_reviewable": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Conflicting type evidence rejects a concrete claim and preserves an explicit unknown for review",
+      "matched": true,
+      "observed": {
+        "unsupported_concrete_type_rejected": true,
+        "ambiguous_record_pending": true
       }
     }
   ]

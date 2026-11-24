@@ -41,6 +41,34 @@
       "source": "mock-workload-response",
       "tenant": "synthetic-team-a",
       "namespace": "saf-test"
+    },
+    {
+      "observation_id": "obs-synthetic-generative",
+      "kind": "synthetic_record_metadata",
+      "description": "Generative test workload metadata",
+      "values": {
+        "system_type": "generative",
+        "learning_method": "supervised",
+        "lifecycle_stage": "deployment"
+      },
+      "scope": "fixture-only metadata; not evidence of an incident",
+      "source": "mock-workload-response",
+      "tenant": "synthetic-team-a",
+      "namespace": "saf-test"
+    },
+    {
+      "observation_id": "obs-synthetic-generative-contradictory",
+      "kind": "synthetic_record_metadata",
+      "description": "Conflicting imported synthetic workload metadata",
+      "values": {
+        "system_type": "predictive",
+        "learning_method": "supervised",
+        "lifecycle_stage": "deployment"
+      },
+      "scope": "fixture-only metadata; not evidence of an incident",
+      "source": "mock-workload-response",
+      "tenant": "synthetic-team-a",
+      "namespace": "saf-test"
     }
   ],
   "records": [
@@ -333,6 +361,156 @@
         }
       },
       "review_note": "Keep as an unconfirmed, human-review candidate; do not assign an attack class from this signal alone."
+    },
+    {
+      "record_id": "reviewable-generative-008",
+      "tenant": "synthetic-team-a",
+      "namespace": "saf-test",
+      "taxonomy_id": "NIST AI 100-2e2025",
+      "review_age_days": 2,
+      "status": "reviewable_unconfirmed",
+      "actual_incident": false,
+      "candidate_attack_class": null,
+      "dimensions": {
+        "system_type": {
+          "value": "generative",
+          "evidence": [
+            "obs-synthetic-generative"
+          ]
+        },
+        "learning_method_and_lifecycle_stage": {
+          "value": {
+            "learning_method": "supervised",
+            "stage": "deployment"
+          },
+          "evidence": [
+            "obs-synthetic-generative"
+          ]
+        },
+        "attacker_goals_and_objectives": {
+          "value": "undetermined_from_observation",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "A synthetic quality-marker change does not identify an adversary or establish an objective."
+        },
+        "attacker_capabilities_and_access": {
+          "value": "unknown",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "The fixture has no actor or access telemetry."
+        },
+        "attacker_knowledge": {
+          "value": "unknown",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "The fixture has no actor or knowledge telemetry."
+        }
+      },
+      "review_note": "Reviewed under the generative branch, with actor and incident conclusions pending evidence."
+    },
+    {
+      "record_id": "conflicting-branch-009",
+      "tenant": "synthetic-team-a",
+      "namespace": "saf-test",
+      "taxonomy_id": "NIST AI 100-2e2025",
+      "review_age_days": 2,
+      "status": "reviewable_unconfirmed",
+      "actual_incident": false,
+      "candidate_attack_class": null,
+      "dimensions": {
+        "system_type": {
+          "value": "generative",
+          "evidence": [
+            "obs-synthetic-generative",
+            "obs-synthetic-generative-contradictory"
+          ]
+        },
+        "learning_method_and_lifecycle_stage": {
+          "value": {
+            "learning_method": "supervised",
+            "stage": "deployment"
+          },
+          "evidence": [
+            "obs-synthetic-generative"
+          ]
+        },
+        "attacker_goals_and_objectives": {
+          "value": "undetermined_from_observation",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "A synthetic quality-marker change does not identify an adversary or establish an objective."
+        },
+        "attacker_capabilities_and_access": {
+          "value": "unknown",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "The fixture has no actor or access telemetry."
+        },
+        "attacker_knowledge": {
+          "value": "unknown",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "The fixture has no actor or knowledge telemetry."
+        }
+      },
+      "review_note": "Two same-tenant records disagree. Treat the asserted concrete type as unsupported."
+    },
+    {
+      "record_id": "reviewable-ambiguous-010",
+      "tenant": "synthetic-team-a",
+      "namespace": "saf-test",
+      "taxonomy_id": "NIST AI 100-2e2025",
+      "review_age_days": 2,
+      "status": "reviewable_unconfirmed",
+      "actual_incident": false,
+      "candidate_attack_class": null,
+      "dimensions": {
+        "system_type": {
+          "value": "unknown",
+          "evidence": [
+            "obs-synthetic-generative",
+            "obs-synthetic-generative-contradictory"
+          ],
+          "rationale": "Both scoped records disagree on the declared system type."
+        },
+        "learning_method_and_lifecycle_stage": {
+          "value": {
+            "learning_method": "supervised",
+            "stage": "deployment"
+          },
+          "evidence": [
+            "obs-synthetic-generative"
+          ]
+        },
+        "attacker_goals_and_objectives": {
+          "value": "undetermined_from_observation",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "A synthetic quality-marker change does not identify an adversary or establish an objective."
+        },
+        "attacker_capabilities_and_access": {
+          "value": "unknown",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "The fixture has no actor or access telemetry."
+        },
+        "attacker_knowledge": {
+          "value": "unknown",
+          "evidence": [
+            "obs-abstract-001"
+          ],
+          "rationale": "The fixture has no actor or knowledge telemetry."
+        }
+      },
+      "review_note": "Record a scoped evidence conflict for human adjudication."
     }
   ]
 }
