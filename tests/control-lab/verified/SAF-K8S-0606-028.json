@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-028",
-  "catalog_revision": "a26772759f485e54664f960fc991b93220875838",
-  "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
+  "catalog_revision": "39c4120f8ed67bfc83f8df89dd3046b25b2644b8",
+  "catalog_sha256": "0fb5dcc442009a780c6048f6caf5a0b0c8716767df69dcdb7d7b1a421c4c2011",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "0f644fbd1cf00d98a8010a82d585a021e948aa473301559fc6bfc407c8ca388e",
   "scope": "One disposable framework-runner Kind cluster. Flux v2.9.0 installs the source-controller v1.9.1 and kustomize-controller v1.9.1. Three independent case-owned Git checkouts serve inert ConfigMap markers over in-cluster Smart read-only HTTP: unsigned without verification, trusted signed with HEAD verification, unsigned with verification, and signed by an untrusted key. Synthetic private keys are generated in the runner temporary directory. A separate local Gitea repository verifies signed commits, exact protected branch rules, required review and status, and fast-forward promotion of the exact signed PR head. Actual hosted policy and production key custody require deployed evidence.",
-  "cluster": "saf-lab-303f3be0470a",
+  "cluster": "saf-lab-f08ffcd19bbe",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -216,6 +216,18 @@
         "kustomization_ready": "True",
         "marker_present": true,
         "applied_revision_matches_checkout": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Read-only Flux evidence binds an exact verified source artifact to its applied revision",
+      "matched": true,
+      "observed": {
+        "source_ref_matches": true,
+        "source_pins_head_verification": true,
+        "artifact_exact_sha": true,
+        "applied_exact_sha": true,
+        "artifact_and_applied_agree": true
       }
     },
     {

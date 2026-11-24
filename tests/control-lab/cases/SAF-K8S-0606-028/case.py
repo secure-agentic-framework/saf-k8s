@@ -303,6 +303,20 @@ def apply_fixtures(lab, revisions):
               and trusted["kustomization_ready"] == "True" and trusted["marker_present"]
               and trusted["applied_revision_matches_checkout"], trusted)
 
+    source_artifact = trusted_source.get("status", {}).get("artifact", {}).get("revision", "")
+    applied_revision = trusted_kustomization.get("status", {}).get("lastAppliedRevision", "")
+    expected_sha = revisions["trusted-signed"]
+    correlation = {
+        "source_ref_matches": trusted_kustomization["spec"]["sourceRef"]["name"]
+        == trusted_source["metadata"]["name"],
+        "source_pins_head_verification": trusted_source["spec"]["verify"]["mode"] == "HEAD",
+        "artifact_exact_sha": source_artifact.rsplit(":", 1)[-1] == expected_sha,
+        "applied_exact_sha": applied_revision.rsplit(":", 1)[-1] == expected_sha,
+        "artifact_and_applied_agree": source_artifact == applied_revision,
+    }
+    lab.check("positive", "Read-only Flux evidence binds an exact verified source artifact to its applied revision",
+              all(correlation.values()), correlation)
+
     rejected = {}
     for name in ("verified-unsigned", "untrusted-signed"):
         wait_until(lab, lambda n=name: (
