@@ -1,6 +1,7 @@
 """Exercise synthetic Kubernetes AI asset inventory and live watch scope."""
 import json
 import os
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import select
 import subprocess
@@ -16,16 +17,18 @@ NEIGHBOR_NAMESPACE = "saf-1007-013-neighbor"
 SERVICE_ACCOUNT = "asset-inventory-reader"
 IDENTITY = f"system:serviceaccount:{NAMESPACE}:{SERVICE_ACCOUNT}"
 SELECTOR = "saf-k8s.example/control-1007-013=synthetic-owned"
+REFERENCE_TIME = datetime(2026, 1, 1, tzinfo=timezone.utc)
+SOURCE_MAX_AGE_SECONDS = 60
 SCOPE = (
     "Disposable Kind v1.36.1 cluster. Creates a case-owned namespace, a read-only service account "
     "Role/RoleBinding for ConfigMap list/watch in that namespace, synthetic ConfigMap records for "
     "model, dataset, pipeline, inference endpoint and GPU allocation metadata. Uses the service-account "
     "identity for an actual Kubernetes LIST and persistent WATCH, "
     "observes create/update/delete events, filters records by a synthetic ownership label, and confirms "
-    "the identity is denied access to a separate namespace. The same reader relists real "
-    "Service, Job and PVC resources, repairs a stale snapshot after a disconnected change, "
-    "and cannot publish inventory itself. PVC contents, external registries and actual "
-    "accelerator ownership are adopter evidence."
+    "the identity is denied access to a separate namespace. The same reader lists actual typed "
+    "Service, Job and PVC API objects; a deterministic fixture clock drives unknown, stale, "
+    "last-good retention, recovery and relist reconciliation through a separate harness publisher. "
+    "PVC contents, external registries and actual accelerator ownership are adopter evidence."
 )
 
 
@@ -121,22 +124,42 @@ def wait_for_event(process, state, expected_type, expected_name):
     raise TimeoutError(f"missing {expected_type} watch event for {expected_name}")
 
 
-def _typed_inventory(lab):
+def _iso_time(value):
+    return value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _typed_inventory(lab, reference_time):
     selector = urlencode({"labelSelector": SELECTOR})
     scopes = {
-        "services": f"/api/v1/namespaces/{NAMESPACE}/services",
-        "persistentvolumeclaims": f"/api/v1/namespaces/{NAMESPACE}/persistentvolumeclaims",
-        "jobs": f"/apis/batch/v1/namespaces/{NAMESPACE}/jobs",
+        "services": ("v1", "Service", f"/api/v1/namespaces/{NAMESPACE}/services"),
+        "persistentvolumeclaims": ("v1", "PersistentVolumeClaim",
+                                   f"/api/v1/namespaces/{NAMESPACE}/persistentvolumeclaims"),
+        "jobs": ("batch/v1", "Job", f"/apis/batch/v1/namespaces/{NAMESPACE}/jobs"),
     }
-    views = {}
-    for kind, path in scopes.items():
-        document = json.loads(lab.kubectl("--as", IDENTITY, "get", "--raw", f"{path}?{selector}").stdout)
+    observations = {}
+    for source, (expected_version, kind, path) in scopes.items():
+        source_identity = {
+            "cluster_context": f"kind-{lab.cluster}", "api_version": expected_version,
+            "kind": kind, "namespace": NAMESPACE, "selector": SELECTOR,
+        }
+        result = lab.kubectl("--as", IDENTITY, "get", "--raw", f"{path}?{selector}",
+                             allow_failure=True)
+        if result.returncode:
+            if "(Forbidden)" not in result.stderr and " is forbidden" not in result.stderr:
+                lab.block(f"Unexpected typed list failure for {source}")
+            observations[source] = {
+                "expected": True, "status": "unavailable", "capture_time": None,
+                "cursor": None, "source_identity": source_identity, "assets": {},
+                "observation_error": "Kubernetes LIST forbidden",
+            }
+            continue
+        document = json.loads(result.stdout)
         api_version = document["apiVersion"]
-        expected_version = "batch/v1" if kind == "jobs" else "v1"
         if api_version != expected_version:
             lab.block("The typed inventory returned an unexpected list API version")
-        views[kind] = {
-            "list_resource_version": document["metadata"]["resourceVersion"],
+        observations[source] = {
+            "expected": True, "status": "fresh", "capture_time": _iso_time(reference_time),
+            "cursor": document["metadata"]["resourceVersion"], "source_identity": source_identity,
             "assets": {
                 row["metadata"]["name"]: {
                     "uid": row["metadata"]["uid"], "api_version": api_version,
@@ -145,7 +168,65 @@ def _typed_inventory(lab):
                 } for row in document["items"]
             },
         }
-    return views
+    return observations
+
+
+def _reconcile(previous, observations, expected_sources, reference_time):
+    """Apply typed observations while retaining last-good records for source gaps."""
+    snapshot = {"reference_time": _iso_time(reference_time), "expected_sources": sorted(expected_sources),
+                "sources": {}}
+    for source in sorted(expected_sources):
+        observed = observations.get(source)
+        old = (previous or {}).get("sources", {}).get(source, {})
+        if observed and observed.get("status") == "fresh":
+            source_state = dict(observed)
+            source_state["status"] = "fresh"
+        else:
+            last_capture = old.get("capture_time")
+            age = None
+            if last_capture:
+                captured_at = datetime.fromisoformat(last_capture.replace("Z", "+00:00"))
+                age = (reference_time - captured_at).total_seconds()
+            status = "unknown" if age is None else (
+                "stale" if age > SOURCE_MAX_AGE_SECONDS else "fresh")
+            source_state = {
+                "expected": True, "status": status,
+                "capture_time": last_capture, "cursor": old.get("cursor"),
+                "source_identity": (observed or {}).get("source_identity", old.get("source_identity")),
+                "assets": old.get("assets", {}),
+                "observation_error": (observed or {}).get("observation_error", "source observation missing"),
+            }
+        source_state["gap"] = source_state["status"] != "fresh" or bool(source_state.get("observation_error"))
+        snapshot["sources"][source] = source_state
+    return snapshot
+
+
+def _publish_snapshot(lab, record, snapshot, create=False):
+    payload = {"data": {"inventory.json": json.dumps(snapshot, sort_keys=True)}}
+    if create:
+        obj = resource("ConfigMap", record, NAMESPACE, **payload)
+        return _create_owned(lab, obj)
+    lab.kubectl("-n", NAMESPACE, "patch", "configmap", record, "--type=merge", "-p",
+                json.dumps(payload))
+    return json.loads(lab.kubectl("-n", NAMESPACE, "get", "configmap", record, "-o", "json").stdout)
+
+
+
+def _set_owned_job_collection(lab, enabled):
+    common = {"apiGroups": [""], "resources": ["configmaps", "services", "persistentvolumeclaims"],
+              "verbs": ["list", "watch"]}
+    jobs = {"apiGroups": ["batch"], "resources": ["jobs"], "verbs": ["list", "watch"]}
+    rules = [common, jobs] if enabled else [common]
+    lab.kubectl("-n", NAMESPACE, "patch", "role", "asset-inventory-reader", "--type=merge",
+                "-p", json.dumps({"rules": rules}))
+    expected_answer = "yes" if enabled else "no"
+    for _ in range(20):
+        observed = lab.kubectl("--as", IDENTITY, "-n", NAMESPACE, "auth", "can-i",
+                               "list", "jobs.batch", allow_failure=True)
+        if observed.stdout.strip() == expected_answer:
+            return
+        time.sleep(1)
+    lab.block("The case-owned inventory reader's Job LIST permission did not settle")
 
 
 def _create_owned(lab, item):
@@ -169,8 +250,10 @@ def verify_typed_resync(lab):
     for item in (service, claim, pipeline):
         item["metadata"]["labels"] = dict(labels)
     actuals = tuple(_create_owned(lab, item) for item in (service, claim, pipeline))
-    old = _typed_inventory(lab)
-    by_kind = tuple(old[kind]["assets"] for kind in ("services", "persistentvolumeclaims", "jobs"))
+    expected_sources = ("services", "persistentvolumeclaims", "jobs")
+    initial_observations = _typed_inventory(lab, REFERENCE_TIME)
+    old = _reconcile(None, initial_observations, expected_sources, REFERENCE_TIME)
+    by_kind = tuple(old["sources"][source]["assets"] for source in expected_sources)
     exact = all(
         observed.get(obj["metadata"]["name"], {}).get("uid") == obj["metadata"]["uid"]
         for obj, observed in zip(actuals, by_kind)
@@ -179,14 +262,93 @@ def verify_typed_resync(lab):
               exact, {"all_three_owned_typed_resource_uids_observed": exact})
 
     name = "typed-asset-inventory"
-    snapshot = resource("ConfigMap", name, NAMESPACE, data={"inventory.json": json.dumps(old, sort_keys=True)})
     denied = lab.kubectl("--as", IDENTITY, "-n", NAMESPACE, "create", "-f", "-",
-                          "--dry-run=server", payload=json.dumps(snapshot), allow_failure=True)
+                          "--dry-run=server", payload=json.dumps(
+                              resource("ConfigMap", name, NAMESPACE,
+                                       data={"inventory.json": json.dumps(old, sort_keys=True)})),
+                          allow_failure=True)
     read_only = denied.returncode != 0 and "cannot create resource" in denied.stderr.lower()
     lab.check("red", "The inventory reader cannot create its publication record",
               read_only, {"reader_denied_publication": read_only})
-    record = _create_owned(lab, snapshot)
-    stale = json.loads(record["data"]["inventory.json"])
+    _set_owned_job_collection(lab, enabled=False)
+    first_gap_observations = _typed_inventory(lab, REFERENCE_TIME)
+    first_gap = _reconcile(None, first_gap_observations, expected_sources, REFERENCE_TIME)
+    record = _publish_snapshot(lab, "typed-asset-inventory", first_gap, create=True)
+    unknown_job = json.loads(record["data"]["inventory.json"])["sources"]["jobs"]
+    unknown_check = {
+        "unobserved_expected_source_is_unknown": unknown_job["expected"]
+        and unknown_job["status"] == "unknown" and unknown_job["gap"],
+        "expected_coverage_and_source_identity_recorded": (
+            len(expected_sources) == 3 and bool(unknown_job.get("source_identity"))
+        ),
+    }
+    save_raw(lab, "typed-inventory-unknown.raw.json", {
+        "reference_time": _iso_time(REFERENCE_TIME), "source_observations": first_gap_observations,
+        "published": json.loads(record["data"]["inventory.json"]), "checks": unknown_check,
+    })
+    lab.check("green", "An expected source without a first observation is reported unknown",
+              all(unknown_check.values()), unknown_check)
+
+    _set_owned_job_collection(lab, enabled=True)
+    initial_observations = _typed_inventory(lab, REFERENCE_TIME)
+    old = _reconcile(first_gap, initial_observations, expected_sources, REFERENCE_TIME)
+    record = _publish_snapshot(lab, "typed-asset-inventory", old)
+    last_good = json.loads(record["data"]["inventory.json"])
+    if last_good["sources"]["jobs"]["status"] != "fresh":
+        lab.block("The Job source must have a last-good capture before the freshness experiment")
+
+    failure_time = REFERENCE_TIME + timedelta(seconds=120)
+    _set_owned_job_collection(lab, enabled=False)
+    unavailable = _typed_inventory(lab, failure_time)
+    gap_snapshot = _reconcile(last_good, unavailable, expected_sources, failure_time)
+    gap_persisted = _publish_snapshot(lab, name, gap_snapshot)
+    gap = json.loads(gap_persisted["data"]["inventory.json"])
+    stale_job = gap["sources"]["jobs"]
+    gap_check = {
+        "unavailable_owned_source_is_stale": stale_job["status"] == "stale" and stale_job["gap"],
+        "last_good_job_cursor_and_assets_preserved": (
+            stale_job["cursor"] == last_good["sources"]["jobs"]["cursor"]
+            and stale_job["assets"] == last_good["sources"]["jobs"]["assets"]
+        ),
+        "gap_and_error_are_published": bool(stale_job.get("observation_error"))
+        and gap_persisted["metadata"]["uid"] == record["metadata"]["uid"],
+        "healthy_sources_remain_fresh": all(
+            gap["sources"][source]["status"] == "fresh"
+            for source in ("services", "persistentvolumeclaims")
+        ),
+    }
+    save_raw(lab, "typed-inventory-gap.raw.json", {
+        "reference_time": _iso_time(failure_time), "last_good": last_good,
+        "source_observations": unavailable, "published": gap, "checks": gap_check,
+    })
+    lab.check("green", "An unavailable owned source reports stale status and retains last-good evidence",
+              all(gap_check.values()), gap_check)
+
+    recovery_time = REFERENCE_TIME + timedelta(seconds=121)
+    _set_owned_job_collection(lab, enabled=True)
+    recovered_observations = _typed_inventory(lab, recovery_time)
+    recovered = _reconcile(gap, recovered_observations, expected_sources, recovery_time)
+    recovered_persisted = _publish_snapshot(lab, name, recovered)
+    recovered_record = json.loads(recovered_persisted["data"]["inventory.json"])
+    recovery_check = {
+        "owned_source_reobserved_fresh": recovered_record["sources"]["jobs"]["status"] == "fresh"
+        and not recovered_record["sources"]["jobs"]["gap"],
+        "capture_time_and_cursor_refreshed": (
+            recovered_record["sources"]["jobs"]["capture_time"] == _iso_time(recovery_time)
+            and bool(recovered_record["sources"]["jobs"]["cursor"])
+        ),
+        "all_expected_sources_fresh": all(
+            recovered_record["sources"][source]["status"] == "fresh"
+            for source in recovered_record["expected_sources"]
+        ),
+        "same_publication_record_updated": recovered_persisted["metadata"]["uid"] == record["metadata"]["uid"],
+    }
+    save_raw(lab, "typed-inventory-recovery.raw.json", {
+        "reference_time": _iso_time(recovery_time), "source_observations": recovered_observations,
+        "published": recovered_record, "checks": recovery_check,
+    })
+    lab.check("positive", "A successful re-observation clears the source gap through reconciliation",
+              all(recovery_check.values()), recovery_check)
 
     change_started = time.monotonic()
     pipeline_name = pipeline["metadata"]["name"]
@@ -196,37 +358,45 @@ def verify_typed_resync(lab):
     replacement = _create_owned(lab, pipeline)
     lab.kubectl("-n", NAMESPACE, "patch", "service", service_name, "--type=json", "-p",
                 '[{"op":"replace","path":"/spec/ports/0/port","value":9090}]')
-    updated = _typed_inventory(lab)
-    lab.kubectl("-n", NAMESPACE, "patch", "configmap", name, "--type=merge", "-p",
-                json.dumps({"data": {"inventory.json": json.dumps(updated, sort_keys=True)}}))
-    persisted = json.loads(lab.kubectl("-n", NAMESPACE, "get", "configmap", name, "-o", "json").stdout)
+    updated_observations = _typed_inventory(lab, REFERENCE_TIME + timedelta(seconds=122))
+    updated = _reconcile(recovered_record, updated_observations, expected_sources,
+                         REFERENCE_TIME + timedelta(seconds=122))
+    persisted = _publish_snapshot(lab, name, updated)
     current = json.loads(persisted["data"]["inventory.json"])
     elapsed = time.monotonic() - change_started
     observed = {
         "published_within_fixture_freshness_budget": elapsed < 60,
-        "stale_snapshot_contained_pre_change_entities": stale == old
-        and service_name in old["services"]["assets"] and pipeline_name in old["jobs"]["assets"],
-        "modified_service_retains_identity_with_current_port": (
-            current["services"]["assets"][service_name]["uid"] == actuals[0]["metadata"]["uid"]
-            and current["services"]["assets"][service_name]["definition"]["ports"][0]["port"] == 9090
+        "stale_snapshot_contained_pre_change_entities": (
+            service_name in last_good["sources"]["services"]["assets"]
+            and pipeline_name in last_good["sources"]["jobs"]["assets"]
         ),
-        "missing_job_removed_and_replacement_added": pipeline_name not in current["jobs"]["assets"]
-        and current["jobs"]["assets"]["owned-pipeline-replacement"]["uid"] == replacement["metadata"]["uid"]
+        "modified_service_retains_identity_with_current_port": (
+            current["sources"]["services"]["assets"][service_name]["uid"] == actuals[0]["metadata"]["uid"]
+            and current["sources"]["services"]["assets"][service_name]["definition"]["ports"][0]["port"] == 9090
+        ),
+        "missing_job_removed_and_replacement_added": pipeline_name not in current["sources"]["jobs"]["assets"]
+        and current["sources"]["jobs"]["assets"]["owned-pipeline-replacement"]["uid"] == replacement["metadata"]["uid"]
         and replacement["metadata"]["uid"] != actuals[2]["metadata"]["uid"],
         "existing_pvc_retained_and_snapshot_reconciled": current == updated
         and all(
-            current["persistentvolumeclaims"]["assets"][claim["metadata"]["name"]][field]
-            == old["persistentvolumeclaims"]["assets"][claim["metadata"]["name"]][field]
+            current["sources"]["persistentvolumeclaims"]["assets"][claim["metadata"]["name"]][field]
+            == last_good["sources"]["persistentvolumeclaims"]["assets"][claim["metadata"]["name"]][field]
             for field in ("uid", "definition")
         )
         and persisted["metadata"]["uid"] == record["metadata"]["uid"],
-        "fresh_source_versions_recorded": all(item["list_resource_version"] for item in current.values()),
+        "fresh_source_cursors_and_capture_times_recorded": all(
+            current["sources"][source]["cursor"]
+            and current["sources"][source]["capture_time"] == _iso_time(REFERENCE_TIME + timedelta(seconds=122))
+            and current["sources"][source]["status"] == "fresh"
+            and current["sources"][source]["source_identity"]
+            for source in current["expected_sources"]
+        ),
     }
     save_raw(lab, "typed-inventory-resync.raw.json", {
         "before": old, "reconciled": current, "observed": observed,
         "fixture_elapsed_seconds": round(elapsed, 3), "fixture_budget_seconds": 60,
     })
-    lab.check("green", "A fresh API relist repairs the durable inventory after disconnected changes",
+    lab.check("green", "Typed API observations reconcile and publish the current owned inventory",
               all(observed.values()), observed)
 
 
