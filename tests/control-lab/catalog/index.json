@@ -3006,6 +3006,12 @@
       "sha256": "982ac1ce4f1700cf4786524c0eef529ef7f7900b09b878bfd7973585c1479710",
       "title": "Cross-cluster registry replication channel mutual authentication"
     },
+    "SAF-K8S-0910-031": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "1cf561c57021f48af19895369e3fa4f0b8ef674634000f3b2b19b2cfe66f5166",
+      "title": "Cross-cluster registry endpoint enrollment approval"
+    },
     "SAF-K8S-1001-004": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -3482,7 +3488,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "8f88f1c7b2c038eb60dc8c9f141eca718f6128af",
+  "revision": "1f4c1505ebd9c08b192bd29ebd5ca71b8a5008fa",
   "sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
