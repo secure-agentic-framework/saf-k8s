@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0205-011",
-  "catalog_revision": "f5421f4c1486c9670ad7b6f0646916dac56e0f9d",
-  "catalog_sha256": "b60195d011d50e358480b104bd8e0945a096455fd30def7e5d16f1de3357a086",
+  "catalog_revision": "2cd7094036268fbf9598317d4fe86be1a3a39687",
+  "catalog_sha256": "1800d0d437803bd52be758900aa9e3361e1647299539dc3557ac7cd2d726f478",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "2890ced46167af45bfdebc8ab576f08474b5ddb3185b5f60b6f17867594706e4",
-  "scope": "Read-only comparison of a case-owned detached nftables table in one Kind node against immutable approval records.",
-  "cluster": "saf-lab-2de49c6f656f",
+  "scope": "A detached Kind nftables baseline with periodic collection, immutable approval and independent Kubernetes audit events.",
+  "cluster": "saf-lab-8f40a816b95a",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -39,29 +39,55 @@
   "cleanup": "deleted",
   "checks": [
     {
-      "phase": "red",
-      "claim": "A changed live rule is detected against the immutable approved snapshot",
+      "phase": "positive",
+      "claim": "A fresh read keeps the same baseline for an actual counter-only update",
       "matched": true,
       "observed": {
-        "unapproved_rule_detected": true
+        "raw_changed_and_normalized_matched": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Two timed reads detect the same effective port drift while the comment stays constant",
+      "matched": true,
+      "observed": {
+        "independent_drift_samples_match": true,
+        "cadence_observed": true
       }
     },
     {
       "phase": "green",
-      "claim": "The observed drift cannot silently replace the stored approved digest",
+      "claim": "A read-only observer cannot approve and the approved writer cannot overwrite the baseline",
       "matched": true,
       "observed": {
-        "approved_snapshot_immutable": true
+        "observer_create_denied": true,
+        "baseline_protected": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Syntax check and detached preview leave live state unchanged until approved apply",
+      "matched": true,
+      "observed": {
+        "check_and_preview_did_not_apply": true
       }
     },
     {
       "phase": "positive",
-      "claim": "A checked rule change records the new exact snapshot and rollback reconciles to the first approval",
+      "claim": "Observed change and rollback match their respective immutable approvals",
       "matched": true,
       "observed": {
-        "check_did_not_apply": true,
-        "new_approved_state_reconciles": true,
-        "rollback_matches": true
+        "new_approval_matched": true,
+        "rollback_matches_initial": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Separate API audit records attribute both approvals and the denied observer request",
+      "matched": true,
+      "observed": {
+        "attributed_records": true,
+        "approval_preceded_apply": true
       }
     }
   ]
