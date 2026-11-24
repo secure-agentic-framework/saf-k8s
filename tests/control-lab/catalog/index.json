@@ -3012,6 +3012,12 @@
       "sha256": "1cf561c57021f48af19895369e3fa4f0b8ef674634000f3b2b19b2cfe66f5166",
       "title": "Cross-cluster registry endpoint enrollment approval"
     },
+    "SAF-K8S-0910-032": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "e8b45b8e52378b8ca7558cdfd355939481bc840edf54709905435bc019e6196a",
+      "title": "Cross-cluster traffic anomaly monitoring for distributed AI workloads"
+    },
     "SAF-K8S-1001-004": {
       "catalog_status": "draft",
       "domain": "D10",
@@ -3488,7 +3494,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "1f4c1505ebd9c08b192bd29ebd5ca71b8a5008fa",
+  "revision": "9fbae53fa999e76fc67b9b8f563a347a16778a59",
   "sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

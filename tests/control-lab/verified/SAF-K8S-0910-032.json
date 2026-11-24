@@ -1,0 +1,186 @@
+{
+  "control_id": "SAF-K8S-0910-032",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "e8b45b8e52378b8ca7558cdfd355939481bc840edf54709905435bc019e6196a",
+  "scope": "The supervisor-owned source Kind cluster sends only bounded synthetic telemetry over the same private NodePort route to a separately owned peer Kind collector. Exact mTLS URI identity attributes the source; the collector measures observed JSON bytes and unique fixture record IDs. A separate mTLS observer reads the collector report and correlates each observed digest and size to the expected records and the generated alert. This is deterministic fixture evidence, not production network coverage.",
+  "cluster": "saf-lab-7b27bc9ec84d",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The baseline receives the exact above-threshold records without an alert",
+      "matched": true,
+      "observed": {
+        "checks": {
+          "alert_state_matches_phase": true,
+          "bounded_window_has_not_expired": true,
+          "collector_report_received": true,
+          "measured_bytes_match_observed_payload_bytes": true,
+          "measured_count_matches_observed_identifiable_records": true,
+          "records_match_expected_source_and_observed_content": true
+        },
+        "report": {
+          "events": [],
+          "observed_bytes": 264,
+          "record_count": 4,
+          "records": [
+            {
+              "body_bytes": 66,
+              "body_sha256": "19cfe83e3b47090afaedcd7b2aca9cf9221339d9c29c04e4acc13e8e782a67c6",
+              "record_id": "synthetic-telemetry-burst-001",
+              "source": "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-source"
+            },
+            {
+              "body_bytes": 66,
+              "body_sha256": "27556f7a1fe8358324751dd7df51379b978882a61c3759a2d42220bb9a2c838f",
+              "record_id": "synthetic-telemetry-burst-002",
+              "source": "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-source"
+            },
+            {
+              "body_bytes": 66,
+              "body_sha256": "7213d517e16cc92e19b824a15f12860f45dbbcc24a8a1c3e61cd97f30e691f93",
+              "record_id": "synthetic-telemetry-burst-003",
+              "source": "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-source"
+            },
+            {
+              "body_bytes": 66,
+              "body_sha256": "85c51069ef51150ee572c6ae679c27e5c0796574f6789e39fb83e35b325abfa9",
+              "record_id": "synthetic-telemetry-burst-004",
+              "source": "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-source"
+            }
+          ],
+          "window_expired": false,
+          "window_seconds": 20
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The observer correlates a real bounded alert to the exact same measured records",
+      "matched": true,
+      "observed": {
+        "checks": {
+          "alert_state_matches_phase": true,
+          "bounded_window_has_not_expired": true,
+          "collector_report_received": true,
+          "measured_bytes_match_observed_payload_bytes": true,
+          "measured_count_matches_observed_identifiable_records": true,
+          "records_match_expected_source_and_observed_content": true
+        },
+        "report": {
+          "events": [
+            {
+              "event": "telemetry-volume-threshold",
+              "observed_bytes": 264,
+              "record_count": 4,
+              "source": "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-source",
+              "thresholds": {
+                "bytes_gt": 1024,
+                "records_gt": 3
+              },
+              "window_seconds": 20
+            }
+          ],
+          "observed_bytes": 264,
+          "record_count": 4,
+          "records": [
+            {
+              "body_bytes": 66,
+              "body_sha256": "19cfe83e3b47090afaedcd7b2aca9cf9221339d9c29c04e4acc13e8e782a67c6",
+              "record_id": "synthetic-telemetry-burst-001",
+              "source": "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-source"
+            },
+            {
+              "body_bytes": 66,
+              "body_sha256": "27556f7a1fe8358324751dd7df51379b978882a61c3759a2d42220bb9a2c838f",
+              "record_id": "synthetic-telemetry-burst-002",
+              "source": "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-source"
+            },
+            {
+              "body_bytes": 66,
+              "body_sha256": "7213d517e16cc92e19b824a15f12860f45dbbcc24a8a1c3e61cd97f30e691f93",
+              "record_id": "synthetic-telemetry-burst-003",
+              "source": "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-source"
+            },
+            {
+              "body_bytes": 66,
+              "body_sha256": "85c51069ef51150ee572c6ae679c27e5c0796574f6789e39fb83e35b325abfa9",
+              "record_id": "synthetic-telemetry-burst-004",
+              "source": "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-source"
+            }
+          ],
+          "window_expired": false,
+          "window_seconds": 20
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The monitored route still accepts ordinary traffic without an alert",
+      "matched": true,
+      "observed": {
+        "checks": {
+          "alert_state_matches_phase": true,
+          "bounded_window_has_not_expired": true,
+          "collector_report_received": true,
+          "measured_bytes_match_observed_payload_bytes": true,
+          "measured_count_matches_observed_identifiable_records": true,
+          "records_match_expected_source_and_observed_content": true
+        },
+        "report": {
+          "events": [],
+          "observed_bytes": 138,
+          "record_count": 2,
+          "records": [
+            {
+              "body_bytes": 69,
+              "body_sha256": "f747d7302a3b837141e548c13eb6d369cfc9cc7908eed5b5a94f896821322061",
+              "record_id": "synthetic-telemetry-ordinary-001",
+              "source": "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-source"
+            },
+            {
+              "body_bytes": 69,
+              "body_sha256": "0927566240af7d3e09a6591310d31ac77990d56445db09ffc4e919c3f6863aa5",
+              "record_id": "synthetic-telemetry-ordinary-002",
+              "source": "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-source"
+            }
+          ],
+          "window_expired": false,
+          "window_seconds": 20
+        }
+      }
+    }
+  ]
+}
