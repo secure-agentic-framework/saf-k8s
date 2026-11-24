@@ -1332,6 +1332,12 @@
       "sha256": "b3b589d90ccaa1051053396388688d80df81c18895935a9c76e3c474efa4a1f2",
       "title": "Service mesh mTLS and authorization policies"
     },
+    "SAF-K8S-0504-005": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "4a405dcedc758e30b5293081af3f4723edb1d25d0e6db0ab68a0bf78ffe90c7e",
+      "title": "Service mesh tuning for AI workloads"
+    },
     "SAF-K8S-0504-006": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -3560,7 +3566,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "064c24c0ab065aebc79002a733dc699319ce93a3",
+  "revision": "d8d9474249fe383ed260f8e0a7ece9a7cfd55fcd",
   "sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

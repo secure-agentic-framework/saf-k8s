@@ -1,0 +1,114 @@
+{
+  "control_id": "SAF-K8S-0504-005",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "4a405dcedc758e30b5293081af3f4723edb1d25d0e6db0ab68a0bf78ffe90c7e",
+  "scope": "One fresh disposable Kind v1.36.1 cluster, the published adjacent case's Istio 1.32.0 sidecar runtime, and two case-owned Python fixture Pods in the runner-created saf-test namespace. Compares a small finite set of local GETs before and after applying documented Envoy proxy CPU/memory annotations to the backend. Reads the injected istio-proxy request/limit values from the Pod spec and checks bounded authenticated request availability. A server-side dry-run of a candidate whose proxy CPU request exceeds its limit exercises the admission rollback guard without mutating the known-good Pod. Throughput, GPU behavior, mTLS overhead, and production availability remain unverified.",
+  "cluster": "saf-lab-b549bc4cbff8",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Pinned Kubernetes v1.36.1 Kind control plane",
+      "matched": true,
+      "observed": {
+        "server_version": "v1.36.1"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Istio control plane is ready from the pinned release",
+      "matched": true,
+      "observed": {
+        "istio_version": "1.32.0",
+        "pilot_image_pinned": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The default proxy serves three exact authenticated fixture requests",
+      "matched": true,
+      "observed": {
+        "requests": 3,
+        "authenticated": true,
+        "default_proxy_resources": {
+          "requests": {
+            "cpu": "100m",
+            "memory": "128Mi"
+          },
+          "limits": {
+            "cpu": "2",
+            "memory": "1Gi"
+          }
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Documented Istio proxy resource annotations become exact injected requests and limits",
+      "matched": true,
+      "observed": {
+        "requests": {
+          "cpu": "100m",
+          "memory": "64Mi"
+        },
+        "limits": {
+          "cpu": "200m",
+          "memory": "128Mi"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Tuned backend retains three of three exact local GET responses",
+      "matched": true,
+      "observed": {
+        "requests": 3,
+        "all_exact_200": true,
+        "authenticated": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Over-budget candidate is rejected and the exact known-good proxy and 3/3 connectivity remain in service",
+      "matched": true,
+      "observed": {
+        "candidate_rejected_for_cpu_request_over_limit": true,
+        "known_good_uid_unchanged": true,
+        "proxy_resources_unchanged": true,
+        "availability_3_of_3": true
+      }
+    }
+  ]
+}
