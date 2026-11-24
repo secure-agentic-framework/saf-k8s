@@ -4850,12 +4850,12 @@
   knowledge_area: '6.1'
   control_seq: 018
   control_title: Registry push-time container image vulnerability rescanning
-  control_statement: Container images must be rescanned at registry push time so newly built or externally introduced images receive current vulnerability analysis before promotion or deployment decisions are made.
-  objective: Maintain current vulnerability visibility for pushed container images after build completion by rescanning images in registries.
-  rationale: Build-time scanning alone does not cover images introduced outside standard CI paths or vulnerability disclosures that occur between build completion and registry promotion. Registry rescanning provides a current checkpoint at the artifact distribution layer.
-  scope: Applies to container registries and deployed workloads across all Kubernetes clusters, including runtime scanning of AI/ML images and continuous monitoring of native library exposure.
-  primary_enforcement_point: Registry webhook scanning and registry-side rescan configuration.
-  implementation_surface: Registry webhook scanning, registry-native vulnerability scanning services, image push events, and rescan results for pushed images.
+  control_statement: Rescan each governed image after registry admission and refresh the evidence as advisory coverage or policy changes. Require a current disposition bound to the exact registry manifest digest before promotion or deployment.
+  objective: Keep deployed and promoted images subject to current post-push vulnerability evidence for their actual manifest and platform.
+  rationale: Build checks may precede later disclosures or miss imported images. Result age, scanner and feed identity, digest matching and alternate deployment paths need independent controls.
+  scope: Applies to governed registry manifests and promotion or admission. Exercise real import and push events, refresh cadence, multi-architecture coverage and quarantine. Assess vulnerability exposure for already running workloads separately.
+  primary_enforcement_point: Registry-side scan and rescan orchestration, trusted disposition storage and promotion or deployment policy.
+  implementation_surface: Record digest and platform, scanner and advisory revisions and clock. Treat missing, stale or failed evidence as ineligible. Reassess on feed changes, retain decisions and apply approved exceptions to exact artifacts and time windows.
   owner_primary: DevSecOps / Release Engineering
   owner_supporting: ML Platform Engineering; Security Engineering
   baseline_or_ai_specific: ai-specific
