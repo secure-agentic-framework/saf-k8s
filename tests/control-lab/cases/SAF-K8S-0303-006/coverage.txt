@@ -1,0 +1,4 @@
+normal: two clean reads under observation, positive under enforcement, positive after rollback
+recovery: observed would-deny under original, denied under original, allowed under candidate, denied after rollback
+excluded: positive audit calibration under original, denied under candidate
+workload-added-path: added after rollback, observed would-deny during recheck, denied at enforcement

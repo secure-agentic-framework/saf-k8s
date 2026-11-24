@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0303-006",
-  "catalog_revision": "731b18e823d6429087e1420623dd891a7e0a3c08",
-  "catalog_sha256": "9a0cefb430f7e0a590144d651a38f2510ced056096cd8932059e927fe69c107e",
+  "catalog_revision": "2d4ac191914abdbad8896a6270711bc4bcefbd46",
+  "catalog_sha256": "d349202ee2a53ae35fd3d0b6c36098d2d5cc45a51aa71fbf557812fcda78d4a0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "da5a1f9d456863a6fccdd1cdb1cf88197bd9800b6f3a8fc31fc279d31e437bfe",
-  "scope": "Verify AppArmor workload coverage and selective profile refinement in a disconnected Linux guest run by a restricted Kind Job. Two clean ordinary cycles are compared with an exercised recovery path, an excluded canary and final enforcement.",
-  "cluster": "saf-lab-f3e6025e7845",
+  "scope": "Verify calibration, exact profile approval, promotion, enforcement and rollback in an isolated Linux guest run by a restricted Kind Job. The runner authenticates the synthetic reviewer's detached signature and passes the approved digest through an immutable ConfigMap. The guest performs the actual AppArmor loads and workload probes.",
+  "cluster": "saf-lab-8e45f6e6ef2a",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -39,29 +39,77 @@
   "cleanup": "deleted",
   "checks": [
     {
-      "phase": "red",
-      "claim": "Two clean ordinary cycles miss a recovery violation found by the expanded, audit-calibrated probe",
+      "phase": "green",
+      "claim": "The pinned reviewer signature validates exactly the approved profiles and coverage",
       "matched": true,
       "observed": {
-        "matched_input_revisions": true,
-        "ordinary_cycles_clean": true,
-        "recovery_gap_confirmed_under_enforcement": true
+        "pinned_signer": true,
+        "approved_exact_inputs": true,
+        "signed_payload_change_rejected": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "two ordinary cycles are clean despite coverage excluding recovery",
+      "matched": true,
+      "observed": {
+        "observed": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "the original policy misses the recovery path and enforcing blocks it",
+      "matched": true,
+      "observed": {
+        "observed": true
       }
     },
     {
       "phase": "green",
-      "claim": "The exact revised profile allows normal and recovery reads while still denying the excluded canary",
+      "claim": "specified recovery and excluded probe events calibrated against clean normal reads",
       "matched": true,
       "observed": {
-        "revised_enforcement_matches_intent": true
+        "observed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "modified unapproved revision rejected; active profile unchanged",
+      "matched": true,
+      "observed": {
+        "observed": true
       }
     },
     {
       "phase": "positive",
-      "claim": "Removing the fixture profile leaves its named execution unavailable",
+      "claim": "approved exact revision promoted and allows normal and recovery while denying excluded",
       "matched": true,
       "observed": {
-        "revision_removed": true
+        "observed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "rollback restored prior exact profile; normal allowed and recovery denied",
+      "matched": true,
+      "observed": {
+        "observed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "synthetic workload change re-triggered; new path observed and enforcing profile denied it",
+      "matched": true,
+      "observed": {
+        "observed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "fixture profile removed",
+      "matched": true,
+      "observed": {
+        "observed": true
       }
     }
   ]
