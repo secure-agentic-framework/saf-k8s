@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-the versions of relevant software or firmware, and any requirements related to version updates;
-
-The control keeps clusters within the active support window, providing version-currency/update-requirement evidence for the underlying Kubernetes platform, but only tangentially relates to documenting the AI system's own software versions.
+Version and lifecycle records can inform the documented platform versions and update requirements when Kubernetes is relevant to the in-scope AI system. Link applicable version records to that system's technical documentation.
 
 ## SAF-K8S Controls
 
@@ -15,9 +13,9 @@ The control keeps clusters within the active support window, providing version-c
 
 - Domain: D01 - Control Plane and Cluster Hardening
 - Knowledge Area: 1.4
-- Relation Type: partial
+- Relation Type: supports
 - Strength: weak
-- Applicability: required
+- Applicability: conditional
 - Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0202-003 - Container runtime patching and version management](../../controls/SAF-K8S-0202-003.md)

@@ -46,15 +46,12 @@
   framework_version: 2024/1689
   framework_requirement_id: Annex-IV.1.c
   framework_requirement_title: Technical documentation referred to in Article 11(1)
-  framework_mapping_notes: |-
-    the versions of relevant software or firmware, and any requirements related to version updates;
-
-    The control keeps clusters within the active support window, providing version-currency/update-requirement evidence for the underlying Kubernetes platform, but only tangentially relates to documenting the AI system's own software versions.
+  framework_mapping_notes: Version and lifecycle records can inform the documented platform versions and update requirements when Kubernetes is relevant to the in-scope AI system. Link applicable version records to that system's technical documentation.
   control_id: SAF-K8S-0104-020
-  relation_type: partial
+  relation_type: supports
   strength_level: weak
-  applicability: required
-  applicability_condition:
+  applicability: conditional
+  applicability_condition: Kubernetes is relevant software for the AI system and its version and update requirements are documented.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
