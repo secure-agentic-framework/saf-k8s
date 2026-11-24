@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1006-009",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "755f438de027581aeca01ea2ec8dcceef2dfae54",
+  "catalog_sha256": "d382873340c3e9384f61d030f52d546f81f937d3e168e046cb5c6924df022675",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "cdc451eceb71013b1aa77bb4fd7d07f05b859bd82309ba71d511b0adc6b1941b",
-  "scope": "One fresh Kubernetes v1.36.1 Kind cluster and Kyverno v1.20.0 from chart 3.10.0. One owned namespace contains only inert ConfigMaps. A namespaced Kyverno policy moves from Audit r1 to Deny r2. The case separately checks PolicyReport state, native API audit records for exact allowed and denied requests, two source-control policy revisions, and a filtered evidence export to a scoped in-cluster receiver. This is fixture evidence for one cluster and policy path, not production retention, SIEM/GRC acceptance, or AI workload coverage.",
-  "cluster": "saf-lab-0e66919657ea",
+  "control_sha256": "0da17263ffbd9aaa764632aa2b66c612f50b88e1635a7f92f9d18dc1a08d7775",
+  "scope": "One fresh Kubernetes v1.36.1 Kind cluster and Kyverno v1.20.0 from chart 3.10.0. One owned namespace contains only inert ConfigMaps. A namespaced Kyverno policy moves from Audit r1 to Deny r2. The case separately checks PolicyReport state, native API audit records for exact allowed and denied requests, two source-control policy revisions checked against live canonical content and audit event time bounds, and a filtered evidence export to a scoped in-cluster receiver. This is fixture evidence for one cluster and policy path, not production retention, SIEM/GRC acceptance, or AI workload coverage.",
+  "cluster": "saf-lab-2cd9903eea04",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -63,6 +63,15 @@
           "reg.kyverno.io/kyverno/kyverno:v1.20.0",
           "reg.kyverno.io/kyverno/reports-controller:v1.20.0"
         ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "An unchanged revision label cannot validate different live policy content",
+      "matched": true,
+      "observed": {
+        "unchanged_revision_label": true,
+        "unapproved_live_content_detected": true
       }
     },
     {
@@ -132,21 +141,37 @@
       }
     },
     {
-      "phase": "red",
-      "claim": "Disabled scoped receiver rejects export and retains no evidence",
+      "phase": "green",
+      "claim": "The approved live content and stable generation cover the exact four fixture audit decisions",
       "matched": true,
       "observed": {
-        "post_rejected": true,
-        "storage_absent": true
+        "finite_fixture_coverage": true,
+        "decision_count": 4,
+        "separate_live_policy_digests": {
+          "r1": "cec47bd7a4d96d454f9677e61bd5d335b3f27b565265390943daa6ceffe50b09",
+          "r2": "994cbecd2e70abce55424c3844df16df07659b37e04e9b3e8b77f7e66f36f212"
+        },
+        "all_events_within_matching_generations": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The export fails with HTTP 503 and leaves the exact unacknowledged envelope queued",
+      "matched": true,
+      "observed": {
+        "receiver_503": true,
+        "matching_spool_preserved": true,
+        "receiver_storage_absent": true
       }
     },
     {
       "phase": "green",
-      "claim": "Scoped in-cluster receiver stores the correlated reports, audit events, and history",
+      "claim": "The exporter retries after recovery, confirms exact delivery, and only then clears its spool",
       "matched": true,
       "observed": {
-        "http_200": true,
+        "retry_acknowledged": true,
         "exact_envelope_retained_once": true,
+        "pending_spool_cleared": true,
         "retained_admission_decisions": 4
       }
     }

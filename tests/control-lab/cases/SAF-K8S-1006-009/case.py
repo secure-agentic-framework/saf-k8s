@@ -1,6 +1,7 @@
 """Collect independent policy, API audit, and policy-history evidence."""
 from hashlib import sha256
 import json
+import runpy
 from pathlib import Path
 import time
 
@@ -27,7 +28,8 @@ SCOPE = (
     "One owned namespace contains only inert ConfigMaps. A namespaced Kyverno policy "
     "moves from Audit r1 to Deny r2. The case separately checks PolicyReport state, "
     "native API audit records for exact allowed and denied requests, two source-control "
-    "policy revisions, and a filtered evidence export to a scoped in-cluster receiver. "
+    "policy revisions checked against live canonical content and audit event time bounds, "
+    "and a filtered evidence export to a scoped in-cluster receiver. "
     "This is fixture evidence for one cluster and policy path, not production retention, "
     "SIEM/GRC acceptance, or AI workload coverage."
 )
@@ -236,14 +238,21 @@ def _git_history(lab):
 
 
 def _receiver_manifest():
-    server = """from http.server import BaseHTTPRequestHandler,HTTPServer
+    server = """from hashlib import sha256
+from http.server import BaseHTTPRequestHandler,HTTPServer
 from pathlib import Path
 class H(BaseHTTPRequestHandler):
  def do_POST(self):
   n=int(self.headers.get('Content-Length','0')); b=self.rfile.read(n)
   if self.path!='/ingest' or not Path('/data/accepting').exists():
    self.send_response(503); self.end_headers(); return
-  Path('/data/export.jsonl').open('ab').write(b+b'\\n')
+  evidence_id=sha256(b).hexdigest()
+  if self.headers.get('Idempotency-Key')!=evidence_id:
+   self.send_response(400); self.end_headers(); return
+  record=Path('/data/export.jsonl'); marker=Path('/data',evidence_id)
+  if not marker.exists():
+   record.open('ab').write(b+b'\\n')
+   marker.touch()
   self.send_response(200); self.end_headers(); self.wfile.write(b'ok')
  def log_message(self,*a): pass
 HTTPServer(('0.0.0.0',8080),H).serve_forever()
@@ -279,11 +288,15 @@ def _sender_manifest():
     return {"apiVersion": "v1", "kind": "Pod",
             "metadata": {"name": "saf-1006-009-exporter", "namespace": NAMESPACE},
             "spec": {"automountServiceAccountToken": False,
-                     "securityContext": {"runAsNonRoot": True, "runAsUser": 10001,
+                     "securityContext": {"runAsNonRoot": True, "runAsUser": 10001, "fsGroup": 10001,
                                          "seccompProfile": {"type": "RuntimeDefault"}},
+                     "volumes": [{"name": "spool", "emptyDir": {"sizeLimit": "4Mi"}},
+                                 {"name": "script", "configMap": {"name": "saf-1006-009-exporter"}}],
                      "containers": [{"name": "exporter", "image": IMAGE,
                                      "imagePullPolicy": "IfNotPresent",
-                                     "command": ["python", "-c", "import time; time.sleep(3600)"],
+                                     "command": ["python", "-u", "/code/exporter.py"],
+                                     "volumeMounts": [{"name": "spool", "mountPath": "/spool"},
+                                                      {"name": "script", "mountPath": "/code", "readOnly": True}],
                                      "resources": {"requests": {"cpu": "10m", "memory": "16Mi"},
                                                    "limits": {"cpu": "50m", "memory": "32Mi"}},
                                      "securityContext": {"allowPrivilegeEscalation": False,
@@ -291,10 +304,22 @@ def _sender_manifest():
                                                          "capabilities": {"drop": ["ALL"]}}}]}}
 
 
-def _post(lab, body):
-    code = "import sys,urllib.request; d=sys.stdin.buffer.read(); r=urllib.request.Request('http://saf-1006-009-receiver:8080/ingest',data=d,headers={'Content-Type':'application/json'},method='POST'); print(urllib.request.urlopen(r,timeout=5).status)"
-    return _kubectl(lab, "-n", NAMESPACE, "exec", "-i", "saf-1006-009-exporter", "--", "python", "-c", code,
-                    payload=json.dumps(body), allow_failure=True, timeout=15)
+def _sender(lab, code, payload=None, allow_failure=False):
+    return _kubectl(lab, "-n", NAMESPACE, "exec", "-i", "saf-1006-009-exporter",
+                    "--", "python", "-c", code, payload=payload, allow_failure=allow_failure, timeout=20)
+
+
+def _export_state(lab, state):
+    deadline = time.monotonic() + 40
+    while time.monotonic() < deadline:
+        result = _sender(lab, "from pathlib import Path; print(Path('/spool/status.json').read_text())",
+                         allow_failure=True)
+        if result.returncode == 0:
+            observed = json.loads(result.stdout)
+            if observed["state"] == state:
+                return observed
+        time.sleep(.4)
+    lab.block(f"Timed out observing exporter state {state}")
 
 
 def run(lab):
@@ -312,6 +337,11 @@ def run(lab):
     _kubectl(lab, "create", "namespace", NAMESPACE)
     history, sources = _git_history(lab)
     _apply_policy(lab, sources["r1"], "r1", "Audit")
+    verified = runpy.run_path(str(HERE / "applied_policy.py"))
+    verified["install_counterfactual"](lab, NAMESPACE, POLICY, sources["r1"], history["r1"]["commit"])
+    _apply_policy(lab, sources["r1"], "r1", "Audit")
+    r1_observed = verified["observe"](lab, NAMESPACE, POLICY, sources["r1"], history["r1"]["commit"])
+
     lab.check("positive", "Policy r1 and r2 are separate source-control revisions with content hashes",
               history["r1"]["commit"] != history["r2"]["commit"]
               and history["r1"]["policy_sha256"] != history["r2"]["policy_sha256"], history)
@@ -343,7 +373,11 @@ def run(lab):
     # Snapshot reports now: PolicyReports represent current resources, not immutable history.
     report_snapshot = {"violation": report, "compliant": row}
 
+    r1_lineage = verified["correlate"](lab, NAMESPACE, POLICY, r1_observed,
+                                        [allowed_audit[0], violation_audit[0]])
     _apply_policy(lab, sources["r2"], "r2", "Deny")
+    r2_observed = verified["observe"](lab, NAMESPACE, POLICY, sources["r2"], history["r2"]["commit"])
+
     pending = {**fixtures["deny_violation"], "metadata": {
         **fixtures["deny_violation"]["metadata"], "name": "saf-1006-009-policy-readiness",
     }}
@@ -372,6 +406,22 @@ def run(lab):
                          "response_code": regression_audit[0].get("responseStatus", {}).get("code") if regression_audit else None,
                          "request_marker": "allow-r2", "policy_revision": "r2"})
 
+    r2_lineage = verified["correlate"](lab, NAMESPACE, POLICY, r2_observed,
+                                        [denied_audit[0], regression_audit[0]])
+    evidence_rows = r1_lineage + r2_lineage
+    objective = {"r1": r1_observed["approved_digest"], "r2": r2_observed["approved_digest"]}
+    covered = {r["object"] for r in evidence_rows}
+    expected = {fixtures[key]["metadata"]["name"] for key in ("compliant", "audit_violation",
+                                                             "deny_violation", "positive_regression")}
+    lab.check("green", "The approved live content and stable generation cover the exact four fixture audit decisions",
+              covered == expected and all(x["within_observed_generation"] for x in evidence_rows)
+              and objective["r1"] != objective["r2"],
+              {"finite_fixture_coverage": covered == expected, "decision_count": len(evidence_rows),
+               "separate_live_policy_digests": objective,
+               "all_events_within_matching_generations": all(x["within_observed_generation"] for x in evidence_rows)})
+    (lab.evidence / "applied-policy-lineage.json").write_text(json.dumps(
+        {"r1": r1_observed, "r2": r2_observed, "records": evidence_rows}, indent=2) + "\n")
+
     export_body = {
         "case": "SAF-K8S-1006-009", "namespace": NAMESPACE,
         "policy": POLICY, "policy_history": history,
@@ -383,28 +433,47 @@ def run(lab):
             "allow_r2": regression_audit[0] if regression_audit else None,
         },
     }
-    # Receiver rejects ingestion until explicitly enabled. This is the export-loss control.
+    # The receiver starts disabled. The exporter must keep its staged spool through failure.
     _kubectl(lab, "create", "-f", "-", payload=json.dumps(_receiver_manifest()))
     _kubectl(lab, "create", "-f", "-", payload=json.dumps(_service_manifest()))
+    exporter = {"apiVersion": "v1", "kind": "ConfigMap",
+                "metadata": {"name": "saf-1006-009-exporter", "namespace": NAMESPACE},
+                "immutable": True,
+                "data": {"exporter.py": (HERE / "exporter.py").read_text(), "evidence": "present"}}
+    _kubectl(lab, "create", "-f", "-", payload=json.dumps(exporter))
     _kubectl(lab, "create", "-f", "-", payload=json.dumps(_sender_manifest()))
     _kubectl(lab, "-n", NAMESPACE, "wait", "--for=condition=Ready", "pod/saf-1006-009-receiver", "--timeout=60s")
     _kubectl(lab, "-n", NAMESPACE, "wait", "--for=condition=Ready", "pod/saf-1006-009-exporter", "--timeout=60s")
-    missing = _post(lab, export_body)
-    no_ingest = missing.returncode != 0 and "HTTP Error 503" in missing.stderr
+    encoded = json.dumps(export_body)
+    digest = sha256(encoded.encode()).hexdigest()
+    _sender(lab, "import sys; from pathlib import Path; f=Path('/spool/stage.tmp'); "
+                 "f.write_bytes(sys.stdin.buffer.read()); f.replace('/spool/pending.json')", payload=encoded)
+    failed = _export_state(lab, "delivery_failed")
+    pending = _sender(lab, "from hashlib import sha256; from pathlib import Path; "
+                           "print(sha256(Path('/spool/pending.json').read_bytes()).hexdigest())").stdout.strip()
     untouched = _kubectl(lab, "-n", NAMESPACE, "exec", "saf-1006-009-receiver", "--",
                          "python", "-c", "from pathlib import Path; assert not Path('/data/export.jsonl').exists()",
                          allow_failure=True).returncode == 0
-    lab.check("red", "Disabled scoped receiver rejects export and retains no evidence",
-              no_ingest and untouched, {"post_rejected": no_ingest, "storage_absent": untouched})
+    lab.check("red", "The export fails with HTTP 503 and leaves the exact unacknowledged envelope queued",
+              failed["response_code"] == 503 and pending == failed["evidence_id"] == digest and untouched,
+              {"receiver_503": failed["response_code"] == 503, "matching_spool_preserved": pending == digest,
+               "receiver_storage_absent": untouched})
     _kubectl(lab, "-n", NAMESPACE, "exec", "saf-1006-009-receiver", "--", "python", "-c",
              "from pathlib import Path; Path('/data/accepting').touch()")
-    exported = _post(lab, export_body)
-    received = _kubectl(lab, "-n", NAMESPACE, "exec", "saf-1006-009-receiver", "--", "cat", "/data/export.jsonl").stdout
+    acknowledged = _export_state(lab, "acknowledged")
+    received = _kubectl(lab, "-n", NAMESPACE, "exec", "saf-1006-009-receiver", "--",
+                        "cat", "/data/export.jsonl").stdout
     stored = json.loads(received.splitlines()[-1]) if received.splitlines() else {}
-    http_accepted = exported.returncode == 0 and exported.stdout.strip() == "200"
+    queue_cleared = _sender(lab, "from pathlib import Path; assert not Path('/spool/pending.json').exists()",
+                            allow_failure=True).returncode == 0
+    delivery = (acknowledged["response_code"] == 200 and acknowledged["evidence_id"] == digest
+                and acknowledged["attempts"] > failed["attempts"])
     export_ok = len(received.splitlines()) == 1 and stored == export_body
     (lab.evidence / "evidence-envelope.json").write_text(json.dumps(stored, indent=2) + "\n")
-    lab.check("green", "Scoped in-cluster receiver stores the correlated reports, audit events, and history",
-              http_accepted and export_ok,
-              {"http_200": http_accepted, "exact_envelope_retained_once": export_ok,
-               "retained_admission_decisions": len(stored.get("admission_events", {}))})
+    (lab.evidence / "export-delivery.json").write_text(json.dumps(
+        {"failure": failed, "acknowledged": acknowledged, "outstanding_spool_after_ack": not queue_cleared},
+        indent=2) + "\n")
+    lab.check("green", "The exporter retries after recovery, confirms exact delivery, and only then clears its spool",
+              delivery and export_ok and queue_cleared,
+              {"retry_acknowledged": delivery, "exact_envelope_retained_once": export_ok,
+               "pending_spool_cleared": queue_cleared, "retained_admission_decisions": len(stored.get("admission_events", {}))})

@@ -23,3 +23,10 @@ AI workload coverage, production delivery, durable retention, source approval,
 and tamper protection require separate evidence.
 
 [Kubernetes v1.36 auditing](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/), [Kyverno v1.20.0 release](https://github.com/kyverno/kyverno/releases/tag/v1.20.0)
+
+The revision check reads the live policy, compares its canonical API content with the
+approved fixture source, and correlates four audit decisions to matching generations.
+The exporter records a failed delivery and retains the staged envelope. It retries
+when the fixture receiver recovers and clears the spool only after acknowledgment.
+The spool belongs to one Pod. Durable retention and application-specific deployment
+coverage require separate evidence.

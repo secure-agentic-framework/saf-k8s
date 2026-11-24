@@ -3483,8 +3483,8 @@
     "SAF-K8S-1006-009": {
       "catalog_status": "draft",
       "domain": "D10",
-      "sha256": "cdc451eceb71013b1aa77bb4fd7d07f05b859bd82309ba71d511b0adc6b1941b",
-      "title": "Continuous policy decision evidence generation and export for AI workload compliance"
+      "sha256": "0da17263ffbd9aaa764632aa2b66c612f50b88e1635a7f92f9d18dc1a08d7775",
+      "title": "Policy decision evidence and export"
     },
     "SAF-K8S-1006-010": {
       "catalog_status": "draft",
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "83923fa2ec3e0251927c767eed5df85429acbb8e",
-  "sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
+  "revision": "c805c03b0607378ac0c0883f6f36e7a830d70f7a",
+  "sha256": "d382873340c3e9384f61d030f52d546f81f937d3e168e046cb5c6924df022675",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
