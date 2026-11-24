@@ -24154,22 +24154,6 @@
 
 
     6.1 - Secure container images (distroless, scratch, minimal attack surface); 2.3 - Minimal host OS; 1.3 - Profiling endpoint disablement for controller-manager and scheduler (--profiling=false)'
-  control_id: SAF-K8S-0203-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-7
-  framework_requirement_title: Least Functionality
-  framework_mapping_notes: 'Agents should expose minimum necessary functionality
-
-
-    6.1 - Secure container images (distroless, scratch, minimal attack surface); 2.3 - Minimal host OS; 1.3 - Profiling endpoint disablement for controller-manager and scheduler (--profiling=false)'
   control_id: SAF-K8S-0601-014
   relation_type: direct
   strength_level: strong
@@ -39130,22 +39114,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SA-17(5)
-  framework_requirement_title: Conceptually Simple Design
-  framework_mapping_notes: 'Simple agent architecture designs are easier to verify and less prone to security flaws
-
-
-    6.1 - Minimal images (conceptually simple design, minimal attack surface); 2.3 - Minimal host OS'
-  control_id: SAF-K8S-0203-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SA-17(6)
   framework_requirement_title: Structure for Testing
   framework_mapping_notes: 'Agent architectures structured for testability enable comprehensive security validation
@@ -41981,22 +41949,6 @@
 
 
     9.4 - Experiment tracking security (metadata protection); 2.3 - Cloud metadata service protection (IMDSv2)'
-  control_id: SAF-K8S-0203-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(20)
-  framework_requirement_title: Secure Metadata Management
-  framework_mapping_notes: 'Secure management of agent metadata prevents information leakage and manipulation
-
-
-    9.4 - Experiment tracking security (metadata protection); 2.3 - Cloud metadata service protection (IMDSv2)'
   control_id: SAF-K8S-0904-001
   relation_type: direct
   strength_level: strong
@@ -43419,22 +43371,6 @@
 
     6.1 - Minimal images (distroless, reduced complexity); 2.3 - Minimal host OS (unnecessary service removal)'
   control_id: SAF-K8S-0203-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(7)
-  framework_requirement_title: Reduced Complexity
-  framework_mapping_notes: 'Reducing complexity in agent architectures decreases attack surface and verification difficulty
-
-
-    6.1 - Minimal images (distroless, reduced complexity); 2.3 - Minimal host OS (unnecessary service removal)'
-  control_id: SAF-K8S-0203-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -46215,22 +46151,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SC-25
-  framework_requirement_title: Thin Nodes
-  framework_mapping_notes: 'Thin agent nodes minimize local state and attack surface by centralizing processing
-
-
-    2.3 - Minimal host OS (immutable OS distributions, thin node approach); 6.1 - Distroless images'
-  control_id: SAF-K8S-0203-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SC-27
   framework_requirement_title: Platform-independent Applications
   framework_mapping_notes: 'Platform-independent agent designs enable portable security across deployment environments
@@ -47222,22 +47142,6 @@
 
     6.1 - Minimal images (no shell binaries, minimize nonsecurity functionality); 2.3 - Minimal host OS'
   control_id: SAF-K8S-0203-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-3(3)
-  framework_requirement_title: Minimize Nonsecurity Functionality
-  framework_mapping_notes: 'Minimizing non-security code in agent security components reduces attack surface
-
-
-    6.1 - Minimal images (no shell binaries, minimize nonsecurity functionality); 2.3 - Minimal host OS'
-  control_id: SAF-K8S-0203-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -63465,10 +63369,8 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-7(9)
   framework_requirement_title: Verify Boot Process
-  framework_mapping_notes: 'Verified boot process for agent runtime environments ensures clean startup state
-
-
-    2.3 - Secure boot, verified boot chains (boot process verification)'
+  framework_mapping_notes: >-
+    Verify each defined boot stage under the effective firmware trust policy. Record the node profile, verified-boot state, enrolled trust policy and covered stages. Treat measured boot as a separate appraisal path that compares authenticated measurements to approved policy and records the resulting decision. Verify applicable provider profiles and exceptions with deployed evidence.
   control_id: SAF-K8S-0203-004
   relation_type: direct
   strength_level: strong

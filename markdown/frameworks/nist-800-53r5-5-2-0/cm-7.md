@@ -47,15 +47,6 @@ Agents should expose minimum necessary functionality
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0203-004 - Secure boot and verified boot chain enforcement](../../controls/SAF-K8S-0203-004.md)
-
-- Domain: D02 - Node, Runtime, and OS Security
-- Knowledge Area: 2.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0601-014 - Container image runtime hardening with non-root and read-only filesystem](../../controls/SAF-K8S-0601-014.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
