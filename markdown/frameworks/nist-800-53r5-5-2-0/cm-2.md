@@ -36,15 +36,6 @@ The approved ownership and mode requirements contribute a scoped part of the sys
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0302-004 - Host namespace isolation enforcement](../../controls/SAF-K8S-0302-004.md)
-
-- Domain: D03 - Workload and Pod Security
-- Knowledge Area: 3.2
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0302-005 - AI workload security context hardening profiles](../../controls/SAF-K8S-0302-005.md)
 
 - Domain: D03 - Workload and Pod Security
