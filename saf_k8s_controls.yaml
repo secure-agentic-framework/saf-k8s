@@ -11821,12 +11821,12 @@
   knowledge_area: '10.7'
   control_seq: '013'
   control_title: Automated AI infrastructure asset discovery and continuously updated inventory
-  control_statement: Organizations must maintain an automated, continuously updated inventory of AI infrastructure assets running on Kubernetes, including models, datasets, ML pipelines, inference endpoints, and GPU allocations.
+  control_statement: Organizations must maintain an automated inventory of applicable AI infrastructure assets, including models, datasets, ML pipelines, inference endpoints and GPU allocations. Define the authoritative sources, approved collection scope and measurable freshness thresholds for each asset class. Reconcile observed changes and deletions and surface unknown or stale sources.
   objective: Provide current visibility into AI assets on Kubernetes so security, operations, and governance teams can discover what exists and where it resides.
   rationale: Without automated discovery and current inventory records, organizations lose track of deployed models, datasets, pipelines, endpoints, and GPU allocations. That creates blind spots for security monitoring, incident response, and operational ownership.
   scope: Applies to Kubernetes clusters hosting AI workloads and covers automated discovery and inventory maintenance for AI infrastructure assets.
   primary_enforcement_point: Asset inventory automation tooling, Kubernetes resource discovery agents, and registry or metadata integrations.
-  implementation_surface: Automated asset discovery controllers, model registry integrations, PVC and object storage discovery, GPU allocation tracking, asset registry storage, and reconciliation workflows.
+  implementation_surface: Use scoped source collectors for Kubernetes resources, registries, storage and accelerator allocation evidence. Persist asset identifiers and source cursors with capture times. Reconcile missed events and removed assets, compare actual coverage against the intended inventory, and evaluate source lag and failures against approved thresholds.
   owner_primary: Platform Engineering
   owner_supporting: AI/ML Engineering; Security Operations; GRC/Compliance
   baseline_or_ai_specific: ai-specific
