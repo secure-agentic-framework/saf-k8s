@@ -63,3 +63,33 @@ def run(lab):
     )
     lab.check("positive", "An affected record retains its owner, deadline and inference impact",
               assigned, {"owner_deadline_impact_retained": assigned})
+
+    config = "saf-cve-timed-review"
+    lab.create({
+        "apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": config}, "immutable": True,
+        "data": {"fixtures.json": (HERE / "timed-review.json").read_text(),
+                 "triage.py": (HERE / "timed-review.py").read_text()},
+    })
+    before = BASE["evaluate"](lab, "before-due", config)
+    after = BASE["evaluate"](lab, "after-due", config)
+    covered = after["covered"]
+    unknown = {
+        key: after[key]["decision"] == after[key]["exposure"] == "unknown"
+        and after[key]["disposition"] == "open" and bool(after[key]["owner"])
+        and after[key]["evidence"] == []
+        for key in ("wrong-issuer", "stale-evidence")
+    }
+    lab.check("green", "Matching build text and an older exposure observation cannot authorize closure",
+              all(unknown.values()) and covered["disposition"] == "closed_with_evidence"
+              and covered["evidence"] == ["exact-authority"],
+              {**unknown, "fresh_authoritative_example": covered["decision"]})
+    timely, late = before["critical-affected"], after["critical-affected"]
+    invariant = timely["due"] == late["due"] == "2026-11-21T04:00:00+00:00"
+    lab.check("green", "Later re-evaluation escalates the same deadline instead of restarting it",
+              invariant and not timely["overdue"] and late["overdue"]
+              and late["disposition"] == "escalate" and late["owner"] == timely["owner"]
+              and late["exposure"] == "reachable" and late["exposure_evidence"] == "fixture-current-topology",
+              {"stable_due": invariant, "before_overdue": timely["overdue"], "after_overdue": late["overdue"],
+               "dated_exposure_evidence": late["exposure_evidence"]})
+    (lab.evidence / "triage-timing.raw.json").write_text(
+        json.dumps({"before_deadline": before, "after_deadline": after}, indent=2) + "\n")

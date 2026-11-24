@@ -1,0 +1,28 @@
+{
+  "source_fresh_hours": 48,
+  "authorities": {"managed-a": "fixture-provider-a", "managed-b": "fixture-provider-b"},
+  "response_policy": {"impact_hours": {"standard": 24, "critical": 4}},
+  "checkpoints": {"before-due": "2026-11-21T03:00:00Z", "after-due": "2026-11-21T05:00:00Z"},
+  "inventory": [
+    {"id":"covered","distribution":"managed-a","component":"fixture-runtime","build":"fixture.6","impact":"standard",
+     "owner":"fixture-owner-a","detected_at":"2026-11-21T00:00:00Z"},
+    {"id":"wrong-issuer","distribution":"managed-b","component":"fixture-runtime","build":"fixture.6","impact":"standard",
+     "owner":"fixture-owner-b","detected_at":"2026-11-21T00:00:00Z"},
+    {"id":"stale-evidence","distribution":"managed-a","component":"fixture-addon","build":"fixture.8","impact":"standard",
+     "owner":"fixture-owner-c","detected_at":"2026-11-21T00:00:00Z",
+     "exposure":{"value":"isolated","evidence":"fixture-old-topology","observed_at":"2026-11-17T00:00:00Z"}},
+    {"id":"critical-affected","distribution":"managed-a","component":"fixture-addon","build":"fixture.9","impact":"critical",
+     "owner":"fixture-owner-c","detected_at":"2026-11-21T00:00:00Z",
+     "exposure":{"value":"reachable","evidence":"fixture-current-topology","observed_at":"2026-11-21T01:00:00Z"}}
+  ],
+  "evidence": [
+    {"id":"exact-authority","issuer":"fixture-provider-a","distribution":"managed-a","component":"fixture-runtime",
+     "build":"fixture.6","result":"not_affected","retrieved_at":"2026-11-21T01:00:00Z"},
+    {"id":"unauthorized-issuer","issuer":"fixture-provider-a","distribution":"managed-b","component":"fixture-runtime",
+     "build":"fixture.6","result":"not_affected","retrieved_at":"2026-11-21T01:00:00Z"},
+    {"id":"stale-advisory","issuer":"fixture-provider-a","distribution":"managed-a","component":"fixture-addon",
+     "build":"fixture.8","result":"not_affected","retrieved_at":"2026-11-17T00:00:00Z"},
+    {"id":"applicable-advisory","issuer":"fixture-provider-a","distribution":"managed-a","component":"fixture-addon",
+     "build":"fixture.9","result":"affected","retrieved_at":"2026-11-21T01:00:00Z"}
+  ]
+}

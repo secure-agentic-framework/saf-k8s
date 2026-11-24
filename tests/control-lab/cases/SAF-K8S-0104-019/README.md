@@ -34,3 +34,32 @@ identifiers. An exact provider record clears a synthetic backported build,
 while two contradictory records and an unknown build stay open with an owner
 and review deadline. An affected fixture preserves its inference impact and
 response deadline. The policy's deadline and source records are invented.
+
+A third Job pair evaluates exact distribution, component and build identity,
+reviewed source authority, freshness, dated exposure evidence, and deadline
+behavior. Wrong-issuer and stale evidence keep synthetic records open.
+The same affected record is evaluated before and after its due time. The
+late run retains the original deadline and owner and records escalation.
+Both evaluations use simulated checkpoints and inert records.
+
+## Verify your implementation
+
+1. Retain a dated scoped inventory with opaque cluster and asset IDs,
+   exact installed builds, distribution and ownership, coverage and exclusions.
+   Record the applicable authoritative advisory ID, issuer, revision, source
+   retrieval time and protected digest or immutable evidence reference.
+2. Match the affected component and build to the applicable source.
+   Keep conflicting, stale and missing applicability evidence open with a
+   named owner and a review deadline. Record the source and evidence that
+   support any closure. Mark exposure unknown when the attributable
+   observation is missing or stale.
+3. Apply the approved risk policy. Retain severity and exploitation-status
+   inputs, measured exposure, workload and tenant impact, policy version,
+   owner, trigger timestamp and due time. Keep original deadlines and
+   record acknowledgement, escalation, mitigation and verification times.
+4. Review a sample of applicable, resolved, conflicting and overdue cases.
+   Confirm that responsible reviewers can trace each disposition to the
+   exact evidence and that elapsed-time or escalated states are represented
+   accurately. Preserve the evidence bundle and the workflow decision.
+
+- [NIST SSDF v1.1, RV.2.1](https://csrc.nist.gov/pubs/sp/800/218/final)
