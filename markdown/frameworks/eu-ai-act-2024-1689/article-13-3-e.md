@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-the computational and hardware resources needed, the expected lifetime of the high-risk AI system and any necessary maintenance and care measures, including their frequency, to ensure the proper functioning of that AI system, including as regards software updates;
-
-SAF-K8S-0304-010 supplies declared Pod resource inputs. SAF-K8S-1007-011 covers cluster, node and add-on upgrade planning relevant to infrastructure maintenance. These are inputs to the provider's instructions covering actual hardware needs, system lifetime and applicable maintenance.
+Reviewed workload declarations may contribute measured compute and hardware input to instructions for deployers. SAF-K8S-1007-011 contributes applicable Kubernetes upgrade planning. The provider supplies the system lifetime and maintenance and care measures separately.
 
 ## SAF-K8S Controls
 
@@ -17,8 +15,8 @@ SAF-K8S-0304-010 supplies declared Pod resource inputs. SAF-K8S-1007-011 covers 
 - Knowledge Area: 3.4
 - Relation Type: partial
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0604-002 - ML-BOM (ML Bill of Materials) generation](../../controls/SAF-K8S-0604-002.md)
 

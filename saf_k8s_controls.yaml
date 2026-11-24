@@ -2470,12 +2470,12 @@
   knowledge_area: '3.4'
   control_seq: '010'
   control_title: Pod resource requests and limits specification
-  control_statement: All pods must define explicit CPU, memory, and ephemeral-storage resource requests and limits for each regular and init container so the scheduler can place workloads accurately and the kubelet can enforce per-container resource boundaries.
-  objective: Prevent individual workloads from consuming unbounded node resources by requiring explicit per-container resource declarations.
-  rationale: Without explicit resource requests and limits, a single compromised or misconfigured workload can starve co-located pods, trigger evictions, or destabilize nodes through CPU, memory, or disk exhaustion. Pod-level resource specifications are the first enforcement point for bounding each workload's impact.
-  scope: Applies to all regular workload pods and init containers in production clusters. GPU resource requests must be included where applicable, but GPU quota governance is handled separately.
-  primary_enforcement_point: Policy engine rules, CI/CD manifest validation, and admission checks that require per-container resource requests and limits.
-  implementation_surface: Pod spec resources.requests and resources.limits fields for CPU, memory, ephemeral-storage, and GPU extended resources where applicable.
+  control_statement: 'Require explicit CPU, memory and local ephemeral-storage requests and limits for regular and init containers in in-scope workload Pods.'
+  objective: 'Supply measured resource inputs for scheduling and applicable runtime enforcement.'
+  rationale: 'Requests inform scheduling. Linux CPU limits constrain execution through throttling and memory limits can trigger OOM termination. Local ephemeral-storage limits depend on kubelet accounting and can result in eviction. Individual declarations are one input alongside aggregate quota, node capacity and usage monitoring.'
+  scope: 'Applies to regular and init containers in workload Pods. Where accelerators are required, declare the allocation mechanism appropriate to the platform, such as a vendor extended resource. Address aggregate accelerator quotas separately.'
+  primary_enforcement_point: 'Validate authored rendered Pod templates before API defaulting. Use admission to enforce the effective resource fields.'
+  implementation_surface: 'Validate the applicable resources.requests and resources.limits entries in regular and init containers in rendered templates and admitted Pods. Verify defaulting, scheduling and runtime behavior for approved budgets. For device-plugin resources, confirm the expected resource key and actual allocation. Preserve the scope of local storage accounting or eviction.'
   owner_primary: Platform Engineering
   owner_supporting: Application Development teams; AI/ML Platform team (for GPU resource requests)
   baseline_or_ai_specific: baseline
