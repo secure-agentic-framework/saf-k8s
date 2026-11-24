@@ -1,4 +1,4 @@
-"""Verify Pod capability admission and isolated userspace signature validation before an unattached guest BPF load."""
+"""Verify Pod capability admission and isolated userspace signature validation and an unattached guest BPF program lifecycle."""
 
 import hashlib
 import json
@@ -6,7 +6,7 @@ from pathlib import Path
 
 from fixtures import container, pod
 
-SCOPE = "Verify Pod capability admission and isolated userspace signature validation before an unattached guest BPF load."
+SCOPE = "Verify Pod capability admission and isolated userspace signature validation and an unattached guest BPF program lifecycle."
 HERE = Path(__file__).resolve().parent
 SOURCE = hashlib.sha256((HERE / "Dockerfile").read_bytes() + (HERE / "marker.c").read_bytes()).hexdigest()
 TOOLS = "saf-lab-bpf-integrity:source-" + SOURCE[:24]
@@ -26,24 +26,32 @@ def image(lab):
     return record["Id"]
 
 
-def capability_request(capability):
+def capability_request(capability, placement):
     context = {"allowPrivilegeEscalation": False, "capabilities": {"drop": ["ALL"], "add": [capability]},
                "runAsNonRoot": True, "runAsUser": 65534, "seccompProfile": {"type": "RuntimeDefault"}}
-    return pod("fixture-capability-check", [container("marker", securityContext=context)],
-               automountServiceAccountToken=False)
+    marker = container("marker", securityContext=context)
+    if placement == "init":
+        ordinary = dict(context, capabilities={"drop": ["ALL"]})
+        return pod("fixture-capability-check", [container("worker", securityContext=ordinary)],
+                   initContainers=[marker], automountServiceAccountToken=False)
+    return pod("fixture-capability-check", [marker], automountServiceAccountToken=False)
 
 
 def run(lab):
-    capabilities = ("BPF", "SYS_ADMIN")
-    baseline = {cap: lab.create(capability_request(cap), dry_run=True, allow_failure=True).returncode == 0
-                for cap in capabilities}
+    shapes = [(cap, placement) for cap in ("BPF", "SYS_ADMIN") for placement in ("ordinary", "init")]
+    baseline = {placement + "_" + cap: lab.create(capability_request(cap, placement), dry_run=True,
+                                                  allow_failure=True).returncode == 0
+                for cap, placement in shapes}
     lab.check("red", "Unrestricted admission accepts the inert capability requests as dry-runs",
               all(baseline.values()), {"baseline_dry_run_accepted": baseline})
     lab.kubectl("label", "namespace", "saf-test", "pod-security.kubernetes.io/enforce=restricted")
     denied = {}
-    for cap in capabilities:
-        request = lab.create(capability_request(cap), dry_run=True, allow_failure=True)
-        denied[cap] = request.returncode != 0 and "capabilities.add" in request.stderr and cap in request.stderr
+    admission_response = {}
+    for cap, placement in shapes:
+        request = lab.create(capability_request(cap, placement), dry_run=True, allow_failure=True)
+        key = placement + "_" + cap
+        admission_response[key] = request.stderr.strip()
+        denied[key] = request.returncode != 0 and "capabilities.add" in request.stderr and cap in request.stderr
     expected_image = image(lab)
     lab.command("kind", "load", "docker-image", TOOLS, "--name", lab.cluster, timeout=210)
     lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": NAME},
@@ -72,11 +80,36 @@ def run(lab):
     refused = "modified_object_rejected_before_load" in results
     lab.check("green", "Restricted admission refuses both capability requests and the fixture verifier rejects changed bytes",
               all(denied.values()) and refused, {"governed_capabilities_denied": denied, "changed_artifact_rejected": refused})
-    supported = "approved_object_verifies" in results and "approved_program_loaded_and_observed" in results
-    lab.check("positive", "The verified artifact loads and is independently observed in the disconnected guest",
-              supported, {"approved_guest_program_observed": supported})
+    report = dict(line.split(": ", 1) for line in logs.stdout.splitlines() if line.startswith("SAF-"))
+    restricted = (int(report["SAF-WORKLOAD-UID"]) == 65534 and int(report["SAF-WORKLOAD-CAPABILITIES"], 16) == 0)
+    lab.check("positive", "The ordinary live Job runs as its non-root UID with no effective capabilities",
+              restricted, {"non_root_zero_capabilities": restricted})
+    matched_digest = (report["SAF-GUEST-DIGEST"] == report["SAF-APPROVED-DIGEST"]
+                      and report["SAF-APPROVED-DIGEST"] != report["SAF-ALTERED-DIGEST"])
+    lab.check("green", "The guest verifies the same approved object digest after altered bytes were rejected",
+              matched_digest, {"identical_approved_bytes": matched_digest})
+    before, loaded, active, after = (json.loads(report["SAF-BPF-" + stage])
+                                      for stage in ("BEFORE", "LOADED", "ACTIVE", "AFTER"))
+    program, = loaded if isinstance(loaded, list) else [loaded]
+    supports_load = ("approved_object_verifies" in results and report["SAF-BPF-LOAD"] == "succeeded"
+                     and program["type"] == "socket_filter" and program["name"] == "saf_marker"
+                     and int(report["SAF-GUEST-LOADER-UID"]) == 0 and bool(program["tag"]))
+    tracked = not any(item.get("name") == "saf_marker" for item in before + after) and any(
+        item["id"] == program["id"] and item["tag"] == program["tag"] for item in active)
+    lab.check("positive", "An accepted unattached guest load has an inventory ID and disappears after unpinning",
+              supports_load and tracked, {"accepted_load_reconciled_with_inventory": supports_load and tracked})
     observations = {"unrestricted_dry_run": baseline, "restricted_dry_run_denied": denied,
-                    "changed_artifact_rejected": refused, "approved_guest_program_observed": supported}
+                    "admission_response": admission_response, "changed_artifact_rejected": refused,
+                    "workload_process": {"uid": int(report["SAF-WORKLOAD-UID"]),
+                                         "cap_eff": report["SAF-WORKLOAD-CAPABILITIES"]},
+                    "guest": {"kernel": report["SAF-GUEST-KERNEL"], "loader_uid": int(report["SAF-GUEST-LOADER-UID"]),
+                              "unprivileged_bpf_setting": report["SAF-UNPRIVILEGED-BPF"]},
+                    "artifact": {"approved_sha256": report["SAF-APPROVED-DIGEST"],
+                                 "changed_sha256": report["SAF-ALTERED-DIGEST"],
+                                 "guest_sha256": report["SAF-GUEST-DIGEST"],
+                                 "anchor_sha256": report["SAF-APPROVED-TRUST-ANCHOR"]},
+                    "load_and_inventory": {"loader_result": report["SAF-BPF-LOAD"], "program": program,
+                                           "before": before, "active": active, "after_unpin": after}}
     rows = json.loads(lab.kubectl("get", "pods", "-l", f"job-name={NAME}", "-o", "json").stdout)["items"]
     worker, = rows
     status, = worker["status"]["containerStatuses"]
