@@ -34,8 +34,8 @@ Reviewing agent audit trails
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.10
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
+- Strength: moderate
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-0910-025 - Cross-cluster registry federation endpoint authorization and reconciliation governance](../../controls/SAF-K8S-0910-025.md)

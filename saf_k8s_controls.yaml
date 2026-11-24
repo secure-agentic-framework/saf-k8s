@@ -10010,12 +10010,12 @@
   knowledge_area: '9.10'
   control_seq: 019
   control_title: Centralized audit logging for cross-cluster orchestration actions
-  control_statement: Multi-cluster AI workload orchestration control planes must centralize audit logs for cross-cluster placement, routing, and scheduling decisions so orchestration actions remain attributable and reviewable after compromise or failure of an individual member cluster.
-  objective: Preserve traceability of cross-cluster orchestration actions through centralized audit collection and review.
-  rationale: Logs stored only on the orchestrating cluster or a member cluster can be destroyed, altered, or made unavailable during compromise. Centralized audit logging preserves the evidence needed to reconstruct cross-cluster placement and routing decisions and to investigate orchestration abuse after an incident.
-  scope: Applies to organizations operating AI workloads across multiple Kubernetes clusters, whether on-premises, multi-cloud, or hybrid. Covers centralized audit log collection for cross-cluster placement, routing, and scheduling decisions. Excludes federated identity issuance and authorization enforcement for cross-cluster APIs.
-  primary_enforcement_point: Centralized collection of orchestration audit logs for cross-cluster actions.
-  implementation_surface: Centralized audit logging pipelines, orchestration audit events recording requesting principal identity and target-cluster action, and log collection or retention settings for cross-cluster placement, routing, and scheduling decisions.
+  control_statement: Collect orchestration audit records from each governed cluster in a separately operated store. Preserve authenticated source, actor, action, result and time. Test authorized retrieval, delivery gaps and retention when a source becomes unavailable.
+  objective: Keep enough independently retained evidence to reconstruct actual cross-cluster orchestration decisions.
+  rationale: Source-local records can become inaccessible. Central collection adds a distinct custody and review path, which depends on source registration, trustworthy transport, integrity and retention.
+  scope: Applies to governed cluster placement, routing and scheduling decisions and related central audit workflows. Establish effective event coverage and collector independence, time correlation and incident access in the actual deployment.
+  primary_enforcement_point: Audited orchestration events, independently operated collection and protected retention and review.
+  implementation_surface: Inventory sources and required events, validate source and actor attribution, protect forwarding and stored records, verify authorized and denied reads, and test loss and delayed delivery with actionable alerts.
   owner_primary: Platform Engineering
   owner_supporting: ML Platform Engineering; Security Engineering; SRE
   baseline_or_ai_specific: ai-specific

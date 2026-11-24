@@ -17359,15 +17359,12 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-12
   framework_requirement_title: Audit Record Generation
-  framework_mapping_notes: 'Generating audit records for agent actions
-
-
-    10.1 - K8s audit policy configuration (audit record generation at all stages)'
+  framework_mapping_notes: The relevant deployed boundary emits defined audit events for actual cross-cluster actions.
   control_id: SAF-K8S-0910-017
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The relevant deployed boundary emits defined audit events for actual cross-cluster actions
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -17439,15 +17436,14 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-12(1)
   framework_requirement_title: System-wide and Time-correlated Audit Trail
-  framework_mapping_notes: 'Correlated audit trail across agent ecosystem
-
-
-    10.2 - Distributed tracing for ML pipelines (system-wide, time-correlated audit trail)'
+  framework_mapping_notes: The deployed collector time-correlates the required records across the selected system components
+    with verified clocks.
   control_id: SAF-K8S-0910-017
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The deployed collector time-correlates the required records across the selected system components
+    with verified clocks
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -18995,15 +18991,12 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-6
   framework_requirement_title: Audit Record Review, Analysis, and Reporting
-  framework_mapping_notes: 'Reviewing agent audit trails
-
-
-    10.1 - SIEM integration (audit record review, analysis, correlation rule development)'
+  framework_mapping_notes: The authorized central audit workflow reviews and analyzes relevant orchestration records.
   control_id: SAF-K8S-0910-017
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The authorized central audit workflow reviews and analyzes relevant orchestration records
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
