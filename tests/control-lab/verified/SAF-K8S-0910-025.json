@@ -1,0 +1,153 @@
+{
+  "control_id": "SAF-K8S-0910-025",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "5b75e947160ee041cea36d2750a7018c76e0897e01e34b25d8978e517a5ae62d",
+  "scope": "A pinned CNCF Distribution registry in the supervisor cluster is the source; two separately addressed pinned Distribution registries in the disposable owned-peer Kind cluster are the only candidate destinations. The exact source-to-unapproved-destination pair and one fixed tag are first copied without governance, then removed and refused by the governed path. The approved destination path is also exercised. Membership is a real ConfigMap managed by a least-privilege service account; a separate observer independently checks that resource and each registry manifest. Reconciliation is capped at four API read/repair passes.",
+  "cluster": "saf-lab-2f374162ae84",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Without governance the exact ordered pair writes the fixture digest",
+      "matched": true,
+      "observed": {
+        "decision": {
+          "decision": "baseline-written",
+          "digest": "sha256:3dd663ed593725e5a8618acf739779335f5b2871e8ec78a0e865f1e9a7e7de69"
+        },
+        "destination": {
+          "digest": "sha256:3dd663ed593725e5a8618acf739779335f5b2871e8ec78a0e865f1e9a7e7de69",
+          "status": 200
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Governance refuses the same pair after reset and the approved pair succeeds",
+      "matched": true,
+      "observed": {
+        "baseline_clear": {
+          "all_fixture_content_absent": true
+        },
+        "clear_observation": {
+          "digest": null,
+          "status": 404
+        },
+        "refusal": {
+          "decision": "denied-endpoint-pair"
+        },
+        "refused_destination": {
+          "digest": null,
+          "status": 404
+        },
+        "refused_content": {
+          "all_fixture_content_absent": true
+        },
+        "approved": {
+          "decision": "allowed",
+          "digest": "sha256:3dd663ed593725e5a8618acf739779335f5b2871e8ec78a0e865f1e9a7e7de69"
+        },
+        "approved_destination": {
+          "digest": "sha256:3dd663ed593725e5a8618acf739779335f5b2871e8ec78a0e865f1e9a7e7de69",
+          "status": 200
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "RBAC separates membership observation and bounded repair changes the real ConfigMap",
+      "matched": true,
+      "observed": {
+        "observer_write": {
+          "http_status": 403
+        },
+        "manager_approval_write": {
+          "http_status": 403
+        },
+        "drift_injection": {
+          "injected": "destination_unapproved"
+        },
+        "before": {
+          "active": [
+            "destination_approved",
+            "destination_unapproved",
+            "source"
+          ],
+          "approved": [
+            "destination_approved",
+            "source"
+          ]
+        },
+        "reconciliation": {
+          "active": [
+            "destination_approved",
+            "source"
+          ],
+          "changed": true,
+          "passes": 2
+        },
+        "after": {
+          "active": [
+            "destination_approved",
+            "source"
+          ],
+          "approved": [
+            "destination_approved",
+            "source"
+          ]
+        },
+        "approved_state": {
+          "digest": "sha256:3dd663ed593725e5a8618acf739779335f5b2871e8ec78a0e865f1e9a7e7de69",
+          "status": 200
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The repaired membership still allows replication of the exact approved image",
+      "matched": true,
+      "observed": {
+        "copy": {
+          "decision": "allowed",
+          "digest": "sha256:3dd663ed593725e5a8618acf739779335f5b2871e8ec78a0e865f1e9a7e7de69"
+        },
+        "registry_state": {
+          "digest": "sha256:3dd663ed593725e5a8618acf739779335f5b2871e8ec78a0e865f1e9a7e7de69",
+          "status": 200
+        }
+      }
+    }
+  ]
+}

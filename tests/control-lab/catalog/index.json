@@ -2964,6 +2964,12 @@
       "sha256": "ac6a1d91b91e8d4a016ea04a5aa9d22b6f59f0b73988f7819b64e67e5541fe8f",
       "title": "Cross-cluster communication authorization policy enforcement"
     },
+    "SAF-K8S-0910-025": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "5b75e947160ee041cea36d2750a7018c76e0897e01e34b25d8978e517a5ae62d",
+      "title": "Cross-cluster registry federation endpoint authorization and reconciliation governance"
+    },
     "SAF-K8S-0910-029": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3446,7 +3452,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "275307e2effa407e943b13528c6b22c78cead8d4",
+  "revision": "475219a6f28ede3c272e8f4980e72c3c2b8ac24f",
   "sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
