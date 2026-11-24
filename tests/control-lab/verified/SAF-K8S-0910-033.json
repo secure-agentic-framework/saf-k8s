@@ -1,0 +1,82 @@
+{
+  "control_id": "SAF-K8S-0910-033",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "297b7a76a9d51efccfc33b80c2685cb40cf1d9035b099f8692d457673527f3e3",
+  "scope": "One harmless, threshold-triggering transfer across two owned Kind clusters. A receiver observer reads the actual mTLS-attributed record. A separate source Kubernetes API provides a native Metadata audit event of an exact named receipt written by the same bound Pod. A scoped investigator reads the resulting immutable correlated or incomplete report.",
+  "cluster": "saf-lab-3f7764913d09",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The real alert is incomplete without independent source evidence",
+      "matched": true,
+      "observed": {
+        "alert_observed": true,
+        "receiver_record": {
+          "body_bytes": 74,
+          "body_sha256": "2086c38e7c1dff350bd4c9fea090aa0314cce0537d9fe119d64c85bf6738d575",
+          "record_id": "synthetic-telemetry-investigation-004",
+          "source": "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-source"
+        },
+        "disposition": "unknown-incomplete"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The investigator correlates actual scoped event sources without trusting absent evidence",
+      "matched": true,
+      "observed": {
+        "actual_source_persisted_marker": true,
+        "source_and_receiver_content_matches": true,
+        "exact_receiving_identity": true,
+        "different_owned_cluster_identities": true,
+        "separate_bound_pod_audit": true,
+        "source_timestamp_retained": true,
+        "contradictory_input_remains_unknown": true,
+        "outsider_read_denied": true,
+        "investigator_write_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The scoped investigator retrieves the complete bounded attribution",
+      "matched": true,
+      "observed": {
+        "independent_report_matches_complete_evidence": true,
+        "classification_is_exact_fixture_disposition": true
+      }
+    }
+  ]
+}
