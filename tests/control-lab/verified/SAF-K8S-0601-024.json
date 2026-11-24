@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0601-024",
-  "catalog_revision": "0daee82318101a0222e69db536bfbfabf8d0dd02",
-  "catalog_sha256": "0413020e18d66946895828d49eadcf20c43b72150355a385006f2541fb7f03c9",
+  "catalog_revision": "0f83dac36ee0f412841e1678db78ef41ac8ea3ea",
+  "catalog_sha256": "ddb0cdbb194834343f44dced0e0bcf6c356e30f43c9c5620cf333c7880e00044",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "ff47361e188d8ba90439351dc0aea68fad4f40f6edeb660c5e8b8705a048317f",
-  "scope": "One fresh Kubernetes v1.36.1 kind node and a dedicated Docker network attached only to that node and the fixture registry. A digest-pinned synthetic BusyBox image is pushed to a temporary authenticated loopback registry, pulled by kubelet into that node's cache, then challenged with imagePullPolicy Never under effective KubeletEnsureSecretPulledImages=true and AlwaysVerify. The no-identity Pod must remain container-free with ErrImageNeverPull; a Pod with the exact same synthetic registry identity must reuse the cached digest without registry manifest/blob access. Does not test provider configuration, rotation, revocation, multi-node behavior, preloaded images, or weaker policies.",
-  "cluster": "saf-lab-1ba2f1c07e14",
+  "control_sha256": "3905ff6521f1656b5a97c5596540e017ef3cec8b8f895ac850d760ec925daf46",
+  "scope": "One fresh Kubernetes v1.36.1 kind node and a dedicated Docker network attached only to that node and the fixture registry. A digest-pinned synthetic BusyBox image is pushed to a temporary authenticated loopback registry, pulled by kubelet into that node's cache, then challenged with imagePullPolicy Never under effective KubeletEnsureSecretPulledImages=true and AlwaysVerify. The no-identity Pod must remain container-free with ErrImageNeverPull; a Pod with the exact same synthetic registry identity must reuse the cached digest without registry manifest/blob access. IfNotPresent checks both approved reuse and a rejected registry fallback. An independently imported private fixture also needs successful registry authorization before reuse. Provider configuration, rotation, revocation, multi-node behavior and weaker policies are outside the case.",
+  "cluster": "saf-lab-8bbe3ff96a7b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -72,6 +72,7 @@
       "matched": true,
       "observed": {
         "phase": "Pending",
+        "scheduled_to_cache_node": true,
         "expected_kubelet_event": true,
         "expected_waiting_reason": true,
         "container_started": false,
@@ -88,6 +89,54 @@
         "image_id_unchanged_since_initial_pull": true,
         "registry_manifest_or_blob_request": false,
         "image_pull_policy": "Never"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "IfNotPresent reuses the verified private digest under the authorized identity",
+      "matched": true,
+      "observed": {
+        "pod_ready": true,
+        "same_cache_node": true,
+        "same_image_id": true,
+        "no_registry_manifest_or_blob_request": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "IfNotPresent requires authorization and registry fallback rejects the unapproved identity",
+      "matched": true,
+      "observed": {
+        "same_cache_node": true,
+        "pending_image_pull": true,
+        "container_free": true,
+        "exact_digest_reported_missing_authorization": true,
+        "no_successful_private_manifest_fetch": true,
+        "exact_digest_remained_cached": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "AlwaysVerify requires credentials for an exactly referenced out-of-band preload",
+      "matched": true,
+      "observed": {
+        "same_cache_node": true,
+        "pending_image_pull": true,
+        "no_container": true,
+        "no_image_download": true,
+        "exact_preloaded_digest_cached": true,
+        "separate_runtime_image_identity": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The authorized out-of-band fixture starts and the registry sees its exact manifest request",
+      "matched": true,
+      "observed": {
+        "pod_ready": true,
+        "same_cache_node": true,
+        "expected_image_id": true,
+        "registry_saw_exact_manifest_request": true
       }
     },
     {

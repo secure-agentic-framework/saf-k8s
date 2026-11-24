@@ -1491,7 +1491,7 @@
     "SAF-K8S-0601-024": {
       "catalog_status": "draft",
       "domain": "D06",
-      "sha256": "ff47361e188d8ba90439351dc0aea68fad4f40f6edeb660c5e8b8705a048317f",
+      "sha256": "3905ff6521f1656b5a97c5596540e017ef3cec8b8f895ac850d760ec925daf46",
       "title": "Kubelet authorization for cached private images"
     },
     "SAF-K8S-0602-001": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ce5e6f4bb3828a921040095d0a710d0f568e92dd",
-  "sha256": "31e2432280afe6547d4bbe5974b5e26eb506ee72c3fa69a8c1d4f8997bc3a3c1",
+  "revision": "3786766e8264fff46bd043a1f4e225565da9f8f2",
+  "sha256": "ddb0cdbb194834343f44dced0e0bcf6c356e30f43c9c5620cf333c7880e00044",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

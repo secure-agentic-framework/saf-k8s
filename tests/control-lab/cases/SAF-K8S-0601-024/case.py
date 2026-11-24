@@ -12,6 +12,7 @@ import subprocess
 import tempfile
 import time
 import uuid
+from urllib.parse import unquote
 
 from fixtures import BUSYBOX_IMAGE
 
@@ -28,6 +29,10 @@ SKOPEO_IMAGE = (
     "quay.io/skopeo/stable:v1.20.0@sha256:"
     "47853bb9fb24202af9110531ebd6e43c5f97701254ca290596640290d17942f4"
 )
+PRELOAD_IMAGE = (
+    "docker.io/library/busybox:1.36.1@sha256:"
+    "73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662"
+)
 NAMESPACE = "saf-test"
 SCOPE = (
     "One fresh Kubernetes v1.36.1 kind node and a dedicated Docker network attached "
@@ -37,8 +42,10 @@ SCOPE = (
     "KubeletEnsureSecretPulledImages=true and AlwaysVerify. The no-identity Pod "
     "must remain container-free with ErrImageNeverPull; a Pod with the exact same "
     "synthetic registry identity must reuse the cached digest without registry "
-    "manifest/blob access. Does not test provider configuration, rotation, "
-    "revocation, multi-node behavior, preloaded images, or weaker policies."
+    "manifest/blob access. IfNotPresent checks both approved reuse and a rejected "
+    "registry fallback. An independently imported private fixture also needs "
+    "successful registry authorization before reuse. Provider configuration, "
+    "rotation, revocation, multi-node behavior and weaker policies are outside the case."
 )
 
 def _quiet(args, *, env, input_text=None, timeout=45, allow_failure=False):
@@ -90,7 +97,7 @@ def _registry_requests(raw):
         uri = item.get("http.request.uri") or item.get("http", {}).get("request", {}).get("uri", "")
         status = item.get("http.response.status") or item.get("http", {}).get("response", {}).get("status")
         if isinstance(method, str) and isinstance(uri, str):
-            requests.append({"method": method, "uri": uri.split("?", 1)[0], "status": status})
+            requests.append({"method": method, "uri": unquote(uri.split("?", 1)[0]), "status": status})
     return requests
 
 
@@ -142,17 +149,17 @@ def _get_pod(lab, name):
     return json.loads(lab.kubectl("get", "pod", name, "-o", "json").stdout)
 
 
-def _wait(lab, name, denied=False, timeout=120):
+def _wait(lab, name, denied_reasons=(), timeout=120):
     deadline = time.monotonic() + timeout
     last = None
     while time.monotonic() < deadline:
         last = _get_pod(lab, name)
         status = last.get("status", {})
         containers = status.get("containerStatuses", [])
-        if denied and any(c.get("state", {}).get("waiting", {}).get("reason") ==
-                          "ErrImageNeverPull" for c in containers):
+        if any(c.get("state", {}).get("waiting", {}).get("reason") in denied_reasons
+               for c in containers):
             return last
-        if not denied and any(c.get("ready") for c in containers):
+        if any(c.get("ready") for c in containers):
             return last
         if status.get("phase") in ("Failed", "Succeeded"):
             return last
@@ -172,6 +179,62 @@ def _cached_digest(lab, node, digest):
     result = _quiet(["docker", "exec", node, "crictl", "images", "-o", "json"], env=lab.env)
     images = json.loads(result.stdout).get("images", [])
     return any(digest in json.dumps(image) for image in images)
+
+
+def _preload_private_fixture(lab, seed, network, node, alias, previously_pulled):
+    skopeo = [
+        "docker", "run", "--rm", "--network", network, "--cap-drop=ALL",
+        "--security-opt=no-new-privileges", "--volume", f"{seed}:/fixture", SKOPEO_IMAGE,
+    ]
+    preload_archive = seed / "preloaded.tar"
+    oci_image = "oci-archive:/fixture/preloaded.tar:busybox-preload"
+    repo = f"{alias}:5000/fixture/preloaded"
+    present = lab.command("docker", "image", "inspect", "--format", "{{.Id}}",
+                          PRELOAD_IMAGE, allow_failure=True)
+    if present.returncode:
+        lab.command("docker", "pull", PRELOAD_IMAGE, timeout=180)
+    lab.command("docker", "image", "save", "--output", str(seed / "preload-source.tar"),
+                PRELOAD_IMAGE, timeout=90)
+    _quiet(skopeo + ["copy", "--format", "oci", "docker-archive:/fixture/preload-source.tar", oci_image],
+           env=lab.env, timeout=90)
+    _quiet(skopeo + [
+        "copy", "--preserve-digests", "--authfile", "/fixture/auth.json",
+        "--dest-tls-verify=false", "--digestfile", "/fixture/preloaded-digest",
+        oci_image, f"docker://{repo}:fixture",
+    ], env=lab.env, timeout=90)
+    digest = (seed / "preloaded-digest").read_text(encoding="utf-8").strip()
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}", digest):
+        lab.block("The synthetic preload archive has no exact registry digest")
+    image = f"{repo}@{digest}"
+
+    runtime = ("docker", "exec", node, "ctr", "-n", "k8s.io", "images")
+    # Stream the archive so the import does not depend on the node's tmpfs mounts.
+    with preload_archive.open("rb") as archive:
+        imported = subprocess.run(
+            ["docker", "exec", "-i", node, "ctr", "-n", "k8s.io", "images",
+             "import", "--base-name", repo, "-"],
+            stdin=archive, capture_output=True, text=True, env=lab.env, timeout=90,
+        )
+    if imported.returncode != 0:
+        lab.block(f"The owned OCI import failed: {imported.stderr.strip()}")
+    output = lab.command(*runtime, "ls").stdout
+    imported_name = f"{repo}:busybox-preload"
+    rows = (line.split(maxsplit=3) for line in output.splitlines())
+    if not any(len(row) >= 3 and row[0] == imported_name and row[2] == digest for row in rows):
+        lab.block("The container runtime did not resolve the exact imported OCI manifest")
+    lab.command(*runtime, "tag", imported_name, image)
+    inspect = ["docker", "exec", node, "crictl", "inspecti"]
+    earlier = json.loads(_quiet(inspect + [previously_pulled], env=lab.env).stdout)["status"]
+    for _ in range(15):
+        result = _quiet(inspect + [image], env=lab.env, allow_failure=True)
+        if result.returncode == 0:
+            status = json.loads(result.stdout)["status"]
+            if image in status.get("repoDigests", []):
+                if not status.get("id") or status["id"] == earlier.get("id"):
+                    lab.block("The externally loaded fixture shares an earlier authorized runtime image identity")
+                return image, digest
+        time.sleep(1)
+    lab.block("The CRI did not recognize the exact preloaded repository digest")
 
 
 def _wait_registry(host, port):
@@ -318,23 +381,28 @@ def run(lab):
         denied_name = "missing-identity"
         before = _registry_requests(_registry_log(lab, registry))
         _create_pod(lab, _pod(denied_name, image, pull_policy="Never"))
-        denied_state = _wait(lab, denied_name, denied=True)
+        denied_state = _wait(lab, denied_name, ("ErrImageNeverPull",))
         denied = denied_state or {}
         statuses = denied.get("status", {}).get("containerStatuses", [])
         waiting = sorted({c.get("state", {}).get("waiting", {}).get("reason", "")
                           for c in statuses} - {""})
-        events = json.loads(lab.kubectl("get", "events", "--field-selector",
-                                        f"involvedObject.name={denied_name}", "-o", "json").stdout).get("items", [])
+        denied_uid = denied.get("metadata", {}).get("uid")
+        events = json.loads(lab.kubectl(
+            "get", "events", "--field-selector", f"involvedObject.uid={denied_uid}", "-o", "json",
+        ).stdout).get("items", [])
         event_reasons = sorted({e.get("reason", "") for e in events})
         container_started = any(c.get("containerID") or c.get("state", {}).get("running") or
                                 c.get("state", {}).get("terminated") for c in statuses)
         after = _registry_requests(_registry_log(lab, registry))
         denied_delta = _delta(before, after)
         denial_network = any("/manifests/" in x["uri"] or "/blobs/" in x["uri"] for x in denied_delta)
-        denial_ok = (denied.get("status", {}).get("phase") == "Pending" and
-                     "ErrImageNeverPull" in waiting and not container_started and not denial_network)
+        scheduled_to_cache_node = denied.get("spec", {}).get("nodeName") == node
+        denial_ok = (denied.get("status", {}).get("phase") == "Pending" and scheduled_to_cache_node
+                     and "ErrImageNeverPull" in waiting and "ErrImageNeverPull" in event_reasons
+                     and not container_started and not denial_network)
         lab.check("green", "Strict cached-only request without the required synthetic identity stays container-free",
                denial_ok, {"phase": denied.get("status", {}).get("phase"),
+                           "scheduled_to_cache_node": scheduled_to_cache_node,
                            "expected_kubelet_event": "ErrImageNeverPull" in event_reasons,
                            "expected_waiting_reason": "ErrImageNeverPull" in waiting,
                            "container_started": container_started,
@@ -357,6 +425,93 @@ def run(lab):
                           "image_id_unchanged_since_initial_pull": second_id == first_id,
                           "registry_manifest_or_blob_request": reuse_network,
                           "image_pull_policy": "Never"})
+        authorized = "authorized-if-present"
+        before = _registry_requests(_registry_log(lab, registry))
+        _create_pod(lab, _pod(authorized, image, "registry-identity", pull_policy="IfNotPresent"))
+        authorized_pod = _wait(lab, authorized) or {}
+        authorized_status = (authorized_pod.get("status", {}).get("containerStatuses") or [{}])[0]
+        authorized_delta = _delta(before, _registry_requests(_registry_log(lab, registry)))
+        authorized_check = {
+            "pod_ready": authorized_status.get("ready") is True,
+            "same_cache_node": authorized_pod.get("spec", {}).get("nodeName") == node,
+            "same_image_id": authorized_status.get("imageID") == first_id,
+            "no_registry_manifest_or_blob_request": not any(
+                "/manifests/" in request["uri"] or "/blobs/" in request["uri"]
+                for request in authorized_delta
+            ),
+        }
+        lab.check("positive", "IfNotPresent reuses the verified private digest under the authorized identity",
+                  all(authorized_check.values()), authorized_check)
+
+        missing = "missing-identity-if-present"
+        before = _registry_requests(_registry_log(lab, registry))
+        _create_pod(lab, _pod(missing, image, pull_policy="IfNotPresent"))
+        missing_pod = _wait(lab, missing, ("ErrImagePull", "ImagePullBackOff")) or {}
+        missing_status = (missing_pod.get("status", {}).get("containerStatuses") or [{}])[0]
+        waiting = missing_status.get("state", {}).get("waiting", {}).get("reason")
+        missing_delta = _delta(before, _registry_requests(_registry_log(lab, registry)))
+        rejected = {
+            "same_cache_node": missing_pod.get("spec", {}).get("nodeName") == node,
+            "pending_image_pull": missing_pod.get("status", {}).get("phase") == "Pending"
+            and waiting in ("ErrImagePull", "ImagePullBackOff"),
+            "container_free": not missing_status.get("containerID")
+            and not any(key in missing_status.get("state", {}) for key in ("running", "terminated")),
+            "exact_digest_reported_missing_authorization": (
+                digest in missing_status.get("state", {}).get("waiting", {}).get("message", "")
+                and "no basic auth credentials" in
+                missing_status.get("state", {}).get("waiting", {}).get("message", "")
+            ),
+            "no_successful_private_manifest_fetch": not any(
+                request["uri"].endswith(f"/manifests/{digest}") and request["status"] == 200
+                for request in missing_delta
+            ),
+            "exact_digest_remained_cached": _cached_digest(lab, node, digest),
+        }
+        lab.check("green", "IfNotPresent requires authorization and registry fallback rejects the unapproved identity",
+                  all(rejected.values()), rejected)
+        imported, imported_digest = _preload_private_fixture(lab, seed, network, node, alias, image)
+        before = _registry_requests(_registry_log(lab, registry))
+        preload_missing = "preloaded-no-identity"
+        _create_pod(lab, _pod(preload_missing, imported, pull_policy="Never"))
+        imported_denial = _wait(lab, preload_missing, ("ErrImageNeverPull",)) or {}
+        denied_status = (imported_denial.get("status", {}).get("containerStatuses") or [{}])[0]
+        after_denial = _registry_requests(_registry_log(lab, registry))
+        denial = {
+            "same_cache_node": imported_denial.get("spec", {}).get("nodeName") == node,
+            "pending_image_pull": imported_denial.get("status", {}).get("phase") == "Pending"
+            and denied_status.get("state", {}).get("waiting", {}).get("reason") == "ErrImageNeverPull",
+            "no_container": not denied_status.get("containerID"),
+            "no_image_download": not any(
+                "/manifests/" in request["uri"] or "/blobs/" in request["uri"]
+                for request in _delta(before, after_denial)
+            ),
+            "exact_preloaded_digest_cached": _cached_digest(lab, node, imported_digest),
+            "separate_runtime_image_identity": True,
+        }
+        lab.check("green", "AlwaysVerify requires credentials for an exactly referenced out-of-band preload",
+                  all(denial.values()), denial)
+
+        preload_authorized = "preloaded-authorized-pull"
+        _create_pod(lab, _pod(preload_authorized, imported, "registry-identity", pull_policy="Always"))
+        imported_accept = _wait(lab, preload_authorized) or {}
+        accepted_status = (imported_accept.get("status", {}).get("containerStatuses") or [{}])[0]
+        preload_registry_delta = _delta(after_denial, _registry_requests(_registry_log(lab, registry)))
+        # Keep only normalized HTTP fields for diagnosing the fixture. No headers or auth data.
+        (lab.evidence / "preload-registry-requests.json").write_text(
+            json.dumps(preload_registry_delta, indent=2) + "\n", encoding="utf-8",
+        )
+        comparison = {
+            "pod_ready": accepted_status.get("ready") is True,
+            "same_cache_node": imported_accept.get("spec", {}).get("nodeName") == node,
+            "expected_image_id": imported_digest in accepted_status.get("imageID", ""),
+            "registry_saw_exact_manifest_request": any(
+                request["method"] in ("HEAD", "GET")
+                and request["uri"].endswith(f"/manifests/{imported_digest}")
+                for request in preload_registry_delta
+            ),
+        }
+        lab.check("positive", "The authorized out-of-band fixture starts and the registry sees its exact manifest request",
+                  all(comparison.values()), comparison)
     finally:
         registry_removed = not registry_started or lab.command(
             "docker", "rm", "--force", registry, allow_failure=True,
