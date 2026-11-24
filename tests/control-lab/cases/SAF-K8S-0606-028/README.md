@@ -21,6 +21,30 @@ denials, and reads back the verified signed PR head after fast-forward
 promotion. Git identities, keys and credentials are disposable. Hosted Git
 policy, trusted key custody and exception handling require deployed evidence.
 
+The additive `saf-lab-0606-028.3` path keeps these checks and the unsigned Flux
+contrast. It installs the pinned Flux controllers once with in-cluster status
+and events, and omits forwarding to a notification service. It serves the same owned
+private Gitea repository through a ClusterIP Service to a `GitRepository` and
+`Kustomization`. A separate synthetic collaborator has repository read access
+and a token scoped to repository reads; Flux receives that credential and the
+writer's public trust key through private stdin to `kubectl`, with subprocess
+output discarded. No private value is included in evidence, logs, tracked
+files, or this README.
+
+Flux first applies the signed protected-ref baseline. The harness then requests
+a fresh source and Kustomization reconcile after each existing Gitea denial
+(unsigned signature, signed direct push, missing status, and missing approval).
+Each checkpoint compares the exact protected ref, source artifact revision and
+digest, applied revision, and inert ConfigMap marker with the baseline. The
+fully gated signed fast-forward promotion must move all three revision views to
+the same new commit and apply a different inert marker. The additive sanitized
+receipt is `gitea-flux-correlation.json`; the pre-existing Gitea receipt remains
+`gitea-branch-observations.json`.
+
+This extension uses only the case-owned Gitea instance, its private fixture
+repository, and the existing pinned Flux controllers in the disposable lab
+cluster. It does not assess hosted policy or production repositories.
+
 Flux HEAD verification covers the selected commit. Assess historical commits
 against the repository's signed-commit requirements.
 
@@ -64,10 +88,9 @@ For Argo CD, use the installed version's Git source integrity policy and the
 Application's successful sync result for the corresponding source and revision.
 
 Record the evidence time, scope, revisions, observed results and any unavailable
-fields. Use a disposable test repository for behavior comparisons. The local
-Gitea and Flux tests run against separate fixture repositories. An adopter's
-evidence links their own protected ref to their own reconciler for the same
-revision.
+fields. Use a disposable test repository for behavior comparisons. The reference includes both independent checks and a replay in which
+Flux consumes the same protected Gitea branch. An adopter can use that
+comparison to link their protected ref and applied revision.
 
 - [Flux source-controller v1.9.1 GitRepository](https://raw.githubusercontent.com/fluxcd/source-controller/v1.9.1/docs/spec/v1/gitrepositories.md)
 - [Flux kustomize-controller v1.9.1 Kustomization](https://github.com/fluxcd/kustomize-controller/blob/v1.9.1/docs/spec/v1/kustomizations.md)

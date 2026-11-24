@@ -1,10 +1,12 @@
 """Verify Flux Git commit signature enforcement at the source-to-reconcile path."""
 from base64 import b64encode
 from hashlib import sha256
+import base64
 import json
 from pathlib import Path
 import re
 import shutil
+import subprocess
 import tempfile
 import time
 
@@ -43,7 +45,9 @@ SCOPE = (
     "Synthetic private keys are generated in the runner temporary directory. "
     "A separate local Gitea repository verifies signed commits, exact protected branch "
     "rules, required review and status, and fast-forward promotion of the exact signed "
-    "PR head. Actual hosted policy and production key custody require deployed evidence."
+    "PR head. Actual hosted policy and production key custody require deployed evidence. "
+    "The additive .3 path reuses the same Gitea repository and pinned Flux process, "
+    "with a separate read-only collaborator over an owned ClusterIP Service."
 )
 
 
@@ -101,7 +105,13 @@ def install_flux(lab):
         if re.search(r"^kind: Deployment$", document, re.MULTILINE) and not any(tag in document for tag in expected):
             continue
         documents.append(document.replace(SOURCE_TAG, SOURCE_IMAGE).replace(KUSTOMIZE_TAG, KUSTOMIZE_IMAGE))
-    manifest.write_text("\n---\n".join(documents))
+    rendered = "\n---\n".join(documents)
+    # The focused fixture omits notification-controller. Drop both optional
+    # event-forwarding flags so reconciliation cannot wait on its absent service.
+    event_sink = "        - --events-addr=http://notification-controller.flux-system.svc.cluster.local./\n"
+    if rendered.count(event_sink) != 2:
+        lab.block("The pinned Flux manifest had unexpected event-forwarding arguments")
+    manifest.write_text(rendered.replace(event_sink, ""))
     lab.kubectl("-n", "flux-system", "apply", "--server-side", "-f", str(manifest), timeout=180)
     wait_until(lab, lambda: all(
         (json_resource(lab, "-n", "flux-system", "get", "deployment", name)
@@ -353,6 +363,157 @@ def configmap_value(lab, name, namespace=NAMESPACE):
     return json.loads(output).get("data", {}).get("value") if output.strip() else None
 
 
+def private_kubectl_create(lab, document):
+    """Create fixture Secrets through stdin without retaining output or payload."""
+    command = ["kubectl", "--kubeconfig", str(lab.kubeconfig), "--context",
+               f"kind-{lab.cluster}", "create", "-f", "-"]
+    try:
+        result = subprocess.run(command, env=lab.env, input=document.encode("utf-8"),
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                timeout=30, check=False)
+    except (OSError, subprocess.TimeoutExpired):
+        raise RuntimeError("Private fixture Secret creation failed") from None
+    if result.returncode:
+        raise RuntimeError("Private fixture Secret creation failed")
+
+
+def integrated_gitea_checkpoints(lab):
+    """Compare native Flux source and consumer state at staged Gitea decisions."""
+    source_name, apply_name = "source-gitea-protected", "apply-gitea-protected"
+    repo_url = ("http://fixture-gitea.saf-test.svc.cluster.local:3000/"
+                "fixture-owner/fixture-deployment.git")
+    receipts = []
+    baseline = {}
+    request_number = 0
+
+    def read_state():
+        source = json_resource(lab, "get", "gitrepository", source_name) or {}
+        applied = json_resource(lab, "get", "kustomization", apply_name) or {}
+        source_status, apply_status = source.get("status", {}), applied.get("status", {})
+        artifact = source_status.get("artifact", {})
+        return source, applied, artifact, source_status, apply_status
+
+    def fresh_reconcile(stage):
+        nonlocal request_number
+        request_number += 1
+        request = f"saf-0606-028-3-{request_number:02d}"
+        for kind, name in (("gitrepository", source_name), ("kustomization", apply_name)):
+            lab.kubectl("annotate", kind, name,
+                        f"reconcile.fluxcd.io/requestedAt={request}", "--overwrite")
+
+        def handled():
+            source, applied, artifact, source_status, apply_status = read_state()
+            return (
+                source_status.get("lastHandledReconcileAt") == request
+                and apply_status.get("lastHandledReconcileAt") == request
+                and source_status.get("observedGeneration") == source.get("metadata", {}).get("generation")
+                and apply_status.get("observedGeneration") == applied.get("metadata", {}).get("generation")
+                and bool(artifact.get("revision"))
+            )
+
+        wait_until(lab, handled, f"fresh Flux reconciliation for {stage}", timeout=180)
+        return request
+
+    def checkpoint(stage, expected_sha, *, reader, reader_token, writer_public_key):
+        nonlocal baseline
+        initial = stage == "protected-signed-baseline"
+        promotion = stage == "fully-gated-signed-promotion"
+        if initial:
+            private_document = (
+                "apiVersion: v1\nkind: Secret\nmetadata:\n"
+                "  name: saf-gitea-read-auth\n  namespace: saf-test\n"
+                "type: kubernetes.io/basic-auth\ndata:\n"
+                f"  username: {base64.b64encode(reader.encode()).decode()}\n"
+                f"  password: {base64.b64encode(reader_token.encode()).decode()}\n"
+                "---\napiVersion: v1\nkind: Secret\nmetadata:\n"
+                "  name: saf-gitea-commit-trust\n  namespace: saf-test\n"
+                "type: Opaque\ndata:\n"
+                f"  trusted.asc: {base64.b64encode(writer_public_key.encode()).decode()}\n"
+            )
+            private_kubectl_create(lab, private_document)
+            source, applied = resource_pair("gitea-protected", "", True, NAMESPACE)
+            source["metadata"]["namespace"] = NAMESPACE
+            source["spec"].update({"url": repo_url, "interval": "1h",
+                                   "ref": {"branch": "main"},
+                                   "secretRef": {"name": "saf-gitea-read-auth"}})
+            source["spec"]["verify"]["secretRef"] = {"name": "saf-gitea-commit-trust"}
+            applied["metadata"]["namespace"] = NAMESPACE
+            applied["spec"].update({"path": "./flux-source", "interval": "1h"})
+            lab.create(source)
+            lab.create(applied)
+
+        request = fresh_reconcile(stage)
+        expected_marker = ("saf-gitea-approved-promotion" if promotion
+                           else "saf-gitea-protected-baseline")
+
+        def converged():
+            source, applied, artifact, _, apply_status = read_state()
+            return (
+                condition(source, "Ready") == {"status": "True", "reason": "Succeeded"}
+                and condition(source, "SourceVerified") == {"status": "True", "reason": "Succeeded"}
+                and condition(applied, "Ready") == {"status": "True", "reason": "ReconciliationSucceeded"}
+                and artifact.get("revision", "").rsplit(":", 1)[-1] == expected_sha
+                and apply_status.get("lastAppliedRevision") == artifact.get("revision")
+                and configmap_value(lab, "saf-gitea-guard-marker") == expected_marker
+            )
+
+        wait_until(lab, converged, f"Gitea-backed Flux stage {stage}", timeout=240)
+        source, applied, artifact, source_status, apply_status = read_state()
+        artifact_revision = artifact.get("revision", "")
+        artifact_digest = artifact.get("digest", "")
+        marker = configmap_value(lab, "saf-gitea-guard-marker")
+        receipt = {
+            "stage": stage,
+            "source_url_matches_owned_service": source.get("spec", {}).get("url") == repo_url,
+            "read_only_auth_secret_configured": source.get("spec", {}).get("secretRef", {}).get("name") == "saf-gitea-read-auth",
+            "head_signature_verified": condition(source, "SourceVerified") == {"status": "True", "reason": "Succeeded"},
+            "source_ready": condition(source, "Ready") == {"status": "True", "reason": "Succeeded"},
+            "kustomization_ready": condition(applied, "Ready") == {"status": "True", "reason": "ReconciliationSucceeded"},
+            "artifact_revision_matches_gitea_ref": artifact_revision.rsplit(":", 1)[-1] == expected_sha,
+            "source_archive_digest_present": bool(re.fullmatch(r"sha256:[0-9a-f]{64}", artifact_digest)),
+            "applied_revision_matches_source_artifact": apply_status.get("lastAppliedRevision") == artifact_revision,
+            "expected_inert_marker_present": marker == expected_marker,
+            "fresh_source_reconcile_handled": source_status.get("lastHandledReconcileAt") == request,
+            "fresh_kustomization_reconcile_handled": apply_status.get("lastHandledReconcileAt") == request,
+        }
+        if initial:
+            baseline = {"sha": expected_sha, "revision": artifact_revision,
+                        "digest": artifact_digest}
+            receipt["baseline_established"] = True
+        elif promotion:
+            receipt.update({
+                "promotion_differs_from_baseline": expected_sha != baseline.get("sha"),
+                "promotion_archive_differs_from_baseline": artifact_digest != baseline.get("digest"),
+                "promotion_marker_differs_from_baseline": marker != "saf-gitea-protected-baseline",
+            })
+        else:
+            receipt.update({
+                "protected_ref_unchanged": expected_sha == baseline.get("sha"),
+                "source_archive_revision_unchanged": artifact_revision == baseline.get("revision"),
+                "source_archive_digest_unchanged": artifact_digest == baseline.get("digest"),
+                "applied_revision_unchanged": apply_status.get("lastAppliedRevision") == baseline.get("revision"),
+                "safe_marker_unchanged": marker == "saf-gitea-protected-baseline",
+            })
+        passed = all(value for key, value in receipt.items() if key != "stage")
+        stable = {key: value for key, value in receipt.items()
+                  if key == "stage" or isinstance(value, bool)}
+        receipts.append({
+            **stable,
+            "protected_ref_commit": expected_sha,
+            "source_artifact_revision": artifact_revision,
+            "source_artifact_digest": artifact_digest,
+            "consumer_applied_revision": apply_status.get("lastAppliedRevision"),
+            "observed_marker": marker,
+        })
+        lab.check("positive" if initial or promotion else "green",
+                  f"Native Flux preserves the Gitea protected-ref stage {stage}",
+                  passed, stable)
+        (lab.evidence / "gitea-flux-correlation.json").write_text(
+            json.dumps(receipts, indent=2) + "\n", encoding="utf-8")
+
+    return checkpoint
+
+
 def run(lab):
     require_commands(lab)
     from importlib.util import module_from_spec, spec_from_file_location
@@ -360,7 +521,8 @@ def run(lab):
     spec = spec_from_file_location("saf_gitea_branch", HERE / "gitea_branch.py")
     gitea = module_from_spec(spec)
     spec.loader.exec_module(gitea)
-    gitea.run(lab)
+    install_flux(lab)
+    gitea.run(lab, flux_checkpoint=integrated_gitea_checkpoints(lab))
     root = lab.kubeconfig.parent / "signed-commit-fixture"
     root.mkdir(mode=0o700)
     repositories, revisions = {}, {}
@@ -379,7 +541,6 @@ def run(lab):
                 if key_home.is_dir():
                     lab.command("gpgconf", "--homedir", str(key_home), "--kill", "gpg-agent",
                                 allow_failure=True)
-    install_flux(lab)
     lab.kubectl("create", "namespace", NEGATIVE_NAMESPACE)
     install_git_server(lab, repositories)
     trusted_repo = "/tools/repos/trusted-signed.git"

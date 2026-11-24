@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-028",
-  "catalog_revision": "39c4120f8ed67bfc83f8df89dd3046b25b2644b8",
+  "catalog_revision": "cdec9090b3c5aab4eabdbf41da558a83000dbfa1",
   "catalog_sha256": "0fb5dcc442009a780c6048f6caf5a0b0c8716767df69dcdb7d7b1a421c4c2011",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "0f644fbd1cf00d98a8010a82d585a021e948aa473301559fc6bfc407c8ca388e",
-  "scope": "One disposable framework-runner Kind cluster. Flux v2.9.0 installs the source-controller v1.9.1 and kustomize-controller v1.9.1. Three independent case-owned Git checkouts serve inert ConfigMap markers over in-cluster Smart read-only HTTP: unsigned without verification, trusted signed with HEAD verification, unsigned with verification, and signed by an untrusted key. Synthetic private keys are generated in the runner temporary directory. A separate local Gitea repository verifies signed commits, exact protected branch rules, required review and status, and fast-forward promotion of the exact signed PR head. Actual hosted policy and production key custody require deployed evidence.",
-  "cluster": "saf-lab-f08ffcd19bbe",
+  "scope": "One disposable framework-runner Kind cluster. Flux v2.9.0 installs the source-controller v1.9.1 and kustomize-controller v1.9.1. Three independent case-owned Git checkouts serve inert ConfigMap markers over in-cluster Smart read-only HTTP: unsigned without verification, trusted signed with HEAD verification, unsigned with verification, and signed by an untrusted key. Synthetic private keys are generated in the runner temporary directory. A separate local Gitea repository verifies signed commits, exact protected branch rules, required review and status, and fast-forward promotion of the exact signed PR head. Actual hosted policy and production key custody require deployed evidence. The additive .3 path reuses the same Gitea repository and pinned Flux process, with a separate read-only collaborator over an owned ClusterIP Service.",
+  "cluster": "saf-lab-ad57772cc7dd",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -38,6 +38,157 @@
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
+    {
+      "phase": "positive",
+      "claim": "The source and downstream consumer use the pinned Flux v2.9.0 component images",
+      "matched": true,
+      "observed": {
+        "source_controller": [
+          "ghcr.io/fluxcd/source-controller:v1.9.1@sha256:773a90fa26e014d4f23d5c6a48ca5875c4686bdc6aac2ea73951b9cd9fda48dd"
+        ],
+        "kustomize_controller": [
+          "ghcr.io/fluxcd/kustomize-controller:v1.9.1@sha256:ae1a90c0c76d518618c5e2a64b82b6476c8213aa7a2b17ec8b94828f0230a6b8"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native Flux preserves the Gitea protected-ref stage protected-signed-baseline",
+      "matched": true,
+      "observed": {
+        "stage": "protected-signed-baseline",
+        "source_url_matches_owned_service": true,
+        "read_only_auth_secret_configured": true,
+        "head_signature_verified": true,
+        "source_ready": true,
+        "kustomization_ready": true,
+        "artifact_revision_matches_gitea_ref": true,
+        "source_archive_digest_present": true,
+        "applied_revision_matches_source_artifact": true,
+        "expected_inert_marker_present": true,
+        "fresh_source_reconcile_handled": true,
+        "fresh_kustomization_reconcile_handled": true,
+        "baseline_established": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native Flux preserves the Gitea protected-ref stage unsigned-signature-denied",
+      "matched": true,
+      "observed": {
+        "stage": "unsigned-signature-denied",
+        "source_url_matches_owned_service": true,
+        "read_only_auth_secret_configured": true,
+        "head_signature_verified": true,
+        "source_ready": true,
+        "kustomization_ready": true,
+        "artifact_revision_matches_gitea_ref": true,
+        "source_archive_digest_present": true,
+        "applied_revision_matches_source_artifact": true,
+        "expected_inert_marker_present": true,
+        "fresh_source_reconcile_handled": true,
+        "fresh_kustomization_reconcile_handled": true,
+        "protected_ref_unchanged": true,
+        "source_archive_revision_unchanged": true,
+        "source_archive_digest_unchanged": true,
+        "applied_revision_unchanged": true,
+        "safe_marker_unchanged": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native Flux preserves the Gitea protected-ref stage signed-direct-push-denied",
+      "matched": true,
+      "observed": {
+        "stage": "signed-direct-push-denied",
+        "source_url_matches_owned_service": true,
+        "read_only_auth_secret_configured": true,
+        "head_signature_verified": true,
+        "source_ready": true,
+        "kustomization_ready": true,
+        "artifact_revision_matches_gitea_ref": true,
+        "source_archive_digest_present": true,
+        "applied_revision_matches_source_artifact": true,
+        "expected_inert_marker_present": true,
+        "fresh_source_reconcile_handled": true,
+        "fresh_kustomization_reconcile_handled": true,
+        "protected_ref_unchanged": true,
+        "source_archive_revision_unchanged": true,
+        "source_archive_digest_unchanged": true,
+        "applied_revision_unchanged": true,
+        "safe_marker_unchanged": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native Flux preserves the Gitea protected-ref stage missing-status-denied",
+      "matched": true,
+      "observed": {
+        "stage": "missing-status-denied",
+        "source_url_matches_owned_service": true,
+        "read_only_auth_secret_configured": true,
+        "head_signature_verified": true,
+        "source_ready": true,
+        "kustomization_ready": true,
+        "artifact_revision_matches_gitea_ref": true,
+        "source_archive_digest_present": true,
+        "applied_revision_matches_source_artifact": true,
+        "expected_inert_marker_present": true,
+        "fresh_source_reconcile_handled": true,
+        "fresh_kustomization_reconcile_handled": true,
+        "protected_ref_unchanged": true,
+        "source_archive_revision_unchanged": true,
+        "source_archive_digest_unchanged": true,
+        "applied_revision_unchanged": true,
+        "safe_marker_unchanged": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native Flux preserves the Gitea protected-ref stage missing-approval-denied",
+      "matched": true,
+      "observed": {
+        "stage": "missing-approval-denied",
+        "source_url_matches_owned_service": true,
+        "read_only_auth_secret_configured": true,
+        "head_signature_verified": true,
+        "source_ready": true,
+        "kustomization_ready": true,
+        "artifact_revision_matches_gitea_ref": true,
+        "source_archive_digest_present": true,
+        "applied_revision_matches_source_artifact": true,
+        "expected_inert_marker_present": true,
+        "fresh_source_reconcile_handled": true,
+        "fresh_kustomization_reconcile_handled": true,
+        "protected_ref_unchanged": true,
+        "source_archive_revision_unchanged": true,
+        "source_archive_digest_unchanged": true,
+        "applied_revision_unchanged": true,
+        "safe_marker_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native Flux preserves the Gitea protected-ref stage fully-gated-signed-promotion",
+      "matched": true,
+      "observed": {
+        "stage": "fully-gated-signed-promotion",
+        "source_url_matches_owned_service": true,
+        "read_only_auth_secret_configured": true,
+        "head_signature_verified": true,
+        "source_ready": true,
+        "kustomization_ready": true,
+        "artifact_revision_matches_gitea_ref": true,
+        "source_archive_digest_present": true,
+        "applied_revision_matches_source_artifact": true,
+        "expected_inert_marker_present": true,
+        "fresh_source_reconcile_handled": true,
+        "fresh_kustomization_reconcile_handled": true,
+        "promotion_differs_from_baseline": true,
+        "promotion_archive_differs_from_baseline": true,
+        "promotion_marker_differs_from_baseline": true
+      }
+    },
     {
       "phase": "positive",
       "claim": "The private fixture reads back both exact effective branch rules",
@@ -92,6 +243,12 @@
     {
       "phase": "red",
       "claim": "Before branch rules, the writer can perform the baseline push",
+      "matched": true,
+      "observed": true
+    },
+    {
+      "phase": "positive",
+      "claim": "The same private repository starts from a Gitea-verified signed baseline",
       "matched": true,
       "observed": true
     },
@@ -168,19 +325,6 @@
         "port_forward_stopped": true,
         "temporary_directory_removed": true,
         "gpg_agent_stopped": true
-      }
-    },
-    {
-      "phase": "positive",
-      "claim": "The source and downstream consumer use the pinned Flux v2.9.0 component images",
-      "matched": true,
-      "observed": {
-        "source_controller": [
-          "ghcr.io/fluxcd/source-controller:v1.9.1@sha256:773a90fa26e014d4f23d5c6a48ca5875c4686bdc6aac2ea73951b9cd9fda48dd"
-        ],
-        "kustomize_controller": [
-          "ghcr.io/fluxcd/kustomize-controller:v1.9.1@sha256:ae1a90c0c76d518618c5e2a64b82b6476c8213aa7a2b17ec8b94828f0230a6b8"
-        ]
       }
     },
     {

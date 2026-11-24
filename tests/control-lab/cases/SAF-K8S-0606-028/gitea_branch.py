@@ -21,7 +21,9 @@ import urllib.request
 GITEA_IMAGE = ("docker.gitea.com/gitea:1.23.8-rootless@sha256:"
                "331875f35bdcc3c1110fc8410a4e809e3103ebb091ef424fec2df53ac1b658fc")
 EXPECTED_VERSION = "1.23.8"
-OWNER, WRITER, REVIEWER = "fixture-owner", "fixture-writer", "fixture-reviewer"
+OWNER, WRITER, REVIEWER, READER = (
+    "fixture-owner", "fixture-writer", "fixture-reviewer", "fixture-flux-reader"
+)
 REPO = "fixture-deployment"
 STATUS_CONTEXT = "saf-fixture/promotion"
 MAIN = "main"
@@ -29,8 +31,10 @@ SIGNATURE_BRANCH = "fixture-signature-probe"
 SCOPE = (
     "One fresh standard-Lab Kind cluster and one disposable Gitea 1.23.8 Community "
     "Edition instance. Synthetic users and one private repository; inert text only; "
-    "HTTP Git/API through an owned 127.0.0.1 port-forward. Does not assess production "
-    "provider policy, external repositories, or Flux source verification."
+    "HTTP Git/API through an owned 127.0.0.1 port-forward and Flux Git reads through "
+    "an owned ClusterIP Service. The .3 flow uses Flux v2.9.0 with source-controller "
+    "v1.9.1 and kustomize-controller v1.9.1. Does not assess production provider "
+    "policy, external repositories, or production key custody."
 )
 
 
@@ -197,12 +201,13 @@ def gpg_wrapper(path: pathlib.Path) -> None:
     path.chmod(0o700)
 
 
-def make_commit(repo: pathlib.Path, filename: str, text: str, *,
+def make_commit(repo: pathlib.Path, filename: Optional[str], text: str = "", *,
                 env: dict[str, str], signed: bool, gpg_program: Optional[pathlib.Path],
                 signing_key: Optional[str]) -> str:
-    (repo / filename).parent.mkdir(parents=True, exist_ok=True)
-    (repo / filename).write_text(text, encoding="utf-8")
-    git(repo, "add", filename, env=env)
+    if filename is not None:
+        (repo / filename).parent.mkdir(parents=True, exist_ok=True)
+        (repo / filename).write_text(text, encoding="utf-8")
+    git(repo, "add", "-A", env=env)
     config = ["-c", "commit.gpgsign=true", "-c", f"gpg.program={gpg_program}",
               "-c", f"user.signingkey={signing_key}"] if signed else ["-c", "commit.gpgsign=false"]
     safe_run(["git", *config, "-c", "credential.helper=", "commit", "-m",
@@ -328,7 +333,9 @@ def merge_denied(base: str, token: str, index: int, head: str, read_main,
 
 def make_repo(base: str, writer_token: str, owner_token: str,
               askpass: pathlib.Path, scratch: pathlib.Path,
-              main_rule: dict[str, object], sig_rule: dict[str, object]) -> dict[str, object]:
+              main_rule: dict[str, object], sig_rule: dict[str, object], *,
+              writer_env: dict[str, str], gpg_program: pathlib.Path,
+              signing_key: str) -> dict[str, object]:
     status, _ = api(base, "POST", "/user/repos", token=owner_token,
                     body={"name": REPO, "private": True, "auto_init": False,
                           "default_branch": MAIN})
@@ -345,25 +352,32 @@ def make_repo(base: str, writer_token: str, owner_token: str,
     status, _ = api(base, "PUT", f"/repos/{OWNER}/{REPO}/collaborators/{REVIEWER}",
                     token=owner_token, body={"permission": "write"})
     require(status == 204, "Could not grant synthetic reviewer access to the owned fixture repository")
+    status, _ = api(base, "PUT", f"/repos/{OWNER}/{REPO}/collaborators/{READER}",
+                    token=owner_token, body={"permission": "read"})
+    require(status == 204, "Could not grant read-only access to the Flux fixture collaborator")
 
     env = git_env(askpass, WRITER, writer_token)
     url = f"{base}/{OWNER}/{REPO}.git"
     seed = scratch / "seed"
     seed.mkdir(mode=0o700)
     safe_run(["git", "init", "--template=", "--initial-branch=" + MAIN], cwd=seed, env=env)
-    safe_run(["git", "-c", "credential.helper=", "config", "user.name", "SAF fixture writer"], cwd=seed, env=env)
-    safe_run(["git", "-c", "credential.helper=", "config", "user.email", f"{WRITER}@example.invalid"], cwd=seed, env=env)
-    (seed / "fixture" / "deployment-marker.txt").parent.mkdir()
-    (seed / "fixture" / "deployment-marker.txt").write_text("synthetic baseline\n", encoding="utf-8")
-    safe_run(["git", "-c", "credential.helper=", "add", "fixture/deployment-marker.txt"], cwd=seed, env=env)
-    safe_run(["git", "-c", "credential.helper=", "-c", "commit.gpgsign=false",
-              "commit", "-m", "fixture: baseline"], cwd=seed, env=env)
-    baseline = safe_run(["git", "-c", "credential.helper=", "rev-parse", "HEAD"], cwd=seed, env=env).stdout.decode().strip()
+    source = seed / "flux-source"
+    source.mkdir(mode=0o700)
+    (source / "kustomization.yaml").write_text(
+        "apiVersion: kustomize.config.k8s.io/v1beta1\nkind: Kustomization\nresources:\n  - marker.yaml\n",
+        encoding="utf-8")
+    (source / "marker.yaml").write_text(
+        "apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: saf-gitea-guard-marker\n  namespace: saf-test\ndata:\n  value: saf-gitea-protected-baseline\n",
+        encoding="utf-8")
+    baseline = make_commit(seed, None,
+                           env=writer_env, signed=True, gpg_program=gpg_program,
+                           signing_key=signing_key)
     safe_run(["git", "-c", "credential.helper=", "remote", "add", "origin", url], cwd=seed, env=env)
     # Ordinary pre-protection application flow: real HTTP Git push and exact ref readback.
     safe_run(["git", "-c", "credential.helper=", "push", "-u", "origin", "HEAD:refs/heads/main"], cwd=seed, env=env)
     require(remote_sha(seed, MAIN, env=env) == baseline,
             "Pre-protection HTTP Git baseline did not resolve to the exact expected SHA")
+    baseline_signature_verified = require_verified(base, owner_token, baseline)
 
     for branch, body in ((MAIN, main_rule), (SIGNATURE_BRANCH, sig_rule)):
         result = json_call(base, "POST", f"/repos/{OWNER}/{REPO}/branch_protections",
@@ -374,23 +388,27 @@ def make_repo(base: str, writer_token: str, owner_token: str,
     effective_sig = exact_rule(base, owner_token, SIGNATURE_BRANCH, sig_rule)
     return {"repo_private": True, "fast_forward_only_enabled": True,
             "baseline_http_git_write": True, "baseline_sha": baseline,
+            "baseline_signature_verified": baseline_signature_verified,
             "main_rule": effective_main, "signature_rule": effective_sig,
             "git_env": env, "git_repo": seed, "git_url": url}
 
 
 def observe(lab, base: str, scratch: pathlib.Path, askpass: pathlib.Path,
-            gpg_home: pathlib.Path, gpg_program: pathlib.Path) -> dict[str, object]:
+            gpg_home: pathlib.Path, gpg_program: pathlib.Path,
+            flux_checkpoint=None) -> dict[str, object]:
     required_tools = ("git", "gpg", "gpgconf")
     require(all(shutil.which(name) for name in required_tools),
             "git and GnuPG are required for the synthetic fixture")
     gpg_home.mkdir(mode=0o700)
-    passwords = {name: secrets.token_urlsafe(32) for name in (OWNER, WRITER, REVIEWER)}
+    passwords = {name: secrets.token_urlsafe(32) for name in (OWNER, WRITER, REVIEWER, READER)}
     create_user(lab, OWNER, passwords[OWNER], admin=True)
     create_user(lab, WRITER, passwords[WRITER])
     create_user(lab, REVIEWER, passwords[REVIEWER])
+    create_user(lab, READER, passwords[READER])
     owner_token = create_token(base, OWNER, passwords[OWNER], "saf-fixture-owner", ["write:repository", "write:user"])
     writer_token = create_token(base, WRITER, passwords[WRITER], "saf-fixture-writer", ["write:repository", "write:user"])
     reviewer_token = create_token(base, REVIEWER, passwords[REVIEWER], "saf-fixture-reviewer", ["write:repository"])
+    reader_token = create_token(base, READER, passwords[READER], "saf-flux-read-only", ["read:repository"])
     version = json_call(base, "GET", "/version", token=owner_token)
     require(version.get("version") == EXPECTED_VERSION, "Runtime Gitea version differs from the pinned release")
 
@@ -433,14 +451,22 @@ def observe(lab, base: str, scratch: pathlib.Path, askpass: pathlib.Path,
         "enable_approvals_whitelist": False, "approvals_whitelist_username": [],
         "enable_merge_whitelist": False, "merge_whitelist_usernames": [],
     }
-    repo = make_repo(base, writer_token, owner_token, askpass, scratch, main_rule, sig_rule)
-    git_repo = repo["git_repo"]
     env = git_env(askpass, WRITER, writer_token, gpg_home)
+    repo = make_repo(base, writer_token, owner_token, askpass, scratch, main_rule, sig_rule,
+                     writer_env=env, gpg_program=gpg_program, signing_key=signing_key)
+    git_repo = repo["git_repo"]
 
     def read_main():
         result = remote_sha(git_repo, MAIN, env=env)
         require(result is not None, "The fixture lost its protected main ref")
         return result
+
+    protected_baseline = read_main()
+    require(protected_baseline == repo["baseline_sha"],
+            "Protected main differs from the signed pre-protection baseline")
+    if flux_checkpoint is not None:
+        flux_checkpoint("protected-signed-baseline", protected_baseline, reader=READER,
+                        reader_token=reader_token, writer_public_key=armored)
 
     # Authenticated writer's HTTP push is allowed only on this exact signature test branch.
     sig_local = scratch / "signature-probe"
@@ -458,6 +484,9 @@ def observe(lab, base: str, scratch: pathlib.Path, askpass: pathlib.Path,
     unsigned_ref_unchanged = remote_sha(sig_local, SIGNATURE_BRANCH, env=env) is None
     require(unsigned_ref_unchanged,
             "Unsigned signature denial created or changed the protected branch")
+    if flux_checkpoint is not None:
+        flux_checkpoint("unsigned-signature-denied", read_main(), reader=READER,
+                        reader_token=reader_token, writer_public_key=armored)
     git(sig_local, "reset", "--hard", "origin/main", env=env)
     git(sig_local, "clean", "-fd", env=env)
     signed_sha = make_commit(sig_local, "fixture/signed-marker.txt", "signed inert probe\n",
@@ -483,6 +512,9 @@ def observe(lab, base: str, scratch: pathlib.Path, askpass: pathlib.Path,
     protected_main_after = read_main()
     require(protected_main_after == protected_main_before,
             "Denied direct push changed protected main SHA")
+    if flux_checkpoint is not None:
+        flux_checkpoint("signed-direct-push-denied", protected_main_after, reader=READER,
+                        reader_token=reader_token, writer_public_key=armored)
 
     # Three independent PR heads share the unchanged base. Each failure has only one missing gate.
     prs: dict[str, tuple[int, str, pathlib.Path]] = {}
@@ -491,6 +523,10 @@ def observe(lab, base: str, scratch: pathlib.Path, askpass: pathlib.Path,
         path = scratch / label
         safe_run(["git", "-c", "credential.helper=", "clone", "--branch", MAIN,
                   repo["git_url"], str(path)], env=env)
+        if label == "promotion":
+            (path / "flux-source" / "marker.yaml").write_text(
+                "apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: saf-gitea-guard-marker\n  namespace: saf-test\ndata:\n  value: saf-gitea-approved-promotion\n",
+                encoding="utf-8")
         head = make_commit(path, f"fixture/{label}.txt", f"synthetic {label} bytes\n",
                            env=env, signed=True, gpg_program=gpg_program, signing_key=signing_key)
         push_branch(path, branch, env=env, expected_sha=head)
@@ -508,6 +544,9 @@ def observe(lab, base: str, scratch: pathlib.Path, askpass: pathlib.Path,
     status_denied, status_unchanged = merge_denied(
         base, writer_token, status_index, status_head, read_main, protected_main_before,
         b"Not all required status checks successful")
+    if flux_checkpoint is not None:
+        flux_checkpoint("missing-status-denied", read_main(), reader=READER,
+                        reader_token=reader_token, writer_public_key=armored)
     status_positive = post_status(base, owner_token, status_head, success=True)
 
     approval_index, approval_head, _ = prs["approval-denied"]
@@ -515,6 +554,9 @@ def observe(lab, base: str, scratch: pathlib.Path, askpass: pathlib.Path,
     approval_denied, approval_unchanged = merge_denied(
         base, writer_token, approval_index, approval_head, read_main, protected_main_before,
         b"Does not have enough approvals")
+    if flux_checkpoint is not None:
+        flux_checkpoint("missing-approval-denied", read_main(), reader=READER,
+                        reader_token=reader_token, writer_public_key=armored)
     approval_positive = post_approval(base, reviewer_token, approval_index, approval_head)
 
     promotion_index, promotion_head, _ = prs["promotion"]
@@ -532,6 +574,9 @@ def observe(lab, base: str, scratch: pathlib.Path, askpass: pathlib.Path,
     require(merged_pr.get("merged") is True and promotion_after == promotion_head,
             "Fast-forward-only merge did not preserve the exact signed PR head as main")
     final_verified = require_verified(base, owner_token, promotion_after)
+    if flux_checkpoint is not None:
+        flux_checkpoint("fully-gated-signed-promotion", promotion_after, reader=READER,
+                        reader_token=reader_token, writer_public_key=armored)
 
     return {
         "gitea_version": EXPECTED_VERSION,
@@ -539,6 +584,7 @@ def observe(lab, base: str, scratch: pathlib.Path, askpass: pathlib.Path,
         "allow_fast_forward_only_merge": repo["fast_forward_only_enabled"],
         "ordinary_baseline_http_git_write": True,
         "baseline_sha": repo["baseline_sha"],
+        "baseline_signature_verified": repo["baseline_signature_verified"],
         "effective_main_rule": repo["main_rule"],
         "effective_signature_rule": repo["signature_rule"],
         "unsigned_signature_push_denied_ref_unchanged": unsigned_result.returncode != 0 and
@@ -582,7 +628,8 @@ def setup_server(lab) -> None:
         "GITEA__repository_0X2E_signing__MERGES": "headsigned",
     }
     lab.create({
-        "apiVersion": "v1", "kind": "Pod", "metadata": {"name": "fixture-gitea"},
+        "apiVersion": "v1", "kind": "Pod",
+        "metadata": {"name": "fixture-gitea", "labels": {"app": "fixture-gitea"}},
         "spec": {"automountServiceAccountToken": False,
                  "securityContext": {"runAsNonRoot": True, "runAsUser": 1000,
                                      "runAsGroup": 1000, "fsGroup": 1000,
@@ -601,6 +648,12 @@ def setup_server(lab) -> None:
                                                    {"name": "config", "mountPath": "/etc/gitea"}]}],
                  "volumes": [{"name": "data", "emptyDir": {}},
                              {"name": "config", "emptyDir": {}}]}})
+    lab.create({"apiVersion": "v1", "kind": "Service",
+                "metadata": {"name": "fixture-gitea"},
+                "spec": {"type": "ClusterIP",
+                         "selector": {"app": "fixture-gitea"},
+                         "ports": [{"name": "http", "port": 3000,
+                                    "targetPort": 3000}]}})
     ready = lab.kubectl("wait", "--for=condition=Ready", "pod/fixture-gitea",
                         "--timeout=110s", timeout=120, allow_failure=True)
     if ready.returncode:
@@ -609,7 +662,7 @@ def setup_server(lab) -> None:
         lab.block("Fixture Gitea Pod did not become ready")
 
 
-def run(lab) -> None:
+def run(lab, flux_checkpoint=None) -> None:
     temporary = pathlib.Path(tempfile.mkdtemp(prefix="saf-gitea-", dir="/tmp"))
     temporary.chmod(0o700)
     log_path = temporary / "port-forward.log"
@@ -642,7 +695,8 @@ def run(lab) -> None:
             askpass.chmod(0o700)
             gpg_program = temporary / "gpg-wrapper.sh"
             gpg_wrapper(gpg_program)
-            observations = observe(lab, base, temporary, askpass, gpg_home, gpg_program)
+            observations = observe(lab, base, temporary, askpass, gpg_home, gpg_program,
+                                  flux_checkpoint=flux_checkpoint)
         (lab.evidence / "gitea-branch-observations.json").write_text(
             json.dumps(observations, indent=2) + "\n", encoding="utf-8")
         lab.check("positive", "The private fixture reads back both exact effective branch rules",
@@ -652,6 +706,7 @@ def run(lab) -> None:
                    "signature_rule": observations["effective_signature_rule"]})
         claims = (
             ("red", "ordinary_baseline_http_git_write", "Before branch rules, the writer can perform the baseline push"),
+            ("positive", "baseline_signature_verified", "The same private repository starts from a Gitea-verified signed baseline"),
             ("green", "unsigned_signature_push_denied_ref_unchanged", "The exact signed-commit rule rejects unsigned Git writes without changing its ref"),
             ("positive", "signed_signature_push_accepted", "The same exact branch accepts a registered signed commit"),
             ("positive", "signed_signature_push_verified", "Gitea reports the accepted signature as verified"),
