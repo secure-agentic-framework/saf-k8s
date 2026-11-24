@@ -2622,6 +2622,12 @@
       "sha256": "95a828d37e78f02ba1ea5da944324c8165c4646a50749c9281c4471a711f9764",
       "title": "ML framework and Python dependency vulnerability management"
     },
+    "SAF-K8S-0905-029": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "fc55461c550647adbc15b0e311dde4b6520092e6bc54ffddc32e70cfd6c5acfe",
+      "title": "CUDA and GPU accelerator dependency vulnerability management"
+    },
     "SAF-K8S-0905-032": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3536,7 +3542,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "7bc96c349cf534471f53fa57f0eb57a3ead6818f",
+  "revision": "d0f7b6ade526a0a75117a985f8b9c25c9c713026",
   "sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

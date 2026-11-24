@@ -1,0 +1,160 @@
+{
+  "control_id": "SAF-K8S-0905-029",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "fc55461c550647adbc15b0e311dde4b6520092e6bc54ffddc32e70cfd6c5acfe",
+  "scope": "A disposable Kubernetes v1.36.1 Kind cluster runs one restricted, non-GPU Pod in the runner's default saf-test namespace. The case binds synthetic offline software SBOM components (CUDA Toolkit, cuDNN and NCCL) and a separate synthetic native-host report (driver and device-plugin inventory) to the actual Pod UID, service account, node name and imageID read from the Kubernetes API. An immutable fixture triage record retains the correlated findings and rechecks as each inventory is corrected. All component versions and the advisory are synthetic. Actual GPU software, runtime drivers, advisory ingestion and production remediation remain deployment evidence.",
+  "cluster": "saf-lab-497d2af10200",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "With policy disabled, the exact affected synthetic accelerator release is accepted unchecked",
+      "matched": true,
+      "observed": {
+        "decision": "accepted-unchecked",
+        "allowed": true,
+        "findings": [
+          {
+            "advisory": "SAF-FIXTURE-CUDA-0905-029-001",
+            "inventory": "native-host-report",
+            "name": "GPU driver",
+            "version": "0.0.0-fixture.1"
+          },
+          {
+            "advisory": "SAF-FIXTURE-CUDA-0905-029-001",
+            "inventory": "software-sbom",
+            "component_ref": "fixture-cudnn",
+            "name": "cuDNN",
+            "version": "0.0.0-fixture.1"
+          }
+        ],
+        "reason": "fixture-policy-disabled"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Enabled policy blocks absent native evidence, stale identity, and exact synthetic findings",
+      "matched": true,
+      "observed": {
+        "missing_host": {
+          "decision": "blocked",
+          "allowed": false,
+          "findings": [],
+          "reason": "host-inventory-missing"
+        },
+        "mismatched_identity": {
+          "decision": "blocked",
+          "allowed": false,
+          "findings": [],
+          "reason": "runtime-identity-mismatch"
+        },
+        "tampered_host": {
+          "decision": "blocked",
+          "allowed": false,
+          "findings": [],
+          "reason": "host-inventory-digest-mismatch"
+        },
+        "affected": {
+          "decision": "blocked-findings",
+          "allowed": false,
+          "findings": [
+            {
+              "advisory": "SAF-FIXTURE-CUDA-0905-029-001",
+              "inventory": "native-host-report",
+              "name": "GPU driver",
+              "version": "0.0.0-fixture.1"
+            },
+            {
+              "advisory": "SAF-FIXTURE-CUDA-0905-029-001",
+              "inventory": "software-sbom",
+              "component_ref": "fixture-cudnn",
+              "name": "cuDNN",
+              "version": "0.0.0-fixture.1"
+            }
+          ],
+          "reason": "synthetic-advisory-match"
+        },
+        "host-open": {
+          "decision": "blocked-findings",
+          "allowed": false,
+          "findings": [
+            {
+              "advisory": "SAF-FIXTURE-CUDA-0905-029-001",
+              "inventory": "native-host-report",
+              "name": "GPU driver",
+              "version": "0.0.0-fixture.1"
+            }
+          ],
+          "reason": "synthetic-advisory-match"
+        },
+        "library-open": {
+          "decision": "blocked-findings",
+          "allowed": false,
+          "findings": [
+            {
+              "advisory": "SAF-FIXTURE-CUDA-0905-029-001",
+              "inventory": "software-sbom",
+              "component_ref": "fixture-cudnn",
+              "name": "cuDNN",
+              "version": "0.0.0-fixture.1"
+            }
+          ],
+          "reason": "synthetic-advisory-match"
+        },
+        "incomplete": {
+          "decision": "blocked",
+          "allowed": false,
+          "findings": [],
+          "reason": "inventory-incomplete"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Patched software and native fixtures produce a clear report bound to the observed workload",
+      "matched": true,
+      "observed": {
+        "gate": {
+          "decision": "allowed-clear",
+          "allowed": true,
+          "findings": [],
+          "reason": "no-fixture-match"
+        },
+        "exact_subject": true,
+        "closed_triage_observed": true
+      }
+    }
+  ]
+}
