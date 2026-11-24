@@ -69,7 +69,7 @@ Preventing information leakage in shared agent resources (memory, context) is cr
 
 - Domain: D08 - GPU, Accelerator, and Confidential Computing
 - Knowledge Area: 8.5
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
