@@ -13,20 +13,20 @@ spec:
   validations:
     - expression: >-
         !has(object.spec.volumes) ||
-        object.spec.volumes.filter(v, has(v.emptyDir)).all(
+        object.spec.volumes.filter(v, has(v.emptyDir) && (!has(v.emptyDir.medium) || v.emptyDir.medium == "")).all(
           v, has(v.emptyDir.sizeLimit) && quantity(string(v.emptyDir.sizeLimit)).isGreaterThan(quantity("0"))
         )
-      message: "emptyDir volumes need a positive sizeLimit and regular containers need ephemeral-storage requests and limits"
+      message: "disk-backed emptyDir needs a positive sizeLimit and regular and init containers need ephemeral-storage requests and limits"
       reason: Forbidden
     - expression: >-
         !has(object.spec.volumes) ||
-        !object.spec.volumes.exists(v, has(v.emptyDir)) ||
-        object.spec.containers.all(
+        !object.spec.volumes.exists(v, has(v.emptyDir) && (!has(v.emptyDir.medium) || v.emptyDir.medium == "")) ||
+        (object.spec.containers + (has(object.spec.initContainers) ? object.spec.initContainers : [])).all(
           c, has(c.resources) && has(c.resources.requests) &&
           "ephemeral-storage" in c.resources.requests &&
           has(c.resources.limits) && "ephemeral-storage" in c.resources.limits
         )
-      message: "emptyDir volumes need a positive sizeLimit and regular containers need ephemeral-storage requests and limits"
+      message: "disk-backed emptyDir needs a positive sizeLimit and regular and init containers need ephemeral-storage requests and limits"
       reason: Forbidden
 ---
 apiVersion: admissionregistration.k8s.io/v1

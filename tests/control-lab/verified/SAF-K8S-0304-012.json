@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0304-012",
-  "catalog_revision": "8054cd55bfd68860d19a104bff812442814f3b5a",
-  "catalog_sha256": "83e0245e2810213d80a33174628c0ea3217f5fe52d7959d2d332a4394d7a7744",
+  "catalog_revision": "f1b799a01449d9c56045818b58b97ca7d34e9942",
+  "catalog_sha256": "3d20eb828ba605fb41eb18c432be9730d7a48eff25b4efc3b8066588b4b464fa",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "07d5945c39bf51c6a476596243bddd66517c49b6fe954af4143e2f797343fadd",
-  "scope": "One isolated namespace on the lab's pinned Kubernetes v1.36.1 kind cluster. Paired server-side dry-runs compare absent emptyDir sizeLimit and absent regular-container ephemeral-storage declarations before and after a case-owned ValidatingAdmissionPolicy. ResourceQuota admission is checked for aggregate declared requests and limits. One tiny marker is read below its bound. A second workload writes only 128 KiB against a 64 KiB disk-backed emptyDir bound to observe kubelet eviction on the test filesystem. Production filesystem and training workload behavior require deployment evidence.",
-  "cluster": "saf-lab-8bb705eca0c7",
+  "scope": "One isolated namespace on the lab's pinned Kubernetes v1.36.1 kind cluster. Paired server-side dry-runs compare absent emptyDir sizeLimit and absent regular-container or init-container ephemeral-storage declarations before and after a case-owned ValidatingAdmissionPolicy. ResourceQuota admission is checked for aggregate declared requests and limits. One tiny marker is read below its bound. A paired disk-backed emptyDir comparison writes 1 MiB below and 3 MiB above a 2 MiB volume sizeLimit while each Pod has a 16 MiB aggregate container ephemeral-storage limit, isolating the volume-specific kubelet eviction. Native kubelet volume usage and node filesystem capacity are sampled on the disposable node.",
+  "cluster": "saf-lab-4acb829f69d1",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -51,6 +51,10 @@
           "admitted": true,
           "detail": ""
         },
+        "missing_init": {
+          "admitted": true,
+          "detail": ""
+        },
         "request_overage": {
           "admitted": true,
           "detail": ""
@@ -69,14 +73,24 @@
         "missing_size": {
           "admitted": false,
           "policy_denied": true,
-          "detail": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0304-012-missing-size\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0304-012-scratch-bounds' with binding 'saf-k8s-0304-012-scratch-bounds' denied request: emptyDir volumes need a positive sizeLimit and regular containers need ephemeral-storage requests and limits"
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0304-012-missing-size\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0304-012-scratch-bounds' with binding 'saf-k8s-0304-012-scratch-bounds' denied request: disk-backed emptyDir needs a positive sizeLimit and regular and init containers need ephemeral-storage requests and limits"
         },
         "missing_resources": {
           "admitted": false,
           "policy_denied": true,
-          "detail": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0304-012-missing-resources\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0304-012-scratch-bounds' with binding 'saf-k8s-0304-012-scratch-bounds' denied request: emptyDir volumes need a positive sizeLimit and regular containers need ephemeral-storage requests and limits"
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0304-012-missing-resources\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0304-012-scratch-bounds' with binding 'saf-k8s-0304-012-scratch-bounds' denied request: disk-backed emptyDir needs a positive sizeLimit and regular and init containers need ephemeral-storage requests and limits"
+        },
+        "missing_init": {
+          "admitted": false,
+          "policy_denied": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0304-012-missing-init-resources\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0304-012-scratch-bounds' with binding 'saf-k8s-0304-012-scratch-bounds' denied request: disk-backed emptyDir needs a positive sizeLimit and regular and init containers need ephemeral-storage requests and limits"
         },
         "valid": {
+          "admitted": true,
+          "policy_denied": false,
+          "detail": ""
+        },
+        "memory_scratch": {
           "admitted": true,
           "policy_denied": false,
           "detail": ""
@@ -118,20 +132,51 @@
       }
     },
     {
-      "phase": "red",
-      "claim": "A disk-backed emptyDir write succeeds above the declared sizeLimit",
+      "phase": "positive",
+      "claim": "Kubelet reports positive node storage headroom and measures the named scratch volume",
       "matched": true,
       "observed": {
-        "fixed_bytes_written": 131072,
-        "volume_limit_bytes": 65536
+        "node_capacity_observed": true,
+        "scratch_usage_below_limit": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same-case 1 MiB control remains running below its 2 MiB emptyDir sizeLimit",
+      "matched": true,
+      "observed": {
+        "phase": "Running",
+        "reason": null,
+        "written_bytes": 1048576,
+        "request": "1Mi",
+        "limit": "16Mi",
+        "size_limit": "2Mi"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A 3 MiB write completes above the 2 MiB volume sizeLimit",
+      "matched": true,
+      "observed": {
+        "written_bytes": 3145728,
+        "emptyDir_sizeLimit": "2Mi",
+        "aggregate_ephemeral_storage_limit": "16Mi"
       }
     },
     {
       "phase": "green",
-      "claim": "The kubelet evicts the tiny over-limit Pod for the exact scratch volume",
+      "claim": "Kubelet reports the exact emptyDir volume-size eviction without node DiskPressure",
       "matched": true,
       "observed": {
-        "volume_eviction_observed": true
+        "pod_reason": "Evicted",
+        "pod_message": "Usage of EmptyDir volume \"scratch\" exceeds the limit \"2Mi\". ",
+        "matching_volume_event": true,
+        "aggregate_ephemeral_storage_limit": "16Mi",
+        "emptyDir_sizeLimit": "2Mi",
+        "node_disk_pressure_before_and_after": [
+          "False",
+          "False"
+        ]
       }
     }
   ]

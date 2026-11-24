@@ -1,28 +1,43 @@
 # SAF-K8S-0304-012 — Training scratch bounds and ephemeral-storage quotas
 
-The case runs in one disposable Kubernetes v1.36.1 kind namespace. Before
-policy activation, the API admits Pods without a scratch size or ephemeral
-storage declarations. The namespace-selected admission policy requires
-positive `emptyDir.sizeLimit` and storage declarations for regular containers.
-A Pod with valid declarations can write and read a tiny marker.
-
-A ResourceQuota accounts for the declared requests and limits of the live
-Pod. Two dry-run probes independently exceed the aggregate request or limit
-budget. Each rejection names the matching quota key.
-
-A second Pod writes exactly 128 KiB to a disk-backed scratch volume with a
-64 KiB limit and verifies its file size. The write succeeds. The kubelet
-then evicts the Pod for exceeding that exact volume's size limit. This
-demonstrates filesystem-dependent, asynchronous eviction. Actual training
-storage behavior, node capacity and monitoring, and deployed policy coverage
-require separate evidence.
+Run from the SAF-K8S framework root on a disposable Kind cluster.
 
 ```sh
-python3 lab.py test SAF-K8S-0304-012 --docker-context desktop-linux
+python3 tests/control-lab/lab.py test SAF-K8S-0304-012 --docker-context desktop-linux
 ```
 
-In the framework repository use `python3 tests/control-lab/lab.py` with the same
-arguments.
+The case verifies three independent controls on Kubernetes v1.36.1.
+
+1. **Admission** requires a positive size limit for disk-backed `emptyDir`
+   and ephemeral-storage requests and limits for regular and init containers.
+   A memory-backed scratch request stays outside the sample disk-specific
+   policy. The memory-backed probe is a server dry-run before quota is enabled.
+2. **ResourceQuota** accounts for the live Pod's declared requests and limits.
+   Separate dry-runs show rejection by the aggregate request and limit keys.
+3. **Volume accounting and eviction** compares a 1 MiB write with a 3 MiB
+   write against the same 2 MiB disk-backed volume limit. The kubelet reports
+   filesystem headroom and usage for the named under-limit volume. The 3 MiB
+   write finishes and the kubelet then evicts that Pod for the exact named
+   volume limit. Both workloads have a 16 MiB aggregate storage limit.
+   Node DiskPressure is false before and after the paired test.
+
+The run retains scoped filesystem values, the measured control volume and the
+native eviction evidence in `scratch-volume-accounting.json`. The test uses
+small bounded writes and observes asynchronous eviction. Namespace quota
+accounts for declarations and the kubelet measures volume usage.
+
+## Verify your implementation
+
+- Verify each covered workload and namespace, including init containers,
+  declared limits, effective quota, and admitted Pod fields. Treat alternative
+  storage separately. Memory-backed `emptyDir` usage counts toward memory.
+- Verify the actual kubelet measures the deployed node, image and container
+  filesystem configuration where applicable. Compare available bytes and
+  inodes, observed Pod or volume usage, and configured limits. Check capacity
+  alert delivery and correlate Node DiskPressure, events and Pod status.
+- In authorized representative staging, use a bounded below/above comparison
+  and retain the exact native reason. A volume-size failure, a Pod aggregate
+  storage-limit failure and a node-pressure eviction have distinct evidence.
 
 - [Kubernetes v1.36 local ephemeral storage](https://v1-36.docs.kubernetes.io/docs/concepts/configuration/manage-resources-containers/#local-ephemeral-storage)
 - [Kubernetes v1.36 emptyDir](https://v1-36.docs.kubernetes.io/docs/concepts/storage/volumes/#emptydir)
