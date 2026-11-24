@@ -484,13 +484,14 @@
   framework_requirement_id: Annex-IV.3
   legacy_requirement_id: Annex-IV:IV(2)(b)
   framework_requirement_title: Technical documentation referred to in Article 11(1)
-  framework_mapping_notes: "Detailed information about the monitoring, functioning and control of the AI system, in particular with regard to: its capabilities and limitations in performance, including the degrees of accuracy for specific persons or groups of persons on which the system is intended to be used and the overall expected level of accuracy in relation to its intended purpose; the foreseeable unintended outcomes and sources of risks to health and safety, fundamental rights and discrimination in view of the intended purpose of the AI system; the human oversight measures needed in accordance with Article 14, including the technical measures put in place to facilitate the interpretation of the outputs of AI systems by the deployers; specifications on input data, as appropriate;\n\nSAF-K8S observability controls (D10) provide monitoring infrastructure, performance metrics collection, and anomaly detection. Accuracy measurement, bias assessment, and risk documentation are application-layer concerns, though SAF-K8S supplies the telemetry pipeline."
+  framework_mapping_notes: >-
+    Document scoped accelerator visibility and known infrastructure limits where they are material to AI system monitoring. Document system performance, risk and oversight evidence separately.
   control_id: SAF-K8S-0805-001
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: "supports"
+  strength_level: "weak"
+  applicability: "conditional"
+  applicability_condition: "A high-risk AI system provider includes relevant accelerator monitoring in its Article 11 technical documentation."
+  strength_reason_code: "partial-control-coverage"
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -624,13 +625,14 @@
   framework_requirement_id: Annex-IV.9
   legacy_requirement_id: Annex-IV:IV(8)
   framework_requirement_title: Technical documentation referred to in Article 11(1)
-  framework_mapping_notes: "A detailed description of the system in place to evaluate the AI system performance in the post-market phase in accordance with Article 72, including the post-market monitoring plan referred to in Article 72(3).\n\nSAF-K8S observability and incident response controls (D10) provide the monitoring infrastructure backbone: telemetry collection, anomaly detection, alerting pipelines. However, the complete post-market monitoring system design, including what metrics to track, what thresholds constitute degradation, and how to evaluate ongoing compliance, requires organizational and application-layer decisions."
+  framework_mapping_notes: >-
+    Retained accelerator measurements can inform the documented evaluation system. Qualify how the measurements connect to system performance and the adopted monitoring plan.
   control_id: SAF-K8S-0805-001
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code: framework-language-interpretation
+  relation_type: "supports"
+  strength_level: "weak"
+  applicability: "conditional"
+  applicability_condition: "A high-risk AI system provider incorporates relevant infrastructure signals into the evaluation system described in its post-market monitoring documentation."
+  strength_reason_code: "partial-control-coverage"
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -1191,23 +1193,6 @@
   framework_name: EU AI Act
   framework_version: 2024/1689
   framework_requirement_id: Annex-XI.1.2.c
-  legacy_requirement_id: Annex-XI:XI(7)(a)
-  framework_requirement_title: Technical documentation referred to in Article 53(1), point (a) — technical documentation for providers of general-purpose AI models
-  framework_mapping_notes: |-
-    information on the data used for training, testing and validation, where applicable, including the type and provenance of data and curation methodologies (e.g. cleaning, filtering, etc.), the number of data points, their scope and main characteristics; how the data was obtained and selected as well as all other measures to detect the unsuitability of data sources and methods to detect identifiable biases, where applicable;
-
-    SAF-K8S GPU tracking (D8), resource quota management, and training pipeline telemetry (D9/D10) directly capture compute resources, training data volumes, and total FLOPS consumed during training on Kubernetes infrastructure.
-  control_id: SAF-K8S-0805-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Annex-XI.1.2.c
   legacy_requirement_id: Annex-XI:XI(2)(a)
   framework_requirement_title: Technical documentation referred to in Article 53(1), point (a) — technical documentation for providers of general-purpose AI models
   framework_mapping_notes: |-
@@ -1249,23 +1234,6 @@
 
     SAF-K8S GPU resource tracking (D8), Kubernetes resource quota management, job scheduling records, and training pipeline telemetry (D9/D10) directly capture computational resource usage, training duration, and infrastructure configuration.
   control_id: SAF-K8S-0801-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Annex-XI.1.2.d
-  legacy_requirement_id: Annex-XI:XI(1)(c)
-  framework_requirement_title: Technical documentation referred to in Article 53(1), point (a) — technical documentation for providers of general-purpose AI models
-  framework_mapping_notes: |-
-    the computational resources used to train the model (e.g. number of floating point operations), training time, and other relevant details related to the training;
-
-    SAF-K8S GPU resource tracking (D8), Kubernetes resource quota management, job scheduling records, and training pipeline telemetry (D9/D10) directly capture computational resource usage, training duration, and infrastructure configuration.
-  control_id: SAF-K8S-0805-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -1838,16 +1806,14 @@
   framework_requirement_id: Article-12.2
   legacy_requirement_id: Art-12:12(2)
   framework_requirement_title: Record-keeping
-  framework_mapping_notes: |-
-    In order to ensure a level of traceability of the functioning of a high-risk AI system that is appropriate to the intended purpose of the system, logging capabilities shall enable the recording of events relevant for:
-
-    SAF-K8S audit and monitoring controls capture platform-level events relevant to risk detection: resource anomalies, unauthorized access, and configuration changes that constitute substantial modifications. Application-layer risk events (accuracy drift, output quality degradation) require AI-specific instrumentation beyond platform controls.
+  framework_mapping_notes: >-
+    Persist attributable infrastructure events when they are relevant to an applicable logging purpose. Verify automatic lifecycle recording, event relevance and completeness separately.
   control_id: SAF-K8S-0805-001
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: "supports"
+  strength_level: "weak"
+  applicability: "conditional"
+  applicability_condition: "The scoped accelerator event records serve an applicable Article 12(2) purpose within a high-risk AI system and feed its documented logging path."
+  strength_reason_code: "partial-control-coverage"
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -1936,23 +1902,6 @@
 
     SAF-K8S audit and monitoring controls capture platform-level events relevant to risk detection: resource anomalies, unauthorized access, and configuration changes that constitute substantial modifications. Application-layer risk events (accuracy drift, output quality degradation) require AI-specific instrumentation beyond platform controls.
   control_id: SAF-K8S-1007-005
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Article-12.2.a
-  legacy_requirement_id: Art-12:12(2)
-  framework_requirement_title: Record-keeping
-  framework_mapping_notes: |-
-    identifying situations that may result in the high-risk AI system presenting a risk within the meaning of Article 79(1) or in a substantial modification;
-
-    SAF-K8S audit and monitoring controls capture platform-level events relevant to risk detection: resource anomalies, unauthorized access, and configuration changes that constitute substantial modifications. Application-layer risk events (accuracy drift, output quality degradation) require AI-specific instrumentation beyond platform controls.
-  control_id: SAF-K8S-0805-001
   relation_type: partial
   strength_level: moderate
   applicability: required
@@ -2352,16 +2301,14 @@
   framework_requirement_id: Article-14.4.a
   legacy_requirement_id: Art-14:14(4)(a)
   framework_requirement_title: Human oversight
-  framework_mapping_notes: |-
-    to properly understand the relevant capacities and limitations of the high-risk AI system and be able to duly monitor its operation, including in view of detecting and addressing anomalies, dysfunctions and unexpected performance;
-
-    SAF-K8S observability controls (D10) provide the monitoring infrastructure for detecting anomalies and dysfunctions: AI workload telemetry, accuracy drift alerts, GPU anomaly detection. Understanding system capabilities is an organizational/training concern.
+  framework_mapping_notes: >-
+    Routed and corroborated infrastructure alerts can help the assigned overseer detect a relevant dysfunction. Confirm assistance, scope, limitations and human response separately.
   control_id: SAF-K8S-0805-001
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: "supports"
+  strength_level: "weak"
+  applicability: "conditional"
+  applicability_condition: "Authorized human overseers of an applicable high-risk AI system receive actionable accelerator alerts relevant to system operation."
+  strength_reason_code: "partial-control-coverage"
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -3412,23 +3359,6 @@
 
     SAF-K8S admission control policies and resource quotas can enforce constraints on AI system deployment and usage at the platform level. Identifying which preventive measures are appropriate requires organizational risk assessment.
   control_id: SAF-K8S-0605-001
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Article-72.3
-  legacy_requirement_id: Art-72:72(4)(a)
-  framework_requirement_title: Post-market monitoring by providers and post-market monitoring plan for high-risk AI systems
-  framework_mapping_notes: |-
-    The post-market monitoring system shall be based on a post-market monitoring plan. The post-market monitoring plan shall be part of the technical documentation referred to in Annex IV. The Commission shall adopt an implementing act laying down detailed provisions establishing a template for the post-market monitoring plan and the list of elements to be included in the plan by 2 February 2026. That implementing act shall be adopted in accordance with the examination procedure referred to in Article 98(2).
-
-    SAF-K8S telemetry and logging infrastructure enables collection of performance data (resource utilization, latency, error rates) at the platform level. Deployer feedback mechanisms and usage analytics require application-layer implementation.
-  control_id: SAF-K8S-0805-001
   relation_type: partial
   strength_level: moderate
   applicability: required
@@ -5111,19 +5041,6 @@
   framework_requirement_id: MEASURE 1.2
   framework_requirement_title: Appropriateness of AI metrics and effectiveness of existing measures are regularly assessed and updated, including measures of accuracy, fairness and bias, data quality, security, explainability, and privacy.
   framework_mapping_notes: Metrics endpoint security ensures telemetry integrity and availability. GPU telemetry collection supports hardware-level measurement validation. Security posture management drives continuous metric reassessment.
-  control_id: SAF-K8S-0805-001
-  relation_type: partial
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST AI RMF 1.0
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
-  framework_requirement_id: MEASURE 1.2
-  framework_requirement_title: Appropriateness of AI metrics and effectiveness of existing measures are regularly assessed and updated, including measures of accuracy, fairness and bias, data quality, security, explainability, and privacy.
-  framework_mapping_notes: Metrics endpoint security ensures telemetry integrity and availability. GPU telemetry collection supports hardware-level measurement validation. Security posture management drives continuous metric reassessment.
   control_id: SAF-K8S-1002-001
   relation_type: partial
   strength_level: moderate
@@ -5158,19 +5075,6 @@
   applicability_condition: Data-minimization and access results can inform the documented examination of system privacy
     risks
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST AI RMF 1.0
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
-  framework_requirement_id: MEASURE 2.3
-  framework_requirement_title: AI system performance or assurance criteria are measured qualitatively or quantitatively and demonstrated for conditions similar to deployment conditions. Measurement results regarding AI system trustworthiness in deployment conditions and across the AI lifecycle are documented.
-  framework_mapping_notes: AI workload telemetry measures performance in production conditions. Distributed tracing tracks behavior across ML pipeline stages from training through serving.
-  control_id: SAF-K8S-0805-001
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -16733,22 +16637,6 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-10(1)
   framework_requirement_title: Association of Identities
-  framework_mapping_notes: 'Binding agent identity to audit records
-
-
-    8.5 - Audit and monitor GPU workloads (tracking pod-to-GPU allocation with workload identity)'
-  control_id: SAF-K8S-0805-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-10(1)
-  framework_requirement_title: Association of Identities
   framework_mapping_notes: >-
     An authenticated Kubernetes API audit identity and Pod UID can support attribution of the scoped lifecycle record. Verify the endorsed binding strength and the separate allocation-source identity before attributing a device allocation.
   control_id: SAF-K8S-0805-002
@@ -24855,22 +24743,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-8(4)
-  framework_requirement_title: Accountability Information
-  framework_mapping_notes: 'Tracking ownership of agent components
-
-
-    8.5 - GPU allocation audit trails (accountability tracking for pod-GPU assignments with identity)'
-  control_id: SAF-K8S-0805-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -36054,22 +35926,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: RA-10
-  framework_requirement_title: Threat Hunting
-  framework_mapping_notes: 'Threat hunting proactively searches for indicators of compromise in agentic AI systems
-
-
-    2.4 - Runtime threat detection (proactive threat hunting in K8s clusters); 8.5 - GPU-based attack detection'
-  control_id: SAF-K8S-0805-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: RA-2
   framework_requirement_title: Security Categorization
   framework_mapping_notes: 'Security categorization of agentic AI systems drives control selection and rigor
@@ -41890,16 +41746,14 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-8(22)
   framework_requirement_title: Accountability and Traceability
-  framework_mapping_notes: 'Accountability and traceability of agent actions is essential for audit and forensics
-
-
-    10.1 - Audit logging (accountability); 8.5 - GPU allocation audit trails (traceability for workload identity)'
+  framework_mapping_notes: >-
+    Governed target attribution and retained observations can support traceability in the system design. Verify the identity join and authorized resolution using deployment evidence.
   control_id: SAF-K8S-0805-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: "supports"
+  strength_level: "weak"
+  applicability: "conditional"
+  applicability_condition: "The implemented monitoring design links retained observations and routed alerts to their device, workload and accountable operators."
+  strength_reason_code: "partial-control-coverage"
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -47540,70 +47394,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SC-31
-  framework_requirement_title: Covert Channel Analysis
-  framework_mapping_notes: 'Covert channel analysis identifies hidden data exfiltration paths in agent communications
-
-
-    8.5 - GPU covert channels (side-channel analysis via GPU shared memory); 8.3 - Interconnect traffic analysis'
-  control_id: SAF-K8S-0805-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-31(1)
-  framework_requirement_title: Test Covert Channels for Exploitability
-  framework_mapping_notes: 'Testing covert channels in agent systems validates that hidden data paths cannot be exploited
-
-
-    8.5 - Side-channel awareness (GPU timing attacks, memory access pattern leakage, exploitability testing)'
-  control_id: SAF-K8S-0805-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-31(2)
-  framework_requirement_title: Maximum Bandwidth
-  framework_mapping_notes: 'Limiting covert channel bandwidth in agent systems constrains data exfiltration capacity
-
-
-    8.5 - GPU covert channels (maximum bandwidth analysis for GPU shared memory covert channels)'
-  control_id: SAF-K8S-0805-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-31(3)
-  framework_requirement_title: Measure Bandwidth in Operational Environments
-  framework_mapping_notes: 'Measuring covert channel bandwidth in production agent environments validates controls
-
-
-    8.5 - Side-channel awareness (measuring covert channel bandwidth in GPU operational environments)'
-  control_id: SAF-K8S-0805-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SC-32
   framework_requirement_title: System Partitioning
   framework_mapping_notes: 'Partitioning agent systems by function and trust level limits compromise propagation
@@ -49126,22 +48916,6 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-4
   framework_requirement_title: Information in Shared System Resources
-  framework_mapping_notes: 'Preventing information leakage in shared agent resources (memory, context) is critical
-
-
-    8.1 - GPU memory isolation (cross-tenant data remnant prevention); 8.5 - GPU memory scraping prevention'
-  control_id: SAF-K8S-0805-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-4
-  framework_requirement_title: Information in Shared System Resources
   framework_mapping_notes: >-
     Placement based on documented hardware isolation can contribute to preventing unintended transfer through a shared accelerator. Verify the actual device, firmware, driver, resource release and other shared paths across trust domains.
   control_id: SAF-K8S-0805-004
@@ -49272,22 +49046,6 @@
 
 
     8.5 - GPU telemetry (DCGM exporter, NVML metrics as sensor data); 10.1 - Monitoring and metrics'
-  control_id: SAF-K8S-0805-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-42
-  framework_requirement_title: Sensor Capability and Data
-  framework_mapping_notes: 'Sensor data handling by agents (cameras, microphones in IoT contexts) requires privacy controls
-
-
-    8.5 - GPU telemetry (DCGM exporter, NVML metrics as sensor data); 10.1 - Monitoring and metrics'
   control_id: SAF-K8S-1001-004
   relation_type: direct
   strength_level: strong
@@ -49336,22 +49094,6 @@
 
 
     10.1 - SIEM integration (reporting security events to authorized personnel); 8.5 - GPU allocation audit trails'
-  control_id: SAF-K8S-0805-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-42(1)
-  framework_requirement_title: Reporting to Authorized Individuals or Roles
-  framework_mapping_notes: 'Reporting agent sensor data collection to authorized individuals ensures transparency
-
-
-    10.1 - SIEM integration (reporting security events to authorized personnel); 8.5 - GPU allocation audit trails'
   control_id: SAF-K8S-1001-004
   relation_type: direct
   strength_level: strong
@@ -49385,22 +49127,6 @@
 
     10.1 - SIEM integration (reporting security events to authorized personnel); 8.5 - GPU allocation audit trails'
   control_id: SAF-K8S-1001-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-42(2)
-  framework_requirement_title: Authorized Use
-  framework_mapping_notes: 'Authorized use controls for agent sensor data restrict collection to approved purposes
-
-
-    8.5 - GPU telemetry collection (authorized use of monitoring capabilities); 10.1 - Metrics endpoint authentication'
-  control_id: SAF-K8S-0805-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -56364,22 +56090,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-16
-  framework_requirement_title: Memory Protection
-  framework_mapping_notes: 'Memory protection for agent processes prevents exploitation of memory corruption vulnerabilities
-
-
-    8.1 - GPU memory isolation verification; 8.5 - GPU memory scraping detection; 3.2 - Security contexts (memory protections)'
-  control_id: SAF-K8S-0805-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-17
   framework_requirement_title: Fail-safe Procedures
   framework_mapping_notes: 'Fail-safe procedures for agent systems ensure secure shutdown and data preservation
@@ -62625,22 +62335,6 @@
 
     2.4 - Runtime threat detection (integrated detection and response); 10.5 - IR lifecycle (detection-to-response integration)'
   control_id: SAF-K8S-1005-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-7(8)
-  framework_requirement_title: Auditing Capability for Significant Events
-  framework_mapping_notes: 'Audit capability for significant agent integrity events supports forensic investigation
-
-
-    10.1 - Kubernetes audit policy (auditing significant events); 8.5 - GPU allocation audit trails'
-  control_id: SAF-K8S-0805-001
   relation_type: direct
   strength_level: strong
   applicability: required

@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-A detailed description of the system in place to evaluate the AI system performance in the post-market phase in accordance with Article 72, including the post-market monitoring plan referred to in Article 72(3).
-
-SAF-K8S observability and incident response controls (D10) provide the monitoring infrastructure backbone: telemetry collection, anomaly detection, alerting pipelines. However, the complete post-market monitoring system design, including what metrics to track, what thresholds constitute degradation, and how to evaluate ongoing compliance, requires organizational and application-layer decisions.
+Retained accelerator measurements can inform the documented evaluation system. Qualify how the measurements connect to system performance and the adopted monitoring plan.
 
 ## SAF-K8S Controls
 
@@ -15,10 +13,10 @@ SAF-K8S observability and incident response controls (D10) provide the monitorin
 
 - Domain: D08 - GPU, Accelerator, and Confidential Computing
 - Knowledge Area: 8.5
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1002-002 - Distributed tracing for ML pipelines](../../controls/SAF-K8S-1002-002.md)
 

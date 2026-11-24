@@ -20,15 +20,6 @@ SAF-K8S GPU resource tracking (D8), Kubernetes resource quota management, job sc
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0805-001 - GPU telemetry collection and anomaly detection](../../controls/SAF-K8S-0805-001.md)
-
-- Domain: D08 - GPU, Accelerator, and Confidential Computing
-- Knowledge Area: 8.5
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0805-002 - GPU allocation audit trail and workload identity tracking](../../controls/SAF-K8S-0805-002.md)
 
 - Domain: D08 - GPU, Accelerator, and Confidential Computing

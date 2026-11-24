@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 3805
-- Distinct Requirements Mapped: 747
+- Total Reverse Mappings: 3792
+- Distinct Requirements Mapped: 742
 
 ## Requirements
 
@@ -251,7 +251,6 @@
 - [CM-8(1) - Updates During Installation and Removal](cm-8-1.md)
 - [CM-8(2) - Automated Maintenance](cm-8-2.md)
 - [CM-8(3) - Automated Unauthorized Component Detection](cm-8-3.md)
-- [CM-8(4) - Accountability Information](cm-8-4.md)
 - [CM-8(6) - Assessed Configurations and Approved Deviations](cm-8-6.md)
 - [CM-8(7) - Centralized Repository](cm-8-7.md)
 - [CM-8(9) - Assignment of Components to Systems](cm-8-9.md)
@@ -414,7 +413,6 @@
 - [PT-3(2) - Automation](pt-3-2.md)
 - [PT-5 - Privacy Notice](pt-5.md)
 - [RA-1 - Policy and Procedures](ra-1.md)
-- [RA-10 - Threat Hunting](ra-10.md)
 - [RA-2 - Security Categorization](ra-2.md)
 - [RA-2(1) - Impact-level Prioritization](ra-2-1.md)
 - [RA-3 - Risk Assessment](ra-3.md)
@@ -576,9 +574,6 @@
 - [SC-30(3) - Change Processing and Storage Locations](sc-30-3.md)
 - [SC-30(5) - Concealment of System Components](sc-30-5.md)
 - [SC-31 - Covert Channel Analysis](sc-31.md)
-- [SC-31(1) - Test Covert Channels for Exploitability](sc-31-1.md)
-- [SC-31(2) - Maximum Bandwidth](sc-31-2.md)
-- [SC-31(3) - Measure Bandwidth in Operational Environments](sc-31-3.md)
 - [SC-32 - System Partitioning](sc-32.md)
 - [SC-34 - Non-modifiable Executable Programs](sc-34.md)
 - [SC-34(1) - No Writable Storage](sc-34-1.md)

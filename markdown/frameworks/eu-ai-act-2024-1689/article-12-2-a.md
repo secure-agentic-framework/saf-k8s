@@ -11,15 +11,6 @@ SAF-K8S audit and monitoring controls capture platform-level events relevant to 
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0805-001 - GPU telemetry collection and anomaly detection](../../controls/SAF-K8S-0805-001.md)
-
-- Domain: D08 - GPU, Accelerator, and Confidential Computing
-- Knowledge Area: 8.5
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-1001-017 - Audit capture of admission, authorization, and privileged API decisions for AI workloads](../../controls/SAF-K8S-1001-017.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance

@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-In order to ensure a level of traceability of the functioning of a high-risk AI system that is appropriate to the intended purpose of the system, logging capabilities shall enable the recording of events relevant for:
-
-SAF-K8S audit and monitoring controls capture platform-level events relevant to risk detection: resource anomalies, unauthorized access, and configuration changes that constitute substantial modifications. Application-layer risk events (accuracy drift, output quality degradation) require AI-specific instrumentation beyond platform controls.
+Persist attributable infrastructure events when they are relevant to an applicable logging purpose. Verify automatic lifecycle recording, event relevance and completeness separately.
 
 ## SAF-K8S Controls
 
@@ -15,10 +13,10 @@ SAF-K8S audit and monitoring controls capture platform-level events relevant to 
 
 - Domain: D08 - GPU, Accelerator, and Confidential Computing
 - Knowledge Area: 8.5
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0905-006 - Model artifact lifecycle management](../../controls/SAF-K8S-0905-006.md)
 

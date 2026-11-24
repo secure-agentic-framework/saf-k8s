@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-to properly understand the relevant capacities and limitations of the high-risk AI system and be able to duly monitor its operation, including in view of detecting and addressing anomalies, dysfunctions and unexpected performance;
-
-SAF-K8S observability controls (D10) provide the monitoring infrastructure for detecting anomalies and dysfunctions: AI workload telemetry, accuracy drift alerts, GPU anomaly detection. Understanding system capabilities is an organizational/training concern.
+Routed and corroborated infrastructure alerts can help the assigned overseer detect a relevant dysfunction. Confirm assistance, scope, limitations and human response separately.
 
 ## SAF-K8S Controls
 
@@ -15,10 +13,10 @@ SAF-K8S observability controls (D10) provide the monitoring infrastructure for d
 
 - Domain: D08 - GPU, Accelerator, and Confidential Computing
 - Knowledge Area: 8.5
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1002-002 - Distributed tracing for ML pipelines](../../controls/SAF-K8S-1002-002.md)
 
