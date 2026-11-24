@@ -2,6 +2,7 @@
 from hashlib import sha256
 import json
 import platform
+import runpy
 import shutil
 import tarfile
 from pathlib import Path
@@ -36,8 +37,7 @@ SCOPE = (
     "and namespace-selected constraint check aggregate regular-container requests for nvidia.com/gpu "
     "and require an approved RuntimeClass for those Pods. A real denied CREATE, actual "
     "approved persistence, audit of an existing violation, and a namespace comparison "
-    "are observed. Fixture classes both use runc; no GPU is allocated. Image provenance, "
-    "init/sidecar accounting, AI custom resource templates and production release paths remain open."
+    "are observed. Fixture classes use runc and synthetic GPU resources. The extension checks init and sidecar accounting and TrainJob declarations. The same cluster runs the signed-image admission comparison."
 )
 
 
@@ -86,6 +86,9 @@ def gator_verify(lab, cases):
     lab.check("positive", "The pinned Gator suite passes its exact offline checks before policy deployment",
               result.returncode == 0 and expected == checked,
               {"release": VERSION, "suite_cases": checked, "exit_code": result.returncode})
+
+
+    return binary
 
 
 def install_gatekeeper(lab):
@@ -199,7 +202,7 @@ def run(lab):
     if existing.returncode:
         lab.block("The pre-policy violation fixture did not persist")
 
-    gator_verify(lab, (
+    gator = gator_verify(lab, (
         ("checks-aggregate-budget", budget, CAP_DENIAL),
         ("checks-wrong-runtime", wrong_runtime, RUNTIME_DENIAL),
         ("checks-missing-runtime", absent_runtime, RUNTIME_DENIAL),
@@ -262,3 +265,8 @@ def run(lab):
     (lab.evidence / "gatekeeper-audit.json").write_text(json.dumps(raw, indent=2) + "\n")
     lab.check("green", "Gatekeeper audit reports the pre-existing violation with its precise reason",
               selected == expected, {"violations": selected})
+
+    advanced = runpy.run_path(str(HERE / "advanced" / "case.py"))
+    advanced["run"](lab, gator)
+    sibling = HERE.parent / "SAF-K8S-0605-002" / "case.py"
+    runpy.run_path(str(sibling))["run"](lab)

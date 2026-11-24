@@ -1,0 +1,39 @@
+apiVersion: test.gatekeeper.sh/v1alpha1
+kind: Suite
+tests:
+- name: gpu-limits-and-init-accounting
+  template: constraint-template.yaml
+  constraint: constraint.yaml
+  cases:
+  - name: limits-only-defaults-request-and-admits-at-cap
+    object: fixtures/pod-limits-only-at-cap.yaml
+    assertions:
+    - violations: 0
+  - name: restartable-init-sidecar-is-counted-with-regular-container
+    object: fixtures/pod-restartable-init-at-cap.yaml
+    assertions:
+    - violations: 0
+  - name: ordinary-init-runs-with-prior-restartable-init-and-exceeds-cap
+    object: fixtures/pod-init-phase-over-cap.yaml
+    assertions:
+    - violations: 1
+      message: effective Pod GPU limits 3 exceed fixture maximum 2
+  - name: missing-runtime-is-denied-for-effective-GPU-use
+    object: fixtures/pod-limits-only-wrong-runtime.yaml
+    assertions:
+    - violations: 1
+      message: GPU Pods require RuntimeClass saf-gpu
+  - name: kubeflow-trainjob-supported-kind-at-cap
+    object: fixtures/trainjob-limits-only-at-cap.yaml
+    assertions:
+    - violations: 0
+  - name: kubeflow-trainjob-supported-kind-over-cap
+    object: fixtures/trainjob-limits-only-over-cap.yaml
+    assertions:
+    - violations: 1
+      message: TrainJob declared GPU limits 4 exceed fixture maximum 2
+  - name: restartable-init-and-regular-steady-state-exceed-cap
+    object: fixtures/pod-restartable-steady-over-cap.yaml
+    assertions:
+    - violations: 1
+      message: effective Pod GPU limits 3 exceed fixture maximum 2

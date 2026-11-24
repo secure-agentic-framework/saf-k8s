@@ -1,0 +1,199 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: safgpuprovenanceadmission
+spec:
+  crd:
+    spec:
+      names:
+        kind: SafGPUProvenanceAdmission
+      validation:
+        openAPIV3Schema:
+          type: object
+          required: [maximum, runtimeClass]
+          properties:
+            maximum:
+              type: integer
+              minimum: 1
+            runtimeClass:
+              type: string
+              minLength: 1
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package safgpuprovenanceadmission
+
+        gpu_limit(container) = value {
+          resources := object.get(container, "resources", {})
+          limits := object.get(resources, "limits", {})
+          raw := object.get(limits, "nvidia.com/gpu", "0")
+          value := to_number(raw)
+        }
+
+        gpu_request(container) = value {
+          resources := object.get(container, "resources", {})
+          requests := object.get(resources, "requests", {})
+          raw := object.get(requests, "nvidia.com/gpu", "0")
+          value := to_number(raw)
+        }
+
+        has_gpu_request(container) {
+          gpu_request(container) > 0
+        }
+
+        whole_gpu_quantity(raw) {
+          value := to_number(raw)
+          value >= 0
+          value == floor(value)
+        }
+
+        gpu_fields_known(resources) {
+          limits := object.get(resources, "limits", {})
+          requests := object.get(resources, "requests", {})
+          whole_gpu_quantity(object.get(limits, "nvidia.com/gpu", "0"))
+          whole_gpu_quantity(object.get(requests, "nvidia.com/gpu", "0"))
+        }
+
+        violation[{"msg": "The scoped GPU fixture requires explicit whole-number resource quantities"}] {
+          input.review.kind.kind == "Pod"
+          spec := input.review.object.spec
+          containers := array.concat(object.get(spec, "containers", []), object.get(spec, "initContainers", []))
+          container := containers[_]
+          not gpu_fields_known(object.get(container, "resources", {}))
+        }
+
+        violation[{"msg": "The scoped TrainJob fixture requires explicit whole-number GPU quantities"}] {
+          input.review.kind.kind == "TrainJob"
+          trainer := object.get(input.review.object.spec, "trainer", {})
+          not gpu_fields_known(object.get(trainer, "resourcesPerNode", {}))
+        }
+
+        # For extended GPUs, Kubernetes requires requests == limits and
+        # defaults an omitted request from limits. Count the canonical limit.
+        gpu_sum(containers) = total {
+          total := sum([value | container := containers[_]; value := gpu_limit(container)])
+        }
+
+        is_restartable_init(container) {
+          object.get(container, "restartPolicy", "") == "Always"
+        }
+
+        regular_gpu(spec) = total {
+          total := gpu_sum(object.get(spec, "containers", []))
+        }
+
+        restartable_init_gpu(spec) = total {
+          init := object.get(spec, "initContainers", [])
+          total := sum([value | container := init[_]; is_restartable_init(container); value := gpu_limit(container)])
+        }
+
+        # A non-restartable init runs with previously started restartable
+        # init sidecars. Each such phase competes with the steady-state sum.
+        effective_pod_gpu(spec) = total {
+          containers := object.get(spec, "containers", [])
+          init := object.get(spec, "initContainers", [])
+          steady := gpu_sum(containers) + restartable_init_gpu(spec)
+          init_phases := [phase |
+            some i
+            container := init[i]
+            not is_restartable_init(container)
+            prior := [sidecar_gpu |
+              some j
+              j < i
+              sidecar_container := init[j]
+              is_restartable_init(sidecar_container)
+              sidecar_gpu := gpu_limit(sidecar_container)
+            ]
+            phase := sum(prior) + gpu_limit(container)
+          ]
+          candidates := array.concat([steady], init_phases)
+          total := max(candidates)
+        }
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Pod"
+          spec := input.review.object.spec
+          all_containers := array.concat(object.get(spec, "containers", []), object.get(spec, "initContainers", []))
+          container := all_containers[_]
+          has_gpu_request(container)
+          gpu_limit(container) == 0
+          msg := "GPU requests require a matching nvidia.com/gpu limit"
+        }
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Pod"
+          spec := input.review.object.spec
+          all_containers := array.concat(object.get(spec, "containers", []), object.get(spec, "initContainers", []))
+          container := all_containers[_]
+          has_gpu_request(container)
+          gpu_request(container) != gpu_limit(container)
+          msg := "GPU requests and limits must match"
+        }
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Pod"
+          spec := input.review.object.spec
+          total := effective_pod_gpu(spec)
+          total > input.parameters.maximum
+          msg := sprintf("effective Pod GPU limits %v exceed fixture maximum %v", [total, input.parameters.maximum])
+        }
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Pod"
+          spec := input.review.object.spec
+          effective_pod_gpu(spec) > 0
+          object.get(spec, "runtimeClassName", "") != input.parameters.runtimeClass
+          msg := sprintf("GPU Pods require RuntimeClass %s", [input.parameters.runtimeClass])
+        }
+
+        # Kubeflow Trainer v2.3.0 defines trainer.kubeflow.org/v1alpha1
+        # TrainJob.trainer.numNodes and resourcesPerNode. This narrow fixture
+        # only governs that explicit per-node declaration and a reviewed
+        # zero-GPU runtime; other runtime shapes require a separate review.
+        reviewed_runtime(runtime) {
+          runtime.name == "saf-fixture-gpu-runtime"
+          runtime.kind == "TrainingRuntime"
+          runtime.apiGroup == "trainer.kubeflow.org"
+        }
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "TrainJob"
+          job := input.review.object
+          runtime := object.get(job.spec, "runtimeRef", {})
+          not reviewed_runtime(runtime)
+          msg := "TrainJob must reference reviewed runtime saf-fixture-gpu-runtime"
+        }
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "TrainJob"
+          job := input.review.object
+          patches := object.get(job.spec, "runtimePatches", [])
+          count(patches) > 0
+          msg := "TrainJob runtimePatches are outside the reviewed fixture"
+        }
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "TrainJob"
+          job := input.review.object
+          trainer := object.get(job.spec, "trainer", {})
+          per_node := object.get(object.get(trainer, "resourcesPerNode", {}), "limits", {})
+          gpu := to_number(object.get(per_node, "nvidia.com/gpu", "0"))
+          nodes := object.get(trainer, "numNodes", 1)
+          total := gpu * nodes
+          total > input.parameters.maximum
+          msg := sprintf("TrainJob declared GPU limits %v exceed fixture maximum %v", [total, input.parameters.maximum])
+        }
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "TrainJob"
+          job := input.review.object
+          trainer := object.get(job.spec, "trainer", {})
+          resources := object.get(trainer, "resourcesPerNode", {})
+          requests := object.get(resources, "requests", {})
+          limits := object.get(resources, "limits", {})
+          request := to_number(object.get(requests, "nvidia.com/gpu", "0"))
+          limit := to_number(object.get(limits, "nvidia.com/gpu", "0"))
+          request > 0
+          request != limit
+          msg := "TrainJob GPU requests and limits must match"
+        }

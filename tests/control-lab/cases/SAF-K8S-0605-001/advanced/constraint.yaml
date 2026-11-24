@@ -1,0 +1,17 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: SafGPUProvenanceAdmission
+metadata:
+  name: saf-gpu-provenance-admission
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: [Pod]
+      - apiGroups: ["trainer.kubeflow.org"]
+        kinds: [TrainJob]
+    namespaces:
+      - saf-0605-001-local
+  parameters:
+    maximum: 2
+    runtimeClass: saf-gpu

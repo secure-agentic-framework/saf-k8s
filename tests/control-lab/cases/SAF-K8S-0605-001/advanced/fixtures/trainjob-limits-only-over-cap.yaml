@@ -1,0 +1,15 @@
+apiVersion: trainer.kubeflow.org/v1alpha1
+kind: TrainJob
+metadata:
+  name: trainjob-limits-only-over-cap
+  namespace: saf-0605-001-local
+spec:
+  runtimeRef:
+    name: saf-fixture-gpu-runtime
+    kind: TrainingRuntime
+    apiGroup: trainer.kubeflow.org
+  trainer:
+    numNodes: 2
+    resourcesPerNode:
+      limits:
+        nvidia.com/gpu: 2

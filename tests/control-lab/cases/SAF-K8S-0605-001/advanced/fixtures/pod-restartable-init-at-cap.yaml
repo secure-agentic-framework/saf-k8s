@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-restartable-init-at-cap
+  namespace: saf-0605-001-local
+spec:
+  runtimeClassName: saf-gpu
+  automountServiceAccountToken: false
+  initContainers:
+    - name: inert-sidecar
+      image: registry.k8s.io/pause@sha256:1ff6c18fbef2045af6b9c16bf034cc421a29027b800e4f9b68ae9b1cb3e9ae07
+      restartPolicy: Always
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+  containers:
+    - name: inert-trainer
+      image: registry.k8s.io/pause@sha256:1ff6c18fbef2045af6b9c16bf034cc421a29027b800e4f9b68ae9b1cb3e9ae07
+      resources:
+        limits:
+          nvidia.com/gpu: 1
