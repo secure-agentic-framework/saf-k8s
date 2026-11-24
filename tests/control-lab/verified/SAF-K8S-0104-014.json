@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0104-014",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "47d811a034c55a87ce80ce6b5b5ff93758a7b46c",
+  "catalog_sha256": "b13085fffcc414b504ce34f1a8df0fae3520e701b0adca01e92c2c2add5002cb",
   "node_image": "kindest/node:v1.34.8@sha256:02722c2dedddcfc00febf5d27fbeb9b7b2c14294c82109ff4a85d89ac9ba3256",
   "control_sha256": "7f8317448e63a2f00ca378b409d303ff75a700fe67923e43f44ecbe8305012cb",
   "scope": "Disposable self-managed Kind Kubernetes v1.34.8. Executes a real kube-bench v0.16.0 scan for two selected etcd checks under CIS 1.12 on two ordinary CronJob schedule ticks. Reads the disposable node process view with hostPID, without host filesystem mounts or Kubernetes credentials. Full benchmark and managed-service coverage, production cadence, and post-upgrade profile selection remain open.",
-  "cluster": "saf-lab-31beb939db8b",
+  "cluster": "saf-lab-a1cfadf07507",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
