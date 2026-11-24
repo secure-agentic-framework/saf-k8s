@@ -1,62 +1,64 @@
-# SAF-K8S-0201-008 — Kubelet file metadata review
+# SAF-K8S-0201-008 Kubelet file ownership and permissions
 
-Run through the control lab harness:
+From the framework root, run:
 
 ```sh
-python3 lab.py test SAF-K8S-0201-008 --docker-context desktop-linux
+python3 tests/control-lab/lab.py test SAF-K8S-0201-008 --docker-context desktop-linux
 ```
 
-## Provenance
+The case uses Kubernetes v1.34.8 and kube-bench v0.16.0 with the CIS 1.12 node profile.
+It reads only three file arguments from each running kubelet. On the control-plane
+and worker nodes, the scanner checks the active configuration and an empty synthetic
+kubeconfig at separate read-only mounts. The stock configuration fails 4.1.9 at
+`0644`. The empty kubeconfig fails 4.1.5 and 4.1.6 with `0644` and a non-root
+owner. The test tightens the real configuration to `0600`, fixes the synthetic
+file and repeats the same four checks on the same files with fresh scanner Jobs.
+The evidence includes matching file identities, the config ownership check,
+node readiness, scored results, and scanner identity.
 
-| Field | Evidence |
-| --- | --- |
-| Original catalog control | [`SAF-K8S-0201-008.md` at catalog/framework commit `133a8698a45e2b335b51728bf4c62f7bda98d15f`](https://github.com/secure-agentic-framework/saf-k8s/blob/133a8698a45e2b335b51728bf4c62f7bda98d15f/markdown/controls/SAF-K8S-0201-008.md) |
-| Current framework control read for this review | `../saf-k8s-framework/markdown/controls/SAF-K8S-0201-008.md`, framework checkout `ed8c075e7d2fe644ba0917e0362dd94e51878f83` |
-| Original catalog record digest | `e2870408e7ea5a280c731018ac220345b884eac77f9c148eb24153a8914cef81` from the parsed record in `catalog/index.json` |
-| Reviewer and date | Local review on 2026-11-21 |
-| Tested platform, Kubernetes version, runtime, and add-ons | Pinned kindest/node v1.36.1. See `verified/SAF-K8S-0201-008.json`. |
-| Primary references | Kubernetes v1.36 documentation and Kubernetes source tag v1.36.1, linked below |
+Each actual kubeconfig stays untouched and is checked from the node using file
+metadata. The fixture verifies that the enrolled nodes have no bootstrap
+kubeconfig and that the stock kubeadm client credential link points to a protected
+target within the expected directory. The runner retains metadata only. The lab
+uses kubeadm paths, one control-plane node and one worker.
 
-The catalog statement requires root ownership and maximum modes of `0644` for
-configuration and `0600` for private keys. The upstream references below document
-the kubelet/kubeadm paths and which kubeconfig material contains credentials. They
-do not define one universal UID, GID, or POSIX mode for every path or node image.
-This case therefore treats the catalog's UID and mode limits as the claims under
-review. It records numeric GID for evidence but does not assume group `root`; the
-required group and group-access policy need an organization-specific baseline.
+## Verify your implementation
 
-## Review obligations and evidence
+1. Inventory applicable node pools, node OS and image versions, Kubernetes
+   releases and the approved distribution-specific benchmark or equivalent
+   baseline. Record which components and nodes the provider operates.
+2. Derive the active `--config`, `--kubeconfig`, and conditional
+   `--bootstrap-kubeconfig` paths from the effective service arguments or an
+   authorized provider export. Capture only the selected paths. Include other
+   effective configuration sources and the relevant credential references.
+3. Check file type, numeric ownership, mode, ACLs and parent-directory access
+   with approved read-only tooling. On Linux, `stat`, `readlink`, and
+   `getfacl` can report the metadata. Record both the link and resolved
+   target for rotating credentials, including boundaries on which directories
+   can contain the target and who can change the link or its ancestors. Use
+   approved provisioning metadata to establish credential references and avoid
+   retaining kubeconfig, certificate or key contents.
+4. Apply the selected profile to each file class. For CIS 1.12, the active
+   configuration and kubeconfig use mode `0600` or more restrictive and
+   `root:root` under 4.1.5, 4.1.6, 4.1.9 and 4.1.10. Preserve the kubelet's
+   required read access. Assess client CA certificates under their own rules.
+   Use credential protections while bootstrap is active. On kubeadm, absence
+   of the temporary bootstrap kubeconfig is expected after enrollment.
+5. Collect dated provisioning and recurring scan results by pool, node and
+   effective path. Keep the applicable version and profile, tool, observed
+   metadata, assessment result and any remediation or approved exception.
+   Retest dated changes, including node-image revisions. For provider-operated
+   scope, retain service and pool-specific evidence covering equivalent
+   protections or record the unresolved verification gap.
 
-| Catalog obligation | Case evidence | Boundary |
-| --- | --- | --- |
-| Kubelet configuration file ownership and mode | Read-only `stat -L` of `/var/lib/kubelet/config.yaml`; assert UID 0 and no bits beyond `0644`. | One required path on the harness control-plane node. |
-| Kubelet kubeconfig and bootstrap credential protection | Read-only metadata for `kubelet.conf` and, when present, `bootstrap-kubelet.conf`; classify both as credentials with a `0600` ceiling. | Upstream documents the embedded authentication key and bootstrap lifecycle; the bootstrap file can be absent after enrollment. |
-| Active kubelet client certificate/key | Read-only `stat -L` of `kubelet-client-current.pem` when present, recording target metadata and applying the credential ceiling. | The active pointer is a representative path; this is not a recursive audit of the certificate directory. |
-| Permission rule has meaningful red/green cases | Harmless temporary local files model an over-permissive credential, the catalog ceiling, and stricter modes. | Fixture bodies contain only a public marker and are never read; no node file is modified. |
-| Root ownership claim | Collect numeric UID/GID for each present allowlisted node file; require UID 0 on the three required node paths. | This does not resolve usernames, GID policy, ACLs, or access through mounts/capabilities. |
+File metadata supports CM-5 access restrictions and CM-6 configuration settings.
+Approval and enforcement of change access, permitted deviations and ongoing
+monitoring require their own operating records.
 
-The only node operation is `stat -L -c '%F|%u|%g|%a'` against the fixed paths in
-[`fixtures.json`](fixtures.json). The case never opens or prints credential or
-configuration contents. It does not run `find`, inspect process arguments, change
-permissions, or broaden access on real node files. Synthetic mode checks operate
-only on temporary local files created by this case.
+- [Kube-bench v0.16.0 CIS 1.12 node checks](https://raw.githubusercontent.com/aquasecurity/kube-bench/v0.16.0/cfg/cis-1.12/node.yaml)
+- [Kubernetes v1.34 kubelet paths](https://v1-34.docs.kubernetes.io/docs/reference/node/kubelet-files/)
+- [Kubeadm v1.34 node bootstrapping](https://v1-34.docs.kubernetes.io/docs/reference/setup-tools/kubeadm/implementation-details/#tls-bootstrap)
+- [NIST SP 800-53 Rev. 5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)
 
-The allowlist includes kubeadm's standard kubelet config, instance config, flags
-file, kubelet kubeconfig and optional bootstrap/client-certificate paths. Paths
-not present are reported as absent; missing required paths fail the node check.
-Every present allowlisted path must satisfy the root UID and category mode ceiling;
-missing optional paths are recorded without treating absence as a failure. A pass
-cannot establish the control's whole-directory or every-node claim, a recurring
-audit schedule, node image provisioning, group policy, provider attestation, ACL
-behavior, or whether an escaped workload can reach host files. Those require
-separate system evidence.
-
-## Primary versioned upstream references
-
-- [Kubernetes v1.36 local files and paths used by the kubelet](https://v1-36.docs.kubernetes.io/docs/reference/node/kubelet-files/) — configuration path, certificate directory and configurable locations.
-- [Kubernetes v1.36 kubeadm implementation details](https://v1-36.docs.kubernetes.io/docs/reference/setup-tools/kubeadm/implementation-details/) — standard kubeconfig and PKI paths; bootstrap and client credential lifecycle; generated kubeconfigs contain embedded authentication keys.
-- [Kubernetes v1.36 kubeadm kubelet integration](https://v1-36.docs.kubernetes.io/docs/setup/production-environment/tools/kubeadm/kubelet-integration/) — kubeadm writes `/var/lib/kubelet/config.yaml` and its node instance configuration.
-- [Kubernetes v1.36.1 kubeadm path constants](https://github.com/kubernetes/kubernetes/blob/v1.36.1/cmd/kubeadm/app/constants/constants.go) — versioned source for the kubelet runtime directory and well-known configuration filenames.
-
-The retained passing result contains the node metadata and synthetic mode
-checks. A rerun writes its full result and command transcript under `evidence/`.
+The runner retains the older mode evaluator for historical catalog replays.
+Its `0644` assumption is the finding corrected by the current case.

@@ -1,36 +1,36 @@
 {
   "control_id": "SAF-K8S-0201-008",
-  "catalog_revision": "d34b502ac96accb45a26841dfa77094dc4a72d9e",
-  "catalog_sha256": "c3bdef2bfc0aae712ee2fcb1bfd47cebfcedc7415526acfb36b86be77042a93f",
-  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "e2870408e7ea5a280c731018ac220345b884eac77f9c148eb24153a8914cef81",
-  "scope": "On the disposable harness kind control-plane node, run stat -L only against the fixed kubelet path allowlist in fixtures.json. Record type, mode and numeric UID/GID; assert root UID and the catalog mode ceiling. No node file is opened, read, written, chmodded, or recursively enumerated. Harmless local temporary files exercise mode classification. Group policy, complete directory coverage, other node roles, providers and workload mount/access controls require separate evidence.",
-  "cluster": "saf-lab-7876f2ad0476",
+  "catalog_revision": "495c927263ab645328e7d38baa7e7c51aa059645",
+  "catalog_sha256": "89f7799b9bc1855a0d4cf1e5aa36f0122612c67b0f313be4eec18901475dd85b",
+  "node_image": "kindest/node:v1.34.8@sha256:02722c2dedddcfc00febf5d27fbeb9b7b2c14294c82109ff4a85d89ac9ba3256",
+  "control_sha256": "ff97308886539ec4d5eab830f6a8b4bce7bbe2fbf717d6ad3eb9924a1ed43f54",
+  "scope": "Disposable Kind v1.34.8 control-plane and worker nodes, with the pinned kube-bench CIS 1.12 node profile. Verify the running kubelet's configured path, live config mode before and after tightening, synthetic kubeconfig mode and owner changes, and metadata for the untouched live kubeconfig, bootstrap path and stock client-key symlink. Adopter guidance covers other distributions, ACLs, node coverage and provider evidence.",
+  "cluster": "saf-lab-2964fec357c6",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
-      "minor": "36",
-      "gitVersion": "v1.36.1",
-      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "minor": "34",
+      "gitVersion": "v1.34.8",
+      "gitCommit": "1f328c5e9dd683d0c5e69f3d7d58f8371278dec2",
       "gitTreeState": "clean",
-      "buildDate": "2026-05-12T09:54:35Z",
-      "goVersion": "go1.26.2",
+      "buildDate": "2026-05-12T09:52:48Z",
+      "goVersion": "go1.25.9",
       "compiler": "gc",
       "platform": "darwin/arm64"
     },
-    "kustomizeVersion": "v5.8.1",
+    "kustomizeVersion": "v5.7.1",
     "serverVersion": {
       "major": "1",
-      "minor": "36",
+      "minor": "34",
       "emulationMajor": "1",
-      "emulationMinor": "36",
+      "emulationMinor": "34",
       "minCompatibilityMajor": "1",
-      "minCompatibilityMinor": "35",
-      "gitVersion": "v1.36.1",
-      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "minCompatibilityMinor": "33",
+      "gitVersion": "v1.34.8",
+      "gitCommit": "1f328c5e9dd683d0c5e69f3d7d58f8371278dec2",
       "gitTreeState": "clean",
-      "buildDate": "2026-05-12T09:51:34Z",
-      "goVersion": "go1.26.2",
+      "buildDate": "2026-05-12T09:50:02Z",
+      "goVersion": "go1.25.9",
       "compiler": "gc",
       "platform": "linux/arm64"
     }
@@ -40,101 +40,88 @@
   "checks": [
     {
       "phase": "red",
-      "claim": "The mode evaluator accepts 0644 configuration and detects an over-permissive 0644 credential",
+      "claim": "control-plane scanner rejects broad live config mode and the unsafe synthetic kubeconfig",
       "matched": true,
       "observed": {
-        "configuration_mode_allowed": true,
-        "credential_mode_rejected": true
+        "checks": {
+          "4.1.5": "FAIL",
+          "4.1.6": "FAIL",
+          "4.1.9": "FAIL",
+          "4.1.10": "PASS"
+        },
+        "live_config_mode": "644",
+        "synthetic_wrong_owner_rejected": true
       }
     },
     {
       "phase": "green",
-      "claim": "The mode evaluator accepts the catalog ceilings on synthetic files",
+      "claim": "control-plane fresh scan passes on the exact corrected files",
       "matched": true,
       "observed": {
-        "configuration_mode_allowed": true,
-        "credential_mode_allowed": true
-      }
-    },
-    {
-      "phase": "positive",
-      "claim": "Stricter synthetic modes remain compliant",
-      "matched": true,
-      "observed": {
-        "stricter_configuration_allowed": true,
-        "stricter_credential_allowed": true
-      }
-    },
-    {
-      "phase": "positive",
-      "claim": "Required kubelet paths on the case-owned kind node are root-owned and within the catalog mode ceiling",
-      "matched": true,
-      "observed": {
-        "/var/lib/kubelet/config.yaml": {
-          "present": true,
-          "required": true,
-          "classification": "configuration",
-          "type": "regular file",
-          "uid": 0,
-          "gid": 0,
-          "mode": "0644",
-          "regular_file": true,
-          "root_uid": true,
-          "mode_within_catalog_ceiling": true
-        },
-        "/var/lib/kubelet/instance-config.yaml": {
-          "present": true,
-          "required": false,
-          "classification": "configuration",
-          "type": "regular file",
-          "uid": 0,
-          "gid": 0,
-          "mode": "0644",
-          "regular_file": true,
-          "root_uid": true,
-          "mode_within_catalog_ceiling": true
-        },
-        "/var/lib/kubelet/kubeadm-flags.env": {
-          "present": true,
-          "required": true,
-          "classification": "configuration",
-          "type": "regular file",
-          "uid": 0,
-          "gid": 0,
-          "mode": "0644",
-          "regular_file": true,
-          "root_uid": true,
-          "mode_within_catalog_ceiling": true
-        },
-        "/etc/kubernetes/kubelet.conf": {
-          "present": true,
-          "required": true,
-          "classification": "credential",
-          "type": "regular file",
-          "uid": 0,
-          "gid": 0,
-          "mode": "0600",
-          "regular_file": true,
-          "root_uid": true,
-          "mode_within_catalog_ceiling": true
-        },
-        "/etc/kubernetes/bootstrap-kubelet.conf": {
-          "present": false,
-          "required": false,
-          "classification": "credential"
-        },
-        "/var/lib/kubelet/pki/kubelet-client-current.pem": {
-          "present": true,
-          "required": false,
-          "classification": "credential",
-          "type": "regular file",
-          "uid": 0,
-          "gid": 0,
-          "mode": "0600",
-          "regular_file": true,
-          "root_uid": true,
-          "mode_within_catalog_ceiling": true
+        "live_config_private": true,
+        "synthetic_kubeconfig_private": true,
+        "config_and_fixture_identity_preserved": true,
+        "separate_scan": true,
+        "checks": {
+          "4.1.5": "PASS",
+          "4.1.6": "PASS",
+          "4.1.9": "PASS",
+          "4.1.10": "PASS"
         }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "control-plane stays Ready with unchanged private kubeconfig and a protected client-key target",
+      "matched": true,
+      "observed": {
+        "node_ready_and_unchanged": true,
+        "private_kubeconfig_unchanged": true,
+        "protected_client_link_and_target": true,
+        "enrolled_bootstrap_file_absent": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "worker scanner rejects broad live config mode and the unsafe synthetic kubeconfig",
+      "matched": true,
+      "observed": {
+        "checks": {
+          "4.1.5": "FAIL",
+          "4.1.6": "FAIL",
+          "4.1.9": "FAIL",
+          "4.1.10": "PASS"
+        },
+        "live_config_mode": "644",
+        "synthetic_wrong_owner_rejected": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "worker fresh scan passes on the exact corrected files",
+      "matched": true,
+      "observed": {
+        "live_config_private": true,
+        "synthetic_kubeconfig_private": true,
+        "config_and_fixture_identity_preserved": true,
+        "separate_scan": true,
+        "checks": {
+          "4.1.5": "PASS",
+          "4.1.6": "PASS",
+          "4.1.9": "PASS",
+          "4.1.10": "PASS"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "worker stays Ready with unchanged private kubeconfig and a protected client-key target",
+      "matched": true,
+      "observed": {
+        "node_ready_and_unchanged": true,
+        "private_kubeconfig_unchanged": true,
+        "protected_client_link_and_target": true,
+        "enrolled_bootstrap_file_absent": true
       }
     }
   ]
