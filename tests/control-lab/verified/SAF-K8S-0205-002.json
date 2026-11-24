@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0205-002",
-  "catalog_revision": "8c85ddfdaedae582ce9fc2b3d264ecdee62b3271",
-  "catalog_sha256": "cac977a792918cc74529e45763d49762ab692c539b68b58bdd492755569553e6",
+  "catalog_revision": "4dc8f923d62f855d959123f57bb3679dbccac508",
+  "catalog_sha256": "1800d0d437803bd52be758900aa9e3361e1647299539dc3557ac7cd2d726f478",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "01be03c8b64a911475ce3664a60a8030c677a19c3e27e7cf75352716e20659ba",
-  "scope": "Test real Pod Security Admission and Service ValidatingAdmissionPolicy on inert server-side dry-runs.",
-  "cluster": "saf-lab-03a5573b25ca",
+  "scope": "Kind IPv4 marker traffic and separate Pod and Service admission on self-owned resources.",
+  "cluster": "saf-lab-d3827c82afcf",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -40,34 +40,97 @@
   "checks": [
     {
       "phase": "red",
-      "claim": "Baseline Pod Security rejects regular and init HostPort while admitting a NodePort Service",
+      "claim": "Baseline PSA denies regular and init HostPort while Services still admit node port declarations",
       "matched": true,
       "observed": {
-        "node_port_admitted": true,
-        "pod_port_denied": true,
-        "init_port_denied": true
+        "baseline_ordinary": true,
+        "baseline_init": true,
+        "nodeport_accepted_without_service_rule": true,
+        "explicit_load_balancer_port_accepted_before_rule": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The owned client receives the marker over both node paths and the internal Service",
+      "matched": true,
+      "observed": {
+        "node_port": "owned-port-marker",
+        "host_port": "owned-port-marker",
+        "internal": "owned-port-marker"
       }
     },
     {
       "phase": "green",
-      "claim": "The scoped Service policy denies NodePort creation and update and default LoadBalancer allocation",
+      "claim": "The Service rule denies node port creation and updates while allowing the internal declarations",
       "matched": true,
       "observed": {
         "node_port_create_denied": true,
         "node_port_update_denied": true,
-        "default_load_balancer_denied": true
+        "default_lb_denied": true,
+        "explicit_load_balancer_port_denied": true,
+        "no_allocation_lb_admitted": true,
+        "cluster_ip_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Wrong identities, resource names and ports are denied and node markers cease after cleanup",
+      "matched": true,
+      "observed": {
+        "admission": {
+          "member_host_denied": true,
+          "member_node_port_denied": true,
+          "different_host_pod_denied": true,
+          "wrong_host_port_denied": true,
+          "wrong_node_port_denied": true,
+          "unapproved_init_denied": true,
+          "no_host_port_admitted": true
+        },
+        "paths": {
+          "node_port": "no-marker",
+          "host_port": "no-marker",
+          "internal": "owned-port-marker"
+        }
       }
     },
     {
       "phase": "positive",
-      "claim": "Approved internal Services, no-allocation declarations and isolated exceptions remain admissible",
+      "claim": "The approved identity creates the exact two exceptions",
       "matched": true,
       "observed": {
-        "cluster_ip_admitted": true,
-        "no_allocation_lb_admitted": true,
-        "no_host_port_admitted": true,
-        "excepted_node_port_admitted": true,
-        "excepted_host_port_admitted": true
+        "host_effectively_created": true,
+        "node_port_effectively_created": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved exceptions return the marker without breaking internal connectivity",
+      "matched": true,
+      "observed": {
+        "node_port": "owned-port-marker",
+        "host_port": "owned-port-marker",
+        "internal": "owned-port-marker"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Revoking approval denies recreation after cleanup and preserves the internal Service",
+      "matched": true,
+      "observed": {
+        "admission": {
+          "host_recreation_denied": true,
+          "node_port_recreation_denied": true
+        },
+        "before_cleanup": {
+          "node_port": "owned-port-marker",
+          "host_port": "owned-port-marker",
+          "internal": "owned-port-marker"
+        },
+        "after_cleanup": {
+          "node_port": "no-marker",
+          "host_port": "no-marker",
+          "internal": "owned-port-marker"
+        }
       }
     }
   ]
