@@ -1,6 +1,9 @@
 """Exercise a synthetic AI component compatibility gate against observed cluster inventory."""
+from copy import deepcopy
+from hashlib import sha256
 import json
 from pathlib import Path
+import time
 
 
 HERE = Path(__file__).resolve().parent
@@ -25,9 +28,10 @@ SCOPE = (
     "One disposable single-node Kind Kubernetes v1.36.1 cluster; actual Kubernetes API discovery; "
     "five case-owned zero-replica mock Deployments and a local compatibility decision over synthetic component metadata. "
     "A blocked candidate is not applied and a permitted candidate changes only a Deployment "
-    "metadata annotation. No GPU, CUDA runtime, operator, device plugin, model server, model "
-    "artifact, training/inference behavior, or vendor compatibility is installed or tested. "
-    "No external feed, target, secret, or non-case workload is accessed."
+    "metadata annotation. A separate fixture parameter binds a native admission gate to "
+    "the matrix digest and permitted release. The candidate is rejected without that approval "
+    "and an approved synthetic workload starts with its verified marker. Hardware and actual "
+    "GPU software compatibility require their own evidence."
 )
 
 
@@ -167,6 +171,109 @@ def apply_candidate(lab, matrix, inventory, change):
     return decision
 
 
+def _live_gate(lab, matrix, approved):
+    name = "synthetic-matrix-rollout"
+    gate_label = {"saf-lab.example/matrix-gated": "true"}
+    digest = sha256(json.dumps(matrix, sort_keys=True).encode()).hexdigest()
+    release = approved["target_version"]
+    lab.create({
+        "apiVersion": "v1", "kind": "ConfigMap", "immutable": True,
+        "metadata": {"name": name},
+        "data": {"matrix-sha256": digest, "release": release, "image": MOCK_IMAGE},
+    })
+    lab.create({
+        "apiVersion": "admissionregistration.k8s.io/v1", "kind": "ValidatingAdmissionPolicy",
+        "metadata": {"name": name},
+        "spec": {
+            "failurePolicy": "Fail",
+            "paramKind": {"apiVersion": "v1", "kind": "ConfigMap"},
+            "matchConstraints": {"resourceRules": [
+                {"apiGroups": ["apps"], "apiVersions": ["v1"], "operations": ["CREATE", "UPDATE"],
+                 "resources": ["deployments"]},
+            ]},
+            "validations": [{
+                "expression": (
+                    "params != null && has(object.metadata.annotations) && "
+                    "'saf-lab.example/matrix-sha256' in object.metadata.annotations && "
+                    "object.metadata.annotations['saf-lab.example/matrix-sha256'] == params.data['matrix-sha256'] && "
+                    "object.spec.template.spec.containers.size() == 1 && "
+                    "object.spec.template.spec.containers[0].image == params.data['image'] && "
+                    "object.spec.template.spec.containers[0].env.exists(e, "
+                    "e.name == 'SAF_RELEASE' && has(e.value) && e.value == params.data['release'])"
+                ),
+                "message": "The synthetic rollout requires exact compatibility approval",
+            }],
+        },
+    })
+    lab.create({
+        "apiVersion": "admissionregistration.k8s.io/v1", "kind": "ValidatingAdmissionPolicyBinding",
+        "metadata": {"name": name},
+        "spec": {
+            "policyName": name, "validationActions": ["Deny"],
+            "paramRef": {"name": name, "namespace": NAMESPACE, "parameterNotFoundAction": "Deny"},
+            "matchResources": {"objectSelector": {"matchLabels": gate_label}},
+        },
+    })
+    candidate = _deployment("approved-workload", release)
+    candidate["metadata"]["labels"].update(gate_label)
+    candidate["metadata"]["annotations"]["saf-lab.example/matrix-sha256"] = digest
+    candidate["spec"]["replicas"] = 1
+    fixture = candidate["spec"]["template"]["spec"]["containers"][0]
+    fixture["env"] = [{"name": "SAF_RELEASE", "value": release}]
+    fixture["command"] = ["python", "-B", "-u", "-c",
+                         "import os,time; print(os.environ['SAF_RELEASE']); time.sleep(180)"]
+    stale = deepcopy(candidate)
+    stale["metadata"]["annotations"]["saf-lab.example/matrix-sha256"] = "different-matrix"
+    for _ in range(20):
+        validation = lab.create(stale, dry_run=True, allow_failure=True)
+        if validation.returncode and name in validation.stderr and "exact compatibility approval" in validation.stderr:
+            break
+        time.sleep(1)
+    else:
+        lab.block("The compatibility policy did not return the expected native admission denial")
+    denied = lab.create(stale, allow_failure=True)
+    not_found = not lab.kubectl("get", "deployment", candidate["metadata"]["name"],
+                                "--ignore-not-found", "-o", "name").stdout.strip()
+    lab.check("red", "Native admission denies and leaves no Deployment for a stale compatibility receipt",
+              denied.returncode != 0 and "exact compatibility approval" in denied.stderr and not_found,
+              {"denied_by_matrix_policy": "exact compatibility approval" in denied.stderr,
+               "candidate_absent": not_found})
+
+    applied = lab.create(candidate)
+    target = candidate["metadata"]["name"]
+    lab.kubectl("rollout", "status", f"deployment/{target}", "--timeout=90s", timeout=105)
+    observed = json.loads(lab.kubectl("get", "deployment", target, "-o", "json").stdout)
+    for _ in range(20):
+        marker = lab.kubectl("logs", f"deployment/{target}").stdout.strip()
+        if marker:
+            break
+        time.sleep(1)
+    changed = lab.kubectl(
+        "patch", "deployment", target, "--type=merge", "-p",
+        '{"metadata":{"annotations":{"saf-lab.example/matrix-sha256":"different-matrix"}}}',
+        allow_failure=True,
+    )
+    retained = json.loads(lab.kubectl("get", "deployment", target, "-o", "json").stdout)
+    rejected_update = (
+        changed.returncode != 0 and "exact compatibility approval" in changed.stderr
+        and retained["metadata"]["uid"] == applied["metadata"]["uid"]
+        and retained["metadata"]["annotations"]["saf-lab.example/matrix-sha256"] == digest
+    )
+    lab.check("green", "A stale receipt cannot change the admitted rollout", rejected_update,
+              {"stale_update_denied_and_approved_receipt_kept": rejected_update})
+
+    outcome = {
+        "applied_deployment_uid_observed": observed["metadata"]["uid"] == applied["metadata"]["uid"],
+        "approved_matrix_digest_read_back":
+            observed["metadata"]["annotations"]["saf-lab.example/matrix-sha256"] == digest,
+        "approved_release_reached_live_workload": marker == release,
+        "workload_ready": observed["status"].get("readyReplicas") == 1,
+    }
+    lab.check("positive", "The exact matrix approval admits a live synthetic workload with the intended release",
+              all(outcome.values()), outcome)
+    return outcome
+
+
 def run(lab):
     matrix = json.loads(MATRIX_PATH.read_text(encoding="utf-8"))
     if (matrix.get("fixture_id") != "SYNTH-SAF-K8S-1007-012-MATRIX-001"
@@ -270,7 +377,9 @@ def run(lab):
          "other_annotations_unchanged": other_annotations_unchanged},
     )
 
+    native_gate = _live_gate(lab, matrix, permitted)
     evidence = {
+        "native_admission_outcome": native_gate,
         "control_id": CONTROL_ID,
         "scope": SCOPE,
         "fixture_id": matrix["fixture_id"],

@@ -3531,7 +3531,7 @@
     "SAF-K8S-1007-012": {
       "catalog_status": "draft",
       "domain": "D10",
-      "sha256": "207c479d0b537d0fd227012ac2c6a3298b50556356109c4eda64c9a77a75c861",
+      "sha256": "f01902deae17b42872e74b753539e750685bf81ec7b21d06ce224371818fecbd",
       "title": "AI infrastructure compatibility matrix and coordinated component upgrade governance"
     },
     "SAF-K8S-1007-013": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "5953b5e9139c756a4177f83074ba3f2c4c50250b",
-  "sha256": "b135c6c1c3ced83a52f2c84d0bbe057a079c508964f6bd63f7291058e8ff928e",
+  "revision": "fb418b27ec8bee95b668a719ac1e3083457ba186",
+  "sha256": "d2e81e3342ce7597a368ac69a3e6da5512259d37e11768bbfe437f0fe8af867d",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

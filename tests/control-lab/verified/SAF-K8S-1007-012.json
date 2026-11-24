@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1007-012",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "81fea2efc857ef320b9ce6658c411491cb72dfeb",
+  "catalog_sha256": "d2e81e3342ce7597a368ac69a3e6da5512259d37e11768bbfe437f0fe8af867d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "207c479d0b537d0fd227012ac2c6a3298b50556356109c4eda64c9a77a75c861",
-  "scope": "One disposable single-node Kind Kubernetes v1.36.1 cluster; actual Kubernetes API discovery; five case-owned zero-replica mock Deployments and a local compatibility decision over synthetic component metadata. A blocked candidate is not applied and a permitted candidate changes only a Deployment metadata annotation. No GPU, CUDA runtime, operator, device plugin, model server, model artifact, training/inference behavior, or vendor compatibility is installed or tested. No external feed, target, secret, or non-case workload is accessed.",
-  "cluster": "saf-lab-d750b22e8458",
+  "control_sha256": "f01902deae17b42872e74b753539e750685bf81ec7b21d06ce224371818fecbd",
+  "scope": "One disposable single-node Kind Kubernetes v1.36.1 cluster; actual Kubernetes API discovery; five case-owned zero-replica mock Deployments and a local compatibility decision over synthetic component metadata. A blocked candidate is not applied and a permitted candidate changes only a Deployment metadata annotation. A separate fixture parameter binds a native admission gate to the matrix digest and permitted release. The candidate is rejected without that approval and an approved synthetic workload starts with its verified marker. Hardware and actual GPU software compatibility require their own evidence.",
+  "cluster": "saf-lab-fb3c48003a8d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -92,6 +92,34 @@
         "only_metadata_changed": true,
         "deployment_spec_unchanged": true,
         "other_annotations_unchanged": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Native admission denies and leaves no Deployment for a stale compatibility receipt",
+      "matched": true,
+      "observed": {
+        "denied_by_matrix_policy": true,
+        "candidate_absent": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A stale receipt cannot change the admitted rollout",
+      "matched": true,
+      "observed": {
+        "stale_update_denied_and_approved_receipt_kept": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact matrix approval admits a live synthetic workload with the intended release",
+      "matched": true,
+      "observed": {
+        "applied_deployment_uid_observed": true,
+        "approved_matrix_digest_read_back": true,
+        "approved_release_reached_live_workload": true,
+        "workload_ready": true
       }
     }
   ]
