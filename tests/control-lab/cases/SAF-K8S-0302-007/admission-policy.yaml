@@ -14,51 +14,72 @@ spec:
         apiVersions: ["v1"]
         operations: [UPDATE]
         resources: ["pods/ephemeralcontainers"]
+  variables:
+    - name: comparison
+      expression: >-
+        object.metadata.name == 'saf-0302-007-group-comparison' &&
+        has(object.metadata.labels) &&
+        'saf-k8s.example/fixture-comparison' in object.metadata.labels &&
+        object.metadata.labels['saf-k8s.example/fixture-comparison'] == 'approved'
   validations:
     - expression: >-
         has(object.spec.securityContext) &&
-        has(object.spec.securityContext.fsGroup) &&
-        object.spec.securityContext.fsGroup == 2000 &&
         has(object.spec.securityContext.supplementalGroupsPolicy) &&
         object.spec.securityContext.supplementalGroupsPolicy == 'Strict' &&
         has(object.spec.securityContext.supplementalGroups) &&
-        object.spec.securityContext.supplementalGroups == [3000]
-      message: "Pod groups must be fsGroup 2000 and supplementalGroups exactly [3000]"
+        ((!variables.comparison &&
+          has(object.spec.securityContext.fsGroup) && object.spec.securityContext.fsGroup == 2000 &&
+          object.spec.securityContext.supplementalGroups == [3000]) ||
+         (variables.comparison && !has(object.spec.securityContext.fsGroup) &&
+          object.spec.securityContext.supplementalGroups == [4000]))
+      message: "Pod groups must match an approved fixture identity"
       reason: Forbidden
     - expression: >-
-        has(object.spec.volumes) && object.spec.volumes.size() == 2 &&
+        has(object.spec.volumes) &&
+        object.spec.volumes.size() == (variables.comparison ? 3 : 2) &&
         object.spec.volumes.all(v,
-          (v.name == 'benign-data' && (has(v.emptyDir) ||
-            (has(v.persistentVolumeClaim) && v.persistentVolumeClaim.claimName == 'saf-0302-007-private'))) ||
+          (v.name == 'benign-data' &&
+           ((!variables.comparison && (has(v.emptyDir) ||
+             (has(v.persistentVolumeClaim) && v.persistentVolumeClaim.claimName == 'saf-0302-007-private'))) ||
+            (variables.comparison && has(v.persistentVolumeClaim) &&
+             v.persistentVolumeClaim.claimName == 'saf-0302-007-comparison-own'))) ||
+          (variables.comparison && v.name == 'comparison-data' && has(v.persistentVolumeClaim) &&
+            v.persistentVolumeClaim.claimName == 'saf-0302-007-private') ||
           (v.name == 'protected-data' && has(v.configMap) &&
             v.configMap.name == 'saf-0302-007-protected'))
       message: "Only the named workload storage and protected ConfigMap volumes are allowed"
       reason: Forbidden
     - expression: >-
         object.spec.containers.all(c,
-          has(c.volumeMounts) && c.volumeMounts.size() == 2 &&
+          has(c.volumeMounts) && c.volumeMounts.size() == (variables.comparison ? 3 : 2) &&
           c.volumeMounts.exists(m,
             m.name == 'benign-data' && m.mountPath == '/fixture-data' &&
             (!has(m.readOnly) || m.readOnly == false)) &&
           c.volumeMounts.exists(m,
             m.name == 'protected-data' && m.mountPath == '/protected-data' &&
-            has(m.readOnly) && m.readOnly == true)) &&
+            has(m.readOnly) && m.readOnly == true) && (!variables.comparison ||
+          c.volumeMounts.exists(m, m.name == 'comparison-data' && m.mountPath == '/comparison-data' &&
+            (!has(m.readOnly) || !m.readOnly)))) &&
         (!has(object.spec.initContainers) || object.spec.initContainers.all(c,
-          has(c.volumeMounts) && c.volumeMounts.size() == 2 &&
+          has(c.volumeMounts) && c.volumeMounts.size() == (variables.comparison ? 3 : 2) &&
           c.volumeMounts.exists(m,
             m.name == 'benign-data' && m.mountPath == '/fixture-data' &&
             (!has(m.readOnly) || m.readOnly == false)) &&
           c.volumeMounts.exists(m,
             m.name == 'protected-data' && m.mountPath == '/protected-data' &&
-            has(m.readOnly) && m.readOnly == true))) &&
+            has(m.readOnly) && m.readOnly == true) && (!variables.comparison ||
+          c.volumeMounts.exists(m, m.name == 'comparison-data' && m.mountPath == '/comparison-data' &&
+            (!has(m.readOnly) || !m.readOnly))))) &&
         (!has(object.spec.ephemeralContainers) || object.spec.ephemeralContainers.all(c,
-          has(c.volumeMounts) && c.volumeMounts.size() == 2 &&
+          has(c.volumeMounts) && c.volumeMounts.size() == (variables.comparison ? 3 : 2) &&
           c.volumeMounts.exists(m,
             m.name == 'benign-data' && m.mountPath == '/fixture-data' &&
             (!has(m.readOnly) || m.readOnly == false)) &&
           c.volumeMounts.exists(m,
             m.name == 'protected-data' && m.mountPath == '/protected-data' &&
-            has(m.readOnly) && m.readOnly == true)))
+            has(m.readOnly) && m.readOnly == true) && (!variables.comparison ||
+          c.volumeMounts.exists(m, m.name == 'comparison-data' && m.mountPath == '/comparison-data' &&
+            (!has(m.readOnly) || !m.readOnly)))))
       message: "Containers may mount only /fixture-data writable and /protected-data read-only"
       reason: Forbidden
 ---

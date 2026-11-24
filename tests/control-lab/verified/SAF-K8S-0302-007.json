@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0302-007",
-  "catalog_revision": "f4252960721626705bc699e2bd070a0b83bc9a66",
-  "catalog_sha256": "76854bbfc69139ba12642c096d049ca9c3f48c6465cd5d08988d852ef646cf17",
+  "catalog_revision": "e849c8ea8b75b9d66b73fdbb07a679922835f610",
+  "catalog_sha256": "fe2262d805c711808a5730d74fe291d672b051d84f30a16d93bf7f1f33a937b2",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e60efc25ad9367dcc7c02518bc3de51cffb45fe823efb7dc1ac706fafd0c396e",
-  "scope": "Synthetic namespace admission and one nonprivileged Linux Pod: exact fsGroup 2000, supplementalGroups [3000], writable emptyDir or a case-owned local PVC at /fixture-data, and a read-only synthetic ConfigMap at /protected-data. Inert server dry-runs challenge unsafe group IDs, a forbidden mount path, and hostPath before the sole compliant Pod is created. The case exercises one local persistent-volume mechanism; CSI drivers, external providers, and real platform volumes remain separate. The report's top-level version and image describe the v1.36.1 base cluster. Supplemental Linux disk-backed emptyDir profiles use v1.37.0. Compare matching and mismatched API-server and kubelet feature gates, then verify fsGroup on the enabled node.",
-  "cluster": "saf-lab-0b0321d71b6b",
+  "scope": "Synthetic admission and real nonprivileged Linux process group and storage checks. Two local PVC mounting identities compare owned file permissions on a deliberately shared writable test claim. The selected comparison Pod uses supplemental groups without fsGroup to avoid changing shared ownership. The report's top-level version and image describe the v1.36.1 base cluster. Supplemental Linux disk-backed emptyDir profiles use v1.37.0. Compare matching and mismatched API-server and kubelet feature gates, then verify fsGroup on the enabled node.",
+  "cluster": "saf-lab-883be6f476a7",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -78,13 +78,13 @@
       "phase": "green",
       "claim": "Policy rejects unsafe fsGroup with its exact reason",
       "matched": true,
-      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0302-007-bad-fsgroup\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-007-group-storage-boundary' with binding 'saf-k8s-0302-007-group-storage-boundary' denied request: Pod groups must be fsGroup 2000 and supplementalGroups exactly [3000]"
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0302-007-bad-fsgroup\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-007-group-storage-boundary' with binding 'saf-k8s-0302-007-group-storage-boundary' denied request: Pod groups must match an approved fixture identity"
     },
     {
       "phase": "green",
       "claim": "Policy rejects out-of-set supplementalGroups with its exact reason",
       "matched": true,
-      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0302-007-bad-supplemental\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-007-group-storage-boundary' with binding 'saf-k8s-0302-007-group-storage-boundary' denied request: Pod groups must be fsGroup 2000 and supplementalGroups exactly [3000]"
+      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0302-007-bad-supplemental\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0302-007-group-storage-boundary' with binding 'saf-k8s-0302-007-group-storage-boundary' denied request: Pod groups must match an approved fixture identity"
     },
     {
       "phase": "green",
@@ -129,6 +129,27 @@
       "observed": "uid=10001 groups=10001,2000,3000 fixture_gid=2000 writable=ok protected_write=denied sentinel=unchanged peer_shared_read='benign marker for SAF-K8S-0302-007'"
     },
     {
+      "phase": "green",
+      "claim": "Only the exact benign comparison fixture may mount the test comparison claim",
+      "matched": true,
+      "observed": {
+        "unapproved_identity_denied": true,
+        "exact_comparison_admitted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A live different-group identity writes its own volume but cannot change the writable comparison marker",
+      "matched": true,
+      "observed": {
+        "verified_group_boundary": true,
+        "own_write": true,
+        "other_write_denied": true,
+        "comparison_mount_writable": true,
+        "original_marker_unchanged": true
+      }
+    },
+    {
       "phase": "positive",
       "claim": "Supplemental profile records v1.37.0 versions and configured gates (API True, worker False)",
       "matched": true,
@@ -139,7 +160,7 @@
           "worker": "v1.37.0"
         },
         "node_image": "kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5",
-        "kind_version": "kind v0.33.0 go1.26.7 darwin/arm64",
+        "kind_version": "kind v0.32.0 go1.26.3 darwin/arm64",
         "configured_gates": {
           "kube-apiserver": {
             "EmptyDirVolumeMode": true
@@ -220,7 +241,7 @@
           "worker": "v1.37.0"
         },
         "node_image": "kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5",
-        "kind_version": "kind v0.33.0 go1.26.7 darwin/arm64",
+        "kind_version": "kind v0.32.0 go1.26.3 darwin/arm64",
         "configured_gates": {
           "kube-apiserver": {
             "EmptyDirVolumeMode": false

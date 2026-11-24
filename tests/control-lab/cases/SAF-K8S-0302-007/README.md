@@ -53,3 +53,28 @@ the kubelet's legacy `0777` behavior, and both sides of version skew.
 - [Kubernetes v1.37 emptyDir kubelet implementation](https://github.com/kubernetes/kubernetes/blob/v1.37.0/pkg/volume/emptydir/empty_dir.go)
 - [KEP-5502: EmptyDir Volume Permission Mode](https://github.com/kubernetes/enhancements/blob/master/keps/sig-storage/5502-emptydir-volume-mode/README.md)
 - [kind v0.33.0 pinned v1.37 node image](https://github.com/kubernetes-sigs/kind/releases/tag/v0.33.0)
+
+## Verify group isolation on an adopter's storage
+
+The base test includes an approved comparison identity. It writes to a
+separate local claim and gets a permission error writing to an explicitly
+mounted synthetic comparison volume. The expected group owns that volume,
+and the approved peer reads back the unchanged marker. The comparison Pod
+uses supplementary groups without fsGroup so its mount preserves ownership.
+
+1. Inventory each workload's approved numeric groups and volume and mount
+   scope. Identify which paths are shared and who owns each storage class,
+   volume driver, and access configuration. Review namespace authorization
+   and how the admission criteria bind to approved workload identities.
+2. Observe effective process groups with `id` and mounted UID, GID and
+   permission bits with `stat`. Determine whether the kubelet or CSI driver
+   handles volume ownership. Test positive and denied writes to synthetic
+   objects in an equivalent profile and retain evidence that the protected
+   marker stayed unchanged.
+3. For v1.37 emptyDir mode, compare the API response and stored Pod with
+   mounted permission bits on every eligible node profile. Record the API
+   and kubelet version and gate settings, fsGroup, and the actual write
+   result. Cover mixed-node state during an upgrade.
+4. Retain evidence per storage driver, filesystem, scope and identity.
+   A mount, declared security context, or PVC access mode alone leaves the
+   effective process and storage permissions unverified.
