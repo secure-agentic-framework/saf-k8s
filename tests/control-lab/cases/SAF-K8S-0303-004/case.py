@@ -7,12 +7,14 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 NAME = "fixture-apparmor-recording"
 BUILD_LABEL = "org.saf.fixture.apparmor-build"
-SOURCE = hashlib.sha256((HERE / "Dockerfile").read_bytes()).hexdigest()
+SOURCE = hashlib.sha256((HERE / "Dockerfile").read_bytes() + b"\0" +
+                       (HERE / "seccomp-probe.c").read_bytes()).hexdigest()
 IMAGE = "saf-lab-apparmor:source-" + SOURCE[:24]
 SCOPE = (
-    "Record operation-specific AppArmor open events in a disconnected Linux guest hosted by "
-    "a restricted Kind Job. Derive a fixture policy through exact approval, compare a limited "
-    "capture and representative recovery, and verify final enforcing behavior."
+    "Record selected AppArmor file opens and seccomp syscall notifications in a disconnected "
+    "Linux guest in one restricted Kind Job. Compare the first capture and a newly exercised "
+    "recovery path, intersect observations with each exact approval list, enforce the generated "
+    "policies and check recovery."
 )
 
 
@@ -54,7 +56,9 @@ def run(lab):
     lab.command("kind", "load", "docker-image", IMAGE, "--name", lab.cluster, timeout=220)
     lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": NAME},
                 "immutable": True, "data": {"recorder": recorder, "approved": approved,
-                                            "boot.sh": (HERE / "apparmor-recording.sh").read_text()}})
+                                            "boot.sh": (HERE / "apparmor-recording.sh").read_text(),
+                                            "seccomp-recording.sh": (HERE / "seccomp-recording.sh").read_text(),
+                                            "seccomp-approved.txt": (HERE / "seccomp-approved.txt").read_text()}})
     lab.create(profile_job())
     completion = lab.kubectl("wait", "--for=condition=Complete", "job/" + NAME,
                              "--timeout=98s", timeout=108, allow_failure=True)
@@ -69,6 +73,15 @@ def run(lab):
     incomplete = "SAF-RECORD: first capture observes incidental use and misses a required recovery operation" in messages
     enforced = "SAF-RECORD: the reviewed generated policy preserves approved operations and excludes the observed incidental one" in messages
     removed = "SAF-RECORD: the generated fixture policy is removed" in messages
+    names = ("seccomp-probe.c", "seccomp-approved.txt")
+    seccomp_inputs = [hashlib.sha256((HERE / name).read_bytes()).hexdigest() for name in names]
+    seccomp_input_ok = f"SAF-SECCOMP-INPUTS: {' '.join(seccomp_inputs)}" in messages
+    policy_digests = [hashlib.sha256(value).hexdigest() for value in (b"getpid\n", b"getpid\ngetuid\n")]
+    generated_syscall_policy_ok = f"SAF-SECCOMP-POLICIES: {' '.join(policy_digests)}" in messages
+    seccomp_observed = "SAF-SECCOMP: first capture observed getpid and incidental getppid; approval retained getpid only" in messages
+    seccomp_initial = "SAF-SECCOMP: initial policy allowed getpid and denied getppid and unobserved recovery getuid" in messages
+    seccomp_recovery = "SAF-SECCOMP: exercised recovery added approved getuid; final policy allowed getpid and getuid and denied incidental getppid" in messages
+    seccomp_rollback = "SAF-SECCOMP: rollback discarded the filtered process and verified a fresh unfiltered fixture process" in messages
     rows = [line.split()[1:] for line in messages if line.startswith("SAF-RECORD-PROFILES: ")]
     generated = rows[0] if len(rows) == 1 else []
     distinct = len(generated) == 2 and len(set(generated)) == 2
@@ -78,8 +91,26 @@ def run(lab):
               distinct and enforced, {"generated_profiles": generated, "enforced_matrix": enforced})
     lab.check("positive", "Removing the generated profile restores the missing-profile comparison",
               removed, {"generated_profile_removed": removed})
-    (lab.evidence / "apparmor-recording-observations.json").write_text(json.dumps({
+    lab.check("green", "The seccomp collector observes only the synthetic syscall probes and excludes unapproved incidental use",
+              seccomp_observed and seccomp_input_ok,
+              {"observed_syscalls_and_approval_intersection": seccomp_observed,
+               "exact_seccomp_inputs": seccomp_input_ok})
+    lab.check("green", "The initial seccomp policy enforces the expected allow and deny results",
+              seccomp_initial, {"initial_allowed_denied_matrix": seccomp_initial})
+    lab.check("green", "A newly exercised approved recovery syscall enters the final enforced policy",
+              seccomp_recovery and generated_syscall_policy_ok,
+              {"recovery_and_final_allowed_denied_matrix": seccomp_recovery,
+               "generated_policy_digests": policy_digests})
+    lab.check("positive", "Discarding the filtered process provides the documented seccomp rollback path",
+              seccomp_rollback, {"fresh_process_rollback": seccomp_rollback})
+    (lab.evidence / "mac-recording-observations.json").write_text(json.dumps({
         "recorder_sha256": digests[0], "approved_paths_sha256": digests[1], "guest_image": image["Id"],
         "running_guest_image": status["imageID"], "generated_profile_digests": generated,
         "limited_capture_incomplete": incomplete, "enforcing_matrix": enforced, "generated_profile_removed": removed,
+        "seccomp_inputs": dict(zip(names, seccomp_inputs)),
+        "seccomp_policy_digests": policy_digests,
+        "seccomp_collector_observed_and_intersected": seccomp_observed,
+        "seccomp_initial_enforcement_matrix": seccomp_initial,
+        "seccomp_recovery_and_final_enforcement_matrix": seccomp_recovery,
+        "seccomp_fresh_process_rollback": seccomp_rollback,
     }, indent=2) + "\n")

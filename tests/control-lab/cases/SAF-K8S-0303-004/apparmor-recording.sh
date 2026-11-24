@@ -9,6 +9,7 @@ cd "$work"
 kernel=$(find /boot -maxdepth 1 -name 'vmlinuz-*' -print)
 version=${kernel##*/vmlinuz-}
 grep -qx 'CONFIG_SECURITY_APPARMOR=y' "/boot/config-$version"
+grep -qx 'CONFIG_SECCOMP_FILTER=y' "/boot/config-$version"
 if gzip -t "$kernel" >/dev/null 2>&1; then gzip -dc "$kernel" >kernel.img; else cp "$kernel" kernel.img; fi
 mkdir -p fs/bin fs/dev fs/etc/apparmor.d fs/fixture fs/proc fs/sys fs/tmp
 cp "$(command -v busybox)" fs/bin/busybox
@@ -21,6 +22,9 @@ for program in apparmor_parser aa-exec; do
         cp -L "$library" "fs$library"
     done <libraries
 done
+cp /usr/local/bin/saf-record fs/bin/saf-record
+cp /fixture/seccomp-recording.sh /fixture/seccomp-approved.txt fs/fixture/
+cp /usr/local/share/saf/seccomp-probe.c fs/fixture/seccomp-probe.c
 cp "$recorder" fs/fixture/recorder
 cp "$approval" fs/fixture/approved
 for marker in startup recovery incidental; do printf 'owned %s fixture\n' "$marker" >"fs/fixture/$marker"; done
@@ -96,11 +100,19 @@ echo 'SAF-RECORD: the reviewed generated policy preserves approved operations an
 /bin/apparmor_parser -R /tmp/reviewed.apparmor
 if probe startup >/dev/null 2>&1; then exit 1; fi
 echo 'SAF-RECORD: the generated fixture policy is removed'
+printf 'SAF-SECCOMP-INPUTS: %s %s\n' \
+    "$("$b" sha256sum /fixture/seccomp-probe.c | "$b" cut -d' ' -f1)" \
+    "$("$b" sha256sum /fixture/seccomp-approved.txt | "$b" cut -d' ' -f1)"
+if ! "$b" sh /fixture/seccomp-recording.sh; then
+    echo 'SAF-SECCOMP-FAIL: guest recording or enforcement failed'
+    exit 1
+fi
+echo 'SAF-SECCOMP: guest recording and enforcement completed'
 "$b" poweroff -f
 INIT
 chmod 0755 fs/init
 (cd fs && find . -print0 | cpio --null -o --owner=0:0 -H newc 2>/dev/null | gzip -n) >fixture.cpio.gz
-if ! timeout 34s qemu-system-aarch64 -machine virt -accel tcg -cpu cortex-a57 -m 256M \
+if ! timeout 45s qemu-system-aarch64 -machine virt -accel tcg -cpu cortex-a57 -m 256M \
       -nodefaults -display none -serial stdio -monitor none -nic none \
       -kernel kernel.img -initrd fixture.cpio.gz \
       -append 'console=ttyAMA0 rdinit=/init panic=-1 loglevel=5 audit=1 apparmor=1 lsm=apparmor' >guest.log 2>&1; then
@@ -110,8 +122,10 @@ fi
 for expected in "SAF-RECORD-INPUT: $digest1 $digest2" \
     'SAF-RECORD: first capture observes incidental use and misses a required recovery operation' \
     'SAF-RECORD: the reviewed generated policy preserves approved operations and excludes the observed incidental one' \
-    'SAF-RECORD: the generated fixture policy is removed'; do
-    grep -Fq "$expected" guest.log || { tail -48 guest.log >&2; exit 1; }
+    'SAF-RECORD: the generated fixture policy is removed' \
+    'SAF-SECCOMP: guest recording and enforcement completed'; do
+    grep -Fq "$expected" guest.log || { tail -70 guest.log >&2; exit 1; }
     printf '%s\n' "$expected"
 done
 grep -m 1 '^SAF-RECORD-PROFILES:' guest.log | tr -d '\r'
+tr -d '\r' <guest.log | grep -E '^SAF-SECCOMP(:|-INPUTS:|-POLICIES:)'

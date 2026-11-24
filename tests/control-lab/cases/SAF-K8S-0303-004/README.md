@@ -1,17 +1,37 @@
-# SAF-K8S-0303-004 AppArmor recording and policy generation
+# SAF-K8S-0303-004 MAC profile generation from runtime behavior
 
-Run `python3 lab.py test SAF-K8S-0303-004` using the catalog revision recorded with
-the verified result. A restricted Kind Job uses a disconnected AppArmor guest.
-The recorder captures actual open events for synthetic fixture files. A
-bounded renderer intersects those observations with an immutable approval
-list, emits an exact fixture policy, and checks enforcing behavior.
+Run `python3 lab.py test SAF-K8S-0303-004` with the catalog revision in the
+verified result. A restricted Kind Job starts a disconnected ARM64 Linux guest.
+In that guest, AppArmor records actual file opens. A separate seccomp recorder
+gets kernel notifications for three selected, harmless system calls from an
+owned child process. Each proof compares the recorded operations with a separate
+immutable approval list.
 
-The first capture contains an incidental operation and misses an approved
-recovery path. After exercising recovery, the generated policy keeps approved
-startup and recovery and excludes the incidental operation. This fixture
-covers AppArmor file opens and an intentionally restricted rule renderer.
-Seccomp, SELinux, other AppArmor mediation classes, and production policy
-exercise require separate evidence.
+The first captures include an incidental operation and miss an approved recovery
+operation. The initial enforcing policies reproduce the recovery denial. After
+the recovery exercise, the two generated policies retain their approved normal
+and recovery operations, and the enforcing probes reject the incidental ones.
+AppArmor rollback removes the fixture profile. Seccomp recovery uses a fresh
+unfiltered fixture process. The checks retain the scoped input and generated
+profile digests in `mac-recording-observations.json`.
 
-- [AppArmor profile modes](https://apparmor.dev/man/apparmor.d/)
-- [Kubernetes Linux kernel security constraints](https://kubernetes.io/docs/concepts/security/linux-kernel-security-constraints/)
+## Adopter checks
+
+Pin the workload and dependencies and the collector, runtime, kernel, architecture,
+and policy versions. Determine which event classes the selected recording
+mechanism actually sees. Exercise one expected event, normal and infrequent
+recovery paths, and an incidental operation that must remain outside the policy.
+Correlate these observations with the workload and review intended operations
+before accepting a generated or curated candidate.
+
+Verify the exact candidate under the real mechanism with allowed and denied
+probes, record a reviewed rollback target, and exercise recovery. Seccomp
+notifications in this example are collected for fixed argument-free synthetic
+calls only. The app-level collector starts and observes its own child. Taken
+together, the tests cover AppArmor file opens and three Linux syscalls.
+SELinux classes, other mediation mechanisms, and the broader policy coverage
+are properties of the deployment being adopted.
+
+- [Linux kernel seccomp filters and notifications](https://docs.kernel.org/userspace-api/seccomp_filter.html)
+- [Linux kernel AppArmor documentation](https://docs.kernel.org/admin-guide/LSM/apparmor.html)
+- [NIST SP 800-53 Revision 5.2.0 catalog release](https://github.com/usnistgov/oscal-content/releases/tag/v1.5.0)

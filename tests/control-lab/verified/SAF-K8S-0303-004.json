@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0303-004",
-  "catalog_revision": "85babb7e87725639fd9b077a74cc062864677242",
-  "catalog_sha256": "6a21ded49bbe077acd0b2be81bd60f13cc04410d298f4470477174b42118c1d4",
+  "catalog_revision": "f431840cb04a7e50c6bb4064dd6b8aaed14ebd22",
+  "catalog_sha256": "d349202ee2a53ae35fd3d0b6c36098d2d5cc45a51aa71fbf557812fcda78d4a0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "143af459cf476bb64f1b07b4406d2c3e928b25be637bc077f5c4a00ec268efcd",
-  "scope": "Record operation-specific AppArmor open events in a disconnected Linux guest hosted by a restricted Kind Job. Derive a fixture policy through exact approval, compare a limited capture and representative recovery, and verify final enforcing behavior.",
-  "cluster": "saf-lab-6128ebbdf8ba",
+  "scope": "Record selected AppArmor file opens and seccomp syscall notifications in a disconnected Linux guest in one restricted Kind Job. Compare the first capture and a newly exercised recovery path, intersect observations with each exact approval list, enforce the generated policies and check recovery.",
+  "cluster": "saf-lab-bbf4d0b3f6c6",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -65,6 +65,43 @@
       "matched": true,
       "observed": {
         "generated_profile_removed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The seccomp collector observes only the synthetic syscall probes and excludes unapproved incidental use",
+      "matched": true,
+      "observed": {
+        "observed_syscalls_and_approval_intersection": true,
+        "exact_seccomp_inputs": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The initial seccomp policy enforces the expected allow and deny results",
+      "matched": true,
+      "observed": {
+        "initial_allowed_denied_matrix": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A newly exercised approved recovery syscall enters the final enforced policy",
+      "matched": true,
+      "observed": {
+        "recovery_and_final_allowed_denied_matrix": true,
+        "generated_policy_digests": [
+          "fd8c981a8f855b12869d04fc0e06db18a0876a353e53909a64f61ded12cc3b4c",
+          "c30bb6cf3a003991997040b42f1171995ab8e65467ebe43c9979a8b0b9ad3b33"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Discarding the filtered process provides the documented seccomp rollback path",
+      "matched": true,
+      "observed": {
+        "fresh_process_rollback": true
       }
     }
   ]
