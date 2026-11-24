@@ -1,7 +1,9 @@
-"""Exercise one worker hard-eviction threshold without creating real exhaustion."""
+"""Exercise native kubelet eviction signals without exhausting resources."""
 import json
 import re
 import time
+
+from fixtures import container, pod, ready
 
 IMAGE = "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
 CONFIG = "/var/lib/kubelet/config.yaml"
@@ -11,7 +13,8 @@ SCOPE = (
     "memory.available threshold creates a kubelet pressure signal without allocating "
     "large memory. Checks the real eviction, a blocking PDB, configured workload grace, "
     "control-plane readiness, and worker recovery. Also compares effective settings for an omitted "
-    "filesystem-inode signal under each default-merge mode. The lab uses deliberately synthetic thresholds."
+    "filesystem-inode signal under each default-merge mode. Separately exercise native nodefs space, "
+    "nodefs inodes and PID pressure, kubelet admission, and recovery. All thresholds are synthetic and local."
 )
 
 
@@ -65,7 +68,7 @@ def config_with_threshold(text, value):
 def with_merge_fixture(text, explicit, merge):
     lines = [line for line in text.splitlines() if not line.startswith("mergeDefaultEvictionSettings:")]
     start, end = hard_map_bounds(lines)
-    lines[start:end] = [f"  {signal}: {value}" for signal, value in explicit.items()]
+    lines[start:end] = [f"  {signal}: {json.dumps(value)}" for signal, value in explicit.items()]
     lines.append(f"mergeDefaultEvictionSettings: {str(merge).lower()}")
     return "\n".join(lines) + "\n"
 
@@ -134,6 +137,128 @@ def verify_default_merge(lab, worker, source, initial):
     return {"signal": omitted, "explicit": explicit, "merge_disabled": without, "merge_enabled": merged,
             "original_map": initial["evictionHard"],
             "original_merge_enabled": initial.get("mergeDefaultEvictionSettings", False), "restored": True}
+
+
+SIGNALS = (
+    ("nodefs.available", "disk-space", "DiskPressure"),
+    ("nodefs.inodesFree", "disk-inodes", "DiskPressure"),
+    ("pid.available", "pids", "PIDPressure"),
+)
+PRESSURE_CONDITIONS = ("DiskPressure", "PIDPressure", "MemoryPressure")
+
+
+def headroom(signal, sample):
+    if signal == "pid.available":
+        limits = sample["rlimit"]
+        maximum = limits["maxpid"]
+        return maximum - limits["curproc"], maximum
+    data = sample["fs"]
+    if signal == "nodefs.available":
+        return data["availableBytes"], data["capacityBytes"]
+    return data["inodesFree"], data["inodes"]
+
+
+def exercise_pressure_signals(lab, worker, source, initial, baseline):
+    raw_path = f"--raw=/api/v1/nodes/{worker}/proxy/stats/summary"
+    worker_uid = baseline["metadata"]["uid"]
+    original_hard = initial["evictionHard"]
+    original_merge = initial.get("mergeDefaultEvictionSettings", False)
+
+    def current():
+        return read(lab, "get", "node", worker)
+
+    def normal():
+        worker_state = current()
+        effective = configz(lab, worker)
+        return (effective and effective["evictionHard"] == original_hard
+                and effective.get("mergeDefaultEvictionSettings", False) == original_merge
+                and worker_state["metadata"]["uid"] == worker_uid
+                and condition(worker_state, "Ready") == "True"
+                and all(condition(worker_state, key) == "False" for key in PRESSURE_CONDITIONS))
+
+    receipts = {}
+    for signal, label, pressure in SIGNALS:
+        name = f"saf-pressure-{label}"
+        wait(lab, normal, f"ready worker and restored original map before {signal}", 90)
+        fixture = lab.create(pod(name, [container("marker", resources={
+            "requests": {"cpu": "5m", "memory": "2Mi", "ephemeral-storage": "1Mi"},
+            "limits": {"cpu": "20m", "memory": "24Mi", "ephemeral-storage": "8Mi"},
+        })], nodeName=worker, terminationGracePeriodSeconds=1,
+                                   automountServiceAccountToken=False))
+        ready(lab, name)
+        observed = json.loads(lab.kubectl("get", raw_path).stdout)["node"]
+        available, capacity = headroom(signal, observed)
+        if not 0 < available < capacity - 2 or available * 10 < capacity:
+            lab.block(f"Expected ample real headroom and a measurable used margin for {signal}")
+        # Move only the node's synthetic comparison threshold. The fixture
+        # never fills the filesystem or spawns a PID or inode load.
+        threshold = capacity - min((capacity - available) // 4, 1024 * 1024 * 1024)
+        expected = {**original_hard, signal: str(threshold)}
+        if original_merge:
+            lab.block("The isolated one-signal replay needs the pinned non-merging baseline")
+        lab.check("red", f"{signal} baseline has a Ready fixture with pressure clear",
+                  condition(current(), pressure) == "False" and threshold > available,
+                  {"baseline_condition_clear": True, "threshold_crossable_without_load": threshold > available})
+        try:
+            write_config(lab, worker, with_merge_fixture(source, expected, False))
+
+            def active():
+                effective = configz(lab, worker)
+                return effective and effective["evictionHard"] == expected
+
+            wait(lab, active, f"the expected full threshold map for {signal}")
+
+            def pressured():
+                state = current()
+                if condition(state, pressure) == "True":
+                    return state
+                return None
+
+            state = wait(lab, pressured, f"native {pressure} from {signal}", 75)
+            # Direct node placement lets the probe reach kubelet admission even
+            # though the default scheduler also excludes the pressured node.
+            new_name = f"{name}-while-pressured"
+            challenger = lab.create(pod(new_name, [container("marker")], nodeName=worker,
+                                        terminationGracePeriodSeconds=1, automountServiceAccountToken=False))
+
+            def rejected():
+                result = read(lab, "get", "pod", new_name)
+                return result if result["status"].get("reason") == "Evicted" else None
+
+            denied = wait(lab, rejected, f"kubelet admission denial for {signal}", 45)
+            message = denied["status"].get("message", "")
+            specific_denial = f"The node had condition: [{pressure}]." in message
+            same_pod = denied["metadata"]["uid"] == challenger["metadata"]["uid"]
+            only_selected = all(condition(state, key) == "False" for key in PRESSURE_CONDITIONS if key != pressure)
+            api_ready = lab.kubectl("get", "--raw=/readyz").stdout.strip() == "ok"
+            lab.check("green", f"{signal} raises the native condition and blocks admission of a bound Pod",
+                      same_pod and specific_denial and only_selected and api_ready,
+                      {"pressure_condition": pressure, "same_challenge_uid": same_pod,
+                       "specific_kubelet_admission_denial": specific_denial,
+                       "selected_condition_only": only_selected, "api_ready": api_ready})
+        except Exception:
+            lab.command("docker", "exec", worker, "journalctl", "-u", "kubelet", "-n", "65",
+                        "--no-pager", allow_failure=True)
+            raise
+        finally:
+            write_config(lab, worker, source)
+
+        wait(lab, normal, f"original thresholds and healthy condition after {signal}", 90)
+        recovery_name = f"{name}-recovery"
+        recovery = lab.create(pod(recovery_name, [container("marker")], nodeName=worker,
+                                  terminationGracePeriodSeconds=1, automountServiceAccountToken=False))
+        ready(lab, recovery_name)
+        actual = read(lab, "get", "pod", recovery_name)
+        healthy = actual["metadata"]["uid"] == recovery["metadata"]["uid"] and actual["status"]["phase"] == "Running"
+        lab.check("positive", f"Restoring the baseline after {signal} clears pressure and permits a fresh Pod",
+                  healthy and normal(), {"original_thresholds_restored": True, "fresh_pod_ready": healthy})
+        lab.kubectl("delete", "pod", recovery_name, name, "--wait=true")
+        receipts[signal] = {"available_before": available, "capacity": capacity, "threshold": threshold,
+                            "ready_baseline_uid": fixture["metadata"]["uid"],
+                            "challenger_uid": challenger["metadata"]["uid"], "rejected_uid": denied["metadata"]["uid"],
+                            "node_uid": worker_uid, "pressure_condition": pressure, "message": message,
+                            "recovery_uid": recovery["metadata"]["uid"], "recovered": healthy}
+    return receipts
 
 
 def run(lab):
@@ -225,15 +350,19 @@ def run(lab):
         return False
     restored = wait(lab, restored_state, "restored kubelet thresholds and worker condition", 90)
     replacement_name = "saf-after-pressure"
-    lab.create(workload(replacement_name, worker))
+    lab.create(pod(replacement_name, [container("marker")], nodeName=worker,
+                   terminationGracePeriodSeconds=1, automountServiceAccountToken=False))
     lab.kubectl("wait","--for=condition=Ready",f"pod/{replacement_name}","--timeout=60s",timeout=75)
     accepted = read(lab,"get","pod",replacement_name)
     lab.check("positive", "The restored worker runs a permitted workload without MemoryPressure",
               restored and accepted["status"]["phase"] == "Running",
               {"original_thresholds_restored": restored,"ordinary_pod_running": accepted["status"]["phase"] == "Running"})
+    lab.kubectl("delete", "pod", replacement_name, "--wait=true")
+    other_signals = exercise_pressure_signals(lab, worker, source, initial_config, before)
     (lab.evidence/"hard-eviction.raw.json").write_text(json.dumps({
         "threshold":configured,"available_before_bytes":available,"baseline":initial_hard,"eviction_message":action["message"],
         "elapsed_seconds":round(elapsed,3),"pod_grace_seconds":grace,
         "pdb_disruptions_allowed_before":budget["disruptionsAllowed"],"restored":restored,
         "effective_merge_check": merge_evidence,
+        "additional_native_signals": other_signals,
     },indent=2)+"\n")

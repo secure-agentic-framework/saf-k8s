@@ -44,3 +44,21 @@ thresholds, managed service and GPU-specific tuning remain separate.
 
 - [Kubernetes v1.36 kubelet configuration](https://v1-36.docs.kubernetes.io/docs/reference/config-api/kubelet-config.v1beta1/)
 - [Kubernetes v1.36 resource reservations](https://v1-36.docs.kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/)
+
+## Native storage and PID evidence
+
+On this sample Linux node layout, the case isolates `nodefs.available`,
+`nodefs.inodesFree`, and `pid.available` one at a time. It reads the actual
+worker's reported headroom and temporarily raises the selected threshold.
+The case observes the expected Node condition and kubelet admission denial
+for a directly bound Pod. It checks the exact pressure message and verifies a
+fresh healthy Pod after restoration. The earlier memory comparison observes
+termination of a running Pod. The runner never creates disk, inode, or process exhaustion.
+
+Kind's runtime can report the same backing filesystem for multiple identifiers.
+Use the runtime's supported layout and observed kubelet statistics to identify
+effective `nodefs`, `imagefs`, and `containerfs` coverage. If the platform uses
+a separate image or container filesystem, verify the corresponding reclamation,
+eviction and recovery in representative staging. Record unsupported or aliased
+signals and report actual per-pool capacity, alert delivery, and recovery
+evidence as part of the adopter's assessment.

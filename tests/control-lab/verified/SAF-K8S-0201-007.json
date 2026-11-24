@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0201-007",
-  "catalog_revision": "ace2ad77c2abc0c1b58d3cf40fd0fdf6f52fe2b5",
+  "catalog_revision": "f376372ffd2b218e526a2365ab6b829fddccd791",
   "catalog_sha256": "44a1f4805a334c7a678d506a71e886b53052f0c549cbf2da4c78d17aeeb4d1d0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6ce173b657e64eb285edb7982e41bc14bd867effbe6ef89a13c0d95a735b5de9",
-  "scope": "A disposable Kind v1.36.1 worker on containerd. A deliberately raised memory.available threshold creates a kubelet pressure signal without allocating large memory. Checks the real eviction, a blocking PDB, configured workload grace, control-plane readiness, and worker recovery. Also compares effective settings for an omitted filesystem-inode signal under each default-merge mode. The lab uses deliberately synthetic thresholds.",
-  "cluster": "saf-lab-aa1699e0b0df",
+  "scope": "A disposable Kind v1.36.1 worker on containerd. A deliberately raised memory.available threshold creates a kubelet pressure signal without allocating large memory. Checks the real eviction, a blocking PDB, configured workload grace, control-plane readiness, and worker recovery. Also compares effective settings for an omitted filesystem-inode signal under each default-merge mode. Separately exercise native nodefs space, nodefs inodes and PID pressure, kubelet admission, and recovery. All thresholds are synthetic and local.",
+  "cluster": "saf-lab-2f2b31e15051",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -102,6 +102,96 @@
       "observed": {
         "original_thresholds_restored": true,
         "ordinary_pod_running": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "nodefs.available baseline has a Ready fixture with pressure clear",
+      "matched": true,
+      "observed": {
+        "baseline_condition_clear": true,
+        "threshold_crossable_without_load": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "nodefs.available raises the native condition and blocks admission of a bound Pod",
+      "matched": true,
+      "observed": {
+        "pressure_condition": "DiskPressure",
+        "same_challenge_uid": true,
+        "specific_kubelet_admission_denial": true,
+        "selected_condition_only": true,
+        "api_ready": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Restoring the baseline after nodefs.available clears pressure and permits a fresh Pod",
+      "matched": true,
+      "observed": {
+        "original_thresholds_restored": true,
+        "fresh_pod_ready": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "nodefs.inodesFree baseline has a Ready fixture with pressure clear",
+      "matched": true,
+      "observed": {
+        "baseline_condition_clear": true,
+        "threshold_crossable_without_load": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "nodefs.inodesFree raises the native condition and blocks admission of a bound Pod",
+      "matched": true,
+      "observed": {
+        "pressure_condition": "DiskPressure",
+        "same_challenge_uid": true,
+        "specific_kubelet_admission_denial": true,
+        "selected_condition_only": true,
+        "api_ready": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Restoring the baseline after nodefs.inodesFree clears pressure and permits a fresh Pod",
+      "matched": true,
+      "observed": {
+        "original_thresholds_restored": true,
+        "fresh_pod_ready": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "pid.available baseline has a Ready fixture with pressure clear",
+      "matched": true,
+      "observed": {
+        "baseline_condition_clear": true,
+        "threshold_crossable_without_load": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "pid.available raises the native condition and blocks admission of a bound Pod",
+      "matched": true,
+      "observed": {
+        "pressure_condition": "PIDPressure",
+        "same_challenge_uid": true,
+        "specific_kubelet_admission_denial": true,
+        "selected_condition_only": true,
+        "api_ready": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Restoring the baseline after pid.available clears pressure and permits a fresh Pod",
+      "matched": true,
+      "observed": {
+        "original_thresholds_restored": true,
+        "fresh_pod_ready": true
       }
     }
   ]
