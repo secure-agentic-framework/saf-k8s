@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1002-002",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "9f97cb096a5963cbea86640106b7afdc9e188a9c",
+  "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b2d048294f39c25df5312320f999436c9ea189bdbdb5105a9da892af35b9e24a",
-  "scope": "A disposable Kubernetes v1.36.1 Kind cluster runs a digest-pinned OpenTelemetry Collector and synthetic Python OpenTelemetry SDK ingestion, registry and inference services plus native asynchronous training Jobs. The raw Collector output proves exact parentage, separation when the Job omits context, and an inference error marker on the intended trace. Real pipeline enrollment, custom orchestrators and KServe, production telemetry governance and durable backends require separate evidence.",
-  "cluster": "saf-lab-20f37f9fe020",
+  "scope": "A disposable Kubernetes v1.36.1 Kind cluster runs a digest-pinned OpenTelemetry Collector and synthetic Python OpenTelemetry SDK ingestion, registry and inference services plus native asynchronous training Jobs. The raw Collector output proves exact parentage, separation when the Job omits context, and an inference error marker on the intended trace. An additional fixture tests a native Job and KServe Standard-mode predictor annotation handoff with exact W3C parentage. Deployed orchestration coverage, telemetry governance and durable backends require separate evidence.",
+  "cluster": "saf-lab-2e08c2718a3e",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -92,6 +92,78 @@
       "observed": {
         "independent_trace": true,
         "served": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "KServe dispatch ingestion emits a valid sampled W3C traceparent",
+      "matched": true,
+      "observed": {
+        "valid": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The Kubernetes cluster runs the pinned KServe controller from the verified release asset",
+      "matched": true,
+      "observed": {
+        "release": "v0.21.0",
+        "manifest_sha256": "d155b626a8d42f353bd637f9e5ae306a954ea6a9ddea70dbe36a16269250c6ca",
+        "approved_controller_image_active": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The running native Job received the configured upstream annotation and returned its W3C carrier",
+      "matched": true,
+      "observed": {
+        "native_job_owned_pod": true,
+        "supplied_carrier_projected": true,
+        "sampled_carrier": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "KServe owns the saf-kserve-no-context predictor and its actual Pod exposes the expected Downward API value",
+      "matched": true,
+      "observed": {
+        "kserve_owns_predictor": true,
+        "mode": "Standard",
+        "carrier_matches": true,
+        "internal_service": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "KServe owns the saf-kserve-linked predictor and its actual Pod exposes the expected Downward API value",
+      "matched": true,
+      "observed": {
+        "kserve_owns_predictor": true,
+        "mode": "Standard",
+        "carrier_matches": true,
+        "internal_service": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "An otherwise-equivalent KServe predictor with no carrier produces an independent sampled root",
+      "matched": true,
+      "observed": {
+        "root_is_separate": true,
+        "predictor_served": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The Collector proves exact ingestion, native Job and KServe predictor parentage through real annotations",
+      "matched": true,
+      "observed": {
+        "stages": [
+          "ingestion",
+          "orchestration.dispatch",
+          "kserve.predictor.inference"
+        ],
+        "chain_matched": true
       }
     }
   ]

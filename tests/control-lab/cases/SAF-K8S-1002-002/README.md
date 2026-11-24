@@ -11,3 +11,9 @@ The case verifies actual Collector output. Without the injected context, the tra
 Production orchestrators, InferenceService CRD annotation propagation, instrumentation coverage, sampling, retention, backend durability, and incident response require deployment evidence.
 
 [W3C Trace Context](https://www.w3.org/TR/trace-context/) · [OpenTelemetry Python propagation](https://opentelemetry.io/docs/languages/python/propagation/) · [OpenTelemetry Collector 0.136.0](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/v0.136.0)
+
+The KServe v0.21.0 extension uses Standard mode and its generated internal
+Service. It tests KServe carrying the configured W3C annotation into the predictor
+Pod. The actual native Job and predictor use the Python OpenTelemetry SDK to
+extract and export trace context. The same Collector observes the linked native
+Job and KServe trace and an independent no-context predictor trace.

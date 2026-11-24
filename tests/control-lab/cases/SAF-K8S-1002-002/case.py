@@ -1,6 +1,7 @@
 """Synthetic end-to-end trace propagation across ingestion, Job, registry, inference."""
 import json
 import re
+import runpy
 import time
 from pathlib import Path
 
@@ -10,8 +11,9 @@ SCOPE = (
     "Collector and synthetic Python OpenTelemetry SDK ingestion, registry and inference "
     "services plus native asynchronous training Jobs. The raw Collector output proves exact "
     "parentage, separation when the Job omits context, and an inference error marker "
-    "on the intended trace. Real pipeline enrollment, custom orchestrators and KServe, "
-    "production telemetry governance and durable backends require separate evidence."
+    "on the intended trace. An additional fixture tests a native Job and KServe Standard-mode "
+    "predictor annotation handoff with exact W3C parentage. Deployed orchestration "
+    "coverage, telemetry governance and durable backends require separate evidence."
 )
 
 NODE_IMAGE = "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
@@ -208,3 +210,7 @@ def run(lab):
     lab.check("positive", "The healthy comparator retains its own complete trace and serves the fixture",
               comparison and healthy["trace_id"] == healthy_id and healthy["result"]["served"] is True,
               {"independent_trace": comparison, "served": healthy["result"]["served"]})
+
+    kserve = runpy.run_path(str(HERE / "kserve" / "case.py"))
+    dispatch_source = _ingest(lab, "KServe dispatch")
+    kserve["run"](lab, dispatch_source, PYTHON_IMAGE, SDK, _security, _collector_traces, _chain)
