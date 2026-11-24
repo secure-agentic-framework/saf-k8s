@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-009",
-  "catalog_revision": "92e8e71a61744ee3604c9813fc665a2ea25b5031",
-  "catalog_sha256": "99048c7c5e30336e2a77304832015185e3d557c14d25c64fba0bfee70cb51f97",
+  "catalog_revision": "faa8bff3057eb0c0f5962235140c8528242b7d7b",
+  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d2b8e1bbbe26fe390f75770fcd31beeebed0a67ea53a420736b4f0cee7b1de60",
   "scope": "A lab-only example of toolchain integrity and execution for SSDF v1.1 PO.3.2.",
-  "cluster": "saf-lab-5c1242f30a46",
+  "cluster": "saf-lab-7796b106764f",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
