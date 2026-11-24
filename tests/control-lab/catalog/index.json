@@ -1428,6 +1428,12 @@
       "sha256": "514d8d6226656695e57e314b954a968bf062575cf8d8786b01cea44cb4afe74b",
       "title": "Multi-stage build and stripped runtime image minimization"
     },
+    "SAF-K8S-0601-018": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "935d738d8aceaad1d8f43e84226f8c354aa983af65a80f2a15fdbde1ed36900b",
+      "title": "Registry push-time container image vulnerability rescanning"
+    },
     "SAF-K8S-0601-020": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -3410,7 +3416,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "de1f95afd3e31d7f04076284b7ed0b4bc6666d51",
-  "sha256": "26cce2a48501ff10660b281dd9d3befa20b619177fe4f9e5354382fffb01df3c",
+  "revision": "367dca2789ca9aeaae5f22d8a4c379389c08942a",
+  "sha256": "5c250db1f2dd017f383a5267f72df14db9243eac9754c19707c69df39edaceec",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -1,0 +1,72 @@
+{
+  "control_id": "SAF-K8S-0601-018",
+  "catalog_revision": "7b19da984a2e989fdcb2b8b6c0069842b7237df4",
+  "catalog_sha256": "5c250db1f2dd017f383a5267f72df14db9243eac9754c19707c69df39edaceec",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "935d738d8aceaad1d8f43e84226f8c354aa983af65a80f2a15fdbde1ed36900b",
+  "scope": "A pinned Distribution registry holds inert image manifests. A separate registry reader retrieves the actual manifest, config and layer bytes by digest. Pinned OSV-Scanner rescans those bytes offline after the trusted synthetic advisory revision changes. Native Kubernetes admission requires the current approved exact digest in a test consumer namespace. The demonstration uses server-side Pod dry-run for admission because these images contain metadata only.",
+  "cluster": "saf-lab-5b7b37ea5952",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The unchecked consumer admits an already-pushed, unscanned digest",
+      "matched": true,
+      "observed": {
+        "status": "admitted",
+        "image": "fixture-scan-registry.saf-test.svc:5000/fixtures/prerelease@sha256:bfc4f85c33184b3e0707bcc3fc3c04b1e465f0ff9a4f156cf9715f15f8a24e4d"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Refreshing the advisory invalidates stale approval and quarantines the exact prior digest",
+      "matched": true,
+      "observed": {
+        "older_clean_scan_previously_approved": true,
+        "stale_approval_denied": true,
+        "same_registry_archive_reassessed_after_refresh": true,
+        "quarantined_digest_denied_even_after_retag": true,
+        "mutable_alias_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The separately rescanned clean digest remains admissible",
+      "matched": true,
+      "observed": {
+        "status": "admitted",
+        "image": "fixture-scan-registry.saf-test.svc:5000/fixtures/prerelease@sha256:251c18f8e793e47f19b0b2d956ce514eeb6f1fc3248306977325fee6d260991a"
+      }
+    }
+  ]
+}
