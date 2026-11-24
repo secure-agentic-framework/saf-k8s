@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0304-011",
-  "catalog_revision": "11088e58e64a537472c1fce0cf50a66e86edf7c6",
-  "catalog_sha256": "d7d28292b8acff5a66248c6cc45657bf790264e652dc2045ccd63a055e692998",
+  "catalog_revision": "6dc70871a212dce202baa52a9ffe7e29be89312f",
+  "catalog_sha256": "0fb5dcc442009a780c6048f6caf5a0b0c8716767df69dcdb7d7b1a421c4c2011",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "17e68373f9c3afd71ce662a5bb89e68b51a7f6f38590383ed9132c1dc4f1ba79",
-  "scope": "One saf-test namespace on the lab's pinned kind Kubernetes v1.36.1: server-side Pod admission applies LimitRange default requests and limits and denies per-container CPU, memory, or ephemeral-storage limits above configured maxima; two harmless, small Pods consume aggregate requests.cpu, requests.memory, and requests.ephemeral-storage quota, and separate dry-run candidates exceed each quota. This demonstrates API admission and declared-request accounting only. It does not measure live CPU, memory, or disk consumption, provide GPU hardware or device-plugin evidence, validate policy governance, or establish namespace-wide rollout.",
-  "cluster": "saf-lab-1997b6094282",
+  "control_sha256": "41e76fff0f2faa9c758d78d040f2fd17d4d4aaa468f5b277cb501119dd8c3828",
+  "scope": "One saf-test namespace on the lab's pinned kind Kubernetes v1.36.1: server-side Pod admission applies LimitRange default requests and limits and denies per-container CPU, memory, or ephemeral-storage limits above configured maxima; two harmless, small Pods consume aggregate requests.cpu, requests.memory, and requests.ephemeral-storage quota, and separate dry-run candidates exceed each quota. A second namespace exercises container LimitRange and aggregate request quota on an inert extended resource. The Kind node advertises synthetic capacity through its status; a real Pod schedules and quota accounts its declared request. Device-plugin and hardware semantics are separate, as is an adopter's namespace governance.",
+  "cluster": "saf-lab-977fe3988146",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -151,6 +151,97 @@
         "saf-0304-aggregate-base",
         "saf-0304-defaulted"
       ]
+    },
+    {
+      "phase": "red",
+      "claim": "The inert resource is absent when omitted and admitted above later bounds",
+      "matched": true,
+      "observed": {
+        "omitted": {
+          "requests": null,
+          "limits": null
+        },
+        "excessive": {
+          "requests": "3",
+          "limits": "3"
+        },
+        "quota_candidate": {
+          "requests": "2",
+          "limits": "2"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An extended resource stays omitted under ResourceQuota alone",
+      "matched": true,
+      "observed": {
+        "requests": null,
+        "limits": null
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A maximum alone sets an effective equal request and limit on omission",
+      "matched": true,
+      "observed": {
+        "policy_default": "2",
+        "policy_default_request": "2",
+        "admitted_pair": {
+          "requests": "2",
+          "limits": "2"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "One omitted extended resource receives equal request and limit defaults",
+      "matched": true,
+      "observed": {
+        "amount": {
+          "requests": "1",
+          "limits": "1"
+        },
+        "limitranger_annotation": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "LimitRange rejects a request above the per-container extended-resource maximum",
+      "matched": true,
+      "observed": {
+        "exact_maximum_denial": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A defaulted Pod schedules and charges one unit of request quota",
+      "matched": true,
+      "observed": {
+        "hard": "2",
+        "used": "1",
+        "scheduled_on_fixture": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Request quota rejects an aggregate overage within the container ceiling",
+      "matched": true,
+      "observed": {
+        "exact_request_quota_denial": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The identical request is admitted after existing usage is released",
+      "matched": true,
+      "observed": {
+        "amount": {
+          "requests": "2",
+          "limits": "2"
+        },
+        "persisted": 0
+      }
     }
   ]
 }

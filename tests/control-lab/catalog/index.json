@@ -747,7 +747,7 @@
     "SAF-K8S-0304-011": {
       "catalog_status": "draft",
       "domain": "D03",
-      "sha256": "17e68373f9c3afd71ce662a5bb89e68b51a7f6f38590383ed9132c1dc4f1ba79",
+      "sha256": "41e76fff0f2faa9c758d78d040f2fd17d4d4aaa468f5b277cb501119dd8c3828",
       "title": "Namespace LimitRange and ResourceQuota enforcement"
     },
     "SAF-K8S-0304-012": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c6ddf5d303ce6f0eb4ac9710bb498499f6a3824e",
-  "sha256": "89325da228788a434f2e003f265722b10870eb26c9d02a8c8acefe4207cda783",
+  "revision": "9a3ef762ab9df689aa70ba399570c52021c5cda8",
+  "sha256": "0fb5dcc442009a780c6048f6caf5a0b0c8716767df69dcdb7d7b1a421c4c2011",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

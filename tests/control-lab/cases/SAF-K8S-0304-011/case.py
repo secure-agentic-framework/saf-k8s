@@ -13,9 +13,10 @@ SCOPE = (
     "CPU, memory, or ephemeral-storage limits above configured maxima; two harmless, "
     "small Pods consume aggregate requests.cpu, requests.memory, and "
     "requests.ephemeral-storage quota, and separate dry-run candidates exceed each quota. "
-    "This demonstrates API admission and declared-request accounting only. It does not "
-    "measure live CPU, memory, or disk consumption, provide GPU hardware or device-plugin "
-    "evidence, validate policy governance, or establish namespace-wide rollout."
+    "A second namespace exercises container LimitRange and aggregate request quota on an inert "
+    "extended resource. The Kind node advertises synthetic capacity through its status; "
+    "a real Pod schedules and quota accounts its declared request. Device-plugin and hardware "
+    "semantics are separate, as is an adopter's namespace governance."
 )
 
 DEFAULTS = {
@@ -187,3 +188,7 @@ def run(lab):
         names == expected_names,
         sorted(names),
     )
+
+    from runpy import run_path
+
+    run_path(str(HERE / "extended_resources.py"))["run"](lab)
