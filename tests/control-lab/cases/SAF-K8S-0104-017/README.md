@@ -33,13 +33,13 @@ The second fixture uses two assigned service-account subjects and real API
 admission in the disposable cluster. The harness impersonates each subject
 using its already authorized administrator context. Both subjects can
 submit under namespace RBAC. With the risk-owner admission rule enabled,
-the requester cannot create or renew the approval, and the owner cannot
-renew after the deadline, without a newer review or with a changed finding.
-A timely owner review retains the exact cluster, benchmark, version,
-profile and check scope, the existing object identity and the renewed date.
-The review clock is represented by fixture dates. Live scheduling, human
-delegation and performance of a compensating control require their own
-evidence.
+the requester cannot create or renew the approval. The rule rejects an
+owner request with a recorded review time after the deadline, a missing new
+review or a changed finding. A qualifying review retains the exact cluster,
+benchmark, version, profile and check scope, the existing object identity
+and the renewed date. The fixture uses supplied timestamps. The deployed
+workflow needs a trusted decision timestamp, along with evidence of live
+scheduling, human delegation and compensating control performance.
 
 ## Verify your implementation
 
