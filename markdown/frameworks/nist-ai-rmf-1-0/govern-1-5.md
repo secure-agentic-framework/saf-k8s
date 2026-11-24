@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-Security posture management provides continuous assessment with drift detection. Automated audit readiness enables periodic compliance review with evidence gap tracking.
+Recurring checks and freshness tracking can support the planned monitoring and review. Verify accountable roles, review cadence, and recorded decisions.
 
 ## SAF-K8S Controls
 
@@ -15,8 +15,8 @@ Security posture management provides continuous assessment with drift detection.
 - Knowledge Area: 10.6
 - Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1007-004 - Continuous security posture management for AI clusters](../../controls/SAF-K8S-1007-004.md)
 

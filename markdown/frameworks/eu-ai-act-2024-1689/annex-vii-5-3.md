@@ -33,7 +33,7 @@ SAF-K8S audit logging (D10) and RBAC (D4) can provide read-only auditor access t
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.6
-- Relation Type: partial
+- Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

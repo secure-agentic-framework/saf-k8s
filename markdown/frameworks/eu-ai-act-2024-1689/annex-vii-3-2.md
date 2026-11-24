@@ -24,7 +24,7 @@ SAF-K8S CI/CD pipeline controls (D6), automated testing infrastructure, validati
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.6
-- Relation Type: partial
+- Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

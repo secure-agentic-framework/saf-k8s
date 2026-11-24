@@ -25,9 +25,9 @@ Security plans for agentic AI systems must document architecture, trust boundari
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.6
 - Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1006-005 - Policy-as-code enforcement for AI workload compliance](../../controls/SAF-K8S-1006-005.md)
 

@@ -33,5 +33,5 @@ STRIDE and OCTAVE threat modeling establish risk management processes. Automated
 - Knowledge Area: 10.6
 - Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

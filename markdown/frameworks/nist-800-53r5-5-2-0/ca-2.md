@@ -34,6 +34,6 @@ Assessing security controls on agent systems
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.6
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

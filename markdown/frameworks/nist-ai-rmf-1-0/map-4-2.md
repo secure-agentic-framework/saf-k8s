@@ -31,10 +31,10 @@ The implemented and verified dataset integrity control is identified in the AI s
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.6
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0910-028 - Unified multi-cluster compliance reporting](../../controls/SAF-K8S-0910-028.md)
 
