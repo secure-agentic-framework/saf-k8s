@@ -2495,7 +2495,7 @@
   rationale: Pod-level limits alone do not prevent a team from deploying many bounded pods until a namespace or cluster is exhausted. LimitRange establishes default and maximum values, while ResourceQuota constrains aggregate namespace consumption and prevents one tenant from monopolizing shared capacity.
   scope: Applies to all production namespaces. Accelerator-specific quotas remain applicable where GPU or AI resources are allocated to teams or workloads.
   primary_enforcement_point: LimitRange and ResourceQuota admission controllers plus namespace governance reviews and quota utilization monitoring.
-  implementation_surface: LimitRange objects, ResourceQuota objects, and namespace resource consumption dashboards including accelerator quota usage where applicable.
+  implementation_surface: Inspect the effective Container LimitRange and ResourceQuota in each applicable namespace. A configured container maximum can also set the default limit and request. Review those values to avoid assigning unintended accelerator requests, and keep requests and limits equal for non-overcommittable resources when both are set. Use requests.<extended-resource> quota keys for aggregate extended-resource requests. Check admitted Pod resources and monitor quota accounting and accelerator usage where applicable.
   owner_primary: Platform Engineering
   owner_supporting: AI/ML Platform team; Application Development teams
   baseline_or_ai_specific: baseline
