@@ -1,4 +1,5 @@
 """Evaluate synthetic stage-based feature-gate governance records."""
+import importlib.util
 import json
 from datetime import date
 from pathlib import Path
@@ -159,3 +160,8 @@ def run(lab):
     lab.check("positive", "An alpha record with the additional exception and architecture review is admitted",
               admitted.returncode == 0, {"admitted": admitted.returncode == 0,
                                          "detail": admitted.stderr.strip()})
+
+    spec = importlib.util.spec_from_file_location("stage_feature_approval", HERE / "approval.py")
+    stage = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(stage)
+    stage.run(lab)

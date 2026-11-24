@@ -339,7 +339,7 @@
     "SAF-K8S-0104-023": {
       "catalog_status": "draft",
       "domain": "D01",
-      "sha256": "82c1c6d23330706e6e186a332144a2459b299391fe6608c69c98af86258415e6",
+      "sha256": "fdd5dfce4f66dfa5d66d8aa0978ca48ba13fc33d45e3c39f54ecc78423847e99",
       "title": "Stage-based approval and risk assessment for production feature gates"
     },
     "SAF-K8S-0201-005": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6fba95628506ce18845732c683d9c175fab21f31",
-  "sha256": "b13085fffcc414b504ce34f1a8df0fae3520e701b0adca01e92c2c2add5002cb",
+  "revision": "b18a9dbaa7ae575865e1cb0d4754fae8b79348e0",
+  "sha256": "5703a4ff6c86b37a5ebbd412a7e4e9439b728b08de81604b2e50431fe562fca6",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

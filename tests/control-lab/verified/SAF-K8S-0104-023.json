@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0104-023",
-  "catalog_revision": "36d67fc68b5176566299ebffa1c448bea0a6dc2c",
-  "catalog_sha256": "957795ca0841a48dd97f65d6a691d642bc38d11bbf391056ec5ea9b34e1a131b",
+  "catalog_revision": "bc0c031162cc633b629e1071cb3df714912e2738",
+  "catalog_sha256": "5703a4ff6c86b37a5ebbd412a7e4e9439b728b08de81604b2e50431fe562fca6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "82c1c6d23330706e6e186a332144a2459b299391fe6608c69c98af86258415e6",
+  "control_sha256": "fdd5dfce4f66dfa5d66d8aa0978ca48ba13fc33d45e3c39f54ecc78423847e99",
   "scope": "Kubernetes v1.36.1 stage metadata and synthetic governance records. A namespace-local admission example rejects incomplete test records and accepts complete records. Actual risk assessment, reviewer identity and production activation need separate evidence.",
-  "cluster": "saf-lab-ba5ab322ac55",
+  "cluster": "saf-lab-3e4d5b3e7a01",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -215,6 +215,59 @@
       "observed": {
         "admitted": true,
         "detail": ""
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The stock API server separately exposes alpha-off and beta-on effective states",
+      "matched": true,
+      "observed": {
+        "ContainerStopSignals": {
+          "active": false,
+          "stage": "ALPHA"
+        },
+        "PodLevelResources": {
+          "active": true,
+          "stage": "BETA"
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The candidate plan reaches the API before any reviewed-approval constraint",
+      "matched": true,
+      "observed": {
+        "baseline_plan_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Current beta defaults do not authorize a plan and the requester cannot self-approve",
+      "matched": true,
+      "observed": {
+        "unapproved_plan_denied": true,
+        "forged_approval_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both distinct reviewers authorize only the exact feature change plan",
+      "matched": true,
+      "observed": {
+        "one_review_denied": true,
+        "both_reviews_admit_exact_plan": true,
+        "approved_plan_persisted": true,
+        "wrong_component": true,
+        "wrong_origin": true,
+        "wrong_image": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Revoking the security review denies a new matching plan",
+      "matched": true,
+      "observed": {
+        "revoked_plan_denied": true
       }
     }
   ]

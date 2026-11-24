@@ -31,3 +31,30 @@ remain to be verified separately.
 - [Kubernetes v1.36.1 feature-gate registry](https://github.com/kubernetes/kubernetes/blob/v1.36.1/pkg/features/kube_features.go)
 - [Kubernetes v1.36 feature-gate stages and lifecycle](https://v1-36.docs.kubernetes.io/docs/reference/command-line-tools-reference/feature-gates/)
 - [Kubernetes v1.36 ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
+
+The second example reads the stock API server's effective Alpha-off and
+Beta-on values. An inert plan for the default-on Beta behavior flows through
+two fixture reviewers with distinct API subjects. Kubernetes checks the
+stored reviewers and exact build, image, component, scope, and origin
+before admitting and persisting the plan. The requester cannot record
+approval. A revoked security review blocks a new plan. The fixture uses
+fixed dates and does not enact the requested component change.
+
+## Verify your implementation
+
+1. Obtain the verified gate inventory for each component, release, provider,
+   scope and effective value. Separate explicit changes from the behavior
+   inherited from defaults or provider settings. Record default-on Beta
+   behavior as part of the review even without a change ticket.
+2. Bind the assessment to the exact component and build, gate, maturity,
+   effective value and intended configuration. Retain the affected services,
+   dependencies, trade-offs, mitigation plan and provider limitations.
+   Record any stricter criteria that apply to Alpha usage.
+3. Verify authorized review identities, decision scope, expiry, exception
+   ownership and attributable timestamps. Test that absent, stale, revoked
+   or mismatched approval prevents a new change or adoption decision.
+   Verify the controls on the actual configuration or deployment path.
+4. Re-evaluate decisions when the release, stage, provider settings, usage or
+   risk changes. Reconcile revocation and expiry to the resulting live
+   configuration and affected workloads. Retain the observation and approval
+   history from authorized, version-aware sources.
