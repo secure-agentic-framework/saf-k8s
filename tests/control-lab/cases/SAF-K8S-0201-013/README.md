@@ -1,38 +1,55 @@
-# SAF-K8S-0201-013 — Kubelet client certificate rotation via TLS bootstrap
+# SAF-K8S-0201-013 Kubelet client certificate lifecycle
 
-The case starts a disposable Kubernetes v1.36.1 cluster with two kubeadm
-workers and a 150-second signing duration. Both workers must become Ready.
-The rotation-disabled worker has to receive a bootstrap certificate and
-write a lease during its initial validity. It then serves as the comparison
-for the worker with native rotation enabled.
-
-On the enabled worker, the test observes the bootstrap approver and signer
-issuing a certificate for the exact owned node identity. It then observes an
-approved, issued certificate from a new CSR requested by that node. The
-certificate has the same subject and issuer, a different serial, and an
-issuance interval consistent with signing before bootstrap expiry under the
-configured signer lifetime. After both bootstrap certificates have expired,
-the enabled worker must still be Ready and renew its lease. The disabled
-worker must have neither an issued renewal nor a fresh lease.
-
-The case parses public certificate metadata from API responses in memory.
-It retains boolean observations and uses the stock kubeadm approver and
-signer. Live deployment coverage, provider-managed rotation, external CA
-schedules, monitoring, and control-plane bootstrap and renewal require
-separate evidence.
-
-From the repository root, run the case by ID. Its short-lived certificates
-are special to the disposable test. Allow about three minutes for both
-expiry observations.
+From the framework root, run:
 
 ```sh
-python3 lab.py test SAF-K8S-0201-013 --docker-context desktop-linux
+python3 tests/control-lab/lab.py test SAF-K8S-0201-013 --docker-context desktop-linux
 ```
 
-In the framework repository use `python3 tests/control-lab/lab.py` with the same
-arguments. The runner prints the receipt and cluster cleanup outcome.
+The disposable Kubernetes v1.36.1 case observes native kubeadm TLS bootstrap
+and client certificate rotation on an enabled worker, with a disabled worker
+for comparison. It verifies the issued public certificates against the API
+server's configured client CA and for the client authentication purpose.
+Historical certificates are checked inside their validity interval, with
+expiry recorded separately. Issuance and renewal are attributed to the same
+node through the request subject and authenticated renewal identity.
 
-- [Pinned SAF-K8S control](https://github.com/secure-agentic-framework/saf-k8s/blob/133a8698a45e2b335b51728bf4c62f7bda98d15f/markdown/controls/SAF-K8S-0201-013.md)
+The enabled worker receives a distinct replacement before expiry, reports
+the expected native certificate TTL, and advances its node Lease after the
+initial certificates expire. The disabled worker enrolls initially, then has
+no replacement and a stale Lease. The first control-plane node contributes
+rotation configuration and liveness observations. The test's 150-second
+signing duration is reserved for disposable clusters. The actual initial
+control-plane certificate replacement remains a separate exercise.
+
+## Verify your implementation
+
+- Inventory all worker and control-plane provisioning paths, approvers,
+  issuers, node identities and effective API-server client trust. Distinguish
+  bootstrap token enrollment from approved seeded credentials on an initial
+  control plane. Check that bootstrap authorization is limited to the intended
+  node provisioning workflow and that the effective signer accepts the
+  expected client usages and subject.
+- Verify the effective `rotateCertificates` setting where native rotation
+  applies. Confirm observed issuance, approval, signed identity, validity
+  interval, and activation of a replacement before expiry. Track continued
+  authenticated node requests after the first certificate expires.
+- Observe certificate expiry, pending, denied and failed CSRs, issuer
+  availability and renewal errors. Identify the current owner, lead time,
+  alert route, escalation and recovery. Rehearse alert delivery and response
+  in a representative staging environment. The versioned native metrics are
+  alpha. Interpret missing or infinite TTL with CSR, issuer, and certificate
+  inventory evidence. Use Node Leases as an additional liveness signal.
+- For external CA and provider-operated paths, record the relevant nodes,
+  service and version, effective API-server trust, authorized issuance and
+  replacement records, and actual monitoring coverage. Track unresolved
+  approval or trust gaps.
+- Retain approved issuance and audit metadata independently of the live CSR
+  view, which Kubernetes garbage-collects. Use public certificate metadata,
+  expiry and Lease observations, and keep private credentials in their
+  protected stores.
+
 - [Kubernetes v1.36 TLS bootstrapping](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/kubelet-tls-bootstrapping/)
 - [Kubernetes v1.36 certificate rotation](https://v1-36.docs.kubernetes.io/docs/tasks/tls/certificate-rotation/)
-- [Kubernetes v1.36.1 signing expiration policy](https://github.com/kubernetes/kubernetes/blob/v1.36.1/pkg/controller/certificates/authority/policies.go)
+- [Kubernetes v1.36 CSR and signer policy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/certificate-signing-requests/)
+- [Kubernetes v1.36 metrics](https://v1-36.docs.kubernetes.io/docs/reference/instrumentation/metrics/)

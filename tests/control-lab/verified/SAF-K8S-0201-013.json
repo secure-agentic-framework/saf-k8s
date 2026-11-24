@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0201-013",
-  "catalog_revision": "11088e58e64a537472c1fce0cf50a66e86edf7c6",
-  "catalog_sha256": "d7d28292b8acff5a66248c6cc45657bf790264e652dc2045ccd63a055e692998",
+  "catalog_revision": "695585a02380bd4e6825debd7504320b839bed6e",
+  "catalog_sha256": "be3b7814f2810a26dcaa0f08c86b42a1f17331b77218f42795160372c0ab8525",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "1ab883f0d94c2ec1e490077bc53c359a05a807dfca40ec700c65eae31c18fb2a",
-  "scope": "Native kubeadm worker client-certificate bootstrap and renewal with paired rotation-enabled and rotation-disabled workers and a shortened certificate lifetime.",
-  "cluster": "saf-lab-4e0029bf4576",
+  "control_sha256": "b5517aee0c7ad38fbaccc53d2c0aa42273cc031e7be0ea98d683b99f24b77122",
+  "scope": "Native kubeadm worker client-certificate bootstrap and renewal with paired rotation-enabled and rotation-disabled workers; first Kind control-plane effective rotation setting and Lease liveness; shortened disposable-fixture certificate lifetime.",
+  "cluster": "saf-lab-ce0f2f0dec5e",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -56,46 +56,67 @@
       "observed": []
     },
     {
-      "phase": "red",
-      "claim": "Rotation-disabled worker received a bootstrap certificate and used its node identity",
+      "phase": "positive",
+      "claim": "The initial control-plane kubelet reports rotation enabled and an advancing client identity",
       "matched": true,
       "observed": {
-        "bootstrap_worked": true
-      }
-    },
-    {
-      "phase": "green",
-      "claim": "Native bootstrap approved and issued the worker client certificate",
-      "matched": true,
-      "observed": {
-        "bootstrap_issued": true
-      }
-    },
-    {
-      "phase": "green",
-      "claim": "Native renewal signed a distinct worker client certificate before expiry",
-      "matched": true,
-      "observed": {
-        "pre_expiry_renewal": true
+        "control_plane_rotation_enabled": true,
+        "fresh_lease": true
       }
     },
     {
       "phase": "red",
-      "claim": "Rotation-disabled worker has no renewal and no fresh lease after expiry",
+      "claim": "The disabled-rotation worker first enrolls with an API-server-trusted certificate",
       "matched": true,
       "observed": {
-        "comparison_window_elapsed": true,
-        "renewal_issued": false,
-        "fresh_lease": false
+        "rotation_disabled": true,
+        "bootstrap_chain_trusted": true,
+        "initial_identity_authenticated": true
       }
     },
     {
       "phase": "positive",
-      "claim": "Worker remains Ready and writes a fresh lease after bootstrap certificate expiry",
+      "claim": "The enabled worker reports the expected client certificate TTL and healthy native enrollment",
       "matched": true,
       "observed": {
-        "ready": true,
-        "fresh_lease": true
+        "trusted_chain_and_live_certificate_metric": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The scoped worker renewal produces a distinct API-server-trusted client certificate before expiry",
+      "matched": true,
+      "observed": {
+        "trusted_pre_expiry_renewal": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The disabled worker has actually expired, with no renewal and no fresh lease",
+      "matched": true,
+      "observed": {
+        "original_certificate_expired": true,
+        "no_disabled_worker_renewal": true,
+        "disabled_worker_lease_stale": true,
+        "comparison_window_elapsed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The monitoring signals and fresh lease confirm usable worker identity after the initial expiry",
+      "matched": true,
+      "observed": {
+        "replacement_and_metric_valid": true,
+        "enabled_lease_fresh": true,
+        "worker_ready": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The initial control-plane lease advances during the worker rotation interval",
+      "matched": true,
+      "observed": {
+        "initial_control_plane_lease_advanced": true
       }
     }
   ]

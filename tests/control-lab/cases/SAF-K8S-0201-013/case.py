@@ -2,14 +2,20 @@
 import base64
 from datetime import datetime, timedelta, timezone
 import json
+import math
 from pathlib import Path
+import re
+import ssl
 import subprocess
+import tempfile
 import time
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures.json"
 CLIENT_SIGNER = "kubernetes.io/kube-apiserver-client-kubelet"
-SCOPE = "Native kubeadm worker client-certificate bootstrap and renewal with paired rotation-enabled and rotation-disabled workers and a shortened certificate lifetime."
+SCOPE = "Native kubeadm worker client-certificate bootstrap and renewal with paired rotation-enabled and rotation-disabled workers; first Kind control-plane effective rotation setting and Lease liveness; shortened disposable-fixture certificate lifetime."
 CERTIFICATE_TTL = timedelta(seconds=150)
+METRIC_TTL = "kubelet_certificate_manager_client_ttl_seconds"
+METRIC_RENEW_ERRORS = "kubelet_certificate_manager_client_expiration_renew_errors"
 
 
 def policy_findings(policy):
@@ -51,47 +57,158 @@ def check_synthetic_fixtures(reporter):
                    green == [], green)
 
 
-def worker_certificates(lab, worker):
-    # Returned status certificates are public. Keep the complete response in memory
-    # because bootstrap request metadata can include a bootstrap token identifier.
-    response = subprocess.run(
-        ["kubectl", "--kubeconfig", str(lab.kubeconfig), "--context", f"kind-{lab.cluster}",
-         "--request-timeout=8s", "get", "certificatesigningrequests", "-o", "json"],
-        capture_output=True, env=lab.env, timeout=12,
-    )
-    if response.returncode:
-        lab.block("Could not read certificate issuance status from the owned cluster")
+def node_csrs(lab, node):
+    # Cluster-owned bootstrap CSR payloads and metadata stay in memory.
+    data = json.loads(kubectl_capture(lab, "get", "certificatesigningrequests", "-o", "json"))
+    identity = f"system:node:{node}"
+    for item in data["items"]:
+        spec = item["spec"]
+        if spec["signerName"] != CLIENT_SIGNER:
+            continue
+        username, groups = spec.get("username", ""), spec.get("groups", [])
+        is_bootstrap = "system:bootstrappers" in groups and username.startswith("system:bootstrap:")
+        if is_bootstrap:
+            request = base64.b64decode(spec["request"], validate=True)
+            info = subprocess.run(["openssl", "req", "-noout", "-subject", "-nameopt", "RFC2253"],
+                                  input=request, capture_output=True, timeout=5)
+            subject = info.stdout.decode().strip().partition("=")[2].strip()
+            if info.returncode or set(subject.split(",")) != {f"CN={identity}", "O=system:nodes"}:
+                continue
+            yield item, True
+        elif "system:nodes" in groups and username == identity:
+            yield item, False
 
+
+def worker_certificates(lab, worker):
     bootstrap, renewals = [], []
     identity = f"system:node:{worker}"
-    for csr in json.loads(response.stdout)["items"]:
-        spec, status = csr["spec"], csr.get("status", {})
-        groups = spec.get("groups", [])
-        from_bootstrap = ("system:bootstrappers" in groups
-                          and spec.get("username", "").startswith("system:bootstrap:"))
-        from_node = "system:nodes" in groups and spec.get("username") == identity
-        if spec["signerName"] != CLIENT_SIGNER or not (from_bootstrap or from_node):
-            continue
+    for csr, from_bootstrap in node_csrs(lab, worker):
+        status = csr.get("status", {})
         if not status.get("certificate") or not any(
                 item["type"] == "Approved" and item["status"] == "True"
                 for item in status.get("conditions", [])):
             continue
-        details = subprocess.run(
-            ["openssl", "x509", "-noout", "-subject", "-issuer", "-serial", "-enddate",
-             "-nameopt", "RFC2253"],
-            input=base64.b64decode(status["certificate"], validate=True),
-            capture_output=True, timeout=5,
-        )
-        if details.returncode:
-            lab.block("OpenSSL could not parse a public status certificate")
+        certificate = base64.b64decode(status["certificate"], validate=True)
+        details, chain_valid = verify_public_certificate(lab, certificate)
         fields = dict(line.split("=", 1) for line in details.stdout.decode().splitlines())
         if set(fields["subject"].strip().split(",")) != {f"CN={identity}", "O=system:nodes"}:
-            continue
-        expires = datetime.strptime(fields["notAfter"], "%b %d %H:%M:%S %Y GMT").replace(
-            tzinfo=timezone.utc)
+            lab.block("An approved owned request issued a certificate with the wrong node subject")
+        expiry = datetime.strptime(fields["notAfter"], "%b %d %H:%M:%S %Y GMT").replace(tzinfo=timezone.utc)
         (bootstrap if from_bootstrap else renewals).append(
-            (expires, fields["issuer"], fields["serial"]))
+            (expiry, fields["issuer"], fields["serial"], chain_valid))
     return sorted(bootstrap), sorted(renewals)
+
+
+def run_capture(args, lab, timeout=8):
+    try:
+        result = subprocess.run(args, capture_output=True, env=lab.env, timeout=timeout)
+    except (OSError, subprocess.TimeoutExpired) as error:
+        lab.block(f"Owned-cluster read failed: {type(error).__name__}")
+    if result.returncode:
+        lab.block("Owned-cluster read did not succeed")
+    return result.stdout
+
+
+def kubectl_capture(lab, *args, timeout=20):
+    command = ["kubectl", "--kubeconfig", str(lab.kubeconfig), "--context", f"kind-{lab.cluster}",
+               f"--request-timeout={timeout - 2}s", *args]
+    return run_capture(command, lab, timeout=timeout)
+
+
+def client_ca_anchor(lab):
+    cached = getattr(lab, "_client_ca_anchor", None)
+    if cached is not None:
+        return cached
+    container = f"{lab.cluster}-control-plane"
+    manifest = run_capture(["docker", "exec", container,
+                            "cat", "/etc/kubernetes/manifests/kube-apiserver.yaml"], lab)
+    text = manifest.decode("utf-8", errors="strict")
+    match = re.search(r"--client-ca-file=(/etc/kubernetes/pki/[A-Za-z0-9._-]+)(?:\s|\n)", text)
+    if not match:
+        lab.block("Could not identify the API server client CA file in the owned control-plane manifest")
+    anchor = run_capture(["docker", "exec", container, "cat", match.group(1)], lab)
+    if b"-----BEGIN CERTIFICATE-----" not in anchor:
+        lab.block("API server client CA anchor was not a public certificate")
+    lab._client_ca_anchor = anchor
+    return anchor
+
+
+def verify_public_certificate(lab, certificate):
+    """Parse public CSR status data and verify it to the API server client CA."""
+    anchor = client_ca_anchor(lab)
+    with tempfile.TemporaryDirectory(prefix="saf-k8s-public-cert-") as directory:
+        cert_path = Path(directory) / "status-certificate.pem"
+        ca_path = Path(directory) / "client-ca.pem"
+        cert_path.write_bytes(certificate)
+        ca_path.write_bytes(anchor)
+        details = subprocess.run(
+            ["openssl", "x509", "-noout", "-subject", "-issuer", "-serial", "-enddate",
+             "-nameopt", "RFC2253"], input=certificate, capture_output=True, timeout=5)
+        if details.returncode:
+            lab.block("The owned public CSR status certificate could not be parsed")
+        fields = dict(line.split("=", 1) for line in details.stdout.decode().splitlines())
+        # Verify historical leaves inside their original validity window. Actual
+        # expiry and continuity are assessed separately using wall time and leases.
+        verify_at = min(int(time.time()), int(ssl.cert_time_to_seconds(fields["notAfter"])) - 1)
+        verified = subprocess.run(["openssl", "verify", "-attime", str(verify_at), "-purpose", "sslclient",
+                                   "-CAfile", str(ca_path), str(cert_path)], capture_output=True, timeout=5)
+    if verified.returncode:
+        lab.block("Public CSR status certificate did not parse or chain to the API server client CA")
+    return details, True
+
+
+def kubelet_config(lab, node):
+    result = kubectl_capture(lab, "get", "--raw", f"/api/v1/nodes/{node}/proxy/configz")
+    try:
+        return json.loads(result)["kubeletconfig"]
+    except (ValueError, KeyError, TypeError):
+        lab.block(f"Effective kubelet configz was unavailable for {node}")
+
+
+def kubelet_metrics(lab, node):
+    result = kubectl_capture(lab, "get", "--raw", f"/api/v1/nodes/{node}/proxy/metrics").decode()
+    values = {}
+    for line in result.splitlines():
+        if line.startswith((METRIC_TTL, METRIC_RENEW_ERRORS)) and not line.startswith("#"):
+            name, raw = line.split(None, 1)
+            if name in (METRIC_TTL, METRIC_RENEW_ERRORS):
+                values[name] = float(raw)
+    return values
+
+
+def monitoring_state(lab, node, *, scrape=True):
+    config = kubelet_config(lab, node) if scrape else {}
+    metrics = kubelet_metrics(lab, node) if scrape else {}
+    bootstrap, renewals = worker_certificates(lab, node)
+    csr_states = csr_state_counts(lab, node)
+    ttl, errors = metrics.get(METRIC_TTL), metrics.get(METRIC_RENEW_ERRORS)
+    certificates = bootstrap + renewals
+    return {
+        "rotate_certificates": config.get("rotateCertificates", False) if scrape else None,
+        "client_ttl_seconds": ttl if ttl is None or math.isfinite(ttl) else "non_finite",
+        "renew_errors": errors if errors is None or math.isfinite(errors) else "non_finite",
+        "csr_states": csr_states,
+        "latest_expiry": max((item[0] for item in certificates), default=None),
+        "all_chains_valid": bool(certificates) and all(item[3] for item in certificates),
+        "lease_renew_time": worker_lease(lab, node),
+        "renewal_count": len(renewals),
+    }
+
+
+def csr_state_counts(lab, node):
+    counts = dict.fromkeys(("pending", "approved_issued", "approved_unissued", "denied", "failed"), 0)
+    for csr, _ in node_csrs(lab, node):
+        status = csr.get("status", {})
+        conditions = {item.get("type") for item in status.get("conditions", []) if item["status"] == "True"}
+        if "Denied" in conditions:
+            counts["denied"] += 1
+        elif "Failed" in conditions:
+            counts["failed"] += 1
+        elif "Approved" in conditions:
+            counts["approved_issued" if status.get("certificate") else "approved_unissued"] += 1
+        else:
+            counts["pending"] += 1
+    return counts
 
 
 def worker_lease(lab, worker):
@@ -118,46 +235,79 @@ def wait_for_renewal(lab, worker):
     return first, False
 
 
+def ttl_matches(snapshot):
+    ttl, expires = snapshot["client_ttl_seconds"], snapshot["latest_expiry"]
+    return (isinstance(ttl, (int, float)) and ttl > 0 and expires is not None
+            and abs(ttl - (expires - datetime.now(timezone.utc)).total_seconds()) < 30)
+
+
 def run(lab):
     check_synthetic_fixtures(lab)
-    worker = f"{lab.cluster}-worker"
-    baseline = f"{lab.cluster}-worker2"
-    lab.kubectl("wait", f"node/{worker}", f"node/{baseline}", "--for=condition=Ready",
-                "--timeout=45s", timeout=55)
-    initial_lease = worker_lease(lab, baseline)
-    baseline_certificates, _ = worker_certificates(lab, baseline)
-    baseline_expiry = baseline_certificates[0][0] if baseline_certificates else None
-    baseline_authenticated = baseline_expiry is not None and initial_lease < baseline_expiry
-    lab.check("red", "Rotation-disabled worker received a bootstrap certificate and used its node identity",
-              baseline_authenticated, {"bootstrap_worked": baseline_authenticated})
-    first, renewed_before_expiry = wait_for_renewal(lab, worker)
-    lab.check("green", "Native bootstrap approved and issued the worker client certificate",
-              first is not None, {"bootstrap_issued": first is not None})
-    lab.check("green", "Native renewal signed a distinct worker client certificate before expiry",
-              renewed_before_expiry, {"pre_expiry_renewal": renewed_before_expiry})
+    enabled, disabled, control = [f"{lab.cluster}-{role}" for role in ("worker", "worker2", "control-plane")]
+    lab.kubectl("wait", *(f"node/{node}" for node in (enabled, disabled, control)),
+                "--for=condition=Ready", "--timeout=45s", timeout=55)
+    control_lease = worker_lease(lab, control)
+    effective_control_rotation = kubelet_config(lab, control).get("rotateCertificates") is True
+    lab.check("positive", "The initial control-plane kubelet reports rotation enabled and an advancing client identity",
+              effective_control_rotation and (datetime.now(timezone.utc) - control_lease) < timedelta(seconds=45),
+              {"control_plane_rotation_enabled": effective_control_rotation, "fresh_lease": (
+                  datetime.now(timezone.utc) - control_lease) < timedelta(seconds=45)})
 
-    # A fresh lease after the original certificate expires demonstrates continued
-    # use of a valid node identity without opening any node credential files.
-    initial_expiry = first[0]
-    latest_expiry = max(initial_expiry, baseline_expiry)
-    deadline = time.monotonic() + max(0, (latest_expiry - datetime.now(timezone.utc)).total_seconds()) + 40
-    lease_advanced = False
-    while time.monotonic() < deadline:
-        lease = worker_lease(lab, worker)
-        if lease > latest_expiry + timedelta(seconds=12):
-            lease_advanced = True
-            break
+    initial = monitoring_state(lab, enabled)
+    comparator = monitoring_state(lab, disabled)
+    old_enabled, _ = worker_certificates(lab, enabled)
+    old_disabled, _ = worker_certificates(lab, disabled)
+    if not old_enabled or not old_disabled:
+        lab.block("Both owned workers must have their attributable issued bootstrap certificate")
+    baseline_expiry = old_disabled[0][0]
+    lab.check("red", "The disabled-rotation worker first enrolls with an API-server-trusted certificate",
+              comparator["rotate_certificates"] is False and comparator["all_chains_valid"]
+              and comparator["lease_renew_time"] < baseline_expiry,
+              {"rotation_disabled": comparator["rotate_certificates"] is False,
+               "bootstrap_chain_trusted": comparator["all_chains_valid"], "initial_identity_authenticated":
+                   comparator["lease_renew_time"] < baseline_expiry})
+    active_monitor = (initial["rotate_certificates"] and initial["all_chains_valid"] and ttl_matches(initial)
+                      and initial["csr_states"]["approved_issued"] >= 1 and initial["renew_errors"] == 0)
+    lab.check("positive", "The enabled worker reports the expected client certificate TTL and healthy native enrollment",
+              active_monitor, {"trusted_chain_and_live_certificate_metric": bool(active_monitor)})
+
+    first, renewed = wait_for_renewal(lab, enabled)
+    lab.check("green", "The scoped worker renewal produces a distinct API-server-trusted client certificate before expiry",
+              renewed and first is not None, {"trusted_pre_expiry_renewal": renewed})
+    comparison_time = max(first[0], baseline_expiry) + timedelta(seconds=12)
+    deadline = time.monotonic() + max(0, (comparison_time - datetime.now(timezone.utc)).total_seconds()) + 40
+    while time.monotonic() < deadline and worker_lease(lab, enabled) <= comparison_time:
         time.sleep(4)
-    _, baseline_renewals = worker_certificates(lab, baseline)
-    baseline_fresh = worker_lease(lab, baseline) > baseline_expiry + timedelta(seconds=1)
-    lab.check("red", "Rotation-disabled worker has no renewal and no fresh lease after expiry",
-              lease_advanced and not baseline_renewals and not baseline_fresh,
-              {"comparison_window_elapsed": lease_advanced,
-               "renewal_issued": bool(baseline_renewals), "fresh_lease": baseline_fresh})
-    ready = lab.kubectl("get", "node", worker,
-                        "-o", 'jsonpath={.status.conditions[?(@.type=="Ready")].status}').stdout == "True"
-    lab.check("positive", "Worker remains Ready and writes a fresh lease after bootstrap certificate expiry",
-              ready and lease_advanced, {"ready": ready, "fresh_lease": lease_advanced})
+    after = monitoring_state(lab, enabled)
+    # The comparator is intentionally expired. Inspect its cluster-side lifecycle
+    # records without requiring its expired kubelet to authorize an inbound scrape.
+    comparison = monitoring_state(lab, disabled, scrape=False)
+    comparator_stale = comparison["lease_renew_time"] <= baseline_expiry + timedelta(seconds=1)
+    no_renewal = comparison["renewal_count"] == 0
+    lease_advanced = after["lease_renew_time"] > comparison_time
+    expired = datetime.now(timezone.utc) >= baseline_expiry
+    lab.check("red", "The disabled worker has actually expired, with no renewal and no fresh lease",
+              expired and no_renewal and comparator_stale and lease_advanced,
+              {"original_certificate_expired": expired, "no_disabled_worker_renewal": no_renewal,
+               "disabled_worker_lease_stale": comparator_stale, "comparison_window_elapsed": lease_advanced})
+    monitor_healthy = (after["all_chains_valid"] and after["renewal_count"] >= 1 and ttl_matches(after)
+                       and lease_advanced and after["rotate_certificates"] is True)
+    allowed = lab.kubectl("get", "node", enabled,
+                          "-o", 'jsonpath={.status.conditions[?(@.type=="Ready")].status}').stdout == "True"
+    lab.check("positive", "The monitoring signals and fresh lease confirm usable worker identity after the initial expiry",
+              monitor_healthy and allowed, {"replacement_and_metric_valid": monitor_healthy,
+                                            "enabled_lease_fresh": lease_advanced, "worker_ready": allowed})
+    control_lease_after = worker_lease(lab, control)
+    lab.check("positive", "The initial control-plane lease advances during the worker rotation interval",
+              control_lease_after > control_lease, {"initial_control_plane_lease_advanced": control_lease_after > control_lease})
+    (lab.evidence / "kubelet-client-lifecycle.json").write_text(json.dumps({
+        "enabled_before": initial, "disabled_before": comparator,
+        "enabled_after": after, "disabled_cluster_records_after": comparison,
+        "enabled_bootstrap_expires_at": first[0], "disabled_bootstrap_expires_at": baseline_expiry,
+        "pre_expiry_worker_renewal": renewed, "enabled_lease_after_expiry": lease_advanced,
+        "initial_control_plane_rotation_enabled": effective_control_rotation,
+        "initial_control_plane_lease_advanced": control_lease_after > control_lease,
+    }, indent=2, default=lambda value: value.isoformat()) + "\n")
 
 
 class StaticReporter:
