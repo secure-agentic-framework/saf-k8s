@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0205-010",
-  "catalog_revision": "01f72de453af4370452c262329b6a04b320ce44d",
-  "catalog_sha256": "9b155f5e921ceec7fe41aea293edea67673217846b3df860393f9505233302c3",
+  "catalog_revision": "7319df6c60395e3e6a737cb9361ad355ff4dc591",
+  "catalog_sha256": "e9a49fa53440a9b01d06bfcc27034f42af0a0db089168b4ad71b67c817c63ecb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "42e53ce971f1c38cf6ed646605d90cfadb66da6e9ab1f08894b2a9745618c818",
-  "scope": "Three dynamic marker ports on an owned two-node Kind host network with exact IPv4 filtering and separate counters.",
-  "cluster": "saf-lab-87a5b40c1b10",
+  "control_sha256": "c5525a70ad8bfd5d466c40f51feda335380fab07189f51e5376369e4c8eae879",
+  "scope": "Owned dynamic host TCP paths and the authenticated API TLS endpoint, with confined node ingress and egress filtering.",
+  "cluster": "saf-lab-f3d6e46629c8",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -40,37 +40,71 @@
   "checks": [
     {
       "phase": "red",
-      "claim": "All three owned node-to-node listeners answer before host filtering changes",
+      "claim": "All three owned node-to-node listeners and the worker's direct API path work before filtering",
       "matched": true,
       "observed": {
-        "permitted": "permitted",
-        "ingress-fixture": "ingress-fixture",
-        "egress-fixture": "egress-fixture"
+        "markers": {
+          "permitted": "permitted",
+          "ingress-fixture": "ingress-fixture",
+          "egress-fixture": "egress-fixture"
+        },
+        "worker_to_control_plane_authenticated_tls": true,
+        "apiserver_ready": true,
+        "both_nodes_ready": true
       }
     },
     {
       "phase": "green",
-      "claim": "Independent input and output counters increase only on the intended blocked paths",
+      "claim": "Only the selected receiver path is blocked and counted by the input rule",
       "matched": true,
       "observed": {
-        "observed_paths": {
+        "markers": {
+          "permitted": "permitted",
+          "ingress-fixture": "blocked",
+          "egress-fixture": "egress-fixture"
+        },
+        "input_drop_attributed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The output rule blocks its own path while the direct worker-to-API TLS path stays healthy",
+      "matched": true,
+      "observed": {
+        "markers": {
           "permitted": "permitted",
           "ingress-fixture": "blocked",
           "egress-fixture": "blocked"
         },
-        "input_drop_attributed": true,
-        "output_drop_attributed": true
+        "output_drop_attributed": true,
+        "worker_to_control_plane_authenticated_tls": true,
+        "apiserver_ready": true,
+        "both_nodes_ready": true
       }
     },
     {
       "phase": "positive",
-      "claim": "The approved marker and control plane remain reachable and rollback restores the fixture paths",
+      "claim": "Removing the input rule restores its path while the output restriction still applies",
       "matched": true,
       "observed": {
-        "approved_path_during_filtering": true,
-        "control_plane_ready": true,
-        "nodes_ready": true,
-        "scoped_paths_restored": true
+        "permitted": "permitted",
+        "ingress-fixture": "ingress-fixture",
+        "egress-fixture": "blocked"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Removing both rules restores the full baseline and keeps the worker-to-API path healthy",
+      "matched": true,
+      "observed": {
+        "markers": {
+          "permitted": "permitted",
+          "ingress-fixture": "ingress-fixture",
+          "egress-fixture": "egress-fixture"
+        },
+        "worker_to_control_plane_authenticated_tls": true,
+        "apiserver_ready": true,
+        "both_nodes_ready": true
       }
     }
   ]
