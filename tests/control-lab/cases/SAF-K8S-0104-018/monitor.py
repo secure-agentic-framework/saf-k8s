@@ -27,7 +27,7 @@ def check_json_feed(url):
             raise ValueError("JSON Feed item is missing required id")
     if not any(item.get("id", "").startswith("CVE-2099-") for item in items):
         raise ValueError("expected synthetic upstream item is missing")
-    return len(items)
+    return [item["id"] for item in items]
 
 
 def check_rss(url):
@@ -44,7 +44,22 @@ def check_rss(url):
     if not any(item.findtext("title") == "SYNTHETIC provider bulletin metadata fixture"
                for item in items):
         raise ValueError("expected synthetic provider item is missing")
-    return len(items)
+    ids = [item.findtext("guid") for item in items]
+    if any(not item for item in ids):
+        raise ValueError("missing RSS fixture identifier")
+    return ids
+
+
+def deliver(source, event_id, kind):
+    payload = {"source": source, "event_id": event_id, "kind": kind, "recipient": "fixture-platform-oncall"}
+    body = json.dumps(payload).encode()
+    request = urllib.request.Request(os.environ["NOTIFICATION_SINK"], body,
+                                     headers={"Content-Type": "application/json"}, method="POST")
+    with urllib.request.urlopen(request, timeout=5) as response:
+        receipt = json.load(response)
+    if receipt.get("accepted") is not True:
+        raise ValueError("recipient failed to acknowledge event")
+    print(f"recipient_recorded source={source} kind={kind} duplicate={receipt['duplicate']}")
 
 
 def main():
@@ -55,13 +70,21 @@ def main():
     failed = False
     for source, check, location in sources:
         try:
-            count = check(os.environ[location])
+            event_ids = check(os.environ[location])
+            events = [(event_id, "advisory") for event_id in event_ids]
         except (OSError, ValueError, ET.ParseError) as error:
             http_status = getattr(error, "code", None)
             print(f"monitor_poll_failed source={source} status={http_status}", file=sys.stderr)
             failed = True
+            events = [(f"http-{http_status}", "source_error")]
         else:
-            print(f"source={source} items={count}")
+            print(f"source={source} items={len(event_ids)}")
+        for event_id, kind in events:
+            try:
+                deliver(source, event_id, kind)
+            except (OSError, ValueError):
+                print(f"monitor_delivery_failed source={source} kind={kind}", file=sys.stderr)
+                failed = True
     return int(failed)
 
 

@@ -8,15 +8,15 @@ HERE = Path(__file__).parent
 SCOPE = (
     "A disposable kind cluster runs a CronJob against an in-cluster inert HTTP fixture. "
     "Synthetic records preserve JSON Feed 1.1 and RSS 2.0 field meanings. The case observes "
-    "controller-created Jobs during an upstream outage and recovery. It does not connect to public feeds, prove "
-    "source subscriptions or event routing/delivery, assess advisory applicability, or test "
-    "production cluster/provider coverage."
+    "controller-created Jobs during an upstream outage and recovery and verifies receipts at an isolated "
+    "recipient which persists events across polling Jobs and the feed-server rollout."
 )
 
 PYTHON_IMAGE = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 FIXTURE_CONFIG = "advisory-monitor-fixtures"
 FIXTURE_DEPLOYMENT = "advisory-fixture"
 MONITOR_CRONJOB = "advisory-monitor"
+RECEIVER = "fixture-advisory-recipient"
 
 
 def _config_map(name, data):
@@ -42,6 +42,7 @@ def _manifests(fixtures):
         "aws.xml": fixtures["aws_rss"],
         "fixture_server.py": (HERE / "fixture_server.py").read_text(encoding="utf-8"),
         "monitor.py": (HERE / "monitor.py").read_text(encoding="utf-8"),
+        "receiver.py": (HERE / "receiver.py").read_text(encoding="utf-8"),
     }
     yield _config_map(FIXTURE_CONFIG, fixture_data)
     fixture_pod = _base_pod({
@@ -76,6 +77,26 @@ def _manifests(fixtures):
            "metadata": {"name": FIXTURE_DEPLOYMENT, "namespace": "saf-test"},
            "spec": {"selector": {"app": FIXTURE_DEPLOYMENT},
                     "ports": [{"port": 8080, "targetPort": 8080}]}}
+    queue_pod = _base_pod({
+        "name": "recipient", "image": PYTHON_IMAGE,
+        "command": ["python", "/app/receiver.py"],
+        "volumeMounts": [{"name": "app", "mountPath": "/app", "readOnly": True},
+                         {"name": "receipts", "mountPath": "/receipts"}],
+        "ports": [{"containerPort": 8080}],
+        "readinessProbe": {"httpGet": {"path": "/receipts", "port": 8080}},
+        "resources": {"requests": {"cpu": "10m", "memory": "32Mi"},
+                      "limits": {"cpu": "100m", "memory": "64Mi"}},
+        "securityContext": {"allowPrivilegeEscalation": False, "readOnlyRootFilesystem": True,
+                            "capabilities": {"drop": ["ALL"]}},
+    }, [{"name": "app", "configMap": {"name": FIXTURE_CONFIG,
+                                     "items": [{"key": "receiver.py", "path": "receiver.py"}]}},
+        {"name": "receipts", "emptyDir": {"sizeLimit": "1Mi"}}], restart_policy="Always")
+    queue_pod["securityContext"]["fsGroup"] = 10001
+    yield {"apiVersion": "v1", "kind": "Pod",
+           "metadata": {"name": RECEIVER, "namespace": "saf-test", "labels": {"app": RECEIVER}},
+           "spec": queue_pod}
+    yield {"apiVersion": "v1", "kind": "Service", "metadata": {"name": RECEIVER, "namespace": "saf-test"},
+           "spec": {"selector": {"app": RECEIVER}, "ports": [{"port": 8080, "targetPort": 8080}]}}
     job_pod = _base_pod({
         "name": "monitor", "image": PYTHON_IMAGE, "imagePullPolicy": "IfNotPresent",
         "command": ["python", "/app/monitor.py"],
@@ -83,7 +104,8 @@ def _manifests(fixtures):
         "env": [{"name": "KUBERNETES_FEED_URL",
                  "value": f"http://{FIXTURE_DEPLOYMENT}.saf-test.svc:8080/kubernetes/index.json"},
                 {"name": "AWS_BULLETIN_URL",
-                 "value": f"http://{FIXTURE_DEPLOYMENT}.saf-test.svc:8080/aws/rss.xml"}],
+                 "value": f"http://{FIXTURE_DEPLOYMENT}.saf-test.svc:8080/aws/rss.xml"},
+                {"name": "NOTIFICATION_SINK", "value": f"http://{RECEIVER}.saf-test.svc:8080/notify"}],
         "resources": {"requests": {"cpu": "10m", "memory": "32Mi"},
                       "limits": {"cpu": "100m", "memory": "64Mi"}},
         "securityContext": {"allowPrivilegeEscalation": False,
@@ -151,11 +173,18 @@ def wait_for_scheduled_job(lab, cron_uid, seen):
     lab.block("The CronJob controller did not complete a new advisory Job within the sample window")
 
 
+def received(lab):
+    probe = "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8080/receipts').read().decode())"
+    data = lab.kubectl("exec", f"pod/{RECEIVER}", "--", "python", "-c", probe).stdout
+    return json.loads(data)
+
+
 def run(lab):
     fixtures = json.loads((HERE / "fixtures.json").read_text(encoding="utf-8"))
     for manifest in _manifests(fixtures):
         lab.kubectl("apply", "-f", "-", payload=json.dumps(manifest))
     lab.kubectl("rollout", "status", f"deployment/{FIXTURE_DEPLOYMENT}", "--timeout=90s", timeout=100)
+    lab.kubectl("wait", "--for=condition=Ready", f"pod/{RECEIVER}", "--timeout=70s", timeout=80)
     outage_code = _wait_fixture_mode(lab, 503)
     cron = json.loads(lab.kubectl("get", "cronjob", MONITOR_CRONJOB, "-o", "json").stdout)
     cron_uid = cron["metadata"]["uid"]
@@ -167,6 +196,13 @@ def run(lab):
               not succeeded and reported and provider,
               {"scheduled": True, "job_succeeded": succeeded, "source_http_status": outage_code,
                "upstream_outage_reported": reported, "provider_parsed": provider})
+
+    first_receipts = received(lab)
+    event_ids = sorted(row["event_id"] for row in first_receipts)
+    assigned = all(row["recipient"] == "fixture-platform-oncall" for row in first_receipts)
+    lab.check("green", "The intended fixture recipient records both the outage and the unaffected advisory",
+              event_ids == ["fixture:aws:001", "http-503"] and assigned,
+              {"first_recipient_ids": event_ids, "intended_destination": assigned})
 
     lab.kubectl("patch", "configmap", FIXTURE_CONFIG, "--type=merge", "-p", '{"data":{"mode":"healthy"}}')
     lab.kubectl("rollout", "restart", f"deployment/{FIXTURE_DEPLOYMENT}")
@@ -181,3 +217,17 @@ def run(lab):
                                        "source_http_status": healthy_code, "upstream_parsed": upstream})
     lab.check("positive", "The recovered Job also parses the unaffected provider feed",
               provider, {"provider_parsed": provider, "records_are_synthetic": True})
+
+    final_receipts = received(lab)
+    keys = sorted((row["source"], row["event_id"], row["kind"]) for row in final_receipts)
+    expected = [
+        ("aws-security-bulletin-rss", "fixture:aws:001", "advisory"),
+        ("kubernetes-json-feed", "CVE-2099-0001", "advisory"),
+        ("kubernetes-json-feed", "http-503", "source_error"),
+    ]
+    duplicate = "recipient_recorded source=aws-security-bulletin-rss kind=advisory duplicate=True" in logs
+    lab.check("positive", "The recipient retains both sources and the outage, and deduplicates the repeated item",
+              keys == expected and duplicate and all(row in final_receipts for row in first_receipts),
+              {"retained_events": keys, "repeat_acknowledged_without_duplicate": duplicate})
+    (lab.evidence / "advisory-receipts.raw.json").write_text(
+        json.dumps({"first_poll": first_receipts, "recovered_poll": final_receipts}, indent=2) + "\n")

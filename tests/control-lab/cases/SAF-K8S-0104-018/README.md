@@ -27,3 +27,34 @@ the cluster and dependency inventory, notification delivery and response.
 - [Kubernetes JSON feed field definitions as published](https://kubernetes.io/docs/reference/issues-security/official-cve-feed/index.json)
 - [AWS Security Bulletins](https://aws.amazon.com/security/security-bulletins/)
 - [GKE cluster notifications](https://docs.cloud.google.com/kubernetes-engine/docs/concepts/cluster-notifications)
+
+The poller sends the inert records and source failure to a separate, named
+fixture recipient. The recipient's ledger persists across polling Jobs and
+the feed-server rollout. Its receipt confirms delivery, and repeated reads
+of the provider item yield one stored notification. The ledger stays in the
+disposable receiver Pod's volume for the rehearsal.
+
+## Verify your implementation
+
+1. Inventory Kubernetes distributions, node runtimes, ingress, CNI, CSI,
+   add-ons and provider services. Map each to an authoritative maintained
+   advisory source, expected polling interval or subscription, assigned
+   recipient and backup route. Record coverage for each cluster and version.
+2. Record the last successful collection, expected cadence and evidence
+   that feed access or subscription authorization still works. Test a
+   representative outage and recovery. Verify health errors reach the
+   owner while unaffected sources continue. Account for publication lag
+   and quiet periods separately from collection failures.
+3. Exercise a benign test advisory and record successful ingestion, routing,
+   recipient receipt and handoff for triage. Test duplicates and revised
+   advisories. Retain the source identity, authoritative advisory ID and
+   revision, collection and delivery times, recipient, escalation and
+   operator evidence as applicable. Keep raw advisory contents within the
+   intended review system.
+4. Use these records as evidence for the covered portions of NIST SI-5,
+   SI-5(1) and SSDF RV.1.1. Document the internal alert and directive
+   workflow, organization-wide delivery where required and investigation of
+   credible reports in their own process records.
+
+- [NIST SP 800-53 Rev. 5, release 5.2.0](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)
+- [NIST SSDF v1.1](https://csrc.nist.gov/pubs/sp/800/218/final)

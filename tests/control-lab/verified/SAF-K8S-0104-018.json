@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0104-018",
-  "catalog_revision": "36d67fc68b5176566299ebffa1c448bea0a6dc2c",
-  "catalog_sha256": "957795ca0841a48dd97f65d6a691d642bc38d11bbf391056ec5ea9b34e1a131b",
+  "catalog_revision": "8f3ab195afbdfc594aebed18c15f440d3089809d",
+  "catalog_sha256": "b13085fffcc414b504ce34f1a8df0fae3520e701b0adca01e92c2c2add5002cb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "49cb7a94a77befa71b031c47a406ece3675dc6cabc32d77b2d09a57fcc43921d",
-  "scope": "A disposable kind cluster runs a CronJob against an in-cluster inert HTTP fixture. Synthetic records preserve JSON Feed 1.1 and RSS 2.0 field meanings. The case observes controller-created Jobs during an upstream outage and recovery. It does not connect to public feeds, prove source subscriptions or event routing/delivery, assess advisory applicability, or test production cluster/provider coverage.",
-  "cluster": "saf-lab-858506568bd3",
+  "scope": "A disposable kind cluster runs a CronJob against an in-cluster inert HTTP fixture. Synthetic records preserve JSON Feed 1.1 and RSS 2.0 field meanings. The case observes controller-created Jobs during an upstream outage and recovery and verifies receipts at an isolated recipient which persists events across polling Jobs and the feed-server rollout.",
+  "cluster": "saf-lab-475d76de317f",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -52,6 +52,18 @@
     },
     {
       "phase": "green",
+      "claim": "The intended fixture recipient records both the outage and the unaffected advisory",
+      "matched": true,
+      "observed": {
+        "first_recipient_ids": [
+          "fixture:aws:001",
+          "http-503"
+        ],
+        "intended_destination": true
+      }
+    },
+    {
+      "phase": "green",
       "claim": "A new Job from the same CronJob reports recovery after the source returns",
       "matched": true,
       "observed": {
@@ -68,6 +80,31 @@
       "observed": {
         "provider_parsed": true,
         "records_are_synthetic": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The recipient retains both sources and the outage, and deduplicates the repeated item",
+      "matched": true,
+      "observed": {
+        "retained_events": [
+          [
+            "aws-security-bulletin-rss",
+            "fixture:aws:001",
+            "advisory"
+          ],
+          [
+            "kubernetes-json-feed",
+            "CVE-2099-0001",
+            "advisory"
+          ],
+          [
+            "kubernetes-json-feed",
+            "http-503",
+            "source_error"
+          ]
+        ],
+        "repeat_acknowledged_without_duplicate": true
       }
     }
   ]
