@@ -9,7 +9,9 @@ from fixtures import container, pod, ready
 SCOPE = (
     "Admission of Pod regular, init, and ephemeral container capability settings, plus a "
     "harmless compliant Pod reporting its effective capability mask. This case does not "
-    "establish GPU approval, GPU policy integration, real-device coverage, or provider behavior."
+    "establish GPU approval, real-device scope, or provider behavior. Another namespace "
+    "exercises native Restricted Pod Security Admission. Jobs verify the pinned NVIDIA "
+    "device-plugin argument parser in help mode, without GPU registration or allocation."
 )
 NAMESPACE = "saf-test"
 POLICY_MESSAGE = "every regular, init, and ephemeral container must drop ALL"
@@ -110,3 +112,28 @@ def run(lab):
         allow_failure=True)
     lab.check("green", "Ephemeral-container subresource denies out-of-set capability",
               denied(eph_result), eph_result.stderr.strip())
+
+    namespace = "saf-native-restricted"
+    args = ("-n", namespace)
+    lab.kubectl("create", "namespace", namespace)
+    lab.kubectl("label", "namespace", namespace,
+                "pod-security.kubernetes.io/enforce=restricted",
+                "pod-security.kubernetes.io/enforce-version=v1.36")
+    fresh = workload("native-restricted-probe", [probe_container("fixture", add=["NET_BIND_SERVICE"])])
+    fresh["metadata"]["namespace"] = namespace
+    good = server_dry_run(lab, fresh, args=args, allow_failure=True)
+    # The case's own allowlist permits CHOWN. The native Restricted policy is narrower.
+    fresh["spec"]["containers"][0]["securityContext"]["capabilities"]["add"] = ["CHOWN"]
+    bad = server_dry_run(lab, fresh, args=args, allow_failure=True)
+    native_denial = (bad.returncode != 0 and 'violates PodSecurity "restricted:v1.36"' in bad.stderr
+                     and "CHOWN" in bad.stderr)
+    lab.check("green", "Native Restricted admission accepts only its permitted add-back in the comparison",
+              good.returncode == 0 and native_denial,
+              {"net_bind_service_admitted": good.returncode == 0, "chown_denied_by_restricted": native_denial})
+
+    from importlib.util import module_from_spec, spec_from_file_location
+
+    spec = spec_from_file_location("saf_nvidia_cli", case_dir / "nvidia_cli.py")
+    vendor = module_from_spec(spec)
+    spec.loader.exec_module(vendor)
+    vendor.run(lab)

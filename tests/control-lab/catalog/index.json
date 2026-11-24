@@ -639,7 +639,7 @@
     "SAF-K8S-0302-002": {
       "catalog_status": "draft",
       "domain": "D03",
-      "sha256": "ab6df141e7ac81f8c8642a2b79c588bc120b20b1074fb0093a21c3b547d5d253",
+      "sha256": "12bb6aad7d0bf077664e255f4a31bc78a7d0266e9be69f9b1eef3b59aee97934",
       "title": "Linux capability drop-all and least-privilege add-back"
     },
     "SAF-K8S-0302-004": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "a26772759f485e54664f960fc991b93220875838",
-  "sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
+  "revision": "18b238765082ca008101c8d6b2705ae822f6e535",
+  "sha256": "89325da228788a434f2e003f265722b10870eb26c9d02a8c8acefe4207cda783",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

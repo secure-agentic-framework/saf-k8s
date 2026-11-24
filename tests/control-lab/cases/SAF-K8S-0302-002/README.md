@@ -16,3 +16,13 @@ are separate and untested here. This reference case makes no claim about GPU
 authorization or a physical/virtual accelerator. Static case review alone is
 not a runtime result; any later lab execution must retain its evidence
 separately.
+
+The additional checks exercise native Linux Restricted admission and the
+digest-pinned NVIDIA device-plugin v0.20.2 argument parser in two short Kind
+Jobs. The Jobs use help mode with no GPU resources, host access or kubelet
+registration. Passing covers argument parsing and this admission comparison.
+Hardware, driver/runtime compatibility and device allocation require their
+own evidence.
+
+[NVIDIA versioned flag definitions](https://github.com/NVIDIA/k8s-device-plugin/blob/v0.20.2/cmd/nvidia-device-plugin/main.go)
+[Kubernetes Restricted policy](https://kubernetes.io/docs/concepts/security/pod-security-standards/#restricted)
