@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0202-009",
-  "catalog_revision": "f9c72ef619e095cd57342a2968cd63a5ad17d782",
-  "catalog_sha256": "75b5894d086f4f1b7930663cfae6ee4bdee3021b6dd75ce21633e114debb45d5",
+  "catalog_revision": "53039bee703c5fb23a3d3df5a821d82afe31547e",
+  "catalog_sha256": "5b328c4db7b37e63a8b6f903140439ce6c8c4a1c8f1dcc17fc1a266e9b13ee1c",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "48b2b9d6762a652723c82cc4ab7aa621b43ac0a2ed258df18d2cf11fa4a7b843",
-  "scope": "An owned Kind containerd service toggles a dedicated Unix debug listener; its normal CRI and new Pods remain functional.",
-  "cluster": "saf-lab-ec7f3c314d08",
+  "scope": "On disposable Kind v1.36.1, compare an owned containerd diagnostic Unix socket and a separately approved local HTTP metrics listener supplied by a config import. Verify the respective disabled states and CRI v1 over the actual Unix endpoint, then start a fresh marker Job. Restore the node's original runtime configuration.",
+  "cluster": "saf-lab-71c0ca475045",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -40,29 +40,53 @@
   "checks": [
     {
       "phase": "red",
-      "claim": "The fixture's deliberately enabled diagnostic Unix listener is active",
+      "claim": "The deliberately enabled diagnostic Unix listener is active",
       "matched": true,
       "observed": {
-        "fixture_listener_configured": true,
-        "fixture_listener_active": true
+        "fixture_diagnostic_listener_active": true
       }
     },
     {
       "phase": "green",
-      "claim": "Disabling the diagnostic listener removes its socket while the required CRI stays ready",
+      "claim": "The diagnostic Unix listener disappears after its address is cleared",
       "matched": true,
       "observed": {
-        "debug_address_unset": true,
-        "debug_listener_absent": true,
-        "cri_ready": true
+        "fixture_diagnostic_listener_removed": true
       }
     },
     {
       "phase": "positive",
-      "claim": "Kubelet still creates a new workload through the hardened runtime",
+      "claim": "Imported metrics configuration binds only to node loopback after diagnostics are disabled",
+      "matched": true,
+      "observed": {
+        "metrics_only_loopback": true,
+        "metrics_http_status": "200"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Removing the metrics import and clearing the address disables metrics while CRI v1 stays ready",
+      "matched": true,
+      "observed": {
+        "metrics_listener_removed": true,
+        "cri_v1_ready": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Kubelet creates a fresh workload through the reviewed runtime profile",
       "matched": true,
       "observed": {
         "fresh_job_completed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The original runtime profile and local CRI v1 readiness are restored",
+      "matched": true,
+      "observed": {
+        "original_addresses_restored": true,
+        "cri_v1_ready": true
       }
     }
   ]
