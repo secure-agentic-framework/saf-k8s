@@ -2,17 +2,19 @@
 
 import hashlib
 import json
+import re
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 NAME = "fixture-apparmor-observation"
 BUILD_LABEL = "org.saf.fixture.apparmor-build"
-SOURCE = hashlib.sha256((HERE / "Dockerfile").read_bytes()).hexdigest()
+SOURCE = hashlib.sha256((HERE / "Dockerfile").read_bytes() + b"\0" +
+                       (HERE / "seccomp-proof.c").read_bytes()).hexdigest()
 IMAGE = "saf-lab-apparmor:source-" + SOURCE[:24]
 SCOPE = (
-    "Observe AppArmor profile behavior and attributable audit logs across complain and enforcing "
-    "modes on a pinned disconnected Linux guest executed as a restricted Kind Job. Seccomp and "
-    "SELinux mode details, production audit collection and workload coverage require distinct evidence."
+    "Compare AppArmor complain, enforcing and profile-removal behavior in a private Linux "
+    "guest. In the same guest, correlate a harmless syscall under the reviewed seccomp LOG "
+    "filter with its kernel audit event, compare enforcing behavior and test fresh-process recovery."
 )
 
 
@@ -63,12 +65,26 @@ def run(lab):
         lab.block("The AppArmor mode fixture did not complete; inspect the owned Job evidence")
     guest_pod, = rows
     status, = guest_pod["status"]["containerStatuses"]
-    messages = set(logs.stdout.splitlines())
+    lines = logs.stdout.splitlines()
+    messages = set(lines)
     input_matched = f"SAF-AA-AUDIT-INPUT: {digest}" in messages
     baseline = "SAF-AA-AUDIT: both owned comparison reads are initially available" in messages
     observed = "SAF-AA-AUDIT: complain allows the implicit would-be denial and records the expected event" in messages
     enforced = "SAF-AA-AUDIT: enforcing denies both while the approved read continues" in messages
     restored = "SAF-AA-AUDIT: removing the fixture policy restores both controls" in messages
+    seccomp_input = next((line.split(": ", 1)[1] for line in lines
+                          if line.startswith("SAF-SC-FILTER-SHA256: ")), None)
+    seccomp_expected = hashlib.sha256((HERE / "seccomp-proof.c").read_bytes()).hexdigest()
+    seccomp_observed = "SAF-SC-OBSERVE: getpid returned successfully under LOG action" in messages
+    seccomp_enforced = "SAF-SC-ENFORCE: getpid denied with EPERM; ordinary output succeeded" in messages
+    seccomp_recovery = "SAF-SC-RECOVERY: fresh unrestricted process completed getpid and output" in messages
+    event_rows = [line for line in lines if line.startswith("SAF-SC-AUDIT-EVENT: ")]
+    observer_pids = [match[1] for line in lines
+                     if (match := re.fullmatch(r"SAF-SC-TASK: mode=observe pid=([0-9]+) syscall=getpid", line))]
+    expected_event = len(event_rows) == len(observer_pids) == 1 and bool(re.search(
+        rf"\btype=1326\b.*\bpid={observer_pids[0]}\b.*\barch=c00000b7\s+syscall=172\b.*\bcode=0x7ffc0000$",
+        event_rows[0]))
+    ordinary_reached = lines.count("SAF-SC-ORDINARY: getuid succeeded under the selected filter") == 2
     explicit = [line.removeprefix("SAF-AA-AUDIT-EXPLICIT: ") for line in messages
                 if line.startswith("SAF-AA-AUDIT-EXPLICIT: ")]
     lab.check("red", "The two owned test reads are initially available and complain mode logs the implicit would-be denial",
@@ -78,8 +94,19 @@ def run(lab):
               enforced, {"enforcing_canaries_correct": enforced})
     lab.check("positive", "The exact compiler and kernel produce a recorded explicit-rule decision and removing policy restores both reads",
               len(explicit) == 1 and restored, {"explicit_rule_in_complain": explicit, "rollback_restored": restored})
-    (lab.evidence / "apparmor-audit-observations.json").write_text(json.dumps({
+    lab.check("red", "The reviewed seccomp LOG filter permits the harmless probe and produces a correlated kernel audit event",
+              seccomp_input == seccomp_expected and seccomp_observed and expected_event,
+              {"reviewed_filter_sha256_matches": seccomp_input == seccomp_expected,
+               "expected_observation": seccomp_observed, "correlated_audit_event_count": len(event_rows)})
+    lab.check("green", "The same seccomp policy matrix denies the probe in enforcing mode, permits ordinary output, and recovers in a fresh process",
+              seccomp_enforced and ordinary_reached and seccomp_recovery,
+              {"enforcing_allow_deny": seccomp_enforced, "ordinary_allowed_in_both_modes": ordinary_reached,
+               "fresh_process_recovery": seccomp_recovery})
+    (lab.evidence / "mac-audit-observations.json").write_text(json.dumps({
         "profile_sha256": digest, "guest_image": image["Id"], "running_guest_image": status["imageID"],
         "complain_implicit_would_be_denial_event": observed, "complain_explicit_rule_decision": explicit[0],
         "enforcing_allow_deny_matrix": enforced, "rollback_restored": restored,
+        "seccomp_filter_sha256": seccomp_input, "seccomp_observation_probe_succeeded": seccomp_observed,
+        "seccomp_correlated_audit_event": event_rows[0] if expected_event else None,
+        "seccomp_enforcing_allow_deny": seccomp_enforced, "seccomp_fresh_process_recovery": seccomp_recovery,
     }, indent=2) + "\n")
