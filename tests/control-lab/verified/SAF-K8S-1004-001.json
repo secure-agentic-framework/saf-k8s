@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1004-001",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "33e24138bc1be7c153772a0c5106ffb5a023c488",
+  "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e23e0fe9b1714cdc62fc3c9da098185f83b81f2f220db37fad6c9d6e4a0fd5c9",
   "scope": "One fresh Kind Kubernetes v1.36.1 cluster runs a read-only Python validator Job over abstract, non-operational incident records and a defensive classification/traceability/ownership worksheet. The Job independently validates a deliberately incomplete/misclassified baseline and a complete candidate worksheet, then checks a permitted synthetic positive record. Raw JSON and stable summary evidence are captured. CTA-2114 normative taxonomy text is not publicly accessible in the verified source; the control's asserted class labels are tracked as unverified, with NIST AI 100-2e2025 shown separately as comparator. This does not establish production coverage, incident attribution, or CTA conformance.",
-  "cluster": "saf-lab-793edd26ab6a",
+  "cluster": "saf-lab-a766cc17f82b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
