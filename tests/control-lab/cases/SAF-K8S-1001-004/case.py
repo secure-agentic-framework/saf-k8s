@@ -1,6 +1,8 @@
 """Compare finite synthetic Kubernetes audit fixtures under two policies."""
 from pathlib import Path
 import json
+import runpy
+from tempfile import TemporaryDirectory
 import time
 from urllib.parse import parse_qs, urlsplit
 
@@ -280,7 +282,7 @@ def run(lab):
         red_bytes = sum(len(line.encode()) + 1 for line, _event in red_low)
         green_bytes = sum(len(line.encode()) + 1 for line, _event in green_low)
         lab.check("green", "The finite inventory probes consume fewer raw audit log bytes",
-                  0 < green_bytes < red_bytes, {"baseline_bytes": red_bytes, "selective_bytes": green_bytes})
+                  0 < green_bytes < red_bytes, {"selective_bytes_below_baseline": 0 < green_bytes < red_bytes})
         summary = {
             "identical_api_operations_per_cluster": LOW_OPS + 2,
             "poll_operations_per_cluster": LOW_OPS,
@@ -298,3 +300,26 @@ def run(lab):
         clusters = lab.command("kind", "get", "clusters").stdout.splitlines()
         if green_name in clusters:
             lab.block("The separate audit comparison cluster was not removed")
+
+
+    runtime = runpy.run_path(str(Path(__file__).with_name("webhook_audit.py")))
+    with TemporaryDirectory(prefix="audit-webhook-", dir=root) as scratch:
+        temporary = Path(scratch)
+        additional = type(lab)(lab.evidence, lab.context, temporary / "kubeconfig")
+        additional.check = lab.check
+        config = runtime["prepare_kind"](additional, temporary)
+        try:
+            additional.command("kind", "create", "cluster", "--name", additional.cluster,
+                               "--image", NODE_IMAGE, "--kubeconfig", str(additional.kubeconfig),
+                               "--wait", "90s", "--config", str(config), timeout=480)
+            additional.kubectl("create", "namespace", NAMESPACE)
+            runtime["run"](additional)
+        finally:
+            additional.command("kind", "delete", "cluster", "--name", additional.cluster,
+                               "--kubeconfig", str(additional.kubeconfig), timeout=90)
+        remaining = lab.command("kind", "get", "clusters").stdout.splitlines()
+        lab.check("positive", "The independent webhook fixture cluster is deleted",
+                  additional.cluster not in remaining, {"additional_fixture_cluster_deleted": additional.cluster not in remaining})
+
+
+SCOPE += " A separate Kind v1.36.1 cluster verifies TLS webhook delivery, one transient retry and native audit counters."

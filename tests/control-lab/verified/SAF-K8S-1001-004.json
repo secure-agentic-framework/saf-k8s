@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-004",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "9672d1ef113c4d79b983b4e31cd24cd611d32be9",
+  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e6f48e3843a02039a1da7b1f81dad712cb825c9936053a485d564742b8add3d0",
-  "scope": "Two fresh, single-control-plane Kind Kubernetes v1.36.1 clusters. Both receive the same seven measured API operations: five small ConfigMap LIST polls, one synthetic RoleBinding create, and one denied synthetic ConfigMap create. Red uses RequestResponse for both fixture resource types. Green omits RequestReceived, records ConfigMap LIST polls at Metadata, and retains both security-relevant writes at RequestResponse. Matching raw lines and file byte counts are saved. This finite fixture does not model sustained workload, production capacity, drops, backpressure, real AI traffic, or cluster-wide coverage.",
-  "cluster": "saf-lab-3a7f8cdc13b7",
+  "scope": "Two fresh, single-control-plane Kind Kubernetes v1.36.1 clusters. Both receive the same seven measured API operations: five small ConfigMap LIST polls, one synthetic RoleBinding create, and one denied synthetic ConfigMap create. Red uses RequestResponse for both fixture resource types. Green omits RequestReceived, records ConfigMap LIST polls at Metadata, and retains both security-relevant writes at RequestResponse. Matching raw lines and file byte counts are saved. This finite fixture does not model sustained workload, production capacity, drops, backpressure, real AI traffic, or cluster-wide coverage. A separate Kind v1.36.1 cluster verifies TLS webhook delivery, one transient retry and native audit counters.",
+  "cluster": "saf-lab-f38421c2fa91",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -113,8 +113,103 @@
       "claim": "The finite inventory probes consume fewer raw audit log bytes",
       "matched": true,
       "observed": {
-        "baseline_bytes": 14730,
-        "selective_bytes": 5210
+        "selective_bytes_below_baseline": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Pinned API server exposes the selected webhook batch and throttle flags",
+      "matched": true,
+      "observed": {
+        "selected": {
+          "audit-webhook-mode": "batch",
+          "audit-webhook-initial-backoff": "250ms",
+          "audit-webhook-batch-buffer-size": "16",
+          "audit-webhook-batch-max-size": "1",
+          "audit-webhook-batch-max-wait": "500ms",
+          "audit-webhook-batch-throttle-enable": "true",
+          "audit-webhook-batch-throttle-qps": "10",
+          "audit-webhook-batch-throttle-burst": "2"
+        },
+        "observed": {
+          "audit-webhook-mode": "batch",
+          "audit-webhook-initial-backoff": "250ms",
+          "audit-webhook-batch-buffer-size": "16",
+          "audit-webhook-batch-max-size": "1",
+          "audit-webhook-batch-max-wait": "500ms",
+          "audit-webhook-batch-throttle-enable": "true",
+          "audit-webhook-batch-throttle-qps": "10",
+          "audit-webhook-batch-throttle-burst": "2"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native metric family apiserver_audit_event_total is exposed by v1.36.1",
+      "matched": true,
+      "observed": {
+        "native_family_present": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native metric family apiserver_audit_requests_rejected_total is exposed by v1.36.1",
+      "matched": true,
+      "observed": {
+        "native_family_present": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Receiver observed the single injected 503 for a measured webhook batch",
+      "matched": true,
+      "observed": {
+        "scoped_initial_503": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "One bounded HTTP 503 is followed by a successful retry of the same event",
+      "matched": true,
+      "observed": {
+        "same_event_receives_successful_retry": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "All five exact synthetic Audit-IDs arrive once as scoped metadata events",
+      "matched": true,
+      "observed": {
+        "expected_audit_id_count": 5,
+        "delivered_fixture_event_count": 5,
+        "fixture_names_match": true,
+        "no_extra_fixture_events": true,
+        "metadata_only": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native event counter delta matches the five delivered events",
+      "matched": true,
+      "observed": {
+        "fixture_event_counter_delta": 5.0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The recovered attempt records no additional terminal webhook drop or rejected request",
+      "matched": true,
+      "observed": {
+        "webhook_drop_counter_unchanged": true,
+        "rejected_request_counter_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The independent webhook fixture cluster is deleted",
+      "matched": true,
+      "observed": {
+        "additional_fixture_cluster_deleted": true
       }
     }
   ]

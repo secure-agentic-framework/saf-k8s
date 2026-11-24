@@ -90,3 +90,9 @@ fixtures. It does not establish production completeness, cluster-wide audit cove
 service-account exclusion safety, sustained AI training or inference traffic behavior,
 backend capacity, Prometheus scraping, alert correctness, loss-free delivery under failure,
 or any deployed sizing. The generated logs contain synthetic objects only.
+
+The same command also runs a third fresh Kind cluster with a case-owned TLS audit
+webhook. Five measured synthetic events must each arrive once under their observed
+Audit-ID. The receiver returns one HTTP 503 before storing a scoped event, then
+accepts its retry. Evidence includes the effective batching and throttle settings
+and the observed native counter values. See [webhook fixture details](webhook-audit.md).
