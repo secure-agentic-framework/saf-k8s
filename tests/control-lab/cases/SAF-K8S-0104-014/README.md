@@ -25,9 +25,11 @@ and scanner compatibility after upgrades remain distinct verification work.
    node pools, and the responsibility boundary for each benchmark section.
    Use the scanner release's published profile mapping and the provider's
    documented profile for the actual service and mode. Confirm each
-   customer-assessable section, including control plane, nodes, and policy, is
-   assigned to a scanner or a named manual evidence workflow. Record the
-   basis for excluded provider-owned checks.
+   customer-assessable section, including control plane, nodes, and policy,
+   is in scope for the recurring automated scans. Route checks the profile
+   marks manual to a named evidence workflow with the same cadence. Record
+   the basis for excluded provider-owned checks and flag missing automated
+   coverage for assessable targets.
 2. Record the policy cadence, time zone, maximum acceptable lateness, owner,
    and handling for missed or failed scans and post-upgrade reruns. Inspect the
    approved scheduler and its run history. For a Kubernetes CronJob, use its
