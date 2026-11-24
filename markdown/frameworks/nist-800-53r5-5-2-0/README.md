@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 3738
-- Distinct Requirements Mapped: 742
+- Total Reverse Mappings: 3717
+- Distinct Requirements Mapped: 739
 
 ## Requirements
 
@@ -357,7 +357,6 @@
 - [IR-5(1) - Automated Tracking, Data Collection, and Analysis](ir-5-1.md)
 - [IR-6 - Incident Reporting](ir-6.md)
 - [IR-6(1) - Automated Reporting](ir-6-1.md)
-- [IR-6(2) - Vulnerabilities Related to Incidents](ir-6-2.md)
 - [IR-6(3) - Supply Chain Coordination](ir-6-3.md)
 - [IR-7 - Incident Response Assistance](ir-7.md)
 - [IR-7(1) - Automation Support for Availability of Information and Support](ir-7-1.md)
@@ -369,7 +368,6 @@
 - [IR-9(3) - Post-spill Operations](ir-9-3.md)
 - [PL-1 - Policy and Procedures](pl-1.md)
 - [PL-10 - Baseline Selection](pl-10.md)
-- [PL-11 - Baseline Tailoring](pl-11.md)
 - [PL-2 - System Security and Privacy Plans](pl-2.md)
 - [PL-4 - Rules of Behavior](pl-4.md)
 - [PL-7 - Concept of Operations](pl-7.md)
@@ -421,7 +419,6 @@
 - [RA-3(3) - Dynamic Threat Awareness](ra-3-3.md)
 - [RA-5 - Vulnerability Monitoring and Scanning](ra-5.md)
 - [RA-5(10) - Correlate Scanning Information](ra-5-10.md)
-- [RA-5(11) - Public Disclosure Program](ra-5-11.md)
 - [RA-5(6) - Automated Trend Analyses](ra-5-6.md)
 - [RA-5(8) - Review Historic Audit Logs](ra-5-8.md)
 - [RA-7 - Risk Response](ra-7.md)

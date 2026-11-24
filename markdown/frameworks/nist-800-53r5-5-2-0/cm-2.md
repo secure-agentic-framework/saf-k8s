@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Agent system baseline configs
-
-1.4 - Apply CIS benchmarks (baseline configuration); 3.2 - AI workload security context patterns as baseline
+The approved ownership and mode requirements contribute a scoped part of the system configuration baseline.
 
 ## SAF-K8S Controls
 
@@ -15,10 +13,10 @@ Agent system baseline configs
 
 - Domain: D01 - Control Plane and Cluster Hardening
 - Knowledge Area: 1.4
-- Relation Type: direct
-- Strength: strong
+- Relation Type: supports
+- Strength: moderate
 - Applicability: required
-- Strength Reason Code: exact-text-match
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0302-001 - Pod and container security context enforcement](../../controls/SAF-K8S-0302-001.md)
 

@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Assessing security controls on agent systems
-
-10.6 - Policy-as-code for compliance (continuous control assessment evidence); 1.4 - CIS benchmark automated assessment
+Dated provisioning and recurring metadata results can support an approved assessment of the scoped controls.
 
 ## SAF-K8S Controls
 
@@ -16,9 +14,9 @@ Assessing security controls on agent systems
 - Domain: D01 - Control Plane and Cluster Hardening
 - Knowledge Area: 1.4
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1006-001 - Regulatory compliance mapping for Kubernetes AI platforms](../../controls/SAF-K8S-1006-001.md)
 

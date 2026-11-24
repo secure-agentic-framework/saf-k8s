@@ -18,15 +18,6 @@ The actual deployment uses integrity checks and verifies the required response f
 - Applicability: conditional
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0104-005 - Control plane configuration file permissions](../../controls/SAF-K8S-0104-005.md)
-
-- Domain: D01 - Control Plane and Cluster Hardening
-- Knowledge Area: 1.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
-
 ### [SAF-K8S-0602-001 - Sigstore/cosign keyless signing and Rekor transparency logging](../../controls/SAF-K8S-0602-001.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control

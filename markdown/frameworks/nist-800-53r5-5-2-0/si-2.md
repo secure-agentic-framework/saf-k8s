@@ -5,20 +5,9 @@
 
 ## Mapping Notes
 
-Flaw remediation for agent software, models, and dependencies prevents exploitation
-
-1.4 - CVE response process (flaw remediation); 6.1 - Vulnerability scanning; 6.4 - SBOM vulnerability intelligence
+An approved and validated emergency patch supports correction and installation for the affected Kubernetes component. Identification, issue tracking and broader configuration management have separate evidence.
 
 ## SAF-K8S Controls
-
-### [SAF-K8S-0104-005 - Control plane configuration file permissions](../../controls/SAF-K8S-0104-005.md)
-
-- Domain: D01 - Control Plane and Cluster Hardening
-- Knowledge Area: 1.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
 
 ### [SAF-K8S-0104-007 - Emergency Kubernetes patch deployment procedures](../../controls/SAF-K8S-0104-007.md)
 

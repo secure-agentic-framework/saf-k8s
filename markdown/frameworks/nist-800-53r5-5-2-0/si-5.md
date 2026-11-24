@@ -5,20 +5,9 @@
 
 ## Mapping Notes
 
-Security alerts and advisories inform operators of threats to agentic AI systems
-
-1.4 - CVE response (monitoring security announcements); 10.2 - Threat intelligence (consuming advisories)
+Receiving Kubernetes advisories and directing them to the assigned recipients supports the external receipt and dissemination portions of this requirement. Internal alerts and directive implementation have separate evidence.
 
 ## SAF-K8S Controls
-
-### [SAF-K8S-0104-005 - Control plane configuration file permissions](../../controls/SAF-K8S-0104-005.md)
-
-- Domain: D01 - Control Plane and Cluster Hardening
-- Knowledge Area: 1.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
 
 ### [SAF-K8S-0104-018 - Kubernetes security advisory and provider bulletin monitoring](../../controls/SAF-K8S-0104-018.md)
 

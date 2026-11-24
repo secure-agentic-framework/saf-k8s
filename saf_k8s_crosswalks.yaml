@@ -14328,16 +14328,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-6
   framework_requirement_title: Least Privilege
-  framework_mapping_notes: 'Foundational -- agents must operate with minimum necessary permissions
-
-
-    4.1 - Design and enforce RBAC (least-privilege access design); 4.2 - Default SA restrictions, disabling auto-mount of tokens; 1.4 - Control plane configuration file permissions (least-privilege file ownership and modes)'
+  framework_mapping_notes: Restrictive file modes and ownership support least-privilege access to the scoped control-plane artifacts.
   control_id: SAF-K8S-0104-005
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: exact-text-match
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -19658,16 +19655,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CA-2
   framework_requirement_title: Control Assessments
-  framework_mapping_notes: 'Assessing security controls on agent systems
-
-
-    10.6 - Policy-as-code for compliance (continuous control assessment evidence); 1.4 - CIS benchmark automated assessment'
+  framework_mapping_notes: Dated provisioning and recurring metadata results can support an approved assessment of the scoped controls.
   control_id: SAF-K8S-0104-005
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The observations are included in the assessment plan and reviewed results.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -21532,16 +21526,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-2
   framework_requirement_title: Baseline Configuration
-  framework_mapping_notes: 'Agent system baseline configs
-
-
-    1.4 - Apply CIS benchmarks (baseline configuration); 3.2 - AI workload security context patterns as baseline'
+  framework_mapping_notes: The approved ownership and mode requirements contribute a scoped part of the system configuration baseline.
   control_id: SAF-K8S-0104-005
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: exact-text-match
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -21628,16 +21619,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-2(2)
   framework_requirement_title: Automation Support for Accuracy and Currency
-  framework_mapping_notes: 'Automated baseline verification for agent configs
-
-
-    6.6 - GitOps (Git as single source of truth, automated reconciliation); 1.4 - Automated kube-bench assessment'
+  framework_mapping_notes: An approved recurring metadata check can help keep the measured portion of the baseline accurate and current.
   control_id: SAF-K8S-0104-005
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Automated metadata observations are linked to the maintained baseline.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -22572,22 +22560,6 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-4
   framework_requirement_title: Impact Analyses
-  framework_mapping_notes: 'Analyzing impact of changes on agent security
-
-
-    10.7 - K8s upgrade planning (impact analysis for version upgrades); 1.4 - Version lifecycle management'
-  control_id: SAF-K8S-0104-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-4
-  framework_requirement_title: Impact Analyses
   framework_mapping_notes: The scoped pre-change assessment supports analysis of security and privacy impacts for the emergency Kubernetes patch.
   control_id: SAF-K8S-0104-007
   relation_type: supports
@@ -22789,16 +22761,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-5
   framework_requirement_title: Access Restrictions for Change
-  framework_mapping_notes: 'Restricting who can change agent configs
-
-
-    6.6 - GitOps (repository access controls, branch protection for change restrictions); 1.4 - Control plane configuration file permissions; 2.1 - Kubelet hostname override governance (change control for --hostname-override)'
+  framework_mapping_notes: Restrictive modes and ownership limit filesystem changes to these artifacts. Record the separate procedures governing authorization and change approval.
   control_id: SAF-K8S-0104-005
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: exact-text-match
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -23301,16 +23270,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-6
   framework_requirement_title: Configuration Settings
-  framework_mapping_notes: 'Secure config settings for agent systems
-
-
-    1.4 - CIS benchmark application (configuration settings baseline); 1.3 - Controller-manager pod GC threshold; 2.1 - Kubelet hardening flags'
+  framework_mapping_notes: Version-specific permission and ownership criteria support defined restrictive settings, their application and monitoring for the scoped files.
   control_id: SAF-K8S-0104-005
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: exact-text-match
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -23413,16 +23379,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-6(1)
   framework_requirement_title: Automated Management, Application, and Verification
-  framework_mapping_notes: 'Automated agent config management
-
-
-    6.6 - GitOps (automated configuration management and verification); 1.4 - Automated kube-bench assessment'
+  framework_mapping_notes: Provisioning and verification automation can support application and assessment of these scoped settings.
   control_id: SAF-K8S-0104-005
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The relevant automation actually manages, applies and verifies the settings in scope.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -23647,22 +23610,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-7(1)
-  framework_requirement_title: Periodic Review
-  framework_mapping_notes: 'Periodically reviewing agent enabled functions
-
-
-    1.4 - Feature gate governance (periodic review of enabled functionality); 10.7 - Deprecation tracking'
-  control_id: SAF-K8S-0104-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -24355,16 +24302,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-8(6)
   framework_requirement_title: Assessed Configurations and Approved Deviations
-  framework_mapping_notes: 'Tracking agent config deviations
-
-
-    1.4 - CIS benchmark (exception documentation, approved deviations); 3.1 - PSA exemption management'
+  framework_mapping_notes: Observed component file configurations can support inventory accuracy when assessed settings and approved deviations are inventoried.
   control_id: SAF-K8S-0104-005
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The inventory retains assessed settings and approved deviations for the applicable components.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -32593,22 +32537,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: IR-6(2)
-  framework_requirement_title: Vulnerabilities Related to Incidents
-  framework_mapping_notes: 'Linking agent incidents to underlying vulnerabilities
-
-
-    1.4 - CVE response (linking incidents to vulnerabilities); 6.1 - Vulnerability scanning for AI dependencies'
-  control_id: SAF-K8S-0104-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: IR-6(3)
   framework_requirement_title: Supply Chain Coordination
   framework_mapping_notes: 'Reporting agent supply chain incidents to vendors
@@ -32966,22 +32894,6 @@
 
 
     1.4 - Apply CIS benchmarks (baseline selection for K8s clusters); 3.1 - Pod Security Standards baseline selection'
-  control_id: SAF-K8S-0104-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PL-10
-  framework_requirement_title: Baseline Selection
-  framework_mapping_notes: 'Security baseline selection establishes minimum control requirements for agentic AI systems
-
-
-    1.4 - Apply CIS benchmarks (baseline selection for K8s clusters); 3.1 - Pod Security Standards baseline selection'
   control_id: SAF-K8S-0301-001
   relation_type: direct
   strength_level: strong
@@ -33020,22 +32932,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PL-11
-  framework_requirement_title: Baseline Tailoring
-  framework_mapping_notes: 'Baseline tailoring adapts security controls to specific agentic AI deployment contexts
-
-
-    1.4 - CIS benchmark (exception documentation, tailoring baselines for AI workload requirements)'
-  control_id: SAF-K8S-0104-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -35865,22 +35761,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: RA-5(11)
-  framework_requirement_title: Public Disclosure Program
-  framework_mapping_notes: 'Vulnerability disclosure programs apply to agentic AI systems and components
-
-
-    1.4 - CVE response (monitoring K8s security announcements, public vulnerability disclosure programs)'
-  control_id: SAF-K8S-0104-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -39414,22 +39294,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-4(5)
-  framework_requirement_title: System, Component, and Service Configurations
-  framework_mapping_notes: 'Security configurations for acquired agentic AI components must be documented
-
-
-    1.4 - CIS benchmarks (configuration baselines for acquired components); 8.1 - GPU device plugin configuration'
-  control_id: SAF-K8S-0104-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -52329,22 +52193,6 @@
 
 
     10.6 - Compliance and governance (system integrity policy framework); 1.4 - CIS benchmarks (integrity policies)'
-  control_id: SAF-K8S-0104-005
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-1
-  framework_requirement_title: Policy and Procedures
-  framework_mapping_notes: 'System integrity policy governs flaw remediation and monitoring for agentic AI systems
-
-
-    10.6 - Compliance and governance (system integrity policy framework); 1.4 - CIS benchmarks (integrity policies)'
   control_id: SAF-K8S-1006-001
   relation_type: supports
   strength_level: moderate
@@ -56119,22 +55967,6 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-2
   framework_requirement_title: Flaw Remediation
-  framework_mapping_notes: 'Flaw remediation for agent software, models, and dependencies prevents exploitation
-
-
-    1.4 - CVE response process (flaw remediation); 6.1 - Vulnerability scanning; 6.4 - SBOM vulnerability intelligence'
-  control_id: SAF-K8S-0104-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-2
-  framework_requirement_title: Flaw Remediation
   framework_mapping_notes: An approved and validated emergency patch supports correction and installation for the affected Kubernetes component. Identification, issue tracking and broader configuration management have separate evidence.
   control_id: SAF-K8S-0104-007
   relation_type: supports
@@ -56388,22 +56220,6 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-2(3)
   framework_requirement_title: Time to Remediate Flaws and Benchmarks for Corrective Actions
-  framework_mapping_notes: 'Remediation time benchmarks for agent vulnerabilities drive timely patching
-
-
-    1.4 - CVE response (patch prioritization timelines); 6.3 - Vulnerability prioritization (remediation benchmarks)'
-  control_id: SAF-K8S-0104-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-2(3)
-  framework_requirement_title: Time to Remediate Flaws and Benchmarks for Corrective Actions
   framework_mapping_notes: Dated emergency handling decisions may support corrective-action benchmarks where records show elapsed time from flaw identification to remediation.
   control_id: SAF-K8S-0104-007
   relation_type: supports
@@ -56465,22 +56281,6 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-2(4)
   framework_requirement_title: Automated Patch Management Tools
-  framework_mapping_notes: 'Automated patching of agent components reduces window of vulnerability exposure
-
-
-    1.4 - Kubernetes version lifecycle management (automated patching); 8.2 - GPU driver version management'
-  control_id: SAF-K8S-0104-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-2(4)
-  framework_requirement_title: Automated Patch Management Tools
   framework_mapping_notes: The emergency patch procedure may use an approved deployment tool for components in scope. Preserve evidence that the tool actually performed the scoped update.
   control_id: SAF-K8S-0104-007
   relation_type: supports
@@ -56536,22 +56336,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-2(5)
-  framework_requirement_title: Automatic Software and Firmware Updates
-  framework_mapping_notes: 'Automatic updates for agent software and dependencies ensure timely security patches
-
-
-    8.2 - GPU driver/firmware management (automatic updates); 1.4 - K8s version lifecycle (automated upgrades)'
-  control_id: SAF-K8S-0104-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -59552,22 +59336,6 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-5
   framework_requirement_title: Security Alerts, Advisories, and Directives
-  framework_mapping_notes: 'Security alerts and advisories inform operators of threats to agentic AI systems
-
-
-    1.4 - CVE response (monitoring security announcements); 10.2 - Threat intelligence (consuming advisories)'
-  control_id: SAF-K8S-0104-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-5
-  framework_requirement_title: Security Alerts, Advisories, and Directives
   framework_mapping_notes: Receiving Kubernetes advisories and directing them to the assigned recipients supports the external receipt and dissemination portions of this requirement. Internal alerts and directive implementation have separate evidence.
   control_id: SAF-K8S-0104-018
   relation_type: supports
@@ -59639,22 +59407,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-5(1)
-  framework_requirement_title: Automated Alerts and Advisories
-  framework_mapping_notes: 'Automated security advisory distribution ensures timely awareness of agent vulnerabilities
-
-
-    1.4 - CVE response (automated security announcement monitoring); 6.4 - Vulnerability intelligence'
-  control_id: SAF-K8S-0104-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -60210,22 +59962,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-7
-  framework_requirement_title: Software, Firmware, and Information Integrity
-  framework_mapping_notes: 'Software and information integrity for agent systems prevents unauthorized modifications
-
-
-    6.2 - Image signing and verification (software integrity); 8.2 - GPU firmware integrity; 9.5 - Model signing and provenance; 1.4 - Control plane configuration file integrity verification'
-  control_id: SAF-K8S-0104-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -64398,22 +64134,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-8
-  framework_requirement_title: Notification Agreements
-  framework_mapping_notes: 'Notification agreements with AI suppliers ensure timely disclosure of security issues
-
-
-    1.4 - CVE response (monitoring security announcements from vendors); 6.4 - Vulnerability intelligence'
-  control_id: SAF-K8S-0104-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5

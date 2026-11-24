@@ -5,20 +5,9 @@
 
 ## Mapping Notes
 
-Analyzing impact of changes on agent security
-
-10.7 - K8s upgrade planning (impact analysis for version upgrades); 1.4 - Version lifecycle management
+The scoped pre-change assessment supports analysis of security and privacy impacts for the emergency Kubernetes patch.
 
 ## SAF-K8S Controls
-
-### [SAF-K8S-0104-005 - Control plane configuration file permissions](../../controls/SAF-K8S-0104-005.md)
-
-- Domain: D01 - Control Plane and Cluster Hardening
-- Knowledge Area: 1.4
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
 
 ### [SAF-K8S-0104-007 - Emergency Kubernetes patch deployment procedures](../../controls/SAF-K8S-0104-007.md)
 

@@ -42,10 +42,10 @@ Secure config settings for agent systems
 
 - Domain: D01 - Control Plane and Cluster Hardening
 - Knowledge Area: 1.4
-- Relation Type: direct
-- Strength: strong
+- Relation Type: supports
+- Strength: moderate
 - Applicability: required
-- Strength Reason Code: exact-text-match
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0201-005 - Kubelet hostname override governance](../../controls/SAF-K8S-0201-005.md)
 

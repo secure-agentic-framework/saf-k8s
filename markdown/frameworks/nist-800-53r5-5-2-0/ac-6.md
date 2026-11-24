@@ -22,10 +22,10 @@ The actual accepting services verify least privilege over approved resources and
 
 - Domain: D01 - Control Plane and Cluster Hardening
 - Knowledge Area: 1.4
-- Relation Type: direct
-- Strength: strong
+- Relation Type: supports
+- Strength: moderate
 - Applicability: required
-- Strength Reason Code: exact-text-match
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0401-001 - RBAC least-privilege design](../../controls/SAF-K8S-0401-001.md)
 

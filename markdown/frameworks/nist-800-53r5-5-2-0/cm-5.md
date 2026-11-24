@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Restricting who can change agent configs
-
-6.6 - GitOps (repository access controls, branch protection for change restrictions); 1.4 - Control plane configuration file permissions; 2.1 - Kubelet hostname override governance (change control for --hostname-override)
+Restrictive modes and ownership limit filesystem changes to these artifacts. Record the separate procedures governing authorization and change approval.
 
 ## SAF-K8S Controls
 
@@ -15,10 +13,10 @@ Restricting who can change agent configs
 
 - Domain: D01 - Control Plane and Cluster Hardening
 - Knowledge Area: 1.4
-- Relation Type: direct
-- Strength: strong
+- Relation Type: supports
+- Strength: moderate
 - Applicability: required
-- Strength Reason Code: exact-text-match
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0201-005 - Kubelet hostname override governance](../../controls/SAF-K8S-0201-005.md)
 

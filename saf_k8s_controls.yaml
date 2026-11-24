@@ -870,10 +870,10 @@
   knowledge_area: '1.4'
   control_seq: '005'
   control_title: Control plane configuration file permissions
-  control_statement: Control plane nodes must enforce restrictive ownership and permissions on static pod manifests, kubeconfig files, certificate key material, and the etcd data directory, following the CIS Kubernetes Benchmark file permission requirements (section 1.1), and must verify compliance on node provisioning and on a recurring schedule.
+  control_statement: Enforce restrictive ownership and file modes for operator-managed control-plane manifests, kubeconfigs, certificate key material and etcd storage. Use the approved CIS Benchmark and profile for the Kubernetes release and distribution. Verify the applicable settings after node provisioning and on a recurring schedule.
   objective: Prevent unauthorized read or modification of control plane configuration, credentials, and cluster state by enforcing file-system-level access controls on control plane nodes.
   rationale: 'Control plane configuration files contain security-sensitive content: static pod manifests reveal API server flags, volume mounts, and host port bindings; kubeconfig files contain client credentials; private keys enable impersonation of cluster components; and the etcd data directory holds all cluster state. Overly permissive file ownership or modes allow local attackers or compromised processes on a control plane node to read credentials, modify component behavior, or tamper with cluster state.'
-  scope: Applies to all self-managed control plane nodes. Covers static pod manifests, component kubeconfig files, PKI key material, and the etcd data directory. For managed Kubernetes services, this control is provider-managed and should be documented as such in the shared responsibility model.
+  scope: Applies to operator-managed control-plane and etcd paths. For other components, record which provider or operator is responsible and retain the applicable evidence or the explicit visibility gap. Identify configured paths for the selected benchmark and deployment.
   primary_enforcement_point: Node Configuration
   implementation_surface: Node provisioning automation (cloud-init, Ansible, Terraform), node image build pipelines, and periodic configuration management scans.
   owner_primary: Platform Engineering
