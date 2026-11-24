@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0303-007",
-  "catalog_revision": "0e3662f9fde4bdea6415bbed71e44d85a1788887",
-  "catalog_sha256": "b354310236026071a6d362326132c3325dd10def181047d64509cad88b4753c6",
+  "catalog_revision": "54fd6a50afc4e86a858f7661b1214e842ba63b8c",
+  "catalog_sha256": "3d20eb828ba605fb41eb18c432be9730d7a48eff25b4efc3b8066588b4b464fa",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b841f1423a0a2ff4bdb77930726ef0450ef74ba9d14127d179fddce00df596bc",
-  "scope": "Deliver an immutable AppArmor profile through Kubernetes, demonstrate enforcement and restoration inside a disconnected guest, and exercise explicitly labeled eligibility. Guest profile readiness supplies only a lab marker for the scheduling exercise.",
-  "cluster": "saf-lab-9338286d410b",
+  "scope": "Deliver an immutable AppArmor profile through Kubernetes, demonstrate enforcement and restoration inside a disconnected guest, and exercise explicitly labeled eligibility with native scheduling and RBAC. The fixture publishes one guest-derived readiness marker. A separate workload checks missing-profile startup on the actual node.",
+  "cluster": "saf-lab-b2d6b7557395",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -58,6 +58,15 @@
       }
     },
     {
+      "phase": "green",
+      "claim": "Read-only observer and NodeRestriction-protected kubelet identity cannot publish readiness",
+      "matched": true,
+      "observed": {
+        "observer_patch_denied": true,
+        "node_restriction_denied": true
+      }
+    },
+    {
       "phase": "positive",
       "claim": "The scheduler places the marker on the eligible node, and the next Pod waits after label withdrawal",
       "matched": true,
@@ -65,6 +74,33 @@
         "selected_expected_node": true,
         "marker": "SAF-AA-ELIGIBLE",
         "blocked_after_withdrawal": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A benign workload starts on the labeled node; withdrawal leaves it running until explicit deletion",
+      "matched": true,
+      "observed": {
+        "live_workload_remained_running_after_withdrawal": true,
+        "live_workload_started": true,
+        "explicitly_stopped": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A stale readiness value does not satisfy the current profile revision selector",
+      "matched": true,
+      "observed": {
+        "stale_readiness_unschedulable": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An explicitly requested unavailable Localhost profile prevents workload startup on the node",
+      "matched": true,
+      "observed": {
+        "apparmor_startup_denial": true,
+        "marker_absent": true
       }
     }
   ]
