@@ -33,8 +33,8 @@ STRIDE threat modeling evaluates security posture across six threat categories. 
 - Knowledge Area: 2.1
 - Relation Type: supports
 - Strength: weak
-- Applicability: required
-- Strength Reason Code: implementation-specific
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0204-001 - Runtime security tool deployment for syscall and network monitoring](../../controls/SAF-K8S-0204-001.md)
 

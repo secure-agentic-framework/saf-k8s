@@ -4496,19 +4496,6 @@
   framework_requirement_id: MANAGE 4.1
   framework_requirement_title: Post-deployment AI system monitoring plans are implemented, including mechanisms for capturing and evaluating input from users and other relevant AI actors, appeal and override, decommissioning, incident response, recovery, and change management.
   framework_mapping_notes: 'SAF-K8S provides comprehensive post-deployment infrastructure: audit policies for AI workload monitoring, metrics and tracing for performance evaluation, IR playbooks for incident response, ransomware response for recovery, and change management for controlled lifecycle transitions.'
-  control_id: SAF-K8S-0201-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST AI RMF 1.0
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
-  framework_requirement_id: MANAGE 4.1
-  framework_requirement_title: Post-deployment AI system monitoring plans are implemented, including mechanisms for capturing and evaluating input from users and other relevant AI actors, appeal and override, decommissioning, incident response, recovery, and change management.
-  framework_mapping_notes: 'SAF-K8S provides comprehensive post-deployment infrastructure: audit policies for AI workload monitoring, metrics and tracing for performance evaluation, IR playbooks for incident response, ransomware response for recovery, and change management for controlled lifecycle transitions.'
   control_id: SAF-K8S-0203-016
   relation_type: supports
   strength_level: moderate
@@ -5154,13 +5141,13 @@
   framework_version: '1.0'
   framework_requirement_id: MEASURE 2.7
   framework_requirement_title: AI system security and resilience - as identified in the MAP function - are evaluated and documented.
-  framework_mapping_notes: STRIDE threat modeling evaluates security posture across six threat categories. MITRE ATT&CK mapping evaluates defense coverage across attack tactics. ML threat taxonomy evaluates AI-specific attack resilience. Runtime security tools continuously evaluate system security.
+  framework_mapping_notes: Evidence of approved node names and authenticated enrollment can inform an AI system security and resilience evaluation.
   control_id: SAF-K8S-0201-005
   relation_type: supports
   strength_level: weak
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: implementation-specific
+  applicability: conditional
+  applicability_condition: An evaluation for an identified AI system explicitly considers node enrollment and retains this evidence.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -5771,22 +5758,6 @@
 
     1.1 - Secure API server (anonymous auth disabling); 2.1 - Harden kubelet (anonymous access prevention)'
   control_id: SAF-K8S-0101-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-14
-  framework_requirement_title: Permitted Actions Without Identification or Authentication
-  framework_mapping_notes: 'Defining what unauthenticated agent actions are allowed
-
-
-    1.1 - Secure API server (anonymous auth disabling); 2.1 - Harden kubelet (anonymous access prevention)'
-  control_id: SAF-K8S-0201-005
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -7166,22 +7137,6 @@
 
     1.1 - Secure API server (RBAC, webhook authorization for remote commands); 2.1 - Kubelet authentication enforcement'
   control_id: SAF-K8S-0101-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-17(10)
-  framework_requirement_title: Authenticate Remote Commands
-  framework_mapping_notes: 'Authenticating commands sent to agents
-
-
-    1.1 - Secure API server (RBAC, webhook authorization for remote commands); 2.1 - Kubelet authentication enforcement'
-  control_id: SAF-K8S-0201-005
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -22774,16 +22729,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-5
   framework_requirement_title: Access Restrictions for Change
-  framework_mapping_notes: 'Restricting who can change agent configs
-
-
-    6.6 - GitOps (repository access controls, branch protection for change restrictions); 1.4 - Control plane configuration file permissions; 2.1 - Kubelet hostname override governance (change control for --hostname-override)'
+  framework_mapping_notes: Approval and provisioning restrictions support control over changes to the kubelet naming settings.
   control_id: SAF-K8S-0201-005
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: null
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -23280,16 +23232,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-6
   framework_requirement_title: Configuration Settings
-  framework_mapping_notes: 'Secure config settings for agent systems
-
-
-    1.4 - CIS benchmark application (configuration settings baseline); 1.3 - Controller-manager pod GC threshold; 2.1 - Kubelet hardening flags'
+  framework_mapping_notes: A default prohibition and documented approved deviations contribute to restrictive configuration settings and the management of exceptions for kubelet naming.
   control_id: SAF-K8S-0201-005
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: null
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -28912,16 +28861,13 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-3
   framework_requirement_title: Device Identification and Authentication
-  framework_mapping_notes: 'Agent/device identity authentication (non-human identity)
-
-
-    2.1 - Kubelet TLS bootstrapping (node device identification); 8.4 - Remote attestation for TEE devices'
+  framework_mapping_notes: Authenticated enrollment bound to an intended registered Node supports device identification and authentication for the scoped nodes.
   control_id: SAF-K8S-0201-005
   relation_type: supports
-  strength_level: strong
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: null
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -58546,22 +58492,6 @@
 
     5.1 - Default deny network policies (detecting unauthorized services); 5.5 - Service exposure protection'
   control_id: SAF-K8S-0505-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(23)
-  framework_requirement_title: Host-based Devices
-  framework_mapping_notes: 'Host-based monitoring on agent runtime hosts detects local compromise and anomalies
-
-
-    2.4 - Runtime security tools (host-based monitoring with Falco/Tetragon); 2.1 - Kubelet and node configuration'
-  control_id: SAF-K8S-0201-005
   relation_type: direct
   strength_level: strong
   applicability: required

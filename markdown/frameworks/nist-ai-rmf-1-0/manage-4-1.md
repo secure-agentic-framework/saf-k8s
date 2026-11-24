@@ -18,15 +18,6 @@ SAF-K8S provides comprehensive post-deployment infrastructure: audit policies fo
 - Applicability: required
 - Strength Reason Code: implementation-specific
 
-### [SAF-K8S-0201-005 - Kubelet hostname override governance](../../controls/SAF-K8S-0201-005.md)
-
-- Domain: D02 - Node, Runtime, and OS Security
-- Knowledge Area: 2.1
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0203-016 - Node time synchronization with authoritative time sources](../../controls/SAF-K8S-0203-016.md)
 
 - Domain: D02 - Node, Runtime, and OS Security

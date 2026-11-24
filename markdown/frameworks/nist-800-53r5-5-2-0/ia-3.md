@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Agent/device identity authentication (non-human identity)
-
-2.1 - Kubelet TLS bootstrapping (node device identification); 8.4 - Remote attestation for TEE devices
+Authenticated enrollment bound to an intended registered Node supports device identification and authentication for the scoped nodes.
 
 ## SAF-K8S Controls
 
@@ -16,9 +14,9 @@ Agent/device identity authentication (non-human identity)
 - Domain: D02 - Node, Runtime, and OS Security
 - Knowledge Area: 2.1
 - Relation Type: supports
-- Strength: strong
+- Strength: moderate
 - Applicability: required
-- Strength Reason Code: n/a
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0201-013 - Kubelet client certificate rotation via TLS bootstrap](../../controls/SAF-K8S-0201-013.md)
 

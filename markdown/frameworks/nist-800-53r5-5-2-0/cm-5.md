@@ -22,10 +22,10 @@ Restrictive modes and ownership limit filesystem changes to these artifacts. Rec
 
 - Domain: D02 - Node, Runtime, and OS Security
 - Knowledge Area: 2.1
-- Relation Type: direct
-- Strength: strong
+- Relation Type: supports
+- Strength: moderate
 - Applicability: required
-- Strength Reason Code: n/a
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0201-008 - Kubelet configuration and credential file ownership and permissions](../../controls/SAF-K8S-0201-008.md)
 
