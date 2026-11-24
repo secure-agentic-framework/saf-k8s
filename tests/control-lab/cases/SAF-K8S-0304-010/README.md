@@ -12,7 +12,11 @@ container. Native admission verifies the effective fields. It rejects absent
 declarations and accepts a limit-only input when the API has already filled
 in the request. The positive case runs with the explicit declarations and
 reads the 500m CPU quota and 256 MiB memory ceiling from Linux cgroups. The
-probe applies no CPU, memory or storage pressure.
+cgroup probe applies no CPU or memory pressure. A separate bounded
+ephemeral-storage case writes at most 7 MiB across a below-limit control and
+a Pod that exceeds the shared 4 MiB local storage limit. The kubelet event
+must identify the Pod's aggregate local ephemeral-storage limit. The test
+checks that Node DiskPressure stays false.
 
 A pinned Kubernetes sample device plugin inside the disposable Kind node
 registers two synthetic resource units. The conditional admission example
@@ -36,6 +40,12 @@ private kubelet plugin socket and synthetic markers.
    and memory enforcement on Linux, and confirm kubelet local storage
    accounting and eviction behavior for the platform in use. Retain the
    authored and admitted fields, runtime observations and workload evidence.
+   The Kind storage case requires kubelet stats that account for node-local
+   filesystems and Pod ephemeral use, including disk-backed `emptyDir` data.
+   The kubelet's node and image filesystem layout must be supported by its
+   storage manager and reporting path; separate filesystems need the expected
+   kubelet filesystem configuration and mount discovery. If these stats are
+   unavailable or incomplete, the limit eviction result is not meaningful.
 4. For a device-plugin allocator, confirm the supported driver/runtime
    combination and the device resource key. Verify an intended workload
    schedules, receives the expected physical device and completes a safe

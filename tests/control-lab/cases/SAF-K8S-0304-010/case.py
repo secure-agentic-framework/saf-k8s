@@ -10,7 +10,9 @@ from fixtures import container, pod, ready
 
 SCOPE = ("Explicit CPU, memory and ephemeral-storage declarations for regular and init containers. "
          "The source check sees the raw manifest. Admission sees defaulted resource values. "
-         "An upstream kubelet device plugin supplies exactly two synthetic device allocations without GPU hardware.")
+         "A bounded disk-backed emptyDir probe compares below-limit completion with kubelet container-local "
+         "ephemeral-storage limit eviction. An upstream kubelet device plugin supplies exactly two synthetic "
+         "device allocations without physical accelerator claims.")
 HERE = Path(__file__).parent
 CHECKER = HERE / "resource-declarations.py"
 RESOURCES = {
@@ -112,3 +114,6 @@ def run(lab):
 
     accelerator = runpy.run_path(str(HERE / "accelerator" / "case.py"))
     accelerator["run"](lab)
+
+    ephemeral_storage = runpy.run_path(str(HERE / "ephemeral-storage" / "case.py"))
+    ephemeral_storage["run"](lab)

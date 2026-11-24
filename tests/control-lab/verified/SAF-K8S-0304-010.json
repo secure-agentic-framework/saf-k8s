@@ -4,8 +4,8 @@
   "catalog_sha256": "dbb6123b0e1913a1d4b79ee665955e432270186ddbbcfccc1500ad71d7246f81",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b4c5f1055f2e1b9dc69944d085127e788e5b8aeb7a61d7b99d0e38aea3a21bcb",
-  "scope": "Explicit CPU, memory and ephemeral-storage declarations for regular and init containers. The source check sees the raw manifest. Admission sees defaulted resource values. An upstream kubelet device plugin supplies exactly two synthetic device allocations without GPU hardware.",
-  "cluster": "saf-lab-385c2642c499",
+  "scope": "Explicit CPU, memory and ephemeral-storage declarations for regular and init containers. The source check sees the raw manifest. Admission sees defaulted resource values. A bounded disk-backed emptyDir probe compares below-limit completion with kubelet container-local ephemeral-storage limit eviction. An upstream kubelet device plugin supplies exactly two synthetic device allocations without physical accelerator claims.",
+  "cluster": "saf-lab-a8d37997ac82",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -264,6 +264,54 @@
       "observed": {
         "pending": true,
         "insufficient_resource": "example.com/resource"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Kind starts without Node DiskPressure",
+      "matched": true,
+      "observed": {
+        "disk_pressure": "False"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The below-limit workload is accepted",
+      "matched": true,
+      "observed": {
+        "created": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The below-limit write stays running without eviction",
+      "matched": true,
+      "observed": {
+        "phase": "Running",
+        "reason": null,
+        "write_completed": true,
+        "written_mib": 1
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The above-limit workload is accepted",
+      "matched": true,
+      "observed": {
+        "created": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Kubelet evicts the above-limit Pod for its own local ephemeral-storage limit",
+      "matched": true,
+      "observed": {
+        "matching_kubelet_pod_limit_eviction": true,
+        "matching_event_recorded": true,
+        "node_disk_pressure_before_and_after": [
+          "False",
+          "False"
+        ]
       }
     }
   ]
