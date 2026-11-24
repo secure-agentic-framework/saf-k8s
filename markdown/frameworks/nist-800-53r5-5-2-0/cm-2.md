@@ -36,15 +36,6 @@ The approved ownership and mode requirements contribute a scoped part of the sys
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0302-005 - AI workload security context hardening profiles](../../controls/SAF-K8S-0302-005.md)
-
-- Domain: D03 - Workload and Pod Security
-- Knowledge Area: 3.2
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0910-026 - Multi-cluster security policy baseline federation](../../controls/SAF-K8S-0910-026.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
