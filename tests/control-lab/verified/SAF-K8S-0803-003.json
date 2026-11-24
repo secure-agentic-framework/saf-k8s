@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0803-003",
-  "catalog_revision": "476a96274d46a7b59b0ac7abf12e237ed540c74a",
-  "catalog_sha256": "a4508cb7c1990f9fba8919ac1748b71f24d653ef7a59602989dc342687beda97",
+  "catalog_revision": "539822bf296e33f3a6ae6a285b5f4740d6316a49",
+  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "92dbd47d3f083736bfcbc4fe9f56a57acf1327bb5244bc980d20bf1864ed463a",
   "scope": "A real Kubernetes Job reading synthetic accelerator memory-region and queue-scope policy observations.",
-  "cluster": "saf-lab-2547cd6a10cd",
+  "cluster": "saf-lab-91e662bb16df",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
