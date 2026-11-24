@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0304-004",
-  "catalog_revision": "abd6dd866299650c52e1ff25781cdcee1a98e889",
-  "catalog_sha256": "dbb6123b0e1913a1d4b79ee665955e432270186ddbbcfccc1500ad71d7246f81",
+  "catalog_revision": "41ac628af6a2e3f35da70c2b05c2d1553a46d81a",
+  "catalog_sha256": "2f8d96e8df0f8ff7831185fb88404ac8eaf4871fa9c5c5a043dc553a1b4dfd58",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "dd831f9f78d6d6ab881f40e52e13238b5d70ba2ca7c8b81d861ea189e1bc28bc",
-  "scope": "Fresh harness-owned Kind cluster; namespace saf-test; native Pod Security Admission restricted v1.36; RBAC for one case-owned pod's ephemeralcontainers subresource.",
-  "cluster": "saf-lab-c1f0e0aa14c1",
+  "control_sha256": "5fae430de4aa9274ba513148cd1ae0a87d703fcce30cd78450669b9dd6b546a9",
+  "scope": "Fresh harness-owned Kind cluster; namespace saf-test; native Pod Security Admission restricted v1.36, scoped RBAC and additional read-only-root admission for one owned Pod, and metadata-only API audit evidence.",
+  "cluster": "saf-lab-e16904548f66",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -107,6 +107,22 @@
       }
     },
     {
+      "phase": "red",
+      "claim": "Restricted PSA permits the compliant marker without read-only root",
+      "matched": true,
+      "observed": {
+        "server_dry_run_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The additional workload policy denies an ephemeral request without read-only root",
+      "matched": true,
+      "observed": {
+        "denied_by_additional_policy": true
+      }
+    },
+    {
       "phase": "positive",
       "claim": "Authorized compliant ephemeral update succeeds",
       "matched": true,
@@ -135,6 +151,16 @@
       "observed": {
         "marker_exit_zero": true,
         "non_root_filtered_process_observed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native Metadata audit captures the exact permitted and denied ephemeral actions",
+      "matched": true,
+      "observed": {
+        "exact_metadata_only_records": true,
+        "matched_action_count": 7,
+        "expected_count": 7
       }
     }
   ]

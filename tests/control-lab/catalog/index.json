@@ -717,7 +717,7 @@
     "SAF-K8S-0304-004": {
       "catalog_status": "draft",
       "domain": "D03",
-      "sha256": "dd831f9f78d6d6ab881f40e52e13238b5d70ba2ca7c8b81d861ea189e1bc28bc",
+      "sha256": "5fae430de4aa9274ba513148cd1ae0a87d703fcce30cd78450669b9dd6b546a9",
       "title": "Ephemeral container security context enforcement"
     },
     "SAF-K8S-0304-006": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "a4863ffe0e80e492b9728183046a44ea7ebda17f",
-  "sha256": "dbb6123b0e1913a1d4b79ee665955e432270186ddbbcfccc1500ad71d7246f81",
+  "revision": "ea1613195d8e30dd02a96f5288b2d9981f6cbf47",
+  "sha256": "2f8d96e8df0f8ff7831185fb88404ac8eaf4871fa9c5c5a043dc553a1b4dfd58",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

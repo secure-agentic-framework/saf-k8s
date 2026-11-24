@@ -1,7 +1,13 @@
 """SAF-K8S-0304-004: restricted PSA and scoped ephemeral-container RBAC."""
 from copy import deepcopy
 import json
+from pathlib import Path
+import runpy
 import time
+
+HERE = Path(__file__).resolve().parent
+AUDIT = runpy.run_path(str(HERE / "audit_profile.py"))
+NODE_IMAGE = "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
 
 BUSYBOX_IMAGE = (
     "docker.io/library/busybox:1.37.0@sha256:"
@@ -10,7 +16,8 @@ BUSYBOX_IMAGE = (
 
 SCOPE = (
     "Fresh harness-owned Kind cluster; namespace saf-test; native Pod Security "
-    "Admission restricted v1.36; RBAC for one case-owned pod's ephemeralcontainers subresource."
+    "Admission restricted v1.36, scoped RBAC and additional read-only-root admission for one owned Pod, "
+    "and metadata-only API audit evidence."
 )
 
 NAMESPACE = "saf-test"
@@ -64,6 +71,46 @@ def _pod(name=POD, *, bad=False):
                                      "command": ["sh", "-c", "true"],
                                      "securityContext": container_security}]},
     }
+
+
+def prepare_kind(lab, temporary):
+    policy = temporary / "ephemeral-audit-policy.yaml"
+    audit_dir = temporary / "ephemeral-audit"
+    config = temporary / "ephemeral-audit-kind.yaml"
+    audit_dir.mkdir()
+    policy.write_text(AUDIT["audit_policy_text"]())
+    config.write_text(AUDIT["kind_config_text"](policy, audit_dir))
+    return config
+
+
+def require_read_only_ephemeral_root(lab):
+    name = "saf-0304-004-read-only-ephemeral-root"
+    policy = {
+        "apiVersion": "admissionregistration.k8s.io/v1", "kind": "ValidatingAdmissionPolicy",
+        "metadata": {"name": name},
+        "spec": {
+            "failurePolicy": "Fail",
+            "matchConstraints": {"resourceRules": [{
+                "apiGroups": [""], "apiVersions": ["v1"], "operations": ["UPDATE"],
+                "resources": ["pods/ephemeralcontainers"],
+            }]},
+            "matchConditions": [{"name": "fixture-pod",
+                                 "expression": f"request.namespace == '{NAMESPACE}' && request.name == '{POD}'"}],
+            "validations": [{
+                "expression": "object.spec.ephemeralContainers.all(c, has(c.securityContext) && "
+                              "has(c.securityContext.readOnlyRootFilesystem) && c.securityContext.readOnlyRootFilesystem)",
+                "message": "The scoped ephemeral fixture requires a read-only root filesystem",
+                "reason": "Forbidden",
+            }],
+        },
+    }
+    lab.create(policy)
+    lab.create({
+        "apiVersion": "admissionregistration.k8s.io/v1", "kind": "ValidatingAdmissionPolicyBinding",
+        "metadata": {"name": name},
+        "spec": {"policyName": name, "validationActions": ["Deny"]},
+    })
+    time.sleep(2)
 
 
 def run(lab):
@@ -163,6 +210,19 @@ def run(lab):
               ordinary_denied and unmodified,
               {"ordinary_update_denied": ordinary_denied, "target_unmodified": unmodified})
 
+    before_extra_policy = _raw_update(lab, APPROVED, compliant, dry_run=True)
+    lab.check("red", "Restricted PSA permits the compliant marker without read-only root",
+              before_extra_policy.returncode == 0, {"server_dry_run_admitted": before_extra_policy.returncode == 0})
+    require_read_only_ephemeral_root(lab)
+    extra_denial = _raw_update(lab, APPROVED, compliant, dry_run=True)
+    denied_by_extra_policy = (
+        extra_denial.returncode != 0
+        and "The scoped ephemeral fixture requires a read-only root filesystem" in extra_denial.stderr
+    )
+    lab.check("green", "The additional workload policy denies an ephemeral request without read-only root",
+              denied_by_extra_policy, {"denied_by_additional_policy": denied_by_extra_policy})
+    compliant["spec"]["ephemeralContainers"][0]["securityContext"]["readOnlyRootFilesystem"] = True
+
     accepted = _raw_update(lab, APPROVED, compliant)
     lab.check("positive", "Authorized compliant ephemeral update succeeds",
               accepted.returncode == 0, {"subresource_update_accepted": accepted.returncode == 0})
@@ -195,3 +255,31 @@ def run(lab):
               finished and result.returncode == 0 and result.stdout.strip() == "saf-ephemeral-ok",
               {"marker_exit_zero": finished, "non_root_filtered_process_observed": result.stdout.strip() == "saf-ephemeral-ok"})
     (lab.evidence / "ephemeral-boundary.raw.json").write_text(json.dumps(receipt, indent=2) + "\n")
+
+    audit_log = lab.kubeconfig.parent / "ephemeral-audit" / "audit.log"
+    expected = [*AUDIT["EXPECTED_EXAMPLE"], (APPROVED, "update", 200, True), (APPROVED, "update", 403, True)]
+    events = []
+    for _ in range(20):
+        if audit_log.exists():
+            events = AUDIT["matching_events"](audit_log, 0)
+        if len(events) >= len(expected):
+            break
+        time.sleep(0.5)
+    rows = [{
+        "identity": AUDIT["effective_username"](event), "verb": event.get("verb"),
+        "resource": event["objectRef"]["resource"], "subresource": event["objectRef"]["subresource"],
+        "name": event["objectRef"]["name"], "namespace": event["objectRef"]["namespace"],
+        "response_code": event.get("responseStatus", {}).get("code"),
+        "dry_run": "dryRun=All" in event.get("requestURI", "").split("?", 1)[-1].split("&"),
+        "level": event.get("level"), "audit_id": event.get("auditID"),
+        "payload_absent": "requestObject" not in event and "responseObject" not in event,
+    } for event in events]
+    (lab.evidence / "ephemeral-debug-audit.json").write_text(json.dumps(rows, indent=2, sort_keys=True) + "\n")
+    try:
+        AUDIT["assert_fixture_audit_events"](events, expected)
+        exact_metadata = len(rows) == len(expected) and all(row["level"] == "Metadata" for row in rows)
+    except AssertionError:
+        exact_metadata = False
+    lab.check("positive", "Native Metadata audit captures the exact permitted and denied ephemeral actions",
+              exact_metadata, {"exact_metadata_only_records": exact_metadata,
+                               "matched_action_count": len(rows), "expected_count": len(expected)})

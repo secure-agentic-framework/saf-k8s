@@ -32,7 +32,16 @@ That read permission lets the patch reach the write authorization check.
 4. Confirm API audit records for both permitted and denied operations, including
    the actor, verb, resource, subresource, namespace and response decision.
    Check downstream severity and alert delivery separately. The current case
-   demonstrates RBAC and admission, with no audit collection.
+   exercises native Metadata audit capture separately from downstream alerts.
+
+The supplemental admission policy checks an ephemeral container's read-only root
+setting for the owned Pod. Restricted PSA alone admits the safe dry-run
+without that setting. The additional policy denies it, and the read-only marker
+runs successfully. An API server policy records only Metadata for the fixture
+namespace's ephemeral-container update and patch operations. The case matches
+the exact target, actor, verb, HTTP response and dry-run status, and retains
+the bounded projection in `ephemeral-debug-audit.json`. It checks that object
+payloads are absent.
 
 - [Kubernetes ephemeral containers](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/pods/ephemeral-containers/)
 - [Kubernetes Pod Security Standards](https://v1-36.docs.kubernetes.io/docs/concepts/security/pod-security-standards/)
