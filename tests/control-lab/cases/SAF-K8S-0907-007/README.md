@@ -24,3 +24,12 @@ references. Registry pull authorization, provenance of a promotion
 decision, and deployed namespace coverage require separate evidence.
 [Kubernetes RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/),
 [ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/).
+
+The runtime extension uses a private TLS registry on a case-local Docker network
+with bcrypt authentication and no host port. An inert approved OCI manifest is
+staged and recorded by digest. The fixture observes the Pod and registry verdict
+without credentials, then verifies the same digest pulls and runs with the
+namespace-local pull Secret. The case requires OpenSSL, htpasswd, and the three
+digest-pinned images listed in registry_runtime.py. It retains scoped runtime
+and registry observations. Production promotion authority, per-repository ACLs,
+and image signing require separate evidence.

@@ -1,5 +1,6 @@
 """Verify namespace RBAC and a promotion-record-backed admission policy."""
 import json
+import runpy
 import os
 from pathlib import Path
 import subprocess
@@ -180,3 +181,8 @@ def run(lab):
                            "--type=merge", "-p", '{"data":{"status":"revoked"}}', "-o", "name")
     lab.check("green", "The deployment principal cannot change the promotion record it relies on",
               _denied(record_write, f'cannot patch resource "configmaps"'), record_write.stderr.strip())
+
+    runtime = runpy.run_path(str(Path(__file__).with_name("registry_runtime.py")))
+    runtime["run"](lab)
+
+SCOPE += " A separate namespace and private TLS registry isolate the actual runtime pull authorization comparison."

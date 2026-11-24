@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0907-007",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "9672d1ef113c4d79b983b4e31cd24cd611d32be9",
+  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "c2c0bdee1c3fc5ca2557fc215cfd0d53b20deae60657f890e6fb3a0a9bc28425",
-  "scope": "Disposable kind Kubernetes v1.36.1 cluster. Tests namespace-scoped Deployment authorization with a short-lived fixture ServiceAccount token, then a ValidatingAdmissionPolicy parameterized by a protected namespace-local ConfigMap promotion record. Deployments have zero replicas and inert images.",
-  "cluster": "saf-lab-df36851377c7",
+  "scope": "Disposable kind Kubernetes v1.36.1 cluster. Tests namespace-scoped Deployment authorization with a short-lived fixture ServiceAccount token, then a ValidatingAdmissionPolicy parameterized by a protected namespace-local ConfigMap promotion record. Deployments have zero replicas and inert images. A separate namespace and private TLS registry isolate the actual runtime pull authorization comparison.",
+  "cluster": "saf-lab-9dcaa833484c",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -87,6 +87,59 @@
       "claim": "The deployment principal cannot change the promotion record it relies on",
       "matched": true,
       "observed": "Error from server (Forbidden): configmaps \"model-promotion\" is forbidden: User \"system:serviceaccount:saf-model-release:model-deployer\" cannot patch resource \"configmaps\" in API group \"\" in the namespace \"saf-model-release\""
+    },
+    {
+      "phase": "positive",
+      "claim": "The run-local approved image reference is the exact staged digest",
+      "matched": true,
+      "observed": {
+        "approval_record_matches": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The TLS registry exposes no host port",
+      "matched": true,
+      "observed": {
+        "host_port_bindings": {}
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without registry authorization the exact pull is refused",
+      "matched": true,
+      "observed": {
+        "pod_phase": "Pending",
+        "pod_reports_registry_auth_failure": true,
+        "registry_authentication_challenge_401": true,
+        "registry_successful_manifest_or_blob_read": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The authenticated runtime pulls and runs the exact approved benign digest",
+      "matched": true,
+      "observed": {
+        "pod_phase": "Succeeded",
+        "runtime_digest_matches": true,
+        "fixture_completed": true,
+        "registry_manifest_get_200": true,
+        "registry_blob_get_200": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Ephemeral registry, volume, bridge, node config, namespace, and credentials are removed",
+      "matched": true,
+      "observed": {
+        "registry_removed": true,
+        "registry_volume_removed": true,
+        "private_network_removed": true,
+        "namespace_removed": true,
+        "node_registry_config_removed": true,
+        "run_image_removed_from_node": true,
+        "credential_files_removed": true
+      }
     }
   ]
 }
