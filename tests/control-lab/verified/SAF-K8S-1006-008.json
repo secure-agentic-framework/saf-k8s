@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1006-008",
-  "catalog_revision": "ec781cfd47821537718d85d45372493c44fa23c2",
-  "catalog_sha256": "96bbe95867f8783addc191244f8304cc5bf6c3eee10dc7a2c1608fbb5f4ab156",
+  "catalog_revision": "a26772759f485e54664f960fc991b93220875838",
+  "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d8e451d9bf3aa2a686de57db111666c7e775a51b7974d0d4dc0b50cf825ad574",
-  "scope": "One disposable Kubernetes v1.36.1 Kind cluster runs three native, short-lived Jobs using a digest-pinned Python image. Each Job reads only checked-in synthetic metadata: an inert dataset string, a training-run record marked not performed, and a metadata-only model artifact placeholder. The Jobs check schema/task identifiers, fixture digests, scope labels, and release-to-run artifact references. Separate Job status and logs expose a consistent development fixture, a deliberate release provenance mismatch, and an out-of-profile operation record whose governance and actual operation remain unknown. This does not train or load a model, establish organizational compliance, evaluate real data or weights, prove production provenance, or assess deployment/operation controls.",
-  "cluster": "saf-lab-107c261d6c3d",
+  "scope": "One disposable Kubernetes v1.36.1 Kind cluster runs three native, short-lived Jobs using a digest-pinned Python image. Each Job reads only checked-in synthetic metadata: an inert dataset string, a training-run record marked not performed, and a metadata-only model artifact placeholder. The Jobs check schema/task identifiers, fixture digests, scope labels, and release-to-run artifact references. Separate Job status and logs expose a consistent development fixture, a deliberate release provenance mismatch, and an out-of-profile operation record whose governance and actual operation remain unknown. This does not train or load a model, establish organizational compliance, evaluate real data or weights, prove production provenance, or assess deployment/operation controls. Separate local Jobs gate a synthetic feature on the exact manifest and partition bytes, and a read-only Job checks the expected output or its absence.",
+  "cluster": "saf-lab-75e779b8ce96",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -83,6 +83,23 @@
         "decision": "provenance_gap",
         "gap": "No source provenance was recorded for the inert dataset fixture.",
         "provenance_state": "unknown"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Before-use integrity rejects unchecked readable changes and missing partitions",
+      "matched": true,
+      "observed": {
+        "wrong_bytes_no_publish": true,
+        "missing_partition_no_publish": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The independent reader sees the exact feature derived from verified partition bytes",
+      "matched": true,
+      "observed": {
+        "approved_partition_and_manifest_bound_to_exact_readback": true
       }
     }
   ]

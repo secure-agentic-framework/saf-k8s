@@ -23,7 +23,9 @@ SCOPE = (
     "development fixture, a deliberate release provenance mismatch, and an out-of-profile "
     "operation record whose governance and actual operation remain unknown. This does not train "
     "or load a model, establish organizational compliance, evaluate real data or weights, prove "
-    "production provenance, or assess deployment/operation controls."
+    "production provenance, or assess deployment/operation controls. Separate local Jobs "
+    "gate a synthetic feature on the exact manifest and partition bytes, and a read-only "
+    "Job checks the expected output or its absence."
 )
 
 
@@ -184,3 +186,12 @@ def run(lab):
               and decision == {"decision": "provenance_gap", "dataset_id": unknown["fixture"]["dataset"]["dataset_id"],
                                "provenance_state": "unknown", "gap": unknown["fixture"]["dataset"]["provenance_gap"],
                                "asserts_compliance": False}, decision)
+
+    # Keep the original metadata checker and all four outcomes above unchanged;
+    # run this separately callable PW.3.1 local extension afterward.
+    from importlib.util import module_from_spec, spec_from_file_location
+
+    spec = spec_from_file_location("saf_1006_008_integrated", HERE / "integrated_case.py")
+    integrated = module_from_spec(spec)
+    spec.loader.exec_module(integrated)
+    integrated.run_integrated(lab, PYTHON_IMAGE)
