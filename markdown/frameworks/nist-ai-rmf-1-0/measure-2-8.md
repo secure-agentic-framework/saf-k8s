@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-Audit policy configuration ensures all AI-relevant operations are logged. Audit log protection with dual authorization prevents tampering with accountability records. GPU allocation audit trails track resource usage attribution.
+Workload-to-allocation correlation can inform examination and documentation of identified transparency and accountability risks. Verify the adopted AI RMF scope and retained risk records.
 
 ## SAF-K8S Controls
 
@@ -14,6 +14,6 @@ Audit policy configuration ensures all AI-relevant operations are logged. Audit 
 - Domain: D08 - GPU, Accelerator, and Confidential Computing
 - Knowledge Area: 8.5
 - Relation Type: partial
-- Strength: strong
-- Applicability: required
+- Strength: moderate
+- Applicability: conditional
 - Strength Reason Code: partial-control-coverage

@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-High-risk AI systems shall technically allow for the automatic recording of events (logs) over the lifetime of the system.
-
-SAF-K8S audit logging controls (D10) provide comprehensive logging infrastructure including Kubernetes audit logs, workload logs, GPU utilization logs, and AI pipeline execution logs with structured formats.
+Scoped infrastructure audit records can contribute event evidence. Verify automatic logging over the high-risk AI system lifecycle and the applicable Article 12 event coverage separately.
 
 ## SAF-K8S Controls
 
@@ -15,10 +13,10 @@ SAF-K8S audit logging controls (D10) provide comprehensive logging infrastructur
 
 - Domain: D08 - GPU, Accelerator, and Confidential Computing
 - Knowledge Area: 8.5
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1001-004 - Audit volume management for AI workloads](../../controls/SAF-K8S-1001-004.md)
 

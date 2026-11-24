@@ -56,15 +56,6 @@ Preventing information leakage in shared agent resources (memory, context) is cr
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0805-002 - GPU allocation audit trail and workload identity tracking](../../controls/SAF-K8S-0805-002.md)
-
-- Domain: D08 - GPU, Accelerator, and Confidential Computing
-- Knowledge Area: 8.5
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0805-004 - Accelerator sharing risk and eligible workload placement](../../controls/SAF-K8S-0805-004.md)
 
 - Domain: D08 - GPU, Accelerator, and Confidential Computing

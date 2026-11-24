@@ -29,15 +29,6 @@ SAF-K8S GPU tracking (D8), resource quota management, and training pipeline tele
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0805-002 - GPU allocation audit trail and workload identity tracking](../../controls/SAF-K8S-0805-002.md)
-
-- Domain: D08 - GPU, Accelerator, and Confidential Computing
-- Knowledge Area: 8.5
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0904-001 - Pipeline orchestrator hardening](../../controls/SAF-K8S-0904-001.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
