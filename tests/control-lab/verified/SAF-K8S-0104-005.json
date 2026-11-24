@@ -1,36 +1,36 @@
 {
   "control_id": "SAF-K8S-0104-005",
-  "catalog_revision": "bf8e642cb9a3645b004f58c455de8f21cfd5de11",
-  "catalog_sha256": "ba0b2931e7d453d96fcd4ed42df45db6ef15052d35f1baa2141f65bfd1363036",
-  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "d42e824e15a3f427c69a62bd108a0bce53b5faf1040cc9b51ef2875440939a50",
-  "scope": "Local metadata-only audit of synthetic fixture copies for exact kubeadm-style control-plane paths. The fixture tree contains public placeholder text only; the audit reads lstat metadata. Read-only stat on the same fixed path types measures stock kind v1.36.1 node mode and numeric ownership. Fixture chmod applies only to the temporary public copies. Production owner names, provisioner and recurring evidence remain outside the lab.",
-  "cluster": "saf-lab-c47271b538d1",
+  "catalog_revision": "1a5da5f7a557ab263510c8cd40d3f68617d8f868",
+  "catalog_sha256": "9eef55ef616e6fc2773668a39c64148a17aeebcb49f34ff51e47fb75630e2479",
+  "node_image": "kindest/node:v1.34.8@sha256:02722c2dedddcfc00febf5d27fbeb9b7b2c14294c82109ff4a85d89ac9ba3256",
+  "control_sha256": "fb6572e5d8c8e82459168989daa9d365d85493e6b63aa4925bd05e6c6cd799f9",
+  "scope": "Local metadata-only audit of synthetic fixture copies for exact kubeadm-style control-plane paths. The fixture tree contains public placeholder text only; the audit reads lstat metadata. Read-only stat on the same fixed path types measures stock Kind v1.34.8 node mode and numeric ownership. Fixture chmod applies only to the temporary public copies. The pinned scanner verifies two exact live manifest checks. Deployment-wide owner and provisioner evidence is assessed with the adoption procedures.",
+  "cluster": "saf-lab-26ca6ab3da21",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
-      "minor": "36",
-      "gitVersion": "v1.36.1",
-      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "minor": "34",
+      "gitVersion": "v1.34.8",
+      "gitCommit": "1f328c5e9dd683d0c5e69f3d7d58f8371278dec2",
       "gitTreeState": "clean",
-      "buildDate": "2026-05-12T09:54:35Z",
-      "goVersion": "go1.26.2",
+      "buildDate": "2026-05-12T09:52:48Z",
+      "goVersion": "go1.25.9",
       "compiler": "gc",
       "platform": "darwin/arm64"
     },
-    "kustomizeVersion": "v5.8.1",
+    "kustomizeVersion": "v5.7.1",
     "serverVersion": {
       "major": "1",
-      "minor": "36",
+      "minor": "34",
       "emulationMajor": "1",
-      "emulationMinor": "36",
+      "emulationMinor": "34",
       "minCompatibilityMajor": "1",
-      "minCompatibilityMinor": "35",
-      "gitVersion": "v1.36.1",
-      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "minCompatibilityMinor": "33",
+      "gitVersion": "v1.34.8",
+      "gitCommit": "1f328c5e9dd683d0c5e69f3d7d58f8371278dec2",
       "gitTreeState": "clean",
-      "buildDate": "2026-05-12T09:51:34Z",
-      "goVersion": "go1.26.2",
+      "buildDate": "2026-05-12T09:50:02Z",
+      "goVersion": "go1.25.9",
       "compiler": "gc",
       "platform": "linux/arm64"
     }
@@ -150,6 +150,33 @@
           "type": "directory",
           "mode_within_reference": true,
           "expected_file_type": true
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The version-matched scanner checks live API server manifest mode and ownership",
+      "matched": true,
+      "observed": {
+        "kubernetes": "v1.34.8",
+        "benchmark": "cis-1.12",
+        "selected_checks": {
+          "1.1.1": "PASS",
+          "1.1.2": "PASS"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A controller-scheduled scan repeats both checks on the same owned node",
+      "matched": true,
+      "observed": {
+        "scheduled_timestamp_present": true,
+        "owned_cronjob": true,
+        "independent_job_and_pod": true,
+        "selected_checks": {
+          "1.1.1": "PASS",
+          "1.1.2": "PASS"
         }
       }
     }

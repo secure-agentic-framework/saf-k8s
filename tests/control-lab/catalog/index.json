@@ -261,7 +261,7 @@
     "SAF-K8S-0104-005": {
       "catalog_status": "draft",
       "domain": "D01",
-      "sha256": "d42e824e15a3f427c69a62bd108a0bce53b5faf1040cc9b51ef2875440939a50",
+      "sha256": "fb6572e5d8c8e82459168989daa9d365d85493e6b63aa4925bd05e6c6cd799f9",
       "title": "Control plane configuration file permissions"
     },
     "SAF-K8S-0104-007": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "79b840c25e85f874f080fbd73ea5da83e1645f55",
-  "sha256": "5703a4ff6c86b37a5ebbd412a7e4e9439b728b08de81604b2e50431fe562fca6",
+  "revision": "3d0fdd2aa0ca94c3be8133c62322b69bf6f553dd",
+  "sha256": "9eef55ef616e6fc2773668a39c64148a17aeebcb49f34ff51e47fb75630e2479",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -52,13 +52,14 @@ The statement claims ownership and permission enforcement on manifests,
 kubeconfigs, certificate key material, and etcd data, plus provisioning-time
 and recurring verification.
 
-For an independent mode/path cross-check, the lab's standard harness pins
-kindest/node v1.36.1. kube-bench's current platform table and version map cover
-CIS 2.0 through Kubernetes 1.35 and contain no 1.36 mapping, so this case does
-not claim version-matched CIS validation for 1.36.1. The rules below are
-reference points only, not a claim that CIS 2.0 is the applicable benchmark for
-that image. kubeadm's versioned documentation independently supports the
-representative manifest, kubeconfig and PKI path conventions used here.
+The synthetic file metadata table below uses its original CIS 2.0 reference
+criteria. The framework replay now uses a digest-pinned Kind v1.34.8
+cluster. A separate live kube-bench v0.16.0 Job executes CIS 1.12 checks
+1.1.1 and 1.1.2 after provisioning. A later CronJob-owned scan repeats
+the exact checks on the same node. The scanner's only host file mount is
+the API server manifest, mounted read-only. Both selected rules use file
+metadata. Their output includes no file contents. Use kubectl v1.34.8
+with this fixture.
 
 - CIS 2.0 control-plane static manifests: mode `0600` or tighter and owner
   `root:root` (1.1.1–1.1.8).
@@ -91,3 +92,24 @@ execution evidence; a one-time synthetic pass cannot establish it.
 - [kube-bench path and benchmark configuration](https://github.com/aquasecurity/kube-bench/blob/main/cfg/config.yaml)
 - [Kubernetes v1.35 kubeadm implementation details](https://v1-35.docs.kubernetes.io/docs/reference/setup-tools/kubeadm/implementation-details/)
 - [Kubernetes v1.35 kubeadm certificate and kubeconfig paths](https://v1-35.docs.kubernetes.io/docs/setup/best-practices/certificates/)
+
+## Verify your implementation
+
+1. Record the Kubernetes and distribution versions, responsibility
+   boundaries and applicable benchmark or provider profile. Resolve the
+   actual paths for hosted components from authorized deployment evidence.
+   Include all applicable operator-owned control plane and etcd instances.
+2. Use a version-matched scanner or approved metadata-only check. Verify
+   file type, numeric ownership, account name resolution, and file mode
+   against the precise rule. Retain the check scope and identity. Inspect
+   metadata without copying kubeconfig, private key or data contents.
+3. Link the first observation to provisioning and compare the same criteria
+   on the approved recurring schedule. Retain successful, missing and
+   failed results, deviations, their owners and the resolved state.
+4. Record provider evidence or an explicit visibility gap for inaccessible
+   surfaces. Preserve the benchmark version, dated observations and
+   coverage alongside any approved exception or remediation.
+
+- [Aqua v0.16.0 profile mapping](https://github.com/aquasecurity/kube-bench/blob/v0.16.0/cfg/config.yaml)
+- [CIS 1.12 control-plane rules in Aqua v0.16.0](https://github.com/aquasecurity/kube-bench/blob/v0.16.0/cfg/cis-1.12/master.yaml)
+- [CIS Kubernetes Benchmark release coverage](https://www.cisecurity.org/benchmark/kubernetes)

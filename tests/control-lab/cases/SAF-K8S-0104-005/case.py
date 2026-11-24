@@ -1,17 +1,27 @@
 """Audit only case-owned fixture metadata for representative control-plane paths."""
+from runpy import run_path
 from pathlib import Path
 import shutil
 import stat
 import tempfile
 
 
+NODE_IMAGE = "kindest/node:v1.34.8@sha256:02722c2dedddcfc00febf5d27fbeb9b7b2c14294c82109ff4a85d89ac9ba3256"
+
+
+def prepare_kind(lab, temporary):
+    config = temporary / "kind.yaml"
+    config.write_text("kind: Cluster\napiVersion: kind.x-k8s.io/v1alpha4\nnodes:\n- role: control-plane\n")
+    return config
+
+
 SCOPE = (
     "Local metadata-only audit of synthetic fixture copies for exact kubeadm-style "
     "control-plane paths. The fixture tree contains public placeholder text only; "
     "the audit reads lstat metadata. Read-only stat on the same fixed path types "
-    "measures stock kind v1.36.1 node mode and numeric ownership. Fixture chmod applies "
-    "only to the temporary public copies. Production owner names, provisioner and "
-    "recurring evidence remain outside the lab."
+    "measures stock Kind v1.34.8 node mode and numeric ownership. Fixture chmod applies "
+    "only to the temporary public copies. The pinned scanner verifies two exact live manifest checks. Deployment-wide owner and provisioner evidence "
+    "is assessed with the adoption procedures."
 )
 
 FIXTURE_ROOT = Path(__file__).with_name("fixtures")
@@ -132,3 +142,6 @@ def run(lab):
     lab.check("positive", "Stock node path types and modes can be sampled without reading contents",
               all(row["mode_within_reference"] and row["expected_file_type"]
                   for row in observed.values()), observed)
+
+    matched = run_path(str(Path(__file__).with_name("manifest-audit.py")))
+    matched["run"](lab)
