@@ -28928,16 +28928,13 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-3
   framework_requirement_title: Device Identification and Authentication
-  framework_mapping_notes: 'Agent/device identity authentication (non-human identity)
-
-
-    2.1 - Kubelet TLS bootstrapping (node device identification); 8.4 - Remote attestation for TEE devices'
+  framework_mapping_notes: A scoped API-server-trusted kubelet client certificate supports node identity and authentication. Record the approved kubelet inventory and trust, including any separate device authentication requirements.
   control_id: SAF-K8S-0201-013
   relation_type: supports
-  strength_level: strong
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: exact-text-match
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5

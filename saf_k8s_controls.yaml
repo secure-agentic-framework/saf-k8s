@@ -1290,12 +1290,12 @@
   knowledge_area: '2.1'
   control_seq: '013'
   control_title: Kubelet client certificate rotation via TLS bootstrap
-  control_statement: Kubelet instances must use TLS bootstrapping and automatic client certificate rotation so node identities are issued by the cluster certificate authority and renewed before expiry without manual credential reuse.
-  objective: Maintain current kubelet client identity for node-to-API-server authentication.
-  rationale: Kubelet client certificates establish each node's authenticated identity to the API server. TLS bootstrap and automatic rotation prevent expired credentials, reduce manual renewal drift, and ensure node identities remain bound to approved certificate issuance workflows.
-  scope: Applies to all cluster nodes running kubelet, including control-plane nodes where kubelet manages static pods. For managed services that handle certificate lifecycle internally, evidence of provider-managed rotation and TLS enforcement satisfies this control. Environments using external certificate authorities must document their rotation schedule and monitoring.
+  control_statement: Maintain a current, API-server-trusted client certificate for each governed kubelet's node identity. Use an approved enrollment path and renew and activate the replacement before expiry. When using native Kubernetes TLS bootstrap and rotation, verify the effective approver, signer and client trust.
+  objective: Maintain authenticated node-to-API-server communication with attributable enrollment and pre-expiry replacement of each kubelet client certificate.
+  rationale: Node client certificate issuance, approval, API-server trust and activation are related checks. Timely rotation and observable failures help prevent unexpected expiration and loss of node authentication.
+  scope: Applies to all governed kubelets, including initial and joined control-plane nodes and workers. Account for protected initial provisioning, native worker or node bootstrap, external CA, and provider-operated lifecycle. Verify equivalent node identity, trust, replacement and monitoring evidence for each applicable path.
   primary_enforcement_point: Kubelet bootstrap configuration, certificate signing workflow, and client certificate rotation monitoring.
-  implementation_surface: KubeletConfiguration rotateCertificates setting, bootstrap kubeconfig or bootstrap tokens, Kubernetes certificates API, and CSR approval workflow.
+  implementation_surface: Verify node-bound client certificate subject and uses, effective bootstrap or provisioning trust, rotateCertificates when used, scoped CSR approval and signer policy, and API-server client CA trust. Observe expiry, renewal failures and delayed approval, and confirm continued authenticated node activity after replacement.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; PKI/Certificate Management
   baseline_or_ai_specific: baseline
@@ -1303,7 +1303,7 @@
   status: draft
   superseded_by_control_id: null
   date_created: '2026-03-16'
-  date_modified: '2026-03-17'
+  date_modified: '2026-11-24'
 - control_id: SAF-K8S-0201-014
   domain_code: D02
   domain_name: Node, Runtime, and OS Security

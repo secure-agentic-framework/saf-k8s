@@ -25,9 +25,9 @@ Agent/device identity authentication (non-human identity)
 - Domain: D02 - Node, Runtime, and OS Security
 - Knowledge Area: 2.1
 - Relation Type: supports
-- Strength: strong
+- Strength: moderate
 - Applicability: required
-- Strength Reason Code: exact-text-match
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0804-001 - TEE-based model and data protection for AI workloads](../../controls/SAF-K8S-0804-001.md)
 
