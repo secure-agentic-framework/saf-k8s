@@ -180,6 +180,9 @@ def run(control_id, control_case, index, docker_context, *, approval_file=None, 
         datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8]
     )
     prepare_kind = getattr(control_case, "prepare_kind", None)
+    use_config_images = getattr(control_case, "NODE_IMAGES_FROM_CONFIG", False)
+    if use_config_images and (prepare_kind is None or local_node_image is None):
+        raise InfrastructureError("Per-node Kind images require a generated profile and a pin for the local node image")
     installs_cni = getattr(control_case, "INSTALLS_CNI", False)
     if installs_cni and not prepare_kind:
         raise InfrastructureError("A case installing its CNI must prepare its Kind profile")
@@ -203,6 +206,7 @@ def run(control_id, control_case, index, docker_context, *, approval_file=None, 
     with tempfile.TemporaryDirectory(prefix="saf-lab-") as temp:
         temporary = Path(temp).resolve()
         lab = Lab(evidence, docker_context, temporary / "kubeconfig")
+        lab.local_node_image = local_node_image
         owned = False
         report["cluster"] = lab.cluster
         try:
@@ -230,9 +234,11 @@ def run(control_id, control_case, index, docker_context, *, approval_file=None, 
                 if not config.is_relative_to(temporary) or not config.is_file():
                     raise InfrastructureError("Generated kind config must be inside the temporary workspace")
             config_args = ["--config", str(config)] if config is not None and config.is_file() else []
+            # A global --image flag replaces even explicit per-node Kind images.
+            image_args = [] if use_config_images else ["--image", node_image]
             print(f"Starting {lab.cluster} on Docker context {docker_context}", flush=True)
             owned = True
-            lab.command("kind", "create", "cluster", "--name", lab.cluster, "--image", node_image,
+            lab.command("kind", "create", "cluster", "--name", lab.cluster, *image_args,
                         "--kubeconfig", str(lab.kubeconfig), "--wait", kind_ready_wait,
                         *config_args, timeout=480)
             if installs_cni:

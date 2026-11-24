@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0203-010",
-  "catalog_revision": "caee2067b1642a67cc0be2ac0f3695c7d532cea4",
-  "catalog_sha256": "f50b1b6337d5e3e6140b2e9fde445c6e281fbc6e52d55faba11456395acf9f1f",
-  "node_image": "sha256:9f93191d4452f58ca7a8e15d26275a03ebc8739fc8c46d9e16d8b054f4762d9f",
+  "catalog_revision": "aa7f285110d8b93642d8d069dc3e4d3d9dc2dcfd",
+  "catalog_sha256": "6c62a9ab38837b70dbe3d92571eb93f33722e18e15a26a688854bcfd3cadd6b4",
+  "node_image": "sha256:f5b9a8ecd1685a2e9519e205779a1504b000b6633ebac364c065e850a5439e1e",
   "control_sha256": "2dfa59f95fc7fdb2eb2ee0a64ff97c9eb1f8f217f0b0691385afcde46097c928",
-  "scope": "Compare the pinned stock Kind image to a test-owned variant without APT, then run a fresh Kubernetes workload on the variant.",
-  "cluster": "saf-lab-ff68b2b2e7d3",
+  "scope": "Compare live stock and APT-free Kind workers, then drain the stock worker and observe the same Deployment become Ready on the approved image.",
+  "cluster": "saf-lab-3b639e9363ea",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -40,10 +40,16 @@
   "checks": [
     {
       "phase": "red",
-      "claim": "The source node image includes the selected package manager",
+      "claim": "The stock image includes the optional package and its exact scheduled maintenance units",
       "matched": true,
       "observed": {
-        "stock_image_apt_present": true
+        "stock_image_apt_present": true,
+        "apt_owned_systemd_units": [
+          "apt-daily-upgrade.service",
+          "apt-daily-upgrade.timer",
+          "apt-daily.service",
+          "apt-daily.timer"
+        ]
       }
     },
     {
@@ -60,12 +66,47 @@
       }
     },
     {
-      "phase": "positive",
-      "claim": "The reduced node retains the required runtime and executes a fresh Kubernetes workload",
+      "phase": "green",
+      "claim": "The running node has none of the removed package's scheduled maintenance units",
       "matched": true,
       "observed": {
-        "required_services_active": true,
-        "fresh_workload_completed": true
+        "load_states": {
+          "apt-daily.service": "not-found",
+          "apt-daily.timer": "not-found",
+          "apt-daily-upgrade.service": "not-found",
+          "apt-daily-upgrade.timer": "not-found"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The reduction preserves the reviewed image accounts, UID/GID and shell inventory",
+      "matched": true,
+      "observed": {
+        "accounts_unchanged": true,
+        "observed_account_count": 21
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The reviewed reduced worker has active kubelet and containerd",
+      "matched": true,
+      "observed": {
+        "running_service_states": {
+          "kubelet.service": "active",
+          "containerd.service": "active"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Draining the stock worker replaces its Ready workload on the reduced worker",
+      "matched": true,
+      "observed": {
+        "stock_worker_cordoned": true,
+        "same_workload_controller": true,
+        "new_ready_pod_on_reduced_worker": true,
+        "apt_still_absent": true
       }
     }
   ]
