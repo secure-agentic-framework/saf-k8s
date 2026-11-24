@@ -4,8 +4,8 @@
   "catalog_sha256": "d2e81e3342ce7597a368ac69a3e6da5512259d37e11768bbfe437f0fe8af867d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "f01902deae17b42872e74b753539e750685bf81ec7b21d06ce224371818fecbd",
-  "scope": "One disposable single-node Kind Kubernetes v1.36.1 cluster; actual Kubernetes API discovery; five case-owned zero-replica mock Deployments and a local compatibility decision over synthetic component metadata. A blocked candidate is not applied and a permitted candidate changes only a Deployment metadata annotation. A separate fixture parameter binds a native admission gate to the matrix digest and permitted release. The candidate is rejected without that approval and an approved synthetic workload starts with its verified marker. Hardware and actual GPU software compatibility require their own evidence.",
-  "cluster": "saf-lab-fb3c48003a8d",
+  "scope": "One disposable single-node Kind Kubernetes v1.36.1 cluster; actual Kubernetes API discovery; five case-owned zero-replica mock Deployments and a local compatibility decision over synthetic component metadata. A blocked candidate is not applied and a permitted candidate changes only a Deployment metadata annotation with an observed resourceVersion precondition. Explicit synthetic approval data binds native admission to the full proposed tuple, change sequence, named checks, matrix digest, change ID, image and release. The candidate is rejected when approval is missing, stale or mismatched; matching approval admits the synthetic workload with its verified release marker. Hardware and actual GPU software compatibility require their own evidence.",
+  "cluster": "saf-lab-77e3d3080a05",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -76,6 +76,16 @@
       }
     },
     {
+      "phase": "red",
+      "claim": "A stale observed resourceVersion rejects the synthetic patch without changing its target field",
+      "matched": true,
+      "observed": {
+        "stale_resource_version_rejected": true,
+        "target_component_version_unchanged": true,
+        "deployment_uid_preserved": true
+      }
+    },
+    {
       "phase": "green",
       "claim": "A matrix-permitted candidate updates only its observed synthetic Deployment annotation",
       "matched": true,
@@ -96,10 +106,28 @@
     },
     {
       "phase": "red",
-      "claim": "Native admission denies and leaves no Deployment for a stale compatibility receipt",
+      "claim": "Missing approval parameter is denied for the owned target",
       "matched": true,
       "observed": {
-        "denied_by_matrix_policy": true,
+        "admission_denied": true,
+        "candidate_absent": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Stale approved change sequence is denied without creating the target",
+      "matched": true,
+      "observed": {
+        "admission_denied": true,
+        "candidate_absent": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Mismatching component tuple is denied without creating the target",
+      "matched": true,
+      "observed": {
+        "admission_denied": true,
         "candidate_absent": true
       }
     },
@@ -116,10 +144,18 @@
       "claim": "The exact matrix approval admits a live synthetic workload with the intended release",
       "matched": true,
       "observed": {
+        "missing_approval_denied": true,
+        "stale_sequence_denied": true,
+        "mismatching_tuple_denied": true,
+        "stale_resource_version_patch_denied_without_target_mutation": true,
         "applied_deployment_uid_observed": true,
         "approved_matrix_digest_read_back": true,
         "approved_release_reached_live_workload": true,
-        "workload_ready": true
+        "workload_ready": true,
+        "approved_tuple_sha256": "46671c992accf623811b74a771eae8f381acb6e720ffe69f187ee3d24ea17c65",
+        "approved_change_id": "SYNTH-CHANGE-PERMIT-001",
+        "approved_sequence_sha256": "0b7eee690bd1fcee2ab35f2f2a67f818f210dbf0a779c1350029f5a9a2fd0fe6",
+        "approved_checks_sha256": "21fc65faa727b7c6079d831cce5927375e52ecff018438c5644cde86c860058e"
       }
     }
   ]

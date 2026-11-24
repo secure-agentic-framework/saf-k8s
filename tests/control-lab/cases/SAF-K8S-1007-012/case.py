@@ -28,9 +28,11 @@ SCOPE = (
     "One disposable single-node Kind Kubernetes v1.36.1 cluster; actual Kubernetes API discovery; "
     "five case-owned zero-replica mock Deployments and a local compatibility decision over synthetic component metadata. "
     "A blocked candidate is not applied and a permitted candidate changes only a Deployment "
-    "metadata annotation. A separate fixture parameter binds a native admission gate to "
-    "the matrix digest and permitted release. The candidate is rejected without that approval "
-    "and an approved synthetic workload starts with its verified marker. Hardware and actual "
+    "metadata annotation with an observed resourceVersion precondition. Explicit synthetic "
+    "approval data binds native admission to the full proposed tuple, change sequence, named "
+    "checks, matrix digest, change ID, image and release. The candidate is rejected when "
+    "approval is missing, stale or mismatched; matching approval admits the "
+    "synthetic workload with its verified release marker. Hardware and actual "
     "GPU software compatibility require their own evidence."
 )
 
@@ -165,21 +167,67 @@ def _decide(matrix, inventory, change):
 def apply_candidate(lab, matrix, inventory, change):
     decision = _decide(matrix, inventory, change)
     if decision["decision"] == "permit":
-        patch = {"metadata": {"annotations": {COMPONENT_ANNOTATION: change["target_version"]}}}
-        lab.kubectl("patch", "deployment", _deployment_name(change["target_component"]),
-                    "--type=merge", "-p", json.dumps(patch))
+        name = _deployment_name(change["target_component"])
+        current = next(item for item in inventory["raw_owned_deployments"]
+                       if item["metadata"]["name"] == name)
+        resource_version = current["metadata"]["resourceVersion"]
+        patch = [
+            {"op": "test", "path": "/metadata/resourceVersion", "value": resource_version},
+            {"op": "add", "path": "/metadata/annotations/" + COMPONENT_ANNOTATION.replace("/", "~1"),
+             "value": change["target_version"]},
+        ]
+        lab.kubectl("patch", "deployment", name, "--type=json", "-p", json.dumps(patch))
     return decision
 
 
-def _live_gate(lab, matrix, approved):
+def _live_gate(lab, matrix, approved, stale_precondition_ok):
     name = "synthetic-matrix-rollout"
-    gate_label = {"saf-lab.example/matrix-gated": "true"}
+    target = "approved-workload"
+    target_resource = _deployment_name(target)
     digest = sha256(json.dumps(matrix, sort_keys=True).encode()).hexdigest()
     release = approved["target_version"]
+    tuple_data = dict(matrix["inventory"])
+    tuple_data[approved["target_component"]] = release
+    sequence = [
+        "verify:gpu-driver=" + matrix["inventory"]["gpu-driver"],
+        "verify:cuda-toolkit=" + matrix["inventory"]["cuda-toolkit"],
+        "verify:ai-operator=" + matrix["inventory"]["ai-operator"],
+        "verify:device-plugin=" + matrix["inventory"]["device-plugin"],
+        "update:serving-framework:" + approved["current_version"] + "->" + release,
+    ]
+    checks = [
+        {"name": "functional.synthetic-marker-and-ready", "result": "synthetic-pass"},
+        {"name": "security.native-admission-denies-mismatch", "result": "synthetic-pass"},
+        {"name": "reliability.stale-resource-version-no-mutation", "result": "synthetic-pass"},
+    ]
+    tuple_digest = sha256(json.dumps(tuple_data, sort_keys=True).encode()).hexdigest()
+    sequence_digest = sha256(json.dumps(sequence, separators=(",", ":")).encode()).hexdigest()
+    checks_digest = sha256(json.dumps(checks, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    approval = {
+        "matrix-sha256": digest,
+        "tuple-sha256": tuple_digest,
+        "change-id": approved["change_id"],
+        "sequence-sha256": sequence_digest,
+        "checks-sha256": checks_digest,
+        "release": release,
+        "image": MOCK_IMAGE,
+        "tuple": json.dumps(tuple_data, sort_keys=True, separators=(",", ":")),
+        "sequence": json.dumps(sequence, separators=(",", ":")),
+        "checks": json.dumps(checks, sort_keys=True, separators=(",", ":")),
+    }
+    annotations = {
+        "saf-lab.example/matrix-sha256": digest,
+        "saf-lab.example/tuple-sha256": tuple_digest,
+        "saf-lab.example/change-id": approved["change_id"],
+        "saf-lab.example/sequence-sha256": sequence_digest,
+        "saf-lab.example/checks-sha256": checks_digest,
+    }
+    lab.kubectl("label", "namespace", NAMESPACE,
+                "saf-lab.example/admission-scope=" + CONTROL_ID, "--overwrite")
     lab.create({
         "apiVersion": "v1", "kind": "ConfigMap", "immutable": True,
         "metadata": {"name": name},
-        "data": {"matrix-sha256": digest, "release": release, "image": MOCK_IMAGE},
+        "data": approval,
     })
     lab.create({
         "apiVersion": "admissionregistration.k8s.io/v1", "kind": "ValidatingAdmissionPolicy",
@@ -191,11 +239,19 @@ def _live_gate(lab, matrix, approved):
                 {"apiGroups": ["apps"], "apiVersions": ["v1"], "operations": ["CREATE", "UPDATE"],
                  "resources": ["deployments"]},
             ]},
+            "matchConditions": [{"name": "owned-target", "expression":
+                "request.namespace == '" + NAMESPACE + "' && object.metadata.name == '" + target_resource + "'"}],
             "validations": [{
                 "expression": (
-                    "params != null && has(object.metadata.annotations) && "
-                    "'saf-lab.example/matrix-sha256' in object.metadata.annotations && "
+                    "params != null && object.metadata.namespace == '" + NAMESPACE + "' && "
+                    "object.metadata.name == '" + target_resource + "' && "
+                    "has(object.metadata.labels) && object.metadata.labels['" + CASE_LABEL + "'] == '" + CONTROL_ID + "' && "
+                    "has(object.metadata.annotations) && "
                     "object.metadata.annotations['saf-lab.example/matrix-sha256'] == params.data['matrix-sha256'] && "
+                    "object.metadata.annotations['saf-lab.example/tuple-sha256'] == params.data['tuple-sha256'] && "
+                    "object.metadata.annotations['saf-lab.example/change-id'] == params.data['change-id'] && "
+                    "object.metadata.annotations['saf-lab.example/sequence-sha256'] == params.data['sequence-sha256'] && "
+                    "object.metadata.annotations['saf-lab.example/checks-sha256'] == params.data['checks-sha256'] && "
                     "object.spec.template.spec.containers.size() == 1 && "
                     "object.spec.template.spec.containers[0].image == params.data['image'] && "
                     "object.spec.template.spec.containers[0].env.exists(e, "
@@ -211,49 +267,83 @@ def _live_gate(lab, matrix, approved):
         "spec": {
             "policyName": name, "validationActions": ["Deny"],
             "paramRef": {"name": name, "namespace": NAMESPACE, "parameterNotFoundAction": "Deny"},
-            "matchResources": {"objectSelector": {"matchLabels": gate_label}},
+            "matchResources": {
+                "namespaceSelector": {"matchLabels": {"saf-lab.example/admission-scope": CONTROL_ID}},
+            },
         },
     })
-    candidate = _deployment("approved-workload", release)
-    candidate["metadata"]["labels"].update(gate_label)
-    candidate["metadata"]["annotations"]["saf-lab.example/matrix-sha256"] = digest
+    candidate = _deployment(target, release)
+    candidate["metadata"]["annotations"].update(annotations)
     candidate["spec"]["replicas"] = 1
     fixture = candidate["spec"]["template"]["spec"]["containers"][0]
     fixture["env"] = [{"name": "SAF_RELEASE", "value": release}]
     fixture["command"] = ["python", "-B", "-u", "-c",
                          "import os,time; print(os.environ['SAF_RELEASE']); time.sleep(180)"]
+    def wait_for_admission(expected_denial=None):
+        for _ in range(25):
+            probe = lab.create(candidate, dry_run=True, allow_failure=True)
+            if expected_denial is None and probe.returncode == 0:
+                return
+            if expected_denial and probe.returncode != 0 and expected_denial in probe.stderr:
+                return
+            time.sleep(1)
+        lab.block("The synthetic approval binding did not settle")
+
+    wait_for_admission()
+
+    def denied_case(description, attempted, missing_parameter=False, apply=False):
+        if missing_parameter:
+            lab.kubectl("patch", "validatingadmissionpolicybinding", name, "--type=merge", "-p",
+                        json.dumps({"spec": {"paramRef": {"name": "missing-synthetic-approval",
+                                                            "namespace": NAMESPACE,
+                                                            "parameterNotFoundAction": "Deny"}}}))
+            wait_for_admission("no params found for policy binding")
+        result = lab.create(attempted, dry_run=not apply, allow_failure=True)
+        if missing_parameter:
+            lab.kubectl("patch", "validatingadmissionpolicybinding", name, "--type=merge", "-p",
+                        json.dumps({"spec": {"paramRef": {"name": name, "namespace": NAMESPACE,
+                                                            "parameterNotFoundAction": "Deny"}}}))
+            wait_for_admission()
+        absent = not lab.kubectl("get", "deployment", target_resource, "--ignore-not-found", "-o", "name").stdout.strip()
+        if missing_parameter:
+            denial_detail = "no params found for policy binding" in result.stderr and name in result.stderr
+        else:
+            denial_detail = "exact compatibility approval" in result.stderr
+        denied = result.returncode != 0 and denial_detail
+        lab.check("red", description, denied and absent,
+                  {"admission_denied": denied, "candidate_absent": absent})
+        return denied and absent
+
+    missing_ok = denied_case("Missing approval parameter is denied for the owned target", candidate,
+                             missing_parameter=True)
     stale = deepcopy(candidate)
-    stale["metadata"]["annotations"]["saf-lab.example/matrix-sha256"] = "different-matrix"
+    stale["metadata"]["annotations"]["saf-lab.example/sequence-sha256"] = "stale-sequence"
+    stale_ok = denied_case("Stale approved change sequence is denied without creating the target", stale)
+    mismatching = deepcopy(candidate)
+    mismatching["metadata"]["annotations"]["saf-lab.example/tuple-sha256"] = "different-tuple"
+    mismatch_ok = denied_case("Mismatching component tuple is denied without creating the target", mismatching, apply=True)
     for _ in range(20):
-        validation = lab.create(stale, dry_run=True, allow_failure=True)
-        if validation.returncode and name in validation.stderr and "exact compatibility approval" in validation.stderr:
+        validation = lab.create(candidate, dry_run=True, allow_failure=True)
+        if validation.returncode == 0:
             break
         time.sleep(1)
     else:
-        lab.block("The compatibility policy did not return the expected native admission denial")
-    denied = lab.create(stale, allow_failure=True)
-    not_found = not lab.kubectl("get", "deployment", candidate["metadata"]["name"],
-                                "--ignore-not-found", "-o", "name").stdout.strip()
-    lab.check("red", "Native admission denies and leaves no Deployment for a stale compatibility receipt",
-              denied.returncode != 0 and "exact compatibility approval" in denied.stderr and not_found,
-              {"denied_by_matrix_policy": "exact compatibility approval" in denied.stderr,
-               "candidate_absent": not_found})
+        lab.block("The exact synthetic approval was not accepted at native admission")
 
     applied = lab.create(candidate)
-    target = candidate["metadata"]["name"]
-    lab.kubectl("rollout", "status", f"deployment/{target}", "--timeout=90s", timeout=105)
-    observed = json.loads(lab.kubectl("get", "deployment", target, "-o", "json").stdout)
+    lab.kubectl("rollout", "status", f"deployment/{target_resource}", "--timeout=90s", timeout=105)
+    observed = json.loads(lab.kubectl("get", "deployment", target_resource, "-o", "json").stdout)
     for _ in range(20):
-        marker = lab.kubectl("logs", f"deployment/{target}").stdout.strip()
+        marker = lab.kubectl("logs", f"deployment/{target_resource}").stdout.strip()
         if marker:
             break
         time.sleep(1)
     changed = lab.kubectl(
-        "patch", "deployment", target, "--type=merge", "-p",
+        "patch", "deployment", target_resource, "--type=merge", "-p",
         '{"metadata":{"annotations":{"saf-lab.example/matrix-sha256":"different-matrix"}}}',
         allow_failure=True,
     )
-    retained = json.loads(lab.kubectl("get", "deployment", target, "-o", "json").stdout)
+    retained = json.loads(lab.kubectl("get", "deployment", target_resource, "-o", "json").stdout)
     rejected_update = (
         changed.returncode != 0 and "exact compatibility approval" in changed.stderr
         and retained["metadata"]["uid"] == applied["metadata"]["uid"]
@@ -263,11 +353,19 @@ def _live_gate(lab, matrix, approved):
               {"stale_update_denied_and_approved_receipt_kept": rejected_update})
 
     outcome = {
+        "missing_approval_denied": missing_ok,
+        "stale_sequence_denied": stale_ok,
+        "mismatching_tuple_denied": mismatch_ok,
+        "stale_resource_version_patch_denied_without_target_mutation": stale_precondition_ok,
         "applied_deployment_uid_observed": observed["metadata"]["uid"] == applied["metadata"]["uid"],
         "approved_matrix_digest_read_back":
             observed["metadata"]["annotations"]["saf-lab.example/matrix-sha256"] == digest,
         "approved_release_reached_live_workload": marker == release,
         "workload_ready": observed["status"].get("readyReplicas") == 1,
+        "approved_tuple_sha256": tuple_digest,
+        "approved_change_id": approved["change_id"],
+        "approved_sequence_sha256": sequence_digest,
+        "approved_checks_sha256": checks_digest,
     }
     lab.check("positive", "The exact matrix approval admits a live synthetic workload with the intended release",
               all(outcome.values()), outcome)
@@ -338,14 +436,47 @@ def run(lab):
         {"decision": blocked, "deployment_records_unchanged": unchanged_after_block},
     )
 
-    permitted = apply_candidate(lab, matrix, after_block, permitted_change)
+    permitted = _decide(matrix, after_block, permitted_change)
     if permitted["decision"] != "permit":
         lab.block("The fixture's compatible metadata-only change was not permitted")
+    stale_snapshot = next(item for item in after_block["raw_owned_deployments"]
+                          if item["metadata"]["name"] == _deployment_name(permitted_change["target_component"]))
+    stale_version = stale_snapshot["metadata"]["resourceVersion"]
+    stale_uid = stale_snapshot["metadata"]["uid"]
+    stale_value = stale_snapshot["metadata"]["annotations"][COMPONENT_ANNOTATION]
+    lab.kubectl(
+        "patch", "deployment", stale_snapshot["metadata"]["name"], "--type=merge", "-p",
+        json.dumps({"metadata": {"annotations": {"saf-lab.example/stale-probe": "advanced"}}}),
+    )
+    stale_patch = [
+        {"op": "test", "path": "/metadata/resourceVersion", "value": stale_version},
+        {"op": "add", "path": "/metadata/annotations/" + COMPONENT_ANNOTATION.replace("/", "~1"),
+         "value": permitted_change["target_version"]},
+    ]
+    stale_result = lab.kubectl(
+        "patch", "deployment", stale_snapshot["metadata"]["name"], "--type=json", "-p",
+        json.dumps(stale_patch), allow_failure=True,
+    )
+    stale_retained = json.loads(lab.kubectl(
+        "get", "deployment", stale_snapshot["metadata"]["name"], "-o", "json").stdout)
+    stale_precondition_ok = (
+        stale_result.returncode != 0
+        and stale_retained["metadata"]["uid"] == stale_uid
+        and stale_retained["metadata"]["annotations"][COMPONENT_ANNOTATION] == stale_value
+        and stale_retained["metadata"]["annotations"].get("saf-lab.example/stale-probe") == "advanced"
+    )
+    lab.check("red", "A stale observed resourceVersion rejects the synthetic patch without changing its target field",
+              stale_precondition_ok,
+              {"stale_resource_version_rejected": stale_result.returncode != 0,
+               "target_component_version_unchanged": stale_retained["metadata"]["annotations"].get(COMPONENT_ANNOTATION) == stale_value,
+               "deployment_uid_preserved": stale_retained["metadata"]["uid"] == stale_uid})
+    patch_baseline = _inventory(lab)
+    permitted = apply_candidate(lab, matrix, patch_baseline, permitted_change)
     after = _inventory(lab)
     target_after = after["deployment_components"].get(permitted_change["target_component"], {})
     target_name = _deployment_name(permitted_change["target_component"])
     raw_before = {item.get("metadata", {}).get("name"): item
-                  for item in before["raw_owned_deployments"]}.get(target_name, {})
+                  for item in patch_baseline["raw_owned_deployments"]}.get(target_name, {})
     raw_after = {item.get("metadata", {}).get("name"): item
                  for item in after["raw_owned_deployments"]}.get(target_name, {})
     annotations_before = raw_before.get("metadata", {}).get("annotations", {})
@@ -377,7 +508,7 @@ def run(lab):
          "other_annotations_unchanged": other_annotations_unchanged},
     )
 
-    native_gate = _live_gate(lab, matrix, permitted)
+    native_gate = _live_gate(lab, matrix, permitted, stale_precondition_ok)
     evidence = {
         "native_admission_outcome": native_gate,
         "control_id": CONTROL_ID,

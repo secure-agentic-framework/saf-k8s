@@ -6,7 +6,7 @@ Run from the SAF-K8S framework root.
 python3 tests/control-lab/lab.py test SAF-K8S-1007-012 --docker-context desktop-linux
 ```
 
-This case runs on the supervisor's disposable, digest-pinned Kind Kubernetes v1.36.1 cluster. It creates five low-resource case-owned mock Deployments for the component roles named in the pinned control: GPU driver, CUDA toolkit, AI operator, device plugin, and serving framework. All run the same digest-pinned general-purpose Python sleep process; the role and version labels are inert metadata. No GPU, vendor component, model-serving software, or model is installed.
+This case runs on the supervisor's disposable, digest-pinned Kind Kubernetes v1.36.1 cluster. It creates five low-resource case-owned mock Deployments for the component roles named in the pinned control: GPU driver, CUDA toolkit, AI operator, device plugin, and serving framework. Their templates specify the same digest-pinned general-purpose Python sleep process; all five inventory Deployments remain at zero replicas, and role/version labels are inert metadata. No GPU, vendor component, model-serving software, or model is installed.
 
 The case reads actual Kubernetes API discovery (`/api` and `/apis`) and actual Deployment objects through the API. It compares that observed inventory to `fixtures/compatibility-matrix.json`. The matrix deliberately uses reserved `SYNTH-*` identifiers and declares itself synthetic-only. It is an executable local decision fixture, not a vendor matrix or a compatibility claim.
 
@@ -14,15 +14,34 @@ The case reads actual Kubernetes API discovery (`/api` and `/apis`) and actual D
 
 - **Positive:** the API server reports Kubernetes v1.36.1; `apps/v1` is served; and all five zero-replica mock Deployments have a digest-pinned template and match the fixture's synthetic baseline.
 - **Red:** the candidate requiring synthetic dependency versions `*-02` is blocked because those values do not match the observed Deployments. The blocked candidate is not applied.
-- **Green:** the candidate whose synthetic requirements match the observed inventory is permitted. The case updates only the serving-framework Deployment's metadata annotation, then reads the Deployment inventory again to confirm the new synthetic version and unchanged workload template, UID, other component metadata, and served API inventory.
+- **Green:** the candidate whose synthetic requirements match the observed inventory is permitted. The case updates only the serving-framework Deployment's component-version annotation, then reads the inventory again to confirm the new synthetic version, unchanged workload template and target UID, unchanged other component versions and target's other annotations, and unchanged served API inventory.
 
-Raw, bounded API and decision observations are written to `compatibility-governance.raw.json` in the run evidence directory. It contains no credentials or model data. The matrix does not come from an external feed, and the case contacts no external target.
+The case supplies a synthetic approval record containing the complete proposed
+component tuple, a five-step ordered change sequence, the change ID, image and
+three named check records: `functional.synthetic-marker-and-ready`,
+`security.native-admission-denies-mismatch`, and
+`reliability.stale-resource-version-no-mutation`. Each record is explicitly
+marked `synthetic-pass`. Admission compares hashes of the tuple, sequence and
+check records, as well as the matrix digest, change ID, image and release
+marker. This is self-issued fixture data; it does not establish an independent
+approver, real check provenance, or a real component version.
 
-The native extension uses a ConfigMap parameter for a ValidatingAdmissionPolicy
-scoped to one owned Deployment. A stale matrix digest receives the exact API
-denial and leaves no Deployment. The approved matrix digest, image and release
-marker pass admission, a synthetic CPU workload starts, and its log and Ready
-state confirm that the approved release reached a container.
+The ValidatingAdmissionPolicyBinding selects only the labeled `saf-test`
+namespace; the policy also requires the exact namespace, case ownership label,
+and Deployment name `approved-workload`. At Kubernetes admission the case
+exercises a missing approval parameter, stale change sequence, mismatching
+component tuple, and the accepted approval. The first three are denied and
+leave no Deployment; the accepted record creates a CPU-only synthetic
+Deployment whose release marker and Ready state are read back. An update with
+a stale matrix annotation is denied without changing the admitted receipt.
+Separately, the metadata-only compatibility patch uses a JSON Patch test on the
+observed `resourceVersion`; a deliberately advanced resource version rejects
+the stale patch while preserving the component version and Deployment UID.
+
+The case writes API and decision observations to
+`compatibility-governance.raw.json` in the run evidence directory. The case
+collects no Secret objects or model payloads. The matrix is local and
+synthetic-only, and the case logic contacts no vendor or compatibility feed.
 
 ## Verify your implementation
 
@@ -35,8 +54,9 @@ state confirm that the approved release reached a container.
    and limits for the selected vendor path, such as CUDA API and feature
    restrictions, OS or kernel prerequisites and separately managed components.
    Treat conflicting, missing or expired source evidence as unresolved.
-3. Approve the exact tuple, artifacts, change order, canary, recovery path and
-   named security and reliability checks. Separate application deployment
+3. Approve the exact tuple, artifacts, ordered change sequence, canary,
+   recovery path, and named functional, security and reliability checks.
+   Separate application deployment
    authority from compatibility approval. Exercise the actual gate with
    missing, stale and matching evidence, and retain the verdict and observed
    workload revision.
@@ -48,17 +68,19 @@ state confirm that the approved release reached a container.
    to the same tuple and change decision. A documentary source comparison and
    a successful in-cluster workload run supply distinct evidence.
 
-The Kubernetes fixture exercises the governance handoff using synthetic
-component identities and a CPU workload. The hardware evidence is tracked
-in SAF-K8S control validation separately.
+The Kubernetes fixture exercises the governance handoff using self-issued
+synthetic component identities and approval data, and a CPU workload. Its
+admission checks and marker/Ready observations prove only those fixture
+behaviors. It does not prove vendor compatibility, hardware, CUDA, GPU runtime,
+or serving behavior. Adopters must retain independent approval provenance and
+their real functional, security, reliability, and hardware evidence in SAF-K8S
+control validation.
 
 ## Official primary sources
 
 - [Kind v0.32.0 release](https://github.com/kubernetes-sigs/kind/releases/tag/v0.32.0) — identifies the default Kubernetes v1.36.1 node image and its digest.
 - [Kubernetes v1.36 API discovery documentation](https://v1-36.docs.kubernetes.io/docs/concepts/overview/kubernetes-api/) — documents `/api` and `/apis` discovery and the served group/version inventory.
 - [Kubernetes v1.36 Deployments](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/deployment/) — defines the Deployment workload API used by the mock inventory.
-- [Docker Official Python image digest record](https://hub.docker.com/layers/library/python/3.13-slim/images/sha256-a7cb177dc60dfa77b223192cd0d9e6ce1aac7cf9a569023d68e7c91b6371a718?tab=layers) — records the `python:3.13-slim` manifest digest used by the mock workload.
-
 - [Kubernetes v1.36 ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/) — ConfigMap parameters and fail-closed binding.
 - [Kubernetes v1.36 GPU scheduling](https://v1-36.docs.kubernetes.io/docs/tasks/manage-gpus/scheduling-gpus/) — vendor drivers, device plugins, and resource use.
 - [NVIDIA GPU Operator 25.10 platform support](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/25.10/platform-support.html) — example of a release-specific compatibility matrix.
