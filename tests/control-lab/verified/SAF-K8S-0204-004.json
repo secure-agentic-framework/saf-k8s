@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0204-004",
-  "catalog_revision": "6f981f934d25067830d532059398d0d4f266f411",
-  "catalog_sha256": "e1b005e71efe450175550cd4abc2b4bca289d084bb64583afffc8b90d63cb66a",
+  "catalog_revision": "657bc43ce52efe2d828e8639c337e585d69fb1b7",
+  "catalog_sha256": "1800d0d437803bd52be758900aa9e3361e1647299539dc3557ac7cd2d726f478",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "be914f5c7943133bb2cd697d069187a9fc55a7873dc543f4b22b4b604217a22f",
-  "scope": "A named fixture collector uses the Kubernetes API to copy an owned volatile file, verifies custody and observes workload continuity.",
-  "cluster": "saf-lab-3f754e8f656a",
+  "control_sha256": "359b9f85c5024e3c6efdd6db23f8b093533a0637b16c0ef060732f7f87d1adf9",
+  "scope": "Capture an owned volatile file and bounded process state, verify a signed custody handoff, and observe workload continuity.",
+  "cluster": "saf-lab-cae180c5d45e",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -57,10 +57,37 @@
     },
     {
       "phase": "positive",
-      "claim": "The evidence digest still matches and the workload instance remains running without a restart",
+      "claim": "The scoped collection records the owned workload's actual PID, name and UID",
+      "matched": true,
+      "observed": {
+        "limited_process_state_matches_fixture": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The target remains the same running container and returns the same owned marker",
       "matched": true,
       "observed": {
         "same_running_container_and_marker": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The separately authorized custodian reads and verifies the exact signed manifest and specimen bytes",
+      "matched": true,
+      "observed": {
+        "unassigned_custodian_denied": true,
+        "signed_handoff_verified": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The receiver rejects a modified manifest and both RBAC and API immutability preserve the stored fixture data",
+      "matched": true,
+      "observed": {
+        "modified_manifest_rejected": true,
+        "custodian_write_denied": true,
+        "stored_data_unchanged": true
       }
     }
   ]
