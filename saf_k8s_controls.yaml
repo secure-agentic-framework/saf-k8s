@@ -1975,7 +1975,7 @@
   rationale: Host and provider firewall controls govern different traffic paths. The selected interface, routing, address translation and CNI determine their reach and independence from workload policy. Confirm the effective enforcement point for each traffic class.
   scope: Applies to governed production node profiles. Assign ownership for operating-system, infrastructure and provider controls. Identify required control-plane, node and declared workload or Service paths, authorized exceptions and provider limitations.
   primary_enforcement_point: Effective host or infrastructure boundary rules on each approved node traffic path.
-  implementation_surface: Record approved rates and required traffic, effective hooks and additional policy planes. Exercise allowed and denied owned paths, attribute enforcement with counters or equivalent evidence, and confirm required health and rollback behavior.
+  implementation_surface: Record approved firewall rules and required traffic, effective hooks and additional policy planes. Exercise allowed and denied owned paths, attribute enforcement with counters or equivalent evidence, and confirm required health and rollback behavior.
   owner_primary: Network Engineering
   owner_supporting: Platform Engineering; Cloud Infrastructure; Security Engineering
   baseline_or_ai_specific: baseline
