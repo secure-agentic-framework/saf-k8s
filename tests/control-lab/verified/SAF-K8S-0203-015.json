@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0203-015",
-  "catalog_revision": "6c3da6c26e9c7d376c7ce44c7ce3c19b24bcacb0",
-  "catalog_sha256": "e52f44e87736aa764cfbff8a606c243fd4005a599e06b67feba3639994faa7d8",
+  "catalog_revision": "46a8fbc68451e25f12534cdec334d9641cb9d47a",
+  "catalog_sha256": "6c62a9ab38837b70dbe3d92571eb93f33722e18e15a26a688854bcfd3cadd6b4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "0c19a4fe3ded0583a7046745be7fe28e1761bd85e7fa84e134a0059d46292fa3",
-  "scope": "Real Kubernetes Services expose harmless marker routes. Retiring one Service backend leaves the approved route available.",
-  "cluster": "saf-lab-db74a3bb1d31",
+  "scope": "Observe Service retirement and restoration, and the kernel-enforced IPv4 response TTL across a routed owned marker path.",
+  "cluster": "saf-lab-3d236e995673",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -49,7 +49,7 @@
     },
     {
       "phase": "green",
-      "claim": "The restricted route loses its usable EndpointSlice addresses and refuses new connections",
+      "claim": "The retired Service loses ready EndpointSlice addresses and refuses new connections",
       "matched": true,
       "observed": {
         "retired_route_unavailable": true
@@ -57,10 +57,45 @@
     },
     {
       "phase": "positive",
-      "claim": "The separately approved route still reaches its known backend",
+      "claim": "The independent approved Service retains its backend and successful traffic",
       "matched": true,
       "observed": {
         "approved_route_available": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Restoring the scoped route makes the original Service reachable again",
+      "matched": true,
+      "observed": {
+        "retired_route_recovered": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The cross-node client receives the owned UDP marker with the normal response TTL",
+      "matched": true,
+      "observed": {
+        "distinct_nodes": true,
+        "normal_response_crosses_path": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The kernel-limited response is sent and received locally, but does not cross the routed path",
+      "matched": true,
+      "observed": {
+        "routed_response_lost": true,
+        "local_reply_retained": true,
+        "origin_confirmed_limited_response": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Restoring the normal response TTL recovers the routed marker without disturbing the approved Service",
+      "matched": true,
+      "observed": {
+        "routed_response_restored": true
       }
     }
   ]
