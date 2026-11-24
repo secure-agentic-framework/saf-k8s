@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0201-005",
-  "catalog_revision": "3f2c45b07cab1372d80dc649cce6a5d40f2000e2",
-  "catalog_sha256": "0decf495b5f1d40eeb3f160be10f54351993ceb48c799c63c547928aedf41319",
+  "catalog_revision": "2d1125ac54438215e18bf3fbefeaca41679381f9",
+  "catalog_sha256": "be3b7814f2810a26dcaa0f08c86b42a1f17331b77218f42795160372c0ab8525",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d9a64ab86b1056dd558975dead43d1fb854182358bba2d9916ef0b69fc643f2b",
-  "scope": "Versioned review of kubelet naming and credential binding, plus read-only observations of a case-owned kind v1.36.1 cluster's Node name, OS hostname, actual kubelet flags and configured Node authorization and NodeRestriction. Synthetic cases cover naming governance and documented enrollment requirements. Live credential binding and real provider naming or enrollment evidence remain separate.",
-  "cluster": "saf-lab-07a5b0350ea2",
+  "scope": "Synthetic authorization and provisioning policy checks plus a fresh Kind v1.36.1 control plane and affirmative kubeadm worker enrollment under a unique approved DNS node name. Read-only observations cover Node/OS hostname/effective flags, Node Lease UID and renewal, public kubelet client-certificate identity, signed native CSR metadata, and declared Node authorizer/NodeRestriction configuration. The guide covers adoption-specific provisioning and provider checks.",
+  "cluster": "saf-lab-08394088bac3",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -74,25 +74,57 @@
     },
     {
       "phase": "positive",
-      "claim": "The registered Node matches the case hostname and has no override",
+      "claim": "Approved worker registers under its unique name with the exact effective override",
       "matched": true,
       "observed": {
-        "node_hostname_matches": true,
-        "explicit_overrides": 0
+        "approved_name_matches_node": true,
+        "exact_override": true,
+        "container_hostname_is_distinct": true
       }
     },
     {
       "phase": "positive",
-      "claim": "The API server is configured for Node authorization and NodeRestriction",
+      "claim": "Baseline control plane keeps its container hostname and no explicit override",
       "matched": true,
       "observed": {
-        "authorization-mode": [
-          "Node",
-          "RBAC"
-        ],
-        "enable-admission-plugins": [
-          "NodeRestriction"
-        ]
+        "baseline_name_matches_hostname": true,
+        "no_explicit_override": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The enrolled worker renews its own Lease bound to the Node UID",
+      "matched": true,
+      "observed": {
+        "lease_renewed": true,
+        "lease_owner_matches_node_uid": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The active kubelet client certificate carries the approved node name and group",
+      "matched": true,
+      "observed": {
+        "subject_and_group_match": true,
+        "public_fingerprint_present": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Node authorization and NodeRestriction are declared by the API server",
+      "matched": true,
+      "observed": {
+        "node_authorizer_enabled": true,
+        "node_restriction_enabled": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The signed and approved bootstrap CSR issued the active client certificate",
+      "matched": true,
+      "observed": {
+        "approved_native_bootstrap_csr": true,
+        "issued_matches_active_certificate": true
       }
     }
   ]
