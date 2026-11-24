@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 from hashlib import sha256
 import json
 from pathlib import Path
+import runpy
 import time
 import uuid
 
@@ -238,3 +239,9 @@ def run(lab, approver, exact):
         "missing_record_native_denial": missing_result.stderr.strip(),
         "expired_record_native_denial": after_result.stderr.strip(),
     }, indent=2) + "\n")
+
+    # Run after the published expiry check so its unchanged-record assertion stays
+    # attached to the original record. The lifecycle reuses the same CRD, workload,
+    # and running Kyverno consumer, then makes a distinct close decision.
+    lifecycle = runpy.run_path(str(HERE / "lifecycle.py"))
+    lifecycle["run"](lab, approver, exact, workload)

@@ -35,3 +35,11 @@ coverage require separate evidence. The case requires Helm and the reviewed Kyve
 
 - [Kyverno installation and chart versions](https://kyverno.io/docs/installation/installation/)
 - [Kyverno CEL resource and time libraries](https://kyverno.io/docs/policy-types/cel-libraries/)
+
+A second synthetic approval exercises the no-renewal path. Separate identities
+approve, review, and close the scoped exception. Kubernetes retains an immutable
+review decision and ties the closure operation to the exact exception UID. The
+same harmless admission request succeeds before closure and is refused after it.
+The local fixture exercises a review decision and its effect. Deployment
+scheduling, approved role assignments, and retained operating records require
+evidence from the deployment under review.

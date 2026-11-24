@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1006-010",
-  "catalog_revision": "9672d1ef113c4d79b983b4e31cd24cd611d32be9",
+  "catalog_revision": "c37fd72e2efa47f56387146e602a0bdf5c860a12",
   "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "74f21e8e1240e6edb5f6f7cd1a02dd7a22f02c984b6c1a5e713ce16410801fa7",
   "scope": "Kubernetes v1.36.1. A namespaced exception record is tested before and after governance, using an authenticated scoped fixture approver and an observer without record write permission. The case checks exact scope, attributable approval, metadata, and a protected admission cutoff. Kyverno independently consumes the same scoped record before and after its automatic expiry.",
-  "cluster": "saf-lab-e55b524188c2",
+  "cluster": "saf-lab-7bfe3bf61a16",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -192,6 +192,139 @@
       "observed": {
         "consumer_expired_denial": true,
         "record_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The lifecycle reviewer and closure operator are separately authenticated",
+      "matched": true,
+      "observed": {
+        "fixture-exception-renewal-reviewer": true,
+        "fixture-exception-closure-operator": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The exception approver cannot author the renewal decision",
+      "matched": true,
+      "observed": {
+        "approver_decision_forbidden": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approver creates the exact, bounded exception for the real consumer",
+      "matched": true,
+      "observed": {
+        "record_exact": true,
+        "maximum_seconds": 180
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Kyverno admits the harmless dry-run while the renewed approval is active",
+      "matched": true,
+      "observed": {
+        "consumer_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The renewal reviewer cannot create or approve PolicyException records",
+      "matched": true,
+      "observed": {
+        "reviewer_exception_write_forbidden": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The reviewer cannot execute closure of the approved exception",
+      "matched": true,
+      "observed": {
+        "reviewer_delete_forbidden": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission refuses a decision record with a different object name",
+      "matched": true,
+      "observed": {
+        "broad_decision_refused": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission refuses a renewal decision for any other workload scope",
+      "matched": true,
+      "observed": {
+        "wrong_scope_decision_refused": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The authorized closer needs a retained decision for the exact exception",
+      "matched": true,
+      "observed": {
+        "missing_closure_decision_refused": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The authenticated reviewer records an immutable, exact-scope no-renewal decision",
+      "matched": true,
+      "observed": {
+        "decision_admitted": true,
+        "decision_policy": "saf-lab-1006-010-lifecycle-decision"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The API retains reviewer identity, target UID, exact scope, bounded expiry and decision time",
+      "matched": true,
+      "observed": {
+        "retained_fields_match": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The retained decision evidence cannot be edited after creation",
+      "matched": true,
+      "observed": {
+        "decision_immutable": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The closure operator cannot author or replace the renewal decision",
+      "matched": true,
+      "observed": {
+        "closer_decision_forbidden": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The separate closure operator deletes only the named approved exception",
+      "matched": true,
+      "observed": {
+        "closure_executed": true,
+        "authorized_resource_name": "exact-approved",
+        "operator_identity": "system:serviceaccount:saf-test:fixture-exception-closure-operator"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Kyverno denies the same harmless request immediately after recorded closure",
+      "matched": true,
+      "observed": {
+        "consumer_denied_after_closure": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The no-renewal decision remains retrievable after closure and consumer denial",
+      "matched": true,
+      "observed": {
+        "decision_retained_after_close": true
       }
     }
   ]
