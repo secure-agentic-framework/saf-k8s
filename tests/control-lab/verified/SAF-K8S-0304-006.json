@@ -4,8 +4,8 @@
   "catalog_sha256": "3d20eb828ba605fb41eb18c432be9730d7a48eff25b4efc3b8066588b4b464fa",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "debbad8ecdaff9e4d6b4438fe2052546351e8b274660d6310784fd025af06fb6",
-  "scope": "Server-side dry-run admission of one synthetic hostPath Pod under an unlabeled namespace and the same namespace enforcing Kubernetes v1.36 Pod Security Admission Baseline, plus a permitted emptyDir Pod dry-run. No Pod is persisted or run. No host path is created, mounted, or read. Does not test production-wide namespace coverage, admission configuration, a real infrastructure exception, policy-engine deployment, exception-register governance, or audit delivery. The supplemental case-owned ValidatingAdmissionPolicy checks one synthetic approval record and request shape; it does not establish production exception outcomes. PSA audit labels are set, but API audit events are not collected or checked.",
-  "cluster": "saf-lab-a5be59e66afb",
+  "scope": "Default hostPath denial using pinned Baseline PSA, plus a scoped allowance for one read-only case-owned marker on a disposable Kind node. Negative Pod requests are server dry-runs. The case reconciles its exact approval with a deterministic clock and verifies native Metadata audit.",
+  "cluster": "saf-lab-33e7216b48e8",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -64,6 +64,14 @@
     },
     {
       "phase": "positive",
+      "claim": "The timestamped case approval remains active at the explicit pre-expiry fixture clock",
+      "matched": true,
+      "observed": {
+        "active_at_fixture_clock": true
+      }
+    },
+    {
+      "phase": "positive",
       "claim": "Case-approved identity and exact read-only hostPath request are admitted by server dry-run",
       "matched": true,
       "observed": {
@@ -113,11 +121,39 @@
     },
     {
       "phase": "positive",
-      "claim": "All admission probes leave no Pods in either fixture namespace",
+      "claim": "The approved unprivileged Pod reads only its case-owned marker on a read-only mount",
+      "matched": true,
+      "observed": {
+        "approved_request_persisted": true,
+        "exact_marker_and_mount_mode": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same exact request is denied after controlled-clock expiry revokes its owned approval",
+      "matched": true,
+      "observed": {
+        "owned_approval_revoked": true,
+        "native_parameter_missing_denial": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "No Pod remains after removing the sole approved runtime sample",
       "matched": true,
       "observed": {
         "policy_namespace_pods": 0,
         "exception_namespace_pods": 0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native Metadata audit matches the case-owned permitted and denied host-volume decisions",
+      "matched": true,
+      "observed": {
+        "matched_metadata_events": true,
+        "observed_count": 8,
+        "expected_count": 8
       }
     }
   ]
