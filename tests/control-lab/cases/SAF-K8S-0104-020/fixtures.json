@@ -37,5 +37,26 @@
     }
   },
   "snapshot_date": "2026-09-15",
-  "source": "https://kubernetes.io/releases/patch-releases/"
+  "source": "https://kubernetes.io/releases/patch-releases/",
+  "synthetic_provider": {
+    "verified_on": "2026-11-11",
+    "freshness_days": 7,
+    "roles": {
+      "control_plane": {
+        "v1.35.8-fixture.2": {
+          "start": "2026-01-01",
+          "standard_end": "2026-11-14",
+          "final_end": "2026-12-01"
+        }
+      },
+      "worker": {
+        "v1.35.8-fixture.6": {
+          "start": "2026-01-06",
+          "standard_end": "2026-11-14",
+          "final_end": "2026-11-17"
+        }
+      }
+    },
+    "source_id": "fixture-lifecycle-cal-2026-11-11"
+  }
 }

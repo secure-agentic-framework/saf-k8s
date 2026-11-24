@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0104-020",
-  "catalog_revision": "4961d5515b66462382e5403c5640c1965b451eef",
-  "catalog_sha256": "4c894c901242afc4d2a25f8ebaa77085e3c1a94a50cc1ede5866d5381e4bb0cd",
+  "catalog_revision": "7fdcbfde8cbd6675248109e80e381d6e155c1416",
+  "catalog_sha256": "b13085fffcc414b504ce34f1a8df0fae3520e701b0adca01e92c2c2add5002cb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e514fe73345d5f3e6169a69c34ac3d502a918fd9857a6703cb4dd107caa51815",
-  "scope": "Kubernetes upstream patch-series support from the 2026-09-15 published snapshot. The case checks support boundaries and evaluates live server and kubelet versions. Provider schedules, present-day patch posture and completed upgrades require separate evidence.",
-  "cluster": "saf-lab-24d7c6e1290d",
+  "scope": "Kubernetes upstream patch-series support from the 2026-09-15 published snapshot. The case checks support boundaries and evaluates live server and kubelet versions. A synthetic provider schedule exercises separate API server and worker support windows, extended entitlement, stale data, and conservative handling of unlisted builds.",
+  "cluster": "saf-lab-43a89ad8ffc5",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -126,13 +126,52 @@
       "observed": {
         "reference_date": "2026-09-15",
         "api_server": "v1.36.1",
-        "kubelets": [
-          "v1.36.1"
-        ],
+        "kubelets_by_role": {
+          "control_plane": "v1.36.1",
+          "worker": "v1.36.1"
+        },
         "statuses": [
+          "supported",
           "supported",
           "supported"
         ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A still-supported control plane cannot mask an out-of-window managed worker",
+      "matched": true,
+      "observed": {
+        "control_plane": "extended",
+        "worker": "outside_window"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Extended support is separate by component and its end date is exclusive",
+      "matched": true,
+      "observed": {
+        "entitled_worker": "extended",
+        "worker_on_end_date": "outside_window"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Unknown provider builds and stale schedules cannot fall back to upstream support",
+      "matched": true,
+      "observed": {
+        "unknown_provider_build": "unverified",
+        "stale_provider_schedule": "unverified",
+        "hypothetical_unqualified_upstream_lookup": "supported"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Incomplete schedules and invalid lifecycle dates remain unverified",
+      "matched": true,
+      "observed": {
+        "missing_verified_at": "unverified",
+        "inverted_dates": "unverified"
       }
     }
   ]
