@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-The risk management system shall be understood as a continuous iterative process planned and run throughout the entire lifecycle of a high-risk AI system, requiring regular systematic review and updating. It shall comprise the following steps:
-
-SAF-K8S controls support lifecycle risk management through continuous monitoring (D10), periodic security assessment (D1 KA 1.4), and posture management (SAF-K8S-1007-004). The organizational process for systematic review is out of scope.
+Comparable Kubernetes benchmark trends can inform periodic infrastructure-risk review where the assessed clusters and settings are within the high-risk AI system boundary. Record the identified risk, the link to the system's lifecycle review and the resulting decision.
 
 ## SAF-K8S Controls
 
@@ -15,10 +13,10 @@ SAF-K8S controls support lifecycle risk management through continuous monitoring
 
 - Domain: D01 - Control Plane and Cluster Hardening
 - Knowledge Area: 1.4
-- Relation Type: partial
+- Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAF-K8S-1002-003.md)
 

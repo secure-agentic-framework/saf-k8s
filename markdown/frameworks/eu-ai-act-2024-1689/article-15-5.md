@@ -5,20 +5,9 @@
 
 ## Mapping Notes
 
-High-risk AI systems shall be resilient against attempts by unauthorised third parties to alter their use, outputs or performance by exploiting system vulnerabilities. The technical solutions aiming to ensure the cybersecurity of high-risk AI systems shall be appropriate to the relevant circumstances and the risks. The technical solutions to address AI specific vulnerabilities shall include, where appropriate, measures to prevent, detect, respond to, resolve and control for attacks trying to manipulate the training data set (data poisoning), or pre-trained components used in training (model poisoning), inputs designed to cause the AI model to make a mistake (adversarial examples or model evasion), confidentiality attacks or model flaws.
-
-Risk-appropriate cybersecurity is the fundamental SAF-K8S design principle. Controls are tiered by maturity level and archetype to match circumstances and risk profiles.
+Verified runtime signal coverage supports the monitoring portion of defined cybersecurity measures.
 
 ## SAF-K8S Controls
-
-### [SAF-K8S-0104-015 - CIS Benchmark result retention and posture trend reporting](../../controls/SAF-K8S-0104-015.md)
-
-- Domain: D01 - Control Plane and Cluster Hardening
-- Knowledge Area: 1.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
 
 ### [SAF-K8S-0204-001 - Runtime security tool deployment for syscall and network monitoring](../../controls/SAF-K8S-0204-001.md)
 
