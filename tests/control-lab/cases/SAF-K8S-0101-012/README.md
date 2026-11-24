@@ -68,3 +68,15 @@ production configuration is inferred from these local profiles.
 The lab run verified the version and cipher comparisons, CA trust, and cleanup
 on Kubernetes 1.36.1 using Python 3.14 with OpenSSL 3.6.4. Use a Python interpreter
 with TLS 1.3 support to reproduce the run.
+
+The backend extension uses the same owned Kind cluster for the normal API server
+proxy-to-kubelet health request and a named ConfigMap read through etcd. It
+compares each route with the intended CA, an unrelated fixture CA, and the
+restored CA. The etcd case requires a native certificate error from the
+replacement API server, an unavailable ConfigMap read, and a healthy etcd
+endpoint. Separate endpoint probes record an authenticated TLS negotiation.
+The generated private keys remain inside the temporary fixture directory and
+owned cluster. The case demonstrates the tested self-managed configurations.
+
+- [Kubernetes v1.36 control-plane communication](https://v1-36.docs.kubernetes.io/docs/concepts/architecture/control-plane-node-communication/)
+- [Kubernetes v1.36 API server flags](https://v1-36.docs.kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/)

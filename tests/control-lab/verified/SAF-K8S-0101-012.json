@@ -1,31 +1,27 @@
 {
   "control_id": "SAF-K8S-0101-012",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "9672d1ef113c4d79b983b4e31cd24cd611d32be9",
+  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "3e5adeb40e9baa500ce92aae2cf579de9dfd513c5e12007b145ab9decce894ec",
-  "scope": "TLS handshake policy and client certificate-chain validation for case-owned kind kube-apiserver client-facing loopback endpoints. A default Kubernetes profile is compared with a TLS 1.3 minimum-version profile; a separate TLS 1.2 reference profile evaluates a configured cipher allow-list. No application request or non-loopback host is contacted. Outbound kube-apiserver connections, service-specific TLS paths, and managed-provider controls are outside this case.",
-  "cluster": "saf-lab-c16434752574",
+  "scope": "TLS handshake policy and client certificate-chain validation for case-owned kind kube-apiserver client-facing loopback endpoints. A default Kubernetes profile is compared with a TLS 1.3 minimum-version profile; a separate TLS 1.2 reference profile evaluates a configured cipher allow-list. No application request or non-loopback host is contacted. Outbound kube-apiserver connections, service-specific TLS paths, and managed-provider controls are outside this case. The owned default cluster also verifies the API server kubelet and etcd trust routes and restoration.",
+  "cluster": "saf-lab-7acb818e74d7",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
-      "minor": "36",
-      "gitVersion": "v1.36.1",
-      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "minor": "32",
+      "gitVersion": "v1.32.3",
+      "gitCommit": "32cc146f75aad04beaaa245a7157eb35063a9f99",
       "gitTreeState": "clean",
-      "buildDate": "2026-05-12T09:54:35Z",
-      "goVersion": "go1.26.2",
+      "buildDate": "2025-03-11T19:52:20Z",
+      "goVersion": "go1.24.1",
       "compiler": "gc",
       "platform": "darwin/arm64"
     },
-    "kustomizeVersion": "v5.8.1",
+    "kustomizeVersion": "v5.5.0",
     "serverVersion": {
       "major": "1",
       "minor": "36",
-      "emulationMajor": "1",
-      "emulationMinor": "36",
-      "minCompatibilityMajor": "1",
-      "minCompatibilityMinor": "35",
       "gitVersion": "v1.36.1",
       "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
       "gitTreeState": "clean",
@@ -107,6 +103,57 @@
         "ok": false,
         "reason": "CERTIFICATE_VERIFY_FAILED",
         "error": "[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1082)"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The API server reaches the named kubelet health endpoint with its intended CA",
+      "matched": true,
+      "observed": {
+        "trusted_proxy_operation": true,
+        "verified_endpoint": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The same API server proxy operation returns native X.509 refusal with an unrelated CA",
+      "matched": true,
+      "observed": {
+        "native_route_certificate_refusal": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Restoring the selected kubelet CA restores the identical operation",
+      "matched": true,
+      "observed": {
+        "proxy_route_recovered": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The API server reads the exact ConfigMap with a live authenticated etcd backend",
+      "matched": true,
+      "observed": {
+        "initial_marker_read": true,
+        "verified_endpoint": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The API server rejects the healthy etcd endpoint with wrong CA and the same storage read fails",
+      "matched": true,
+      "observed": {
+        "native_etcd_certificate_refusal": true,
+        "owned_etcd_stays_healthy": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Restoring the etcd CA restores the identical storage read",
+      "matched": true,
+      "observed": {
+        "storage_read_recovered": true
       }
     }
   ]

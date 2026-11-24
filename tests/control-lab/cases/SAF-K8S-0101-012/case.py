@@ -2,6 +2,7 @@
 import base64
 from contextlib import contextmanager
 import ipaddress
+import runpy
 import socket
 import ssl
 import subprocess
@@ -251,3 +252,8 @@ def run(lab):
         and trust_result.get("reason") == "CERTIFICATE_VERIFY_FAILED",
         {"oracle": "client-side certificate validation only", **trust_result},
     )
+
+    backend = runpy.run_path(str(Path(__file__).with_name("backend_tls.py")))
+    backend["run"](lab)
+
+SCOPE += " The owned default cluster also verifies the API server kubelet and etcd trust routes and restoration."
