@@ -2946,6 +2946,12 @@
       "sha256": "8f9599a94337887cfc4ce505b730692c4c58c2dbf5344dde1a22aa9c2cdf102a",
       "title": "Compromised-cluster federation isolation and re-admission governance"
     },
+    "SAF-K8S-0910-020": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "2ed63a77ddb82c7ee4558fba69c65fa60225ebddf0dcc4d76605256ffc737692",
+      "title": "Cross-cluster transport encryption for distributed AI traffic"
+    },
     "SAF-K8S-0910-029": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3428,7 +3434,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "f9bb7f1099921df58fda8d9c4986095a5fc6b20e",
-  "sha256": "2c64b528d6ce53bc55f7f00c9edd1c6ef7a62b9317cf385dfac62bb74ef83090",
+  "revision": "fbe879b428656cacba5d60f12f2568293fba0d4f",
+  "sha256": "f5e38f1b8ea0753526f21f90e832d8ea6a37225d2c24a8a1cb459b948e330115",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
