@@ -2952,6 +2952,12 @@
       "sha256": "2ed63a77ddb82c7ee4558fba69c65fa60225ebddf0dcc4d76605256ffc737692",
       "title": "Cross-cluster transport encryption for distributed AI traffic"
     },
+    "SAF-K8S-0910-021": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "de8b2ce95d33be5050fb4c7c7e01ef755c3546019b12868f16bda59424b19f28",
+      "title": "Cross-cluster endpoint and workload authentication for AI communication"
+    },
     "SAF-K8S-0910-029": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3434,7 +3440,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "fbe879b428656cacba5d60f12f2568293fba0d4f",
-  "sha256": "f5e38f1b8ea0753526f21f90e832d8ea6a37225d2c24a8a1cb459b948e330115",
+  "revision": "17edb09fb28012f5bd22e85b5707301e6b3530e7",
+  "sha256": "2994c2d1961555edc3d817148614cd266c503e0ed900f08ea814bf0b4118ebb7",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
