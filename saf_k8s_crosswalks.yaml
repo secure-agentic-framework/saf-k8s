@@ -29714,15 +29714,14 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-3
   framework_requirement_title: Device Identification and Authentication
-  framework_mapping_notes: 'Agent/device identity authentication (non-human identity)
-
-
-    2.1 - Kubelet TLS bootstrapping (node device identification); 8.4 - Remote attestation for TEE devices'
+  framework_mapping_notes: Use only where applicable governed devices, as distinct from service instances, are actually
+    identified and authenticated.
   control_id: SAF-K8S-0910-021
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Use only where applicable governed devices, as distinct from service instances, are actually
+    identified and authenticated
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -31818,15 +31817,14 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-9
   framework_requirement_title: Service Identification and Authentication
-  framework_mapping_notes: 'Core -- agent service-to-service authentication
-
-
-    5.4 - SPIFFE/SPIRE workload identity (service-to-service identification and authentication); 4.4 - mTLS'
+  framework_mapping_notes: The deployed accepting and initiating services verify the defined identities in their applicable
+    trust domains.
   control_id: SAF-K8S-0910-021
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The deployed accepting and initiating services verify the defined identities in their applicable
+    trust domains
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -41855,15 +41853,14 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-8(18)
   framework_requirement_title: Trusted Communications Channels
-  framework_mapping_notes: 'Trusted channels between agents and tools prevent tampering and interception
-
-
-    5.4 - mTLS (trusted communication channels); 9.1 - Encrypted gradient communication (NCCL, MPI)'
+  framework_mapping_notes: The deployed communication path establishes the approved endpoint trust and required channel
+    protections.
   control_id: SAF-K8S-0910-021
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The deployed communication path establishes the approved endpoint trust and required channel
+    protections
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5

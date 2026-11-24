@@ -61,6 +61,6 @@ Agent/device identity authentication (non-human identity)
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.10
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
+- Strength: moderate
+- Applicability: conditional
 - Strength Reason Code: n/a
