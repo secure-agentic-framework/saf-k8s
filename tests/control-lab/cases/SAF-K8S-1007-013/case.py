@@ -7,6 +7,8 @@ import subprocess
 import time
 from urllib.parse import urlencode
 
+from fixtures import BUSYBOX_IMAGE
+
 
 HERE = Path(__file__).resolve().parent
 NAMESPACE = "saf-1007-013-owned"
@@ -20,10 +22,10 @@ SCOPE = (
     "model, dataset, pipeline, inference endpoint and GPU allocation metadata. Uses the service-account "
     "identity for an actual Kubernetes LIST and persistent WATCH, "
     "observes create/update/delete events, filters records by a synthetic ownership label, and confirms "
-    "the identity is denied access to a separate namespace. No feeds, targets, credentials, or real "
-    "model/data content are read. This does not prove discovery of arbitrary custom resources, PVC/object "
-    "storage contents, GPU device-plugin state, registry metadata, asset completeness, production freshness "
-    "SLAs, alert delivery, ownership correctness, or production inventory coverage."
+    "the identity is denied access to a separate namespace. The same reader relists real "
+    "Service, Job and PVC resources, repairs a stale snapshot after a disconnected change, "
+    "and cannot publish inventory itself. PVC contents, external registries and actual "
+    "accelerator ownership are adopter evidence."
 )
 
 
@@ -119,6 +121,115 @@ def wait_for_event(process, state, expected_type, expected_name):
     raise TimeoutError(f"missing {expected_type} watch event for {expected_name}")
 
 
+def _typed_inventory(lab):
+    selector = urlencode({"labelSelector": SELECTOR})
+    scopes = {
+        "services": f"/api/v1/namespaces/{NAMESPACE}/services",
+        "persistentvolumeclaims": f"/api/v1/namespaces/{NAMESPACE}/persistentvolumeclaims",
+        "jobs": f"/apis/batch/v1/namespaces/{NAMESPACE}/jobs",
+    }
+    views = {}
+    for kind, path in scopes.items():
+        document = json.loads(lab.kubectl("--as", IDENTITY, "get", "--raw", f"{path}?{selector}").stdout)
+        api_version = document["apiVersion"]
+        expected_version = "batch/v1" if kind == "jobs" else "v1"
+        if api_version != expected_version:
+            lab.block("The typed inventory returned an unexpected list API version")
+        views[kind] = {
+            "list_resource_version": document["metadata"]["resourceVersion"],
+            "assets": {
+                row["metadata"]["name"]: {
+                    "uid": row["metadata"]["uid"], "api_version": api_version,
+                    "resource_version": row["metadata"]["resourceVersion"],
+                    "definition": row["spec"],
+                } for row in document["items"]
+            },
+        }
+    return views
+
+
+def _create_owned(lab, item):
+    result = lab.kubectl("-n", NAMESPACE, "create", "-f", "-", "-o", "json", payload=json.dumps(item))
+    return json.loads(result.stdout)
+
+
+def verify_typed_resync(lab):
+    labels = dict([SELECTOR.split("=", 1)])
+    service = resource("Service", "owned-inference-address", NAMESPACE,
+                       spec={"ports": [{"port": 8080, "targetPort": 8080}]})
+    claim = resource("PersistentVolumeClaim", "owned-dataset-reference", NAMESPACE,
+                     spec={"storageClassName": "", "accessModes": ["ReadWriteOnce"],
+                           "resources": {"requests": {"storage": "1Mi"}}})
+    pipeline = resource("Job", "owned-pipeline-run", NAMESPACE,
+                        spec={"suspend": True, "template": {"spec": {
+                            "restartPolicy": "Never", "automountServiceAccountToken": False,
+                            "containers": [{"name": "fixture", "image": BUSYBOX_IMAGE, "command": ["true"]}],
+                        }}})
+    pipeline["apiVersion"] = "batch/v1"
+    for item in (service, claim, pipeline):
+        item["metadata"]["labels"] = dict(labels)
+    actuals = tuple(_create_owned(lab, item) for item in (service, claim, pipeline))
+    old = _typed_inventory(lab)
+    by_kind = tuple(old[kind]["assets"] for kind in ("services", "persistentvolumeclaims", "jobs"))
+    exact = all(
+        observed.get(obj["metadata"]["name"], {}).get("uid") == obj["metadata"]["uid"]
+        for obj, observed in zip(actuals, by_kind)
+    )
+    lab.check("positive", "Read-only discovery links the actual Service, PVC and Job identities",
+              exact, {"all_three_owned_typed_resource_uids_observed": exact})
+
+    name = "typed-asset-inventory"
+    snapshot = resource("ConfigMap", name, NAMESPACE, data={"inventory.json": json.dumps(old, sort_keys=True)})
+    denied = lab.kubectl("--as", IDENTITY, "-n", NAMESPACE, "create", "-f", "-",
+                          "--dry-run=server", payload=json.dumps(snapshot), allow_failure=True)
+    read_only = denied.returncode != 0 and "cannot create resource" in denied.stderr.lower()
+    lab.check("red", "The inventory reader cannot create its publication record",
+              read_only, {"reader_denied_publication": read_only})
+    record = _create_owned(lab, snapshot)
+    stale = json.loads(record["data"]["inventory.json"])
+
+    change_started = time.monotonic()
+    pipeline_name = pipeline["metadata"]["name"]
+    service_name = service["metadata"]["name"]
+    lab.kubectl("-n", NAMESPACE, "delete", "job", pipeline_name, "--wait=true")
+    pipeline["metadata"]["name"] = "owned-pipeline-replacement"
+    replacement = _create_owned(lab, pipeline)
+    lab.kubectl("-n", NAMESPACE, "patch", "service", service_name, "--type=json", "-p",
+                '[{"op":"replace","path":"/spec/ports/0/port","value":9090}]')
+    updated = _typed_inventory(lab)
+    lab.kubectl("-n", NAMESPACE, "patch", "configmap", name, "--type=merge", "-p",
+                json.dumps({"data": {"inventory.json": json.dumps(updated, sort_keys=True)}}))
+    persisted = json.loads(lab.kubectl("-n", NAMESPACE, "get", "configmap", name, "-o", "json").stdout)
+    current = json.loads(persisted["data"]["inventory.json"])
+    elapsed = time.monotonic() - change_started
+    observed = {
+        "published_within_fixture_freshness_budget": elapsed < 60,
+        "stale_snapshot_contained_pre_change_entities": stale == old
+        and service_name in old["services"]["assets"] and pipeline_name in old["jobs"]["assets"],
+        "modified_service_retains_identity_with_current_port": (
+            current["services"]["assets"][service_name]["uid"] == actuals[0]["metadata"]["uid"]
+            and current["services"]["assets"][service_name]["definition"]["ports"][0]["port"] == 9090
+        ),
+        "missing_job_removed_and_replacement_added": pipeline_name not in current["jobs"]["assets"]
+        and current["jobs"]["assets"]["owned-pipeline-replacement"]["uid"] == replacement["metadata"]["uid"]
+        and replacement["metadata"]["uid"] != actuals[2]["metadata"]["uid"],
+        "existing_pvc_retained_and_snapshot_reconciled": current == updated
+        and all(
+            current["persistentvolumeclaims"]["assets"][claim["metadata"]["name"]][field]
+            == old["persistentvolumeclaims"]["assets"][claim["metadata"]["name"]][field]
+            for field in ("uid", "definition")
+        )
+        and persisted["metadata"]["uid"] == record["metadata"]["uid"],
+        "fresh_source_versions_recorded": all(item["list_resource_version"] for item in current.values()),
+    }
+    save_raw(lab, "typed-inventory-resync.raw.json", {
+        "before": old, "reconciled": current, "observed": observed,
+        "fixture_elapsed_seconds": round(elapsed, 3), "fixture_budget_seconds": 60,
+    })
+    lab.check("green", "A fresh API relist repairs the durable inventory after disconnected changes",
+              all(observed.values()), observed)
+
+
 def run(lab):
     fixture = read_fixture()
     lab.kubectl("create", "namespace", NAMESPACE)
@@ -129,7 +240,11 @@ def run(lab):
     role = {
         "apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role",
         "metadata": {"name": "asset-inventory-reader", "namespace": NAMESPACE},
-        "rules": [{"apiGroups": [""], "resources": ["configmaps"], "verbs": ["list", "watch"]}],
+        "rules": [
+            {"apiGroups": [""], "resources": ["configmaps", "services", "persistentvolumeclaims"],
+             "verbs": ["list", "watch"]},
+            {"apiGroups": ["batch"], "resources": ["jobs"], "verbs": ["list", "watch"]},
+        ],
     }
     binding = {
         "apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding",
@@ -231,3 +346,4 @@ def run(lab):
               {"event_types": transitions, "observed_revisions": event_revisions,
                "deleted_asset_absent_from_final_list": event_name not in final_names,
                "event_objects_are_synthetic_fixture_metadata": True})
+    verify_typed_resync(lab)

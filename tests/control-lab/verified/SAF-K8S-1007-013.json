@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-1007-013",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "5f08d518ccfb6361382be2b0c3a5c76ebdf4b704",
+  "catalog_sha256": "b13085fffcc414b504ce34f1a8df0fae3520e701b0adca01e92c2c2add5002cb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "562f1209a46b1d9d61f5407b9bf659d9da4e4d3232060e52133c316f477aa57a",
-  "scope": "Disposable Kind v1.36.1 cluster. Creates a case-owned namespace, a read-only service account Role/RoleBinding for ConfigMap list/watch in that namespace, synthetic ConfigMap records for model, dataset, pipeline, inference endpoint and GPU allocation metadata. Uses the service-account identity for an actual Kubernetes LIST and persistent WATCH, observes create/update/delete events, filters records by a synthetic ownership label, and confirms the identity is denied access to a separate namespace. No feeds, targets, credentials, or real model/data content are read. This does not prove discovery of arbitrary custom resources, PVC/object storage contents, GPU device-plugin state, registry metadata, asset completeness, production freshness SLAs, alert delivery, ownership correctness, or production inventory coverage.",
-  "review_timing": {
-    "queued_at": "2026-11-22T19:15:41.213422+00:00",
-    "cluster_ready_at": "2026-11-22T19:16:17.361138+00:00",
-    "approval_at": "2026-11-22T19:16:10.247773+00:00",
-    "case_loaded_at": "2026-11-22T19:16:17.366324+00:00"
-  },
-  "cluster": "saf-lab-36ebf7910fa2",
+  "control_sha256": "9d15cbb9225090df7e20269208d587cbbfca1bf1b61c763224e004efb43e2272",
+  "scope": "Disposable Kind v1.36.1 cluster. Creates a case-owned namespace, a read-only service account Role/RoleBinding for ConfigMap list/watch in that namespace, synthetic ConfigMap records for model, dataset, pipeline, inference endpoint and GPU allocation metadata. Uses the service-account identity for an actual Kubernetes LIST and persistent WATCH, observes create/update/delete events, filters records by a synthetic ownership label, and confirms the identity is denied access to a separate namespace. The same reader relists real Service, Job and PVC resources, repairs a stale snapshot after a disconnected change, and cannot publish inventory itself. PVC contents, external registries and actual accelerator ownership are adopter evidence.",
+  "cluster": "saf-lab-95ccf1150bc0",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "fcdcde900ac8757a019c72449e0f126ee029b6abaa1e2e662fd22fd1a54515ba",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
@@ -95,6 +88,35 @@
         ],
         "deleted_asset_absent_from_final_list": true,
         "event_objects_are_synthetic_fixture_metadata": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Read-only discovery links the actual Service, PVC and Job identities",
+      "matched": true,
+      "observed": {
+        "all_three_owned_typed_resource_uids_observed": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The inventory reader cannot create its publication record",
+      "matched": true,
+      "observed": {
+        "reader_denied_publication": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A fresh API relist repairs the durable inventory after disconnected changes",
+      "matched": true,
+      "observed": {
+        "published_within_fixture_freshness_budget": true,
+        "stale_snapshot_contained_pre_change_entities": true,
+        "modified_service_retains_identity_with_current_port": true,
+        "missing_job_removed_and_replacement_added": true,
+        "existing_pvc_retained_and_snapshot_reconciled": true,
+        "fresh_source_versions_recorded": true
       }
     }
   ]

@@ -16,11 +16,44 @@ The runner stores command output in its per-run evidence directory. This case al
 
 The control requires automated, continuously updated visibility over models, datasets, ML pipelines, inference endpoints, and GPU allocations, but it does not specify the ownership marker, authoritative source for each asset class, acceptable discovery delay, completeness criteria, identity boundary, or the evidence needed to prove that the inventory is current. This case operationalizes one narrow, explicit contract: synthetic metadata is owned when it carries the fixture label; a namespaced reader can list and watch those records; changes are observable; and a separate namespace is denied.
 
-## Coverage and limits
+## Typed sources and inventory reconciliation
 
-Demonstrated by the fixture: RBAC-authorized LIST of ConfigMap metadata, filtering by a synthetic ownership label, a persistent Kubernetes WATCH using the same identity, create/update/delete observation with resource versions and revisions, final-state convergence after deletion, successful exclusion of an unlabeled record, and denial of LIST access in an unrelated namespace. Green, red, and positive assertions are independently recorded by the lab runner and can be checked against the raw API evidence.
+The same read-only identity also lists native Service, PVC and Job objects and
+records each UID and per-kind list resource version. The separate fixture
+writer persists the initial inventory after API admission denies creation by the
+reader identity. With the watch disconnected, the fixture replaces the Job
+and changes the Service port. A fresh list repairs the durable inventory,
+preserving the unchanged PVC and Service identities and removing the former Job.
 
-The labels and ConfigMaps stand in for metadata only; they do not establish that real models, datasets, pipelines, endpoints, or GPU allocations can be discovered from workload resources, registries, storage systems, or device plugins. The case does not prove production completeness, freshness bounds, ownership accuracy, durable inventory storage, missed-event recovery, cross-cluster coverage, alerting, or governance workflow. It also does not inspect PVC/object-storage contents, custom resources, actual GPU state, inference behavior, model provenance, or any real feed or target. These untested interpretations and the pinned control's undefined freshness/completeness criteria remain open.
+## Verify your implementation
+
+1. List the authoritative sources, collection scopes and owner for each asset
+   class. Enumerate relevant clusters and namespaces. Link model IDs and
+   artifact digests to deployed workload releases, datasets to PVCs and
+   approved storage inventory, pipelines to their run records, and inference
+   endpoints to Services, EndpointSlices or the applicable gateway APIs.
+   Verify an actual device allocation from the authorized kubelet or driver
+   producer. A workload's GPU request describes intent.
+2. Verify the collector's effective list/watch permissions and its isolation
+   from the publisher. Keep Kubernetes object UID and scope alongside each
+   external source's identity and version. Validate representative matches
+   against source records and check duplicate names across namespaces or
+   replacement objects. Retain the collection time and per-source cursor.
+3. Observe representative additions, meaningful changes and deletions from
+   each source. Verify that an interrupted or expired watch triggers a fresh
+   list or equivalent source reconciliation. Remove obsolete entities and
+   repair references before updating publication status. Resource versions
+   are opaque; record them with their own API source.
+4. Agree freshness limits and permitted gaps per source. Collect durable
+   status for last successful observation, missed sources, stale publication
+   and ownership exceptions, and evaluate production behavior against those
+   limits. Compare a fresh source snapshot with published inventory and retain
+   the differences and any retry or alert evidence.
+
+The test covers API metadata, namespace access, watch events and a typed
+relist after disconnected changes. Its PVC supplies a storage reference.
+Registry objects, storage contents, and hardware allocation require evidence
+from their actual owners and producers.
 
 ## Primary references
 

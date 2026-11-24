@@ -3537,7 +3537,7 @@
     "SAF-K8S-1007-013": {
       "catalog_status": "draft",
       "domain": "D10",
-      "sha256": "562f1209a46b1d9d61f5407b9bf659d9da4e4d3232060e52133c316f477aa57a",
+      "sha256": "9d15cbb9225090df7e20269208d587cbbfca1bf1b61c763224e004efb43e2272",
       "title": "Automated AI infrastructure asset discovery and continuously updated inventory"
     },
     "SAF-K8S-1007-014": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "fb418b27ec8bee95b668a719ac1e3083457ba186",
-  "sha256": "d2e81e3342ce7597a368ac69a3e6da5512259d37e11768bbfe437f0fe8af867d",
+  "revision": "2254c0649a7fd44ce2ae1d094795ed456ee6cfb6",
+  "sha256": "b13085fffcc414b504ce34f1a8df0fae3520e701b0adca01e92c2c2add5002cb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
