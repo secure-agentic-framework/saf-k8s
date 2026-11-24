@@ -2982,6 +2982,12 @@
       "sha256": "1b1180a24ec532b1e526dcee77451a201d71bb35ed25bbf8b2d5e80fbf6a1ca5",
       "title": "Multi-cluster security policy baseline federation"
     },
+    "SAF-K8S-0910-027": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "77126852edc6e3b9b2629f4de09f649edfcd04fcb4e719f477f9d48496631156",
+      "title": "Multi-cluster policy drift detection and remediation"
+    },
     "SAF-K8S-0910-029": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3464,7 +3470,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "fa5d37928ad92c487fe9d1f6dcbc607af91ce536",
+  "revision": "ec9f4c3a30cf3cc6c1a3165c2f4772d6d13ead2a",
   "sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
