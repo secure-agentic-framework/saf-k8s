@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0101-020",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "8034fb7b67af43b26d49fc9a19a93bb9e680269a",
+  "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "f35aa7a64ceb9e6c4cfbf14ca785527152602ac5d0dfcc9ac9d4798e00a9d330",
-  "scope": "Only authenticated HTTPS GET requests to /debug/pprof/ and /livez on two case-owned Kubernetes v1.36.1 kind API-server localhost endpoints, comparing explicit --profiling=true with --profiling=false. Index response bodies are discarded. The exact effective profiling argument and configured --debug-socket-path value are inspected in each static API-server Pod command; no socket is opened or queried. Other debug routes, component endpoints, managed providers, and production configurations are outside scope.",
-  "cluster": "saf-lab-0cbd34315eb0",
+  "scope": "Only authenticated HTTPS GET requests to /debug/pprof/ and /livez on two case-owned Kubernetes v1.36.1 kind API-server localhost endpoints, comparing explicit --profiling=true with --profiling=false. Index response bodies are discarded. The exact effective profiling argument and configured --debug-socket-path value are inspected in each static API-server Pod command; no socket is opened or queried. The RBAC comparison checks an impersonated fixture reader before and after an exact index-only grant. Authorization reviews for other diagnostic permissions do not invoke those handlers. Managed and production configurations are outside scope.",
+  "cluster": "saf-lab-ed0b6be6e124",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -80,6 +80,37 @@
       }
     },
     {
+      "phase": "red",
+      "claim": "A newly authenticated reader cannot access the enabled index before a specific grant",
+      "matched": true,
+      "observed": {
+        "http_status": 403
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved exact GET rule allows the reader into the enabled index",
+      "matched": true,
+      "observed": {
+        "http_status": 200
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The index reader grant leaves every tested adjacent diagnostic permission unauthorized",
+      "matched": true,
+      "observed": {
+        "denied_by_authorizer": {
+          "get /debug/flags": true,
+          "put /debug/flags/v": true,
+          "get /metrics": true,
+          "delete /metrics": true,
+          "delete /metrics/slis": true
+        },
+        "diagnostic_handlers_invoked": false
+      }
+    },
+    {
       "phase": "green",
       "claim": "Effective kube-apiserver command has exactly --profiling=false",
       "matched": true,
@@ -118,6 +149,14 @@
         "status": 200,
         "client": "selected kind kubeconfig mTLS",
         "response_body": "discarded"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The authorized reader still gets HTTP 404 after profiling is disabled",
+      "matched": true,
+      "observed": {
+        "http_status": 404
       }
     }
   ]

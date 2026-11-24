@@ -9,6 +9,7 @@ from pathlib import Path
 import ssl
 import subprocess
 import tempfile
+from time import monotonic, sleep
 import urllib.parse
 
 
@@ -21,14 +22,24 @@ TIMEOUT = 8
 PPROF_INDEX = "/debug/pprof/"
 HEALTH_PATH = "/livez"
 ALLOWED_PATHS = frozenset((PPROF_INDEX, HEALTH_PATH))
+FIXTURE_READER = "saf-lab-diagnostic-reader"
+READER_ROLE = "saf-lab-pprof-index-reader"
+DIAGNOSTIC_PERMISSIONS = (
+    ("get", "/debug/flags"),
+    ("put", "/debug/flags/v"),
+    ("get", "/metrics"),
+    ("delete", "/metrics"),
+    ("delete", "/metrics/slis"),
+)
 SCOPE = (
     "Only authenticated HTTPS GET requests to /debug/pprof/ and /livez on two "
     "case-owned Kubernetes v1.36.1 kind API-server localhost endpoints, comparing "
     "explicit --profiling=true with --profiling=false. Index response bodies are "
     "discarded. The exact effective profiling argument and configured "
     "--debug-socket-path value are inspected in each static API-server Pod command; "
-    "no socket is opened or queried. Other debug routes, component endpoints, "
-    "managed providers, and production configurations are outside scope."
+    "no socket is opened or queried. The RBAC comparison checks an impersonated fixture reader "
+    "before and after an exact index-only grant. Authorization reviews for other diagnostic "
+    "permissions do not invoke those handlers. Managed and production configurations are outside scope."
 )
 
 
@@ -75,8 +86,8 @@ def material(value, field, directory):
     return path
 
 
-def authenticated_status(lab, kubeconfig, cluster, path):
-    """GET one allowlisted path using only the selected kubeconfig client identity."""
+def authenticated_status(lab, kubeconfig, cluster, path, *, fixture_reader=False):
+    """GET one allowlisted local path with the lab identity or the fixed fixture reader."""
     if path not in ALLOWED_PATHS:
         lab.block(f"Refusing out-of-scope API path {path!r}")
     cluster_config, user_config = config_json(lab, kubeconfig, cluster)
@@ -108,7 +119,10 @@ def authenticated_status(lab, kubeconfig, cluster, path):
                 address, port, timeout=TIMEOUT, context=context,
             )
             try:
-                connection.request("GET", path, headers={"Connection": "close"})
+                headers = {"Connection": "close"}
+                if fixture_reader:
+                    headers["Impersonate-User"] = FIXTURE_READER
+                connection.request("GET", path, headers=headers)
                 response = connection.getresponse()
                 status = response.status
                 response.read()  # Drain and discard; never return or log response content.
@@ -235,7 +249,65 @@ def check_profile(lab, cluster, kubeconfig, expected, index_status):
     )
 
 
+def api_request(lab, cluster, kubeconfig, resource):
+    result = lab.command(
+        "kubectl", "--kubeconfig", str(kubeconfig), "--context", f"kind-{cluster}",
+        "create", "-f", "-", "-o", "json", payload=json.dumps(resource), timeout=30,
+    )
+    return json.loads(result.stdout)
+
+
+def grant_index_reader(lab, cluster, kubeconfig):
+    role = {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "ClusterRole",
+            "metadata": {"name": READER_ROLE},
+            "rules": [{"nonResourceURLs": [PPROF_INDEX], "verbs": ["get"]}]}
+    binding = {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "ClusterRoleBinding",
+               "metadata": {"name": READER_ROLE},
+               "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "ClusterRole", "name": READER_ROLE},
+               "subjects": [{"apiGroup": "rbac.authorization.k8s.io", "kind": "User", "name": FIXTURE_READER}]}
+    api_request(lab, cluster, kubeconfig, role)
+    api_request(lab, cluster, kubeconfig, binding)
+    # API persistence and RBAC informer visibility need not be simultaneous.
+    deadline = monotonic() + 12
+    while monotonic() < deadline:
+        if access_review(lab, cluster, kubeconfig, "get", PPROF_INDEX) is True:
+            return
+        sleep(0.25)
+    lab.block("The index grant was not visible to the live authorizer within 12 seconds")
+
+
+def access_review(lab, cluster, kubeconfig, verb, path):
+    review = api_request(lab, cluster, kubeconfig, {
+        "apiVersion": "authorization.k8s.io/v1", "kind": "SubjectAccessReview",
+        "spec": {"user": FIXTURE_READER, "groups": ["system:authenticated"],
+                 "nonResourceAttributes": {"path": path, "verb": verb}},
+    })
+    status = review.get("status", {})
+    if status.get("evaluationError") or type(status.get("allowed")) is not bool:
+        lab.block("SubjectAccessReview did not return an authoritative decision")
+    return status["allowed"]
+
+
+def check_adjacent_authorization(lab, cluster, kubeconfig):
+    decisions = {f"{verb} {path}": access_review(lab, cluster, kubeconfig, verb, path) is False
+                 for verb, path in DIAGNOSTIC_PERMISSIONS}
+    lab.check("green", "The index reader grant leaves every tested adjacent diagnostic permission unauthorized",
+              all(decisions.values()), {"denied_by_authorizer": decisions, "diagnostic_handlers_invoked": False})
+
+
 def run(lab):
     check_profile(lab, lab.cluster, lab.kubeconfig, "true", 200)
+    before = authenticated_status(lab, lab.kubeconfig, lab.cluster, PPROF_INDEX, fixture_reader=True)
+    lab.check("red", "A newly authenticated reader cannot access the enabled index before a specific grant",
+              before == 403, {"http_status": before})
+    grant_index_reader(lab, lab.cluster, lab.kubeconfig)
+    allowed = authenticated_status(lab, lab.kubeconfig, lab.cluster, PPROF_INDEX, fixture_reader=True)
+    lab.check("positive", "The approved exact GET rule allows the reader into the enabled index",
+              allowed == 200, {"http_status": allowed})
+    check_adjacent_authorization(lab, lab.cluster, lab.kubeconfig)
     with owned_profile(lab, "profiling-off", "false") as (cluster, kubeconfig):
         check_profile(lab, cluster, kubeconfig, "false", 404)
+        grant_index_reader(lab, cluster, kubeconfig)
+        blocked = authenticated_status(lab, kubeconfig, cluster, PPROF_INDEX, fixture_reader=True)
+        lab.check("green", "The authorized reader still gets HTTP 404 after profiling is disabled",
+                  blocked == 404, {"http_status": blocked})

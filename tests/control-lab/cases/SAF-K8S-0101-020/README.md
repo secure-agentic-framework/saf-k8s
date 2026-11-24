@@ -40,9 +40,12 @@ complete inventory of API-server debugging surfaces. It does not inspect or
 request `/debug/flags/v`, other `/debug/` handlers, metrics, logs, health
 subpaths, or any extension or proxy that could expose diagnostics. It does not
 demonstrate that every individual pprof handler is unreachable; no such handler
-is called for safety. A source/configuration review of other debug routes and
-separate socket configuration remains required for a broad surface-reduction
-claim.
+is called for safety. The exact v1.36.1 source shows that the HTTP profiling switch also governs
+HTTP debug-flag registration and the reset-capable metrics variants. Disabling
+profiling leaves ordinary metrics when metrics are enabled. The Unix debug
+socket and the control-plane logs handler have separate configuration paths.
+The tagged sources support these registration claims. The live replay probes
+only the allowlisted index and health paths.
 
 The pinned control also covers production clusters, sensitive/shared or
 production-path non-production clusters, managed Kubernetes customer-exposed
@@ -65,3 +68,18 @@ control-plane behavior.
 ## References
 
 - [Kubernetes v1.36 kube-apiserver command reference](https://v1-36.docs.kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/)
+
+## Scoped authorization comparison
+
+The case uses Kubernetes impersonation only on the disposable, TLS-verified
+loopback endpoints. The fixed fixture identity receives HTTP 403 with the
+index enabled and no grant. An exact `get` rule permits only the index, which
+then returns HTTP 200. Native SubjectAccessReview confirms denial for the
+fixture identity's other tested diagnostic permissions without executing the
+corresponding handlers. When profiling is disabled, the same index grant
+still yields HTTP 404. Managed-provider settings, external restrictions,
+and actual organizational authorization require deployment evidence.
+
+- [Kubernetes v1.36.1 generic API registration](https://github.com/kubernetes/kubernetes/blob/v1.36.1/staging/src/k8s.io/apiserver/pkg/server/config.go#L1120-L1148)
+- [Kubernetes v1.36.1 control-plane logs registration](https://github.com/kubernetes/kubernetes/blob/v1.36.1/pkg/controlplane/apiserver/server.go#L96-L104)
+- [Kubernetes v1.36 SubjectAccessReview](https://v1-36.docs.kubernetes.io/docs/reference/kubernetes-api/authorization-resources/subject-access-review-v1/)
