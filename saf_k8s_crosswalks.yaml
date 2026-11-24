@@ -16786,22 +16786,6 @@
 
 
     8.5 - Audit and monitor GPU workloads (tracking pod-to-GPU allocation with workload identity)'
-  control_id: SAF-K8S-0805-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-10(1)
-  framework_requirement_title: Association of Identities
-  framework_mapping_notes: 'Binding agent identity to audit records
-
-
-    8.5 - Audit and monitor GPU workloads (tracking pod-to-GPU allocation with workload identity)'
   control_id: SAF-K8S-0805-004
   relation_type: supports
   strength_level: strong
@@ -24919,22 +24903,6 @@
 
     8.5 - GPU allocation audit trails (accountability tracking for pod-GPU assignments with identity)'
   control_id: SAF-K8S-0805-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-8(4)
-  framework_requirement_title: Accountability Information
-  framework_mapping_notes: 'Tracking ownership of agent components
-
-
-    8.5 - GPU allocation audit trails (accountability tracking for pod-GPU assignments with identity)'
-  control_id: SAF-K8S-0805-003
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -36177,22 +36145,6 @@
 
 
     2.4 - Runtime threat detection (proactive threat hunting in K8s clusters); 8.5 - GPU-based attack detection'
-  control_id: SAF-K8S-0805-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: RA-10
-  framework_requirement_title: Threat Hunting
-  framework_mapping_notes: 'Threat hunting proactively searches for indicators of compromise in agentic AI systems
-
-
-    2.4 - Runtime threat detection (proactive threat hunting in K8s clusters); 8.5 - GPU-based attack detection'
   control_id: SAF-K8S-0805-004
   relation_type: direct
   strength_level: strong
@@ -42059,22 +42011,6 @@
 
 
     10.1 - Audit logging (accountability); 8.5 - GPU allocation audit trails (traceability for workload identity)'
-  control_id: SAF-K8S-0805-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(22)
-  framework_requirement_title: Accountability and Traceability
-  framework_mapping_notes: 'Accountability and traceability of agent actions is essential for audit and forensics
-
-
-    10.1 - Audit logging (accountability); 8.5 - GPU allocation audit trails (traceability for workload identity)'
   control_id: SAF-K8S-0805-004
   relation_type: direct
   strength_level: strong
@@ -47731,22 +47667,6 @@
 
 
     8.5 - GPU covert channels (side-channel analysis via GPU shared memory); 8.3 - Interconnect traffic analysis'
-  control_id: SAF-K8S-0805-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-31
-  framework_requirement_title: Covert Channel Analysis
-  framework_mapping_notes: 'Covert channel analysis identifies hidden data exfiltration paths in agent communications
-
-
-    8.5 - GPU covert channels (side-channel analysis via GPU shared memory); 8.3 - Interconnect traffic analysis'
   control_id: SAF-K8S-0805-004
   relation_type: direct
   strength_level: strong
@@ -47780,22 +47700,6 @@
 
     8.5 - Side-channel awareness (GPU timing attacks, memory access pattern leakage, exploitability testing)'
   control_id: SAF-K8S-0805-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-31(1)
-  framework_requirement_title: Test Covert Channels for Exploitability
-  framework_mapping_notes: 'Testing covert channels in agent systems validates that hidden data paths cannot be exploited
-
-
-    8.5 - Side-channel awareness (GPU timing attacks, memory access pattern leakage, exploitability testing)'
-  control_id: SAF-K8S-0805-003
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -47859,22 +47763,6 @@
 
 
     8.5 - GPU covert channels (maximum bandwidth analysis for GPU shared memory covert channels)'
-  control_id: SAF-K8S-0805-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-31(2)
-  framework_requirement_title: Maximum Bandwidth
-  framework_mapping_notes: 'Limiting covert channel bandwidth in agent systems constrains data exfiltration capacity
-
-
-    8.5 - GPU covert channels (maximum bandwidth analysis for GPU shared memory covert channels)'
   control_id: SAF-K8S-0805-004
   relation_type: direct
   strength_level: strong
@@ -47908,22 +47796,6 @@
 
     8.5 - Side-channel awareness (measuring covert channel bandwidth in GPU operational environments)'
   control_id: SAF-K8S-0805-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-31(3)
-  framework_requirement_title: Measure Bandwidth in Operational Environments
-  framework_mapping_notes: 'Measuring covert channel bandwidth in production agent environments validates controls
-
-
-    8.5 - Side-channel awareness (measuring covert channel bandwidth in GPU operational environments)'
-  control_id: SAF-K8S-0805-003
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -49507,22 +49379,6 @@
 
 
     8.1 - GPU memory isolation (cross-tenant data remnant prevention); 8.5 - GPU memory scraping prevention'
-  control_id: SAF-K8S-0805-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-4
-  framework_requirement_title: Information in Shared System Resources
-  framework_mapping_notes: 'Preventing information leakage in shared agent resources (memory, context) is critical
-
-
-    8.1 - GPU memory isolation (cross-tenant data remnant prevention); 8.5 - GPU memory scraping prevention'
   control_id: SAF-K8S-0805-004
   relation_type: direct
   strength_level: strong
@@ -49683,22 +49539,6 @@
 
 
     8.5 - GPU telemetry (DCGM exporter, NVML metrics as sensor data); 10.1 - Monitoring and metrics'
-  control_id: SAF-K8S-0805-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-42
-  framework_requirement_title: Sensor Capability and Data
-  framework_mapping_notes: 'Sensor data handling by agents (cameras, microphones in IoT contexts) requires privacy controls
-
-
-    8.5 - GPU telemetry (DCGM exporter, NVML metrics as sensor data); 10.1 - Monitoring and metrics'
   control_id: SAF-K8S-0805-004
   relation_type: direct
   strength_level: strong
@@ -49795,22 +49635,6 @@
 
 
     10.1 - SIEM integration (reporting security events to authorized personnel); 8.5 - GPU allocation audit trails'
-  control_id: SAF-K8S-0805-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-42(1)
-  framework_requirement_title: Reporting to Authorized Individuals or Roles
-  framework_mapping_notes: 'Reporting agent sensor data collection to authorized individuals ensures transparency
-
-
-    10.1 - SIEM integration (reporting security events to authorized personnel); 8.5 - GPU allocation audit trails'
   control_id: SAF-K8S-0805-004
   relation_type: direct
   strength_level: strong
@@ -49892,22 +49716,6 @@
 
     8.5 - GPU telemetry collection (authorized use of monitoring capabilities); 10.1 - Metrics endpoint authentication'
   control_id: SAF-K8S-0805-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-42(2)
-  framework_requirement_title: Authorized Use
-  framework_mapping_notes: 'Authorized use controls for agent sensor data restrict collection to approved purposes
-
-
-    8.5 - GPU telemetry collection (authorized use of monitoring capabilities); 10.1 - Metrics endpoint authentication'
-  control_id: SAF-K8S-0805-003
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -56925,22 +56733,6 @@
 
 
     8.1 - GPU memory isolation verification; 8.5 - GPU memory scraping detection; 3.2 - Security contexts (memory protections)'
-  control_id: SAF-K8S-0805-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-16
-  framework_requirement_title: Memory Protection
-  framework_mapping_notes: 'Memory protection for agent processes prevents exploitation of memory corruption vulnerabilities
-
-
-    8.1 - GPU memory isolation verification; 8.5 - GPU memory scraping detection; 3.2 - Security contexts (memory protections)'
   control_id: SAF-K8S-0805-004
   relation_type: direct
   strength_level: strong
@@ -63228,22 +63020,6 @@
 
     10.1 - Kubernetes audit policy (auditing significant events); 8.5 - GPU allocation audit trails'
   control_id: SAF-K8S-0805-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-7(8)
-  framework_requirement_title: Auditing Capability for Significant Events
-  framework_mapping_notes: 'Audit capability for significant agent integrity events supports forensic investigation
-
-
-    10.1 - Kubernetes audit policy (auditing significant events); 8.5 - GPU allocation audit trails'
-  control_id: SAF-K8S-0805-003
   relation_type: direct
   strength_level: strong
   applicability: required
