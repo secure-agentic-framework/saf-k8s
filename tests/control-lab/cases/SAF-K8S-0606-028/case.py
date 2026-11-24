@@ -41,8 +41,9 @@ SCOPE = (
     "read-only HTTP: unsigned without verification, trusted signed with HEAD "
     "verification, unsigned with verification, and signed by an untrusted key. "
     "Synthetic private keys are generated in the runner temporary directory. "
-    "The case says nothing about hosted branch rules, PR approvals, required "
-    "checks, production key identity/custody, or every commit in Git history."
+    "A separate local Gitea repository verifies signed commits, exact protected branch "
+    "rules, required review and status, and fast-forward promotion of the exact signed "
+    "PR head. Actual hosted policy and production key custody require deployed evidence."
 )
 
 
@@ -340,6 +341,12 @@ def configmap_value(lab, name, namespace=NAMESPACE):
 
 def run(lab):
     require_commands(lab)
+    from importlib.util import module_from_spec, spec_from_file_location
+
+    spec = spec_from_file_location("saf_gitea_branch", HERE / "gitea_branch.py")
+    gitea = module_from_spec(spec)
+    spec.loader.exec_module(gitea)
+    gitea.run(lab)
     root = lab.kubeconfig.parent / "signed-commit-fixture"
     root.mkdir(mode=0o700)
     repositories, revisions = {}, {}

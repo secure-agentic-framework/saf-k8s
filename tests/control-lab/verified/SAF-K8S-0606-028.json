@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-028",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "a26772759f485e54664f960fc991b93220875838",
+  "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "0f644fbd1cf00d98a8010a82d585a021e948aa473301559fc6bfc407c8ca388e",
-  "scope": "One disposable framework-runner Kind cluster. Flux v2.9.0 installs the source-controller v1.9.1 and kustomize-controller v1.9.1. Three independent case-owned Git checkouts serve inert ConfigMap markers over in-cluster Smart read-only HTTP: unsigned without verification, trusted signed with HEAD verification, unsigned with verification, and signed by an untrusted key. Synthetic private keys are generated in the runner temporary directory. The case says nothing about hosted branch rules, PR approvals, required checks, production key identity/custody, or every commit in Git history.",
-  "cluster": "saf-lab-c9e3815f6bed",
+  "scope": "One disposable framework-runner Kind cluster. Flux v2.9.0 installs the source-controller v1.9.1 and kustomize-controller v1.9.1. Three independent case-owned Git checkouts serve inert ConfigMap markers over in-cluster Smart read-only HTTP: unsigned without verification, trusted signed with HEAD verification, unsigned with verification, and signed by an untrusted key. Synthetic private keys are generated in the runner temporary directory. A separate local Gitea repository verifies signed commits, exact protected branch rules, required review and status, and fast-forward promotion of the exact signed PR head. Actual hosted policy and production key custody require deployed evidence.",
+  "cluster": "saf-lab-303f3be0470a",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -38,6 +38,138 @@
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
+    {
+      "phase": "positive",
+      "claim": "The private fixture reads back both exact effective branch rules",
+      "matched": true,
+      "observed": {
+        "gitea_version": "1.23.8",
+        "main_rule": {
+          "approvals_whitelist_username": [],
+          "block_admin_merge_override": true,
+          "block_on_rejected_reviews": true,
+          "branch_name": "main",
+          "dismiss_stale_approvals": true,
+          "enable_approvals_whitelist": false,
+          "enable_force_push": false,
+          "enable_force_push_allowlist": false,
+          "enable_merge_whitelist": false,
+          "enable_push": false,
+          "enable_push_whitelist": false,
+          "enable_status_check": true,
+          "force_push_allowlist_usernames": [],
+          "merge_whitelist_usernames": [],
+          "push_whitelist_usernames": [],
+          "require_signed_commits": true,
+          "required_approvals": 1,
+          "rule_name": "main",
+          "status_check_contexts": [
+            "saf-fixture/promotion"
+          ]
+        },
+        "signature_rule": {
+          "approvals_whitelist_username": [],
+          "branch_name": "fixture-signature-probe",
+          "enable_approvals_whitelist": false,
+          "enable_force_push": false,
+          "enable_force_push_allowlist": false,
+          "enable_merge_whitelist": false,
+          "enable_push": true,
+          "enable_push_whitelist": true,
+          "enable_status_check": false,
+          "force_push_allowlist_usernames": [],
+          "merge_whitelist_usernames": [],
+          "push_whitelist_usernames": [
+            "fixture-writer"
+          ],
+          "require_signed_commits": true,
+          "required_approvals": 0,
+          "rule_name": "fixture-signature-probe",
+          "status_check_contexts": []
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before branch rules, the writer can perform the baseline push",
+      "matched": true,
+      "observed": true
+    },
+    {
+      "phase": "green",
+      "claim": "The exact signed-commit rule rejects unsigned Git writes without changing its ref",
+      "matched": true,
+      "observed": true
+    },
+    {
+      "phase": "positive",
+      "claim": "The same exact branch accepts a registered signed commit",
+      "matched": true,
+      "observed": true
+    },
+    {
+      "phase": "positive",
+      "claim": "Gitea reports the accepted signature as verified",
+      "matched": true,
+      "observed": true
+    },
+    {
+      "phase": "green",
+      "claim": "Protected main rejects even a signed direct push",
+      "matched": true,
+      "observed": true
+    },
+    {
+      "phase": "green",
+      "claim": "Denied direct push leaves main at its exact prior SHA",
+      "matched": true,
+      "observed": true
+    },
+    {
+      "phase": "green",
+      "claim": "A prior approval does not bypass the missing required status",
+      "matched": true,
+      "observed": {
+        "prior_approval_recorded": true,
+        "missing_status_denied_http": 405,
+        "missing_status_denied_main_unchanged": true,
+        "exact_success_status_recorded": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A prior successful status does not bypass missing approval",
+      "matched": true,
+      "observed": {
+        "exact_success_status_recorded_first": true,
+        "missing_approval_denied_http": 405,
+        "missing_approval_denied_main_unchanged": true,
+        "approval_recorded": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The fully gated fast-forward preserves the exact signed PR head",
+      "matched": true,
+      "observed": {
+        "prior_exact_approval": true,
+        "prior_exact_success_status": true,
+        "merge_http": 200,
+        "merged": true,
+        "main_equals_exact_signed_pr_head": true,
+        "final_head_signature_verified": true
+      }
+    },
+    {
+      "phase": "cleanup",
+      "claim": "Owned port-forward and private temporary credentials are removed",
+      "matched": true,
+      "observed": {
+        "port_forward_stopped": true,
+        "temporary_directory_removed": true,
+        "gpg_agent_stopped": true
+      }
+    },
     {
       "phase": "positive",
       "claim": "The source and downstream consumer use the pinned Flux v2.9.0 component images",
