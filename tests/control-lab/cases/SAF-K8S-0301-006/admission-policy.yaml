@@ -8,29 +8,60 @@ spec:
     resourceRules:
       - apiGroups: [""]
         apiVersions: ["v1"]
-        operations: [CREATE]
-        resources: [pods]
+        operations: [CREATE, UPDATE]
+        resources: [pods, pods/ephemeralcontainers]
+  variables:
+    - name: namespaceExempt
+      expression: "request.namespace == 'saf-0301-006-namespace-exempt'"
+    - name: classExempt
+      expression: "has(object.spec.runtimeClassName) && object.spec.runtimeClassName == 'saf-0301-006-device-runtime'"
+    - name: requesterExempt
+      expression: "request.userInfo.username == 'system:serviceaccount:saf-0301-006-restricted:approved-requester'"
+    - name: designated
+      expression: >-
+        object.metadata.name == 'saf-0301-006-device-agent' &&
+        object.spec.serviceAccountName == 'saf-0301-006-device-agent'
+    - name: labelApproved
+      expression: >-
+        has(object.metadata.labels) &&
+        'saf-k8s.example/exception-workload' in object.metadata.labels &&
+        object.metadata.labels['saf-k8s.example/exception-workload'] == '0301-006'
+    - name: covered
+      expression: variables.namespaceExempt || variables.classExempt || variables.requesterExempt
   validations:
     - expression: >-
-        object.metadata.namespace == 'saf-0301-006-namespace-exempt' &&
-        object.metadata.name == 'saf-0301-006-device-agent' &&
-        has(object.spec.serviceAccountName) &&
-        object.spec.serviceAccountName == 'saf-0301-006-device-agent' &&
-        has(object.metadata.labels) &&
-        'saf-k8s.example/exception-workload' in object.metadata.labels &&
-        object.metadata.labels['saf-k8s.example/exception-workload'] == '0301-006' &&
-        !has(object.spec.runtimeClassName)
-        ||
-        object.metadata.namespace == 'saf-0301-006-runtime-exempt' &&
-        object.metadata.name == 'saf-0301-006-device-agent' &&
-        has(object.spec.serviceAccountName) &&
-        object.spec.serviceAccountName == 'saf-0301-006-device-agent' &&
-        has(object.metadata.labels) &&
-        'saf-k8s.example/exception-workload' in object.metadata.labels &&
-        object.metadata.labels['saf-k8s.example/exception-workload'] == '0301-006' &&
-        has(object.spec.runtimeClassName) &&
-        object.spec.runtimeClassName == 'saf-0301-006-device-runtime'
-      message: "PSA exception is limited to the exact synthetic device-agent Pod identity"
+        !variables.covered ||
+        (variables.labelApproved &&
+          ((variables.designated && !variables.requesterExempt &&
+              ((variables.namespaceExempt && !has(object.spec.runtimeClassName)) ||
+               (request.namespace == 'saf-0301-006-runtime-exempt' && variables.classExempt))) ||
+           (variables.requesterExempt && request.namespace == 'saf-0301-006-restricted' &&
+             request.dryRun == true && object.metadata.name == 'saf-0301-006-requester-fixture' &&
+             object.spec.serviceAccountName == 'approved-requester' && !has(object.spec.runtimeClassName))))
+      message: "PSA exception is limited to the exact synthetic device-agent Pod identity and owned RuntimeClass"
+      reason: Forbidden
+    - expression: >-
+        !variables.covered ||
+        (object.spec.containers.size() == 1 &&
+         object.spec.containers.all(c, c.name == 'fixture' &&
+           c.image == 'docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec' &&
+           has(c.securityContext) &&
+           (!has(c.securityContext.privileged) || !c.securityContext.privileged) &&
+           (!has(c.securityContext.capabilities) || !has(c.securityContext.capabilities.add) ||
+             c.securityContext.capabilities.add.size() == 0) &&
+           has(c.securityContext.runAsNonRoot) && c.securityContext.runAsNonRoot &&
+           has(c.securityContext.runAsUser) && c.securityContext.runAsUser == 65534 &&
+           has(c.securityContext.seccompProfile) && c.securityContext.seccompProfile.type == 'RuntimeDefault' &&
+           (!has(c.ports) || c.ports.all(p, !has(p.hostPort) || p.hostPort == 0))) &&
+         (!has(object.spec.automountServiceAccountToken) || !object.spec.automountServiceAccountToken) &&
+         (!has(object.spec.hostNetwork) || !object.spec.hostNetwork) &&
+         (!has(object.spec.hostPID) || !object.spec.hostPID) &&
+         (!has(object.spec.hostIPC) || !object.spec.hostIPC) &&
+         (!has(object.spec.shareProcessNamespace) || !object.spec.shareProcessNamespace) &&
+         (!has(object.spec.volumes) || object.spec.volumes.size() == 0) &&
+         (!has(object.spec.initContainers) || object.spec.initContainers.size() == 0) &&
+         (!has(object.spec.ephemeralContainers) || object.spec.ephemeralContainers.size() == 0))
+      message: "PSA exception fixture image or host settings are outside the approved envelope"
       reason: Forbidden
 ---
 apiVersion: admissionregistration.k8s.io/v1
@@ -40,7 +71,3 @@ metadata:
 spec:
   policyName: saf-k8s-0301-006-exact-psa-exception
   validationActions: [Deny]
-  matchResources:
-    namespaceSelector:
-      matchLabels:
-        saf-k8s.example/psa-exception-case: "0301-006"

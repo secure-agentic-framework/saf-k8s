@@ -17,6 +17,7 @@ AUDIT_POLICY = "/etc/kubernetes/saf-0301-006-audit.yaml"
 AUDIT_LOG = "/var/log/kubernetes/saf-0301-006-audit.jsonl"
 NAMESPACE = "saf-0301-006-namespace-exempt"
 RUNTIME_NAMESPACE = "saf-0301-006-runtime-exempt"
+GOVERNED_NAMESPACE = "saf-0301-006-governed-neighbor"
 RESTRICTED_NAMESPACE = "saf-0301-006-restricted"
 SERVICE_ACCOUNT = "saf-0301-006-device-agent"
 APPROVED_REQUESTER = "approved-requester"
@@ -24,18 +25,23 @@ ORDINARY_REQUESTER = "ordinary-requester"
 PYTHON_IMAGE = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 RUNTIME_CLASS = "saf-0301-006-device-runtime"
 POLICY = "saf-k8s-0301-006-exact-psa-exception"
+OBSERVED = {"control": "SAF-K8S-0301-006", "kubernetes_version": "v1.36.1",
+            "results": [], "audit_item_ids": {}}
 SCOPE = (
-    "Kubernetes v1.36.1 Pod CREATE admission in three synthetic namespaces. "
-    "Uses server-side dry-run only for harmless Pods missing only the Restricted "
+    "Kubernetes v1.36.1 Pod CREATE/UPDATE admission in four synthetic namespaces. "
+    "Uses harmless server dry-runs and safe live marker Pods. The exempt declaration omits the Restricted "
     "allowPrivilegeEscalation=false and capabilities.drop=[ALL] settings. Confirms "
     "native namespace and RuntimeClass exemptions, then checks a synthetic "
     "ValidatingAdmissionPolicy allows only the exact named Pod, ServiceAccount, "
-    "label, namespace and (for the RuntimeClass arm) class. Two authenticated requester "
+    "label, approved image and bounded host settings; the named RuntimeClass is "
+    "restricted to its approved namespace by the compensating policy. Benign dry-run mutations test image, host settings, "
+    "and UPDATE label changes. Two authenticated requester "
     "identities test username scoping with the same harmless dry-run. Real infrastructure "
     "workloads, runtime execution and controller-created Pods require additional evidence. "
     "The real audit backend records the selected workload write and Metadata for empty Secret creation. "
-    "Updates, production RBAC/namespace governance, and compensating-control "
-    "effectiveness beyond this exact identity check are out of scope."
+    "Live NetworkPolicy marker traffic is confined to tokenless benign Pods. "
+    "Production RBAC/namespace governance, real workloads, and runtime behavior "
+    "require additional evidence."
 )
 
 
@@ -184,7 +190,8 @@ def psa_denied(result):
 def policy_denied(result):
     message = result.stderr.lower()
     return (result.returncode != 0 and "(forbidden)" in message and
-            POLICY in message and "exact synthetic device-agent pod identity" in message)
+            POLICY in message and ("exact synthetic device-agent pod identity" in message or
+                                   "approved envelope" in message))
 
 
 def admitted(result, name="saf-0301-006-device-agent"):
@@ -198,7 +205,7 @@ def admitted(result, name="saf-0301-006-device-agent"):
 
 
 def variant(resource, *, name=None, service_account=None, workload_label=None,
-            runtime_class=None):
+            runtime_class=None, image=None, host_network=None, host_path=False):
     obj = json.loads(json.dumps(resource))
     if name is not None:
         obj["metadata"]["name"] = name
@@ -208,6 +215,13 @@ def variant(resource, *, name=None, service_account=None, workload_label=None,
         obj["metadata"]["labels"]["saf-k8s.example/exception-workload"] = workload_label
     if runtime_class is not None:
         obj["spec"]["runtimeClassName"] = runtime_class
+    if image is not None:
+        obj["spec"]["containers"][0]["image"] = image
+    if host_network is not None:
+        obj["spec"]["hostNetwork"] = host_network
+    if host_path:
+        obj["spec"]["volumes"] = [{"name": "host-fixture", "hostPath": {"path": "/fixture"}}]
+        obj["spec"]["containers"][0]["volumeMounts"] = [{"name": "host-fixture", "mountPath": "/host-fixture"}]
     return obj
 
 
@@ -215,9 +229,10 @@ def run(lab):
     # The three namespaces, service account and RuntimeClass are synthetic API
     # fixtures. No submitted Pod is persisted or scheduled.
     for obj in (namespace(RESTRICTED_NAMESPACE), namespace(NAMESPACE, exception=True),
-                namespace(RUNTIME_NAMESPACE, exception=True)):
+                namespace(RUNTIME_NAMESPACE, exception=True),
+                namespace(GOVERNED_NAMESPACE, exception=True)):
         lab.kubectl("create", "-f", "-", payload=json.dumps(obj))
-    for name in (NAMESPACE, RUNTIME_NAMESPACE, RESTRICTED_NAMESPACE):
+    for name in (NAMESPACE, RUNTIME_NAMESPACE, GOVERNED_NAMESPACE, RESTRICTED_NAMESPACE):
         lab.kubectl("create", "serviceaccount", SERVICE_ACCOUNT, "-n", name)
     for name in (RUNTIME_CLASS, "saf-0301-006-near-runtime"):
         runtime = {"apiVersion": "node.k8s.io/v1", "kind": "RuntimeClass",
@@ -228,25 +243,29 @@ def run(lab):
                          target=True)
     exact_namespace = challenge("saf-0301-006-device-agent", namespace_name=NAMESPACE,
                                 target=True)
+    exact_namespace_runtime = challenge("saf-0301-006-device-agent", namespace_name=NAMESPACE,
+                                        target=True, runtime_class=RUNTIME_CLASS)
     unrelated_namespace = challenge("saf-0301-006-unrelated", namespace_name=NAMESPACE)
     exact_runtime = challenge("saf-0301-006-device-agent", namespace_name=RUNTIME_NAMESPACE,
                               target=True, runtime_class=RUNTIME_CLASS)
+    exact_neighbor_runtime = challenge("saf-0301-006-device-agent", namespace_name=GOVERNED_NAMESPACE,
+                                       target=True, runtime_class=RUNTIME_CLASS)
     unrelated_runtime = challenge("saf-0301-006-unrelated", namespace_name=RUNTIME_NAMESPACE,
                                   runtime_class=RUNTIME_CLASS)
 
     ordinary_result = submit(lab, ordinary)
     lab.check("green", "Restricted namespace rejects the harmless missing-fields fixture",
-              psa_denied(ordinary_result), ordinary_result.stderr.strip())
+              psa_denied(ordinary_result), "expected Restricted denial" if psa_denied(ordinary_result) else "unexpected admission outcome")
 
     # Before the compensating policy, native namespace exemption admits both
     # the intended identity and an unrelated harmless fixture. This is the gap.
     before_exact = submit(lab, exact_namespace)
     before_unrelated = submit(lab, unrelated_namespace)
     lab.check("red", "Native namespace exemption admits the intended synthetic fixture",
-              admitted(before_exact), before_exact.stderr.strip() or "server dry-run admitted")
+              admitted(before_exact), "admitted" if admitted(before_exact) else "not admitted")
     lab.check("red", "Native namespace exemption also admits an unrelated fixture before compensation",
               admitted(before_unrelated, "saf-0301-006-unrelated"),
-              before_unrelated.stderr.strip() or "server dry-run admitted")
+              "admitted" if admitted(before_unrelated, "saf-0301-006-unrelated") else "not admitted")
 
     # The exact RuntimeClass exemption is also exercised against a namespace
     # still set to Restricted. A near-miss class must remain subject to PSA.
@@ -256,9 +275,9 @@ def run(lab):
     near_runtime_before = submit(lab, near_runtime)
     lab.check("green", "Configured RuntimeClass exemption bypasses Restricted for the exact class",
               admitted(exact_runtime_before),
-              exact_runtime_before.stderr.strip() or "server dry-run admitted")
+              "admitted" if admitted(exact_runtime_before) else "not admitted")
     lab.check("green", "Unconfigured RuntimeClass remains subject to Restricted",
-              psa_denied(near_runtime_before), near_runtime_before.stderr.strip())
+              psa_denied(near_runtime_before), "expected Restricted denial" if psa_denied(near_runtime_before) else "unexpected admission outcome")
 
     lab.apply(HERE / "admission-policy.yaml")
     after_exact = submit(lab, exact_namespace)
@@ -273,19 +292,28 @@ def run(lab):
         time.sleep(0.3)
         after_unrelated = submit(lab, unrelated_namespace)
     after_runtime = submit(lab, exact_runtime)
+    after_namespace_runtime = submit(lab, exact_namespace_runtime)
+    after_neighbor = submit(lab, exact_neighbor_runtime)
     after_runtime_unrelated = submit(lab, unrelated_runtime)
     lab.check("positive", "Compensating policy preserves the exact namespace-scoped fixture",
-              admitted(after_exact), after_exact.stderr.strip() or "server dry-run admitted")
+              admitted(after_exact), "admitted" if admitted(after_exact) else "not admitted")
     lab.check("green", "Compensating policy denies a different Pod identity in the exempt namespace",
-              policy_denied(after_unrelated), after_unrelated.stderr.strip())
+              policy_denied(after_unrelated), "policy denial" if policy_denied(after_unrelated) else "unexpected admission outcome")
     for dimension, fixture in namespace_near_misses.items():
         result = submit(lab, fixture)
         lab.check("green", f"Compensating policy rejects a namespace exception with a different {dimension}",
-                  policy_denied(result), result.stderr.strip())
+                  policy_denied(result), "policy denial" if policy_denied(result) else "unexpected admission outcome")
     lab.check("positive", "Compensating policy preserves the exact RuntimeClass-scoped fixture",
-              admitted(after_runtime), after_runtime.stderr.strip() or "server dry-run admitted")
+              admitted(after_runtime), "admitted" if admitted(after_runtime) else "not admitted")
+    class_confined = policy_denied(after_namespace_runtime)
+    lab.check("green", "A namespace exemption does not grant approval for the restricted RuntimeClass",
+              class_confined, {"class_confined_to_approved_namespace": class_confined})
     lab.check("green", "Compensating policy denies a different identity using the exempt RuntimeClass",
-              policy_denied(after_runtime_unrelated), after_runtime_unrelated.stderr.strip())
+              policy_denied(after_runtime_unrelated), "policy denial" if policy_denied(after_runtime_unrelated) else "unexpected admission outcome")
+    neighbor_denied = policy_denied(after_neighbor)
+    lab.check("green", "The separate policy denies the owned RuntimeClass outside its approved namespace",
+              neighbor_denied, {"neighbor_denied": neighbor_denied})
+    record_observation("class_outside_approved_namespace", {"denied": neighbor_denied})
     runtime_near_misses = {
         "name": variant(exact_runtime, name="saf-0301-006-near-name"),
         "ServiceAccount": variant(exact_runtime, service_account="default"),
@@ -294,13 +322,131 @@ def run(lab):
     for dimension, fixture in runtime_near_misses.items():
         result = submit(lab, fixture)
         lab.check("green", f"Compensating policy rejects a RuntimeClass exception with a different {dimension}",
-                  policy_denied(result), result.stderr.strip())
+                  policy_denied(result), "policy denial" if policy_denied(result) else "unexpected admission outcome")
     switched_class = submit(lab, variant(exact_runtime, runtime_class="saf-0301-006-near-runtime"))
     lab.check("green", "The exact workload with an excluded runtime class remains subject to PSA",
-              psa_denied(switched_class), switched_class.stderr.strip())
+              psa_denied(switched_class), "expected Restricted denial" if psa_denied(switched_class) else "unexpected admission outcome")
+
+    image_mismatch = submit(lab, variant(exact_runtime, image=PYTHON_IMAGE))
+    host_network = submit(lab, variant(exact_runtime, host_network=True))
+    host_path = submit(lab, variant(exact_runtime, host_path=True))
+    for description, result in (("different image", image_mismatch),
+                                ("host networking", host_network),
+                                ("hostPath volume", host_path)):
+        denied = policy_denied(result) and "approved envelope" in result.stderr
+        lab.check("green", f"Compensating policy rejects {description} in a harmless dry-run declaration",
+                  denied, {"denied_for_envelope": denied})
+        record_observation(description, {"denied": denied})
+    record_observation("dry_run_identity_and_envelope", {
+        "runtime_class_namespaces": {
+            NAMESPACE: "admitted" if admitted(after_namespace_runtime) else "not_admitted",
+            RUNTIME_NAMESPACE: "admitted" if admitted(after_runtime) else "not_admitted",
+            GOVERNED_NAMESPACE: "admitted" if admitted(after_neighbor) else "not_admitted",
+        },
+        "different_image": "denied" if policy_denied(image_mismatch) else "unexpected",
+        "host_network": "denied" if policy_denied(host_network) else "unexpected",
+        "host_path": "denied" if policy_denied(host_path) else "unexpected",
+        "dry_run": True,
+    })
+
+    check_update_label(lab, exact_namespace)
+    check_network_policy_markers(lab)
 
     check_requester_identity(lab)
     check_workload_audit(lab)
+    (lab.evidence / "psa-exemption-observations.json").write_text(
+        json.dumps(OBSERVED, indent=2, sort_keys=True) + "\n")
+
+
+def record_observation(name, result):
+    OBSERVED["results"].append({"check": name, **result})
+
+
+def check_update_label(lab, approved):
+    # UPDATE admission needs a stored object. This is a tokenless, benign BusyBox
+    # Pod using the approved namespace-only branch; the mutated declaration is
+    # server-side dry-run and the short-lived record is removed in all cases.
+    lab.kubectl("-n", NAMESPACE, "create", "-f", "-", payload=json.dumps(approved))
+    changed = variant(approved, workload_label="0301-006-updated-scope")
+    try:
+        patch = {"metadata": {"labels": changed["metadata"]["labels"]}}
+        result = lab.kubectl("-n", NAMESPACE, "patch", "pod", approved["metadata"]["name"], "--type=merge",
+                             "-p", json.dumps(patch), "--dry-run=server", allow_failure=True)
+        denied = policy_denied(result)
+        lab.check("green", "Compensating policy denies an approved-record label change on UPDATE",
+                  denied, "policy denial" if denied else "unexpected admission outcome")
+        record_observation("update_label_mutation", {"admission": "denied_by_compensating_policy" if denied else "unexpected",
+                                                       "request": "server_side_dry_run"})
+    finally:
+        lab.kubectl("-n", NAMESPACE, "delete", "pod", approved["metadata"]["name"],
+                    "--ignore-not-found=true", allow_failure=True)
+
+
+def check_network_policy_markers(lab):
+    network_ns = "saf-0301-006-network"
+    lab.create(namespace(network_ns))
+    security = {"allowPrivilegeEscalation": False, "capabilities": {"drop": ["ALL"]},
+                "runAsNonRoot": True, "runAsUser": 65534,
+                "seccompProfile": {"type": "RuntimeDefault"}}
+    server_code = """import socketserver
+class Marker(socketserver.BaseRequestHandler):
+    def handle(self):
+        self.request.sendall(b'owned-psa-marker')
+socketserver.TCPServer(('0.0.0.0', 8080), Marker).serve_forever()
+"""
+    probe_code = """import errno, socket, sys
+try:
+    with socket.create_connection((sys.argv[1], 8080), timeout=1.2) as peer:
+        print(peer.recv(128).decode())
+except (ConnectionRefusedError, ConnectionResetError, TimeoutError):
+    print('no-marker')
+except OSError as error:
+    if error.errno not in (errno.EHOSTUNREACH, errno.ENETUNREACH):
+        raise
+    print('no-marker')
+"""
+    key = "saf-k8s.example/net-role"
+    for role in ("server", "approved", "comparison"):
+        argv = server_code if role == "server" else "import time; time.sleep(280)"
+        unit = {"name": "fixture", "image": PYTHON_IMAGE, "command": ["python", "-c", argv],
+                "resources": {"requests": {"cpu": "5m", "memory": "16Mi"}, "limits": {"memory": "64Mi"}},
+                "securityContext": security}
+        if role == "server":
+            unit["readinessProbe"] = {"tcpSocket": {"port": 8080}, "periodSeconds": 1}
+        obj = {"apiVersion": "v1", "kind": "Pod",
+               "metadata": {"name": "marker-" + role, "namespace": network_ns, "labels": {key: role}},
+               "spec": {"automountServiceAccountToken": False, "restartPolicy": "Never", "containers": [unit]}}
+        lab.kubectl("-n", network_ns, "create", "-f", "-", payload=json.dumps(obj))
+    lab.kubectl("-n", network_ns, "wait", "--for=condition=Ready", "pods", "--all", "--timeout=80s", timeout=90)
+    ip = lab.kubectl("-n", network_ns, "get", "pod", "marker-server",
+                     "-o", "jsonpath={.status.podIP}").stdout
+    clients = ("approved", "comparison")
+
+    def sample(expected):
+        deadline = time.monotonic() + 25
+        while True:
+            result = {role: lab.kubectl("-n", network_ns, "exec", "pod/marker-" + role,
+                                       "--", "python", "-c", probe_code, ip, timeout=9).stdout.strip()
+                      for role in clients}
+            if result == expected or time.monotonic() >= deadline:
+                return result
+
+    all_allowed = dict.fromkeys(clients, "owned-psa-marker")
+    baseline = sample(all_allowed)
+    lab.check("red", "Both owned clients receive the same marker before network isolation",
+              baseline == all_allowed, baseline)
+    lab.kubectl("-n", network_ns, "create", "-f", "-", payload=json.dumps({
+        "apiVersion": "networking.k8s.io/v1", "kind": "NetworkPolicy",
+        "metadata": {"name": "allow-owned-psa-marker", "namespace": network_ns},
+        "spec": {"podSelector": {"matchLabels": {key: "server"}}, "policyTypes": ["Ingress"],
+                 "ingress": [{"from": [{"podSelector": {"matchLabels": {key: "approved"}}}],
+                              "ports": [{"protocol": "TCP", "port": 8080}]}]},
+    }))
+    expected = {"approved": "owned-psa-marker", "comparison": "no-marker"}
+    restricted = sample(expected)
+    lab.check("positive", "NetworkPolicy keeps the selected marker path and isolates the comparison client",
+              restricted == expected, restricted)
+    record_observation("network_policy_marker", {"baseline": baseline, "constrained": restricted})
 
 
 def check_requester_identity(lab):
@@ -392,6 +538,10 @@ def check_workload_audit(lab):
     if set(reports) != {"workload", "empty_secret"}:
         lab.block("Expected exact successful workload dry-run and empty Secret audit events")
     workload, secret = reports["workload"], reports["empty_secret"]
+    OBSERVED["audit_item_ids"] = {
+        "approved_workload_dry_run": workload.get("auditID"),
+        "empty_secret_metadata_event": secret.get("auditID"),
+    }
     expected = (workload["level"] == "RequestResponse"
                 and workload.get("responseObject", {}).get("metadata", {}).get("name") == "saf-0301-006-device-agent")
     lab.check("positive", "The approved workload dry-run retains the selected audit request and response",
@@ -399,3 +549,5 @@ def check_workload_audit(lab):
     filtered = secret["level"] == "Metadata" and not {"requestObject", "responseObject"}.intersection(secret)
     lab.check("green", "The empty Secret in the same exempt namespace retains metadata without bodies",
               filtered, {"credential_resource_metadata_only": filtered})
+    record_observation("audit_body_selection", {"workload_request_response": expected,
+                                                  "secret_metadata_only": filtered})

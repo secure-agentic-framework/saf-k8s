@@ -627,7 +627,7 @@
     "SAF-K8S-0301-006": {
       "catalog_status": "draft",
       "domain": "D03",
-      "sha256": "a815f4e34d58d02ab8ea4805e4a0e8d8843a540c161d544d8f0ef288e0d22db7",
+      "sha256": "326d5c637d7a65c4ee1fe9b1f55435c0800da6f38b240c134d1784afa72a7696",
       "title": "Scoped PSA exception enforcement and compensating controls"
     },
     "SAF-K8S-0302-001": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "de345c64fc02b6a5aeb00ed951ea2cd1ec2fdc25",
-  "sha256": "bd0ef01e25e9a167a4eb1ef544d1ab1daf91734b0dc147918f28da202c3e1015",
+  "revision": "37ef62c82710d919ab3a3c3dd6e3c80ed416b838",
+  "sha256": "fe2262d805c711808a5730d74fe291d672b051d84f30a16d93bf7f1f33a937b2",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

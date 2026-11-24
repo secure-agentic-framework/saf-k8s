@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0301-006",
-  "catalog_revision": "b126a9987a2383122872317e04a923f2137b2591",
-  "catalog_sha256": "b5c2f4a8bfac5aa27b81f5b3a84c72083b81b5210bba5d600c9cb6f4424dca4c",
+  "catalog_revision": "dcb491b3b70e09a431e798a51fca632272b728f0",
+  "catalog_sha256": "fe2262d805c711808a5730d74fe291d672b051d84f30a16d93bf7f1f33a937b2",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "a815f4e34d58d02ab8ea4805e4a0e8d8843a540c161d544d8f0ef288e0d22db7",
-  "scope": "Kubernetes v1.36.1 Pod CREATE admission in three synthetic namespaces. Uses server-side dry-run only for harmless Pods missing only the Restricted allowPrivilegeEscalation=false and capabilities.drop=[ALL] settings. Confirms native namespace and RuntimeClass exemptions, then checks a synthetic ValidatingAdmissionPolicy allows only the exact named Pod, ServiceAccount, label, namespace and (for the RuntimeClass arm) class. Two authenticated requester identities test username scoping with the same harmless dry-run. Real infrastructure workloads, runtime execution and controller-created Pods require additional evidence. The real audit backend records the selected workload write and Metadata for empty Secret creation. Updates, production RBAC/namespace governance, and compensating-control effectiveness beyond this exact identity check are out of scope.",
-  "cluster": "saf-lab-361a36d2dd41",
+  "control_sha256": "326d5c637d7a65c4ee1fe9b1f55435c0800da6f38b240c134d1784afa72a7696",
+  "scope": "Kubernetes v1.36.1 Pod CREATE/UPDATE admission in four synthetic namespaces. Uses harmless server dry-runs and safe live marker Pods. The exempt declaration omits the Restricted allowPrivilegeEscalation=false and capabilities.drop=[ALL] settings. Confirms native namespace and RuntimeClass exemptions, then checks a synthetic ValidatingAdmissionPolicy allows only the exact named Pod, ServiceAccount, label, approved image and bounded host settings; the named RuntimeClass is restricted to its approved namespace by the compensating policy. Benign dry-run mutations test image, host settings, and UPDATE label changes. Two authenticated requester identities test username scoping with the same harmless dry-run. Real infrastructure workloads, runtime execution and controller-created Pods require additional evidence. The real audit backend records the selected workload write and Metadata for empty Secret creation. Live NetworkPolicy marker traffic is confined to tokenless benign Pods. Production RBAC/namespace governance, real workloads, and runtime behavior require additional evidence.",
+  "cluster": "saf-lab-cf86d219feb3",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -42,97 +42,161 @@
       "phase": "green",
       "claim": "Restricted namespace rejects the harmless missing-fields fixture",
       "matched": true,
-      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0301-006-device-agent\" is forbidden: violates PodSecurity \"restricted:v1.36\": allowPrivilegeEscalation != false (container \"fixture\" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container \"fixture\" must set securityContext.capabilities.drop=[\"ALL\"])"
+      "observed": "expected Restricted denial"
     },
     {
       "phase": "red",
       "claim": "Native namespace exemption admits the intended synthetic fixture",
       "matched": true,
-      "observed": "server dry-run admitted"
+      "observed": "admitted"
     },
     {
       "phase": "red",
       "claim": "Native namespace exemption also admits an unrelated fixture before compensation",
       "matched": true,
-      "observed": "server dry-run admitted"
+      "observed": "admitted"
     },
     {
       "phase": "green",
       "claim": "Configured RuntimeClass exemption bypasses Restricted for the exact class",
       "matched": true,
-      "observed": "server dry-run admitted"
+      "observed": "admitted"
     },
     {
       "phase": "green",
       "claim": "Unconfigured RuntimeClass remains subject to Restricted",
       "matched": true,
-      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0301-006-near-runtime\" is forbidden: violates PodSecurity \"restricted:v1.36\": allowPrivilegeEscalation != false (container \"fixture\" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container \"fixture\" must set securityContext.capabilities.drop=[\"ALL\"])"
+      "observed": "expected Restricted denial"
     },
     {
       "phase": "positive",
       "claim": "Compensating policy preserves the exact namespace-scoped fixture",
       "matched": true,
-      "observed": "server dry-run admitted"
+      "observed": "admitted"
     },
     {
       "phase": "green",
       "claim": "Compensating policy denies a different Pod identity in the exempt namespace",
       "matched": true,
-      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0301-006-unrelated\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-006-exact-psa-exception' with binding 'saf-k8s-0301-006-exact-psa-exception' denied request: PSA exception is limited to the exact synthetic device-agent Pod identity"
+      "observed": "policy denial"
     },
     {
       "phase": "green",
       "claim": "Compensating policy rejects a namespace exception with a different name",
       "matched": true,
-      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0301-006-near-name\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-006-exact-psa-exception' with binding 'saf-k8s-0301-006-exact-psa-exception' denied request: PSA exception is limited to the exact synthetic device-agent Pod identity"
+      "observed": "policy denial"
     },
     {
       "phase": "green",
       "claim": "Compensating policy rejects a namespace exception with a different ServiceAccount",
       "matched": true,
-      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0301-006-device-agent\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-006-exact-psa-exception' with binding 'saf-k8s-0301-006-exact-psa-exception' denied request: PSA exception is limited to the exact synthetic device-agent Pod identity"
+      "observed": "policy denial"
     },
     {
       "phase": "green",
       "claim": "Compensating policy rejects a namespace exception with a different label",
       "matched": true,
-      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0301-006-device-agent\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-006-exact-psa-exception' with binding 'saf-k8s-0301-006-exact-psa-exception' denied request: PSA exception is limited to the exact synthetic device-agent Pod identity"
+      "observed": "policy denial"
     },
     {
       "phase": "positive",
       "claim": "Compensating policy preserves the exact RuntimeClass-scoped fixture",
       "matched": true,
-      "observed": "server dry-run admitted"
+      "observed": "admitted"
+    },
+    {
+      "phase": "green",
+      "claim": "A namespace exemption does not grant approval for the restricted RuntimeClass",
+      "matched": true,
+      "observed": {
+        "class_confined_to_approved_namespace": true
+      }
     },
     {
       "phase": "green",
       "claim": "Compensating policy denies a different identity using the exempt RuntimeClass",
       "matched": true,
-      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0301-006-unrelated\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-006-exact-psa-exception' with binding 'saf-k8s-0301-006-exact-psa-exception' denied request: PSA exception is limited to the exact synthetic device-agent Pod identity"
+      "observed": "policy denial"
+    },
+    {
+      "phase": "green",
+      "claim": "The separate policy denies the owned RuntimeClass outside its approved namespace",
+      "matched": true,
+      "observed": {
+        "neighbor_denied": true
+      }
     },
     {
       "phase": "green",
       "claim": "Compensating policy rejects a RuntimeClass exception with a different name",
       "matched": true,
-      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0301-006-near-name\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-006-exact-psa-exception' with binding 'saf-k8s-0301-006-exact-psa-exception' denied request: PSA exception is limited to the exact synthetic device-agent Pod identity"
+      "observed": "policy denial"
     },
     {
       "phase": "green",
       "claim": "Compensating policy rejects a RuntimeClass exception with a different ServiceAccount",
       "matched": true,
-      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0301-006-device-agent\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-006-exact-psa-exception' with binding 'saf-k8s-0301-006-exact-psa-exception' denied request: PSA exception is limited to the exact synthetic device-agent Pod identity"
+      "observed": "policy denial"
     },
     {
       "phase": "green",
       "claim": "Compensating policy rejects a RuntimeClass exception with a different label",
       "matched": true,
-      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0301-006-device-agent\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0301-006-exact-psa-exception' with binding 'saf-k8s-0301-006-exact-psa-exception' denied request: PSA exception is limited to the exact synthetic device-agent Pod identity"
+      "observed": "policy denial"
     },
     {
       "phase": "green",
       "claim": "The exact workload with an excluded runtime class remains subject to PSA",
       "matched": true,
-      "observed": "Error from server (Forbidden): error when creating \"STDIN\": pods \"saf-0301-006-device-agent\" is forbidden: violates PodSecurity \"restricted:v1.36\": allowPrivilegeEscalation != false (container \"fixture\" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container \"fixture\" must set securityContext.capabilities.drop=[\"ALL\"])"
+      "observed": "expected Restricted denial"
+    },
+    {
+      "phase": "green",
+      "claim": "Compensating policy rejects different image in a harmless dry-run declaration",
+      "matched": true,
+      "observed": {
+        "denied_for_envelope": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Compensating policy rejects host networking in a harmless dry-run declaration",
+      "matched": true,
+      "observed": {
+        "denied_for_envelope": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Compensating policy rejects hostPath volume in a harmless dry-run declaration",
+      "matched": true,
+      "observed": {
+        "denied_for_envelope": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Compensating policy denies an approved-record label change on UPDATE",
+      "matched": true,
+      "observed": "policy denial"
+    },
+    {
+      "phase": "red",
+      "claim": "Both owned clients receive the same marker before network isolation",
+      "matched": true,
+      "observed": {
+        "approved": "owned-psa-marker",
+        "comparison": "owned-psa-marker"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "NetworkPolicy keeps the selected marker path and isolates the comparison client",
+      "matched": true,
+      "observed": {
+        "approved": "owned-psa-marker",
+        "comparison": "no-marker"
+      }
     },
     {
       "phase": "green",
