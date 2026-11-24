@@ -4,8 +4,8 @@
   "catalog_sha256": "b135c6c1c3ced83a52f2c84d0bbe057a079c508964f6bd63f7291058e8ff928e",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "612faaca8e23b0a3bd83116d49846265d4e381506fd7a6efcd632ed8d9f0881e",
-  "scope": "One disposable Kubernetes v1.36.1 Kind cluster with a control plane and a worker. Reads live component versions and compares rejected and allowed synthetic minor upgrade plans. Performs real PDB-coordinated eviction, cordon/drain and uncordon on the owned worker. A tokenless workload reports an actual fixture HTTP health code for the stable and candidate revision. An explicitly pinned workload rollback restores the stable marker and health. Platform upgrades, add-on changes and infrastructure recovery use their separate adopter rehearsals.",
-  "cluster": "saf-lab-2601927278c5",
+  "scope": "One disposable Kubernetes v1.36.1 Kind cluster with a control plane and a worker. Reads live component versions and compares rejected and allowed synthetic minor upgrade plans. Performs real PDB-coordinated eviction, cordon/drain and uncordon on the owned worker. A tokenless workload reports an actual fixture HTTP health code for the stable and candidate revision. An explicitly pinned workload rollback restores the stable marker and health. Then a native v1.36.1 to v1.36.6 upgrade checks both kubelets, kube-proxy, CoreDNS and the same synthetic Service. A verified post-upgrade snapshot restores deliberately modified state and the same Service on the upgraded cluster.",
+  "cluster": "saf-lab-f24ce3eb90b9",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -299,6 +299,84 @@
         "different_pod_replaced_evicted_pod": true,
         "same_pending_replacement_became_ready": true,
         "ready_replacement_on_maintained_worker": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The baseline routes an HTTP request to the healthy synthetic Service",
+      "matched": true,
+      "observed": {
+        "dns_routed_http_body_matches": true,
+        "deployment_and_service_identity_preserved": true,
+        "both_expected_backends_are_ready": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native kubeadm dry-run preserves the baseline server and node versions",
+      "matched": true,
+      "observed": {
+        "version_and_ready_baseline_preserved": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native control-plane upgrade precedes the worker transition",
+      "matched": true,
+      "observed": {
+        "api_server_at_exact_target": true,
+        "worker_stayed_on_baseline_until_its_turn": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Upgraded kubelets and native add-ons serve the same workload through real DNS and HTTP",
+      "matched": true,
+      "observed": {
+        "both_upgraded_nodes_are_ready": true,
+        "both_original_node_uids_preserved": true,
+        "static_control_plane_target_images_ready": true,
+        "baseline_kindnet_image_still_ready_on_both_nodes": true,
+        "kube_proxy_target_image_ready_on_each_node": true,
+        "coredns_expected_image_and_rollout_available": true,
+        "dns_routed_http_body_matches": true,
+        "deployment_and_service_identity_preserved": true,
+        "both_expected_backends_are_ready": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The injected post-upgrade state loss is visible through the target API",
+      "matched": true,
+      "observed": {
+        "fixture_state_loss_observed": true,
+        "snapshot_native_status_valid": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Verified post-upgrade etcd restore recovers the original API state on the target version",
+      "matched": true,
+      "observed": {
+        "restored_exact_uid_and_data": true,
+        "control_plane_became_ready": true,
+        "target_server_version_preserved": true,
+        "recovery_revision_bumped": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Recovered infrastructure still runs the upgraded add-ons and original workload",
+      "matched": true,
+      "observed": {
+        "both_node_versions_and_identities_preserved": true,
+        "static_control_plane_target_images_ready": true,
+        "baseline_kindnet_image_still_ready_on_both_nodes": true,
+        "kube_proxy_target_image_ready_on_each_node": true,
+        "coredns_expected_image_and_rollout_available": true,
+        "dns_routed_http_body_matches": true,
+        "deployment_and_service_identity_preserved": true,
+        "both_expected_backends_are_ready": true
       }
     }
   ]

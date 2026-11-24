@@ -3,6 +3,7 @@ from copy import deepcopy
 import json
 from pathlib import Path
 import re
+import runpy
 import shutil
 import time
 
@@ -29,8 +30,9 @@ SCOPE = (
     "plans. Performs real PDB-coordinated eviction, cordon/drain and uncordon on the owned worker. "
     "A tokenless workload reports an actual fixture HTTP health code for the stable and candidate "
     "revision. An explicitly pinned workload rollback restores the stable marker and health. "
-    "Platform upgrades, add-on changes and infrastructure recovery use their separate "
-    "adopter rehearsals."
+    "Then a native v1.36.1 to v1.36.6 upgrade checks both kubelets, kube-proxy, "
+    "CoreDNS and the same synthetic Service. A verified post-upgrade snapshot restores "
+    "deliberately modified state and the same Service on the upgraded cluster."
 )
 
 HEALTH_SERVER = """import os
@@ -562,3 +564,4 @@ def run(lab):
                                        if key != "uid"},
                "kubernetes_version_downgrade_performed": False})
     _worker_maintenance(lab)
+    runpy.run_path(str(HERE / "native-upgrade.py"))["run_native_upgrade"](lab)
