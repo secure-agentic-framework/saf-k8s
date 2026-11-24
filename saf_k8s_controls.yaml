@@ -11926,7 +11926,7 @@
   rationale: Upstream deprecation awareness alone is insufficient unless teams know exactly which workloads and controllers still depend on deprecated APIs. Inventorying that usage and tracking migration completion prevents removed APIs from causing upgrade failures in AI platforms.
   scope: Applies to all Kubernetes clusters scheduled for version upgrades. Discovery must cover AI workload namespaces, operator deployments, Helm chart templates, and custom resource definitions used by AI platforms and services.
   primary_enforcement_point: Deprecation scanning tools in CI/CD pipelines, manifest and cluster scan workflows, and migration tracking dashboards.
-  implementation_surface: API deprecation scanning tools such as kubent, pluto, kubepug, or kubectl deprecations; manifest and Helm chart scanning for deprecated APIs; CRD deprecated field detection; deprecated API inventory generation; team notification workflows; and migration completion tracking before upgrade approval.
+  implementation_surface: Use version-aware Kubernetes API assessment tools, rendered manifest and Helm inventory, and observed deprecated API requests. Assess CRD served and storage versions, deprecation flags and stored data separately. Record the exact target, responsible owner, notification delivery and verified migration before upgrade approval.
   owner_primary: Platform Engineering
   owner_supporting: AI/ML Engineering; DevOps; Security Engineering
   baseline_or_ai_specific: ai-specific
