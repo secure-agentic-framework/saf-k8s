@@ -92,6 +92,12 @@ else
     echo 'fixture durable public state' >/state/marker
     echo 'SAF-STATE: written'
 fi
+if $b grep -q 'version-two' /etc/fixture-release; then
+    echo 'public state updated on release two' >/state/release-two
+    echo 'SAF-UPDATE-STATE: written'
+elif $b grep -q '^public state updated on release two$' /state/release-two 2>/dev/null; then
+    echo 'SAF-UPDATE-STATE: retained'
+fi
 $b sync
 $b poweroff -f
 GUEST
@@ -107,7 +113,37 @@ printf '%s\n' 'SAF-ROOT-RELEASE: version-two' >rootfiles/etc/fixture-release
 make_image replacement.img rootfiles SAFROOT
 make_image writable.img state-empty SAFSTATE
 cp writable.img baseline-state.img
-sha256sum first.img replacement.img >expected-root.sha256
+openssl genpkey -algorithm ED25519 -out fixture-signing.key
+openssl pkey -in fixture-signing.key -pubout -out fixture-signing.pub
+manifest() {
+    slot="$1" image="$2"
+    digest=$(sha256sum "$image" | cut -d ' ' -f 1)
+    printf '%s %s\n' "$slot" "$digest" >"$slot.manifest"
+    openssl pkeyutl -sign -rawin -inkey fixture-signing.key -in "$slot.manifest" -out "$slot.sig"
+}
+manifest version-one first.img
+manifest version-two replacement.img
+rm fixture-signing.key
+
+# Verify the signature before using the claimed identity or digest.
+verify_root() {
+    slot="$1" image="$2" manifest_file="$3" signature="$4"
+    openssl pkeyutl -verify -rawin -pubin -inkey fixture-signing.pub \
+        -in "$manifest_file" -sigfile "$signature" >/dev/null 2>&1 || return 11
+    digest=$(sha256sum "$image" | cut -d ' ' -f 1)
+    expected="$slot $digest"
+    [ "$(cat "$manifest_file")" = "$expected" ] || return 12
+}
+approved_boot() {
+    slot="$1" root="$2" log="$3"
+    verify_root "$slot" "$root" "$slot.manifest" "$slot.sig"
+    printf 'manifest %s\n' "$(cat "$slot.manifest")"
+    boot "$root" writable.img protected "$log" on
+    sed -n '/^SAF-/p' "$log" | tr -d '\r' | sed "s/^/guest $log /"
+    require "$log" "SAF-ROOT-RELEASE: $slot"
+    require "$log" 'SAF-ROOT-MOUNT: ro'
+    require "$log" 'SAF-ROOT-WRITE: denied'
+}
 
 boot() {
     root="$1" state="$2" mode="$3" log="$4" readonly="$5"
@@ -125,21 +161,34 @@ require() {
     grep -Fq "$2" "$1" || { tail -28 "$1" >&2; exit 1; }
 }
 boot baseline.img baseline-state.img baseline baseline.log off
+sed -n '/^SAF-/p' baseline.log | tr -d '\r' | sed 's/^/guest baseline.log /'
 require baseline.log 'SAF-ROOT-MOUNT: rw'
 require baseline.log 'SAF-ROOT-WRITE: allowed'
-echo writable_baseline_changed
 
-boot first.img writable.img protected first.log on
-require first.log 'SAF-ROOT-RELEASE: version-one'
-require first.log 'SAF-ROOT-MOUNT: ro'
-require first.log 'SAF-ROOT-WRITE: denied'
+cp version-two.manifest changed.manifest
+printf '\nchanged fixture metadata\n' >>changed.manifest
+bad_signature=0
+verify_root version-two replacement.img changed.manifest version-two.sig || bad_signature=$?
+test "$bad_signature" = 11
+echo modified_manifest_signature_rejected
+
+cp replacement.img changed.img
+printf 'changed public fixture image' | dd of=changed.img bs=1 seek=0 conv=notrunc status=none
+bad_digest=0
+verify_root version-two changed.img version-two.manifest version-two.sig || bad_digest=$?
+test "$bad_digest" = 12
+echo modified_image_digest_rejected
+rm changed.img
+
+approved_boot version-one first.img first.log
 require first.log 'SAF-STATE: written'
-echo verified_root_denied_and_state_written
-
-boot replacement.img writable.img protected replacement.log on
-require replacement.log 'SAF-ROOT-RELEASE: version-two'
-require replacement.log 'SAF-ROOT-MOUNT: ro'
-require replacement.log 'SAF-ROOT-WRITE: denied'
+approved_boot version-two replacement.img replacement.log
 require replacement.log 'SAF-STATE: retained'
-sha256sum -c expected-root.sha256 >/dev/null
-echo approved_root_replaced_and_state_retained
+require replacement.log 'SAF-UPDATE-STATE: written'
+approved_boot version-one first.img rollback.log
+require rollback.log 'SAF-STATE: retained'
+require rollback.log 'SAF-UPDATE-STATE: retained'
+
+verify_root version-one first.img version-one.manifest version-one.sig
+verify_root version-two replacement.img version-two.manifest version-two.sig
+echo both_signed_root_images_unchanged

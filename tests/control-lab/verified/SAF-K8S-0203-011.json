@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0203-011",
-  "catalog_revision": "c1c48d36ec6c0ef96ce42613f9a526f2ed24785f",
-  "catalog_sha256": "082dece3b01c1887918aafda5d05607b2a7b752ea3af3bfa1b745732bf97c049",
+  "catalog_revision": "cd9b9fa347ecdeecfe38bd00d3339c6771f3a2d1",
+  "catalog_sha256": "6c62a9ab38837b70dbe3d92571eb93f33722e18e15a26a688854bcfd3cadd6b4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "87ca8631f8f94d38ea80299c77a7a4d53bf22bd027a1ff6ac8373e1cba8a5c4a",
-  "scope": "An unprivileged Kubernetes Job boots owned Linux guests to exercise read-only root, writable state and image replacement.",
-  "cluster": "saf-lab-dfd88211f863",
+  "scope": "An unprivileged Kind Job verifies signed fixture images and boots isolated Linux guests to check read-only root, persistent state, update and rollback.",
+  "cluster": "saf-lab-ee0f3c128594",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -40,7 +40,7 @@
   "checks": [
     {
       "phase": "red",
-      "claim": "The writable comparison root actually accepts a new public marker",
+      "claim": "The writable comparison root accepts a new public marker",
       "matched": true,
       "observed": {
         "baseline_root_accepts_write": true
@@ -48,21 +48,44 @@
     },
     {
       "phase": "green",
-      "claim": "A real read-only guest root denies the public write while approved state accepts writes",
+      "claim": "The same trusted public key rejects changed metadata and the authorized digest rejects changed image bytes",
       "matched": true,
       "observed": {
-        "root_write_denied": true,
-        "separate_state_writable": true
+        "modified_manifest_rejected": true,
+        "modified_image_rejected": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The first signed root denies the write and separate permitted state accepts it",
+      "matched": true,
+      "observed": {
+        "first_root_readonly": true
       }
     },
     {
       "phase": "positive",
-      "claim": "Selecting an approved replacement root preserves the allowed state and root write denial",
+      "claim": "The verified replacement release denies root writes, reads old state and writes new state",
       "matched": true,
       "observed": {
-        "updated_root_still_readonly": true,
-        "durable_state_retained": true,
-        "both_protected_images_unchanged": true
+        "replacement_signed_root_booted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Re-selecting the approved prior root preserves both state markers and denies root writes",
+      "matched": true,
+      "observed": {
+        "signed_rollback_root_booted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Every guest boot uses its expected manifest and both protected disks still verify afterwards",
+      "matched": true,
+      "observed": {
+        "signed_manifest_identity_chain": true,
+        "both_root_digests_still_match": true
       }
     }
   ]
