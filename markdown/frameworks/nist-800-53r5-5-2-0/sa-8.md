@@ -20,15 +20,6 @@ Security engineering principles guide secure design of agentic AI architectures
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0304-006 - Host volume mount restriction](../../controls/SAF-K8S-0304-006.md)
-
-- Domain: D03 - Workload and Pod Security
-- Knowledge Area: 3.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0304-007 - Service account token automount opt-out](../../controls/SAF-K8S-0304-007.md)
 
 - Domain: D03 - Workload and Pod Security
