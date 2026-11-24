@@ -12,3 +12,7 @@ projected token.
 
 Production host cleanup, build-tool execution, external secret services,
 signing separation and managed runner semantics need separate evidence.
+
+The runner retains the terminal Job until it has read the verdict and
+verified the worker's owner reference. It then sets a one-second
+TTL and observes the controller delete both resources.

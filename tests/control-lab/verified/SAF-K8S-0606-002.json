@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-002",
-  "catalog_revision": "7596db2fadd8570abd2ca7c5a81d009132e7429f",
-  "catalog_sha256": "b23156ac73fd1681b03930cda73dce580315e19891cc5d2005810adee982d715",
+  "catalog_revision": "0824e7797c156680ea091209b419b443b4396e9e",
+  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "18e71b28a969447b482e8099f547ca77a4de9b20bfffc6832afffe13b74c89c7",
   "scope": "Disposable Kind build Jobs with enforced Restricted Pod security, isolated scratch storage, narrow projected Kubernetes access and an owned network allowlist. The Jobs package a harmless input and retain only verdicts, then are removed by the TTL controller. External CI infrastructure, secret stores, host cleanup and signing boundaries require separate evidence.",
-  "cluster": "saf-lab-e5df08a29fd2",
+  "cluster": "saf-lab-be32f8a0c348",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

@@ -2,6 +2,7 @@
 from hashlib import sha256
 from ipaddress import ip_address
 import json
+import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -11,7 +12,7 @@ NAME = "fixture-build-runner"
 APPROVED = "runner-approved-input"
 OTHER = "runner-other-input"
 MARKER = "public fixture source bytes"
-TTL = 10
+TTL = 1
 SCOPE = (
     "Disposable Kind build Jobs with enforced Restricted Pod security, isolated scratch "
     "storage, narrow projected Kubernetes access and an owned network allowlist. "
@@ -111,7 +112,7 @@ def job(lab, suffix):
                               for name, path in (("fixture", "/fixture"), ("identity", "/identity"), ("work", "/work"))]
     created = lab.create({
         "apiVersion": "batch/v1", "kind": "Job", "metadata": {"name": name},
-        "spec": {"backoffLimit": 0, "activeDeadlineSeconds": 45, "ttlSecondsAfterFinished": TTL,
+        "spec": {"backoffLimit": 0, "activeDeadlineSeconds": 85,
                  "template": {"metadata": {"labels": {"app": NAME}}, "spec": {
                      "restartPolicy": "Never", "securityContext": security(), "serviceAccountName": NAME,
                      "automountServiceAccountToken": False, "containers": [worker],
@@ -125,11 +126,24 @@ def job(lab, suffix):
                  }},
         },
     })
-    lab.kubectl("wait", "--for=condition=Complete", f"job/{name}", "--timeout=55s", timeout=65)
+    deadline = time.monotonic() + 100
+    while True:
+        conditions = {item["type"] for item in get(lab, "job", name)["status"].get("conditions", [])
+                      if item["status"] == "True"}
+        if "Complete" in conditions:
+            break
+        if "Failed" in conditions or time.monotonic() >= deadline:
+            lab.kubectl("logs", f"job/{name}", allow_failure=True)
+            lab.kubectl("get", "events", "--sort-by=.metadata.creationTimestamp", allow_failure=True)
+            lab.block(f"The owned Job {name} did not complete; inspect its retained log and events")
+        time.sleep(0.4)
     receipt = json.loads(lab.kubectl("logs", f"job/{name}").stdout)
     runner, = get(lab, "pods", "-l", f"job-name={name}")["items"]
     same = receipt["own_pod_uid"] == runner["metadata"]["uid"]
     owned = created["metadata"]["uid"] in {ref["uid"] for ref in runner["metadata"]["ownerReferences"]}
+    # Keep evidence available until the terminal result and ownership have been observed.
+    lab.kubectl("patch", "job", name, "--type=merge",
+                "--patch", json.dumps({"spec": {"ttlSecondsAfterFinished": TTL}}))
     lab.kubectl("wait", "--for=delete", f"job/{name}", f"pod/{runner['metadata']['name']}",
                 "--timeout=40s", timeout=50)
     return {**receipt, "owned_runner_garbage_collected": same and owned}
