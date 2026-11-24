@@ -1,0 +1,140 @@
+{
+  "control_id": "SAF-K8S-0910-018",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "b76a5fed4da3b74bac83c4454f995402bfe7c3f250a926259e963ce96092f44b",
+  "scope": "Two separately owned Kind API servers; one harmless BusyBox Deployment; server-side admission evidence bound to member UID, endpoint, policy identity and exact candidate revision; separate observation, reviewer approval and placement identities.",
+  "cluster": "saf-lab-0d0c94f5ee87",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Unchecked posture permits the harmless baseline on both owned members",
+      "matched": true,
+      "observed": {
+        "hub": true,
+        "peer": true,
+        "both_baseline_workloads_ready": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Posture evidence is live, exact-member bound, fresh, and required",
+      "matched": true,
+      "observed": {
+        "enforcement": {
+          "hub": {
+            "safe": {
+              "decision": "accepted",
+              "signal": "server-dry-run-created"
+            },
+            "unsafe": {
+              "decision": "denied-by-policy",
+              "signal": "SAF-K8S-0910-018: unsafe synthetic workload rejected"
+            }
+          },
+          "peer": {
+            "safe": {
+              "decision": "accepted",
+              "signal": "server-dry-run-created"
+            },
+            "unsafe": {
+              "decision": "accepted",
+              "signal": "server-dry-run-created"
+            }
+          }
+        },
+        "fail_closed_trials": {
+          "missing": {
+            "decision": "blocked",
+            "reason": "missing-evidence",
+            "no_workload_created": true
+          },
+          "stale": {
+            "decision": "blocked",
+            "reason": "stale-evidence",
+            "no_workload_created": true
+          },
+          "wrong_member": {
+            "decision": "blocked",
+            "reason": "evidence-binding-or-enforcement-mismatch",
+            "no_workload_created": true
+          },
+          "missing_approval": {
+            "decision": "blocked",
+            "reason": "approval-missing-or-mismatched",
+            "created": false,
+            "no_workload_created": true
+          },
+          "warn_only_member": {
+            "decision": "blocked",
+            "reason": "evidence-binding-or-enforcement-mismatch",
+            "created": false,
+            "no_workload_created": true
+          },
+          "changed_workload": {
+            "decision": "blocked",
+            "reason": "workload-digest-mismatch",
+            "created": false,
+            "no_workload_created": true
+          }
+        },
+        "checks": {
+          "live_member_specific_posture": true,
+          "all_ineligible_requests_fail_closed_for_the_expected_reasons": true,
+          "receipt_identity_is_per_member": true,
+          "observation_approval_and_action_are_separate": true
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Fresh reviewed posture permits real placement on the healthy member",
+      "matched": true,
+      "observed": {
+        "member": "hub",
+        "placement": {
+          "decision": "placed",
+          "reason": "fresh-approved-posture",
+          "created": true
+        },
+        "checks": {
+          "separate_reviewer_approved_exact_receipt": true,
+          "healthy_member_received_real_create": true,
+          "candidate_reached_available": true
+        }
+      }
+    }
+  ]
+}
