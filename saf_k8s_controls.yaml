@@ -1190,12 +1190,12 @@
   knowledge_area: '2.1'
   control_seq: '007'
   control_title: Node eviction threshold tuning for workload pressure
-  control_statement: Kubernetes nodes must set hard eviction thresholds that trigger before workload resource exhaustion destabilizes kubelet, the container runtime, or operating system processes, and those thresholds must be tuned for node instance type and workload behavior.
-  objective: Maintain node stability during memory, storage, or other pressure conditions by reclaiming resources before exhaustion and preserving kubelet responsiveness. When a hard threshold is met, the kubelet can immediately terminate selected Pods without honoring the Pod's configured termination grace period or PodDisruptionBudget.
-  rationale: Reserved resources alone do not protect node stability if eviction thresholds are absent or tuned too late. Correct eviction settings let the kubelet reclaim resources before pressure conditions become cascading node failures or denial-of-service events affecting all workloads on the node.
-  scope: Applies to all production cluster nodes, with particular attention to nodes hosting GPU workloads or AI training jobs that can exhibit sudden memory spikes. Managed Kubernetes services that expose allocatable resource configuration must have these values tuned for the node instance type. Exemptions require documented risk acceptance.
+  control_statement: Select, apply and review effective kubelet hard eviction thresholds and shared node resource reservations for each applicable node pool. Use workload headroom and signal availability to reduce pressure-related disruption to the kubelet, runtime and OS.
+  objective: Support node responsiveness and workload recovery under pressure using applicable memory, filesystem space, inode and PID signals. A kubelet hard eviction of a selected Pod does not honor Pod termination grace or a PodDisruptionBudget.
+  rationale: Eviction thresholds and reservations can reduce pressure-related failures. Rapid memory changes can outrun kubelet observation and the kernel can invoke its OOM killer first. Filesystem and PID signal applicability depends on the node's effective configuration and platform.
+  scope: Applies to governed Kubernetes node pools, according to their reachable signals, reservations, runtime, filesystem layout and workload recovery requirements. Record service and pool-specific evidence for provider-operated settings and approved exceptions for unavailable coverage.
   primary_enforcement_point: Node provisioning templates and kubelet configuration files specifying evictionHard and related reclaim thresholds.
-  implementation_surface: KubeletConfiguration evictionHard thresholds, enforceNodeAllocatable behavior, node pressure alerting, memory and ephemeral storage pressure dashboards, and tuning practices validated against workload burst and recovery behavior.
+  implementation_surface: Inventory the full effective evictionHard map and mergeDefaultEvictionSettings per pool. Inspect allocatable capacity, reserved resources, applicable pressure signals and alert ownership. Rehearse workload interruption and recovery, and review operational thresholds after relevant platform or workload changes.
   owner_primary: Platform Engineering
   owner_supporting: Workload Teams; Capacity Planning
   baseline_or_ai_specific: baseline
@@ -1203,7 +1203,7 @@
   status: draft
   superseded_by_control_id: null
   date_created: '2026-03-13'
-  date_modified: '2026-03-17'
+  date_modified: '2026-11-24'
 - control_id: SAF-K8S-0201-008
   domain_code: D02
   domain_name: Node, Runtime, and OS Security
