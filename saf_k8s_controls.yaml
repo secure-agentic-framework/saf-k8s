@@ -10050,12 +10050,12 @@
   knowledge_area: '9.10'
   control_seq: '021'
   control_title: Compromised-cluster federation isolation and re-admission governance
-  control_statement: Multi-cluster AI workload orchestration control planes must implement circuit-breaker controls that isolate compromised clusters from the federation, prevent new placement or continued execution where required, and require governed approval before isolated clusters are re-admitted.
-  objective: Contain compromised member clusters before they can continue receiving workloads or influencing the wider federation, and ensure controlled re-entry after remediation.
-  rationale: Even with strong placement gating, a cluster can become unsafe after admission to the federation. Circuit-breaker isolation limits blast radius by stopping further placement and federation participation, while governed re-admission ensures clusters do not silently rejoin before remediation and review are complete.
-  scope: Applies to organizations operating AI workloads across multiple Kubernetes clusters, whether on-premises, multi-cloud, or hybrid. Covers circuit-breaker isolation triggers, federation removal or workload draining actions, and approval-based re-admission of previously isolated clusters. Excludes placement-time posture verification before initial workload routing.
-  primary_enforcement_point: Federation isolation trigger configuration, compromised-cluster isolation actions, and re-admission approval workflow.
-  implementation_surface: Circuit-breaker isolation triggers, federation credential revocation or workload draining workflows, compromised-cluster quarantine controls, manual override handling, and re-admission approval records for isolated clusters.
+  control_statement: Define an approved circuit-breaker workflow for a governed member cluster that requires isolation. Prevent new placements, revoke applicable access and handle existing workloads as the policy requires. Require independently authorized readmission tied to the exact member and isolation decision.
+  objective: Contain an affected member and restore only approved federation functions following verified remediation.
+  rationale: Placement-time screening cannot guarantee ongoing trust. Isolation and readmission require exact member identity, measured effect, explicit restoration and written approval.
+  scope: Applies to governed member clusters and existing orchestration paths. Verify signal authority, isolation delivery, drain and continuing workload exceptions, and recovery policy in the actual deployment.
+  primary_enforcement_point: Federation membership and placement authorization, active-workload containment and independent readmission approval.
+  implementation_surface: Record the triggering decision and exact member identity. Verify new placement denial and documented runtime handling. Require authenticated independent approval and reassess the member before restoring least-privilege access.
   owner_primary: Platform Engineering
   owner_supporting: ML Platform Engineering; Security Engineering; SRE
   baseline_or_ai_specific: ai-specific
