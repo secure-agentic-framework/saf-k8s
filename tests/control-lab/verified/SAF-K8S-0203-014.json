@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0203-014",
-  "catalog_revision": "ab59fe1432d4ac14bb2459dbff6d361e8700527b",
-  "catalog_sha256": "863b377e625c78c0af692318668a1b486d585ae4e917dd947b326dcaa02b3ea6",
+  "catalog_revision": "46a8fbc68451e25f12534cdec334d9641cb9d47a",
+  "catalog_sha256": "6c62a9ab38837b70dbe3d92571eb93f33722e18e15a26a688854bcfd3cadd6b4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "f8d28f3c2c44ee01bc356594f5dccdd74fbb68751b864de06e5d531eb218f0dc",
-  "scope": "A restricted Kubernetes Job compares two loopback-only marker access contracts. Cloud provider enforcement requires separate evidence.",
-  "cluster": "saf-lab-5985b170ea93",
+  "scope": "A restricted Job compares fixed intent, expiring issued sessions and native TLS client authentication using only loopback markers.",
+  "cluster": "saf-lab-a4fa3af27a72",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -62,6 +62,30 @@
       "matched": true,
       "observed": {
         "issued_session_accepted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same issued marker session stops granting access after its fixture lifetime",
+      "matched": true,
+      "observed": {
+        "expired_session": 401
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native TLS rejects no certificate and the same claimed subject signed by another CA",
+      "matched": true,
+      "observed": {
+        "anonymous_and_untrusted_peer_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved TLS client is verified and can receive the same harmless marker",
+      "matched": true,
+      "observed": {
+        "verified_client_received_marker": true
       }
     }
   ]
