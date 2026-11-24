@@ -47,15 +47,6 @@ Agent/device identity authentication (non-human identity)
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0804-004 - Confidential AI workload operational constraints and risk assessment](../../controls/SAF-K8S-0804-004.md)
-
-- Domain: D08 - GPU, Accelerator, and Confidential Computing
-- Knowledge Area: 8.4
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0910-021 - Cross-cluster endpoint and workload authentication for AI communication](../../controls/SAF-K8S-0910-021.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
