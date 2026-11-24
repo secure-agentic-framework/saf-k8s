@@ -1,5 +1,6 @@
 """Exercise synthetic Kubernetes AI asset inventory and live watch scope."""
 import json
+import hashlib
 import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -31,6 +32,11 @@ REGISTRY_CLIENT = "registry-fixture-client"
 REGISTRY_URL = f"http://{REGISTRY_NAME}.{NAMESPACE}.svc.cluster.local:5000"
 REGISTRY_REPOSITORY = "saf-fixtures/synthetic-model"
 REGISTRY_TAG = "fixture"
+DRA_CLASS = "saf-synthetic-device-class"
+DRA_DRIVER = "synthetic-dra.saf-k8s.example"
+DRA_SLICE = "saf-synthetic-device-pool"
+DRA_CLAIM = "owned-synthetic-dra-claim"
+DRA_POD = "owned-synthetic-dra-consumer"
 SELECTOR = "saf-k8s.example/control-1007-013=synthetic-owned"
 REFERENCE_TIME = datetime(2026, 1, 1, tzinfo=timezone.utc)
 SOURCE_MAX_AGE_SECONDS = 60
@@ -41,10 +47,11 @@ SCOPE = (
     "identity for an actual Kubernetes LIST and persistent WATCH, "
     "observes create/update/delete events, filters records by a synthetic ownership label, and confirms "
     "the identity is denied access to a separate namespace. The same reader lists actual typed "
-    "Service, Job and PVC API objects; a deterministic fixture clock drives unknown, stale, "
+    "Service, Job, PVC and ResourceClaim API objects; a deterministic fixture clock drives unknown, stale, "
     "last-good retention, recovery and relist reconciliation through a narrowly scoped Kubernetes "
     "publisher identity. A local Distribution registry supplies one deterministic synthetic OCI model "
-    "source; actual accelerator ownership and production registry coverage remain adopter evidence."
+    "source plus an inert versioned dataset manifest; synthetic DRA allocation is scheduler metadata "
+    "with no physical device, and production source coverage remains adopter evidence."
 )
 
 
@@ -151,6 +158,8 @@ def _typed_inventory(lab, reference_time):
         "persistentvolumeclaims": ("v1", "PersistentVolumeClaim",
                                    f"/api/v1/namespaces/{NAMESPACE}/persistentvolumeclaims"),
         "jobs": ("batch/v1", "Job", f"/apis/batch/v1/namespaces/{NAMESPACE}/jobs"),
+        "resourceclaims": ("resource.k8s.io/v1", "ResourceClaim",
+                           f"/apis/resource.k8s.io/v1/namespaces/{NAMESPACE}/resourceclaims"),
     }
     observations = {}
     for source, (expected_version, kind, path) in scopes.items():
@@ -177,10 +186,22 @@ def _typed_inventory(lab, reference_time):
             "expected": True, "status": "fresh", "capture_time": _iso_time(reference_time),
             "cursor": document["metadata"]["resourceVersion"], "source_identity": source_identity,
             "assets": {
-                row["metadata"]["name"]: {
+                (f"{row['metadata'].get('namespace', NAMESPACE)}/{row['metadata']['name']}"
+                 if kind == "ResourceClaim" else row["metadata"]["name"]): {
                     "uid": row["metadata"]["uid"], "api_version": api_version,
                     "resource_version": row["metadata"]["resourceVersion"],
                     "definition": row["spec"],
+                    **({"namespace": row["metadata"].get("namespace", NAMESPACE),
+                        "claim_name": row["metadata"]["name"],
+                        "annotations": row["metadata"].get("annotations", {}),
+                        "reserved_for": row.get("status", {}).get("reservedFor", []),
+                        "assigned_devices": [
+                            {"request": item["request"], "driver": item["driver"],
+                             "pool": item["pool"], "device_id": item["device"]}
+                            for item in (row.get("status", {}).get("allocation", {})
+                                         .get("devices", {}).get("results", []))
+                        ]}
+                       if kind == "ResourceClaim" else {}),
                 } for row in document["items"]
             },
         }
@@ -233,7 +254,9 @@ def _set_owned_job_collection(lab, enabled):
     common = {"apiGroups": [""], "resources": ["configmaps", "services", "persistentvolumeclaims"],
               "verbs": ["list", "watch"]}
     jobs = {"apiGroups": ["batch"], "resources": ["jobs"], "verbs": ["list", "watch"]}
-    rules = [common, SNAPSHOT_READ_RULE, jobs] if enabled else [common, SNAPSHOT_READ_RULE]
+    claims = {"apiGroups": ["resource.k8s.io"], "resources": ["resourceclaims"],
+              "verbs": ["list", "watch"]}
+    rules = [common, SNAPSHOT_READ_RULE, jobs, claims] if enabled else [common, SNAPSHOT_READ_RULE, claims]
     lab.kubectl("-n", NAMESPACE, "patch", "role", "asset-inventory-reader", "--type=merge",
                 "-p", json.dumps({"rules": rules}))
     expected_answer = "yes" if enabled else "no"
@@ -267,10 +290,10 @@ def verify_typed_resync(lab):
     for item in (service, claim, pipeline):
         item["metadata"]["labels"] = dict(labels)
     actuals = tuple(_create_owned(lab, item) for item in (service, claim, pipeline))
-    expected_sources = ("services", "persistentvolumeclaims", "jobs")
+    expected_sources = ("services", "persistentvolumeclaims", "jobs", "resourceclaims")
     initial_observations = _typed_inventory(lab, REFERENCE_TIME)
     old = _reconcile(None, initial_observations, expected_sources, REFERENCE_TIME)
-    by_kind = tuple(old["sources"][source]["assets"] for source in expected_sources)
+    by_kind = tuple(old["sources"][source]["assets"] for source in expected_sources[:3])
     exact = all(
         observed.get(obj["metadata"]["name"], {}).get("uid") == obj["metadata"]["uid"]
         for obj, observed in zip(actuals, by_kind)
@@ -295,8 +318,8 @@ def verify_typed_resync(lab):
     unknown_check = {
         "unobserved_expected_source_is_unknown": unknown_job["expected"]
         and unknown_job["status"] == "unknown" and unknown_job["gap"],
-        "expected_coverage_and_source_identity_recorded": (
-            len(expected_sources) == 3 and bool(unknown_job.get("source_identity"))
+            "expected_coverage_and_source_identity_recorded": (
+            len(expected_sources) == 4 and bool(unknown_job.get("source_identity"))
         ),
     }
     save_raw(lab, "typed-inventory-unknown.raw.json", {
@@ -331,7 +354,7 @@ def verify_typed_resync(lab):
         and gap_persisted["metadata"]["uid"] == record["metadata"]["uid"],
         "healthy_sources_remain_fresh": all(
             gap["sources"][source]["status"] == "fresh"
-            for source in ("services", "persistentvolumeclaims")
+            for source in ("services", "persistentvolumeclaims", "resourceclaims")
         ),
     }
     save_raw(lab, "typed-inventory-gap.raw.json", {
@@ -417,12 +440,138 @@ def verify_typed_resync(lab):
               all(observed.values()), observed)
 
 
+def verify_dra_claim_reconciliation(lab):
+    """Collect scheduler allocation metadata for an owned synthetic DRA claim."""
+    marker = "saf-k8s.example/control-1007-013"
+    device_id = "synthetic-device-001"
+    device_class = {
+        "apiVersion": "resource.k8s.io/v1", "kind": "DeviceClass",
+        "metadata": {"name": DRA_CLASS},
+        "spec": {"selectors": [{"cel": {"expression": f"device.driver == '{DRA_DRIVER}'"}}]},
+    }
+    resource_slice = {
+        "apiVersion": "resource.k8s.io/v1", "kind": "ResourceSlice",
+        "metadata": {"name": DRA_SLICE},
+        "spec": {
+            "driver": DRA_DRIVER,
+            "pool": {"name": "saf-synthetic-pool", "generation": 1,
+                     "resourceSliceCount": 1},
+            "allNodes": True,
+            "devices": [{"name": device_id, "attributes": {
+                "saf-k8s.example/fixture": {"string": "synthetic-no-physical-device"}
+            }}],
+        },
+    }
+    claim = {
+        "apiVersion": "resource.k8s.io/v1", "kind": "ResourceClaim",
+        "metadata": {"name": DRA_CLAIM, "namespace": NAMESPACE,
+                     "labels": {marker: "synthetic-owned"},
+                     "annotations": {"saf-k8s.example/evidence-kind": "scheduler-metadata-only"}},
+         "spec": {"devices": {"requests": [{"name": "synthetic-device", "exactly": {
+                    "deviceClassName": DRA_CLASS, "allocationMode": "ExactCount", "count": 1}}]}},
+    }
+    pod = {
+        "apiVersion": "v1", "kind": "Pod",
+        "metadata": {"name": DRA_POD, "namespace": NAMESPACE,
+                     "labels": {marker: "synthetic-owned"}},
+        "spec": {"automountServiceAccountToken": False,
+                 "restartPolicy": "Never",
+                 "resourceClaims": [{"name": "synthetic-device", "resourceClaimName": DRA_CLAIM}],
+                 "containers": [{"name": "fixture", "image": BUSYBOX_IMAGE,
+                                 "command": ["true"],
+                                 "resources": {"claims": [{"name": "synthetic-device"}]}}]},
+    }
+    lab.kubectl("apply", "-f", "-", payload=json.dumps(device_class))
+    lab.kubectl("apply", "-f", "-", payload=json.dumps(resource_slice))
+    _create_owned(lab, claim)
+    allocated_pod = _create_owned(lab, pod)
+
+    capture_time = REFERENCE_TIME + timedelta(seconds=123)
+    observations = _typed_inventory(lab, capture_time)
+    allocation = []
+    for _ in range(30):
+        claim_source = observations["resourceclaims"]
+        entry = claim_source["assets"].get(f"{NAMESPACE}/{DRA_CLAIM}")
+        allocation = (entry or {}).get("assigned_devices", [])
+        if allocation and any(consumer.get("uid") == allocated_pod["metadata"]["uid"]
+                              for consumer in (entry or {}).get("reserved_for", [])):
+            break
+        time.sleep(1)
+        observations = _typed_inventory(lab, capture_time)
+    if not allocation:
+        lab.block("The scheduler did not publish a DRA allocation for the owned synthetic claim")
+
+    record = json.loads(lab.kubectl("-n", NAMESPACE, "get", "configmap", PUBLICATION_RECORD,
+                                    "-o", "json").stdout)
+    previous = json.loads(record["data"]["inventory.json"])
+    sources = set(previous["expected_sources"]) | {"resourceclaims"}
+    allocated_snapshot = _reconcile(previous, observations, sources, capture_time)
+    allocated_record = _publish_snapshot(lab, PUBLICATION_RECORD, allocated_snapshot)
+    allocated_inventory = json.loads(allocated_record["data"]["inventory.json"])
+    allocated_claim = allocated_inventory["sources"]["resourceclaims"]["assets"].get(
+        f"{NAMESPACE}/{DRA_CLAIM}", {})
+    exact_assignment = (allocated_claim.get("namespace") == NAMESPACE
+                        and allocated_claim.get("claim_name") == DRA_CLAIM
+                        and any(consumer.get("uid") == allocated_pod["metadata"]["uid"]
+                                for consumer in allocated_claim.get("reserved_for", []))
+                        and len(allocated_claim.get("assigned_devices", [])) == 1
+                        and allocated_claim["assigned_devices"][0] == {
+                            "request": "synthetic-device", "driver": DRA_DRIVER,
+                            "pool": "saf-synthetic-pool", "device_id": device_id,
+                        })
+    lab.check("positive", "Owned ResourceClaim maps to its scheduler-assigned synthetic device",
+              exact_assignment, {"namespace_claim_to_device_mapping": exact_assignment,
+                                 "source": "native ResourceClaim allocation status",
+                                 "classification": "synthetic scheduler metadata; no physical device"})
+
+    update_time = capture_time + timedelta(seconds=1)
+    update_marker = "SYNTH-DRA-REVISION-002"
+    lab.kubectl("-n", NAMESPACE, "patch", "resourceclaim", DRA_CLAIM, "--type=merge", "-p",
+                json.dumps({"metadata": {"annotations": {
+                    "saf-k8s.example/revision": update_marker}}}))
+    updated_observations = _typed_inventory(lab, update_time)
+    updated_snapshot = _reconcile(allocated_inventory, updated_observations, sources, update_time)
+    updated_record = _publish_snapshot(lab, PUBLICATION_RECORD, updated_snapshot)
+    updated_inventory = json.loads(updated_record["data"]["inventory.json"])
+    updated_claim = updated_inventory["sources"]["resourceclaims"]["assets"].get(
+        f"{NAMESPACE}/{DRA_CLAIM}", {})
+    update_check = (updated_claim.get("annotations", {}).get("saf-k8s.example/revision") == update_marker
+                    and updated_claim.get("resource_version") != allocated_claim.get("resource_version")
+                    and updated_claim.get("assigned_devices") == allocated_claim.get("assigned_devices")
+                    and updated_record["metadata"]["uid"] == allocated_record["metadata"]["uid"])
+    lab.check("positive", "ResourceClaim source updates reconcile through the scoped publisher",
+              update_check, {"metadata_update_and_allocation_retained": update_check})
+
+    remove_time = update_time + timedelta(seconds=1)
+    lab.kubectl("-n", NAMESPACE, "delete", "pod", DRA_POD, "--wait=true", "--timeout=40s", timeout=50)
+    lab.kubectl("-n", NAMESPACE, "delete", "resourceclaim", DRA_CLAIM, "--wait=true", "--timeout=50s", timeout=60)
+    removed_observations = _typed_inventory(lab, remove_time)
+    removed_snapshot = _reconcile(updated_inventory, removed_observations, sources, remove_time)
+    removed_record = _publish_snapshot(lab, PUBLICATION_RECORD, removed_snapshot)
+    removed_inventory = json.loads(removed_record["data"]["inventory.json"])
+    removal_check = (f"{NAMESPACE}/{DRA_CLAIM}"
+                     not in removed_inventory["sources"]["resourceclaims"]["assets"]
+                     and removed_record["metadata"]["uid"] == allocated_record["metadata"]["uid"])
+    save_raw(lab, "dra-resourceclaim-reconciliation.raw.json", {
+        "source_identity": removed_inventory["sources"]["resourceclaims"]["source_identity"],
+        "synthetic_device": {"driver": DRA_DRIVER, "pool": "saf-synthetic-pool",
+                             "device_id": device_id, "physical_device": False},
+        "allocated": allocated_claim, "updated": updated_claim,
+        "removed_from_published_inventory": removal_check,
+        "checks": {"exact_namespace_claim_device_mapping": exact_assignment,
+                   "claim_update_reconciled": update_check,
+                   "claim_removal_reconciled": removal_check},
+    })
+    lab.check("green", "ResourceClaim removal is reflected through the publication helper",
+              removal_check, {"claim_absent_after_authoritative_relist": removal_check})
+
+
 def _registry_client_command(lab, *arguments):
     with (lab.evidence / "commands.log").open("a") as log:
         log.write("$ kubectl -n " + NAMESPACE + " exec " + REGISTRY_CLIENT
                   + " -- python /fixture/registry_fixture.py " + REGISTRY_URL + " "
                   + REGISTRY_REPOSITORY + " " + REGISTRY_TAG + " " + " ".join(arguments) + "\n")
-    return lab.kubectl("-n", NAMESPACE, "exec", REGISTRY_CLIENT, "--", "python", "/fixture/registry_fixture.py",
+    return lab.kubectl("-n", NAMESPACE, "exec", REGISTRY_CLIENT, "-c", "fixture-client", "--", "python", "/fixture/registry_fixture.py",
                        REGISTRY_URL, REGISTRY_REPOSITORY, REGISTRY_TAG, *arguments)
 
 
@@ -461,7 +610,7 @@ def _registry_observation(lab, revision, reference_time):
 
 def verify_registry_reconciliation(lab):
     first_write = json.loads(_registry_client_command(lab, "push", "1").stdout)
-    first_time = REFERENCE_TIME + timedelta(seconds=123)
+    first_time = REFERENCE_TIME + timedelta(seconds=126)
     first, first_readback = _registry_observation(lab, 1, first_time)
     record = json.loads(lab.kubectl("-n", NAMESPACE, "get", "configmap", PUBLICATION_RECORD,
                                     "-o", "json").stdout)
@@ -494,7 +643,7 @@ def verify_registry_reconciliation(lab):
               reader_patch_denied, {"reader_denied_snapshot_patch": reader_patch_denied})
 
     denied_lists = {}
-    for resource_name in ("configmaps", "services", "persistentvolumeclaims", "jobs"):
+    for resource_name in ("configmaps", "services", "persistentvolumeclaims", "jobs", "resourceclaims"):
         result = lab.kubectl("--as", PUBLISHER_IDENTITY, "-n", NAMESPACE, "get", resource_name,
                              "-o", "json", allow_failure=True)
         text = result.stdout + result.stderr
@@ -564,6 +713,95 @@ def verify_registry_reconciliation(lab):
               all(change_check.values()), change_check)
 
 
+def _dataset_manifest_observation(lab, reference_time):
+    read = lab.kubectl("-n", NAMESPACE, "exec", REGISTRY_CLIENT, "-c", "fixture-client", "--",
+                        "python", "/fixture/dataset_catalog.py", "read")
+    received = json.loads(read.stdout)
+    document = received["result"]
+    selected = document["version"]
+    canonical = json.dumps(selected["content"], sort_keys=True, separators=(",", ":")).encode()
+    digest = "sha256:" + hashlib.sha256(canonical).hexdigest()
+    if digest != selected["digest"]:
+        raise ValueError("dataset source content does not match its declared digest")
+    identity = {**document["source_identity"], "service": "dataset-catalog"}
+    return {
+        "expected": True, "status": "fresh", "capture_time": _iso_time(reference_time),
+        "cursor": selected["version"], "source_identity": identity,
+        "assets": {document["dataset_id"]: {
+            "dataset_id": document["dataset_id"], "version": selected["version"],
+            "digest": digest, "change_history": selected["change_history"],
+            "content_metadata": selected["content"], "response_etag": received["etag"],
+            "synthetic_fixture": True,
+        }},
+    }
+
+
+def verify_dataset_manifest_reconciliation(lab):
+    """Reconcile an authoritative inert dataset manifest through the existing publisher."""
+    record = json.loads(lab.kubectl("-n", NAMESPACE, "get", "configmap", PUBLICATION_RECORD,
+                                    "-o", "json").stdout)
+    previous = json.loads(record["data"]["inventory.json"])
+    sources = set(previous["expected_sources"]) | {"authoritative_dataset_manifest"}
+    first_time = REFERENCE_TIME + timedelta(seconds=128)
+    first_source = _dataset_manifest_observation(lab, first_time)
+    first_snapshot = _reconcile(previous, {
+        **_typed_inventory(lab, first_time), "oci_registry": previous["sources"]["oci_registry"],
+        "authoritative_dataset_manifest": first_source,
+    },
+                                sources, first_time)
+    first_record = _publish_snapshot(lab, PUBLICATION_RECORD, first_snapshot)
+    first_inventory = json.loads(first_record["data"]["inventory.json"])
+    first_asset = first_inventory["sources"]["authoritative_dataset_manifest"]["assets"][
+        "synthetic-dataset-001"]
+
+    second_time = first_time + timedelta(seconds=1)
+    lab.kubectl("-n", NAMESPACE, "exec", REGISTRY_CLIENT, "-c", "dataset-catalog", "--",
+                "python", "/fixture/dataset_catalog.py", "advance")
+    second_source = _dataset_manifest_observation(lab, second_time)
+    second_snapshot = _reconcile(first_inventory,
+                                 {**_typed_inventory(lab, second_time),
+                                  "oci_registry": first_inventory["sources"]["oci_registry"],
+                                  "authoritative_dataset_manifest": second_source},
+                                 sources, second_time)
+    changed_record = _publish_snapshot(lab, PUBLICATION_RECORD, second_snapshot)
+    changed_inventory = json.loads(changed_record["data"]["inventory.json"])
+    changed_source = changed_inventory["sources"]["authoritative_dataset_manifest"]
+    changed_asset = changed_source["assets"]["synthetic-dataset-001"]
+    check = {
+        "authoritative_source_identity_preserved": (
+            changed_source["source_identity"] == first_inventory["sources"][
+                "authoritative_dataset_manifest"]["source_identity"]
+        ),
+        "version_and_digest_change_recorded": (
+            first_asset["version"] == "SYNTH-DATASET-VERSION-001"
+            and first_asset["response_etag"] != changed_asset["response_etag"]
+            and first_asset["digest"] != changed_asset["digest"]
+            and changed_asset["version"] == "SYNTH-DATASET-VERSION-002"
+        ),
+        "explicit_change_history_retained": len(changed_asset["change_history"]) == 2
+        and changed_asset["change_history"][-1]["version"] == changed_asset["version"],
+        "published_through_same_helper_record": (
+            changed_record["metadata"]["uid"] == first_record["metadata"]["uid"]
+            and changed_inventory == second_snapshot
+        ),
+        "all_expected_sources_present_and_fresh": (
+            set(changed_inventory["sources"]) == sources
+            and all(record["status"] == "fresh" and not record["gap"]
+                    for record in changed_inventory["sources"].values())
+        ),
+        "fresh_source_cursor_and_capture_time": changed_source["status"] == "fresh"
+        and changed_source["cursor"] == changed_asset["version"]
+        and changed_source["capture_time"] == _iso_time(second_time),
+    }
+    save_raw(lab, "authoritative-dataset-manifest-reconciliation.raw.json", {
+        "source_identity": changed_source["source_identity"],
+        "first_published": first_asset, "changed_published": changed_asset,
+        "checks": check,
+    })
+    lab.check("green", "Versioned authoritative dataset source changes reconcile through publisher",
+              all(check.values()), check)
+
+
 def _setup_registry_fixture(lab, image):
     registry_pod = {
         "apiVersion": "v1", "kind": "Pod",
@@ -594,7 +832,23 @@ def _setup_registry_fixture(lab, image):
                  "volumes": [{"name": "fixture-code",
                               "configMap": {"name": "registry-fixture-code"}}]},
     }
-    for obj in (registry_pod, service, code, client_pod):
+    code["data"]["dataset_catalog.py"] = (HERE / "fixtures" / "dataset_catalog.py").read_text()
+    code["data"]["authoritative_dataset_manifest.json"] = (
+        HERE / "fixtures" / "authoritative_dataset_manifest.json").read_text()
+    client_pod["metadata"]["labels"] = {"app": REGISTRY_CLIENT}
+    client_pod["spec"]["containers"].append({
+        "name": "dataset-catalog", "image": image, "command": ["python", "/fixture/dataset_catalog.py", "serve"],
+        "ports": [{"containerPort": 8080}],
+        "readinessProbe": {"httpGet": {"path": "/dataset", "port": 8080}, "periodSeconds": 1},
+        "volumeMounts": [{"name": "fixture-code", "mountPath": "/fixture", "readOnly": True},
+                         {"name": "dataset-active", "mountPath": "/data"}],
+    })
+    client_pod["spec"]["volumes"].append({"name": "dataset-active", "emptyDir": {}})
+    dataset_service = {"apiVersion": "v1", "kind": "Service",
+                       "metadata": {"name": "dataset-catalog", "namespace": NAMESPACE},
+                       "spec": {"selector": {"app": REGISTRY_CLIENT},
+                                "ports": [{"port": 8080, "targetPort": 8080}]}}
+    for obj in (registry_pod, service, code, client_pod, dataset_service):
         lab.kubectl("-n", NAMESPACE, "apply", "-f", "-", payload=json.dumps(obj))
     for name in (REGISTRY_NAME, REGISTRY_CLIENT):
         lab.kubectl("-n", NAMESPACE, "wait", "--for=condition=Ready", f"pod/{name}",
@@ -615,6 +869,8 @@ def run(lab):
             {"apiGroups": [""], "resources": ["configmaps", "services", "persistentvolumeclaims"],
              "verbs": ["list", "watch"]},
             {"apiGroups": ["batch"], "resources": ["jobs"], "verbs": ["list", "watch"]},
+            {"apiGroups": ["resource.k8s.io"], "resources": ["resourceclaims"],
+             "verbs": ["list", "watch"]},
             SNAPSHOT_READ_RULE,
         ],
     }
@@ -730,4 +986,6 @@ def run(lab):
                "deleted_asset_absent_from_final_list": event_name not in final_names,
                "event_objects_are_synthetic_fixture_metadata": True})
     verify_typed_resync(lab)
+    verify_dra_claim_reconciliation(lab)
     verify_registry_reconciliation(lab)
+    verify_dataset_manifest_reconciliation(lab)

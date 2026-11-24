@@ -1,0 +1,47 @@
+{
+  "dataset_id": "synthetic-dataset-001",
+  "fixture_notice": "Inert versioned metadata for an owned HTTP catalog. No dataset payload or production identity is represented.",
+  "source_identity": {
+    "authority": "SAF-1007-013 owned fixture registry",
+    "format": "saf.synthetic.dataset-manifest/v1",
+    "manifest_path": "fixtures/authoritative_dataset_manifest.json",
+    "source_id": "fixture://saf-k8s-1007-013/datasets/synthetic-dataset-001",
+    "source_type": "inert-versioned-dataset-manifest"
+  },
+  "versions": [
+    {
+      "change_history": [
+        {
+          "change": "initial synthetic manifest",
+          "version": "SYNTH-DATASET-VERSION-001"
+        }
+      ],
+      "content": {
+        "description": "synthetic metadata fixture; no dataset rows or payload",
+        "schema_revision": "SYNTH-SCHEMA-001",
+        "storage_reference": "fixture-only://no-storage-content"
+      },
+      "digest": "sha256:03d182b36188c609a6ddbf11e166b9cdf47da3c35bf8a3357105f3b4ac0f2ee9",
+      "version": "SYNTH-DATASET-VERSION-001"
+    },
+    {
+      "change_history": [
+        {
+          "change": "initial synthetic manifest",
+          "version": "SYNTH-DATASET-VERSION-001"
+        },
+        {
+          "change": "synthetic schema revision only",
+          "version": "SYNTH-DATASET-VERSION-002"
+        }
+      ],
+      "content": {
+        "description": "synthetic metadata fixture; no dataset rows or payload",
+        "schema_revision": "SYNTH-SCHEMA-002",
+        "storage_reference": "fixture-only://no-storage-content"
+      },
+      "digest": "sha256:9e38234bc525724c2a2b56c8e5d7b174451a393809b2cb8a9f2dc5a53a5b8923",
+      "version": "SYNTH-DATASET-VERSION-002"
+    }
+  ]
+}

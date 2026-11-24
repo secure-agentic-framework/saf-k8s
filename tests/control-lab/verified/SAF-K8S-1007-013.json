@@ -4,8 +4,8 @@
   "catalog_sha256": "b13085fffcc414b504ce34f1a8df0fae3520e701b0adca01e92c2c2add5002cb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9d15cbb9225090df7e20269208d587cbbfca1bf1b61c763224e004efb43e2272",
-  "scope": "Disposable Kind v1.36.1 cluster. Creates a case-owned namespace, a read-only service account Role/RoleBinding for ConfigMap list/watch in that namespace, synthetic ConfigMap records for model, dataset, pipeline, inference endpoint and GPU allocation metadata. Uses the service-account identity for an actual Kubernetes LIST and persistent WATCH, observes create/update/delete events, filters records by a synthetic ownership label, and confirms the identity is denied access to a separate namespace. The same reader lists actual typed Service, Job and PVC API objects; a deterministic fixture clock drives unknown, stale, last-good retention, recovery and relist reconciliation through a narrowly scoped Kubernetes publisher identity. A local Distribution registry supplies one deterministic synthetic OCI model source; actual accelerator ownership and production registry coverage remain adopter evidence.",
-  "cluster": "saf-lab-801f69013d14",
+  "scope": "Disposable Kind v1.36.1 cluster. Creates a case-owned namespace, a read-only service account Role/RoleBinding for ConfigMap list/watch in that namespace, synthetic ConfigMap records for model, dataset, pipeline, inference endpoint and GPU allocation metadata. Uses the service-account identity for an actual Kubernetes LIST and persistent WATCH, observes create/update/delete events, filters records by a synthetic ownership label, and confirms the identity is denied access to a separate namespace. The same reader lists actual typed Service, Job, PVC and ResourceClaim API objects; a deterministic fixture clock drives unknown, stale, last-good retention, recovery and relist reconciliation through a narrowly scoped Kubernetes publisher identity. A local Distribution registry supplies one deterministic synthetic OCI model source plus an inert versioned dataset manifest; synthetic DRA allocation is scheduler metadata with no physical device, and production source coverage remains adopter evidence.",
+  "cluster": "saf-lab-c8c997240072",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -152,6 +152,32 @@
     },
     {
       "phase": "positive",
+      "claim": "Owned ResourceClaim maps to its scheduler-assigned synthetic device",
+      "matched": true,
+      "observed": {
+        "namespace_claim_to_device_mapping": true,
+        "source": "native ResourceClaim allocation status",
+        "classification": "synthetic scheduler metadata; no physical device"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "ResourceClaim source updates reconcile through the scoped publisher",
+      "matched": true,
+      "observed": {
+        "metadata_update_and_allocation_retained": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "ResourceClaim removal is reflected through the publication helper",
+      "matched": true,
+      "observed": {
+        "claim_absent_after_authoritative_relist": true
+      }
+    },
+    {
+      "phase": "positive",
       "claim": "Local Registry API reads synthetic model revision 1",
       "matched": true,
       "observed": {
@@ -211,6 +237,19 @@
         "same_publication_record_reconciled": true,
         "all_sources_fresh_at_second_capture": true,
         "both_fixture_writes_are_deterministic": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Versioned authoritative dataset source changes reconcile through publisher",
+      "matched": true,
+      "observed": {
+        "authoritative_source_identity_preserved": true,
+        "version_and_digest_change_recorded": true,
+        "explicit_change_history_retained": true,
+        "published_through_same_helper_record": true,
+        "all_expected_sources_present_and_fresh": true,
+        "fresh_source_cursor_and_capture_time": true
       }
     }
   ]
