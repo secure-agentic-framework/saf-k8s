@@ -35,7 +35,9 @@ SCOPE = (
     "failure, and recovery on the original fixture commit. Coverage is "
     "native Argo CD status and metrics on this fixture. Flux v2.9.0 also reconciles an exact "
     "approved commit over Smart HTTP, exposes a fresh failed request through Kubernetes "
-    "API status and kube-state-metrics, and returns to that same approved commit."
+    "API status and kube-state-metrics, and returns to that same approved commit. "
+    "The Argo CD verification covers its signed release and SLSA source, running "
+    "platform layer chain and a controlled ConfigMap update."
 )
 
 
@@ -278,6 +280,9 @@ def run(lab):
               and recovered["revision"] == approved_commit,
               {"recovery": recovered, "workload_unchanged": recovered_workload == baseline_workload,
                "approved_commit": approved_commit})
+
+    integrity = runpy.run_path(str(HERE / "integrity" / "case.py"))
+    integrity["run"](lab)
 
     flux = runpy.run_path(str(HERE / "flux" / "case.py"))
     flux["run"](lab)

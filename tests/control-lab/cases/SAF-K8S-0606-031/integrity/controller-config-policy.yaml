@@ -1,0 +1,92 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-argocd-cm-scoped-update
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    matchPolicy: Equivalent
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["UPDATE"]
+        resources: ["configmaps"]
+        scope: Namespaced
+  matchConditions:
+    - name: only-owned-argocd-config
+      expression: request.namespace == "argocd" && request.name == "argocd-cm"
+  validations:
+    - expression: request.userInfo.username == "system:serviceaccount:argocd:saf-config-maintainer"
+      message: only the named Argo CD config maintainer may update argocd-cm
+    - expression: object.metadata.uid == oldObject.metadata.uid
+      message: the update must retain the existing fixture-owned ConfigMap
+    - expression: object.metadata.labels["app.kubernetes.io/part-of"] == "argocd"
+      message: the update target must retain the Argo CD installation ownership label
+    - expression: >-
+        (has(object.metadata.labels) == has(oldObject.metadata.labels) &&
+         (!has(object.metadata.labels) || object.metadata.labels == oldObject.metadata.labels)) &&
+        (has(object.metadata.annotations) == has(oldObject.metadata.annotations) &&
+         (!has(object.metadata.annotations) || object.metadata.annotations == oldObject.metadata.annotations)) &&
+        (has(object.metadata.ownerReferences) == has(oldObject.metadata.ownerReferences) &&
+         (!has(object.metadata.ownerReferences) || object.metadata.ownerReferences == oldObject.metadata.ownerReferences)) &&
+        (has(object.metadata.finalizers) == has(oldObject.metadata.finalizers) &&
+         (!has(object.metadata.finalizers) || object.metadata.finalizers == oldObject.metadata.finalizers)) &&
+        (has(object.binaryData) == has(oldObject.binaryData) &&
+         (!has(object.binaryData) || object.binaryData == oldObject.binaryData)) &&
+        (has(object.immutable) == has(oldObject.immutable) &&
+         (!has(object.immutable) || object.immutable == oldObject.immutable))
+      message: this exercise may change only the approved data entry
+    - expression: >-
+        has(object.data) && has(oldObject.data) &&
+        object.data["timeout.reconciliation"] == "180s" &&
+        oldObject.data.all(key,
+          key == "timeout.reconciliation" ||
+          (key in object.data && object.data[key] == oldObject.data[key])) &&
+        object.data.all(key,
+          key == "timeout.reconciliation" ||
+          (key in oldObject.data && oldObject.data[key] == object.data[key]))
+      message: only timeout.reconciliation may be set to the fixture value 180s
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-argocd-cm-scoped-update
+spec:
+  policyName: saf-argocd-cm-scoped-update
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: argocd
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-config-maintainer
+  namespace: argocd
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-config-maintainer
+  namespace: argocd
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["argocd-cm"]
+    verbs: ["get", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-config-maintainer
+  namespace: argocd
+subjects:
+  - kind: ServiceAccount
+    name: saf-config-maintainer
+    namespace: argocd
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-config-maintainer

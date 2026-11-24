@@ -4,8 +4,8 @@
   "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "3785a778973d9bbaa88fbe270dd39ebe9729b9ce4691fdb83cf8a56790bb2e66",
-  "scope": "One disposable kind cluster with Argo CD v3.6.1 watching a case-owned, read-only static Git repository in saf-test. The case observes an approved full Git commit, Argo Application sync and health status, a Ready inert Deployment, the controller's argocd_app_info metric, a manifest-source failure, and recovery on the original fixture commit. Coverage is native Argo CD status and metrics on this fixture. Flux v2.9.0 also reconciles an exact approved commit over Smart HTTP, exposes a fresh failed request through Kubernetes API status and kube-state-metrics, and returns to that same approved commit.",
-  "cluster": "saf-lab-b360decfe8fb",
+  "scope": "One disposable kind cluster with Argo CD v3.6.1 watching a case-owned, read-only static Git repository in saf-test. The case observes an approved full Git commit, Argo Application sync and health status, a Ready inert Deployment, the controller's argocd_app_info metric, a manifest-source failure, and recovery on the original fixture commit. Coverage is native Argo CD status and metrics on this fixture. Flux v2.9.0 also reconciles an exact approved commit over Smart HTTP, exposes a fresh failed request through Kubernetes API status and kube-state-metrics, and returns to that same approved commit. The Argo CD verification covers its signed release and SLSA source, running platform layer chain and a controlled ConfigMap update.",
+  "cluster": "saf-lab-126906b4be9c",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -151,6 +151,104 @@
         },
         "workload_unchanged": true,
         "approved_commit": "6663c522a4fee2374bace27221e664933ba1acec"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The exact release image fails verification with an unrelated workflow identity",
+      "matched": true,
+      "observed": {
+        "identity_rejected": true,
+        "same_image_digest": "sha256:296e3d74f449b2ce45265613fcb68c18ed7366488360c8ea32f5f2a93d2e5c54"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Cosign authenticates the pinned image and the SLSA verifier binds it to the source tag",
+      "matched": true,
+      "observed": {
+        "image_digest": "sha256:296e3d74f449b2ce45265613fcb68c18ed7366488360c8ea32f5f2a93d2e5c54",
+        "source": "github.com/argoproj/argo-cd",
+        "tag": "v3.6.1",
+        "verified_builder": "https://github.com/slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@refs/tags/v2.1.0",
+        "build_source_digest": {
+          "sha1": "94037c4d4e1af4bd0651d37a179fbd9e347e668c"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The running Argo CD controllers use root filesystems from the verified platform-specific child image",
+      "matched": true,
+      "observed": {
+        "runtime_images": [
+          {
+            "component": "argocd-application-controller",
+            "container": "argocd-application-controller",
+            "platform": "linux/arm64",
+            "declared_image": "quay.io/argoproj/argocd:v3.6.1@sha256:296e3d74f449b2ce45265613fcb68c18ed7366488360c8ea32f5f2a93d2e5c54",
+            "runtime_digest": "sha256:296e3d74f449b2ce45265613fcb68c18ed7366488360c8ea32f5f2a93d2e5c54",
+            "verified_child_digest": "sha256:8188b1f5c05b5377756770b3af32bff09bd018645974c82be3f4feb6c763d6eb",
+            "runtime_snapshot_parent": "sha256:67febddd7beb3c13493b691a1fa4176b7f11ad39b84a12b2e59b63b1192e56a8",
+            "verified_platform_chain_id": "sha256:67febddd7beb3c13493b691a1fa4176b7f11ad39b84a12b2e59b63b1192e56a8",
+            "verified_platform_config": "sha256:7abfa531da9438ff86a2d2a846b1f1787c3ba88b0600c99c0a2b371e6eabae2d",
+            "rootfs_matches": true
+          },
+          {
+            "component": "argocd-repo-server",
+            "container": "argocd-repo-server",
+            "platform": "linux/arm64",
+            "declared_image": "quay.io/argoproj/argocd:v3.6.1@sha256:296e3d74f449b2ce45265613fcb68c18ed7366488360c8ea32f5f2a93d2e5c54",
+            "runtime_digest": "sha256:296e3d74f449b2ce45265613fcb68c18ed7366488360c8ea32f5f2a93d2e5c54",
+            "verified_child_digest": "sha256:8188b1f5c05b5377756770b3af32bff09bd018645974c82be3f4feb6c763d6eb",
+            "runtime_snapshot_parent": "sha256:67febddd7beb3c13493b691a1fa4176b7f11ad39b84a12b2e59b63b1192e56a8",
+            "verified_platform_chain_id": "sha256:67febddd7beb3c13493b691a1fa4176b7f11ad39b84a12b2e59b63b1192e56a8",
+            "verified_platform_config": "sha256:7abfa531da9438ff86a2d2a846b1f1787c3ba88b0600c99c0a2b371e6eabae2d",
+            "rootfs_matches": true
+          },
+          {
+            "component": "argocd-server",
+            "container": "argocd-server",
+            "platform": "linux/arm64",
+            "declared_image": "quay.io/argoproj/argocd:v3.6.1@sha256:296e3d74f449b2ce45265613fcb68c18ed7366488360c8ea32f5f2a93d2e5c54",
+            "runtime_digest": "sha256:296e3d74f449b2ce45265613fcb68c18ed7366488360c8ea32f5f2a93d2e5c54",
+            "verified_child_digest": "sha256:8188b1f5c05b5377756770b3af32bff09bd018645974c82be3f4feb6c763d6eb",
+            "runtime_snapshot_parent": "sha256:67febddd7beb3c13493b691a1fa4176b7f11ad39b84a12b2e59b63b1192e56a8",
+            "verified_platform_chain_id": "sha256:67febddd7beb3c13493b691a1fa4176b7f11ad39b84a12b2e59b63b1192e56a8",
+            "verified_platform_config": "sha256:7abfa531da9438ff86a2d2a846b1f1787c3ba88b0600c99c0a2b371e6eabae2d",
+            "rootfs_matches": true
+          }
+        ],
+        "mismatched_components": []
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The scoped maintainer can submit an out-of-contract change before admission is enabled",
+      "matched": true,
+      "observed": {
+        "out_of_contract_dry_run_admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The installed policy rejects the same fixture drift with its exact constraint reason",
+      "matched": true,
+      "observed": {
+        "policy_named": true,
+        "stored_config_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The maintainer persists only the approved value with the policy active",
+      "matched": true,
+      "observed": {
+        "maintainer": "system:serviceaccount:argocd:saf-config-maintainer",
+        "approved_value": "180s",
+        "other_data_unchanged": true,
+        "scope_unchanged": true,
+        "type_warnings": []
       }
     },
     {

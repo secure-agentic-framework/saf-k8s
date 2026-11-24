@@ -32,3 +32,13 @@ kube-state-metrics v2.20.0. A missing path triggers an ArtifactFailed condition
 and a fresh observed reconciliation request. Restoring the path reestablishes
 Ready for the same approved revision. The previously applied test workload
 remains available across both transitions.
+
+The controller-integrity fixture verifies the Argo CD OCI image signature and
+upstream SLSA source tag. It binds the ready controller, repository server, and API server container
+image IDs to the verified OCI index. In this Kind runtime, containerd exposes
+the index digest. The fixture also hashes the platform manifest and config and
+matches the resulting layer chain to each running container snapshot parent. A scoped native admission policy rejects fixture configuration drift and
+permits an approved service-account update to the designated ConfigMap entry.
+This validates the fixture's controller configuration and upstream image
+identity. Production signing authority and rollout gates require their own
+evidence.
