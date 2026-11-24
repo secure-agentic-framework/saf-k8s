@@ -1,14 +1,11 @@
 # SAF-K8S-1001-004 — Audit volume management
 
-This isolated draft compares a broad audit baseline with a selective policy on two fresh,
+The file-backend fixture compares a broad audit baseline with a selective policy on two fresh,
 single-control-plane Kubernetes v1.36.1 Kind clusters. The existing runner creates the red
 cluster. case.py creates and deletes one green comparison cluster during the same normal
 runner entry point:
 
     python3 lab.py test SAF-K8S-1001-004 --docker-context desktop-linux
-
-The supervisor owns execution and any independent Kind run. This draft has not run the lab.
-The exact control statement reviewed is the supplied control.md.
 
 ## Fixture and expected comparison
 

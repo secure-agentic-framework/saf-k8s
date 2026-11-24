@@ -1,7 +1,6 @@
-# saf-lab-1001-004.1 local evidence candidate
+# SAF-K8S-1001-004 — TLS audit webhook
 
-This directory is a runner candidate for supervised execution. It has not been
-run. It creates one fresh, single-node Kind cluster using the pinned Kubernetes
+The webhook fixture runs in a fresh, single-node Kind cluster using the pinned Kubernetes
 v1.36.1 node image, a namespace-scoped audit policy, and a case-owned TLS
 receiver. The API server's webhook URL is a fixed ClusterIP inside the Kind
 cluster. There are no host port mappings, port forwards, public endpoints, or
@@ -11,9 +10,9 @@ external audit destinations.
 
 The case performs exactly five measured API operations: creates of five uniquely
 named ConfigMaps with inert synthetic values in `saf-test`. The audit policy
-selects only those ConfigMap creates and records only `ResponseComplete` at
-`Metadata` level. Before each create, the candidate captures the `Audit-Id`
-returned for that API request. It then waits at most 45 seconds for the receiver
+selects ConfigMap creates in the fixture namespace and records `ResponseComplete` at
+`Metadata` level. The case isolates the five measured requests by their names
+and their returned `Audit-Id` values. It then waits at most 45 seconds for the receiver
 to retain exactly one event with that ID, resource, namespace, name, verb, stage,
 level, and successful response code. Duplicate IDs, missing IDs, extra selected
 fixture events, or bodies in the metadata event fail the case.
