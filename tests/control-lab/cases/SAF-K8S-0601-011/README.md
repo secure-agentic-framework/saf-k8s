@@ -39,3 +39,15 @@ evidence.
 - [DSSE protocol](https://github.com/dsse-lf/dsse/blob/master/protocol.md)
 - [In-toto statement](https://github.com/in-toto/attestation/blob/main/spec/v1/statement.md)
 - [Distribution 3.0.0 garbage collection](https://github.com/distribution/distribution/blob/v3.0.0/docs/content/about/garbage-collection.md)
+
+An isolated in-cluster Registry and Kubernetes CronJob demonstrate scheduled
+lifecycle enforcement. Before scheduling, a separate Job retrieves identical
+subject and referrer content from five repositories. Kubernetes creates the
+scheduled Job, which evaluates the immutable fixture records and deletes the
+eligible cohort in referrer-first order. A fresh observer confirms the removed
+manifests and reads the four cohorts protected by a hold, age, retention window,
+or retained subject. The scheduler is suspended after the first owned Job.
+Production policy configuration, release authority, and any provider-specific
+behavior remain separate evidence.
+
+- [Kubernetes v1.36 CronJobs](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/)

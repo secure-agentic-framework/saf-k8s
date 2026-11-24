@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0601-011",
-  "catalog_revision": "00269d6d735ca3a5bd855e6c285ffb24bbbcccab",
+  "catalog_revision": "40b19c20224b53d49276db7a9f1ff1623af82796",
   "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "bb8438103be279a672ab461aff4a9f9bbb1362ebe7a27c70004e6a0ba7758cca",
-  "scope": "Verify exact OCI subject and referrer descriptors, synthetic lifecycle eligibility and orphan hold. Exercise a disposable loopback-only OCI registry with three synthetic metadata manifest types, then observe early-loss baseline, protected retention and eligible retirement. The extended fixture exercises both OCI discovery modes, synthetic DSSE validation, digest-preserving copies, and Distribution filesystem GC. Production retention and replication remain separate.",
-  "cluster": "saf-lab-3d2118ef678d",
+  "scope": "Verify exact OCI subject and referrer descriptors, synthetic lifecycle eligibility and orphan hold. Exercise a disposable loopback-only OCI registry with three synthetic metadata manifest types, then observe early-loss baseline, protected retention and eligible retirement. The extended fixture exercises both OCI discovery modes, synthetic DSSE validation, digest-preserving copies, and Distribution filesystem GC. An actual Kubernetes CronJob retires only an eligible OCI cohort while age, retention, subject retention and hold each protect a counterpart. Production retention and replication remain separate.",
+  "cluster": "saf-lab-9676abefb2e8",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -158,6 +158,159 @@
         "distribution_gc_completed": true,
         "manifests_and_indexes_absent_after_gc": true,
         "unreferenced_payload_blobs_absent_after_gc": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "separate registry repositories contain equivalent byte-identical OCI cohorts",
+      "matched": true,
+      "observed": {
+        "eligible": {
+          "subject": "sha256:51482d494c5121973ba65483a38c907270fbf7b2b4e85fcd3321cab1356de919",
+          "referrer": "sha256:293e4a6eae86db4075a9e6eeff7d597039742b4cac6ae7eb6d9eca0711f6de93",
+          "payload_digest": "sha256:1520fdef395530f2faa6602c8b5dc944f59c23df06442791867761e5073a4bdc"
+        },
+        "equivalent-held": {
+          "subject": "sha256:51482d494c5121973ba65483a38c907270fbf7b2b4e85fcd3321cab1356de919",
+          "referrer": "sha256:293e4a6eae86db4075a9e6eeff7d597039742b4cac6ae7eb6d9eca0711f6de93",
+          "payload_digest": "sha256:1520fdef395530f2faa6602c8b5dc944f59c23df06442791867761e5073a4bdc"
+        },
+        "negative-retain-until": {
+          "subject": "sha256:51482d494c5121973ba65483a38c907270fbf7b2b4e85fcd3321cab1356de919",
+          "referrer": "sha256:293e4a6eae86db4075a9e6eeff7d597039742b4cac6ae7eb6d9eca0711f6de93",
+          "payload_digest": "sha256:1520fdef395530f2faa6602c8b5dc944f59c23df06442791867761e5073a4bdc"
+        },
+        "negative-subject-retained": {
+          "subject": "sha256:51482d494c5121973ba65483a38c907270fbf7b2b4e85fcd3321cab1356de919",
+          "referrer": "sha256:293e4a6eae86db4075a9e6eeff7d597039742b4cac6ae7eb6d9eca0711f6de93",
+          "payload_digest": "sha256:1520fdef395530f2faa6602c8b5dc944f59c23df06442791867761e5073a4bdc"
+        },
+        "negative-young": {
+          "subject": "sha256:51482d494c5121973ba65483a38c907270fbf7b2b4e85fcd3321cab1356de919",
+          "referrer": "sha256:293e4a6eae86db4075a9e6eeff7d597039742b4cac6ae7eb6d9eca0711f6de93",
+          "payload_digest": "sha256:1520fdef395530f2faa6602c8b5dc944f59c23df06442791867761e5073a4bdc"
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "before scheduling every actual subject/referrer is retrievable",
+      "matched": true,
+      "observed": {
+        "eligible": {
+          "referrer": 200,
+          "referrer_listed": true,
+          "referrers_index": 200,
+          "subject": 200
+        },
+        "equivalent-held": {
+          "referrer": 200,
+          "referrer_listed": true,
+          "referrers_index": 200,
+          "subject": 200
+        },
+        "negative-retain-until": {
+          "referrer": 200,
+          "referrer_listed": true,
+          "referrers_index": 200,
+          "subject": 200
+        },
+        "negative-subject-retained": {
+          "referrer": 200,
+          "referrer_listed": true,
+          "referrers_index": 200,
+          "subject": 200
+        },
+        "negative-young": {
+          "referrer": 200,
+          "referrer_listed": true,
+          "referrers_index": 200,
+          "subject": 200
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "unique CronJob is configured for bounded UTC Forbid scheduling",
+      "matched": true,
+      "observed": {
+        "uid_present": true,
+        "timeZone": "Etc/UTC",
+        "concurrencyPolicy": "Forbid",
+        "startingDeadlineSeconds": 20
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Kubernetes created the owned Job at its UTC schedule and further runs were suspended",
+      "matched": true,
+      "observed": {
+        "controller_owned": true,
+        "valid_utc_timestamp": true,
+        "suspended": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "scheduled controller deleted only independently eligible OCI manifests",
+      "matched": true,
+      "observed": {
+        "reasons": {
+          "eligible": [],
+          "equivalent-held": [
+            "hold"
+          ],
+          "negative-retain-until": [
+            "retention_active"
+          ],
+          "negative-subject-retained": [
+            "subject_retained"
+          ],
+          "negative-young": [
+            "minimum_age"
+          ]
+        },
+        "deleted_ids": [
+          "eligible"
+        ],
+        "referrer_deleted_before_subject": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "post-schedule observer sees eligible manifests disappear and protected payloads remain readable",
+      "matched": true,
+      "observed": {
+        "eligible": {
+          "referrer": 404,
+          "referrer_listed": false,
+          "referrers_index": 200,
+          "subject": 404
+        },
+        "equivalent-held": {
+          "referrer": 200,
+          "referrer_listed": true,
+          "referrers_index": 200,
+          "subject": 200
+        },
+        "negative-retain-until": {
+          "referrer": 200,
+          "referrer_listed": true,
+          "referrers_index": 200,
+          "subject": 200
+        },
+        "negative-subject-retained": {
+          "referrer": 200,
+          "referrer_listed": true,
+          "referrers_index": 200,
+          "subject": 200
+        },
+        "negative-young": {
+          "referrer": 200,
+          "referrer_listed": true,
+          "referrers_index": 200,
+          "subject": 200
+        }
       }
     }
   ]
