@@ -1434,6 +1434,12 @@
       "sha256": "935d738d8aceaad1d8f43e84226f8c354aa983af65a80f2a15fdbde1ed36900b",
       "title": "Registry push-time container image vulnerability rescanning"
     },
+    "SAF-K8S-0601-019": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "db54e1f60e6cc3732eb38666f612d643a7aed86b39965af6d23148282f49db74",
+      "title": "Runtime container vulnerability exposure monitoring and exception governance"
+    },
     "SAF-K8S-0601-020": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -3506,7 +3512,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "9157fc9a5264eb5e71b550585b69c351010b26f1",
+  "revision": "4694d569ec00b2f39e8024c9ef32f5765caf9e2e",
   "sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
