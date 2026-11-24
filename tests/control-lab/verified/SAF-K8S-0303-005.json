@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0303-005",
-  "catalog_revision": "0b6745c53760b6e9aba98e28fec4b375154b38e0",
+  "catalog_revision": "2fd37e3976d8e0a503c495a971b8634f6ed28a7b",
   "catalog_sha256": "d349202ee2a53ae35fd3d0b6c36098d2d5cc45a51aa71fbf557812fcda78d4a0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "ce626ff91107449417a66a1c99746033be1bc245e864ca3a5eb5657cfccc7069",
   "scope": "Compare AppArmor complain, enforcing and profile-removal behavior in a private Linux guest. In the same guest, correlate a harmless syscall under the reviewed seccomp LOG filter with its kernel audit event, compare enforcing behavior and test fresh-process recovery.",
-  "cluster": "saf-lab-ee79ac36e7fd",
+  "cluster": "saf-lab-34cc0af8ffbb",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -85,6 +85,33 @@
         "enforcing_allow_deny": true,
         "ordinary_allowed_in_both_modes": true,
         "fresh_process_recovery": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "SELinux permissive mode allows both reads and records the would-deny AVC",
+      "matched": true,
+      "observed": {
+        "both_reads_succeeded": true,
+        "pinned_policy_and_contexts": true,
+        "permissive_avc": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "SELinux enforcing mode preserves the approved read and denies the same comparison",
+      "matched": true,
+      "observed": {
+        "enforcing_comparison": true,
+        "same_subject_pid_correlated": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "SELinux observation rollback restores the comparison and the guest finishes enforcing",
+      "matched": true,
+      "observed": {
+        "recovery_and_final_enforcing": true
       }
     }
   ]

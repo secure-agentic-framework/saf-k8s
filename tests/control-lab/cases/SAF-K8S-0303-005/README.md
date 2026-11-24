@@ -50,12 +50,28 @@ filter, architecture/ABI matrix and representative workload operations before
 adoption. The pinned Debian trixie package/kernel and QEMU ARM64 TCG run are
 fixture assumptions, not claims about other kernels or container runtimes.
 
-Complain-mode coverage requires an attributable would-be denial audit event.
-The seccomp proof is a distinct kernel-filter and audit-event check. SELinux
-permissive/enforcing behavior, SELinux AVC collection, the production audit
-pipeline, platform-specific profile delivery, runtime defaults, workload
-coverage and rollback need separate evidence on each supported platform.
+## SELinux observation and enforcement
+
+A separate restricted Job boots the pinned Debian SELinux guest in
+`Dockerfile.selinux`. One test process keeps its exact SELinux subject
+context throughout the test. Two ordinary files have matching DAC ownership
+and permissions and distinct MCS labels. In permissive mode both reads
+succeed and the mismatched read produces a guest AVC. Enforcing mode retains
+the approved read and denies the same mismatched read. The checker correlates
+the two AVCs by process, file and contexts and records them in
+`selinux-audit-observations.json`. The private guest briefly returns to
+permissive observation to check recovery, then finishes in enforcing mode.
+
+Adopters should stage the real policy and select the mechanism-specific
+observation method supported by the actual platform. Record kernel, runtime,
+policy revision, subject and target attribution, audit coverage, workload
+actions and rollback evidence. Confirm delivery and retention for the actual
+audit collector. If a supported observation mode is unavailable, use a
+documented alternative such as staged enforcing comparisons on a representative
+isolated workload. The reference fixtures exercise AppArmor, seccomp and
+SELinux inside disconnected guests that Kubernetes runs as restricted Jobs.
 
 - [AppArmor profile modes and explicit deny handling](https://apparmor.dev/man/apparmor.d/)
 - [Linux kernel seccomp filter documentation](https://www.kernel.org/doc/html/latest/userspace-api/seccomp_filter.html)
 - [Linux seccomp audit logging details](https://man7.org/linux/man-pages/man2/seccomp.2.html)
+- [SELinux modes and AVC records](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html-single/using_selinux/index)

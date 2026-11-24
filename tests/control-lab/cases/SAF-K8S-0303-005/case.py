@@ -18,12 +18,12 @@ SCOPE = (
 )
 
 
-def profile_job():
+def profile_job(name=NAME, image=IMAGE, command=None):
     security = {"allowPrivilegeEscalation": False, "readOnlyRootFilesystem": True,
                 "capabilities": {"drop": ["ALL"]}}
     guest = {
-        "name": "guest", "image": IMAGE, "imagePullPolicy": "Never",
-        "command": ["sh", "/fixture/boot.sh", "/fixture/profile"],
+        "name": "guest", "image": image, "imagePullPolicy": "Never",
+        "command": command or ["sh", "/fixture/boot.sh", "/fixture/profile"],
         "securityContext": security,
         "resources": {"requests": {"cpu": "200m", "memory": "160Mi"},
                       "limits": {"cpu": "1500m", "memory": "768Mi"}},
@@ -31,13 +31,13 @@ def profile_job():
                          {"name": "scratch", "mountPath": "/tmp"}],
     }
     return {
-        "apiVersion": "batch/v1", "kind": "Job", "metadata": {"name": NAME},
+        "apiVersion": "batch/v1", "kind": "Job", "metadata": {"name": name},
         "spec": {"backoffLimit": 0, "activeDeadlineSeconds": 90, "template": {"spec": {
             "restartPolicy": "Never", "automountServiceAccountToken": False,
             "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
                                 "seccompProfile": {"type": "RuntimeDefault"}},
             "containers": [guest],
-            "volumes": [{"name": "fixture", "configMap": {"name": NAME}},
+            "volumes": [{"name": "fixture", "configMap": {"name": name}},
                         {"name": "scratch", "emptyDir": {}}],
         }}},
     }
@@ -109,4 +109,59 @@ def run(lab):
         "seccomp_filter_sha256": seccomp_input, "seccomp_observation_probe_succeeded": seccomp_observed,
         "seccomp_correlated_audit_event": event_rows[0] if expected_event else None,
         "seccomp_enforcing_allow_deny": seccomp_enforced, "seccomp_fresh_process_recovery": seccomp_recovery,
+    }, indent=2) + "\n")
+
+
+    verify_selinux(lab)
+
+
+def verify_selinux(lab):
+    name = "fixture-selinux-observation"
+    recipe = HERE / "Dockerfile.selinux"
+    digest = hashlib.sha256(recipe.read_bytes()).hexdigest()
+    build_label = "org.saf.fixture.selinux-build"
+    image = "saf-lab-selinux:source-" + digest[:24]
+    if lab.command("docker", "image", "inspect", image, allow_failure=True).returncode:
+        lab.command("docker", "build", "-q", "-t", image, "--label", f"{build_label}={digest}",
+                    "-f", str(recipe), str(HERE), timeout=420)
+    metadata, = json.loads(lab.command("docker", "image", "inspect", image).stdout)
+    if metadata["Config"].get("Labels", {}).get(build_label) != digest:
+        lab.block("The SELinux fixture image does not match its pinned recipe")
+    lab.command("kind", "load", "docker-image", image, "--name", lab.cluster, timeout=220)
+    lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": name},
+                "immutable": True, "data": {"boot.sh": (HERE / "selinux-observation.sh").read_text()}})
+    lab.create(profile_job(name, image, ["sh", "/fixture/boot.sh"]))
+    completion = lab.kubectl("wait", "--for=condition=Complete", "job/" + name, "--timeout=98s",
+                             timeout=108, allow_failure=True)
+    logs = lab.kubectl("logs", "job/" + name, allow_failure=True)
+    if completion.returncode or logs.returncode:
+        lab.block("The isolated SELinux observation Job did not complete; inspect the guest log")
+    lines = logs.stdout.splitlines()
+    policies = [line.split()[-1] for line in lines if line.startswith("SAF-SELINUX-OBSERVE-POLICY: ")]
+    context_line = (
+        "SAF-SELINUX-OBSERVE-CONTEXTS: system_u:system_r:container_t:s0:c10,c20 "
+        "system_u:object_r:container_file_t:s0:c10,c20 system_u:object_r:container_file_t:s0:c11,c21"
+    )
+    modes = {mode: [line for line in lines if line.startswith(f"SAF-SELINUX-OBSERVE-AVC-{mode}: ")]
+             for mode in (0, 1)}
+    matched = {mode: [match[1] for line in modes[mode] if (match := re.search(
+        rf"pid=(\d+) .*name=\"comparison\".*scontext=system_u:system_r:container_t:s0:c10,c20 "
+        rf"tcontext=system_u:object_r:container_file_t:s0:c11,c21 tclass=file permissive={mode}(?:\s|$)",
+        line))] for mode in (0, 1)}
+    same_pid = len(set(matched[0])) == 1 and set(matched[0]) == set(matched[1])
+    permissive = "SAF-SELINUX-OBSERVE: permissive allowed both reads and recorded the would-deny AVC" in lines
+    enforcing = "SAF-SELINUX-OBSERVE: enforcing allowed the ordinary read and denied the same comparison read" in lines
+    recovery = "SAF-SELINUX-OBSERVE: the observation rollback restored the read and the guest finished enforcing" in lines
+    bound = len(policies) == 1 and bool(re.fullmatch(r"[0-9a-f]{64}", policies[0])) and context_line in lines
+    lab.check("red", "SELinux permissive mode allows both reads and records the would-deny AVC",
+              permissive and bool(matched[1]) and bound,
+              {"both_reads_succeeded": permissive, "pinned_policy_and_contexts": bound, "permissive_avc": bool(matched[1])})
+    lab.check("green", "SELinux enforcing mode preserves the approved read and denies the same comparison",
+              enforcing and same_pid, {"enforcing_comparison": enforcing, "same_subject_pid_correlated": same_pid})
+    lab.check("positive", "SELinux observation rollback restores the comparison and the guest finishes enforcing",
+              recovery, {"recovery_and_final_enforcing": recovery})
+    (lab.evidence / "selinux-audit-observations.json").write_text(json.dumps({
+        "guest_image": metadata["Id"], "loaded_policy_sha256": policies[0], "observed_contexts": context_line,
+        "permissive_avcs": modes[1], "enforcing_avcs": modes[0], "same_pid": same_pid,
+        "permissive": permissive, "enforcing": enforcing, "recovery": recovery,
     }, indent=2) + "\n")
