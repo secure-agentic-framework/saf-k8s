@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0805-002",
-  "catalog_revision": "c84f975bc843fb90e7366361a13f49a7893d71fa",
-  "catalog_sha256": "184933441b51d5d1eaa6dd4cde77cedd1bfd08c7460e5a6d0afe3c76156e9943",
+  "catalog_revision": "6e387af809d8626b81c21a9243818692e6a94c7c",
+  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9e98f83a2ba43dedc57714b725665594d98c56df8c910c4549e102eb489fa76e",
   "scope": "Live Kubernetes scheduler and Pod creation audit events correlated with inert synthetic allocation records.",
-  "cluster": "saf-lab-7498797451b8",
+  "cluster": "saf-lab-d4e8e840bfff",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
