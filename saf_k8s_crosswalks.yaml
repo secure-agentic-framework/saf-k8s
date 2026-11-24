@@ -60209,22 +60209,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-6(2)
-  framework_requirement_title: Automation Support for Distributed Testing
-  framework_mapping_notes: 'Distributed testing automation verifies agent security across deployment environments
-
-
-    7.3 - Chaos engineering for GPU controls (automated distributed testing); 10.7 - Continuous assessment'
-  control_id: SAF-K8S-1007-010
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-6(3)
   framework_requirement_title: Report Verification Results
   framework_mapping_notes: 'Reporting security verification results provides evidence of agent control effectiveness

@@ -27,7 +27,7 @@ See [`LICENSE`](LICENSE) for the summary.
 - Domains: 10
 - Knowledge areas: 55
 - Controls: 595
-- Crosswalk rows: 4159
+- Crosswalk rows: 4158
 
 ## YAML Files
 
