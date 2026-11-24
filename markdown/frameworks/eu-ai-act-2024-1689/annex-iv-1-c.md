@@ -22,9 +22,9 @@ Version and lifecycle records can inform the documented platform versions and up
 
 - Domain: D02 - Node, Runtime, and OS Security
 - Knowledge Area: 2.2
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
 - Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0606-029 - GitOps deployed package and version metadata retention](../../controls/SAF-K8S-0606-029.md)

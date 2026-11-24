@@ -1390,12 +1390,12 @@
   knowledge_area: '2.2'
   control_seq: '003'
   control_title: Container runtime patching and version management
-  control_statement: Container runtime versions must be tracked against a supported version matrix, patched within defined SLA timelines for security vulnerabilities, and validated for compatibility with the Kubernetes version and workload requirements before deployment to production nodes.
+  control_statement: Inventory runtime versions by node pool against approved vendor support and Kubernetes compatibility sources. Define risk-based patch deadlines, their start events and exception authority. Apply applicable fixes within those deadlines and verify installed state. Validate workload compatibility and recovery on a representative canary before rolling out to production.
   objective: Ensure that known container runtime vulnerabilities are remediated promptly and that runtime updates do not introduce compatibility regressions that could affect workload availability or security posture.
-  rationale: Container runtime vulnerabilities (e.g., CVE-2024-21626 in runc) can enable container escape, host filesystem access, or denial of service. Delayed patching leaves nodes exposed to publicly known exploits. However, untested runtime updates can break container networking, storage drivers, or GPU passthrough, causing workload failures. A structured patching cadence with compatibility validation balances timely remediation against operational stability.
-  scope: Applies to containerd, CRI-O, runc, and any supplementary runtime components (gVisor runsc, Kata Containers runtime) on all cluster nodes. Managed Kubernetes services satisfy this control when the provider documents their runtime patching SLA and the customer validates provider compliance. Version pinning documentation must accompany all production runtime deployments.
+  rationale: Vendor support, advisory applicability, effective installed state and the organization's remediation deadline are distinct facts. Validate updates against the Kubernetes version and required workload, network, storage and device functions before deployment. Retain the canary result and an approved recovery path.
+  scope: Applies to containerd, CRI-O, runc and applicable supplementary runtime components on governed nodes. For provider-operated runtimes, record applicable provider support and patch commitments and corroborate the installed build or remediation status for the affected pool. Record unavailable evidence and approved exceptions.
   primary_enforcement_point: Node image build pipeline, vulnerability scanning integration, and change management process for runtime version updates.
-  implementation_surface: Runtime version tracking matrix (containerd, runc, NVIDIA Container Runtime), CVE monitoring feeds (GitHub advisories, NVIDIA security bulletins), node pool rolling update procedures, and runtime compatibility validation tooling.
+  implementation_surface: Per-pool runtime and node image inventory, dated vendor support and Kubernetes compatibility sources, advisory applicability decisions, approved severity-based deadlines, exception and installed-patch evidence, and the documented canary and recovery procedure.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Vulnerability Management
   baseline_or_ai_specific: baseline
@@ -1403,7 +1403,7 @@
   status: draft
   superseded_by_control_id: null
   date_created: '2026-02-28'
-  date_modified: '2026-03-17'
+  date_modified: '2026-11-24'
 - control_id: SAF-K8S-0202-004
   domain_code: D02
   domain_name: Node, Runtime, and OS Security
