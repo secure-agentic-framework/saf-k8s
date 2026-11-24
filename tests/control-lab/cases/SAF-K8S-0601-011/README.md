@@ -25,3 +25,17 @@ registry and the disposable Kubernetes cluster are removed.
 
 - [OCI Distribution 1.1.1 referrer discovery and tag fallback](https://github.com/opencontainers/distribution-spec/blob/v1.1.1/spec.md)
 - [OCI Image Manifest 1.1.1](https://github.com/opencontainers/image-spec/blob/v1.1.1/manifest.md)
+
+The extended fixture also runs the pinned Zot v2.1.23 and Distribution v3.0.0
+images. It verifies Ed25519 DSSE over the registry readback, rejects modified
+signed bytes, and preserves the subject and referrer digests when copying
+between case repositories. It stops Distribution before running filesystem
+GC on the case volume and checks that eligible payloads disappear while a
+separate live reference survives. OpenSSL 3 is required for the synthetic key
+and signature checks. The native API arm verifies discovery with Zot. The
+scheduled registry lifecycle and deployed retention authority need separate
+evidence.
+
+- [DSSE protocol](https://github.com/dsse-lf/dsse/blob/master/protocol.md)
+- [In-toto statement](https://github.com/in-toto/attestation/blob/main/spec/v1/statement.md)
+- [Distribution 3.0.0 garbage collection](https://github.com/distribution/distribution/blob/v3.0.0/docs/content/about/garbage-collection.md)

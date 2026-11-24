@@ -14,8 +14,8 @@ SCOPE = (
     "Verify exact OCI subject and referrer descriptors, synthetic lifecycle eligibility and "
     "orphan hold. Exercise a disposable loopback-only OCI registry with three synthetic "
     "metadata manifest types, then observe early-loss baseline, protected retention and "
-    "eligible retirement. Actual production lifecycle, GC, signatures and cross-repository "
-    "replication require separate verification."
+    "eligible retirement. The extended fixture exercises both OCI discovery modes, synthetic DSSE validation, "
+    "digest-preserving copies, and Distribution filesystem GC. Production retention and replication remain separate."
 )
 EMPTY_DIGEST = "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
 EMPTY_DESCRIPTOR = {
@@ -215,3 +215,4 @@ def run(lab):
     lab.check("positive", "Eligible fixture retirement includes all linked manifests in order",
               retirement_plans == expected_retirement, {"retirement_plan": retirement_plans})
     runpy.run_path(str(CASE_DIR / "registry_probe.py"))["run_registry"](lab)
+    runpy.run_path(str(CASE_DIR / "co_retention.py"))["run_registry_evidence"](lab)

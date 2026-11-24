@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0601-011",
-  "catalog_revision": "d34b502ac96accb45a26841dfa77094dc4a72d9e",
-  "catalog_sha256": "c3bdef2bfc0aae712ee2fcb1bfd47cebfcedc7415526acfb36b86be77042a93f",
+  "catalog_revision": "00269d6d735ca3a5bd855e6c285ffb24bbbcccab",
+  "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "bb8438103be279a672ab461aff4a9f9bbb1362ebe7a27c70004e6a0ba7758cca",
-  "scope": "Verify exact OCI subject and referrer descriptors, synthetic lifecycle eligibility and orphan hold. Exercise a disposable loopback-only OCI registry with three synthetic metadata manifest types, then observe early-loss baseline, protected retention and eligible retirement. Actual production lifecycle, GC, signatures and cross-repository replication require separate verification.",
-  "cluster": "saf-lab-ad363ec1b147",
+  "scope": "Verify exact OCI subject and referrer descriptors, synthetic lifecycle eligibility and orphan hold. Exercise a disposable loopback-only OCI registry with three synthetic metadata manifest types, then observe early-loss baseline, protected retention and eligible retirement. The extended fixture exercises both OCI discovery modes, synthetic DSSE validation, digest-preserving copies, and Distribution filesystem GC. Production retention and replication remain separate.",
+  "cluster": "saf-lab-3d2118ef678d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -107,6 +107,57 @@
         "eligible_retirement_permitted": true,
         "all_manifests_absent": true,
         "fallback_index_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The pinned Zot and Distribution fixtures return native and fallback OCI discovery",
+      "matched": true,
+      "observed": {
+        "discovery": [
+          "native-referrers-api",
+          "referrers-tag-fallback"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Registry readback verifies the DSSE signature and binds the statement to the subject",
+      "matched": true,
+      "observed": {
+        "signature_verified": true,
+        "modified_payload_rejected": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both case registries preserve subject and all referrer digests in a separate repository",
+      "matched": true,
+      "observed": {
+        "digest_preserving_copies": true,
+        "associated_artifact_types": 3
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Deleting one referrer prematurely removes it from discovery while the subject stays readable",
+      "matched": true,
+      "observed": {
+        "referrer_lost": true,
+        "subject_readable": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Distribution GC removes unreferenced payload bytes and preserves the retained cohort",
+      "matched": true,
+      "observed": {
+        "retained_payload_survived_gc": true,
+        "manifests_absent_before_gc": true,
+        "fallback_indexes_absent_before_gc": true,
+        "distribution_gc_completed": true,
+        "manifests_and_indexes_absent_after_gc": true,
+        "unreferenced_payload_blobs_absent_after_gc": true
       }
     }
   ]
