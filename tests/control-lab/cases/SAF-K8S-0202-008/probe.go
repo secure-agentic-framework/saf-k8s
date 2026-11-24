@@ -39,14 +39,14 @@ func echo(path string) (string, error) {
 	return "echo", nil
 }
 
-func outsider(path string) (string, error) {
+func fixtureClient(path string, groups []uint32) (string, error) {
 	executable, err := os.Executable()
 	if err != nil {
 		return "", err
 	}
 	cmd := exec.Command(executable, "client", path)
 	cmd.SysProcAttr = &syscall.SysProcAttr{Credential: &syscall.Credential{
-		Uid: 65534, Gid: 65534, Groups: []uint32{},
+		Uid: 65534, Gid: 65534, Groups: groups,
 	}}
 	observed, err := cmd.Output()
 	return string(observed), err
@@ -86,14 +86,14 @@ func run() error {
 	if err := os.Chmod(path, 0666); err != nil {
 		return err
 	}
-	world, err := outsider(path)
+	world, err := fixtureClient(path, []uint32{})
 	if err != nil {
 		return err
 	}
 	if err := os.Chmod(dir, 0700); err != nil {
 		return err
 	}
-	parent, err := outsider(path)
+	parent, err := fixtureClient(path, []uint32{})
 	if err != nil {
 		return err
 	}
@@ -103,7 +103,7 @@ func run() error {
 	if err := os.Chmod(path, 0600); err != nil {
 		return err
 	}
-	mode, err := outsider(path)
+	mode, err := fixtureClient(path, []uint32{})
 	if err != nil {
 		return err
 	}
@@ -111,7 +111,44 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("public=%s parent=%s mode=%s owner=%s\n", world, parent, mode, owner)
+	const approvedGroup = 42424
+	if err := os.Chown(path, 0, approvedGroup); err != nil {
+		return err
+	}
+	if err := os.Chmod(path, 0660); err != nil {
+		return err
+	}
+	inGroup, err := fixtureClient(path, []uint32{approvedGroup})
+	if err != nil {
+		return err
+	}
+	outOfGroup, err := fixtureClient(path, []uint32{})
+	if err != nil {
+		return err
+	}
+	fmt.Printf("public=%s parent=%s mode=%s owner=%s group=%s no_group=%s\n",
+		world, parent, mode, owner, inGroup, outOfGroup)
+	return nil
+}
+
+// This reads only POSIX access ACL metadata on the known Kind path. It
+// never connects to the real socket or issues a runtime protocol request.
+func runtimeACLs() error {
+	for _, path := range []string{"/", "/run", "/run/containerd", "/run/containerd/containerd.sock"} {
+		_, err := syscall.Getxattr(path, "system.posix_acl_access", nil)
+		var state string
+		switch {
+		case errors.Is(err, syscall.ENODATA):
+			state = "absent"
+		case errors.Is(err, syscall.ENOTSUP):
+			state = "unsupported"
+		case err != nil:
+			return err
+		default:
+			state = "present"
+		}
+		fmt.Printf("%s=%s\n", path, state)
+	}
 	return nil
 }
 
@@ -127,6 +164,8 @@ func main() {
 				fmt.Print(result)
 			}
 		}
+	} else if len(os.Args) == 2 && os.Args[1] == "runtime-acls" {
+		err = runtimeACLs()
 	} else if len(os.Args) == 1 {
 		err = run()
 	} else {
