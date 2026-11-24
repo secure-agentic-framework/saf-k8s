@@ -1310,12 +1310,12 @@
   knowledge_area: '2.1'
   control_seq: '014'
   control_title: Kubelet serving certificate trust and expiry enforcement
-  control_statement: Kubelet HTTPS endpoints must use valid serving certificates issued by a trusted cluster or organizational certificate authority, and expired or self-signed serving certificates must not remain in service.
+  control_statement: Serve a current CA-issued certificate for each scoped kubelet HTTPS endpoint. Require intended clients to verify the trusted CA and matching DNS or IP identity. Renew and verify activation on the endpoint before expiry.
   objective: Maintain trustworthy kubelet HTTPS endpoints for node management traffic, exec, logs, and metrics access.
-  rationale: Expired or self-signed kubelet serving certificates enable man-in-the-middle attacks and break trust in kubelet HTTPS endpoints. Enforcing trusted issuance and expiry replacement preserves authenticated node-management traffic and prevents insecure fallback behavior.
-  scope: Applies to all cluster nodes running kubelet, including control-plane nodes where kubelet manages static pods. For managed services that handle certificate lifecycle internally, evidence of provider-managed rotation and TLS enforcement satisfies this control. Environments using external certificate authorities must document their rotation schedule and monitoring.
-  primary_enforcement_point: Kubelet serving certificate bootstrap configuration, serving CSR approval workflow, and certificate chain or expiry validation.
-  implementation_surface: KubeletConfiguration serverTLSBootstrap setting, kubelet-serving CSR approver, Kubernetes certificates API, and serving certificate chain and expiry validation tooling.
+  rationale: Kubelet TLS depends on both issuance and the consumer's verification of the trusted chain, endpoint identity and validity interval. Scoped approval and timely replacement support authentication and reduce interruptions when certificates approach expiry.
+  scope: Applies to all governed kubelet HTTPS endpoints and intended consumers, including those on control-plane nodes. Support Kubernetes serving CSRs, approved external issuers and documented provider lifecycle. Retain evidence of replacement and client trust for each applicable path.
+  primary_enforcement_point: Effective kubelet serving certificate and client verification settings, approved issuance, and expiry monitoring.
+  implementation_surface: For native serving bootstrap, verify the feature support and effective settings, and restrict the explicit serving CSR approver to valid node identities and SANs. For external issuers, verify configured certificate activation. Observe the actual endpoint, monitor time to expiry and pending renewals, and verify trusted client traffic after replacement.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; PKI/Certificate Management
   baseline_or_ai_specific: baseline
@@ -1323,7 +1323,7 @@
   status: draft
   superseded_by_control_id: null
   date_created: '2026-03-16'
-  date_modified: '2026-03-17'
+  date_modified: '2026-11-24'
 - control_id: SAF-K8S-0201-015
   domain_code: D02
   domain_name: Node, Runtime, and OS Security

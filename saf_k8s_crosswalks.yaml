@@ -23309,16 +23309,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-6
   framework_requirement_title: Configuration Settings
-  framework_mapping_notes: 'Secure config settings for agent systems
-
-
-    1.4 - CIS benchmark application (configuration settings baseline); 1.3 - Controller-manager pod GC threshold; 2.1 - Kubelet hardening flags'
+  framework_mapping_notes: Approved kubelet serving TLS and consumer verification settings support the scoped security baseline. Retain the applicable settings, coverage, monitoring and approved deviations.
   control_id: SAF-K8S-0201-014
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: exact-text-match
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5

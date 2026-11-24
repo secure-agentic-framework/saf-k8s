@@ -69,10 +69,10 @@ Secure config settings for agent systems
 
 - Domain: D02 - Node, Runtime, and OS Security
 - Knowledge Area: 2.1
-- Relation Type: direct
-- Strength: strong
+- Relation Type: supports
+- Strength: moderate
 - Applicability: required
-- Strength Reason Code: exact-text-match
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0606-020 - Helm values override restriction and dependency integrity governance](../../controls/SAF-K8S-0606-020.md)
 
