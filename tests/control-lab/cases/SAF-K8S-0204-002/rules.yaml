@@ -4,7 +4,7 @@
   condition: >
     ka.stage = ResponseComplete and ka.verb = get and
     ka.target.resource = configmaps and ka.target.namespace = saf-test and
-    ka.target.name = fixture-audit-marker
+    ka.target.name = fixture-audit-marker and ka.user.name exists and ka.auditid exists
   output: >
     Owned fixture read name=%ka.target.name namespace=%ka.target.namespace
     actor=%ka.user.name audit_id=%ka.auditid

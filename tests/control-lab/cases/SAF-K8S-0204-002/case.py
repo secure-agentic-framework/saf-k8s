@@ -1,11 +1,14 @@
 """Run a real Falco rule against live scoped kube-apiserver audit metadata."""
 
+from copy import deepcopy
 import hashlib
 import json
 from pathlib import Path
 import time
 
-SCOPE = "A pinned userspace Falco audit rule evaluates finite live Kind API events and emits an attributed JSON alert for a public marker."
+from fixtures import container, pod, ready
+
+SCOPE = "A pinned Falco rule evaluates owned Kubernetes audit events, exercises missing context and disablement, and sends a JSON alert to an independent receiver."
 NODE_IMAGE = "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
 HERE = Path(__file__).resolve().parent
 SOURCE = hashlib.sha256((HERE / "Dockerfile").read_bytes()).hexdigest()
@@ -16,6 +19,8 @@ NAMESPACE = "saf-test"
 MARKED = "fixture-audit-marker"
 ORDINARY = "fixture-audit-ordinary"
 RULE = "SAF owned Kubernetes audit read"
+RECEIVER = "fixture-audit-receiver"
+PYTHON = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 
 
 def prepare_kind(_lab, temporary):
@@ -88,9 +93,12 @@ def read_events(lab):
     lab.block("Expected live metadata events were unavailable")
 
 
-def evaluate(lab, name, rules, events):
+def evaluate(lab, name, rules, events, *, disabled=False):
+    config = (HERE / "falco.yaml").read_text()
+    if disabled:
+        config += f"rules:\n  - disable:\n      rule: {RULE}\n"
     lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": name},
-                "immutable": True, "data": {"falco.yaml": (HERE / "falco.yaml").read_text(),
+                "immutable": True, "data": {"falco.yaml": config,
                      "rules.yaml": rules, "audit.ndjson": "".join(json.dumps(event) + "\n" for event in events)}})
     unit = {"name": "engine", "image": IMAGE, "imagePullPolicy": "Never",
             "command": ["/usr/bin/falco", "-c", "/fixture/falco.yaml", "--disable-source", "syscall"],
@@ -113,9 +121,30 @@ def evaluate(lab, name, rules, events):
     return [json.loads(line) for line in logs.stdout.splitlines() if line.startswith("{")]
 
 
+def start_recipient(lab):
+    lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": RECEIVER}, "immutable": True,
+                "data": {"receive.py": (HERE / "audit-receiver.py").read_text()}})
+    unit = container("receiver", image=PYTHON, command=["python", "/fixture/receive.py"],
+                     readinessProbe={"tcpSocket": {"port": 18082}},
+                     volumeMounts=[{"name": "script", "mountPath": "/fixture", "readOnly": True}])
+    listener = pod(RECEIVER, [unit], automountServiceAccountToken=False,
+                   volumes=[{"name": "script", "configMap": {"name": RECEIVER}}])
+    listener["metadata"]["labels"] = {"app": RECEIVER}
+    lab.create(listener)
+    lab.create({"apiVersion": "v1", "kind": "Service", "metadata": {"name": RECEIVER},
+                "spec": {"selector": {"app": RECEIVER}, "ports": [{"port": 18082}]}})
+    ready(lab, RECEIVER)
+
+
+def read_recipient(lab):
+    program = "from urllib.request import urlopen; print(urlopen('http://127.0.0.1:18082/alerts').read().decode())"
+    return json.loads(lab.kubectl("exec", "pod/" + RECEIVER, "--", "python", "-c", program).stdout)
+
+
 def run(lab):
     lab.kubectl("label", "namespace", NAMESPACE, "pod-security.kubernetes.io/enforce=restricted")
     image(lab)
+    start_recipient(lab)
     for name in (ORDINARY, MARKED):
         lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": name},
                     "immutable": True, "data": {"value": "public synthetic lab marker"}})
@@ -125,6 +154,11 @@ def run(lab):
     baseline = evaluate(lab, "fixture-audit-nonmatching", rules.replace(MARKED, "fixture-absent"), events.values())
     lab.check("red", "The same live audit input produces no alerts for a rule with an unmatched target",
               not baseline, {"nonmatching_output_empty": not baseline})
+    without_identity = deepcopy(events[MARKED])
+    without_identity.pop("user")
+    missing = evaluate(lab, "fixture-audit-no-identity", rules, [without_identity])
+    lab.check("green", "With workload identity removed from the copied event, the same rule emits no attributable alert",
+              not missing, {"missing_identity_did_not_emit": not missing})
     alerts = evaluate(lab, "fixture-audit-matching", rules, events.values())
     matched = len(alerts) == 1 and alerts[0].get("rule") == RULE and alerts[0].get("source") == "k8s_audit"
     target = alerts[0].get("output_fields", {}).get("ka.target.name") if matched else None
@@ -137,6 +171,17 @@ def run(lab):
                   fields.get("ka.auditid") == event["auditID"])
     lab.check("positive", "The delivered alert preserves source namespace, actor and audit event identity",
               attributed, {"alert_context_matches_input": attributed})
-    (lab.evidence / "audit-rule-observations.json").write_text(
-        json.dumps({"owned_event_names": list(events), "received_alert": alerts[0]}, indent=2) + "\n"
-    )
+    retired = evaluate(lab, "fixture-audit-disabled", rules, events.values(), disabled=True)
+    marker_ok = lab.kubectl("get", "configmap", MARKED, "-o", "name").stdout.strip() == "configmap/" + MARKED
+    lab.check("positive", "Disabling the rule stops its alerts while the harmless API read remains available",
+              not retired and marker_ok, {"rule_disabled_and_operation_retained": not retired and marker_ok})
+    received = read_recipient(lab)
+    clean = len(received) == 1 and received[0]["rule"] == RULE and received[0]["source"] == "k8s_audit"
+    delivered = clean and received[0]["output_fields"] == fields
+    lab.check("positive", "Falco's native HTTP output reaches the independent receiver once with the original context",
+              delivered, {"matching_receipt_received_once": delivered})
+    (lab.evidence / "audit-rule-observations.json").write_text(json.dumps({
+        "owned_event_names": sorted(events), "notice": alerts[0], "received_alerts": received,
+        "missing_identity_alert_count": len(missing), "disabled_rule_alert_count": len(retired),
+        "operation_remained_available": marker_ok,
+    }, indent=2) + "\n")

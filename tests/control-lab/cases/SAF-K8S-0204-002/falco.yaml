@@ -14,3 +14,6 @@ webserver:
   enabled: false
 log_stderr: true
 log_syslog: false
+http_output:
+  enabled: true
+  url: http://fixture-audit-receiver:18082/alerts

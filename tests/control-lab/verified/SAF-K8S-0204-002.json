@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0204-002",
-  "catalog_revision": "4902e457afce6a2fcbe040b8faddb4b1df6b26fc",
-  "catalog_sha256": "cac977a792918cc74529e45763d49762ab692c539b68b58bdd492755569553e6",
+  "catalog_revision": "64d692431afbf80130f553d042735989a381876c",
+  "catalog_sha256": "18dd1c4f1cb4f76c9d58276abee0c2b6d7162859bfdbdb495fd51cd09e9f9425",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "244378c626e4f89512ec0a07975e1cd092ca863af212091b39c6d72060d6164f",
-  "scope": "A pinned userspace Falco audit rule evaluates finite live Kind API events and emits an attributed JSON alert for a public marker.",
-  "cluster": "saf-lab-77e60e1e20c8",
+  "scope": "A pinned Falco rule evaluates owned Kubernetes audit events, exercises missing context and disablement, and sends a JSON alert to an independent receiver.",
+  "cluster": "saf-lab-3412f8aa279c",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -48,6 +48,14 @@
     },
     {
       "phase": "green",
+      "claim": "With workload identity removed from the copied event, the same rule emits no attributable alert",
+      "matched": true,
+      "observed": {
+        "missing_identity_did_not_emit": true
+      }
+    },
+    {
+      "phase": "green",
       "claim": "Falco emits exactly one alert for the owned marker and leaves the ordinary read unalerted",
       "matched": true,
       "observed": {
@@ -61,6 +69,22 @@
       "matched": true,
       "observed": {
         "alert_context_matches_input": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Disabling the rule stops its alerts while the harmless API read remains available",
+      "matched": true,
+      "observed": {
+        "rule_disabled_and_operation_retained": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Falco's native HTTP output reaches the independent receiver once with the original context",
+      "matched": true,
+      "observed": {
+        "matching_receipt_received_once": true
       }
     }
   ]
