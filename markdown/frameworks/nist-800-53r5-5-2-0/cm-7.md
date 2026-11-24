@@ -47,6 +47,15 @@ Agents should expose minimum necessary functionality
 - Applicability: conditional
 - Strength Reason Code: partial-control-coverage
 
+### [SAF-K8S-0203-010 - Minimal purpose-built node OS baseline](../../controls/SAF-K8S-0203-010.md)
+
+- Domain: D02 - Node, Runtime, and OS Security
+- Knowledge Area: 2.3
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
+
 ### [SAF-K8S-0601-014 - Container image runtime hardening with non-root and read-only filesystem](../../controls/SAF-K8S-0601-014.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control

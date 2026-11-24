@@ -23512,6 +23512,19 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-7
   framework_requirement_title: Least Functionality
+  framework_mapping_notes: An approved node OS baseline can limit installed software and running services to defined node functions. The system-wide CM-7 claim still requires the approved restriction scope across the wider system.
+  control_id: SAF-K8S-0203-010
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The selected profile applies CM-7 to the governed Kubernetes node role.
+  strength_reason_code: partial-control-coverage
+- mapping_set_name: SAF-K8S to NIST SP 800-53r5
+  framework_code: NIST-800-53R5
+  framework_name: NIST SP 800-53 Revision 5
+  framework_version: 5.2.0
+  framework_requirement_id: CM-7
+  framework_requirement_title: Least Functionality
   framework_mapping_notes: 'Agents should expose minimum necessary functionality
 
 
