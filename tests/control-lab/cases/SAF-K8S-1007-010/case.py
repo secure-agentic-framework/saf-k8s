@@ -1,6 +1,10 @@
 """Check a target Kubernetes API against a synthetic operator compatibility profile."""
+from copy import deepcopy
+import hashlib
 import json
 from pathlib import Path
+
+from fixtures import BUSYBOX_IMAGE
 
 HERE = Path(__file__).resolve().parent
 FIXTURE_PATH = HERE / "fixtures.json"
@@ -12,7 +16,9 @@ SCOPE = (
     "inventory that still requires removed policy/v1beta1 PodDisruptionBudgets, then checks the "
     "repaired policy/v1 API with a server-side dry-run and persists one benign synthetic CRD and "
     "custom resource. A local mock upgrade gate denies promotion without evidence and on exact target "
-    "version mismatch and persists only approved mock decisions. No real operator, AI workload, model, GPU, feed, or remote target is used."
+    "version mismatch and persists only approved mock decisions. A small Job writes a "
+    "synthetic training marker and an HTTP Service serves an inert inference marker on "
+    "the actual target. Adopters validate their own operators, model behavior, GPUs and webhooks."
 )
 
 
@@ -98,6 +104,10 @@ def gate_decision(observed_target, requested_target, evidence):
             reasons.append("required_api_evidence_missing")
         if evidence.get("synthetic_crd_accepted") is not True:
             reasons.append("synthetic_crd_evidence_missing")
+        if evidence.get("training_workflow_verified") is not True:
+            reasons.append("training_workflow_evidence_missing")
+        if evidence.get("inference_workflow_verified") is not True:
+            reasons.append("inference_workflow_evidence_missing")
     return {"decision": "deny" if reasons else "allow", "reasons": reasons,
             "observed_target": observed_target, "requested_target": requested_target}
 
@@ -122,6 +132,97 @@ def approval_missing(lab):
 def save_raw(lab, filename, value):
     (lab.evidence / filename).write_text(
         json.dumps(value, indent=2, sort_keys=True) + "\n")
+
+
+def target_workflows(lab):
+    labels = {"app": "saf-compat-inference"}
+    security = {"allowPrivilegeEscalation": False, "capabilities": {"drop": ["ALL"]}}
+    pod_security = {"runAsNonRoot": True, "runAsUser": 65532,
+                    "seccompProfile": {"type": "RuntimeDefault"}}
+    pod_base = {"automountServiceAccountToken": False, "restartPolicy": "Never",
+                "securityContext": pod_security}
+    training = {
+        "apiVersion": "batch/v1", "kind": "Job",
+        "metadata": {"name": "saf-compat-training"},
+        "spec": {"backoffLimit": 0, "template": {"spec": {**pod_base, "containers": [{
+            "name": "training-check", "image": BUSYBOX_IMAGE, "securityContext": security,
+            "command": ["sh", "-ec", "printf '%s' training-fixture-complete > /tmp/result; cat /tmp/result"],
+        }]}}},
+    }
+    inference = {
+        "apiVersion": "v1", "kind": "Pod",
+        "metadata": {"name": "saf-compat-inference", "labels": labels},
+        "spec": {**pod_base, "containers": [{
+            "name": "serving-check", "image": BUSYBOX_IMAGE, "securityContext": security,
+            "command": ["sh", "-ec", "mkdir -p /tmp/saf-www; "
+                        "printf '%s' inference-fixture-response > /tmp/saf-www/result; "
+                        "exec httpd -f -p 8080 -h /tmp/saf-www"],
+            "readinessProbe": {"httpGet": {"path": "/result", "port": 8080}, "periodSeconds": 2},
+        }]},
+    }
+    service = {
+        "apiVersion": "v1", "kind": "Service",
+        "metadata": {"name": "saf-compat-inference"},
+        "spec": {"selector": labels, "ports": [{"port": 8080, "targetPort": 8080}]},
+    }
+    # Exercise effective native target admission as well as API schemas.
+    lab.kubectl("label", "namespace", "saf-test", "--overwrite",
+                "pod-security.kubernetes.io/enforce=restricted",
+                "pod-security.kubernetes.io/enforce-version=v1.36")
+    unapproved = deepcopy(inference)
+    unapproved["metadata"]["name"] = "saf-invalid-inference-policy"
+    unapproved["spec"]["containers"][0]["securityContext"]["allowPrivilegeEscalation"] = True
+    rejected = lab.create(unapproved, dry_run=True, allow_failure=True)
+    denial = (
+        rejected.returncode != 0 and 'violates PodSecurity "restricted:v1.36"' in rejected.stderr
+        and "allowPrivilegeEscalation" in rejected.stderr
+    )
+    lab.check("green", "The target's effective Pod Security policy rejects the unapproved serving variant",
+              denial, {"specific_native_admission_denial": denial})
+    # Use distinct target objects and confirm both real consumer outputs.
+    lab.create(training)
+    lab.create(service)
+    served = lab.create(inference)
+    lab.kubectl("wait", "--for=condition=Complete", "job/saf-compat-training",
+                "--timeout=90s", timeout=105)
+    lab.kubectl("wait", "--for=condition=Ready", "pod/saf-compat-inference",
+                "--timeout=90s", timeout=105)
+    job_result = lab.kubectl("logs", "job/saf-compat-training").stdout
+    consumer = {
+        "apiVersion": "v1", "kind": "Pod",
+        "metadata": {"name": "saf-compat-inference-consumer"},
+        "spec": {**pod_base, "containers": [{
+            "name": "serve-client", "image": BUSYBOX_IMAGE, "securityContext": security,
+            "command": ["sh", "-ec", "for n in 1 2 3 4 5; do "
+                        "if wget -q -O - -T 3 http://saf-compat-inference:8080/result; then exit 0; fi; "
+                        "sleep 2; done; exit 1"],
+        }]},
+    }
+    lab.create(consumer)
+    lab.kubectl("wait", "--for=jsonpath={.status.phase}=Succeeded",
+                "pod/saf-compat-inference-consumer", "--timeout=70s", timeout=85)
+    inference_result = lab.kubectl("logs", "saf-compat-inference-consumer").stdout
+    endpoints = load_json(lab.kubectl(
+        "get", "endpointslices", "-l", "kubernetes.io/service-name=saf-compat-inference", "-o", "json",
+    ))
+    targets = [row for item in endpoints["items"] for row in item.get("endpoints", [])
+               if row.get("conditions", {}).get("ready") is True]
+    observed = {
+        "training_workflow_verified": job_result == "training-fixture-complete",
+        "inference_workflow_verified": inference_result == "inference-fixture-response",
+        "service_targets_exact_ready_pod": len(targets) == 1
+        and targets[0].get("targetRef", {}).get("uid") == served["metadata"]["uid"],
+    }
+    lab.check("positive", "Target Job completion and Service response validate the two runtime paths",
+              all(observed.values()), observed)
+    return {
+        "training_workflow_verified": observed["training_workflow_verified"],
+        "inference_workflow_verified": observed["inference_workflow_verified"]
+        and observed["service_targets_exact_ready_pod"],
+        "fixture_sha256": hashlib.sha256(
+            json.dumps([training, inference, service, consumer], sort_keys=True).encode()
+        ).hexdigest(),
+    }
 
 
 def run(lab):
@@ -240,7 +341,16 @@ def run(lab):
                        and repaired_present and pdb_accepted),
         "required_api": repaired_requirement if repaired_present and pdb_accepted else None,
         "synthetic_crd_accepted": crd_accepted,
+        **target_workflows(lab),
     }
+    missing_workflow = submit_mock_promotion(
+        lab, observed_target, expected_target,
+        {**evidence, "inference_workflow_verified": False},
+    )
+    lab.check("red", "An API-compatible target without complete runtime evidence cannot record approval",
+              missing_workflow["reasons"] == ["inference_workflow_evidence_missing"]
+              and approval_missing(lab), {"decision": missing_workflow["decision"],
+                                          "reasons": missing_workflow["reasons"]})
     wrong_target_gate = submit_mock_promotion(lab, observed_target, "v1.36.0", evidence)
     still_absent = approval_missing(lab)
     repaired_gate = submit_mock_promotion(lab, observed_target, expected_target, evidence)

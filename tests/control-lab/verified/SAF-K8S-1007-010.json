@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1007-010",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "ee2d501416147772e68acbc3dc5728fb1a3ea4f1",
+  "catalog_sha256": "ea9f5c0e0fb93068e9566cca8c429df2d8dd9f2f05e8c8c98b06b13021e43372",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "dcaefe65c2663a9b42c4470449e71507352c420e2959d0af446d8333585b2b45",
-  "scope": "One disposable Kind v1.36.1 target cluster, using the lab runner's digest-pinned node image. Reads the live server version and Kubernetes API discovery, flags a synthetic mock-operator inventory that still requires removed policy/v1beta1 PodDisruptionBudgets, then checks the repaired policy/v1 API with a server-side dry-run and persists one benign synthetic CRD and custom resource. A local mock upgrade gate denies promotion without evidence and on exact target version mismatch and persists only approved mock decisions. No real operator, AI workload, model, GPU, feed, or remote target is used.",
-  "cluster": "saf-lab-af9adc69d705",
+  "control_sha256": "9bb3fb38f57dfe272be9d7a99d1e79d7d2c1e6f049ee4d4cb1b66db12e3c3b4d",
+  "scope": "One disposable Kind v1.36.1 target cluster, using the lab runner's digest-pinned node image. Reads the live server version and Kubernetes API discovery, flags a synthetic mock-operator inventory that still requires removed policy/v1beta1 PodDisruptionBudgets, then checks the repaired policy/v1 API with a server-side dry-run and persists one benign synthetic CRD and custom resource. A local mock upgrade gate denies promotion without evidence and on exact target version mismatch and persists only approved mock decisions. A small Job writes a synthetic training marker and an HTTP Service serves an inert inference marker on the actual target. Adopters validate their own operators, model behavior, GPUs and webhooks.",
+  "cluster": "saf-lab-4ebdb91d1cc6",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -102,6 +102,35 @@
         "custom_resource_api": "models.saf-k8s.example/v1alpha1",
         "kind": "MockInferenceService",
         "accepted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The target's effective Pod Security policy rejects the unapproved serving variant",
+      "matched": true,
+      "observed": {
+        "specific_native_admission_denial": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Target Job completion and Service response validate the two runtime paths",
+      "matched": true,
+      "observed": {
+        "training_workflow_verified": true,
+        "inference_workflow_verified": true,
+        "service_targets_exact_ready_pod": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "An API-compatible target without complete runtime evidence cannot record approval",
+      "matched": true,
+      "observed": {
+        "decision": "deny",
+        "reasons": [
+          "inference_workflow_evidence_missing"
+        ]
       }
     },
     {

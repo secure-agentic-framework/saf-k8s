@@ -3519,7 +3519,7 @@
     "SAF-K8S-1007-010": {
       "catalog_status": "draft",
       "domain": "D10",
-      "sha256": "dcaefe65c2663a9b42c4470449e71507352c420e2959d0af446d8333585b2b45",
+      "sha256": "9bb3fb38f57dfe272be9d7a99d1e79d7d2c1e6f049ee4d4cb1b66db12e3c3b4d",
       "title": "Pre-upgrade Kubernetes API compatibility testing for AI workloads"
     },
     "SAF-K8S-1007-011": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c9c4c9e278f2015546a2c1a376be1fa408c9d6a6",
-  "sha256": "def8199cd87ef54e54a69c6156918a96bec1440bdc61cd5ce83f4b6c85a0ae37",
+  "revision": "e74a4a4dba75cc67ee01d7f16296130835520a29",
+  "sha256": "ea9f5c0e0fb93068e9566cca8c429df2d8dd9f2f05e8c8c98b06b13021e43372",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
