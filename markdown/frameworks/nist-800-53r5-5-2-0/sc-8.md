@@ -87,9 +87,9 @@ Agent communications must be protected for confidentiality and integrity in tran
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.10
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-0910-030 - Cross-cluster registry replication channel mutual authentication](../../controls/SAF-K8S-0910-030.md)

@@ -41840,15 +41840,14 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-8(18)
   framework_requirement_title: Trusted Communications Channels
-  framework_mapping_notes: 'Trusted channels between agents and tools prevent tampering and interception
-
-
-    5.4 - mTLS (trusted communication channels); 9.1 - Encrypted gradient communication (NCCL, MPI)'
+  framework_mapping_notes: The deployed design establishes restricted trusted channels and verifies required end-to-end
+    protections.
   control_id: SAF-K8S-0910-020
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The deployed design establishes restricted trusted channels and verifies required end-to-end
+    protections
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -44597,15 +44596,14 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-13
   framework_requirement_title: Cryptographic Protection
-  framework_mapping_notes: 'Cryptographic protection mechanisms secure agent data at rest, in transit, and in use
-
-
-    6.3 - Cryptographic agility and post-quantum readiness (overall cryptographic protection strategy)'
+  framework_mapping_notes: The implementation identifies required cryptographic uses and verifies the approved cryptography
+    on actual routes.
   control_id: SAF-K8S-0910-020
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The implementation identifies required cryptographic uses and verifies the approved cryptography
+    on actual routes
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -53653,15 +53651,12 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-8
   framework_requirement_title: Transmission Confidentiality and Integrity
-  framework_mapping_notes: 'Agent communications must be protected for confidentiality and integrity in transit
-
-
-    5.2 - Pod-to-pod encryption; 5.4 - mTLS (transmission confidentiality and integrity)'
+  framework_mapping_notes: The actual selected transmission paths verify required confidentiality and integrity properties.
   control_id: SAF-K8S-0910-020
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The actual selected transmission paths verify required confidentiality and integrity properties
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
