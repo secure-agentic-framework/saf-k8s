@@ -1,0 +1,16 @@
+{
+  "apiVersion": "policy/v1beta1",
+  "kind": "PodSecurityPolicy",
+  "metadata": {"name": "fixture-legacy-read-only-root"},
+  "spec": {
+    "privileged": false,
+    "readOnlyRootFilesystem": true,
+    "allowPrivilegeEscalation": false,
+    "defaultAllowPrivilegeEscalation": false,
+    "runAsUser": {"rule": "MustRunAsNonRoot"},
+    "seLinux": {"rule": "RunAsAny"},
+    "supplementalGroups": {"rule": "RunAsAny"},
+    "fsGroup": {"rule": "RunAsAny"},
+    "volumes": ["emptyDir", "configMap", "projected"]
+  }
+}

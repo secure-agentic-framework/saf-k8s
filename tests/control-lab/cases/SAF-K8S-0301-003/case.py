@@ -7,6 +7,9 @@ import time
 from fixtures import BUSYBOX_IMAGE
 
 NAMESPACE = "saf-0301-003-migration"
+SYSTEM = "saf-0301-003-system"
+HERE = Path(__file__).parent
+GAP_POLICY = "saf-0301-003-legacy-readonly"
 VERSION = "v1.36"
 MODES = ("enforce", "audit", "warn")
 NODE_IMAGE = (
@@ -20,8 +23,8 @@ SCOPE = (
     "Synthetic namespace migration from a Baseline-compatible admission state "
     "through Restricted audit/warn to Restricted enforcement, using server "
     "dry-run probes, matching audit annotations and one benign compliant live Pod. "
-    "Legacy inventory and disablement, system scope, custom PSP features, namespace "
-    "permission governance and the actual workload upgrade require deployment evidence."
+    "Representative application and infrastructure namespaces roll forward separately. "
+    "A separate admission policy preserves one legacy constraint outside PSS."
 )
 
 
@@ -33,7 +36,7 @@ omitStages: [RequestReceived]
 rules:
 - level: Metadata
   verbs: [create]
-  namespaces: [{NAMESPACE}]
+  namespaces: [{NAMESPACE}, {SYSTEM}]
   resources:
   - group: ""
     resources: [pods]
@@ -73,7 +76,7 @@ kubeadmConfigPatches:
     return config
 
 
-def audit_observation(lab, *, expected_count):
+def audit_observation(lab, *, expected_count, scope=NAMESPACE):
     until = time.monotonic() + 12
     node = f"{lab.cluster}-control-plane"
     matching = []
@@ -85,7 +88,7 @@ def audit_observation(lab, *, expected_count):
             matching = [event for event in events
                         if event.get("stage") == "ResponseComplete" and event.get("verb") == "create"
                         and event.get("objectRef", {}).get("resource") == "pods"
-                        and event.get("objectRef", {}).get("namespace") == NAMESPACE
+                        and event.get("objectRef", {}).get("namespace") == scope
                         and "dryRun=All" in event.get("requestURI", "")
                         and event.get("responseStatus", {}).get("code") == 201]
             if len(matching) == expected_count:
@@ -99,7 +102,7 @@ def audit_observation(lab, *, expected_count):
     lab.block(f"Expected {expected_count} scoped audit events, got {len(matching)}")
 
 
-def namespace(levels):
+def namespace(levels, name=NAMESPACE):
     labels = {}
     for mode in MODES:
         labels[f"pod-security.kubernetes.io/{mode}"] = levels[mode]
@@ -107,11 +110,11 @@ def namespace(levels):
     return {
         "apiVersion": "v1",
         "kind": "Namespace",
-        "metadata": {"name": NAMESPACE, "labels": labels},
+        "metadata": {"name": name, "labels": labels},
     }
 
 
-def pod(name, *, restricted):
+def pod(name, *, restricted, scope=NAMESPACE):
     security_context = {
         "runAsNonRoot": True,
         "runAsUser": 65534,
@@ -125,7 +128,7 @@ def pod(name, *, restricted):
     return {
         "apiVersion": "v1",
         "kind": "Pod",
-        "metadata": {"name": name, "namespace": NAMESPACE},
+        "metadata": {"name": name, "namespace": scope},
         "spec": {
             "restartPolicy": "Never",
             "automountServiceAccountToken": False,
@@ -141,7 +144,7 @@ def pod(name, *, restricted):
 
 def server_dry_run(lab, resource):
     return lab.kubectl(
-        "-n", NAMESPACE, "create", "-f", "-", "--dry-run=server", "-o", "json",
+        "-n", resource["metadata"]["namespace"], "create", "-f", "-", "--dry-run=server", "-o", "json",
         payload=json.dumps(resource), allow_failure=True,
     )
 
@@ -278,3 +281,73 @@ def run(lab):
         True,
         "Ready",
     )
+
+    migration = phased_rollout(lab)
+    (lab.evidence / "psa-migration-observations.json").write_text(json.dumps({
+        "api_group_discovery": discovered.stdout.splitlines(), "old_resource_not_served": legacy_unavailable,
+        "application": {"baseline_audit": baseline_audit, "staged_audit": staged_audit, "modes": migration_modes,
+                        "versions": migration_versions, "restricted_denied": forbidden_for_restricted(denied),
+                        "compliant_ready": True}, **migration,
+    }, indent=2) + "\n")
+
+
+def phase(lab, scope, **levels):
+    labels = [f"pod-security.kubernetes.io/{mode}={value}" for mode, value in levels.items()]
+    lab.kubectl("label", "namespace", scope, *labels, "--overwrite")
+
+
+def gap_denied(result):
+    return result.returncode != 0 and GAP_POLICY in result.stderr and "read-only container root" in result.stderr
+
+
+def phased_rollout(lab):
+    legacy = json.loads((HERE / "legacy-profile.json").read_text())
+    if legacy["spec"].get("readOnlyRootFilesystem") is not True:
+        lab.block("The reviewed legacy fixture must declare the separate read-only root requirement")
+    ready = {"enforce": "baseline", "audit": "restricted", "warn": "restricted"}
+    lab.create(namespace(ready, SYSTEM))
+    challenge = pod("saf-infrastructure-audit-dry-run", restricted=False, scope=SYSTEM)
+    application = pod("saf-application-phase-dry-run", restricted=False)
+    staged = server_dry_run(lab, challenge)
+    system_audit = audit_observation(lab, expected_count=1, scope=SYSTEM)
+    app_rejects = forbidden_for_restricted(server_dry_run(lab, application))
+    staged_correctly = app_rejects and has_restricted_warning(staged) and system_audit["restricted_violation"]
+    lab.check("green", "Application enforcement and infrastructure audit/warn operate concurrently",
+              staged_correctly, {"app_enforcement": app_rejects, "infrastructure_warn": has_restricted_warning(staged), **system_audit})
+
+    phase(lab, SYSTEM, enforce="restricted")
+    denied_after = forbidden_for_restricted(server_dry_run(lab, challenge))
+    gap = pod("saf-infrastructure-readonly-dry-run", restricted=True, scope=SYSTEM)
+    ordinary_psa = server_dry_run(lab, gap).returncode == 0
+    app_stays_enforced = forbidden_for_restricted(server_dry_run(lab, application))
+    lab.check("red", "After promotion, Restricted alone still accepts a fixture with an unspecified legacy root setting",
+              denied_after and ordinary_psa and app_stays_enforced,
+              {"infrastructure_restricted": denied_after, "legacy_gap_present": ordinary_psa, "application_restricted": app_stays_enforced})
+    lab.apply(HERE / "legacy-gap-policy.yaml")
+    deadline = time.monotonic() + 20
+    while True:
+        response = server_dry_run(lab, gap)
+        if gap_denied(response) or time.monotonic() >= deadline:
+            break
+        time.sleep(0.3)
+    restored = gap_denied(response)
+    compliant = pod("saf-legacy-gap-compliant", restricted=True, scope=SYSTEM)
+    compliant["spec"]["containers"][0]["securityContext"]["readOnlyRootFilesystem"] = True
+    allowed = server_dry_run(lab, compliant).returncode == 0
+    lab.check("green", "The separate admission rule restores the documented legacy constraint",
+              restored and allowed, {"legacy_constraint_restored": restored, "compliant_declaration_allowed": allowed})
+    lab.kubectl("-n", SYSTEM, "create", "-f", "-", payload=json.dumps(compliant))
+    lab.kubectl("-n", SYSTEM, "wait", "--for=condition=Ready", "pod/saf-legacy-gap-compliant", "--timeout=75s", timeout=85)
+    phase(lab, SYSTEM, enforce="baseline")
+    still_denied = gap_denied(server_dry_run(lab, gap))
+    current = json.loads(lab.kubectl("-n", SYSTEM, "get", "pod", "saf-legacy-gap-compliant", "-o", "json").stdout)
+    remained = any(c["type"] == "Ready" and c["status"] == "True" for c in current["status"]["conditions"])
+    apps_untouched = forbidden_for_restricted(server_dry_run(lab, application))
+    lab.check("positive", "Rolling back only infrastructure keeps the legacy rule and healthy workloads",
+              still_denied and remained and apps_untouched,
+              {"legacy_guard_still_active": still_denied, "infrastructure_pod_ready": remained, "app_still_restricted": apps_untouched})
+    return {"legacy_fixture": legacy["metadata"]["name"], "legacy_gap": "readOnlyRootFilesystem",
+            "infrastructure": {"staged_warn_and_audit": staged_correctly, "promoted_enforce": denied_after,
+                               "legacy_gap_observed_without_extra_policy": ordinary_psa, "legacy_guard_applied": restored,
+                               "workload_ready_after_rollback": remained, "legacy_guard_after_rollback": still_denied,
+                               "application_unchanged_after_rollback": apps_untouched}}

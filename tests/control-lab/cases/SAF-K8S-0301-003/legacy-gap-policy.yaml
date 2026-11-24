@@ -1,0 +1,33 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-0301-003-legacy-readonly
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["pods"]
+  validations:
+    - expression: >-
+        object.spec.containers.all(c, has(c.securityContext) &&
+          has(c.securityContext.readOnlyRootFilesystem) && c.securityContext.readOnlyRootFilesystem) &&
+        (!has(object.spec.initContainers) || object.spec.initContainers.all(c, has(c.securityContext) &&
+          has(c.securityContext.readOnlyRootFilesystem) && c.securityContext.readOnlyRootFilesystem))
+      message: "The fixture legacy policy requires read-only container root filesystems"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-0301-003-legacy-readonly
+spec:
+  policyName: saf-0301-003-legacy-readonly
+  validationActions: ["Deny"]
+  matchResources:
+    namespaceSelector:
+      matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: In
+          values: ["saf-0301-003-migration", "saf-0301-003-system"]

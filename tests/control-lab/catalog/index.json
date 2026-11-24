@@ -615,7 +615,7 @@
     "SAF-K8S-0301-003": {
       "catalog_status": "draft",
       "domain": "D03",
-      "sha256": "f42e8963bfa1ef8713611511e0d1f0fba5180d943ba3795a98cee97c3b319ed1",
+      "sha256": "313e264faba9b51e81fdf0ad7eea01655e0fd5d50cf0cdf85a18d34acbb2be03",
       "title": "PodSecurityPolicy to PSA migration"
     },
     "SAF-K8S-0301-005": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "666d51732c310ce3c18c12d02c4e5d2ebdbf57c3",
-  "sha256": "84d2c783648d4545e9b7748d2bd8bdf60d4cf0d3ba4f4f000188552078779642",
+  "revision": "de345c64fc02b6a5aeb00ed951ea2cd1ec2fdc25",
+  "sha256": "bd0ef01e25e9a167a4eb1ef544d1ab1daf91734b0dc147918f28da202c3e1015",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
