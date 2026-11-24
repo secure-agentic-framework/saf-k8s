@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0203-012",
-  "catalog_revision": "4cd1ce3fa57e635349af08165c1d97f53dad2ea4",
-  "catalog_sha256": "3b03e21fceacf14bd14c47f72dfc1cf586236eae57687297782a86105109ffd7",
+  "catalog_revision": "a7b65d8e9e155551f36dab91709f1fd40a50f637",
+  "catalog_sha256": "18dd1c4f1cb4f76c9d58276abee0c2b6d7162859bfdbdb495fd51cd09e9f9425",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "0087ce4091b18273007439f69bdffd7dc66f0d2dd33f9c486b1fd2652c8346fc",
-  "scope": "Exercise the post-boot module freeze in an isolated Linux guest launched by an unprivileged Job.",
-  "cluster": "saf-lab-4e600acd355d",
+  "control_sha256": "c2d63efbabbcdf6265fccb795cfa2dd76e747469bf1d2969694b8096ee63167a",
+  "scope": "Verify actual loading, unloading, retained loop-device operation, and fresh-boot application in disconnected guest kernels.",
+  "cluster": "saf-lab-666c3d551d74",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -40,26 +40,47 @@
   "checks": [
     {
       "phase": "red",
-      "claim": "The public stock module loads before the guest is frozen",
+      "claim": "Without the freeze, the pinned stock modules load and unload in the disposable kernel",
       "matched": true,
       "observed": {
-        "baseline_stock_module_loaded": true
+        "baseline_load_and_unload_allowed": true,
+        "packaged_module_names": [
+          "dummy",
+          "loop"
+        ]
       }
     },
     {
       "phase": "green",
-      "claim": "The effective guest freeze denies loading the same stock module",
+      "claim": "The effective one-way freeze denies loading and unloading the same stock module actions",
       "matched": true,
       "observed": {
-        "post_boot_loading_denied": true
+        "freeze_active_with_loading_and_unloading_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A request to reverse the active freeze fails and leaves the effective value set",
+      "matched": true,
+      "observed": {
+        "active_freeze_stays_set": true
       }
     },
     {
       "phase": "positive",
-      "claim": "The approved boot module remains present after policy activation",
+      "claim": "The boot-approved loop module still reads an actual owned block marker",
       "matched": true,
       "observed": {
-        "approved_module_retained": true
+        "retained_loop_device_read_succeeded": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A fresh boot reapplies the policy after the approved module and preserves its function",
+      "matched": true,
+      "observed": {
+        "fresh_guest_reapplies_freeze_after_module_initialization": true,
+        "same_pinned_kernel_boots": true
       }
     }
   ]

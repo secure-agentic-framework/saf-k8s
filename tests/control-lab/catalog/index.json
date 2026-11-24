@@ -501,7 +501,7 @@
     "SAF-K8S-0203-012": {
       "catalog_status": "draft",
       "domain": "D02",
-      "sha256": "0087ce4091b18273007439f69bdffd7dc66f0d2dd33f9c486b1fd2652c8346fc",
+      "sha256": "c2d63efbabbcdf6265fccb795cfa2dd76e747469bf1d2969694b8096ee63167a",
       "title": "Enforce and audit Linux kernel module loading policy"
     },
     "SAF-K8S-0203-013": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "294bb22633722d6056be914229081cb299dcf71e",
-  "sha256": "6c62a9ab38837b70dbe3d92571eb93f33722e18e15a26a688854bcfd3cadd6b4",
+  "revision": "1b1ec2f9b81c367cdbc5086b6b337d7e54bb1fec",
+  "sha256": "18dd1c4f1cb4f76c9d58276abee0c2b6d7162859bfdbdb495fd51cd09e9f9425",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
