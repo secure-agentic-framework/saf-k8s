@@ -1,4 +1,5 @@
 """Exercise metadata admission for a synthetic CIS exception record."""
+import importlib.util
 import json
 from pathlib import Path
 import time
@@ -9,8 +10,9 @@ FIXTURE = json.loads((HERE / "fixtures.json").read_text(encoding="utf-8"))
 SCOPE = (
     "Kind API admission of synthetic ConfigMap exception records. The policy checks only "
     "required governance metadata and scheduled review deadlines against a fixed date. "
-    "It cannot prove an authentic "
-    "risk-owner decision, cross-functional review, implemented mitigation, or live reassessment."
+    "A second pass verifies requester denials and the authorized risk-owner re-review "
+    "using exact API subjects in a disposable namespace. The identities, dates, and "
+    "compensating controls are synthetic."
 )
 
 
@@ -133,3 +135,8 @@ def run(lab):
     unchanged = current["data"]["review_due"] == accepted["data"]["review_due"]
     lab.check("positive", "The accepted exception keeps its original review schedule",
               unchanged, {"original_deadline_preserved": unchanged})
+
+    spec = importlib.util.spec_from_file_location("cis_risk_review", HERE / "risk-review.py")
+    review = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(review)
+    review.run(lab, accepted)

@@ -28,3 +28,37 @@ and production coverage must come from the actual exception workflow.
 - [CIS Kubernetes Benchmark v2.1.0 release notes](https://www.cisecurity.org/insights/blog/cis-benchmarks-november-2026-update)
 - [CIS-CAT Pro Dashboard exception workflow](https://ciscat-pro-dashboard.docs.cisecurity.org/en/stable/source/Dashboard%20User%27s%20Guide/)
 - [Kubernetes v1.36 ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
+
+The second fixture uses two assigned service-account subjects and real API
+admission in the disposable cluster. The harness impersonates each subject
+using its already authorized administrator context. Both subjects can
+submit under namespace RBAC. With the risk-owner admission rule enabled,
+the requester cannot create or renew the approval, and the owner cannot
+renew after the deadline, without a newer review or with a changed finding.
+A timely owner review retains the exact cluster, benchmark, version,
+profile and check scope, the existing object identity and the renewed date.
+The review clock is represented by fixture dates. Live scheduling, human
+delegation and performance of a compensating control require their own
+evidence.
+
+## Verify your implementation
+
+1. Reconcile the exception list with the current benchmark findings. Match
+   cluster or node pool, distribution, benchmark version, profile, and
+   recommendation ID. Retain the affected assessment, justification,
+   accountable risk owner, scope, constraints, and review due date.
+2. Obtain the effective approval authority and the dated decision record
+   from the approval system. Verify the recorded actor against the approved
+   role and delegation at the time of both initial approval and renewal.
+   Inspect how edits, approvals and historical records are protected. In
+   an authorized representative environment, attempt an unapproved edit or
+   extension and verify it cannot preserve an active waiver.
+3. Verify each compensating control with evidence of its operation and
+   measured outcome for the affected workload or cluster. Repeat at
+   re-review or when the scope, benchmark version, settings or risk change.
+   Preserve the unmet benchmark result and the current risk decision.
+4. Compare the defined review schedule with completed reassessments and
+   escalation records. Sample due, renewed, rejected and overdue exceptions.
+   Confirm overdue or invalid approvals are flagged and handled according to
+   policy. The next date needs an attributable decision and current
+   supporting evidence. A date field alone does not establish completion.

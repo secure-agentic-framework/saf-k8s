@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0104-017",
-  "catalog_revision": "36d67fc68b5176566299ebffa1c448bea0a6dc2c",
-  "catalog_sha256": "957795ca0841a48dd97f65d6a691d642bc38d11bbf391056ec5ea9b34e1a131b",
+  "catalog_revision": "00121215e3db27624681690f3ccdeaf449074d73",
+  "catalog_sha256": "b13085fffcc414b504ce34f1a8df0fae3520e701b0adca01e92c2c2add5002cb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "45553b5485e71555be09bdda206d034b05824728a280ce53e23f5f76f0ef2d62",
-  "scope": "Kind API admission of synthetic ConfigMap exception records. The policy checks only required governance metadata and scheduled review deadlines against a fixed date. It cannot prove an authentic risk-owner decision, cross-functional review, implemented mitigation, or live reassessment.",
-  "cluster": "saf-lab-f54dd74e9756",
+  "scope": "Kind API admission of synthetic ConfigMap exception records. The policy checks only required governance metadata and scheduled review deadlines against a fixed date. A second pass verifies requester denials and the authorized risk-owner re-review using exact API subjects in a disposable namespace. The identities, dates, and compensating controls are synthetic.",
+  "cluster": "saf-lab-50e7f59f02c4",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -79,6 +79,51 @@
       "matched": true,
       "observed": {
         "original_deadline_preserved": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The requester can submit the forged approval before the risk-owner rule",
+      "matched": true,
+      "observed": {
+        "approval_forgery_admitted_in_baseline": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same requester cannot approve an exception in the risk owner's name",
+      "matched": true,
+      "observed": {
+        "approval_forgery_denied_by_expected_policy": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The designated risk owner creates the scoped approval",
+      "matched": true,
+      "observed": {
+        "approved_by_expected_subject": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Renewal denies the wrong actor, changed scope, absent review and a missed deadline",
+      "matched": true,
+      "observed": {
+        "requester": true,
+        "changed_scope": true,
+        "extension_without_review": true,
+        "missed_review_deadline": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An attributable re-review renews the same exact finding scope",
+      "matched": true,
+      "observed": {
+        "same_record": true,
+        "same_scope": true,
+        "expected_renewal": true
       }
     }
   ]
