@@ -2,9 +2,10 @@
 
 import hashlib
 import json
+import re
 from pathlib import Path
 
-SCOPE = "An unprivileged Kind Job drives three isolated QEMU UEFI boots of the same benign EFI program."
+SCOPE = "An unprivileged Kind Job observes UEFI Secure Boot decisions before and after a change to the fixture signer allowlist."
 LABEL = "org.saf.fixture.toolchain-source"
 NAME = "fixture-uefi-boot"
 HERE = Path(__file__).resolve().parent
@@ -46,14 +47,14 @@ def run(lab):
             "resources": {"requests": {"cpu": "150m", "memory": "128Mi"},
                           "limits": {"cpu": "1500m", "memory": "768Mi"}}}
     lab.create({"apiVersion": "batch/v1", "kind": "Job", "metadata": {"name": NAME},
-                "spec": {"backoffLimit": 0, "activeDeadlineSeconds": 250, "template": {"spec": {
+                "spec": {"backoffLimit": 0, "activeDeadlineSeconds": 340, "template": {"spec": {
                     "restartPolicy": "Never", "automountServiceAccountToken": False,
                     "securityContext": {"runAsNonRoot": True, "runAsUser": 65534, "seccompProfile": {"type": "RuntimeDefault"}},
                     "containers": [unit], "volumes": [{"name": "fixture", "configMap": {"name": NAME}},
                                                      {"name": "temporary", "emptyDir": {}}],
                 }}}})
     complete = lab.kubectl("wait", "--for=condition=Complete", "job/" + NAME,
-                           "--timeout=260s", timeout=270, allow_failure=True)
+                           "--timeout=350s", timeout=360, allow_failure=True)
     result = lab.kubectl("logs", "job/" + NAME, allow_failure=True)
     if complete.returncode != 0 or result.returncode != 0:
         lab.block("The virtual UEFI fixture did not complete; inspect the isolated Job logs")
@@ -73,10 +74,28 @@ def run(lab):
               enforced, {"unsigned_application_refused": enforced})
     lab.check("positive", "The same application signed by the enrolled signer executes with Secure Boot enabled",
               approved, {"approved_application_started_under_enforcement": approved, "tool_image": digest, "running_image": actual_image})
+    original_signer, = re.findall(r"^original_signer ([0-9A-F]{64})$", result.stdout, re.M)
+    replacement_signer, = re.findall(r"^replacement_signer ([0-9A-F]{64})$", result.stdout, re.M)
+    firmware, = re.findall(r"^firmware_sha256 ([0-9a-f]{64})$", result.stdout, re.M)
+    distinct = original_signer != replacement_signer
+    pre_rotation_denial = "replacement_denied_by_original_allowlist" in rows
+    post_rotation_approval = "replacement_allowed_by_revised_allowlist" in rows
+    old_signer_denial = "original_denied_after_allowlist_replacement" in rows
+    lab.check("green", "Under the original enrolled allowlist, firmware refuses the distinctly signed replacement image",
+              distinct and pre_rotation_denial,
+              {"different_certificate_fingerprints": distinct, "replacement_denied_by_original_policy": pre_rotation_denial})
+    lab.check("positive", "Under the revised allowlist, the replacement image executes with Secure Boot still active",
+              post_rotation_approval, {"replacement_executes_under_enforcement": post_rotation_approval})
+    lab.check("green", "Under the revised allowlist, firmware refuses the previously approved original signer",
+              old_signer_denial, {"unenrolled_original_signer_refused": old_signer_denial})
     (lab.evidence / "uefi-verified-boot-observations.json").write_text(json.dumps({
         "mechanism": "virtual UEFI with fixture-enrolled platform and signer keys",
         "docker_image": digest, "container_image": actual_image, "package_inventory_sha256": packages,
         "toolchain_source_sha256": source,
         "unsigned_disabled_runs": uncovered, "unsigned_enforced_denied": enforced,
-        "approved_signed_enforced_runs": approved, "physical_node_or_measured_boot_tested": False,
+        "approved_signed_enforced_runs": approved,
+        "firmware_sha256": firmware, "original_signer_fingerprint": original_signer,
+        "replacement_signer_fingerprint": replacement_signer, "replacement_initially_denied": pre_rotation_denial,
+        "replacement_runs_under_revised_policy": post_rotation_approval, "original_signer_removed_denied": old_signer_denial,
+        "physical_node_or_measured_boot_tested": False,
     }, indent=2) + "\n")
