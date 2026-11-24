@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0301-005",
-  "catalog_revision": "f137a5f4369d3304d1ea4fffec53af3bd6201b05",
-  "catalog_sha256": "55d11d8e8dc02459415206ace46a423bd1a0cc8fc11c2a17ddda6bffda944ead",
+  "catalog_revision": "1d3638edaeb6a4758cd7f987d21bce9463561e57",
+  "catalog_sha256": "84d2c783648d4545e9b7748d2bd8bdf60d4cf0d3ba4f4f000188552078779642",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "6a0fab69a8cda93483efaf4b0ddbc81c35c6335cad4390fd8ff99261361f89d7",
-  "scope": "Live Kubernetes API admission for one case-owned, namespaced synthetic PSAExceptionRecord CRD. Compares one incomplete record before and after a ValidatingAdmissionPolicy, checks each required declaration independently, and creates and updates one complete synthetic record. Real API audit observes the targeted write bodies and Metadata-only reads and empty Secret creation. Deployed exception enforcement, approved policy choices, and audit retention require environment-specific evidence.",
-  "cluster": "saf-lab-f163d147cde1",
+  "control_sha256": "c130269a0d65c92a922aec84ac6efa3966988d07960c2484dd56522a7b3b5c2b",
+  "scope": "Live Kubernetes API admission for one case-owned, namespaced synthetic PSAExceptionRecord CRD. Compares one incomplete record before and after a ValidatingAdmissionPolicy, checks each required declaration independently, and creates and updates one complete synthetic record. Fixture-created roles and impersonated identities verify exact-record writer and read-only access. A bounded snapshot reconciles one synthetic workload reference. Real API audit observes the targeted write bodies and Metadata-only reads and empty Secret creation. Deployed exception enforcement, approved policy choices, and audit retention require environment-specific evidence.",
+  "cluster": "saf-lab-cb2e82dd8370",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -137,6 +137,15 @@
     },
     {
       "phase": "positive",
+      "claim": "Fixture reader role can read the exact record but cannot patch it",
+      "matched": true,
+      "observed": {
+        "reader_get_allowed": true,
+        "reader_patch_denied": true
+      }
+    },
+    {
+      "phase": "positive",
       "claim": "The selected register write has the intended request and response evidence",
       "matched": true,
       "observed": {
@@ -150,6 +159,52 @@
       "observed": {
         "register_read_and_empty_secret": true,
         "body_fields_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Independent API audit events attribute exact writer and reader outcomes",
+      "matched": true,
+      "observed": {
+        "approved_writer": {
+          "actor": "system:serviceaccount:saf-0301-005-register:synthetic-register-writer",
+          "verb": "patch",
+          "resource": "psaexceptionrecords",
+          "name": "synthetic-complete",
+          "outcome": 200
+        },
+        "read_only_reader": {
+          "actor": "system:serviceaccount:saf-0301-005-register:synthetic-register-reader",
+          "verb": "get",
+          "resource": "psaexceptionrecords",
+          "name": "synthetic-complete",
+          "outcome": 200
+        },
+        "reader_write_denied": {
+          "actor": "system:serviceaccount:saf-0301-005-register:synthetic-register-reader",
+          "verb": "patch",
+          "resource": "psaexceptionrecords",
+          "name": "synthetic-complete",
+          "outcome": 403
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Bounded latest register inventory detects the missing owned synthetic workload record",
+      "matched": true,
+      "observed": {
+        "inventory_limit": 50,
+        "owned_workload_record_missing": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Adding an approved record resolves the bounded inventory gap",
+      "matched": true,
+      "observed": {
+        "approved_record_added": true,
+        "owned_workload_record_present": true
       }
     }
   ]

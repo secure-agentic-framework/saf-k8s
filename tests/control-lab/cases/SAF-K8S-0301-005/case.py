@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import subprocess
 import time
+from urllib.parse import urlencode
 
 HERE = Path(__file__).parent
 NAMESPACE = "saf-0301-005-register"
@@ -22,11 +23,16 @@ SCOPE = (
     "Live Kubernetes API admission for one case-owned, namespaced synthetic "
     "PSAExceptionRecord CRD. Compares one incomplete record before and after a "
     "ValidatingAdmissionPolicy, checks each required declaration independently, "
-    "and creates and updates one complete synthetic record. Real API audit observes "
+    "and creates and updates one complete synthetic record. Fixture-created roles "
+    "and impersonated identities verify exact-record writer and read-only access. "
+    "A bounded snapshot reconciles one synthetic workload reference. Real API audit observes "
     "the targeted write bodies and Metadata-only reads and empty Secret creation. "
     "Deployed exception enforcement, approved policy choices, and audit retention "
     "require environment-specific evidence."
 )
+WRITER = f"system:serviceaccount:{NAMESPACE}:synthetic-register-writer"
+READER = f"system:serviceaccount:{NAMESPACE}:synthetic-register-reader"
+INVENTORY_LIMIT = 50
 
 
 def prepare_kind(lab, temporary: Path) -> Path:
@@ -87,7 +93,8 @@ def record(name, spec):
     return {
         "apiVersion": f"{GROUP}/{VERSION}",
         "kind": "PSAExceptionRecord",
-        "metadata": {"name": name, "namespace": NAMESPACE},
+        "metadata": {"name": name, "namespace": NAMESPACE,
+                      "labels": {"saf-k8s.example/case": "0301-005"}},
         "spec": spec,
     }
 
@@ -113,12 +120,85 @@ COMPLETE_SPEC = {
 }
 
 
-def submit(lab, obj, *, dry_run=True):
+def submit(lab, obj, *, dry_run=True, actor=None):
     flags = ["--dry-run=server"] if dry_run else []
+    if actor:
+        flags.append("--as=" + actor)
     return lab.kubectl(
         "-n", NAMESPACE, "create", "-f", "-", "-o", "json", *flags,
         payload=json.dumps(obj), allow_failure=True,
     )
+
+
+def install_fixture_roles(lab):
+    """Create narrow fixture roles and bind them to auditable fixture identities."""
+    writer = {
+        "apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role",
+        "metadata": {"name": "synthetic-register-writer", "namespace": NAMESPACE},
+        "rules": [{"apiGroups": [GROUP], "resources": ["psaexceptionrecords"],
+                   "resourceNames": ["synthetic-complete"], "verbs": ["get", "patch"]},
+                  {"apiGroups": [GROUP], "resources": ["psaexceptionrecords"], "verbs": ["create"]}],
+    }
+    reader = {
+        "apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role",
+        "metadata": {"name": "synthetic-register-reader", "namespace": NAMESPACE},
+        "rules": [{"apiGroups": [GROUP], "resources": ["psaexceptionrecords"],
+                   "resourceNames": ["synthetic-complete"], "verbs": ["get"]}],
+    }
+    objects = [writer, reader]
+    for name, role in (("synthetic-register-writer", "synthetic-register-writer"),
+                       ("synthetic-register-reader", "synthetic-register-reader")):
+        objects.extend([
+            {"apiVersion": "v1", "kind": "ServiceAccount",
+             "metadata": {"name": name, "namespace": NAMESPACE}},
+            {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding",
+             "metadata": {"name": name, "namespace": NAMESPACE},
+             "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "Role", "name": role},
+             "subjects": [{"kind": "ServiceAccount", "name": name, "namespace": NAMESPACE}]},
+        ])
+    for obj in objects:
+        lab.kubectl("-n", NAMESPACE, "apply", "-f", "-", payload=json.dumps(obj))
+
+
+def bounded_inventory(lab):
+    query = urlencode({"labelSelector": "saf-k8s.example/case=0301-005", "limit": INVENTORY_LIMIT})
+    path = f"/apis/{GROUP}/{VERSION}/namespaces/{NAMESPACE}/psaexceptionrecords?{query}"
+    snapshot = json.loads(lab.kubectl("get", "--raw", path).stdout)
+    if snapshot["metadata"].get("continue"):
+        lab.block("The fixture inventory exceeded its verification bound")
+    return snapshot.get("items") or []
+
+
+def reconcile_synthetic_workload(lab):
+    expected = {"kind": "DaemonSet", "namespace": "synthetic-system", "name": "synthetic-inventory-agent"}
+
+    def present():
+        return any(item.get("spec", {}).get("workloadRef") == expected
+                   and item.get("metadata", {}).get("annotations", {}).get(
+                       "saf-k8s.example/fixture-approval") == "approved-synthetic-record"
+                   for item in bounded_inventory(lab))
+
+    missing = not present()
+    lab.check("positive", "Bounded latest register inventory detects the missing owned synthetic workload record",
+              missing, {"inventory_limit": INVENTORY_LIMIT, "owned_workload_record_missing": missing})
+    approved = record("synthetic-inventory-agent", {
+        "workloadRef": expected,
+        "privileges": ["synthetic:device-access"],
+        "justification": "Synthetic inventory fixture exercises bounded record reconciliation.",
+        "riskOwner": "synthetic-inventory-owner@example.invalid",
+        "compensatingControls": ["synthetic:network-isolation-review"],
+    })
+    approved["metadata"]["annotations"] = {
+        "saf-k8s.example/fixture-approval": "approved-synthetic-record"
+    }
+    result = submit(lab, approved, dry_run=False, actor=WRITER)
+    resolved = result.returncode == 0 and present()
+    lab.check("positive", "Adding an approved record resolves the bounded inventory gap",
+              resolved, {"approved_record_added": result.returncode == 0,
+                         "owned_workload_record_present": resolved})
+    return {"inventory_limit": INVENTORY_LIMIT, "owned_workload": expected,
+            "missing_detected": missing, "approved_record_added": result.returncode == 0,
+            "resolved": resolved}
 
 
 def policy_denied(result):
@@ -200,9 +280,11 @@ def run(lab):
         persisted.get("spec"),
     )
 
+    install_fixture_roles(lab)
     update = ("-n", NAMESPACE, "patch", "psaexceptionrecord", "synthetic-complete",
               "--type=merge", "-p")
-    incomplete_change = lab.kubectl(*update, json.dumps({"spec": {"riskOwner": " "}}), allow_failure=True)
+    incomplete_change = lab.kubectl("--as=" + WRITER, *update,
+                                    json.dumps({"spec": {"riskOwner": " "}}), allow_failure=True)
     stored = json.loads(lab.kubectl(
         "-n", NAMESPACE, "get", "psaexceptionrecord", "synthetic-complete", "-o", "json",
     ).stdout)["spec"]
@@ -212,18 +294,37 @@ def run(lab):
 
     new_owner = "synthetic-next-owner@example.invalid"
     repaired = json.loads(lab.kubectl(
-        *update, json.dumps({"spec": {"riskOwner": new_owner}}), "-o", "json",
+        "--as=" + WRITER, *update, json.dumps({"spec": {"riskOwner": new_owner}}), "-o", "json",
     ).stdout)["spec"]
     lab.check("positive", "A complete update to the evidence record persists",
               repaired == {**COMPLETE_SPEC, "riskOwner": new_owner},
               {"expected_complete_update_persisted": repaired == {**COMPLETE_SPEC, "riskOwner": new_owner}})
+
+    read_as_reader = lab.kubectl("--as=" + READER, "-n", NAMESPACE, "get",
+                                 "psaexceptionrecord", "synthetic-complete", "-o", "json")
+    reader_patch = lab.kubectl("--as=" + READER, *update,
+                               json.dumps({"spec": {"riskOwner": "synthetic-unapproved@example.invalid"}}),
+                               allow_failure=True)
+    lab.check("positive", "Fixture reader role can read the exact record but cannot patch it",
+              read_as_reader.returncode == 0 and reader_patch.returncode != 0
+              and "(Forbidden)" in reader_patch.stderr,
+              {"reader_get_allowed": read_as_reader.returncode == 0,
+               "reader_patch_denied": reader_patch.returncode != 0 and "(Forbidden)" in reader_patch.stderr})
 
 
     empty_secret = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque",
                     "metadata": {"name": "saf-empty-audit-fixture", "namespace": NAMESPACE}}
     lab.kubectl("-n", NAMESPACE, "create", "-f", "-", "-o", "name",
                 payload=json.dumps(empty_secret))
-    check_audit_scope(lab, new_owner)
+    audit_observations = check_audit_scope(lab, new_owner)
+    inventory_observations = reconcile_synthetic_workload(lab)
+    (lab.evidence / "psa-register-observations.json").write_text(json.dumps({
+        "scope": "synthetic fixture only",
+        "rbac": audit_observations["rbac"],
+        "audit_records": audit_observations["events"],
+        "audit": audit_observations["audit"],
+        "inventory": inventory_observations,
+    }, indent=2, sort_keys=True) + "\n")
 
 
 def check_audit_scope(lab, owner):
@@ -243,19 +344,22 @@ def check_audit_scope(lab, owner):
             if event.get("stage") != "ResponseComplete" or ref.get("namespace") != NAMESPACE:
                 continue
             resource, verb = ref.get("resource"), event.get("verb")
-            if resource == "psaexceptionrecords" and ref.get("name") == "synthetic-complete" and code == 200:
-                if verb == "patch":
+            if resource == "psaexceptionrecords" and ref.get("name") == "synthetic-complete":
+                actor = (event.get("impersonatedUser") or event.get("user", {})).get("username")
+                if verb == "patch" and actor == WRITER and code == 200:
                     matched["write"] = event
-                elif verb == "get":
+                elif verb == "get" and actor == READER and code == 200:
                     matched["read"] = event
+                elif verb == "patch" and actor == READER and code == 403:
+                    matched["denied"] = event
             elif resource == "secrets" and verb == "create" and code == 201:
                 matched["secret"] = event
-        if set(matched) == {"write", "read", "secret"}:
+        if set(matched) == {"write", "read", "denied", "secret"}:
             break
         time.sleep(0.3)
-    if set(matched) != {"write", "read", "secret"}:
-        lab.block("Expected exact successful register write/read and empty Secret audit events")
-    write, read, secret = (matched[key] for key in ("write", "read", "secret"))
+    if set(matched) != {"write", "read", "denied", "secret"}:
+        lab.block("Expected exact approved writer, read-only reader, denied reader write, and empty Secret audit events")
+    write, read, denied, secret = (matched[key] for key in ("write", "read", "denied", "secret"))
     selected_bodies = (write["level"] == "RequestResponse"
                        and write.get("requestObject", {}).get("spec", {}).get("riskOwner") == owner
                        and write.get("responseObject", {}).get("spec", {}).get("riskOwner") == owner)
@@ -266,3 +370,42 @@ def check_audit_scope(lab, owner):
                         for event in (read, secret))
     lab.check("green", "The same namespace retains register reads and empty Secret creation at Metadata",
               metadata_only, {"register_read_and_empty_secret": metadata_only, "body_fields_absent": metadata_only})
+    rbac_audit = {
+        "approved_writer": {"actor": write["impersonatedUser"]["username"], "verb": write.get("verb"),
+                            "resource": write.get("objectRef", {}).get("resource"),
+                            "name": write.get("objectRef", {}).get("name"),
+                            "outcome": write.get("responseStatus", {}).get("code")},
+        "read_only_reader": {"actor": read["impersonatedUser"]["username"], "verb": read.get("verb"),
+                              "resource": read.get("objectRef", {}).get("resource"),
+                              "name": read.get("objectRef", {}).get("name"),
+                              "outcome": read.get("responseStatus", {}).get("code")},
+        "reader_write_denied": {"actor": denied["impersonatedUser"]["username"], "verb": denied.get("verb"),
+                                "resource": denied.get("objectRef", {}).get("resource"),
+                                "name": denied.get("objectRef", {}).get("name"),
+                                "outcome": denied.get("responseStatus", {}).get("code")},
+    }
+    role_checks = (rbac_audit["approved_writer"]["actor"] == WRITER
+                   and rbac_audit["approved_writer"]["verb"] == "patch"
+                   and rbac_audit["approved_writer"]["resource"] == "psaexceptionrecords"
+                   and rbac_audit["approved_writer"]["name"] == "synthetic-complete"
+                   and rbac_audit["approved_writer"]["outcome"] == 200
+                   and rbac_audit["read_only_reader"]["actor"] == READER
+                   and rbac_audit["read_only_reader"]["verb"] == "get"
+                   and rbac_audit["read_only_reader"]["resource"] == "psaexceptionrecords"
+                   and rbac_audit["read_only_reader"]["name"] == "synthetic-complete"
+                   and rbac_audit["read_only_reader"]["outcome"] == 200
+                   and rbac_audit["reader_write_denied"]["actor"] == READER
+                   and rbac_audit["reader_write_denied"]["verb"] == "patch"
+                   and rbac_audit["reader_write_denied"]["resource"] == "psaexceptionrecords"
+                   and rbac_audit["reader_write_denied"]["name"] == "synthetic-complete"
+                   and rbac_audit["reader_write_denied"]["outcome"] == 403)
+    lab.check("positive", "Independent API audit events attribute exact writer and reader outcomes",
+              role_checks, rbac_audit)
+    records = {key: {name: event[name] for name in ("auditID", "stageTimestamp", "level", "responseStatus")}
+               for key, event in matched.items()}
+    return {"rbac": rbac_audit, "events": records, "audit": {
+        "writer_request_response": selected_bodies,
+        "reader_get_metadata": read["level"] == "Metadata",
+        "reader_denied_patch_request_response": denied["level"] == "RequestResponse",
+        "read_and_empty_secret_metadata_only": metadata_only,
+    }}
