@@ -2,6 +2,8 @@
 import base64
 import json
 import subprocess
+import runpy
+from pathlib import Path
 from time import monotonic, sleep
 
 
@@ -14,7 +16,7 @@ SCOPE = (
     "metadata JSON records to a PVC and prints a training-log JSON record. Output "
     "values are inspected only in memory and are never written to lab evidence or "
     "command logs. An independent read-only Pod observes records after the Jobs complete. "
-    "An invalid policy Job stops before creating sinks. Deployed products and binary artifact formats need separate evidence."
+    "An invalid policy Job stops before creating sinks. Exercises a pinned scanner and digest-gated promotion for files and OCI archives. Deployed products and additional binary formats require separate evidence."
 )
 FIELD_MANAGER = "saf-lab-diff"
 DIFF_NAME = "synthetic-diff-record"
@@ -41,13 +43,6 @@ for kind, filename in (("artifact", "artifact.json"), ("checkpoint", "checkpoint
     (root / filename).write_text(json.dumps(record, sort_keys=True) + "\n")
 print(json.dumps({"schema": "saf.fixture.training-log.v1", "pipeline": "synthetic-training", "run_id": run_id, "event": "sample_processed", "sample": value}, sort_keys=True), flush=True)
 '''
-READBACK_WORKLOAD = r'''import os, pathlib
-root = pathlib.Path("/out") / os.environ["RUN_ID"]
-for filename in ("artifact.json", "checkpoint.json", "pipeline-metadata.json"):
-    print((root / filename).read_text().strip(), flush=True)
-'''
-
-
 def _marker():
     return "-".join(("PUBLIC", "SYNTHETIC", "OUTPUT", "MARKER"))
 
@@ -150,33 +145,6 @@ def _job(run_id, policy):
                                                                            "readOnlyRootFilesystem": True,
                                                                            "capabilities": {"drop": ["ALL"]}},
                                                        "volumeMounts": [{"name": "outputs", "mountPath": "/out"}]}],
-                                       "volumes": [{"name": "outputs", "persistentVolumeClaim": {"claimName": PVC}}]}}}}
-
-
-def _reader_job(run_id):
-    return {
-        "apiVersion": "batch/v1", "kind": "Job",
-        "metadata": {"name": f"saf-0403-read-{run_id}", "namespace": "saf-test"},
-        "spec": {"backoffLimit": 0, "activeDeadlineSeconds": 90,
-                 "ttlSecondsAfterFinished": 300,
-                 "template": {"metadata": {"labels": {"app": "saf-0403-readback"}},
-                              "spec": {"restartPolicy": "Never",
-                                       "automountServiceAccountToken": False,
-                                       "securityContext": {"runAsNonRoot": True,
-                                                           "runAsUser": 1000,
-                                                           "fsGroup": 1000,
-                                                           "seccompProfile": {"type": "RuntimeDefault"}},
-                                       "containers": [{"name": "readback", "image": IMAGE,
-                                                       "imagePullPolicy": "IfNotPresent",
-                                                       "command": ["python", "-c", READBACK_WORKLOAD],
-                                                       "env": [{"name": "RUN_ID", "value": run_id}],
-                                                       "resources": {"requests": {"cpu": "10m", "memory": "32Mi"},
-                                                                     "limits": {"cpu": "100m", "memory": "96Mi"}},
-                                                       "securityContext": {"allowPrivilegeEscalation": False,
-                                                                           "readOnlyRootFilesystem": True,
-                                                                           "capabilities": {"drop": ["ALL"]}},
-                                                       "volumeMounts": [{"name": "outputs", "mountPath": "/out",
-                                                                         "readOnly": True}]}],
                                        "volumes": [{"name": "outputs", "persistentVolumeClaim": {"claimName": PVC}}]}}}}
 
 
@@ -296,3 +264,4 @@ def run(lab):
               after.returncode == 0 and before.stdout == after.stdout,
               {"same_revision": before.stdout == after.stdout})
     _pipeline_observations(lab)
+    runpy.run_path(str(Path(__file__).with_name("artifact_promotion.py")))["run"](lab)

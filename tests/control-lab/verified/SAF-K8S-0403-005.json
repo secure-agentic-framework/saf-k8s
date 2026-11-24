@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0403-005",
-  "catalog_revision": "51560ff20cf3b26e4bf5f0b97e66ae0e015e4a41",
+  "catalog_revision": "52e7abb1609f21635c1fe612c208e16e1036d575",
   "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "5bceccd60b9178d97b15c75e0b0ab8874bd0fe7e9ce0a6665c6e8868efa96e41",
-  "scope": "Disposable Kind v1.36.1 fixture. Preserves the published kubectl Secret diff observations, then runs one bounded Kubernetes Job twice with public synthetic input: once with output filtering disabled and once with a structured field redaction policy. It treats the sample as untrusted output data and validates the fixture flag against a closed set. The Job writes separate artifact, checkpoint, and pipeline metadata JSON records to a PVC and prints a training-log JSON record. Output values are inspected only in memory and are never written to lab evidence or command logs. An independent read-only Pod observes records after the Jobs complete. An invalid policy Job stops before creating sinks. Deployed products and binary artifact formats need separate evidence.",
-  "cluster": "saf-lab-34fab51e401f",
+  "scope": "Disposable Kind v1.36.1 fixture. Preserves the published kubectl Secret diff observations, then runs one bounded Kubernetes Job twice with public synthetic input: once with output filtering disabled and once with a structured field redaction policy. It treats the sample as untrusted output data and validates the fixture flag against a closed set. The Job writes separate artifact, checkpoint, and pipeline metadata JSON records to a PVC and prints a training-log JSON record. Output values are inspected only in memory and are never written to lab evidence or command logs. An independent read-only Pod observes records after the Jobs complete. An invalid policy Job stops before creating sinks. Exercises a pinned scanner and digest-gated promotion for files and OCI archives. Deployed products and additional binary formats require separate evidence.",
+  "cluster": "saf-lab-3ad382985c15",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -138,6 +138,62 @@
       "observed": {
         "invalid_policy_refused": true,
         "output_directory_absent": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Trivy detects the fixture marker in the file and promotion is denied",
+      "matched": true,
+      "observed": {
+        "expected_rule_matched_and_artifact_absent": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The clean file is promoted byte-for-byte against its scan digest",
+      "matched": true,
+      "observed": {
+        "clean_scan_and_exact_artifact_present": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Trivy detects the fixture marker in the image and promotion is denied",
+      "matched": true,
+      "observed": {
+        "expected_rule_matched_and_artifact_absent": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The clean image is promoted byte-for-byte against its scan digest",
+      "matched": true,
+      "observed": {
+        "clean_scan_and_exact_artifact_present": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Malformed scanner rules produce an error and the release remains withheld",
+      "matched": true,
+      "observed": {
+        "scanner_error_and_artifact_absent": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Promotion rejects a file whose bytes changed after a successful scan",
+      "matched": true,
+      "observed": {
+        "digest_mismatch_and_artifact_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Evidence excludes complete fixture marker bytes",
+      "matched": true,
+      "observed": {
+        "plaintext_and_encoded_marker_absent": true
       }
     }
   ]

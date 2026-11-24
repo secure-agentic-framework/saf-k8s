@@ -25,3 +25,15 @@ Sensitive fixture reads use direct captured subprocess calls and deliberately by
 This is a custom, local defensive demonstration. Kubernetes documents Jobs as one-off work to completion and recommends a TTL for finished Jobs. The PVC provides a distinct persistent-volume path for the three fixture outputs; Kubernetes documents PVCs as storage requests. The existing diff subcase follows the `kubectl diff` reference, which documents Secret masking as the default and `--show-secrets` as the opt-in to unmasking. Kubernetes Secret guidance separately says applications must avoid logging secret data in clear text. See the primary documentation: [Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/), [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/), [kubectl diff](https://kubernetes.io/docs/reference/kubectl/generated/kubectl_diff/), and [Good practices for Kubernetes Secrets](https://kubernetes.io/docs/concepts/security/secrets-good-practices/).
 
 The source-backed claims above describe Kubernetes APIs and documented behavior. The assertions about this fixture's log and file contents are proposed observations for the supervisor's live run; this draft has not been executed. It demonstrates a hand-written structured field filter, not a preferred or named real product. It does not establish artifact scanning, checkpoint format coverage, secrets management or injection, a registry's access controls, hosted CI retention, external artifact-store behavior, inference-platform metadata handling, model quality, protection from alternate output channels, or coverage in any production environment. Those scopes require access to the actual hosted CI to inspect retained logs, the selected artifact store to exercise its write/read and retention path with actual formats, the inference platform to inspect persisted metadata and endpoint output paths, and each target environment's deployed configuration and read-back evidence.
+
+The scanned artifacts include matched ordinary JSON files and deterministic
+OCI image archives whose layers contain those same noncredential bytes.
+Pinned Trivy v0.76.2 scans the files and the extracted OCI image layouts.
+The separate promoter releases only exact clean bytes bound to the scan digest.
+A fresh read-only observer checks the retained file and archive against their
+original bytes and digests and verifies the absence of flagged, scanner-error,
+and changed-after-scan outputs. Receipts contain only bounded results.
+
+- [Trivy v0.76.2](https://github.com/aquasecurity/trivy/releases/tag/v0.76.2)
+- [Trivy OCI layout support](https://trivy.dev/docs/latest/target/container_image/#oci-layout)
+- [OCI Image Layout 1.1.1](https://github.com/opencontainers/image-spec/blob/v1.1.1/image-layout.md)
