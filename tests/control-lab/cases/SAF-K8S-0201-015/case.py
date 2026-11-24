@@ -1,33 +1,23 @@
-"""Verify real node file audit events using a separate disposable Linux kernel."""
+"""Verify targeted native Audit events and recurring drift detection."""
 import json
 from pathlib import Path
-import shutil
-import tempfile
-
+from runpy import run_path
 
 ROOT = Path(__file__).resolve().parent
+GUEST = run_path(str(ROOT / "audit_fixtures.py"))
 SCOPE = (
-    "Kind confirms the generated kubelet config, kubeconfig and PKI path types. A separate "
-    "mount-free disposable Debian VM loads Linux Audit watch rules for three inert files and "
-    "verifies read/write events. Deployed rules, complete node paths, and recurring "
-    "production coverage require independent evidence."
+    "Kind checks kubelet path types through metadata only. A separate mount-free Debian guest "
+    "loads the prescribed persistent rules, demonstrates rule drift and recovery under a "
+    "systemd timer, and records attribution for harmless read and write events."
 )
 FIXTURE_PATHS = {
     "kubelet_config": ("-s", "/var/lib/kubelet/config.yaml"),
     "kubeconfig": ("-s", "/etc/kubernetes/kubelet.conf"),
     "pki_directory": ("-d", "/var/lib/kubelet/pki"),
 }
-BOOTSTRAP = (
-    "export LC_ALL=C DEBIAN_FRONTEND=noninteractive; "
-    "test \"$(systemd-detect-virt)\" = apple; "
-    "apt-get -q update; apt-get -qy --no-install-recommends install auditd; "
-    "systemctl start auditd"
-)
 
 
 def run(lab):
-    if not shutil.which("limactl"):
-        lab.block("The file audit case requires Lima with macOS Virtualization.framework")
     node = f"{lab.cluster}-control-plane"
     paths = {
         field: lab.command("docker", "exec", node, "test", flag, path,
@@ -36,40 +26,38 @@ def run(lab):
     }
     lab.check("positive", "The disposable Kubernetes node has the expected kubelet path types",
               all(paths.values()), paths)
-
-    with tempfile.TemporaryDirectory(prefix="saf-audit-", dir="/tmp") as directory:
-        home = Path(directory) / "vm"
-        home.mkdir(mode=0o700)
-        lima = ("env", f"LIMA_HOME={home}", "limactl")
-        identity = "ad"
-        try:
-            lab.command(*lima, "start", "--yes", "--plain", "--mount-none", "--timeout=240s",
-                        f"--name={identity}", str(ROOT / "audit-vm.yaml"), timeout=420)
-            shell = (*lima, "shell", "--workdir", "/tmp", identity, "sudo", "-n", "bash")
-            lab.command(*shell, "-ceu", BOOTSTRAP, timeout=240)
-            result = lab.command(*shell, "-s", payload=(ROOT / "audit_probe.sh").read_text(), timeout=130)
-            observed = {}
-            for line in result.stdout.splitlines():
-                if line.startswith("{"):
-                    observed.update(json.loads(line))
-            baseline = {key: observed.get(key) is True for key in (
-                "baseline_unwatched", "collector_canary_logged",
-            )}
-            lab.check("red", "Unwatched accesses produce no file events while the audit collector is live",
-                      all(baseline.values()), baseline)
-            audited = {key: observed.get(key) is True for key in (
-                "watched_config_read_write", "watched_kubeconfig_read_write",
-                "watched_pki_read_write", "no_audit_loss",
-            )}
-            lab.check("green", "Linux Audit captures successful reads and writes for all three watched paths",
-                      all(audited.values()), audited)
-            rules_removed = observed.get("rules_removed") is True
-            lab.check("positive", "The guest returns to a clean loaded rule set",
-                      rules_removed, {"rules_removed": rules_removed})
-        finally:
-            instance = home / identity
-            if instance.is_dir():
-                lab.command(*lima, "stop", identity, allow_failure=True, timeout=45)
-                lab.command(*lima, "delete", "--yes", "--force", identity, timeout=45)
-        lab.check("positive", "The case deletes the isolated guest instance",
-                  not (home / identity).exists(), {"guest_deleted": not (home / identity).exists()})
+    observed = GUEST["observe_guest"](lab)
+    events = observed["events"]
+    baseline = {name: observed.get(name) is True for name in ("baseline_unwatched", "collector_canary_logged")}
+    lab.check("red", "Unwatched accesses have no marker events while a successful daemon canary is captured",
+              all(baseline.values()), baseline)
+    platform = observed["platform"]
+    pinned = platform["package"] == GUEST["AUDITD_PACKAGE"] and bool(platform["kernel"])
+    lab.check("positive", "The guest runs the pinned audit package with a recorded architecture and kernel",
+              pinned and platform["architecture"] in {"aarch64", "x86_64"},
+              {"pinned_audit_package": pinned, "platform_identified": bool(platform["architecture"])})
+    recurrence = observed["recurrence"]
+    initial, drift, restored = (recurrence[key] for key in ("initial", "drift", "restored"))
+    independent = len({row["invocation"] for row in (initial, drift, restored)}) == 3
+    ordered = initial["sequence"] < drift["sequence"] < restored["sequence"]
+    lab.check("red", "A later timer invocation identifies the exact configured watch removed from the loaded rules",
+              independent and ordered and initial["missing"] == 0 and drift["missing"] == 1
+              and drift["kind"] == "kubeconfig",
+              {"distinct_ordered_invocations": independent and ordered,
+               "selected_kubeconfig_rule_missing": drift["kind"] == "kubeconfig" and drift["missing"] == 1})
+    lab.check("green", "Reloading the persistent rules restores coverage on a new timer invocation",
+              ordered and restored["missing"] == 0 and recurrence["restored_from_persistent_source"],
+              {"persistent_source_reloaded": recurrence["restored_from_persistent_source"],
+               "loaded_watch_set_restored": restored["missing"] == 0})
+    intended = {(kind, op) for kind in ("config", "kubeconfig", "pki") for op in ("read", "write")}
+    intended.add(("heartbeat", "write"))
+    actual = {(event["kind"], event["operation"]) for event in events if event["success"]}
+    all_events = actual == intended and len({str(event["serial"]) for event in events}) == len(intended)
+    lab.check("green", "Native audit serials and syscall access modes identify all successful marker events",
+              all_events and observed["no_audit_loss"],
+              {"attributable_marker_event_count": len(actual), "unique_event_serials": all_events,
+               "no_audit_loss": observed["no_audit_loss"]})
+    lab.check("positive", "The owned rules are removed and the isolated guest is deleted",
+              observed["rules_removed"] and observed["guest_deleted"],
+              {"rules_removed": observed["rules_removed"], "guest_deleted": observed["guest_deleted"]})
+    (lab.evidence / "native-audit-recurrence.json").write_text(json.dumps(observed, indent=2) + "\n")

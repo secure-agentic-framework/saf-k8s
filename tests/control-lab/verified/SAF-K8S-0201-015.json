@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0201-015",
-  "catalog_revision": "313f8d57928b85f679837f527199bd655a5999d7",
-  "catalog_sha256": "714d60f6e8e32a103c413c1cd2606e2a70c104217ddfd71bd1a082c4584eb54c",
+  "catalog_revision": "4daa8bad2fec71943bf956f514fe06d6c5be8f99",
+  "catalog_sha256": "be3b7814f2810a26dcaa0f08c86b42a1f17331b77218f42795160372c0ab8525",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "14bcfa3cfbada570dfe96c8db5db1e922de8946312f2a17dabceb3d21e915593",
-  "scope": "Kind confirms the generated kubelet config, kubeconfig and PKI path types. A separate mount-free disposable Debian VM loads Linux Audit watch rules for three inert files and verifies read/write events. Deployed rules, complete node paths, and recurring production coverage require independent evidence.",
-  "cluster": "saf-lab-cbfcf0110181",
+  "scope": "Kind checks kubelet path types through metadata only. A separate mount-free Debian guest loads the prescribed persistent rules, demonstrates rule drift and recovery under a systemd timer, and records attribution for harmless read and write events.",
+  "cluster": "saf-lab-b13e7d676daf",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -50,7 +50,7 @@
     },
     {
       "phase": "red",
-      "claim": "Unwatched accesses produce no file events while the audit collector is live",
+      "claim": "Unwatched accesses have no marker events while a successful daemon canary is captured",
       "matched": true,
       "observed": {
         "baseline_unwatched": true,
@@ -58,29 +58,48 @@
       }
     },
     {
-      "phase": "green",
-      "claim": "Linux Audit captures successful reads and writes for all three watched paths",
+      "phase": "positive",
+      "claim": "The guest runs the pinned audit package with a recorded architecture and kernel",
       "matched": true,
       "observed": {
-        "watched_config_read_write": true,
-        "watched_kubeconfig_read_write": true,
-        "watched_pki_read_write": true,
+        "pinned_audit_package": true,
+        "platform_identified": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A later timer invocation identifies the exact configured watch removed from the loaded rules",
+      "matched": true,
+      "observed": {
+        "distinct_ordered_invocations": true,
+        "selected_kubeconfig_rule_missing": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Reloading the persistent rules restores coverage on a new timer invocation",
+      "matched": true,
+      "observed": {
+        "persistent_source_reloaded": true,
+        "loaded_watch_set_restored": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native audit serials and syscall access modes identify all successful marker events",
+      "matched": true,
+      "observed": {
+        "attributable_marker_event_count": 7,
+        "unique_event_serials": true,
         "no_audit_loss": true
       }
     },
     {
       "phase": "positive",
-      "claim": "The guest returns to a clean loaded rule set",
+      "claim": "The owned rules are removed and the isolated guest is deleted",
       "matched": true,
       "observed": {
-        "rules_removed": true
-      }
-    },
-    {
-      "phase": "positive",
-      "claim": "The case deletes the isolated guest instance",
-      "matched": true,
-      "observed": {
+        "rules_removed": true,
         "guest_deleted": true
       }
     }
