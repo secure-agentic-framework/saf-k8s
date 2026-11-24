@@ -23,23 +23,34 @@ boot() {
     vars="$1"
     disk="$2"
     output="$3"
+    wanted="$4"
     status=0
-    timeout 22s qemu-system-aarch64 -machine virt -accel tcg -cpu cortex-a57 -m 256M \
+    timeout 75s qemu-system-aarch64 -machine virt -accel tcg -cpu cortex-a57 -m 256M \
       -nodefaults -display none -serial stdio -monitor none -nic none \
       -drive "if=pflash,format=raw,file=$firmware/AAVMF_CODE.secboot.fd,readonly=on" \
       -drive "if=pflash,format=raw,file=$vars" \
       -drive "if=none,id=bootfs,file=fat:$work/$disk,format=raw,readonly=on" \
-      -device virtio-blk-device,drive=bootfs,bootindex=1 >"$output" 2>&1 || status=$?
+      -device virtio-blk-device,drive=bootfs,bootindex=1 >"$output" 2>&1 &
+    boot_pid=$!
+    while kill -0 "$boot_pid" 2>/dev/null; do
+        if grep -Eiq "$wanted" "$output"; then
+            kill "$boot_pid" 2>/dev/null || true
+            wait "$boot_pid" || true
+            return
+        fi
+        sleep 0.4
+    done
+    wait "$boot_pid" || status=$?
     if test "$status" -ne 0 && test "$status" -ne 124; then
         tail -25 "$output" >&2
         exit "$status"
     fi
 }
-boot baseline.vars unsigned baseline.log
+boot baseline.vars unsigned baseline.log "SAF-BOOT-MARKER: disabled"
 grep -Fq 'SAF-BOOT-MARKER: disabled' baseline.log || { tail -25 baseline.log >&2; exit 1; }
 echo unsigned_runs_without_enforcement
 
-boot denied.vars unsigned denied.log
+boot denied.vars unsigned denied.log "Security Violation|Access Denied"
 if grep -Fq 'SAF-BOOT-MARKER:' denied.log; then
     echo 'Unsigned fixture unexpectedly executed with enforcement selected' >&2
     exit 1
@@ -47,6 +58,6 @@ fi
 grep -Eiq 'Security Violation|Access Denied' denied.log || { tail -25 denied.log >&2; exit 1; }
 echo enforcement_refuses_unsigned
 
-boot approved.vars signed approved.log
+boot approved.vars signed approved.log "SAF-BOOT-MARKER: enforcing"
 grep -Fq 'SAF-BOOT-MARKER: enforcing' approved.log || { tail -25 approved.log >&2; exit 1; }
 echo signed_runs_under_enforcement

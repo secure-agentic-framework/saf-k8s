@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0203-004",
-  "catalog_revision": "1bd6189246d4f266633cdc0d493019e1d0d3e607",
-  "catalog_sha256": "32b70923f43dc58d7939cdb50afca687f2a37f5f1bc0d41c90c831c8f7a97fe0",
+  "catalog_revision": "6dee6c77aed8b98a08f5b0eb6ae18188ee202eb4",
+  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "8723dfae216a1b429be7d46fb08cfc24168cfb14616bb7f5b77e745739100481",
   "scope": "An unprivileged Kind Job drives three isolated QEMU UEFI boots of the same benign EFI program.",
-  "cluster": "saf-lab-74a2c013f864",
+  "cluster": "saf-lab-47158bbc4e08",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -61,7 +61,7 @@
       "observed": {
         "approved_application_started_under_enforcement": true,
         "tool_image": "sha256:34ec6d81c5dbdf059e01b48769655fb323d7adb342f80aedffb586ab6759ed3d",
-        "running_image": "docker.io/library/import-2026-11-23@sha256:3c7881e238e2e6f7ea08663688f71dfa1a2709d0a811cd8abbf092bec2f3b1e0"
+        "running_image": "docker.io/library/import-2026-11-24@sha256:3c7881e238e2e6f7ea08663688f71dfa1a2709d0a811cd8abbf092bec2f3b1e0"
       }
     }
   ]

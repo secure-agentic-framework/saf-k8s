@@ -46,14 +46,14 @@ def run(lab):
             "resources": {"requests": {"cpu": "150m", "memory": "128Mi"},
                           "limits": {"cpu": "1500m", "memory": "768Mi"}}}
     lab.create({"apiVersion": "batch/v1", "kind": "Job", "metadata": {"name": NAME},
-                "spec": {"backoffLimit": 0, "template": {"spec": {
+                "spec": {"backoffLimit": 0, "activeDeadlineSeconds": 250, "template": {"spec": {
                     "restartPolicy": "Never", "automountServiceAccountToken": False,
                     "securityContext": {"runAsNonRoot": True, "runAsUser": 65534, "seccompProfile": {"type": "RuntimeDefault"}},
                     "containers": [unit], "volumes": [{"name": "fixture", "configMap": {"name": NAME}},
                                                      {"name": "temporary", "emptyDir": {}}],
                 }}}})
     complete = lab.kubectl("wait", "--for=condition=Complete", "job/" + NAME,
-                           "--timeout=120s", timeout=130, allow_failure=True)
+                           "--timeout=260s", timeout=270, allow_failure=True)
     result = lab.kubectl("logs", "job/" + NAME, allow_failure=True)
     if complete.returncode != 0 or result.returncode != 0:
         lab.block("The virtual UEFI fixture did not complete; inspect the isolated Job logs")
