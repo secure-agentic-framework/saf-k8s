@@ -110,6 +110,13 @@ def run(lab):
         obj = pod(name, enrolled=selected, device=(RESOURCE, "1") if selected else None)
         lab.kubectl("-n", NS, "create", "-f", "-", payload=json.dumps(obj))
         lab.kubectl("-n", NS, "wait", "--for=condition=Ready", f"pod/{name}", "--timeout=85s", timeout=95)
+    update = lab.kubectl(
+        "-n", NS, "patch", "pod", ordinary, "--type=merge",
+        "--patch", json.dumps({"metadata": {"labels": {"saf.example.com/accelerator-required": "true"}}}),
+        "--dry-run=server", "-o", "json", allow_failure=True,
+    )
+    lab.check("green", "Conditional policy rejects enrolling a CPU-only Pod by label update",
+              denied(update), {"denied_by_conditional_policy": denied(update)})
     allocated = {name: markers(lab, name) for name in (first, second, ordinary)}
     both = sorted([*allocated[first], *allocated[second]])
     lab.check("green", "Separate running Pods see distinct files mounted by the kubelet Allocate response",

@@ -90,7 +90,25 @@ def run(lab):
               code == 0, message)
     lab.create(valid)
     ready(lab, "valid-resources")
-    lab.check("positive", "A Pod with explicit declarations reaches Ready", True, "Ready")
+    stored = json.loads(lab.kubectl("get", "pod", "valid-resources", "-o", "json").stdout)
+    status = stored["status"]
+    ready_status = status["phase"] == "Running" and any(
+        condition["type"] == "Ready" and condition["status"] == "True"
+        for condition in status["conditions"]
+    )
+    lab.check("positive", "A Pod reaches Ready with the authored regular and init declarations",
+              ready_status and all(resources == RESOURCES for resources in admitted_resources(stored)),
+              {"running_and_ready": ready_status, "resources_match_authored": all(
+                  resources == RESOURCES for resources in admitted_resources(stored))})
+    quota, period = lab.kubectl("exec", "valid-resources", "-c", "regular", "--",
+                                "cat", "/sys/fs/cgroup/cpu.max").stdout.split()
+    memory = lab.kubectl("exec", "valid-resources", "-c", "regular", "--",
+                         "cat", "/sys/fs/cgroup/memory.max").stdout.strip()
+    cpu_matches = quota.isdigit() and period.isdigit() and int(quota) * 2 == int(period) > 0
+    memory_matches = memory.isdigit() and int(memory) == 256 * 1024 * 1024
+    lab.check("positive", "The running fixture exposes its CPU quota and memory ceiling",
+              cpu_matches and memory_matches,
+              {"cpu_quota_matches_500m": cpu_matches, "memory_ceiling_matches_256Mi": memory_matches})
 
     accelerator = runpy.run_path(str(HERE / "accelerator" / "case.py"))
     accelerator["run"](lab)
