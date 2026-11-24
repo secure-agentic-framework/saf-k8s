@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 3630
-- Distinct Requirements Mapped: 736
+- Total Reverse Mappings: 3624
+- Distinct Requirements Mapped: 733
 
 ## Requirements
 
@@ -240,7 +240,6 @@
 - [CM-6(2) - Respond to Unauthorized Changes](cm-6-2.md)
 - [CM-7 - Least Functionality](cm-7.md)
 - [CM-7(1) - Periodic Review](cm-7-1.md)
-- [CM-7(2) - Prevent Program Execution](cm-7-2.md)
 - [CM-7(3) - Registration Compliance](cm-7-3.md)
 - [CM-7(4) - Unauthorized Software -- Deny-by-exception](cm-7-4.md)
 - [CM-7(5) - Authorized Software -- Allow-by-exception](cm-7-5.md)
@@ -676,7 +675,6 @@
 - [SI-3 - Malicious Code Protection](si-3.md)
 - [SI-3(10) - Malicious Code Analysis](si-3-10.md)
 - [SI-3(4) - Updates Only by Privileged Users](si-3-4.md)
-- [SI-3(8) - Detect Unauthorized Commands](si-3-8.md)
 - [SI-4 - System Monitoring](si-4.md)
 - [SI-4(1) - System-wide Intrusion Detection System](si-4-1.md)
 - [SI-4(10) - Visibility of Encrypted Communications](si-4-10.md)
@@ -708,7 +706,6 @@
 - [SI-7(12) - Integrity Verification](si-7-12.md)
 - [SI-7(15) - Code Authentication](si-7-15.md)
 - [SI-7(16) - Time Limit on Process Execution Without Supervision](si-7-16.md)
-- [SI-7(17) - Runtime Application Self-protection](si-7-17.md)
 - [SI-7(2) - Automated Notifications of Integrity Violations](si-7-2.md)
 - [SI-7(3) - Centrally Managed Integrity Tools](si-7-3.md)
 - [SI-7(5) - Automated Response to Integrity Violations](si-7-5.md)
