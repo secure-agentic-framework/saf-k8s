@@ -1,5 +1,6 @@
 """Check runtime inventory policy using synthetic release evidence."""
 from datetime import date, timedelta
+import importlib.util
 import json
 from pathlib import Path
 import re
@@ -13,11 +14,11 @@ SCOPE = (
     "Reads Kubernetes v1.36 Node.status.nodeInfo.containerRuntimeVersion from every "
     "node created by this run and verifies the Docker node containers use the lab's "
     "digest-pinned kind image and checks the packaged containerd and runc versions. "
-    "Separately evaluates only case-owned synthetic "
-    "containerd inventory, support, SLA, and advisory records. A tiny pinned BusyBox "
-    "fixture must schedule and complete. This does not establish production node "
-    "compliance, real vendor support, real advisory applicability, patch deployment, "
-    "or compatibility beyond the fixture workload."
+    "Retains synthetic applicability and SLA tests. Verifies a pinned signed containerd "
+    "release tag and independently reviewed dated compatibility records. A dedicated worker "
+    "runs the same non-root workload before and after a digest-verified daemon patch and "
+    "again after restoring the original daemon. The adopter guide covers additional components "
+    "and workload and provider applicability."
 )
 
 
@@ -166,7 +167,7 @@ def schedule_compatible_fixture(lab, inventoried_nodes):
          "effect": "NoSchedule"},
         {"key": "node-role.kubernetes.io/master", "operator": "Exists",
          "effect": "NoSchedule"},
-    ])
+    ], nodeSelector={"kubernetes.io/hostname": f"{lab.cluster}-control-plane"})
     lab.create(workload)
     lab.kubectl("wait", "--for=jsonpath={.status.phase}=Succeeded",
                 f"pod/{name}", "--timeout=95s", timeout=105)
@@ -183,6 +184,52 @@ def schedule_compatible_fixture(lab, inventoried_nodes):
     )
 
 
+
+def sibling_module(name):
+    spec = importlib.util.spec_from_file_location(name, HERE / f"{name}.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def verify_release(lab):
+    checker = sibling_module("verify_official_release")
+    key = HERE / "containerd-maintainer-public.asc"
+    tag = HERE / "official-containerd-v2.3.7.tag"
+    payload, signature, _, _ = checker.parse_tag(tag.read_bytes())
+    try:
+        checker.verify_signature(key, payload + b"modified", signature)
+    except checker.VerificationError as error:
+        rejected_modified_tag = str(error) == "tag signature verification failed"
+    else:
+        rejected_modified_tag = False
+    lab.check("red", "The pinned maintainer signature rejects changed release metadata",
+              rejected_modified_tag, {"changed_signature_payload_rejected": rejected_modified_tag})
+
+    verified = checker.verify(tag, key, HERE / "official-policy-facts.json", HERE / "live-observation.json")
+    snapshot = verified["comparison"]
+    historical, = snapshot["nodes"]
+    canonical = (verified["result"] == "verified"
+                 and verified["tag"] == "v2.3.7"
+                 and snapshot["sla_days"] is None
+                 and historical["in_support_on_observation_date"]
+                 and historical["meets_kubernetes_recommendation"]
+                 and historical["older_than_reviewed_release"]
+                 and historical["advisory_applicability"] == "not_assessed_from_version_alone")
+    lab.check("green", "The exact upstream tag verifies and the reviewed support snapshot distinguishes "
+              "branch support, patch age and advisory applicability",
+              canonical, {"tag": verified["tag"], "signer": verified["signer_fingerprint"],
+                          "support_branch": historical["support_line"], "within_support": True,
+                          "older_than_reviewed_release": True, "advisory_applicability_assessed": False})
+    return verified
+
+
 def run(lab):
     verify_fixture_records(lab)
+    try:
+        verified = verify_release(lab)
+    except (OSError, ValueError) as error:
+        lab.block(f"Official release verification prerequisite failed: {error}")
     schedule_compatible_fixture(lab, verify_node_runtime_reporting(lab))
+    sibling_module("runtime_canary").verify_runtime_canary(lab)
+    (lab.evidence / "verified-runtime-release.json").write_text(json.dumps(verified, indent=2) + "\n")

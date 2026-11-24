@@ -6,14 +6,22 @@ From the SAF-K8S control lab directory, run:
 python3 lab.py test SAF-K8S-0202-003 --docker-context desktop-linux
 ```
 
-The harness creates its own disposable kind cluster from the exact pinned image
-`kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5`.
-For every Kubernetes node, the case records
-`status.nodeInfo.containerRuntimeVersion` and checks that the corresponding
-Docker node container's configured image equals that exact digest reference.
-The case compares the node-reported string with the packaged `containerd`
-binary and records the packaged `runc` version. This inventories the pinned
-fixture nodes. A production inventory feed requires separate evidence.
+The disposable Kubernetes v1.36.1 Kind cluster has a control plane and a
+dedicated canary worker. The test checks each node's CRI-reported containerd
+version against its packaged binary and records its runc version. It verifies
+containerd's exact signed v2.3.7 tag with the pinned maintainer public key and
+an isolated local GnuPG keyring. It also rejects altered signed input.
+
+On the canary worker, the test downloads the official v2.3.7 release archive
+for its architecture and matches the reviewed digest. The same non-root
+marker Pod spec runs on the worker's original daemon, after the daemon patch,
+and after restoring the original executable. Each stage checks the live CRI
+v1 runtime version and Kubernetes Node information for the same worker. The
+fixture changes only the daemon binary inside the disposable worker. The
+exercise covers that patch path and the marker workload.
+
+Use GnuPG and curl. The lab needs HTTPS access to GitHub's public release
+assets for the canary. No release binaries are checked in.
 
 ## Expected red and green results
 
@@ -34,7 +42,7 @@ The case evaluates the two case-owned inventory records against
   It must schedule to one of the reported nodes, complete successfully, and
   print `fixture-ok`.
 
-All inventory, release, advisory, support dates, and SLA records are synthetic.
+The policy-decision records described above use synthetic inputs.
 The version `9.4.2` is intentionally not an upstream containerd version. The
 synthetic advisory is not a CVE or GHSA and no vulnerability is exercised. The
 fixture intentionally keeps the outdated record within its synthetic vendor
@@ -67,7 +75,49 @@ workload-specific compatibility evidence.
 - [Kubernetes v1.36 Node API](https://v1-36.docs.kubernetes.io/docs/reference/kubernetes-api/core/node-v1/): defines `containerRuntimeVersion` as reported by the node through the runtime remote API.
 - [Kubernetes v1.36 container runtime docs](https://v1-36.docs.kubernetes.io/docs/setup/production-environment/container-runtimes/): documents the CRI requirement for Kubernetes 1.36.
 - [kind node image releases](https://github.com/kubernetes-sigs/kind/releases): the runner pins the image digest in its checked-in `lab.py`; this case verifies each node container uses that same reference.
-- [containerd versioning and release policy](https://containerd.io/releases/): primary project source for real release-branch lifecycle and Kubernetes/runtime compatibility guidance. It is a living policy page and is cited as review context only; the synthetic fixture does not encode its real version or support claims.
+- [containerd versioning and release policy](https://containerd.io/releases/): primary project source for release-branch lifecycle and Kubernetes/runtime compatibility guidance. The portable snapshot below records the exact policy blob identity and retrieval-time transcription.
+
+## Portable official metadata comparison
+
+Run the data-only comparison from the repository root:
+
+```sh
+python3 case/verify_official_release.py
+```
+
+It requires Python 3.9 and local `gpg`. It makes no network calls and does not
+install or run a container runtime. The verifier checks the exact Git annotated
+tag object ID, tag name, target commit, embedded signature and pinned maintainer
+fingerprint. It imports only the bundled public key into a fresh temporary
+GnuPG home for each run; it does not use a user's keyring or private keys. The
+public-key fingerprint is the trust pin for this bounded check; GPG's web of
+trust is not asserted. The tag artifact is the compact exact signed v2.3.7 tag
+payload (including its upstream release notes), not a copy of upstream
+`RELEASES.md`.
+
+`official-policy-facts.json` records normalized facts with source IDs for the
+official release metadata and the `RELEASES.md` blob
+`3bfcffe4f4f637d18689ca1893649af81b38fdaf`. The facts are independently
+reviewed/transcribed and integrity-pinned in this case; they are not
+authenticated by the tag signature. The verifier keeps that distinction in
+its output. The reviewed policy states containerd 2.3 is LTS through
+2028-04-30, recommends containerd 2.3.0+ with CRI v1 for Kubernetes 1.36, and
+does not provide a universal vulnerability-remediation SLA.
+
+The comparator uses the retained fixture observation in
+`live-observation.json` (receipt SHA-256
+`8ae804e8dd10efcfb4afc5dd24557c53356886ef73c77e3bb4da3158504b271a`): on
+2026-11-22, the one kind node reported and packaged containerd 2.3.1 under
+Kubernetes 1.36.1. It marks 2.3.1 as older than the pinned reviewed release
+2.3.7, while still meeting the published 1.36 recommendation and 2.3 LTS
+horizon on that observation date. Version comparison alone does not establish
+whether any advisory applies, whether a patch deadline was missed, or whether
+production nodes have the same version. No particular advisory is evaluated.
+
+The original synthetic red/green SLA cases below remain the only SLA arithmetic
+exercise. Alternative runtime coverage and canary, rollout, and rollback steps
+remain adopter guidance in the review's `adoption.md`; no real infrastructure
+was changed by this portable case.
 
 ## Prerequisites, evidence, and cleanup
 
@@ -82,3 +132,8 @@ image references, per-node runtime values, red and green policy decisions, pod
 scheduled node and successful output, and `cleanup: deleted`. The case itself
 creates only one pod in the harness-owned `saf-test` namespace; cluster teardown
 cleans it up. No credentials or host files are used.
+
+
+The signed tag and public verification key were obtained from the upstream
+containerd release and maintainer key publication. The reviewed binary digests
+come from that release's asset metadata. [containerd v2.3.7 release](https://github.com/containerd/containerd/releases/tag/v2.3.7)

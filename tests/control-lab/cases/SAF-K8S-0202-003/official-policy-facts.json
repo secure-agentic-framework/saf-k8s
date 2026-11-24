@@ -1,0 +1,41 @@
+{
+  "schema": "saf-k8s-containerd-release-policy-v1",
+  "runtime": "containerd",
+  "reviewed_release": {
+    "version": "2.3.7",
+    "tag": "v2.3.7",
+    "tag_object_sha1": "97fb10bc3047298e43360d6054f74e9d8f996570",
+    "commit": "6f589cf13dc01a5b493911355427e05b2ff005d7",
+    "signer_fingerprint": "8C7A111C21105794B0E8A27BF58C5D0A4405ACDB",
+    "tagger_date": "2026-10-13",
+    "release_date": "2026-10-13",
+    "published_at": "2026-10-13T22:46:58Z"
+  },
+  "policy_facts": {
+    "lts_branches": ["2.3"],
+    "support_ends": {"2.3": "2028-04-30"},
+    "kubernetes_recommendations": {
+      "1.36": {"minimum_containerd": "2.3.0", "cri": "v1"}
+    },
+    "universal_vulnerability_sla_days": null
+  },
+  "source_ids": {
+    "release_tag": {
+      "id": "containerd-tag-object:97fb10bc3047298e43360d6054f74e9d8f996570",
+      "url": "https://github.com/containerd/containerd/releases/tag/v2.3.7",
+      "claim": "Exact signed annotated tag artifact; authentication is performed by the local verifier."
+    },
+    "release_metadata": {
+      "id": "containerd-github-release:v2.3.7",
+      "url": "https://api.github.com/repos/containerd/containerd/releases/tags/v2.3.7",
+      "claim": "Release page publication timestamp copied from official release metadata; it is not covered by the annotated tag signature."
+    },
+    "release_policy": {
+      "id": "containerd-RELEASES.md-blob:3bfcffe4f4f637d18689ca1893649af81b38fdaf",
+      "url": "https://github.com/containerd/containerd/blob/6f589cf13dc01a5b493911355427e05b2ff005d7/RELEASES.md",
+      "line_refs": {"lts_and_eol": "140-144", "kubernetes_matrix": "153-168", "security_policy": "83-120,193"},
+      "claim": "Independently reviewed and transcribed policy facts; not covered by the tag signature. No universal vulnerability remediation SLA is stated in this captured project policy."
+    }
+  },
+  "reviewed_on": "2026-11-24"
+}

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0202-003",
-  "catalog_revision": "d34b502ac96accb45a26841dfa77094dc4a72d9e",
-  "catalog_sha256": "c3bdef2bfc0aae712ee2fcb1bfd47cebfcedc7415526acfb36b86be77042a93f",
+  "catalog_revision": "6a88d7074915151b0870f87366044f5fcaf8ed3d",
+  "catalog_sha256": "f9bb62311723fb2744d8ae1b3eb6dd577cb0fae6cb679cb9d94f25d858b2f50e",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "3cf58ffe3e4a2fde5c76e0ea36fcb6d356125a84dab803789e942505196bb353",
-  "scope": "Reads Kubernetes v1.36 Node.status.nodeInfo.containerRuntimeVersion from every node created by this run and verifies the Docker node containers use the lab's digest-pinned kind image and checks the packaged containerd and runc versions. Separately evaluates only case-owned synthetic containerd inventory, support, SLA, and advisory records. A tiny pinned BusyBox fixture must schedule and complete. This does not establish production node compliance, real vendor support, real advisory applicability, patch deployment, or compatibility beyond the fixture workload.",
-  "cluster": "saf-lab-04e74de7c711",
+  "control_sha256": "fc75033950c5093630b15d8175e61d338c809a088e305451a8cbcb72fe3818ac",
+  "scope": "Reads Kubernetes v1.36 Node.status.nodeInfo.containerRuntimeVersion from every node created by this run and verifies the Docker node containers use the lab's digest-pinned kind image and checks the packaged containerd and runc versions. Retains synthetic applicability and SLA tests. Verifies a pinned signed containerd release tag and independently reviewed dated compatibility records. A dedicated worker runs the same non-root workload before and after a digest-verified daemon patch and again after restoring the original daemon. The adopter guide covers additional components and workload and provider applicability.",
+  "cluster": "saf-lab-4920ceb1be2e",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -90,6 +90,27 @@
       }
     },
     {
+      "phase": "red",
+      "claim": "The pinned maintainer signature rejects changed release metadata",
+      "matched": true,
+      "observed": {
+        "changed_signature_payload_rejected": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The exact upstream tag verifies and the reviewed support snapshot distinguishes branch support, patch age and advisory applicability",
+      "matched": true,
+      "observed": {
+        "tag": "v2.3.7",
+        "signer": "8C7A111C21105794B0E8A27BF58C5D0A4405ACDB",
+        "support_branch": "2.3 LTS",
+        "within_support": true,
+        "older_than_reviewed_release": true,
+        "advisory_applicability_assessed": false
+      }
+    },
+    {
       "phase": "positive",
       "claim": "Every node reports the packaged containerd version and has an inventoried runc version",
       "matched": true,
@@ -98,6 +119,13 @@
         "nodes": [
           {
             "node": "control-plane",
+            "container_runtime_version": "containerd://2.3.1",
+            "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+            "runc_version": "1.4.2",
+            "cri_matches_containerd": true
+          },
+          {
+            "node": "worker",
             "container_runtime_version": "containerd://2.3.1",
             "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
             "runc_version": "1.4.2",
@@ -115,6 +143,38 @@
         "scheduled_node": "control-plane",
         "output": "fixture-ok",
         "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The owned canary worker starts workloads on its original daemon before the update",
+      "matched": true,
+      "observed": {
+        "daemon": "2.3.1",
+        "cri_api": "v1",
+        "canary_completed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The exact worker reports the reviewed daemon through CRI v1 and starts a new canary",
+      "matched": true,
+      "observed": {
+        "daemon": "2.3.7",
+        "cri_api": "v1",
+        "canary_completed": true,
+        "release_archive_sha256": "e08530c6c8a23c612606da5d2832aed9bed8fc7f8c1b41df0f148a701b931d69"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact restored daemon serves CRI v1 and starts a separate recovery canary",
+      "matched": true,
+      "observed": {
+        "daemon": "2.3.1",
+        "cri_api": "v1",
+        "canary_completed": true,
+        "original_binary_restored": true
       }
     }
   ]

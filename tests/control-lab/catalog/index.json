@@ -417,7 +417,7 @@
     "SAF-K8S-0202-003": {
       "catalog_status": "draft",
       "domain": "D02",
-      "sha256": "3cf58ffe3e4a2fde5c76e0ea36fcb6d356125a84dab803789e942505196bb353",
+      "sha256": "fc75033950c5093630b15d8175e61d338c809a088e305451a8cbcb72fe3818ac",
       "title": "Container runtime patching and version management"
     },
     "SAF-K8S-0202-004": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "e86f765a97611dca78114a0245882e47d5f04f52",
-  "sha256": "aa2f3c76a42893fe46aa85d7d3f3d0bac7697230ed017ca1e8381b4af9742c0c",
+  "revision": "845aa3c50e2726daaf96740a866f7f1f56d28ac5",
+  "sha256": "f9bb62311723fb2744d8ae1b3eb6dd577cb0fae6cb679cb9d94f25d858b2f50e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
