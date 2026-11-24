@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-IR lifecycle playbooks establish incident identification and response. Forensic evidence collection supports post-incident analysis and information sharing. SIEM integration enables detection of AI-specific attack patterns.
+A monitored node clock can support sequencing and correlation of AI test and incident records. Incident procedures, investigation, and information sharing require their own evidence.
 
 ## SAF-K8S Controls
 
@@ -14,8 +14,8 @@ IR lifecycle playbooks establish incident identification and response. Forensic 
 - Domain: D02 - Node, Runtime, and OS Security
 - Knowledge Area: 2.3
 - Relation Type: supports
-- Strength: moderate
-- Applicability: required
+- Strength: weak
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-1005-001 - Kubernetes incident response lifecycle](../../controls/SAF-K8S-1005-001.md)

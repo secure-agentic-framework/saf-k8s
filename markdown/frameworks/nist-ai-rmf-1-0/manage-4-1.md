@@ -23,8 +23,8 @@ SAF-K8S provides comprehensive post-deployment infrastructure: audit policies fo
 - Domain: D02 - Node, Runtime, and OS Security
 - Knowledge Area: 2.3
 - Relation Type: supports
-- Strength: moderate
-- Applicability: required
+- Strength: weak
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-1001-016 - Audit policy coverage for AI-specific resource and workflow events](../../controls/SAF-K8S-1001-016.md)

@@ -4245,12 +4245,12 @@
   framework_version: '1.0'
   framework_requirement_id: GOVERN 4.3
   framework_requirement_title: Organizational practices are in place to enable AI testing, identification of incidents, and information sharing.
-  framework_mapping_notes: IR lifecycle playbooks establish incident identification and response. Forensic evidence collection supports post-incident analysis and information sharing. SIEM integration enables detection of AI-specific attack patterns.
+  framework_mapping_notes: A monitored node clock can support sequencing and correlation of AI test and incident records. Incident procedures, investigation, and information sharing require their own evidence.
   control_id: SAF-K8S-0203-016
   relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The node supplies timestamped evidence to the AI incident workflow
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
@@ -4492,12 +4492,12 @@
   framework_version: '1.0'
   framework_requirement_id: MANAGE 4.1
   framework_requirement_title: Post-deployment AI system monitoring plans are implemented, including mechanisms for capturing and evaluating input from users and other relevant AI actors, appeal and override, decommissioning, incident response, recovery, and change management.
-  framework_mapping_notes: 'SAF-K8S provides comprehensive post-deployment infrastructure: audit policies for AI workload monitoring, metrics and tracing for performance evaluation, IR playbooks for incident response, ransomware response for recovery, and change management for controlled lifecycle transitions.'
+  framework_mapping_notes: A monitored node clock supports consistent timestamps for AI monitoring and incident records. Collect independent evidence of the monitoring plan, actor input, recovery, and lifecycle mechanisms.
   control_id: SAF-K8S-0203-016
   relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: AI monitoring or response records rely on the governed node clock
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
@@ -19140,13 +19140,10 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-8
   framework_requirement_title: Time Stamps
-  framework_mapping_notes: 'Accurate timestamps for agent action correlation
-
-
-    2.3 - Host OS and Kernel Hardening (node time synchronization with authoritative time sources, drift monitoring, and timestamp integrity); 10.1 - Audit logging (timestamps in audit records for forensic accuracy and event correlation)'
+  framework_mapping_notes: An approved, monitored node clock supports timestamp accuracy. Audit producers must independently demonstrate clock use, the required timestamp granularity, and UTC or fixed-offset representation.
   control_id: SAF-K8S-0203-016
   relation_type: supports
-  strength_level: strong
+  strength_level: moderate
   applicability: required
   applicability_condition: null
   strength_reason_code: null
@@ -47875,10 +47872,7 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-45
   framework_requirement_title: System Time Synchronization
-  framework_mapping_notes: 'Time synchronization for agent systems ensures accurate audit logs and event correlation
-
-
-    2.3 - Host OS and Kernel Hardening (node time synchronization and drift monitoring); 10.1 - Logging and Audit (time synchronization for log correlation); 10.5 - Forensic evidence (timestamp integrity)'
+  framework_mapping_notes: Governed nodes synchronize clocks, measure health and trigger the approved response when the profile is unmet.
   control_id: SAF-K8S-0203-016
   relation_type: direct
   strength_level: strong
@@ -47955,10 +47949,7 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-45(1)
   framework_requirement_title: Synchronization with Authoritative Time Source
-  framework_mapping_notes: 'Authoritative time source synchronization prevents log manipulation in agent audit trails
-
-
-    2.3 - Host OS and Kernel Hardening (authoritative time source configuration for Kubernetes nodes); 10.1 - Centralized logging (authoritative time source for log aggregation and correlation)'
+  framework_mapping_notes: Compare node clocks with the approved authoritative reference at the profile-defined frequency and synchronize when the approved time difference is exceeded.
   control_id: SAF-K8S-0203-016
   relation_type: direct
   strength_level: strong

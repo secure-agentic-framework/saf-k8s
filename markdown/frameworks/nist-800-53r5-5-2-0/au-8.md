@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Accurate timestamps for agent action correlation
-
-2.3 - Host OS and Kernel Hardening (node time synchronization with authoritative time sources, drift monitoring, and timestamp integrity); 10.1 - Audit logging (timestamps in audit records for forensic accuracy and event correlation)
+An approved, monitored node clock supports timestamp accuracy. Audit producers must independently demonstrate clock use, the required timestamp granularity, and UTC or fixed-offset representation.
 
 ## SAF-K8S Controls
 
@@ -16,7 +14,7 @@ Accurate timestamps for agent action correlation
 - Domain: D02 - Node, Runtime, and OS Security
 - Knowledge Area: 2.3
 - Relation Type: supports
-- Strength: strong
+- Strength: moderate
 - Applicability: required
 - Strength Reason Code: n/a
 
