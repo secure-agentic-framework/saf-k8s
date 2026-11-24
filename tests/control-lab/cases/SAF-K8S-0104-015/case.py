@@ -1,4 +1,5 @@
 """Retain and compare two synthetic Kubernetes posture receipts on a case-owned PVC."""
+from copy import deepcopy
 import hashlib
 import json
 from pathlib import Path
@@ -18,7 +19,8 @@ SCOPE = (
     "receipts are synthetic JSON fixtures with stable illustrative check IDs; no CIS "
     "scanner or production cluster is assessed. A case-owned hostPath PV/PVC retains "
     "the fixture bytes across collector and reader Job/Pod turnover only for this lab "
-    "run. Retain does not protect against cluster deletion, node loss, privileged "
+    "run. Readers have read-only archive mounts, and trends reject incompatible reports. "
+    "Retain does not protect against cluster deletion, node loss, privileged "
     "deletion, or provide production immutability, backup, access control, or retention "
     "policy."
 )
@@ -37,13 +39,17 @@ def _read_receipt(name):
 
 
 def _trend(before, after):
-    assert before["benchmark"] == after["benchmark"]
-    assert before["benchmark_version"] == after["benchmark_version"]
-    assert before["profile"] == after["profile"]
-    assert before["resource_scope"] == after["resource_scope"]
+    fields = ("benchmark", "benchmark_version", "profile", "resource_scope")
+    if any(before[key] != after[key] for key in fields):
+        raise ValueError("benchmark profile or resource scope differs")
+    if before["assessment_date"] >= after["assessment_date"]:
+        raise ValueError("assessment dates are out of order")
     old = {row["check_id"]: row["status"] for row in before["checks"]}
     new = {row["check_id"]: row["status"] for row in after["checks"]}
-    assert len(old) == len(before["checks"]) and old.keys() == new.keys()
+    if len(old) != len(before["checks"]) or len(new) != len(after["checks"]):
+        raise ValueError("report has duplicate check IDs")
+    if old.keys() != new.keys():
+        raise ValueError("assessed check population differs")
     regressions = sorted(key for key in old if old[key] == "PASS" and new[key] == "FAIL")
     sustained = sorted(key for key in old if old[key] == new[key] == "PASS")
     return regressions, sustained
@@ -94,7 +100,10 @@ def _delete_job(lab, name):
 
 
 def _reader(lab, name):
-    job = _job(name, "cd /evidence; sha256sum baseline.json followup.json; sha256sum -c manifest.sha256; printf '\nREPORTS\n'; cat baseline.json; printf '\nFOLLOWUP\n'; cat followup.json",
+    job = _job(name, "cd /evidence; "
+               "if touch reader-output 2>/tmp/archive-write-error; then exit 45; fi; "
+               "grep -qi 'read-only file system' /tmp/archive-write-error; "
+               "echo READ_ONLY_MOUNT_CONFIRMED; sha256sum baseline.json followup.json; sha256sum -c manifest.sha256; printf '\nREPORTS\n'; cat baseline.json; printf '\nFOLLOWUP\n'; cat followup.json",
                volumes=[{"name": "archive", "persistentVolumeClaim": {"claimName": "saf-evidence"}}],
                mounts=[{"name": "archive", "mountPath": "/evidence", "readOnly": True}])
     _apply(lab, job)
@@ -195,6 +204,27 @@ def run(lab):
                    "expected_equals_reader_a": exact_stored_receipts,
                    "reader_a_equals_reader_b": repeated_receipts_match,
                    "receipt_sha256": receipt2})
+
+        read_only = all("READ_ONLY_MOUNT_CONFIRMED" in output for output in (reader1_output, reader2_output))
+        lab.check("green", "Both live archive readers can retrieve reports and their mounts reject writes",
+                  read_only, {"reader_mounts_reject_writes": read_only})
+
+        baseline, followup = reports2
+        different_scope = {**followup, "resource_scope": "other-owned-fixture"}
+        duplicate_check = deepcopy(followup)
+        duplicate_check["checks"].append(duplicate_check["checks"][0])
+        missing_check = {**followup, "checks": followup["checks"][:-1]}
+        reasons = {}
+        for label, altered in (("changed_scope", different_scope), ("duplicate_check", duplicate_check),
+                               ("missing_check", missing_check)):
+            try:
+                _trend(baseline, altered)
+            except ValueError as error:
+                reasons[label] = str(error)
+        lab.check("red", "An incompatible scope or population cannot produce a misleading trend",
+                  reasons == {"changed_scope": "benchmark profile or resource scope differs",
+                              "duplicate_check": "report has duplicate check IDs",
+                              "missing_check": "assessed check population differs"}, reasons)
 
         regressions, sustained = _trend(*reports2)
         lab.check("positive", "Stable check IDs show a regression and a sustained passing posture",

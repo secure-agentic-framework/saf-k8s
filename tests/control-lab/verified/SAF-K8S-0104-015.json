@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-0104-015",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "b4c77fd764d3e8a703bf5534f6b9906fa6f4d7bc",
+  "catalog_sha256": "b13085fffcc414b504ce34f1a8df0fae3520e701b0adca01e92c2c2add5002cb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "efef6f3e918bb652144698a2f8194536d8df3000080576d833daf119e9fcf685",
-  "scope": "Disposable kind v1.36.1 single-node demonstration. The two dated assessment receipts are synthetic JSON fixtures with stable illustrative check IDs; no CIS scanner or production cluster is assessed. A case-owned hostPath PV/PVC retains the fixture bytes across collector and reader Job/Pod turnover only for this lab run. Retain does not protect against cluster deletion, node loss, privileged deletion, or provide production immutability, backup, access control, or retention policy.",
-  "review_timing": {
-    "queued_at": "2026-11-23T03:24:42.291671+00:00",
-    "cluster_ready_at": "2026-11-23T03:25:20.814865+00:00",
-    "approval_at": "2026-11-23T03:28:23.201202+00:00",
-    "case_loaded_at": "2026-11-23T03:28:23.349016+00:00"
-  },
-  "cluster": "saf-lab-da9b6ff8e73c",
+  "scope": "Disposable kind v1.36.1 single-node demonstration. The two dated assessment receipts are synthetic JSON fixtures with stable illustrative check IDs; no CIS scanner or production cluster is assessed. A case-owned hostPath PV/PVC retains the fixture bytes across collector and reader Job/Pod turnover only for this lab run. Readers have read-only archive mounts, and trends reject incompatible reports. Retain does not protect against cluster deletion, node loss, privileged deletion, or provide production immutability, backup, access control, or retention policy.",
+  "cluster": "saf-lab-045766acab27",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "54ee2dea78856a22716518472fe943a91cd172ce55b32252653a6583acbd2214",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
@@ -69,6 +62,24 @@
           "baseline.json": "be6a6f7c40f1258c863a5d2e91d3e1ed6a5d2236695a8c8d757612404eebb21b",
           "followup.json": "0e8560415fb3cd9865029a39b98c8d9e25a45d9816d7ead6dc21b7595ac8bee2"
         }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Both live archive readers can retrieve reports and their mounts reject writes",
+      "matched": true,
+      "observed": {
+        "reader_mounts_reject_writes": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "An incompatible scope or population cannot produce a misleading trend",
+      "matched": true,
+      "observed": {
+        "changed_scope": "benchmark profile or resource scope differs",
+        "duplicate_check": "report has duplicate check IDs",
+        "missing_check": "assessed check population differs"
       }
     },
     {
