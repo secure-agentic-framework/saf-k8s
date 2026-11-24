@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0303-008",
-  "catalog_revision": "6ddcd6981a0c720955f9edccfb76a891208d422f",
-  "catalog_sha256": "fdf08fc7aaabdb508c82e0c305db0fc50a3a086cd522e808e2b0e5dffe9a1802",
+  "catalog_revision": "2d4ac191914abdbad8896a6270711bc4bcefbd46",
+  "catalog_sha256": "d349202ee2a53ae35fd3d0b6c36098d2d5cc45a51aa71fbf557812fcda78d4a0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "a83792951c856fe5ef43c5321ea0c69df547730b3992cca23f8061d74b1858de",
-  "scope": "Test explicit AppArmor approval, inheritance and overrides for ordinary, init and ephemeral containers on the Kubernetes API. Use scheduling gates for named-profile fixtures so their API acceptance does not imply node enforcement.",
-  "cluster": "saf-lab-38ed170f1989",
+  "scope": "Verify approved AppArmor inheritance and overrides across Kubernetes container types. An exact named direct Pod and requester may receive a dry-run exception under an externally owned grant, bounded fixture time and required compensating safeguards. All exception requests are dry-run only.",
+  "cluster": "saf-lab-94802ec2ca90",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -72,6 +72,33 @@
         "ephemeral_inherits": true,
         "ephemeral_explicit": true,
         "unselected_namespace": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An active grant admits the exact direct Pod and requester for a dry run",
+      "matched": true,
+      "observed": {
+        "active_exact_scope_accepted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The policy denies invalid grants and missing safeguards, and submitters cannot edit the grant",
+      "matched": true,
+      "observed": {
+        "expired": true,
+        "not_yet_active": true,
+        "revoked": true,
+        "wrong_namespace": true,
+        "wrong_name": true,
+        "wrong_record_identity": true,
+        "wrong_requester": true,
+        "missing_effective_seccomp": true,
+        "enabled_token_automount": true,
+        "exception-evaluator_cannot_edit_grant": true,
+        "applicant_cannot_edit_grant": true,
+        "no_exception_pod_created": true
       }
     }
   ]
