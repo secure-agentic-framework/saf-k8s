@@ -2946,6 +2946,12 @@
       "sha256": "bf7e4c8150a2cb7e28cd74cf0f37ad760dc038b20d2c1e89fa0acf35ccd411ea",
       "title": "Federated learning cross-cluster coordination security"
     },
+    "SAF-K8S-0910-015": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "06a4672b52726947aa3302b7f69d208fd577444f4b63de491f905d73e02b836f",
+      "title": "Destination-side signature and digest re-verification for replicated model artifacts"
+    },
     "SAF-K8S-0910-016": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3524,7 +3530,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "9cbccbc4748bf416f369419306520a29bafe6961",
+  "revision": "394c79cd51515eeb911d009329fe839d841d8163",
   "sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

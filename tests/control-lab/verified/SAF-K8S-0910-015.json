@@ -1,0 +1,76 @@
+{
+  "control_id": "SAF-K8S-0910-015",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "06a4672b52726947aa3302b7f69d208fd577444f4b63de491f905d73e02b836f",
+  "scope": "A disposable source Kind cluster and separately owned peer Kind cluster host pinned local Distribution registries. The source signs the SAF-K8S-0910-024 inert model metadata using a per-run key; a transfer client copies bytes and reports success. The destination then substitutes only inert metadata while retaining the signed statement. With enforcement off, a named Kubernetes Job consumes the substituted bytes. With enforcement on, a separate peer pod re-fetches the actual destination manifest and blob, checks the reference, Distribution digest headers, descriptor, source digest and RSA signature against a locally mounted trusted public key, and blocks the Job. A clean readback is also consumed by an independent named Job. No external registry, production credential, model payload, or inference execution is involved.",
+  "cluster": "saf-lab-d1ac0ab4b5ed",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Without destination enforcement, a success claim permits substituted bytes to be consumed",
+      "matched": true,
+      "observed": {
+        "source_claimed_success": true,
+        "destination_manifest_differs_from_source_digest": true,
+        "destination_blob_differs_from_signed_source_subject": true,
+        "destination_signature_fails_or_binds_other_bytes": true,
+        "unchecked_named_job_consumed_actual_substituted_bytes": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Destination readback policy blocks use despite source success",
+      "matched": true,
+      "observed": {
+        "independent_readback_rejects_before_use": true,
+        "destination_reference_is_explicit": true,
+        "actual_manifest_and_blob_digests_are_recorded": true,
+        "named_consumer_job_create_is_denied": true,
+        "denied_job_has_no_api_object": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A clean independently verified destination artifact remains usable",
+      "matched": true,
+      "observed": {
+        "clean_destination_bytes_pass_reference_digest_and_signature_checks": true,
+        "approved_named_job_consumed_exact_destination_blob": true,
+        "receipt_for_clean_manifest_still_excludes_the_altered_manifest": true
+      }
+    }
+  ]
+}
