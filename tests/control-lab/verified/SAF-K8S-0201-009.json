@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0201-009",
-  "catalog_revision": "f4500ad1f68eaebb317112f2e0a4bb0eee494425",
-  "catalog_sha256": "1c799db9a34efa61218af64797d992659e3d88d1189b93fbd3dc4c21aa9dbc5b",
+  "catalog_revision": "ace2ad77c2abc0c1b58d3cf40fd0fdf6f52fe2b5",
+  "catalog_sha256": "44a1f4805a334c7a678d506a71e886b53052f0c549cbf2da4c78d17aeeb4d1d0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b2204360a4321bd32b0a074f759248d06be92389fefeb11bfd6bc83c1c68fb0b",
-  "scope": "Apply a systemd drop-in only to the kubelet on a disposable Kind node and observe its effective process state.",
-  "cluster": "saf-lab-4497a0fda1f1",
+  "scope": "Pinned IPv4 Kind v1.36.1. Compare the actual kubelet service's process state and a harmless unit-start probe before and after scoped capability, path and socket-family constraints. Keep its approved ConfigMap workload operating and restore the original unit.",
+  "cluster": "saf-lab-f06196e2a423",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -40,33 +40,67 @@
   "checks": [
     {
       "phase": "red",
-      "claim": "The pinned baseline does not apply the selected privilege settings",
+      "claim": "The same unit probe can write the owned marker and open IPv6 at baseline",
       "matched": true,
       "observed": {
-        "baseline_nnp": false,
-        "baseline_raw_capability_bounded": false
+        "probe": {
+          "ipv4_socket": "opened",
+          "ipv6_socket": "opened",
+          "permitted_write": "wrote",
+          "protected_read": "matched",
+          "protected_write": "wrote",
+          "unix_socket": "opened"
+        },
+        "selected_runtime_restrictions_absent": true
       }
     },
     {
       "phase": "green",
-      "claim": "The new kubelet actually runs with no new privileges and a reduced capability bound",
+      "claim": "The running kubelet has the exact new capability bound and protected file mount",
       "matched": true,
       "observed": {
-        "nnp": true,
-        "raw_socket_capability_bounded": true,
-        "private_mount_namespace": true,
-        "unit_nnp": true,
-        "unit_private_tmp": true,
-        "new_process": true
+        "runtime_restrictions": {
+          "protected_mount_readonly": true,
+          "unit_readonly_path": true,
+          "unit_ipv6_deny": true,
+          "nnp": true,
+          "raw_socket_capability_bounded": true,
+          "private_mount_namespace": true,
+          "unit_nnp": true,
+          "unit_private_tmp": true
+        },
+        "exact_capability_delta": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same service probe reports exact file and socket restrictions with permitted controls",
+      "matched": true,
+      "observed": {
+        "probe": {
+          "ipv4_socket": "opened",
+          "ipv6_socket": "unsupported-family",
+          "permitted_write": "wrote",
+          "protected_read": "matched",
+          "protected_write": "read-only",
+          "unix_socket": "opened"
+        }
       }
     },
     {
       "phase": "positive",
-      "claim": "The hardened kubelet starts and completes a new marker workload",
+      "claim": "The hardened kubelet completes a fresh restricted ConfigMap marker Job",
       "matched": true,
       "observed": {
-        "fresh_restricted_job_completed": true,
-        "marker_mount_readable": true
+        "fresh_restricted_job_completed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Removing the fixture drop-in restores the original effective restrictions",
+      "matched": true,
+      "observed": {
+        "original_policy_restored": true
       }
     }
   ]
