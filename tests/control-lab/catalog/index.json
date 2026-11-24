@@ -447,7 +447,7 @@
     "SAF-K8S-0202-010": {
       "catalog_status": "draft",
       "domain": "D02",
-      "sha256": "757c2e14158c4d560260a27cded805dae6b9619279f147f4c0688a378582e416",
+      "sha256": "01e389081308a513d7b3afda011601e88df63977ecf81f23d38eec41cd59dc0d",
       "title": "Node default seccomp profile enforcement"
     },
     "SAF-K8S-0202-011": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "0c143dfc82575f258aa23f6f11d4724ae2f30419",
-  "sha256": "0fb5dcc442009a780c6048f6caf5a0b0c8716767df69dcdb7d7b1a421c4c2011",
+  "revision": "ff7960c64222b0df138b495a7d8b34c1e3330546",
+  "sha256": "c4b5f8717241c69a6dd4070b08167065cf828ecfece8e31feed84e112f2b867a",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

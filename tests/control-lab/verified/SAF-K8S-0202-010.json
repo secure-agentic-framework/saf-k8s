@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0202-010",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "a2ecc842055fe42a5393bfacc0ce54e4b0c60306",
+  "catalog_sha256": "c4b5f8717241c69a6dd4070b08167065cf828ecfece8e31feed84e112f2b867a",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "757c2e14158c4d560260a27cded805dae6b9619279f147f4c0688a378582e416",
-  "scope": "Linux workloads on the worker node in a two-node, digest-pinned Kind Kubernetes v1.36.1 cluster; containerd RuntimeDefault. It changes the disposable worker kubelet and applies one scoped admission policy.",
-  "cluster": "saf-lab-73627b157411",
+  "control_sha256": "01e389081308a513d7b3afda011601e88df63977ecf81f23d38eec41cd59dc0d",
+  "scope": "Linux workloads on the worker node in a two-node, digest-pinned Kind Kubernetes v1.36.1 cluster; containerd RuntimeDefault. The test reads back the worker's loaded kubelet configuration, changes only the disposable worker, and exercises one scoped admission policy and its exception removal.",
+  "cluster": "saf-lab-268aaf1d1eb7",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -44,6 +44,7 @@
       "matched": true,
       "observed": {
         "worker_confirmed": true,
+        "loaded_seccomp_default": false,
         "seccomp_mode": 0
       }
     },
@@ -53,6 +54,7 @@
       "matched": true,
       "observed": {
         "worker_confirmed": true,
+        "loaded_seccomp_default": true,
         "seccomp_mode": 2
       }
     },
@@ -80,6 +82,15 @@
       "matched": true,
       "observed": {
         "exception_dry_run_permitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Retiring the fixture exception restores exact policy denial while approved work passes",
+      "matched": true,
+      "observed": {
+        "same_unconfined_denied": true,
+        "runtime_default_admitted": true
       }
     },
     {

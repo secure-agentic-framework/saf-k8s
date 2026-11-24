@@ -8,7 +8,8 @@ import time
 SCOPE = (
     "Linux workloads on the worker node in a two-node, "
     "digest-pinned Kind Kubernetes v1.36.1 cluster; containerd RuntimeDefault. "
-    "It changes the disposable worker kubelet and applies one scoped admission policy."
+    "The test reads back the worker's loaded kubelet configuration, changes only the "
+    "disposable worker, and exercises one scoped admission policy and its exception removal."
 )
 
 NODE_CONFIG = "/var/lib/kubelet/config.yaml"
@@ -39,6 +40,19 @@ def _set_seccomp_default(lab, value):
     lab.command("docker", "exec", node_container, "sh", "-ec", script, timeout=90)
     lab.kubectl("wait", "--for=condition=Ready", f"node/{node_container}",
                  "--timeout=90s", timeout=100)
+
+
+def _wait_for_live_default(lab, node, enabled):
+    path = f"/api/v1/nodes/{node}/proxy/configz"
+    deadline = time.monotonic() + 30
+    while time.monotonic() < deadline:
+        result = lab.kubectl("get", "--raw", path, allow_failure=True, timeout=12)
+        if result.returncode == 0:
+            observed = json.loads(result.stdout).get("kubeletconfig", {}).get("seccompDefault")
+            if observed is enabled:
+                return observed
+        time.sleep(0.5)
+    lab.block("The dedicated worker did not report its expected loaded seccompDefault")
 
 
 def _pod(name, *, explicit_runtime_default=False):
@@ -156,12 +170,32 @@ def enforce_approved_profiles(lab):
               response.returncode == 0, {"exception_dry_run_permitted": response.returncode == 0})
 
 
+    lab.kubectl("label", "namespace", exception, "saf-seccomp-policy=enforce")
+    deadline = time.monotonic() + 20
+    denied = False
+    while time.monotonic() < deadline:
+        repeated = lab.kubectl("create", "-n", exception, "-f", "-", "--dry-run=server",
+                               payload=json.dumps(excluded), allow_failure=True)
+        denied = repeated.returncode != 0 and policy in repeated.stderr and message in repeated.stderr
+        if denied:
+            break
+        time.sleep(0.5)
+    permitted = _pod("seccomp-expired-exception-allowed", explicit_runtime_default=True)
+    permitted["metadata"]["namespace"] = exception
+    allowed = lab.kubectl("create", "-n", exception, "-f", "-", "--dry-run=server",
+                          payload=json.dumps(permitted), allow_failure=True)
+    lab.check("green", "Retiring the fixture exception restores exact policy denial while approved work passes",
+              denied and allowed.returncode == 0,
+              {"same_unconfined_denied": denied, "runtime_default_admitted": allowed.returncode == 0})
+
+
 def run(lab):
     node_name = f"{lab.cluster}-worker"
 
     # Red: a newly created pod with no pod- or container-level seccomp profile
     # reaches this node while kubelet seccompDefault is explicitly disabled.
     _set_seccomp_default(lab, "false")
+    loaded_off = _wait_for_live_default(lab, node_name, False)
     red_name = "seccomp-default-off"
     red = _pod(red_name)
     if "seccompProfile" in red["spec"] or "seccompProfile" in red["spec"]["containers"][0]["securityContext"]:
@@ -174,12 +208,13 @@ def run(lab):
         "red",
         "With seccompDefault=false, an omitted profile runs Unconfined",
         red_mode == 0,
-        {"worker_confirmed": True, "seccomp_mode": red_mode},
+        {"worker_confirmed": True, "loaded_seccomp_default": loaded_off, "seccomp_mode": red_mode},
     )
 
     # Green: turn on the node default, restart kubelet, then create a fresh pod.
     # Testing a new pod avoids claiming that this setting retrofits old pods.
     _set_seccomp_default(lab, "true")
+    loaded_on = _wait_for_live_default(lab, node_name, True)
     green_name = "seccomp-default-on"
     green = _pod(green_name)
     if "seccompProfile" in green["spec"] or "seccompProfile" in green["spec"]["containers"][0]["securityContext"]:
@@ -192,7 +227,7 @@ def run(lab):
         "green",
         "With seccompDefault=true, a newly created pod with no profile uses a filter",
         green_mode == 2,
-        {"worker_confirmed": True, "seccomp_mode": green_mode},
+        {"worker_confirmed": True, "loaded_seccomp_default": loaded_on, "seccomp_mode": green_mode},
     )
 
     enforce_approved_profiles(lab)
