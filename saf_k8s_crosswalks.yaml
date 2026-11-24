@@ -38779,22 +38779,6 @@
 
 
     5.4 - Zero trust architecture principles; 3.4 - Cloud Native 8 secure defaults (engineering principles)'
-  control_id: SAF-K8S-0304-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8
-  framework_requirement_title: Security and Privacy Engineering Principles
-  framework_mapping_notes: 'Security engineering principles guide secure design of agentic AI architectures
-
-
-    5.4 - Zero trust architecture principles; 3.4 - Cloud Native 8 secure defaults (engineering principles)'
   control_id: SAF-K8S-0304-004
   relation_type: direct
   strength_level: strong
@@ -40003,16 +39987,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-8(23)
   framework_requirement_title: Secure Defaults
-  framework_mapping_notes: 'Secure defaults ensure agents start with restrictive permissions and safe configurations
-
-
-    3.4 - Cloud Native 8 secure defaults; 4.2 - Default SA restrictions (secure defaults for K8s)'
+  framework_mapping_notes: A conservative default workload configuration with enforceable critical-workload resource budgets can support the secure defaults principle for the scoped Kubernetes component.
   control_id: SAF-K8S-0304-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The policy or default workload templates apply approved restrictive resource budgets by default for the designated workloads.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -53079,22 +53060,6 @@
 
     6.6 - GitOps (refreshing state from Git as trusted source); 6.6 - Drift detection and remediation (resync from Git)'
   control_id: SAF-K8S-0606-009
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-14(2)
-  framework_requirement_title: Non-persistent Information
-  framework_mapping_notes: 'Non-persistent agent data reduces the window for data theft and manipulation
-
-
-    3.4 - Ephemeral storage controls (non-persistent scratch data); 9.4 - Pipeline step isolation (ephemeral intermediate data)'
-  control_id: SAF-K8S-0304-003
   relation_type: direct
   strength_level: strong
   applicability: required

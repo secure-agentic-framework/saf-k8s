@@ -2374,8 +2374,8 @@
   objective: Provide predictable CPU and memory allocation for critical workloads and account for eviction and CPU throttling in their availability design.
   rationale: 'The kubelet ranks node-pressure evictions according to the resource signal. For memory pressure it considers whether usage exceeds requests, Pod Priority, and usage relative to requests. Guaranteed Pods can still be evicted under some conditions. CPU quotas remain enforceable through throttling, so size requests and limits for the workload and monitor the observed effect.'
   scope: Applies to all workloads in production clusters. Security-critical and stateful workloads must use Guaranteed QoS. Other application workloads may use Burstable QoS with documented acceptance of eviction risk. BestEffort QoS is prohibited for any workload handling sensitive data or performing security functions.
-  primary_enforcement_point: Admission and CI policy validate effective CPU and memory inputs for designated workloads. Workload checks verify the assigned QoS class.
-  implementation_surface: Validate CPU and memory requests and limits in the applicable container or Pod resource fields and confirm the admitted Pod status.qosClass. Test required policy and approved exceptions. Review kubelet pressure thresholds and resource-specific eviction metrics, Pod Priority, and CPU throttling telemetry separately.
+  primary_enforcement_point: 'Use controlled workload designations and validate the effective CPU and memory resources of designated Pods at admission. Check the QoS class assigned by the Kubernetes API.'
+  implementation_surface: 'Validate equal, positive CPU and memory requests and limits for each regular and init container or use equivalent supported Pod-level values. Verify the assigned status.qosClass. Review applicable admission and approved exception scope, resource-specific kubelet pressure and eviction behavior, Pod Priority and CPU throttling separately.'
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Application Development teams
   baseline_or_ai_specific: baseline
