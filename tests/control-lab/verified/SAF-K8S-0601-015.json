@@ -1,0 +1,79 @@
+{
+  "control_id": "SAF-K8S-0601-015",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "9efca0841edb072206c471dec9c12a38f8cb0175aa6cd42960cd8fe446510012",
+  "scope": "One disposable Kind cluster and its default saf-test namespace. A Kubernetes-native ValidatingAdmissionPolicy gates server-side Pod dry-runs on an exact pinned inert image and an exact, bounded offline synthetic inference package inventory. The inventory uses the published OCI fixture's canonical JSON and digest helper and the published inference fixture's serving contract. It demonstrates declared-inventory release gating; the positive path runs the pinned fixture and checks its exact API metadata. Actual image composition, hardware, CUDA/driver compatibility, production image qualification, attestation provenance, registry promotion, and deployed gate adoption remain unverified.",
+  "cluster": "saf-lab-43fc2c525884",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "An unguarded API server accepts a declared build-tool inventory",
+      "matched": true,
+      "observed": {
+        "accepted": true,
+        "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+        "inventory_package_count": 9
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The native release gate denies the inventory containing build dependencies",
+      "matched": true,
+      "observed": {
+        "build_compiler_package_manager_debugger_denied": true,
+        "denial_is_for_exact_unapproved_inventory": true,
+        "approved_hash_cannot_label_a_different_inventory": true,
+        "approved_inventory_cannot_label_a_different_image": true,
+        "approved_image_is_exact_digest_pinned_busybox": true,
+        "policy_and_binding_persist_exact_fail_closed_gate": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact runtime-only GPU inference inventory remains admissible",
+      "matched": true,
+      "observed": {
+        "checks": {
+          "runtime_inventory_admitted": true,
+          "required_inference_and_native_runtime_packages_retained": true,
+          "cuda_runtime_packages_retained_for_gpu_profile": true,
+          "no_compiler_package_manager_build_tool_or_debugger_in_approved_inventory": true
+        },
+        "admitted_image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
+      }
+    }
+  ]
+}

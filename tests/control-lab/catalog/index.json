@@ -1422,6 +1422,12 @@
       "sha256": "e4dc965e387cb747b237eab489ef048bec599a46a49ad5f90e5a2907099b4254",
       "title": "Container image runtime hardening with non-root and read-only filesystem"
     },
+    "SAF-K8S-0601-015": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "9efca0841edb072206c471dec9c12a38f8cb0175aa6cd42960cd8fe446510012",
+      "title": "Inference image minimal composition with GPU runtime-only dependencies"
+    },
     "SAF-K8S-0601-016": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -3554,7 +3560,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "498bbe1260cf9da58afc9bd6f5096fc484c626f6",
+  "revision": "064c24c0ab065aebc79002a733dc699319ce93a3",
   "sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
