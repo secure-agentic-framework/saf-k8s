@@ -1,0 +1,90 @@
+{
+  "reviewed_at_utc": "2026-11-23T02:16:13+00:00",
+  "catalog_revision": "5f104a3e4e5496cdbce7e0737bafac59d792ad97",
+  "download_channels": {
+    "https://dl.k8s.io/release/stable.txt": "v1.37.2",
+    "https://dl.k8s.io/release/stable-1.35.txt": "v1.35.10",
+    "https://dl.k8s.io/release/stable-1.36.txt": "v1.36.6",
+    "https://dl.k8s.io/release/stable-1.37.txt": "v1.37.2"
+  },
+  "releases": [
+    {
+      "tag": "v1.35.10",
+      "previous_tag": "v1.35.9",
+      "published_at": "2026-10-28T04:37:28Z",
+      "release_url": "https://github.com/kubernetes/kubernetes/releases/tag/v1.35.10",
+      "tag_object": "b9b3f50d1e72a5128f34df1da2025f82c79392fe",
+      "tag_signature_verified": false,
+      "tag_verification_reason": "unsigned",
+      "release_commit": "ae6fece6fea92ecfcccd13af7d5f2ea8cb9b33fe",
+      "previous_release_commit": "329000efd0b26bd78155e51e4df449130f0fca00",
+      "commits_compared": 22,
+      "comparison_url": "https://github.com/kubernetes/kubernetes/compare/v1.35.9...v1.35.10",
+      "tagged_changelog_url": "https://raw.githubusercontent.com/kubernetes/kubernetes/v1.35.10/CHANGELOG/CHANGELOG-1.35.md",
+      "tagged_changelog_sha256": "1f9d86189c4f783fd6cd8b0f11f70af51999c208d8eaefc0faa170a3735ab9ca",
+      "tagged_changelog_contains_current_patch": false,
+      "linked_changelog_url": "https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.35.md",
+      "linked_changelog_snapshot_sha256": "a2752caa688b53061454000e5183909707cce6dc0835fa00842ff549b001f977",
+      "current_release_notes_extract_sha256": "591c83680bc9a11dd0b38196ebd28c7544af3366a328b1a36f7a970b7ae8de94",
+      "pinned_go_version": "1.26.10",
+      "go_version_url": "https://raw.githubusercontent.com/kubernetes/kubernetes/v1.35.10/.go-version",
+      "official_server_arm64_tarball": {
+        "url": "https://dl.k8s.io/v1.35.10/kubernetes-server-linux-arm64.tar.gz",
+        "sha256": "337982e3d5825f60d989b440c5ef441051ffec54659e9b11a7cdcaf218270157"
+      },
+      "kind_public_registry_tag_observed_absent": true
+    },
+    {
+      "tag": "v1.36.6",
+      "previous_tag": "v1.36.5",
+      "published_at": "2026-10-28T04:56:35Z",
+      "release_url": "https://github.com/kubernetes/kubernetes/releases/tag/v1.36.6",
+      "tag_object": "71357b3b454306b72fe9c89d1b8a5d5ee3cc1df3",
+      "tag_signature_verified": false,
+      "tag_verification_reason": "unsigned",
+      "release_commit": "1b2171b110bb2a2542e1322035c6583ec86eb976",
+      "previous_release_commit": "ad950d1cc78b0183c476bd4d3f1934c104229727",
+      "commits_compared": 24,
+      "comparison_url": "https://github.com/kubernetes/kubernetes/compare/v1.36.5...v1.36.6",
+      "tagged_changelog_url": "https://raw.githubusercontent.com/kubernetes/kubernetes/v1.36.6/CHANGELOG/CHANGELOG-1.36.md",
+      "tagged_changelog_sha256": "7807fdc75792d2c2c5f0d4ddfdfe09de33a6cbaed088f12503a4e4ce547ffa1f",
+      "tagged_changelog_contains_current_patch": false,
+      "linked_changelog_url": "https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.36.md",
+      "linked_changelog_snapshot_sha256": "3bafcd238ab700ebf6b15700e75692f32f8b67336c802a7f5368694519a94ea3",
+      "current_release_notes_extract_sha256": "cb7499339afecc8a93e938f0232105d9cb34a3cd4975ad457724a83da79cf683",
+      "pinned_go_version": "1.26.10",
+      "go_version_url": "https://raw.githubusercontent.com/kubernetes/kubernetes/v1.36.6/.go-version",
+      "official_server_arm64_tarball": {
+        "url": "https://dl.k8s.io/v1.36.6/kubernetes-server-linux-arm64.tar.gz",
+        "sha256": "b98364acbd4ce469bc38c57668dbee057008846b029f0980d613861dd3a10817"
+      },
+      "kind_public_registry_tag_observed_absent": true
+    },
+    {
+      "tag": "v1.37.2",
+      "previous_tag": "v1.37.1",
+      "published_at": "2026-10-28T04:37:53Z",
+      "release_url": "https://github.com/kubernetes/kubernetes/releases/tag/v1.37.2",
+      "tag_object": "1755f07c19a1d4a25955616aabdfdd66e0fbe224",
+      "tag_signature_verified": false,
+      "tag_verification_reason": "unsigned",
+      "release_commit": "c50e5395f1ae2d4a2c05f28fdcc38c0916cc1a32",
+      "previous_release_commit": "f78e722310e50bcaca9276be22276d9e91d91308",
+      "commits_compared": 22,
+      "comparison_url": "https://github.com/kubernetes/kubernetes/compare/v1.37.1...v1.37.2",
+      "tagged_changelog_url": "https://raw.githubusercontent.com/kubernetes/kubernetes/v1.37.2/CHANGELOG/CHANGELOG-1.37.md",
+      "tagged_changelog_sha256": "c8288f21e54efd9d91dfa1dda27ab5d17e065f416811f75c5b0606590f7f2a6d",
+      "tagged_changelog_contains_current_patch": false,
+      "linked_changelog_url": "https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG/CHANGELOG-1.37.md",
+      "linked_changelog_snapshot_sha256": "74ed3c630967ed811dba20b63b442281476e3f63ba4552e412336c72f173bf26",
+      "current_release_notes_extract_sha256": "a1256a27764ee4288f16e3451b8ccbb99c8e9a43ceabd3b3b0ed1a3ce7ab43d7",
+      "pinned_go_version": "1.26.10",
+      "go_version_url": "https://raw.githubusercontent.com/kubernetes/kubernetes/v1.37.2/.go-version",
+      "official_server_arm64_tarball": {
+        "url": "https://dl.k8s.io/v1.37.2/kubernetes-server-linux-arm64.tar.gz",
+        "sha256": "ceb27d43ca10db57ba79b2c224d5d8e169a0e6a5611f47db8c7b8d611afab13d"
+      },
+      "kind_public_registry_tag_observed_absent": true
+    }
+  ]
+}

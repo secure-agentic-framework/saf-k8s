@@ -1,4 +1,4 @@
-"""Read-only API deprecation example plus offline release corroboration."""
+"""Check Kubernetes API deprecation signals and versioned release corroboration."""
 import copy
 import json
 from pathlib import Path
@@ -12,14 +12,16 @@ MIGRATION = json.loads((ROOT / "migration-evidence.json").read_text())
 LEGACY = json.loads((ROOT / "legacy-ingress.json").read_text())
 MIGRATED = json.loads((ROOT / "migrated-ingress.json").read_text())
 RELEASES = json.loads((ROOT / "release-evidence.json").read_text())
+SOURCES = json.loads((ROOT / "reference" / "release-sources.json").read_text())
 EXPECTED_SERVER = "v1.36.1"
 SCOPE = (
     "Read-only Kubernetes v1.36.1 API version/discovery inspection plus offline, "
     "version-pinned Kubernetes Ingress v1.22 deprecation and release-corroboration "
     "fixtures. Release evaluation reads only checked-in normalized upstream "
-    "observations and synthetic counterfactuals. It makes no external requests. "
-    "It does not establish recurring feed polling, inventory completeness, "
-    "production migration validation, or organizational alert triage."
+    "observations and synthetic counterfactuals. An isolated, case-owned CRD "
+    "compares the deprecated and supported API paths on the live server. The case "
+    "makes no external requests. Recurring feed polling, inventory completeness, "
+    "upgrade validation, and organizational alert delivery are adopter evidence."
 )
 
 
@@ -170,6 +172,53 @@ def live_discovery(lab):
     return version, groups, group_versions
 
 
+def check_crd_deprecation_warning(lab):
+    group = "release-review.saf.test"
+    plural = "reviewmarkers"
+    kind = "ReviewMarker"
+    warning = "SAF fixture reviewmarkers v1alpha1 is deprecated. Use release-review.saf.test/v1."
+    schema = {"openAPIV3Schema": {"type": "object", "properties": {
+        "spec": {"type": "object", "properties": {"marker": {"type": "string"}}},
+    }}}
+    lab.create({
+        "apiVersion": "apiextensions.k8s.io/v1",
+        "kind": "CustomResourceDefinition",
+        "metadata": {"name": f"{plural}.{group}"},
+        "spec": {
+            "group": group, "scope": "Namespaced",
+            "names": {"plural": plural, "singular": "reviewmarker", "kind": kind},
+            "versions": [
+                {"name": "v1alpha1", "served": True, "storage": False,
+                 "deprecated": True, "deprecationWarning": warning, "schema": schema},
+                {"name": "v1", "served": True, "storage": True, "schema": schema},
+            ],
+        },
+    })
+    lab.kubectl("wait", "--for=condition=Established", f"crd/{plural}.{group}", "--timeout=45s")
+    name = "source-inventory-marker"
+    stable_version = f"{group}/v1"
+    lab.create({
+        "apiVersion": stable_version, "kind": kind, "metadata": {"name": name},
+        "spec": {"marker": "owned-release-review-fixture"},
+    })
+    endpoint = f"/apis/{group}/{{}}/namespaces/saf-test/{plural}/{name}"
+    old = lab.kubectl("get", f"--raw={endpoint.format('v1alpha1')}")
+    current = lab.kubectl("get", f"--raw={endpoint.format('v1')}")
+    deprecated, stable = (json.loads(receipt.stdout) for receipt in (old, current))
+    observed = {
+        "deprecated_api_still_served": deprecated.get("apiVersion") == f"{group}/v1alpha1",
+        "stable_api_served": stable.get("apiVersion") == stable_version,
+        "same_object_identity": bool(stable["metadata"]["uid"])
+        and stable["metadata"]["uid"] == deprecated["metadata"]["uid"],
+        "same_inert_payload": stable.get("spec") == deprecated.get("spec")
+        == {"marker": "owned-release-review-fixture"},
+        "deprecated_request_warned": warning in old.stderr,
+        "stable_request_unwarned": "Warning:" not in current.stderr,
+    }
+    lab.check("positive", "A live CRD request warns on the deprecated API and the stable path reads the same object",
+              all(observed.values()), observed)
+
+
 def run(lab):
     if (LIFECYCLE.get("fixture_id") != "kubernetes-ingress-api-lifecycle-v1"
             or LIFECYCLE.get("deprecated_by_release") != "v1.19.0"
@@ -186,6 +235,21 @@ def run(lab):
                  if row.get("manifest_fixture") == "legacy-ingress.json"), None)
     if not item or item.get("api_version") != LEGACY.get("apiVersion"):
         lab.block("The synthetic inventory does not identify its legacy manifest")
+
+    # Cross-check the provenance ledger for the normalized replay inputs.
+    ledger_markers = SOURCES["download_channels"]
+    replay_markers = {row["url"]: row["text"] for row in RELEASES["channel_markers"].values()}
+    ledger_release = next(row for row in SOURCES["releases"] if row["tag"] == "v1.37.2")
+    captured_changelogs = RELEASES["changelog_observations"]["v1.37.2"]
+    provenance = {
+        "recorded_release_channels_match": ledger_markers == replay_markers,
+        "tagged_changelog_digest_matches_capture": ledger_release["tagged_changelog_sha256"]
+        == captured_changelogs["tagged"]["snapshot_sha256"],
+        "linked_changelog_digest_matches_capture": ledger_release["linked_changelog_snapshot_sha256"]
+        == captured_changelogs["linked_changelog"]["snapshot_sha256"],
+    }
+    lab.check("positive", "The retained source ledger matches the replay channels and recorded changelog digests",
+              all(provenance.values()), provenance)
 
     # Deterministic release-corroboration tests use only the pinned local snapshot.
     actual = evaluate_release(37, RELEASES)
@@ -317,3 +381,4 @@ def run(lab):
          "production_approval": MIGRATION.get("production_approval"),
          "gate_clear_for_fixture": bool(gate_clear)},
     )
+    check_crd_deprecation_warning(lab)

@@ -1,10 +1,10 @@
 # SAF-K8S-1007-017 — Kubernetes release-channel and changelog monitoring for API deprecations
 
 ```sh
-python3 lab.py test SAF-K8S-1007-017
+python3 tests/control-lab/lab.py test SAF-K8S-1007-017 --docker-context desktop-linux
 ```
 
-This read-only example joins a pinned Kubernetes upstream lifecycle record to a
+The reference test joins a pinned Kubernetes upstream lifecycle record to a
 local synthetic AI platform manifest inventory. It uses the Ingress API transition:
 the old `networking.k8s.io/v1beta1` API was deprecated before the v1.22 removal, while
 `networking.k8s.io/v1` was available from v1.19. The fixtures include a legacy
@@ -15,9 +15,11 @@ migration evidence satisfies this narrow fixture gate.
 The case also reads `/version` and `/apis` from the runner's Kubernetes v1.36.1
 cluster. It checks that `networking.k8s.io/v1` is served and the removed
 `networking.k8s.io/v1beta1` API group version is absent. These are read-only discovery
-requests. The case never applies a manifest, creates or changes an object, reads
-an external endpoint, or polls a release feed at runtime. The pinned source data
-is retained in this directory so that the assessment is reproducible offline.
+requests. The case also creates one isolated CRD and a marker in the disposable
+Kind cluster. Requests to its deprecated and current API versions read the same
+object. The deprecated version emits the exact configured warning. The current
+version returns the object without a warning. The normalized upstream inputs
+are pinned in this directory for offline runs.
 
 ## Review gates
 
@@ -52,27 +54,51 @@ assessment needs those upstream-to-ticket-to-owner records and a separate
 deprecated API inventory/migration review across all in-scope AI workloads.
 SAF-K8S-1007-018 covers that usage inventory and migration-tracking surface.
 
-This authoring pass did not execute the case. A supervisor run should retain the
-normal lab result and transcript, verify the exact runner server version and
-discovery payload, confirm that all checks are based on checked-in fixtures and
-read-only GET requests, and record cleanup status. The expected check evidence is:
-pinned fixture integrity; server `gitVersion`; discovered stable and removed
-group/version values; the alert's inventory ID, API version and target release;
-the closed-gate observation without migration evidence; and the migration fixture's
-replacement version and deliberately false runtime validation/production approval
-flags. No lab observation or organization-level
-monitoring record exists yet.
+The published receipt accompanies this case at
+`tests/control-lab/verified/SAF-K8S-1007-017.json` in the framework. It records
+the live server version, retained checks and disposable-cluster cleanup.
 
-## Provenance
+## Verify your implementation
 
-| Field | Evidence |
-| --- | --- |
-| Catalog commit and original control | Catalog revision `133a8698a45e2b335b51728bf4c62f7bda98d15f`; original control SHA-256 `86bede5c4a8f71a86b0b7f0e14ac9d318020fac42d6bf4cbbc9b625681470614`; source `../saf-k8s-framework/saf_k8s_controls.yaml`, control `SAF-K8S-1007-017`. |
-| Current framework markdown reviewed | `../saf-k8s-framework/markdown/controls/SAF-K8S-1007-017.md`; statement, objective, rationale, scope and enforcement reviewed against the original catalog entry. |
-| Primary bead | Not inspected or changed in this authoring-only pass. |
-| Reviewer and date | Authoring review, 2026-11-21; execution review remains outstanding. |
-| Tested platform | Kubernetes v1.36.1, verified with read-only version and discovery requests. See `verified/SAF-K8S-1007-017.json`. |
-| External/runtime boundary | Upstream links are documentation-only. No release-feed fetch, external runtime request, vulnerable API object or cluster mutation is performed. |
+1. Record each supported Kubernetes minor and the planned upgrade target. Poll
+   the official per-minor stable channel on an assigned cadence before the
+   upgrade. Save the retrieved marker, timestamp, release/tag identity, tagged
+   changelog and relevant deprecation notice. If official sources disagree,
+   record the mismatch and corroborate against the published release and the
+   same-minor tag comparison before changing the target.
+2. Record the effective versions from the target environment and inventory its
+   discovery surface.
+
+   ```sh
+   kubectl --context "$SAF_CONTEXT" get --raw /version
+   kubectl --context "$SAF_CONTEXT" api-resources --cached=false -o wide
+   ```
+
+   Tie served APIs to an exact server version and capture time. Discovery lists
+   the endpoints the server serves. To measure use, also collect an appropriate
+   window of API request evidence and review rendered manifests, jobs, operator
+   and client versions, and custom resources. Include CRD served and storage
+   versions, status.storedVersions and relevant conversion behavior.
+3. Identify active deprecated API calls from received client warnings, audit
+   events with `k8s.io/deprecated` or `k8s.io/removed-release`, and the
+   `apiserver_requested_deprecated_apis` metric where available. Join the
+   deprecated-API gauge with request counters by API group, version, resource,
+   and subresource to observe counts over the selected window. Record coverage
+   of API server instances and available telemetry. Link relevant callers to
+   workload and platform owners. Retain evidence gaps as such.
+4. Before the upgrade, track one impact record per affected target and API with
+   the upstream source, removal version, mapped artifacts or callers, owner,
+   delivery receipt, acknowledgment deadline and remediation evidence. Verify
+   the route end to end with an innocuous synthetic impact alert in an approved
+   notification test channel. Preserve the intended recipient, sent and
+   received timestamps, acknowledgment, escalation action, and related upgrade
+   gate decision.
+5. Compare the same change with unresolved and mitigated impact in a
+   disposable upgrade validation environment. Keep the gate closed for unknown
+   release identity, unowned impact, failed delivery, or unverified remediation.
+   Check updated manifests and client calls against the actual version and
+   validate controller behavior before recording approval. Use SAF-K8S-1007-018
+   for the underlying deprecated-API inventory and migration evidence.
 
 ## Versioned first-party upstream references
 
@@ -80,7 +106,8 @@ monitoring record exists yet.
 - [Kubernetes v1.22.0 source changelog](https://github.com/kubernetes/kubernetes/blob/v1.22.0/CHANGELOG/CHANGELOG-1.22.md): release-tagged history includes the Ingress v1beta1 deprecation entry.
 - [Kubernetes v1.22 release announcement](https://kubernetes.io/blog/2021/08/04/kubernetes-1-22-release-announcement/): confirms removal of deprecated beta APIs including Ingress.
 - [Kubernetes v1.36 Deprecated API Migration Guide, Ingress removal in 1.22](https://v1-36.docs.kubernetes.io/docs/reference/using-api/deprecation-guide/#ingress-v122): records the removed Ingress API versions, stable replacement availability and field changes.
-- [Kubernetes API deprecation policy](https://kubernetes.io/docs/reference/using-api/deprecation-policy/): explains Kubernetes API deprecation/removal guarantees and warning mechanisms.
+- [Kubernetes API deprecation policy](https://kubernetes.io/docs/reference/deprecation-policy/): API removal and warning semantics.
+- [Kubernetes audit annotations](https://kubernetes.io/docs/reference/labels-annotations-taints/audit-annotations/): deprecated request and removal release evidence.
 
 ### Release corroboration fixture
 
@@ -93,6 +120,10 @@ counterfactuals exercise disagreement, an absent comparison, a draft, a
 prerelease and a comparison across minor releases. The existing Ingress
 checks exercise the removal boundary and live API discovery.
 
-The normalized capture and its source URLs are in `release-evidence.json`.
-The case uses the captured snapshots offline. Production polling, alert
-delivery and validation on an actual upgrade remain separate requirements.
+The normalized replay inputs are in `release-evidence.json`. The accompanying
+`reference/release-sources.json` records the capture time, official source URLs,
+channel results, release identities and recorded digests. The check correlates
+those fields with the replay input. Recomputing a historical source digest uses
+the bytes from that capture; they are distinct from this normalized case.
+Adopters supply polling, alert
+delivery and upgrade validation evidence for their target.
