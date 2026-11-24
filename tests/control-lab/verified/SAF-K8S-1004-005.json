@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1004-005",
-  "catalog_revision": "c130572fdc3bc7c6a095ee3d98402f1aedaddb06",
+  "catalog_revision": "6f0298ff6473849875a275ef6cba556e16abba8c",
   "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "432091281f901c3b96dcd7eb26835ce2ea62ea4fe4b2065643744e863bb63515",
   "scope": "A disposable Kubernetes v1.36.1 Kind cluster runs one digest-pinned Python mock workload that serves only checked-in synthetic review metadata. The case validates namespace, freshness, evidence references, predictive and generative classification metadata, and five NIST AI 100-2e2025 review dimensions; it detects a synthetic marker-only overclaim, rejects stale/incomplete records, and preserves unknowns without assigning an attack class. It does not connect to feeds or external targets, run an AI model, establish an actual incident, prove deployed controls, or validate a production classification workflow.",
-  "cluster": "saf-lab-377ae8f5c3eb",
+  "cluster": "saf-lab-1a491b60c4c9",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
