@@ -1,6 +1,11 @@
 """Check removed-API discovery, ownership tracking, and a safe migration gate."""
 import json
 from pathlib import Path
+import re
+import shutil
+import time
+
+from fixtures import BUSYBOX_IMAGE
 
 
 HERE = Path(__file__).resolve().parent
@@ -24,9 +29,9 @@ SCOPE = (
     "The case discovers served APIs from the live target, detects the documented removed API, "
     "blocks an incomplete owner/migration record, persists a mock notification with a named "
     "synthetic owner and completion state, then server-side dry-runs only the mapped apps/v1 "
-    "replacement. It does not scan real cluster workloads, operators, Helm sources, CRDs, "
-    "generated charts or CI repositories; prove organization-wide ownership or notification "
-    "delivery; or authorize a production upgrade."
+    "replacement. A local chart and a case-owned CRD exercise rendered inventory, an actual "
+    "deprecated request, readback by a scoped inbox consumer, and loss of the deprecated endpoint "
+    "through a CRD serving transition. Adopters supply their own inventory and delivery evidence."
 )
 
 
@@ -64,6 +69,97 @@ def _api_result(lab, manifest):
         "--field-manager=saf-1007-018-review", "-f", "-", "-o", "json",
         payload=json.dumps(manifest, sort_keys=True), allow_failure=True,
     )
+
+
+def _custom_api_inventory(lab):
+    if not shutil.which("helm"):
+        lab.block("Helm is required to render the owned migration fixture")
+    group = "inventory.saf.test"
+    definition = f"inventorymarkers.{group}"
+    deprecated, stable = (f"{group}/{version}" for version in ("v1alpha1", "v1"))
+    warning = "SAF fixture InventoryMarker v1alpha1 is deprecated. Use inventory.saf.test/v1."
+    schema = {"openAPIV3Schema": {"type": "object", "properties": {
+        "spec": {"type": "object", "properties": {"marker": {"type": "string"}}},
+    }}}
+    lab.create({
+        "apiVersion": "apiextensions.k8s.io/v1", "kind": "CustomResourceDefinition",
+        "metadata": {"name": definition, "labels": _labels()},
+        "spec": {"group": group, "scope": "Namespaced",
+                 "names": {"kind": "InventoryMarker", "plural": "inventorymarkers",
+                           "singular": "inventorymarker"},
+                 "versions": [
+                     {"name": "v1alpha1", "served": True, "storage": False,
+                      "deprecated": True, "deprecationWarning": warning, "schema": schema},
+                     {"name": "v1", "served": True, "storage": True, "schema": schema},
+                 ]},
+    })
+    lab.kubectl("wait", "--for=condition=Established", f"crd/{definition}", "--timeout=40s")
+    chart = str(FIXTURES / "marker-chart")
+    legacy_render = lab.command("helm", "template", "inventory-fixture", chart,
+                                "--namespace", NAMESPACE, "--kube-version", "1.36.1").stdout
+    modern_render = lab.command("helm", "template", "inventory-fixture", chart,
+                                "--namespace", NAMESPACE, "--kube-version", "1.36.1",
+                                "--set-string", f"apiVersion={stable}").stdout
+    legacy_apis = re.findall(r"^apiVersion:\s*(\S+)", legacy_render, re.MULTILINE)
+    modern_apis = re.findall(r"^apiVersion:\s*(\S+)", modern_render, re.MULTILINE)
+    lab.kubectl("create", "-f", "-", payload=modern_render)
+    endpoint = f"/apis/{group}/{{version}}/namespaces/{NAMESPACE}/inventorymarkers/tracked-marker"
+    old_path = endpoint.format(version="v1alpha1")
+    stable_path = endpoint.format(version="v1")
+    prior = lab.kubectl("get", f"--raw={old_path}")
+    old = json.loads(prior.stdout)
+    old_uid = old["metadata"]["uid"]
+    inventory = {
+        "deprecated_chart_render": legacy_apis == [deprecated],
+        "stable_chart_render": modern_apis == [stable],
+        "deprecated_live_use_warned": old.get("apiVersion") == deprecated and warning in prior.stderr,
+        "object_has_identity": bool(old_uid),
+    }
+    lab.check("red", "Rendered deprecated API and a live warned request create one attributed inventory finding",
+              all(inventory.values()), inventory)
+
+    notice_name = "charted-migration-inbox"
+    notice_contents = json.dumps({"owner": OWNER, "kind": "InventoryMarker", "source_api": deprecated,
+                                  "target_api": stable, "status": "review-required"}, sort_keys=True)
+    lab.create({"apiVersion": "v1", "kind": "ConfigMap", "immutable": True,
+                "metadata": {"name": notice_name}, "data": {"notice.json": notice_contents}})
+    receiver = "migration-inbox-reader"
+    lab.create({
+        "apiVersion": "v1", "kind": "Pod", "metadata": {"name": receiver},
+        "spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,
+                 "volumes": [{"name": "inbox", "configMap": {"name": notice_name}}],
+                 "securityContext": {"runAsNonRoot": True, "runAsUser": 65532,
+                                     "seccompProfile": {"type": "RuntimeDefault"}},
+                 "containers": [{"name": "verify-delivery", "image": BUSYBOX_IMAGE,
+                                 "command": ["cat", "/inbox/notice.json"],
+                                 "volumeMounts": [{"name": "inbox", "mountPath": "/inbox", "readOnly": True}],
+                                 "securityContext": {"allowPrivilegeEscalation": False,
+                                                     "capabilities": {"drop": ["ALL"]}}}]},
+    })
+    lab.kubectl("wait", "--for=jsonpath={.status.phase}=Succeeded", f"pod/{receiver}",
+                "--timeout=80s", timeout=95)
+    inbox_read = lab.kubectl("logs", receiver).stdout
+    lab.check("green", "The independent fixture inbox consumer receives the exact tracked finding",
+              inbox_read == notice_contents, {"exact_attributed_notice_delivered": inbox_read == notice_contents})
+
+    lab.kubectl("patch", "crd", definition, "--type=json", "-p",
+                '[{"op":"test","path":"/spec/versions/0/name","value":"v1alpha1"},'
+                '{"op":"replace","path":"/spec/versions/0/served","value":false}]')
+    for _ in range(20):
+        removed = lab.kubectl("get", f"--raw={old_path}", allow_failure=True)
+        if removed.returncode:
+            break
+        time.sleep(1)
+    current = lab.kubectl("get", f"--raw={stable_path}")
+    live = json.loads(current.stdout)
+    changed = {
+        "deprecated_request_now_not_found": removed.returncode != 0 and "NotFound" in removed.stderr,
+        "stable_object_preserves_uid": live["metadata"]["uid"] == old_uid,
+        "stable_payload_preserved": live.get("apiVersion") == stable and live.get("spec") == old.get("spec"),
+        "stable_request_unwarned": "Warning:" not in current.stderr,
+    }
+    lab.check("positive", "Migrating to the stable endpoint preserves the object while the retired endpoint fails",
+              all(changed.values()), changed)
 
 
 def run(lab):
@@ -212,3 +308,4 @@ def run(lab):
          "dry_run_object_not_persisted": not_persisted,
          "old_api_absent_from_discovery": OLD_API not in discovered},
     )
+    _custom_api_inventory(lab)

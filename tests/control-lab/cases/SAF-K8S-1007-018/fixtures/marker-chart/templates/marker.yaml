@@ -1,0 +1,9 @@
+apiVersion: {{ .Values.apiVersion }}
+kind: InventoryMarker
+metadata:
+  name: tracked-marker
+  namespace: saf-test
+  labels:
+    saf-lab.example/control: SAF-K8S-1007-018
+spec:
+  marker: synthetic-api-migration

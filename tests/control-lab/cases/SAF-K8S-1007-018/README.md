@@ -1,17 +1,16 @@
 # SAF-K8S-1007-018 — Deprecated API inventory and migration tracking
 
-Run from the control-lab checkout with:
+Run from the SAF-K8S framework root with:
 
 ```sh
-python3 lab.py test SAF-K8S-1007-018 --docker-context desktop-linux
+python3 tests/control-lab/lab.py test SAF-K8S-1007-018 --docker-context desktop-linux
 ```
 
 The runner creates a disposable Kind v1.36.1 cluster using the digest-pinned
 `kindest/node` image in `case.py`. The fixtures are owned synthetic Deployment
 manifests: `extensions/v1beta1` and its documented `apps/v1` replacement. Their
 mock container image uses the reserved `.invalid` domain, has zero replicas, and
-is never started. There are no feeds, real workloads, targets, teams, or
-notification services.
+is never started. Helm is also required to render the local chart fixture.
 
 ## Observable outcomes
 
@@ -43,14 +42,39 @@ matching selector and pod-template labels. The case checks that claim against
 live v1.36.1 server discovery and server-side dry-run, rather than treating a
 client-side schema check as cluster evidence.
 
-This case validates one built-in resource mapping and a local mock tracking
-record. It does not establish that a scanner finds every deprecated use across
-all namespaces, running controllers, operator clients, Helm templates, CRDs,
-custom resources, or CI repositories. Nor does it prove real ownership,
-notification delivery, durable migration tracking, completion approvals,
-upgrade authorization policy, or successful production upgrades. CRD field
-deprecation semantics and mappings for other removed APIs remain untested and
-require separate source review and cases.
+The native CRD comparison also renders the old and revised Helm chart, observes
+an actual warned request, delivers the exact attributed finding to a tokenless
+fixture inbox reader, and disables the old served version. The stable path still
+serves the same object and payload. This is a serving transition for an object
+already stored as v1.
+
+## Verify your implementation
+
+1. Record the current and proposed Kubernetes versions and the inventories in the
+   change scope. Include AI workload namespaces, source and rendered manifests,
+   Helm releases and hooks, installed operators and external clients, APIService
+   registrations, and custom resources. Preserve artifact revision, chart and
+   values digests, operator version, and cluster identity.
+2. Render charts with the target's Kubernetes version and API capabilities,
+   including applicable CRDs and hooks. Discover live API support with
+   `kubectl --context "$SAF_CONTEXT" api-resources --cached=false -o wide`.
+   Compare discovery with rendered API references and observed requests.
+   Collect deprecated-request warnings, audit and request telemetry where
+   available. Record the collection window, caller, exact resource and blind
+   spots. Discovery tells you what is served. Request evidence shows observed use.
+3. For CRDs, inspect `spec.versions` for served, deprecated and storage values
+   and `status.storedVersions` for persisted-version evidence. Exercise
+   supported conversion and storage migration on the target before retiring
+   a version that still has persisted objects. Verify field changes against
+   the provider or CRD owner's version-specific schema and migration guide.
+4. Create or update the change record for each affected caller or artifact.
+   Keep the exact target, old and replacement API, owner, received notification
+   or acknowledgment, planned cutover, source and target behavior evidence, and
+   migration outcome. A collector gap or unassigned finding keeps approval on hold.
+5. Validate the replacement against a disposable target with the intended
+   policy, operators and integrations. Reconcile the tracked inventory to the
+   tested revision and exercise blocked and allowed upgrade decisions. Keep
+   the deployment approver and delivery evidence for the exact candidate.
 
 Primary sources:
 
@@ -58,3 +82,5 @@ Primary sources:
 - [Kubernetes `kubectl api-versions` reference](https://kubernetes.io/docs/reference/kubectl/generated/kubectl_api-versions/)
 - [Kubernetes Server-Side Apply](https://kubernetes.io/docs/reference/using-api/server-side-apply/)
 - [Kubernetes `kubectl apply` reference](https://kubernetes.io/docs/reference/kubectl/generated/kubectl_apply/)
+
+- [Kubernetes CRD versioning](https://v1-36.docs.kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definition-versioning/)

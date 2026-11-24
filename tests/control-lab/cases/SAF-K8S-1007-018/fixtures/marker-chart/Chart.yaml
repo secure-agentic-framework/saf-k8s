@@ -1,0 +1,5 @@
+apiVersion: v2
+name: inventory-marker
+description: Harmless marker for the disposable API inventory case
+type: application
+version: 0.1.0

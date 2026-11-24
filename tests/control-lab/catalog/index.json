@@ -3567,12 +3567,12 @@
     "SAF-K8S-1007-018": {
       "catalog_status": "draft",
       "domain": "D10",
-      "sha256": "cfd2e5bc988c7ed5730322a3558adac4b7c86247ddcd96f01d9a56ea736c93f8",
+      "sha256": "5c0ab1440cae83ab42ac5d52d91058425baf55cd49173d7f6b25d2c5a7fb0a7c",
       "title": "Deprecated Kubernetes API usage inventory and migration tracking for AI workloads"
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "8a2b7d431d56f70c95a153efe3c450a4396fe614",
-  "sha256": "13198f80b71ad594f1919d098903bba8c36b79d0e85665cce6b3718a9b57df17",
+  "revision": "c9c4c9e278f2015546a2c1a376be1fa408c9d6a6",
+  "sha256": "def8199cd87ef54e54a69c6156918a96bec1440bdc61cd5ce83f4b6c85a0ae37",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
