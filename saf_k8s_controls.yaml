@@ -11801,12 +11801,12 @@
   knowledge_area: '10.7'
   control_seq: '012'
   control_title: AI infrastructure compatibility matrix and coordinated component upgrade governance
-  control_statement: Organizations must maintain an AI infrastructure compatibility matrix and coordinate updates across GPU drivers, CUDA toolkits, AI operators, device plugins, and model serving frameworks so that component upgrades preserve compatibility and avoid AI workload security or reliability regressions.
+  control_statement: Organizations must maintain a current, source-backed AI infrastructure compatibility matrix for applicable hardware and platform combinations. Coordinate updates across drivers, CUDA or equivalent runtimes, AI operators, device plugins and model serving frameworks. Require evidence from named functional, security and reliability checks before approving a candidate component tuple.
   objective: Ensure AI-specific infrastructure components are upgraded with validated dependency awareness so GPU, CUDA, operator, and serving-framework changes do not introduce incompatible or insecure runtime states.
   rationale: AI infrastructure components have tightly coupled version dependencies. Uncoordinated updates across GPU drivers, CUDA toolkits, AI operators, or model serving frameworks can break workloads, bypass security assumptions, or leave unsupported components in production. Compatibility governance makes these dependencies auditable and enforceable.
   scope: Applies to AI-specific infrastructure components and their dependency relationships across Kubernetes environments hosting training or inference workloads.
   primary_enforcement_point: AI component lifecycle governance, compatibility review, and coordinated upgrade approval workflows.
-  implementation_surface: AI infrastructure compatibility matrices, GPU driver and CUDA dependency tracking, AI operator and device plugin version governance, serving framework compatibility validation, and change records for coordinated component updates.
+  implementation_surface: Record the applicable vendor and runtime support sources, exact current and proposed component versions, and approved sequencing. Keep hardware and workload validation evidence tied to the same release candidate and record owners, unresolved or accepted exceptions, and recovery criteria.
   owner_primary: Platform Engineering
   owner_supporting: AI/ML Engineering; Security Engineering; SRE
   baseline_or_ai_specific: ai-specific
