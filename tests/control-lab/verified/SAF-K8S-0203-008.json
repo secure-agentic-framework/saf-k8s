@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0203-008",
-  "catalog_revision": "4a451d880aacfab8ede32290e61c76773e9b8bc2",
-  "catalog_sha256": "d0e0a793b2a517c32f30c21b4e103b728ef921c09794eecca3de263c9469ce95",
+  "catalog_revision": "46a8fbc68451e25f12534cdec334d9641cb9d47a",
+  "catalog_sha256": "6c62a9ab38837b70dbe3d92571eb93f33722e18e15a26a688854bcfd3cadd6b4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6356b7e239cf8e511e7f680736e0ce720f72944282dae22b9076575b462458e0",
-  "scope": "Actual Kind egress and restricted admission over synthetic metadata and approved identity marker Pods.",
-  "cluster": "saf-lab-4dbb48669914",
+  "scope": "Dual-stack egress source selection and policy withdrawal over two owned marker listeners, with host-network admission checked separately.",
+  "cluster": "saf-lab-01d842a9ab6a",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -40,28 +40,44 @@
   "checks": [
     {
       "phase": "red",
-      "claim": "Before the egress policy, the governed Pod reaches both inert marker paths",
+      "claim": "The governed workload reaches both owned dual-stack listeners before policy",
       "matched": true,
       "observed": {
-        "fixture-node-marker": "fixture-node-marker",
-        "fixture-identity-marker": "fixture-identity-marker"
+        "both_listeners_reachable_on_both_families": true
       }
     },
     {
       "phase": "green",
-      "claim": "Actual egress denies the node metadata marker and admission rejects a governed host-network declaration",
+      "claim": "The applied CNI rule blocks the denied marker on IPv4 and IPv6 while keeping the approved listener",
       "matched": true,
       "observed": {
-        "inert_node_path_denied": true,
+        "denied_and_approved_by_family": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Fresh client results and listener logs distinguish enforcement from endpoint failure",
+      "matched": true,
+      "observed": {
+        "denied_tokens_logged": false,
+        "permitted_tokens_logged": true,
+        "health_tokens_logged": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "API admission separately rejects the declared host-network workload in the governed namespace",
+      "matched": true,
+      "observed": {
         "host_network_declaration_rejected": true
       }
     },
     {
       "phase": "positive",
-      "claim": "The allowed identity fixture remains reachable while the unapproved path stays denied",
+      "claim": "Removing the owned policy restores the same marker paths on both IP families",
       "matched": true,
       "observed": {
-        "approved_identity_path_reachable": true
+        "both_original_paths_retained": true
       }
     }
   ]
