@@ -6230,22 +6230,6 @@
 
 
     7.2 - Label/annotation standards; 3.1 - PSA namespace labels (admin-configured enforcement modes)'
-  control_id: SAF-K8S-0301-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-16(4)
-  framework_requirement_title: Association of Attributes by Authorized Individuals
-  framework_mapping_notes: 'Manual tagging of agent-processed data
-
-
-    7.2 - Label/annotation standards; 3.1 - PSA namespace labels (admin-configured enforcement modes)'
   control_id: SAF-K8S-0702-003
   relation_type: supports
   strength_level: strong
@@ -14663,22 +14647,6 @@
 
 
     3.1 - Pod Security Standards (Restricted profile prevents privileged execution); 3.2 - allowPrivilegeEscalation=false'
-  control_id: SAF-K8S-0301-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-6(10)
-  framework_requirement_title: Prohibit Non-privileged Users from Executing Privileged Functions
-  framework_mapping_notes: 'Preventing unprivileged agents from escalating
-
-
-    3.1 - Pod Security Standards (Restricted profile prevents privileged execution); 3.2 - allowPrivilegeEscalation=false'
   control_id: SAF-K8S-0302-001
   relation_type: supports
   strength_level: strong
@@ -15242,22 +15210,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-6(8)
-  framework_requirement_title: Privilege Levels for Code Execution
-  framework_mapping_notes: 'Agent code execution privilege levels
-
-
-    3.2 - Security contexts (runAsUser, allowPrivilegeEscalation); 3.1 - Pod Security Standards (Baseline, Restricted)'
-  control_id: SAF-K8S-0301-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -20949,22 +20901,6 @@
 
 
     3.1 - Pod Security Standards (preventing privileged installation); 9.1 - AI operator elevated privilege management'
-  control_id: SAF-K8S-0301-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-11(2)
-  framework_requirement_title: Software Installation with Privileged Status
-  framework_mapping_notes: 'Privileged agent component installation
-
-
-    3.1 - Pod Security Standards (preventing privileged installation); 9.1 - AI operator elevated privilege management'
   control_id: SAF-K8S-0901-002
   relation_type: supports
   strength_level: strong
@@ -21780,22 +21716,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-2(7)
-  framework_requirement_title: Configure Systems and Components for High-risk Areas
-  framework_mapping_notes: 'Hardened agent configs for sensitive deployments
-
-
-    8.4 - Confidential computing (TEE for high-sensitivity AI workloads); 3.1 - PSS Restricted profile for high-risk'
-  control_id: SAF-K8S-0301-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -24132,22 +24052,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-8(6)
-  framework_requirement_title: Assessed Configurations and Approved Deviations
-  framework_mapping_notes: 'Tracking agent config deviations
-
-
-    1.4 - CIS benchmark (exception documentation, approved deviations); 3.1 - PSA exemption management'
-  control_id: SAF-K8S-0301-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -32704,16 +32608,13 @@
   framework_version: 5.2.0
   framework_requirement_id: PL-10
   framework_requirement_title: Baseline Selection
-  framework_mapping_notes: 'Security baseline selection establishes minimum control requirements for agentic AI systems
-
-
-    1.4 - Apply CIS benchmarks (baseline selection for K8s clusters); 3.1 - Pod Security Standards baseline selection'
+  framework_mapping_notes: Selecting and validating the workload admission profile during migration supports the Kubernetes portion of the approved system baseline.
   control_id: SAF-K8S-0301-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The migration selects and validates the workload admission portion of the organization-approved system baseline
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -39524,22 +39425,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(12)
-  framework_requirement_title: Hierarchical Protection
-  framework_mapping_notes: 'Hierarchical protection applies layered security controls based on agent component criticality
-
-
-    3.1 - Pod Security Standards (Privileged, Baseline, Restricted -- hierarchical protection profiles)'
-  control_id: SAF-K8S-0301-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
