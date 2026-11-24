@@ -2766,6 +2766,12 @@
       "sha256": "fffde1c88876a23a32bd81aa6aa2d39f27591879f5bbd918f3e924d01c1e54db",
       "title": "Large-scale data integrity verification"
     },
+    "SAF-K8S-0906-004": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "870a8df21ace9526eeaaeaf052c7546c8e5de2a7d5b13ab90eaae60a4851206b",
+      "title": "Statistical drift, outlier, and input validation for training data poisoning detection"
+    },
     "SAF-K8S-0906-005": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3404,7 +3410,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "99de02ef6dad3844ccf1c30d9290c919185c578e",
-  "sha256": "15695459035e31ea52d2d3b9d08f6bf09d34fa183de58adb6bc5f5fe26b3f1fa",
+  "revision": "de1f95afd3e31d7f04076284b7ed0b4bc6666d51",
+  "sha256": "26cce2a48501ff10660b281dd9d3befa20b619177fe4f9e5354382fffb01df3c",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

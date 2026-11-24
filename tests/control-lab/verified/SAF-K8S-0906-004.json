@@ -1,0 +1,95 @@
+{
+  "control_id": "SAF-K8S-0906-004",
+  "catalog_revision": "e7f7b4af81b34e2eea3e128a35081204071cd274",
+  "catalog_sha256": "26cce2a48501ff10660b281dd9d3befa20b619177fe4f9e5354382fffb01df3c",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "870a8df21ace9526eeaaeaf052c7546c8e5de2a7d5b13ab90eaae60a4851206b",
+  "scope": "A real Kind processor reads an immutable approved snapshot and four small invented candidates. An unchecked branch publishes all four. The governed branch independently tests data schema, mean drift and outlier limits. A read-only observer verifies the exact release by its digest. The thresholds only describe this fixture.",
+  "cluster": "saf-lab-534fa00fa065",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "The unchecked baseline persists every candidate to the volume",
+      "matched": true,
+      "observed": {
+        "changed": "964fb25fb661db7599487828cfd0292a7c929965001c4b04cb95db41c6574308",
+        "out-of-bounds": "b92c210de5ed1414a297969ccf10fe593b40575a16df7c3215a340985b10d98b",
+        "outliers": "ac0066988ff0a54c14c3662762104300b2a00010c2a51ac5a9e62b767658fd99",
+        "within-limits": "22c09cf45d9a2fb6328c829b503d5e40d040a217e155f4b7cc549739d44af7d5"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Schema, drift and outlier holds prevent writes to the release branch",
+      "matched": true,
+      "observed": {
+        "changed": true,
+        "outliers": true,
+        "out-of-bounds": true,
+        "bounds_verified": true,
+        "outlier_signal_distinct_from_mean_shift": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The independent reader verifies only the within-limit release",
+      "matched": true,
+      "observed": {
+        "writer": {
+          "cause": "within_declared_limits",
+          "comparison": {
+            "absolute_mean_shift": 0.25,
+            "approved_mean": 50.0,
+            "incoming_mean": 50.25,
+            "mean_shift_limit": 5.0,
+            "method": "absolute_mean_difference_and_approved_3sd_outlier_rate",
+            "outlier_count": 0,
+            "outlier_rate": 0.0,
+            "outlier_rate_limit": 0.25
+          },
+          "decision": "release",
+          "sampling_limits": {
+            "approved_count": 8,
+            "incoming_count": 8,
+            "maximum": 64,
+            "minimum": 8
+          }
+        },
+        "independent_reader": {
+          "within-limits": "22c09cf45d9a2fb6328c829b503d5e40d040a217e155f4b7cc549739d44af7d5"
+        }
+      }
+    }
+  ]
+}
