@@ -2230,12 +2230,12 @@
   knowledge_area: '3.3'
   control_seq: '001'
   control_title: Seccomp profile enforcement
-  control_statement: All containers must run with a seccomp profile of at least RuntimeDefault, and workloads with elevated risk or specialized syscall requirements must use custom seccomp profiles that restrict allowed syscalls to the minimum set needed for operation, with profiles audited and version-controlled.
-  objective: Limit the kernel attack surface available to each container by enforcing seccomp system call filtering, preventing exploitation of unused or dangerous syscalls.
-  rationale: The Linux kernel exposes over 300 syscalls, many of which are unnecessary for containerized workloads and have historically been targets for privilege escalation exploits (e.g., keyctl, ptrace, mount). Without seccomp enforcement, a compromised container can invoke any syscall the kernel supports, dramatically expanding the attack surface. The RuntimeDefault profile blocks the most dangerous syscalls, while custom profiles provide workload-specific hardening.
-  scope: Applies to all containers in production clusters. The RuntimeDefault profile is the minimum baseline. Custom profiles are required for workloads that need syscalls blocked by RuntimeDefault or for high- security workloads that should be restricted beyond RuntimeDefault. Unconfined seccomp is prohibited without documented exception.
-  primary_enforcement_point: 'Pod securityContext.seccompProfile field (type: RuntimeDefault or Localhost), enforced by PSA (Restricted level) and policy engine rules.'
-  implementation_surface: Pod securityContext.seccompProfile field (RuntimeDefault, Localhost), Security Profiles Operator (SPO) for custom SeccompProfile CRD deployment and management, seccomp profile JSON files in version control, Pod Security Admission (Restricted level enforces seccomp), policy engine rules denying Unconfined seccomp, container runtimes (containerd, CRI-O) for seccomp enforcement, GKE Sandbox (gVisor) as alternative isolation on GKE Autopilot, and SPO installation on EKS/AKS self-managed node groups.
+  control_statement: Supported unprivileged Linux containers must use an approved RuntimeDefault or Localhost seccomp profile. Where risk or workload syscall requirements justify a custom profile, limit it to the approved operations needed by the workload and audit and version the policy.
+  objective: Reduce the Linux kernel attack surface available to each covered container by enforcing an approved system-call filter.
+  rationale: A seccomp filter limits system-call access. RuntimeDefault behavior varies with runtime and version. A custom profile can enforce workload-specific rules when the filter, architecture and runtime are verified in representative execution.
+  scope: Applies to supported unprivileged Linux containers, including regular, init and ephemeral containers. Document and review applicable exceptions. Verify separate isolation controls for workloads requiring privileged execution.
+  primary_enforcement_point: Use Pod or container securityContext.seccompProfile, Pod Security Admission or an equivalent policy for allowed profile types, and the node runtime for effective filter enforcement.
+  implementation_surface: Inspect the effective Pod and container profile fields and verify Localhost profile installation on every eligible node. Manage versioned custom filters with the Security Profiles Operator or an equivalent distribution mechanism. Verify workload behavior, rollout, replacement, rollback, and provider and architecture support.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Application Development teams
   baseline_or_ai_specific: baseline
