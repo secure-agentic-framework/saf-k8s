@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-007",
-  "catalog_revision": "02e13c2fdeba4b46c53ac1d698f3e0d23156c745",
-  "catalog_sha256": "54f7bc8e466639bd50fec02cbcca8ccec10ebf404c378e507892fe7321ce2354",
+  "catalog_revision": "be6c73bd464ee92216dc552911a5203a895acd41",
+  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "050633de1e56700ff57feadc9a46024367a9b868901b7a7ebae693398f40a8c9",
   "scope": "A disposable Kind node with pinned Tetragon, namespace-scoped JSON export and a non-enforcing filename observation rule. Only the fixture runner and its public harmless markers are observed. Operator audit integration, network and credential coverage, event loss and downstream alert delivery require separate evidence.",
-  "cluster": "saf-lab-b2969f1ccdea",
+  "cluster": "saf-lab-8e10254f7f13",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
