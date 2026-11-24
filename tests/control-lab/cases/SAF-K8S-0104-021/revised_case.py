@@ -8,9 +8,15 @@ spec = importlib.util.spec_from_file_location("baseline_skew_case", HERE / "case
 baseline = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(baseline)
 
+ha_spec = importlib.util.spec_from_file_location("ha_skew_inventory", HERE / "ha-inventory.py")
+ha = importlib.util.module_from_spec(ha_spec)
+ha_spec.loader.exec_module(ha)
+NODE_IMAGE = ha.NODE_IMAGE
+prepare_kind = ha.prepare_kind
+
 SCOPE = (
     "Synthetic Kubernetes v1.36 policy cases for mixed API server endpoints and the optional "
-    "cloud-controller-manager, plus read-only inventory on one disposable v1.36.1 kind cluster. "
+    "cloud-controller-manager, plus read-only direct inventory of both API servers and all nodes in a disposable v1.36.1 Kind HA cluster. "
     "Actual managed-provider endpoints and mixed-version upgrades require their own evidence."
 )
 
@@ -42,4 +48,4 @@ def check_ha_endpoints(lab):
 def run(lab):
     baseline._synthetic_checks(lab)
     check_ha_endpoints(lab)
-    baseline._live_single_version_inventory(lab)
+    ha.run(lab, baseline, json.loads((HERE / "policy.json").read_text()))

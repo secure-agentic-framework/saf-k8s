@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0104-021",
-  "catalog_revision": "4961d5515b66462382e5403c5640c1965b451eef",
-  "catalog_sha256": "4c894c901242afc4d2a25f8ebaa77085e3c1a94a50cc1ede5866d5381e4bb0cd",
+  "catalog_revision": "106a06a2dc0d923a072c3326f194ceed2923ed86",
+  "catalog_sha256": "b13085fffcc414b504ce34f1a8df0fae3520e701b0adca01e92c2c2add5002cb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "386539c0738c9a7aedabb0fa936a3e2308d459f3d32c1cfa317c5b020a883152",
-  "scope": "Synthetic Kubernetes v1.36 policy cases for mixed API server endpoints and the optional cloud-controller-manager, plus read-only inventory on one disposable v1.36.1 kind cluster. Actual managed-provider endpoints and mixed-version upgrades require their own evidence.",
-  "cluster": "saf-lab-dadff55d056e",
+  "scope": "Synthetic Kubernetes v1.36 policy cases for mixed API server endpoints and the optional cloud-controller-manager, plus read-only direct inventory of both API servers and all nodes in a disposable v1.36.1 Kind HA cluster. Actual managed-provider endpoints and mixed-version upgrades require their own evidence.",
+  "cluster": "saf-lab-93d5948e704e",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -126,29 +126,39 @@
     },
     {
       "phase": "positive",
-      "claim": "Pinned lab components and the active kubectl client satisfy the version policy",
+      "claim": "Both owned control-plane APIs report their versions independently",
       "matched": true,
       "observed": {
-        "server_version": "1.36.1",
-        "client_version": "1.36.1",
-        "node_count": 1,
-        "kubelet_versions": [
+        "instances": {
+          "api_servers": 2,
+          "kubelets": 3,
+          "kube_proxies": 3,
+          "kube_controller_managers": 2,
+          "kube_schedulers": 2
+        },
+        "api_versions": [
+          "1.36.1",
           "1.36.1"
         ],
-        "controller_manager_versions": [
-          "1.36.1"
-        ],
-        "scheduler_versions": [
-          "1.36.1"
-        ],
-        "proxy_versions": [
-          "1.36.1"
-        ],
-        "all_observed_versions": [
-          "1.36.1"
-        ],
-        "missing_components": [],
-        "skew_violations": []
+        "owned_https_direct_probes": 2
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Removing a known backend observation leaves the inventory unverified",
+      "matched": true,
+      "observed": {
+        "status": "unverified",
+        "missing": 1
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The complete live inventory satisfies every conservatively modeled API relationship",
+      "matched": true,
+      "observed": {
+        "status": "matched",
+        "missing": 0
       }
     }
   ]
