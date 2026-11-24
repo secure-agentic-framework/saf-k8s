@@ -1434,6 +1434,12 @@
       "sha256": "06bf68b2b65e2f842781a39b3a5a02fb9a0b241b4e874b5bc7a2a15ccbe78938",
       "title": "Container registry authentication and role-based authorization"
     },
+    "SAF-K8S-0601-021": {
+      "catalog_status": "draft",
+      "domain": "D06",
+      "sha256": "25f335c3323ba6a37140f551d2a27f930c7b5b8d4dcbb9b7beb40d299f35bf4d",
+      "title": "Container registry trusted-source network restriction"
+    },
     "SAF-K8S-0601-022": {
       "catalog_status": "draft",
       "domain": "D06",
@@ -3398,7 +3404,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6e015c1994974971b56b5d6b94eb1bc35948d32f",
-  "sha256": "fc8f5b4a89186e84364f8182c34b50e803b2494bff7161fe549aaa8087b7827c",
+  "revision": "99de02ef6dad3844ccf1c30d9290c919185c578e",
+  "sha256": "15695459035e31ea52d2d3b9d08f6bf09d34fa183de58adb6bc5f5fe26b3f1fa",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
