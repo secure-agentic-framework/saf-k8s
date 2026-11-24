@@ -24,9 +24,9 @@ Kubernetes provides infrastructure redundancy through replica sets, multi-zone s
 
 - Domain: D03 - Workload and Pod Security
 - Knowledge Area: 3.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
+- Relation Type: partial
+- Strength: weak
+- Applicability: conditional
 - Strength Reason Code: n/a
 
 ### [SAF-K8S-0703-002 - Pod Disruption Budgets for workload availability](../../controls/SAF-K8S-0703-002.md)

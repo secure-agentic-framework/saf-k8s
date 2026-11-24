@@ -1340,23 +1340,6 @@
   framework_name: EU AI Act
   framework_version: 2024/1689
   framework_requirement_id: Annex-XI.2.2
-  legacy_requirement_id: Annex-XI:XI(3)(b)
-  framework_requirement_title: Technical documentation referred to in Article 53(1), point (a) — technical documentation for providers of general-purpose AI models
-  framework_mapping_notes: |-
-    Where applicable, a detailed description of the measures put in place for the purpose of conducting internal and/or external adversarial testing (e.g. red teaming), model adaptations, including alignment and fine-tuning.
-
-    SAF-K8S provides infrastructure-level safety measures: workload isolation (D3), resource limits (D8), network segmentation (D5), and monitoring (D10). Application-layer safety measures (guardrails, content filtering) are outside SAF-K8S scope but run on SAF-K8S-managed infrastructure.
-  control_id: SAF-K8S-0304-011
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Annex-XI.2.2
   legacy_requirement_id: Annex-XI:XI(2)(c)
   framework_requirement_title: Technical documentation referred to in Article 53(1), point (a) — technical documentation for providers of general-purpose AI models
   framework_mapping_notes: |-
@@ -2505,15 +2488,12 @@
   framework_requirement_id: Article-15.4
   legacy_requirement_id: Art-15:15(4)-resilience
   framework_requirement_title: Accuracy, robustness and cybersecurity
-  framework_mapping_notes: |-
-    High-risk AI systems shall be as resilient as possible regarding errors, faults or inconsistencies that may occur within the system or the environment in which the system operates, in particular due to their interaction with natural persons or other systems. Technical and organisational measures shall be taken in this regard. The robustness of high-risk AI systems may be achieved through technical redundancy solutions, which may include backup or fail-safe plans. High-risk AI systems that continue to learn after being placed on the market or put into service shall be developed in such a way as to eliminate or reduce as far as possible the risk of possibly biased outputs influencing input for future operations (feedback loops), and as to ensure that any such feedback loops are duly addressed with appropriate mitigation measures.
-
-    Platform resilience measures include pod disruption budgets, health checks, resource limits, fault-tolerant scheduling, checkpoint security, and infrastructure redundancy -- all governed by SAF-K8S controls.
+  framework_mapping_notes: Namespace resource bounds and aggregate request quotas can reduce resource contention where Kubernetes resource exhaustion is an identified failure mode. Retain scoped admission and quota-accounting evidence for this infrastructure contribution alongside the system-level fault and resilience assessment.
   control_id: SAF-K8S-0304-011
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition:
+  relation_type: partial
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: High-risk AI system workloads use Kubernetes namespace resource governance to address an identified resource-contention failure mode.
   strength_reason_code:
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT

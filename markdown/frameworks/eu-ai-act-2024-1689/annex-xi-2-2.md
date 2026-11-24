@@ -20,15 +20,6 @@ SAF-K8S provides infrastructure-level safety measures: workload isolation (D3), 
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0304-011 - Namespace LimitRange and ResourceQuota enforcement](../../controls/SAF-K8S-0304-011.md)
-
-- Domain: D03 - Workload and Pod Security
-- Knowledge Area: 3.4
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0604-002 - ML-BOM (ML Bill of Materials) generation](../../controls/SAF-K8S-0604-002.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
