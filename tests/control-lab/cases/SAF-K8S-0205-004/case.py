@@ -1,11 +1,12 @@
 """Verify Cilium's observed identity, port, and HTTP enforcement on owned markers."""
 
 from hashlib import sha256
+from ipaddress import IPv4Address
 import json
 from pathlib import Path
 import time
 
-SCOPE = "A single-node Kind cluster with pinned Cilium tests owned same-node identity, L4 port, and L7 HTTP policy."
+SCOPE = "Pinned Cilium ingress, egress, TCP and Envoy HTTP policy for owned IPv4 endpoints on separate Kind nodes."
 NODE_IMAGE = "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
 INSTALLS_CNI = True
 CILIUM = "1.20.5"
@@ -15,7 +16,6 @@ SERVER = "fixture-cilium-server"
 APPROVED = "fixture-cilium-approved"
 OTHER = "fixture-cilium-other"
 PORT = 18080
-SECOND = 18081
 LABEL = "fixture.example/role"
 MARKER = "owned-cilium-marker"
 HERE = Path(__file__).resolve().parent
@@ -66,6 +66,7 @@ networking:
   disableDefaultCNI: true
 nodes:
   - role: control-plane
+  - role: worker
 """)
     return config
 
@@ -86,7 +87,7 @@ def install(lab):
     lab.kubectl("-n", "kube-system", "rollout", "status", "ds/cilium", "--timeout=90s", timeout=100)
 
 
-def fixture(lab, name, role, program):
+def fixture(lab, name, role, program, node):
     unit = {"name": "marker", "image": IMAGE, "command": ["python", "-c", program],
             "securityContext": {"allowPrivilegeEscalation": False, "readOnlyRootFilesystem": True,
                                 "capabilities": {"drop": ["ALL"]}},
@@ -95,7 +96,7 @@ def fixture(lab, name, role, program):
     if role == "server":
         unit["readinessProbe"] = {"tcpSocket": {"port": PORT}, "periodSeconds": 1}
     lab.create({"apiVersion": "v1", "kind": "Pod", "metadata": {"name": name, "labels": {LABEL: role}},
-                "spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,
+                "spec": {"nodeName": node, "restartPolicy": "Never", "automountServiceAccountToken": False,
                          "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
                                              "seccompProfile": {"type": "RuntimeDefault"}},
                          "containers": [unit]}})
@@ -105,46 +106,110 @@ def probe(lab, source, address):
     return json.loads(lab.kubectl("exec", f"pod/{source}", "--", "python", "-c", PROBE, address, timeout=12).stdout)
 
 
+def matrix(lab, address, expected):
+    start = time.monotonic()
+    while True:
+        observed = {name: probe(lab, name, address) for name in (APPROVED, OTHER)}
+        elapsed = time.monotonic() - start
+        if observed == expected or elapsed >= 55:
+            return observed, round(elapsed, 3)
+        time.sleep(0.3)
+
+
+def apply_policy(lab, name, role, direction, rule):
+    spec = {"endpointSelector": {"matchLabels": {LABEL: role}}, direction: [rule]}
+    lab.create({"apiVersion": "cilium.io/v2", "kind": "CiliumNetworkPolicy",
+                "metadata": {"name": name}, "spec": spec})
+    return spec
+
+
+def endpoint_rows(lab):
+    rows = json.loads(lab.kubectl("get", "ciliumendpoints", "-o", "json").stdout)["items"]
+    return {row["metadata"]["name"]: row["status"] for row in rows}
+
+
+def map_rows(lab, pods, node, endpoint):
+    agent, = [row["metadata"]["name"] for row in pods if row["spec"]["nodeName"] == node]
+    listing = lab.kubectl("-n", "kube-system", "exec", "pod/" + agent, "-c", "cilium-agent", "--",
+                          "cilium-dbg", "bpf", "policy", "get", str(endpoint["id"]), "-n").stdout
+    return [line.split() for line in listing.splitlines() if line.startswith(("Allow", "Deny"))]
+
+
+def mapped(rows, direction, identity, *, proxy):
+    return any(row[:4] == ["Allow", direction, str(identity), f"{PORT}/TCP"]
+               and (row[4].isdigit() if proxy else row[4] == "NONE") for row in rows)
+
+
 def run(lab):
     install(lab)
+    server_node = lab.cluster + "-worker"
+    client_node = lab.cluster + "-control-plane"
+    owned = set(lab.command("kind", "get", "nodes", "--name", lab.cluster).stdout.splitlines())
+    if owned != {server_node, client_node}:
+        lab.block("Expected the reviewed two-node Kind fixture")
     lab.kubectl("label", "namespace", "saf-test", "pod-security.kubernetes.io/enforce=restricted")
-    fixture(lab, SERVER, "server", SERVE)
-    fixture(lab, APPROVED, "allowed", "import time; time.sleep(240)")
-    fixture(lab, OTHER, "other", "import time; time.sleep(240)")
+    fixture(lab, SERVER, "server", SERVE, server_node)
+    fixture(lab, APPROVED, "allowed", "import time; time.sleep(620)", client_node)
+    fixture(lab, OTHER, "other", "import time; time.sleep(620)", client_node)
     lab.kubectl("wait", "--for=condition=Ready", "pods", "--all", "--timeout=85s", timeout=95)
-    address = json.loads(lab.kubectl("get", "pod", SERVER, "-o", "json").stdout)["status"]["podIP"]
-    before = {name: probe(lab, name, address) for name in (APPROVED, OTHER)}
-    visible = all(value == "public-marker" for results in before.values() for value in results.values())
-    lab.check("red", "Both owned identity classes reach both fixture paths and the second port at baseline",
-              visible, {"both_clients_reach_baseline": visible})
+    server = json.loads(lab.kubectl("get", "pod", SERVER, "-o", "json").stdout)
+    address = str(IPv4Address(server["status"]["podIP"]))
+    agents = json.loads(lab.kubectl("-n", "kube-system", "get", "pods",
+                                    "-l", "k8s-app=cilium", "-o", "json").stdout)["items"]
+    versions = {pod["spec"]["nodeName"]: {c["name"]: c["imageID"]
+                for c in pod["status"]["containerStatuses"]} for pod in agents}
+    node_rows = json.loads(lab.kubectl("get", "nodes", "-o", "json").stdout)["items"]
+    kernels = {node["metadata"]["name"]: node["status"]["nodeInfo"]["kernelVersion"] for node in node_rows}
 
-    lab.create({"apiVersion": "cilium.io/v2", "kind": "CiliumNetworkPolicy",
-                "metadata": {"name": "owned-cilium-ingress"},
-                "spec": {"endpointSelector": {"matchLabels": {LABEL: "server"}}, "ingress": [{
-                    "fromEndpoints": [{"matchLabels": {LABEL: "allowed"}}],
-                    "toPorts": [{"ports": [{"port": str(PORT), "protocol": "TCP"}],
-                                 "rules": {"http": [{"method": "GET", "path": "^/approved$"}]}}],
-                }]}})
-    target = {"approved": "public-marker", "other-path": 403, "other-port": "no-connection"}
-    other = {"approved": "no-connection", "other-path": "no-connection", "other-port": "no-connection"}
-    deadline = time.monotonic() + 40
-    after = {}
-    while time.monotonic() < deadline:
-        after = {name: probe(lab, name, address) for name in (APPROVED, OTHER)}
-        if after == {APPROVED: target, OTHER: other}:
-            break
-        time.sleep(0.5)
-    observed = after == {APPROVED: target, OTHER: other}
-    lab.check("green", "Cilium differentiates source identity, transport port and HTTP path on new connections",
-              observed, after)
-    endpoint_rows = json.loads(lab.kubectl("get", "ciliumendpoints", "-o", "json").stdout)["items"]
-    identities = {row["metadata"]["name"]: row.get("status", {}).get("identity", {}).get("id", 0) for row in endpoint_rows}
-    attributable = all(identities.get(name, 0) > 1 for name in (SERVER, APPROVED, OTHER)) and identities[APPROVED] != identities[OTHER]
-    permitted = probe(lab, APPROVED, address)["approved"] == "public-marker"
-    lab.check("positive", "Cilium assigns distinct policy identities and keeps the selected path available",
-              attributable and permitted, {"attributable_cilium_endpoints": attributable, "allowed_path_remains": permitted})
-    (lab.evidence / "cilium-policy-observations.json").write_text(json.dumps({
-        "cilium": CILIUM, "chart_sha256": CHART_SHA, "policy_fixture": "owned-cilium-ingress",
-        "baseline": before, "observed": after, "endpoint_identities": identities,
-        "scope": "owned same-node Pod traffic", "production_performance_tested": False,
-    }, indent=2) + "\n")
+    allowed = dict.fromkeys(("approved", "other-path", "other-port"), "public-marker")
+    absent = {APPROVED: allowed, OTHER: allowed}
+    expected_egress = {APPROVED: {**allowed, "other-port": "no-connection"}, OTHER: allowed}
+    expected_combined = {APPROVED: {"approved": "public-marker", "other-path": 403, "other-port": "no-connection"},
+                         OTHER: dict.fromkeys(allowed, "no-connection")}
+    baseline, baseline_seconds = matrix(lab, address, absent)
+    lab.check("red", "Both owned cross-node clients reach the two routes and both ports before policy",
+              baseline == absent, baseline)
+
+    ports = [{"port": str(PORT), "protocol": "TCP"}]
+    egress = apply_policy(lab, "owned-l4-egress", "allowed", "egress",
+                          {"toEndpoints": [{"matchLabels": {LABEL: "server"}}], "toPorts": [{"ports": ports}]})
+    l4, l4_seconds = matrix(lab, address, expected_egress)
+    endpoints = endpoint_rows(lab)
+    l4_rows = map_rows(lab, agents, client_node, endpoints[APPROVED])
+    egress_mapped = mapped(l4_rows, "Egress", endpoints[SERVER]["identity"]["id"], proxy=False)
+    lab.check("green", "The sender's kernel policy map allows the server identity on the selected TCP port",
+              l4 == expected_egress and egress_mapped, {"receipts": l4, "l4_map_match": egress_mapped})
+
+    ingress = apply_policy(lab, "owned-http-ingress", "server", "ingress",
+                           {"fromEndpoints": [{"matchLabels": {LABEL: "allowed"}}],
+                            "toPorts": [{"ports": ports, "rules": {"http": [
+                                {"method": "GET", "path": "^/approved$"}]}}]})
+    combined, combined_seconds = matrix(lab, address, expected_combined)
+    endpoints = endpoint_rows(lab)
+    receiver_rows = map_rows(lab, agents, server_node, endpoints[SERVER])
+    redirect = mapped(receiver_rows, "Ingress", endpoints[APPROVED]["identity"]["id"], proxy=True)
+    distinct = endpoints[APPROVED]["identity"]["id"] != endpoints[OTHER]["identity"]["id"]
+    lab.check("green", "The receiver has an approved-identity proxy redirect and Envoy denies the extra route",
+              combined == expected_combined and redirect and distinct,
+              {"receipts": combined, "l7_redirect": redirect, "distinct_source_identities": distinct})
+
+    lab.kubectl("delete", "ciliumnetworkpolicy", "owned-http-ingress")
+    restored_l4, ingress_removed_seconds = matrix(lab, address, expected_egress)
+    lab.check("positive", "Removing HTTP ingress restores the route and second client while egress still restricts the port",
+              restored_l4 == expected_egress, restored_l4)
+    lab.kubectl("delete", "ciliumnetworkpolicy", "owned-l4-egress")
+    restored, egress_removed_seconds = matrix(lab, address, absent)
+    lab.check("positive", "Removing egress restores the second port and both source paths", restored == absent, restored)
+
+    evidence = {
+        "cilium": CILIUM, "chart_sha256": CHART_SHA,
+        "profile": {"agent_images": versions, "kernels": kernels, "sender": client_node, "receiver": server_node,
+                    "server_pod_ip": address, "policy_path": "cross-node IPv4 TCP", "l7": "node-local Envoy"},
+        "endpoint_identities": {name: entry["identity"]["id"] for name, entry in endpoints.items()},
+        "effective_policies": {"egress": egress, "ingress": ingress},
+        "attributable_policy_maps": {"sender_l4": l4_rows, "receiver_l7": receiver_rows},
+        "baseline": baseline, "egress": l4, "combined": combined, "ingress_removed": restored_l4, "restored": restored,
+        "seconds_to_observe": {"baseline": baseline_seconds, "l4": l4_seconds, "both": combined_seconds,
+                               "remove_ingress": ingress_removed_seconds, "remove_egress": egress_removed_seconds},
+    }
+    (lab.evidence / "cilium-policy-observations.json").write_text(json.dumps(evidence, indent=2) + "\n")

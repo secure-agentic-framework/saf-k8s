@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0205-004",
-  "catalog_revision": "413708b276fb97a2367069be3e9a5dc2e451cdc9",
-  "catalog_sha256": "73c30d7c762cf9c303d8a0112bb11660eb3a3b6dea69bfe1c60c4486b8dfcd21",
+  "catalog_revision": "35e37657bc469b8ad160e848b2c75c50b4ef69aa",
+  "catalog_sha256": "1800d0d437803bd52be758900aa9e3361e1647299539dc3557ac7cd2d726f478",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "0f31eb9f7f1702839174c422ebfa3b482d613fe0558f429f8f5972d2587627f6",
-  "scope": "A single-node Kind cluster with pinned Cilium tests owned same-node identity, L4 port, and L7 HTTP policy.",
-  "cluster": "saf-lab-95518d35607e",
+  "scope": "Pinned Cilium ingress, egress, TCP and Envoy HTTP policy for owned IPv4 endpoints on separate Kind nodes.",
+  "cluster": "saf-lab-2808c42e4d4c",
   "kind_ready_wait": "0s",
   "kubernetes": {
     "clientVersion": {
@@ -41,36 +41,94 @@
   "checks": [
     {
       "phase": "red",
-      "claim": "Both owned identity classes reach both fixture paths and the second port at baseline",
-      "matched": true,
-      "observed": {
-        "both_clients_reach_baseline": true
-      }
-    },
-    {
-      "phase": "green",
-      "claim": "Cilium differentiates source identity, transport port and HTTP path on new connections",
+      "claim": "Both owned cross-node clients reach the two routes and both ports before policy",
       "matched": true,
       "observed": {
         "fixture-cilium-approved": {
           "approved": "public-marker",
-          "other-path": 403,
+          "other-path": "public-marker",
+          "other-port": "public-marker"
+        },
+        "fixture-cilium-other": {
+          "approved": "public-marker",
+          "other-path": "public-marker",
+          "other-port": "public-marker"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The sender's kernel policy map allows the server identity on the selected TCP port",
+      "matched": true,
+      "observed": {
+        "receipts": {
+          "fixture-cilium-approved": {
+            "approved": "public-marker",
+            "other-path": "public-marker",
+            "other-port": "no-connection"
+          },
+          "fixture-cilium-other": {
+            "approved": "public-marker",
+            "other-path": "public-marker",
+            "other-port": "public-marker"
+          }
+        },
+        "l4_map_match": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The receiver has an approved-identity proxy redirect and Envoy denies the extra route",
+      "matched": true,
+      "observed": {
+        "receipts": {
+          "fixture-cilium-approved": {
+            "approved": "public-marker",
+            "other-path": 403,
+            "other-port": "no-connection"
+          },
+          "fixture-cilium-other": {
+            "approved": "no-connection",
+            "other-path": "no-connection",
+            "other-port": "no-connection"
+          }
+        },
+        "l7_redirect": true,
+        "distinct_source_identities": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Removing HTTP ingress restores the route and second client while egress still restricts the port",
+      "matched": true,
+      "observed": {
+        "fixture-cilium-approved": {
+          "approved": "public-marker",
+          "other-path": "public-marker",
           "other-port": "no-connection"
         },
         "fixture-cilium-other": {
-          "approved": "no-connection",
-          "other-path": "no-connection",
-          "other-port": "no-connection"
+          "approved": "public-marker",
+          "other-path": "public-marker",
+          "other-port": "public-marker"
         }
       }
     },
     {
       "phase": "positive",
-      "claim": "Cilium assigns distinct policy identities and keeps the selected path available",
+      "claim": "Removing egress restores the second port and both source paths",
       "matched": true,
       "observed": {
-        "attributable_cilium_endpoints": true,
-        "allowed_path_remains": true
+        "fixture-cilium-approved": {
+          "approved": "public-marker",
+          "other-path": "public-marker",
+          "other-port": "public-marker"
+        },
+        "fixture-cilium-other": {
+          "approved": "public-marker",
+          "other-path": "public-marker",
+          "other-port": "public-marker"
+        }
       }
     }
   ]
