@@ -2700,6 +2700,12 @@
       "sha256": "80d1c788b0fe97edf34d52c35bb31d0adf7fc74f9fcb4f674615a542eee21f5f",
       "title": "Durable ML-BOM attachment to model artifacts and versions"
     },
+    "SAF-K8S-0905-045": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "d7744b79a02f9e4eb89a31c789f908c9caf212dbea2c71a91108e6898827e352",
+      "title": "Sandboxed external model behavioral vetting and disposition review"
+    },
     "SAF-K8S-0905-046": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3542,7 +3548,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "d0f7b6ade526a0a75117a985f8b9c25c9c713026",
+  "revision": "4e619ac98333931e3b2da8d26e146bb94ff381ba",
   "sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
