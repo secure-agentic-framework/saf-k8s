@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0304-006",
-  "catalog_revision": "ef66065cad9ae377d67f158e821d3a0ac2e41e59",
-  "catalog_sha256": "374fb0c8d76fcd4c6927b5b92577f3e820a08e5a4291a7f27dd0ed4ddf266b58",
+  "catalog_revision": "c7da4d5521f48625630e66528c96d2d0ce757a5f",
+  "catalog_sha256": "3d20eb828ba605fb41eb18c432be9730d7a48eff25b4efc3b8066588b4b464fa",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "8d23c66354e8745d150c15ad4e5c8cd2b8659cd37557effd5a1f599c1657241d",
-  "scope": "Server-side dry-run admission of one synthetic hostPath Pod under an unlabeled namespace and the same namespace enforcing Kubernetes v1.36 Pod Security Admission Baseline, plus a permitted emptyDir Pod dry-run. No Pod is persisted or run. No host path is created, mounted, or read. Does not test production-wide namespace coverage, admission configuration, policy-engine exceptions, exception-register governance, or audit delivery.",
-  "cluster": "saf-lab-eac3afb6e3da",
+  "control_sha256": "debbad8ecdaff9e4d6b4438fe2052546351e8b274660d6310784fd025af06fb6",
+  "scope": "Server-side dry-run admission of one synthetic hostPath Pod under an unlabeled namespace and the same namespace enforcing Kubernetes v1.36 Pod Security Admission Baseline, plus a permitted emptyDir Pod dry-run. No Pod is persisted or run. No host path is created, mounted, or read. Does not test production-wide namespace coverage, admission configuration, a real infrastructure exception, policy-engine deployment, exception-register governance, or audit delivery. The supplemental case-owned ValidatingAdmissionPolicy checks one synthetic approval record and request shape; it does not establish production exception outcomes. PSA audit labels are set, but API audit events are not collected or checked.",
+  "cluster": "saf-lab-a5be59e66afb",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -64,10 +64,60 @@
     },
     {
       "phase": "positive",
-      "claim": "The admission probes leave no Pods in the fixture namespace",
+      "claim": "Case-approved identity and exact read-only hostPath request are admitted by server dry-run",
       "matched": true,
       "observed": {
-        "persisted_pods": 0
+        "kind": "Pod",
+        "name": "saf-hostpath-approved-collector"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Missing case approval is denied with the native admission reason",
+      "matched": true,
+      "observed": {
+        "native_parameter_missing_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Mismatched approval path is denied with the native admission reason",
+      "matched": true,
+      "observed": {
+        "native_policy_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A writable mount is denied even for the approved collector identity",
+      "matched": true,
+      "observed": {
+        "denied_by_scoped_policy": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An RBAC-authorized but unapproved request identity is denied by native admission",
+      "matched": true,
+      "observed": {
+        "native_policy_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An unrelated workload name is denied by native admission",
+      "matched": true,
+      "observed": {
+        "native_policy_denial": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "All admission probes leave no Pods in either fixture namespace",
+      "matched": true,
+      "observed": {
+        "policy_namespace_pods": 0,
+        "exception_namespace_pods": 0
       }
     }
   ]
