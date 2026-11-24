@@ -1,6 +1,8 @@
 """Exercise bounded emergency node maintenance and workload recovery checks."""
 
 import json
+from pathlib import Path
+from runpy import run_path
 import time
 
 SCOPE = "Live cordon, PDB-protected drain, capacity addition, rescheduling, and worker restoration in an owned Kind cluster."
@@ -149,3 +151,7 @@ def run(lab):
         "abort_on_pdb_denial": blocked, "capacity_added_before_drain": approved.returncode == 0,
         "worker_returned": admitted, "service_ready": maintained, "software_patch_installed": False,
     }, indent=2) + "\n")
+
+    lab.kubectl("delete", "pod", "fixture-return-probe", "--wait=true", "--timeout=30s", timeout=38)
+    companion = run_path(str(Path(__file__).parent / "approved-patch.py"))
+    companion["run"](lab)

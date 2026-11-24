@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0104-007",
-  "catalog_revision": "15ba755e83c52a5e9a87676378c71f383486a742",
-  "catalog_sha256": "eca7a80a7f293c7de636ebe70a81280274ec0ef5c8b854631a3dfd2cc3762776",
+  "catalog_revision": "e79d7c0b5529cd365ddedba75e6882bbb2e19f29",
+  "catalog_sha256": "5703a4ff6c86b37a5ebbd412a7e4e9439b728b08de81604b2e50431fe562fca6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6f0e11eb35d2966cbfe2d104f435616cc158808e22dcc0b509e60eaa9c2c2d15",
   "scope": "Live cordon, PDB-protected drain, capacity addition, rescheduling, and worker restoration in an owned Kind cluster.",
-  "cluster": "saf-lab-65b93c093731",
+  "cluster": "saf-lab-2edf0f51dced",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -63,6 +63,112 @@
       "observed": {
         "worker_return_verified": true,
         "rescheduled_service_verified": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Pending emergency patch and executor self-approval cannot authorize activation",
+      "matched": true,
+      "observed": {
+        "pending_blocked": true,
+        "executor_patch_denied_by_rbac": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The authorized role approves only the exact patch and original ticket",
+      "matched": true,
+      "observed": {
+        "record_approved_by_authorized_fixture_role": true,
+        "different_artifact_denied": true,
+        "same_ticket": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The baseline routes an HTTP request to the healthy synthetic Service",
+      "matched": true,
+      "observed": {
+        "dns_routed_http_body_matches": true,
+        "deployment_and_service_identity_preserved": true,
+        "both_expected_backends_are_ready": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native kubeadm dry-run preserves the baseline server and node versions",
+      "matched": true,
+      "observed": {
+        "version_and_ready_baseline_preserved": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native control-plane upgrade precedes the worker transition",
+      "matched": true,
+      "observed": {
+        "api_server_at_exact_target": true,
+        "worker_stayed_on_baseline_until_its_turn": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Upgraded kubelets and native add-ons serve the same workload through real DNS and HTTP",
+      "matched": true,
+      "observed": {
+        "both_upgraded_nodes_are_ready": true,
+        "both_original_node_uids_preserved": true,
+        "static_control_plane_target_images_ready": true,
+        "baseline_kindnet_image_still_ready_on_both_nodes": true,
+        "kube_proxy_target_image_ready_on_each_node": true,
+        "coredns_expected_image_and_rollout_available": true,
+        "dns_routed_http_body_matches": true,
+        "deployment_and_service_identity_preserved": true,
+        "both_expected_backends_are_ready": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The injected post-upgrade state loss is visible through the target API",
+      "matched": true,
+      "observed": {
+        "fixture_state_loss_observed": true,
+        "snapshot_native_status_valid": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Verified post-upgrade etcd restore recovers the original API state on the target version",
+      "matched": true,
+      "observed": {
+        "restored_exact_uid_and_data": true,
+        "control_plane_became_ready": true,
+        "target_server_version_preserved": true,
+        "recovery_revision_bumped": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Recovered infrastructure still runs the upgraded add-ons and original workload",
+      "matched": true,
+      "observed": {
+        "both_node_versions_and_identities_preserved": true,
+        "static_control_plane_target_images_ready": true,
+        "baseline_kindnet_image_still_ready_on_both_nodes": true,
+        "kube_proxy_target_image_ready_on_each_node": true,
+        "coredns_expected_image_and_rollout_available": true,
+        "dns_routed_http_body_matches": true,
+        "deployment_and_service_identity_preserved": true,
+        "both_expected_backends_are_ready": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The original approval and release match the verified patch and recovery evidence",
+      "matched": true,
+      "observed": {
+        "same_scoped_approval": true,
+        "target_and_workload_recovery_evidence_matched": true
       }
     }
   ]
