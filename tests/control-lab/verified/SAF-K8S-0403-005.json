@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0403-005",
-  "catalog_revision": "32e7acd3741bfcb96a1e89edc61274c181afb173",
-  "catalog_sha256": "b20ca75f54b83e09118278fd5e031b850dc5a8f07c9034344f2449fdc398fa43",
+  "catalog_revision": "51560ff20cf3b26e4bf5f0b97e66ae0e015e4a41",
+  "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "5bceccd60b9178d97b15c75e0b0ab8874bd0fe7e9ce0a6665c6e8868efa96e41",
-  "scope": "AI deployment manifest diff subcase. A case-owned Kubernetes Secret object contains only two public synthetic marker strings. kubectl v1.36.1 is exercised against a disposable kind cluster; ordinary diff output keeps the data masked. No raw values or diff content are retained.",
-  "cluster": "saf-lab-34f66a3aec07",
+  "scope": "Disposable Kind v1.36.1 fixture. Preserves the published kubectl Secret diff observations, then runs one bounded Kubernetes Job twice with public synthetic input: once with output filtering disabled and once with a structured field redaction policy. It treats the sample as untrusted output data and validates the fixture flag against a closed set. The Job writes separate artifact, checkpoint, and pipeline metadata JSON records to a PVC and prints a training-log JSON record. Output values are inspected only in memory and are never written to lab evidence or command logs. An independent read-only Pod observes records after the Jobs complete. An invalid policy Job stops before creating sinks. Deployed products and binary artifact formats need separate evidence.",
+  "cluster": "saf-lab-34fab51e401f",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -97,6 +97,47 @@
       "matched": true,
       "observed": {
         "same_revision": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The disabled-mode Job exposes the same public marker in its actual log and each persisted structured sink",
+      "matched": true,
+      "observed": {
+        "job_log_marker_present": true,
+        "artifact_marker_present": true,
+        "checkpoint_marker_present": true,
+        "pipeline_metadata_marker_present": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The explicit structured output policy redacts the marker while retaining useful non-sensitive fields",
+      "matched": true,
+      "observed": {
+        "marker_absent_from_job_log": true,
+        "marker_absent_from_persisted_sinks": true,
+        "non_sensitive_fields_preserved": true,
+        "sinks_read_back": 3
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An independent read-only Pod retrieves the three files after both output Jobs complete",
+      "matched": true,
+      "observed": {
+        "both_jobs_completed": true,
+        "claim_bound": true,
+        "persisted_sink_count": 3
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An invalid policy fails before emitting a sample or creating persisted output",
+      "matched": true,
+      "observed": {
+        "invalid_policy_refused": true,
+        "output_directory_absent": true
       }
     }
   ]
