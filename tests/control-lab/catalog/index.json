@@ -2940,6 +2940,12 @@
       "sha256": "b8a756645814925391f7cf2086312ff59645b6c42c4506b42059304e8911eafe",
       "title": "Centralized audit logging for cross-cluster orchestration actions"
     },
+    "SAF-K8S-0910-019": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "8f9599a94337887cfc4ce505b730692c4c58c2dbf5344dde1a22aa9c2cdf102a",
+      "title": "Compromised-cluster federation isolation and re-admission governance"
+    },
     "SAF-K8S-0910-029": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3422,7 +3428,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "85921cce15c13a36d1fe72cc8dead0c695a1fdba",
-  "sha256": "5c6f20b39d2fceb2accad2ac77c05ac5d7694eadd95f8943656aacaea7e45369",
+  "revision": "f9bb7f1099921df58fda8d9c4986095a5fc6b20e",
+  "sha256": "2c64b528d6ce53bc55f7f00c9edd1c6ef7a62b9317cf385dfac62bb74ef83090",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
