@@ -651,7 +651,7 @@
     "SAF-K8S-0302-005": {
       "catalog_status": "draft",
       "domain": "D03",
-      "sha256": "d3cec1b14f9295c4b2f6bed91dc29e619d5de48e8e618838f884ff57523d1713",
+      "sha256": "e17fdcaf9ec88c429628e4e251393121fd85a277f953aeef58a031d5647cee91",
       "title": "AI workload security context hardening profiles"
     },
     "SAF-K8S-0302-006": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "47c4104129fc4cbc2d07652ecd985706d7eb9a7c",
-  "sha256": "fe2262d805c711808a5730d74fe291d672b051d84f30a16d93bf7f1f33a937b2",
+  "revision": "b879a7e8d6095b5e8b6d223ca2b09f58bc3c8f2c",
+  "sha256": "0ba4efa0a043bb90d2fd99a8a701e408483a8527539b76d642818f64953ab900",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -69,8 +69,10 @@ SCOPE = (
     "RuntimeDefault; green runs as UID 65534 with readOnlyRootFilesystem, dropped "
     "capabilities, no privilege escalation, and a case-owned Localhost seccomp profile "
     "that returns EPERM only for uname. The fixture confirms getpid and an emptyDir scratch "
-    "write remain permitted. The admission counterfactual distinguishes Restricted PSA and exact regular-container policy. GPU ioctl, shared GPU memory, RDMA verbs, hardware integration, "
-    "production profile discovery, and provider/runtime variants are not exercised."
+    "write remain permitted. Server-dry-run admission samples cover the exact profile and "
+    "read-only-root guard for regular/init containers on Pod CREATE and ephemeral containers "
+    "on pods/ephemeralcontainers UPDATE. GPU ioctl, shared GPU memory, RDMA verbs, hardware "
+    "integration, production profile discovery, and provider/runtime variants are not exercised."
 )
 
 
@@ -122,6 +124,43 @@ def workload(name, *, hardened, uname_nr, getpid_nr):
                               if key not in ("containers", "restartPolicy")})
     obj["metadata"]["namespace"] = "saf-test"
     return obj
+
+
+def _admission_probe(lab, scenario, result, *, denied):
+    accepted = result.returncode == 0
+    marker = "the fixture requires its exact profile and a read-only root filesystem"
+    policy_denial = marker in result.stderr
+    correct = (not accepted and policy_denial) if denied else accepted
+    lab.check(
+        "green" if denied else "positive",
+        f"{scenario} is {'denied by' if denied else 'accepted by'} the workload policy",
+        correct,
+        {
+            "admission_outcome": "accepted" if accepted else "denied",
+            "expected_policy_denial": denied,
+            "policy_denial_marker": policy_denial,
+        },
+    )
+    return {
+        "scenario": scenario,
+        "expected": "denied" if denied else "accepted",
+        "observed": "accepted" if accepted else "denied",
+        "policy_denial_marker": policy_denial,
+    }
+
+
+def _server_dry_run_create(lab, obj):
+    return lab.create(obj, dry_run=True, allow_failure=True)
+
+
+def _server_dry_run_ephemeral(lab, pod_name, container):
+    patch = {"spec": {"ephemeralContainers": [container]}}
+    return lab.kubectl(
+        "patch", f"pod/{pod_name}", "-n", "saf-test",
+        "--subresource=ephemeralcontainers", "--type=merge",
+        "--dry-run=server", "-p", json.dumps(patch), "-o", "name",
+        allow_failure=True,
+    )
 
 
 def install_profile(lab, node, architecture):
@@ -180,6 +219,48 @@ def run(lab):
     lab.check("green", "Workload-specific admission rejects the exact weaker configuration",
               deny, {"expected_workload_policy_denial": deny})
 
+    # Admission-only samples use server dry-run. The normal container is
+    # compliant in each sample so the mutation isolates the init/ephemeral
+    # container path under test.
+    admission_observations = []
+    compliant = workload("ai-cpu-admission-positive", hardened=True,
+                         uname_nr=uname_nr, getpid_nr=getpid_nr)
+    admission_observations.append(_admission_probe(
+        lab, "compliant regular container", _server_dry_run_create(lab, compliant), denied=False
+    ))
+
+    init_compliant = workload("ai-cpu-init-positive", hardened=True,
+                              uname_nr=uname_nr, getpid_nr=getpid_nr)
+    init_app = dict(init_compliant["spec"]["containers"][0])
+    init_app["name"] = "cpu-init-fixture"
+    init_compliant["spec"]["initContainers"] = [init_app]
+    admission_observations.append(_admission_probe(
+        lab, "compliant init container", _server_dry_run_create(lab, init_compliant), denied=False
+    ))
+
+    init_weaker = workload("ai-cpu-init-negative", hardened=True,
+                           uname_nr=uname_nr, getpid_nr=getpid_nr)
+    init_app = dict(init_weaker["spec"]["containers"][0])
+    init_app["name"] = "cpu-init-fixture"
+    init_app["securityContext"] = dict(init_app["securityContext"])
+    init_app["securityContext"]["readOnlyRootFilesystem"] = False
+    init_weaker["spec"]["initContainers"] = [init_app]
+    admission_observations.append(_admission_probe(
+        lab, "init container with writable root filesystem",
+        _server_dry_run_create(lab, init_weaker), denied=True,
+    ))
+    init_wrong_profile = workload("ai-cpu-init-wrong-profile", hardened=True,
+                                  uname_nr=uname_nr, getpid_nr=getpid_nr)
+    init_app = dict(init_wrong_profile["spec"]["containers"][0])
+    init_app["name"] = "cpu-init-fixture"
+    init_app["securityContext"] = dict(init_app["securityContext"])
+    init_app["securityContext"]["seccompProfile"] = {"type": "RuntimeDefault"}
+    init_wrong_profile["spec"]["initContainers"] = [init_app]
+    admission_observations.append(_admission_probe(
+        lab, "init container with a non-exact seccomp profile",
+        _server_dry_run_create(lab, init_wrong_profile), denied=True,
+    ))
+
     green_pod = workload("ai-cpu-green", hardened=True,
                          uname_nr=uname_nr, getpid_nr=getpid_nr)
     lab.create(green_pod)
@@ -193,3 +274,48 @@ def run(lab):
               "getpid=allowed" in green and "scratch_write=ok" in green,
               {"getpid": "allowed" if "getpid=allowed" in green else "not observed",
                "scratch_write": "ok" if "scratch_write=ok" in green else "not observed"})
+
+    # The pod is an already-created, case-owned compliant target; both
+    # ephemeral-container requests are server dry-runs and leave it unchanged.
+    ephemeral_base = {
+        "name": "cpu-ephemeral-fixture",
+        "image": IMAGE,
+        "imagePullPolicy": "IfNotPresent",
+        "securityContext": dict(green_pod["spec"]["containers"][0]["securityContext"]),
+        "targetContainerName": "cpu-fixture",
+    }
+    admission_observations.append(_admission_probe(
+        lab, "compliant ephemeral container",
+        _server_dry_run_ephemeral(lab, "ai-cpu-green", ephemeral_base), denied=False,
+    ))
+    ephemeral_weaker = dict(ephemeral_base)
+    ephemeral_weaker["securityContext"] = dict(ephemeral_base["securityContext"])
+    ephemeral_weaker["securityContext"]["readOnlyRootFilesystem"] = False
+    admission_observations.append(_admission_probe(
+        lab, "ephemeral container with writable root filesystem",
+        _server_dry_run_ephemeral(lab, "ai-cpu-green", ephemeral_weaker), denied=True,
+    ))
+    ephemeral_wrong_profile = dict(ephemeral_base)
+    ephemeral_wrong_profile["securityContext"] = dict(ephemeral_base["securityContext"])
+    ephemeral_wrong_profile["securityContext"]["seccompProfile"] = {"type": "RuntimeDefault"}
+    admission_observations.append(_admission_probe(
+        lab, "ephemeral container with a non-exact seccomp profile",
+        _server_dry_run_ephemeral(lab, "ai-cpu-green", ephemeral_wrong_profile), denied=True,
+    ))
+
+    # Retain normalized observations only: no cluster/node names, timestamps,
+    # raw API errors, or other run-specific strings enter the evidence file.
+    (lab.evidence / "cpu-profile-admission-observations.json").write_text(
+        json.dumps({
+            "schema": "saf-k8s-0302-005/admission-observations-v1",
+            "admission_baseline": {
+                "restricted_psa_admitted_weaker_request": allowed.returncode == 0,
+                "workload_policy_denied_weaker_request": deny,
+            },
+            "runtime": {
+                "baseline": red,
+                "confined": green,
+            },
+            "server_dry_run": admission_observations,
+        }, indent=2, sort_keys=True) + "\n"
+    )

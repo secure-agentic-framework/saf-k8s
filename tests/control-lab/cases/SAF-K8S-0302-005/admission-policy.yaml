@@ -10,6 +10,10 @@ spec:
         apiVersions: ["v1"]
         operations: ["CREATE"]
         resources: ["pods"]
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["UPDATE"]
+        resources: ["pods/ephemeralcontainers"]
   validations:
     - expression: >-
         object.spec.containers.all(c,
@@ -19,7 +23,23 @@ spec:
           has(c.securityContext.seccompProfile) &&
           c.securityContext.seccompProfile.type == 'Localhost' &&
           has(c.securityContext.seccompProfile.localhostProfile) &&
-          c.securityContext.seccompProfile.localhostProfile == 'saf-k8s-0302-005/ai-cpu-deny-uname.json')
+          c.securityContext.seccompProfile.localhostProfile == 'saf-k8s-0302-005/ai-cpu-deny-uname.json') &&
+        (!has(object.spec.initContainers) || object.spec.initContainers.all(c,
+          has(c.securityContext) &&
+          has(c.securityContext.readOnlyRootFilesystem) &&
+          c.securityContext.readOnlyRootFilesystem &&
+          has(c.securityContext.seccompProfile) &&
+          c.securityContext.seccompProfile.type == 'Localhost' &&
+          has(c.securityContext.seccompProfile.localhostProfile) &&
+          c.securityContext.seccompProfile.localhostProfile == 'saf-k8s-0302-005/ai-cpu-deny-uname.json')) &&
+        (!has(object.spec.ephemeralContainers) || object.spec.ephemeralContainers.all(c,
+          has(c.securityContext) &&
+          has(c.securityContext.readOnlyRootFilesystem) &&
+          c.securityContext.readOnlyRootFilesystem &&
+          has(c.securityContext.seccompProfile) &&
+          c.securityContext.seccompProfile.type == 'Localhost' &&
+          has(c.securityContext.seccompProfile.localhostProfile) &&
+          c.securityContext.seccompProfile.localhostProfile == 'saf-k8s-0302-005/ai-cpu-deny-uname.json'))
       message: "the fixture requires its exact profile and a read-only root filesystem"
       reason: Forbidden
 ---

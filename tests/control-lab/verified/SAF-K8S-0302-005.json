@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0302-005",
-  "catalog_revision": "d34b502ac96accb45a26841dfa77094dc4a72d9e",
-  "catalog_sha256": "c3bdef2bfc0aae712ee2fcb1bfd47cebfcedc7415526acfb36b86be77042a93f",
+  "catalog_revision": "090a2f01c00094bb0c7ddaaa29ea27b2687f33a9",
+  "catalog_sha256": "0ba4efa0a043bb90d2fd99a8a701e408483a8527539b76d642818f64953ab900",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "d3cec1b14f9295c4b2f6bed91dc29e619d5de48e8e618838f884ff57523d1713",
-  "scope": "One synthetic CPU-only Python workload on the lab's pinned Kubernetes v1.36.1 kind node/containerd: red baseline runs as root with a writable root filesystem and RuntimeDefault; green runs as UID 65534 with readOnlyRootFilesystem, dropped capabilities, no privilege escalation, and a case-owned Localhost seccomp profile that returns EPERM only for uname. The fixture confirms getpid and an emptyDir scratch write remain permitted. The admission counterfactual distinguishes Restricted PSA and exact regular-container policy. GPU ioctl, shared GPU memory, RDMA verbs, hardware integration, production profile discovery, and provider/runtime variants are not exercised.",
-  "cluster": "saf-lab-d004cced49f4",
+  "control_sha256": "e17fdcaf9ec88c429628e4e251393121fd85a277f953aeef58a031d5647cee91",
+  "scope": "One synthetic CPU-only Python workload on the lab's pinned Kubernetes v1.36.1 kind node/containerd: red baseline runs as root with a writable root filesystem and RuntimeDefault; green runs as UID 65534 with readOnlyRootFilesystem, dropped capabilities, no privilege escalation, and a case-owned Localhost seccomp profile that returns EPERM only for uname. The fixture confirms getpid and an emptyDir scratch write remain permitted. Server-dry-run admission samples cover the exact profile and read-only-root guard for regular/init containers on Pod CREATE and ephemeral containers on pods/ephemeralcontainers UPDATE. GPU ioctl, shared GPU memory, RDMA verbs, hardware integration, production profile discovery, and provider/runtime variants are not exercised.",
+  "cluster": "saf-lab-7d1b45206720",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -61,6 +61,46 @@
       }
     },
     {
+      "phase": "positive",
+      "claim": "compliant regular container is accepted by the workload policy",
+      "matched": true,
+      "observed": {
+        "admission_outcome": "accepted",
+        "expected_policy_denial": false,
+        "policy_denial_marker": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "compliant init container is accepted by the workload policy",
+      "matched": true,
+      "observed": {
+        "admission_outcome": "accepted",
+        "expected_policy_denial": false,
+        "policy_denial_marker": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "init container with writable root filesystem is denied by the workload policy",
+      "matched": true,
+      "observed": {
+        "admission_outcome": "denied",
+        "expected_policy_denial": true,
+        "policy_denial_marker": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "init container with a non-exact seccomp profile is denied by the workload policy",
+      "matched": true,
+      "observed": {
+        "admission_outcome": "denied",
+        "expected_policy_denial": true,
+        "policy_denial_marker": true
+      }
+    },
+    {
       "phase": "green",
       "claim": "Non-root read-only workload receives EPERM for uname only",
       "matched": true,
@@ -73,6 +113,36 @@
       "observed": {
         "getpid": "allowed",
         "scratch_write": "ok"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "compliant ephemeral container is accepted by the workload policy",
+      "matched": true,
+      "observed": {
+        "admission_outcome": "accepted",
+        "expected_policy_denial": false,
+        "policy_denial_marker": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "ephemeral container with writable root filesystem is denied by the workload policy",
+      "matched": true,
+      "observed": {
+        "admission_outcome": "denied",
+        "expected_policy_denial": true,
+        "policy_denial_marker": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "ephemeral container with a non-exact seccomp profile is denied by the workload policy",
+      "matched": true,
+      "observed": {
+        "admission_outcome": "denied",
+        "expected_policy_denial": true,
+        "policy_denial_marker": true
       }
     }
   ]
