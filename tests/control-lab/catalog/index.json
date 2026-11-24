@@ -465,7 +465,7 @@
     "SAF-K8S-0203-002": {
       "catalog_status": "draft",
       "domain": "D02",
-      "sha256": "00f49c361501550fca3fe62fc14619550cf47ea4437c2b66407ba7fe99b3d182",
+      "sha256": "ee5b0b14048e30aa39a5eb3a0029fe170cce156f8b1f94b3d97b806cc2e575fc",
       "title": "Kernel parameter hardening via sysctl"
     },
     "SAF-K8S-0203-004": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "1787278f2219aa3127e0cc22ae66c61dfe5cbe7c",
-  "sha256": "6f7be64da6f0312eb3c3ea120248e888165a8e5fd51ec288dd059220e2211ade",
+  "revision": "f6bf3806f7b03bdab3e59a7b2c30c11955d69ac2",
+  "sha256": "6c62a9ab38837b70dbe3d92571eb93f33722e18e15a26a688854bcfd3cadd6b4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

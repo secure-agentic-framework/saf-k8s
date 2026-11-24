@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0203-002",
-  "catalog_revision": "8499ab6eef453f23e74e24a1ab43555af4bd89f0",
-  "catalog_sha256": "115d55b7443aed0213c5b909968f35b73439c1376fb56857836f63c2b08ce322",
+  "catalog_revision": "5dc5279431ac67286d2ade36d446d15f0d125ade",
+  "catalog_sha256": "6c62a9ab38837b70dbe3d92571eb93f33722e18e15a26a688854bcfd3cadd6b4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "00f49c361501550fca3fe62fc14619550cf47ea4437c2b66407ba7fe99b3d182",
-  "scope": "A mount-free Debian ARM64 guest demonstrates node-style sysctl provisioning and effective values for a small profile. Two actual Kubernetes v1.36.1 Kind Pods independently demonstrate an IPC-namespaced sysctl. The guest and Kind are distinct environments. Production node pools, exemptions, and network response under load remain separate.",
-  "cluster": "saf-lab-c39500d98b8e",
+  "control_sha256": "ee5b0b14048e30aa39a5eb3a0029fe170cce156f8b1f94b3d97b806cc2e575fc",
+  "scope": "A mount-free Debian ARM64 guest demonstrates node-style sysctl provisioning and effective values for a small profile before and after reboot. Read-only forwarding and reverse-path-filter observations record guest scope without prescribing values. Two actual Kubernetes v1.36.1 Kind Pods independently demonstrate an IPC-namespaced sysctl. The guest and Kind are distinct environments. Production role profiles, CNI/RDMA compatibility, and managed-provider attestations remain adopter evidence.",
+  "cluster": "saf-lab-e12adb78d76b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -40,18 +40,18 @@
   "checks": [
     {
       "phase": "red",
-      "claim": "The fixture identifies missing provisioning and distinguishes the stale profile",
+      "claim": "The installed stale profile is detected from exact effective values",
       "matched": true,
       "observed": {
-        "owned_guest_drop_in_absent": true,
+        "installed_profile_sha256": "d20a26c8bfce33bf791cff42e7c6d056e7b7b298546b0f615a6894780d1fa2ba",
         "observed_effective_values": {
           "fs.suid_dumpable": "0",
           "kernel.dmesg_restrict": "1",
-          "kernel.kptr_restrict": "0",
+          "kernel.kptr_restrict": "1",
           "kernel.randomize_va_space": "2",
           "net.ipv4.tcp_syncookies": "1"
         },
-        "stale_profile_differs": true
+        "required_kernel.kptr_restrict": "2"
       }
     },
     {
@@ -70,6 +70,44 @@
         "values_changed_from_baseline": [
           "kernel.kptr_restrict"
         ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The fixture records read-only forwarding and reverse-path-filter scope",
+      "matched": true,
+      "observed": {
+        "guest_network_scope_observed": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Runtime-only drift differs from the unchanged approved persistent profile",
+      "matched": true,
+      "observed": {
+        "runtime_kptr_restrict": "1",
+        "approved_persistent_value": "2"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same guest boots with the approved profile applied by its normal sysctl unit",
+      "matched": true,
+      "observed": {
+        "guest_boot_id_changed": true,
+        "stored_profile_sha256": "1bac777dfa3f5c31c2b9ab23c0f5f4ad06d060912e548d4cfebf719082f404e0",
+        "systemd_sysctl_unit": [
+          "result=success",
+          "exec_main_status=0",
+          "active=yes"
+        ],
+        "effective_values_after_reboot_without_reapplication": {
+          "fs.suid_dumpable": "0",
+          "kernel.dmesg_restrict": "1",
+          "kernel.kptr_restrict": "2",
+          "kernel.randomize_va_space": "2",
+          "net.ipv4.tcp_syncookies": "1"
+        }
       }
     },
     {
