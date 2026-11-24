@@ -1,5 +1,6 @@
 """Exercise PSA seccomp admission and harmless seccomp runtime behavior."""
 import json
+import runpy
 from pathlib import Path
 
 from fixtures import container, pod, ready
@@ -36,7 +37,9 @@ SCOPE = (
     "RuntimeDefault inheritance and explicit per-container RuntimeDefault are "
     "observed on a pinned kind node. A read-only custom Localhost profile denies "
     "only the uname syscall in a benign pinned Python fixture. Other runtimes, "
-    "SPO lifecycle, profile rollout/rotation, and production exceptions are out of scope."
+    "The additional fixture exercises a digest-pinned Security Profiles Operator and actual "
+    "versioned ProfileBinding selection on its owned node. Production syscall minima and exception "
+    "approval, multi-node/managed coverage, and real workload availability require separate evidence."
 )
 
 
@@ -84,7 +87,7 @@ def seccomp_mode(lab, pod_name, container_name):
     return result.stdout.strip()
 
 
-def run(lab):
+def run_baseline(lab):
     version = f"pod-security.kubernetes.io/enforce-version={PSA_VERSION}"
     lab.kubectl("label", "namespace", NAMESPACE,
                 "pod-security.kubernetes.io/enforce=baseline", version,
@@ -232,3 +235,8 @@ def run(lab):
                "runtime_default_output": baseline_output.stdout.strip(),
                "runtime_default_exit": baseline_output.returncode,
                "localhost_logs": local_output.strip()})
+
+
+def run(lab):
+    run_baseline(lab)
+    runpy.run_path(str(HERE / "spo_rollout.py"))["run"](lab)

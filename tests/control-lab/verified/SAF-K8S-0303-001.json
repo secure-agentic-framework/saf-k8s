@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0303-001",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "52e7abb1609f21635c1fe612c208e16e1036d575",
+  "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "44ec63bc8f618058b65b879db5b3e626e8104ca8f0b2fbe373b3e823b8837eb1",
-  "scope": "PSA Restricted seccomp admission for regular, init, and ephemeral containers; Pod-level RuntimeDefault inheritance and explicit per-container RuntimeDefault are observed on a pinned kind node. A read-only custom Localhost profile denies only the uname syscall in a benign pinned Python fixture. Other runtimes, SPO lifecycle, profile rollout/rotation, and production exceptions are out of scope.",
-  "cluster": "saf-lab-bee99ad9402a",
+  "scope": "PSA Restricted seccomp admission for regular, init, and ephemeral containers; Pod-level RuntimeDefault inheritance and explicit per-container RuntimeDefault are observed on a pinned kind node. A read-only custom Localhost profile denies only the uname syscall in a benign pinned Python fixture. Other runtimes, The additional fixture exercises a digest-pinned Security Profiles Operator and actual versioned ProfileBinding selection on its owned node. Production syscall minima and exception approval, multi-node/managed coverage, and real workload availability require separate evidence.",
+  "cluster": "saf-lab-b31fee07aa75",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -131,6 +131,37 @@
         "runtime_default_output": "2\nuname=allowed",
         "runtime_default_exit": 0,
         "localhost_logs": "2\nuname=EPERM"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The same workload outside the binding namespace keeps RuntimeDefault and permits the harmless call",
+      "matched": true,
+      "observed": {
+        "unbound_runtime_default": true,
+        "harmless_call_allowed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The bound v1 profile withholds the system name and still permits ordinary output",
+      "matched": true,
+      "observed": {
+        "operator_reported_installed": true,
+        "v1_bound": true,
+        "uname_output_withheld": true,
+        "ordinary_output_allowed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Updating the namespace binding selects v2 for a new workload while its running predecessor retains v1",
+      "matched": true,
+      "observed": {
+        "operator_reported_installed": true,
+        "old_pod_kept_v1": true,
+        "new_pod_bound_to_v2": true,
+        "new_profile_permitted_call": true
       }
     }
   ]
