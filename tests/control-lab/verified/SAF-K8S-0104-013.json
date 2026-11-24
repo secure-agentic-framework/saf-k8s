@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0104-013",
-  "catalog_revision": "76041739c49fa48a0d2ec1967821b1ef3a6efb95",
-  "catalog_sha256": "18a0e186d4339c31de69672f9f5970344825f669cb52175114becbd3c7465998",
+  "catalog_revision": "0b8636dee16d289b945711d4519851377aae80e0",
+  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "ba06f8e40960ef6f77fce4e4fe94c74dc3ab0b8d60493a93b75fea97bf8d282e",
   "scope": "Actual disposable kubeadm minor upgrade and kubelet replacement with a retained public marker. The separately exercised rollback affects only a fixture Deployment.",
-  "cluster": "saf-lab-9813ea0c7baf",
+  "cluster": "saf-lab-821c4b1a3cbf",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
