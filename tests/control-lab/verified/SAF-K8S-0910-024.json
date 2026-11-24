@@ -1,0 +1,99 @@
+{
+  "control_id": "SAF-K8S-0910-024",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "48c73c000a062baaba5413d510a97dd62a9043ce7d5bf72a15182ed7966bc8d9",
+  "scope": "An inert model-metadata blob and OCI manifest are seeded through the Distribution API in the harness-owned source cluster. The exact SAF-K8S-0910-020 owned_peer manager creates a separately owned peer cluster on the isolated Kind bridge. The same source blob is transferred in a control-off baseline that strips signed provenance and a control-on path that requires source-bound signed in-toto/SLSA lineage. A different peer pod independently reads the destination manifest and blob, compares exact source bytes and digests, and verifies the signature using only approved public-key bytes and the signature bytes returned by the registry.",
+  "cluster": "saf-lab-3054e9ebeda3",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Control-off transfers the model blob while omitting signed provenance",
+      "matched": true,
+      "observed": {
+        "control_off_transfer_allowed": true,
+        "destination_manifest_present_and_self_consistent": true,
+        "same_model_blob_preserved": true,
+        "source_manifest_provenance_omitted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Control-on requires and preserves verifiable source lineage",
+      "matched": true,
+      "observed": {
+        "control_on_transfer_allowed": true,
+        "exact_source_manifest_bytes_preserved": true,
+        "manifest_body_hash_matches_distribution_header": true,
+        "exact_source_blob_preserved": true,
+        "source_lineage_bytes_preserved": true,
+        "readback_signature_cryptographically_valid": true,
+        "lineage_subject_and_policy_bound": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Control-on refuses invalid lineage without destination writes",
+      "matched": true,
+      "observed": {
+        "missing-lineage": {
+          "expected_decision": "lineage-missing",
+          "decision_matches": true,
+          "destination_tag_absent": true
+        },
+        "stale-lineage": {
+          "expected_decision": "lineage-stale",
+          "decision_matches": true,
+          "destination_tag_absent": true
+        },
+        "wrong-subject": {
+          "expected_decision": "subject-mismatch",
+          "decision_matches": true,
+          "destination_tag_absent": true
+        },
+        "wrong-source-digest": {
+          "expected_decision": "source-manifest-digest-mismatch",
+          "decision_matches": true,
+          "destination_tag_absent": true
+        },
+        "invalid-signature": {
+          "expected_decision": "signature-invalid",
+          "decision_matches": true,
+          "destination_tag_absent": true
+        }
+      }
+    }
+  ]
+}
