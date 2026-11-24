@@ -1,0 +1,88 @@
+{
+  "control_id": "SAF-K8S-0910-028",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "bcad8423ef34a66786fb91e18cca7a23013b935d08154850a52b56abef8aa7e7",
+  "scope": "Two independently owned Kubernetes API servers report actual Pod Security Admission and Metadata-level audit events for one harmless dry-run Pod. A protected central report preserves member and event identities, opposite dispositions, audit coverage and the approved fixture exception. An independent reviewer retrieves the combined view.",
+  "cluster": "saf-lab-4570e7b8e0e0",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Member evidence differs while no unified central report exists",
+      "matched": true,
+      "observed": {
+        "members": {
+          "owner-a": {
+            "policy_level": "restricted",
+            "decision": "denied"
+          },
+          "owner-b": {
+            "policy_level": "baseline",
+            "decision": "accepted"
+          }
+        },
+        "central_report_missing": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Unified report preserves owner, result, coverage, and exception provenance",
+      "matched": true,
+      "observed": {
+        "two_distinct_member_identities_preserved": true,
+        "control_results_and_explicit_classifications_match": true,
+        "native_audit_coverage_preserves_exact_events_per_member": true,
+        "report_matches_exact_ingested_records": true,
+        "distinct_audit_event_ids_preserved": true,
+        "owner_specific_approved_exception_preserved": true,
+        "missing_unobserved_and_stale_are_not_pass": true,
+        "reviewer_reads_only_named_report": true,
+        "reviewer_cannot_modify_report": true,
+        "unscoped_identity_cannot_read_report": true,
+        "report_is_immutable_and_bounded": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Independent scoped review retains the member-level posture distinction",
+      "matched": true,
+      "observed": {
+        "independent_reviewer_received_both_members": true,
+        "different_owner_outcomes_remain_distinct": true,
+        "approved_exception_does_not_overwrite_control_failure": true
+      }
+    }
+  ]
+}
