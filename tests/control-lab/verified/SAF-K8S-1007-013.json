@@ -4,8 +4,8 @@
   "catalog_sha256": "b13085fffcc414b504ce34f1a8df0fae3520e701b0adca01e92c2c2add5002cb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9d15cbb9225090df7e20269208d587cbbfca1bf1b61c763224e004efb43e2272",
-  "scope": "Disposable Kind v1.36.1 cluster. Creates a case-owned namespace, a read-only service account Role/RoleBinding for ConfigMap list/watch in that namespace, synthetic ConfigMap records for model, dataset, pipeline, inference endpoint and GPU allocation metadata. Uses the service-account identity for an actual Kubernetes LIST and persistent WATCH, observes create/update/delete events, filters records by a synthetic ownership label, and confirms the identity is denied access to a separate namespace. The same reader lists actual typed Service, Job and PVC API objects; a deterministic fixture clock drives unknown, stale, last-good retention, recovery and relist reconciliation through a separate harness publisher. PVC contents, external registries and actual accelerator ownership are adopter evidence.",
-  "cluster": "saf-lab-ebf8edacd41c",
+  "scope": "Disposable Kind v1.36.1 cluster. Creates a case-owned namespace, a read-only service account Role/RoleBinding for ConfigMap list/watch in that namespace, synthetic ConfigMap records for model, dataset, pipeline, inference endpoint and GPU allocation metadata. Uses the service-account identity for an actual Kubernetes LIST and persistent WATCH, observes create/update/delete events, filters records by a synthetic ownership label, and confirms the identity is denied access to a separate namespace. The same reader lists actual typed Service, Job and PVC API objects; a deterministic fixture clock drives unknown, stale, last-good retention, recovery and relist reconciliation through a narrowly scoped Kubernetes publisher identity. A local Distribution registry supplies one deterministic synthetic OCI model source; actual accelerator ownership and production registry coverage remain adopter evidence.",
+  "cluster": "saf-lab-801f69013d14",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -148,6 +148,69 @@
         "missing_job_removed_and_replacement_added": true,
         "existing_pvc_retained_and_snapshot_reconciled": true,
         "fresh_source_cursors_and_capture_times_recorded": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Local Registry API reads synthetic model revision 1",
+      "matched": true,
+      "observed": {
+        "manifest_digest_is_registry_response_digest": true,
+        "manifest_digest_matches_read_bytes": true,
+        "manifest_revision_read_back": true,
+        "config_revision_read_back": true,
+        "blob_digest_and_bytes_read_back": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Publisher updates the dedicated inventory ConfigMap with registry source evidence",
+      "matched": true,
+      "observed": {
+        "same_dedicated_record_updated": true,
+        "publisher_identity": "system:serviceaccount:saf-1007-013-owned:asset-inventory-publisher"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The inventory reader cannot change the dedicated snapshot",
+      "matched": true,
+      "observed": {
+        "reader_denied_snapshot_patch": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Publisher cannot list input resources or patch another ConfigMap",
+      "matched": true,
+      "observed": {
+        "all_input_lists_denied": true,
+        "publisher_cannot_edit_other_object": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Local Registry API reads synthetic model revision 2",
+      "matched": true,
+      "observed": {
+        "manifest_digest_is_registry_response_digest": true,
+        "manifest_digest_matches_read_bytes": true,
+        "manifest_revision_read_back": true,
+        "config_revision_read_back": true,
+        "blob_digest_and_bytes_read_back": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Registry source revision and manifest digest reconcile through publisher path",
+      "matched": true,
+      "observed": {
+        "source_identity_stable": true,
+        "revision_changed": true,
+        "authoritative_manifest_digest_changed": true,
+        "same_publication_record_reconciled": true,
+        "all_sources_fresh_at_second_capture": true,
+        "both_fixture_writes_are_deterministic": true
       }
     }
   ]

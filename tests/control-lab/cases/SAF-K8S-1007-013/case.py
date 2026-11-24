@@ -16,6 +16,21 @@ NAMESPACE = "saf-1007-013-owned"
 NEIGHBOR_NAMESPACE = "saf-1007-013-neighbor"
 SERVICE_ACCOUNT = "asset-inventory-reader"
 IDENTITY = f"system:serviceaccount:{NAMESPACE}:{SERVICE_ACCOUNT}"
+PUBLISHER_ACCOUNT = "asset-inventory-publisher"
+PUBLISHER_IDENTITY = f"system:serviceaccount:{NAMESPACE}:{PUBLISHER_ACCOUNT}"
+PUBLISHER_ROLE = "asset-inventory-publisher"
+PUBLICATION_RECORD = "typed-asset-inventory"
+SNAPSHOT_READ_RULE = {"apiGroups": [""], "resources": ["configmaps"],
+                      "resourceNames": [PUBLICATION_RECORD], "verbs": ["get"]}
+REGISTRY_NAME = "distribution-registry"
+REGISTRY_IMAGE = (
+    "docker.io/library/registry:3.0.0@"
+    "sha256:6c5666b861f3505b116bb9aa9b25175e71210414bd010d92035ff64018f9457e"
+)
+REGISTRY_CLIENT = "registry-fixture-client"
+REGISTRY_URL = f"http://{REGISTRY_NAME}.{NAMESPACE}.svc.cluster.local:5000"
+REGISTRY_REPOSITORY = "saf-fixtures/synthetic-model"
+REGISTRY_TAG = "fixture"
 SELECTOR = "saf-k8s.example/control-1007-013=synthetic-owned"
 REFERENCE_TIME = datetime(2026, 1, 1, tzinfo=timezone.utc)
 SOURCE_MAX_AGE_SECONDS = 60
@@ -27,8 +42,9 @@ SCOPE = (
     "observes create/update/delete events, filters records by a synthetic ownership label, and confirms "
     "the identity is denied access to a separate namespace. The same reader lists actual typed "
     "Service, Job and PVC API objects; a deterministic fixture clock drives unknown, stale, "
-    "last-good retention, recovery and relist reconciliation through a separate harness publisher. "
-    "PVC contents, external registries and actual accelerator ownership are adopter evidence."
+    "last-good retention, recovery and relist reconciliation through a narrowly scoped Kubernetes "
+    "publisher identity. A local Distribution registry supplies one deterministic synthetic OCI model "
+    "source; actual accelerator ownership and production registry coverage remain adopter evidence."
 )
 
 
@@ -206,7 +222,8 @@ def _publish_snapshot(lab, record, snapshot, create=False):
     if create:
         obj = resource("ConfigMap", record, NAMESPACE, **payload)
         return _create_owned(lab, obj)
-    lab.kubectl("-n", NAMESPACE, "patch", "configmap", record, "--type=merge", "-p",
+    lab.kubectl("--as", PUBLISHER_IDENTITY, "-n", NAMESPACE,
+                "patch", "configmap", record, "--type=merge", "-p",
                 json.dumps(payload))
     return json.loads(lab.kubectl("-n", NAMESPACE, "get", "configmap", record, "-o", "json").stdout)
 
@@ -216,7 +233,7 @@ def _set_owned_job_collection(lab, enabled):
     common = {"apiGroups": [""], "resources": ["configmaps", "services", "persistentvolumeclaims"],
               "verbs": ["list", "watch"]}
     jobs = {"apiGroups": ["batch"], "resources": ["jobs"], "verbs": ["list", "watch"]}
-    rules = [common, jobs] if enabled else [common]
+    rules = [common, SNAPSHOT_READ_RULE, jobs] if enabled else [common, SNAPSHOT_READ_RULE]
     lab.kubectl("-n", NAMESPACE, "patch", "role", "asset-inventory-reader", "--type=merge",
                 "-p", json.dumps({"rules": rules}))
     expected_answer = "yes" if enabled else "no"
@@ -400,6 +417,190 @@ def verify_typed_resync(lab):
               all(observed.values()), observed)
 
 
+def _registry_client_command(lab, *arguments):
+    with (lab.evidence / "commands.log").open("a") as log:
+        log.write("$ kubectl -n " + NAMESPACE + " exec " + REGISTRY_CLIENT
+                  + " -- python /fixture/registry_fixture.py " + REGISTRY_URL + " "
+                  + REGISTRY_REPOSITORY + " " + REGISTRY_TAG + " " + " ".join(arguments) + "\n")
+    return lab.kubectl("-n", NAMESPACE, "exec", REGISTRY_CLIENT, "--", "python", "/fixture/registry_fixture.py",
+                       REGISTRY_URL, REGISTRY_REPOSITORY, REGISTRY_TAG, *arguments)
+
+
+def _registry_observation(lab, revision, reference_time):
+    result = _registry_client_command(lab, "read")
+    readback = json.loads(result.stdout)
+    source_identity = {
+        "source_type": "oci-registry-v2", "registry_service": REGISTRY_URL,
+        "repository": REGISTRY_REPOSITORY, "manifest_reference": REGISTRY_TAG,
+        "api": "GET /v2/<name>/manifests/<reference>",
+    }
+    digest = readback["manifest_digest"]
+    expected_revision = f"SYNTH-REVISION-{revision:03d}"
+    checks = {
+        "manifest_digest_is_registry_response_digest": digest == readback["registry_digest_header"],
+        "manifest_digest_matches_read_bytes": digest == readback["computed_manifest_digest"],
+        "manifest_revision_read_back": readback["revision"] == expected_revision,
+        "config_revision_read_back": readback["config_revision"] == expected_revision,
+        "blob_digest_and_bytes_read_back": bool(readback.get("blob_digest"))
+        and readback.get("blob_revision") == expected_revision
+        and readback.get("config_revision") == expected_revision
+        and readback.get("synthetic_marker") == "SYNTHETIC-OCI-MODEL-METADATA",
+    }
+    lab.check("positive", f"Local Registry API reads synthetic model revision {revision}",
+              all(checks.values()), checks)
+    return {
+        "expected": True, "status": "fresh", "capture_time": _iso_time(reference_time),
+        "cursor": digest, "source_identity": source_identity,
+        "assets": {"synthetic-model": {
+            "artifact_type": "application/vnd.oci.image.manifest.v1+json",
+            "revision": readback["revision"], "manifest_digest": digest,
+            "blob_digest": readback["blob_digest"],
+        }},
+    }, readback
+
+
+def verify_registry_reconciliation(lab):
+    first_write = json.loads(_registry_client_command(lab, "push", "1").stdout)
+    first_time = REFERENCE_TIME + timedelta(seconds=123)
+    first, first_readback = _registry_observation(lab, 1, first_time)
+    record = json.loads(lab.kubectl("-n", NAMESPACE, "get", "configmap", PUBLICATION_RECORD,
+                                    "-o", "json").stdout)
+    previous = json.loads(record["data"]["inventory.json"])
+    sources = set(previous["expected_sources"]) | {"oci_registry"}
+    snapshot = _reconcile(previous, {**_typed_inventory(lab, first_time), "oci_registry": first},
+                          sources, first_time)
+    published = _publish_snapshot(lab, PUBLICATION_RECORD, snapshot)
+    first_persisted = json.loads(published["data"]["inventory.json"])
+    publisher_patch_ok = (
+        published["metadata"]["uid"] == record["metadata"]["uid"]
+        and first_persisted["sources"]["oci_registry"]["assets"]["synthetic-model"]["manifest_digest"]
+        == first_readback["manifest_digest"]
+    )
+    lab.check("positive", "Publisher updates the dedicated inventory ConfigMap with registry source evidence",
+              publisher_patch_ok, {"same_dedicated_record_updated": publisher_patch_ok,
+                                    "publisher_identity": PUBLISHER_IDENTITY})
+
+    read_only_patch = lab.kubectl(
+        "--as", IDENTITY, "-n", NAMESPACE, "patch", "configmap", PUBLICATION_RECORD,
+        "--type=merge", "-p", json.dumps({"data": {"reader_probe": "must-not-apply"}}),
+        "--dry-run=server", allow_failure=True,
+    )
+    reader_patch_denied = (
+        read_only_patch.returncode != 0
+        and "(Forbidden)" in read_only_patch.stderr
+        and "cannot patch" in read_only_patch.stderr
+    )
+    lab.check("red", "The inventory reader cannot change the dedicated snapshot",
+              reader_patch_denied, {"reader_denied_snapshot_patch": reader_patch_denied})
+
+    denied_lists = {}
+    for resource_name in ("configmaps", "services", "persistentvolumeclaims", "jobs"):
+        result = lab.kubectl("--as", PUBLISHER_IDENTITY, "-n", NAMESPACE, "get", resource_name,
+                             "-o", "json", allow_failure=True)
+        text = result.stdout + result.stderr
+        denied_lists[resource_name] = result.returncode != 0 and "forbidden" in text.lower()
+
+    other = lab.kubectl("-n", NAMESPACE, "get", "configmap", "unlabeled-neighbor",
+                        "-o", "json").stdout
+    other_before = json.loads(other)
+    edit_other = lab.kubectl(
+        "--as", PUBLISHER_IDENTITY, "-n", NAMESPACE, "patch", "configmap", "unlabeled-neighbor",
+        "--type=merge", "-p", json.dumps({"data": {"publisher_probe": "must-not-apply"}}),
+        allow_failure=True,
+    )
+    edit_text = edit_other.stdout + edit_other.stderr
+    other_after = json.loads(lab.kubectl("-n", NAMESPACE, "get", "configmap", "unlabeled-neighbor",
+                                        "-o", "json").stdout)
+    denied_other_edit = (edit_other.returncode != 0 and "forbidden" in edit_text.lower()
+                         and other_after.get("data") == other_before.get("data"))
+    save_raw(lab, "publisher-boundary.raw.json", {
+        "identity": PUBLISHER_IDENTITY, "authorized_action": "patch ConfigMap/typed-asset-inventory",
+        "dedicated_record_uid": published["metadata"]["uid"],
+        "list_denials": denied_lists,
+        "different_configmap_patch": {"exit_code": edit_other.returncode,
+                                       "response": edit_text, "object_unchanged": denied_other_edit},
+        "reader_denied_snapshot_patch": reader_patch_denied,
+    })
+    publisher_boundary = all(denied_lists.values()) and denied_other_edit
+    lab.check("red", "Publisher cannot list input resources or patch another ConfigMap",
+              publisher_boundary, {"all_input_lists_denied": all(denied_lists.values()),
+                                  "publisher_cannot_edit_other_object": denied_other_edit})
+
+    second_write = json.loads(_registry_client_command(lab, "push", "2").stdout)
+    second_time = first_time + timedelta(seconds=1)
+    second, second_readback = _registry_observation(lab, 2, second_time)
+    reconciled = _reconcile(
+        first_persisted, {**_typed_inventory(lab, second_time), "oci_registry": second}, sources, second_time,
+    )
+    changed_publication = _publish_snapshot(lab, PUBLICATION_RECORD, reconciled)
+    current = json.loads(changed_publication["data"]["inventory.json"])
+    first_digest = first_persisted["sources"]["oci_registry"]["assets"]["synthetic-model"]["manifest_digest"]
+    second_digest = current["sources"]["oci_registry"]["assets"]["synthetic-model"]["manifest_digest"]
+    change_check = {
+        "source_identity_stable": first_persisted["sources"]["oci_registry"]["source_identity"]
+        == current["sources"]["oci_registry"]["source_identity"],
+        "revision_changed": current["sources"]["oci_registry"]["assets"]["synthetic-model"]["revision"]
+        == "SYNTH-REVISION-002",
+        "authoritative_manifest_digest_changed": first_digest != second_digest
+        and second_digest == second_readback["manifest_digest"],
+        "same_publication_record_reconciled": changed_publication["metadata"]["uid"]
+        == published["metadata"]["uid"],
+        "all_sources_fresh_at_second_capture": all(
+            row["status"] == "fresh" and not row["gap"] and row["capture_time"] == _iso_time(second_time)
+            for row in current["sources"].values()
+        ),
+        "both_fixture_writes_are_deterministic": first_write["manifest_digest"] == first_digest
+        and second_write["manifest_digest"] == second_digest,
+    }
+    save_raw(lab, "registry-source-reconciliation.raw.json", {
+        "source_identity": current["sources"]["oci_registry"]["source_identity"],
+        "initial_push": first_write, "initial_readback": first_readback,
+        "initial_published": first_persisted["sources"]["oci_registry"],
+        "changed_push": second_write, "changed_readback": second_readback,
+        "reconciled_published": current["sources"]["oci_registry"],
+        "checks": change_check,
+    })
+    lab.check("green", "Registry source revision and manifest digest reconcile through publisher path",
+              all(change_check.values()), change_check)
+
+
+def _setup_registry_fixture(lab, image):
+    registry_pod = {
+        "apiVersion": "v1", "kind": "Pod",
+        "metadata": {"name": REGISTRY_NAME, "namespace": NAMESPACE,
+                     "labels": {"app": REGISTRY_NAME}},
+        "spec": {"automountServiceAccountToken": False,
+                 "containers": [{"name": "registry", "image": REGISTRY_IMAGE,
+                                 "imagePullPolicy": "IfNotPresent", "ports": [{"containerPort": 5000}],
+                                 "readinessProbe": {"httpGet": {"path": "/v2/", "port": 5000},
+                                                    "periodSeconds": 1}}]},
+    }
+    service = {"apiVersion": "v1", "kind": "Service",
+               "metadata": {"name": REGISTRY_NAME, "namespace": NAMESPACE},
+               "spec": {"selector": {"app": REGISTRY_NAME},
+                        "ports": [{"name": "registry", "port": 5000, "targetPort": 5000}]}}
+    code = {"apiVersion": "v1", "kind": "ConfigMap",
+            "metadata": {"name": "registry-fixture-code", "namespace": NAMESPACE},
+            "immutable": True,
+            "data": {"registry_fixture.py": (HERE / "fixtures" / "registry_fixture.py").read_text()}}
+    client_pod = {
+        "apiVersion": "v1", "kind": "Pod",
+        "metadata": {"name": REGISTRY_CLIENT, "namespace": NAMESPACE},
+        "spec": {"automountServiceAccountToken": False,
+                 "containers": [{"name": "fixture-client", "image": image,
+                                 "imagePullPolicy": "IfNotPresent", "command": ["sleep", "3600"],
+                                 "volumeMounts": [{"name": "fixture-code", "mountPath": "/fixture",
+                                                   "readOnly": True}]}],
+                 "volumes": [{"name": "fixture-code",
+                              "configMap": {"name": "registry-fixture-code"}}]},
+    }
+    for obj in (registry_pod, service, code, client_pod):
+        lab.kubectl("-n", NAMESPACE, "apply", "-f", "-", payload=json.dumps(obj))
+    for name in (REGISTRY_NAME, REGISTRY_CLIENT):
+        lab.kubectl("-n", NAMESPACE, "wait", "--for=condition=Ready", f"pod/{name}",
+                    "--timeout=90s", timeout=100)
+
+
 def run(lab):
     fixture = read_fixture()
     lab.kubectl("create", "namespace", NAMESPACE)
@@ -414,6 +615,7 @@ def run(lab):
             {"apiGroups": [""], "resources": ["configmaps", "services", "persistentvolumeclaims"],
              "verbs": ["list", "watch"]},
             {"apiGroups": ["batch"], "resources": ["jobs"], "verbs": ["list", "watch"]},
+            SNAPSHOT_READ_RULE,
         ],
     }
     binding = {
@@ -423,8 +625,25 @@ def run(lab):
         "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "Role",
                     "name": "asset-inventory-reader"},
     }
-    for obj in (account, role, binding):
+    publisher_account = {"apiVersion": "v1", "kind": "ServiceAccount",
+                         "metadata": {"name": PUBLISHER_ACCOUNT, "namespace": NAMESPACE}}
+    publisher_role = {
+        "apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role",
+        "metadata": {"name": PUBLISHER_ROLE, "namespace": NAMESPACE},
+        "rules": [{"apiGroups": [""], "resources": ["configmaps"],
+                   "resourceNames": [PUBLICATION_RECORD], "verbs": ["get", "patch"]}],
+    }
+    publisher_binding = {
+        "apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding",
+        "metadata": {"name": PUBLISHER_ROLE, "namespace": NAMESPACE},
+        "subjects": [{"kind": "ServiceAccount", "name": PUBLISHER_ACCOUNT,
+                      "namespace": NAMESPACE}],
+        "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "Role",
+                    "name": PUBLISHER_ROLE},
+    }
+    for obj in (account, role, binding, publisher_account, publisher_role, publisher_binding):
         lab.kubectl("-n", NAMESPACE, "apply", "-f", "-", payload=json.dumps(obj))
+    _setup_registry_fixture(lab, fixture["mock_workload_image"])
 
     for asset in fixture["assets"]:
         lab.kubectl("-n", NAMESPACE, "apply", "-f", "-", payload=json.dumps(asset_record(asset, NAMESPACE)))
@@ -438,6 +657,7 @@ def run(lab):
         "saf-k8s.example/control-1007-013": "unrelated"}
     lab.kubectl("-n", NEIGHBOR_NAMESPACE, "apply", "-f", "-", payload=json.dumps(remote_unrelated))
 
+    # The original discovery, watch, and source-gap checks remain unchanged.
     initial = list_assets(lab)
     observed = [{"name": item["metadata"]["name"],
                  "kind": item["metadata"].get("labels", {}).get("saf-k8s.example/asset-kind"),
@@ -463,16 +683,13 @@ def run(lab):
     denied = forbidden.returncode != 0 and "forbidden" in forbidden_text.lower()
     save_raw(lab, "denied-neighbor.raw.json", {
         "identity": IDENTITY, "namespace": NEIGHBOR_NAMESPACE,
-        "exit_code": forbidden.returncode,
-        "response": forbidden_text,
+        "exit_code": forbidden.returncode, "response": forbidden_text,
         "response_contains_secret": False,
     })
     lab.check("red", "The inventory identity is denied LIST access to an unrelated namespace",
               denied, {"request_denied": denied, "exit_code": forbidden.returncode,
                        "namespace": NEIGHBOR_NAMESPACE})
 
-    # Continue from the LIST snapshot even if the API receives the first write
-    # before the client's watch connection opens.
     process = start_watch(lab, initial_version)
     state = {"buffer": ""}
     event_name = "mock-model-change-event"
@@ -481,11 +698,9 @@ def run(lab):
                        "digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"}
         lab.kubectl("-n", NAMESPACE, "apply", "-f", "-", payload=json.dumps(asset_record(event_asset, NAMESPACE)))
         added, raw_added = wait_for_event(process, state, "ADDED", event_name)
-
         changed = asset_record(event_asset, NAMESPACE, fixture["change_fixture"]["updated_revision"])
         lab.kubectl("-n", NAMESPACE, "apply", "-f", "-", payload=json.dumps(changed))
         modified, raw_modified = wait_for_event(process, state, "MODIFIED", event_name)
-
         lab.kubectl("-n", NAMESPACE, "delete", "configmap", event_name)
         deleted, raw_deleted = wait_for_event(process, state, "DELETED", event_name)
     finally:
@@ -499,11 +714,9 @@ def run(lab):
     final = list_assets(lab)
     final_names = [item["metadata"]["name"] for item in final["items"]]
     save_raw(lab, "inventory-watch.raw.json", {
-        "identity": IDENTITY,
-        "selector": SELECTOR,
+        "identity": IDENTITY, "selector": SELECTOR,
         "initial_list_resource_version": initial_version,
-        "events": [raw_added, raw_modified, raw_deleted],
-        "final_list": final,
+        "events": [raw_added, raw_modified, raw_deleted], "final_list": final,
     })
     transitions = [added.get("type"), modified.get("type"), deleted.get("type")]
     event_revisions = [event.get("object", {}).get("data", {}).get("revision")
@@ -517,3 +730,4 @@ def run(lab):
                "deleted_asset_absent_from_final_list": event_name not in final_names,
                "event_objects_are_synthetic_fixture_metadata": True})
     verify_typed_resync(lab)
+    verify_registry_reconciliation(lab)
