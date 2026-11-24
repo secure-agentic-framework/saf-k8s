@@ -3,19 +3,64 @@
   "kind": "List",
   "items": [
     {
-      "apiVersion": "v1", "kind": "ConfigMap",
-      "metadata": {"name": "synthetic-control-record", "namespace": "saf-1006-004-evidence", "labels": {"saf-k8s.example/fixture": "true"}},
-      "data": {"catalog_commit": "133a8698a45e2b335b51728bf4c62f7bda98d15f", "control_id": "SAF-K8S-1006-004", "statement": "Synthetic evidence fixture; not a production control assertion."}
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "metadata": {
+        "name": "synthetic-control-record",
+        "namespace": "saf-1006-004-evidence",
+        "labels": {
+          "saf-k8s.example/fixture": "true"
+        }
+      },
+      "data": {
+        "catalog_commit": "4e518d3bd0aab7847f62755ce1c7076d7478b3fb",
+        "control_id": "SAF-K8S-1006-004",
+        "statement": "Synthetic evidence fixture; not a production control assertion."
+      }
     },
     {
-      "apiVersion": "v1", "kind": "ConfigMap",
-      "metadata": {"name": "synthetic-crosswalk-eu", "namespace": "saf-1006-004-evidence", "labels": {"saf-k8s.example/fixture": "true"}},
-      "data": {"framework": "EU AI Act 2024/1689", "framework_version": "2024/1689", "requirement_id": "Annex-VII.3.2", "requirement_title": "Conformity based on an assessment of the quality management system and an assessment of the technical documentation", "relation_type": "partial", "strength": "moderate", "applicability": "required", "note": "Inert recorded metadata only; legal applicability and QMS assessment are not established."}
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "metadata": {
+        "name": "synthetic-crosswalk-eu",
+        "namespace": "saf-1006-004-evidence",
+        "labels": {
+          "saf-k8s.example/fixture": "true"
+        }
+      },
+      "data": {
+        "framework": "EU AI Act 2024/1689",
+        "framework_version": "2024/1689",
+        "requirement_id": "Annex-VII.3.2",
+        "requirement_title": "Conformity based on an assessment of the quality management system and an assessment of the technical documentation",
+        "relation_type": "supports",
+        "strength": "moderate",
+        "applicability": "conditional",
+        "note": "Inert recorded metadata only; legal applicability and QMS assessment are not established.",
+        "applicability_condition": "The organization performs the provider function for an identified high-risk AI system whose applicable conformity route invokes Annex VII point 3.2."
+      }
     },
     {
-      "apiVersion": "v1", "kind": "ConfigMap",
-      "metadata": {"name": "synthetic-crosswalk-nist", "namespace": "saf-1006-004-evidence", "labels": {"saf-k8s.example/fixture": "true"}},
-      "data": {"framework": "NIST AI Risk Management Framework 1.0", "framework_version": "1.0", "requirement_id": "GOVERN 1.4", "requirement_title": "The risk management process and its outcomes are established through transparent policies, procedures, and other controls based on organizational risk priorities.", "relation_type": "supports", "strength": "moderate", "applicability": "required", "note": "Inert recorded metadata only; coverage of organizational risk practices is not established."}
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "metadata": {
+        "name": "synthetic-crosswalk-nist",
+        "namespace": "saf-1006-004-evidence",
+        "labels": {
+          "saf-k8s.example/fixture": "true"
+        }
+      },
+      "data": {
+        "framework": "NIST AI Risk Management Framework 1.0",
+        "framework_version": "1.0",
+        "requirement_id": "GOVERN 1.4",
+        "requirement_title": "The risk management process and its outcomes are established through transparent policies, procedures, and other controls based on organizational risk priorities.",
+        "relation_type": "supports",
+        "strength": "moderate",
+        "applicability": "conditional",
+        "note": "Inert recorded metadata only; coverage of organizational risk practices is not established.",
+        "applicability_condition": "The collected records are used by an adopted AI risk management process with documented risk priorities."
+      }
     }
   ]
 }

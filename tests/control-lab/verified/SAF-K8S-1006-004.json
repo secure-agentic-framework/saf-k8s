@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1006-004",
-  "catalog_revision": "807854a5da5edd8046e6d5c2803ef994acaa6588",
-  "catalog_sha256": "5468afd7544aceb8f79e434b7d58a52fc41eeee0b3084837f4dc587efc72cace",
+  "catalog_revision": "4e518d3bd0aab7847f62755ce1c7076d7478b3fb",
+  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "8877e0aea2bbffdc28a808535c9c9920647990571e0060d3e184ab6fc9fdf3a2",
   "scope": "Disposable Kind cluster. A Kubernetes CronJob uses its own read-only, named-object identity to collect inert catalog and crosswalk records and live Pod Security Admission labels twice. It writes both snapshots to a PVC where a separate Pod reads them. The lab demonstrates missing, fresh, stale, and recovered states under a fixture timing threshold. The scoped follow-on checks live RoleBindings, NetworkPolicies, Namespace labels, object provenance, and cross-namespace denial. Scope is capture and freshness for the synthetic inputs.",
-  "cluster": "saf-lab-aba4f5353e9d",
+  "cluster": "saf-lab-32979092225a",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
