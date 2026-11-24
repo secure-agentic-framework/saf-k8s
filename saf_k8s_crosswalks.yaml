@@ -37411,22 +37411,6 @@
 
 
     6.6 - GitOps (Git version control integrity, signed commits, tag immutability for version mapping)'
-  control_id: SAF-K8S-0606-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-10(5)
-  framework_requirement_title: Mapping Integrity for Version Control
-  framework_mapping_notes: 'Version control integrity mapping tracks provenance of agent code and model artifacts
-
-
-    6.6 - GitOps (Git version control integrity, signed commits, tag immutability for version mapping)'
   control_id: SAF-K8S-0606-007
   relation_type: direct
   strength_level: strong
