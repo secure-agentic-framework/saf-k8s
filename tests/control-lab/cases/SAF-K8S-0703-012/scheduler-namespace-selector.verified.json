@@ -1,0 +1,124 @@
+{
+  "archive": {
+    "kind_base_image": "kindest/base@sha256:f10f029b85aa89e7b47a2e6afacf560595c8abcefaa0e96096b854361b740127",
+    "kind_version": "v0.32.0",
+    "sha256": "b98364acbd4ce469bc38c57668dbee057008846b029f0980d613861dd3a10817",
+    "url": "https://dl.k8s.io/v1.36.6/kubernetes-server-linux-arm64.tar.gz"
+  },
+  "fixture_sha256": "87ae76de8434bcf4075dba4829f47ec92aa2f628fadaecd4893f749d610723fe",
+  "framework_replay": {
+    "catalog_revision": "57b15bef11f4927c38f80e0426017c79ee8a933d",
+    "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
+    "checks": [
+      {
+        "claim": "red-affinity produces the expected patched scheduler decision",
+        "matched": true,
+        "observed": {
+          "decision": "scheduled",
+          "expected": "scheduled"
+        },
+        "phase": "red"
+      },
+      {
+        "claim": "red-anti-affinity produces the expected patched scheduler decision",
+        "matched": true,
+        "observed": {
+          "decision": "unschedulable",
+          "expected": "unschedulable"
+        },
+        "phase": "red"
+      },
+      {
+        "claim": "green-affinity-excluded produces the expected patched scheduler decision",
+        "matched": true,
+        "observed": {
+          "decision": "unschedulable",
+          "expected": "unschedulable"
+        },
+        "phase": "green"
+      },
+      {
+        "claim": "green-anti-affinity-included produces the expected patched scheduler decision",
+        "matched": true,
+        "observed": {
+          "decision": "unschedulable",
+          "expected": "unschedulable"
+        },
+        "phase": "green"
+      },
+      {
+        "claim": "positive-affinity-included produces the expected patched scheduler decision",
+        "matched": true,
+        "observed": {
+          "decision": "scheduled",
+          "expected": "scheduled"
+        },
+        "phase": "positive"
+      },
+      {
+        "claim": "positive-anti-affinity-excluded produces the expected patched scheduler decision",
+        "matched": true,
+        "observed": {
+          "decision": "scheduled",
+          "expected": "scheduled"
+        },
+        "phase": "positive"
+      }
+    ],
+    "cleanup": "deleted",
+    "cluster": "saf-lab-31ceea392d33",
+    "control_id": "SAF-K8S-0703-012",
+    "control_sha256": "9cc82b4d0ef875f27e008b42ff073701acc31feac294a2999530667cfe44a860",
+    "kubernetes": {
+      "clientVersion": {
+        "buildDate": "2026-05-12T09:54:35Z",
+        "compiler": "gc",
+        "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+        "gitTreeState": "clean",
+        "gitVersion": "v1.36.1",
+        "goVersion": "go1.26.2",
+        "major": "1",
+        "minor": "36",
+        "platform": "darwin/arm64"
+      },
+      "kustomizeVersion": "v5.8.1",
+      "serverVersion": {
+        "buildDate": "2026-10-27T12:02:54Z",
+        "compiler": "gc",
+        "emulationMajor": "1",
+        "emulationMinor": "36",
+        "gitCommit": "1b2171b110bb2a2542e1322035c6583ec86eb976",
+        "gitTreeState": "clean",
+        "gitVersion": "v1.36.6",
+        "goVersion": "go1.26.10",
+        "major": "1",
+        "minCompatibilityMajor": "1",
+        "minCompatibilityMinor": "35",
+        "minor": "36",
+        "platform": "linux/arm64"
+      }
+    },
+    "node_image": "sha256:b13926460d35d5d349c551bf978091edbdb9e2b6180c0635e94db4f10dd68c70",
+    "scope": "One owned Kubernetes v1.36.6 Kind cluster. Two Ready workers host inert anchors in distinct labeled namespaces. Native required affinity and anti-affinity use the same label pair and compare a select-all namespace selector with NotIn under the patched scheduler. Test results cover one topology key and upstream patch.",
+    "status": "passed"
+  },
+  "lab_run": {
+    "cluster": "saf-lab-09d7b50efd77",
+    "result_sha256": "ed2d31dfeaad4aa390119760a929e55b64361a25d59e5a2cbf9d0014c112f010"
+  },
+  "observations": {
+    "control": "SAF-K8S-0703-012",
+    "node_count": 3,
+    "outcomes": {
+      "green-affinity-excluded": "unschedulable",
+      "green-anti-affinity-included": "unschedulable",
+      "positive-affinity-included": "scheduled",
+      "positive-anti-affinity-excluded": "scheduled",
+      "red-affinity": "scheduled",
+      "red-anti-affinity": "unschedulable"
+    },
+    "patch": "v1.36.6",
+    "scheduler_image": "registry.k8s.io/kube-scheduler:v1.36.6"
+  },
+  "schema": "saf-k8s-upgrade-replay/v1"
+}
