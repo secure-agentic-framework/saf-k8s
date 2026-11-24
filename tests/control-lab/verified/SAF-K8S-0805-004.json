@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0805-004",
-  "catalog_revision": "c8e56322a076671a703bb755debcf5104cab0567",
-  "catalog_sha256": "aaff66f6378fae48dc67b891d3e807737cc0e5a559001472c9884e3a3328bd27",
+  "catalog_revision": "9b0fdebc28f32d610e2aeb1b08ef0c852952ad69",
+  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "4c62a2a6ad6efce51d02f4ee5d7cff36297948fb9d66f256ec3cf592dfbc9716",
   "scope": "Real Kubernetes admission and scheduler placement against modeled dedicated and shared accelerator profiles.",
-  "cluster": "saf-lab-c549987e8ac3",
+  "cluster": "saf-lab-19d0d095729a",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
