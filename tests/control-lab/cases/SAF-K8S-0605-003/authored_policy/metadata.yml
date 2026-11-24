@@ -1,0 +1,13 @@
+rules:
+  - apiGroups: [ai.saf-k8s.example]
+    apiVersions: [v1alpha1]
+    resources: [modeldeployments]
+    operations: [CREATE, UPDATE]
+mutating: false
+contextAwareResources: []
+executionMode: kubewarden-wapc
+backgroundAudit: false
+annotations:
+  io.kubewarden.policy.title: SAF synthetic ModelDeployment label check
+  io.kubewarden.policy.description: Validates the approved label on an inert ModelDeployment.
+  io.kubewarden.policy.version: 0.1.0

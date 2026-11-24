@@ -1,0 +1,30 @@
+{
+  "uid": "saf-0605-003-invalid",
+  "kind": {
+    "group": "ai.saf-k8s.example",
+    "version": "v1alpha1",
+    "kind": "ModelDeployment"
+  },
+  "resource": {
+    "group": "ai.saf-k8s.example",
+    "version": "v1alpha1",
+    "resource": "modeldeployments"
+  },
+  "operation": "CREATE",
+  "object": {
+    "apiVersion": "ai.saf-k8s.example/v1alpha1",
+    "kind": "ModelDeployment",
+    "metadata": {
+      "name": "inert-invalid",
+      "namespace": "saf-test",
+      "labels": {}
+    },
+    "spec": {
+      "model": "inert-fixture",
+      "replicas": 0
+    }
+  },
+  "userInfo": {
+    "username": "system:serviceaccount:saf-test:fixture"
+  }
+}

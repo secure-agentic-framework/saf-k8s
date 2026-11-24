@@ -1,5 +1,6 @@
 """Verify signed Kubewarden WASM admission for an inert model resource."""
 import hashlib
+import runpy
 import json
 from pathlib import Path
 import platform
@@ -39,7 +40,7 @@ SCOPE = (
     "one signature-checked released WASM policy operating on an inert namespaced "
     "ModelDeployment fixture. Covers a baseline, monitor and protect modes, CREATE "
     "and UPDATE, a permitted stored declaration and an unenrolled namespace. "
-    "Custom policy authorship and production policy inventory are outside this fixture."
+    "A separate locked WASM build exercises the authored policy in the local kwctl sandbox. Production policy inventory requires deployment evidence."
 )
 
 
@@ -219,6 +220,8 @@ def run(lab):
               {"returncode": baseline["returncode"]})
 
     verify_policy_signature(lab)
+    authored = runpy.run_path(str(HERE / "authored_sandbox.py"))
+    authored_module = authored["run"](lab)
     server_name = install_stack(lab)
     policy = {
         "apiVersion": "policies.kubewarden.io/v1", "kind": "AdmissionPolicy",
@@ -292,3 +295,8 @@ def run(lab):
     lab.check("positive", "The same unapproved declaration is admitted in the unenrolled namespace",
               other["returncode"] == 0 and other["status"]["metadata"]["namespace"] == OTHER,
               {"returncode": other["returncode"], "namespace": OTHER})
+
+    promotion = runpy.run_path(str(HERE / "authored_promotion.py"))
+    promotion["run"](lab, authored_module, SERVER_VERSION)
+
+SCOPE += " The exact authored policy is signed and promoted under an independently keyed PolicyServer."
