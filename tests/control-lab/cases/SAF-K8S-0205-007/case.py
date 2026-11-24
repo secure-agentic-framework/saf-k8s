@@ -4,7 +4,7 @@ from ipaddress import IPv4Address
 import json
 import time
 
-SCOPE = "Owned cross-node Kind IPv4 Pod traffic with kindnet policy and a case-only nftables forward table."
+SCOPE = "Owned cross-node IPv4 Pod and Service paths on Kind with kindnet, kube-proxy iptables and fixture nftables."
 IMAGE = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 SERVER = "fixture-firewall-server"
 ALLOW = "fixture-firewall-allowed"
@@ -13,6 +13,8 @@ POLICY = "fixture-policy-filtered"
 TABLE = "saf_fixture_007"
 KEY = "fixture.example/firewall-role"
 PORT = 18083
+SERVICE_PORT = 18084
+SERVICE = "fixture-firewall-service"
 MARKER = "owned-firewall-marker"
 BLOCKED = "no-marker"
 SERVE = """
@@ -25,7 +27,7 @@ socketserver.TCPServer(('0.0.0.0', 18083), Marker).serve_forever()
 PROBE = """
 import errno, socket, sys
 try:
-    with socket.create_connection((sys.argv[1], 18083), timeout=1.25) as peer:
+    with socket.create_connection((sys.argv[1], int(sys.argv[2])), timeout=1.25) as peer:
         print(peer.recv(128).decode())
 except (ConnectionRefusedError, ConnectionResetError, TimeoutError):
     print('no-marker')
@@ -57,16 +59,36 @@ def pod_ip(lab, name, node):
     return str(IPv4Address(obj["status"]["podIP"]))
 
 
-def probe(lab, client, address):
-    return lab.kubectl("exec", "pod/" + client, "--", "python", "-c", PROBE, address, timeout=8).stdout.strip()
+def probe(lab, client, address, port):
+    return lab.kubectl("exec", "pod/" + client, "--", "python", "-c", PROBE,
+                       address, str(port), timeout=9).stdout.strip()
 
 
-def matrix(lab, address, expected, timeout=17):
+def matrix(lab, endpoint, expected, timeout=20):
     end = time.monotonic() + timeout
     while True:
-        observed = {client: probe(lab, client, address) for client in (ALLOW, FILTER, POLICY)}
+        observed = {client: probe(lab, client, *endpoint) for client in (ALLOW, FILTER, POLICY)}
         if observed == expected or time.monotonic() >= end:
             return observed
+
+
+def control_flows(lab, api_address):
+    dns = lab.kubectl("exec", "pod/" + ALLOW, "--", "python", "-c",
+                      "import socket; print(socket.gethostbyname('kubernetes.default.svc.cluster.local'))",
+                      timeout=15).stdout.strip()
+    ready = lab.kubectl("get", "--raw", "/readyz", timeout=12).stdout.strip() == "ok"
+    return {"dns_returned_kubernetes_service_ip": dns == api_address, "kubernetes_ready": ready}
+
+
+def observe(lab, endpoints, expected, api_address):
+    return {
+        "traffic": {name: matrix(lab, endpoint, expected) for name, endpoint in endpoints.items()},
+        "health": control_flows(lab, api_address),
+    }
+
+
+def matches(observation, expected):
+    return all(values == expected for values in observation["traffic"].values()) and all(observation["health"].values())
 
 
 def counter(lab, node):
@@ -100,10 +122,25 @@ def run(lab):
     lab.kubectl("wait", "--for=condition=Ready", "pods", "--all", "--timeout=80s", timeout=90)
     destination = pod_ip(lab, SERVER, receiver)
     filtered = pod_ip(lab, FILTER, sender)
+    service = lab.create({
+        "apiVersion": "v1", "kind": "Service", "metadata": {"name": SERVICE},
+        "spec": {"selector": {KEY: "server"}, "ports": [{"port": SERVICE_PORT, "targetPort": PORT}]},
+    })
+    endpoints = {"pod_ip": (destination, PORT),
+                 "cluster_ip": (str(IPv4Address(service["spec"]["clusterIP"])), SERVICE_PORT)}
+    api_address = lab.kubectl("-n", "default", "get", "service", "kubernetes",
+                              "-o", "jsonpath={.spec.clusterIP}").stdout
+    nodes = json.loads(lab.kubectl("get", "nodes", "-o", "json").stdout)["items"]
+    kindnet = json.loads(lab.kubectl("-n", "kube-system", "get", "ds", "kindnet", "-o", "json").stdout)
+    proxy = json.loads(lab.kubectl("-n", "kube-system", "get", "configmap", "kube-proxy", "-o", "json").stdout)
+    proxy_config = proxy["data"]["config.conf"]
+    if "mode: iptables" not in proxy_config:
+        lab.block("The test requires the reviewed kube-proxy iptables profile")
+
     all_allowed = {ALLOW: MARKER, FILTER: MARKER, POLICY: MARKER}
-    baseline = matrix(lab, destination, all_allowed)
-    lab.check("red", "All three cross-node fixture paths reach the marker before either control is applied",
-              baseline == all_allowed, baseline)
+    baseline = observe(lab, endpoints, all_allowed, api_address)
+    lab.check("red", "All three sources reach both cross-node paths with neither fixture control active",
+              matches(baseline, all_allowed), baseline)
 
     rules = f"""table ip {TABLE} {{
     counter fixture_denied {{}}
@@ -113,29 +150,46 @@ def run(lab):
     }}
 }}
 """
+    only_firewall = {ALLOW: MARKER, FILTER: BLOCKED, POLICY: MARKER}
+    both_expected = {ALLOW: MARKER, FILTER: BLOCKED, POLICY: BLOCKED}
+    policy_expected = {ALLOW: MARKER, FILTER: MARKER, POLICY: BLOCKED}
     lab.command("docker", "exec", "-i", receiver, "nft", "-f", "-", payload=rules)
     try:
-        zero = counter(lab, receiver)
-        before_policy = {ALLOW: MARKER, FILTER: BLOCKED, POLICY: MARKER}
-        node_only = matrix(lab, destination, before_policy)
-        nft_hit = counter(lab, receiver) > zero
+        installed_rules = lab.command("docker", "exec", receiver, "nft", "-j", "list",
+                                      "table", "ip", TABLE).stdout
+        packets = {"before_probes": counter(lab, receiver)}
+        node_only = {"traffic": {}}
+        for name, endpoint in endpoints.items():
+            node_only["traffic"][name] = matrix(lab, endpoint, only_firewall)
+            packets[name] = counter(lab, receiver)
+        node_only["health"] = control_flows(lab, api_address)
+        counted = packets["before_probes"] < packets["pod_ip"] < packets["cluster_ip"]
+        lab.check("green", "The owned forward rule independently counts drops on the Pod and translated Service paths",
+                  counted and matches(node_only, only_firewall), {"flows": node_only, "both_paths_counted": counted})
         policy(lab)
-        both_expected = {ALLOW: MARKER, FILTER: BLOCKED, POLICY: BLOCKED}
-        both = matrix(lab, destination, both_expected)
-        matched = nft_hit and node_only == before_policy and both == both_expected
-        lab.check("green", "The node counter attributes its selected drop and NetworkPolicy denies the additional source",
-                  matched, {"node_firewall_counter_increased": nft_hit, "node_only": node_only, "combined": both})
-        lab.kubectl("delete", "networkpolicy", "owned-allowlist")
-        recovered = matrix(lab, destination, before_policy)
+        effective_policy = json.loads(lab.kubectl("get", "networkpolicy", "owned-allowlist", "-o", "json").stdout)
+        both = observe(lab, endpoints, both_expected, api_address)
+        lab.check("green", "NetworkPolicy denies a different source when the scoped node firewall is also active",
+                  matches(both, both_expected), both)
     finally:
         lab.command("docker", "exec", receiver, "nft", "delete", "table", "ip", TABLE)
-    restored = matrix(lab, destination, all_allowed)
-    lab.check("positive", "Removing each test control restores only its affected paths and keeps the approved path available",
-              recovered == before_policy and restored == all_allowed,
-              {"policy_removed": recovered, "rules_removed": restored})
-    (lab.evidence / "firewall-compatibility-observations.json").write_text(json.dumps({
-        "path": "cross-node IPv4 Pod ingress", "kind_cni": "kindnet", "kube_proxy_mode": "iptables",
-        "node_firewall": "isolated nftables IPv4 forward table", "node_drop_counter_increased": nft_hit,
-        "baseline": baseline, "node_firewall_only": node_only, "combined": both,
-        "after_policy_removal": recovered, "after_fixture_cleanup": restored,
-    }, indent=2) + "\n")
+    policy_only = observe(lab, endpoints, policy_expected, api_address)
+    lab.check("positive", "Removing the node rule restores only its source while NetworkPolicy stays active",
+              matches(policy_only, policy_expected), policy_only)
+    lab.kubectl("delete", "networkpolicy", "owned-allowlist")
+    restored = observe(lab, endpoints, all_allowed, api_address)
+    lab.check("positive", "Removing the workload policy restores both paths for all sources with DNS and API healthy",
+              matches(restored, all_allowed), restored)
+
+    evidence = {
+        "profile": {"nodes": {node["metadata"]["name"]: node["status"]["nodeInfo"] for node in nodes},
+                    "kindnet_images": [c["image"] for c in kindnet["spec"]["template"]["spec"]["containers"]],
+                    "kube_proxy_mode": "iptables", "ip_family": "IPv4"},
+        "source_pod_ips": {client: pod_ip(lab, client, sender) for client in (ALLOW, FILTER, POLICY)},
+        "destination": endpoints, "api_service_ip": api_address,
+        "installed_nft_table": json.loads(installed_rules), "node_drop_packets": packets,
+        "effective_network_policy": effective_policy["spec"],
+        "baseline": baseline, "only_node_firewall": node_only, "combined": both,
+        "only_network_policy": policy_only, "restored": restored,
+    }
+    (lab.evidence / "firewall-compatibility-observations.json").write_text(json.dumps(evidence, indent=2) + "\n")
