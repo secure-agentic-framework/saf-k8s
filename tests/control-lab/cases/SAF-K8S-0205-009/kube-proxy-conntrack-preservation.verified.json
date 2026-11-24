@@ -1,0 +1,109 @@
+{
+  "archive": {
+    "kind_base_image": "kindest/base@sha256:f10f029b85aa89e7b47a2e6afacf560595c8abcefaa0e96096b854361b740127",
+    "kind_version": "v0.32.0",
+    "sha256": "b98364acbd4ce469bc38c57668dbee057008846b029f0980d613861dd3a10817",
+    "url": "https://dl.k8s.io/v1.36.6/kubernetes-server-linux-arm64.tar.gz"
+  },
+  "fixture_sha256": "e256dc2c56913858d921be6426cc33555c48a3bad6b74d8102dd53632938b43a",
+  "framework_replay": {
+    "catalog_revision": "57b15bef11f4927c38f80e0426017c79ee8a933d",
+    "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
+    "checks": [
+      {
+        "claim": "The default proxy serves the fixture route with a pre-existing higher limit",
+        "matched": true,
+        "observed": {
+          "baseline_is_higher_than_configured_target": true,
+          "baseline_proxy_privileged": true,
+          "native_route_served": true
+        },
+        "phase": "red"
+      },
+      {
+        "claim": "The restarted restricted proxy preserves the pre-existing higher limit",
+        "matched": true,
+        "observed": {
+          "configured_higher_limit_preserved_after_restart": true,
+          "effective_net_admin_only": true,
+          "exact_profile_active": true,
+          "proxy_replaced": true,
+          "sysctl_files_read_only_to_proxy": true
+        },
+        "phase": "green"
+      },
+      {
+        "claim": "The restricted proxy programs a new owned ClusterIP and retains the limit",
+        "matched": true,
+        "observed": {
+          "configured_higher_limit_preserved_during_traffic": true,
+          "new_cluster_ip_served": true,
+          "proxy_still_ready": true
+        },
+        "phase": "positive"
+      }
+    ],
+    "cleanup": "deleted",
+    "cluster": "saf-lab-491e80aac334",
+    "control_id": "SAF-K8S-0205-009",
+    "control_sha256": "e1c3ae25827f24161f8b79db9610c52b332f9b1ae294f1460c5437d1b70483f1",
+    "kubernetes": {
+      "clientVersion": {
+        "buildDate": "2026-05-12T09:54:35Z",
+        "compiler": "gc",
+        "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+        "gitTreeState": "clean",
+        "gitVersion": "v1.36.1",
+        "goVersion": "go1.26.2",
+        "major": "1",
+        "minor": "36",
+        "platform": "darwin/arm64"
+      },
+      "kustomizeVersion": "v5.8.1",
+      "serverVersion": {
+        "buildDate": "2026-10-27T12:02:54Z",
+        "compiler": "gc",
+        "emulationMajor": "1",
+        "emulationMinor": "36",
+        "gitCommit": "1b2171b110bb2a2542e1322035c6583ec86eb976",
+        "gitTreeState": "clean",
+        "gitVersion": "v1.36.6",
+        "goVersion": "go1.26.10",
+        "major": "1",
+        "minCompatibilityMajor": "1",
+        "minCompatibilityMinor": "35",
+        "minor": "36",
+        "platform": "linux/arm64"
+      }
+    },
+    "node_image": "sha256:b13926460d35d5d349c551bf978091edbdb9e2b6180c0635e94db4f10dd68c70",
+    "scope": "One disposable upstream Kubernetes v1.36.6 Kind control plane. Observe the pre-existing higher conntrack limit, configure a smaller minimum with optional timeout writes disabled, and roll out the native kube-proxy without privileged mode using only NET_ADMIN. Check its read-only proc sysctl mount and a new fixture ClusterIP route. The test only reads the node's sysctl directly.",
+    "status": "passed"
+  },
+  "lab_run": {
+    "cluster": "saf-lab-9abfedf6f1b6",
+    "result_sha256": "d405fcd060c6050e0faa121c5944a93235e44bee7067fe5e01df322d4c5839a7"
+  },
+  "observations": {
+    "baseline": {
+      "baseline_is_higher_than_configured_target": true,
+      "baseline_proxy_privileged": true,
+      "native_route_served": true
+    },
+    "control": "SAF-K8S-0205-009",
+    "patch": "v1.36.6",
+    "positive": {
+      "configured_higher_limit_preserved_during_traffic": true,
+      "new_cluster_ip_served": true,
+      "proxy_still_ready": true
+    },
+    "restricted": {
+      "configured_higher_limit_preserved_after_restart": true,
+      "effective_net_admin_only": true,
+      "exact_profile_active": true,
+      "proxy_replaced": true,
+      "sysctl_files_read_only_to_proxy": true
+    }
+  },
+  "schema": "saf-k8s-upgrade-replay/v1"
+}
