@@ -13,8 +13,9 @@ SCOPE = (
     "Small inert checkpoint in an actual disk-backed emptyDir using a process-local "
     "AES-GCM key. Verify the on-volume record, authentic reuse, alteration rejection, "
     "and read/write denial for a different UID. Separately verify API access to a named "
-    "ciphertext ConfigMap by synthetic ServiceAccounts. Real data, provider/filesystem "
-    "encryption, reuse across processes, key-management lifecycle and production scope remain separate."
+    "ciphertext ConfigMap by synthetic ServiceAccounts. A fresh process in the same Pod "
+    "authenticates a retained record against expected run, step and time using a separate tmpfs key. "
+    "Provider encryption and durable cross-Pod key custody are adopter-specific."
 )
 
 
@@ -39,6 +40,7 @@ def build(lab, image, directory):
 
 def on_volume(lab, image, name, *modes):
     containers = []
+    volumes = [{"name": "checkpoint", "emptyDir": {}}]
     for index, mode in enumerate(modes):
         uid = 65534 - index
         containers.append({"name": mode, "image": image, "imagePullPolicy": "Never", "args": [mode],
@@ -47,10 +49,13 @@ def on_volume(lab, image, name, *modes):
                                                "capabilities": {"drop": ["ALL"]},
                                                "seccompProfile": {"type": "RuntimeDefault"}},
                            "volumeMounts": [{"name": "checkpoint", "mountPath": "/checkpoint"}]})
+        if mode == "lifecycle":
+            containers[-1]["volumeMounts"].append({"name": "resume-key", "mountPath": "/resume-key"})
+            volumes.append({"name": "resume-key", "emptyDir": {"medium": "Memory", "sizeLimit": "1Mi"}})
     lab.create({"apiVersion": "v1", "kind": "Pod", "metadata": {"name": name},
                 "spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,
                          "securityContext": {"fsGroup": 65534}, "containers": containers,
-                         "volumes": [{"name": "checkpoint", "emptyDir": {}}]}})
+                         "volumes": volumes}})
     lab.kubectl("wait", "--for=jsonpath={.status.phase}=Succeeded", f"pod/{name}", "--timeout=60s", timeout=70)
     return [json.loads(lab.kubectl("logs", name, "-c", mode).stdout) for mode in modes]
 
@@ -113,6 +118,17 @@ def run(lab):
                   protected)
         lab.check("green", "The independent unprivileged container cannot read or write the checkpoint file",
                   observer == {"read_denied": True, "write_denied": True}, observer)
+        lifecycle, = on_volume(lab, image, "saf-checkpoint-lifecycle", "lifecycle")
+        lab.check("positive", "A fresh process authenticates the retained checkpoint before resume",
+                  lifecycle.get("authorized_retained_verified") is True
+                  and lifecycle.get("key_tmpfs_mode_0600") is True,
+                  {key: lifecycle.get(key) for key in ("authorized_retained_verified", "key_tmpfs_mode_0600")})
+        rejected = {key: lifecycle.get(key) for key in ("changed_rejected", "wrong_run_rejected",
+                    "wrong_step_rejected", "stale_rejected", "future_rejected")}
+        lab.check("green", "Resume rejects altered, wrong-run, wrong-step, expired and future checkpoints",
+                  all(value is True for value in rejected.values()), rejected)
+        lab.check("green", "The process removes the temporary records and key and confirms absence",
+                  lifecycle.get("cleanup_verified") is True, {"cleanup_verified": lifecycle.get("cleanup_verified")})
         verify_api_boundary(lab, envelope)
     finally:
         lab.command("docker", "image", "rm", image, timeout=45, allow_failure=True)

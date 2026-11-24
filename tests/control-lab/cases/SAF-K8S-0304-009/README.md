@@ -20,12 +20,28 @@ ServiceAccount. A second identity and unrelated resource requests receive
 RBAC denials. The Pod fixtures disable token automount. The checks use
 synthetic identities and retain no credentials or production data.
 
-The case covers application-layer encryption of actual bytes on temporary
-storage, file access in this Pod and namespaced API authorization. A real
-training pipeline needs separately verified storage-provider encryption,
-persistent key management, resume across process/node boundaries, and
-checkpoint lifecycle controls. The framework retains
+The resume probe stores a separate synthetic key in a memory-backed
+`emptyDir` with mode `0600` and keeps the encrypted checkpoint on disk.
+Each read starts a fresh process in the same Pod. The probe resumes from the
+authorized record and checks distinct denials for altered ciphertext, the
+wrong run or step, an expired record and a future timestamp. It removes the
+owned files and key and checks that they are absent. The framework retains
 `verified/SAF-K8S-0304-009.json`.
+
+## Adopter checks
+
+- Identify where the checkpoint is written, replicated, backed up and deleted.
+  Record the configured encryption mechanism at each location. Verify the
+  authorized workload can resume and that an unrelated workload identity is
+  denied both checkpoint and key access.
+- In a representative environment, exercise the same restart, reschedule
+  and restore paths your training workload relies on. Keep an evidence
+  record of the expected training run and step, approved freshness window,
+  result and reason for each denied restore.
+- Inspect key custody and access logs. Exercise the relevant key rotation,
+  revocation and restore cases on synthetic data. Verify retention and
+  deletion against the actual storage provider, including copies and
+  backups. The fixture key is scoped to one disposable Pod.
 
 - [Kubernetes v1.36 emptyDir volumes](https://v1-36.docs.kubernetes.io/docs/concepts/storage/volumes/#emptydir)
 - [Kubernetes v1.36 RBAC authorization](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)

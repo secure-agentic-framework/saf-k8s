@@ -735,7 +735,7 @@
     "SAF-K8S-0304-009": {
       "catalog_status": "draft",
       "domain": "D03",
-      "sha256": "e3a6c2a6cef955c00917bb7e378300ec80d66812cc129fbe1f4b16982495386a",
+      "sha256": "b4b0c9ea4406eb9d3d90c5c6696e6ebe3c115912b654d2a8595ca39e247b5270",
       "title": "Temporary checkpoint storage encryption, integrity, and access control"
     },
     "SAF-K8S-0304-010": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "54fd6a50afc4e86a858f7661b1214e842ba63b8c",
-  "sha256": "3d20eb828ba605fb41eb18c432be9730d7a48eff25b4efc3b8066588b4b464fa",
+  "revision": "b867dfdeb71d5daf216db0742b826c1418c74f89",
+  "sha256": "d349202ee2a53ae35fd3d0b6c36098d2d5cc45a51aa71fbf557812fcda78d4a0",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
