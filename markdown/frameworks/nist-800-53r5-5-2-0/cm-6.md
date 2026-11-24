@@ -60,10 +60,10 @@ Secure config settings for agent systems
 
 - Domain: D02 - Node, Runtime, and OS Security
 - Knowledge Area: 2.1
-- Relation Type: direct
-- Strength: strong
+- Relation Type: supports
+- Strength: moderate
 - Applicability: required
-- Strength Reason Code: n/a
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0201-014 - Kubelet serving certificate trust and expiry enforcement](../../controls/SAF-K8S-0201-014.md)
 

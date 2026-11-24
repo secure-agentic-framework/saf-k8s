@@ -1210,12 +1210,12 @@
   knowledge_area: '2.1'
   control_seq: 008
   control_title: Kubelet configuration and credential file ownership and permissions
-  control_statement: Kubelet configuration files, kubeconfig files, and certificate key material on each node must be owned by root with permissions no more permissive than 0644 for configuration files and 0600 for private keys so that unauthorized local users or escaped workloads cannot read or modify kubelet configuration or credential material.
+  control_statement: Apply an approved ownership and permission baseline to the effective kubelet configuration, kubeconfig and referenced private credentials for each applicable node. Apply the version and distribution-specific requirements for each file class. Protect credential-bearing files and resolved key targets from unauthorized access and changes.
   objective: Protect kubelet configuration, kubeconfig material, and node credential files from unauthorized local access or tampering through restrictive ownership and permission settings.
-  rationale: Kubelet configuration and credential files contain authentication material, certificate references, and runtime parameters that control node behavior. This control isolates filesystem protection so teams can independently verify that kubelet-related files are not exposed to local attackers or compromised workloads.
-  scope: Applies to all files in /etc/kubernetes/, /var/lib/kubelet/, and kubelet certificate directories on every cluster node. Managed Kubernetes services where the node filesystem is provider-controlled satisfy this control through provider hardening attestation.
-  primary_enforcement_point: Node image build pipeline, configuration management tooling, and periodic file permission audit scans.
-  implementation_surface: Node image build pipeline, configuration management tooling, file permission auditing, and CIS Benchmark scanning for kubelet file ownership and mode checks.
+  rationale: The kubelet selects configuration and authentication files by its effective settings. Treat a kubeconfig with private credentials and a rotating key target as sensitive files, and use the applicable benchmark and platform baseline for configuration files.
+  scope: Covers the effective kubelet configuration and kubeconfig, active bootstrap material, referenced private keys and their link and directory protections. Resolve responsibility by node pool. For provider-operated scope, require applicable evidence for those protections or record the unverified scope and any approved equivalent.
+  primary_enforcement_point: Effective node file ownership, permissions and access controls, established in approved provisioning and checked through recurring metadata assessment.
+  implementation_surface: Inventory active paths and credential references. Apply file-specific owner and mode baselines, verify ACL and directory access, resolve rotating links, and record bootstrap state. For the CIS Kubernetes 1.12 example, the kubelet configuration and kubeconfig checks 4.1.5, 4.1.6, 4.1.9 and 4.1.10 use 0600 or more restrictive and root:root. Retain assessment, approved deviation and remediation records.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; OS/Infrastructure
   baseline_or_ai_specific: baseline
@@ -1223,7 +1223,7 @@
   status: draft
   superseded_by_control_id: null
   date_created: '2026-03-15'
-  date_modified: '2026-03-17'
+  date_modified: '2026-11-24'
 - control_id: SAF-K8S-0201-009
   domain_code: D02
   domain_name: Node, Runtime, and OS Security
