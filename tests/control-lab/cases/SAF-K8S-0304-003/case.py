@@ -11,7 +11,7 @@ SCOPE = (
     "Kubernetes v1.36.1 Pod status classification with short-lived idle fixtures, "
     "including init and Pod-level CPU/memory resources, unequal ephemeral-storage, "
     "and the CPU quota on a Guaranteed container. A case-scoped ValidatingAdmissionPolicy "
-    "tests critical and ordinary Pod CREATE requests. Kubelet eviction rankings are "
+    "tests critical and ordinary Pod CREATE and a classification UPDATE. Kubelet eviction rankings are "
     "reviewed against first-party sources. Live eviction and production coverage remain separate."
 )
 
@@ -84,18 +84,28 @@ def run(lab):
 
     lab.apply(HERE / "admission-policy.yaml")
     policy_probes = {fixture["name"]: pod_for(fixture) for fixture in FIXTURES["pods"]}
-    bad = policy_probes["saf-0304-besteffort"]
-    bad["metadata"]["name"] += "-policy"
-    deadline = time.monotonic() + 25
-    while True:
-        result = lab.create(bad, dry_run=True, allow_failure=True)
-        if (result.returncode and DENIAL in result.stderr) or time.monotonic() >= deadline:
-            break
-        time.sleep(0.5)
-    lab.check("green", "The active policy rejects the same critical BestEffort Pod shape",
-              result.returncode != 0 and DENIAL in result.stderr,
-              {"expected_policy_denial": DENIAL in result.stderr})
-    ordinary = {**bad, "metadata": {**bad["metadata"], "labels": {}}}
+    rejected = [
+        ("saf-0304-besteffort", "critical BestEffort Pod"),
+        ("saf-0304-multicontainer-burstable", "critical multi-container Pod with an unbudgeted container"),
+        ("saf-0304-init-burstable", "critical Pod with a non-Guaranteed init container"),
+    ]
+    for key, description in rejected:
+        probe = policy_probes[key]
+        probe["metadata"]["name"] += "-policy"
+        probe["metadata"]["labels"] = CRITICAL
+        deadline = time.monotonic() + 25
+        while True:
+            result = lab.create(probe, dry_run=True, allow_failure=True)
+            denied = result.returncode != 0 and DENIAL in result.stderr
+            if denied or time.monotonic() >= deadline:
+                break
+            time.sleep(0.5)
+        lab.check("green", f"The active policy rejects a {description}", denied,
+                  {"expected_policy_denial": denied})
+
+    ordinary = policy_probes["saf-0304-besteffort"]
+    ordinary["metadata"]["name"] += "-ordinary-policy"
+    ordinary["metadata"]["labels"] = {}
     approved = [("BestEffort", ordinary)]
     for key in ("saf-0304-guaranteed", "saf-0304-podlevel-guaranteed"):
         positive = policy_probes[key]
@@ -104,6 +114,21 @@ def run(lab):
         approved.append(("Guaranteed", positive))
     for expected, positive in approved:
         admitted = lab.create(positive, dry_run=True)
-        actual = admitted.get("status", {}).get("qosClass")
-        lab.check("positive", f"Policy admits {positive['metadata']['name']} with {expected} QoS",
-                  actual == expected, {"observed_qos": actual})
+        qos = admitted.get("status", {}).get("qosClass")
+        lab.check("positive", f"Policy admits {positive['metadata']['name']} with API QoS {expected}",
+                  qos == expected, {"admitted_api_qos": qos})
+        if positive["metadata"]["name"] == "saf-0304-guaranteed-policy":
+            lab.create(positive)
+            name = positive["metadata"]["name"]
+            lab.kubectl("wait", "--for=condition=Ready", f"pod/{name}", "--timeout=95s", timeout=105)
+            stored_status = json.loads(lab.kubectl("get", "pod", name, "-o", "json").stdout)["status"]
+            lab.check("green", "A compliant critical Pod reaches Running under the active policy",
+                      stored_status["phase"] == "Running" and stored_status["qosClass"] == "Guaranteed",
+                      {"phase": stored_status["phase"], "qosClass": stored_status["qosClass"]})
+
+    outcome = lab.kubectl("label", "pod", "saf-0304-multicontainer-burstable",
+                           "saf-k8s.example/qos-critical=true", "--dry-run=server",
+                           allow_failure=True)
+    lab.check("green", "Critical designation on UPDATE requires the same Guaranteed QoS inputs",
+              outcome.returncode != 0 and DENIAL in outcome.stderr,
+              {"expected_policy_denial": DENIAL in outcome.stderr})

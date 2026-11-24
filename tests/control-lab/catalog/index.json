@@ -711,7 +711,7 @@
     "SAF-K8S-0304-003": {
       "catalog_status": "draft",
       "domain": "D03",
-      "sha256": "f6d876e81207fd8f72f7bba6ef88027feee033eec1d899f149c3b7c3312bae89",
+      "sha256": "51c6bcbe2e2cf7fc94816e11f759d71d53a28c297024b196a8c774661fa5407e",
       "title": "QoS class assignment for workload stability"
     },
     "SAF-K8S-0304-004": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "27ae39841436db0474fafe5cd698fb20e6a89e0f",
-  "sha256": "f481bce63ca25cf7e93af4d4c31736eb5055512a42dbd29ac5cbe0c465aeca31",
+  "revision": "1ee6713c91580f7e21c37860b82671b44b4c8deb",
+  "sha256": "1b97496901eb336ef366b6f39a6ee2f9ee876c5327bbe40636beafe0b58b590b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

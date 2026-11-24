@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0304-003",
-  "catalog_revision": "712139965c407830056ada89a15031c8f9d956cd",
-  "catalog_sha256": "0427a45ac9bf0f2d8256f7f075d12a0ac8ad43daf141990b68d2fba2211f5a21",
+  "catalog_revision": "7faf1b01b5e5d787ac9adcfc00f7892079207be2",
+  "catalog_sha256": "1b97496901eb336ef366b6f39a6ee2f9ee876c5327bbe40636beafe0b58b590b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "f6d876e81207fd8f72f7bba6ef88027feee033eec1d899f149c3b7c3312bae89",
-  "scope": "Kubernetes v1.36.1 Pod status classification with short-lived idle fixtures, including init and Pod-level CPU/memory resources, unequal ephemeral-storage, and the CPU quota on a Guaranteed container. A case-scoped ValidatingAdmissionPolicy tests critical and ordinary Pod CREATE requests. Kubelet eviction rankings are reviewed against first-party sources. Live eviction and production coverage remain separate.",
-  "cluster": "saf-lab-b35000e48e16",
+  "control_sha256": "51c6bcbe2e2cf7fc94816e11f759d71d53a28c297024b196a8c774661fa5407e",
+  "scope": "Kubernetes v1.36.1 Pod status classification with short-lived idle fixtures, including init and Pod-level CPU/memory resources, unequal ephemeral-storage, and the CPU quota on a Guaranteed container. A case-scoped ValidatingAdmissionPolicy tests critical and ordinary Pod CREATE and a classification UPDATE. Kubelet eviction rankings are reviewed against first-party sources. Live eviction and production coverage remain separate.",
+  "cluster": "saf-lab-767ef0d81036",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -87,6 +87,16 @@
     },
     {
       "phase": "positive",
+      "claim": "saf-0304-multicontainer-burstable reaches Running and reports QoS Burstable",
+      "matched": true,
+      "observed": {
+        "phase": "Running",
+        "qosClass": "Burstable",
+        "containersRunningAndReady": true
+      }
+    },
+    {
+      "phase": "positive",
       "claim": "saf-0304-init-burstable reaches Running and reports QoS Burstable",
       "matched": true,
       "observed": {
@@ -107,7 +117,23 @@
     },
     {
       "phase": "green",
-      "claim": "The active policy rejects the same critical BestEffort Pod shape",
+      "claim": "The active policy rejects a critical BestEffort Pod",
+      "matched": true,
+      "observed": {
+        "expected_policy_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The active policy rejects a critical multi-container Pod with an unbudgeted container",
+      "matched": true,
+      "observed": {
+        "expected_policy_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The active policy rejects a critical Pod with a non-Guaranteed init container",
       "matched": true,
       "observed": {
         "expected_policy_denial": true
@@ -115,26 +141,43 @@
     },
     {
       "phase": "positive",
-      "claim": "Policy admits saf-0304-besteffort-policy with BestEffort QoS",
+      "claim": "Policy admits saf-0304-besteffort-policy-ordinary-policy with API QoS BestEffort",
       "matched": true,
       "observed": {
-        "observed_qos": "BestEffort"
+        "admitted_api_qos": "BestEffort"
       }
     },
     {
       "phase": "positive",
-      "claim": "Policy admits saf-0304-guaranteed-policy with Guaranteed QoS",
+      "claim": "Policy admits saf-0304-guaranteed-policy with API QoS Guaranteed",
       "matched": true,
       "observed": {
-        "observed_qos": "Guaranteed"
+        "admitted_api_qos": "Guaranteed"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A compliant critical Pod reaches Running under the active policy",
+      "matched": true,
+      "observed": {
+        "phase": "Running",
+        "qosClass": "Guaranteed"
       }
     },
     {
       "phase": "positive",
-      "claim": "Policy admits saf-0304-podlevel-guaranteed-policy with Guaranteed QoS",
+      "claim": "Policy admits saf-0304-podlevel-guaranteed-policy with API QoS Guaranteed",
       "matched": true,
       "observed": {
-        "observed_qos": "Guaranteed"
+        "admitted_api_qos": "Guaranteed"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Critical designation on UPDATE requires the same Guaranteed QoS inputs",
+      "matched": true,
+      "observed": {
+        "expected_policy_denial": true
       }
     }
   ]

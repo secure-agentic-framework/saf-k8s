@@ -51,6 +51,24 @@
       ]
     },
     {
+      "name": "saf-0304-multicontainer-burstable",
+      "expected_qos": "Burstable",
+      "containers": [
+        {
+          "name": "app",
+          "command": ["sh", "-c", "sleep 3600"],
+          "resources": {
+            "requests": {"cpu": "100m", "memory": "64Mi"},
+            "limits": {"cpu": "100m", "memory": "64Mi"}
+          }
+        },
+        {
+          "name": "helper",
+          "command": ["sh", "-c", "sleep 3600"]
+        }
+      ]
+    },
+    {
       "name": "saf-0304-init-burstable",
       "expected_qos": "Burstable",
       "containers": [
