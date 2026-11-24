@@ -2700,6 +2700,12 @@
       "sha256": "80d1c788b0fe97edf34d52c35bb31d0adf7fc74f9fcb4f674615a542eee21f5f",
       "title": "Durable ML-BOM attachment to model artifacts and versions"
     },
+    "SAF-K8S-0905-044": {
+      "catalog_status": "draft",
+      "domain": "D09",
+      "sha256": "3123872b3fe024f29471b3e6ea675c43cac9730a773d91170fe374c49dbc6007",
+      "title": "Public model quarantine isolation and malicious artifact scanning"
+    },
     "SAF-K8S-0905-045": {
       "catalog_status": "draft",
       "domain": "D09",
@@ -3548,7 +3554,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "4e619ac98333931e3b2da8d26e146bb94ff381ba",
+  "revision": "498bbe1260cf9da58afc9bd6f5096fc484c626f6",
   "sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
