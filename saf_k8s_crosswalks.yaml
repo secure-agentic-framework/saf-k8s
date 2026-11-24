@@ -35907,22 +35907,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: RA-5(11)
-  framework_requirement_title: Public Disclosure Program
-  framework_mapping_notes: 'Vulnerability disclosure programs apply to agentic AI systems and components
-
-
-    1.4 - CVE response (monitoring K8s security announcements, public vulnerability disclosure programs)'
-  control_id: SAF-K8S-0104-018
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: RA-5(6)
   framework_requirement_title: Automated Trend Analyses
   framework_mapping_notes: 'Automated trend analysis of agent vulnerabilities identifies systemic security issues
@@ -59631,16 +59615,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-5
   framework_requirement_title: Security Alerts, Advisories, and Directives
-  framework_mapping_notes: 'Security alerts and advisories inform operators of threats to agentic AI systems
-
-
-    1.4 - CVE response (monitoring security announcements); 10.2 - Threat intelligence (consuming advisories)'
+  framework_mapping_notes: Receiving Kubernetes advisories and directing them to the assigned recipients supports the external receipt and dissemination portions of this requirement. Internal alerts and directive implementation have separate evidence.
   control_id: SAF-K8S-0104-018
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: null
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -59727,16 +59708,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-5(1)
   framework_requirement_title: Automated Alerts and Advisories
-  framework_mapping_notes: 'Automated security advisory distribution ensures timely awareness of agent vulnerabilities
-
-
-    1.4 - CVE response (automated security announcement monitoring); 6.4 - Vulnerability intelligence'
+  framework_mapping_notes: Automated advisory delivery supports the portion of organization-wide dissemination that covers Kubernetes and its dependencies. Confirm actual delivery to the defined recipient population.
   control_id: SAF-K8S-0104-018
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Authorized automated delivery covers the applicable Kubernetes advisory recipients.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -64493,22 +64471,6 @@
 
 
     1.4 - CVE response (monitoring security announcements from vendors); 6.4 - Vulnerability intelligence'
-  control_id: SAF-K8S-0104-018
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-8
-  framework_requirement_title: Notification Agreements
-  framework_mapping_notes: 'Notification agreements with AI suppliers ensure timely disclosure of security issues
-
-
-    1.4 - CVE response (monitoring security announcements from vendors); 6.4 - Vulnerability intelligence'
   control_id: SAF-K8S-0604-001
   relation_type: supports
   strength_level: strong
@@ -65586,13 +65548,13 @@
   framework_version: '1.1'
   framework_requirement_id: RV.1.1
   framework_requirement_title: Gather information from software acquirers, users, and public sources on potential vulnerabilities in the software and third-party components, and investigate all credible reports.
-  framework_mapping_notes: SAF-K8S requires continuous vulnerability monitoring for container images, ML dependencies, GPU drivers, and Kubernetes components. VEX publication and threat intelligence integration formalize vulnerability information gathering.
+  framework_mapping_notes: Monitoring authoritative Kubernetes and dependency sources supplies vulnerability information for the software producer's investigation workflow. Record how credible reports reach that workflow.
   control_id: SAF-K8S-0104-018
-  relation_type: direct
+  relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  applicability: conditional
+  applicability_condition: The advisories concern software or dependencies within the producer's scope.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'

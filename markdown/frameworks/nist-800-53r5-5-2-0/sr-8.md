@@ -20,15 +20,6 @@ Notification agreements with AI suppliers ensure timely disclosure of security i
 - Applicability: required
 - Strength Reason Code: exact-text-match
 
-### [SAF-K8S-0104-018 - Kubernetes security advisory and provider bulletin monitoring](../../controls/SAF-K8S-0104-018.md)
-
-- Domain: D01 - Control Plane and Cluster Hardening
-- Knowledge Area: 1.4
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0604-001 - SBOM generation for container and AI artifacts](../../controls/SAF-K8S-0604-001.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
