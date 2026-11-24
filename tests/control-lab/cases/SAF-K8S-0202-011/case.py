@@ -1,9 +1,12 @@
 """Test the distinction between admission, an available MAC policy, and workload operation."""
 
+import importlib.util
 import json
+from pathlib import Path
 import time
 
-SCOPE = "Kubernetes admission and kubelet handling of one intentionally unavailable AppArmor declaration on disposable Kind."
+SCOPE = ("Kubernetes admission/kubelet handling of an unavailable AppArmor declaration on disposable Kind, "
+         "plus effective AppArmor marker enforcement through OCI/runc in a separate disposable Debian Lima guest.")
 IMAGE = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 API = "admissionregistration.k8s.io/v1"
 POLICY = "fixture-required-apparmor"
@@ -36,10 +39,12 @@ def validation(lab):
     no_override = ("object.spec.containers.all(c, !has(c.securityContext) || "
                    "!has(c.securityContext.appArmorProfile)) && "
                    "(!has(object.spec.initContainers) || object.spec.initContainers.all(c, "
+                   "!has(c.securityContext) || !has(c.securityContext.appArmorProfile))) && "
+                   "(!has(object.spec.ephemeralContainers) || object.spec.ephemeralContainers.all(c, "
                    "!has(c.securityContext) || !has(c.securityContext.appArmorProfile)))")
     lab.create({"apiVersion": API, "kind": "ValidatingAdmissionPolicy", "metadata": {"name": POLICY},
                 "spec": {"failurePolicy": "Fail", "matchConstraints": {"resourceRules": [{
-                    "apiGroups": [""], "apiVersions": ["v1"], "operations": ["CREATE"], "resources": ["pods"],
+                    "apiGroups": [""], "apiVersions": ["v1"], "operations": ["CREATE", "UPDATE"], "resources": ["pods", "pods/ephemeralcontainers"],
                 }]}, "validations": [{"expression": f"({declared}) && ({no_override})", "message": MESSAGE}]}})
     lab.create({"apiVersion": API, "kind": "ValidatingAdmissionPolicyBinding", "metadata": {"name": POLICY},
                 "spec": {"policyName": POLICY, "validationActions": ["Deny"], "matchResources": {
@@ -98,6 +103,16 @@ def run(lab):
               {"omitted_profile_rejected": omitted, "conflicting_profile_rejected": unauthorized, "intended_profile_admitted": intended})
 
     lab.create(manifest)
+    ephemeral = {"spec": {"ephemeralContainers": [{
+        "name": "conflicting-fixture", "image": IMAGE,
+        "securityContext": {"appArmorProfile": {"type": "Unconfined"}},
+    }]}}
+    result = lab.kubectl("patch", "pod", "fixture-required", "--subresource=ephemeralcontainers",
+                         "--type=merge", "--dry-run=server", "-p", json.dumps(ephemeral),
+                         allow_failure=True)
+    conflicting_ephemeral = denied(result)
+    lab.check("green", "The API denies a disallowed AppArmor override on the ephemeral container subresource",
+              conflicting_ephemeral, {"conflicting_ephemeral_profile_rejected": conflicting_ephemeral})
     rejected = runtime_refused(lab, "fixture-required")
     other_ns = "fixture-mac-unconstrained"
     lab.create({"apiVersion": "v1", "kind": "Namespace", "metadata": {"name": other_ns}})
@@ -111,3 +126,16 @@ def run(lab):
         "admission_profile_required": omitted and unauthorized, "unavailable_profile_refused": rejected,
         "ordinary_workload_completed": marker, "loaded_policy_confinement_tested": False,
     }, indent=2) + "\n")
+    helper_path = Path(__file__).with_name("apparmor_fixtures.py")
+    spec = importlib.util.spec_from_file_location("apparmor_fixture", helper_path)
+    fixture = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(fixture)
+    oci = fixture.observe_guest(lab)
+    oci_passed = all(oci.get(key) is True for key in (
+        "apparmor_enabled", "apparmor_active", "baseline_both_writes",
+        "process_profile_enforcing", "allowed_write", "denied_write", "profile_removed",
+        "recovery_both_writes", "guest_deleted",
+    )) and oci.get("guest_arch") == "arm64" and oci.get("kernel", "").startswith("6.12.")
+    lab.check("green", "OCI process receives the enforcing AppArmor profile and only the approved marker write succeeds",
+              oci_passed, oci)
+    (lab.evidence / "oci-apparmor-observations.json").write_text(json.dumps(oci, indent=2) + "\n")
