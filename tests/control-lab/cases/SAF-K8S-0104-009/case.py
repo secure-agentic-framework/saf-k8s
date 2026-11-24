@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 import re
+from runpy import run_path
 import time
 
 
@@ -36,10 +37,10 @@ def minor(release):
 
 def lifecycle_for(plan, target_release):
     target = minor(target_release)
-    state = "active"
+    state = {"lifecycle": "active"}
     for transition in plan["transitions"]:
         if target >= minor(transition["release"]):
-            state = transition["lifecycle"]
+            state = transition
     return state
 
 
@@ -50,20 +51,22 @@ def evaluate(plan, observation):
             continue
         for source in component.get("observations", []):
             settings = source.get("feature_gates", {})
-            for gate in settings.keys() & plan["gates"].keys():
-                state = lifecycle_for(plan["gates"][gate], observation["target_release"])
-                if state == "active":
+            for gate in sorted(settings.keys() & plan["gates"].keys()):
+                transition = lifecycle_for(plan["gates"][gate], observation["target_release"])
+                state = transition["lifecycle"]
+                if state == "active" or (state == "locked-to-default" and settings[gate] is transition["default"]):
                     continue
+                message = {
+                    "locked-to-default": "explicit value conflicts with the locked default",
+                    "removed": "explicit value refers to a removed gate",
+                    "deprecated": "explicit value requires a lifecycle review",
+                }[state]
                 findings.append({
                     "gate": gate,
                     "lifecycle": state,
                     "source": source.get("source", "unspecified"),
                     "configured_value": settings[gate],
-                    "message": (
-                        "explicit value is stale: the gate is locked to its default"
-                        if state == "locked-to-default"
-                        else "explicit value refers to a removed gate"
-                    ),
+                    "message": message,
                 })
     return findings
 
@@ -119,6 +122,27 @@ def check_fixtures(lab):
         and removed_findings[0]["source"] == "kubelet-config",
         removed_findings,
     )
+
+    def observation(settings, version="v1.36.1"):
+        return {"target_release": version, "components": [{"name": "kubelet", "observations": [
+            {"source": "process-flag", "feature_gates": settings},
+        ]}]}
+
+    exact_defaults = evaluate(plan, observation({LOCKED: True, GITREPO_GATE: False}))
+    lab.check("green", "Both explicitly stated locked defaults agree with the target parser",
+              exact_defaults == [], {"blocking_findings": len(exact_defaults)})
+
+    conflicting = evaluate(plan, observation({GITREPO_GATE: True}))
+    removed_false = evaluate(plan, observation({REMOVED: False}))
+    lab.check("red", "A conflicting GitRepo default and an explicit false removed gate still fail",
+              [(x["gate"], x["lifecycle"]) for x in conflicting + removed_false]
+              == [(GITREPO_GATE, "locked-to-default"), (REMOVED, "removed")],
+              {"conflicts": conflicting, "removed_with_false": removed_false})
+
+    previous = evaluate(plan, observation({GITREPO_GATE: False}, "v1.35.0"))
+    lab.check("positive", "The previous release records deprecation separately from a locked override",
+              len(previous) == 1 and previous[0]["lifecycle"] == "deprecated",
+              {"previous_release_findings": previous})
 
     removed_good = fixture("removed-clean.json")
     lab.check(
@@ -215,6 +239,7 @@ def run(lab):
     for phase, label, setting, expected in (
         ("red", "Locked kubelet gate rejects the opposite value", f"{LOCKED}=false", "feature is locked to true"),
         ("red", "Removed kubelet gate is unrecognized", f"{REMOVED}=true", f"unrecognized feature gate: {REMOVED}"),
+        ("red", "A false override still uses an unrecognized removed name", f"{REMOVED}=false", f"unrecognized feature gate: {REMOVED}"),
         ("red", "v1.36 gitRepo driver gate rejects enabling the locked feature", f"{GITREPO_GATE}=true", "feature is locked to false"),
         ("positive", "Recognized explicit default reaches the file sentinel", f"{LOCKED}=true", "not a directory"),
         ("positive", "gitRepo driver default reaches the impossible config sentinel", f"{GITREPO_GATE}=false", "not a directory"),
@@ -232,6 +257,8 @@ def run(lab):
     readiness = lab.kubectl("get", "--raw=/readyz").stdout.strip()
     lab.check("positive", "The running kind API stays ready", readiness == "ok", {"ready": readiness == "ok"})
     check_gitrepo_admission(lab)
+    migration = run_path(str(CASE_DIR / "volume-migration.py"))
+    migration["run"](lab)
 
 
 class StaticReporter:

@@ -59,3 +59,33 @@ dry-run, and the runner removes the disposable cluster afterward.
 - [Kubernetes v1.36.0 changelog](https://github.com/kubernetes/kubernetes/blob/v1.36.0/CHANGELOG/CHANGELOG-1.36.md) — disabled with no option to turn it back on.
 - [Kubernetes v1.34.0 changelog](https://raw.githubusercontent.com/kubernetes/kubernetes/v1.34.0/CHANGELOG/CHANGELOG-1.34.md)
 - [Kubernetes v1.37.1 feature gate registry](https://github.com/kubernetes/kubernetes/blob/v1.37.1/pkg/features/kube_features.go)
+
+The migration example inventories inert Pod templates, including Deployment
+and CronJob entries. It then starts a supported replacement with a read-only
+ConfigMap source and an init container writing to a shared emptyDir. The
+main container reaches Ready and reads the exact public marker. The example
+does not access a Git remote.
+
+## Verify your implementation
+
+- Inventory component versions, configured overrides and effective gates
+  before and after each planned upgrade. Use exact upstream records and
+  provider defaults to identify locked, removed, renamed and graduated
+  features. Keep missing or conflicting evidence visible.
+- Compare the desired settings against the destination binaries and their
+  effective configuration precedence. Verify the configuration starts,
+  affected nodes and workloads remain Ready, and approved behavior survives
+  the change. Include rollout, reset, and recovery evidence when applicable.
+- Inventory legacy gitRepo references in rendered manifests, Pod templates
+  and deployment streams. Identify the owner and supported replacement,
+  and verify any remaining obsolete references fail the intended policy.
+  Rehearse the permitted replacement and record source and data integrity,
+  workload and volume behavior, and the exact transition.
+
+- [Kubernetes v1.36 release notes](https://kubernetes.io/blog/2026/04/22/kubernetes-v1-36-release/)
+- [Kubernetes volume types](https://kubernetes.io/docs/concepts/storage/volumes/)
+
+The evaluator distinguishes explicit values that match locked defaults
+from conflicting overrides. A removed gate name remains unsupported for
+either value. The GitRepo driver is recorded as deprecated in v1.35 and
+locked off in v1.36. The v1.36.1 kubelet parser checks the same boundaries.

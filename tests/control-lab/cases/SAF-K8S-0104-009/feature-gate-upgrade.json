@@ -4,12 +4,39 @@
   "target_release": "v1.36.1",
   "gates": {
     "KubeletCgroupDriverFromCRI": {
-      "transitions": [{"release": "v1.34", "lifecycle": "locked-to-default", "default": true}],
+      "transitions": [
+        {
+          "release": "v1.34",
+          "lifecycle": "locked-to-default",
+          "default": true
+        }
+      ],
       "source": "https://github.com/kubernetes/kubernetes/blob/v1.36.1/pkg/features/kube_features.go"
     },
     "DevicePluginCDIDevices": {
-      "transitions": [{"release": "v1.34", "lifecycle": "removed", "last_supported_release": "v1.33"}],
+      "transitions": [
+        {
+          "release": "v1.34",
+          "lifecycle": "removed",
+          "last_supported_release": "v1.33"
+        }
+      ],
       "source": "https://github.com/kubernetes/kubernetes/blob/v1.34.0/CHANGELOG/CHANGELOG-1.34.md"
+    },
+    "GitRepoVolumeDriver": {
+      "transitions": [
+        {
+          "release": "v1.33",
+          "lifecycle": "deprecated",
+          "default": false
+        },
+        {
+          "release": "v1.36",
+          "lifecycle": "locked-to-default",
+          "default": false
+        }
+      ],
+      "source": "https://github.com/kubernetes/kubernetes/blob/v1.36.1/pkg/features/kube_features.go"
     }
   }
 }
