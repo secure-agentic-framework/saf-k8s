@@ -37407,16 +37407,14 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-10(5)
   framework_requirement_title: Mapping Integrity for Version Control
-  framework_mapping_notes: 'Version control integrity mapping tracks provenance of agent code and model artifacts
-
-
-    6.6 - GitOps (Git version control integrity, signed commits, tag immutability for version mapping)'
+  framework_mapping_notes: >-
+    Matching the expected SHA-256 to the immutable local tool copy before execution supports a narrow version-to-copy integrity check. The developer must separately maintain correspondence between current-version master build data and the on-site master copy.
   control_id: SAF-K8S-0606-009
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: null
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
