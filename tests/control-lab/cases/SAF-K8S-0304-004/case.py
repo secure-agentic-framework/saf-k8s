@@ -109,6 +109,31 @@ def run(lab):
               blocked and "ephemeralcontainers" in denial,
               {"denied_by_rbac": blocked, "target_subresource": "ephemeralcontainers"})
 
+    # kubectl PATCH first reads the object. Allow the read-only phase so
+    # the denial establishes the separate Kubernetes PATCH decision.
+    lab.kubectl("create", "role", "ephemeral-inspector", "--verb=get",
+                "--resource=pods,pods/ephemeralcontainers", f"--resource-name={POD}")
+    lab.kubectl("create", "rolebinding", "ephemeral-inspector",
+                "--role=ephemeral-inspector", "--serviceaccount=saf-test:unapproved")
+
+    # PATCH is a separate RBAC verb from update. Keep this alternative route
+    # harmless by using server dry-run against the same case-owned Pod.
+    unauthorized_patch = lab.kubectl(
+        "--as", UNAUTHORIZED, "patch", "pod", POD,
+        "--subresource=ephemeralcontainers", "--type=merge", "--dry-run=server",
+        "-p", json.dumps({"spec": {"ephemeralContainers": [
+            _safe_ephemeral("unauthorized-patch-marker")
+        ]}}), allow_failure=True)
+    patch_denial = unauthorized_patch.stderr
+    patch_blocked = (unauthorized_patch.returncode != 0
+                     and "forbidden" in patch_denial.lower()
+                     and "cannot patch" in patch_denial.lower()
+                     and "ephemeralcontainers" in patch_denial.lower())
+    lab.check("green", "Unauthorized identity cannot patch the ephemeralcontainers subresource",
+              patch_blocked,
+              {"denied_by_rbac": patch_blocked, "verb": "patch",
+               "target_subresource": "ephemeralcontainers", "server_dry_run": True})
+
     # Both negative content probes are dry runs of the inert marker.
     invalid = deepcopy(compliant)
     invalid["spec"]["ephemeralContainers"][0]["securityContext"]["runAsNonRoot"] = False

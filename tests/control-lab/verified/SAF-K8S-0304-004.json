@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-0304-004",
-  "catalog_revision": "456e71d02285cd34320d6492624b4840b5cca23e",
-  "catalog_sha256": "64d0066a6bfd998e0225765d321c3dd45a8d2b177bcd4dad0aa6403bd50c1aa6",
+  "catalog_revision": "abd6dd866299650c52e1ff25781cdcee1a98e889",
+  "catalog_sha256": "dbb6123b0e1913a1d4b79ee665955e432270186ddbbcfccc1500ad71d7246f81",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "dd831f9f78d6d6ab881f40e52e13238b5d70ba2ca7c8b81d861ea189e1bc28bc",
   "scope": "Fresh harness-owned Kind cluster; namespace saf-test; native Pod Security Admission restricted v1.36; RBAC for one case-owned pod's ephemeralcontainers subresource.",
-  "review_timing": {
-    "queued_at": "2026-11-23T03:56:26.103289+00:00",
-    "cluster_ready_at": "2026-11-23T03:56:58.368608+00:00",
-    "approval_at": "2026-11-23T03:58:26.367764+00:00",
-    "case_loaded_at": "2026-11-23T03:58:26.499337+00:00"
-  },
-  "cluster": "saf-lab-ca0389a5ed99",
+  "cluster": "saf-lab-c1f0e0aa14c1",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "a258a60096b93050b3969129142cce67b5da692a600b132f76e472614c26f5aa",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
@@ -74,6 +67,17 @@
       "observed": {
         "denied_by_rbac": true,
         "target_subresource": "ephemeralcontainers"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Unauthorized identity cannot patch the ephemeralcontainers subresource",
+      "matched": true,
+      "observed": {
+        "denied_by_rbac": true,
+        "verb": "patch",
+        "target_subresource": "ephemeralcontainers",
+        "server_dry_run": true
       }
     },
     {

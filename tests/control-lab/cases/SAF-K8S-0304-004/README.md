@@ -11,9 +11,30 @@ a seccomp filter. Readback verifies that the original Pod and its init
 container stay in place, and the ordinary Pod route rejects an ephemeral
 addition.
 
-Production debug role reviews, audit collection, runtime variations
-and namespace coverage require deployed evidence.
+The RBAC fixture grants the approved debugger `update` on one Pod's
+`pods/ephemeralcontainers` subresource. The unapproved identity has named
+read access and is denied both the direct update and server-dry-run patch.
+That read permission lets the patch reach the write authorization check.
+
+## Verify your implementation
+
+1. Confirm the namespaces and runtime classes that allow debugging, their
+   effective Pod Security Admission levels and versions, and their exemptions.
+   Inventory approved operators, their identity bindings, and the actual
+   subresource verbs used by each debug client.
+2. In a disposable namespace, verify the same approved Pod accepts a compliant
+   request from the scoped debugger. Verify the unapproved identity is denied
+   when using the relevant update and patch verbs. Use server dry runs for
+   requests with disallowed security settings.
+3. For each additional workload-specific security setting, verify that admission
+   rules explicitly include `pods/ephemeralcontainers`. Verify the running
+   approved debug process has the expected identity and profile.
+4. Confirm API audit records for both permitted and denied operations, including
+   the actor, verb, resource, subresource, namespace and response decision.
+   Check downstream severity and alert delivery separately. The current case
+   demonstrates RBAC and admission, with no audit collection.
 
 - [Kubernetes ephemeral containers](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/pods/ephemeral-containers/)
 - [Kubernetes Pod Security Standards](https://v1-36.docs.kubernetes.io/docs/concepts/security/pod-security-standards/)
 - [Kubernetes RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
+- [Kubernetes v1.36 auditing](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/)
