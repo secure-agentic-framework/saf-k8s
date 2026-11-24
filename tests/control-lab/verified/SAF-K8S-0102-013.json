@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0102-013",
-  "catalog_revision": "87f9b8c3a541f78796eb3ca8058e8b8c8d7dc232",
-  "catalog_sha256": "84059ed85131d0153bb153008cedec76dcd757fbcee95dd30abdca488a39e443",
+  "catalog_revision": "40b19c20224b53d49276db7a9f1ff1623af82796",
+  "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "aafa570f4a87f5fdb9d353e4ee2ca123f3cdd771c35d787bb787480673e7fb4a",
-  "scope": "Two disposable single-member etcd v3.6.8 processes, each in Docker network mode none. The manual case uses three public synthetic marker keys and one bounded deleted padding key, observes an old exact-key read before compaction, compacts the current revision, verifies that only the old read is rejected, and measures reclaimed database bytes after one online defrag. A second process checks periodic auto-compaction with a real 8-second retention window. No Kubernetes API or production data is used. Multi-member sequencing, real workload availability, sizing, and production retention selection are outside scope.",
-  "cluster": "saf-lab-bd85a8e11b34",
+  "scope": "Two disposable single-member etcd v3.6.8 processes, each in Docker network mode none. The manual case uses three public synthetic marker keys and one bounded deleted padding key, observes an old exact-key read before compaction, compacts the current revision, verifies that only the old read is rejected, and measures reclaimed database bytes after one online defrag. A second process checks periodic auto-compaction with a real 8-second retention window. A separate three-member etcd fixture uses a real UTC CronJob, verifies member health before and after each sequential action, and withholds all maintenance when a health check fails. Provider guarantees, production workload availability and real retention configuration stay open.",
+  "cluster": "saf-lab-372f62d2468d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -102,6 +102,90 @@
         "old_revision_compacted": true,
         "expiry_observed_within_maximum_wait": true,
         "latest_exact_key_read_available": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The dedicated synthetic etcd StatefulSet has three ready members",
+      "matched": true,
+      "observed": {
+        "three_members_ready": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "An old exact marker revision is readable before periodic compaction",
+      "matched": true,
+      "observed": {
+        "old_revision_readable_before_expiry": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Periodic compaction expires only the old revision while the latest marker remains readable",
+      "matched": true,
+      "observed": {
+        "old_revision_compacted": true,
+        "latest_exact_key_read_available": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The shared maintenance function withholds defrag on forced endpoint-health failure",
+      "matched": true,
+      "observed": {
+        "forced_bad_endpoint_health_result": true,
+        "interlock_failed_closed": true,
+        "zero_maintenance_commands_attempted": true,
+        "benign_marker_remains_readable": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The bounded UTC CronJob declares Forbid concurrency and one constrained Job",
+      "matched": true,
+      "observed": {
+        "every_minute_schedule": true,
+        "utc": true,
+        "forbid": true,
+        "bounded_job_and_resources": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The first controller-owned Job carries its CronJob UID and scheduled UTC timestamp",
+      "matched": true,
+      "observed": {
+        "controller_owned": true,
+        "controller_scheduled_timestamp_present_and_utc": true,
+        "manual_job_marker_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Scheduling is suspended after the first owned Job is observed",
+      "matched": true,
+      "observed": {
+        "further_scheduling_suspended": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Scheduled maintenance defragments members sequentially with healthy cluster and remote marker checks",
+      "matched": true,
+      "observed": {
+        "three_member_actions_in_order": true,
+        "healthy_membership_and_leader_before_after_each_action": true,
+        "marker_read_from_different_member_after_each_action": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A scheduled member defrag reclaims backend bytes while all current synthetic markers remain readable",
+      "matched": true,
+      "observed": {
+        "allocated_size_decreased_after_defrag": true,
+        "all_latest_exact_key_reads_available": true
       }
     }
   ]

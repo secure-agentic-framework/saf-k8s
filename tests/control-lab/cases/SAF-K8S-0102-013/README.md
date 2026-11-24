@@ -66,3 +66,16 @@ compact history that another component still expects to read.
 The default kube-apiserver compaction interval is not itself a guarantee about
 the deployed configuration or a universal retention duration. Confirm actual
 apiserver flags and etcd auto-compaction settings for the cluster under review.
+
+The extended case also creates a dedicated three-member etcd v3.6.8 cluster
+inside Kind. Each configured member uses a pinned release image and ephemeral
+storage. It verifies periodic compaction against an exact old revision, checks
+that the shared interlock withholds defrag on a deliberate health-failure
+comparison, and observes an actual controller-created UTC CronJob execution.
+The scheduled Job defragments one owned endpoint at a time with health and
+membership checks before and after every action and marker reads from a second
+member. The Kind control-plane datastore is outside the fixture. Provider and
+production deployment obligations require their own evidence.
+
+- [etcd v3.6 maintenance](https://etcd.io/docs/v3.6/op-guide/maintenance/)
+- [Kubernetes v1.36 CronJobs](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/)

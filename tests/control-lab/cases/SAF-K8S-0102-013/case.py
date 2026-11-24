@@ -2,6 +2,8 @@
 from contextlib import contextmanager
 import json
 import re
+import runpy
+from pathlib import Path
 import subprocess
 import time
 
@@ -24,8 +26,9 @@ SCOPE = (
     "an old exact-key read before compaction, compacts the current revision, verifies that "
     "only the old read is rejected, and measures reclaimed database bytes after one online defrag. "
     "A second process checks periodic auto-compaction with a real 8-second retention window. "
-    "No Kubernetes API or production data is used. Multi-member sequencing, real workload "
-    "availability, sizing, and production retention selection are outside scope."
+    "A separate three-member etcd fixture uses a real UTC CronJob, verifies member health before and "
+    "after each sequential action, and withholds all maintenance when a health check fails. Provider "
+    "guarantees, production workload availability and real retention configuration stay open."
 )
 
 
@@ -240,3 +243,4 @@ def run(lab):
     suffix = lab.cluster.removeprefix("saf-lab-")
     manual_compaction_and_defrag(lab, f"saf-etcd-maint-{suffix}")
     automatic_expiry(lab, f"saf-etcd-auto-{suffix}")
+    runpy.run_path(str(Path(__file__).with_name("cluster_maintenance.py")))["run"](lab)
