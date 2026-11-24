@@ -65515,13 +65515,13 @@
   framework_version: '1.1'
   framework_requirement_id: PW.9.1
   framework_requirement_title: Define a secure baseline by determining how to configure each setting that has an effect on security.
-  framework_mapping_notes: 'SAF-K8S defines secure baseline configurations for Kubernetes components: CIS Benchmark automated assessment, Pod Security Standards, Cloud Native 8 secure defaults, and inference server hardening.'
+  framework_mapping_notes: Recurring CIS scan results can inform validation of an already defined configuration baseline for the applicable Kubernetes surfaces. Record the separately approved baseline and how the scan criteria cover its settings.
   control_id: SAF-K8S-0104-014
-  relation_type: direct
+  relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  applicability: conditional
+  applicability_condition: The assessed Kubernetes settings are part of the component's secure-default baseline and the benchmark checks assess those settings.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
