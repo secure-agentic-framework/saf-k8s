@@ -15,3 +15,32 @@ memory. Production values, physical capacity protection, storage
 thresholds, managed service and GPU-specific tuning remain separate.
 
 - [Kubernetes v1.36 node-pressure eviction](https://v1-36.docs.kubernetes.io/docs/concepts/scheduling-eviction/node-pressure-eviction/)
+
+## Verify your implementation
+
+- Inventory node pools, reservations, allocatable capacity, filesystem topology,
+  supported eviction signals, and any managed settings. Record the running kubelet
+  release, the complete effective hard threshold map, the merge setting, and
+  evidence that the provisioning source reproduces those settings after restart
+  or node replacement.
+- Compare thresholds and system and Kubernetes reservations to observed memory,
+  filesystem space, inodes, and PID headroom as applicable. Look at sustained and
+  burst load, telemetry sampling cadence, and the capacity the node needs to
+  recover. Hard memory thresholds reduce risk. Rapid increases can still outrun
+  the kubelet and the kernel can invoke its OOM killer.
+- Distinguish explicit overrides, disabled thresholds, and versioned defaults.
+  The test compares one effective inode threshold with the merge setting off and
+  on, then confirms restoration before the memory scenario. Filesystem topology,
+  the runtime and feature support determine which signals apply.
+- Rehearse expected pressure signals, alert delivery, and workload recovery in
+  approved staging. Verify rescheduling and any checkpoint or retry policy with
+  workload owners. A hard eviction can interrupt a workload before its configured
+  grace period, including one with a PDB. Preserve the thresholds and reasons in
+  the rehearsal evidence and each deviation's approval and expiry.
+- For a managed pool, retain service and node-pool evidence of effective policy
+  and operator responsibilities. For GPU workloads, assess device-memory capacity
+  and recovery with the GPU mechanisms. Kubelet node-memory measurements describe
+  host memory.
+
+- [Kubernetes v1.36 kubelet configuration](https://v1-36.docs.kubernetes.io/docs/reference/config-api/kubelet-config.v1beta1/)
+- [Kubernetes v1.36 resource reservations](https://v1-36.docs.kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/)

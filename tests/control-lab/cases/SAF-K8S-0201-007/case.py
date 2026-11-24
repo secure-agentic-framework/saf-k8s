@@ -10,7 +10,8 @@ SCOPE = (
     "A disposable Kind v1.36.1 worker on containerd. A deliberately raised "
     "memory.available threshold creates a kubelet pressure signal without allocating "
     "large memory. Checks the real eviction, a blocking PDB, configured workload grace, "
-    "control-plane readiness, and worker recovery. This is not production threshold tuning."
+    "control-plane readiness, and worker recovery. Also compares effective settings for an omitted "
+    "filesystem-inode signal under each default-merge mode. The lab uses deliberately synthetic thresholds."
 )
 
 
@@ -45,14 +46,27 @@ def workload(name, worker):
                         "lifecycle":{"preStop":{"exec":{"command":["sleep","100"]}}}}]}}
 
 
+def hard_map_bounds(lines):
+    begin = lines.index("evictionHard:") + 1
+    end = next((i for i in range(begin, len(lines)) if not lines[i].startswith(" ")), len(lines))
+    return begin, end
+
+
 def config_with_threshold(text, value):
     lines = text.splitlines()
-    start = lines.index("evictionHard:") + 1
-    end = next((i for i in range(start, len(lines)) if not lines[i].startswith(" ")), len(lines))
+    start, end = hard_map_bounds(lines)
     thresholds = [line for line in lines[start:end] if not line.startswith("  memory.available:")]
     lines[start:end] = [f"  memory.available: {value}Mi", *thresholds]
     lines = ["evictionPressureTransitionPeriod: 30s" if line.startswith("evictionPressureTransitionPeriod:") else line
              for line in lines]
+    return "\n".join(lines) + "\n"
+
+
+def with_merge_fixture(text, explicit, merge):
+    lines = [line for line in text.splitlines() if not line.startswith("mergeDefaultEvictionSettings:")]
+    start, end = hard_map_bounds(lines)
+    lines[start:end] = [f"  {signal}: {value}" for signal, value in explicit.items()]
+    lines.append(f"mergeDefaultEvictionSettings: {str(merge).lower()}")
     return "\n".join(lines) + "\n"
 
 
@@ -71,6 +85,57 @@ def configz(lab, worker):
     return json.loads(result.stdout)["kubeletconfig"]
 
 
+def verify_default_merge(lab, worker, source, initial):
+    omitted = "nodefs.inodesFree"
+    explicit = {
+        "memory.available": "128Mi",
+        "nodefs.available": "0%",
+        "imagefs.available": "0%",
+        "imagefs.inodesFree": "0%",
+    }
+    stats_path = f"--raw=/api/v1/nodes/{worker}/proxy/stats/summary"
+    overview = json.loads(lab.kubectl("get", stats_path).stdout)["node"]
+    fs = overview["fs"]
+    if (fs.get("inodes", 0) <= 0 or fs.get("inodesFree", 0) * 100 < fs["inodes"] * 10
+            or overview["memory"].get("availableBytes", 0) < 512 * 1024 * 1024):
+        lab.block("The owned worker needs headroom before enabling the version's test inode threshold")
+
+    def effective_with(merge):
+        config = configz(lab, worker)
+        if config and config.get("mergeDefaultEvictionSettings", False) is merge:
+            hard = config["evictionHard"]
+            if all(hard.get(signal) == value for signal, value in explicit.items()):
+                return hard
+        return None
+
+    try:
+        write_config(lab, worker, with_merge_fixture(source, explicit, False))
+        without = wait(lab, lambda: effective_with(False), "custom map with default merging disabled")
+        mode = without.get(omitted)
+        lab.check("red", "Without merging, an omitted inode signal has no active threshold",
+                  mode in (None, "0", "0%"), {"omitted_inode_threshold_passive": mode in (None, "0", "0%")})
+        write_config(lab, worker, with_merge_fixture(source, explicit, True))
+        merged = wait(lab, lambda: effective_with(True), "custom map with default merging enabled")
+        lab.check("green", "Merging brings back the version's inode default while explicit thresholds prevail",
+                  merged == {**explicit, omitted: "5%"},
+                  {"inherited_inode_threshold": merged.get(omitted), "explicit_thresholds_preserved": True})
+    finally:
+        write_config(lab, worker, source)
+
+    def restored():
+        config = configz(lab, worker)
+        return config and config["evictionHard"] == initial["evictionHard"] and (
+            config.get("mergeDefaultEvictionSettings", False) == initial.get("mergeDefaultEvictionSettings", False)
+        )
+
+    wait(lab, restored, "exact restored threshold map and merge flag")
+    lab.check("positive", "The worker again reports the original effective map and merge policy",
+              True, {"original_map_and_merge_policy_restored": True})
+    return {"signal": omitted, "explicit": explicit, "merge_disabled": without, "merge_enabled": merged,
+            "original_map": initial["evictionHard"],
+            "original_merge_enabled": initial.get("mergeDefaultEvictionSettings", False), "restored": True}
+
+
 def run(lab):
     worker = f"{lab.cluster}-worker"
     rows = read(lab, "get", "nodes")["items"]
@@ -81,6 +146,7 @@ def run(lab):
     source = lab.command("docker", "exec", worker, "cat", CONFIG).stdout
     initial_config = wait(lab, lambda: configz(lab, worker), "original effective kubelet config")
     initial_hard = initial_config["evictionHard"]
+    merge_evidence = verify_default_merge(lab, worker, source, initial_config)
 
     lab.create(workload(VICTIM, worker))
     lab.kubectl("wait","--for=condition=Ready",f"pod/{VICTIM}","--timeout=75s",timeout=86)
@@ -169,4 +235,5 @@ def run(lab):
         "threshold":configured,"available_before_bytes":available,"baseline":initial_hard,"eviction_message":action["message"],
         "elapsed_seconds":round(elapsed,3),"pod_grace_seconds":grace,
         "pdb_disruptions_allowed_before":budget["disruptionsAllowed"],"restored":restored,
+        "effective_merge_check": merge_evidence,
     },indent=2)+"\n")

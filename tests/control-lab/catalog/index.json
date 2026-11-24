@@ -357,7 +357,7 @@
     "SAF-K8S-0201-007": {
       "catalog_status": "draft",
       "domain": "D02",
-      "sha256": "76ea93db85b08f5d8ed928c0cf898fb17b549691d1a09d19ecc251b12867738e",
+      "sha256": "6ce173b657e64eb285edb7982e41bc14bd867effbe6ef89a13c0d95a735b5de9",
       "title": "Node eviction threshold tuning for workload pressure"
     },
     "SAF-K8S-0201-008": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "382e3d372223154ffcfd04a14c3aadaeda8b0325",
-  "sha256": "89f7799b9bc1855a0d4cf1e5aa36f0122612c67b0f313be4eec18901475dd85b",
+  "revision": "ed0c4ebe81e813cdbb2e647eeac4c15a1332a950",
+  "sha256": "44a1f4805a334c7a678d506a71e886b53052f0c549cbf2da4c78d17aeeb4d1d0",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

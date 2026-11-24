@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0201-007",
-  "catalog_revision": "9cf798c05d856b36d4e771f9aa3ff7d526d3748f",
-  "catalog_sha256": "32a437f7c021a0a6866f34d8110509fc2a4b595329c3296345bfd117673decd4",
+  "catalog_revision": "ace2ad77c2abc0c1b58d3cf40fd0fdf6f52fe2b5",
+  "catalog_sha256": "44a1f4805a334c7a678d506a71e886b53052f0c549cbf2da4c78d17aeeb4d1d0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "76ea93db85b08f5d8ed928c0cf898fb17b549691d1a09d19ecc251b12867738e",
-  "scope": "A disposable Kind v1.36.1 worker on containerd. A deliberately raised memory.available threshold creates a kubelet pressure signal without allocating large memory. Checks the real eviction, a blocking PDB, configured workload grace, control-plane readiness, and worker recovery. This is not production threshold tuning.",
-  "cluster": "saf-lab-15ef420cc61b",
+  "control_sha256": "6ce173b657e64eb285edb7982e41bc14bd867effbe6ef89a13c0d95a735b5de9",
+  "scope": "A disposable Kind v1.36.1 worker on containerd. A deliberately raised memory.available threshold creates a kubelet pressure signal without allocating large memory. Checks the real eviction, a blocking PDB, configured workload grace, control-plane readiness, and worker recovery. Also compares effective settings for an omitted filesystem-inode signal under each default-merge mode. The lab uses deliberately synthetic thresholds.",
+  "cluster": "saf-lab-aa1699e0b0df",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -38,6 +38,31 @@
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
+    {
+      "phase": "red",
+      "claim": "Without merging, an omitted inode signal has no active threshold",
+      "matched": true,
+      "observed": {
+        "omitted_inode_threshold_passive": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Merging brings back the version's inode default while explicit thresholds prevail",
+      "matched": true,
+      "observed": {
+        "inherited_inode_threshold": "5%",
+        "explicit_thresholds_preserved": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The worker again reports the original effective map and merge policy",
+      "matched": true,
+      "observed": {
+        "original_map_and_merge_policy_restored": true
+      }
+    },
     {
       "phase": "red",
       "claim": "Nominal threshold leaves the only PDB-protected Pod Running and the worker unpressured",
