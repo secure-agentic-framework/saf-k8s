@@ -1,0 +1,182 @@
+{
+  "control_id": "SAF-K8S-0910-026",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "1b1180a24ec532b1e526dcee77451a201d71bb35ed25bbf8b2d5e80fbf6a1ca5",
+  "scope": "Native Deployment admission on two separately owned Kind API servers using the same hash-bound approved policy bundle. All policy probes use server-side dry run.",
+  "cluster": "saf-lab-789ca391b191",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "red",
+      "claim": "Both dry-run requests are accepted before admission policy",
+      "matched": true,
+      "observed": {
+        "local": {
+          "decision": "accepted",
+          "policy_message": ""
+        },
+        "remote": {
+          "decision": "accepted",
+          "policy_message": ""
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Wrong-version candidate cannot alter protected approval state",
+      "matched": true,
+      "observed": {
+        "wrong_version_update": {
+          "local": {
+            "candidate_write_denied": true,
+            "stderr": "Error from server (Forbidden): configmaps \"saf026-approved-baseline\" is forbidden: User \"system:serviceaccount:saf026-control:saf026-candidate-publisher\" cannot patch resource \"configmaps\" in API group \"\" in the namespace \"saf026-control\""
+          },
+          "remote": {
+            "candidate_write_denied": true,
+            "stderr": "Error from server (Forbidden): configmaps \"saf026-approved-baseline\" is forbidden: User \"system:serviceaccount:saf026-control:saf026-candidate-publisher\" cannot patch resource \"configmaps\" in API group \"\" in the namespace \"saf026-control\""
+          }
+        },
+        "protected_state_after_attempt": {
+          "local": {
+            "version": "v1",
+            "sha256": "f3242795f4c3f2d9158755996adc41e0f535ab19a86f8eb136ae9587f34a1767",
+            "policy": "saf026-ai-deployment-baseline-v1",
+            "immutable": true
+          },
+          "remote": {
+            "version": "v1",
+            "sha256": "f3242795f4c3f2d9158755996adc41e0f535ab19a86f8eb136ae9587f34a1767",
+            "policy": "saf026-ai-deployment-baseline-v1",
+            "immutable": true
+          }
+        },
+        "protection_passed": true,
+        "active_policy_replacement": {
+          "local": {
+            "candidate_write_denied": true,
+            "stderr": "Error from server (Forbidden): validatingadmissionpolicies.admissionregistration.k8s.io \"saf026-ai-deployment-baseline-v1\" is forbidden: User \"system:serviceaccount:saf026-control:saf026-candidate-publisher\" cannot patch resource \"validatingadmissionpolicies\" in API group \"admissionregistration.k8s.io\" at the cluster scope"
+          },
+          "remote": {
+            "candidate_write_denied": true,
+            "stderr": "Error from server (Forbidden): validatingadmissionpolicies.admissionregistration.k8s.io \"saf026-ai-deployment-baseline-v1\" is forbidden: User \"system:serviceaccount:saf026-control:saf026-candidate-publisher\" cannot patch resource \"validatingadmissionpolicies\" in API group \"admissionregistration.k8s.io\" at the cluster scope"
+          }
+        },
+        "active_policy_after_attempt": {
+          "local": {
+            "version": "v1",
+            "expression": "!has(object.spec.template.spec.containers) || !object.spec.template.spec.containers.exists(c,\n  has(c.securityContext) &&\n  has(c.securityContext.privileged) &&\n  c.securityContext.privileged)",
+            "failurePolicy": "Fail"
+          },
+          "remote": {
+            "version": "v1",
+            "expression": "!has(object.spec.template.spec.containers) || !object.spec.template.spec.containers.exists(c,\n  has(c.securityContext) &&\n  has(c.securityContext.privileged) &&\n  c.securityContext.privileged)",
+            "failurePolicy": "Fail"
+          }
+        },
+        "active_policy_protection_passed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Both API servers type-check the same hash-bound bundle without warnings",
+      "matched": true,
+      "observed": {
+        "apply": {
+          "local": [
+            true,
+            ""
+          ],
+          "remote": [
+            true,
+            ""
+          ]
+        },
+        "accepted": {
+          "local": true,
+          "remote": true
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Both independent clusters deny the privileged synthetic Deployment",
+      "matched": true,
+      "observed": {
+        "local": {
+          "decision": "denied-by-policy",
+          "policy_message": "SAF-K8S-0910-026: privileged containers are not approved in synthetic AI deployments"
+        },
+        "remote": {
+          "decision": "denied-by-policy",
+          "policy_message": "SAF-K8S-0910-026: privileged containers are not approved in synthetic AI deployments"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both clusters admit the compliant synthetic Deployment",
+      "matched": true,
+      "observed": {
+        "local": {
+          "decision": "accepted",
+          "policy_message": ""
+        },
+        "remote": {
+          "decision": "accepted",
+          "policy_message": ""
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Local and remote decisions match in every phase",
+      "matched": true,
+      "observed": {
+        "before_policy": {
+          "local": "accepted",
+          "remote": "accepted"
+        },
+        "after_policy_denial": {
+          "local": "denied-by-policy",
+          "remote": "denied-by-policy"
+        },
+        "approved_behavior": {
+          "local": "accepted",
+          "remote": "accepted"
+        }
+      }
+    }
+  ]
+}

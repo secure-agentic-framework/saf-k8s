@@ -1,0 +1,41 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf026-ai-deployment-baseline-v1
+  annotations:
+    saf-k8s.example/control: SAF-K8S-0910-026
+    saf-k8s.example/bundle-version: v1
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["deployments"]
+        scope: Namespaced
+  validations:
+    - expression: >-
+        !has(object.spec.template.spec.containers) ||
+        !object.spec.template.spec.containers.exists(c,
+          has(c.securityContext) &&
+          has(c.securityContext.privileged) &&
+          c.securityContext.privileged)
+      message: "SAF-K8S-0910-026: privileged containers are not approved in synthetic AI deployments"
+      reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf026-ai-deployment-baseline-v1
+  annotations:
+    saf-k8s.example/control: SAF-K8S-0910-026
+    saf-k8s.example/bundle-version: v1
+spec:
+  policyName: saf026-ai-deployment-baseline-v1
+  validationActions:
+    - Deny
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/admission-baseline: required
