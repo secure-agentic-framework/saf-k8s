@@ -669,7 +669,7 @@
     "SAF-K8S-0303-001": {
       "catalog_status": "draft",
       "domain": "D03",
-      "sha256": "44ec63bc8f618058b65b879db5b3e626e8104ca8f0b2fbe373b3e823b8837eb1",
+      "sha256": "a6fe8e8cceae01b7efd302477bd5c6aadfeb5d4e0a7dc2f2382e350365df5d7f",
       "title": "Seccomp profile enforcement"
     },
     "SAF-K8S-0303-003": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ff7960c64222b0df138b495a7d8b34c1e3330546",
-  "sha256": "c4b5f8717241c69a6dd4070b08167065cf828ecfece8e31feed84e112f2b867a",
+  "revision": "8cef63aeb3612237742befcf5c820ccb34e37c70",
+  "sha256": "e8dc75eca92121d30e77394607cef4720273bed4d3a2d799f3eba7f6148199eb",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

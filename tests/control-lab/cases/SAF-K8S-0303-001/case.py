@@ -1,6 +1,7 @@
 """Exercise PSA seccomp admission and harmless seccomp runtime behavior."""
 import json
 import runpy
+import time
 from pathlib import Path
 
 from fixtures import container, pod, ready
@@ -237,6 +238,42 @@ def run_baseline(lab):
                "localhost_logs": local_output.strip()})
 
 
+def observe_missing_profile(lab):
+    profile_path = "saf-profile-absent-never-installed.json"
+    name = "saf-absent-localhost"
+    manifest = workload(name, app_profile={"type": "Localhost", "localhostProfile": profile_path})
+    allowed = dry_run(lab, manifest)
+    profile = (json.loads(allowed.stdout)["spec"]["containers"][0]["securityContext"]
+               ["seccompProfile"]) if allowed.returncode == 0 else {}
+    lab.check("positive", "Restricted admits the valid Localhost reference shape",
+              profile.get("type") == "Localhost" and profile.get("localhostProfile") == profile_path,
+              {"reference_admitted": allowed.returncode == 0, "exact_reference": profile.get("localhostProfile") == profile_path})
+    lab.create(manifest)
+    deadline = time.monotonic() + 65
+    while time.monotonic() < deadline:
+        pod = json.loads(lab.kubectl("get", "pod", name, "-o", "json").stdout)
+        status = pod.get("status", {})
+        states = [item.get("state", {}) for item in status.get("containerStatuses", [])]
+        if any(st.get("running") or st.get("terminated") for st in states):
+            lab.check("green", "A missing Localhost profile prevents the fixture container from starting",
+                      False, {"started_despite_missing_profile": True})
+        waiting = [item.get("waiting", {}).get("message", "") for item in states]
+        events = json.loads(lab.kubectl("get", "events", "--field-selector",
+                                        "involvedObject.uid=" + pod["metadata"]["uid"], "-o", "json").stdout)
+        messages = waiting + [event.get("message", "") for event in events["items"]]
+        exact = any(profile_path in message and ("no such file" in message.lower()
+                    or "not found" in message.lower()) for message in messages)
+        if exact:
+            lab.check("green", "Missing Localhost profile fails at runtime with an exact file reason",
+                      status.get("phase") == "Pending" and bool(pod["spec"].get("nodeName")),
+                      {"scheduled": bool(pod["spec"].get("nodeName")), "pending": status.get("phase") == "Pending",
+                       "exact_missing_path_reported": exact})
+            return
+        time.sleep(1)
+    lab.block("The missing-profile comparison yielded no exact runtime failure evidence")
+
+
 def run(lab):
     run_baseline(lab)
+    observe_missing_profile(lab)
     runpy.run_path(str(HERE / "spo_rollout.py"))["run"](lab)

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0303-001",
-  "catalog_revision": "52e7abb1609f21635c1fe612c208e16e1036d575",
-  "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
+  "catalog_revision": "fdf5448e4dd35f1d6732ace66996bdc10a0b5c1f",
+  "catalog_sha256": "e8dc75eca92121d30e77394607cef4720273bed4d3a2d799f3eba7f6148199eb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "44ec63bc8f618058b65b879db5b3e626e8104ca8f0b2fbe373b3e823b8837eb1",
+  "control_sha256": "a6fe8e8cceae01b7efd302477bd5c6aadfeb5d4e0a7dc2f2382e350365df5d7f",
   "scope": "PSA Restricted seccomp admission for regular, init, and ephemeral containers; Pod-level RuntimeDefault inheritance and explicit per-container RuntimeDefault are observed on a pinned kind node. A read-only custom Localhost profile denies only the uname syscall in a benign pinned Python fixture. Other runtimes, The additional fixture exercises a digest-pinned Security Profiles Operator and actual versioned ProfileBinding selection on its owned node. Production syscall minima and exception approval, multi-node/managed coverage, and real workload availability require separate evidence.",
-  "cluster": "saf-lab-b31fee07aa75",
+  "cluster": "saf-lab-a1afbd16f109",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -134,6 +134,25 @@
       }
     },
     {
+      "phase": "positive",
+      "claim": "Restricted admits the valid Localhost reference shape",
+      "matched": true,
+      "observed": {
+        "reference_admitted": true,
+        "exact_reference": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Missing Localhost profile fails at runtime with an exact file reason",
+      "matched": true,
+      "observed": {
+        "scheduled": true,
+        "pending": true,
+        "exact_missing_path_reported": true
+      }
+    },
+    {
       "phase": "red",
       "claim": "The same workload outside the binding namespace keeps RuntimeDefault and permits the harmless call",
       "matched": true,
@@ -162,6 +181,18 @@
         "old_pod_kept_v1": true,
         "new_pod_bound_to_v2": true,
         "new_profile_permitted_call": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Rolling back the binding restores v1 for a fresh workload while the existing v2 Pod retains its profile",
+      "matched": true,
+      "observed": {
+        "binding_references_v1": true,
+        "new_pod_bound_to_v1": true,
+        "harmless_call_output_withheld": true,
+        "ordinary_output_allowed": true,
+        "existing_v2_spec_retained": true
       }
     }
   ]

@@ -228,3 +228,21 @@ def run(lab):
               previous_retained and new_selected and permitted,
               {"operator_reported_installed": True, "old_pod_kept_v1": previous_retained,
                "new_pod_bound_to_v2": new_selected, "new_profile_permitted_call": permitted})
+
+    configure_binding(lab, first)
+    restored = workload("spo-restored-v1", NAMESPACE, keep_running=True)
+    wait_binding(lab, restored, first_path)
+    create_workload(lab, restored)
+    restored_state, restored_rc, restored_output = observe(lab, restored, True)
+    restored_writer = lab.kubectl("logs", "spo-restored-v1", "-n", NAMESPACE, "-c", "writer", timeout=20)
+    previous_v2 = get(lab, "pod", "spo-v2", "-n", NAMESPACE)
+    binding = get(lab, "profilebinding", "fixture-binding", "-n", NAMESPACE)
+    findings = {
+        "binding_references_v1": binding["spec"]["profileRef"]["name"] == first,
+        "new_pod_bound_to_v1": effective(restored_state) == ("Localhost", first_path),
+        "harmless_call_output_withheld": restored_rc == 0 and restored_output == "",
+        "ordinary_output_allowed": restored_writer.stdout.strip() == "fixture-io-ok",
+        "existing_v2_spec_retained": effective(previous_v2) == ("Localhost", second_path),
+    }
+    lab.check("green", "Rolling back the binding restores v1 for a fresh workload while the existing v2 Pod retains its profile",
+              all(findings.values()), findings)
