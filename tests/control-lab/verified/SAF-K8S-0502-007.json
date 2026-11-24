@@ -1,0 +1,122 @@
+{
+  "control_id": "SAF-K8S-0502-007",
+  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "control_sha256": "716ad6e6ae3d05a2c9f9ba5936cf649533dc5c838e966f8c40ab335873c52c62",
+  "scope": "One runner-owned Kind cluster running Kubernetes v1.36.1 with digest-pinned Cilium 1.20.5 and embedded Hubble. In the runner-created saf-test namespace, one non-root client Pod and two case-owned HTTP sink Pods exchange only fixed-marker IPv4 TCP/18080 requests. The case checks the active agent configuration, absence of namespace delegation and Pod opt-outs, and Hubble endpoint, IP, and policy verdicts for ordinary traffic. Direct invalid-source packet handling, additional CNIs, IPv6, host-network paths and production coverage remain unverified.",
+  "cluster": "saf-lab-414bc558ace3",
+  "kind_ready_wait": "0s",
+  "kubernetes": {
+    "clientVersion": {
+      "major": "1",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "darwin/arm64"
+    },
+    "kustomizeVersion": "v5.8.1",
+    "serverVersion": {
+      "major": "1",
+      "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
+      "gitTreeState": "clean",
+      "buildDate": "2026-05-12T09:51:34Z",
+      "goVersion": "go1.26.2",
+      "compiler": "gc",
+      "platform": "linux/arm64"
+    }
+  },
+  "status": "passed",
+  "cleanup": "deleted",
+  "checks": [
+    {
+      "phase": "positive",
+      "claim": "Digest-pinned Cilium and its source-verification configuration are active",
+      "matched": true,
+      "observed": {
+        "image": "quay.io/cilium/cilium:v1.20.5@sha256:aa72499f075ad729947ea91b026218aceba24f1a8e4534bf36b8368c7c561526",
+        "daemonset": {
+          "desiredNumberScheduled": 1,
+          "updatedNumberScheduled": 1,
+          "numberReady": 1,
+          "numberAvailable": 1
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Case workloads inherit enabled source verification without opt-out annotations",
+      "matched": true,
+      "observed": {
+        "global_source_ip_verification_enabled": true,
+        "namespace_delegates_opt_out": false,
+        "pod_opt_out_annotations_absent": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "red request has the expected Cilium Hubble verdict and endpoint/IP attribution",
+      "matched": true,
+      "observed": {
+        "source_pod": "saf-test/saf-0502-007-client",
+        "destination_pod": "saf-test/saf-0502-007-denied-sink",
+        "protocol": "TCP/18080",
+        "expected_verdict": "FORWARDED",
+        "hubble_flow_matches": true,
+        "source_ip_matches_pod_ip": true,
+        "application_result": "fixed-marker-received",
+        "policy_drop_reason_matches": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Live case-owned NetworkPolicy matches the exact CNI test allowlist",
+      "matched": true,
+      "observed": {
+        "policy_name": "saf-0502-007-client-egress",
+        "namespace": "saf-test",
+        "selector_and_rules_match": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "green request has the expected Cilium Hubble verdict and endpoint/IP attribution",
+      "matched": true,
+      "observed": {
+        "source_pod": "saf-test/saf-0502-007-client",
+        "destination_pod": "saf-test/saf-0502-007-denied-sink",
+        "protocol": "TCP/18080",
+        "expected_verdict": "DROPPED",
+        "hubble_flow_matches": true,
+        "source_ip_matches_pod_ip": true,
+        "application_result": "no-application-response",
+        "policy_drop_reason_matches": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "positive request has the expected Cilium Hubble verdict and endpoint/IP attribution",
+      "matched": true,
+      "observed": {
+        "source_pod": "saf-test/saf-0502-007-client",
+        "destination_pod": "saf-test/saf-0502-007-allowed-sink",
+        "protocol": "TCP/18080",
+        "expected_verdict": "FORWARDED",
+        "hubble_flow_matches": true,
+        "source_ip_matches_pod_ip": true,
+        "application_result": "fixed-marker-received",
+        "policy_drop_reason_matches": true
+      }
+    }
+  ]
+}

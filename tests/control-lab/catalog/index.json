@@ -1236,6 +1236,12 @@
       "sha256": "f2b05df0a860730a36e69b0b59316f93c4f996e6206e02418f1b666fa47a91bc",
       "title": "AI workload data path encryption in transit"
     },
+    "SAF-K8S-0502-007": {
+      "catalog_status": "draft",
+      "domain": "D05",
+      "sha256": "716ad6e6ae3d05a2c9f9ba5936cf649533dc5c838e966f8c40ab335873c52c62",
+      "title": "Kubernetes pod IP anti-spoofing enforcement and validation"
+    },
     "SAF-K8S-0502-008": {
       "catalog_status": "draft",
       "domain": "D05",
@@ -3566,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "d8d9474249fe383ed260f8e0a7ece9a7cfd55fcd",
+  "revision": "57b15bef11f4927c38f80e0426017c79ee8a933d",
   "sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

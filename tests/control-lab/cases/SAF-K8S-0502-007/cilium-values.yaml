@@ -1,0 +1,18 @@
+ipam:
+  mode: kubernetes
+kubeProxyReplacement: false
+operator:
+  replicas: 1
+extraConfig:
+  enable-source-ip-verification: "true"
+hubble:
+  enabled: true
+  relay:
+    enabled: false
+  ui:
+    enabled: false
+bpf:
+  monitorAggregation: none
+envoy:
+  enabled: false
+l7Proxy: false
