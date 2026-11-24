@@ -28,7 +28,7 @@ approver, real check provenance, or a real component version.
 
 The ValidatingAdmissionPolicyBinding selects only the labeled `saf-test`
 namespace; the policy also requires the exact namespace, case ownership label,
-and Deployment name `approved-workload`. At Kubernetes admission the case
+and Deployment name `saf-1007-012-approved-workload`. At Kubernetes admission the case
 exercises a missing approval parameter, stale change sequence, mismatching
 component tuple, and the accepted approval. The first three are denied and
 leave no Deployment; the accepted record creates a CPU-only synthetic

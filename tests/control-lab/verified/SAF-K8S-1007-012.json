@@ -5,7 +5,7 @@
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "f01902deae17b42872e74b753539e750685bf81ec7b21d06ce224371818fecbd",
   "scope": "One disposable single-node Kind Kubernetes v1.36.1 cluster; actual Kubernetes API discovery; five case-owned zero-replica mock Deployments and a local compatibility decision over synthetic component metadata. A blocked candidate is not applied and a permitted candidate changes only a Deployment metadata annotation with an observed resourceVersion precondition. Explicit synthetic approval data binds native admission to the full proposed tuple, change sequence, named checks, matrix digest, change ID, image and release. The candidate is rejected when approval is missing, stale or mismatched; matching approval admits the synthetic workload with its verified release marker. Hardware and actual GPU software compatibility require their own evidence.",
-  "cluster": "saf-lab-77e3d3080a05",
+  "cluster": "saf-lab-8085ed97f242",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
