@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0203-013",
-  "catalog_revision": "fe214ca8cd9b30c4a48ba01286a75e9d21b95678",
-  "catalog_sha256": "2635d91680dd0c8c5c91992dcf0ed2e9956053a865af2939f668db6edaa1a877",
+  "catalog_revision": "5d8a24e9756cd3afcfd07861e25511b16664e14f",
+  "catalog_sha256": "6c62a9ab38837b70dbe3d92571eb93f33722e18e15a26a688854bcfd3cadd6b4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6263b7602443772af9c15156fb4aa336f01a76f2820a04807affdea439f4463f",
-  "scope": "Compare effective Linux Security Module lockdown state on two disposable guests launched by an unprivileged Job.",
-  "cluster": "saf-lab-93fdb79b708e",
+  "scope": "Observe real Linux lockdown reporting, TraceFS enforcement and monotonic mode transitions in disconnected guests.",
+  "cluster": "saf-lab-3a7b9d9835a1",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -40,26 +40,38 @@
   "checks": [
     {
       "phase": "red",
-      "claim": "The running baseline kernel reports no lockdown",
+      "claim": "The unlocked kernel reads back an owned trace marker",
       "matched": true,
       "observed": {
-        "baseline_reports_none": true
+        "baseline_unlocked_and_marker_observed": true
       }
     },
     {
       "phase": "green",
-      "claim": "The running kernel reports the selected integrity lockdown mode",
+      "claim": "The same kernel reports boot-configured integrity and retains the scoped marker operation",
       "matched": true,
       "observed": {
-        "configured_guest_reports_integrity": true
+        "integrity_mode_active": true,
+        "integrity_marker_observed": true,
+        "kernel_release_matches": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native confidentiality mode denies the same trace marker through its lockdown hook",
+      "matched": true,
+      "observed": {
+        "confidentiality_active": true,
+        "exact_trace_operation_denied": true
       }
     },
     {
       "phase": "positive",
-      "claim": "The same kernel release retains ordinary procfs reads under the selected mode",
+      "claim": "The running guest rejects an administrative request to lower lockdown and retains uptime reads",
       "matched": true,
       "observed": {
-        "same_kernel_retains_public_read": true
+        "downgrade_denied_and_effective_mode_unchanged": true,
+        "ordinary_uptime_read": true
       }
     }
   ]

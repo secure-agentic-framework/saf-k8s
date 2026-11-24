@@ -1,10 +1,10 @@
-"""Compare effective Linux Security Module lockdown state on two disposable guests launched by an unprivileged Job."""
+"""Observe real Linux lockdown reporting, TraceFS enforcement and monotonic mode transitions in disconnected guests."""
 
 import hashlib
 import json
 from pathlib import Path
 
-SCOPE = "Compare effective Linux Security Module lockdown state on two disposable guests launched by an unprivileged Job."
+SCOPE = "Observe real Linux lockdown reporting, TraceFS enforcement and monotonic mode transitions in disconnected guests."
 HERE = Path(__file__).resolve().parent
 SOURCE = hashlib.sha256((HERE / "Dockerfile").read_bytes()).hexdigest()
 TOOLS = "saf-lab-rootfs-fixture:source-" + SOURCE[:24]
@@ -50,21 +50,36 @@ def run(lab):
     logs = lab.kubectl("logs", "job/" + NAME, allow_failure=True)
     if completion.returncode or logs.returncode:
         lab.block("The virtual kernel fixture did not complete; inspect its owned Job result")
-    results = set(logs.stdout.splitlines())
-    observations = {}
-    observations['baseline_reports_none'] = 'baseline_reports_none' in results
-    lab.check('red', 'The running baseline kernel reports no lockdown',
-              observations['baseline_reports_none'], {'baseline_reports_none': observations['baseline_reports_none']})
-    observations['configured_guest_reports_integrity'] = 'configured_guest_reports_integrity' in results
-    lab.check('green', 'The running kernel reports the selected integrity lockdown mode',
-              observations['configured_guest_reports_integrity'], {'configured_guest_reports_integrity': observations['configured_guest_reports_integrity']})
-    observations['same_kernel_retains_public_read'] = 'same_kernel_retains_public_read' in results
-    lab.check('positive', 'The same kernel release retains ordinary procfs reads under the selected mode',
-              observations['same_kernel_retains_public_read'], {'same_kernel_retains_public_read': observations['same_kernel_retains_public_read']})
+    lines = logs.stdout.splitlines()
+    observations = {name: [line.removeprefix(f"guest {name} ") for line in lines if line.startswith(f"guest {name} ")]
+                    for name in ("baseline.log", "governed.log")}
+    baseline, governed = (set(observations[name]) for name in ("baseline.log", "governed.log"))
+    kernel_before = {line for line in baseline if line.startswith("SAF-KERNEL: ")}
+    kernel_after = {line for line in governed if line.startswith("SAF-KERNEL: ")}
+    unlocked = "SAF-LOCKDOWN: [none] integrity confidentiality" in baseline
+    marker_available = "SAF-TRACE: owned-marker-observed" in baseline
+    lab.check("red", "The unlocked kernel reads back an owned trace marker",
+              unlocked and marker_available, {"baseline_unlocked_and_marker_observed": unlocked and marker_available})
+    integrity = "SAF-LOCKDOWN: none [integrity] confidentiality" in governed
+    integrity_marker = "SAF-TRACE: owned-marker-observed" in governed
+    lab.check("green", "The same kernel reports boot-configured integrity and retains the scoped marker operation",
+              integrity and integrity_marker and len(kernel_before) == 1 and kernel_before == kernel_after,
+              {"integrity_mode_active": integrity, "integrity_marker_observed": integrity_marker,
+               "kernel_release_matches": len(kernel_before) == 1 and kernel_before == kernel_after})
+    confidentiality = "SAF-LOCKDOWN-RAISED: none integrity [confidentiality]" in governed
+    marker_denied = "SAF-TRACE: marker-denied-by-lockdown" in governed
+    lab.check("green", "Native confidentiality mode denies the same trace marker through its lockdown hook",
+              confidentiality and marker_denied, {"confidentiality_active": confidentiality,
+                                                  "exact_trace_operation_denied": marker_denied})
+    sticky = "SAF-LOCKDOWN-AFTER-LOWER-REQUEST: none integrity [confidentiality]" in governed
+    readable = "SAF-LOCKDOWN: public-operational-read" in governed
+    lab.check("positive", "The running guest rejects an administrative request to lower lockdown and retains uptime reads",
+              sticky and readable, {"downgrade_denied_and_effective_mode_unchanged": sticky,
+                                    "ordinary_uptime_read": readable})
     rows = json.loads(lab.kubectl("get", "pods", "-l", f"job-name={NAME}", "-o", "json").stdout)["items"]
     worker, = rows
     status, = worker["status"]["containerStatuses"]
     (lab.evidence / "lockdown-mode-observations.json").write_text(json.dumps({
         "build_image": expected_image, "running_image": status["imageID"],
-        **observations,
+        "guest_observations": observations,
     }, indent=2) + "\n")
