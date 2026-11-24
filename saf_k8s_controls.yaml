@@ -2390,12 +2390,12 @@
   knowledge_area: '3.4'
   control_seq: '004'
   control_title: Ephemeral container security context enforcement
-  control_statement: Ephemeral debug containers must be subject to the same security context restrictions as regular containers, and clusters must enforce this through RBAC restrictions on the pods/ephemeralcontainers subresource and policy engine rules that deny ephemeral containers violating the namespace's Pod Security Standards level.
-  objective: Prevent ephemeral debug containers from bypassing the security context restrictions applied to regular containers, closing a privilege escalation path through the kubectl debug side door.
+  control_statement: 'Restrict ephemeral debug changes to approved identities and required pods/ephemeralcontainers verbs. Apply the namespace Pod Security Standard and any additional workload-specific restrictions to ephemeral container updates. Retain audit decisions for permitted and denied requests.'
+  objective: 'Apply the workload security boundary to authorized ephemeral debugging.'
   rationale: Ephemeral containers are added after Pod creation through the pods/ephemeralcontainers subresource. They are independently subject to admission on that update. RBAC limits who can add them, and policy must cover the subresource so the workload's configured security restrictions continue to apply during debugging.
   scope: Applies to all pods in production clusters whenever kubectl debug or equivalent tooling is used to inject ephemeral containers. Init containers remain a distinct Pod field. The ephemeral-container subresource adds debug entries without converting init containers.
-  primary_enforcement_point: RBAC rules restricting access to the pods/ephemeralcontainers subresource, Pod Security Admission enforcing PSS levels on ephemeral containers, and policy engine rules denying ephemeral containers with privileged settings or capabilities beyond the pod's PSS level.
-  implementation_surface: RBAC rules for pods/ephemeralcontainers subresource restricted to authorized debugging roles, Pod Security Admission and policy engine rules enforcing security contexts on ephemeral containers (privileged, allowPrivilegeEscalation, capabilities, runAsNonRoot, seccomp, AppArmor), and audit logging for ephemeral container creation events at high severity.
+  primary_enforcement_point: 'Use RBAC for the pods/ephemeralcontainers subresource and enforce applicable Pod Security Admission or equivalent policy on the authorized update or patch requests.'
+  implementation_surface: 'Verify requested subresource verbs and approvals for the intended identities. Explicitly match pods/ephemeralcontainers in any supplementary workload policies. Collect audit metadata for the actor, verb, namespace, resource, subresource and response. Set alert severity and delivery in the audit consumer.'
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering
   baseline_or_ai_specific: baseline
