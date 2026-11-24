@@ -1130,12 +1130,12 @@
   knowledge_area: '1.4'
   control_seq: '023'
   control_title: Stage-based approval and risk assessment for production feature gates
-  control_statement: Production Kubernetes clusters must govern alpha- and beta-stage feature gate enablement through explicit approval and documented security risk assessment before those gates are allowed in production.
-  objective: Ensure unstable or incompletely assessed feature gates do not enter production clusters without stage-appropriate security review and approval.
-  rationale: Alpha and beta feature gates change cluster behavior in ways that may be unstable, insufficiently reviewed, or unsupported in production. Stage-based approval and documented risk assessment prevent experimental feature behavior from bypassing security review.
+  control_statement: Require stage-appropriate approval and a documented security risk assessment for alpha- or beta-stage behavior allowed in production. Cover explicit enablement and effective behavior inherited from version defaults or provider settings.
+  objective: Ensure applicable alpha- and beta-stage production behavior has an attributable risk assessment and decision for its exact component and version.
+  rationale: Feature gates change component behavior and may have different defaults, maturity and support across versions and providers. Reviewing effective state and planned changes accounts for an active feature that has no explicit enablement setting.
   scope: Applies to all production clusters and all alpha- or beta-stage feature gates on API server, controller-manager, scheduler, kubelet, kube-proxy, and managed service surfaces where feature gate behavior can be influenced or must be tracked.
   primary_enforcement_point: Cluster change approval and security review processes governing production feature gate enablement.
-  implementation_surface: Change approval workflows for production feature gates, documented security risk assessments for alpha or beta gates, prohibition of unapproved alpha gates, and production configuration scans verifying only approved feature gates are active.
+  implementation_surface: Reconcile feature-gate decisions to component identity, release, stage, scope, configured state and effective state. Review explicit changes before deployment and inherited behavior before acceptance. Document managed-service constraints and their risk disposition. Reassess on version, stage, scope or risk changes, and route expired or revoked decisions to the configuration owner.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Architecture Review
   baseline_or_ai_specific: baseline
