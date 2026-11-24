@@ -11903,10 +11903,10 @@
   control_title: Kubernetes release-channel and changelog monitoring for API deprecations
   control_statement: Organizations must monitor official Kubernetes release channels, changelog entries, and deprecation notices for API removals that affect cluster services, AI operators, custom resources, manifests, and workload dependencies, and must translate those upstream notices into tracked internal impact alerts before planned cluster upgrades.
   objective: Identify Kubernetes API deprecations and removals affecting AI workloads early enough to begin impact review before upgrade execution and compatibility validation windows.
-  rationale: Kubernetes publishes API deprecation and removal timelines before enforcement. Tracking those upstream notices early gives platform teams time to assess which AI operators, CRDs, and workload manifests may be affected before upgrade preparation begins.
+  rationale: Kubernetes documents deprecation and removal by API maturity, with release-specific notices where applicable. Alpha APIs can be removed without prior notice. Monitor the target release and review actual API discovery and usage alongside upstream notices to identify affected AI operators, CRDs, workload manifests and clients.
   scope: Applies to Kubernetes release streams, changelogs, and deprecation notices that affect clusters running AI training, inference, platform, and operator workloads.
   primary_enforcement_point: Release-note monitoring workflows, changelog review checkpoints, and deprecation alert triage processes.
-  implementation_surface: Monitoring official Kubernetes release notes and changelog entries, tracking API deprecation announcements, maintaining internal review tickets or alerts for affected clusters and AI platform components, and distributing upcoming deprecation impact notices to platform owners before upgrade planning or compatibility testing begins.
+  implementation_surface: Monitor the relevant official release streams and changelogs on an assigned cadence. Record upstream sources, the exact upgrade target, served APIs and observed use. Maintain tracked impact notices for affected clusters and AI platform components with an assigned owner, confirmed delivery and review before the target upgrade.
   owner_primary: Platform Engineering
   owner_supporting: AI/ML Engineering; DevOps; Security Engineering
   baseline_or_ai_specific: ai-specific
