@@ -12,10 +12,10 @@ NODE_IMAGE = (
     "3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
 )
 SCOPE = (
-    "Disposable v1.36.1 two-node kind cluster. A synthetic audit forwarder exercises outage, "
-    "retry and receiver PVC retention. A DaemonSet sends one inert marker per fixture node, "
-    "and owned CronJob runs monitor sink coverage across scheduled boundaries. Production audit "
-    "agent behavior, retention periods, secure transport, deployment coverage and alert delivery stay open."
+    "Owned v1.36.1 Kind and a mount-free Linux Audit guest. Forward one attributable native "
+    "marker over mTLS, persist the sender queue during 503, resume from the same volume "
+    "through Pod replacement, and verify exact central retrieval and deduplication. "
+    "The distinct scheduled two-node canary checks coverage of the fixture."
 )
 APP = "audit-coverage"
 SOURCE = "audit-node-canary"
@@ -103,6 +103,7 @@ def run(lab):
     lab.check("positive", "The recapture check has independent control-plane and worker nodes",
               len(nodes) == 2, {"fixture_nodes": len(nodes)})
     BASE["run"](lab)
+    run_path(str(ROOT / "native_transport.py"))["run"](lab, BASE)
     lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": APP},
                 "data": {"coverage.py": (ROOT / "coverage.py").read_text()}})
     owner = schedule(lab, nodes)
