@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0205-008",
-  "catalog_revision": "b351589305b3017e753d00814e14b84d232fa779",
-  "catalog_sha256": "dff289bd66981d9d3345ddc46bf624c18df62470b60e222ce391a8fc88ad6327",
+  "catalog_revision": "2cd7094036268fbf9598317d4fe86be1a3a39687",
+  "catalog_sha256": "1800d0d437803bd52be758900aa9e3361e1647299539dc3557ac7cd2d726f478",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "5b553efeda2c1f6c587caea4a7fd5c57fc89fc9fdef4ea42652f83689d6baf1d",
-  "scope": "One fresh Linux Kind node with explicit nftables kube-proxy and two owned IPv4 ClusterIP backends.",
-  "cluster": "saf-lab-a0025a771473",
+  "scope": "Two Linux Kind nodes with a versioned proxy decision, live nftables ClusterIP state and backend and process lifecycle.",
+  "cluster": "saf-lab-a07e47fdefd8",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -40,30 +40,48 @@
   "checks": [
     {
       "phase": "red",
-      "claim": "The running backend fails a conflicting iptables declaration and an empty Service cannot return a marker",
+      "claim": "The active proxy contradicts the stored comparison decision and the empty Service cannot return a marker",
       "matched": true,
       "observed": {
-        "conflicting_mode_detected": true,
+        "conflicting_stored_mode": true,
         "empty_service_unavailable": true
       }
     },
     {
       "phase": "green",
-      "claim": "Configured and observed nftables mode programs the exact ClusterIP tuple and reaches its selected endpoint",
+      "claim": "A separately authorized identity records the matching decision while the reader cannot approve it",
       "matched": true,
       "observed": {
-        "effective_nftables": true,
-        "programmed_service_tuple": true,
-        "owned_endpoint_reachable": true
+        "reader_write_denied": true,
+        "approved_mode_matches": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Both kernels program the owned tuple and the client receives the exact selected cross-node marker",
+      "matched": true,
+      "observed": {
+        "rules_on_two_nodes": true,
+        "selected_marker": true,
+        "endpoint_matches": true
       }
     },
     {
       "phase": "positive",
-      "claim": "The same programmed ClusterIP follows an approved endpoint change and returns the replacement marker",
+      "claim": "The Service keeps its tuple and follows the new selected endpoint",
       "matched": true,
       "observed": {
-        "changed_endpoint_reachable": true,
-        "service_stays_programmed": true
+        "new_marker_and_endpointslice_match": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "New kube-proxy Pods recover the same approved mode and Service path",
+      "matched": true,
+      "observed": {
+        "proxy_uids_replaced": true,
+        "required_path_recovered": true,
+        "apiserver_ready": true
       }
     }
   ]

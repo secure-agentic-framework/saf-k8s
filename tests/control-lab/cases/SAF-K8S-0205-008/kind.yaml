@@ -4,3 +4,4 @@ networking:
   kubeProxyMode: nftables
 nodes:
   - role: control-plane
+  - role: worker
