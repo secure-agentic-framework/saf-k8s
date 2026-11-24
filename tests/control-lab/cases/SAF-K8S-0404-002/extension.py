@@ -17,6 +17,9 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(payload)
 
+    def record_protocol(self, route):
+        print("fixture-protocol " + json.dumps({"route": route, "tls": self.connection.version()}), flush=True)
+
     def do_GET(self):
         path = urlsplit(self.path).path
         print("fixture GET " + path, flush=True)
@@ -25,6 +28,7 @@ class Handler(BaseHTTPRequestHandler):
                               "resources": [{"name": "fixturemarkers", "singularName": "fixturemarker",
                                              "namespaced": False, "kind": "FixtureMarker", "verbs": ["list"]}]})
         elif path == "/apis/" + VERSION + "/fixturemarkers":
+            self.record_protocol("aggregation")
             self.answer(200, {"apiVersion": VERSION, "kind": "FixtureMarkerList", "metadata": {},
                               "items": [{"apiVersion": VERSION, "kind": "FixtureMarker",
                                          "metadata": {"name": "owned-aggregation-marker"}}]})
@@ -34,6 +38,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         review = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         request = review["request"]
+        if request["object"].get("metadata", {}).get("name") == "fixture-admission-probe":
+            self.record_protocol("admission")
         allowed = "deny" not in request["object"].get("data", {})
         response = {"uid": request["uid"], "allowed": allowed}
         if not allowed:
@@ -46,6 +52,7 @@ class Handler(BaseHTTPRequestHandler):
 
 listener = HTTPServer(("0.0.0.0", 8443), Handler)
 context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+context.minimum_version = ssl.TLSVersion.TLSv1_3
 context.load_cert_chain("/tls/tls.crt", "/tls/tls.key")
 listener.socket = context.wrap_socket(listener.socket, server_side=True)
 listener.serve_forever()

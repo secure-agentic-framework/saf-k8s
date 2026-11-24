@@ -13,3 +13,6 @@ need separate evidence.
 
 - [Admission webhook TLS](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/)
 - [Kubernetes API aggregation](https://v1-36.docs.kubernetes.io/docs/concepts/extend-kubernetes/api-extension/apiserver-aggregation/)
+
+The owned extension listener requires TLS 1.3. It records the negotiated
+version on the scoped admission request and the aggregation marker read.

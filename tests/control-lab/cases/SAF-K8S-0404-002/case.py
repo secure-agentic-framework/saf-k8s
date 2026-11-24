@@ -151,7 +151,15 @@ def run(lab):
             observed = True
             break
         time.sleep(.5)
-    lab.kubectl("logs", NAME, allow_failure=True)
+    received = lab.kubectl("logs", NAME).stdout
+    protocols = {"admission": set(), "aggregation": set()}
+    for line in received.splitlines():
+        if line.startswith("fixture-protocol "):
+            entry = json.loads(line.removeprefix("fixture-protocol "))
+            protocols[entry["route"]].add(entry["tls"])
+    protocols = {route: sorted(versions) for route, versions in protocols.items()}
+    lab.check("positive", "Both actual extension routes negotiate the configured TLS 1.3 protocol",
+              protocols == {"admission": ["TLSv1.3"], "aggregation": ["TLSv1.3"]}, protocols)
     positive = {"accepted_trusted_admission": trusted["admission"],
                 "trusted_api_aggregation_marker_read": trusted["aggregation"] and observed,
                 "explicit_valid_webhook_denial": blocked.returncode != 0 and POLICY_DENIAL in blocked.stderr
@@ -159,5 +167,7 @@ def run(lab):
     lab.check("positive", "Both trusted paths work and a valid webhook decision remains distinct from failed TLS",
               all(positive.values()), positive)
     (lab.evidence / "extension-tls-observations.json").write_text(json.dumps({
-        "wrong_authority": first, "wrong_endpoint_name": wrong, "correct_tls": positive,
+        "wrong_authority": first, "wrong_endpoint_name": wrong, "correct_tls": positive, "negotiated_protocols": protocols,
     }, indent=2) + "\n")
+
+SCOPE += " The owned receivers require TLS 1.3 and record the negotiated version for each exact API-server operation."
