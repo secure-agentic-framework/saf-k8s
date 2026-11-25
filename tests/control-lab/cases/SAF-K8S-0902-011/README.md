@@ -14,3 +14,7 @@ protocols, response stacks, classifiers, privacy classes, and operational
 policies require separate evidence.
 
 - [HTTP/1.1 chunked transfer coding](https://www.rfc-editor.org/rfc/rfc9112.html#name-chunked-transfer-coding)
+
+## Verify an adopting implementation
+
+Enumerate every deployed streaming protocol and response path. At the actual trusted egress filter, test a benign allowed response and policy marker split across transport chunks, and compare with the filter disabled in an isolated nonproduction environment. Record false-positive/negative handling, buffering/latency limits, fail-open/closed behavior, and alert/escalation ownership. The fixture tests one synthetic marker over HTTP/1.1 chunking. It does not validate classifiers or production policy.
