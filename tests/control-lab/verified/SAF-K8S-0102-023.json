@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0102-023",
-  "catalog_revision": "78240b82313b43763ca0f01105ba15f66e7e31c5",
-  "catalog_sha256": "661a29ede8cc4a5cd852a1cdbbdb30394279675027db24e0829930a225c1c8d5",
+  "catalog_revision": "182e27976e21faaf128557f20fc9b42a74f0e58c",
+  "catalog_sha256": "044bf7085d167e0cebc119fadb5265399823a05a596346af59f25fe7dc9ad3a6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b4cf2c206f1921f8e745f20fc7aba554eeffeffc8c615cbcdc1df4ea4e0ff782",
-  "scope": "Live Kubernetes authorization for emergency fixture records, with a modeled approval clock.",
-  "cluster": "saf-lab-bb5f382fbe9c",
+  "scope": "Live Kubernetes authorization for emergency fixture records, with an explicitly modeled approval clock and sanitized lifecycle observation records. Invalid requester, operation and trigger candidates are checked before grant and against active-grant invariants.",
+  "cluster": "saf-lab-96268f86e9c0",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -56,6 +56,9 @@
         "wrong_target": true,
         "outside_window": true,
         "oversized_window": true,
+        "wrong_requester": true,
+        "wrong_operation": true,
+        "wrong_trigger": true,
         "actual_access_closed": true
       }
     },
@@ -66,7 +69,24 @@
       "observed": {
         "reviewed_marker_readable": true,
         "unrelated_marker_forbidden": true,
-        "after_expiry_denied": true
+        "after_expiry_denied": true,
+        "invalid_receipts_do_not_expand_active_grant": {
+          "wrong_requester": true,
+          "wrong_operation": true,
+          "wrong_trigger": true
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Sanitized lifecycle evidence retains approval, access, withdrawal and independent review",
+      "matched": true,
+      "observed": {
+        "lifecycle_record_complete": true,
+        "approval_access_denial_withdrawal_review_present": true,
+        "record_count": 11,
+        "raw_evidence_file": "emergency-backup-lifecycle-records.json",
+        "fixture_clock_labeled": true
       }
     }
   ]
