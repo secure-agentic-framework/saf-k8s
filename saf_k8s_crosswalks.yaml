@@ -1577,55 +1577,53 @@
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
   framework_version: 2024/1689
-  framework_requirement_id: Article-10.5.c
+  framework_requirement_id: Article-4a.1.c
   legacy_requirement_id: Art-10:10(5)(c)
-  framework_requirement_title: Data and data governance
-  framework_mapping_notes: |-
-    the special categories of personal data are subject to measures to ensure that the personal data processed are secured, protected, subject to suitable safeguards, including strict controls and documentation of the access, to avoid misuse and ensure that only authorised persons have access to those personal data with appropriate confidentiality obligations;
-
-    Access controls, audit logging, RBAC, and encryption are core SAF-K8S capabilities (D4, D7, D10) that directly enforce these safeguards.
+  framework_requirement_title: Safeguards for special categories of personal data processed for bias detection and correction
+  framework_mapping_notes: Documented least-privilege Kubernetes grants can restrict access to the relevant API resources and identities. Evidence of data-level coverage, access documentation and confidentiality
+    is assessed separately. Regulation (EU) 2026/1744 deletes Article 10(5) and inserts Article 4a in Regulation (EU) 2024/1689. Article 4a(2)(b) applies paragraph 1 conditions and safeguards to the actors
+    listed there. See Article 4 and recital 9 of Regulation (EU) 2026/1744 for entry into force and application timing. Official text https://eur-lex.europa.eu/eli/reg/2026/1744/oj/eng.
   control_id: SAF-K8S-0401-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Article-10.5.c
-  legacy_requirement_id: Art-10:10(5)(c)
-  framework_requirement_title: Data and data governance
-  framework_mapping_notes: Periodic review and remediation of Kubernetes RBAC grants can support verification
-    of who may access covered processing workloads under Article 10(5)(c) of Regulation (EU) 2024/1689
-    as originally published. Preserve separate access records and evidence for safeguards and confidentiality
-    obligations.
-  control_id: SAF-K8S-0401-002
   relation_type: supports
   strength_level: moderate
   applicability: conditional
-  applicability_condition: The high-risk AI system exceptionally processes special categories of personal
-    data for bias detection or correction under the cited 2024 text, and the audit covers and remediates
-    relevant Kubernetes grants.
+  applicability_condition: Covered special-category personal data are exceptionally processed under Article 4a(1), or under Article 4a(2) where applicable, and adopter evidence shows this Kubernetes RBAC
+    configuration restricts access to the relevant data-processing resources and identities.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
   framework_version: 2024/1689
-  framework_requirement_id: Article-10.5.c
+  framework_requirement_id: Article-4a.1.c
   legacy_requirement_id: Art-10:10(5)(c)
-  framework_requirement_title: Data and data governance
-  framework_mapping_notes: |-
-    the special categories of personal data are subject to measures to ensure that the personal data processed are secured, protected, subject to suitable safeguards, including strict controls and documentation of the access, to avoid misuse and ensure that only authorised persons have access to those personal data with appropriate confidentiality obligations;
-
-    Access controls, audit logging, RBAC, and encryption are core SAF-K8S capabilities (D4, D7, D10) that directly enforce these safeguards.
+  framework_requirement_title: Safeguards for special categories of personal data processed for bias detection and correction
+  framework_mapping_notes: Periodic Kubernetes grant review can identify and remediate unsuitable permissions for the relevant identities and resources. Preserve separate evidence of access documentation
+    and confidentiality. Regulation (EU) 2026/1744 deletes Article 10(5) and inserts Article 4a in Regulation (EU) 2024/1689. Article 4a(2)(b) applies paragraph 1 conditions and safeguards to the actors
+    listed there. See Article 4 and recital 9 of Regulation (EU) 2026/1744 for entry into force and application timing. Official text https://eur-lex.europa.eu/eli/reg/2026/1744/oj/eng.
+  control_id: SAF-K8S-0401-002
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Covered special-category personal data are exceptionally processed under Article 4a(1), or under Article 4a(2) where applicable, and adopter evidence shows the review covers and
+    remediates relevant grants to identities and resources used for that processing.
+  strength_reason_code: partial-control-coverage
+- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
+  framework_code: EU-AI-ACT
+  framework_name: EU AI Act
+  framework_version: 2024/1689
+  framework_requirement_id: Article-4a.1.c
+  legacy_requirement_id: Art-10:10(5)(c)
+  framework_requirement_title: Safeguards for special categories of personal data processed for bias detection and correction
+  framework_mapping_notes: Encryption of the applicable persistent volumes can protect stored data when the storage path and keys are evidenced. Strict access restrictions, access documentation and confidentiality
+    require their own evidence. Regulation (EU) 2026/1744 deletes Article 10(5) and inserts Article 4a in Regulation (EU) 2024/1689. Article 4a(2)(b) applies paragraph 1 conditions and safeguards to the
+    actors listed there. See Article 4 and recital 9 of Regulation (EU) 2026/1744 for entry into force and application timing. Official text https://eur-lex.europa.eu/eli/reg/2026/1744/oj/eng.
   control_id: SAF-K8S-0701-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Covered special-category personal data are exceptionally processed under Article 4a(1), or under Article 4a(2) where applicable, and adopter evidence demonstrates persistent-volume
+    encryption covers the relevant stored data and key path.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
