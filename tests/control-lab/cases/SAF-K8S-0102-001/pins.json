@@ -1,0 +1,19 @@
+{
+  "source_control": "SAF-K8S-0701-003",
+  "source_receipt": "saf-k8s-control-lab/cases/SAF-K8S-0701-003/guest-receipt.json",
+  "guest_os": "Debian 13 ARM64",
+  "docker": "26.1.5+dfsg1-9+deb13u1+b1",
+  "cryptsetup": "2:2.7.5-2",
+  "e2fsprogs": "1.47.2-3+b12",
+  "openssl": "3.5.9-1~deb13u1",
+  "kind": {
+    "version": "v0.32.0",
+    "binary": "kind-linux-arm64",
+    "sha256": "b92cd615e97585de8ddade28ed5cd7feb4248d717c233eea5b03c37298900f5d"
+  },
+  "kubectl": {
+    "version": "v1.36.1",
+    "binary": "kubectl-linux-arm64",
+    "sha256": "59f7ee8e477fae658447607dc3c8790ac17a1b016c01c622c12070e969e2d4e7"
+  }
+}

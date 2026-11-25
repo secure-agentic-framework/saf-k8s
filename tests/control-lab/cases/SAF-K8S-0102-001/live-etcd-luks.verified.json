@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "control_id": "SAF-K8S-0102-001",
+  "catalog_revision": "f09a9976432e8c3b3bc6c5aea3641c028cd7b494",
+  "control_sha256": "2d19cb5974348d755870dcf6505a764e34d35292d72f5711cef95e71067368a7",
+  "kubernetes": "v1.36.1",
+  "kind_node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
+  "guest_profile": {
+    "architecture": "arm64",
+    "cpus": 2,
+    "memory_gib": 3.5,
+    "host_shares": false,
+    "signed_packages": {
+      "docker-cli": "26.1.5+dfsg1-9+deb13u1+b1",
+      "cryptsetup": "2:2.7.5-2",
+      "e2fsprogs": "1.47.2-3+b12",
+      "docker.io": "26.1.5+dfsg1-9+deb13u1+b1"
+    }
+  },
+  "fixture_sha256": {
+    "test-vm.yaml": "7069d871394496a49ce511fc81dba76c70909e4c4bdee06376819b9ec7088d00",
+    "bootstrap.sh": "a5ec73c45ac05c5de1174c865946df69d7fbe4fe72475db9aef02c0a754adad0",
+    "pins.json": "778bce49c3f43270f90df24f5211de71aaec5d8c5ebaf1735bc2987ce2e97d4a",
+    "live-etcd-luks.sh": "92329ab991ffca56ebd087795dac4e83700108697e780430d2b09e61b2558753",
+    "run-owned-guest.sh": "5aa0c1b9723c3e31f26c1e8beae609bd6412b740cffaaec60bdcb9280bc775e8"
+  },
+  "guest_runs": [
+    {
+      "plaintext_cluster": "saf-etcd-9fcf701ce4a0",
+      "encrypted_cluster": "saf-etcd-9fcf701ce4a0-enc",
+      "checks": {
+        "PLAINTEXT_BACKEND_WAL_AND_IMAGE_VISIBLE": true,
+        "LIVE_ETCD_BACKEND_AND_WAL_MAPPED_AND_READABLE": true,
+        "EXACT_MARKER_ABSENT_FROM_CLOSED_RAW_LUKS": true,
+        "WRONG_KEY_REFUSED": true,
+        "NATIVE_API_READS_EXACT_MARKER_AFTER_REOPEN": true,
+        "GUEST_FIXTURE_CLEANUP": true
+      }
+    },
+    {
+      "plaintext_cluster": "saf-etcd-3a7dfe446aeb",
+      "encrypted_cluster": "saf-etcd-3a7dfe446aeb-enc",
+      "checks": {
+        "PLAINTEXT_BACKEND_WAL_AND_IMAGE_VISIBLE": true,
+        "LIVE_ETCD_BACKEND_AND_WAL_MAPPED_AND_READABLE": true,
+        "EXACT_MARKER_ABSENT_FROM_CLOSED_RAW_LUKS": true,
+        "WRONG_KEY_REFUSED": true,
+        "NATIVE_API_READS_EXACT_MARKER_AFTER_REOPEN": true,
+        "GUEST_FIXTURE_CLEANUP": true
+      }
+    }
+  ],
+  "vm_cleanup": "deleted",
+  "protected_media_scope": "the owned raw LUKS image",
+  "key_custody_scope": "an ephemeral, access-restricted key file outside the protected image, within the disposable guest",
+  "executed_guest_script_sha256": "c0d34b1c3d423fb54f65e95dcdf58f7219ab31d306d8dfe7c60f2ba0910e8d3d",
+  "published_script_normalization": "Trailing space after one complete shell command removed when staging."
+}
