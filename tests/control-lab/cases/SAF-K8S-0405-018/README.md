@@ -13,3 +13,14 @@ backup coverage and protected evidence at deployment.
 
 - [Kubernetes encryption at rest](https://v1-36.docs.kubernetes.io/docs/tasks/administer-cluster/encrypt-data/)
 - [Kubernetes service account administration](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/)
+
+## Verify an adopting implementation
+
+Inventory credential classes and storage paths, API
+encryption providers, key owners, backup copies, issuers, and relying parties.
+For each protected store, use an approved synthetic comparator to verify
+encrypted raw storage and an authorized read; confirm unauthorized reads fail.
+Replace a test credential, verify old-credential denial and independent
+service continuity, then reconcile key/backup restore evidence and audit
+coverage. Treat external passwords, certificates, and cloud identities as
+separate provider evidence.
