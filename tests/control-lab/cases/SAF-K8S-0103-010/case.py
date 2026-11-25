@@ -12,6 +12,7 @@ from pathlib import Path
 SCOPE = (
     "Pinned Kubernetes v1.36.1 single-node kind fixture: verify enabled leader "
     "election flags, effective timing relationships, and changing renewTime values "
+    "with a bounded read-only API GET latency sample and explicit fixture-only guard "
     "for kube-controller-manager and kube-scheduler without modifying either real "
     "leader Lease. Inspect kubeadm client certificate subjects and their bootstrap "
     "RBAC bindings. Synthetic service accounts exercise get/update against only "
@@ -102,7 +103,9 @@ def flags(argv):
         arg = argv[i]
         if arg.startswith("--"):
             name, separator, value = arg[2:].partition("=")
-            if name in ("leader-elect", *LEASE_TIMING_FLAGS.keys(), "leader-elect-resource-name"):
+            if name in ("leader-elect", *LEASE_TIMING_FLAGS.keys(),
+                        "leader-elect-resource-name", "leader-elect-resource-namespace",
+                        "leader-elect-resource-lock"):
                 if separator:
                     found.setdefault(name, []).append(value)
                 elif i + 1 < len(argv) and not argv[i + 1].startswith("--"):
@@ -393,14 +396,55 @@ def observed_renew_time(lab, component):
     return parsed
 
 
+def component_lease_get_latency_ms(lab, component, namespace, lease_name):
+    """Measure one read-only Lease GET via the component's in-node kubeconfig."""
+    node = f"{lab.cluster}-control-plane"
+    kubeconfig = f"/etc/kubernetes/{COMPONENTS[component]['kubeconfig']}"
+    started = time.monotonic_ns()
+    try:
+        result = subprocess.run(
+            ["docker", "exec", node, "kubectl", "--kubeconfig", kubeconfig,
+             "--request-timeout=3s", "-n", namespace, "get", f"lease/{lease_name}", "-o", "jsonpath={.metadata.name}"],
+            env=lab.env, text=True, capture_output=True, timeout=5,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        lab.block(f"A bounded read-only Lease latency request failed for {component}")
+    elapsed_ms = (time.monotonic_ns() - started) / 1_000_000
+    if result.returncode or result.stdout.strip() != lease_name:
+        lab.block(f"A bounded read-only Lease latency request failed for {component}")
+    return elapsed_ms
+
+
+def sample_lease_get_latencies(lab, component_configs):
+    """Collect five measured GETs per component plus one excluded warm-up each."""
+    components = tuple(COMPONENTS)
+    samples = {component: [] for component in components}
+    warmups = set()
+    # Alternate one request per second: 12 bounded GETs total, 1 request/s.
+    for index in range(12):
+        component = components[index % len(components)]
+        namespace, lease_name = component_configs[component]
+        latency = component_lease_get_latency_ms(lab, component, namespace, lease_name)
+        if component not in warmups:
+            warmups.add(component)
+        else:
+            samples[component].append(latency)
+        if index < 11:
+            time.sleep(1)
+    return samples
+
+
 def check_component_election_and_renewal(lab):
     timings = {}
+    component_configs = {}
     initial = {}
     for component, spec in COMPONENTS.items():
         parsed = flags(component_command(lab, component))
         leader_flags = parsed.get("leader-elect", [])
         elected = leader_flags in ([], ["true"])
         lock_name = parsed.get("leader-elect-resource-name", [spec["lease"]])
+        lock_namespace = parsed.get("leader-elect-resource-namespace", [SYSTEM_NAMESPACE])
+        lock_type = parsed.get("leader-elect-resource-lock", ["leases"])
         values = {}
         for flag, (key, default) in LEASE_TIMING_FLAGS.items():
             entries = parsed.get(flag, [default])
@@ -409,13 +453,55 @@ def check_component_election_and_renewal(lab):
         valid_timing = valid_timing and values["retry"] < values["renew"] < values["lease"]
         lab.check(
             "green", f"{component} has enabled leader election and ordered positive lease timings",
-            elected and lock_name == [spec["lease"]] and valid_timing,
+            elected and lock_name == [spec["lease"]] and lock_namespace == [SYSTEM_NAMESPACE]
+            and lock_type == ["leases"] and valid_timing,
             {"leader_election_enabled": elected, "expected_lock_name": lock_name == [spec["lease"]],
+             "expected_lock_namespace_and_type": lock_namespace == [SYSTEM_NAMESPACE] and lock_type == ["leases"],
              "positive_retry_renew_lease_order": valid_timing,
              "effective_timing_seconds": values},
         )
         timings[component] = values
+        component_configs[component] = (lock_namespace[0], lock_name[0])
         initial[component] = observed_renew_time(lab, component)
+
+    latency_samples = sample_lease_get_latencies(lab, component_configs)
+    latency_raw = {}
+    for component, samples in latency_samples.items():
+        values = timings[component]
+        # A local fixture guard leaves a 4x margin inside retry and 10x inside
+        # renewDeadline. This is a fixture criterion, not a universal threshold.
+        guard_ms = min(values["retry"] * 1000 / 4, values["renew"] * 1000 / 10)
+        within_guard = len(samples) == 5 and max(samples) <= guard_ms
+        lab.check(
+            "green", f"{component} read-only Lease GET latency fits the fixture-local guard",
+            within_guard,
+            {"measured_sample_count": len(samples),
+             "all_measured_samples_within_fixture_guard": within_guard,
+             "guard_derived_from_observed_timing": True},
+        )
+        latency_raw[component] = {
+            "measurement": "read-only named Lease GET via that component's kubeconfig",
+            "namespace": component_configs[component][0],
+            "lease_name": component_configs[component][1],
+            "effective_lease_renew_retry_seconds": values,
+            "warmup_count_excluded": 1,
+            "measured_count": len(samples),
+            "sample_rtt_ms": samples,
+            "median_rtt_ms": sorted(samples)[len(samples) // 2] if samples else None,
+            "max_rtt_ms": max(samples) if samples else None,
+            "fixture_guard_ms": guard_ms,
+            "fixture_guard_formula": "min(retry_period/4, renew_deadline/10)",
+        }
+    (lab.evidence / "leader-election-api-latency-raw.json").write_text(
+        json.dumps({
+            "scope": "bounded read-only fixture sample; not a production SLO",
+            "request_budget": {"total_gets": 12, "rate_target_per_second": 1,
+                               "per_request_api_timeout_seconds": 3,
+                               "per_request_hard_timeout_seconds": 5},
+            "components": latency_raw,
+            "read_latency_is_not_update_latency": True,
+        }, indent=2) + "\n"
+    )
 
     deadline = time.monotonic() + 24
     changed = {component: False for component in COMPONENTS}

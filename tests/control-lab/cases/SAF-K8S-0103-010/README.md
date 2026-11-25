@@ -10,6 +10,19 @@ times. Derive each client certificate's public subject and compare it with the
 stock User role binding. Only the certificate's public field leaves the
 owned node for parsing. The case never modifies the actual leader Leases.
 
+For each real component, the case also makes one excluded warm-up and five
+measured, named read-only Lease GETs through that component's in-node kubeconfig.
+The two components are alternated at one request per second, with a three second
+API timeout and five second process timeout. The fixture guard is derived from
+the observed retry period and renew deadline as
+`min(retry_period / 4, renew_deadline / 10)`. At the kubeadm defaults this is
+500 ms. Raw RTT samples, medians, maxima, and the computed guard are written
+only to `leader-election-api-latency-raw.json`; `result.json` records the stable
+sample count and whether all samples met that fixture-local guard. The guard is
+an example for this disposable fixture. Production thresholds use the
+adopter’s measured API path. These samples time only GET requests. Advancing
+`renewTime` separately demonstrates that fixture renewals succeeded.
+
 Use impersonated case-owned service account identities to get and update their
 own fixture Lease and verify explicit Forbidden responses for the other exact
 Lease name. With a synthetic Role whose create rule contains a resource name,
@@ -44,7 +57,10 @@ Collection list, watch and top-level create are observed separately. Inventory
 all effective authorizers, named and collection grants, default namespaced
 roles, administrator exceptions and any required coordination function. Test
 authorized current permissions and exact denials with representative approved
-identities. Review latency against the approved lease timing plan and include
-external/cloud-controller identities where applicable.
+identities. Use representative read and write latency, including tail behavior
+under expected load, to set deployment-specific margins against the approved
+lease timing plan. The bounded fixture sample does not establish that
+deployment evidence. Include external/cloud-controller identities where
+applicable.
 
 - [Kubernetes v1.36.1 namespaced bootstrap Roles and bindings](https://github.com/kubernetes/kubernetes/blob/v1.36.1/plugin/pkg/auth/authorizer/rbac/bootstrappolicy/namespace_policy.go#L99-L130)

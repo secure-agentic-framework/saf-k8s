@@ -4,8 +4,8 @@
   "catalog_sha256": "7858ac696aa0fab345adc56211e616c9dbf9a0fd00aeec921bc13b07b6bee205",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "31e4f5b532733cd624fea69c82f3549dde86f65bb9333bf3580e1a555c416718",
-  "scope": "Pinned Kubernetes v1.36.1 single-node kind fixture: verify enabled leader election flags, effective timing relationships, and changing renewTime values for kube-controller-manager and kube-scheduler without modifying either real leader Lease. Inspect kubeadm client certificate subjects and their bootstrap RBAC bindings. Synthetic service accounts exercise get/update against only three run-unique case-owned Leases in kube-system. A synthetic create rule demonstrates RBAC resourceNames cannot constrain top-level create. Cloud controller-manager, HA failover timing, and exempt administrator identities are outside this fixture.",
-  "cluster": "saf-lab-535c65cd666b",
+  "scope": "Pinned Kubernetes v1.36.1 single-node kind fixture: verify enabled leader election flags, effective timing relationships, and changing renewTime values with a bounded read-only API GET latency sample and explicit fixture-only guard for kube-controller-manager and kube-scheduler without modifying either real leader Lease. Inspect kubeadm client certificate subjects and their bootstrap RBAC bindings. Synthetic service accounts exercise get/update against only three run-unique case-owned Leases in kube-system. A synthetic create rule demonstrates RBAC resourceNames cannot constrain top-level create. Cloud controller-manager, HA failover timing, and exempt administrator identities are outside this fixture.",
+  "cluster": "saf-lab-941d6fca7177",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -117,6 +117,7 @@
       "observed": {
         "leader_election_enabled": true,
         "expected_lock_name": true,
+        "expected_lock_namespace_and_type": true,
         "positive_retry_renew_lease_order": true,
         "effective_timing_seconds": {
           "lease": 15.0,
@@ -132,12 +133,33 @@
       "observed": {
         "leader_election_enabled": true,
         "expected_lock_name": true,
+        "expected_lock_namespace_and_type": true,
         "positive_retry_renew_lease_order": true,
         "effective_timing_seconds": {
           "lease": 15.0,
           "renew": 10.0,
           "retry": 2.0
         }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "kube-controller-manager read-only Lease GET latency fits the fixture-local guard",
+      "matched": true,
+      "observed": {
+        "measured_sample_count": 5,
+        "all_measured_samples_within_fixture_guard": true,
+        "guard_derived_from_observed_timing": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "kube-scheduler read-only Lease GET latency fits the fixture-local guard",
+      "matched": true,
+      "observed": {
+        "measured_sample_count": 5,
+        "all_measured_samples_within_fixture_guard": true,
+        "guard_derived_from_observed_timing": true
       }
     },
     {
