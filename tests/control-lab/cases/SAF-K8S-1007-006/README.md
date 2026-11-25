@@ -73,6 +73,15 @@ The test submits each deletion with a Kubernetes UID precondition. An independen
 wrong-UID request must fail, and the live marker reads verify the accepted and
 revoked RBAC paths against the still-existing objects.
 
+## Synthetic custom resource finalizer
+
+A second owned custom resource has an explicit fixture finalizer. The
+UID-preconditioned delete sets the deletion timestamp while leaving that
+same object present. A JSON Patch verifies the UID, resource version and
+finalizer list before removing only the fixture finalizer. The object
+then disappears. Adopters verify the real owner's completion criteria
+before approving finalizer removal.
+
 ## Adopter verification for timed deletion
 
 Inventory the actual storage copies, snapshots, registries, caches, credentials,

@@ -13,6 +13,8 @@ PYTHON_IMAGE = (
     "docker.io/library/python:3.13-slim@sha256:"
     "e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 )
+FINALIZER_NAME = "saf-lab.example/decommission-fixture"
+FINALIZER_CR = "saf-1007-006-finalizer-fixture"
 
 NAMES = {
     "configmap": ["saf-1007-006-data-marker"],
@@ -184,6 +186,57 @@ def wait_crd(lab):
     lab.block("Synthetic CRD did not become discoverable")
 
 
+def verify_synthetic_finalizer_lifecycle(lab):
+    """Exercise API deletion-pending semantics without a finalizer controller."""
+    created = create_owned(lab, {
+        "apiVersion": "saf-lab.example/v1", "kind": "SyntheticArtifact",
+        "metadata": {"name": FINALIZER_CR, "namespace": NAMESPACE,
+                     "labels": {CASE_LABEL: CONTROL_ID, FIXTURE_LABEL: "true"},
+                     "finalizers": [FINALIZER_NAME]},
+        "spec": {"fixtureId": "SYNTH-1007-006-FINALIZER-001"},
+    })
+    uid = created["metadata"]["uid"]
+    # Use the established UID-preconditioned delete path. A pending finalizer
+    # must leave this exact, correctly labeled object visible to the API.
+    delete_by_uid(lab, "syntheticartifacts.saf-lab.example", FINALIZER_CR, uid)
+    result = lab.kubectl("get", "syntheticartifact", FINALIZER_CR, "-o", "json")
+    pending = json.loads(result.stdout)
+    metadata = pending.get("metadata", {})
+    pending_observed = (
+        metadata.get("uid") == uid
+        and metadata.get("labels", {}).get(CASE_LABEL) == CONTROL_ID
+        and metadata.get("labels", {}).get(FIXTURE_LABEL) == "true"
+        and bool(metadata.get("deletionTimestamp"))
+        and metadata.get("finalizers") == [FINALIZER_NAME]
+    )
+    if not pending_observed:
+        lab.block("Synthetic CR did not remain pending with its exact owned finalizer")
+
+    # Model only the fixture's completion signal: remove its own finalizer after
+    # validating UID and labels. No controller or external cleanup is implied.
+    if not assert_owned(lab, "syntheticartifacts.saf-lab.example", FINALIZER_CR):
+        lab.block("Finalizer fixture disappeared before its owned finalizer was removed")
+    patch = json.dumps([
+        {"op": "test", "path": "/metadata/uid", "value": uid},
+        {"op": "test", "path": "/metadata/resourceVersion", "value": metadata["resourceVersion"]},
+        {"op": "test", "path": "/metadata/finalizers", "value": [FINALIZER_NAME]},
+        {"op": "remove", "path": "/metadata/finalizers/0"},
+    ])
+    lab.kubectl("patch", "syntheticartifact", FINALIZER_CR, "--type=json", "-p", patch)
+    deadline = time.monotonic() + 20
+    while exists(lab, "syntheticartifacts.saf-lab.example", FINALIZER_CR):
+        if time.monotonic() >= deadline:
+            lab.block("Synthetic CR remained after its exact fixture finalizer was removed")
+        time.sleep(0.25)
+    absent = not exists(lab, "syntheticartifacts.saf-lab.example", FINALIZER_CR)
+    lab.check("positive", "Synthetic CR deletion waits for and completes after exact fixture finalizer removal",
+              pending_observed and absent,
+              {"deletion_timestamp_observed": bool(metadata.get("deletionTimestamp")),
+               "owned_finalizer_observed": metadata.get("finalizers") == [FINALIZER_NAME],
+               "fixture_finalizer_removed": True, "synthetic_cr_absent": absent,
+               "controller_cleanup_observed": False, "external_changes": False})
+
+
 def marker_access(lab, identity, resource_name, marker):
     subject = f"system:serviceaccount:{NAMESPACE}:{identity}"
     result = lab.kubectl(f"--as={subject}", "-n", NAMESPACE, "get", "configmap",
@@ -304,6 +357,8 @@ def run(lab):
               {"retired_workload_absent": not exists(lab, "pod", NAMES["pod"][0]),
                "residual_objects_present": sum(residual.values()), "stale_mock_grant_authorizes": stale_access,
                "comparator_initially_authorized": comparator_before})
+
+    verify_synthetic_finalizer_lifecycle(lab)
 
     target_name = NAMES["configmap"][0]
     incorrect_uid = "00000000-0000-0000-0000-000000000000"

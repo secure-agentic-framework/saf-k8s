@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1007-006",
-  "catalog_revision": "b31054691821085a4a326a63c627b9e4be7bcd57",
+  "catalog_revision": "ef3442603cae62d716e8359e1b3915b4cd8477c6",
   "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "38d28244aa90f72f7b03613ca9c5461dc5f3bf4b9ff6ea8bde338c066c9f1802",
   "scope": "One disposable Kind Kubernetes v1.36.1 cluster and synthetic objects in saf-test. The case first leaves an inert Pod's ConfigMap, empty Secret, ServiceAccount, scoped RBAC grant, NetworkPolicy, GPU-named ResourceQuota, unbound CSI PV record, and a synthetic CRD/custom resource after deleting the mock workload. It records the stale grant using Kubernetes authorization, removes the exact grant and residual objects, and verifies target absence plus a separate comparator grant. No credential values, real identity, external registry/provider, GPU device, storage backend, or data are used. Kubernetes API object deletion is not proof of backend erasure, registry deletion, GPU release, external identity revocation, or production process coverage.",
-  "cluster": "saf-lab-39f9e7016f6b",
+  "cluster": "saf-lab-a2859143c31b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -47,6 +47,19 @@
         "residual_objects_present": 10,
         "stale_mock_grant_authorizes": true,
         "comparator_initially_authorized": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Synthetic CR deletion waits for and completes after exact fixture finalizer removal",
+      "matched": true,
+      "observed": {
+        "deletion_timestamp_observed": true,
+        "owned_finalizer_observed": true,
+        "fixture_finalizer_removed": true,
+        "synthetic_cr_absent": true,
+        "controller_cleanup_observed": false,
+        "external_changes": false
       }
     },
     {
