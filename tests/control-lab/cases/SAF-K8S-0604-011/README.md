@@ -12,3 +12,12 @@ and stale or unauthorized governance. The approved digest then runs in Kind.
 
 The builder assurance levels are fixture policy inputs. A production SLSA
 level requires assessment of the actual build platform and release process.
+
+## Verify an adopting implementation
+
+Record the exact builder platform and evaluated assurance
+properties for each production route; verify signer and builder identities,
+root custody/rotation, and the independent assessment record. Run a
+representative targeted build through the actual promotion gate and retain
+provenance verification plus denial evidence for a signed but unsupported
+claim. Do not infer a SLSA level from self-asserted provenance fields.
