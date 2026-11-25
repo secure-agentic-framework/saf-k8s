@@ -23,3 +23,12 @@ and renewal execution require separate evidence.
 - [Blackbox Exporter TLS configuration](https://github.com/prometheus/blackbox_exporter/blob/v0.27.0/CONFIGURATION.md)
 - [Prometheus alert rules](https://github.com/prometheus/prometheus/blob/v3.5.0/docs/configuration/alerting_rules.md)
 - [Alertmanager webhook configuration](https://github.com/prometheus/alertmanager/blob/v0.28.1/docs/configuration.md)
+
+## Verify an adopting implementation
+
+Reconcile each issuer, certificate class, served
+endpoint, and renewal owner to a monitored probe/exporter and dashboard. Retain
+observed expiry versus certificate metadata, rule thresholds, a near-expiry
+test alert, a healthy comparator, delivery receipt to the responsible
+recipient, and an alert-clear event after renewal. Identify certificates and
+private endpoints not covered by the probe.
