@@ -11,15 +11,6 @@ Isolating security functions in agent systems prevents compromise of authorizati
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0103-005 - Pod garbage collection threshold configuration](../../controls/SAF-K8S-0103-005.md)
-
-- Domain: D01 - Control Plane and Cluster Hardening
-- Knowledge Area: 1.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
-
 ### [SAF-K8S-0103-006 - Profiling endpoint disablement for controller-manager and scheduler](../../controls/SAF-K8S-0103-006.md)
 
 - Domain: D01 - Control Plane and Cluster Hardening

@@ -22612,16 +22612,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-6
   framework_requirement_title: Configuration Settings
-  framework_mapping_notes: 'Secure config settings for agent systems
-
-
-    1.4 - CIS benchmark application (configuration settings baseline); 1.3 - Controller-manager pod GC threshold; 2.1 - Kubelet hardening flags'
+  framework_mapping_notes: The effective terminated Pod threshold contributes configuration-setting evidence when the approved control-plane baseline includes a Pod retention policy. Retain the selected value, ownership and effective behavior.
   control_id: SAF-K8S-0103-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The approved configuration baseline includes the effective terminated Pod threshold.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -22908,22 +22905,6 @@
   applicability: conditional
   applicability_condition: The organization identifies explicit long-lived service account token Secrets as a nonessential credential capability for the governed workloads.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-7
-  framework_requirement_title: Least Functionality
-  framework_mapping_notes: 'Agents should expose minimum necessary functionality
-
-
-    6.1 - Secure container images (distroless, scratch, minimal attack surface); 2.3 - Minimal host OS; 1.3 - Profiling endpoint disablement for controller-manager and scheduler (--profiling=false)'
-  control_id: SAF-K8S-0103-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -25797,22 +25778,6 @@
 
 
     1.3 - HA configuration for control plane (eliminating single points of failure); 7.3 - Resource exhaustion resilience'
-  control_id: SAF-K8S-0103-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-8(2)
-  framework_requirement_title: Single Points of Failure
-  framework_mapping_notes: 'Avoiding SPOFs applies to agent architecture
-
-
-    1.3 - HA configuration for control plane (eliminating single points of failure); 7.3 - Resource exhaustion resilience'
   control_id: SAF-K8S-0103-006
   relation_type: supports
   strength_level: strong
@@ -26331,22 +26296,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-9(6)
-  framework_requirement_title: Redundant Secondary System
-  framework_mapping_notes: 'Redundant agent system for failover
-
-
-    1.3 - HA control plane (redundant systems); 9.2 - Multi-model serving and autoscaling for redundancy'
-  control_id: SAF-K8S-0103-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -42838,22 +42787,6 @@
 
 
     7.2 - Namespace isolation (system vs user workload separation); 1.3 - Control plane component isolation'
-  control_id: SAF-K8S-0103-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-2
-  framework_requirement_title: Separation of System and User Functionality
-  framework_mapping_notes: 'Separating agent system functions from user-facing interfaces prevents privilege escalation
-
-
-    7.2 - Namespace isolation (system vs user workload separation); 1.3 - Control plane component isolation'
   control_id: SAF-K8S-0103-006
   relation_type: direct
   strength_level: strong
@@ -44070,22 +44003,6 @@
 
     2.2 - RuntimeClass (Kata Containers VM-level isolation); 7.2 - vCluster virtual cluster techniques'
   control_id: SAF-K8S-0702-019
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-3
-  framework_requirement_title: Security Function Isolation
-  framework_mapping_notes: 'Isolating security functions in agent systems prevents compromise of authorization and audit
-
-
-    1.3 - Control plane component isolation; 2.2 - Sandboxed runtimes (security function isolation)'
-  control_id: SAF-K8S-0103-005
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -48784,22 +48701,6 @@
 
 
     7.2 - Namespace isolation; 1.3 - Control plane component isolation from workloads'
-  control_id: SAF-K8S-0103-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(21)
-  framework_requirement_title: Isolation of System Components
-  framework_mapping_notes: 'Isolating agent system components limits blast radius of compromise
-
-
-    7.2 - Namespace isolation; 1.3 - Control plane component isolation from workloads'
   control_id: SAF-K8S-0103-006
   relation_type: direct
   strength_level: strong
@@ -52391,22 +52292,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-13(5)
-  framework_requirement_title: Failover Capability
-  framework_mapping_notes: 'Failover capability for agent systems ensures continuity during component failures
-
-
-    1.3 - HA configuration for control plane (failover); 9.1 - Training fault tolerance (failover recovery)'
-  control_id: SAF-K8S-0103-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
