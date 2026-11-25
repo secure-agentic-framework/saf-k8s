@@ -1,77 +1,57 @@
-# SAF-K8S-0101-018 — API server anonymous authentication disablement
+# SAF-K8S-0101-018 — API server anonymous authentication
 
-## Coverage and comparison
+```sh
+python3 lab.py test SAF-K8S-0101-018
+```
 
-The runner's disposable kind cluster is the default-profile baseline. The case
-sends a standard unauthenticated HTTPS `GET /livez`, verifies the API server
-certificate with that cluster's kubeconfig CA, and records only the method,
-path, HTTP status, and fixed metadata confirming that no client certificate or
-Authorization header was supplied. It does not read client keys, client
-certificates, or tokens for this request. It makes no other anonymous request.
+The current catalog revision selects the native v1.36.1 comparison. It
+observes the default health result, disables anonymous authentication, and
+observes the current kubelet startup failure counter and HTTP 401 for the
+same TLS-verified health path. A dedicated client identity limited
+to the health paths restores the static Pod's readiness. The control plane
+remains Ready over two full probe intervals, and ordinary authenticated API
+access still works. See [the authenticated probe case](HEALTHY-PROBE-FOLLOWUP.md).
 
-A second, collision-checked disposable kind profile sets
-`--anonymous-auth=false`. The same CA-verified `GET /livez` must receive actual
-HTTP 401. In both profiles, `kubectl get --raw=/livez` and an ordinary
-`kubectl get namespace saf-test` must succeed using the runner's normal
-authorized kubeconfig path. The test does not print or retain the health
-response body. Both profiles are deleted, including partial creation cleanup.
+The final comparison uses the upstream structured authentication
+configuration with only three health paths enabled. It confirms anonymous
+liveness HTTP 200 and anonymous version HTTP 401, while authorized health
+and a namespace read still succeed. The runner verifies the local API server
+CA and uses only fixed read-only paths for the unauthenticated observations.
+It retains status and path information and deletes the disposable cluster.
 
-The baseline observation is the red condition: the otherwise benign request
-succeeds while anonymous authentication is enabled. The configured profile is
-the green condition: the same request receives 401. Positive observations
-confirm that authorized health and a normal Kubernetes API read remain usable.
+## Adopter verification
 
-## Catalog applicability and managed-provider coverage
+1. Record the Kubernetes or provider release, API endpoint variants and
+   access paths, scope, control owner, and effective settings. Track where
+   a provider owns the authentication settings and which customer-side
+   exposure or access settings apply. For self-managed clusters, confirm
+   effective process flags or the authentication configuration and the
+   approved health-probe design.
+2. From an authorized vantage, use the documented TLS trust and a
+   credential-free client for a single approved health path and an
+   ordinary non-health endpoint such as `/version`. Record the status
+   and selected endpoint, omit response bodies, and compare with the
+   approved configuration. Use authenticated health and an authorized
+   benign API read as positive comparisons. A transport failure, proxy
+   denial, or absence of credentials in a captured output cannot establish
+   an API-server HTTP 401.
+3. Full disablement rejects both unauthenticated requests. For a documented
+   provider-fixed health-only mode, verify the allowed health scope and
+   non-health rejection separately. Record approved exceptions and applicable
+   compensations, including endpoint reachability and any customer-managed
+   authorization for that path. If policy requires full disablement, record
+   the provider-fixed allowance as an outstanding policy gap.
+4. Preserve the verified endpoint and TLS observations, redacted provider
+   setting or attestation, scope, authority for each exception, and
+   authenticated health and read results. Reassess on provider, version, or
+   endpoint changes. Mark undisclosed settings and unchecked paths unverified.
 
-The pinned control at framework commit
-`133a8698a45e2b335b51728bf4c62f7bda98d15f` applies to production clusters and
-to sensitive, shared, or production-path non-production clusters. Its scope
-explicitly includes managed Kubernetes customer-exposed authentication
-settings and compensating controls when provider-managed settings are fixed.
-Its implementation surface names API-server manifest flags, managed service
-security settings, provisioning templates, and periodic status assessment.
+The EKS documentation describes health-only anonymous access starting at
+Kubernetes 1.32. GKE documents its `LIMITED` setting and applicable
+versions. Read the actual service's version and effective settings before
+selecting the expected observations.
 
-The local kind test covers only the self-managed API-server flag path. It does
-not verify EKS, GKE, AKS, or another managed service. Where a managed provider
-exposes an anonymous-authentication setting, evidence must show the actual
-customer-side value and the API endpoint behavior. Where the provider fixes
-that setting, alternative evidence is required by the pinned catalog scope:
-document the provider constraint and validate the applicable compensating
-controls on the customer-exposed API path. Provider documentation and
-customer-side configuration evidence must be gathered for the actual service;
-this kind result cannot substitute for them. No provider-specific exception
-or universally available alternative is inferred here.
-
-## Supported versions
-
-- Case profile: Kubernetes v1.36.1, using the node image pinned in `lab.py`:
-  `kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5`.
-- The case sets the `--anonymous-auth` kube-apiserver flag documented for
-  Kubernetes v1.36. No other Kubernetes minor or managed control plane is
-  claimed as tested.
-- This implementation has not been run against kind in this task. Supervisor
-  review and live execution remain outstanding.
-
-## Primary references
-
-- Pinned catalog control: `SAF-K8S-0101-018`, framework commit
-  `133a8698a45e2b335b51728bf4c62f7bda98d15f`,
-  `markdown/controls/SAF-K8S-0101-018.md`.
-- [Kubernetes v1.36 authentication](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/authentication/): anonymous request identity, default behavior, `--anonymous-auth=false`, and configurable anonymous paths.
-- [Kubernetes v1.36 kube-apiserver flags](https://v1-36.docs.kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/): `--anonymous-auth` default and behavior.
-
-## Verification gaps
-
-- No live cluster execution, HTTP observation, or cleanup result is recorded by
-  this source-only implementation task.
-- Production configuration, any management/provisioning drift, external API
-  paths, load balancers or proxies, and provider-specific controls remain
-  unverified.
-- For a managed service, applicability and available configuration/alternative
-  evidence must be determined against that provider's current service behavior
-  and the deployed cluster. The generic control does not name providers or
-  prescribe one universal compensating control.
-- A 401 at `/livez` demonstrates that the unauthenticated request was not
-  accepted by the configured API server. This test does not inspect audit
-  identity attribution or prove that every API route, proxy path, or alternate
-  authentication configuration rejects anonymous requests.
+- [Kubernetes v1.36 authentication](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/authentication/#anonymous-authenticator-configuration)
+- [EKS anonymous authentication changes](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions-extended.html#kubernetes-1.32)
+- [GKE cluster hardening](https://docs.cloud.google.com/kubernetes-engine/docs/how-to/hardening-your-cluster)
+- [Kubernetes v1.36 kubelet probe metrics](https://v1-36.docs.kubernetes.io/docs/reference/instrumentation/metrics/#prober-probe-total)

@@ -63,7 +63,7 @@
     "SAF-K8S-0101-018": {
       "catalog_status": "draft",
       "domain": "D01",
-      "sha256": "cd481bc49f01fd1fa918d1f60861f7f73c8232486fa98235de29712bf033712f",
+      "sha256": "58bcd41ec5f05e784227b21237b3813df5726d15ad0b712121cbe884f717023c",
       "title": "API server anonymous authentication disablement"
     },
     "SAF-K8S-0101-019": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "a3b9424528295c7c2644aa463ff0f35c58cb7c9e",
-  "sha256": "6aeee6cde1e28b35528b2b79710a26b9933c277077ed5887ca3ef13abbffe6a9",
+  "revision": "7450cc0f48d2a23740653616b2c2772bea26b846",
+  "sha256": "479dd34cbc528dfa061f5555b19fc586c71385dcacd427f88979b910e0151d5e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

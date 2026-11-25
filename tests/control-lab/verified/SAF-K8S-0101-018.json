@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0101-018",
-  "catalog_revision": "e3a376ad55ad40c387ccc401699d871e1d86fe9e",
-  "catalog_sha256": "a6c125e965f97df08de85d09fc9013aab730db7c46ece9b29a50560134c1a7d6",
+  "catalog_revision": "d35a9daec70cd887aef8bc5641213f8d2e376532",
+  "catalog_sha256": "479dd34cbc528dfa061f5555b19fc586c71385dcacd427f88979b910e0151d5e",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "cd481bc49f01fd1fa918d1f60861f7f73c8232486fa98235de29712bf033712f",
-  "scope": "Pinned single-node kind/kubeadm. Check anonymous HTTP rejection, real kubelet probe failure with an anonymous probe, then sustained Ready with a temporary RBAC-scoped authenticated probe. Managed control-plane coverage is separate.",
-  "cluster": "saf-lab-aee4d523b6e3",
+  "control_sha256": "58bcd41ec5f05e784227b21237b3813df5726d15ad0b712121cbe884f717023c",
+  "scope": "Disposable v1.36.1 kubeadm. Verify full anonymous rejection with authenticated probes, and compare the upstream health-only profile for two fixed CA-verified paths. Provider-specific observations are deployment evidence collected using the adoption guide.",
+  "cluster": "saf-lab-169f71278e30",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -65,13 +65,13 @@
     },
     {
       "phase": "red",
-      "claim": "Kubelet's unauthenticated probes receive 401 and the static Pod is unready",
+      "claim": "The current unauthenticated startup probe fails while the same HTTPS path returns 401",
       "matched": true,
       "observed": {
-        "ready": false,
-        "warnings": [
-          "Startup probe failed: HTTP probe failed with statuscode: 401"
-        ]
+        "current_http_startup_probe": true,
+        "unready": true,
+        "startup_probe_failed": true,
+        "matching_https_status": 401
       }
     },
     {
@@ -117,6 +117,56 @@
       "claim": "Authenticated ordinary API access still works",
       "matched": true,
       "observed": "namespace/saf-test"
+    },
+    {
+      "phase": "positive",
+      "claim": "Full disablement returns HTTP 401 for the ordinary version path",
+      "matched": true,
+      "observed": {
+        "method": "GET",
+        "path": "/version",
+        "status": 401,
+        "client_certificate": "none",
+        "authorization_header": "none",
+        "tls_server_ca": "case kubeconfig CA"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The scoped profile allows anonymous liveness and explicitly rejects anonymous version requests",
+      "matched": true,
+      "observed": {
+        "health": {
+          "method": "GET",
+          "path": "/livez",
+          "status": 200,
+          "client_certificate": "none",
+          "authorization_header": "none",
+          "tls_server_ca": "case kubeconfig CA"
+        },
+        "non_health": {
+          "method": "GET",
+          "path": "/version",
+          "status": 401,
+          "client_certificate": "none",
+          "authorization_header": "none",
+          "tls_server_ca": "case kubeconfig CA"
+        },
+        "allowed_health_paths": [
+          "/livez",
+          "/readyz",
+          "/healthz"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Authorized health and the ordinary namespace read work in the health-only profile",
+      "matched": true,
+      "observed": {
+        "authenticated_health": true,
+        "authenticated_namespace": "namespace/saf-test"
+      }
     }
   ]
 }

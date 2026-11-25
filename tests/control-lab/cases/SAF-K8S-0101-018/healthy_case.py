@@ -4,6 +4,7 @@ import copy
 import importlib.util
 import json
 from pathlib import Path
+import re
 import subprocess
 import tempfile
 import time
@@ -138,7 +139,99 @@ def kubelet_probe_rejections(lab, prefix, name):
                    if "probe failed" in row.get("message", "").lower() and "401" in row["message"]})
 
 
-def run(lab):
+def verify_unauthenticated_startup_failure(lab, prefix, node, name):
+    """Attribute the measured probe failure to the current static-Pod configuration."""
+    outcome = {"current_http_startup_probe": False, "unready": False,
+               "startup_probe_failed": False, "matching_https_status": None}
+    deadline = time.monotonic() + 100
+    while time.monotonic() < deadline:
+        response = private_command(lab, *prefix, "-n", "kube-system", "get", "pod", name,
+                                   "-o", "json", allow_failure=True)
+        if not response or response.returncode:
+            time.sleep(2)
+            continue
+        pod = json.loads(response.stdout)
+        container = apiserver_container(pod)
+        outcome["current_http_startup_probe"] = (
+            "--anonymous-auth=false" in container["command"]
+            and container["startupProbe"].get("httpGet", {}).get("path") == "/livez"
+        )
+        outcome["unready"] = not ready(pod["status"])
+        if not outcome["current_http_startup_probe"] or not outcome["unready"]:
+            time.sleep(2)
+            continue
+        uid = pod["metadata"].get("annotations", {}).get("kubernetes.io/config.mirror")
+        metrics = private_command(lab, *prefix, "get",
+                                  f"--raw=/api/v1/nodes/{node}/proxy/metrics/probes", allow_failure=True)
+        if uid and metrics and metrics.returncode == 0:
+            expected = {
+                "container": "kube-apiserver", "namespace": "kube-system", "pod": name,
+                "pod_uid": uid, "probe_type": "Startup", "result": "failed",
+            }
+            for line in metrics.stdout.splitlines():
+                if line.startswith("prober_probe_total{"):
+                    labels, _, number = line.partition("}")
+                    observed = dict(re.findall(r'(\w+)="([^"]*)"', labels))
+                    if observed == expected and float(number.strip()) > 0:
+                        outcome["startup_probe_failed"] = True
+                        break
+        replied = baseline.anonymous_get(
+            lab, lab.kubeconfig, lab.cluster, "/livez", allow_unavailable=True,
+        )
+        outcome["matching_https_status"] = replied["status"] if replied else None
+        if outcome["startup_probe_failed"] and outcome["matching_https_status"] == 401:
+            break
+        time.sleep(2)
+    lab.check("red", "The current unauthenticated startup probe fails while the same HTTPS path returns 401",
+              all(outcome[key] for key in ("current_http_startup_probe", "unready", "startup_probe_failed"))
+              and outcome["matching_https_status"] == 401, outcome)
+
+
+def verify_health_only(lab, node, name, prefix, manifest):
+    config_path = "/etc/kubernetes/pki/saf-anonymous-health.json"
+    allowed_paths = ("/livez", "/readyz", "/healthz")
+    config = {"apiVersion": "apiserver.config.k8s.io/v1", "kind": "AuthenticationConfiguration",
+              "anonymous": {"enabled": True,
+                            "conditions": [{"path": path} for path in allowed_paths]}}
+    lab.command("docker", "exec", "-i", node, "sh", "-ceu", 'umask 022; cat >"$1"',
+                "saf-auth-config", config_path, payload=json.dumps(config))
+    profile = copy.deepcopy(manifest)
+    command = apiserver_container(profile)["command"]
+    if any(arg.startswith("--authentication-config") for arg in command):
+        lab.block("The test profile already has an authentication configuration")
+    command.remove("--anonymous-auth=false")
+    command.append("--authentication-config=" + config_path)
+
+    rejected = baseline.anonymous_get(lab, lab.kubeconfig, lab.cluster, "/version")
+    lab.check("positive", "Full disablement returns HTTP 401 for the ordinary version path",
+              rejected["status"] == 401, rejected)
+    write_manifest(lab, node, profile)
+    observed = None
+    non_health = None
+    deadline = time.monotonic() + 110
+    while time.monotonic() < deadline:
+        observed = baseline.anonymous_get(
+            lab, lab.kubeconfig, lab.cluster, "/livez", allow_unavailable=True,
+        )
+        if observed and observed["status"] == 200 and ready(status(lab, prefix, name)):
+            non_health = baseline.anonymous_get(
+                lab, lab.kubeconfig, lab.cluster, "/version", allow_unavailable=True,
+            )
+            if non_health:
+                break
+        time.sleep(2)
+    if not non_health:
+        lab.block("The configured health-only profile did not become ready")
+    lab.check("green", "The scoped profile allows anonymous liveness and explicitly rejects anonymous version requests",
+              observed["status"] == 200 and non_health["status"] == 401,
+              {"health": observed, "non_health": non_health, "allowed_health_paths": allowed_paths})
+    health, namespace = baseline.authorized_health_and_api(lab, lab.cluster)
+    lab.check("positive", "Authorized health and the ordinary namespace read work in the health-only profile",
+              health == "ok" and namespace == "namespace/saf-test",
+              {"authenticated_health": health == "ok", "authenticated_namespace": namespace})
+
+
+def run(lab, *, compare_health_only=False):
     node = f"{lab.cluster}-control-plane"
     name = f"kube-apiserver-{node}"
     prefix = ("kubectl", "--kubeconfig", str(lab.kubeconfig), "--context",
@@ -178,17 +271,20 @@ def run(lab):
             green["spec"]["volumes"].append({"name": volume, "hostPath": {"path": host_path, "type": "File"}})
 
         write_manifest(lab, node, red)
-        warnings = []
-        deadline = time.monotonic() + 80
-        while time.monotonic() < deadline:
-            warnings = kubelet_probe_rejections(lab, prefix, name)
-            state = status(lab, prefix, name)
-            if warnings and state and not ready(state):
-                break
-            time.sleep(2)
-        lab.check("red", "Kubelet's unauthenticated probes receive 401 and the static Pod is unready",
-                  bool(warnings and state and not ready(state)),
-                  {"ready": ready(state), "warnings": warnings})
+        if compare_health_only:
+            verify_unauthenticated_startup_failure(lab, prefix, node, name)
+        else:
+            warnings = []
+            deadline = time.monotonic() + 80
+            while time.monotonic() < deadline:
+                warnings = kubelet_probe_rejections(lab, prefix, name)
+                state = status(lab, prefix, name)
+                if warnings and state and not ready(state):
+                    break
+                time.sleep(2)
+            lab.check("red", "Kubelet's unauthenticated probes receive 401 and the static Pod is unready",
+                      bool(warnings and state and not ready(state)),
+                      {"ready": ready(state), "warnings": warnings})
 
         write_manifest(lab, node, green)
         deadline = time.monotonic() + 145
@@ -216,3 +312,6 @@ def run(lab):
         namespace = lab.kubectl("get", "namespace", "saf-test", "-o", "name").stdout.strip()
         lab.check("positive", "Authenticated ordinary API access still works",
                   namespace == "namespace/saf-test", namespace)
+
+        if compare_health_only:
+            verify_health_only(lab, node, name, prefix, green)

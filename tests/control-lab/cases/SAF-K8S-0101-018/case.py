@@ -65,8 +65,10 @@ def loopback_endpoint_and_ca(lab, kubeconfig, cluster):
     return address, port, ca_text
 
 
-def anonymous_get_livez(lab, kubeconfig, cluster):
-    """Send exactly GET /livez with server CA validation and no client identity."""
+def anonymous_get(lab, kubeconfig, cluster, path, *, allow_unavailable=False):
+    """Send a fixed, read-only GET with server CA validation and no client identity."""
+    if path not in ("/livez", "/version"):
+        raise ValueError("Anonymous fixture path must be /livez or /version")
     address, port, ca_text = loopback_endpoint_and_ca(lab, kubeconfig, cluster)
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
     context.check_hostname = True
@@ -78,18 +80,24 @@ def anonymous_get_livez(lab, kubeconfig, cluster):
     try:
         # Deliberately no client certificate, bearer token, Authorization header,
         # or any request beyond this standard health GET.
-        connection.request("GET", "/livez", headers={"Connection": "close"})
+        connection.request("GET", path, headers={"Connection": "close"})
         response = connection.getresponse()
         status = response.status
         response.read()
-        return {"method": "GET", "path": "/livez", "status": status,
+        return {"method": "GET", "path": path, "status": status,
                 "client_certificate": "none", "authorization_header": "none",
                 "tls_server_ca": "case kubeconfig CA"}
     except (OSError, ssl.SSLError, http.client.HTTPException) as error:
-        lab.block(f"Anonymous HTTPS GET /livez did not receive an HTTP response: {type(error).__name__}")
+        if allow_unavailable:
+            return None
+        lab.block(f"Anonymous HTTPS GET {path} did not receive an HTTP response: {type(error).__name__}")
     finally:
         connection.close()
 
+
+
+def anonymous_get_livez(lab, kubeconfig, cluster):
+    return anonymous_get(lab, kubeconfig, cluster, "/livez")
 
 def authorized_health_and_api(lab, cluster, kubeconfig=None):
     """Check health and a normal namespace read through authenticated kubectl."""
