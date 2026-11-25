@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0403-020",
-  "catalog_revision": "24dbf7dabe09aefb8ccff0cc033715e750cda935",
-  "catalog_sha256": "fb958907ffaf20087a8e92cdddaccb4e3e020c64db20784e8188120121675905",
+  "catalog_revision": "3918845c518c3e111d407c322a0fb7423daf94d2",
+  "catalog_sha256": "6618518e712531f8ef518344034efb0aa93e5578de809bd6e7903ee3c9fd9a59",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "216b28639fa2668b7fc7cc3d678e8289001392f7e77dd75da7bb01672f260eab",
-  "scope": "Exercise the actual Kubernetes KMS v2 plugin at the API storage boundary and separate Vault policies for the authorized API integration and a distinct fixture workload; verify remote operation attribution and deny unrelated keys and administration. Cloud provider key policy, service grants, managed identity and HSM configuration need separate evidence.",
-  "cluster": "saf-lab-f9451f01555f",
+  "scope": "Exercise the actual Kubernetes KMS v2 plugin at the API storage boundary and separate Vault policies for the authorized API integration and a distinct fixture workload; verify remote operation attribution and deny unrelated keys and administration. Rotate the local Transit key, read the native encrypted-record key IDs, migrate one record and compare cold recovery. Cloud provider key policy, service grants, managed identity and HSM configuration need separate evidence.",
+  "cluster": "saf-lab-d3cf94d2ab3d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -71,6 +71,53 @@
       "observed": {
         "cold_api_read": true,
         "authority_wrap_and_unwrap_attributed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Two named API records use Transit v1 before rotation",
+      "matched": true,
+      "observed": {
+        "exact_owned_records_encrypted": true,
+        "exact_authorized_reads": true,
+        "provider_v1_observed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Transit rotation is observed by KMS v2 before new API writes while old records still read",
+      "matched": true,
+      "observed": {
+        "latest_transit_version": 2,
+        "api_observed_status_v2": true,
+        "api_seed_wrap_observed_v2": true,
+        "post_rotation_record_key_version": 2,
+        "post_rotation_record_encrypted": true,
+        "pre_rotation_records_unchanged": true,
+        "pre_rotation_records_readable": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A scoped API rewrite migrates the selected v1 record and preserves exact reads",
+      "matched": true,
+      "observed": {
+        "selected_record_changed": true,
+        "selected_record_still_encrypted": true,
+        "rewritten_record_key_version": 2,
+        "selected_and_new_records_read_exactly": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A cold API reads all four exact Secrets using retained Transit key versions",
+      "matched": true,
+      "observed": {
+        "all_exact_fixture_reads": true,
+        "cold_provider_decrypt_versions": {
+          "v1": true,
+          "v2": true
+        }
       }
     }
   ]

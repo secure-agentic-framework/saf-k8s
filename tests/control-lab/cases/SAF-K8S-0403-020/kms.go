@@ -25,10 +25,23 @@ import (
 
 type plugin struct {
 	v2.UnimplementedKeyManagementServiceServer
-	address string
-	token   string
-	key     string
-	client  *http.Client
+	address      string
+	token        string
+	key          string
+	observations string
+	client       *http.Client
+}
+
+// observe retains only operation names and public, symbolic Transit versions.
+// It never writes request plaintext, ciphertext, key bytes, or credentials.
+func (p *plugin) observe(operation string, version int) error {
+	file, err := os.OpenFile(p.observations, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	_, err = fmt.Fprintf(file, "%s-v%d\n", operation, version)
+	return err
 }
 
 type response struct {
@@ -77,6 +90,9 @@ func (p *plugin) Status(ctx context.Context, _ *v2.StatusRequest) (*v2.StatusRes
 	if result.Data.LatestVersion < 1 {
 		return nil, status.Error(codes.Unavailable, "fixture key version unavailable")
 	}
+	if err := p.observe("status", result.Data.LatestVersion); err != nil {
+		return nil, status.Error(codes.Internal, "fixture observation unavailable")
+	}
 	return &v2.StatusResponse{Version: "v2", Healthz: "ok", KeyId: p.keyID(result.Data.LatestVersion)}, nil
 }
 
@@ -93,25 +109,33 @@ func (p *plugin) Encrypt(ctx context.Context, req *v2.EncryptRequest) (*v2.Encry
 	if err != nil || version < 1 {
 		return nil, status.Error(codes.Internal, "fixture transit envelope version invalid")
 	}
+	if err := p.observe("encrypt", version); err != nil {
+		return nil, status.Error(codes.Internal, "fixture observation unavailable")
+	}
 	return &v2.EncryptResponse{Ciphertext: []byte(result.Data.Ciphertext), KeyId: p.keyID(version)}, nil
 }
 
 func (p *plugin) Decrypt(ctx context.Context, req *v2.DecryptRequest) (*v2.DecryptResponse, error) {
-	if !strings.HasPrefix(req.KeyId, p.key+"-v") {
+	versionText := strings.TrimPrefix(req.KeyId, p.key+"-v")
+	version, err := strconv.Atoi(versionText)
+	if err != nil || version < 1 || req.KeyId != p.keyID(version) {
 		return nil, status.Error(codes.InvalidArgument, "unknown fixture key")
 	}
 	result, err := p.access(ctx, http.MethodPost, "decrypt", map[string]string{"ciphertext": string(req.Ciphertext)})
 	if err != nil {
 		return nil, err
 	}
+	if err := p.observe("decrypt", version); err != nil {
+		return nil, status.Error(codes.Internal, "fixture observation unavailable")
+	}
 	return &v2.DecryptResponse{Plaintext: result.Data.Plaintext}, nil
 }
 
 func run() error {
-	if len(os.Args) != 7 {
+	if len(os.Args) != 8 {
 		return errors.New("unexpected fixture arguments")
 	}
-	socket, address, host, caPath, tokenPath, key := os.Args[1], os.Args[2], os.Args[3], os.Args[4], os.Args[5], os.Args[6]
+	socket, address, host, caPath, tokenPath, key, observations := os.Args[1], os.Args[2], os.Args[3], os.Args[4], os.Args[5], os.Args[6], os.Args[7]
 	pem, err := os.ReadFile(caPath)
 	if err != nil {
 		return err
@@ -124,7 +148,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	p := &plugin{address: address, token: strings.TrimSpace(string(token)), key: key,
+	p := &plugin{address: address, token: strings.TrimSpace(string(token)), key: key, observations: observations,
 		client: &http.Client{Timeout: 3 * time.Second, Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{RootCAs: root, ServerName: host, MinVersion: tls.VersionTLS12},
 		}}}

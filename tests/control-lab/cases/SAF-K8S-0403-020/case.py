@@ -1,6 +1,7 @@
 """Exercise actual kube-apiserver KMS v2 through a least-privilege Vault policy."""
 
 import base64
+import hashlib
 import json
 from pathlib import Path
 import runpy
@@ -14,6 +15,7 @@ import yaml
 HERE = Path(__file__).resolve().parent
 vault = SimpleNamespace(**runpy.run_path(str(HERE / "vault_fixture.py")))
 DIRECTORY = "/etc/kubernetes/pki/saf-vault-kms"
+OBSERVATIONS = DIRECTORY + "/key-operations"
 SOCKET = DIRECTORY + "/kms.sock"
 CONFIG = DIRECTORY + "/encryption.json"
 MANIFEST = "/etc/kubernetes/manifests/kube-apiserver.yaml"
@@ -25,12 +27,18 @@ ENC = "transit/encrypt/"
 DEC = "transit/decrypt/"
 INTEGRATION = "fixture-control-plane-kms"
 WORKLOAD = "fixture-application-actor"
-MARKERS = {"fixture-policy-encrypted": "public-api-storage-marker"}
+MARKERS = {
+    "fixture-policy-encrypted": "public-api-storage-marker",
+    "fixture-kms-pre-rotation": "public-before-transit-rotation",
+    "fixture-kms-rewrite-rotation": "public-record-for-transit-rewrite",
+    "fixture-kms-post-rotation": "public-after-transit-rotation",
+}
 VALUE = base64.b64encode(b"public authorization fixture").decode()
 SCOPE = (
     "Exercise the actual Kubernetes KMS v2 plugin at the API storage boundary and separate "
     "Vault policies for the authorized API integration and a distinct fixture workload; verify "
-    "remote operation attribution and deny unrelated keys and administration. Cloud provider "
+    "remote operation attribution and deny unrelated keys and administration. Rotate the local Transit key, "
+    "read the native encrypted-record key IDs, migrate one record and compare cold recovery. Cloud provider "
     "key policy, service grants, managed identity and HSM configuration need separate evidence."
 )
 
@@ -40,7 +48,51 @@ def secret(lab, name):
                 "stringData": {"marker": MARKERS[name]}})
 
 
-def stored(lab, name):
+def envelope_key_version(lab, value):
+    """Read field two of the pinned v1.36.1 EncryptedObject schema."""
+    if not value.startswith(PREFIX):
+        lab.block("Expected the case-owned KMS v2 envelope")
+    envelope = value[len(PREFIX):]
+    offset = 0
+    version = None
+
+    def varint():
+        nonlocal offset
+        value = 0
+        for shift in range(0, 70, 7):
+            if offset >= len(envelope):
+                lab.block("Truncated fixture envelope field")
+            byte = envelope[offset]
+            offset += 1
+            value |= (byte & 127) << shift
+            if byte < 128:
+                return value
+        lab.block("Invalid fixture envelope field")
+
+    while offset < len(envelope):
+        field, wire = divmod(varint(), 8)
+        if wire == 0:
+            varint()
+            continue
+        if wire != 2:
+            lab.block("Unexpected pinned fixture envelope wire type")
+        length = varint()
+        end = offset + length
+        if end > len(envelope):
+            lab.block("Invalid pinned fixture envelope field size")
+        if field == 2:
+            key_id = envelope[offset:end]
+            known = {f"{KEY}-v{candidate}".encode(): candidate for candidate in (1, 2)}
+            if version is not None or key_id not in known:
+                lab.block("Expected exactly one recognized fixture storage key ID")
+            version = known[key_id]
+        offset = end
+    if version is None:
+        lab.block("The fixture KMS envelope did not contain its key ID")
+    return version
+
+
+def stored(lab, name, *, digest=False):
     path = f"/registry/secrets/{NS}/{name}"
     args = ["kubectl", "--kubeconfig", str(lab.kubeconfig), "--context", f"kind-{lab.cluster}",
             "--request-timeout=10s", "-n", "kube-system", "exec", f"etcd-{lab.cluster}-control-plane",
@@ -57,7 +109,11 @@ def stored(lab, name):
     if len(matches) != 1 or base64.b64decode(matches[0]["key"]).decode() != path:
         lab.block("The exact owned etcd fixture record was missing")
     value = base64.b64decode(matches[0]["value"])
-    return {"kms_envelope": value.startswith(PREFIX), "marker_visible": MARKERS[name].encode() in value}
+    result = {"kms_envelope": value.startswith(PREFIX), "marker_visible": MARKERS[name].encode() in value}
+    if digest:
+        result["record_digest"] = hashlib.sha256(value).hexdigest()
+        result["transit_version"] = envelope_key_version(lab, value)
+    return result
 
 
 def wait_api(lab):
@@ -131,14 +187,42 @@ def plugin(lab, node, credential):
         lab.block("The fixture Vault credential could not be installed")
     if sent.returncode:
         lab.block("The fixture Vault credential could not be installed")
+    lab.command("docker", "exec", node, "sh", "-ceu", 'umask 077; : >"$1"',
+                "fixture-key-observations", OBSERVATIONS)
     lab.command("docker", "exec", "-d", node, DIRECTORY + "/bridge", SOCKET,
-                f"https://{ip}:8200", vault.HOST, DIRECTORY + "/ca.pem", DIRECTORY + "/token", KEY)
+                f"https://{ip}:8200", vault.HOST, DIRECTORY + "/ca.pem", DIRECTORY + "/token", KEY,
+                OBSERVATIONS)
     deadline = time.monotonic() + 18
     while time.monotonic() < deadline:
         if lab.command("docker", "exec", node, "test", "-S", SOCKET, allow_failure=True).returncode == 0:
             return
         time.sleep(.5)
     lab.block("The KMS v2 bridge did not expose its Unix socket")
+
+
+def key_operations(lab, node):
+    result = lab.command("docker", "exec", node, "cat", OBSERVATIONS)
+    rows = result.stdout.splitlines()
+    if any(not row.startswith(("status-v", "encrypt-v", "decrypt-v")) for row in rows):
+        lab.block("The case-owned KMS bridge returned an unexpected observation")
+    return rows
+
+
+def wait_key_operation(lab, node, operation, start, timeout=85):
+    expected = operation
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        rows = key_operations(lab, node)
+        if expected in rows[start:]:
+            return rows
+        time.sleep(1)
+    lab.block(f"The case-owned KMS bridge did not observe {operation}")
+
+
+def restart_api(lab, node):
+    previous, = api_id(lab, node)
+    lab.command("docker", "exec", node, "crictl", "stop", "--timeout", "1", previous)
+    new_api(lab, node, previous)
 
 
 def record_has(entries, policy, path):
@@ -181,16 +265,14 @@ def run(lab):
     node = lab.cluster + "-control-plane"
     plugin(lab, node, integration)
     enable_kms(lab, node)
-    name, = MARKERS
+    name = "fixture-policy-encrypted"
     secret(lab, name)
     observed = stored(lab, name)
     lab.check("green", "The actual API writes an encrypted envelope while Vault denies unwanted keys and administration",
               observed == {"kms_envelope": True, "marker_visible": False} and set(denied.values()) == {403} and app_ok,
               {"authority_http_denials": denied, "approved_workload_other_key": app_ok, "actual_secret_envelope": observed})
 
-    previous, = api_id(lab, node)
-    lab.command("docker", "exec", node, "crictl", "stop", "--timeout", "1", previous)
-    new_api(lab, node, previous)
+    restart_api(lab, node)
     readable = api_readable(lab, name)
     events = vault.audit_entries(lab)
     integration_seen = all(record_has(events, INTEGRATION, operation + KEY) for operation in (ENC, DEC))
@@ -201,4 +283,90 @@ def run(lab):
         "broad_workload_initially_allowed": baseline, "authority_http_denials": denied, "other_workload_key_preserved": app_ok,
         "actual_secrets_envelope": observed, "cold_api_read": readable, "actual_operations_attributed": integration_seen,
         "cloud_key_policy_tested": False,
+    }, indent=2) + "\n")
+
+    # Exercise Vault Transit KEK rotation using only this case's root token.
+    # Keep old Transit versions enabled; retirement is intentionally out of scope.
+    secret(lab, "fixture-kms-pre-rotation")
+    secret(lab, "fixture-kms-rewrite-rotation")
+    old_records = {
+        name: stored(lab, name, digest=True)
+        for name in ("fixture-kms-pre-rotation", "fixture-kms-rewrite-rotation")
+    }
+    old_reads = all(api_readable(lab, name) for name in old_records)
+    events = key_operations(lab, node)
+    old_writes_v1 = ("encrypt-v1" in events and "status-v1" in events
+                     and all(row["transit_version"] == 1 for row in old_records.values()))
+    lab.check("positive", "Two named API records use Transit v1 before rotation",
+              old_reads and old_writes_v1 and all(
+                  row["kms_envelope"] and not row["marker_visible"] for row in old_records.values()),
+              {"exact_owned_records_encrypted": all(row["kms_envelope"] and not row["marker_visible"]
+                                                     for row in old_records.values()),
+               "exact_authorized_reads": old_reads, "provider_v1_observed": old_writes_v1})
+
+    before_rotation_events = len(events)
+    vault.required(lab, "transit/keys/" + KEY + "/rotate", token=root, body={}, method="POST")
+    key_state = vault.required(lab, "transit/keys/" + KEY, token=root)
+    latest_version = (key_state.get("data") or {}).get("latest_version")
+    status_v2 = wait_key_operation(lab, node, "status-v2", before_rotation_events)
+    # The API may wrap its new seed during Status processing and reuse it for
+    # later writes. Observe that provider event since rotation, then prove the
+    # new write's key ID in the exact native stored envelope independently.
+    writes_v2 = wait_key_operation(lab, node, "encrypt-v2", before_rotation_events, timeout=25)
+    secret(lab, "fixture-kms-post-rotation")
+    post_record = stored(lab, "fixture-kms-post-rotation", digest=True)
+    old_unchanged = all(stored(lab, name, digest=True)["record_digest"] == row["record_digest"]
+                        for name, row in old_records.items())
+    old_reads_after_rotation = all(api_readable(lab, name) for name in old_records)
+    lab.check("green", "Transit rotation is observed by KMS v2 before new API writes while old records still read",
+              latest_version == 2 and "encrypt-v2" in writes_v2[before_rotation_events:]
+              and post_record["transit_version"] == 2 and post_record["kms_envelope"] and not post_record["marker_visible"]
+              and old_unchanged and old_reads_after_rotation,
+              {"latest_transit_version": latest_version,
+               "api_observed_status_v2": "status-v2" in status_v2[before_rotation_events:],
+               "api_seed_wrap_observed_v2": "encrypt-v2" in writes_v2[before_rotation_events:],
+               "post_rotation_record_key_version": post_record["transit_version"],
+               "post_rotation_record_encrypted": post_record["kms_envelope"] and not post_record["marker_visible"],
+               "pre_rotation_records_unchanged": old_unchanged,
+               "pre_rotation_records_readable": old_reads_after_rotation})
+
+    # Rewrite exactly one named pre-rotation record after v2 is observed.
+    rewrite_name = "fixture-kms-rewrite-rotation"
+    lab.kubectl("annotate", "secret/" + rewrite_name, "saf.example.org/transit-rotation=rewritten")
+    rewritten = stored(lab, rewrite_name, digest=True)
+    rewritten_read = api_readable(lab, rewrite_name)
+    new_read = api_readable(lab, "fixture-kms-post-rotation")
+    lab.check("positive", "A scoped API rewrite migrates the selected v1 record and preserves exact reads",
+              rewritten["record_digest"] != old_records[rewrite_name]["record_digest"]
+              and rewritten["transit_version"] == 2 and rewritten["kms_envelope"] and not rewritten["marker_visible"]
+              and rewritten_read and new_read,
+              {"selected_record_changed": rewritten["record_digest"] != old_records[rewrite_name]["record_digest"],
+               "selected_record_still_encrypted": rewritten["kms_envelope"] and not rewritten["marker_visible"],
+               "rewritten_record_key_version": rewritten["transit_version"],
+               "selected_and_new_records_read_exactly": rewritten_read and new_read})
+
+    before_cold = len(key_operations(lab, node))
+    restart_api(lab, node)
+    cold_reads = all(api_readable(lab, name) for name in MARKERS)
+    cold_events = key_operations(lab, node)[before_cold:]
+    saw_v1_decrypt = "decrypt-v1" in cold_events
+    saw_v2_decrypt = "decrypt-v2" in cold_events
+    lab.check("positive", "A cold API reads all four exact Secrets using retained Transit key versions",
+              cold_reads and saw_v1_decrypt and saw_v2_decrypt,
+              {"all_exact_fixture_reads": cold_reads,
+               "cold_provider_decrypt_versions": {"v1": saw_v1_decrypt, "v2": saw_v2_decrypt}})
+
+    (lab.evidence / "kms-transit-rotation-observations.json").write_text(json.dumps({
+        "case_local_rotation": True,
+        "latest_transit_version": latest_version,
+        "provider_operations": {"v1_write_observed": old_writes_v1,
+                                 "v2_status_observed": "status-v2" in status_v2[before_rotation_events:],
+                                 "v2_write_observed": "encrypt-v2" in writes_v2[before_rotation_events:],
+                                 "cold_v1_decrypt_observed": saw_v1_decrypt,
+                                 "cold_v2_decrypt_observed": saw_v2_decrypt},
+        "exact_fixture_reads": cold_reads,
+        "pre_rotation_untouched_record_unchanged": stored(lab, "fixture-kms-pre-rotation", digest=True)["record_digest"]
+        == old_records["fixture-kms-pre-rotation"]["record_digest"],
+        "rewritten_record_encrypted": rewritten["kms_envelope"] and not rewritten["marker_visible"],
+        "provider_versions_retired": False,
     }, indent=2) + "\n")
