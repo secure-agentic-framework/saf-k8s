@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0102-013",
-  "catalog_revision": "40b19c20224b53d49276db7a9f1ff1623af82796",
-  "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
+  "catalog_revision": "cf8dd2456fcb6e1b9c95bb09204edc49498d0872",
+  "catalog_sha256": "044bf7085d167e0cebc119fadb5265399823a05a596346af59f25fe7dc9ad3a6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "aafa570f4a87f5fdb9d353e4ee2ca123f3cdd771c35d787bb787480673e7fb4a",
+  "control_sha256": "96eb03c049d09f6d56cf1c5c2491193e1d91242fb9aae8da50ed480082160f14",
   "scope": "Two disposable single-member etcd v3.6.8 processes, each in Docker network mode none. The manual case uses three public synthetic marker keys and one bounded deleted padding key, observes an old exact-key read before compaction, compacts the current revision, verifies that only the old read is rejected, and measures reclaimed database bytes after one online defrag. A second process checks periodic auto-compaction with a real 8-second retention window. A separate three-member etcd fixture uses a real UTC CronJob, verifies member health before and after each sequential action, and withholds all maintenance when a health check fails. Provider guarantees, production workload availability and real retention configuration stay open.",
-  "cluster": "saf-lab-372f62d2468d",
+  "cluster": "saf-lab-50ace4fb1a3d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

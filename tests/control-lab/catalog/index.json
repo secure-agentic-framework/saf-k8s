@@ -117,7 +117,7 @@
     "SAF-K8S-0102-013": {
       "catalog_status": "draft",
       "domain": "D01",
-      "sha256": "aafa570f4a87f5fdb9d353e4ee2ca123f3cdd771c35d787bb787480673e7fb4a",
+      "sha256": "96eb03c049d09f6d56cf1c5c2491193e1d91242fb9aae8da50ed480082160f14",
       "title": "etcd compaction and periodic defragmentation"
     },
     "SAF-K8S-0102-014": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c6cf99e548abcbbbb68356019c730e70c2038d61",
-  "sha256": "1c78a76489ca604a14fdf3824565e4bcb568f55832e793e78fa752772ba60eab",
+  "revision": "13f6f4658815b6d1c70605dc382189b507e26632",
+  "sha256": "044bf7085d167e0cebc119fadb5265399823a05a596346af59f25fe7dc9ad3a6",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

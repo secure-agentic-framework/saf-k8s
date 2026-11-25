@@ -40,9 +40,9 @@ etcd history compaction makes older keyspace revisions inaccessible; it makes
 space available for reuse inside the backend but does not by itself return
 fragmented database space to the filesystem. Defrag is a per-member operation
 and blocks reads and writes on that member while rebuilding its state. The
-case establishes the API behavior and observes reclaimed backend bytes on a
-disposable single-member process. Sequential operation and availability across a
-multi-member cluster remain explicitly untested.
+manual profile establishes the API behavior and observes reclaimed backend bytes
+on a disposable single-member process. The scheduled profile below separately
+exercises ordered execution and bounded health in a three-member fixture.
 
 Kubernetes also issues compaction requests from kube-apiserver. The Kubernetes
 v1.36 command reference documents `--etcd-compaction-interval` with a default
@@ -79,3 +79,28 @@ production deployment obligations require their own evidence.
 
 - [etcd v3.6 maintenance](https://etcd.io/docs/v3.6/op-guide/maintenance/)
 - [Kubernetes v1.36 CronJobs](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/)
+
+## Adopter verification
+
+1. Record the etcd and kube-apiserver release, member inventory, leadership and
+   topology, backup recovery owner, and the authoritative maintenance schedule.
+   Record the effective etcd compaction mode and retention and API server
+   compaction interval. Use release-specific settings and document which
+   component drives history expiry.
+2. In an approved disposable rehearsal, observe one old key revision that
+   becomes compacted at the configured policy boundary while the latest read
+   succeeds. Record the measured window and consumer relist/recovery behavior.
+   Use settings representative of the assessed deployment.
+3. Inspect the scheduled maintenance workflow, its execution identity and
+   concurrency control. Verify it resolves the current membership, establishes
+   quorum and health before touching a member, addresses one member at a time,
+   and halts on an unhealthy preflight or failed post-check. Keep the schedule,
+   Job or workflow ID, eligible member list, and skip/abort evidence.
+4. For an approved rehearsal, compare backend allocated and in-use bytes and
+   endpoint health before and after the run. Record operation order, health
+   and successful current reads at each step, and whether resizing/reclaim
+   was measurable. Record rollback or escalation conditions.
+5. For provider-managed etcd, request release- and service-tier-specific
+   provider documentation or maintenance assurance covering compaction,
+   member-safe scheduling, and customer-visible availability. Record which
+   settings remain customer-configurable and any unavailable evidence.
