@@ -16,3 +16,12 @@ reviewed report keeps the alert visible, and the ordinary workload continues run
 This case covers one inventory read, one synthetic advisory, and one fixture report.
 The deployment evidence still needs actual scanner cadence, dependency detection,
 fleet coverage, alert delivery, authenticated reviewer controls, expiry, and remediation.
+
+## Verify an adopting implementation
+
+Map the live inventory source to Pod UID, image digest,
+node/runtime identity, scanner cadence, and all clusters. Verify update and
+exception expiry behavior under concurrent image replacement; route one
+approved harmless finding to the accountable reviewer and show the ordinary
+workload remains monitored. Retain remediation or compensating-control
+evidence and measured scan/alert lag.
