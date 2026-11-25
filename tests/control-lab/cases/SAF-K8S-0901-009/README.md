@@ -57,3 +57,7 @@ operator lifecycle, identity authorization rules, and observed peer decisions.
 - [Python 3.13 `ssl` module](https://docs.python.org/3.13/library/ssl.html)
 - [Kubernetes v1.36 NetworkPolicy concepts](https://v1-36.docs.kubernetes.io/docs/concepts/services-networking/network-policies/)
 - [Official Python container image](https://hub.docker.com/_/python)
+
+## Verify an adopting implementation
+
+Map each training worker to a unique authenticated identity. Issue short-lived client certificates from the approved workload CA. Enforce the intended URI/SAN allow policy and server-name validation on every worker transport. Verify authorized peer exchange, rejection of missing, untrusted, and trusted-but-unapproved peers, rotation, revocation, and that rejected requests carry no training payload. The fixture proves a fixed two-worker TLS exchange, not a training operator or certificate lifecycle.
