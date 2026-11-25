@@ -13,3 +13,12 @@ backend acceptance are covered separately.
 
 - [Kubernetes Secret volume updates](https://v1-36.docs.kubernetes.io/docs/concepts/configuration/secret/)
 - [Secrets Store CSI Driver rotation](https://secrets-store-csi-driver.sigs.k8s.io/topics/secret-auto-rotation)
+
+## Verify an adopting implementation
+
+Inventory approved injection patterns and all CSI or
+external injectors. For each class, retain the mounted path, ownership and
+mode, refresh interval, source version, and application reload behavior. Test
+an approved inert rotation and a missing/stale source against a named harmless
+consumer; record exceptions and the owner who approved them. Keep CSI, sidecar,
+and provider evidence separate from the native Secret projection result.
