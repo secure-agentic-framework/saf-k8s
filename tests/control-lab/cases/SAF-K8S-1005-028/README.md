@@ -23,3 +23,13 @@ Kubernetes audit records cover API-server activity according to the configured a
 The red arm uses a case-owned read-only RBAC identity. The lineage record exists
 but is forbidden to that identity. Granting exact-name access closes the collection
 gap while keeping an existing unapproved comparator forbidden.
+
+## Verify an adopting implementation
+
+Map real model-read and training-lineage events to
+authenticated workload, pipeline, artifact, and deployment IDs. Verify
+collection completeness and least privilege, preserve records through source
+cleanup, and recheck integrity and independent retrieval from the approved
+retention store. Document audit gaps, retention/immutability controls, custody
+and owner review; keep real model or dataset contents out of the evidence
+bundle.
