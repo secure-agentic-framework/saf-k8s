@@ -49,3 +49,17 @@ ports are published, no external host probe is attempted, and no claim is made
 about IPv6 dual-stack behavior or address-specific platform semantics. Managed
 provider configuration and production firewall/routing controls also require
 their own evidence.
+
+## IPv6 comparison
+
+The case owns an independent Docker bridge and confirms Docker enabled its
+requested IPv6 subnet. Kind retains an IPv4 host-loopback API endpoint and
+runs the case's component probes from inside the owned IPv6 node. The runner
+checks the effective `::1` bind and the allowed loopback health request and
+requires refusal on the node's assigned non-loopback IPv6 address. After an
+owned static Pod replacement it checks the `::` wildcard and confirms the
+same non-loopback request reaches the health route. Only HTTP status and
+listener findings are retained. The harness deletes its exact cluster and
+bridge. Adopters must verify all actual IP families, monitoring routes and
+provider responsibility. The fixture requires Docker support for an IPv6
+bridge in the selected environment.

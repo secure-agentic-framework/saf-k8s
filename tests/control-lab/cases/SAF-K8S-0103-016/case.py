@@ -2,8 +2,10 @@
 import ipaddress
 import json
 import re
+import secrets
 import subprocess
 import tempfile
+import time
 from pathlib import Path
 
 
@@ -176,6 +178,179 @@ def wildcard_config():
     )
 
 
+def ipv6_config(bind_address):
+    quoted = f'"{bind_address}"'
+    return (
+        "kind: Cluster\napiVersion: kind.x-k8s.io/v1alpha4\n"
+        "networking:\n  ipFamily: ipv6\n  apiServerAddress: 127.0.0.1\n"
+        "kubeadmConfigPatches:\n  - |\n"
+        "    apiVersion: kubeadm.k8s.io/v1beta4\n"
+        "    kind: ClusterConfiguration\n"
+        "    controllerManager:\n      extraArgs:\n"
+        f"        - name: bind-address\n          value: {quoted}\n"
+        "    scheduler:\n      extraArgs:\n"
+        f"        - name: bind-address\n          value: {quoted}\n"
+    )
+
+
+def ipv6_network(lab, name, network_id, subnet):
+    observed = lab.command("docker", "network", "inspect", "--format",
+                           "{{.Name}} {{.EnableIPv6}} {{range .IPAM.Config}}{{.Subnet}} {{end}}",
+                           network_id, timeout=TIMEOUT).stdout.split()
+    if len(observed) < 3:
+        lab.block("Disposable Docker bridge has no inspectable address allocations")
+    configured = [ipaddress.ip_network(raw, strict=True) for raw in observed[2:]]
+    actual = ipaddress.ip_network(subnet, strict=True)
+    lab.check("green", "The exact per-run Docker bridge enables the requested IPv6 subnet",
+              observed[:2] == [name, "true"] and actual in configured,
+              {"ipv6_enabled": observed[1] == "true", "requested_subnet_present": actual in configured})
+    return actual
+
+
+def node_ipv6(lab, cluster, subnet):
+    node = f"{cluster}-control-plane"
+    raw = lab.command(
+        "docker", "inspect", "--format",
+    "{{range .NetworkSettings.Networks}}{{.GlobalIPv6Address}} {{end}}", node,
+    ).stdout.split()
+    addresses = []
+    for value in raw:
+        try:
+            address = ipaddress.ip_address(value)
+        except ValueError:
+            continue
+        if address.version == 6 and not address.is_loopback and not address.is_link_local:
+            if address in subnet:
+                addresses.append(str(address))
+    if len(set(addresses)) != 1:
+        lab.block("Expected exactly one assigned non-loopback IPv6 address in the owned bridge")
+    return addresses[0]
+
+
+def ipv6_health_probe(lab, cluster, address, port):
+    node = f"{cluster}-control-plane"
+    url = f"https://[{address}]:{port}{HEALTH_PATH}"
+    result = subprocess.run(
+        ["docker", "exec", "--user=65534:65534", node, "/usr/bin/curl",
+         "--silent", "--show-error", "--insecure", "--noproxy", "*",
+         "--connect-timeout", "2", "--max-time", str(TIMEOUT), "--request", "GET",
+         "--output", "/dev/null", "--write-out", "%{http_code}", url],
+        env=lab.env, capture_output=True, text=True, timeout=TIMEOUT + 5,
+    )
+    status = result.stdout.strip()
+    if result.returncode == 0 and re.fullmatch(r"[1-5][0-9][0-9]", status):
+        return int(status), True
+    if result.returncode == 7 and status == "000":
+        return None, False
+    lab.block("IPv6 health probe failed for a reason other than connection refusal")
+
+
+def set_ipv6_bind(lab, cluster, component):
+    node = f"{cluster}-control-plane"
+    manifest = f"/etc/kubernetes/manifests/{component}.yaml"
+    new_manifest = f"/etc/kubernetes/{component}-saf-ipv6-wildcard.yaml"
+    pod = f"pod/{COMPONENTS[component]['pod']}-{cluster}-control-plane"
+    before = json.loads(kubectl(lab, cluster, "-n", "kube-system", "get", pod, "-o", "json"))["metadata"]["uid"]
+    current = lab.command("docker", "exec", node, "cat", manifest, timeout=TIMEOUT).stdout
+    # Quote the wildcard argument because its last colon would otherwise form
+    # a YAML mapping key rather than a container command string.
+    arguments = r"(?m)^([ \t]*-[ \t]*)[\"']?--bind-address=::1[\"']?[ \t]*$"
+    revised, count = re.subn(arguments, lambda m: m[1] + '"--bind-address=::"', current)
+    if count != 1:
+        lab.block("Expected exactly one loopback bind in the owned static manifest")
+    lab.command("docker", "exec", "-i", node, "sh", "-ceu", 'cat >"$2"; mv -- "$2" "$1"',
+                "switch-owned-bind", manifest, new_manifest, payload=revised, timeout=TIMEOUT)
+    deadline = time.monotonic() + 100
+    while time.monotonic() < deadline:
+        response = lab.command("kubectl", "--kubeconfig", str(lab.kubeconfig), "--context", f"kind-{cluster}",
+                               "--request-timeout=4s", "-n", "kube-system", "get", pod, "-o", "json",
+                               timeout=TIMEOUT + 5, allow_failure=True)
+        if response.returncode == 0:
+            record = json.loads(response.stdout)
+            ready = any(item.get("type") == "Ready" and item.get("status") == "True"
+                        for item in record.get("status", {}).get("conditions", []))
+            if ready and record["metadata"]["uid"] != before:
+                return
+        time.sleep(1)
+    lab.block(f"Timed out waiting for the owned {component} IPv6 wildcard mirror Pod")
+
+
+def check_ipv6_profile(lab, cluster, mode, subnet):
+    bind, listener = ("::1", "[::1]:") if mode == "loopback" else ("::", "[::]:")
+    address = node_ipv6(lab, cluster, subnet)
+    for component in COMPONENTS:
+        binds = bind_arguments(component_command(lab, cluster, component))
+        lab.check("green" if mode == "loopback" else "red",
+                  f"IPv6 {component} effective bind-address is exactly {bind}",
+                  binds == [bind], {"bind_address_arguments": binds})
+    for component, local in listener_addresses(lab, cluster).items():
+        lab.check("green" if mode == "loopback" else "red",
+                  f"IPv6 {component} secure listener has the expected address",
+                  local.startswith(listener) or (mode == "wildcard" and local.startswith("*:")),
+                  {"wildcard_or_loopback_listener_observed": True})
+    for component, row in COMPONENTS.items():
+        local_status, local_connected = ipv6_health_probe(lab, cluster, "::1", row["port"])
+        lab.check("positive", f"IPv6 {component} /healthz succeeds on ::1 in {mode} profile",
+                  local_connected and local_status == 200, {"http_status": local_status})
+        remote_status, remote_connected = ipv6_health_probe(lab, cluster, address, row["port"])
+        if mode == "wildcard":
+            lab.check("red", f"IPv6 {component} non-loopback address reaches wildcard listener",
+                      remote_connected and remote_status == 200,
+                      {"http_status": remote_status, "connected": remote_connected})
+        else:
+            lab.check("green", f"IPv6 {component} non-loopback address cannot reach loopback listener",
+                      not remote_connected,
+                      {"http_status": remote_status, "connected": remote_connected})
+
+
+def run_ipv6_profile(lab):
+    cluster = f"{lab.cluster}-ipv6-bind"
+    network = f"{cluster}-net"
+    if cluster in lab.command("kind", "get", "clusters").stdout.splitlines():
+        lab.block("An IPv6 fixture cluster already uses the generated name")
+    if lab.command("docker", "network", "inspect", network, allow_failure=True).returncode == 0:
+        lab.block("An IPv6 fixture network already uses the generated name")
+    original_network = lab.env.get("KIND_EXPERIMENTAL_DOCKER_NETWORK")
+    original_kubeconfig = lab.kubeconfig
+    subnet = f"fd{secrets.token_hex(1)}:{secrets.token_hex(2)}:{secrets.token_hex(2)}::/64"
+    network_id = None
+    cluster_attempted = False
+    with tempfile.TemporaryDirectory(prefix="saf-k8s-bind-ipv6-") as temp:
+        kubeconfig = Path(temp) / "kubeconfig"
+        config = Path(temp) / "kind.yaml"
+        try:
+            created = lab.command("docker", "network", "create", "--driver", "bridge", "--ipv6",
+                                  "--subnet", subnet, network, timeout=TIMEOUT)
+            network_id = created.stdout.strip()
+            if not re.fullmatch(r"[0-9a-f]{64}", network_id):
+                network_id = None
+                lab.block("Docker did not return the exact identity of the fixture network")
+            assigned_subnet = ipv6_network(lab, network, network_id, subnet)
+            lab.env["KIND_EXPERIMENTAL_DOCKER_NETWORK"] = network
+            config.write_text(ipv6_config("::1"))
+            cluster_attempted = True
+            lab.command("kind", "create", "cluster", "--name", cluster, "--image", NODE_IMAGE,
+                        "--config", str(config), "--kubeconfig", str(kubeconfig), "--wait", "90s", timeout=480)
+            lab.kubeconfig = kubeconfig
+            check_ipv6_profile(lab, cluster, "loopback", assigned_subnet)
+            for component in COMPONENTS:
+                set_ipv6_bind(lab, cluster, component)
+            check_ipv6_profile(lab, cluster, "wildcard", assigned_subnet)
+        finally:
+            lab.kubeconfig = original_kubeconfig
+            try:
+                if cluster_attempted:
+                    lab.command("kind", "delete", "cluster", "--name", cluster,
+                                "--kubeconfig", str(kubeconfig), timeout=90)
+            finally:
+                if original_network is None:
+                    lab.env.pop("KIND_EXPERIMENTAL_DOCKER_NETWORK", None)
+                else:
+                    lab.env["KIND_EXPERIMENTAL_DOCKER_NETWORK"] = original_network
+                if network_id is not None:
+                    lab.command("docker", "network", "rm", network_id, timeout=TIMEOUT)
+
+
 def run(lab):
     # The runner's case-owned kind.yaml supplies the loopback green profile.
     check_profile(lab, lab.cluster, "loopback")
@@ -211,3 +386,4 @@ def run(lab):
                 )
                 if result.returncode:
                     lab.block(f"Could not confirm cleanup of bind-address profile {cluster}")
+    run_ipv6_profile(lab)

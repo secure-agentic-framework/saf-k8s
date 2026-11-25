@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0103-016",
-  "catalog_revision": "bf8e642cb9a3645b004f58c455de8f21cfd5de11",
-  "catalog_sha256": "ba0b2931e7d453d96fcd4ed42df45db6ef15052d35f1baa2141f65bfd1363036",
+  "catalog_revision": "3918845c518c3e111d407c322a0fb7423daf94d2",
+  "catalog_sha256": "6618518e712531f8ef518344034efb0aa93e5578de809bd6e7903ee3c9fd9a59",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "054d3b40a4bf405840b99a0ccc6af418f0dc90808684050bbb21436fec102d61",
   "scope": "On isolated disposable kind v1.36.1 Linux nodes, compare controller-manager and scheduler secure serving bound to 127.0.0.1 with an intentionally broad 0.0.0.0 bind. Read effective arguments and listening sockets, then issue only HTTPS GET /healthz requests from the owned node over loopback and its own non-loopback IPv4 address. Responses are discarded; only HTTP status and connection outcome are retained. No ports are published and no metrics or profiling routes are requested.",
-  "cluster": "saf-lab-e03cc9c9e3f2",
+  "cluster": "saf-lab-2ac13cb1e395",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -172,6 +172,155 @@
     {
       "phase": "red",
       "claim": "kube-scheduler non-loopback node address reaches TLS health listener",
+      "matched": true,
+      "observed": {
+        "http_status": 200,
+        "connected": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The exact per-run Docker bridge enables the requested IPv6 subnet",
+      "matched": true,
+      "observed": {
+        "ipv6_enabled": true,
+        "requested_subnet_present": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "IPv6 kube-controller-manager effective bind-address is exactly ::1",
+      "matched": true,
+      "observed": {
+        "bind_address_arguments": [
+          "::1"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "IPv6 kube-scheduler effective bind-address is exactly ::1",
+      "matched": true,
+      "observed": {
+        "bind_address_arguments": [
+          "::1"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "IPv6 kube-controller-manager secure listener has the expected address",
+      "matched": true,
+      "observed": {
+        "wildcard_or_loopback_listener_observed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "IPv6 kube-scheduler secure listener has the expected address",
+      "matched": true,
+      "observed": {
+        "wildcard_or_loopback_listener_observed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "IPv6 kube-controller-manager /healthz succeeds on ::1 in loopback profile",
+      "matched": true,
+      "observed": {
+        "http_status": 200
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "IPv6 kube-controller-manager non-loopback address cannot reach loopback listener",
+      "matched": true,
+      "observed": {
+        "http_status": null,
+        "connected": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "IPv6 kube-scheduler /healthz succeeds on ::1 in loopback profile",
+      "matched": true,
+      "observed": {
+        "http_status": 200
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "IPv6 kube-scheduler non-loopback address cannot reach loopback listener",
+      "matched": true,
+      "observed": {
+        "http_status": null,
+        "connected": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "IPv6 kube-controller-manager effective bind-address is exactly ::",
+      "matched": true,
+      "observed": {
+        "bind_address_arguments": [
+          "::"
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "IPv6 kube-scheduler effective bind-address is exactly ::",
+      "matched": true,
+      "observed": {
+        "bind_address_arguments": [
+          "::"
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "IPv6 kube-controller-manager secure listener has the expected address",
+      "matched": true,
+      "observed": {
+        "wildcard_or_loopback_listener_observed": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "IPv6 kube-scheduler secure listener has the expected address",
+      "matched": true,
+      "observed": {
+        "wildcard_or_loopback_listener_observed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "IPv6 kube-controller-manager /healthz succeeds on ::1 in wildcard profile",
+      "matched": true,
+      "observed": {
+        "http_status": 200
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "IPv6 kube-controller-manager non-loopback address reaches wildcard listener",
+      "matched": true,
+      "observed": {
+        "http_status": 200,
+        "connected": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "IPv6 kube-scheduler /healthz succeeds on ::1 in wildcard profile",
+      "matched": true,
+      "observed": {
+        "http_status": 200
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "IPv6 kube-scheduler non-loopback address reaches wildcard listener",
       "matched": true,
       "observed": {
         "http_status": 200,
