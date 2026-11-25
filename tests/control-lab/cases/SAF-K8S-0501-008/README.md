@@ -52,3 +52,7 @@ so this is not a direct read of a specific policy decision.
 No cluster replay was performed while drafting this case. The supervisor must
 verify and replay it before treating any red, green, or positive observation
 as an executed receipt.
+
+## Adopter verification
+
+Inventory deployed training, inference, pipeline and notebook namespaces/workloads and the authority for their classification labels. Confirm the installed CNI/version supports the policy behavior relied on. On an approved representative deployment, test each required permitted and denied class path, including DNS, Service routing, IPv6 or additional protocols when used. Record policy composition, exceptions and drift ownership for managed and self-managed variants.
