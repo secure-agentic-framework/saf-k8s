@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 3584
-- Distinct Requirements Mapped: 733
+- Total Reverse Mappings: 3577
+- Distinct Requirements Mapped: 731
 
 ## Requirements
 
@@ -122,7 +122,6 @@
 - [AT-2(4) - Suspicious Communications and Anomalous System Behavior](at-2-4.md)
 - [AT-2(5) - Advanced Persistent Threat](at-2-5.md)
 - [AT-2(6) - Cyber Threat Environment](at-2-6.md)
-- [AT-3 - Role-based Training](at-3.md)
 - [AT-3(3) - Practical Exercises](at-3-3.md)
 - [AT-3(5) - Processing Personally Identifiable Information](at-3-5.md)
 - [AT-4 - Training Records](at-4.md)
@@ -378,7 +377,6 @@
 - [PM-10 - Authorization Process](pm-10.md)
 - [PM-11 - Mission and Business Process Definition](pm-11.md)
 - [PM-12 - Insider Threat Program](pm-12.md)
-- [PM-13 - Security and Privacy Workforce](pm-13.md)
 - [PM-14 - Testing, Training, and Monitoring](pm-14.md)
 - [PM-15 - Security and Privacy Groups and Associations](pm-15.md)
 - [PM-16 - Threat Awareness Program](pm-16.md)
