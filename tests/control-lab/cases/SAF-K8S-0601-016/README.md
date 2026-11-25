@@ -27,3 +27,16 @@ and admission deployment still need verification.
 - [OCI image configuration](https://github.com/opencontainers/image-spec/blob/v1.1.1/config.md)
 - [Docker BuildKit provenance attestations](https://docs.docker.com/build/metadata/attestations/slsa-provenance/)
 - [SLSA Provenance v1.0](https://slsa.dev/spec/v1.0/provenance)
+
+## Adopter verification
+
+1. Inventory deployed builder identities and the approved base catalog,
+   including allowed digest updates and exceptions.
+2. For each promoted image, resolve the OCI subject digest and retain the
+   authenticated provenance, signer identity, and resolved base materials.
+3. Exercise the real promotion/admission path with missing provenance, an
+   alternate subject, and a signed but unapproved base. Show denial and the
+   approved digest succeeding. Keep any unsigned builder output distinct from
+   authenticated provenance.
+
+Open child: `saf-lab-0601-016.1`. Native receipt: 9 checks.
