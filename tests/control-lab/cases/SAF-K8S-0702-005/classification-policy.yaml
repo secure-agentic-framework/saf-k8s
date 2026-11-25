@@ -24,6 +24,19 @@ spec:
           ["experimental", "staging", "production"]
       message: "all three AI workload classification labels must be present and use governed values"
       reason: Forbidden
+  auditAnnotations:
+    - key: classification-context
+      valueExpression: >-
+        "kind=Pod;namespace=" + object.metadata.namespace + ";name=" + object.metadata.name +
+        ";workload-type=" + (has(object.metadata.labels) &&
+        "ai.kais.io/workload-type" in object.metadata.labels ?
+        object.metadata.labels["ai.kais.io/workload-type"] : "missing") +
+        ";data-sensitivity=" + (has(object.metadata.labels) &&
+        "ai.kais.io/data-sensitivity" in object.metadata.labels ?
+        object.metadata.labels["ai.kais.io/data-sensitivity"] : "missing") +
+        ";model-tier=" + (has(object.metadata.labels) &&
+        "ai.kais.io/model-tier" in object.metadata.labels ?
+        object.metadata.labels["ai.kais.io/model-tier"] : "missing")
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingAdmissionPolicyBinding

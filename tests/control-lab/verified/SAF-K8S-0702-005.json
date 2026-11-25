@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0702-005",
-  "catalog_revision": "d3578710406221046942a7437b7726308c7015b3",
-  "catalog_sha256": "2c939594d57db831d028cf98022701e2580ed633aed4608b27bfb82196524934",
+  "catalog_revision": "e1c3915d60052de28788bbf96764c120a99b30aa",
+  "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "0db14d0091bd6b67693376abbd7542ed4acf756af8cef861aaa6b72a15cacc8a",
-  "scope": "Kubernetes v1.36.1 ValidatingAdmissionPolicy CREATE enforcement on synthetic Pods for presence and enumerated values of the three minimum SAF-K8S-0702-005 labels; native label-selector inventory of benign classified Pods; and an actual ResourceQuota API request verifying supported scopeSelector names. Does not test annotations, controller templates, namespace enrollment, scheduling, NetworkPolicy traffic, audit backend filtering, or organizational governance.",
-  "cluster": "saf-lab-db93a9b17144",
+  "scope": "Kubernetes v1.36.1 ValidatingAdmissionPolicy CREATE enforcement on synthetic Pods and Job/Deployment/StatefulSet Pod templates in one enrolled namespace; template CREATE and suspended-Job/Deployment/StatefulSet template UPDATE dry-runs; an unselected namespace comparison; and actual scoped Metadata audit events containing classification annotations. The case tests native label-selector inventory and ResourceQuota scope names. External audit delivery, scheduling, NetworkPolicy traffic, external controllers, organizational governance and production coverage remain untested.",
+  "cluster": "saf-lab-7a3690b6a42b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -82,6 +82,44 @@
       ]
     },
     {
+      "phase": "red",
+      "claim": "Before template policies, incomplete Job/Deployment/StatefulSet templates are admitted",
+      "matched": true,
+      "observed": {
+        "Job": {
+          "accepted": true,
+          "detail": ""
+        },
+        "Deployment": {
+          "accepted": true,
+          "detail": ""
+        },
+        "StatefulSet": {
+          "accepted": true,
+          "detail": ""
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before template policies, supported Job/Deployment/StatefulSet template updates accept classification drift",
+      "matched": true,
+      "observed": {
+        "Job": {
+          "accepted": true,
+          "detail": ""
+        },
+        "Deployment": {
+          "accepted": true,
+          "detail": ""
+        },
+        "StatefulSet": {
+          "accepted": true,
+          "detail": ""
+        }
+      }
+    },
+    {
       "phase": "green",
       "claim": "The policy denies each absent and wrong category with its exact message",
       "matched": true,
@@ -125,6 +163,44 @@
       ]
     },
     {
+      "phase": "green",
+      "claim": "Enrolled namespace template policies deny incomplete controller Pod templates",
+      "matched": true,
+      "observed": {
+        "Job": {
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": jobs.batch \"green-template-job\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-005-job-template' with binding 'saf-k8s-0702-005-job-template' denied request: all three AI workload classification labels must be present and use governed values"
+        },
+        "Deployment": {
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": deployments.apps \"green-template-deployment\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-005-deployment-template' with binding 'saf-k8s-0702-005-deployment-template' denied request: all three AI workload classification labels must be present and use governed values"
+        },
+        "StatefulSet": {
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when creating \"STDIN\": statefulsets.apps \"green-template-statefulset\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-005-statefulset-template' with binding 'saf-k8s-0702-005-statefulset-template' denied request: all three AI workload classification labels must be present and use governed values"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Suspended Job, Deployment and StatefulSet template updates reject classification drift",
+      "matched": true,
+      "observed": {
+        "Job": {
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when replacing \"STDIN\": jobs.batch \"template-update-job\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-005-job-template' with binding 'saf-k8s-0702-005-job-template' denied request: all three AI workload classification labels must be present and use governed values"
+        },
+        "Deployment": {
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when replacing \"STDIN\": deployments.apps \"template-update-deployment\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-005-deployment-template' with binding 'saf-k8s-0702-005-deployment-template' denied request: all three AI workload classification labels must be present and use governed values"
+        },
+        "StatefulSet": {
+          "denied_by_policy": true,
+          "detail": "Error from server (Forbidden): error when replacing \"STDIN\": statefulsets.apps \"template-update-statefulset\" is forbidden: ValidatingAdmissionPolicy 'saf-k8s-0702-005-statefulset-template' with binding 'saf-k8s-0702-005-statefulset-template' denied request: all three AI workload classification labels must be present and use governed values"
+        }
+      }
+    },
+    {
       "phase": "positive",
       "claim": "Every enumerated value remains admissible in its own category",
       "matched": true,
@@ -147,6 +223,79 @@
           "staging",
           "production"
         ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Governed Job, Deployment and StatefulSet templates remain admissible",
+      "matched": true,
+      "observed": {
+        "Job": {
+          "accepted": true,
+          "detail": ""
+        },
+        "Deployment": {
+          "accepted": true,
+          "detail": ""
+        },
+        "StatefulSet": {
+          "accepted": true,
+          "detail": ""
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Classification-preserving Deployment and StatefulSet template updates remain admissible",
+      "matched": true,
+      "observed": {
+        "Deployment": {
+          "accepted": true,
+          "detail": ""
+        },
+        "StatefulSet": {
+          "accepted": true,
+          "detail": ""
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The template policy bindings leave the explicitly unselected namespace outside this fixture rule",
+      "matched": true,
+      "observed": {
+        "Job": {
+          "accepted": true,
+          "detail": ""
+        },
+        "Deployment": {
+          "accepted": true,
+          "detail": ""
+        },
+        "StatefulSet": {
+          "accepted": true,
+          "detail": ""
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Pod and controller policies declare non-sensitive classification audit correlation",
+      "matched": true,
+      "observed": {
+        "saf-k8s-0702-005-job-template": true,
+        "saf-k8s-0702-005-deployment-template": true,
+        "saf-k8s-0702-005-statefulset-template": true,
+        "pod": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The native audit backend records metadata-only classification for the allowed and denied Deployment requests",
+      "matched": true,
+      "observed": {
+        "valid-template-deployment": true,
+        "green-template-deployment": true
       }
     },
     {
@@ -186,6 +335,40 @@
       "claim": "The same API accepts a built-in PriorityClass quota scope",
       "matched": true,
       "observed": "created"
+    },
+    {
+      "phase": "red",
+      "claim": "Before mapping policy the restricted label does not require the quota's PriorityClass",
+      "matched": true,
+      "observed": {
+        "accepted_without_priority_class": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Classification mapping policy denies the same restricted request without the quota's PriorityClass",
+      "matched": true,
+      "observed": {
+        "mapping_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The classified Pod enters the supported PriorityClass quota and consumes its sole unit",
+      "matched": true,
+      "observed": {
+        "effective_priority_class": true,
+        "scoped_quota_used": 1
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The quota denies a second classified Pod and the public comparator remains admissible",
+      "matched": true,
+      "observed": {
+        "scoped_quota_refused": true,
+        "public_allowed": true
+      }
     }
   ]
 }
