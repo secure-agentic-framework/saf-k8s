@@ -14,3 +14,12 @@ real differences in server-side admission. Promotion admits one fixture
 attestation tier; authorized rollback restores the previous tier.
 Production branch protection, applier custody, control of admin paths,
 persistent audit delivery, and rollout coverage need separate evidence.
+
+## Verify an adopting implementation
+
+Inventory policy authors, approvers, deployers and rollback
+actors with their effective grants. Protect the version store and exact
+normalized policy bytes; demonstrate independent approval of a specific
+source/destination digest and denial of stale or concurrent promotion. Verify
+the approved rollback path restores an exact known revision and retain
+attributable audit plus evidence that every cluster/release path consumes it.
