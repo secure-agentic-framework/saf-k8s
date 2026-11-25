@@ -10,7 +10,9 @@ from urllib.request import Request, urlopen
 SCOPE = (
     "One owned three-replica Deployment in the runner-created saf-test namespace: "
     "policy/v1 Eviction requests with no matching PDB, zero disruption allowance, "
-    "and one allowed disruption. Does not test org-wide PDB coverage or other disruptions."
+    "and one allowed disruption. A distinct two-replica StatefulSet tests maxUnavailable "
+    "with a zero-allowance refusal and an approved replacement of one ordinal. "
+    "Operational coverage and other disruption mechanisms require separate evidence."
 )
 
 NAMESPACE = "saf-test"
@@ -18,20 +20,22 @@ NAME = "pdb-availability-probe"
 LABEL = "saf-lab.example/control"
 VALUE = "SAF-K8S-0703-002"
 REPLICAS = 3
+STATEFUL = "pdb-stateful-probe"
+STATEFUL_VALUE = VALUE + "-stateful"
 
 
 def get_json(lab, *args):
     return json.loads(lab.kubectl(*args, "-o", "json").stdout)
 
 
-def apply_pdb(lab, minimum):
+def apply_pdb(lab, limit, *, name=NAME, value=VALUE, key="minAvailable"):
     pdb = {
         "apiVersion": "policy/v1",
         "kind": "PodDisruptionBudget",
-        "metadata": {"name": "pdb-availability-probe", "namespace": NAMESPACE},
+        "metadata": {"name": name, "namespace": NAMESPACE},
         "spec": {
-            "minAvailable": minimum,
-            "selector": {"matchLabels": {LABEL: VALUE}},
+            key: limit,
+            "selector": {"matchLabels": {LABEL: value}},
         },
     }
     lab.kubectl("apply", "-f", "-", payload=json.dumps(pdb))
@@ -63,24 +67,24 @@ def wait_for_replicas(lab, *, evicted=None, timeout=90):
         time.sleep(0.5)
 
 
-def wait_for_budget(lab, minimum, timeout=30):
+def wait_for_budget(lab, minimum, timeout=30, *, name=NAME, replicas=REPLICAS):
     deadline = time.monotonic() + timeout
     while True:
-        pdb = get_json(lab, "get", "poddisruptionbudget", "pdb-availability-probe")
+        pdb = get_json(lab, "get", "poddisruptionbudget", name)
         status = pdb.get("status", {})
         condition = next(
             (item for item in status.get("conditions", [])
              if item.get("type") == "DisruptionAllowed"),
             {},
         )
-        desired_reason = "InsufficientPods" if minimum == REPLICAS else "SufficientPods"
-        desired_status = "False" if minimum == REPLICAS else "True"
+        desired_reason = "InsufficientPods" if minimum == replicas else "SufficientPods"
+        desired_status = "False" if minimum == replicas else "True"
         ready = (
             pdb.get("metadata", {}).get("generation") == status.get("observedGeneration")
-            and status.get("expectedPods") == REPLICAS
-            and status.get("currentHealthy") == REPLICAS
+            and status.get("expectedPods") == replicas
+            and status.get("currentHealthy") == replicas
             and status.get("desiredHealthy") == minimum
-            and status.get("disruptionsAllowed") == REPLICAS - minimum
+            and status.get("disruptionsAllowed") == replicas - minimum
             and condition.get("reason") == desired_reason
             and condition.get("status") == desired_status
         )
@@ -176,6 +180,57 @@ def recovered(deployment, pods, target):
             "evictedPodReplaced": all(pod["metadata"]["name"] != target for pod in pods)}
 
 
+def stateful_budget(lab, proxy_url):
+    lab.apply(Path(__file__).with_name("statefulset.yaml"))
+    lab.kubectl("rollout", "status", f"statefulset/{STATEFUL}", "--timeout=90s", timeout=100)
+    stateful = get_json(lab, "get", "statefulset", STATEFUL)
+    target = STATEFUL + "-0"
+    original = get_json(lab, "get", "pod", target)
+    owner_uid = stateful["metadata"]["uid"]
+
+    def ready_owned(pod):
+        return (pod.get("metadata", {}).get("labels", {}).get(LABEL) == STATEFUL_VALUE
+                and not pod["metadata"].get("deletionTimestamp")
+                and any(owner.get("uid") == owner_uid and owner.get("controller") is True
+                        for owner in pod["metadata"].get("ownerReferences", []))
+                and any(condition.get("type") == "Ready" and condition.get("status") == "True"
+                        for condition in pod.get("status", {}).get("conditions", [])))
+
+    if not ready_owned(original):
+        lab.block("The exact selected StatefulSet ordinal was unavailable")
+    old_uid = original["metadata"]["uid"]
+    limits = {"name": STATEFUL, "value": STATEFUL_VALUE, "key": "maxUnavailable"}
+    apply_pdb(lab, 0, **limits)
+    _, zero_ready = wait_for_budget(lab, 2, name=STATEFUL, replicas=2)
+    denial = eviction(lab, proxy_url, target)
+    retained = get_json(lab, "get", "pod", target)
+    same_ready = retained["metadata"]["uid"] == old_uid and ready_owned(retained)
+    lab.check("green", "A matching StatefulSet maxUnavailable zero budget preserves the exact Ready ordinal",
+              zero_ready and denial["status"] == 429 and same_ready,
+              {"zero_allowed": zero_ready, "eviction_http": denial["status"],
+               "original_ready_ordinal_preserved": same_ready})
+
+    apply_pdb(lab, 1, **limits)
+    _, one_ready = wait_for_budget(lab, 1, name=STATEFUL, replicas=2)
+    result = eviction(lab, proxy_url, target)
+    deadline = time.monotonic() + 100
+    recovered = False
+    while time.monotonic() < deadline:
+        observed = lab.kubectl("get", "pod", target, "-o", "json", allow_failure=True, timeout=10)
+        if observed.returncode == 0:
+            replacement = json.loads(observed.stdout)
+            if replacement["metadata"]["uid"] != old_uid and ready_owned(replacement):
+                current = get_json(lab, "get", "statefulset", STATEFUL)
+                if current.get("status", {}).get("readyReplicas", 0) == 2:
+                    recovered = True
+                    break
+        time.sleep(1)
+    lab.check("positive", "One permitted StatefulSet eviction replaces its ordinal and restores both Ready replicas",
+              one_ready and result["status"] in (200, 201) and recovered,
+              {"one_allowed": one_ready, "eviction_http": result["status"],
+               "new_ready_ordinal_and_replicas": recovered})
+
+
 def run(lab):
     # The lab runner creates this namespace on a fresh, case-owned cluster. Refuse
     # ambiguous pre-existing policies instead of accidentally testing another PDB.
@@ -246,5 +301,6 @@ def run(lab):
             and restored == {"readyReplicas": REPLICAS, "readyPods": REPLICAS, "evictedPodReplaced": True},
             {"httpStatus": permitted["status"], **restored},
         )
+        stateful_budget(lab, proxy_url)
     finally:
         stop_proxy(proxy)

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0703-002",
-  "catalog_revision": "ade092c39de13bdd5b24d341f629033f78bf3367",
-  "catalog_sha256": "d0505b3cef6e27ac3451a0998acf0350819409280331edf48be9cfacfd4f73a7",
+  "catalog_revision": "94edee294d45a7e936df4016f48a44ee39e87f6c",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "1a26c51caa2183304abc5d3ca3bfe19467e184b60c553fa4b5917828d5af962f",
-  "scope": "One owned three-replica Deployment in the runner-created saf-test namespace: policy/v1 Eviction requests with no matching PDB, zero disruption allowance, and one allowed disruption. Does not test org-wide PDB coverage or other disruptions.",
-  "cluster": "saf-lab-fbaa4f4fb94d",
+  "scope": "One owned three-replica Deployment in the runner-created saf-test namespace: policy/v1 Eviction requests with no matching PDB, zero disruption allowance, and one allowed disruption. A distinct two-replica StatefulSet tests maxUnavailable with a zero-allowance refusal and an approved replacement of one ordinal. Operational coverage and other disruption mechanisms require separate evidence.",
+  "cluster": "saf-lab-2b2204491d8e",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -117,6 +117,26 @@
         "readyReplicas": 3,
         "readyPods": 3,
         "evictedPodReplaced": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A matching StatefulSet maxUnavailable zero budget preserves the exact Ready ordinal",
+      "matched": true,
+      "observed": {
+        "zero_allowed": true,
+        "eviction_http": 429,
+        "original_ready_ordinal_preserved": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "One permitted StatefulSet eviction replaces its ordinal and restores both Ready replicas",
+      "matched": true,
+      "observed": {
+        "one_allowed": true,
+        "eviction_http": 201,
+        "new_ready_ordinal_and_replicas": true
       }
     }
   ]
