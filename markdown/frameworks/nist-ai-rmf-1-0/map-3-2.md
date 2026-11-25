@@ -9,15 +9,6 @@ ML threat taxonomy (CTA-2114) characterizes AI-specific harms including data poi
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-1003-004 - MITRE ATT&CK for Containers coverage mapping and gap analysis](../../controls/SAF-K8S-1003-004.md)
-
-- Domain: D10 - Observability, Incident Response, and Governance
-- Knowledge Area: 10.3
-- Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
-
 ### [SAF-K8S-1004-001 - ML threat taxonomy per CTA-2114 mapped to Kubernetes](../../controls/SAF-K8S-1004-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
