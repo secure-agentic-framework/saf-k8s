@@ -23,3 +23,10 @@ Run with `python3 lab.py test SAF-K8S-1005-018 --docker-context desktop-linux`. 
 - [Kind cluster image selection](https://kind.sigs.k8s.io/docs/user/quick-start/#creating-a-cluster)
 - [Docker Official Images Python metadata](https://github.com/docker-library/official-images/blob/master/library/python)
 - [Official Python image manifest digest details](https://hub.docker.com/layers/library/python/3.13.18-slim-trixie/images/sha256-1cb6aa9f7b703f1f52a9865d9912ee79b9864da59e8f22a513c9358b6df1fef8)
+
+## Adopter verification
+
+1. Define the authoritative release identity, signing/provenance roots, component inventory, trusted recovery registry, and independent custody for each restoration source, including node OS, drivers, images, and model artifacts.
+2. In an isolated recovery environment, verify signed provenance and inventory before promotion. Demonstrate missing, stale, mismatched, or untrusted evidence prevents the recovery workflow from deploying.
+3. For an approved known-good candidate, verify signature and digest from the independent trust source, then observe exact component readiness and an authorized service-level recovery check before production return approval.
+4. Retain trust-root custody, provenance/inventory results, readiness and decision records, reviewer authority, and exceptions. Keep real incident artifacts and credentials out of the test receipt.
