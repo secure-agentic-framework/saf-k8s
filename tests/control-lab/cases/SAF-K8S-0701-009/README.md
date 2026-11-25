@@ -25,3 +25,15 @@ replication, and storage administrator controls in the intended backend.
 [Versity S3 gateway v1.9.0](https://github.com/versity/versitygw/releases/tag/v1.9.0) ·
 [Amazon S3 Object Lock semantics](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html) ·
 [Amazon S3 conditional writes](https://docs.aws.amazon.com/AmazonS3/latest/userguide/conditional-writes-enforce.html)
+
+## Adopter verification
+
+1. Identify exact immutable-version support, retention policy and every
+   writer, reader, retention administrator and provider ownership boundary.
+2. In an approved fixture, write a new version and retrieve the exact
+   retained version and digest. Verify the effective refusal to
+   permanently delete or overwrite required retained data.
+3. Review actual version pins and authorized reference updates for every
+   consumer. Record signed lineage, replication and provider audit evidence.
+4. Exercise key recovery, retention expiry and approved disposition for
+   the selected store. Preserve expected data, authority, and recovery result.
