@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-Reviewed workload declarations may contribute measured compute and hardware input to instructions for deployers. SAF-K8S-1007-011 contributes applicable Kubernetes upgrade planning. The provider supplies the system lifetime and maintenance and care measures separately.
+Validated workload declarations and their observed Kubernetes enforcement can inform the provider's instructions about the configured resource profile. Assess the computational and hardware resources the high-risk AI system needs using evidence representative of that system. SAF-K8S-1007-011 contributes applicable Kubernetes upgrade planning. The provider documents system lifetime and necessary maintenance and care measures separately.
 
 ## SAF-K8S Controls
 

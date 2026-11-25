@@ -2471,7 +2471,7 @@
   control_seq: '010'
   control_title: Pod resource requests and limits specification
   control_statement: 'Require explicit CPU, memory and local ephemeral-storage requests and limits for regular and init containers in in-scope workload Pods.'
-  objective: 'Supply measured resource inputs for scheduling and applicable runtime enforcement.'
+  objective: 'Supply explicit resource inputs for scheduling and applicable runtime enforcement.'
   rationale: 'Requests inform scheduling. Linux CPU limits constrain execution through throttling and memory limits can trigger OOM termination. Local ephemeral-storage limits depend on kubelet accounting and can result in eviction. Individual declarations are one input alongside aggregate quota, node capacity and usage monitoring.'
   scope: 'Applies to regular and init containers in workload Pods. Where accelerators are required, declare the allocation mechanism appropriate to the platform, such as a vendor extended resource. Address aggregate accelerator quotas separately.'
   primary_enforcement_point: 'Validate authored rendered Pod templates before API defaulting. Use admission to enforce the effective resource fields.'

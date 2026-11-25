@@ -2200,12 +2200,12 @@
   framework_requirement_id: Article-13.3.e
   legacy_requirement_id: Art-13:13(3)(e)
   framework_requirement_title: Transparency and provision of information to deployers
-  framework_mapping_notes: Reviewed workload declarations may contribute measured compute and hardware input to instructions for deployers. SAF-K8S-1007-011 contributes applicable Kubernetes upgrade planning. The provider supplies the system lifetime and maintenance and care measures separately.
+  framework_mapping_notes: Validated workload declarations and their observed Kubernetes enforcement can inform the provider's instructions about the configured resource profile. Assess the computational and hardware resources the high-risk AI system needs using evidence representative of that system. SAF-K8S-1007-011 contributes applicable Kubernetes upgrade planning. The provider documents system lifetime and necessary maintenance and care measures separately.
   control_id: SAF-K8S-0304-010
   relation_type: partial
   strength_level: moderate
   applicability: conditional
-  applicability_condition: The Article 13 instructions obligation applies to the provider and the declarations support the measured resource requirements of that high-risk AI system.
+  applicability_condition: The provider's Article 13 instructions apply to the high-risk AI system, and its Kubernetes deployment uses workload declarations governed by this control.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
