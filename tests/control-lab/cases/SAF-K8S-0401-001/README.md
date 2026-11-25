@@ -52,13 +52,35 @@ more specific Forbidden checks.
 
 ### Adopter verification
 
-Define what each subject needs to do before reviewing grants. Collect direct
-and effective bindings, group membership, aggregation selectors and contributor
-roles. Compare the applied objects with the approved source and evaluate exact
-authorization tuples for required and unnecessary operations. Confirm revocation
-preserves required work. Record exception scope and the review owner, cadence
-and evidence. Check admission scope and availability separately. The fixture
-uses synthetic identities and two namespaces.
+1. Record the approved work for each human role, service account, and
+   group. Identify the authorization tuple with subject, resolved groups,
+   verb, API group, resource and subresource, resource name, and namespace
+   or cluster scope. Retain the approving owner and source revision.
+2. Collect the applied Roles, ClusterRoles, RoleBindings, and
+   ClusterRoleBindings through an approved inventory export. Resolve role
+   aggregations and direct and inherited grants. Compare the inventory with
+   the approved provisioning or GitOps source. For a managed service,
+   identify which authorization decisions come from customer-managed RBAC
+   and which require provider evidence.
+3. Confirm the effective API decision for a required tuple and for
+   representative unrelated names, namespaces, verbs, and subjects. Use an
+   authorized review or an approved test identity. For an external group,
+   verify the identity-provider group claim, its Kubernetes mapping, and
+   the relevant bindings. In the companion
+   [OIDC case](../SAF-K8S-0402-007/README.md), a real test-issued credential
+   maps into a narrow group grant, another group receives Forbidden, and
+   withdrawing the binding preserves authentication while removing access.
+4. Reconcile a case-owned grant in a disposable environment and repeat the
+   required and unnecessary requests. Verify that admission applies to the
+   intended resource kinds and scope, and confirm that approved templates
+   still pass. Retain the before and after configuration, expected and
+   observed decisions, and any exception rationale and expiry.
+5. Set a review owner and cadence. Record the scope, findings, changes,
+   approval or exception disposition, and evidence location for each review.
+   The [RBAC audit case](../SAF-K8S-0401-002/README.md) demonstrates a
+   scheduled named-access audit and confirmation after remediation. Use the
+   deployed identity provider and authorizers for deployment-specific
+   decisions.
 
 - [Kubernetes v1.36 RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
 - [Kubernetes v1.36 authorization](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/authorization/)

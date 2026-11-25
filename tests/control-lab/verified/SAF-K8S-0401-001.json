@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0401-001",
-  "catalog_revision": "f3cc4f7c292191aba12125829157872674c11ae7",
+  "catalog_revision": "6d03455c4307de8b4dc5c3a3318ed945bdc08b14",
   "catalog_sha256": "d349202ee2a53ae35fd3d0b6c36098d2d5cc45a51aa71fbf557812fcda78d4a0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "0c8bc46353756c942a2a80e064a862e6c45694cc12e85ddef19bf534eb89a536",
   "scope": "Kubernetes v1.36.1 native RBAC for one synthetic ServiceAccount, synthetic impersonated groups, and three case-owned ConfigMaps. A broad namespace Role/RoleBinding baseline permits get, list, watch, update, patch and delete on every ConfigMap in its namespace. The corrected Role permits only get on the exact required ConfigMap in saf-0401-001. Checks include additive group grants, an exact-name aggregated ClusterRoleBinding, source-manifest drift and restoration, and a namespace-scoped ValidatingAdmissionPolicy dry-run. No built-in role is edited; no overbroad Role is bound. Production identities and real data are outside scope.",
-  "cluster": "saf-lab-70cda6c75dd1",
+  "cluster": "saf-lab-bc732f8b522c",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
