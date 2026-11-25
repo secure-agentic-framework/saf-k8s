@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 3548
-- Distinct Requirements Mapped: 731
+- Total Reverse Mappings: 3542
+- Distinct Requirements Mapped: 729
 
 ## Requirements
 
@@ -239,7 +239,6 @@
 - [CM-6(2) - Respond to Unauthorized Changes](cm-6-2.md)
 - [CM-7 - Least Functionality](cm-7.md)
 - [CM-7(1) - Periodic Review](cm-7-1.md)
-- [CM-7(3) - Registration Compliance](cm-7-3.md)
 - [CM-7(4) - Unauthorized Software -- Deny-by-exception](cm-7-4.md)
 - [CM-7(5) - Authorized Software -- Allow-by-exception](cm-7-5.md)
 - [CM-7(6) - Confined Environments with Limited Privileges](cm-7-6.md)
@@ -550,7 +549,6 @@
 - [SC-23(3) - Unique System-generated Session Identifiers](sc-23-3.md)
 - [SC-23(5) - Allowed Certificate Authorities](sc-23-5.md)
 - [SC-24 - Fail in Known State](sc-24.md)
-- [SC-27 - Platform-independent Applications](sc-27.md)
 - [SC-28 - Protection of Information at Rest](sc-28.md)
 - [SC-28(1) - Cryptographic Protection](sc-28-1.md)
 - [SC-28(2) - Offline Storage](sc-28-2.md)

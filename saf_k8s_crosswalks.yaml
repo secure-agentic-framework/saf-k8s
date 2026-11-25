@@ -11869,22 +11869,6 @@
 
 
     6.1 - Secure container images (approved base images including CUDA, ML framework images); 9.1 - AI operator security (approved solutions)'
-  control_id: SAF-K8S-0601-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(20)
-  framework_requirement_title: Approved Solutions
-  framework_mapping_notes: 'Using approved solutions for agent cross-domain flows
-
-
-    6.1 - Secure container images (approved base images including CUDA, ML framework images); 9.1 - AI operator security (approved solutions)'
   control_id: SAF-K8S-0601-015
   relation_type: supports
   strength_level: strong
@@ -20231,22 +20215,6 @@
 
 
     6.1 - Secure container images (approved base images, usage restrictions); 9.5 - ML dependency management'
-  control_id: SAF-K8S-0601-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-10
-  framework_requirement_title: Software Usage Restrictions
-  framework_mapping_notes: 'Licensing/usage restrictions for agent software
-
-
-    6.1 - Secure container images (approved base images, usage restrictions); 9.5 - ML dependency management'
   control_id: SAF-K8S-0905-001
   relation_type: supports
   strength_level: strong
@@ -22857,22 +22825,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: CM-7(3)
-  framework_requirement_title: Registration Compliance
-  framework_mapping_notes: 'Ensuring agent components are registered
-
-
-    6.1 - Registry access controls (image pull from approved/registered registries only)'
-  control_id: SAF-K8S-0601-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: CM-7(4)
   framework_requirement_title: Unauthorized Software -- Deny-by-exception
   framework_mapping_notes: 'Deny-by-default for agent tools/plugins
@@ -22955,16 +22907,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-7(5)
   framework_requirement_title: Authorized Software -- Allow-by-exception
-  framework_mapping_notes: 'Allowlisting agent tools/plugins
-
-
-    6.5 - Admission control (allow-listing approved images); 6.1 - Approved base image registries'
+  framework_mapping_notes: Image admission contributes evidence for approved software in the selected Kubernetes workload path. The fixture does not establish the full execution boundary, organizational review of the allowlist or controls outside these workloads.
   control_id: SAF-K8S-0601-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopter uses the approved image list as part of a governed allow-by-exception regime and independently verifies runtime enforcement, ownership and recurring review.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -42778,22 +42727,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SC-27
-  framework_requirement_title: Platform-independent Applications
-  framework_mapping_notes: 'Platform-independent agent designs enable portable security across deployment environments
-
-
-    6.1 - Secure container images (platform-independent containerized applications via OCI standard)'
-  control_id: SAF-K8S-0601-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SC-28
   framework_requirement_title: Protection of Information at Rest
   framework_mapping_notes: >-
@@ -58626,22 +58559,6 @@
 
 
     10.3 - Threat modeling (training teams to identify counterfeit/malicious components); 6.1 - AI-specific base image considerations'
-  control_id: SAF-K8S-0601-007
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-11(1)
-  framework_requirement_title: Anti-counterfeit Training
-  framework_mapping_notes: 'Training to identify counterfeit AI models and components prevents use of malicious fakes
-
-
-    10.3 - Threat modeling (training teams to identify counterfeit/malicious components); 6.1 - AI-specific base image considerations'
   control_id: SAF-K8S-1003-001
   relation_type: supports
   strength_level: moderate
@@ -60562,22 +60479,6 @@
 
 
     8.1 - Device plugin framework (GPU acquisition/provisioning); 6.1 - Base image selection (image acquisition strategy)'
-  control_id: SAF-K8S-0601-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-5
-  framework_requirement_title: Acquisition Strategies, Tools, and Methods
-  framework_mapping_notes: 'Acquisition strategies for AI components must address unique supply chain security needs
-
-
-    8.1 - Device plugin framework (GPU acquisition/provisioning); 6.1 - Base image selection (image acquisition strategy)'
   control_id: SAF-K8S-0601-015
   relation_type: supports
   strength_level: strong
@@ -60814,16 +60715,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SR-5(2)
   framework_requirement_title: Assessments Prior to Selection, Acceptance, Modification, or Update
-  framework_mapping_notes: 'Security assessments of AI components before selection or update prevent introducing vulnerabilities
-
-
-    6.1 - Vulnerability scanning (assessment before acceptance); 9.5 - Model promotion gates (security scan before production)'
+  framework_mapping_notes: An authenticated record and admission can gate acceptance of the assessed image digest. The security assessment, applicable lifecycle triggers and use of results require adopter evidence.
   control_id: SAF-K8S-0601-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopter performs and records a scoped security assessment of the relevant supply chain component at required selection, acceptance, modification or update decisions.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -61868,19 +61766,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SSDF 1.1
-  framework_code: NIST-SSDF
-  framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
-  framework_version: '1.1'
-  framework_requirement_id: PO.1.3
-  framework_requirement_title: Communicate requirements to all third parties who will provide commercial software components to the organization for reuse.
-  framework_mapping_notes: SAF-K8S supply chain controls enforce requirements on third-party components (container images, Helm charts, ML models) admitted to the cluster. SAF-K8S-0604-007 requires documented security requirements for third-party components and their communication to vendors. Admission policies, signature verification, and SBOM requirements operationalize these requirements at the infrastructure boundary.
-  control_id: SAF-K8S-0601-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
