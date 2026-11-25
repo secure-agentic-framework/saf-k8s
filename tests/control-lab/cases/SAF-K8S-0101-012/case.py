@@ -256,4 +256,4 @@ def run(lab):
     backend = runpy.run_path(str(Path(__file__).with_name("backend_tls.py")))
     backend["run"](lab)
 
-SCOPE += " The owned default cluster also verifies the API server kubelet and etcd trust routes and restoration."
+SCOPE += " The owned default cluster verifies kubelet and etcd trust, restoration, and enforcement of backend TLS policy."

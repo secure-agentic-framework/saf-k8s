@@ -7,6 +7,8 @@ import re
 import subprocess
 import time
 
+import yaml
+
 PKI = "/etc/kubernetes/pki"
 MOUNT = PKI + "/saf-backend-tls"
 MANIFEST = "/etc/kubernetes/manifests/kube-apiserver.yaml"
@@ -164,6 +166,130 @@ def _endpoint_protocol(lab, address, port, ca, *, client=False):
             "verified_endpoint": "Verification: OK" in transcript}
 
 
+def _restricted_handshake(lab, address, port, ca, version, *, cipher=None, etcd=False):
+    options = ["timeout", "6", "openssl", "s_client", "-brief", "-verify_return_error",
+               "-connect", f"{address}:{port}", "-verify_ip", address, "-CAfile", ca, version]
+    if cipher:
+        options += ["-cipher", cipher]
+    if etcd:
+        options += ["-cert", PKI + "/apiserver-etcd-client.crt",
+                    "-key", PKI + "/apiserver-etcd-client.key"]
+    result = _node(lab, *options, allow_failure=True, timeout=9)
+    output = result.stderr + result.stdout
+    protocol = re.search(r"Protocol version:\s*(TLSv[0-9.]+)", output)
+    suite = re.search(r"Ciphersuite:\s*(\S+)", output)
+    return {"protocol": protocol[1] if protocol else None,
+            "cipher": suite[1] if suite else None,
+            "verified": "Verification: OK" in output and bool(protocol),
+            "protocol_refusal": result.returncode != 0 and "alert protocol version" in output.lower(),
+            "handshake_refusal": result.returncode != 0 and "alert handshake failure" in output.lower()}
+
+
+def _kubelet_protocol_floor(lab, address, ca, path):
+    default = _restricted_handshake(lab, address, 10250, ca, "-tls1_2")
+    lab.check("red", "The original trusted kubelet listener accepts the TLS 1.2 comparison",
+              default["verified"] and default["protocol"] == "TLSv1.2", default)
+
+    _node(lab, "sh", "-ceu",
+          'f=/var/lib/kubelet/config.yaml; sed -i "/^tlsMinVersion:/d" "$f"; '
+          'printf "\ntlsMinVersion: VersionTLS13\n" >> "$f"; systemctl restart kubelet',
+          timeout=35)
+    end = time.monotonic() + 45
+    while time.monotonic() < end:
+        approved = _restricted_handshake(lab, address, 10250, ca, "-tls1_3")
+        excluded = _restricted_handshake(lab, address, 10250, ca, "-tls1_2")
+        if approved["verified"] and excluded["protocol_refusal"]:
+            break
+        time.sleep(1)
+    lab.check("green", "The kubelet listener accepts verified TLS 1.3 and refuses TLS 1.2 by protocol",
+              approved["verified"] and approved["protocol"] == "TLSv1.3"
+              and excluded["protocol_refusal"] and not excluded["verified"],
+              {"approved_protocol": approved["protocol"], "verified_listener": approved["verified"],
+               "excluded_protocol_alert": excluded["protocol_refusal"]})
+    reply = _api(lab, path)
+    lab.check("positive", "The real API server proxy reaches the restarted TLS 1.3-only kubelet",
+              reply.returncode == 0 and reply.stdout.strip() == "ok",
+              {"trusted_proxy_health": reply.returncode == 0 and reply.stdout.strip() == "ok"})
+
+
+def _etcd_cipher_policy(lab, apiserver_manifest):
+    manifest_path = "/etc/kubernetes/manifests/etcd.yaml"
+    stage_path = "/etc/kubernetes/manifests/.saf-etcd-tls.yaml"
+    ca = PKI + "/etcd/ca.crt"
+    address, port = "127.0.0.1", 2379
+    api = yaml.safe_load(apiserver_manifest)["spec"]["containers"][0]["command"]
+    if [arg for arg in api if arg.startswith("--etcd-servers=")] != [
+        "--etcd-servers=https://127.0.0.1:2379"
+    ]:
+        lab.block("The API server must reference the one owned etcd endpoint")
+    allowed_cipher = "ECDHE-RSA-AES128-GCM-SHA256"
+    excluded_cipher = "ECDHE-RSA-CHACHA20-POLY1305"
+    before = _restricted_handshake(lab, address, port, ca, "-tls1_2",
+                                   cipher=excluded_cipher, etcd=True)
+    lab.check("red", "The original trusted etcd endpoint accepts the comparison TLS 1.2 cipher",
+              before["verified"] and before["cipher"] == excluded_cipher, before)
+    manifest = yaml.safe_load(_node(lab, "cat", manifest_path).stdout)
+    etcd = next(row for row in manifest["spec"]["containers"] if row["name"] == "etcd")
+    fields = ("--tls-min-version=", "--tls-max-version=", "--cipher-suites=")
+    etcd["command"] = [arg for arg in etcd["command"] if not arg.startswith(fields)]
+    etcd["command"].extend((fields[0] + "TLS1.2", fields[1] + "TLS1.2",
+                            fields[2] + "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"))
+    previous = _node(lab, "crictl", "ps", "--name", "etcd", "-q").stdout.split()
+    if len(previous) != 1:
+        lab.block("Expected one active owned etcd before applying the fixture policy")
+    lab.command("docker", "exec", "-i", f"{lab.cluster}-control-plane", "sh", "-ceu",
+                'cat >"$1"; chmod 600 "$1"; mv -f "$1" "$2"',
+                "sh", stage_path, manifest_path, payload=yaml.safe_dump(manifest))
+
+    end = time.monotonic() + 100
+    while time.monotonic() < end:
+        current = _node(lab, "crictl", "ps", "--name", "etcd", "-q").stdout.split()
+        if len(current) == 1 and current != previous and _etcd_live(lab):
+            break
+        time.sleep(2)
+    else:
+        state = _node(lab, "crictl", "ps", "-a", "--name", "etcd", "-o", "json")
+        instances = json.loads(state.stdout).get("containers", [])
+        candidate_states = sorted({row.get("state", "unknown") for row in instances
+                                   if row.get("id") not in previous})
+        lab.block(f"The replacement etcd endpoint did not become healthy; candidate states: {candidate_states}")
+    version = _node(lab, "crictl", "exec", current[0], "etcd", "--version")
+    release = re.search(r"etcd Version:\s*(\S+)", version.stdout)
+    if not release:
+        lab.block("Could not identify the actual etcd version")
+    allowed = _restricted_handshake(lab, address, port, ca, "-tls1_2", cipher=allowed_cipher, etcd=True)
+    excluded = _restricted_handshake(lab, address, port, ca, "-tls1_2", cipher=excluded_cipher, etcd=True)
+    too_new = _restricted_handshake(lab, address, port, ca, "-tls1_3", etcd=True)
+    lab.check("green", "The replacement etcd accepts only the fixture TLS 1.2 suite and excludes TLS 1.3",
+              allowed["verified"] and allowed["protocol"] == "TLSv1.2" and allowed["cipher"] == allowed_cipher
+              and excluded["handshake_refusal"] and not excluded["verified"]
+              and too_new["protocol_refusal"] and not too_new["verified"],
+              {"etcd_version": release[1], "approved_cipher": allowed["cipher"],
+               "approved_verified": allowed["verified"], "excluded_cipher_alert": excluded["handshake_refusal"],
+               "tls13_protocol_alert": too_new["protocol_refusal"]})
+    end = time.monotonic() + 65
+    while time.monotonic() < end:
+        ready = _api(lab, "/readyz")
+        if ready.returncode == 0 and ready.stdout.strip() == "ok":
+            break
+        time.sleep(2)
+    else:
+        lab.block("The API server did not report Ready after the healthy etcd replacement")
+    marker = "saf-etcd-cipher-policy"
+    write = lab.kubectl("create", "configmap", marker, "--from-literal=marker=etcd-cipher-policy",
+                        "-o", "json", timeout=25)
+    body = json.loads(write.stdout)
+    read = _api(lab, f"/api/v1/namespaces/saf-test/configmaps/{marker}")
+    read_ok = read.returncode == 0 and json.loads(read.stdout).get("data") == {"marker": "etcd-cipher-policy"}
+    healthy_after = _etcd_live(lab)
+    lab.check("positive", "A new API write and read succeed through the restricted healthy etcd backend",
+              ready.returncode == 0 and ready.stdout.strip() == "ok" and bool(body["metadata"].get("uid"))
+              and read_ok and healthy_after,
+              {"apiserver_ready": ready.returncode == 0 and ready.stdout.strip() == "ok",
+               "new_write_uid": bool(body["metadata"].get("uid")), "exact_read": read_ok,
+               "etcd_healthy_after": healthy_after})
+
+
 def _etcd_live(lab):
     instances = _node(lab, "crictl", "ps", "--name", "etcd", "-q").stdout.split()
     if len(instances) != 1:
@@ -262,6 +388,8 @@ def run(lab):
     storage_recovered = _reads_marker(_api(lab, marker_path))
     lab.check("green", "Restoring the etcd CA restores the identical storage read",
               storage_recovered, {"storage_read_recovered": storage_recovered})
+    _kubelet_protocol_floor(lab, endpoint, MOUNT + "/" + ca.name, health_path)
+    _etcd_cipher_policy(lab, baseline)
     (lab.evidence / "backend-tls-observations.json").write_text(json.dumps({
         "kubelet": {"trusted_leaf": _fingerprint(lab, serving), "direct_tls_probe": kubelet_tls,
                     "native_refusal": refusal.stderr.strip(), "restored": restored_kubelet},

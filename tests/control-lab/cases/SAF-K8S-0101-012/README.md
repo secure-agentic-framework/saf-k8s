@@ -81,11 +81,36 @@ owned cluster. The case demonstrates the tested self-managed configurations.
 - [Kubernetes v1.36 control-plane communication](https://v1-36.docs.kubernetes.io/docs/concepts/architecture/control-plane-node-communication/)
 - [Kubernetes v1.36 API server flags](https://v1-36.docs.kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/)
 
+## Backend TLS policy comparison
+
+The owned kubelet is restarted with a TLS 1.3 listener floor. Direct,
+CA-verified comparison handshakes show the original listener accepting
+TLS 1.2, the changed listener refusing TLS 1.2 by protocol, and verified
+TLS 1.3 still working. The API server's actual kubelet health proxy
+continues to work after the restart.
+
+The owned single-member etcd comparison uses a TLS 1.2-only listener and
+a single approved suite. The original listener accepts another fixture
+suite. After replacement, the same excluded suite receives a handshake
+alert, and TLS 1.3 receives a protocol-version alert. The approved suite,
+authenticated endpoint health, and a new API write and read succeed.
+
+The backend constraints and successful operations establish what each
+route can negotiate under the fixture settings. The kubelet listener
+floor does not identify its TLS 1.3 cipher per request. Apply the
+organization's policy and repeat the allowed and excluded comparisons
+for each applicable deployment path. See the companion
+[API extension TLS case](../SAF-K8S-0404-002/README.md) for negotiated
+TLS on actual aggregation and admission webhook requests.
+
+- [Kubernetes v1.36 kubelet TLS settings](https://v1-36.docs.kubernetes.io/docs/reference/config-api/kubelet-config.v1beta1/)
+- [etcd v3.6 TLS settings](https://etcd.io/docs/v3.6/op-guide/configuration/)
+
 ## Replay prerequisite
 
-Run the case with a Python build that reports TLS 1.3 support. Verify the
+Run the case with PyYAML and a Python build that reports TLS 1.3 support. Verify the
 interpreter that will invoke the runner with
-`python3 -c 'import ssl; print(ssl.OPENSSL_VERSION, ssl.HAS_TLSv1_3)'`.
+`python3 -c 'import ssl, yaml; print(ssl.OPENSSL_VERSION, ssl.HAS_TLSv1_3)'`.
 
 ## Adopter verification
 
