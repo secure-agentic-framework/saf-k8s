@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-0901-008",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "031b793d8ed991fa67acfbd4f33c7f3eb4fcdf5d",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "1e78718de78fd4cb8e61eaccfe339d400d96a3ba2c1799ea93ad01a836960282",
-  "scope": "One disposable single-node Kind Kubernetes v1.36.1 cluster using Kind v0.32.0's bundled kindnet and its native NetworkPolicy implementation. Digest-pinned BusyBox Pods provide one synthetic training worker, harmless HTTP peers across two separate fixture namespaces, and an independent positive-control client/listener. Before/after ordinary IPv4 TCP/8080 requests show baseline reachability, an exact worker egress allowlist to one namespace-and-pod selector, denied namespace and Pod-label near misses, and an unaffected positive path. No multi-node behavior, fabric, RDMA, NCCL, VLAN, external traffic, DNS, IPv6, hostNetwork, GPU, or production workload is exercised.",
-  "review_timing": {
-    "queued_at": "2026-11-22T20:05:30.343067+00:00",
-    "cluster_ready_at": "2026-11-22T20:06:03.644894+00:00",
-    "approval_at": "2026-11-22T20:06:05.238296+00:00",
-    "case_loaded_at": "2026-11-22T20:06:05.300481+00:00"
-  },
-  "cluster": "saf-lab-7e31fa7dd0e2",
+  "scope": "One disposable two-node Kind Kubernetes v1.36.1 cluster using Kind v0.32.0's bundled kindnet and its native NetworkPolicy implementation. Digest-pinned BusyBox Pods provide one synthetic training worker, harmless HTTP peers across two separate fixture namespaces, and an independent positive-control client/listener. Before/after ordinary IPv4 TCP/8080 requests show baseline reachability, an exact worker egress allowlist to one namespace-and-pod selector, denied namespace and Pod-label near misses, and an unaffected positive path plus one ordinary cross-node Pod TCP marker path. No RDMA, NCCL, GPU, encryption, VLAN/fabric enforcement, external traffic, DNS, IPv6, hostNetwork, or production workload is exercised.",
+  "cluster": "saf-lab-7a017f6587e4",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "a96478c7a5bed533009da88ad81efc12f2d27038b2aa80a33eaf02d1938adf55",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
@@ -57,6 +50,23 @@
         "kindnet_images": [
           "docker.io/kindest/kindnetd:v20260528-9350166c"
         ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Training marker Pods are Ready on distinct Ready owned Kind nodes",
+      "matched": true,
+      "observed": {
+        "source_is_control_plane": true,
+        "target_is_worker": true,
+        "nodes_distinct": true,
+        "source_node_ready": true,
+        "target_node_ready": true,
+        "wrong_label_peer_on_worker_node": true,
+        "wrong_label_peer_node_ready": true,
+        "source_pod_ready": true,
+        "target_pod_ready": true,
+        "wrong_label_peer_ready": true
       }
     },
     {
@@ -120,6 +130,42 @@
       "observed": {
         "path": "independent_positive_control",
         "source": "saf-0901-008-positive/mock-positive-client",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080,
+        "expected_reachable": true,
+        "last_observation": {
+          "reachable": true,
+          "marker_matches": true,
+          "outcome": "HTTP 200 fixed marker"
+        },
+        "two_consecutive_observations": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before policy, the training marker source reaches its distinct-node target",
+      "matched": true,
+      "observed": {
+        "path": "cross_node_training_marker",
+        "source": "saf-0901-008-training/mock-training-marker-source",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080,
+        "expected_reachable": true,
+        "last_observation": {
+          "reachable": true,
+          "marker_matches": true,
+          "outcome": "HTTP 200 fixed marker"
+        },
+        "two_consecutive_observations": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before policy, the same control-plane marker source reaches the worker-node wrong-label peer",
+      "matched": true,
+      "observed": {
+        "path": "cross_node_wrong_label",
+        "source": "saf-0901-008-training/mock-training-marker-source",
         "protocol": "IPv4 TCP",
         "destination_port": 8080,
         "expected_reachable": true,
@@ -217,6 +263,42 @@
           "reachable": true,
           "marker_matches": true,
           "outcome": "HTTP 200 fixed marker"
+        },
+        "two_consecutive_observations": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The exact worker and authorized-peer selectors preserve the distinct-node training marker path",
+      "matched": true,
+      "observed": {
+        "path": "cross_node_training_marker",
+        "source": "saf-0901-008-training/mock-training-marker-source",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080,
+        "expected_reachable": true,
+        "last_observation": {
+          "reachable": true,
+          "marker_matches": true,
+          "outcome": "HTTP 200 fixed marker"
+        },
+        "two_consecutive_observations": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The exact allowlist blocks that same cross-node path to the wrong-label peer",
+      "matched": true,
+      "observed": {
+        "path": "cross_node_wrong_label",
+        "source": "saf-0901-008-training/mock-training-marker-source",
+        "protocol": "IPv4 TCP",
+        "destination_port": 8080,
+        "expected_reachable": false,
+        "last_observation": {
+          "reachable": false,
+          "marker_matches": false,
+          "outcome": "TCP request failed"
         },
         "two_consecutive_observations": true
       }

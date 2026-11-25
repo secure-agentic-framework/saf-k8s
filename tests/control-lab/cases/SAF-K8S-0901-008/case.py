@@ -31,16 +31,18 @@ MARKERS = {
     UNAUTHORIZED: "SYNTH-0901-008-UNAUTHORIZED-HTTP",
     POSITIVE_TARGET: "SYNTH-0901-008-POSITIVE-CONTROL-HTTP",
     WRONG_LABEL: "SYNTH-0901-008-WRONG-LABEL-HTTP",
+    "mock-training-marker-target": "SYNTH-0901-008-CROSS-NODE-TRAINING-MARKER",
 }
 SCOPE = (
-    "One disposable single-node Kind Kubernetes v1.36.1 cluster using Kind v0.32.0's "
+    "One disposable two-node Kind Kubernetes v1.36.1 cluster using Kind v0.32.0's "
     "bundled kindnet and its native NetworkPolicy implementation. Digest-pinned BusyBox "
     "Pods provide one synthetic training worker, harmless HTTP peers across two separate "
     "fixture namespaces, and an independent positive-control client/listener. Before/after "
     "ordinary IPv4 TCP/8080 requests show baseline reachability, an exact worker egress "
     "allowlist to one namespace-and-pod selector, denied namespace and Pod-label near misses, and "
-    "an unaffected positive path. No multi-node behavior, fabric, RDMA, NCCL, VLAN, external "
-    "traffic, DNS, IPv6, hostNetwork, GPU, or production workload is exercised."
+    "an unaffected positive path plus one ordinary cross-node Pod TCP marker path. No RDMA, NCCL, "
+    "GPU, encryption, VLAN/fabric enforcement, external traffic, DNS, IPv6, hostNetwork, "
+    "or production workload is exercised."
 )
 
 
@@ -97,6 +99,25 @@ def create_pod(lab, name, namespace_name, *, marker=None, role=None):
     if not current.get("status", {}).get("podIP"):
         lab.block(f"Synthetic fixture Pod {namespace_name}/{name} has no Pod IP")
     return current["status"]["podIP"]
+
+
+def create_node_pinned_pod(lab, name, namespace_name, node, *, marker=None, role=None):
+    workload = make_pod(name, namespace_name, marker=marker, role=role)
+    workload["spec"]["nodeSelector"] = {"kubernetes.io/hostname": node}
+    workload["spec"]["tolerations"] = [
+        {"key": "node-role.kubernetes.io/control-plane", "operator": "Exists",
+         "effect": "NoSchedule"},
+    ]
+    add_resource(lab, workload)
+    lab.kubectl("-n", namespace_name, "wait", "--for=condition=Ready", f"pod/{name}",
+                "--timeout=90s", timeout=100)
+    return json.loads(lab.kubectl(
+        "-n", namespace_name, "get", f"pod/{name}", "-o", "json").stdout)
+
+
+def is_ready(resource):
+    return any(condition.get("type") == "Ready" and condition.get("status") == "True"
+               for condition in resource.get("status", {}).get("conditions", []))
 
 
 def policy_object():
@@ -198,12 +219,50 @@ def run(lab):
         lab, AUTHORIZED, AUTHORIZED_NS, marker=MARKERS[AUTHORIZED], role="authorized-training-peer")
     unauthorized_ip = create_pod(
         lab, UNAUTHORIZED, UNAUTHORIZED_NS, marker=MARKERS[UNAUTHORIZED], role="authorized-training-peer")
-    wrong_label_ip = create_pod(lab, WRONG_LABEL, AUTHORIZED_NS,
-                                marker=MARKERS[WRONG_LABEL], role="unapproved-label")
     positive_ip = create_pod(
         lab, POSITIVE_TARGET, POSITIVE_NS, marker=MARKERS[POSITIVE_TARGET], role="positive-target")
     create_pod(lab, WORKER, TRAINING_NS, role="training-worker")
     create_pod(lab, POSITIVE_CLIENT, POSITIVE_NS, role="positive-client")
+
+    source_node = f"{lab.cluster}-control-plane"
+    target_node = f"{lab.cluster}-worker"
+    wrong_label_pod = create_node_pinned_pod(
+        lab, WRONG_LABEL, AUTHORIZED_NS, target_node,
+        marker=MARKERS[WRONG_LABEL], role="unapproved-label")
+    wrong_label_ip = wrong_label_pod.get("status", {}).get("podIP")
+    marker_source = create_node_pinned_pod(
+        lab, "mock-training-marker-source", TRAINING_NS, source_node,
+        role="training-worker")
+    marker_target = create_node_pinned_pod(
+        lab, "mock-training-marker-target", AUTHORIZED_NS, target_node,
+        marker=MARKERS["mock-training-marker-target"], role="authorized-training-peer")
+    node_records = json.loads(lab.kubectl("get", "nodes", "-o", "json").stdout).get("items", [])
+    nodes = {node.get("metadata", {}).get("name"): node for node in node_records}
+    source_actual_node = marker_source.get("spec", {}).get("nodeName")
+    target_actual_node = marker_target.get("spec", {}).get("nodeName")
+    wrong_label_actual_node = wrong_label_pod.get("spec", {}).get("nodeName")
+    placed_ready = (
+        source_actual_node == source_node and target_actual_node == target_node
+        and source_actual_node != target_actual_node
+        and wrong_label_actual_node == target_node
+        and source_actual_node in nodes and target_actual_node in nodes
+        and is_ready(nodes[source_actual_node]) and is_ready(nodes[target_actual_node])
+        and all(is_ready(pod) for pod in (marker_source, marker_target, wrong_label_pod))
+        and bool(marker_source.get("status", {}).get("podIP"))
+        and bool(marker_target.get("status", {}).get("podIP"))
+        and bool(wrong_label_pod.get("status", {}).get("podIP"))
+    )
+    lab.check("positive", "Training marker Pods are Ready on distinct Ready owned Kind nodes",
+              placed_ready,
+              {"source_is_control_plane": source_actual_node == source_node,
+               "target_is_worker": target_actual_node == target_node,
+               "nodes_distinct": source_actual_node != target_actual_node,
+               "source_node_ready": bool(source_actual_node in nodes and is_ready(nodes[source_actual_node])),
+               "target_node_ready": bool(target_actual_node in nodes and is_ready(nodes[target_actual_node])),
+               "wrong_label_peer_on_worker_node": wrong_label_actual_node == target_node,
+               "wrong_label_peer_node_ready": bool(target_node in nodes and is_ready(nodes[target_node])),
+               "source_pod_ready": is_ready(marker_source), "target_pod_ready": is_ready(marker_target),
+               "wrong_label_peer_ready": is_ready(wrong_label_pod)})
 
     observations = {"platform": platform, "image": IMAGE, "port": PORT, "red": {}, "green": {}}
     observations["red"]["worker_to_authorized_peer"] = expect_path(
@@ -222,6 +281,15 @@ def run(lab):
         lab, "red", "independent_positive_control", POSITIVE_NS, POSITIVE_CLIENT, positive_ip,
         MARKERS[POSITIVE_TARGET], True,
         "Independent positive-control Pods reach their harmless listener before policy")
+    observations["red"]["cross_node_training_marker"] = expect_path(
+        lab, "red", "cross_node_training_marker", TRAINING_NS,
+        "mock-training-marker-source", marker_target.get("status", {}).get("podIP"),
+        MARKERS["mock-training-marker-target"], True,
+        "Before policy, the training marker source reaches its distinct-node target")
+    observations["red"]["cross_node_wrong_label"] = expect_path(
+        lab, "red", "cross_node_wrong_label", TRAINING_NS,
+        "mock-training-marker-source", wrong_label_ip, MARKERS[WRONG_LABEL], True,
+        "Before policy, the same control-plane marker source reaches the worker-node wrong-label peer")
 
     desired = policy_object()
     add_resource(lab, desired)
@@ -245,6 +313,15 @@ def run(lab):
         lab, "positive", "independent_positive_control", POSITIVE_NS, POSITIVE_CLIENT, positive_ip,
         MARKERS[POSITIVE_TARGET], True,
         "Unselected positive-control Pods remain independently reachable after worker isolation")
+    observations["green"]["cross_node_training_marker"] = expect_path(
+        lab, "green", "cross_node_training_marker", TRAINING_NS,
+        "mock-training-marker-source", marker_target.get("status", {}).get("podIP"),
+        MARKERS["mock-training-marker-target"], True,
+        "The exact worker and authorized-peer selectors preserve the distinct-node training marker path")
+    observations["green"]["cross_node_wrong_label"] = expect_path(
+        lab, "green", "cross_node_wrong_label", TRAINING_NS,
+        "mock-training-marker-source", wrong_label_ip, MARKERS[WRONG_LABEL], False,
+        "The exact allowlist blocks that same cross-node path to the wrong-label peer")
 
     live = json.loads(lab.kubectl(
         "-n", TRAINING_NS, "get", "networkpolicy", "training-worker-egress-allowlist", "-o", "json").stdout)
@@ -259,7 +336,7 @@ def run(lab):
               observations["policy"])
     observations["boundary"] = (
         "Synthetic metadata and fixed HTTP markers only; no credentials, tokens, Secret data, "
-        "external target, feed, scan, or workload content. Single-node scope."
+        "external target, feed, scan, or workload content. Two-node ordinary Pod traffic only; no RDMA, NCCL, GPU, or fabric proof."
     )
     (lab.evidence / "training-networkpolicy-observations.json").write_text(
         json.dumps(observations, indent=2, sort_keys=True) + "\n", encoding="utf-8")
