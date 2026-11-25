@@ -11,3 +11,19 @@ The test writes a newer audit version under the same key and recreates the gatew
 The lab uses case-owned storage credentials and an isolated Kubernetes reader service account. Production reader permissions, deployed log coverage, archive redundancy, and retrieval across actual retention windows require deployment evidence.
 
 [Kubernetes auditing](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/) · [Kubernetes CronJobs](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/) · [S3 Object Lock](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html)
+
+## Adopter verification
+
+1. Inventory required audit, training, inference, GPU, and platform archives;
+   map retention windows, object versions, replicas, reader identities, and
+   recovery paths.
+2. With approved read-only identities, schedule or execute bounded retrieval
+   samples from each store and retention age. Compare returned version IDs and
+   digests with an independently retained manifest. Include missing-object and
+   mismatch detection.
+3. Rehearse recovery from a documented replica or archive path within the
+   service recovery objective. Verify the reader cannot mutate or delete
+   source objects, and retain notification of failures.
+4. Keep dated run receipts, identity and permission scope, manifest custody,
+   version/digest results, archive redundancy evidence, and exceptions. Avoid
+   logging credentials or unrelated retained payloads.
