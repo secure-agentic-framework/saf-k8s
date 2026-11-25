@@ -12,3 +12,12 @@ retention require their own evidence.
 
 - [Kubernetes user impersonation](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/user-impersonation/)
 - [Kubernetes authorization](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/authorization/)
+
+## Verify an adopting implementation
+
+Inventory `impersonate` and `bind` grants across direct,
+group, wildcard, inherited, and cluster-wide roles. For each approved caller,
+review exact user/group/ServiceAccount/extra/UID targets and API groups using
+effective authorization checks; prove unrelated identities and resources are
+denied. Run one approved harmless delegated request, revoke its grant, confirm
+denial, and retain approval plus attributable audit records.
