@@ -112,7 +112,7 @@ Verified runtime signal coverage supports the monitoring portion of defined cybe
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.7
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: partial
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

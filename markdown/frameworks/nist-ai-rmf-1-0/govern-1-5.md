@@ -23,6 +23,6 @@ Recurring checks and freshness tracking can support the planned monitoring and r
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.7
 - Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

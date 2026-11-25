@@ -24,5 +24,5 @@ Threat intelligence integration consumes CVE feeds, runtime threat intelligence,
 - Knowledge Area: 10.7
 - Relation Type: supports
 - Strength: weak
-- Applicability: required
-- Strength Reason Code: semantic-mismatch-candidate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

@@ -2753,16 +2753,13 @@
   framework_requirement_id: Article-15.5
   legacy_requirement_id: Art-15:15(5)-cybersecurity-measures
   framework_requirement_title: Accuracy, robustness and cybersecurity
-  framework_mapping_notes: |-
-    High-risk AI systems shall be resilient against attempts by unauthorised third parties to alter their use, outputs or performance by exploiting system vulnerabilities. The technical solutions aiming to ensure the cybersecurity of high-risk AI systems shall be appropriate to the relevant circumstances and the risks. The technical solutions to address AI specific vulnerabilities shall include, where appropriate, measures to prevent, detect, respond to, resolve and control for attacks trying to manipulate the training data set (data poisoning), or pre-trained components used in training (model poisoning), inputs designed to cause the AI model to make a mistake (adversarial examples or model evasion), confidentiality attacks or model flaws.
-
-    Risk-appropriate cybersecurity is the fundamental SAF-K8S design principle. Controls are tiered by maturity level and archetype to match circumstances and risk profiles.
+  framework_mapping_notes: This control can evidence a bounded API-visible configuration posture check for one namespace and a synthetic advisory match. Its portable case does not demonstrate resilience against attempts to alter AI use, outputs, or performance; AI-specific data/model poisoning, evasion, confidentiality attacks; actual vulnerability exposure; or enforcement by the deployed CNI. Treat it as one narrow configuration component of the broader Article 15(5) cybersecurity measures.
   control_id: SAF-K8S-1007-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The governed Kubernetes cluster hosts an applicable high-risk AI system, and the assessed PSA, NetworkPolicy, RBAC, and component-advisory controls are part of its risk-appropriate cybersecurity measures. Evidence for AI-specific attacks, deployment operation, and other attack classes is assessed separately.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -4004,13 +4001,13 @@
   framework_version: '1.0'
   framework_requirement_id: GOVERN 1.5
   framework_requirement_title: Ongoing monitoring and periodic review of the risk management process and its outcomes are planned, organizational roles and responsibilities are clearly defined, including determining the frequency of periodic review.
-  framework_mapping_notes: Security posture management provides continuous assessment with drift detection. Automated audit readiness enables periodic compliance review with evidence gap tracking.
+  framework_mapping_notes: The case demonstrates one fixture assessment and detects/restores three scoped configuration changes. It has no periodic schedule, organizational responsibility assignment, or audit-readiness review. Those process elements must be evidenced separately.
   control_id: SAF-K8S-1007-004
   relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The observed posture results are incorporated into a defined organizational AI-risk review with assigned roles, a review frequency, and documented follow-up; this one-shot portable case alone does not establish those processes.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -4885,14 +4882,14 @@
   framework_name: NIST AI Risk Management Framework
   framework_version: '1.0'
   framework_requirement_id: MEASURE 1.2
-  framework_requirement_title: Appropriateness of AI metrics and effectiveness of existing measures are regularly assessed and updated, including measures of accuracy, fairness and bias, data quality, security, explainability, and privacy.
-  framework_mapping_notes: Metrics endpoint security ensures telemetry integrity and availability. GPU telemetry collection supports hardware-level measurement validation. Security posture management drives continuous metric reassessment.
+  framework_requirement_title: Appropriateness of AI metrics and effectiveness of existing controls are regularly assessed and updated, including reports of errors and potential impacts on affected communities.
+  framework_mapping_notes: The case provides API-visible drift observations for a named namespace PSA profile, NetworkPolicy, and namespaced Role, plus a synthetic advisory/component join. These observations can inform review of selected AI-system security controls when an organization connects them to its AI-risk measurement process. They do not assess AI metric appropriateness, control effectiveness over time, error reports, community impacts, GPU telemetry, or broader accuracy, fairness, data-quality, explainability, or privacy metrics.
   control_id: SAF-K8S-1007-004
-  relation_type: partial
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The deployed posture assessment is explicitly selected as an AI-risk control-effectiveness input, and the organization separately reviews the appropriateness of its AI metrics and records errors and potential impacts on affected communities. This portable case covers only three API-visible Kubernetes configuration regressions and synthetic advisory matching.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -5141,13 +5138,13 @@
   framework_version: '1.0'
   framework_requirement_id: MEASURE 3.1
   framework_requirement_title: Approaches, personnel, and documentation are in place to regularly identify and track existing, unanticipated, and emergent AI risks based on factors such as intended and actual performance in deployed contexts.
-  framework_mapping_notes: Threat intelligence integration consumes CVE feeds, runtime threat intelligence, and adversarial ML attack pattern libraries. Security posture management provides continuous risk assessment with drift detection.
+  framework_mapping_notes: The case supplies a bounded example of recording current API posture, detecting controlled drift, and joining a fictional advisory version to a synthetic component. It does not consume live CVE/threat-intelligence feeds or identify emergent AI risks from actual deployed performance. Use only as an input to a separate documented recurring AI-risk tracking process.
   control_id: SAF-K8S-1007-004
   relation_type: supports
   strength_level: weak
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: semantic-mismatch-candidate
+  applicability: conditional
+  applicability_condition: A recurring deployment process uses comparable posture and vulnerability observations to identify and track MAP-identified AI risks, with named personnel, dates, and documented changes. The synthetic single-run case does not establish ongoing risk tracking.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -6340,22 +6337,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-16(6)
-  framework_requirement_title: Maintenance of Attribute Association
-  framework_mapping_notes: 'Persistent attribute association across agent handoffs
-
-
-    7.2 - Maintaining classification attributes across model lifecycle stages; 10.7 - AI infrastructure asset inventory with classification persistence'
-  control_id: SAF-K8S-1007-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -10341,22 +10322,6 @@
 
 
     9.5 - Model promotion gates (approval workflows for production deployment); 10.7 - Change management approval workflows for model deployments'
-  control_id: SAF-K8S-1007-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-3(2)
-  framework_requirement_title: Dual Authorization
-  framework_mapping_notes: 'Requiring human+agent or multi-agent approval for critical actions
-
-
-    9.5 - Model promotion gates (approval workflows for production deployment); 10.7 - Change management approval workflows for model deployments'
   control_id: SAF-K8S-1007-005
   relation_type: supports
   strength_level: strong
@@ -13711,22 +13676,6 @@
 
     9.5 - Model promotion gates (human review: security scan, bias evaluation before production); 10.7 - Change management approval workflows'
   control_id: SAF-K8S-0905-012
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(9)
-  framework_requirement_title: Human Reviews
-  framework_mapping_notes: 'Human-in-the-loop review of agent data flows
-
-
-    9.5 - Model promotion gates (human review: security scan, bias evaluation before production); 10.7 - Change management approval workflows'
-  control_id: SAF-K8S-1007-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -27233,22 +27182,6 @@
 
 
     8.4 - Remote attestation (verifying TEE integrity, hardware attestation); 10.7 - Hardware attestation for new nodes'
-  control_id: SAF-K8S-1007-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-3(4)
-  framework_requirement_title: Device Attestation
-  framework_mapping_notes: 'Agent runtime attestation
-
-
-    8.4 - Remote attestation (verifying TEE integrity, hardware attestation); 10.7 - Hardware attestation for new nodes'
   control_id: SAF-K8S-1007-005
   relation_type: direct
   strength_level: strong
@@ -32263,22 +32196,6 @@
 
 
     10.7 - AI infrastructure asset inventory (system inventory for K8s clusters and AI workloads)'
-  control_id: SAF-K8S-1007-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-5
-  framework_requirement_title: System Inventory
-  framework_mapping_notes: 'Inventory of agentic AI systems, agents, models, and tools is essential for security management
-
-
-    10.7 - AI infrastructure asset inventory (system inventory for K8s clusters and AI workloads)'
   control_id: SAF-K8S-1007-005
   relation_type: direct
   strength_level: strong
@@ -32442,22 +32359,6 @@
   control_id: SAF-K8S-1003-002
   relation_type: supports
   strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PS-4
-  framework_requirement_title: Personnel Termination
-  framework_mapping_notes: 'Personnel termination procedures must address revocation of agent system access and credentials
-
-
-    4.5 - Detect identity abuse (revoking access on personnel termination); 10.7 - Decommissioning access grants'
-  control_id: SAF-K8S-1007-004
-  relation_type: supports
-  strength_level: moderate
   applicability: required
   applicability_condition: null
   strength_reason_code: null
@@ -51889,22 +51790,6 @@
 
     6.4 - Vulnerability prioritization (automated tracking of flaw remediation status); 10.7 - Security posture management'
   control_id: SAF-K8S-0604-010
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-2(2)
-  framework_requirement_title: Automated Flaw Remediation Status
-  framework_mapping_notes: 'Automated tracking of agent vulnerability patch status ensures timely remediation
-
-
-    6.4 - Vulnerability prioritization (automated tracking of flaw remediation status); 10.7 - Security posture management'
-  control_id: SAF-K8S-1007-004
   relation_type: direct
   strength_level: strong
   applicability: required
