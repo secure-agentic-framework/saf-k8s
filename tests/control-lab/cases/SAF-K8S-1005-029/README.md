@@ -55,3 +55,10 @@ Primary sources:
 - [Kubernetes v1.36 — Operating etcd clusters](https://v1-36.docs.kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/)
 - [etcd v3.6 — Disaster recovery](https://etcd.io/docs/v3.6/op-guide/recovery/)
 - [Kubernetes v1.36 — Persistent Volumes](https://v1-36.docs.kubernetes.io/docs/concepts/storage/persistent-volumes/)
+
+## Adopter verification
+
+1. Inventory etcd, persistent volumes, model/artifact registries, training checkpoints, and all backup schedules, destinations, encryption keys, retention, and restore owners.
+2. Verify backup jobs produce independently protected copies and that integrity/status checks run before restore. Reconcile the expected protected-source inventory against actual successful backup receipts.
+3. In an isolated recovery environment, restore representative etcd and volume/application artifacts from the backup destination, compare synthetic sentinel state and digests, and verify an incomplete/corrupt copy is rejected. Measure the approved RPO/RTO without touching production state.
+4. Retain source coverage, backup and restore receipts, key/custody controls, provider/CSI evidence, and gap owners. Do not export raw etcd snapshots or credentials into evidence.
