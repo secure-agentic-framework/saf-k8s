@@ -20,15 +20,6 @@ Personnel transfers require updating agent system access privileges and roles
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0401-004 - RBAC for AI operator custom resources](../../controls/SAF-K8S-0401-004.md)
-
-- Domain: D04 - Identity, Access, and Secrets Management
-- Knowledge Area: 4.1
-- Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0401-006 - Organizational role separation for ML, platform, and security functions](../../controls/SAF-K8S-0401-006.md)
 
 - Domain: D04 - Identity, Access, and Secrets Management
