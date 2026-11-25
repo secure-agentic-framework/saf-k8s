@@ -14,7 +14,9 @@ EXTENDER = "fixture-extender"
 NS = "saf-test"
 HOST = f"{EXTENDER}.{NS}.svc.cluster.local"
 PEER = "fixture-scheduler-peer"
+UNAPPROVED_PEER = "fixture-unapproved-peer"
 MESSAGE = "Fixture scheduler requires an approved profile"
+UNAUTHORIZED_PROBE = "fixture-unapproved-extender-client"
 
 
 def provision_certificates(lab):
@@ -24,11 +26,16 @@ def provision_certificates(lab):
     ca_key = directory / "ca.key"
     lab.command("openssl", "req", "-new", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "2",
                 "-subj", "/CN=SAF disposable scheduler CA", "-addext", "basicConstraints=critical,CA:TRUE",
+                "-addext", "keyUsage=critical,keyCertSign,cRLSign", "-addext", "subjectKeyIdentifier=hash",
                 "-keyout", str(ca_key), "-out", str(ca))
-    for role, subject in (("server", HOST), ("client", PEER)):
+    for role, subject in (("server", HOST), ("client", PEER), ("unauthorized", UNAPPROVED_PEER)):
         cert, key, csr, ext = (directory / f"{role}.{suffix}" for suffix in ("crt", "key", "csr", "ext"))
         usage = "serverAuth" if role == "server" else "clientAuth"
-        ext.write_text(f"extendedKeyUsage={usage}\n" + (f"subjectAltName=DNS:{HOST}\n" if role == "server" else ""))
+        ext.write_text("basicConstraints=critical,CA:FALSE\n"
+                       "keyUsage=critical,digitalSignature,keyEncipherment\n"
+                       "subjectKeyIdentifier=hash\n"
+                       "authorityKeyIdentifier=keyid,issuer\n"
+                       f"extendedKeyUsage={usage}\n" + (f"subjectAltName=DNS:{HOST}\n" if role == "server" else ""))
         lab.command("openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes",
                     "-subj", f"/CN={subject}", "-keyout", str(key), "-out", str(csr))
         lab.command("openssl", "x509", "-req", "-in", str(csr), "-CA", str(ca), "-CAkey", str(ca_key),
@@ -112,6 +119,41 @@ def set_admission(lab):
                     "namespaceSelector": {"matchLabels": {"fixture.example/scheduler-review": "true"}}}}})
 
 
+def test_unapproved_extender_identity(lab):
+    # The cert chains to the same disposable CA but carries an unapproved CN.
+    # This probe sends only to the case-owned extender Service in this namespace.
+    probe = r'''import http.client, json, ssl
+ctx = ssl.create_default_context(cafile="/tls/ca.crt")
+ctx.load_cert_chain("/tls/unauthorized.crt", "/tls/unauthorized.key")
+payload = json.dumps({"Pod": {"metadata": {"namespace": "saf-test", "name": "fixture-approved-pod"}}, "Nodes": []}).encode()
+connection = http.client.HTTPSConnection("fixture-extender.saf-test.svc.cluster.local", 9443,
+                                         context=ctx, timeout=5)
+try:
+    connection.request("POST", "/filter", body=payload, headers={"Content-Type": "application/json"})
+    with connection.getresponse() as response:
+        print(f"http_status={response.status}")
+finally:
+    connection.close()
+'''
+    make_pod(lab, UNAUTHORIZED_PROBE, IMAGE, ["python", "-c", probe],
+             files=[("/tls", "secret", "fixture-extender-unauthorized")])
+    waiting = lab.kubectl("wait", f"pod/{UNAUTHORIZED_PROBE}", "--for=jsonpath={.status.phase}=Succeeded",
+                           "--timeout=35s", timeout=45, allow_failure=True)
+    output = lab.kubectl("logs", f"pod/{UNAUTHORIZED_PROBE}", allow_failure=True).stdout.strip()
+    if waiting.returncode:
+        result = lab.kubectl("get", f"pod/{UNAUTHORIZED_PROBE}", "-o", "json")
+        status = json.loads(result.stdout).get("status", {})
+        reasons = [details.get("reason") for row in status.get("containerStatuses", [])
+                   for details in row.get("state", {}).values() if details.get("reason")]
+        lab.block(f"The isolated negative TLS probe did not finish: phase={status.get('phase')}, reasons={reasons}")
+    logs = lab.kubectl("logs", f"pod/{EXTENDER}").stdout
+    accepted = [json.loads(line) for line in logs.splitlines() if line.startswith("{")]
+    denied = output == "http_status=403" and not accepted
+    lab.check("green", "The extender denies a trusted but unapproved client identity without accepting its request",
+              denied, {"expected_http_403": output == "http_status=403",
+                       "no_authorized_call_receipt": not accepted})
+
+
 def run(lab):
     lab.kubectl("label", "namespace", NS, "fixture.example/scheduler-review=true", "pod-security.kubernetes.io/enforce=restricted")
     marker = ["python", "-c", "print('scheduled public marker')"]
@@ -132,6 +174,7 @@ def run(lab):
     lab.check("green", "Admission rejects an unapproved scheduler profile", denied, {"policy_denied": denied})
 
     start(lab)
+    test_unapproved_extender_identity(lab)
     name = "fixture-approved-pod"
     make_pod(lab, name, IMAGE, marker, scheduler=SCHEDULER)
     lab.kubectl("wait", "--for=condition=PodScheduled", "pod/" + name, "--timeout=80s", timeout=90)

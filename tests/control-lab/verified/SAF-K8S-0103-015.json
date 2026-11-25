@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0103-015",
-  "catalog_revision": "41a585962cc03053c93c6520517b94e42fc48092",
-  "catalog_sha256": "3797a5026d968aa43911c4de1181999598efb459abf59652b0df3ab7dfefc513",
+  "catalog_revision": "7e80192cc229789e2069e21a2f2866fb5e0cab6d",
+  "catalog_sha256": "6618518e712531f8ef518344034efb0aa93e5578de809bd6e7903ee3c9fd9a59",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "f23fda03850ece555a15653caed3710200c0109be096d898eb9d0a64060e3c71",
+  "control_sha256": "ff697d7349b45f0e10cde7994669f75103eacf4664a2dc11be4a79bff9832ff7",
   "scope": "A separate Kubernetes scheduler uses mutual TLS to one inert authorized extender route in disposable Kind.",
-  "cluster": "saf-lab-52cd1e0f8224",
+  "cluster": "saf-lab-f79e60aecd84",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -52,6 +52,15 @@
       "matched": true,
       "observed": {
         "policy_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The extender denies a trusted but unapproved client identity without accepting its request",
+      "matched": true,
+      "observed": {
+        "expected_http_403": true,
+        "no_authorized_call_receipt": true
       }
     },
     {

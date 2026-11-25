@@ -231,7 +231,7 @@
     "SAF-K8S-0103-015": {
       "catalog_status": "draft",
       "domain": "D01",
-      "sha256": "f23fda03850ece555a15653caed3710200c0109be096d898eb9d0a64060e3c71",
+      "sha256": "ff697d7349b45f0e10cde7994669f75103eacf4664a2dc11be4a79bff9832ff7",
       "title": "Scheduler extender authentication and custom scheduler approval"
     },
     "SAF-K8S-0103-016": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "817c067e69b5a2d1c8b529b575e2c728067b5b61",
-  "sha256": "e9f6fa833b262a8a83ee18b153898d7bcc085edf71e0766795a6e78bd509705d",
+  "revision": "31127eb5f73d97ed41ae231d8df14df71627ab23",
+  "sha256": "6618518e712531f8ef518344034efb0aa93e5578de809bd6e7903ee3c9fd9a59",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
