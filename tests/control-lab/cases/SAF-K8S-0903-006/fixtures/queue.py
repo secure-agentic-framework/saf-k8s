@@ -1,15 +1,18 @@
 """Deterministic, benign in-memory inference queue used only by this local case."""
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
+import ssl
 from pathlib import Path
 import sys
 from threading import RLock
 from urllib.error import HTTPError
-from urllib.request import ProxyHandler, Request, build_opener
+from urllib.request import HTTPSHandler, ProxyHandler, Request, build_opener
 
 
 CONFIG = json.loads(Path("/case/queue.json").read_text(encoding="utf-8"))
 JOB_BY_ID = {item["id"]: item for item in CONFIG["jobs"]}
+URI_PRINCIPALS = {uri: principal for principal, uri in CONFIG["principal_uris"].items()}
+PRIORITY_PRINCIPAL = "synthetic-priority-principal"
 ENFORCED = sys.argv[1:3] != ["serve", "baseline"]
 LOCK = RLock()
 STATE = {"clock": 0, "held": False, "pending": [], "executed": [], "receipts": {}}
@@ -68,12 +71,14 @@ def _public_state():
     }
 
 
-def _handle(body):
+def _handle(body, principal):
     op = body.get("op")
     with LOCK:
         if op == "state":
             return 200, _public_state()
         if op == "hold_dispatch":
+            if principal != PRIORITY_PRINCIPAL:
+                return 403, {"status": 403, "reason": "fixture_control_not_authorized"}
             held = body.get("held")
             if not isinstance(held, bool):
                 return 400, {"status": 400, "reason": "held_must_be_boolean"}
@@ -81,6 +86,8 @@ def _handle(body):
             _dispatch()
             return 200, {"dispatch_held": STATE["held"]}
         if op == "advance_clock":
+            if principal != PRIORITY_PRINCIPAL:
+                return 403, {"status": 403, "reason": "fixture_control_not_authorized"}
             ticks = body.get("ticks")
             if not isinstance(ticks, int) or ticks < 1 or ticks > 10:
                 return 400, {"status": 400, "reason": "invalid_fixture_clock_step"}
@@ -97,7 +104,6 @@ def _handle(body):
         if job_id in STATE["receipts"]:
             return 409, {"status": 409, "reason": "duplicate_job_id"}
         requested_class = body.get("service_class")
-        principal = body.get("principal")
         receipt = {"job_id": job_id, "service_class": requested_class,
                    "principal": principal, "execution_count": 0}
         STATE["receipts"][job_id] = receipt
@@ -125,10 +131,20 @@ def _handle(body):
 
 
 class Handler(BaseHTTPRequestHandler):
+    def _principal(self):
+        certificate = self.connection.getpeercert() or {}
+        uris = [value for kind, value in certificate.get("subjectAltName", ()) if kind == "URI"]
+        if len(uris) != 1:
+            return None
+        return URI_PRINCIPALS.get(uris[0])
+
     def do_GET(self):
         if self.path == "/ready":
             self._write(200, {"ready": True})
         elif self.path == "/state":
+            if self._principal() is None:
+                self._write(403, {"status": 403, "reason": "fixture_identity_not_authorized"})
+                return
             with LOCK:
                 self._write(200, _public_state())
         else:
@@ -139,8 +155,16 @@ class Handler(BaseHTTPRequestHandler):
             self._write(404, {"status": 404, "reason": "not_found"})
             return
         try:
-            body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", "0"))))
-            status, result = _handle(body)
+            length = int(self.headers.get("Content-Length", "0"))
+            if length < 1 or length > 2048:
+                self._write(400, {"status": 400, "reason": "invalid_fixture_request_size"})
+                return
+            body = json.loads(self.rfile.read(length))
+            principal = self._principal()
+            if principal is None:
+                status, result = 403, {"status": 403, "reason": "fixture_identity_not_authorized"}
+            else:
+                status, result = _handle(body, principal)
         except (ValueError, TypeError, json.JSONDecodeError):
             status, result = 400, {"status": 400, "reason": "invalid_json_request"}
         self._write(status, result)
@@ -158,14 +182,20 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if len(sys.argv) > 1 and sys.argv[1] == "request":
-    payload = json.loads(sys.argv[2])
+    _, url, ca_file, cert_file, key_file, raw_payload = sys.argv[1:7]
+    payload = json.loads(raw_payload)
     method = "GET" if payload.get("op") == "state" else "POST"
-    endpoint = "http://127.0.0.1:8080/state" if method == "GET" else "http://127.0.0.1:8080/queue"
+    endpoint = url.rstrip("/") + ("/state" if method == "GET" else "/queue")
     data = None if method == "GET" else json.dumps(payload, sort_keys=True).encode()
     request = Request(endpoint, data=data, method=method,
                       headers={"Content-Type": "application/json"})
+    context = ssl.create_default_context(cafile=ca_file)
+    context.minimum_version = ssl.TLSVersion.TLSv1_2
+    if cert_file != "-":
+        context.load_cert_chain(certfile=cert_file, keyfile=key_file)
+    opener = build_opener(ProxyHandler({}), HTTPSHandler(context=context))
     try:
-        with build_opener(ProxyHandler({})).open(request, timeout=3) as response:
+        with opener.open(request, timeout=3) as response:
             result = json.loads(response.read())
     except HTTPError as error:
         result = json.loads(error.read())
@@ -173,6 +203,16 @@ if len(sys.argv) > 1 and sys.argv[1] == "request":
             raise ValueError("The HTTP status differs from the fixture receipt")
     print(json.dumps(result, sort_keys=True, separators=(",", ":")))
 elif len(sys.argv) > 1 and sys.argv[1] == "serve":
-    HTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
+    server = HTTPServer(("0.0.0.0", 8443), Handler)
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    context.minimum_version = ssl.TLSVersion.TLSv1_2
+    # Kubelet HTTPS readiness uses /ready without a client identity. Actual
+    # queue/state operations are rejected unless the verified certificate maps
+    # to one of the two fixture URI SAN identities.
+    context.verify_mode = ssl.CERT_OPTIONAL
+    context.load_cert_chain("/identity/tls.crt", "/identity/tls.key")
+    context.load_verify_locations("/trust/ca.crt")
+    server.socket = context.wrap_socket(server.socket, server_side=True)
+    server.serve_forever()
 else:
-    raise SystemExit("usage: queue.py serve | request JSON")
+    raise SystemExit("usage: queue.py serve | request URL CA CERT KEY JSON")

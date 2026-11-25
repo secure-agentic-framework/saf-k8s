@@ -2,6 +2,10 @@
   "control_id": "SAF-K8S-0903-006",
   "max_pending": 2,
   "class_priority": {"standard": 10, "priority": 20},
+  "principal_uris": {
+    "synthetic-standard-principal": "spiffe://saf.example/0903-006/standard",
+    "synthetic-priority-principal": "spiffe://saf.example/0903-006/priority"
+  },
   "principal_classes": {
     "synthetic-standard-principal": ["standard"],
     "synthetic-priority-principal": ["priority"]

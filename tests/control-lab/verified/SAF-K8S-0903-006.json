@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0903-006",
-  "catalog_revision": "b244959cb10d05bc228dfb2bb6bcd7e2c54c3610",
-  "catalog_sha256": "dd441232d8b7b6a9636746295b89b2d3110bca4d8b7326cfef02a048ff9510e7",
+  "catalog_revision": "bd9078bc396fd26d4606b7eb78cf29862e6b1448",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b18e08509c82d5ea7dff5611d6cceb075c18f73ad1700fe97be0cc3294000d17",
-  "scope": "One disposable Kind cluster and one local-only Python serving fixture (one replica). The fixture accepts a fixed set of benign job IDs, caps waiting depth at two, maps synthetic principals to service classes, orders held work by class, and uses a manually advanced fixture clock to expire one waiting item. All queue receipts and execution records come from the running server process. Calls use localhost inside its Pod; no Service, external endpoint, model, secrets, or live target is involved. Synthetic principal labels exercise class authorization policy only; they are not authenticated identities. This does not validate production authentication, gateway integration, real inference, multi-replica queue coordination, durable receipts, or production timeout semantics.",
-  "cluster": "saf-lab-fb4f1e874c95",
+  "scope": "One disposable Kind cluster and one local-only Python serving fixture (one replica). The fixture accepts a fixed set of benign job IDs, caps waiting depth at two, maps synthetic principals to service classes, orders held work by class, and uses a manually advanced fixture clock to expire one waiting item. All queue receipts and execution records come from the running server process. Dedicated client Pods use locally issued mTLS certificates with URI SAN identities at the actual ClusterIP app route; the server derives class grants from the verified certificate and ignores caller identity labels. No external endpoint, model, or real target is involved. This does not validate production identity issuance, gateway integration, real inference, multi-replica queue coordination, durable receipts, or production timeout semantics.",
+  "cluster": "saf-lab-8df8f7ae9cc4",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -131,6 +131,10 @@
           "reason": "queue_depth_limit",
           "status": 429
         },
+        "admission_statuses": [
+          202,
+          202
+        ],
         "overflow_receipt": {
           "execution_count": 0,
           "job_id": "overflow-001",
@@ -216,6 +220,17 @@
           "wait-priority-001",
           "wait-standard-001"
         ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The actual TLS app route derives ordinary and priority class identity from verified URI SAN certificates, ignoring the forged request label",
+      "matched": true,
+      "observed": {
+        "requests_without_certificate_denied": true,
+        "ordinary_certificate_receipts_match": true,
+        "priority_certificate_receipt_matches": true,
+        "forged_priority_label_remains_denied": true
       }
     }
   ]
