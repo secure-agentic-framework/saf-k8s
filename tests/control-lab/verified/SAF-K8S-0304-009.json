@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0304-009",
-  "catalog_revision": "e72e4b893466d3f3e641cfd09df8d2be12840b3e",
-  "catalog_sha256": "d349202ee2a53ae35fd3d0b6c36098d2d5cc45a51aa71fbf557812fcda78d4a0",
+  "catalog_revision": "182e27976e21faaf128557f20fc9b42a74f0e58c",
+  "catalog_sha256": "044bf7085d167e0cebc119fadb5265399823a05a596346af59f25fe7dc9ad3a6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b4b0c9ea4406eb9d3d90c5c6696e6ebe3c115912b654d2a8595ca39e247b5270",
   "scope": "Small inert checkpoint in an actual disk-backed emptyDir using a process-local AES-GCM key. Verify the on-volume record, authentic reuse, alteration rejection, and read/write denial for a different UID. Separately verify API access to a named ciphertext ConfigMap by synthetic ServiceAccounts. A fresh process in the same Pod authenticates a retained record against expected run, step and time using a separate tmpfs key. Provider encryption and durable cross-Pod key custody are adopter-specific.",
-  "cluster": "saf-lab-486e79fbb854",
+  "cluster": "saf-lab-f7c261a38ba7",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
