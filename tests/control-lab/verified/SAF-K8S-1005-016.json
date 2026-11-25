@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1005-016",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "e64644f984ad8e5283c1c7490062e434cf2b2c61",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "7ce0cbfb8a5b088e9edb6df6ffb63b88e695d95a2d9e430b4af8bfad89554419",
   "scope": "One disposable Kind v1.36.1 cluster runs tokenless restricted Python Jobs against immutable, case-owned ConfigMaps containing synthetic JSON and inert text. A bypass Job accepts an invalid fictional rollback decision; enforced Jobs block invalid owner, reason, evidence-ref, rollback-target, and unresolved-evidence fields; a positive Job accepts a fixture-only conditional approval while retaining production validation as unverified. Jobs only emit decisions and never perform rollback, retraining, quarantine, deployment, or network calls. No model, real incident, secret, live feed, external target, or attack input is present. This tests the synthetic evidence workflow and Kubernetes observation path only; it does not establish authorization identity, fixture provenance beyond this case's files, integrity of evidence against a cluster administrator, AI-specific recovery criteria, production readiness, or organizational response coverage.",
-  "cluster": "saf-lab-7a40ed34f2ce",
+  "cluster": "saf-lab-87c969836ed5",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

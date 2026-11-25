@@ -1,13 +1,48 @@
-# SAF-K8S-1005-016
+# SAF-K8S-1005-016 adopter verification
 
-Tokenless Kubernetes Jobs compare an unchecked result with enforced review of the same
-ownerless record. The gate also rejects absent justification, false evidence references,
-a wrong rollback target, blocking unresolved evidence, and an otherwise consistent
-record whose underlying integrity result failed. Jobs hash the exact mounted evidence and
-rollback artifact bytes. A successful fixture keeps an explicitly owned unresolved item.
+## Scope and crosswalk disposition
 
-The exercise uses fixture identities and inert text to demonstrate a documented decision
-gate. Actual target integrity, reviewer authorization, deployment readiness, retraining
-and operational rollback require separate evidence.
+This control governs documented post-incident AI model retraining, rollback, quarantine, or related recovery decisions based on model-integrity verification. It excludes the integrity-verification mechanics and requires a justified, reviewable decision tied to recovery outcomes.
 
-- [NIST SP 800-61r3](https://csrc.nist.gov/pubs/sp/800/61/r3/final)
+The corrected crosswalk removes the NIST SSDF 1.1 RV.2.2 association. RV.2.2 is “Plan and implement risk responses for vulnerabilities.” NIST's examples concern making a risk-based choice to remediate or otherwise address each vulnerability, planning temporary mitigation until permanent remediation exists, and issuing security advisories. The current control does not identify or respond to a software vulnerability. Its portable case validates a synthetic recovery decision record and does not perform rollback, retraining, quarantine, or vulnerability remediation. Retain the control and its portable evidence under its own AI recovery-governance claim; do not use it as proof of SSDF vulnerability response. Map vulnerability-specific response only to a control whose actual scope covers that activity.
+
+## Existing paired portable evidence
+
+Lab receipt: `saf-k8s-control-lab/evidence/SAF-K8S-1005-016/20261122T175003Z-1fc0b628/result.json`.
+Framework receipt: `saf-k8s-framework/tests/control-lab/evidence/SAF-K8S-1005-016/20261122T175003Z-6f452dfe/result.json`.
+
+Both passed 16 checks on Kubernetes v1.36.1 with catalog revision `133a8698a45e2b335b51728bf4c62f7bda98d15f` and row/control digest `7ce0cbfb8a5b088e9edb6df6ffb63b88e695d95a2d9e430b4af8bfad89554419`; they used distinct disposable Kind clusters and report cleanup `deleted`. Checks cover immutable readback of seven synthetic decision/evidence ConfigMaps; a bypass accepting the same ownerless record; enforced rejection of missing/untrusted owner, failed integrity, missing reason, untrusted evidence reference, mismatched rollback target, and improperly owned unresolved evidence; node version; and one accepted fixture-only conditional decision retaining its explicit unresolved item. All records contain inert examples. Fixture hashes establish byte consistency for those local files, not trustworthy production evidence or tamper resistance against a cluster administrator.
+
+## Reproduce the portable fixture
+
+Run only in an authorized disposable local lab. Dependencies are Docker/Kind, kubectl, the pinned Kind node image, and the pinned Python 3.13 container image. The case uses case-owned immutable ConfigMaps and tokenless restricted Jobs. Jobs emit decisions only; they make no network calls and do not mutate model or deployment state.
+
+From `saf-k8s-control-lab`:
+
+```sh
+python3 lab.py test SAF-K8S-1005-016 --docker-context desktop-linux
+```
+
+From the SAF-K8S repository root:
+
+```sh
+python3 tests/control-lab/lab.py test SAF-K8S-1005-016 --docker-context desktop-linux
+```
+
+Retain both result JSON files and verify the 16 checks, catalog revision, row/control digest, Kubernetes version, unique cluster IDs and cleanup. Rerun after any change to the case, fixtures or catalog; do not carry forward receipts across changed fingerprints.
+
+## Deployed evidence still required
+
+The open adopter item is `saf-lab-1005-016.1` (“Verify production rollback approvals and recovery outcomes”). It requires production-equivalent, authorized evidence for actual decision actors, trust in release/integrity evidence, and approved recovery outcomes. For each relevant incident:
+
+1. Record the affected AI system, incident/case ID, model and version, and authorized recovery decision owner and approver. Show how their identities and approval authority were verified.
+2. Preserve the integrity validation procedure, trusted evidence source, exact artifact/model version and immutable digest, reviewer, and verification timestamp. Explain how the evidence is protected against alteration and linked to the incident.
+3. Record the decision (retrain, rollback, quarantine, or another action), rationale tied to integrity results, alternatives considered, residual uncertainty, risk acceptance where applicable, and required approvals.
+4. Verify the actual approved outcome in an authorized production-equivalent environment: the intended version was restored, retraining completed, quarantine remained effective, or the chosen alternative was implemented. Capture before/after identifiers, timestamps, release records and rollback/recovery status without exporting sensitive model or incident data into the synthetic lab.
+5. Record validation and monitoring after recovery, unresolved gaps with accountable owners and due dates, and the incident/case closure approval. Reconcile every artifact and decision to exact control and evidence revisions.
+
+The portable fixture demonstrates only the evidence-record gate; it is not operational recovery evidence and does not close the deployment-only child.
+
+## Primary source
+
+NIST SP 800-218, *Secure Software Development Framework (SSDF) Version 1.1*, RV.2.2: https://nvlpubs.nist.gov/nistpubs/specialpublications/nist.sp.800-218.pdf. Official publication page: https://csrc.nist.gov/pubs/sp/800/218/final. RV.2.2 addresses responses to vulnerabilities, including risk-based remediation or other vulnerability response, temporary mitigation, and security advisories.
