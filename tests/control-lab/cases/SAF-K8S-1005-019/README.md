@@ -15,3 +15,13 @@ The pinned control's severity-based SLA requirement is tested as a local control
 ## Coverage and limits
 
 This is a defensive readiness test of fixture validation and fake-clock SLA evaluation. It does not prove that a real policy is published or maintained, that a real intake address/form is monitored, that scope language is legally effective, that any party has granted authorization for real testing, or that production reports are tracked, communicated, triaged, remediated, or resolved on time. It does not exercise actual Kubernetes/AI/GPU components, reporter communications, or severity assignment. The control's governance claims beyond these synthetic checks require independent documentary and operational evidence.
+
+## Verify an adopting implementation
+
+Approve the published and internal disclosure policies,
+scope, severity definitions, triage clocks, escalation/referral paths, and
+closure authority. Route controlled harmless intake records through every
+real channel; retain timestamps, acknowledgement, owner, escalation, and
+tracking evidence. Verify a deliberately late and out-of-scope report reaches
+the correct escalation without preserving sensitive report content in test
+receipts.
