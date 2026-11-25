@@ -77,3 +77,13 @@ The supervisor requested independent validation and two fresh clusters. Neither
 was run while preparing this artifact. A successful harness run should record
 the `red`, `green`, and `positive` checks, the pinned Kind node image, the
 MLflow image reference, and cluster cleanup in its ordinary result evidence.
+
+## Verify an adopting implementation
+
+Bind production MLflow identities to the authenticated audit path and verify
+create/read/write/delete events against persisted actor, operation, resource
+and result records. Confirm no bypass direct to the tracking server, append-
+only access, retention, failure handling, and independent delivery. The case
+drives actual MLflow 3.5.1 REST requests through a case-owned allowlisted
+bridge with SQLite/emptyDir. It does not establish centralized audit
+durability or production authentication.
