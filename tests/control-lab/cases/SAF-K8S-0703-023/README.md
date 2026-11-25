@@ -13,3 +13,10 @@ a separate approved fixture schedules on the reclaimed synthetic slot.
 
 Review real incident authorization, controller ownership, forensic handling,
 containment, and post-action monitoring separately.
+
+## Adopter verification
+
+1. Identify incident authority, confirmation threshold, responder identity, and permitted action for each workload/controller type. Record when quarantine, suspend, delete, or alternate containment is authorized.
+2. In an approved exercise, bind the action to the exact current object UID and owner/controller; reject stale or name-reused targets. Preserve the required snapshot, metadata, and custody record before containment.
+3. Execute the approved scope only; check unrelated workloads stay healthy, no replacement controller recreates the target, and accelerator capacity is recovered as intended.
+4. Retain the approver, responder, target generation, decision time, action result, evidence digest, and post-action monitoring. The fixture proves one inert Pod action, not the organization's real incident authority or forensic requirements.
