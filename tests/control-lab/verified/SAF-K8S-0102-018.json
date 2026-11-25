@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-0102-018",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "99336da90b2a8a3ed6604cee80149771328464cb",
+  "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "5029eeace7bca39a9b11e183eb475e167af0661caaa03a19fa0ca1a04c2b2085",
-  "scope": "A fresh, single-control-plane Kind cluster using the digest-pinned node image declared by reference/lab.py. Checks kubeadm's live etcd command, proves the stock health-check certificate can perform endpoint health, and verifies that certificate-less TLS 1.3 handshakes to the cluster-owned client (2379) and peer (2380) sockets are rejected after server-certificate verification. Also reads the Kubernetes API readiness endpoint. It does not establish multi-member peer traffic, arbitrary-client denial across every possible listener, production deployment, managed-service controls, certificate rotation/revocation, or etcd RBAC authorization.",
-  "review_timing": {
-    "queued_at": "2026-11-23T03:24:44.239618+00:00",
-    "cluster_ready_at": "2026-11-23T03:25:20.818406+00:00",
-    "approval_at": "2026-11-23T03:28:23.118554+00:00",
-    "case_loaded_at": "2026-11-23T03:28:23.287823+00:00"
-  },
-  "cluster": "saf-lab-0310759e3222",
+  "scope": "Owned three-control-plane Kind v1.36.1. The designated first member retains the client and peer certificate authentication checks, standard health-check client and readiness comparisons. A separate topology comparison verifies trusted peer TLS across three exact member pairs and cert-less refusal on each member. The cross-member comparison uses TLS handshakes without application requests.",
+  "cluster": "saf-lab-443f3ccae8f2",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "ccecfe0056983c00804b51e8ff1d8be95550453b2a18c2a682d79ef22714d70a",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
@@ -83,6 +76,93 @@
       "claim": "Kubernetes API readiness read remains available",
       "matched": true,
       "observed": "/readyz='ok'"
+    },
+    {
+      "phase": "green",
+      "claim": "Exactly three ready pinned etcd members map to distinct configured HTTPS peer endpoints",
+      "matched": true,
+      "observed": {
+        "member_count": 3,
+        "distinct_member_names": true,
+        "exact_node_endpoint_identity_matches": true,
+        "peer_client_cert_auth": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Each member peer listener rejects TLS without a client certificate after server verification",
+      "matched": true,
+      "observed": {
+        "control-plane": {
+          "completed": true,
+          "expected_protocol": true,
+          "server_verified": true,
+          "accepted": false,
+          "rejection": "certificate required",
+          "certificate_required": true
+        },
+        "control-plane2": {
+          "completed": true,
+          "expected_protocol": true,
+          "server_verified": true,
+          "accepted": false,
+          "rejection": "certificate required",
+          "certificate_required": true
+        },
+        "control-plane3": {
+          "completed": true,
+          "expected_protocol": true,
+          "server_verified": true,
+          "accepted": false,
+          "rejection": "certificate required",
+          "certificate_required": true
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Existing member credentials establish verified TLS handshakes to distinct peer members",
+      "matched": true,
+      "observed": [
+        {
+          "source": "control-plane",
+          "destination": "control-plane2",
+          "completed": true,
+          "expected_protocol": true,
+          "server_verified": true,
+          "accepted": true,
+          "rejection": null,
+          "certificate_required": false
+        },
+        {
+          "source": "control-plane2",
+          "destination": "control-plane3",
+          "completed": true,
+          "expected_protocol": true,
+          "server_verified": true,
+          "accepted": true,
+          "rejection": null,
+          "certificate_required": false
+        },
+        {
+          "source": "control-plane3",
+          "destination": "control-plane",
+          "completed": true,
+          "expected_protocol": true,
+          "server_verified": true,
+          "accepted": true,
+          "rejection": null,
+          "certificate_required": false
+        }
+      ]
+    },
+    {
+      "phase": "positive",
+      "claim": "Kubernetes API readiness remains available after TLS-only probes",
+      "matched": true,
+      "observed": {
+        "api_ready": true
+      }
     }
   ]
 }

@@ -1,52 +1,37 @@
-# SAF-K8S-0102-018 case
+# SAF-K8S-0102-018 — etcd client and peer TLS authentication
 
-## Scope
-
-This case runs only against the fresh ephemeral Kind cluster created by
-`reference/lab.py`. It inspects that cluster's live etcd static Pod command, then
-uses its node-local etcd sockets on ports 2379 (client) and 2380 (peer). The
-certificate-less probes are TLS 1.3 handshakes that verify etcd's server
-certificate against the cluster CA and expect the TLS `certificate required`
-alert. The allowed read uses kubeadm's existing etcd health-check certificate.
-The positive control reads Kubernetes API `/readyz`.
-
-The case does not change etcd settings, create/delete application data, run
-against any pre-existing cluster, or prove peer-to-peer traffic between members.
-A single-member cluster has no remote etcd member. It also does not prove every
-possible production listener, certificate rotation/revocation, managed-service
-provider controls, authorization by etcd RBAC, or production compliance.
-
-## Run
-
-The supplied `reference/lab.py` discovers cases under `cases/<control-id>/`,
-while this assignment requires the reviewed draft under `case/`. To execute it
-through that harness, first stage this reviewed directory at
-`cases/SAF-K8S-0102-018/` in the framework checkout. Then, from that checkout's
-root, with the catalog index entry and a local Docker Unix-socket context, run:
+Run from the lab root with Python, Kind, kubectl and a local Docker context.
 
 ```sh
-python3 reference/lab.py test SAF-K8S-0102-018
+python3 lab.py test SAF-K8S-0102-018 --docker-context desktop-linux
 ```
 
-The lab creates a uniquely named fresh Kind cluster, makes the checks, and
-deletes that cluster in its `finally` cleanup. It records its result under
-`evidence/SAF-K8S-0102-018/`. Do not run this case against a manually selected or
-existing cluster.
+In SAF-K8S, use `python3 tests/control-lab/lab.py` with the same arguments.
+The runner creates and deletes its own three-control-plane Kind cluster
+using the digest-pinned Kubernetes v1.36.1 image.
 
-## Bounded prerequisites
+The designated first member's live etcd manifest must enable client and peer
+certificate authentication. Certificate-less TLS 1.3 probes to ports 2379
+and 2380 verify the server identity before receiving the client-certificate
+required alert. The native health-check client verifies its permitted
+operation, and its peer credential successfully negotiates the peer channel.
 
-- Docker Engine on a local Unix socket; the lab rejects non-local Docker contexts.
-- `kind`, `kubectl`, Python 3, and OpenSSL in the pinned Kind node image.
-- Permission to pull the digest-pinned Kind image and create/delete ephemeral
-  containers. No outside etcd endpoint, credentials, token, or cluster is used.
-- Enough disk, memory, and time for the lab's fixed cluster startup and command
-  timeouts. A failed prerequisite is an infrastructure block, not a control
-  failure.
+The additional comparison resolves the actual names and HTTPS endpoints of
+three Ready members. All three peer listeners refuse clients without a
+certificate. Each member's existing credential completes a verified TLS
+handshake to a different member in a directed cycle. The OpenSSL invocations
+use credential paths inside the origin nodes and retain only stable receipt
+predicates. API readiness remains available after the handshake probes.
 
-OpenSSL runs inside the digest-pinned Kind node, so it probes the node-local
-listener directly without adding an unpinned TLS-client image. The case retains
-only normalized receipt fields; it discards the volatile OpenSSL transcript.
+## Adopter verification
 
-The peer probe uses the disposable control-plane node's own InternalIP.
-A successful handshake with the stock peer leaf checks the permitted path,
-alongside the certificate-less TLS alert and the permitted health client.
+Inventory each actual client and peer listener, member identity, expected
+peer URL, effective peer authentication flags, and approved trusted CA.
+Verify unauthorized and intended peer TLS behavior from approved origins.
+Retain the actual expected identities and route decisions for each member.
+Use applicable provider documentation or attestation for provider-owned
+paths. Use the [certificate lifecycle case](../SAF-K8S-0102-014/README.md)
+for the separate renewal and adoption behavior.
+
+- [etcd v3.6 transport security](https://etcd.io/docs/v3.6/op-guide/security/)
+- [Kubernetes v1.36 kubeadm certificate management](https://v1-36.docs.kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/)

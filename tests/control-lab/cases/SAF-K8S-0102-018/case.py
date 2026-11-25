@@ -1,22 +1,25 @@
 """Exercise etcd client and peer TLS authentication in a fresh Kind cluster."""
+import importlib.util
 import json
 from ipaddress import ip_address
+from pathlib import Path
 import re
 import subprocess
 
 
 SCOPE = (
-    "A fresh, single-control-plane Kind cluster using the digest-pinned node image "
-    "declared by reference/lab.py. Checks kubeadm's live etcd command, proves the "
-    "stock health-check certificate can perform endpoint health, and verifies that "
-    "certificate-less TLS 1.3 handshakes to the cluster-owned client (2379) and peer "
-    "(2380) sockets are rejected after server-certificate verification. Also reads "
-    "the Kubernetes API readiness endpoint. It does not establish multi-member peer "
-    "traffic, arbitrary-client denial across every possible listener, production "
-    "deployment, managed-service controls, certificate rotation/revocation, or etcd "
-    "RBAC authorization."
+    "Owned three-control-plane Kind v1.36.1. The designated first member retains the "
+    "client and peer certificate authentication checks, standard health-check client "
+    "and readiness comparisons. A separate topology comparison verifies trusted peer "
+    "TLS across three exact member pairs and cert-less refusal on each member. The "
+    "cross-member comparison uses TLS handshakes without application requests."
 )
 
+
+HERE = Path(__file__).resolve().parent
+PEER_SPEC = importlib.util.spec_from_file_location("peer_topology", HERE / "peer_topology.py")
+peer_topology = importlib.util.module_from_spec(PEER_SPEC)
+PEER_SPEC.loader.exec_module(peer_topology)
 
 ETCD_CERT_DIR = "/etc/kubernetes/pki/etcd"
 EXPECTED_ALERT = "certificate required"
@@ -65,10 +68,11 @@ def run(lab):
 
     # Read the running static Pod manifest; this is a live configuration check,
     # not an inference from Kind or kubeadm defaults.
-    pods = json.loads(lab.kubectl("get", "pods", "-n", "kube-system", "-l",
-                                  "component=etcd", "-o", "json").stdout)["items"]
+    pods = json.loads(lab.kubectl(
+        "get", "pods", "-n", "kube-system", "-l", "component=etcd",
+        "--field-selector", f"spec.nodeName={node}", "-o", "json").stdout)["items"]
     if len(pods) != 1:
-        raise RuntimeError(f"expected one etcd Pod in the single-control-plane cluster; found {len(pods)}")
+        lab.block("Expected exactly one etcd Pod on the designated first control plane")
     pod = pods[0]
     etcd_pod = pod["metadata"]["name"]
     command = pod["spec"]["containers"][0]["command"]
@@ -131,3 +135,5 @@ def run(lab):
     api_ready = lab.kubectl("get", "--raw=/readyz", timeout=25).stdout.strip()
     lab.check("positive", "Kubernetes API readiness read remains available",
               api_ready == "ok", f"/readyz={api_ready!r}")
+
+    peer_topology.run(lab)
