@@ -32,7 +32,8 @@ SCOPE = (
     "by a local mTLS webhook when endpoint CA validation succeeds, and fails closed when the "
     "webhook kubeconfig trusts an unrelated ephemeral CA. Server name validation, API-server client "
     "certificate authentication, webhook request attributes, and a normal cluster-admin read are "
-    "observed. This does not establish hosted-provider controls or production review governance."
+    "observed. Remove and recreate the fixture-owned backend once while repeating only "
+    "the same narrow authorized comparison. Provider and deployment approval are assessed through the guide."
 )
 
 
@@ -235,7 +236,7 @@ def api_get(lab, kubeconfig, cluster, token, path):
         marker = status == 200 and result.get("data", {}).get("fixture") == "synthetic-owned-value"
         message = (result.get("message") or body.decode("utf-8", "replace")).lower()
         categories = ("x509", "unknown authority", "no such host", "connection refused",
-                      "outside synthetic exact-read policy", "cannot get")
+                      "outside synthetic exact-read policy", "cannot get", "context deadline exceeded")
         return status, marker, [reason for reason in categories if reason in message]
     except (OSError, ssl.SSLError, http.client.HTTPException) as error:
         lab.block(f"Owned API read did not return an HTTP response: {type(error).__name__}")
@@ -303,6 +304,32 @@ def assert_profile(lab, kubeconfig, cluster, expected_status, container_name, *,
     lab.check("positive", "Unaffected authorized namespace read succeeds",
               read.stdout.strip() == f"namespace/{NAMESPACE}",
               {"request": "GET namespace saf-test", "result": "allowed"})
+    return token
+
+
+def verify_backend_unavailable(lab, directory, name, hostname, token):
+    path = f"/api/v1/namespaces/{NAMESPACE}/configmaps/{CONFIGMAP}"
+    cleanup_container(lab, name)
+    code, marker, reasons = api_get(lab, lab.kubeconfig, lab.cluster, token, path)
+    unavailable = bool({"connection refused", "no such host", "context deadline exceeded"}
+                       .intersection(reasons))
+    lab.check("green", "When the scoped authorizer backend stops, the exact authorized request fails closed",
+              code == 500 and not marker and unavailable,
+              {"owned_backend_removed": True,
+               "http_status": code, "marker_observed": marker, "transport_failure": unavailable})
+    allowed = cluster_cli(lab, lab.kubeconfig, lab.cluster, "get", "namespace", NAMESPACE, "-o", "name")
+    lab.check("positive", "An ordinary authorized namespace read remains available during webhook outage",
+              allowed.stdout.strip() == f"namespace/{NAMESPACE}",
+              {"unaffected_namespace_read": allowed.stdout.strip() == f"namespace/{NAMESPACE}"})
+    run_webhook(lab, directory, name, hostname)
+    deadline = time.monotonic() + 25
+    while time.monotonic() < deadline:
+        code, marker, _ = api_get(lab, lab.kubeconfig, lab.cluster, token, path)
+        if code == 200 and marker:
+            break
+        time.sleep(1)
+    lab.check("positive", "Recreating the trusted authorizer restores the same request",
+              code == 200 and marker, {"http_status": code, "exact_marker": marker})
 
 
 def run(lab):
@@ -318,7 +345,8 @@ def run(lab):
     run_webhook(lab, directory, name, hostname)
     try:
         # Correct-trust runner-owned profile: built with prepare_kind below.
-        assert_profile(lab, lab.kubeconfig, lab.cluster, 200, name, expect_webhook=True)
+        token = assert_profile(lab, lab.kubeconfig, lab.cluster, 200, name, expect_webhook=True)
+        verify_backend_unavailable(lab, directory, name, hostname, token)
     finally:
         cleanup_container(lab, name)
 

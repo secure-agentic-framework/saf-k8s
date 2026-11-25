@@ -20,9 +20,31 @@ returns HTTP 500 with an x509 verification error. The backend observes the TLS
 rejection and receives no matching review. An ordinary authorized namespace read succeeds in
 each cluster. The runner deletes the test clusters and webhook containers.
 
-Production follow-up covers dependency approval, CA and endpoint change
-control, certificate rotation, high-availability and managed-service
-configuration, and trust enforcement on applicable API server instances.
+The trusted profile briefly removes the owned webhook container. The same
+request fails closed, while an unaffected authorized namespace read still
+works. Recreating the trusted backend restores the original result. This check
+covers an unavailable backend with the fixture's explicit failure policy.
+
+## Adopter verification
+
+1. Record the provider, Kubernetes version, API-server replicas, approved
+   webhook owner, endpoint purpose and intended request scope. Retain the
+   approver, source revision, change window and review date. Review
+   third-party custody and where TLS terminates.
+2. Match the effective ordered authorizer configuration with the approved
+   file on every applicable replica. Check the webhook's HTTPS endpoint,
+   expected DNS identity, trust bundle, client identity when mTLS is
+   required, match conditions, timeout, failure policy, and cache behavior.
+3. Verify an authorized comparison and its expected handling when peer
+   trust or backend availability changes in an isolated environment.
+   Include an unaffected client request. Review latency and certificate
+   rotation with overlapping trust, affected replicas and rollback evidence.
+   Keep credentials outside shared logs and review records.
+4. Evaluate managed configuration where exposed and record provider
+   responsibility, applicable attestations, compensating controls and
+   approval. Mark unevidenced trust paths or provider settings unverified.
+   Repeat the comparison and refresh approvals after endpoint, trust,
+   certificate or version changes.
 
 - [SAF-K8S original webhook authorization trust control](https://github.com/secure-agentic-framework/saf-k8s/blob/133a8698a45e2b335b51728bf4c62f7bda98d15f/markdown/controls/SAF-K8S-0101-015.md)
 - [Kubernetes v1.36 AuthorizationConfiguration](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/authorization/)
