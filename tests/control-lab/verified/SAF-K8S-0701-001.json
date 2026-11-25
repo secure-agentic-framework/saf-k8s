@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0701-001",
-  "catalog_revision": "f2674e0500dca03557ebfd73c54d5ce3cb49a3d5",
-  "catalog_sha256": "02dff3005821d2dba45b4f0e14410046c532f8cbc9b07d21c88a0612f88689e5",
+  "catalog_revision": "b31054691821085a4a326a63c627b9e4be7bcd57",
+  "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b20869ae66008c46764765b04833f35873c9ef422375bb2f0c29fa43d23c0df7",
   "scope": "One kind v1.36.1 node using its default cluster-owned local-path provisioner. Two administrator-authorized nonroot Pods on the same node use one ReadWriteOnce PVC allowed by the scoped claim policy. The second Pod modifies the inert marker through a writable mount and its other container observes read-only mount enforcement on the same claim. CSI ReadWriteOncePod, other backends and filesystem authorization require independent evidence.",
-  "cluster": "saf-lab-f0099acfca9f",
+  "cluster": "saf-lab-91887e832693",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
