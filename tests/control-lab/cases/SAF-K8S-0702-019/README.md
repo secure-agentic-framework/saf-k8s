@@ -34,3 +34,21 @@ arguments. The runner prints the receipt and cluster cleanup outcome.
 - [Kubernetes v1.36 RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
 - [Kubernetes v1.36 Network Policies](https://v1-36.docs.kubernetes.io/docs/concepts/services-networking/network-policies/)
 - [Kubernetes v1.36 Validating Admission Policy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
+
+## Adopter verification
+
+1. Inventory tenant namespace labels, effective identities and RBAC, and the
+   exact network plugin and version that enforces the policy. Include actual
+   Pod selectors, routing profiles and applicable provider limitations.
+2. In an approved rehearsal, confirm denied cross-tenant authorization and
+   connectivity and preserved permitted use for the selected flows. Retain
+   the actual caller, target, authorization and transport results.
+3. Inventory application and extension API fields that can reference objects
+   in another namespace. Test authorized and denied reference tuples with
+   the actual API and admission policy. Record exceptions and responsible
+   approvers.
+4. Retain periodic inventory and drift decisions with an accountable owner.
+   When Article 4a applies, tie the evidence to the relevant protected
+   workloads and effective mechanisms that limit the re-use of covered data.
+
+[Article 4a official text](https://eur-lex.europa.eu/eli/reg/2026/1744/oj/eng).
