@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1003-005",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "56d6555b74aa4e3c5026220011b3122669213c92",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "ec4d26b3ae76623533a3d4822d86de61b5df13bd2b586dbf1e0cb2f8135493f2",
   "scope": "Kubernetes v1.36.1 Kind runs the pinned Prometheus 3.16.0 promtool rule evaluator on inert synthetic audit-event records. Two case-owned rules cover only privileged AI-namespace Pod creation (T1610) and Pod exec requests (T1609); unit-rule tests include positive matches, safe near misses, and a no-rule red comparator. A reviewed change record is checked against the rule IDs and versioned ATT&CK metadata. Production telemetry, alert delivery and analyst response require deployment evidence.",
-  "cluster": "saf-lab-a0d07a1005e2",
+  "cluster": "saf-lab-3cfcd463b724",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
