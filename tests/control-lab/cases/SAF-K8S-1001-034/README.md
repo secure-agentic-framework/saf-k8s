@@ -30,3 +30,19 @@ checks still need an approved verification key held independently of the
 backend, an authenticated inventory or checkpoint with coverage across batches,
 actual log ingestion and backend support, alert routing, and object-lock
 configuration where that alternative is used.
+
+## Adopter verification
+
+1. Identify the protected log stores and selected mechanism for each: WORM or
+   append-only controls, signed batches, or a hash-chain/checkpoint verifier.
+   Name the independent security owner and trust anchor.
+2. In an approved rehearsal, verify representative real-format archived
+   records. Show the independent verifier accepts intact data and detects a
+   changed, truncated, substituted, and missing record. Authenticate the
+   inventory/checkpoint and alert on verification failure.
+3. For object-lock alternatives, inspect effective retention and deletion
+   controls with an authorized read-only evidence path. Confirm the backend
+   administrator cannot silently alter both records and verification trust.
+4. Retain verifier version, trust-anchor custody, authenticated inventory or
+   checkpoint, results, alert delivery, backend policy evidence, and review
+   timestamps. Do not store private signing keys with the archive.
