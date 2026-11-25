@@ -4359,13 +4359,13 @@
   framework_version: '1.0'
   framework_requirement_id: MANAGE 1.3
   framework_requirement_title: Responses to the AI risks deemed high priority, as identified by the MAP function, are developed, planned, and documented. Risk response options can include mitigating, transferring, avoiding, or accepting.
-  framework_mapping_notes: IR lifecycle playbooks define response procedures for AI-specific incidents (compromised training, model poisoning, GPU cryptomining). Containment strategies document specific mitigation actions.
+  framework_mapping_notes: A maintained AI-specific incident playbook can contribute to a documented response for a MAP-identified high-priority AI risk. NIST AI RMF 1.0 MANAGE 1.3 covers development, planning, and documentation of responses to those high-priority risks, with options including mitigation, transfer, avoidance, or acceptance. The portable case validates a mock responder's routing and fixture-only actions for four synthetic scenarios; it does not establish production signal validity, live containment or recovery, GPU/DCGM telemetry, inference protection, or the organization's annual exercise cadence. Verify those deployment obligations separately.
   control_id: SAF-K8S-1005-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The deployer identifies the relevant high-priority AI risk through its MAP function and approves, maintains, and exercises the corresponding Kubernetes incident playbook. This control contributes to planning and documenting the response; the portable fixture does not establish deployed detection, production containment or recovery, or annual exercise completion.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework

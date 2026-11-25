@@ -22,10 +22,10 @@ IR lifecycle playbooks define response procedures for AI-specific incidents (com
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.5
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0910-033 - Investigation of anomalous cross-cluster AI communication](../../controls/SAF-K8S-0910-033.md)
 
