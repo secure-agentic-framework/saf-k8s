@@ -18129,16 +18129,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-6(9)
   framework_requirement_title: Correlation with Information from Nontechnical Sources
-  framework_mapping_notes: 'Correlating agent logs with business context
-
-
-    10.4 - Correlating technical audit data with business context and non-technical sources (organizational risk indicators, physical security events, HR actions)'
+  framework_mapping_notes: This control tests a bounded join between synthetic technical records and synthetic nontechnical business context, including identity/time scope, expired/ambiguous-context rejection, and advisory analyst review ordering. It does not ingest live audit records or nontechnical sources, establish source authorization, protect sensitive data in a deployed system, or demonstrate organization-wide situational awareness. NIST SP 800-53 Rev. 5 AU-6(9) calls for correlating information from nontechnical sources with audit record information to enhance organization-wide situational awareness; the organization must separately document approved source types, privacy/access protections, operational use, and resulting awareness.
   control_id: SAF-K8S-1004-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization authorizes the nontechnical source and its use for a defined audit-analysis purpose; limits sensitive records to personnel with a need to know; correlates actual audit records with the approved source under documented identity, scope, and time rules; and uses the output to support organization-wide situational awareness. This control's portable evidence covers only a synthetic correlation and advisory-priority mechanism.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
