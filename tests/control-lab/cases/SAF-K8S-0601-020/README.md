@@ -14,3 +14,10 @@ The published fixture uses loopback HTTP. Production TLS, credential
 rotation, cloud IAM, and lifecycle need separate evidence.
 
 [CNCF Distribution token authentication](https://distribution.github.io/distribution/spec/auth/token/)
+
+## Adopter verification
+
+1. Inventory registry repositories, mirrors and upstream sources. map each human and automation identity to intended pull, push, delete and administrative rights.
+2. Verify TLS trust and authenticated mirror boundaries for each deployed registry path.
+3. Using approved test repositories and credentials, verify intended pull/push results and denied out-of-scope repository, delete and admin operations. do not test against production artifacts destructively.
+4. Review token/certificate issuance, expiry, rotation and revocation, including audit records and emergency exceptions.
