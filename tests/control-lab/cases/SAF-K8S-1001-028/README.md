@@ -41,3 +41,13 @@ The route keys and event types are case-owned test semantics. They are not asser
 - [Kubernetes v1.36 auditing](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/)
 - [Kubernetes v1.36 audit API schema](https://v1-36.docs.kubernetes.io/docs/reference/config-api/apiserver-audit.v1/)
 - [Regulation (EU) 2024/1689, official EUR-Lex text](https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng)
+
+## Adopter verification
+
+1. Maintain an inventory of actual Kubernetes audit and AI event producers, their owners, schema/version, approved labels, transport identity and expected SIEM route.
+2. For each applicable high-risk AI system, map intended-purpose monitoring events to the actual source inventory. Article 12(2)(c) concerns recording events relevant to monitoring the operation of high-risk systems under Article 26(5); applicability depends on the system and duty.
+3. In approved staging, emit benign records from each actual source and confirm event identity and origin at the enterprise SIEM; correlate Kubernetes events to the API-server Audit-ID where available.
+4. Check authenticated transport, route authorization, data minimization, access controls and retention independently. Use inert input to verify that an unconfigured or unauthorized source is not accepted.
+5. Confirm an authorized SOC analyst can search the records. The local route test does not prove enterprise onboarding, durable retention, completeness, alerting or response.
+
+[Article 12 and Article 26 of Regulation (EU) 2024/1689](https://eur-lex.europa.eu/eli/reg/2024/1689)
