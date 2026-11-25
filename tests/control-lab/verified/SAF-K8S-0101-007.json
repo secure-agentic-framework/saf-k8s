@@ -5,7 +5,7 @@
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "2187b3769368b00caad76883dce5420ce087fc39e888eef21726f2cec1ac6c69",
   "scope": "A local Kubernetes v1.36.1 kind API server only. Use four ordinary GET /version requests and two named kube-scheduler Lease requests total, before and after a narrow FlowSchema. Capture only APF classification response headers and bounded response identity, plus passive seat and dispatch metrics. No synthetic contention or rejection is induced. This does not assess production or managed control planes, traffic under load, tenant fairness, or provider defaults. A bounded passive log observer reports naturally occurring kubelet Lease updates and the real scheduler named-Lease request classification; raw API-server logs are discarded.",
-  "cluster": "saf-lab-c3eea4e900ed",
+  "cluster": "saf-lab-363678ae7f5a",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

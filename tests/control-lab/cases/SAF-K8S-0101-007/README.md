@@ -71,3 +71,6 @@ and isolation evidence for the deployment's critical and bulk flows.
 
 - [Kubernetes v1.36 APF debugging](https://v1-36.docs.kubernetes.io/docs/reference/debug-cluster/flow-control/)
 - [Kubernetes v1.36.1 APF classification fields](https://github.com/kubernetes/kubernetes/blob/v1.36.1/staging/src/k8s.io/apiserver/pkg/server/filters/priority-and-fairness.go)
+
+See the [APF rejection contract](upstream-rejection.md) for the pinned
+upstream HTTP 429 and metrics check.
