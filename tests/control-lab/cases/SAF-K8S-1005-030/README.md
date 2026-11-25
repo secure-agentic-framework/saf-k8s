@@ -109,3 +109,10 @@ python3 lab.py test SAF-K8S-1005-030 --docker-context desktop-linux
 - [Kubernetes etcd image metadata](https://github.com/kubernetes/k8s.io/blob/main/registry.k8s.io/images/k8s-staging-etcd/images.yaml) — official staged etcd image digest mapping used for the offline recovery helper.
 - [Kind v0.32.0 release](https://github.com/kubernetes-sigs/kind/releases/tag/v0.32.0) — Kubernetes v1.36.1 node image used by the runner.
 - [Kind quick start](https://kind.sigs.k8s.io/docs/user/quick-start/) — selecting an explicit node image and disposable cluster lifecycle.
+
+## Adopter verification
+
+1. Reconcile the deployed control-plane topology and documented runbook with the official version-specific kubeadm/etcd procedure. Identify etcd membership, snapshot destination, custody, encryption, kubeadm configuration persistence, and authorized operators.
+2. In isolated staging with representative topology, verify backup provenance, snapshot status, and restore readiness before any restart. Use a synthetic sentinel and a separate corrupted-copy rejection that aborts before restoration.
+3. Rehearse recovery under approved change control. Confirm all required members and API paths return, sentinel state and identity are correct, and dependent services meet organization-defined recovery objectives. Verify static manifest and kubeadm configuration remain consistent after restart/upgrades.
+4. Retain runbook version, operators/approvals, topology, backup verification, timeline, service checks, data integrity results, and follow-up actions. Keep snapshot bytes and credentials out of ordinary evidence.
