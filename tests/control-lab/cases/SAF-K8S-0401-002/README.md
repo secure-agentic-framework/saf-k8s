@@ -87,10 +87,10 @@ After evidence is captured, the helper deletes its CronJob and temporary
 ClusterRole/ClusterRoleBinding so the existing case inventory remains exact.
 
 Native CronJobs have one-minute schedule granularity. Each wait is bounded to
-85 seconds, so the two observations take up to 170 seconds plus ordinary case
-setup. The first image pull and an unhealthy controller may exceed that bound;
-the test then fails with an infrastructure timeout instead of inferring a
-permission result. This short recurrence demonstration validates only the
+85 seconds, so the two observations take up to 170 seconds plus case setup.
+Before enabling the schedule, a disposable Pod without a projected token
+confirms availability of the exact digest-pinned worker image and is deleted.
+The test preserves Job and Pod diagnostics if the scheduler or worker fails. This short recurrence demonstration validates only the
 named decisions in the fixture namespace and does not establish scheduled
 coverage of other identities, namespaces, or permissions.
 

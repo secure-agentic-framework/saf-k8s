@@ -160,9 +160,16 @@ def _wait_job(lab, run_id, cron_uid, *, after_scheduled=None, timeout=85):
             scheduled = ann.get("batch.kubernetes.io/cronjob-scheduled-timestamp")
             if job.get("status", {}).get("failed", 0):
                 job_name = job["metadata"]["name"]
+                lab.kubectl("-n", NAMESPACE, "get", "pods", "-l",
+                            f"batch.kubernetes.io/job-name={job_name}", "-o", "wide",
+                            timeout=15, allow_failure=True)
+                lab.kubectl("-n", NAMESPACE, "describe", "job", job_name,
+                            timeout=15, allow_failure=True)
                 lab.kubectl("-n", NAMESPACE, "logs", "job/" + job_name,
                             timeout=12, allow_failure=True)
-                lab.block("scheduled review Job failed: " + job_name)
+                failed = next((item.get("reason", "unknown") for item in job["status"].get("conditions", [])
+                               if item.get("type") == "Failed"), "unknown")
+                lab.block(f"Scheduled review Job failed ({failed}): {job_name}")
             if not scheduled and job.get("status", {}).get("succeeded", 0) == 1:
                 raise RuntimeError("CronJob-owned Job lacks its scheduled-time annotation")
             if after_scheduled and (not scheduled or scheduled <= after_scheduled):
@@ -192,7 +199,30 @@ def _wait_job(lab, run_id, cron_uid, *, after_scheduled=None, timeout=85):
     lab.block(f"No matching CronJob Job completed within {timeout}s")
 
 
+def prepare_worker_image(lab):
+    """Ready the exact worker image separately from the real CronJob deadline."""
+    name = CRON + "-image-check"
+    worker = _cronjob(CRON)["spec"]["jobTemplate"]["spec"]["template"]["spec"]
+    container = worker["containers"][0]
+    container["command"] = ["python", "-c", "print('fixture image ready')"]
+    container.pop("env")
+    worker["automountServiceAccountToken"] = False
+    pod = {"apiVersion": "v1", "kind": "Pod",
+           "metadata": {"name": name, "namespace": NAMESPACE}, "spec": worker}
+    lab.kubectl("-n", NAMESPACE, "create", "-f", "-", "-o", "name",
+                payload=json.dumps(pod))
+    try:
+        prepared = lab.kubectl("-n", NAMESPACE, "wait", "--for=jsonpath={.status.phase}=Succeeded",
+                               "pod/" + name, "--timeout=100s", timeout=110, allow_failure=True)
+        if prepared.returncode:
+            lab.kubectl("-n", NAMESPACE, "describe", "pod", name, timeout=15, allow_failure=True)
+            lab.block("The exact digest-pinned audit worker image did not become usable before scheduling")
+    finally:
+        lab.kubectl("-n", NAMESPACE, "delete", "pod", name, "--ignore-not-found=true", timeout=20)
+
+
 def run(lab):
+    prepare_worker_image(lab)
     run_id = CRON
     for obj in _cluster_objects(run_id):
         lab.create(obj)
