@@ -69,9 +69,12 @@ acts as the local renewal broker.
 The portable fixture exercises the precise Kubernetes approval and serving
 transition. In a deployed implementation, verify approver authentication,
 request and executor ownership, missed-run alerts, other TLS roles and
-replica coverage. The companion 0102-014, 0101-012 and 0605-008 fixtures
-cover the tested etcd, kubelet and webhook paths. Verify aggregation leaf
-adoption through the actual approved route separately.
+replica coverage. Companion fixtures verify the tested [etcd roles](../SAF-K8S-0102-014/README.md),
+[kubelet serving leaf](../SAF-K8S-0101-012/README.md),
+[webhook trust and leaf transition](../SAF-K8S-0605-008/README.md), and
+[API aggregation backend serving leaf](../SAF-K8S-0404-002/README.md).
+For an adopted implementation, map those paths to the real approved issuers,
+serving identities, control plane and replica rollout plan.
 
 ## Serving certificate trust transition
 
