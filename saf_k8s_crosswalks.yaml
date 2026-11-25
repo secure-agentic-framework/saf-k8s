@@ -23642,22 +23642,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: CP-2(2)
-  framework_requirement_title: Capacity Planning
-  framework_mapping_notes: 'Capacity planning for agent failover
-
-
-    7.3 - Resource governance (GPU capacity planning, security implications of GPU cluster scaling)'
-  control_id: SAF-K8S-0703-014
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: CP-2(3)
   framework_requirement_title: Resume Mission and Business Functions
   framework_mapping_notes: 'Resuming agent operations after disruption
@@ -35793,22 +35777,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SA-2
-  framework_requirement_title: Allocation of Resources
-  framework_mapping_notes: 'Resource allocation for agentic AI security must be planned in system development
-
-
-    7.3 - Resource governance (GPU resource allocation, quota management, cost governance)'
-  control_id: SAF-K8S-0703-014
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SA-20
   framework_requirement_title: Customized Development of Critical Components
   framework_mapping_notes: 'Custom development of critical agent security components ensures control over trust-sensitive code
@@ -38408,22 +38376,6 @@
 
     7.3 - GPU cost governance (EDoS prevention, spending limits, budget alerts, economic security)'
   control_id: SAF-K8S-0703-012
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(25)
-  framework_requirement_title: Economic Security
-  framework_mapping_notes: 'Economic security prevents resource abuse and cost overruns in agent compute and API usage
-
-
-    7.3 - GPU cost governance (EDoS prevention, spending limits, budget alerts, economic security)'
-  control_id: SAF-K8S-0703-014
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -45318,22 +45270,6 @@
 
 
     9.3 - Autoscaling safety, EDoS prevention; 7.3 - Resource exhaustion resilience (DoS protection)'
-  control_id: SAF-K8S-0703-014
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-5
-  framework_requirement_title: Denial-of-service Protection
-  framework_mapping_notes: 'DoS protection for agent endpoints and APIs prevents service disruption attacks
-
-
-    9.3 - Autoscaling safety, EDoS prevention; 7.3 - Resource exhaustion resilience (DoS protection)'
   control_id: SAF-K8S-0903-001
   relation_type: direct
   strength_level: strong
@@ -45604,22 +45540,6 @@
 
     7.3 - Resource governance (GPU capacity, bandwidth, redundancy allocation); 9.2 - Inference queue management'
   control_id: SAF-K8S-0703-012
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-5(2)
-  framework_requirement_title: Capacity, Bandwidth, and Redundancy
-  framework_mapping_notes: 'Capacity planning for agent services prevents resource exhaustion denial-of-service
-
-
-    7.3 - Resource governance (GPU capacity, bandwidth, redundancy allocation); 9.2 - Inference queue management'
-  control_id: SAF-K8S-0703-014
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -45975,16 +45895,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-6
   framework_requirement_title: Resource Availability
-  framework_mapping_notes: 'Resource availability controls prevent agent compute and API quota exhaustion
-
-
-    7.3 - Priority classes, resource quotas, GPU cost governance (resource availability management)'
+  framework_mapping_notes: The case demonstrates that an autoscaling/v2 HPA enforces a configured maximum number of Deployment replicas under sustained measured CPU demand. It does not demonstrate resource availability to other workloads, priority or namespace quota enforcement, cloud cost ceilings, or provider node/GPU limits.
   control_id: SAF-K8S-0703-014
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The system's documented resource-allocation policy identifies the workload and uses its Kubernetes HPA maximum as one bounded replica-allocation control.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5

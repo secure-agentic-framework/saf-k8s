@@ -63,15 +63,6 @@ Scoped quotas, workload priorities, and service monitoring contribute to protect
 - Applicability: required
 - Strength Reason Code: exact-text-match
 
-### [SAF-K8S-0703-014 - EDoS spending guardrails and autoscaling limits for AI resources](../../controls/SAF-K8S-0703-014.md)
-
-- Domain: D07 - Storage, Multi-tenancy, and Resource Governance
-- Knowledge Area: 7.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
-
 ### [SAF-K8S-0903-001 - Adversarial example defenses at the serving layer](../../controls/SAF-K8S-0903-001.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines

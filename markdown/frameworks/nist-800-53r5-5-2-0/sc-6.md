@@ -76,7 +76,7 @@ Namespace quotas allocate or cap declared requests, and PriorityClasses express 
 
 - Domain: D07 - Storage, Multi-tenancy, and Resource Governance
 - Knowledge Area: 7.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
