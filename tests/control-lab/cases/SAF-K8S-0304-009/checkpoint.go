@@ -6,9 +6,12 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -37,6 +40,8 @@ const (
 )
 
 var resumeContext = []byte("saf-k8s:0304-009:resume:v1")
+
+const handoffConfigMap = "saf-0304-009-handoff"
 
 type resumeRecord struct {
 	Run       string `json:"run"`
@@ -394,6 +399,76 @@ func observer() {
 	fmt.Println(string(encode(map[string]bool{"read_denied": check(os.O_RDONLY), "write_denied": check(os.O_WRONLY)})))
 }
 
+// handoffProducer writes only an AES-GCM envelope to its case-owned output
+// volume. Key bytes are read from the separately mounted Secret file and are
+// never serialized to stdout or stderr.
+func handoffProducer() {
+	key := read(resumeKey)
+	algorithm := gcm(key)
+	record := resumeRecord{Run: resumeRun, Step: resumeStep, CreatedAt: resumeClock, Payload: marker}
+	sealed := seal(algorithm, encode(record), resumeContext)
+	patch := encode(map[string]any{"data": map[string]string{"envelope.json": string(encode(sealed))}})
+	ca, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
+	if err != nil {
+		fail("read Kubernetes API trust bundle", nil)
+	}
+	roots := x509.NewCertPool()
+	if !roots.AppendCertsFromPEM(ca) {
+		fail("load Kubernetes API trust bundle", nil)
+	}
+	token := read("/var/run/secrets/kubernetes.io/serviceaccount/token")
+	url := "https://" + os.Getenv("KUBERNETES_SERVICE_HOST") + ":" + os.Getenv("KUBERNETES_SERVICE_PORT") +
+		"/api/v1/namespaces/saf-test/configmaps/" + handoffConfigMap
+	request, err := http.NewRequest(http.MethodPatch, url, bytes.NewReader(patch))
+	if err != nil {
+		fail("prepare named ciphertext handoff", nil)
+	}
+	request.Header.Set("Authorization", "Bearer "+string(token))
+	request.Header.Set("Content-Type", "application/merge-patch+json")
+	client := &http.Client{Timeout: 10 * time.Second, Transport: &http.Transport{
+		TLSClientConfig: &tls.Config{RootCAs: roots, MinVersion: tls.VersionTLS12},
+	}}
+	response, err := client.Do(request)
+	if err != nil {
+		fail("patch named ciphertext handoff", nil)
+	}
+	response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		fail("patch named ciphertext handoff: unexpected API status", nil)
+	}
+	fmt.Println(string(encode(map[string]bool{"ciphertext_handoff_written": true, "key_bytes_emitted": false})))
+}
+
+// handoffConsumer accepts only the mounted API-object envelope, then uses the
+// same authenticated run/step/freshness gate and destination derivation as the
+// existing local promotion path. Its summary contains no key or envelope.
+func handoffConsumer() int {
+	input := read("/handoff/envelope.json")
+	file := dir + "/handoff.json"
+	write(file, input)
+	_, status := verifyResume(file)
+	if status != 0 {
+		destination := promotionDestination(file)
+		part := destination + ".part"
+		_, destinationErr := os.Lstat(destination)
+		_, partErr := os.Lstat(part)
+		removeOwned(file)
+		absent := errors.Is(destinationErr, os.ErrNotExist) && errors.Is(partErr, os.ErrNotExist)
+		fmt.Println(string(encode(map[string]any{"accepted": false, "promotion_absent": absent, "key_bytes_emitted": false})))
+		return status
+	}
+	code := promote(file)
+	destination := promotionDestination(file)
+	data, err := os.ReadFile(destination)
+	if err != nil || !bytes.Equal(data, input) {
+		fail("handoff promotion did not preserve the ciphertext", err)
+	}
+	removeOwned(file)
+	removeOwned(destination)
+	fmt.Println(string(encode(map[string]any{"accepted": code == 0, "promotion_preserved_ciphertext": true, "key_bytes_emitted": false})))
+	return code
+}
+
 func main() {
 	if len(os.Args) == 3 && os.Args[1] == "resume" {
 		os.Exit(resume(os.Args[2]))
@@ -414,6 +489,10 @@ func main() {
 		observer()
 	case "lifecycle":
 		lifecycle()
+	case "handoff-produce":
+		handoffProducer()
+	case "handoff-consume":
+		os.Exit(handoffConsumer())
 	default:
 		fail("unknown fixture mode", nil)
 	}

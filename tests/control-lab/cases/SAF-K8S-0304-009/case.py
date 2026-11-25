@@ -1,14 +1,20 @@
 """Verify encrypted checkpoint IO, local permissions, and scoped Kubernetes access."""
 import json
+import base64
+import os
 from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+import time
 
 
 HERE = Path(__file__).parent
 CHECKPOINT = "saf-0304-009-checkpoint"
 OTHER = "saf-0304-009-other"
+HANDOFF = "saf-0304-009-handoff"
+HANDOFF_ALTERED = "saf-0304-009-handoff-altered"
+KEY_SECRET = "saf-0304-009-handoff-key"
 SCOPE = (
     "Small inert checkpoint in an actual disk-backed emptyDir using a process-local "
     "AES-GCM key. Verify the on-volume record, authentic reuse, alteration rejection, "
@@ -103,6 +109,152 @@ def verify_api_boundary(lab, envelope):
               all(denied.values()), denied)
 
 
+def handoff_pod(lab, image, name, mode, secret_name, configmap_name=None, service_account=None, expected_exit=0):
+    volumes = [
+        {"name": "resume-key", "secret": {"secretName": secret_name, "defaultMode": 0o440}},
+        {"name": "handoff", "emptyDir": {}} if mode == "handoff-produce" else
+        {"name": "handoff", "configMap": {"name": configmap_name, "defaultMode": 0o440}},
+        {"name": "checkpoint", "emptyDir": {"sizeLimit": "1Mi"}},
+    ]
+    mounts = [
+        {"name": "resume-key", "mountPath": "/resume-key", "readOnly": True},
+        {"name": "handoff", "mountPath": "/handoff", "readOnly": mode == "handoff-consume"},
+        {"name": "checkpoint", "mountPath": "/checkpoint"},
+    ]
+    lab.create({"apiVersion": "v1", "kind": "Pod", "metadata": {"name": name},
+                "spec": {"restartPolicy": "Never", "automountServiceAccountToken": mode == "handoff-produce",
+                         **({"serviceAccountName": service_account} if service_account else {}),
+                         "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
+                                             "runAsGroup": 65534, "fsGroup": 65534},
+                         "containers": [{"name": "probe", "image": image, "imagePullPolicy": "Never",
+                                         "args": [mode], "securityContext": {
+                                             "allowPrivilegeEscalation": False, "readOnlyRootFilesystem": True,
+                                             "capabilities": {"drop": ["ALL"]},
+                                             "seccompProfile": {"type": "RuntimeDefault"}},
+                                         "volumeMounts": mounts}], "volumes": volumes}})
+    deadline = time.monotonic() + 75
+    while time.monotonic() < deadline:
+        pod = json.loads(lab.kubectl("get", "pod", name, "-o", "json").stdout)
+        status = pod.get("status", {})
+        containers = status.get("containerStatuses", [])
+        terminated = containers[0].get("state", {}).get("terminated") if len(containers) == 1 else None
+        if terminated and status.get("phase") in {"Succeeded", "Failed"}:
+            break
+        time.sleep(0.6)
+    else:
+        lab.block("Checkpoint handoff Pod did not reach a terminal phase")
+    if terminated.get("exitCode") != expected_exit:
+        lab.block(f"Checkpoint handoff Pod returned exit {terminated.get('exitCode')}, expected {expected_exit}")
+    logs = lab.kubectl("logs", name, "-c", "probe").stdout.splitlines()
+    # The success path prints the standard promotion marker followed by a
+    # summary. Only the summary is returned to check evidence.
+    summaries = [line for line in logs if line.startswith("{")]
+    return bool(summaries), summaries[-1] if summaries else ""
+
+
+def verify_cross_pod_handoff(lab, image):
+    # The key is generated once in memory and placed only in a disposable
+    # Secret. Never echo the key, serialized Secret, or mounted file to output.
+    key_bytes = os.urandom(32)
+    def create_ephemeral_secret(name, value):
+        # Lab.create logs its JSON request body. Keep secret bytes in a private
+        # mode-0600 temporary manifest and log only the file path and API result.
+        with tempfile.TemporaryDirectory(prefix="saf-0304-009-secret-") as private:
+            manifest = Path(private) / "secret.json"
+            manifest.write_text(json.dumps({"apiVersion": "v1", "kind": "Secret",
+                "metadata": {"name": name}, "type": "Opaque", "immutable": True,
+                "data": {"key": base64.b64encode(value).decode("ascii")}}))
+            manifest.chmod(0o600)
+            lab.kubectl("create", "-f", str(manifest), "-o", "name")
+
+    create_ephemeral_secret(KEY_SECRET, key_bytes)
+    wrong_key_bytes = os.urandom(32)
+    create_ephemeral_secret("saf-0304-009-outsider-key", wrong_key_bytes)
+    for name in ("checkpoint-producer", "checkpoint-consumer"):
+        lab.create({"apiVersion": "v1", "kind": "ServiceAccount", "metadata": {"name": name}})
+    lab.apply(HERE / "handoff-access.yaml")
+
+    # Both ConfigMaps exist before the producer runs. Its ServiceAccount can
+    # patch only HANDOFF; no envelope bytes pass through harness output/logs.
+    lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": HANDOFF},
+                "data": {"envelope.json": ""}})
+    lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": HANDOFF_ALTERED},
+                "data": {"envelope.json": ""}})
+    producer = "saf-checkpoint-handoff-producer"
+    produced, producer_summary = handoff_pod(lab, image, producer, "handoff-produce", KEY_SECRET,
+                                              HANDOFF, "checkpoint-producer")
+    produced_status = json.loads(producer_summary) if produced else {}
+    lab.check("positive", "Producer Pod publishes an encrypted envelope to its exact named handoff",
+              produced_status.get("ciphertext_handoff_written") is True,
+              {"ciphertext_handoff_written": produced_status.get("ciphertext_handoff_written") is True})
+    quiet_get = subprocess.run(["kubectl", "--kubeconfig", str(lab.kubeconfig), "--context",
+                                f"kind-{lab.cluster}", "--namespace", "saf-test", "get",
+                                "configmap", HANDOFF, "-o", "json"], env=lab.env,
+                               capture_output=True, text=True, timeout=20)
+    if quiet_get.returncode:
+        lab.block("Could not inspect the synthetic handoff object")
+    produced_object = json.loads(quiet_get.stdout)
+    envelope = json.loads(produced_object["data"]["envelope.json"])
+    altered = dict(envelope)
+    raw_ciphertext = bytearray(base64.b64decode(altered["ciphertext"]))
+    raw_ciphertext[-1] ^= 1
+    altered["ciphertext"] = base64.b64encode(raw_ciphertext).decode("ascii")
+    with tempfile.TemporaryDirectory(prefix="saf-0304-009-altered-") as private:
+        manifest = Path(private) / "altered-handoff.json"
+        manifest.write_text(json.dumps({"apiVersion": "v1", "kind": "ConfigMap",
+            "metadata": {"name": HANDOFF_ALTERED},
+            "data": {"envelope.json": json.dumps(altered, sort_keys=True)}}))
+        manifest.chmod(0o600)
+        lab.kubectl("apply", "-f", str(manifest), "-o", "name")
+
+    authorized = "checkpoint-consumer"
+    allowed = as_account(lab, authorized, "get", "configmap", HANDOFF, "-o", "name")
+    key_allowed = as_account(lab, authorized, "get", "secret", KEY_SECRET, "-o", "name")
+    outsider_read = as_account(lab, "checkpoint-outsider", "get", "configmap", HANDOFF, "-o", "name")
+    outsider_key = as_account(lab, "checkpoint-outsider", "get", "secret", KEY_SECRET, "-o", "name")
+    lab.check("green", "Only the scoped consumer identity can read the named ciphertext and key objects",
+              allowed.returncode == 0 and key_allowed.returncode == 0
+              and forbidden(outsider_read) and forbidden(outsider_key),
+              {"authorized_named_reads": allowed.returncode == 0 and key_allowed.returncode == 0,
+               "outsider_denied": forbidden(outsider_read) and forbidden(outsider_key)})
+    collection = as_account(lab, authorized, "get", "configmaps")
+    unrelated = as_account(lab, authorized, "get", "configmap", OTHER)
+    lab.check("green", "Consumer grants do not allow collection or unrelated reads",
+              forbidden(collection) and forbidden(unrelated),
+              {"collection_denied": forbidden(collection), "unrelated_denied": forbidden(unrelated)})
+
+    altered_ok, altered_summary = handoff_pod(lab, image, "saf-checkpoint-handoff-altered",
+                                              "handoff-consume", KEY_SECRET, HANDOFF_ALTERED, expected_exit=20)
+    altered_status = json.loads(altered_summary) if altered_ok else {}
+    lab.check("green", "Altered ciphertext is rejected before handoff promotion",
+              altered_status.get("accepted") is False and altered_status.get("promotion_absent") is True,
+              {"altered_rejected": altered_status.get("accepted") is False,
+               "promotion_absent": altered_status.get("promotion_absent") is True})
+    unauthorized_ok, unauthorized_summary = handoff_pod(
+        lab, image, "saf-checkpoint-handoff-outsider", "handoff-consume",
+        "saf-0304-009-outsider-key", HANDOFF, "checkpoint-outsider", expected_exit=20)
+    unauthorized_status = json.loads(unauthorized_summary) if unauthorized_ok else {}
+    lab.check("green", "A consumer without the handoff key cannot authenticate or promote it",
+              unauthorized_status.get("accepted") is False
+              and unauthorized_status.get("promotion_absent") is True,
+              {"unauthorized_key_rejected": unauthorized_status.get("accepted") is False,
+               "promotion_absent": unauthorized_status.get("promotion_absent") is True})
+    exact_ok, exact_summary = handoff_pod(lab, image, "saf-checkpoint-handoff-authorized",
+                                          "handoff-consume", KEY_SECRET, HANDOFF, "checkpoint-consumer")
+    exact_status = json.loads(exact_summary) if exact_ok else {}
+    lab.check("positive", "Authorized consumer promotes the exact encrypted handoff",
+              exact_status.get("accepted") is True
+              and exact_status.get("promotion_preserved_ciphertext") is True,
+              {"exact_handoff_accepted": exact_status.get("accepted") is True,
+               "ciphertext_preserved": exact_status.get("promotion_preserved_ciphertext") is True})
+
+    lab.kubectl("delete", "secret", KEY_SECRET, "saf-0304-009-outsider-key", "--wait=true")
+    key_source = lab.kubectl("get", "secret", KEY_SECRET, "saf-0304-009-outsider-key",
+                             "--ignore-not-found", "-o", "name").stdout.strip()
+    lab.check("positive", "Both owned temporary key objects are absent after the Pods finish",
+              not key_source, {"temporary_key_objects_retired": not key_source})
+
+
 def run(lab):
     image = f"saf-0304-009:{lab.cluster}"
     try:
@@ -142,5 +294,6 @@ def run(lab):
         lab.check("green", "Rejected checkpoints never create a promotion destination object",
                   all(value is True for value in blocked_promotions.values()), blocked_promotions)
         verify_api_boundary(lab, envelope)
+        verify_cross_pod_handoff(lab, image)
     finally:
         lab.command("docker", "image", "rm", image, timeout=45, allow_failure=True)

@@ -1,0 +1,49 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0304-009-handoff-producer
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  resourceNames: ["saf-0304-009-handoff"]
+  verbs: ["patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0304-009-handoff-producer
+subjects:
+- kind: ServiceAccount
+  name: checkpoint-producer
+  namespace: saf-test
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0304-009-handoff-producer
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0304-009-handoff-consumer
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  resourceNames: ["saf-0304-009-handoff"]
+  verbs: ["get"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["saf-0304-009-handoff-key"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0304-009-handoff-consumer
+subjects:
+- kind: ServiceAccount
+  name: checkpoint-consumer
+  namespace: saf-test
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0304-009-handoff-consumer

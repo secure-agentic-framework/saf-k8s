@@ -58,3 +58,46 @@ leave neither a destination nor a staging file. The destination is a local
 reference fixture. Exercise the adopter's actual promotion path with the same
 allowed and refused selections and ensure only the approved storage identity
 can publish it.
+
+## Cross-Pod ciphertext handoff extension (scratch candidate)
+
+The cross-Pod reference adds a separate producer, valid consumer, altered-input consumer and wrong-key consumer. A producer Pod reads a per-case 32-byte key from a mounted,
+case-owned Secret and writes an AES-GCM envelope directly to a pre-created,
+named ConfigMap over verified Kubernetes API TLS. Its ServiceAccount can patch
+only that ConfigMap. The Go probe emits only a boolean result; key bytes and
+envelope bytes never appear in process output or command logs. The harness
+briefly reads the encrypted object in memory to create the altered-ciphertext
+case, using a mode-0600 private file for that update. A distinct consumer Pod
+mounts the exact named ciphertext and key Secret, then runs the existing Go
+authenticated run, step, and freshness validation and exact-ciphertext
+promotion path.
+
+The extension checks an altered ciphertext and a wrong-key outsider in
+separate consumer Pods; both must be rejected before any promotion destination
+or staging file exists. It checks an exact producer envelope and requires
+successful promotion while comparing the promoted bytes with the original
+encrypted input. Synthetic RBAC checks allow the intended consumer identity to
+get only the named handoff ConfigMap and key Secret; they deny collection,
+unrelated-object, and outsider reads. Producer API TLS and its named patch
+permission are exercised by the producer Pod. Consumer API permissions are
+checked through Kubernetes authorization impersonation; the mounted objects
+are delivered by the kubelet. The consumer Pods disable token automount. This
+is a bounded fixture of scoped identity policy and cross-Pod ciphertext
+handling, not proof that a production Pod made the API read or that a provider
+KMS, encryption-at-rest layer, external custody, rotation, backup, or deletion
+path is correctly configured.
+
+The key bytes are generated in memory and written to a mode-0600 temporary
+manifest only for Secret creation; that file is removed immediately. The
+altered ciphertext manifest is similarly temporary. The original ciphertext
+is read in memory by the harness but never printed, placed in a command
+payload, or copied into evidence. Evidence records only booleans and result
+names. The run verifies the owned temporary API key objects are deleted after the supplied Pods finish.
+
+For adoption, capture the actual producer and consumer service accounts,
+named API permissions, key-provider identity and custody policy, key version,
+rotation/revocation result, ciphertext object identifiers, and audit events.
+Exercise an authorized restart/reschedule/restore with the same expected run,
+step, and freshness bounds, then verify an unrelated identity cannot retrieve
+either ciphertext or key. Keep provider and workload evidence separate from
+this synthetic reference result.
