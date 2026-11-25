@@ -17,3 +17,19 @@ Service. It tests KServe carrying the configured W3C annotation into the predict
 Pod. The actual native Job and predictor use the Python OpenTelemetry SDK to
 extract and export trace context. The same Collector observes the linked native
 Job and KServe trace and an independent no-context predictor trace.
+
+## Deployed adopter evidence
+
+1. Inventory pipeline components and versions from data ingestion through training, registry and inference. Record how trace context is propagated across synchronous and asynchronous boundaries, including any KServe annotation or orchestrator-specific mechanism.
+2. Demonstrate approved, representative end-to-end traces from each deployed stage. Retain trace IDs and parent/span relationships, source/destination component versions, sampling decisions and a benign no-context comparator. Use policy-safe synthetic or authorized operational events.
+3. For MEASURE 2.3, name the AI performance/assurance criterion (for example, a defined latency or availability threshold), its instrument, evaluation method, relevant deployment conditions, observed result and limitations. Tracing alone is not the metric.
+4. Verify trace backend retention/durability, query access, identity and timestamp quality, redaction of sensitive fields, sampling loss, outage behavior and incident retrieval using the deployed provider/backend configuration.
+5. If claiming production monitoring or alerting, attach exact current runtime rule/alert revisions, delivery receipts and analyst review records. This case creates no alert or SIEM event.
+6. Reconcile the exact current case and control fingerprints before carrying forward prior lab/framework receipts.
+
+## Primary sources
+
+- NIST AI 100-1, Table 3, MEASURE 2.3: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf
+- W3C Trace Context: https://www.w3.org/TR/trace-context/
+- OpenTelemetry Python propagation: https://opentelemetry.io/docs/languages/python/propagation/
+- OpenTelemetry Collector 0.136.0: https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/v0.136.0
