@@ -24,3 +24,15 @@ disposable cluster.
 
 - [Kubernetes v1.36 ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
 - [OCI Image Manifest 1.1.1](https://github.com/opencontainers/image-spec/blob/v1.1.1/manifest.md)
+
+## Adopter verification
+
+1. Inventory actual development, staging and production paths, registry
+   and artifact IDs, promotion authorities and recorded classifications.
+2. Verify preservation of approved classification and immutable digests
+   across each edge. Rehearse rejection of missing or mismatched metadata
+   under the selected pipeline.
+3. Verify the deployed serving reference and workload template metadata,
+   and check the applicable create and update decisions.
+4. Retain authorized reclassification, immutable lineage and audit
+   evidence for every applicable promotion and serving path.
