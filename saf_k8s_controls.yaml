@@ -106,7 +106,7 @@
   knowledge_area: '1.1'
   control_seq: '013'
   control_title: API server certificate rotation and validation
-  control_statement: Production Kubernetes clusters must implement automated rotation and validation of API server certificates before expiry so that expired, self-signed, or otherwise invalid certificates do not remain in use on any API server communication path.
+  control_statement: Production Kubernetes clusters must implement automated rotation and validation of API server certificates before expiry so that expired, self-signed, or otherwise invalid end-entity certificates do not remain in use on any API server communication path. Validate each end-entity certificate against the approved trust chain.
   objective: Ensure API server certificate lifecycle controls prevent expiry, invalid trust chains, and stale certificates from weakening authenticated TLS protection.
   rationale: Expired or invalid certificates create opportunities for man-in-the-middle attacks, break trust validation, and undermine otherwise-correct TLS configuration. Rotation and validation are a distinct lifecycle obligation from basic TLS enablement.
   scope: 'Applies to all API server communication paths: client to API server (front-end), API server to etcd, API server to kubelet, API server to aggregated API servers, and webhook backends. For managed Kubernetes services, applies to customer-configurable TLS settings and to verification that provider-managed connections meet organizational TLS requirements.'
