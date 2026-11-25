@@ -29,3 +29,12 @@ and real release coverage require independent evidence.
 See [Scorecard v5.6.0 checks](https://github.com/ossf/scorecard/blob/v5.6.0/docs/checks.md),
 [GitHub guidance on pinning actions](https://docs.github.com/en/actions/reference/security/secure-use#using-third-party-actions),
 and [Kubernetes v1.36 admission policy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/).
+
+## Verify an adopting implementation
+
+Map the actual hosted SCM organization/repositories,
+scheduled assessment identities, protected workflow permissions, evidence
+freshness, and authorized source of results. Verify all promotion paths
+require the intended repository and current assessed revision and preserve the
+prior release on missing, stale, or failing posture evidence. Retain coverage
+for branches, workflow variants, and exceptions.
