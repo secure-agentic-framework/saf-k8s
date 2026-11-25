@@ -1,7 +1,8 @@
-"""Verify a trusted etcd snapshot and run a network-isolated restore."""
+"""Compare a same-run fixture snapshot reference and run an isolated restore."""
 import base64
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -20,8 +21,8 @@ BUMP = 1_000_000
 ENDPOINT = "http://127.0.0.1:2379"
 DATA_DIRECTORY = "/var/lib/etcd"
 SCOPE = (
-    "One synthetic ConfigMap on kind v1.36.1 with etcd v3.6.8. Use a detached local "
-    "integrity manifest, reject a truncated artifact and a different valid snapshot, "
+    "One synthetic ConfigMap on kind v1.36.1 with etcd v3.6.8. Use a detached local fixture "
+    "digest reference, reject a truncated artifact and a different valid snapshot, "
     "then restore with revision bump into a Docker container with no network. Read only "
     "the exact synthetic value bytes. Deployed backup custody and controller recovery require "
     "separate evidence."
@@ -145,14 +146,37 @@ def capture_fixture_value(lab, etcd):
     return value
 
 
-def restore_if_trusted(lab, mount, name, artifact, expected_digest, original_revision,
-                       expected_value, restore_calls):
-    """One restore gate for both rejected artifacts and the accepted snapshot."""
+def restore_if_reference_matches(lab, mount, name, artifact, expected_digest, original_revision,
+                                 expected_value, restore_calls):
+    """Sequential fixture-reference gate for bad and accepted snapshots."""
     if sha256(artifact) != expected_digest:
         return False
     restore_calls.append(artifact.name)
     restore(lab, mount, name, artifact.name, original_revision, expected_value)
     return True
+
+
+def promote_if_reference_matches(source, destination, expected_digest, promotion_calls):
+    """Single-writer atomic promotion after source and copied bytes match."""
+    part = destination.with_name(destination.name + ".part")
+    if (not source.is_file() or destination.exists() or part.exists()
+            or sha256(source) != expected_digest):
+        return False
+    descriptor = os.open(part, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    try:
+        with os.fdopen(descriptor, "wb") as output:
+            with source.open("rb") as input_stream:
+                shutil.copyfileobj(input_stream, output)
+            output.flush()
+        if sha256(part) != expected_digest:
+            return False
+        # The staging parent is private and this runner is the only writer.
+        # os.replace is atomic within this directory under that fixture assumption.
+        os.replace(part, destination)
+        promotion_calls.append(destination.name)
+        return True
+    finally:
+        part.unlink(missing_ok=True)
 
 
 def run(lab):
@@ -171,58 +195,82 @@ def run(lab):
     restore_calls = []
     with tempfile.TemporaryDirectory(prefix="saf-etcd-integrity-") as temp:
         root = Path(temp).resolve()
+        capture = root / "capture"
+        capture.mkdir(mode=0o700)
+        trust_root = root / "trust"
+        trust_root.mkdir(mode=0o700)
         staging = root / "staging"
         staging.mkdir(mode=0o700)
-        mount = f"type=bind,src={staging},dst=/restore"
-        original = staging / "original.db"
+        capture_mount = f"type=bind,src={capture},dst=/restore,readonly"
+        staging_mount = f"type=bind,src={staging},dst=/restore"
+        original = capture / "original.db"
         snapshot(lab, etcd, original)
-        # Store the expected digest separately from staging. The restore container
-        # receives only the staging mount, outside this trust directory.
-        trust = root / "trusted.sha256"
+        # The reference lives outside both capture and staging. This same-run
+        # fixture comparison is not an independent production trust anchor.
+        trust = trust_root / "fixture-reference.sha256"
         trust.touch(mode=0o600)
         trust.write_text(sha256(original), encoding="ascii")
         expected = trust.read_text(encoding="ascii")
-        revision = native_status(lab, mount, original.name)
-        lab.check("green", "The original snapshot matches its trusted digest before staging",
-                  revision is not None and sha256(original) == expected,
-                  {"matches": sha256(original) == expected, "native_snapshot_readable": revision is not None})
+        revision = native_status(lab, capture_mount, original.name)
+        source_match = sha256(original) == expected
+        lab.check("green", "The captured snapshot matches the detached fixture reference before promotion",
+                  revision is not None and source_match,
+                  {"matches": source_match, "native_snapshot_readable": revision is not None,
+                   "verified_staging_empty": not any(staging.iterdir())})
 
         stored = staging / "verified.db"
-        shutil.copyfile(original, stored)
-        stored.chmod(0o600)
-        damaged = staging / "damaged.db"
-        shutil.copyfile(stored, damaged)
+        promotion_calls = []
+        damaged = capture / "damaged.db"
+        shutil.copyfile(original, damaged)
         with damaged.open("r+b") as artifact:
             artifact.truncate(damaged.stat().st_size // 2)
         mismatch = sha256(damaged) != expected
-        damaged_restore = restore_if_trusted(
-            lab, mount, "saf-recovery-damaged", damaged, expected, revision,
+        damaged_promoted = promote_if_reference_matches(damaged, stored, expected, promotion_calls)
+        damaged_restore = restore_if_reference_matches(
+            lab, staging_mount, "saf-recovery-damaged", damaged, expected, revision,
             expected_value, restore_calls)
-        lab.check("red", "Offline truncation fails the trusted digest check before restore",
-                  mismatch and not damaged_restore and len(restore_calls) == 0,
-                  {"mismatch": mismatch, "restore_call_count": len(restore_calls)})
+        damaged_not_staged = not any(staging.iterdir()) and not stored.exists()
+        lab.check("red", "Offline truncation is rejected before staging promotion or restore",
+                  mismatch and not damaged_promoted and damaged_not_staged
+                  and not damaged_restore and len(promotion_calls) == 0 and len(restore_calls) == 0,
+                  {"mismatch": mismatch, "promoted": damaged_promoted,
+                   "staging_empty": damaged_not_staged, "promotion_call_count": len(promotion_calls),
+                   "restore_call_count": len(restore_calls)})
 
         lab.kubectl("patch", "configmap", FIXTURE, "--type=merge",
                     "-p", '{"data":{"marker":"alternate-synthetic-snapshot"}}')
-        alternate = staging / "alternate.db"
+        alternate = capture / "alternate.db"
         snapshot(lab, etcd, alternate)
-        valid_other = native_status(lab, mount, alternate.name) is not None
+        valid_other = native_status(lab, capture_mount, alternate.name) is not None
         different = sha256(alternate) != expected
-        alternate_restore = restore_if_trusted(
-            lab, mount, "saf-recovery-alternate", alternate, expected, revision,
+        alternate_promoted = promote_if_reference_matches(alternate, stored, expected, promotion_calls)
+        alternate_restore = restore_if_reference_matches(
+            lab, staging_mount, "saf-recovery-alternate", alternate, expected, revision,
             expected_value, restore_calls)
-        lab.check("red", "A different valid snapshot still fails the trusted digest check",
-                  valid_other and different and not alternate_restore and len(restore_calls) == 0,
+        alternate_not_staged = not any(staging.iterdir()) and not stored.exists()
+        lab.check("red", "A different valid snapshot is rejected before staging promotion or restore",
+                  valid_other and different and not alternate_promoted and alternate_not_staged
+                  and not alternate_restore and len(promotion_calls) == 0 and len(restore_calls) == 0,
                   {"native_snapshot_readable": valid_other, "digest_mismatch": different,
+                   "promoted": alternate_promoted, "staging_empty": alternate_not_staged,
+                   "promotion_call_count": len(promotion_calls),
                    "restore_call_count": len(restore_calls)})
 
+        accepted_promotion = promote_if_reference_matches(original, stored, expected, promotion_calls)
         staged_match = sha256(stored) == trust.read_text(encoding="ascii")
-        staged_revision = native_status(lab, mount, stored.name)
-        lab.check("green", "The staged snapshot passes the trusted reference and native inspection before restore",
-                  staged_match and staged_revision == revision,
-                  {"matches": staged_match, "same_revision": staged_revision == revision})
-        accepted = restore_if_trusted(
-            lab, mount, "saf-recovery", stored, expected, revision, expected_value, restore_calls)
-        lab.check("positive", "Only the trusted artifact reached the native restore",
+        staged_revision = native_status(lab, staging_mount, stored.name)
+        lab.check("green", "Only the exact source snapshot is promoted and reverified before restore",
+                  accepted_promotion and promotion_calls == [stored.name]
+                  and sorted(path.name for path in staging.iterdir()) == [stored.name]
+                  and stored.stat().st_mode & 0o777 == 0o600
+                  and staged_match and staged_revision == revision,
+                  {"promoted": accepted_promotion, "promotion_call_count": len(promotion_calls),
+                   "staging_file_count": len(list(staging.iterdir())),
+                   "matches": staged_match, "same_revision": staged_revision == revision,
+                   "mode_0600": stored.stat().st_mode & 0o777 == 0o600})
+        accepted = restore_if_reference_matches(
+            lab, staging_mount, "saf-recovery", stored, expected, revision, expected_value, restore_calls)
+        lab.check("positive", "Only the fixture-reference-matching artifact reached the native restore",
                   accepted and restore_calls == [stored.name],
-                  {"restore_call_count": len(restore_calls), "trusted_artifact_accepted": accepted})
+                  {"restore_call_count": len(restore_calls),
+                   "fixture_reference_matching_artifact_accepted": accepted})

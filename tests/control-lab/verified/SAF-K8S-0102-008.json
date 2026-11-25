@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0102-008",
-  "catalog_revision": "3e05910b8991dcc3cccefeacc7d8589b29ff12ec",
-  "catalog_sha256": "1c78a76489ca604a14fdf3824565e4bcb568f55832e793e78fa752772ba60eab",
+  "catalog_revision": "98419ca8a0ef49ce8d75ee99d25112a8f176b569",
+  "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9de85f348b60cbc8a95f8e148a4f2047cb64033903e42d8bb9797b35d35196f9",
-  "scope": "One synthetic ConfigMap on kind v1.36.1 with etcd v3.6.8. Use a detached local integrity manifest, reject a truncated artifact and a different valid snapshot, then restore with revision bump into a Docker container with no network. Read only the exact synthetic value bytes. Deployed backup custody and controller recovery require separate evidence.",
-  "cluster": "saf-lab-22a6fc7b99c0",
+  "scope": "One synthetic ConfigMap on kind v1.36.1 with etcd v3.6.8. Use a detached local fixture digest reference, reject a truncated artifact and a different valid snapshot, then restore with revision bump into a Docker container with no network. Read only the exact synthetic value bytes. Deployed backup custody and controller recovery require separate evidence.",
+  "cluster": "saf-lab-1633d167a540",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -40,39 +40,50 @@
   "checks": [
     {
       "phase": "green",
-      "claim": "The original snapshot matches its trusted digest before staging",
+      "claim": "The captured snapshot matches the detached fixture reference before promotion",
       "matched": true,
       "observed": {
         "matches": true,
-        "native_snapshot_readable": true
+        "native_snapshot_readable": true,
+        "verified_staging_empty": true
       }
     },
     {
       "phase": "red",
-      "claim": "Offline truncation fails the trusted digest check before restore",
+      "claim": "Offline truncation is rejected before staging promotion or restore",
       "matched": true,
       "observed": {
         "mismatch": true,
+        "promoted": false,
+        "staging_empty": true,
+        "promotion_call_count": 0,
         "restore_call_count": 0
       }
     },
     {
       "phase": "red",
-      "claim": "A different valid snapshot still fails the trusted digest check",
+      "claim": "A different valid snapshot is rejected before staging promotion or restore",
       "matched": true,
       "observed": {
         "native_snapshot_readable": true,
         "digest_mismatch": true,
+        "promoted": false,
+        "staging_empty": true,
+        "promotion_call_count": 0,
         "restore_call_count": 0
       }
     },
     {
       "phase": "green",
-      "claim": "The staged snapshot passes the trusted reference and native inspection before restore",
+      "claim": "Only the exact source snapshot is promoted and reverified before restore",
       "matched": true,
       "observed": {
+        "promoted": true,
+        "promotion_call_count": 1,
+        "staging_file_count": 1,
         "matches": true,
-        "same_revision": true
+        "same_revision": true,
+        "mode_0600": true
       }
     },
     {
@@ -92,11 +103,11 @@
     },
     {
       "phase": "positive",
-      "claim": "Only the trusted artifact reached the native restore",
+      "claim": "Only the fixture-reference-matching artifact reached the native restore",
       "matched": true,
       "observed": {
         "restore_call_count": 1,
-        "trusted_artifact_accepted": true
+        "fixture_reference_matching_artifact_accepted": true
       }
     }
   ]
