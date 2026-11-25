@@ -60,8 +60,41 @@ binding pattern.
    to be denied and required decisions to remain allowed. Preserve collected
    objects, matrix results, decision, and resulting inventory together.
 
-This is example code for a disposable environment, not a production scanner.
-Adapt collection permissions, cluster/context selection, namespace coverage,
+## Scheduled recurrence check
+
+The canonical `case.py` entrypoint also creates a disposable CronJob in the
+case namespace. It uses the repo's digest-pinned Python fixture image and runs
+once per minute with `Forbid`, no retries, and a bounded Job deadline. Its
+worker runs as the existing synthetic audited reader. A temporary
+ClusterRoleBinding grants only `create selfsubjectaccessreviews.authorization.k8s.io`
+for the cluster-scoped reviews. The reader's checked ConfigMap permissions
+come from the original bindings and their remediation. The job makes two
+fixed, literal benign authorization requests: `get` the named required
+ConfigMap, expected allowed, and `get` the named deliberately unneeded
+ConfigMap, expected denied. It does not read or mutate either ConfigMap.
+
+The case waits for one genuine CronJob-owned Job to record the original gap
+(both named GETs allowed), deletes only the case-owned
+`saf-0401-002-unneeded-reader` RoleBinding, then waits for a later scheduled
+Job to confirm required allow / unnecessary deny. Each worker emits a
+JSON-encoded line with owner, due cadence, disposition, observation time, Job
+name, and both decisions. The lab reads the Job logs and scheduled
+timestamps and retains the verified ownership, ordering and decisions in
+the replay receipt. A valid API response with `status.allowed: false` is an
+explicit denial. HTTP/API errors, TLS/network failures, missing or malformed
+status, and `evaluationError` fail the Job and cannot count as a denial.
+After evidence is captured, the helper deletes its CronJob and temporary
+ClusterRole/ClusterRoleBinding so the existing case inventory remains exact.
+
+Native CronJobs have one-minute schedule granularity. Each wait is bounded to
+85 seconds, so the two observations take up to 170 seconds plus ordinary case
+setup. The first image pull and an unhealthy controller may exceed that bound;
+the test then fails with an infrastructure timeout instead of inferring a
+permission result. This short recurrence demonstration validates only the
+named decisions in the fixture namespace and does not establish scheduled
+coverage of other identities, namespaces, or permissions.
+
+For adoption beyond this disposable example, adapt collection permissions, cluster/context selection, namespace coverage,
 identity/group resolution, review authorization, audit scheduling, approvals,
 evidence retention, and change tracking to the adopter's environment. Do not
 infer coverage beyond the exact selected objects and tested decision matrix.
@@ -76,4 +109,5 @@ operations. Review the actual operator and driver configuration when adopting
 the control.
 
 - [Kubernetes RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
+- [CronJob scheduling](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/)
 - [SubjectAccessReview](https://v1-36.docs.kubernetes.io/docs/reference/kubernetes-api/authorization-resources/subject-access-review-v1/)

@@ -1,5 +1,6 @@
 """Audit additive RBAC grants for a synthetic ServiceAccount using SAR."""
 import json
+import importlib.util
 from pathlib import Path
 import time
 
@@ -24,8 +25,9 @@ SCOPE = (
     "label, plus SubjectAccessReviews for two synthetic subjects, two fixture "
     "namespaces, and named ConfigMap get/patch tuples. Inventory is not treated "
     "as effective authorization: each matrix cell is evaluated by the API "
-    "server. A deliberately excessive RoleBinding is removed. No real subjects, "
-    "data, cluster, tokens, workloads, or escalation paths are used."
+    "server. A deliberately excessive RoleBinding is removed. A synthetic "
+    "CronJob submits only fixed SelfSubjectAccessReviews for two named benign "
+    "ConfigMaps. No real subjects, data, credentials, or escalation paths are used."
 )
 
 
@@ -225,8 +227,12 @@ def run(lab):
         },
     )
 
-    # Remove only the binding that supplies the unnecessary ordinary read.
-    lab.kubectl("-n", NAMESPACE, "delete", "rolebinding", UNNEEDED_BINDING)
+    # Follow the real periodic controller across a recorded gap, a minimal
+    # binding change, and a later scheduled confirmation.
+    recurrence_spec = importlib.util.spec_from_file_location("recurrence_case", HERE / "recurrence.py")
+    recurrence_case = importlib.util.module_from_spec(recurrence_spec)
+    recurrence_spec.loader.exec_module(recurrence_case)
+    recurrence_case.run(lab)
 
     required_after, unneeded_after = wait_for_remediated_decisions(lab)
     matrix_after = {

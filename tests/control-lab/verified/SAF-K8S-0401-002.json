@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0401-002",
-  "catalog_revision": "f3cc4f7c292191aba12125829157872674c11ae7",
+  "catalog_revision": "553801eae1021062ab2ad5d802b4e97f31939514",
   "catalog_sha256": "d349202ee2a53ae35fd3d0b6c36098d2d5cc45a51aa71fbf557812fcda78d4a0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6070733308e304589b4570dd25316bca0dc37cfabc9d7f9d6a16c46e45c83c9f",
-  "scope": "Replays the existing synthetic ConfigMap permission audit. A second isolated namespace tests v1.36.1 SubjectAccessReview decisions for ordinary ResourceClaim status plus the DRA binding and driver permissions. The test uses fixed synthetic principals, driver names and node-aware verbs. Production role inventory, native status request construction, node association, actual driver behavior and allocation remain separate.",
-  "cluster": "saf-lab-0efe92519cfa",
+  "scope": "Replays the synthetic ConfigMap permission audit and a scheduled self-review. A second isolated namespace tests v1.36.1 SubjectAccessReview decisions for ordinary ResourceClaim status plus the DRA binding and driver permissions. The test uses fixed synthetic principals, driver names and node-aware verbs. Production role inventory, native status request construction, node association, actual driver behavior and allocation remain separate.",
+  "cluster": "saf-lab-b99c4ef64738",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -138,6 +138,43 @@
             "denied": false,
             "reason": ""
           }
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A real scheduled CronJob records the current named-access gap with a valid API response",
+      "matched": true,
+      "observed": {
+        "schedule": "* * * * *",
+        "job_owner_verified": true,
+        "request_decisions": {
+          "get_configmap_saf-0401-002-required-config": true,
+          "get_configmap_saf-0401-002-unneeded-config": true
+        },
+        "finding": {
+          "owner": "saf-k8s-control-lab",
+          "due": "each scheduled run",
+          "disposition": "open: unneeded named GET is currently allowed; remove the case-owned binding"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A later scheduled CronJob confirms the change: required named GET allowed, unnecessary named GET denied",
+      "matched": true,
+      "observed": {
+        "change": "deleted only case-owned saf-0401-002-unneeded-reader RoleBinding",
+        "distinct_later_schedule": true,
+        "job_owner_verified": true,
+        "request_decisions": {
+          "get_configmap_saf-0401-002-required-config": true,
+          "get_configmap_saf-0401-002-unneeded-config": false
+        },
+        "finding": {
+          "owner": "saf-k8s-control-lab",
+          "due": "each scheduled run",
+          "disposition": "remediated: required named GET remains allowed and unneeded named GET is denied"
         }
       }
     },

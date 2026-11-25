@@ -12,7 +12,7 @@ DRIVER = "saf-dra.example.invalid"
 OTHER_DRIVER = "other-dra.example.invalid"
 VERBS = ("patch", "update")
 SCOPE = (
-    "Replays the existing synthetic ConfigMap permission audit. A second isolated namespace "
+    "Replays the synthetic ConfigMap permission audit and a scheduled self-review. A second isolated namespace "
     "tests v1.36.1 SubjectAccessReview decisions for ordinary ResourceClaim status plus "
     "the DRA binding and driver permissions. The test uses fixed synthetic principals, "
     "driver names and node-aware verbs. Production role inventory, native status request "
