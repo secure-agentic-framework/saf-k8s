@@ -29,3 +29,7 @@ preservation has its own control, SAF-K8S-0503-012.
 - [Kubernetes v1.36 external traffic policy](https://v1-36.docs.kubernetes.io/docs/reference/networking/virtual-ips/#external-traffic-policy)
 - [Kubernetes v1.36 source IP behavior](https://v1-36.docs.kubernetes.io/docs/tutorials/services/source-ip/)
 - [Kubernetes v1.36 ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
+
+## Adopter verification
+
+Confirm each deployed NodePort/LoadBalancer mode against a recorded routing decision. Inventory endpoint topology and check that provider health checks remove nodes without local endpoints when `Local` is selected. Exercise approved paths on both a node with a local endpoint and one without; retain response and health-check evidence. Record failure/recovery behavior and review mode changes against the stored rationale.
