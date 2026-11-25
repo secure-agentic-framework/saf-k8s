@@ -12,6 +12,11 @@ The direct Metrics Server endpoint rejects anonymous and unauthorized requests w
 
 Before installing Metrics Server, the built-in view, edit, and admin roles lack the fixture resource metric grants. The installed system:aggregated-metrics-reader contributes get, list, and watch for metrics.k8s.io Pods and Nodes to all three roles. The original system:metrics-reader reference does not resolve. A namespaced RoleBinding to view lets each fixture account retrieve its own PodMetrics and returns HTTP 403 for the other namespace.
 
-Deployment evidence must cover the actual endpoint inventory, approved roles, custom and external metric APIs, managed Prometheus, kubelet endpoints, network controls and metric redaction.
+## Adopter verification
+
+1. Inventory the deployed metrics endpoints and clients, including direct exporters, kubelets, aggregated APIs, custom and external APIs, and managed monitoring. Record which identities and network paths are authorized for each endpoint and what metric labels may be disclosed.
+2. Verify TLS trust and expected service identity on each protected route. Use approved synthetic samples and adopter test identities to show that missing, invalid, and insufficient credentials are rejected as applicable, while the authorized principal can still read its intended metrics. Test direct backend access separately from aggregated and ingress paths.
+3. For Kubernetes metrics resources, verify effective namespace and cluster grants and aggregation labels, including near-miss subjects and namespaces. For scrapes, retain the authenticated target identity, the actual consumer's identity and permitted labels, and the result after rotation or revocation. Redact credentials and sensitive labels from retained evidence.
+4. Map access enforcement and service identification only to the verified approved readers and peers. Consider the AI RMF production-monitoring contribution only when the authorized metrics reach a named production-monitoring consumer and support its defined AI-system monitoring objective.
 
 [Prometheus HTTPS configuration](https://prometheus.io/docs/prometheus/latest/configuration/https/) · [Metrics Server v0.8.1 manifest](https://github.com/kubernetes-sigs/metrics-server/blob/v0.8.1/manifests/base/rbac.yaml)
