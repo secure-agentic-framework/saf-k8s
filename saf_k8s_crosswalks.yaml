@@ -2790,16 +2790,13 @@
   framework_requirement_id: Article-18.1
   legacy_requirement_id: Annex-VI:VI(5)
   framework_requirement_title: Documentation keeping
-  framework_mapping_notes: |-
-    The provider shall, for a period ending 10 years after the high-risk AI system has been placed on the market or put into service, keep at the disposal of the national competent authorities:
-
-    SAF-K8S audit log retention controls (D10) and artifact storage policies support long-term documentation retention. The organizational obligation to maintain availability for authorities is outside platform scope, but SAF-K8S provides the storage and retention infrastructure.
+  framework_mapping_notes: Registry retention and hold evidence can support custody of the specific documents governed by Article 18(1) if their versions are identified and the required duration and competent-authority availability are verified. The test demonstrates scoped artifact retention and garbage collection. Applicable documentation scope, statutory retention and availability require separate evidence.
   control_id: SAF-K8S-0601-010
   relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  applicability: conditional
+  applicability_condition: The adopting organization is an applicable high-risk AI system provider and directs the specific retention workflow to the required Article 18 documentation.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
