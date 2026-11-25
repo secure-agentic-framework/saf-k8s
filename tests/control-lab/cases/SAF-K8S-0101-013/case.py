@@ -18,7 +18,9 @@ import urllib.parse
 SCOPE = (
     "Kubernetes v1.36.1 kubeadm-managed API server serving certificate on the one "
     "fresh runner-owned Kind cluster's host-published loopback endpoint. The case "
-    "checks the expiry of a short-lived serving leaf and renews within the fixture lead time. It observes the live process before and after "
+    "checks the expiry of a short-lived serving leaf, records out-of-window and due "
+    "decisions from two controller-owned CronJob Jobs, then renews within the fixture lead time. "
+    "The scheduler identity cannot renew or access node material. It observes the live process before and after "
     "the documented static-Pod restart, and validates local TLS trust and IP "
     "identity. External PKI and other certificate paths, replicas, and deployment scheduling "
     "remain separate adoption evidence. A final comparison sequentially "
@@ -32,6 +34,171 @@ RELOAD_OBSERVATION_SECONDS = 5
 POD_STOP_DEADLINE = 60
 POD_READY_SECONDS = 120
 RENEW_BEFORE_SECONDS = 30 * 60
+SCHEDULE_INPUT = "saf-0101-013-schedule-input"
+SCHEDULE_NOT_DUE = "saf-0101-013-schedule-not-due"
+SCHEDULE_DUE = "saf-0101-013-schedule-due"
+SCHEDULER = "saf-0101-013-scheduler"
+
+
+def run_scheduled_decision(lab, initial):
+    """Require two CronJob-owned decisions, then leave renewal to the runner."""
+    directory = Path(__file__).resolve().parent
+    leaf = {"not_after_epoch": str(initial["expiry"]),
+            "leaf_sha256": initial["leaf"], "lead_seconds": "60",
+            "receipt_name": SCHEDULE_NOT_DUE}
+    receipts = (SCHEDULE_NOT_DUE, SCHEDULE_DUE)
+    resources = [
+        {"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": SCHEDULE_INPUT},
+         "data": leaf},
+        *[{"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": name},
+           "data": {"decision": "pending"}} for name in receipts],
+        {"apiVersion": "v1", "kind": "ConfigMap",
+         "metadata": {"name": "saf-0101-013-scheduler-code"},
+         "data": {"dispatch.py": (directory / "dispatch.py").read_text()}},
+    ]
+    created = []
+    job_selector = f"app.kubernetes.io/name={SCHEDULER}"
+
+    def receipt(name):
+        return json.loads(lab.kubectl("get", "configmap", name, "-o", "json").stdout).get("data", {})
+
+    def wait_receipt(name, expected):
+        deadline = time.monotonic() + 75
+        while time.monotonic() < deadline:
+            data = receipt(name)
+            if data.get("decision") == expected and data.get("job_name"):
+                jobs = json.loads(lab.kubectl(
+                    "get", "jobs", "-l", job_selector, "-o", "json").stdout)["items"]
+                owners = [job for job in jobs if job["metadata"]["name"] == data["job_name"]
+                          and job.get("status", {}).get("succeeded") == 1
+                          and any(owner.get("kind") == "CronJob" and owner.get("uid") == owner_uid
+                                  and owner.get("controller") is True
+                                  for owner in job["metadata"].get("ownerReferences", []))]
+                if len(owners) == 1:
+                    return data, owners[0]
+            time.sleep(2)
+        lab.block(f"Timed out waiting for the CronJob-owned {expected} receipt")
+
+    try:
+        for resource in resources:
+            lab.create(resource)
+            created.append(("configmap", resource["metadata"]["name"]))
+        created.extend((kind, name) for kind, name in (
+            ("serviceaccount", SCHEDULER), ("role", SCHEDULER),
+            ("rolebinding", SCHEDULER), ("cronjob", SCHEDULER)))
+        lab.apply(directory / "cronjob.yaml")
+        role = json.loads(lab.kubectl("get", "role", SCHEDULER, "-o", "json").stdout)
+        rules = role.get("rules", [])
+        scoped_rules = sorted((tuple(row.get("apiGroups", [])), tuple(row.get("resources", [])),
+                               tuple(sorted(row.get("resourceNames", []))), tuple(row.get("verbs", [])))
+                              for row in rules)
+        expected_rules = sorted([
+            (("",), ("configmaps",), (SCHEDULE_INPUT,), ("get",)),
+            (("",), ("configmaps",), tuple(sorted(receipts)), ("patch",)),
+        ])
+        lab.check("positive", "The scheduler identity has only named input and receipt ConfigMap access",
+                  scoped_rules == expected_rules,
+                  {"exact_named_rbac": scoped_rules == expected_rules,
+                   "rule_count": len(rules)})
+        cronjob = json.loads(lab.kubectl("get", "cronjob", SCHEDULER, "-o", "json").stdout)
+        owner_uid = cronjob["metadata"]["uid"]
+        subject = f"system:serviceaccount:saf-test:{SCHEDULER}"
+        permission_checks = (
+            ("get", f"configmaps/{SCHEDULE_INPUT}", "yes"),
+            ("patch", f"configmaps/{SCHEDULE_DUE}", "yes"),
+            ("patch", f"configmaps/{SCHEDULE_NOT_DUE}", "yes"),
+            ("patch", f"configmaps/{SCHEDULE_INPUT}", "no"),
+            ("get", "secrets", "no"),
+            ("create", "pods", "no"),
+            ("get", "nodes", "no"),
+        )
+        decisions_match = all(
+            lab.kubectl("auth", "can-i", verb, resource, "--as", subject,
+                        "--as-group=system:serviceaccounts",
+                        "--as-group=system:serviceaccounts:saf-test",
+                        "--as-group=system:authenticated",
+                        timeout=15, allow_failure=True).stdout.strip() == expected
+            for verb, resource, expected in permission_checks
+        )
+        lab.check("positive", "Scheduled identity authorization permits named receipts and denies node, Secret and Pod access",
+                  decisions_match, {"all_expected_authorization_decisions": decisions_match})
+        pod = cronjob["spec"]["jobTemplate"]["spec"]["template"]["spec"]
+        container = pod["containers"][0]
+        safe_pod = (pod.get("serviceAccountName") == SCHEDULER
+                    and not pod.get("hostNetwork", False)
+                    and not pod.get("hostPID", False)
+                    and not pod.get("hostIPC", False)
+                    and not any("hostPath" in volume for volume in pod.get("volumes", []))
+                    and not pod.get("securityContext", {}).get("privileged", False)
+                    and not container.get("securityContext", {}).get("privileged", False)
+                    and container.get("securityContext", {}).get("readOnlyRootFilesystem") is True
+                    and container.get("securityContext", {}).get("allowPrivilegeEscalation") is False
+                    and not any("kubeconfig" in mount.get("mountPath", "")
+                                or "/etc/kubernetes/pki" in mount.get("mountPath", "")
+                                for mount in container.get("volumeMounts", [])))
+        lab.check("positive", "The scheduled Pod has no node credentials or host access",
+                  safe_pod, {"bounded_nonprivileged_pod": safe_pod})
+
+        first, first_job = wait_receipt(SCHEDULE_NOT_DUE, "not_due")
+        first_expiry = int(first["not_after_epoch"])
+        first_observed = int(first["observed_at_epoch"])
+        first_ok = (first.get("leaf_sha256") == initial["leaf"]
+                    and first_expiry == int(initial["expiry"])
+                    and int(first["lead_seconds"]) == 60
+                    and first_expiry - first_observed > 60
+                    and first["job_name"] == first_job["metadata"]["name"]
+                    and set(first) == {"decision", "leaf_sha256", "not_after_epoch",
+                                       "lead_seconds", "observed_at_epoch", "job_name", "request_id"})
+        lab.check("positive", "The first scheduled controller-owned Job records the out-of-window serving leaf",
+                  first_ok, {"job_owned_by_cronjob": True, "exact_leaf_bound": first_ok,
+                             "decision": first.get("decision")})
+
+        lab.kubectl("patch", "cronjob", SCHEDULER, "--type=merge", "-p",
+                    '{"spec":{"suspend":true}}', timeout=15)
+        due_input = {**leaf, "lead_seconds": str(RENEW_BEFORE_SECONDS), "receipt_name": SCHEDULE_DUE}
+        lab.kubectl("patch", "configmap", SCHEDULE_INPUT, "--type=merge", "-p",
+                    json.dumps({"data": due_input}, separators=(",", ":")), timeout=15)
+        suspended = json.loads(lab.kubectl("get", "cronjob", SCHEDULER, "-o", "json").stdout)
+        if suspended.get("spec", {}).get("suspend") is not True:
+            lab.block("Could not suspend scheduling while staging the second named receipt")
+        lab.kubectl("patch", "cronjob", SCHEDULER, "--type=merge", "-p",
+                    '{"spec":{"suspend":false}}', timeout=15)
+        second, second_job = wait_receipt(SCHEDULE_DUE, "renewal_request")
+        remaining = int(second["not_after_epoch"]) - int(second["observed_at_epoch"])
+        second_ok = (second.get("leaf_sha256") == initial["leaf"]
+                     and int(second["not_after_epoch"]) == int(initial["expiry"])
+                     and int(second["lead_seconds"]) == RENEW_BEFORE_SECONDS
+                     and 0 < remaining <= RENEW_BEFORE_SECONDS
+                     and second["request_id"] == initial["leaf"] + ":" + str(initial["expiry"])
+                     and second["job_name"] == second_job["metadata"]["name"]
+                     and second["job_name"] != first["job_name"]
+                     and set(second) == {"decision", "leaf_sha256", "not_after_epoch",
+                                         "lead_seconds", "observed_at_epoch", "job_name", "request_id"})
+        lab.check("positive", "The second scheduled controller-owned Job requests renewal inside the approved fixture window",
+                  second_ok, {"distinct_cronjob_owned_job": second["job_name"] != first["job_name"],
+                              "exact_leaf_bound": second_ok, "within_lead_time": 0 < remaining <= RENEW_BEFORE_SECONDS})
+        jobs = json.loads(lab.kubectl(
+            "get", "jobs", "-l", job_selector, "-o", "json").stdout)["items"]
+        successful_names = {job["metadata"]["name"] for job in jobs
+                            if job.get("status", {}).get("succeeded") == 1
+                            and any(owner.get("kind") == "CronJob" and owner.get("uid") == owner_uid
+                                    and owner.get("controller") is True
+                                    for owner in job["metadata"].get("ownerReferences", []))}
+        lab.check("positive", "Exactly two successful controller-owned Jobs produced the named decisions",
+                  successful_names == {first["job_name"], second["job_name"]},
+                  {"two_named_controller_jobs": successful_names ==
+                   {first["job_name"], second["job_name"]}})
+        (lab.evidence / "scheduled-renewal-observations.json").write_text(
+            json.dumps({"out_of_window": first, "due": second}, indent=2, sort_keys=True) + "\n")
+
+    finally:
+        lab.kubectl("delete", "cronjob", SCHEDULER, "--ignore-not-found=true", timeout=15,
+                    allow_failure=True)
+        for kind, name in reversed(created):
+            if kind == "cronjob":
+                continue
+            lab.kubectl("delete", kind, name, "--ignore-not-found=true", timeout=15,
+                        allow_failure=True)
 
 
 def endpoint_and_ca(lab):
@@ -488,6 +655,7 @@ def run(lab):
         )
 
         node = assert_owned_control_plane_node(lab)
+        run_scheduled_decision(lab, initial)
         seconds_remaining = initial["expiry"] - time.time()
         lab.check("red", "The original verified certificate is outside the one-minute renewal comparison",
                   seconds_remaining > 60,

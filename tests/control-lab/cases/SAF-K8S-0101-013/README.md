@@ -50,6 +50,20 @@ certificate roles separately.
 - [Kubernetes v1.36 kubeadm certs reference](https://v1-36.docs.kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-certs/)
 - [Kubeadm renewal implementation at v1.36.1](https://github.com/kubernetes/kubernetes/tree/v1.36.1/cmd/kubeadm/app/phases/certs/renewal)
 
+## Scheduled renewal decision
+
+The live CronJob creates two Jobs. The first evaluates the public serving
+leaf against a 60-second lead time and reports an out-of-window decision.
+The second uses a 30-minute lead time and records a due request tied to the
+same fingerprint and expiry. The runner confirms both Job owners and
+effective Kubernetes authorization. The Job identity reads the exact input
+ConfigMap and updates its named receipts. The runner performs native kubeadm
+renewal under the existing fixture configuration.
+
+Adopters verify the request consumer, approved renewal credentials,
+overdue and missed-run monitoring, recovery behavior, and the staged
+rollout for each applicable endpoint and certificate role.
+
 ## Serving certificate trust transition
 
 After the existing renewal and trust checks, the case reuses the same
