@@ -20,7 +20,8 @@ SCOPE = (
     "One synthetic ConfigMap on Kubernetes v1.36.1 kind with etcd v3.6.8. Copy a native "
     "snapshot through the 0102-008 case-owned kind etcd method, then age-encrypt that "
     "artifact with a fresh backup identity and compare it with a separate synthetic source "
-    "identity. The source identity is only a wrong-key proxy: kind live-volume encryption, "
+    "identity, move ciphertext to retention, clear staging and recover into a separate path. "
+    "The source identity is only a wrong-key proxy: kind live-volume encryption, "
     "production key management, storage-provider encryption, custody, and transport are "
     "not established. Backup integrity and restore assurance are governed by 0102-008."
 )
@@ -152,9 +153,29 @@ def run(lab):
                    "synthetic_marker_present": ciphertext_contains_marker,
                    "artifact_mode": oct(encrypted.stat().st_mode & 0o777)})
 
-        unrelated_output = staging / "unrelated-decryption.db"
+        source_digest = sha256(raw)
+        retention = root / "retention"
+        retention.mkdir(mode=0o700)
+        retained = retention / encrypted.name
+        encrypted.replace(retained)
+        raw.unlink()
+        retained_entries = list(retention.iterdir())
+        lab.check("green", "The retention directory contains only the approved ciphertext artifact",
+                  retained_entries == [retained] and retained.stat().st_mode & 0o777 == 0o600
+                  and MARKER not in retained.read_bytes(),
+                  {"retained_file_count": len(retained_entries), "ciphertext_only": retained_entries == [retained],
+                   "artifact_mode": oct(retained.stat().st_mode & 0o777)})
+        staging_empty = not any(staging.iterdir())
+        lab.check("green", "Local staging files have been removed before recovery",
+                  staging_empty and not raw.exists(),
+                  {"staging_empty": staging_empty, "plaintext_staging_absent": not raw.exists()})
+
+        restore = root / "isolated-restore"
+        restore.mkdir(mode=0o700)
+        restore_mount = f"type=bind,src={restore},dst=/backup,readonly"
+        unrelated_output = restore / "unrelated-decryption.db"
         wrong_key = invoke(lab, [age, "--decrypt", "--identity", str(source_identity),
-                                 "--output", str(unrelated_output), str(encrypted)], timeout=90)
+                                 "--output", str(unrelated_output), str(retained)], timeout=90)
         wrong_key_rejected = wrong_key.returncode != 0
         if unrelated_output.exists():
             unrelated_output.unlink()
@@ -162,14 +183,13 @@ def run(lab):
                   wrong_key_rejected,
                   {"rejected": wrong_key_rejected, "source_key_is_synthetic_proxy": True})
 
-        restored = staging / "decrypted.db"
+        restored = restore / "decrypted.db"
         result = invoke(lab, [age, "--decrypt", "--identity", str(backup_identity),
-                              "--output", str(restored), str(encrypted)], timeout=90)
+                              "--output", str(restored), str(retained)], timeout=90)
         if result.returncode or not restored.is_file():
             lab.block("The backup identity could not decrypt its encrypted snapshot")
         restored.chmod(0o600)
-        restored_revision = native_status(lab, mount, restored.name)
-        source_digest = sha256(raw)
+        restored_revision = native_status(lab, restore_mount, restored.name)
         decrypted_digest = sha256(restored)
         lab.check("positive", "The separate backup identity decrypts an exact native snapshot copy",
                   restored_revision == source_revision and decrypted_digest == source_digest,
@@ -177,15 +197,15 @@ def run(lab):
                    "native_snapshot_readable": restored_revision is not None,
                    "same_revision": restored_revision == source_revision})
 
-        tampered = staging / "tampered.db.age"
-        shutil.copyfile(encrypted, tampered)
+        tampered = restore / "tampered.db.age"
+        shutil.copyfile(retained, tampered)
         tampered.chmod(0o600)
         with tampered.open("r+b") as artifact:
             artifact.seek(-1, os.SEEK_END)
             last = artifact.read(1)
             artifact.seek(-1, os.SEEK_END)
             artifact.write(bytes([last[0] ^ 1]))
-        tampered_output = staging / "tampered-decryption.db"
+        tampered_output = restore / "tampered-decryption.db"
         corrupted = invoke(lab, [age, "--decrypt", "--identity", str(backup_identity),
                                  "--output", str(tampered_output), str(tampered)], timeout=90)
         tamper_rejected = corrupted.returncode != 0

@@ -54,3 +54,24 @@ and restore assurance. The revised catalog points to that control.
 - [age v1 file format specification](https://age-encryption.org/v1)
 - [age official command documentation](https://github.com/FiloSottile/age/tree/v1.3.1/doc)
 - SAF-K8S-0102-001 governs etcd storage-layer disk encryption; SAF-K8S-0102-008 governs etcd backup integrity verification and restore assurance. The latter's local executable case is at `../SAF-K8S-0102-008/`.
+
+## Retention and recovery comparison
+
+The case moves the archive-encrypted snapshot into a separate retention directory,
+checks for the single expected ciphertext artifact, and removes its local staging
+file before decrypting into a separate private recovery directory. It checks the
+same native revision and digest against the original synthetic snapshot. The
+fixture intentionally creates a readable snapshot to demonstrate the red baseline.
+The comparison proves archive encryption and the tested cleanup boundary. It
+leaves encryption during initial snapshot creation and staging to the adopter
+procedure. Removing a file does not demonstrate media sanitization.
+
+## Adoption evidence guide
+
+For each real provider, tier, and backup path, retain sanitized evidence tied to the cluster, job, destination, and object/version:
+
+1. **Provider policy:** Record the storage service's encryption-at-rest setting, algorithm/service mode, key identifier/version, scope (staging, replicas, retention and offline copies), and effective policy/configuration. Confirm a representative object is covered; a successful local `age` command or provider default is not enough.
+2. **Transport:** Verify TLS or the approved encrypted transfer mechanism from snapshot creation through staging, upload, replication, and restore download. Retain sanitized endpoint/policy/job evidence and any required certificate or peer validation result. At-rest encryption does not establish in-transit protection.
+3. **Offline custody:** Document how offline media/objects and the corresponding backup key are separately controlled, stored, inventoried, and recovered. Record custody handoffs, access logs, key rotation/revocation, and break-glass procedure tests without exporting keys or cluster data.
+4. **Privilege separation:** Compare principals and policies for live etcd volume keys, backup encryption keys, backup object read/write/delete, and restore operations. Demonstrate that a live-volume administrator cannot implicitly decrypt retained backups and that routine backup writers cannot retrieve key material; inspect scoped grants and audit trails.
+5. **Acceptance evidence:** Complete an authorized recovery test from each materially distinct destination/tier using the approved identity. Preserve job/object version, provider key ID/version, policy snapshot, transfer result, integrity check, restored revision or other non-sensitive verifier, recovery approval, cleanup, and exception disposition. Do not include plaintext resource data or key material.

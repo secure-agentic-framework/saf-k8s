@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0102-007",
-  "catalog_revision": "c650896598cdba9bc54dab5ea9975a2746e643d6",
-  "catalog_sha256": "9016d7b3fc2177b36fffa2f5f2c4f6d10cc96ef3da95c40591947745c5d43579",
+  "catalog_revision": "3e05910b8991dcc3cccefeacc7d8589b29ff12ec",
+  "catalog_sha256": "1c78a76489ca604a14fdf3824565e4bcb568f55832e793e78fa752772ba60eab",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "15bbc80b73a40d1328d9f49abefd86abc15c156d0289e7b811d6113add68941c",
-  "scope": "One synthetic ConfigMap on Kubernetes v1.36.1 kind with etcd v3.6.8. Copy a native snapshot through the 0102-008 case-owned kind etcd method, then age-encrypt that artifact with a fresh backup identity and compare it with a separate synthetic source identity. The source identity is only a wrong-key proxy: kind live-volume encryption, production key management, storage-provider encryption, custody, and transport are not established. Backup integrity and restore assurance are governed by 0102-008.",
-  "cluster": "saf-lab-afa920b33aa2",
+  "scope": "One synthetic ConfigMap on Kubernetes v1.36.1 kind with etcd v3.6.8. Copy a native snapshot through the 0102-008 case-owned kind etcd method, then age-encrypt that artifact with a fresh backup identity and compare it with a separate synthetic source identity, move ciphertext to retention, clear staging and recover into a separate path. The source identity is only a wrong-key proxy: kind live-volume encryption, production key management, storage-provider encryption, custody, and transport are not established. Backup integrity and restore assurance are governed by 0102-008.",
+  "cluster": "saf-lab-04757ae03b55",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -56,6 +56,25 @@
         "native_snapshot_readable": false,
         "synthetic_marker_present": false,
         "artifact_mode": "0o600"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The retention directory contains only the approved ciphertext artifact",
+      "matched": true,
+      "observed": {
+        "retained_file_count": 1,
+        "ciphertext_only": true,
+        "artifact_mode": "0o600"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Local staging files have been removed before recovery",
+      "matched": true,
+      "observed": {
+        "staging_empty": true,
+        "plaintext_staging_absent": true
       }
     },
     {
