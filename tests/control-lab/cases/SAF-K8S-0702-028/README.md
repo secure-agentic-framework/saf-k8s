@@ -22,3 +22,10 @@ update surface.
 
 - [Kubernetes v1.36 ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
 - [Kubernetes v1.36 suspended Job template label updates](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/job/#mutable-scheduling-directives)
+
+## Adopter verification
+
+1. Inventory governed namespaces, authoritative label owners, policy and binding versions, exclusions, and exception approval/expiry.
+2. Confirm actual classifier outputs and namespace requirements are trustworthy and consistent. Verify no workload author can self-approve a classification by editing the requirement source.
+3. In each deployed resource path, test missing, mismatched, and compliant classification on create and relevant updates. Include controllers or custom resources that bypass the two fixture kinds.
+4. Retain the denied and permitted admission decisions, policy reason, namespace enrollment, and reviewer. The fixture proves Kubernetes policy behavior for two kinds, not the organization's classifier or every API resource.
