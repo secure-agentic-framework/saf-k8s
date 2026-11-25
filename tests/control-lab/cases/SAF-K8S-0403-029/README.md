@@ -22,3 +22,13 @@ enrollment, and additional controller templates require separate evidence.
 
 [Kubernetes v1.36 Validating Admission Policy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/) ·
 [Kubernetes v1.36 ephemeral containers](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/pods/ephemeral-containers/)
+
+## Verify an adopting implementation
+
+Inventory namespaces and all policy bindings, served
+versions, templates, and exception labels. Use inert dry-run requests to
+exercise direct/init/template/ephemeral Secret environment references and the
+approved volume/ConfigMap alternatives; verify policy denial and audit
+reporting in every governed namespace and expected allowance outside scope.
+Record approved exception owner/expiry under 0403-030 and preserve the
+reviewed alternate injection path under 0403-003.
