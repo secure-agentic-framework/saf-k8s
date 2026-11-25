@@ -7368,22 +7368,6 @@
 
 
     4.1 - RBAC (cluster-admin restrictions for privileged remote commands); 5.5 - Restricting access to control plane endpoints'
-  control_id: SAF-K8S-0401-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-17(4)
-  framework_requirement_title: Privileged Commands and Access
-  framework_mapping_notes: 'Controlling remote privileged agent operations
-
-
-    4.1 - RBAC (cluster-admin restrictions for privileged remote commands); 5.5 - Restricting access to control plane endpoints'
   control_id: SAF-K8S-0401-004
   relation_type: supports
   strength_level: strong
@@ -9377,16 +9361,16 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-24
   framework_requirement_title: Access Control Decisions
-  framework_mapping_notes: 'Policy decision points for agent authorization
-
-
-    4.1 - Design and enforce RBAC (access control decisions); 6.4 - Admission control (policy-based access decisions)'
+  framework_mapping_notes: Review of selected aggregate rules supports validation of the Kubernetes RBAC
+    rights passed to bound subjects. Exercise the effective authorization decisions for representative
+    requests.
   control_id: SAF-K8S-0401-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Kubernetes RBAC contributes to authorization decisions for the bound subjects
+    in scope.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -15010,16 +14994,16 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-6(7)
   framework_requirement_title: Review of User Privileges
-  framework_mapping_notes: 'Periodic review of agent privilege assignments
-
-
-    4.1 - Permission audit and analysis (identifying overly permissive roles, RBAC tooling: rakkess, kubectl-who-can)'
+  framework_mapping_notes: Review of aggregate selectors, contributors and effective rules supplies Kubernetes
+    RBAC evidence for periodic privilege review. The organization also defines its cadence, roles and
+    corrective actions.
   control_id: SAF-K8S-0401-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization's periodic privilege review covers Kubernetes aggregate grants
+    and corrects permissions when their need cannot be confirmed.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -15653,22 +15637,6 @@
 
     4.1 - RBAC separation of duties (role-specific training for ML engineers, platform engineers, security teams)'
   control_id: SAF-K8S-0401-002
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AT-3
-  framework_requirement_title: Role-based Training
-  framework_mapping_notes: 'Role-specific training for agent developers/operators
-
-
-    4.1 - RBAC separation of duties (role-specific training for ML engineers, platform engineers, security teams)'
-  control_id: SAF-K8S-0401-003
   relation_type: supports
   strength_level: moderate
   applicability: required
@@ -19102,22 +19070,6 @@
   applicability_condition: Kubernetes RBAC governs the audit-logging management functions in scope and
     the review compares effective grants with the approved privileged subset.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-9(4)
-  framework_requirement_title: Access by Subset of Privileged Users
-  framework_mapping_notes: 'Restricting who can access agent audit data
-
-
-    4.1 - Design and enforce RBAC (restricting audit log access to security team subset)'
-  control_id: SAF-K8S-0401-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -28063,22 +28015,6 @@
 
 
     4.2 - OIDC group mappings (individual auth with group bindings); 4.1 - RBAC group-based role bindings'
-  control_id: SAF-K8S-0401-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-2(5)
-  framework_requirement_title: Individual Authentication with Group Authentication
-  framework_mapping_notes: 'Individual auth within shared agent access
-
-
-    4.2 - OIDC group mappings (individual auth with group bindings); 4.1 - RBAC group-based role bindings'
   control_id: SAF-K8S-0401-004
   relation_type: supports
   strength_level: strong
@@ -32961,22 +32897,6 @@
 
 
     4.1 - Separation of duties (ML engineers, platform engineers, security team workforce planning)'
-  control_id: SAF-K8S-0401-003
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-13
-  framework_requirement_title: Security and Privacy Workforce
-  framework_mapping_notes: 'Security workforce needs specialized skills for agentic AI security operations
-
-
-    4.1 - Separation of duties (ML engineers, platform engineers, security team workforce planning)'
   control_id: SAF-K8S-0401-004
   relation_type: supports
   strength_level: moderate
@@ -34111,22 +34031,6 @@
 
     4.1 - Design and enforce RBAC (updating role bindings on personnel transfer between teams)'
   control_id: SAF-K8S-0401-002
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PS-5
-  framework_requirement_title: Personnel Transfer
-  framework_mapping_notes: 'Personnel transfers require updating agent system access privileges and roles
-
-
-    4.1 - Design and enforce RBAC (updating role bindings on personnel transfer between teams)'
-  control_id: SAF-K8S-0401-003
   relation_type: supports
   strength_level: moderate
   applicability: required
@@ -56789,22 +56693,6 @@
 
     4.5 - Privilege escalation detection (monitoring privileged users); 4.1 - RBAC audit (tracking privileged access)'
   control_id: SAF-K8S-0401-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(20)
-  framework_requirement_title: Privileged Users
-  framework_mapping_notes: 'Enhanced monitoring of privileged users operating agent systems detects insider threats
-
-
-    4.5 - Privilege escalation detection (monitoring privileged users); 4.1 - RBAC audit (tracking privileged access)'
-  control_id: SAF-K8S-0401-003
   relation_type: direct
   strength_level: strong
   applicability: required
