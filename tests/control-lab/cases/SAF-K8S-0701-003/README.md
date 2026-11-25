@@ -41,3 +41,24 @@ backend inventory, KMS custody and rotation, snapshots, and recovery remain on
 [Kubernetes StorageClasses](https://v1-36.docs.kubernetes.io/docs/concepts/storage/storage-classes/) ·
 [Kubernetes API resource encryption](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/) ·
 [Linux device-mapper encryption](https://docs.kernel.org/admin-guide/device-mapper/dm-crypt.html)
+
+## Adopter verification
+
+1. Match each in-scope claim to its bound PV, StorageClass, provisioner
+   version and actual backing volume or encrypted device. Verify the
+   effective protection policy and record non-secret volume and key
+   identifiers.
+2. Review who can change the approved class set, storage policy and key
+   grants. Retain the approving authority, policy sources, and permitted
+   and refused changes from an approved rehearsal.
+3. Verify key custody and independently scoped authority through the
+   selected provider or key management service. Rehearse a rotation and
+   capture its effect on both new and existing volumes.
+4. Verify snapshot, backup and restore lineage with the effective backing
+   protection and key identifiers. Recover an approved marker in an
+   isolated rehearsal. Record the actual coverage and limitations.
+5. Where Article 4a applies, identify the covered data and actual storage
+   and key scope. Assess re-use limits, other privacy measures, and access
+   safeguards through their own evidence.
+
+[Article 4a official text](https://eur-lex.europa.eu/eli/reg/2026/1744/oj/eng).
