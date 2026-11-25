@@ -12,3 +12,12 @@ scanned clean digest remains allowed. No fixture image is started.
 The run supplies the rescan trigger directly. Deployed webhook delivery,
 feed freshness, signed decisions, startup and runtime coverage, rescan
 cadence and exception lifecycle require separate evidence.
+
+## Verify an adopting implementation
+
+Inventory all registry writers, imports, mirrors, manifest
+indexes, admission and promotion entry points. Retain advisory source/signature
+and freshness evidence; rescan an approved inert digest after an advisory
+update and show stale evidence is denied and the exact affected digest is
+quarantined. Reconcile already-running workloads and document exceptions,
+owners, and expiry.
