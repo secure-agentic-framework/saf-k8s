@@ -12,3 +12,13 @@ activation paths require site evidence.
 - [Validating Admission Policy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
 - [Kubernetes RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
 - [NIST SP 800-63B-4](https://pages.nist.gov/800-63-4/sp800-63b.html)
+
+## Verify an adopting implementation
+
+Verify the approvers are separate people with distinct
+strong identities and required MFA; map their effective role grants and
+approval evidence to the exact emergency scope. Attempt single-actor,
+unauthorized-scope, expired, and incomplete activation in a controlled
+non-production exercise, then show the approved path permits only its intended
+operation. Retain expiry/withdrawal, alert, audit, and independent-review
+evidence for every activation route.
