@@ -83,3 +83,37 @@ and actual organizational authorization require deployment evidence.
 - [Kubernetes v1.36.1 generic API registration](https://github.com/kubernetes/kubernetes/blob/v1.36.1/staging/src/k8s.io/apiserver/pkg/server/config.go#L1120-L1148)
 - [Kubernetes v1.36.1 control-plane logs registration](https://github.com/kubernetes/kubernetes/blob/v1.36.1/pkg/controlplane/apiserver/server.go#L96-L104)
 - [Kubernetes v1.36 SubjectAccessReview](https://v1-36.docs.kubernetes.io/docs/reference/kubernetes-api/authorization-resources/subject-access-review-v1/)
+
+## Adopter verification
+
+1. Record the release and product, customer and provider responsibilities,
+   and the approved diagnostic policy. Inventory the API endpoints and any
+   terminating proxy or gateway. Verify the approved configuration against
+   the effective runtime flags for each customer-managed API-server instance.
+2. Review HTTP profiling, debug handlers, and the separate debug socket
+   against the exact release source. For a configured Unix socket, use an
+   approved filesystem and listener inventory to assess reachability and
+   ownership. Inspect ordinary health, metrics, and logs as separate
+   operational paths with their own registration and access policies.
+3. For an approved diagnostic exception, verify the precise path and verb in
+   effective RBAC and provider IAM. Compare expected scoped operator access
+   with ordinary subject denial using a read-only authorization review. Retain
+   the owner, justifying need, scope, expiry, and review schedule. Keep runtime
+   diagnostics out of collected evidence.
+4. Where the provider owns the component, retain dated product- and
+   version-specific documentation or an attestation for handler settings.
+   Independently verify compensating endpoint restrictions, identity
+   permissions, and audit collection on the customer-controlled paths.
+   Document endpoint and proxy coverage. Mark a handler setting unverified
+   when the provider evidence does not cover it.
+5. Preserve the release, source revision, checked endpoints and identities,
+   expected and observed authorization, documented provider boundaries,
+   authenticated health result, and disposition. Repeat the review after a
+   version, policy or endpoint change.
+
+- [EKS control-plane settings](https://docs.aws.amazon.com/eks/latest/userguide/control-plane-configuration.html)
+  [EKS endpoint access](https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html)
+- [GKE control-plane responsibility](https://cloud.google.com/kubernetes-engine/docs/concepts/cluster-architecture)
+  [GKE network isolation](https://cloud.google.com/kubernetes-engine/docs/concepts/network-isolation)
+- [AKS private clusters](https://learn.microsoft.com/azure/aks/private-clusters)
+  [AKS API server authorized IP ranges](https://learn.microsoft.com/azure/aks/api-server-authorized-ip-ranges)
