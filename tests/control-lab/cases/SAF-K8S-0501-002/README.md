@@ -21,3 +21,7 @@ CNI behavior, and review cadence.
 
 [Kubernetes NetworkPolicy](https://v1-36.docs.kubernetes.io/docs/concepts/services-networking/network-policies/) ·
 [Kubernetes DNS debugging](https://v1-36.docs.kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/)
+
+## Adopter verification
+
+Inventory production namespaces, authorized namespace labels and who may change them. Identify CNI/version and effective ingress/egress policy union, including additive policies and exceptions. Verify permitted and denied application paths plus DNS and monitoring/control-plane system flows; include TCP DNS if used. Retain periodic review, drift and exception evidence for each relevant cluster/provider.
