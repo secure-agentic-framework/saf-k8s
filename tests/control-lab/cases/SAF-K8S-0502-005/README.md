@@ -15,3 +15,7 @@ Use Kind v0.32.0, Kubernetes v1.36.1 and a local OpenSSL-compatible CLI for temp
 This verifies protocol-level transport and identity for the two synthetic paths. Production NCCL, CNI encryption, network storage, registry and serving routes, RDMA and throughput need separate evidence.
 
 [Kubernetes v1.36 NetworkPolicy](https://v1-36.docs.kubernetes.io/docs/concepts/services-networking/network-policies/) · [Python 3.13 SSL peer authentication](https://docs.python.org/3.13/library/ssl.html)
+
+## Adopter verification
+
+Map actual training compute, data stores, registries and serving routes, including protocols and trust boundaries. For each route, verify authenticated peer identity and certificate/CA validation as applicable. Cover GPU/NCCL, CNI encryption, NFS/object storage, RDMA, registry and serving paths when used. Document exceptions and responsible owners. Measure encrypted throughput on representative deployed workloads and retain the approved comparison.
