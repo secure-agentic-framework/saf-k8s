@@ -1,6 +1,8 @@
 """Verify write-key rotation and exact migration of owned inert API records."""
 
 import base64
+from copy import deepcopy
+from datetime import date, timedelta
 import json
 import os
 from pathlib import Path
@@ -8,7 +10,8 @@ import secrets
 import subprocess
 import time
 
-SCOPE = "Native Secretbox key rotation for a dedicated custom resource on one disposable Kubernetes API server."
+SCOPE = ("Native Secretbox key rotation for a dedicated custom resource on one disposable Kubernetes API server, "
+         "plus a pure synthetic schedule and backup-retirement decision predicate with no operational actions.")
 NODE_IMAGE = "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
 NAMESPACE = "saf-test"
 GROUP = "rotation.saf.example"
@@ -18,6 +21,153 @@ OLD = "fixture-old-key"
 NEW = "fixture-new-key"
 MARKERS = {"pre-rotation": "fixture-public-before", "post-rotation": "fixture-public-after",
            "rollback-write": "fixture-public-during-rollback"}
+
+# A separate, offline decision predicate. All inventory labels and dates below
+# are fictional; this does not read or retire any key or backup.
+PLANNER_CLOCK = date(2026, 11, 25)
+PLANNER_CONTROL = "SAF-K8S-0102-006"
+
+
+def planner_decision(plan, today=PLANNER_CLOCK):
+    """Return accept/reason codes for a synthetic schedule/retention plan."""
+    reasons = []
+    if plan.get("control_id") != PLANNER_CONTROL:
+        reasons.append("wrong_control")
+    if plan.get("key_layer") not in {"local_api_key", "remote_kms_kek"}:
+        reasons.append("unsupported_key_layer")
+    if not plan.get("version_labels"):
+        reasons.append("missing_symbolic_key_versions")
+    if not plan.get("trigger") or not plan.get("next_due"):
+        reasons.append("missing_schedule")
+    elif date.fromisoformat(plan["next_due"]) < today:
+        reasons.append("schedule_overdue")
+    if not plan.get("executor") or not plan.get("owner"):
+        reasons.append("missing_owner_or_executor")
+    if not plan.get("approver"):
+        reasons.append("missing_approval")
+    elif plan["approver"] == plan.get("executor"):
+        reasons.append("approval_not_independent")
+    if not plan.get("approval_valid_until"):
+        reasons.append("approval_expiry_missing")
+    elif date.fromisoformat(plan["approval_valid_until"]) < today:
+        reasons.append("approval_expired")
+    if not plan.get("change_ref") or not plan.get("rollback_owner"):
+        reasons.append("missing_change_or_rollback_reference")
+    if not plan.get("migration_method") or not plan.get("retained_reader_window"):
+        reasons.append("missing_migration_or_reader_window")
+
+    inventory = plan.get("backup_inventory")
+    copies = inventory.get("copies", []) if isinstance(inventory, dict) else []
+    if not isinstance(inventory, dict) or not inventory.get("complete") or not copies:
+        reasons.append("backup_inventory_incomplete")
+    dependent = [copy for copy in copies
+                 if copy.get("encrypted_key_label") == plan.get("retiring_version_label")]
+    if not dependent:
+        reasons.append("no_dependent_backup_copies")
+    if any(not item.get("immutable") for item in dependent):
+        reasons.append("retention_not_immutable")
+    if any(item.get("legal_hold") for item in dependent):
+        reasons.append("backup_hold_unresolved")
+    retention_dates = [date.fromisoformat(item["retention_until"])
+                       for item in dependent if item.get("retention_until")]
+    if len(retention_dates) != len(dependent):
+        reasons.append("backup_expiry_unknown")
+
+    restore = plan.get("cold_restore")
+    dependent_ids = {item["copy_id"] for item in dependent}
+    if (not isinstance(restore, dict) or restore.get("status") != "passed"
+            or not restore.get("exact_integrity")
+            or set(restore.get("covered_copy_ids", [])) != dependent_ids):
+        reasons.append("cold_restore_not_verified_for_all_dependent_copies")
+
+    retirement = plan.get("retire_after")
+    if not retirement:
+        reasons.append("retirement_date_missing")
+    elif retention_dates:
+        retire_day = date.fromisoformat(retirement)
+        minimum_day = max(retention_dates) + timedelta(
+            days=plan.get("recovery_allowance_days", 0))
+        if retire_day < minimum_day:
+            reasons.append("retirement_before_retention_and_recovery_gate")
+    return not reasons, reasons
+
+
+def planner_observations():
+    """Exercise fixed synthetic proposals and return sanitized predicates."""
+    base = {
+        "control_id": PLANNER_CONTROL,
+        "key_layer": "local_api_key",
+        "version_labels": ["fixture-old-version", "fixture-new-version"],
+        "retiring_version_label": "fixture-old-version",
+        "trigger": "illustrative fixture cadence: 90 days",
+        "next_due": "2026-12-01",
+        "owner": "fixture-key-owner",
+        "executor": "fixture-operator-a",
+        "approver": "fixture-approver-b",
+        "approval_valid_until": "2026-12-05",
+        "change_ref": "fixture-change-42",
+        "rollback_owner": "fixture-recovery-owner",
+        "migration_method": "scoped rewrite then authorized reads",
+        "retained_reader_window": "until dependent synthetic copies expire",
+        "recovery_allowance_days": 7,
+        "backup_inventory": {"complete": True, "copies": [
+            {"copy_id": "fixture-copy-01", "encrypted_key_label": "fixture-old-version",
+             "immutable": True, "retention_until": "2027-01-08", "legal_hold": False},
+            {"copy_id": "fixture-copy-02", "encrypted_key_label": "fixture-new-version",
+             "immutable": True, "retention_until": "2027-02-01", "legal_hold": False},
+        ]},
+        "cold_restore": {"status": "passed", "exact_integrity": True,
+                         "covered_copy_ids": ["fixture-copy-01"]},
+        "retire_after": "2027-01-20",
+    }
+    before = json.dumps(base, sort_keys=True)
+    scenarios = [("complete_future_plan", base, True, [])]
+
+    missing_approval = deepcopy(base)
+    missing_approval["approver"] = ""
+    scenarios.append(("missing_approval", missing_approval, False, ["missing_approval"]))
+
+    self_approval = deepcopy(base)
+    self_approval["approver"] = self_approval["executor"]
+    scenarios.append(("self_approval", self_approval, False, ["approval_not_independent"]))
+
+    expired = deepcopy(base)
+    expired["approval_valid_until"] = "2026-11-24"
+    scenarios.append(("expired_approval", expired, False, ["approval_expired"]))
+
+    overdue = deepcopy(base)
+    overdue["next_due"] = "2026-11-24"
+    scenarios.append(("overdue_schedule", overdue, False, ["schedule_overdue"]))
+
+    early = deepcopy(base)
+    early["retire_after"] = "2027-01-14"
+    scenarios.append(("retire_before_retention_plus_recovery", early, False,
+                      ["retirement_before_retention_and_recovery_gate"]))
+
+    held = deepcopy(base)
+    held["backup_inventory"]["copies"][0]["legal_hold"] = True
+    scenarios.append(("unresolved_immutable_hold", held, False, ["backup_hold_unresolved"]))
+
+    incomplete_restore = deepcopy(base)
+    incomplete_restore["cold_restore"]["covered_copy_ids"] = []
+    scenarios.append(("restore_does_not_cover_old_key_copy", incomplete_restore, False,
+                      ["cold_restore_not_verified_for_all_dependent_copies"]))
+
+    outcomes = []
+    for name, proposal, expected_accept, expected_reasons in scenarios:
+        actual_accept, reasons = planner_decision(proposal)
+        outcomes.append({"scenario": name,
+                         "matched": actual_accept == expected_accept and reasons == expected_reasons,
+                         "accepted": actual_accept, "reason_codes": reasons})
+    return {
+        "fixture_clock": PLANNER_CLOCK.isoformat(),
+        "scenario_count": len(outcomes),
+        "matched_scenario_count": sum(bool(item["matched"]) for item in outcomes),
+        "scenarios": outcomes,
+        "input_unchanged": json.dumps(base, sort_keys=True) == before,
+        "all_backup_metadata_synthetic": True,
+        "operational_actions": 0,
+    }
 
 
 def key(label):
@@ -131,6 +281,16 @@ def readable(lab, name):
 
 
 def run(lab):
+    planner = planner_observations()
+    planner_ok = (planner["matched_scenario_count"] == planner["scenario_count"]
+                  and planner["input_unchanged"]
+                  and planner["all_backup_metadata_synthetic"]
+                  and planner["operational_actions"] == 0)
+    lab.check("positive", "The synthetic schedule and backup-retirement predicate accepts safe and rejects unsafe proposals",
+              planner_ok, planner)
+    (lab.evidence / "rotation-schedule-planner-observations.json").write_text(
+        json.dumps(planner, indent=2) + "\n")
+
     lab.create({"apiVersion": "apiextensions.k8s.io/v1", "kind": "CustomResourceDefinition",
                 "metadata": {"name": RESOURCE}, "spec": {"group": GROUP, "scope": "Namespaced",
                 "names": {"plural": "rotationmarkers", "singular": "rotationmarker", "kind": "RotationMarker"},

@@ -15,3 +15,18 @@ This reference exercises authenticated local-provider behavior. For managed
 KMS, verify the release-specific provider key identifiers, active writer and
 read-back, approved cadence, audit proof, migration counts, recovery readiness
 and retirement. Keep key material out of evidence.
+
+## Schedule and retirement planner
+
+A fixed-clock synthetic comparison accepts a complete approved plan and
+rejects plans with missing, self-issued or expired approval, an overdue
+schedule, early retirement, a legal hold, or incomplete recovery coverage.
+The fixture values exercise the decision boundaries. It records only
+scenario outcomes and performs no key or backup action.
+
+For adoption, record each active scheduled workflow, its approval and owner.
+Confirm the actual writer version and compare each applicable record and
+backup before and after migration. Retain scoped inventory, immutable hold
+decisions and isolated recovery evidence for every dependent copy. Verify
+remote-provider rotation and authorized retirement from the selected
+provider's records and recovery observations.

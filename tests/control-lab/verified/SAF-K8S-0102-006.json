@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0102-006",
-  "catalog_revision": "182e27976e21faaf128557f20fc9b42a74f0e58c",
-  "catalog_sha256": "044bf7085d167e0cebc119fadb5265399823a05a596346af59f25fe7dc9ad3a6",
+  "catalog_revision": "95d733ea566e0a388472c285fb53dde8fd57c476",
+  "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "f121308c9a8db57aea8885107b94affe4e07bf05a87698bce6b16d612df92bab",
-  "scope": "Native Secretbox key rotation for a dedicated custom resource on one disposable Kubernetes API server.",
-  "cluster": "saf-lab-e8c2d9d88c8d",
+  "scope": "Native Secretbox key rotation for a dedicated custom resource on one disposable Kubernetes API server, plus a pure synthetic schedule and backup-retirement decision predicate with no operational actions.",
+  "cluster": "saf-lab-8d4b0d9c6dac",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -38,6 +38,83 @@
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
+    {
+      "phase": "positive",
+      "claim": "The synthetic schedule and backup-retirement predicate accepts safe and rejects unsafe proposals",
+      "matched": true,
+      "observed": {
+        "fixture_clock": "2026-11-25",
+        "scenario_count": 8,
+        "matched_scenario_count": 8,
+        "scenarios": [
+          {
+            "scenario": "complete_future_plan",
+            "matched": true,
+            "accepted": true,
+            "reason_codes": []
+          },
+          {
+            "scenario": "missing_approval",
+            "matched": true,
+            "accepted": false,
+            "reason_codes": [
+              "missing_approval"
+            ]
+          },
+          {
+            "scenario": "self_approval",
+            "matched": true,
+            "accepted": false,
+            "reason_codes": [
+              "approval_not_independent"
+            ]
+          },
+          {
+            "scenario": "expired_approval",
+            "matched": true,
+            "accepted": false,
+            "reason_codes": [
+              "approval_expired"
+            ]
+          },
+          {
+            "scenario": "overdue_schedule",
+            "matched": true,
+            "accepted": false,
+            "reason_codes": [
+              "schedule_overdue"
+            ]
+          },
+          {
+            "scenario": "retire_before_retention_plus_recovery",
+            "matched": true,
+            "accepted": false,
+            "reason_codes": [
+              "retirement_before_retention_and_recovery_gate"
+            ]
+          },
+          {
+            "scenario": "unresolved_immutable_hold",
+            "matched": true,
+            "accepted": false,
+            "reason_codes": [
+              "backup_hold_unresolved"
+            ]
+          },
+          {
+            "scenario": "restore_does_not_cover_old_key_copy",
+            "matched": true,
+            "accepted": false,
+            "reason_codes": [
+              "cold_restore_not_verified_for_all_dependent_copies"
+            ]
+          }
+        ],
+        "input_unchanged": true,
+        "all_backup_metadata_synthetic": true,
+        "operational_actions": 0
+      }
+    },
     {
       "phase": "red",
       "claim": "The existing record initially requires the old envelope",
