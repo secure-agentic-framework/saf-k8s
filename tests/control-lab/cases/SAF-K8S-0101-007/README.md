@@ -54,3 +54,20 @@ monitoring signals with sequential requests.
 
 - [Kubernetes v1.36 API Priority and Fairness](https://v1-36.docs.kubernetes.io/docs/concepts/cluster-administration/flow-control/)
 - [Kubernetes v1.36 API server options](https://v1-36.docs.kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/)
+
+## Native critical flows
+
+The fixture API server logs APF classifications at verbosity 3. The case
+reads a bounded recent log tail and checks successful Lease writes for the
+disposable kubelet and scheduler. The kubelet's heartbeat uses the
+`system-node-high` schema and `node-high` priority. Scheduler leader
+election uses `system-leader-election` and `leader-election`. The observer
+retains the match result and expected classification in the receipt.
+Raw logs and request identities are held only in memory.
+
+These observations establish the priority of the sampled native writes.
+The adopter assessment still needs representative queueing, rejection,
+and isolation evidence for the deployment's critical and bulk flows.
+
+- [Kubernetes v1.36 APF debugging](https://v1-36.docs.kubernetes.io/docs/reference/debug-cluster/flow-control/)
+- [Kubernetes v1.36.1 APF classification fields](https://github.com/kubernetes/kubernetes/blob/v1.36.1/staging/src/k8s.io/apiserver/pkg/server/filters/priority-and-fairness.go)

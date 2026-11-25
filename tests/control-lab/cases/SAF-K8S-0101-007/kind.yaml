@@ -6,6 +6,8 @@ kubeadmConfigPatches:
     kind: ClusterConfiguration
     apiServer:
       extraArgs:
+        - name: v
+          value: "3"
         - name: max-requests-inflight
           value: "451"
         - name: max-mutating-requests-inflight

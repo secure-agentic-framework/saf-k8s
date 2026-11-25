@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0101-007",
-  "catalog_revision": "041127adb87e8d57942b0890cc416ddf96c1e2d7",
-  "catalog_sha256": "6aeee6cde1e28b35528b2b79710a26b9933c277077ed5887ca3ef13abbffe6a9",
+  "catalog_revision": "cf483a70cfcde4a4096c04c27dd54f6fc7a6a292",
+  "catalog_sha256": "479dd34cbc528dfa061f5555b19fc586c71385dcacd427f88979b910e0151d5e",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "2187b3769368b00caad76883dce5420ce087fc39e888eef21726f2cec1ac6c69",
-  "scope": "A local Kubernetes v1.36.1 kind API server only. Use four ordinary GET /version requests and two named kube-scheduler Lease requests total, before and after a narrow FlowSchema. Capture only APF classification response headers and bounded response identity, plus passive seat and dispatch metrics. No synthetic contention or rejection is induced. This does not assess production or managed control planes, traffic under load, tenant fairness, or provider defaults.",
-  "cluster": "saf-lab-ead8f1ea64ba",
+  "scope": "A local Kubernetes v1.36.1 kind API server only. Use four ordinary GET /version requests and two named kube-scheduler Lease requests total, before and after a narrow FlowSchema. Capture only APF classification response headers and bounded response identity, plus passive seat and dispatch metrics. No synthetic contention or rejection is induced. This does not assess production or managed control planes, traffic under load, tenant fairness, or provider defaults. A bounded passive log observer reports naturally occurring kubelet Lease updates and the real scheduler named-Lease request classification; raw API-server logs are discarded.",
+  "cluster": "saf-lab-c3eea4e900ed",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -123,6 +123,28 @@
       "observed": {
         "flow_schema": "system-leader-election",
         "priority_level": "leader-election"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Completed native kubelet Lease writes use the expected APF priority",
+      "matched": true,
+      "observed": {
+        "lease_write_observed": true,
+        "flow_schema": "system-node-high",
+        "priority": "node-high",
+        "classification_matches": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Completed native kube-scheduler Lease writes use the expected APF priority",
+      "matched": true,
+      "observed": {
+        "lease_write_observed": true,
+        "flow_schema": "system-leader-election",
+        "priority": "leader-election",
+        "classification_matches": true
       }
     }
   ]

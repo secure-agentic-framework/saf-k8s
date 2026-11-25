@@ -2,6 +2,7 @@
 import json
 import re
 import subprocess
+import time
 
 
 NAMESPACE = "saf-test"
@@ -17,7 +18,9 @@ SCOPE = (
     "after a narrow FlowSchema. Capture only APF classification response headers "
     "and bounded response identity, plus passive seat and dispatch metrics. No synthetic contention or rejection "
     "is induced. This does not assess production or managed control planes, traffic "
-    "under load, tenant fairness, or provider defaults."
+    "under load, tenant fairness, or provider defaults. A bounded passive log observer "
+    "reports naturally occurring kubelet Lease updates and the real "
+    "scheduler named-Lease request classification; raw API-server logs are discarded."
 )
 
 
@@ -305,3 +308,69 @@ def run(lab):
         scheduler_after == scheduler_before,
         scheduler_after,
     )
+    observe_natural_critical_flows(lab)
+
+
+def observe_natural_critical_flows(lab):
+    """Verify classifications for successful Lease writes from the fixture controllers."""
+    node = f"{lab.cluster}-control-plane"
+    leases = {
+        "kubelet": (f"/apis/coordination.k8s.io/v1/namespaces/kube-node-lease/leases/{node}",
+                    ("system-node-high", "node-high")),
+        "kube-scheduler": (LEASE_PATH, ("system-leader-election", "leader-election")),
+    }
+    command = ["kubectl", "--kubeconfig", str(lab.kubeconfig), "--context",
+               f"kind-{lab.cluster}", "-n", "kube-system", "logs",
+               f"pod/kube-apiserver-{node}", "-c", "kube-apiserver",
+               "--since=45s", "--tail=450", "--limit-bytes=1400000"]
+    matched = {name: set() for name in leases}
+    metadata_shapes = set()
+    deadline = time.monotonic() + 55
+    while time.monotonic() < deadline:
+        try:
+            result = subprocess.run(command, env=lab.env, text=True, capture_output=True,
+                                    timeout=12, check=False)
+        except (OSError, subprocess.TimeoutExpired) as error:
+            lab.block(f"Could not read bounded local API request logs: {type(error).__name__}")
+        if result.returncode:
+            lab.block("Could not read bounded local API request logs")
+        for line in result.stdout.splitlines():
+            if '"HTTP"' not in line or "apf_fs=" not in line:
+                continue
+            fields = {
+                k: quoted if quoted else bare
+                for k, quoted, bare in re.findall(
+                    r'(?:^|\s)(verb|URI|userAgent|resp|apf_fs|apf_pl)=(?:"((?:[^"\\]|\\.)*)"|(\S+))',
+                    line,
+                )
+            }
+            path = fields.get("URI", "").split("?", 1)[0]
+            if path in {values[0] for values in leases.values()} or (
+                path == "/apis/coordination.k8s.io/v1/namespaces/kube-node-lease/leases"
+                and fields.get("userAgent", "").startswith("kubelet/")
+            ):
+                metadata_shapes.add((fields.get("verb", ""), fields.get("resp", ""),
+                                     fields.get("userAgent", "").split("/", 1)[0]))
+            if fields.get("verb") not in ("PUT", "PATCH", "UPDATE") or fields.get("resp") != "200":
+                continue
+            for name, (expected_path, _) in leases.items():
+                if path == expected_path and fields.get("userAgent", "").startswith(name + "/"):
+                    matched[name].add((fields.get("apf_fs"), fields.get("apf_pl")))
+        if all(matched.values()):
+            break
+        time.sleep(2)
+    for name, (_, expected) in leases.items():
+        observed = matched[name]
+        if observed != {expected}:
+            print(f"Lease log methods, statuses and client families: {sorted(metadata_shapes)}")
+            print(f"{name} observed FlowSchema and priority pairs: {sorted(observed, key=repr)}")
+            if name == "kubelet":
+                lease = lab.kubectl(
+                    "-n", "kube-node-lease", "get", "lease", node,
+                    "-o", "jsonpath={.spec.renewTime}", allow_failure=True,
+                )
+                print(f"Fixture node Lease exists and has a renewal time: {lease.returncode == 0 and bool(lease.stdout)}")
+        lab.check("positive", f"Completed native {name} Lease writes use the expected APF priority",
+                  observed == {expected}, {"lease_write_observed": bool(observed),
+                                           "flow_schema": expected[0], "priority": expected[1],
+                                           "classification_matches": observed == {expected}})
