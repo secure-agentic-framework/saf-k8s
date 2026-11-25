@@ -11,3 +11,12 @@ The raw receipt retains the relevant names, API objects, and drain output. The s
 - [Safely drain a node](https://v1-36.docs.kubernetes.io/docs/tasks/administer-cluster/safely-drain-node/)
 - [Kubernetes Network Policies](https://v1-36.docs.kubernetes.io/docs/concepts/services-networking/network-policies/)
 - [Scale a Deployment](https://v1-36.docs.kubernetes.io/docs/tasks/run-application/scale-deployment/)
+
+## Verify an adopting implementation
+
+Pre-authorize the exact containment action and impacted
+scope; reconcile the runbook with CNI, tenant boundaries, topology, disruption
+budgets, and critical dependencies. In an approved test environment, isolate
+or drain the selected workload and verify intended containment, unaffected
+service availability, and the restore/uncordon path against service
+objectives. Retain approval, timing, health, rollback, and post-action review.
