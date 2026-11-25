@@ -14,3 +14,17 @@ observes the failure reason and permits the same completed chain after
 restoring each dependency. The demonstrated scope is Pod creation in one
 enrolled namespace. Deployed policy scope, cache behavior, registration
 lifecycle, and any additional stages require their own evidence.
+
+## Adopter verification
+
+1. Inventory every deployed admission route and enrolled namespace, including
+   policy/webhook registration ownership, all attestation stages, trust roots,
+   and cache behavior.
+2. On an approved inert workload, show that absent, wrong-promoter, and
+   unlinked attestations are denied by the deployed path. Record the exact
+   policy response and confirm no object was persisted.
+3. With an authorized change window, verify registry/verifier and admission
+   dependency outages fail closed, then recover and recheck the same approved
+   request. Retain correlated audit and registration lifecycle evidence.
+
+Open child: `saf-lab-0603-014.1`. Native receipt: 10 checks.
