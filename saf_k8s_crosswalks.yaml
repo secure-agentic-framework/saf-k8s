@@ -1597,16 +1597,18 @@
   framework_requirement_id: Article-10.5.c
   legacy_requirement_id: Art-10:10(5)(c)
   framework_requirement_title: Data and data governance
-  framework_mapping_notes: |-
-    the special categories of personal data are subject to measures to ensure that the personal data processed are secured, protected, subject to suitable safeguards, including strict controls and documentation of the access, to avoid misuse and ensure that only authorised persons have access to those personal data with appropriate confidentiality obligations;
-
-    Access controls, audit logging, RBAC, and encryption are core SAF-K8S capabilities (D4, D7, D10) that directly enforce these safeguards.
+  framework_mapping_notes: Periodic review and remediation of Kubernetes RBAC grants can support verification
+    of who may access covered processing workloads under Article 10(5)(c) of Regulation (EU) 2024/1689
+    as originally published. Preserve separate access records and evidence for safeguards and confidentiality
+    obligations.
   control_id: SAF-K8S-0401-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The high-risk AI system exceptionally processes special categories of personal
+    data for bias detection or correction under the cited 2024 text, and the audit covers and remediates
+    relevant Kubernetes grants.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -19089,16 +19091,17 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-9(4)
   framework_requirement_title: Access by Subset of Privileged Users
-  framework_mapping_notes: 'Restricting who can access agent audit data
-
-
-    4.1 - Design and enforce RBAC (restricting audit log access to security team subset)'
+  framework_mapping_notes: A Kubernetes RBAC audit can identify grants to manage Kubernetes-backed audit
+    logging and compare the holders of those grants with the approved subset of privileged users or roles.
+    Evidence of effective restrictions and the approved subset comes from the audit-logging authorization
+    controls.
   control_id: SAF-K8S-0401-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Kubernetes RBAC governs the audit-logging management functions in scope and
+    the review compares effective grants with the approved privileged subset.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -56786,22 +56789,6 @@
 
     4.5 - Privilege escalation detection (monitoring privileged users); 4.1 - RBAC audit (tracking privileged access)'
   control_id: SAF-K8S-0401-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(20)
-  framework_requirement_title: Privileged Users
-  framework_mapping_notes: 'Enhanced monitoring of privileged users operating agent systems detects insider threats
-
-
-    4.5 - Privilege escalation detection (monitoring privileged users); 4.1 - RBAC audit (tracking privileged access)'
-  control_id: SAF-K8S-0401-002
   relation_type: direct
   strength_level: strong
   applicability: required

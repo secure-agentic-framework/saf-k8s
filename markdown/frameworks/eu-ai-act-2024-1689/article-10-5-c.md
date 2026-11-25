@@ -24,10 +24,10 @@ Access controls, audit logging, RBAC, and encryption are core SAF-K8S capabiliti
 
 - Domain: D04 - Identity, Access, and Secrets Management
 - Knowledge Area: 4.1
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0701-003 - Encryption at rest for persistent volumes](../../controls/SAF-K8S-0701-003.md)
 
