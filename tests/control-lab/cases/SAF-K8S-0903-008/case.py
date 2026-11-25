@@ -21,8 +21,9 @@ SCOPE = (
     "subresource. One inert CPU-only controller Pod and at most three inert CPU-only target Pods "
     "are present at once. Identical demand of three replicas and projected spend of $15.00 are "
     "compared with policy disabled and enabled; an actual over-cap HTTP 429, equal-cap, and recovery cases are also "
-    "observed. No GPU, provider, cloud bill, external traffic, inference service, or production "
-    "environment is involved."
+    "observed. A single fixed local serving request returns a synthetic response below cap and "
+    "a bounded HTTP 429 throttle while over cap. No GPU, provider, cloud bill, external traffic, "
+    "real model inference, or production environment is involved."
 )
 
 
@@ -89,6 +90,35 @@ def _scenario(lab, demand, enabled):
     decision = _invoke(lab, demand, enabled)
     ready = _wait_ready(lab, decision.get("requested_replicas", -1))
     return {**decision, **ready}
+
+
+def _serving_request(lab, request_id):
+    if request_id not in {"saf-0903-008-normal-001", "saf-0903-008-recovery-001", "saf-0903-008-over-cap-001"}:
+        lab.block("Serving probe request ID is not a fixed fixture value")
+    code = r"""
+import json, sys
+from urllib.error import HTTPError
+from urllib.request import ProxyHandler, Request, build_opener
+opener = build_opener(ProxyHandler({}))
+body = json.dumps({"request_id": sys.argv[1]}, separators=(",", ":")).encode()
+request = Request("http://127.0.0.1:8080/inference", data=body,
+                  headers={"Content-Type": "application/json"})
+try:
+    response = opener.open(request, timeout=8)
+except HTTPError as error:
+    response = error
+with response:
+    print(json.dumps({"http_status": response.status, **json.load(response)}, sort_keys=True))
+"""
+    output = _kubectl(lab, "exec", f"deployment/{CONTROLLER}", "--", "python", "-B",
+                      "-c", code, request_id, timeout=15)
+    try:
+        receipt = json.loads(output.stdout)
+    except json.JSONDecodeError:
+        lab.block("Local serving fixture returned an invalid JSON receipt")
+    if receipt.get("request_id") != request_id or receipt.get("http_status") not in {200, 429}:
+        lab.block("Local serving fixture returned an unexpected request receipt")
+    return receipt
 
 
 def _rbac(lab):
@@ -212,6 +242,13 @@ def run(lab):
               reset["requested_replicas"] == 1 and reset["http_status"] == 200 and reset["ready_replicas"] == 1
               and reset["projected_spend"] == "5.00" and reset["allowed"], reset)
 
+    normal_request = _serving_request(lab, "saf-0903-008-normal-001")
+    lab.check("positive", "A single fixed harmless serving request returns the normal fixture response below cap",
+              normal_request == {"http_status": 200, "accepted": True,
+                                 "decision": "served_fixture_response",
+                                 "request_id": "saf-0903-008-normal-001",
+                                 "result": "SYNTHETIC_SAFE_RESPONSE"}, normal_request)
+
     green = _scenario(lab, demand=3, enabled=True)
     lab.check("green", "The same $15 demand over the $10 cap suppresses scale-up and selects degraded service",
               green == {"http_status": 429, "demand_replicas": 3, "unit_cost": "5.00", "projected_spend": "15.00",
@@ -219,6 +256,12 @@ def run(lab):
                         "requested_replicas": 1, "degraded_service": True,
                         "decision": "suppress_scale_up_and_degrade", "spec_replicas": 1,
                         "ready_replicas": 1, "available_replicas": 1}, green)
+
+    throttled_request = _serving_request(lab, "saf-0903-008-over-cap-001")
+    lab.check("green", "A single fixed harmless serving request is throttled with HTTP 429 while over cap",
+              throttled_request == {"http_status": 429, "accepted": False,
+                                   "decision": "budget_throttle",
+                                   "request_id": "saf-0903-008-over-cap-001"}, throttled_request)
 
     equal = _scenario(lab, demand=2, enabled=True)
     lab.check("positive", "Projected spend exactly equal to the approved cap remains allowed",
@@ -239,6 +282,12 @@ def run(lab):
               and recovery["http_status"] == 200 and not recovery["degraded_service"]
               and recovery["requested_replicas"] == recovery["spec_replicas"]
               == recovery["ready_replicas"] == 1, recovery)
+    recovered_request = _serving_request(lab, "saf-0903-008-recovery-001")
+    lab.check("positive", "The fixed serving request returns to the normal response after budget recovery",
+              recovered_request == {"http_status": 200, "accepted": True,
+                                    "decision": "served_fixture_response",
+                                    "request_id": "saf-0903-008-recovery-001",
+                                    "result": "SYNTHETIC_SAFE_RESPONSE"}, recovered_request)
 
 
 def _verify_fixture(facts):

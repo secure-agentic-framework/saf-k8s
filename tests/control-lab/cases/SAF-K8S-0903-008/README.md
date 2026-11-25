@@ -1,13 +1,33 @@
-# SAF-K8S-0903-008 — Budget-aware scale suppression
+# SAF-K8S-0903-008 budget-governed inference scaling
 
-A local reconciler updates the native Deployment scale subresource through a
-dedicated ServiceAccount. The controller Pod hosts a loopback-only fixture.
-The API server permits reads and patches of one named scale resource. The
-driver checks the real requested, Ready, and Available replica counts.
+Run from the framework checkout:
 
-With the policy off, fixed projected demand of 15 units reaches three inert
-replicas. With a cap of 10, identical demand receives HTTP 429 and the
-current capacity stays available. Demand at the cap is admitted. Demand
-below the cap allows recovery to one replica. The test uses synthetic costs
-and an inert CPU Deployment. It tracks cloud budgets and accelerator
-capacity as separate deployment evidence.
+```sh
+python3 tests/control-lab/lab.py test SAF-K8S-0903-008 --docker-context desktop-linux
+```
+
+The fixture reconciler can read and patch the scale subresource of one owned
+Deployment. The test compares the same synthetic projected demand with the
+budget policy off and on, then verifies below-cap, exact-cap, and recovery
+behavior. The over-cap decision preserves Ready capacity and refuses further
+scale-out.
+
+An HTTP route in the same fixture process reads the evaluated budget state.
+The normal synthetic response is available below cap. One harmless request
+receives HTTP 429 while over cap, and the normal response returns after
+recovery. The process runs on disposable Kubernetes. The serving route uses
+local loopback with fixed requests and no model execution or actual cost feed.
+
+## Verify an adopting implementation
+
+1. Identify the authoritative cost or forecast input, its signer or identity,
+   scope, age limit and expected update latency. Inventory all autoscaler
+   writers, selected accelerators, scale targets and approval thresholds.
+2. Exercise below-cap, exact-cap, approved over-cap and stale-source
+   decisions in a representative environment. Verify the effective replica
+   count, Ready capacity, feedback to existing scale writers, and safe
+   behavior if cost evaluation becomes unavailable.
+3. Send an approved canary through the actual serving entry point. Verify the
+   configured throttling, queue or fallback response, its bounds, and
+   service recovery after the cost decision clears. Preserve time-aligned
+   scale, decision and response evidence.

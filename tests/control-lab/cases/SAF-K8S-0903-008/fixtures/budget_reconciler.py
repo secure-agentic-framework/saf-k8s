@@ -16,6 +16,9 @@ UNIT_COST = Decimal("5.00")
 TOKEN_PATH = Path("/var/run/secrets/kubernetes.io/serviceaccount/token")
 CA_PATH = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
 API = "https://kubernetes.default.svc"
+SERVICE_DEGRADED = False
+ALLOWED_INFERENCE_IDS = {"saf-0903-008-normal-001", "saf-0903-008-over-cap-001",
+                        "saf-0903-008-recovery-001"}
 
 
 def api(method, path, body=None):
@@ -32,6 +35,7 @@ def api(method, path, body=None):
 
 
 def evaluate(data):
+    global SERVICE_DEGRADED
     if set(data) != {"demand_replicas", "budget_enabled"}:
         raise ValueError("expected only demand_replicas and budget_enabled")
     demand = data["demand_replicas"]
@@ -43,6 +47,7 @@ def evaluate(data):
     scale_path = f"/apis/apps/v1/namespaces/{NAMESPACE}/deployments/{WORKLOAD}/scale"
     current = api("GET", scale_path)["spec"]["replicas"]
     over_cap = enabled and cost > CAP
+    SERVICE_DEGRADED = over_cap
     target = min(current, demand) if over_cap else demand
     if target != current:
         api("PATCH", scale_path, {"spec": {"replicas": target}})
@@ -72,6 +77,27 @@ class Handler(BaseHTTPRequestHandler):
             self.respond(404, {"error": "not found"})
 
     def do_POST(self):
+        if self.path == "/inference":
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+                if not 0 < length <= 128:
+                    self.respond(400, {"error": "invalid fixture envelope"})
+                    return
+                data = json.loads(self.rfile.read(length))
+                request_id = data.get("request_id") if isinstance(data, dict) else None
+                if set(data) != {"request_id"} or request_id not in ALLOWED_INFERENCE_IDS:
+                    self.respond(400, {"error": "unknown fixed fixture request"})
+                    return
+                if SERVICE_DEGRADED:
+                    self.respond(429, {"accepted": False, "decision": "budget_throttle",
+                                       "request_id": request_id})
+                else:
+                    self.respond(200, {"accepted": True, "decision": "served_fixture_response",
+                                       "request_id": request_id,
+                                       "result": "SYNTHETIC_SAFE_RESPONSE"})
+            except Exception as error:
+                self.respond(400, {"error": type(error).__name__})
+            return
         if self.path != "/evaluate":
             self.respond(404, {"error": "not found"})
             return

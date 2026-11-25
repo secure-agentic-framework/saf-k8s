@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-0903-008",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "edb21a8e2856e78aca38a9a9aa2b9718c932c726",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6907f4b016c44a7929888513de49873a6992c0b5e03c6c59de26c75fc621f055",
-  "scope": "One disposable Kind cluster using the harness-pinned Kubernetes v1.36.1 node image and one case-owned namespace. A Python 3.13 slim fixture evaluates fixed synthetic demand and spend, and a dedicated ServiceAccount may only get or patch the named Deployment's scale subresource. One inert CPU-only controller Pod and at most three inert CPU-only target Pods are present at once. Identical demand of three replicas and projected spend of $15.00 are compared with policy disabled and enabled; an actual over-cap HTTP 429, equal-cap, and recovery cases are also observed. No GPU, provider, cloud bill, external traffic, inference service, or production environment is involved.",
-  "review_timing": {
-    "queued_at": "2026-11-22T21:50:03.703725+00:00",
-    "cluster_ready_at": "2026-11-22T21:50:55.714690+00:00",
-    "approval_at": "2026-11-22T21:52:55.119364+00:00",
-    "case_loaded_at": "2026-11-22T21:52:55.139252+00:00"
-  },
-  "cluster": "saf-lab-5301e7cd16ea",
+  "scope": "One disposable Kind cluster using the harness-pinned Kubernetes v1.36.1 node image and one case-owned namespace. A Python 3.13 slim fixture evaluates fixed synthetic demand and spend, and a dedicated ServiceAccount may only get or patch the named Deployment's scale subresource. One inert CPU-only controller Pod and at most three inert CPU-only target Pods are present at once. Identical demand of three replicas and projected spend of $15.00 are compared with policy disabled and enabled; an actual over-cap HTTP 429, equal-cap, and recovery cases are also observed. A single fixed local serving request returns a synthetic response below cap and a bounded HTTP 429 throttle while over cap. No GPU, provider, cloud bill, external traffic, real model inference, or production environment is involved.",
+  "cluster": "saf-lab-274d818b9861",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "35493d0921eb12fea766f53db32c016a5136d54cc3547b4dc13e119389988e14",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
@@ -135,6 +128,18 @@
       }
     },
     {
+      "phase": "positive",
+      "claim": "A single fixed harmless serving request returns the normal fixture response below cap",
+      "matched": true,
+      "observed": {
+        "accepted": true,
+        "decision": "served_fixture_response",
+        "http_status": 200,
+        "request_id": "saf-0903-008-normal-001",
+        "result": "SYNTHETIC_SAFE_RESPONSE"
+      }
+    },
+    {
       "phase": "green",
       "claim": "The same $15 demand over the $10 cap suppresses scale-up and selects degraded service",
       "matched": true,
@@ -152,6 +157,17 @@
         "spec_replicas": 1,
         "ready_replicas": 1,
         "available_replicas": 1
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A single fixed harmless serving request is throttled with HTTP 429 while over cap",
+      "matched": true,
+      "observed": {
+        "accepted": false,
+        "decision": "budget_throttle",
+        "http_status": 429,
+        "request_id": "saf-0903-008-over-cap-001"
       }
     },
     {
@@ -212,6 +228,18 @@
         "spec_replicas": 1,
         "ready_replicas": 1,
         "available_replicas": 1
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The fixed serving request returns to the normal response after budget recovery",
+      "matched": true,
+      "observed": {
+        "accepted": true,
+        "decision": "served_fixture_response",
+        "http_status": 200,
+        "request_id": "saf-0903-008-recovery-001",
+        "result": "SYNTHETIC_SAFE_RESPONSE"
       }
     }
   ]
