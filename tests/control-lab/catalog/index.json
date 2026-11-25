@@ -207,7 +207,7 @@
     "SAF-K8S-0103-010": {
       "catalog_status": "draft",
       "domain": "D01",
-      "sha256": "f2fea64a263d1f7fb1f58387e99482328d3221ae8df9e727b48877c49628b887",
+      "sha256": "31e4f5b532733cd624fea69c82f3549dde86f65bb9333bf3580e1a555c416718",
       "title": "Leader election configuration and lease object RBAC"
     },
     "SAF-K8S-0103-012": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "3918845c518c3e111d407c322a0fb7423daf94d2",
-  "sha256": "6618518e712531f8ef518344034efb0aa93e5578de809bd6e7903ee3c9fd9a59",
+  "revision": "5697782c5581543fab32c183686317276b1b5f9e",
+  "sha256": "7858ac696aa0fab345adc56211e616c9dbf9a0fd00aeec921bc13b07b6bee205",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

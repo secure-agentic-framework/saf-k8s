@@ -29,3 +29,22 @@ remain separate obligations.
 - [Kubernetes v1.36.1 bootstrap RBAC source](https://github.com/kubernetes/kubernetes/blob/v1.36.1/plugin/pkg/auth/authorizer/rbac/bootstrappolicy/policy.go)
 - [Kubernetes v1.36 controller-manager flags](https://v1-36.docs.kubernetes.io/docs/reference/command-line-tools-reference/kube-controller-manager/)
 - [Kubernetes v1.36 scheduler flags](https://v1-36.docs.kubernetes.io/docs/reference/command-line-tools-reference/kube-scheduler/)
+
+## Effective authorizer comparison
+
+The runner reads only the public client certificate fields used by each real
+kubeadm component to derive its user and authenticated groups. It submits
+local SubjectAccessReviews for get and update on each owned and other named
+Lease. In the stock v1.36.1 fixture, both identities can access both names.
+The authorizer attributes the cross-name decisions to the built-in namespace
+Role and RoleBinding. Independent synthetic identities demonstrate narrower
+allowed and denied named access without changing bootstrap permissions.
+
+Collection list, watch and top-level create are observed separately. Inventory
+all effective authorizers, named and collection grants, default namespaced
+roles, administrator exceptions and any required coordination function. Test
+authorized current permissions and exact denials with representative approved
+identities. Review latency against the approved lease timing plan and include
+external/cloud-controller identities where applicable.
+
+- [Kubernetes v1.36.1 namespaced bootstrap Roles and bindings](https://github.com/kubernetes/kubernetes/blob/v1.36.1/plugin/pkg/auth/authorizer/rbac/bootstrappolicy/namespace_policy.go#L99-L130)

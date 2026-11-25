@@ -114,8 +114,8 @@ def flags(argv):
     return found
 
 
-def cert_subject(lab, component):
-    """Derive the CN from the public certificate, with no key export."""
+def cert_identity(lab, component):
+    """Derive the public certificate CN and organizations, never exporting a key."""
     node = f"{lab.cluster}-control-plane"
     path = f"/etc/kubernetes/{COMPONENTS[component]['kubeconfig']}"
     result = subprocess.run(
@@ -132,11 +132,59 @@ def cert_subject(lab, component):
         ["openssl", "x509", "-noout", "-subject", "-nameopt", "RFC2253"],
         env=lab.env, input=cert, capture_output=True, timeout=10,
     )
-    match = re.search(rb"(?:^subject=|,)\s*CN=(system:[\w-]+)(?:,|$)",
-                      subject.stdout.strip())
-    if subject.returncode or not match:
+    if subject.returncode:
         lab.block(f"Could not verify the certificate subject for {component}")
-    return match[1].decode("ascii")
+    rendered = subject.stdout.decode("utf-8", errors="strict").strip()
+    if rendered.startswith("subject="):
+        rendered = rendered[len("subject="):]
+    attributes = {}
+    for field in rendered.split(","):
+        key, separator, value = field.partition("=")
+        if separator:
+            attributes.setdefault(key.strip(), []).append(value.strip())
+    common_names = attributes.get("CN", [])
+    if len(common_names) != 1 or not re.fullmatch(r"system:[\w-]+", common_names[0]):
+        lab.block(f"Could not verify the certificate subject for {component}")
+    groups = sorted(set(attributes.get("O", [])) | {"system:authenticated"})
+    return common_names[0], groups
+
+
+def subject_access_review(lab, username, groups, verb, name=None):
+    """Ask the local API authorizer about a resource request for a real subject."""
+    attributes = {"namespace": SYSTEM_NAMESPACE, "verb": verb,
+                  "group": LEASE_API_GROUP, "resource": "leases"}
+    if name is not None:
+        attributes["name"] = name
+    review = {"apiVersion": "authorization.k8s.io/v1", "kind": "SubjectAccessReview",
+              "spec": {"user": username, "groups": groups, "resourceAttributes": attributes}}
+    result = kubectl(lab, "create", "-f", "-", "-o", "json", payload=json.dumps(review))
+    status = json.loads(result.stdout).get("status", {})
+    if status.get("evaluationError") or not isinstance(status.get("allowed"), bool):
+        lab.block(f"SubjectAccessReview did not return an authorization decision for {verb}")
+    return status["allowed"], status.get("reason", "")
+
+
+def check_real_subject_effective_policy(lab):
+    for component, spec in COMPONENTS.items():
+        subject, groups = cert_identity(lab, component)
+        other_name = next(row["lease"] for name, row in COMPONENTS.items() if name != component)
+        roles = f"system::leader-locking-{component}"
+        comparisons = {
+            "own_get": ("get", spec["lease"]), "own_update": ("update", spec["lease"]),
+            "other_get": ("get", other_name), "other_update": ("update", other_name),
+            "collection_list": ("list", None), "collection_watch": ("watch", None),
+            "top_level_create": ("create", None),
+        }
+        decisions = {label: subject_access_review(lab, subject, groups, verb, resource_name)
+                     for label, (verb, resource_name) in comparisons.items()}
+        attributed = all(f'Role "{roles}"' in decisions[label][1]
+                         for label in ("other_get", "other_update"))
+        allowed = {label: status for label, (status, _) in decisions.items()}
+        lab.check("red", f"Stock {component} has broader effective access than its named lease rule",
+                  subject == spec["subject"] and all(allowed.values()) and attributed,
+                  {"certificate_subject_matches_expected": subject == spec["subject"],
+                   "kube_system_lease_decisions": allowed,
+                   "other_named_grant_from_builtin_namespace_role": attributed})
 
 
 def has_rule(role, verbs, resource_names):
@@ -151,7 +199,7 @@ def has_rule(role, verbs, resource_names):
 
 def check_kubeadm_rbac(lab):
     for component, spec in COMPONENTS.items():
-        subject = cert_subject(lab, component)
+        subject, _groups = cert_identity(lab, component)
         binding = json.loads(kubectl(
             lab, "get", f"clusterrolebinding/{spec['binding']}", "-o", "json").stdout)
         role = json.loads(kubectl(
@@ -393,6 +441,7 @@ def check_component_election_and_renewal(lab):
 
 def run(lab):
     check_kubeadm_rbac(lab)
+    check_real_subject_effective_policy(lab)
     check_component_election_and_renewal(lab)
     prepare_synthetic_fixtures(lab)
     check_scoped_requests(lab)

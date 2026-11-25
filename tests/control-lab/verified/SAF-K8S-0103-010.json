@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0103-010",
-  "catalog_revision": "bf8e642cb9a3645b004f58c455de8f21cfd5de11",
-  "catalog_sha256": "ba0b2931e7d453d96fcd4ed42df45db6ef15052d35f1baa2141f65bfd1363036",
+  "catalog_revision": "ecbe6327cf242c9695e5a75501867567dbf65e7b",
+  "catalog_sha256": "7858ac696aa0fab345adc56211e616c9dbf9a0fd00aeec921bc13b07b6bee205",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "f2fea64a263d1f7fb1f58387e99482328d3221ae8df9e727b48877c49628b887",
+  "control_sha256": "31e4f5b532733cd624fea69c82f3549dde86f65bb9333bf3580e1a555c416718",
   "scope": "Pinned Kubernetes v1.36.1 single-node kind fixture: verify enabled leader election flags, effective timing relationships, and changing renewTime values for kube-controller-manager and kube-scheduler without modifying either real leader Lease. Inspect kubeadm client certificate subjects and their bootstrap RBAC bindings. Synthetic service accounts exercise get/update against only three run-unique case-owned Leases in kube-system. A synthetic create rule demonstrates RBAC resourceNames cannot constrain top-level create. Cloud controller-manager, HA failover timing, and exempt administrator identities are outside this fixture.",
-  "cluster": "saf-lab-fef3e2545bc7",
+  "cluster": "saf-lab-535c65cd666b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -72,6 +72,42 @@
       "observed": {
         "get_update_exact_name": true,
         "create_rule_unscoped": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Stock kube-controller-manager has broader effective access than its named lease rule",
+      "matched": true,
+      "observed": {
+        "certificate_subject_matches_expected": true,
+        "kube_system_lease_decisions": {
+          "own_get": true,
+          "own_update": true,
+          "other_get": true,
+          "other_update": true,
+          "collection_list": true,
+          "collection_watch": true,
+          "top_level_create": true
+        },
+        "other_named_grant_from_builtin_namespace_role": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Stock kube-scheduler has broader effective access than its named lease rule",
+      "matched": true,
+      "observed": {
+        "certificate_subject_matches_expected": true,
+        "kube_system_lease_decisions": {
+          "own_get": true,
+          "own_update": true,
+          "other_get": true,
+          "other_update": true,
+          "collection_list": true,
+          "collection_watch": true,
+          "top_level_create": true
+        },
+        "other_named_grant_from_builtin_namespace_role": true
       }
     },
     {
