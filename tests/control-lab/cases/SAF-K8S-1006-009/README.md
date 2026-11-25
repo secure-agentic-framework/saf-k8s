@@ -30,3 +30,13 @@ The exporter records a failed delivery and retains the staged envelope. It retri
 when the fixture receiver recovers and clears the spool only after acknowledgment.
 The spool belongs to one Pod. Durable retention and application-specific deployment
 coverage require separate evidence.
+
+## Verify an adopting implementation
+
+Inventory policy engines, policy revisions, resources and
+workload kinds that produce decisions, and each SIEM/GRC export path. Correlate
+representative allow/deny and audit-mode decisions to the effective content
+hash and revision; measure decision coverage and export lag. In an authorized
+resilience test, interrupt the receiver, verify protected queue persistence
+and loss alerts, restore delivery, and reconcile exact sent/acknowledged
+records against retention and tamper controls.
