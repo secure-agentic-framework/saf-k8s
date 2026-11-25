@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0102-007",
-  "catalog_revision": "3e05910b8991dcc3cccefeacc7d8589b29ff12ec",
+  "catalog_revision": "b90e62e06b9b9dd9148714e037b67eafddc74a92",
   "catalog_sha256": "1c78a76489ca604a14fdf3824565e4bcb568f55832e793e78fa752772ba60eab",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "15bbc80b73a40d1328d9f49abefd86abc15c156d0289e7b811d6113add68941c",
-  "scope": "One synthetic ConfigMap on Kubernetes v1.36.1 kind with etcd v3.6.8. Copy a native snapshot through the 0102-008 case-owned kind etcd method, then age-encrypt that artifact with a fresh backup identity and compare it with a separate synthetic source identity, move ciphertext to retention, clear staging and recover into a separate path. The source identity is only a wrong-key proxy: kind live-volume encryption, production key management, storage-provider encryption, custody, and transport are not established. Backup integrity and restore assurance are governed by 0102-008.",
-  "cluster": "saf-lab-04757ae03b55",
+  "scope": "One synthetic ConfigMap on Kubernetes v1.36.1 kind with etcd v3.6.8. Copy a native snapshot through the case-owned kind etcd method as a plaintext comparison. Capture the protected snapshot on verified bounded guest tmpfs with the noswap mount option, stream it into age without a host plaintext staging file, retain ciphertext only, and recover into an isolated local path. The source identity is only a wrong-key proxy: kind live-volume encryption, production key management, storage-provider encryption, custody, and transport are not established. Backup integrity and restore assurance are governed by 0102-008.",
+  "cluster": "saf-lab-b35c313820c4",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -46,6 +46,25 @@
         "native_snapshot_readable": true,
         "synthetic_marker_present": true,
         "live_volume_encryption_claimed": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The owned snapshot staging mount is private bounded tmpfs with noswap",
+      "matched": true,
+      "observed": {
+        "filesystem": "tmpfs",
+        "noswap": true,
+        "maximum_size_mib": 16
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Protected capture writes only the encrypted archive to host staging",
+      "matched": true,
+      "observed": {
+        "staging_only_ciphertext": true,
+        "volatile_snapshot_removed_and_mount_deleted": true
       }
     },
     {

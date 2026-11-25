@@ -7,11 +7,10 @@ python3 lab.py test SAF-K8S-0102-007
 ```
 
 The case uses a fresh Kubernetes v1.36.1 kind cluster, etcd v3.6.8, and one
-synthetic ConfigMap marker. It takes the native snapshot through the isolated
-case-owned kind etcd method used by SAF-K8S-0102-008, then age-encrypts the
-snapshot artifact into a mode-0700 temporary staging directory. Only synthetic
-fixture bytes are inspected, and test output never includes backup bytes or key
-material.
+synthetic ConfigMap marker. It first shows plaintext with a test snapshot.
+Then it captures a new native snapshot on private, bounded `noswap` tmpfs and
+streams it to age. The persistent staging directory receives ciphertext. The
+receipt records only the comparison results.
 
 The red observation confirms that the source snapshot is a readable native
 etcd artifact and contains the synthetic marker before export encryption. The
@@ -23,16 +22,10 @@ SHA-256 digest and the same native etcd snapshot revision. A final red check
 modifies the encrypted artifact and confirms authenticated decryption rejects
 it.
 
-This validates an artifact encryption layer and key separation in a local test;
-the synthetic source key is only a wrong-key comparison. It does not claim that
-kind's live etcd volume is encrypted or demonstrate equivalent live-volume
-protections. Plaintext exists briefly during snapshot creation and encryption
-inside the private temporary directory. Production controls must protect that
-creation and staging path, encrypt persisted backup objects with a separately
-managed backup key, protect key custody and transfer, and verify the actual
-storage provider configuration. Encryption alone does not prove backup access
-restriction, storage-provider encryption-at-rest, integrity manifests,
-signature provenance, or restore readiness.
+The synthetic source-key proxy demonstrates rejection by the backup key
+boundary. Collect actual volume keys, storage, custody and transfer policy
+through the adopter procedure. SAF-K8S-0102-008 covers separate backup
+integrity and restore assurance.
 
 ## Control review notes
 
@@ -57,14 +50,21 @@ and restore assurance. The revised catalog points to that control.
 
 ## Retention and recovery comparison
 
-The case moves the archive-encrypted snapshot into a separate retention directory,
-checks for the single expected ciphertext artifact, and removes its local staging
-file before decrypting into a separate private recovery directory. It checks the
-same native revision and digest against the original synthetic snapshot. The
-fixture intentionally creates a readable snapshot to demonstrate the red baseline.
-The comparison proves archive encryption and the tested cleanup boundary. It
-leaves encryption during initial snapshot creation and staging to the adopter
-procedure. Removing a file does not demonstrate media sanitization.
+The red comparison deliberately writes a readable synthetic snapshot, verifies
+that it is a native etcd artifact, and removes it. The protected comparison
+mounts a private 16 MiB tmpfs with `noswap` inside only the case-owned Kind
+node, then verifies the effective filesystem and option. The pinned etcd
+process supplies the native snapshot and inspection tools. Native
+`etcdctl` writes there and the case streams those bytes directly into age,
+without creating a host plaintext file during staging. The two possible
+volatile snapshot paths and the fixture mount are removed before recovery.
+Only ciphertext is moved to the separate retention directory. The approved backup identity recovers
+the exact expected digest and native revision in an isolated private directory.
+
+Validate separate staging encryption and swap/hibernation policy for the actual
+platform. Collect separate host-paging, physical media erasure, and service storage
+encryption evidence where applicable.
+[Linux tmpfs mount documentation](https://docs.kernel.org/filesystems/tmpfs.html).
 
 ## Adoption evidence guide
 

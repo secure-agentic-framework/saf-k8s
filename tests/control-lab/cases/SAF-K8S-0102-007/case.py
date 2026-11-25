@@ -2,6 +2,7 @@
 import hashlib
 import json
 import os
+import runpy
 from pathlib import Path
 import shutil
 import subprocess
@@ -18,9 +19,10 @@ MARKER = b"synthetic-non-sensitive-etcd-backup-encryption-fixture"
 DATA_DIRECTORY = "/var/lib/etcd"
 SCOPE = (
     "One synthetic ConfigMap on Kubernetes v1.36.1 kind with etcd v3.6.8. Copy a native "
-    "snapshot through the 0102-008 case-owned kind etcd method, then age-encrypt that "
-    "artifact with a fresh backup identity and compare it with a separate synthetic source "
-    "identity, move ciphertext to retention, clear staging and recover into a separate path. "
+    "snapshot through the case-owned kind etcd method as a plaintext comparison. Capture the "
+    "protected snapshot on verified bounded guest tmpfs with the noswap mount option, stream it "
+    "into age without a host plaintext staging file, retain ciphertext only, and recover "
+    "into an isolated local path. "
     "The source identity is only a wrong-key proxy: kind live-volume encryption, "
     "production key management, storage-provider encryption, custody, and transport are "
     "not established. Backup integrity and restore assurance are governed by 0102-008."
@@ -139,12 +141,15 @@ def run(lab):
                    "synthetic_marker_present": has_synthetic_marker,
                    "live_volume_encryption_claimed": False})
 
+        raw.unlink()
+        container_id = next(item["containerID"] for item in mirror["status"]["containerStatuses"]
+                            if item["name"] == "etcd")
+        tls_args = ["--endpoints=https://127.0.0.1:2379", "--cacert=/etc/kubernetes/pki/etcd/ca.crt",
+                    "--cert=/etc/kubernetes/pki/etcd/server.crt", "--key=/etc/kubernetes/pki/etcd/server.key"]
         encrypted = staging / "snapshot.db.age"
-        result = invoke(lab, [age, "--encrypt", "--recipient", backup_recipient,
-                              "--output", str(encrypted), str(raw)], timeout=90)
-        if result.returncode or not encrypted.is_file():
-            lab.block("The synthetic snapshot could not be encrypted with its backup identity")
-        encrypted.chmod(0o600)
+        capture = runpy.run_path(str(Path(__file__).with_name("protected_capture.py")))["capture_protected_snapshot"]
+        source_digest, source_revision = capture(
+            lab, etcd, container_id, tls_args, age, backup_recipient, encrypted)
         raw_encrypted = native_status(lab, mount, encrypted.name)
         ciphertext_contains_marker = MARKER in encrypted.read_bytes()
         lab.check("green", "The stored backup artifact is encrypted and not a native etcd snapshot",
@@ -153,12 +158,10 @@ def run(lab):
                    "synthetic_marker_present": ciphertext_contains_marker,
                    "artifact_mode": oct(encrypted.stat().st_mode & 0o777)})
 
-        source_digest = sha256(raw)
         retention = root / "retention"
         retention.mkdir(mode=0o700)
         retained = retention / encrypted.name
         encrypted.replace(retained)
-        raw.unlink()
         retained_entries = list(retention.iterdir())
         lab.check("green", "The retention directory contains only the approved ciphertext artifact",
                   retained_entries == [retained] and retained.stat().st_mode & 0o777 == 0o600
