@@ -24,3 +24,7 @@ separate evidence.
 - [Kubernetes Service IP allocator metrics](https://www.kubernetes.dev/resources/keps/1880/#monitoring-requirements)
 - [CNI host-local IPAM](https://www.cni.dev/plugins/current/ipam/host-local/)
 - [Prometheus alerting rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/)
+
+## Verify an adopting implementation
+
+Inventory every installed Service allocator, CNI Pod allocator and provider/node address pool, including configured CIDRs, per-node prefixes, reservations and expansion limits. For each allocator, identify its native remaining-capacity signals, scrape identity, threshold and runbook owner; compare warning time with observed allocation growth. In a preproduction fixture or approved provider validation, show that a new allocation succeeds while a warning is active, that the routed alert is received, and that cleanup/recovery clears the condition. Preserve provider console/API evidence for cloud and node pools, CNI version/configuration, alert delivery and escalation; do not infer these from Kind metrics.
