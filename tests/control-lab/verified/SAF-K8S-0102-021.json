@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-0102-021",
-  "catalog_revision": "3e55e75211d64e0b66762ad2930127f06d59fa0f",
-  "catalog_sha256": "aefc685b3b821305b42ce28f3c1614edc0bed7ccef3e0ffa1004fa9e0cfc902c",
+  "catalog_revision": "b90e62e06b9b9dd9148714e037b67eafddc74a92",
+  "catalog_sha256": "1c78a76489ca604a14fdf3824565e4bcb568f55832e793e78fa752772ba60eab",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "c95e66f3b19cc2dc0d05702b830ba638ee104c0d8cc03bb5dfc368b45aa19f82",
-  "scope": "On the harness's pinned kubeadm v1.36.1 kind control-plane node, inspect only public notAfter values and etcd-CA verification for etcd-server, etcd-peer and apiserver-etcd-client. Evaluate a case-owned Prometheus expiry rule with one healthy observed inventory sample and controlled synthetic samples around an example 30-day lead time and a five-minute per-role missing-series hold. The metric is a synthetic telemetry contract, not a claim that kubeadm exports this Prometheus metric. No private key, notification route, production cluster, external etcd, externally managed certificate, or real alert delivery is tested.",
-  "review_timing": {
-    "queued_at": "2026-11-22T23:33:11.895640+00:00",
-    "cluster_ready_at": "2026-11-22T23:33:39.712977+00:00",
-    "approval_at": "2026-11-22T23:34:21.229558+00:00",
-    "case_loaded_at": "2026-11-22T23:34:21.251896+00:00"
-  },
-  "cluster": "saf-lab-b42106a3ec41",
+  "scope": "On the harness's pinned kubeadm v1.36.1 kind control-plane node, inspect only public notAfter values and etcd-CA verification for etcd-server, etcd-peer and apiserver-etcd-client. Scrape those exact role observations from a single loopback reference exporter, validate labels and timestamps, and evaluate a healthy Prometheus sample and controlled synthetic samples around an example 30-day lead time and a five-minute per-role missing-series hold. The metric is a synthetic telemetry contract, not a claim that kubeadm exports this Prometheus metric. No private key, notification route, production cluster, external etcd, externally managed certificate, or real alert delivery is tested.",
+  "cluster": "saf-lab-32649e8d7449",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "2b24bdfb9d2aa95062091d1d9a4268cd248882d857628495bec1ab6250fe9373",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
@@ -75,6 +68,23 @@
         },
         "all_certificates_current_and_trusted": true,
         "raw_evidence_file": "certificate-inventory.raw.json"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The loopback reference exporter scrape matches the measured case inventory and is fresh",
+      "matched": true,
+      "observed": {
+        "exact_member_role_coverage": true,
+        "sample_freshness_checked": true,
+        "value_correlated_to_public_certificate_inventory": true,
+        "missing_role_rejected": true,
+        "missing_member_rejected": true,
+        "extra_role_rejected": true,
+        "duplicate_role_rejected": true,
+        "unexpected_member_rejected": true,
+        "stale_sample_rejected": true,
+        "wrong_expiry_value_rejected": true
       }
     },
     {
