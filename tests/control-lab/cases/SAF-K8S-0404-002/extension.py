@@ -18,8 +18,13 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(payload)
 
-    def record_protocol(self, route):
-        print("fixture-protocol " + json.dumps({"route": route, "tls": self.connection.version()}), flush=True)
+    def record_protocol(self, route, probe=None, operation=None):
+        profile = {"route": route, "probe": probe, "operation": operation,
+                   "tls": self.connection.version(),
+                   "cipher": self.connection.cipher()[0]}
+        if route in {"admission", "aggregation"}:
+            print("fixture-protocol " + json.dumps(profile, sort_keys=True), flush=True)
+        print("fixture-profile " + json.dumps(profile, sort_keys=True), flush=True)
 
     def do_GET(self):
         path = urlsplit(self.path).path
@@ -29,11 +34,12 @@ class Handler(BaseHTTPRequestHandler):
                               "resources": [{"name": "fixturemarkers", "singularName": "fixturemarker",
                                              "namespaced": False, "kind": "FixtureMarker", "verbs": ["list"]}]})
         elif path == "/apis/" + VERSION + "/fixturemarkers":
-            self.record_protocol("aggregation")
             probe = parse_qs(urlsplit(self.path).query).get("probe", ["fixture-existing-marker"])[0]
+            self.record_protocol("aggregation", probe=probe, operation="GET")
             if probe.startswith("fixture-availability-"):
                 print("fixture-aggregating " + json.dumps({"route": "aggregate", "probe": probe,
-                                                            "tls": self.connection.version()}), flush=True)
+                                                            "tls": self.connection.version(),
+                                                            "cipher": self.connection.cipher()[0]}), flush=True)
             self.answer(200, {"apiVersion": VERSION, "kind": "FixtureMarkerList", "metadata": {},
                               "items": [{"apiVersion": VERSION, "kind": "FixtureMarker",
                                          "metadata": {"name": "owned-aggregation-marker"}}]})
@@ -52,9 +58,10 @@ class Handler(BaseHTTPRequestHandler):
                     or not name.startswith("fixture-mutator-")):
                 self.send_error(400)
                 return
-            self.record_protocol("mutation")
+            self.record_protocol("mutation", probe=name, operation=request.get("operation"))
             print("fixture-mutating " + json.dumps({"route": "mutate", "probe": name,
-                                                      "tls": self.connection.version()}), flush=True)
+                                                      "tls": self.connection.version(),
+                                                      "cipher": self.connection.cipher()[0]}), flush=True)
             patch = [{"op": "add", "path": "/metadata/annotations/saf-k8s.example~1mutated",
                       "value": "yes"}]
             response = {"uid": request["uid"], "allowed": True, "patchType": "JSONPatch",
@@ -65,12 +72,14 @@ class Handler(BaseHTTPRequestHandler):
         if path != "/admit":
             self.send_error(404)
             return
-        if request["object"].get("metadata", {}).get("name") == "fixture-admission-probe":
-            self.record_protocol("admission")
         probe_name = request.get("object", {}).get("metadata", {}).get("name", "")
+        if probe_name == "fixture-admission-probe":
+            self.record_protocol("admission", probe=probe_name, operation=request.get("operation"))
         if probe_name.startswith("fixture-mutator-validator-"):
+            self.record_protocol("validation", probe=probe_name, operation=request.get("operation"))
             print("fixture-validating " + json.dumps({"route": "validate", "probe": probe_name,
-                                                        "tls": self.connection.version()}), flush=True)
+                                                        "tls": self.connection.version(),
+                                                        "cipher": self.connection.cipher()[0]}), flush=True)
         allowed = "deny" not in request["object"].get("data", {})
         response = {"uid": request["uid"], "allowed": allowed}
         if not allowed:

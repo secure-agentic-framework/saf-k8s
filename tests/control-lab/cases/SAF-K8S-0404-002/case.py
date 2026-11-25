@@ -11,6 +11,8 @@ PYTHON = ("docker.io/library/python:3.13.2-alpine@sha256:"
           "323a717dc4a010fee21e3f1aac738ee10bb485de4e7593ce242b36ee48d6b352")
 GROUP = "extension-fixture.saf-k8s.example"
 APISERVICE = "v1." + GROUP
+TLS13_CIPHERS = {"TLS_AES_128_GCM_SHA256", "TLS_AES_256_GCM_SHA384",
+                 "TLS_CHACHA20_POLY1305_SHA256"}
 NAME = "fixture-extension"
 WRONG = "fixture-other-extension"
 NS = "saf-test"
@@ -494,11 +496,47 @@ def run(lab):
               all(positive.values()), positive)
     mutating = check_mutating_trust(lab, approved[0], unrelated[0])
     availability = check_extension_unavailability(lab, approved[0])
+    received = lab.kubectl("logs", NAME, "--tail=200", timeout=12).stdout
+    profile_events = []
+    for line in received.splitlines():
+        if line.startswith("fixture-profile "):
+            try:
+                entry = json.loads(line.removeprefix("fixture-profile "))
+                if isinstance(entry, dict):
+                    profile_events.append(entry)
+            except json.JSONDecodeError:
+                pass
+    profile_expectations = {
+        "admission": ("fixture-admission-probe", "CREATE"),
+        "aggregation": ("fixture-existing-marker", "GET"),
+        "mutation": ("fixture-mutator-approved-ca", "CREATE"),
+        "validation": ("fixture-mutator-validator-restored", "CREATE"),
+    }
+    negotiated_profiles = {}
+    for route, (probe_name, operation) in profile_expectations.items():
+        matches = [entry for entry in profile_events
+                   if entry.get("route") == route and entry.get("probe") == probe_name
+                   and entry.get("operation") == operation]
+        pairs = sorted({(str(entry.get("tls")), str(entry.get("cipher"))) for entry in matches})
+        negotiated_profiles[route] = {
+            "exact_owned_operation_observed": bool(matches),
+            "tls": pairs[0][0] if len(pairs) == 1 else None,
+            "cipher": pairs[0][1] if len(pairs) == 1 else None,
+            "single_profile_for_exact_operation": len(pairs) == 1,
+        }
+    profile_ok = all(row["exact_owned_operation_observed"]
+                     and row["single_profile_for_exact_operation"]
+                     and row["tls"] == "TLSv1.3"
+                     and row["cipher"] in TLS13_CIPHERS
+                     for row in negotiated_profiles.values())
+    lab.check("positive", "Admission, aggregation, mutation and validation each record their exact TLS 1.3 cipher profile",
+              profile_ok, negotiated_profiles)
     (lab.evidence / "extension-tls-observations.json").write_text(json.dumps({
         "wrong_authority": first, "wrong_endpoint_name": wrong, "correct_tls": positive, "negotiated_protocols": protocols,
+        "negotiated_extension_profiles": negotiated_profiles,
         "mutating_webhook": mutating,
         "extension_unavailability_and_recovery": availability,
     }, indent=2) + "\n")
 
-SCOPE += " The owned receivers require TLS 1.3 and record the negotiated version for each exact API-server operation. "
+SCOPE += " The owned receivers require TLS 1.3 and record negotiated version and cipher for exact API-server extension calls. "
 SCOPE += " A separate selector-isolated Service with no endpoints checks fail-closed API extension calls and same-route recovery without stopping workloads."

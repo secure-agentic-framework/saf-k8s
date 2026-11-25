@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0404-002",
-  "catalog_revision": "95d733ea566e0a388472c285fb53dde8fd57c476",
-  "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
+  "catalog_revision": "18f3b9fc0704c6476b5609b404e7a6faceda5f39",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9982d3d3098a8318200ede5025cfabe1d879510670fc51e0c7beb7d071969b23",
-  "scope": "Separate native Kubernetes admission and API aggregation paths use the same case-owned HTTPS server. Actual API-server decisions distinguish trusted CA, service DNS identity, and an explicit admission denial. Workload-to-workload transports, extension-client authentication, CA reload and production trust policy need independent verification. The owned receivers require TLS 1.3 and record the negotiated version for each exact API-server operation.  A separate selector-isolated Service with no endpoints checks fail-closed API extension calls and same-route recovery without stopping workloads.",
-  "cluster": "saf-lab-22056d534aab",
+  "scope": "Separate native Kubernetes admission and API aggregation paths use the same case-owned HTTPS server. Actual API-server decisions distinguish trusted CA, service DNS identity, and an explicit admission denial. Workload-to-workload transports, extension-client authentication, CA reload and production trust policy need independent verification. The owned receivers require TLS 1.3 and record negotiated version and cipher for exact API-server extension calls.  A separate selector-isolated Service with no endpoints checks fail-closed API extension calls and same-route recovery without stopping workloads.",
+  "cluster": "saf-lab-d3c76b6b8e2c",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -195,6 +195,37 @@
         "api_service_available": true,
         "exact_marker_returned": true,
         "healthy_aggregation_event": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Admission, aggregation, mutation and validation each record their exact TLS 1.3 cipher profile",
+      "matched": true,
+      "observed": {
+        "admission": {
+          "exact_owned_operation_observed": true,
+          "tls": "TLSv1.3",
+          "cipher": "TLS_AES_256_GCM_SHA384",
+          "single_profile_for_exact_operation": true
+        },
+        "aggregation": {
+          "exact_owned_operation_observed": true,
+          "tls": "TLSv1.3",
+          "cipher": "TLS_AES_256_GCM_SHA384",
+          "single_profile_for_exact_operation": true
+        },
+        "mutation": {
+          "exact_owned_operation_observed": true,
+          "tls": "TLSv1.3",
+          "cipher": "TLS_AES_256_GCM_SHA384",
+          "single_profile_for_exact_operation": true
+        },
+        "validation": {
+          "exact_owned_operation_observed": true,
+          "tls": "TLSv1.3",
+          "cipher": "TLS_AES_256_GCM_SHA384",
+          "single_profile_for_exact_operation": true
+        }
       }
     }
   ]

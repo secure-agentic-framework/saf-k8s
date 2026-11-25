@@ -42,3 +42,22 @@ its expected receiver evidence. The healthy workload remains running.
 Use the same approach when rehearsing unavailable target behavior for each
 governed extension. Record the actual API policy, approved trust material,
 failure and positive result, and any provider-specific visibility limits.
+
+## Negotiated profiles on the exact extension paths
+
+The owned TLS 1.3 receivers record the protocol and cipher for the exact
+successful admission request, API aggregation marker, restored mutation
+request, and restored validation request. These four operations each
+negotiated TLS 1.3 with TLS_AES_256_GCM_SHA384 on the reviewed v1.36.1
+fixture. The scoped wrong-trust and unavailable endpoints are still
+refused and the authorized comparisons remain functional.
+
+Review the actual Kubernetes release, Go TLS behavior and receiver
+configuration for each path. This fixture records negotiation at the
+receiver. Verify the deployed list of possible negotiated suites and
+endpoints against the adopter's approval policy. If the provider does
+not disclose a path, retain its disposition and evidence request.
+
+- [Kubernetes v1.36 validating webhooks](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/)
+- [Kubernetes v1.36 aggregation layer](https://v1-36.docs.kubernetes.io/docs/concepts/extend-kubernetes/api-extension/apiserver-aggregation/)
+- [Go 1.26.2 TLS implementation](https://github.com/golang/go/blob/go1.26.2/src/crypto/tls/cipher_suites.go)
