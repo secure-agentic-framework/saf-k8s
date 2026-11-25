@@ -19,3 +19,13 @@ classes, hardware, and organizational recovery procedures require separate revie
 - [Kubernetes NetworkPolicy](https://v1-36.docs.kubernetes.io/docs/concepts/services-networking/network-policies/)
 - [Kubernetes Service Accounts](https://v1-36.docs.kubernetes.io/docs/concepts/security/service-accounts/)
 - [Kind v0.32.0](https://github.com/kubernetes-sigs/kind/releases/tag/v0.32.0)
+
+## Verify an adopting implementation
+
+Map the recovery identity, namespaces, nodes, CNI policy
+selectors, control-plane/host-network paths, mounted devices, and required
+services. In an approved recovery exercise, prove exact allowed traffic and
+receipt access while ordinary and same-label neighboring paths remain denied.
+Exercise provider and Kubernetes credential replacement/revocation, validate
+old-credential denial at every relying party, and record the replacement,
+retirement, and rollback owner.
