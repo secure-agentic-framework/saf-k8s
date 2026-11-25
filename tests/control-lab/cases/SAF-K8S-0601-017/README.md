@@ -22,3 +22,16 @@ need their own evidence.
 
 - [Docker multi-stage builds](https://docs.docker.com/build/building/multi-stage/)
 - [OCI layer filesystem changes](https://github.com/opencontainers/image-spec/blob/v1.1.1/layer.md)
+
+## Adopter verification
+
+1. Enumerate promoted runtime image digests and the supported architectures
+   and build variants.
+2. Retain build-graph and layer/filesystem inventories showing build-only
+   tools and artifacts are absent from each final image while required runtime
+   content remains.
+3. Run the approved image through the production build and promotion gates;
+   attach exceptions and demonstrate that a changed final digest cannot bypass
+   the reviewed build policy.
+
+Open child: `saf-lab-0601-017.1`. Native receipt: 4 checks.
