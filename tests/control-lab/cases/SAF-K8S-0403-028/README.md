@@ -13,3 +13,13 @@ credential class, escalation threshold and dependent consumer separately.
 
 - [NIST authenticator invalidation](https://pages.nist.gov/800-63-4/sp800-63b.html)
 - [Vault token API](https://developer.hashicorp.com/vault/api-docs/auth/token)
+
+## Verify an adopting implementation
+
+Tie each exposure report to the authoritative issuer,
+credential identifier, affected consumers, and response clock without copying
+credential values into evidence. Obtain required approval, revoke at the
+issuer, then test denial through each relying party and any cached session.
+Issue and validate a replacement only for consumers that still need access;
+verify unaffected access and document residual validity, no-replacement
+decisions, escalation, and audit retention.
