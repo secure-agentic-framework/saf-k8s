@@ -47,3 +47,13 @@ No cluster or workload has been run as part of this draft. The supervisor should
 The supervisor independently recomputes the hashes and sequence links for all
 three event chains and tests rejection of an edited event. The Kubernetes API
 separately rejects updates to the immutable source ConfigMap.
+
+## Verify an adopting implementation
+
+Bind every evidence transfer to an authenticated investigator,
+approved case/scope, source/destination, purpose, and trusted timestamp.
+Require independent authorization, protect signed/hash-linked custody records
+in durable access-controlled retention, and verify them independently after
+each transfer. Exercise pending/denied and approved inert transfers; retain
+policy/legal approval and access/audit evidence without storing sensitive
+payloads in receipts.
