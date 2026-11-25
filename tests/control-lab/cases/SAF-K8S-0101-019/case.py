@@ -9,6 +9,8 @@ import subprocess
 import time
 from urllib.parse import urlsplit
 
+import yaml
+
 
 HERE = Path(__file__).parent
 NAMESPACE = "saf-test"
@@ -24,7 +26,8 @@ SCOPE = (
     "ConfigMap and confirm a neighboring synthetic ConfigMap is forbidden; and "
     "exercise a namespace and label scoped ValidatingAdmissionPolicy against "
     "server-side dry-run ConfigMap records containing inert authorizer-chain text. "
-    "No proposed authorization configuration is applied to an API server. "
+    "The same scoped API requests are repeated under an approved, actively loaded "
+    "structured Node,RBAC configuration. Disallowed values remain inert. "
     "Managed-service settings and production chain approval require separate evidence."
 )
 
@@ -159,6 +162,74 @@ def service_account_get(lab, token, server, tls, name):
         connection.close()
 
 
+def verify_structured_chain(lab, token, server, tls):
+    """Install only the fixed approved chain and confirm its live configuration and decisions."""
+    node = f"{lab.cluster}-control-plane"
+    manifest_path = "/etc/kubernetes/manifests/kube-apiserver.yaml"
+    config_path = "/etc/kubernetes/pki/saf-reviewed-authorizers.json"
+    container_command = ("docker", "exec", node, "cat", manifest_path)
+    try:
+        original = subprocess.run(container_command, env=lab.env, text=True,
+                                  capture_output=True, timeout=15, check=True)
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
+        lab.block(f"Could not read the owned API manifest: {type(error).__name__}")
+    manifest = yaml.safe_load(original.stdout)
+    apiserver = next(item for item in manifest["spec"]["containers"]
+                     if item["name"] == "kube-apiserver")
+    command = apiserver["command"]
+    if command.count("--authorization-mode=Node,RBAC") != 1:
+        lab.block("Expected the reviewed kubeadm authorization command in the owned manifest")
+    if split_flag(command, "--authorization-config"):
+        lab.block("The owned manifest already loads a structured authorization file")
+    command.remove("--authorization-mode=Node,RBAC")
+    command.append("--authorization-config=" + config_path)
+    config = {"apiVersion": "apiserver.config.k8s.io/v1", "kind": "AuthorizationConfiguration",
+              "authorizers": [{"type": "Node", "name": "node"}, {"type": "RBAC", "name": "rbac"}]}
+    lab.command("docker", "exec", "-i", node, "sh", "-ceu", 'umask 022; cat >"$1"',
+                "write-reviewed-authorizers", config_path, payload=json.dumps(config))
+    replace = ('umask 077; temp=$(mktemp /etc/kubernetes/.saf-authorizer.XXXXXX); '
+               'trap \'rm -f "$temp"\' EXIT; cat >"$temp"; mv -f "$temp" "$1"')
+    try:
+        subprocess.run(["docker", "exec", "-i", node, "sh", "-ceu", replace,
+                        "install-reviewed-authorizers", manifest_path],
+                       env=lab.env, input=json.dumps(manifest), text=True,
+                       capture_output=True, timeout=15, check=True)
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
+        lab.block(f"Could not install the approved owned API manifest: {type(error).__name__}")
+
+    pod_name = f"kube-apiserver-{node}"
+    observed = False
+    deadline = time.monotonic() + 115
+    while time.monotonic() < deadline:
+        result = lab.kubectl("-n", "kube-system", "get", f"pod/{pod_name}",
+                             "-o", "json", timeout=12, allow_failure=True)
+        if result.returncode == 0:
+            pod = json.loads(result.stdout)
+            active = next(item for item in pod["spec"]["containers"]
+                          if item["name"] == "kube-apiserver")["command"]
+            observed = (
+                split_flag(active, "--authorization-config") == [config_path]
+                and not split_flag(active, "--authorization-mode")
+                and any(item["type"] == "Ready" and item["status"] == "True"
+                        for item in pod.get("status", {}).get("conditions", []))
+            )
+            if observed:
+                break
+        time.sleep(2)
+    live = json.loads(lab.command("docker", "exec", node, "cat", config_path).stdout)
+    lab.check("positive", "The Ready API server references the exact approved ordered structured chain",
+              observed and live == config,
+              {"apiserver_ready_with_structured_config": observed,
+               "authorizer_types": [item["type"] for item in live["authorizers"]]})
+    allowed, marker = service_account_get(lab, token, server, tls, ALLOWED)
+    denied, status = service_account_get(lab, token, server, tls, NEIGHBOR)
+    lab.check("green", "The approved structured chain preserves authorized access and the same Forbidden comparison",
+              allowed == 200 and marker.get("metadata", {}).get("name") == ALLOWED
+              and denied == 403 and status.get("reason") == "Forbidden",
+              {"allowed_named_read": allowed, "other_named_read": denied,
+               "denied_reason": status.get("reason")})
+
+
 def run(lab):
     fixtures = json.loads((HERE / "fixtures.json").read_text())
     chain = live_chain(lab)
@@ -245,3 +316,5 @@ def run(lab):
         {"http_status": denied_status, "reason": denied_body.get("reason"),
          "resource": NEIGHBOR},
     )
+
+    verify_structured_chain(lab, token, server, tls)

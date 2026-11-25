@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0101-019",
-  "catalog_revision": "619c1478dc53b82ee7825214d7a3dd81af588371",
-  "catalog_sha256": "ba2c83990b7e8dabd3521401627a287dc143c1661a28469381ebabfdcef4730b",
+  "catalog_revision": "e7dd1ec5c67b9400c0cc088e2b4cc3378fa76e22",
+  "catalog_sha256": "6aeee6cde1e28b35528b2b79710a26b9933c277077ed5887ca3ef13abbffe6a9",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "dc27ea38ecd2a224a8ad04ee895e1c00da269936e5c9f6277a083d703b5c7b38",
-  "scope": "Self-managed Kind Kubernetes v1.36.1 only. Inspect the runner-owned live kube-apiserver command for the explicit Node,RBAC authorization-mode chain; use a genuine case-owned ServiceAccount token to read one RBAC-named synthetic ConfigMap and confirm a neighboring synthetic ConfigMap is forbidden; and exercise a namespace and label scoped ValidatingAdmissionPolicy against server-side dry-run ConfigMap records containing inert authorizer-chain text. No proposed authorization configuration is applied to an API server. Managed-service settings and production chain approval require separate evidence.",
-  "cluster": "saf-lab-da97d77defd3",
+  "scope": "Self-managed Kind Kubernetes v1.36.1 only. Inspect the runner-owned live kube-apiserver command for the explicit Node,RBAC authorization-mode chain; use a genuine case-owned ServiceAccount token to read one RBAC-named synthetic ConfigMap and confirm a neighboring synthetic ConfigMap is forbidden; and exercise a namespace and label scoped ValidatingAdmissionPolicy against server-side dry-run ConfigMap records containing inert authorizer-chain text. The same scoped API requests are repeated under an approved, actively loaded structured Node,RBAC configuration. Disallowed values remain inert. Managed-service settings and production chain approval require separate evidence.",
+  "cluster": "saf-lab-e860c9ad271f",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -154,6 +154,28 @@
         "http_status": 403,
         "reason": "Forbidden",
         "resource": "saf-0101-019-neighbor"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The Ready API server references the exact approved ordered structured chain",
+      "matched": true,
+      "observed": {
+        "apiserver_ready_with_structured_config": true,
+        "authorizer_types": [
+          "Node",
+          "RBAC"
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The approved structured chain preserves authorized access and the same Forbidden comparison",
+      "matched": true,
+      "observed": {
+        "allowed_named_read": 200,
+        "other_named_read": 403,
+        "denied_reason": "Forbidden"
       }
     }
   ]
