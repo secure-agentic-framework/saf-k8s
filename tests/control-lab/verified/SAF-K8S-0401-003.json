@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0401-003",
-  "catalog_revision": "d43eed4f9b12786e07b53fb47c8280a607a39653",
-  "catalog_sha256": "d349202ee2a53ae35fd3d0b6c36098d2d5cc45a51aa71fbf557812fcda78d4a0",
+  "catalog_revision": "d99a34ac25be2d981f91701c4da151059c21285a",
+  "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "26b47cbc081758ddd3c9d0d93e26293a119c2390a4e33ca013970c0e33b10f9e",
   "scope": "Kubernetes v1.36.1 validating admission for fixture ClusterRole updates and matching contributors, enforced selector stability, followed by live ClusterRole aggregation into a case-owned aggregate role. Only get on a case-owned ConfigMap is exercised by an independent consumer through a namespace RoleBinding. A labeled CRD alone does not contribute rules. Built-in roles, other aggregate selectors, deployments, and production policy are not tested.",
-  "cluster": "saf-lab-7d9d756418b6",
+  "cluster": "saf-lab-0623313b4a17",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
