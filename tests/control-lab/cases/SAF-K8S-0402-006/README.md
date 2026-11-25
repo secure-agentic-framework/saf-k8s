@@ -17,3 +17,16 @@ prerequisites and are scoped separately in the catalog.
 - [Amazon EKS workload identity mechanisms](https://docs.aws.amazon.com/eks/latest/userguide/service-accounts.html)
 - [GKE Workload Identity Federation](https://docs.cloud.google.com/kubernetes-engine/docs/concepts/workload-identity)
 - [AKS Workload ID](https://learn.microsoft.com/azure/aks/workload-identity-overview)
+
+## Adopter verification
+
+1. Identify the actual provider, supported federation mode, cluster,
+   issuer, subject, audience and workload principal.
+2. Verify the exact binding and trust configuration for the selected
+   mode, including its supported refresh or credential consumption
+   mechanism.
+3. Use the provider's authorized rehearsal to verify expected exchange
+   and a required operation. Verify representative refusals for disallowed
+   subjects, audiences or resources where supported.
+4. Record actual permitted scope, alternate credential paths, session
+   lifetime, revocation behavior and provider audit references.
