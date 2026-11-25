@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0701-003",
-  "catalog_revision": "56e703821e335e42eed7bc8ac1729af7a0faf0d8",
+  "catalog_revision": "b31054691821085a4a326a63c627b9e4be7bcd57",
   "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "0b060cdfc8d7634d4f280ebb6ab45c7f5a748d36bd2c07c04f3ba6e53c6ce8ed",
   "scope": "Kubernetes v1.36.1 kind. Strict server validation checks the StorageClass API. A scoped admission policy requires the exact approved StorageClass for fixture claims. This is a declaration boundary. The separate guest fixture verifies actual file-backed LUKS encryption for a Kubernetes PV. Cloud providers, approved-class authority, production coverage and KMS rotation require their own evidence.",
-  "cluster": "saf-lab-51c8e4df49f3",
+  "cluster": "saf-lab-26a8e922c9ab",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
