@@ -2,6 +2,7 @@
 from datetime import datetime, timezone
 from pathlib import Path
 import re
+import subprocess
 
 
 NODE_IMAGE = "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
@@ -20,7 +21,8 @@ SCOPE = (
     "leaf certificates in the harness's pinned stock kind v1.36.1 cluster and a second "
     "kind cluster with kubeadm v1beta4 ClusterConfiguration.certificateValidityPeriod=719h55m. "
     "Read public notBefore/notAfter values and verify each certificate to that node's etcd CA. "
-    "The 720h organization maximum is an example policy. External CAs, supplied certificates, "
+    "Renew all three named leaf roles using the same configured policy and compare the "
+    "replacement file's actual validity and trust. The 720h maximum is an example. External CAs, supplied certificates, "
     "external etcd and separately managed issuers are outside this case."
 )
 
@@ -64,6 +66,43 @@ def assert_expected_node_image(lab, node):
     result = lab.command("docker", "inspect", "--format", "{{.Config.Image}}", node).stdout.strip()
     if result != NODE_IMAGE:
         lab.block(f"Expected pinned v1.36.1 node image for {node}")
+
+
+def public_fingerprint(lab, node, filename):
+    command = ["docker", "exec", node, "openssl", "x509", "-in", f"{PKI_DIR}/{filename}",
+               "-noout", "-fingerprint", "-sha256"]
+    try:
+        result = subprocess.run(command, env=lab.env, text=True, capture_output=True, timeout=20)
+    except (OSError, subprocess.TimeoutExpired):
+        lab.block("The case-owned public certificate fingerprint could not be checked")
+    parsed = re.fullmatch(r"sha256 Fingerprint=((?:[0-9a-f]{2}:){31}[0-9a-f]{2})",
+                          result.stdout.strip(), re.I)
+    if result.returncode or not parsed:
+        lab.block("Could not verify the fingerprint shape of the case-owned certificate")
+    return parsed[1].upper()
+
+
+def renew_leaves(lab, node):
+    config_path = "/etc/kubernetes/saf-etcd-renewal-config.yaml"
+    policy = ("apiVersion: kubeadm.k8s.io/v1beta4\n"
+              "kind: ClusterConfiguration\n"
+              "certificateValidityPeriod: 719h55m\n")
+    lab.command("docker", "exec", "-i", node, "sh", "-ceu", 'cat >"$1"',
+                "write-fixture-certificate-policy", config_path, payload=policy)
+    try:
+        for role, filename in CERTIFICATES.items():
+            target = role.replace("_", "-")
+            previous = public_fingerprint(lab, node, filename)
+            lab.command("docker", "exec", node, "kubeadm", "certs", "renew", target,
+                        "--config", config_path, timeout=90)
+            changed = public_fingerprint(lab, node, filename) != previous
+            renewed = inspect_certificate(lab, node, role, filename)
+            in_cap = renewed["validity_seconds"] == POLICY_SECONDS
+            lab.check("green", f"Kubeadm renewal replaces {role} with a trusted leaf at the 720h cap",
+                      changed and in_cap and renewed["currently_valid"] and renewed["trusted_by_local_etcd_ca"],
+                      {"fingerprint_changed": changed, **renewed})
+    finally:
+        lab.command("docker", "exec", node, "rm", "-f", config_path)
 
 
 def run(lab):
@@ -136,6 +175,7 @@ def run(lab):
                  item["currently_valid"] and item["trusted_by_local_etcd_ca"]
                  for item in configured.values())},
         )
+        renew_leaves(lab, custom_node)
     finally:
         if custom_owned:
             lab.command("kind", "delete", "cluster", "--name", custom_cluster,

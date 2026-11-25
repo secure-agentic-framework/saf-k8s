@@ -27,9 +27,10 @@ NotAfter to meet the 720h maximum. Kubeadm v1.36 documents `certificateValidityP
 non-CA certificates it generates and gives the default as 8760h (one year).
 It documents a separate 87600h default for generated CA certificates. This case
 uses a 720h example policy, not a claim that Kubernetes prescribes that maximum.
-It evaluates a newly initialized single-node kind cluster; it does not test
-renewal, upgrades, multi-node propagation, external etcd, pre-supplied
-certificates, external CA operation, or a separately managed issuer. Kubeadm's
+It evaluates one newly initialized single-node Kind profile and its selective
+renewals. Upgrades, multi-node propagation, external etcd, pre-supplied
+certificates, external CA operation and independent issuers require their own
+evidence. Kubeadm's
 certificate management documentation explicitly places external-CA-signed
 certificates outside kubeadm management.
 
@@ -39,3 +40,31 @@ certificates outside kubeadm management.
 - [Certificate Management with kubeadm, Kubernetes v1.36](https://v1-36.docs.kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/): validity configuration, external CA boundary, and certificate roles including `apiserver-etcd-client`, `etcd-peer`, and `etcd-server`.
 - [Kubernetes v1.36.1 kubeadm constants](https://github.com/kubernetes/kubernetes/blob/v1.36.1/cmd/kubeadm/app/constants/constants.go): release-tagged source defaults for non-CA and CA validity.
 - [Kubernetes v1.36.1 kubeadm certificate generation](https://github.com/kubernetes/kubernetes/blob/v1.36.1/cmd/kubeadm/app/phases/certs/certlist.go#L61-L74): release-tagged generation and certificate-role source.
+
+## Issuance policy during renewal
+
+After the original readiness check, run the three named kubeadm renewals with
+the same duration policy. Each replacement leaf has a different fingerprint,
+the exact expected validity interval, current validity and trust under the
+case-owned etcd CA. This observes newly written certificate files. Service
+adoption requires comparing the renewed leaf on the actual connection and
+following the documented process reload or rollout procedure.
+
+- [Kubernetes v1.36 kubeadm certs renew reference](https://v1-36.docs.kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-certs/)
+
+## Adopter evidence
+
+
+For every cluster and etcd member, bind the approved maximum to the effective
+issuer/profile revision and record applicability, exception approval, issuer
+and role, public validity interval, chain/trust result, renewal event, and
+evidence date. Cover server, peer and API-server-client certificates after
+issuance, renewal, upgrades and relevant profile changes. Use a versioned
+periodic inventory to detect certificates that predate the policy or were
+installed from supplied files. Keep private keys out of evidence.
+
+For external CAs, CSR signers, external etcd, provider-managed clusters or
+alternate profiles, obtain issuer-specific documentation/attestation and public
+leaf measurements. A kubeadm fixture cannot show that those systems enforce
+the cap. The 0102-021 expiration-alert case is complementary: alerting and
+telemetry do not prove issuance or renewal validity caps.

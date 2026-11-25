@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0102-020",
-  "catalog_revision": "87f9b8c3a541f78796eb3ca8058e8b8c8d7dc232",
-  "catalog_sha256": "84059ed85131d0153bb153008cedec76dcd757fbcee95dd30abdca488a39e443",
+  "catalog_revision": "3e05910b8991dcc3cccefeacc7d8589b29ff12ec",
+  "catalog_sha256": "1c78a76489ca604a14fdf3824565e4bcb568f55832e793e78fa752772ba60eab",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6d22374ca673326f9057b09641ccd114c0b0f90930f0836142a0163779b82faf",
-  "scope": "Compare kubeadm-generated local-etcd server, peer and kube-apiserver etcd-client leaf certificates in the harness's pinned stock kind v1.36.1 cluster and a second kind cluster with kubeadm v1beta4 ClusterConfiguration.certificateValidityPeriod=719h55m. Read public notBefore/notAfter values and verify each certificate to that node's etcd CA. The 720h organization maximum is an example policy. External CAs, supplied certificates, external etcd and separately managed issuers are outside this case.",
-  "cluster": "saf-lab-3a248cf4cde6",
+  "scope": "Compare kubeadm-generated local-etcd server, peer and kube-apiserver etcd-client leaf certificates in the harness's pinned stock kind v1.36.1 cluster and a second kind cluster with kubeadm v1beta4 ClusterConfiguration.certificateValidityPeriod=719h55m. Read public notBefore/notAfter values and verify each certificate to that node's etcd CA. Renew all three named leaf roles using the same configured policy and compare the replacement file's actual validity and trust. The 720h maximum is an example. External CAs, supplied certificates, external etcd and separately managed issuers are outside this case.",
+  "cluster": "saf-lab-0fd4db7591f7",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -104,6 +104,42 @@
         "configured_api_ready": true,
         "baseline_certificates_current_and_trusted": true,
         "configured_certificates_current_and_trusted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Kubeadm renewal replaces etcd_server with a trusted leaf at the 720h cap",
+      "matched": true,
+      "observed": {
+        "fingerprint_changed": true,
+        "name": "etcd_server",
+        "validity_seconds": 2592000,
+        "currently_valid": true,
+        "trusted_by_local_etcd_ca": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Kubeadm renewal replaces etcd_peer with a trusted leaf at the 720h cap",
+      "matched": true,
+      "observed": {
+        "fingerprint_changed": true,
+        "name": "etcd_peer",
+        "validity_seconds": 2592000,
+        "currently_valid": true,
+        "trusted_by_local_etcd_ca": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Kubeadm renewal replaces apiserver_etcd_client with a trusted leaf at the 720h cap",
+      "matched": true,
+      "observed": {
+        "fingerprint_changed": true,
+        "name": "apiserver_etcd_client",
+        "validity_seconds": 2592000,
+        "currently_valid": true,
+        "trusted_by_local_etcd_ca": true
       }
     }
   ]
