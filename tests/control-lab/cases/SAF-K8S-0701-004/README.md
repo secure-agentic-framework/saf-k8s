@@ -27,3 +27,20 @@ production driver behavior and dual authorization need their own evidence.
 
 The optional [PVC usage comparison](pvc-usage-comparison/README.md) adds
 version-specific evidence for retained-data inventory.
+
+## Adopter verification
+
+1. Inventory selected StorageClasses and the effective reclaim policy of their
+   actual bound volumes. Identify the provisioner, the protected data classes,
+   and the authorized source of workload classification labels.
+2. In an approved rehearsal, test that the Retain requirement applies to a
+   protected claim and that an approved scratch class remains usable. Use the
+   actual driver and record observed claim, PV, finalizer and backend states.
+3. Rehearse authorized recovery of a retained volume using the actual backup
+   and restore identities. Confirm the expected data and effective custody.
+4. Record the separate deletion authorization, approved owner, backend
+   sanitization mechanism and verification for each retained copy. For any
+   Article 4a obligation, use the earlier applicable deletion trigger and
+   gather exact storage evidence for all covered copies.
+
+[Article 4a official text](https://eur-lex.europa.eu/eli/reg/2026/1744/oj/eng).
