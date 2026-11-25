@@ -60,3 +60,11 @@ allocation claim.
 [NVIDIA versioned flag definitions](https://github.com/NVIDIA/k8s-device-plugin/blob/v0.20.2/cmd/nvidia-device-plugin/main.go)
 [Kubernetes v1.36 Restricted policy](https://v1-36.docs.kubernetes.io/docs/concepts/security/pod-security-standards/#restricted)
 [Linux capabilities](https://man7.org/linux/man-pages/man7/capabilities.7.html)
+
+## Adopter verification
+
+1. Inventory the workload image/command, node and runtime, device requests, device-plugin/CDI path, and approved functional success criteria for each hardware combination.
+2. From an authorized representative run, retain effective `CapBnd` and `CapEff`, user identity, device access result and workload outcome. Compare against the declared allowlist and the applicable regular/init/ephemeral admission policy. Do not infer required capabilities from a device request or successful allocation.
+3. Where behavior is missing, document the specific failed operation and evaluate only within the existing approved change process. Require the same functional check and least-privilege runtime observation for any approved revision.
+4. Verify actual device allocation and workload smoke on compatible adopter hardware, recording device key, driver/runtime/plugin/CDI versions, node identity, and profile revision. Keep plugin parser evidence distinct from allocation.
+5. Retain sanitized manifests, policy/binding version, runtime masks, device and workload results, approvals/exceptions, and evidence date. Keep untested combinations open.
