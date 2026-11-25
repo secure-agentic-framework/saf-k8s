@@ -25,3 +25,20 @@ and managed provider responsibilities. The disposable cluster is deleted.
 - [Kubernetes v1.36.1 scheduler operational handlers](https://github.com/kubernetes/kubernetes/blob/v1.36.1/cmd/kube-scheduler/app/server.go)
 - [Kubernetes v1.36 assigning Pods to nodes](https://v1-36.docs.kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/)
 - [Kubernetes v1.36 RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
+
+## Adopter verification
+
+1. Inventory each default or custom scheduler, deployment profile, and
+   provider ownership boundary. Record the actual secure listener, its
+   certificate trust, and each authorized monitoring identity and route.
+2. Verify allowed and denied access from approved control-plane and
+   monitoring origins. Check the intended health, metrics, or diagnostic
+   paths separately. The [secure metrics case](../SAF-K8S-0103-017/README.md)
+   demonstrates verified loopback TLS and scoped monitor authorization.
+3. Resolve the effective subjects authorized for Pod binding, including
+   direct, inherited, and administrative grants. Compare permitted and
+   denied tuples with authorized access reviews.
+4. Rehearse applicable placement constraints using server-side dry-run
+   and a permitted synthetic workload. Include direct node assignment,
+   selected scheduler profiles and applicable exemptions. Preserve the
+   policy revision and provider evidence for managed routes.
