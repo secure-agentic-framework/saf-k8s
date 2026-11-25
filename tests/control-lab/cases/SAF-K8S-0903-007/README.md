@@ -11,3 +11,7 @@ This exercises HPA mechanics. GPU metric collection, KEDA trigger behavior,
 real inference capacity, and production time and resource limits require
 separate evidence. KEDA's cooldown is specific to scaling to zero and its HPA
 handles the 1-to-N range.
+
+## Verify an adopting implementation
+
+Validate the deployed HPA metrics API trust chain and metric meaning, then inspect target/min/max replica bounds, scale-up policy, and downscale stabilization. Exercise bounded demand rise and fall with representative inference/GPU metrics and confirm readiness and capacity. The fixture proves native HPA behavior using deterministic synthetic HTTPS demand. It does not prove GPU metrics, KEDA, or inference capacity.
