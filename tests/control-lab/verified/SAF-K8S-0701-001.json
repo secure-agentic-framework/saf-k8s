@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0701-001",
-  "catalog_revision": "b31054691821085a4a326a63c627b9e4be7bcd57",
+  "catalog_revision": "412a27ec1bfd6e80dbd60c010a1cce59d83582b3",
   "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b20869ae66008c46764765b04833f35873c9ef422375bb2f0c29fa43d23c0df7",
   "scope": "One kind v1.36.1 node using its default cluster-owned local-path provisioner. Two administrator-authorized nonroot Pods on the same node use one ReadWriteOnce PVC allowed by the scoped claim policy. The second Pod modifies the inert marker through a writable mount and its other container observes read-only mount enforcement on the same claim. CSI ReadWriteOncePod, other backends and filesystem authorization require independent evidence.",
-  "cluster": "saf-lab-91887e832693",
+  "cluster": "saf-lab-e736bceeb8c9",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -87,6 +87,50 @@
         "mount_readonly": true,
         "write_denied_by_readonly_mount": true,
         "marker": "second-owner"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before reference policy, an authorized synthetic caller can dry-run a Pod referencing the protected claim",
+      "matched": true,
+      "observed": {
+        "server_side_dry_run_admitted": true,
+        "persisted_pod": false,
+        "claim": "saf-rwo-workspace",
+        "identity": "saf-k8s:0701-001-unapproved-claim-user"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The exact policy denies an unrelated identity's protected PVC reference",
+      "matched": true,
+      "observed": {
+        "policy_denial": true,
+        "identity": "saf-k8s:0701-001-unapproved-claim-user",
+        "claim": "saf-rwo-workspace",
+        "persisted_pod": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The fixed approved identity may dry-run reference the protected PVC",
+      "matched": true,
+      "observed": {
+        "server_side_dry_run_admitted": true,
+        "identity": "saf-k8s:0701-001-approved-claim-user",
+        "claim": "saf-rwo-workspace",
+        "persisted_pod": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An ordinary no-claim Pod remains admitted for the unrelated identity",
+      "matched": true,
+      "observed": {
+        "server_side_dry_run_admitted": true,
+        "identity": "saf-k8s:0701-001-unapproved-claim-user",
+        "protected_claim_referenced": false,
+        "persisted_pod": false
       }
     }
   ]

@@ -26,3 +26,19 @@ or tenant authorization require their own evidence.
 - [Kubernetes v1.36 PersistentVolume access modes](https://v1-36.docs.kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes)
 - [Kubernetes v1.36 read-only mounts](https://v1-36.docs.kubernetes.io/docs/concepts/storage/volumes/#read-only-mounts)
 - [Kubernetes CSI ReadWriteOncePod](https://kubernetes.io/docs/tasks/administer-cluster/change-pv-access-mode-readwriteoncepod/)
+
+## Pod references to a protected claim
+
+The case then gives two synthetic identities permission to submit Pods in
+the owned namespace. Before enforcement, the otherwise unrelated identity
+can submit a dry-run Pod referencing the protected claim. The scoped policy
+refuses that exact tuple. The approved identity can still reference the claim,
+and the unrelated identity can still submit an ordinary no-claim Pod. These
+requests use server-side dry-run and create no workload or extra claim.
+
+For adoption, inspect the actual caller identity and policy for workload
+references, effective storage and mount permissions, and the exact CSI
+driver and sidecar support for the required access modes. Test the distinct
+authorization and storage behavior with approved representative inputs.
+Record any relevant Article 4a contribution only for covered data and the
+effective mechanisms that govern its re-use.

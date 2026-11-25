@@ -1,4 +1,5 @@
 """Compare PVC access mode with the actual mode of authorized mounts."""
+import importlib.util
 import json
 from pathlib import Path
 import time
@@ -108,3 +109,17 @@ def run(lab):
     lab.check("green", "The explicit read-only container mount denies writes and still reads the shared marker",
               ro and denied and read == "second-owner",
               {"mount_readonly": ro, "write_denied_by_readonly_mount": denied, "marker": read})
+
+
+# Add the scoped Pod-to-claim admission check after the original five mount and
+# access-mode checks. It reuses the one existing PVC; new Pod requests are dry-run.
+_reference_spec = importlib.util.spec_from_file_location(
+    "pod_claim_reference", Path(__file__).with_name("pod_claim_reference.py")
+)
+_pod_claim_reference = importlib.util.module_from_spec(_reference_spec)
+_reference_spec.loader.exec_module(_pod_claim_reference)
+_existing_run = run
+
+def run(lab):
+    _existing_run(lab)
+    _pod_claim_reference.run(lab)
