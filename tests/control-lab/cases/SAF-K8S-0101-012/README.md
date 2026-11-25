@@ -164,3 +164,17 @@ references, owner, and disposition. Record provider-attested evidence at its
 documented scope. Mark undisclosed settings and untested paths unverified.
 Retain only redacted configuration and handshake observations. Keep tokens,
 private keys, and client credentials outside shared evidence.
+
+## Supported backend profile
+
+The fixture also checks the effective running etcd protocol and cipher
+arguments and the API server's own local HTTPS endpoint and client trust
+configuration. A CA- and IP-verified loopback handshake negotiates the
+selected TLS 1.2 cipher. The real API server writes and reads an exact
+ConfigMap payload under that profile, while the API and etcd remain healthy.
+This proves compatibility with the etcd server's allowed profile in the
+owned single-member fixture.
+
+For each deployed path, verify the effective listener and client policy,
+the expected identities and issuer trust, an allowed handshake, and
+representative read/write or routing behavior through the relevant peers.

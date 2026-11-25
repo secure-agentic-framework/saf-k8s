@@ -290,6 +290,133 @@ def _etcd_cipher_policy(lab, apiserver_manifest):
                "etcd_healthy_after": healthy_after})
 
 
+def _runtime_args(lab, container_id):
+    """Read the owned etcd OCI argv without logging the full inspect payload."""
+    node = f"{lab.cluster}-control-plane"
+    result = subprocess.run(
+        ["docker", "exec", node, "crictl", "inspect", container_id],
+        capture_output=True, text=True, timeout=12, env=lab.env,
+    )
+    if result.returncode:
+        lab.block("Could not passively inspect the owned etcd process arguments")
+    try:
+        document = json.loads(result.stdout)
+    except json.JSONDecodeError:
+        lab.block("The owned etcd runtime inspection was not JSON")
+
+    args = document.get("info", {}).get("runtimeSpec", {}).get("process", {}).get("args")
+    if not isinstance(args, list) or any(not isinstance(arg, str) for arg in args):
+        lab.block("The owned etcd runtime inspection lacked OCI process arguments")
+    return args
+
+
+def _single_flag_value(lab, args, name):
+    prefix = name + "="
+    matches = [arg[len(prefix):] for arg in args if arg.startswith(prefix)]
+    if len(matches) != 1:
+        lab.block(f"Expected exactly one effective {name} argument")
+    return matches[0]
+
+
+def _supported_profile_acceptance(lab):
+    """Passively attest the approved etcd profile, then prove actual API use."""
+    node = f"{lab.cluster}-control-plane"
+    active = _node(lab, "crictl", "ps", "--name", "etcd", "-q").stdout.split()
+    if len(active) != 1:
+        lab.block("Expected exactly one running owned etcd process for the supported-profile oracle")
+    etcd_version = _node(lab, "crictl", "exec", active[0], "etcd", "--version").stdout
+    etcd_release = re.search(r"etcd Version:\s*(\S+)", etcd_version)
+    runtime = _runtime_args(lab, active[0])
+    observed = {
+        "tls_min_version": _single_flag_value(lab, runtime, "--tls-min-version"),
+        "tls_max_version": _single_flag_value(lab, runtime, "--tls-max-version"),
+        "cipher_suites": _single_flag_value(lab, runtime, "--cipher-suites"),
+    }
+    expected = {
+        "tls_min_version": "TLS1.2",
+        "tls_max_version": "TLS1.2",
+        "cipher_suites": "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+    }
+    configuration_matches = bool(etcd_release and etcd_release[1] == "3.6.8"
+                                 and observed == expected)
+    lab.check("positive", "The running owned etcd process uses the exact supported TLS 1.2 GCM profile",
+              configuration_matches,
+              {"etcd_version": etcd_release[1] if etcd_release else None,
+               "effective_tls_min_version": observed["tls_min_version"],
+               "effective_tls_max_version": observed["tls_max_version"],
+               "effective_cipher_suites": observed["cipher_suites"]})
+
+    manifest = yaml.safe_load(_node(lab, "cat", MANIFEST).stdout)
+    apiserver = next(row for row in manifest["spec"]["containers"]
+                     if row["name"] == "kube-apiserver")
+    client_args = apiserver["command"]
+    expected_client_flags = {
+        "--etcd-servers": "https://127.0.0.1:2379",
+        "--etcd-cafile": PKI + "/etcd/ca.crt",
+        "--etcd-certfile": PKI + "/apiserver-etcd-client.crt",
+        "--etcd-keyfile": PKI + "/apiserver-etcd-client.key",
+    }
+    actual_client_flags = {name: _single_flag_value(lab, client_args, name)
+                           for name in expected_client_flags}
+    lab.check("positive", "The API server is configured for the owned HTTPS etcd endpoint and intended trust/client identity",
+              actual_client_flags == expected_client_flags,
+              {"owned_endpoint": actual_client_flags["--etcd-servers"],
+               "trusted_ca_configured": actual_client_flags["--etcd-cafile"]
+               == expected_client_flags["--etcd-cafile"],
+               "client_certificate_and_key_paths_configured":
+               actual_client_flags["--etcd-certfile"] == expected_client_flags["--etcd-certfile"]
+               and actual_client_flags["--etcd-keyfile"] == expected_client_flags["--etcd-keyfile"]})
+
+    ca = PKI + "/etcd/ca.crt"
+    allowed = _restricted_handshake(
+        lab, "127.0.0.1", 2379, ca, "-tls1_2",
+        cipher="ECDHE-RSA-AES128-GCM-SHA256", etcd=True,
+    )
+    lab.check("positive", "A CA/IP-verified loopback probe negotiates exactly the configured TLS 1.2 suite",
+              allowed["verified"] and allowed["protocol"] == "TLSv1.2"
+              and allowed["cipher"] == "ECDHE-RSA-AES128-GCM-SHA256",
+              {"verified_endpoint": allowed["verified"],
+               "protocol": allowed["protocol"], "cipher": allowed["cipher"]})
+
+    version = json.loads(lab.kubectl("version", "-o", "json").stdout)["serverVersion"]
+    marker = "saf-etcd-supported-tls-profile"
+    created = lab.kubectl("create", "configmap", marker,
+                          "--from-literal=marker=allowed-profile-readback", "-o", "json", timeout=25)
+    created_uid = bool(json.loads(created.stdout)["metadata"].get("uid"))
+    read = lab.kubectl("get", "configmap", marker, "-o", "json", timeout=20)
+    readback = json.loads(read.stdout)
+    data_matches = (readback.get("metadata", {}).get("name") == marker
+                    and readback.get("data") == {"marker": "allowed-profile-readback"})
+    ready = _api(lab, "/readyz")
+    etcd_healthy = _etcd_live(lab)
+    operations_ok = (created_uid and data_matches and ready.returncode == 0
+                     and ready.stdout.strip() == "ok" and etcd_healthy)
+    lab.check("positive", "Permitted API write/read and readiness succeed through the exact supported etcd profile",
+              operations_ok,
+              {"kubernetes": version.get("gitVersion"),
+               "api_server_go_version": version.get("goVersion"),
+               "write_uid_observed": created_uid,
+               "exact_readback": data_matches,
+               "apiserver_ready": ready.returncode == 0 and ready.stdout.strip() == "ok",
+               "etcd_healthy": etcd_healthy})
+    (lab.evidence / "supported-backend-tls-observations.json").write_text(json.dumps({
+        "scope": "owned Kind API-server to one-member etcd HTTPS route",
+        "kubernetes_version": version.get("gitVersion"),
+        "api_server_go_version": version.get("goVersion"),
+        "etcd_version": etcd_release[1] if etcd_release else None,
+        "etcd_effective_tls_profile": observed,
+        "api_server_etcd_endpoint": actual_client_flags["--etcd-servers"],
+        "api_server_trust_and_client_identity_paths_match_fixture":
+        actual_client_flags == expected_client_flags,
+        "direct_verified_negotiation": {"protocol": allowed["protocol"],
+                                         "cipher": allowed["cipher"],
+                                         "verified": allowed["verified"]},
+        "api_write_read_ready_etcd_health": operations_ok,
+        "api_server_client_cipher_not_independently_exported": True,
+        "private_key_or_credential_content_recorded": False,
+    }, indent=2) + "\n")
+
+
 def _etcd_live(lab):
     instances = _node(lab, "crictl", "ps", "--name", "etcd", "-q").stdout.split()
     if len(instances) != 1:
@@ -390,6 +517,7 @@ def run(lab):
               storage_recovered, {"storage_read_recovered": storage_recovered})
     _kubelet_protocol_floor(lab, endpoint, MOUNT + "/" + ca.name, health_path)
     _etcd_cipher_policy(lab, baseline)
+    _supported_profile_acceptance(lab)
     (lab.evidence / "backend-tls-observations.json").write_text(json.dumps({
         "kubelet": {"trusted_leaf": _fingerprint(lab, serving), "direct_tls_probe": kubelet_tls,
                     "native_refusal": refusal.stderr.strip(), "restored": restored_kubelet},

@@ -1,27 +1,31 @@
 {
   "control_id": "SAF-K8S-0101-012",
-  "catalog_revision": "cf483a70cfcde4a4096c04c27dd54f6fc7a6a292",
-  "catalog_sha256": "479dd34cbc528dfa061f5555b19fc586c71385dcacd427f88979b910e0151d5e",
+  "catalog_revision": "afb67597db47429affccfb4f56183653c16b9e79",
+  "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "3e5adeb40e9baa500ce92aae2cf579de9dfd513c5e12007b145ab9decce894ec",
   "scope": "TLS handshake policy and client certificate-chain validation for case-owned kind kube-apiserver client-facing loopback endpoints. A default Kubernetes profile is compared with a TLS 1.3 minimum-version profile; a separate TLS 1.2 reference profile evaluates a configured cipher allow-list. No application request or non-loopback host is contacted. Outbound kube-apiserver connections, service-specific TLS paths, and managed-provider controls are outside this case. The owned default cluster verifies kubelet and etcd trust, restoration, and enforcement of backend TLS policy.",
-  "cluster": "saf-lab-dca2bdebb631",
+  "cluster": "saf-lab-751e4da40fdb",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
-      "minor": "32",
-      "gitVersion": "v1.32.3",
-      "gitCommit": "32cc146f75aad04beaaa245a7157eb35063a9f99",
+      "minor": "36",
+      "gitVersion": "v1.36.1",
+      "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
       "gitTreeState": "clean",
-      "buildDate": "2025-03-11T19:52:20Z",
-      "goVersion": "go1.24.1",
+      "buildDate": "2026-05-12T09:54:35Z",
+      "goVersion": "go1.26.2",
       "compiler": "gc",
       "platform": "darwin/arm64"
     },
-    "kustomizeVersion": "v5.5.0",
+    "kustomizeVersion": "v5.8.1",
     "serverVersion": {
       "major": "1",
       "minor": "36",
+      "emulationMajor": "1",
+      "emulationMinor": "36",
+      "minCompatibilityMajor": "1",
+      "minCompatibilityMinor": "35",
       "gitVersion": "v1.36.1",
       "gitCommit": "756939600b9a7180fc2df6550a4585b638875e67",
       "gitTreeState": "clean",
@@ -219,6 +223,50 @@
         "new_write_uid": true,
         "exact_read": true,
         "etcd_healthy_after": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The running owned etcd process uses the exact supported TLS 1.2 GCM profile",
+      "matched": true,
+      "observed": {
+        "etcd_version": "3.6.8",
+        "effective_tls_min_version": "TLS1.2",
+        "effective_tls_max_version": "TLS1.2",
+        "effective_cipher_suites": "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The API server is configured for the owned HTTPS etcd endpoint and intended trust/client identity",
+      "matched": true,
+      "observed": {
+        "owned_endpoint": "https://127.0.0.1:2379",
+        "trusted_ca_configured": true,
+        "client_certificate_and_key_paths_configured": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A CA/IP-verified loopback probe negotiates exactly the configured TLS 1.2 suite",
+      "matched": true,
+      "observed": {
+        "verified_endpoint": true,
+        "protocol": "TLSv1.2",
+        "cipher": "ECDHE-RSA-AES128-GCM-SHA256"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Permitted API write/read and readiness succeed through the exact supported etcd profile",
+      "matched": true,
+      "observed": {
+        "kubernetes": "v1.36.1",
+        "api_server_go_version": "go1.26.2",
+        "write_uid_observed": true,
+        "exact_readback": true,
+        "apiserver_ready": true,
+        "etcd_healthy": true
       }
     }
   ]
