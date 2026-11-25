@@ -4,8 +4,8 @@
   "catalog_sha256": "d349202ee2a53ae35fd3d0b6c36098d2d5cc45a51aa71fbf557812fcda78d4a0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "143af459cf476bb64f1b07b4406d2c3e928b25be637bc077f5c4a00ec268efcd",
-  "scope": "Record selected AppArmor file opens and seccomp syscall notifications in a disconnected Linux guest in one restricted Kind Job. Compare the first capture and a newly exercised recovery path, intersect observations with each exact approval list, enforce the generated policies and check recovery.",
-  "cluster": "saf-lab-bbf4d0b3f6c6",
+  "scope": "Record selected AppArmor file opens and seccomp syscall notifications in a disconnected Linux guest in one restricted Kind Job. Compare the first capture and a newly exercised recovery path, intersect observations with each exact approval list, enforce the generated policies and check recovery. A separate SELinux guest derives named file rules from attributable AVC records, enforces the exact rule sets and verifies removal.",
+  "cluster": "saf-lab-61fb1de3f16a",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -102,6 +102,36 @@
       "matched": true,
       "observed": {
         "fresh_process_rollback": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Recorded SELinux startup and incidental access miss an approved recovery operation",
+      "matched": true,
+      "observed": {
+        "immutable_inputs_matched": true,
+        "initial_recovery_denied": true,
+        "avc_contexts_attributable_in_both_modes": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The reviewed SELinux rule sets enforce the generated approved access with no incidental read",
+      "matched": true,
+      "observed": {
+        "final_allow_deny_matrix": true,
+        "exact_generated_rules": [
+          "f27ae2aed37a2816fb3beb1add1c5a3cc04b43b03d9b79a3308704de5dd1c065",
+          "f8ca5d0d0035bdc6ffff7522d1e46d07c7074ae4a196f2ecb9c8d204495a754c"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Restoring the saved SELinux policy restores the baseline denies",
+      "matched": true,
+      "observed": {
+        "baseline_restored": true
       }
     }
   ]

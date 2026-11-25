@@ -1,0 +1,4 @@
+(type saf_record_startup_t)
+(type saf_record_recovery_t)
+(type saf_record_incidental_t)
+(typeattributeset file_type (saf_record_startup_t saf_record_recovery_t saf_record_incidental_t))
