@@ -44,3 +44,13 @@ native event, and execution receipt rather than hard-coding a generated ID.
 Deployed audit configuration, centralized retention, independent reviewer
 action, approval-system integrity, GitOps-path classification, and fleet
 coverage require separate evidence.
+
+## Verify an adopting implementation
+
+Enumerate emergency identities, API verbs/resources,
+audit-policy coverage, console/managed exporter routes, and review owners.
+In a controlled exercise, correlate an authorized justified request and a
+deliberately unapproved/no-justification request to exact audit IDs and
+approvals; verify the independent reviewer can inspect the protected record.
+Test exporter loss, delivery recovery, retention/immutability, access controls,
+and post-use review across all emergency roles.
