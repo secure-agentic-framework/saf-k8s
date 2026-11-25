@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0909-009",
-  "catalog_revision": "27bda1437ebd5f75027655f4d97552d5ea3a5adc",
-  "catalog_sha256": "8dbce21837185ad84030bc682f3c2673000f72070cfe41ea85f9fed53e4decb8",
+  "catalog_revision": "ec2ece688cf2003a78358f7b6dafe4d29647ab9b",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "cfd35a3f30302707d606864e31f4b8c3b3f76957a5c00b62746906e8206221fa",
-  "scope": "A pinned local Qdrant open-source engine enforces its native JWT RBAC on two synthetic collections over TLS. A coarse read token reaches both owned collections. Two separate scoped tokens read and write their assigned collections. Missing credentials and opposite-collection reads and writes are denied.",
-  "cluster": "saf-lab-29412825d14c",
+  "scope": "A pinned local Qdrant open-source engine enforces its native JWT RBAC on two synthetic collections over TLS. A coarse read token reaches both owned collections. Two separate scoped tokens read and write their assigned collections. Missing credentials and opposite-collection reads and writes are denied. A scoped read token and scoped read/write token are denied a harmless collection-create management action without changing state; an explicit global manage JWT can create, inspect, and remove only that owned synthetic metadata object. The native endpoint compares an expired and a current signed credential with the same collection read grant.",
+  "cluster": "saf-lab-491320945863",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -85,6 +85,31 @@
         "alpha_own_result": true,
         "beta_own_result": true,
         "denied_writes_left_exact_collection_counts": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Scoped read and read/write credentials cannot create a collection; the approved manage token can create, inspect, and remove the isolated metadata object",
+      "matched": true,
+      "observed": {
+        "fresh_owned_name_absent_before_probe": true,
+        "scoped_reader_denied_without_state_change": true,
+        "scoped_writer_denied_without_state_change": true,
+        "approved_admin_created_and_inspected": true,
+        "approved_admin_removed_owned_object": true,
+        "scoped_reader_create_status": 403,
+        "scoped_writer_create_status": 403
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The native Qdrant endpoint rejects an expired signed reader and accepts the current equivalent grant",
+      "matched": true,
+      "observed": {
+        "expired_status": 403,
+        "expired_data_absent": true,
+        "current_same_grant_status": 200,
+        "current_same_grant_exact_count": true
       }
     }
   ]

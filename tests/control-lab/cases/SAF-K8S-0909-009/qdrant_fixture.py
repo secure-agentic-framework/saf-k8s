@@ -7,6 +7,8 @@ import urllib.request
 
 ALPHA = "fixture-alpha"
 BETA = "fixture-beta"
+ADMIN_PROBE = "fixture-admin-boundary"
+ADMIN_VECTORS = {"vectors": {"size": 2, "distance": "Dot"}}
 
 
 def request(url, token, path, method="GET", body=None):
@@ -43,9 +45,36 @@ def point_count(url, token, collection):
     return status, result.get("result", {}).get("count")
 
 
+def collection_exists(url, token):
+    status, result = request(url, token, f"/collections/{ADMIN_PROBE}/exists")
+    return status, result.get("result", {}).get("exists") if status == 200 else None
+
+
 def main():
     op, url = sys.argv[1:3]
     token = open("/identity/token", encoding="utf-8").read().strip()
+
+    if op == "admin-probe-create":
+        status, _ = request(url, token, f"/collections/{ADMIN_PROBE}",
+                            "PUT", ADMIN_VECTORS)
+        print(json.dumps({"status": status}, sort_keys=True))
+        return
+
+    if op == "admin-probe-exists":
+        status, exists = collection_exists(url, token)
+        print(json.dumps({"status": status, "exists": exists}, sort_keys=True))
+        return
+
+    if op == "admin-probe-inspect":
+        status, result = request(url, token, f"/collections/{ADMIN_PROBE}")
+        print(json.dumps({"metadata_read": status == 200 and result.get("status") == "ok"},
+                         sort_keys=True))
+        return
+
+    if op == "admin-probe-delete":
+        status, _ = request(url, token, f"/collections/{ADMIN_PROBE}", "DELETE")
+        print(json.dumps({"status": status}, sort_keys=True))
+        return
     if op == "initialize":
         ready = True
         for collection in (ALPHA, BETA):
