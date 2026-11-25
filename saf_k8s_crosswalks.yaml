@@ -10361,16 +10361,15 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-3(15)
   framework_requirement_title: Discretionary and Mandatory Access Control
-  framework_mapping_notes: 'Combined DAC/MAC for agent systems
-
-
-    3.3 - Implement mandatory access controls (seccomp, AppArmor, SELinux); 4.1 - Design and enforce RBAC (discretionary access)'
+  framework_mapping_notes: Kubernetes RBAC contributes the discretionary access-control portion through roles and bindings for scoped API resources. This control does not implement mandatory access control.
+    The composite AC-3(15) mapping is conditional on a separately evidenced mandatory access-control mechanism for the applicable system scope.
   control_id: SAF-K8S-0401-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The overall system implements both discretionary and mandatory access control; this Kubernetes RBAC control contributes only the discretionary access control portion for its scoped
+    API resources, with the mandatory mechanism evidenced separately.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -40043,22 +40042,6 @@
 
     4.1 - Separation of duties (human-factored security design); 9.4 - Notebook environment usable security controls'
   control_id: SAF-K8S-0401-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(27)
-  framework_requirement_title: Human Factored Security
-  framework_mapping_notes: 'Human-agent interaction design must make security decisions clear and actionable
-
-
-    4.1 - Separation of duties (human-factored security design); 9.4 - Notebook environment usable security controls'
-  control_id: SAF-K8S-0401-003
   relation_type: supports
   strength_level: strong
   applicability: required
