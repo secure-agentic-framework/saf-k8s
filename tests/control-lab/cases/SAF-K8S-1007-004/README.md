@@ -30,3 +30,14 @@ The control's statement about systematic lifecycle monitoring is testable only f
 - [Kubernetes v1.36 RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/) documents namespace-scoped roles and rule semantics.
 - [Kind Quick Start](https://kind.sigs.k8s.io/docs/user/quick-start/) describes selecting a Kubernetes node image with `--image`.
 - [Docker Official Images Python metadata](https://github.com/docker-library/official-images/blob/master/library/python) lists the official Python image tags and architecture metadata. The fixture pins the exact image manifest digest.
+
+## Deployed adopter evidence
+
+1. Inventory customer-configurable and provider-managed security settings; record owner, exact baseline/version, resource scope and how each setting is exposed to monitoring.
+2. For each in-scope AI namespace, capture the effective PSA labels, NetworkPolicy objects and rules, RBAC Roles/Bindings, and the assessment's precise coverage boundary. Where NetworkPolicy enforcement is relied on, verify the deployed CNI provider/version and an approved safe connectivity test; an API object alone does not prove packet filtering.
+3. Attach a current benchmark/CIS scan and its tool/version, exceptions, and coverage if the catalog's CIS statement is claimed. Attach independent image/scanner results and advisory source/authenticity/freshness evidence for vulnerability exposure claims.
+4. Demonstrate continuous collection cadence and alert delivery from the production monitoring service; record actor, timestamps, reviewed drift, remediation approval, outcome, and escalation. The case only runs a local observation once.
+5. Link posture findings to the AI risk register only where the organization has identified the relevant AI risk. Document periodic review roles/frequency and any error or affected-community impact reporting separately.
+6. Review the broad Article 15.5 claim against model/data poisoning, adversarial examples, confidentiality and model flaws; this case establishes only selected Kubernetes configuration controls.
+
+The scratch mapping plan corrects the MEASURE 1.2 row and selected same-source misattributions. It does not purport to disposition every current crosswalk row for this control.
