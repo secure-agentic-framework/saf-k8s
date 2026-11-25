@@ -60569,19 +60569,6 @@
   applicability: conditional
   applicability_condition: The dependency is within the relevant software producer's risk response scope.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SSDF 1.1
-  framework_code: NIST-SSDF
-  framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
-  framework_version: '1.1'
-  framework_requirement_id: RV.2.2
-  framework_requirement_title: Plan and implement risk responses for vulnerabilities.
-  framework_mapping_notes: SAF-K8S defines containment strategies, patching processes, and recovery procedures for vulnerabilities affecting the Kubernetes platform and AI workloads.
-  control_id: SAF-K8S-1005-016
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
