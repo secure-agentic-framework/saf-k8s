@@ -789,7 +789,7 @@
     "SAF-K8S-0401-006": {
       "catalog_status": "draft",
       "domain": "D04",
-      "sha256": "70dc1efecb11f86e7a71ef61ea6fc7a2ffed833bcad126a13896c72c910932d5",
+      "sha256": "227b2cb548713868273d0192091d5cce8854c678360ed6850336af04381ab161",
       "title": "Organizational role separation for ML, platform, and security functions"
     },
     "SAF-K8S-0401-007": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "1ddc72318094737dc592b269230b2aeaf6ce133c",
-  "sha256": "7858ac696aa0fab345adc56211e616c9dbf9a0fd00aeec921bc13b07b6bee205",
+  "revision": "51b15a66c844ab75283d453e4c46d80af3baf8d2",
+  "sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

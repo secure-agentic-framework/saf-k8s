@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0401-006",
-  "catalog_revision": "89f78fbae6d3127ebb4fdc628885140fd8b3debf",
-  "catalog_sha256": "9b3b6190b973eb3addee410c79d4c34a183e00a420066cc2e0a38653d22866a9",
+  "catalog_revision": "cefcdc706692b28e65c67e9821d4e208fa86ccba",
+  "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "70dc1efecb11f86e7a71ef61ea6fc7a2ffed833bcad126a13896c72c910932d5",
-  "scope": "Kubernetes v1.36.1 native namespaced RBAC in one disposable kind cluster. Three independent synthetic ServiceAccounts use their actual projected Pod tokens to GET one inert named ConfigMap or send a server-side dry-run PATCH to one inert named ConfigMap. The case compares all three operations before and after exact RoleBindings and includes a fourth bounded admin-check ServiceAccount. It does not validate IdP group mapping, organization approval, role ownership, production access, AI operator CRDs, or cluster-wide grants.",
-  "cluster": "saf-lab-98cec8248ae8",
+  "control_sha256": "227b2cb548713868273d0192091d5cce8854c678360ed6850336af04381ab161",
+  "scope": "Kubernetes v1.36.1 native namespaced RBAC in one disposable kind cluster. Three independent synthetic ServiceAccounts use their actual projected Pod tokens to GET one inert named ConfigMap or send a server-side dry-run PATCH to one inert named ConfigMap. The case compares all three operations before and after exact RoleBindings and includes a fourth bounded admin-check ServiceAccount. A temporary negative-control binding demonstrates additive permission overlap and is removed before the case completes. The overlap oracle is fixture-only. It does not validate IdP group mapping, organization approval, role ownership, production access, AI operator CRDs, or cluster-wide grants.",
+  "cluster": "saf-lab-c1069f6d28b5",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -141,6 +141,90 @@
       "matched": true,
       "observed": {
         "persistent_annotation_absent": true
+      }
+    },
+    {
+      "phase": "negative",
+      "claim": "One synthetic ML subject with the existing platform binding accumulates both functional grants",
+      "matched": true,
+      "observed": {
+        "observed": {
+          "audit-read": 403,
+          "model-read": 200,
+          "platform-dry-run-patch": 200
+        },
+        "expected": {
+          "model-read": 200,
+          "platform-dry-run-patch": 200,
+          "audit-read": 403
+        }
+      }
+    },
+    {
+      "phase": "negative",
+      "claim": "The fixture-only binding review flags the deliberate ML/platform subject overlap",
+      "matched": true,
+      "observed": {
+        "observed_overlap": {
+          "saf-0401-006-ml": [
+            "ml",
+            "platform"
+          ]
+        },
+        "expected_overlap": {
+          "saf-0401-006-ml": [
+            "ml",
+            "platform"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The temporary ML overlap does not change platform or security identity decisions",
+      "matched": true,
+      "observed": {
+        "observed": {
+          "platform": {
+            "audit-read": 403,
+            "model-read": 403,
+            "platform-dry-run-patch": 200
+          },
+          "security": {
+            "audit-read": 200,
+            "model-read": 403,
+            "platform-dry-run-patch": 403
+          }
+        },
+        "expected": {
+          "platform": {
+            "model-read": 403,
+            "platform-dry-run-patch": 200,
+            "audit-read": 403
+          },
+          "security": {
+            "model-read": 403,
+            "platform-dry-run-patch": 403,
+            "audit-read": 200
+          }
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Removing the temporary negative-control binding restores the original ML split",
+      "matched": true,
+      "observed": {
+        "observed": {
+          "audit-read": 403,
+          "model-read": 200,
+          "platform-dry-run-patch": 403
+        },
+        "expected": {
+          "model-read": 200,
+          "platform-dry-run-patch": 403,
+          "audit-read": 403
+        }
       }
     }
   ]

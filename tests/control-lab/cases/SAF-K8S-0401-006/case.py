@@ -24,8 +24,10 @@ SCOPE = (
     "tokens to GET one inert named ConfigMap or send a server-side dry-run PATCH "
     "to one inert named ConfigMap. The case compares all three operations before "
     "and after exact RoleBindings and includes a fourth bounded admin-check "
-    "ServiceAccount. It does not validate IdP group mapping, organization approval, "
-    "role ownership, production access, AI operator CRDs, or cluster-wide grants."
+    "ServiceAccount. A temporary negative-control binding demonstrates additive "
+    "permission overlap and is removed before the case completes. The overlap "
+    "oracle is fixture-only. It does not validate IdP group mapping, organization "
+    "approval, role ownership, production access, AI operator CRDs, or cluster-wide grants."
 )
 
 
@@ -103,6 +105,58 @@ def rules_match(lab):
     return observed
 
 
+def temporary_overlap_binding():
+    """Negative control: give the existing ML fixture identity the platform grant."""
+    return {
+        "apiVersion": "rbac.authorization.k8s.io/v1",
+        "kind": "RoleBinding",
+        "metadata": {
+            "name": "saf-0401-006-overlap-negative-control",
+            "namespace": NAMESPACE,
+            "annotations": {"saf-k8s.example/fixture": "negative-control-only"},
+        },
+        "subjects": [{
+            "kind": "ServiceAccount",
+            "name": IDENTITIES["ml"],
+            "namespace": NAMESPACE,
+        }],
+        "roleRef": {
+            "apiGroup": "rbac.authorization.k8s.io",
+            "kind": "Role",
+            "name": "saf-0401-006-platform-role",
+        },
+    }
+
+
+def modeled_function_overlap(lab):
+    """Fixture-only overlap oracle over the three case-owned functional bindings."""
+    resolved = {}
+    for function in FUNCTIONS:
+        binding = json.loads(lab.kubectl(
+            "-n", NAMESPACE, "get", "rolebinding",
+            f"saf-0401-006-{function}-binding", "-o", "json",
+        ).stdout)
+        for subject in binding.get("subjects", []):
+            if subject.get("kind") == "ServiceAccount" and subject.get("namespace") == NAMESPACE:
+                key = subject["name"]
+                resolved.setdefault(key, set()).add(function)
+
+    extra = json.loads(lab.kubectl(
+        "-n", NAMESPACE, "get", "rolebinding",
+        "saf-0401-006-overlap-negative-control", "-o", "json",
+    ).stdout)
+    for subject in extra.get("subjects", []):
+        if subject.get("kind") == "ServiceAccount" and subject.get("namespace") == NAMESPACE:
+            key = subject["name"]
+            resolved.setdefault(key, set()).add("platform")
+
+    return {
+        identity: sorted(functions)
+        for identity, functions in resolved.items()
+        if len(functions) > 1
+    }
+
+
 def run(lab):
     lab.kubectl("create", "namespace", NAMESPACE)
     lab.kubectl("-n", NAMESPACE, "apply", "-f", str(HERE / "fixtures.yaml"))
@@ -163,3 +217,63 @@ def run(lab):
     dry_run_only = "saf-k8s.example/probe" not in unchanged["metadata"].get("annotations", {})
     lab.check("positive", "Successful platform dry-run changes leave the marker unmodified",
               dry_run_only, {"persistent_annotation_absent": dry_run_only})
+
+    # Deliberately demonstrate the additive grant conflict with one extra
+    # case-owned binding. This is a negative control, not evidence that RBAC
+    # prevents overlapping functional assignments. Cleanup is unconditional.
+    temporary_binding = temporary_overlap_binding()
+    try:
+        lab.kubectl("-n", NAMESPACE, "create", "-f", "-", payload=json.dumps(temporary_binding))
+        overlap_matrix = decisions(lab, "ml")
+        expected_overlap = {
+            "model-read": 200,
+            "platform-dry-run-patch": 200,
+            "audit-read": 403,
+        }
+        lab.check(
+            "negative",
+            "One synthetic ML subject with the existing platform binding accumulates both functional grants",
+            overlap_matrix == expected_overlap,
+            {"observed": overlap_matrix, "expected": expected_overlap},
+        )
+        observed_overlap = modeled_function_overlap(lab)
+        expected_subject = {IDENTITIES["ml"]: ["ml", "platform"]}
+        lab.check(
+            "negative",
+            "The fixture-only binding review flags the deliberate ML/platform subject overlap",
+            observed_overlap == expected_subject,
+            {"observed_overlap": observed_overlap, "expected_overlap": expected_subject},
+        )
+        remaining_functional = {
+            function: decisions(lab, function)
+            for function in ("platform", "security")
+        }
+        expected_remaining = {
+            "platform": {operation: 200 if operation == EXPECTED["platform"] else 403
+                         for operation in OPERATIONS},
+            "security": {operation: 200 if operation == EXPECTED["security"] else 403
+                         for operation in OPERATIONS},
+        }
+        lab.check(
+            "positive",
+            "The temporary ML overlap does not change platform or security identity decisions",
+            remaining_functional == expected_remaining,
+            {"observed": remaining_functional, "expected": expected_remaining},
+        )
+    finally:
+        lab.kubectl(
+            "-n", NAMESPACE, "delete", "rolebinding",
+            "saf-0401-006-overlap-negative-control", "--ignore-not-found=true",
+        )
+
+    restored = decisions(lab, "ml")
+    expected_restored = {
+        operation: 200 if operation == EXPECTED["ml"] else 403
+        for operation in OPERATIONS
+    }
+    lab.check(
+        "positive",
+        "Removing the temporary negative-control binding restores the original ML split",
+        restored == expected_restored,
+        {"observed": restored, "expected": expected_restored},
+    )

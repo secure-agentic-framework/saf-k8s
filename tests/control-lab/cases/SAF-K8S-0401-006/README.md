@@ -19,3 +19,20 @@ review records, and exception governance require deployment evidence.
 
 [Kubernetes RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/) ·
 [Kubernetes ServiceAccounts](https://v1-36.docs.kubernetes.io/docs/concepts/security/service-accounts/)
+
+## Effective separation of duties
+
+The positive split uses three distinct scoped synthetic identities. The same
+fixture then links one temporary second-function grant to the existing ML
+identity. The native authorizer permits the union of both actions and the
+case's explicit conflict check detects that combination. Removing the added
+binding restores the expected authorization matrix. Each operation stays
+inside the disposable test namespace.
+
+For adoption, use a complete identity and binding inventory and map users,
+groups, external identity attributes and service accounts to their effective
+functional grants. Reconcile namespaced, cluster-wide and indirect bindings,
+including groups shared across assignments. Test selected expected permissions
+and incompatible combinations in an approved environment. Require independent
+review of proposed overlap, a scope and expiry for approved exceptions, and
+evidence that the grant was withdrawn or reviewed.
