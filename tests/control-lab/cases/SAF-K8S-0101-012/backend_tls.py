@@ -85,6 +85,148 @@ def _fingerprint(lab, cert: Path):
     }
 
 
+def _leaf_observation_from_pem(lab, pem):
+    """Return sanitized public leaf fields; never print or persist the PEM."""
+    result = _run(
+        ["openssl", "x509", "-noout", "-fingerprint", "-sha256", "-dates",
+         "-ext", "subjectAltName"], input_text=pem, env=lab.env,
+    )
+    if result.returncode:
+        return {"fingerprint": None, "sans": None, "not_before": None, "not_after": None}
+    output = result.stdout
+    match = re.search(r"(?:sha256 )?Fingerprint=([0-9a-f:]+)", output, re.IGNORECASE)
+    before = re.search(r"(?m)^notBefore=(.+)$", output)
+    after = re.search(r"(?m)^notAfter=(.+)$", output)
+    sans_match = re.search(
+        r"(?ms)^X509v3 Subject Alternative Name:\s*\n([^\n]+)", output,
+    )
+    return {
+        "fingerprint": match.group(1).replace(":", "").lower() if match else None,
+        "sans": sans_match.group(1).strip() if sans_match else None,
+        "not_before": before.group(1).strip() if before else None,
+        "not_after": after.group(1).strip() if after else None,
+    }
+
+
+def _served_kubelet_leaf(lab, node, address, ca):
+    """Capture the actual listener leaf privately, returning only sanitized fields."""
+    # Do not use lab.command here: its command transcript is retained, while
+    # openssl -showcerts temporarily returns the public PEM in captured output.
+    result = _run(
+        ["docker", "exec", node, "timeout", "6", "openssl", "s_client",
+         "-connect", f"{address}:10250", "-verify_ip", address,
+         "-verify_return_error", "-CAfile", ca, "-showcerts"],
+        timeout=9, input_text="", env=lab.env,
+    )
+    transcript = result.stderr + "\n" + result.stdout
+    match = re.search(r"-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----",
+                      transcript, re.DOTALL)
+    if match is None:
+        return {"verified": False, "leaf": None}
+    leaf = _leaf_observation_from_pem(lab, match.group(0) + "\n")
+    # OpenSSL 3 prints "Verification: OK"; 1.1.1 commonly reports the same
+    # successful result as "Verify return code: 0 (ok)".
+    verified = ("Verification: OK" in transcript
+                or re.search(r"(?i)Verify return code:\s*0 \(ok\)", transcript) is not None)
+    return {"verified": verified and leaf["fingerprint"] is not None,
+            "leaf": leaf}
+
+
+def _set_kubelet_serving_pair(lab, cert_path, key_path):
+    """Set only the owned kubelet serving pair and restart that owned kubelet."""
+    _node(lab, "sh", "-ceu",
+          'f=/var/lib/kubelet/config.yaml; sed -i "/^tlsCertFile:/d; '
+          '/^tlsPrivateKeyFile:/d" "$f"; '
+          'printf "\\ntlsCertFile: %s\\ntlsPrivateKeyFile: %s\\n" "$1" "$2" >> "$f"; '
+          'systemctl restart kubelet',
+          "sh", cert_path, key_path, timeout=35)
+
+
+def _wait_kubelet_leaf(lab, node, address, ca, expected_fingerprint, expected_sans,
+                       timeout=45):
+    deadline = time.monotonic() + timeout
+    last = {"verified": False, "leaf": None}
+    while deadline - time.monotonic() > 9:
+        last = _served_kubelet_leaf(lab, node, address, ca)
+        leaf = last["leaf"] or {}
+        if (last["verified"] and leaf.get("fingerprint") == expected_fingerprint
+                and leaf.get("sans") == expected_sans):
+            return last, True
+        time.sleep(.5)
+    return last, False
+
+
+def _kubelet_serving_leaf_replacement(lab, node, address, old_cert, new_cert, health_path):
+    """Compare one same-CA/same-SAN leaf replacement and require restoration."""
+    old = _fingerprint(lab, old_cert)
+    new = _fingerprint(lab, new_cert)
+    if old["sha256_fingerprint"] == new["sha256_fingerprint"]:
+        lab.block("Fixture kubelet serving leaves must have distinct fingerprints")
+    expected_old = _leaf_observation_from_pem(lab, old_cert.read_text(encoding="ascii"))
+    expected_new = _leaf_observation_from_pem(lab, new_cert.read_text(encoding="ascii"))
+    same_identity = (expected_old["sans"] is not None
+                     and expected_old["sans"] == expected_new["sans"])
+
+    old_live = _served_kubelet_leaf(lab, node, address, MOUNT + "/kubelet-ca.crt")
+    old_health = _api(lab, health_path)
+    old_ok = (same_identity and old_live["verified"]
+              and old_live["leaf"] == expected_old
+              and old_health.returncode == 0 and old_health.stdout.strip() == "ok")
+    lab.check("positive", "The original kubelet serving leaf is live on the verified API-server proxy route",
+              old_ok, {"live_leaf_matches_expected": old_live["leaf"] == expected_old,
+                       "chain_and_ip_verified": old_live["verified"],
+                       "identity_unchanged": same_identity,
+                       "proxy_health_ok": old_health.returncode == 0
+                       and old_health.stdout.strip() == "ok"})
+
+    new_ok = False
+    restored_ok = False
+    try:
+        _set_kubelet_serving_pair(lab, MOUNT + "/kubelet-serving-successor.crt",
+                                  MOUNT + "/kubelet-serving-successor.key")
+        new_live, new_adopted = _wait_kubelet_leaf(
+            lab, node, address, MOUNT + "/kubelet-ca.crt",
+            new["sha256_fingerprint"].replace(":", ""), expected_new["sans"],
+        )
+        new_health = _api(lab, health_path)
+        new_ready = new_health.returncode == 0 and new_health.stdout.strip() == "ok"
+        new_ok = (new_adopted and new_ready and new_live["verified"]
+                  and new_live["leaf"] == expected_new
+                  and new_live["leaf"].get("fingerprint") != old["sha256_fingerprint"].replace(":", ""))
+        lab.check("positive", "The kubelet serves the distinct same-CA/SAN successor and proxy health remains ok",
+                  new_ok, {"live_leaf_matches_successor": new_live["leaf"] == expected_new,
+                           "chain_and_ip_verified": new_live["verified"],
+                           "distinct_from_original": new_live["leaf"].get("fingerprint")
+                           != old["sha256_fingerprint"].replace(":", ""),
+                           "proxy_health_ok": new_ready})
+    finally:
+        _set_kubelet_serving_pair(lab, MOUNT + "/kubelet-serving.crt",
+                                  MOUNT + "/kubelet-serving.key")
+        restored_live, restored_adopted = _wait_kubelet_leaf(
+            lab, node, address, MOUNT + "/kubelet-ca.crt",
+            old["sha256_fingerprint"].replace(":", ""), expected_old["sans"],
+        )
+        restored_health = _api(lab, health_path)
+        restored_ready = restored_health.returncode == 0 and restored_health.stdout.strip() == "ok"
+        restored_ok = (restored_adopted and restored_ready and restored_live["verified"]
+                       and restored_live["leaf"] == expected_old)
+        lab.check("green", "Cleanup restores the original live kubelet leaf and identical proxy health route",
+                  restored_ok, {"live_leaf_restored": restored_live["leaf"] == expected_old,
+                                "chain_and_ip_verified": restored_live["verified"],
+                                "proxy_health_ok": restored_ready})
+    return {
+        "old_live": old_ok,
+        "old": {"leaf": old_live["leaf"], "verified": old_live["verified"],
+                "proxy_health_ok": old_health.returncode == 0 and old_health.stdout.strip() == "ok"},
+        "successor_live": new_ok,
+        "successor": {"leaf": new_live["leaf"], "verified": new_live["verified"],
+                      "proxy_health_ok": new_ready},
+        "restored": restored_ok,
+        "restored_leaf": {"leaf": restored_live["leaf"], "verified": restored_live["verified"],
+                          "proxy_health_ok": restored_ready},
+    }
+
+
 def _node(lab, *args, **kwargs):
     return lab.command("docker", "exec", f"{lab.cluster}-control-plane", *args, **kwargs)
 
@@ -462,11 +604,19 @@ def run(lab):
     _, unrelated = _make_ca(lab, root, "unrelated")
     serving, serving_key = _make_leaf(lab, root, "kubelet-serving", signing_key, ca,
                                       dns=(node,), ips=(endpoint,))
+    successor, successor_key = _make_leaf(
+        lab, root, "kubelet-serving-successor", signing_key, ca,
+        dns=(node,), ips=(endpoint,),
+    )
     signing_key.unlink()
     (root / "unrelated-ca.key").unlink()
     _node(lab, "mkdir", "-m", "700", MOUNT)
-    for material in (ca, unrelated, serving, serving_key):
+    for material in (ca, unrelated, serving, serving_key, successor, successor_key):
         lab.command("docker", "cp", str(material), f"{node}:{MOUNT}/{material.name}")
+    _node(lab, "chmod", "0644", MOUNT + "/" + ca.name, MOUNT + "/" + unrelated.name,
+          MOUNT + "/" + serving.name, MOUNT + "/" + successor.name)
+    _node(lab, "chmod", "0600", MOUNT + "/" + serving_key.name,
+          MOUNT + "/" + successor_key.name)
     _node(lab, "sh", "-ceu",
           'f=/var/lib/kubelet/config.yaml; sed -i "/^tlsCertFile:/d; /^tlsPrivateKeyFile:/d" "$f"; '
           'printf "\\ntlsCertFile: %s\\ntlsPrivateKeyFile: %s\\n" "$1" "$2" >> "$f"; systemctl restart kubelet',
@@ -496,6 +646,10 @@ def run(lab):
     lab.check("green", "Restoring the selected kubelet CA restores the identical operation",
               restored_kubelet, {"proxy_route_recovered": restored_kubelet})
 
+    kubelet_rotation = _kubelet_serving_leaf_replacement(
+        lab, node, endpoint, serving, successor, health_path,
+    )
+
     marker_path = f"/api/v1/namespaces/saf-test/configmaps/{MARKER}"
     lab.kubectl("create", "configmap", MARKER, "--from-literal=marker=owned")
     original_storage = _reads_marker(_api(lab, marker_path))
@@ -520,7 +674,8 @@ def run(lab):
     _supported_profile_acceptance(lab)
     (lab.evidence / "backend-tls-observations.json").write_text(json.dumps({
         "kubelet": {"trusted_leaf": _fingerprint(lab, serving), "direct_tls_probe": kubelet_tls,
-                    "native_refusal": refusal.stderr.strip(), "restored": restored_kubelet},
+                    "native_refusal": refusal.stderr.strip(), "restored": restored_kubelet,
+                    "fixture_leaf_replacement": kubelet_rotation},
         "etcd": {"direct_tls_probe": etcd_tls, "healthy_during_refusal": healthy_etcd,
                  "native_apiserver_log": native_etcd_log, "storage_read_status": negative.stderr.strip(),
                  "restored": storage_recovered},

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0101-012",
-  "catalog_revision": "afb67597db47429affccfb4f56183653c16b9e79",
+  "catalog_revision": "5e54878c36e99ef5ca9018616cd3b5945a28f025",
   "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "3e5adeb40e9baa500ce92aae2cf579de9dfd513c5e12007b145ab9decce894ec",
   "scope": "TLS handshake policy and client certificate-chain validation for case-owned kind kube-apiserver client-facing loopback endpoints. A default Kubernetes profile is compared with a TLS 1.3 minimum-version profile; a separate TLS 1.2 reference profile evaluates a configured cipher allow-list. No application request or non-loopback host is contacted. Outbound kube-apiserver connections, service-specific TLS paths, and managed-provider controls are outside this case. The owned default cluster verifies kubelet and etcd trust, restoration, and enforcement of backend TLS policy.",
-  "cluster": "saf-lab-751e4da40fdb",
+  "cluster": "saf-lab-05b6dc88ca7d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -132,6 +132,38 @@
       "matched": true,
       "observed": {
         "proxy_route_recovered": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The original kubelet serving leaf is live on the verified API-server proxy route",
+      "matched": true,
+      "observed": {
+        "live_leaf_matches_expected": true,
+        "chain_and_ip_verified": true,
+        "identity_unchanged": true,
+        "proxy_health_ok": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The kubelet serves the distinct same-CA/SAN successor and proxy health remains ok",
+      "matched": true,
+      "observed": {
+        "live_leaf_matches_successor": true,
+        "chain_and_ip_verified": true,
+        "distinct_from_original": true,
+        "proxy_health_ok": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Cleanup restores the original live kubelet leaf and identical proxy health route",
+      "matched": true,
+      "observed": {
+        "live_leaf_restored": true,
+        "chain_and_ip_verified": true,
+        "proxy_health_ok": true
       }
     },
     {

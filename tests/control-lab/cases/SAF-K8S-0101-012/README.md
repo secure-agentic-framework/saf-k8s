@@ -1,5 +1,7 @@
 # SAF-K8S-0101-012 — API server TLS enforcement
 
+Use a TLS 1.3-capable Python with PyYAML installed, and use OpenSSL 3 on PATH.
+
 ## Coverage and comparison
 
 This case distinguishes protocol-version enforcement from cipher-suite enforcement.
@@ -178,3 +180,18 @@ owned single-member fixture.
 For each deployed path, verify the effective listener and client policy,
 the expected identities and issuer trust, an allowed handshake, and
 representative read/write or routing behavior through the relevant peers.
+
+## Kubelet serving leaf adoption
+
+The owned kubelet starts with a verified serving leaf for the fixture node
+IP. A distinct leaf with the same CA and identities is selected and the
+kubelet is restarted. Direct verification observes the new fingerprint
+on the same endpoint, and the API server still reaches the kubelet health
+path over its configured trust. The fixture restores the original pair
+and verifies that the original fingerprint and health path return.
+
+This comparison applies to the kubelet serving role. An adoption check for
+automatic issuance and rotation includes the certificate request and
+approval path, the actual new serving leaf, and a permitted consumer
+operation. Record API-server client certificates, provider-managed
+roles and rolling deployment stages through their applicable mechanisms.
