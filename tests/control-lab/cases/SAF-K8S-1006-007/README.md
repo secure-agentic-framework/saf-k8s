@@ -36,3 +36,12 @@ The test does not inspect source repositories, CI/CD systems, software artifacts
 - [NIST SSDF publications inventory](https://csrc.nist.gov/Projects/ssdf/publications)
 - [NIST SP 800-218A, final AI SSDF Community Profile](https://csrc.nist.gov/pubs/sp/800/218/a/final)
 - [Kubernetes v1.36 ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
+
+## Verify an adopting implementation
+
+Approve applicability, control owners, evidence sources,
+and not-applicable rationale for the selected SSDF v1.1 practices. Link each
+claim to current operating evidence from CI/CD, provenance, review, and release
+systems; keep unsupported evidence as an owned gap with due date and review.
+Verify production admission preserves the same fail-closed requirements and
+track remediation through independent reassessment.
