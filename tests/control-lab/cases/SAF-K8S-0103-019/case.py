@@ -133,6 +133,10 @@ def run(lab):
     prior_ejections = envoy_events(lab, balancer, "eject_unhealthy_event", primary_addresses)
     prior_reentries = envoy_events(lab, balancer, "add_healthy_event", primary_addresses)
     start = time.monotonic()
+    no_backend_observations = []
+    second_ejected = False
+    secondary_restored = False
+    secondary_reentered = False
     with offline(lab, primary):
         unavailable = until(lambda: not active(lab, primary) and not direct(lab, primary, HEALTH), 35)
         if not unavailable:
@@ -163,6 +167,50 @@ def run(lab):
                   {"active_health_ejection_observed": ejected, "steady_shared_reads": sum(steady),
                    "healthy_backend_ready": secondary_ready, "https_liveness_backends": 2})
 
+        # With one backend already ejected, stop the other owned API process.
+        # Both context managers restore their exact saved manifests on every
+        # normal or exceptional exit; etcd and the Envoy container remain up.
+        secondary_addresses = addresses(secondary)
+        prior_secondary_ejections = envoy_events(
+            lab, balancer, "eject_unhealthy_event", secondary_addresses)
+        prior_secondary_reentries = envoy_events(
+            lab, balancer, "add_healthy_event", secondary_addresses)
+        with offline(lab, secondary):
+            secondary_stopped = until(
+                lambda: not active(lab, secondary) and not direct(lab, secondary, HEALTH), 35)
+            if not secondary_stopped:
+                lab.block("The owned secondary API server did not stop serving")
+            deadline = time.monotonic() + 25
+            while time.monotonic() < deadline:
+                second_ejected = bool(
+                    envoy_events(lab, balancer, "eject_unhealthy_event", secondary_addresses)
+                    - prior_secondary_ejections)
+                no_backend_observations.append(shared(lab))
+                no_active_apis = not active(lab, primary) and not active(lab, secondary)
+                if second_ejected and no_active_apis and not no_backend_observations[-1]:
+                    break
+                time.sleep(0.5)
+            no_backend = (second_ejected and not active(lab, primary)
+                          and not active(lab, secondary) and bool(no_backend_observations)
+                          and not no_backend_observations[-1])
+            lab.check("red", "Envoy reports no eligible API backend when both owned API servers are unavailable",
+                      no_backend,
+                      {"second_backend_ejected": second_ejected,
+                       "no_active_api_processes": not active(lab, primary) and not active(lab, secondary),
+                       "shared_authenticated_read_failed": bool(no_backend_observations)
+                       and not no_backend_observations[-1]})
+
+        secondary_restored = until(lambda: direct(lab, secondary, HEALTH) == "ok", 95)
+        secondary_reentered = until(
+            lambda: bool(envoy_events(lab, balancer, "add_healthy_event", secondary_addresses)
+                         - prior_secondary_reentries), 30)
+        recovered_shared = shared(lab)
+        lab.check("positive", "Restoring the second API manifest restores eligible service through Envoy",
+                  secondary_restored and secondary_reentered and recovered_shared,
+                  {"secondary_readiness_restored": secondary_restored,
+                   "secondary_reentry_observed": secondary_reentered,
+                   "shared_endpoint_readable": recovered_shared})
+
     restored = until(lambda: direct(lab, primary, HEALTH) == "ok", 95)
     reentered = until(lambda: bool(envoy_events(lab, balancer, "add_healthy_event", primary_addresses)
                                    - prior_reentries), 30)
@@ -176,6 +224,10 @@ def run(lab):
         "both_initial_backends_ready": ready, "pinned_failed": pinned_failed, "shared_reads_after_ejection": stable,
         "initial_outage_probe_attempts": len(observed),
         "initial_outage_probe_errors": observed.count(False),
+        "no_eligible_backend_ejection_observed": second_ejected,
+        "no_eligible_backend_shared_read_failures": no_backend_observations.count(False),
+        "secondary_backend_restored": secondary_restored,
+        "secondary_backend_reentry_observed": secondary_reentered,
         "seconds_until_ejection_observed": round(time_to_eject, 3),
         "both_backends_restored": both, "probe_type": "HTTPS", "probe_path": probe_path,
         "healthy_threshold": probe["healthy_threshold"], "unhealthy_threshold": probe["unhealthy_threshold"],

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0103-019",
-  "catalog_revision": "44546a099c09c6eb08fa8634daae0888785b87be",
-  "catalog_sha256": "78452cdfa186d9d90c4a9c90391ba788b2466f2b297ac9642213c310bacfb2a4",
+  "catalog_revision": "3918845c518c3e111d407c322a0fb7423daf94d2",
+  "catalog_sha256": "6618518e712531f8ef518344034efb0aa93e5578de809bd6e7903ee3c9fd9a59",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "78c9a0392d00b9cce36f3fa14cc36d256cd1d0c7fbf042fbdf3484f1488808fd",
   "scope": "Two Kind API server backends behind the platform's Envoy endpoint with active HTTPS liveness checks; etcd members remain running.",
-  "cluster": "saf-lab-b8454370b9b5",
+  "cluster": "saf-lab-77d2feb25419",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -56,6 +56,26 @@
         "steady_shared_reads": 5,
         "healthy_backend_ready": true,
         "https_liveness_backends": 2
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Envoy reports no eligible API backend when both owned API servers are unavailable",
+      "matched": true,
+      "observed": {
+        "second_backend_ejected": true,
+        "no_active_api_processes": true,
+        "shared_authenticated_read_failed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Restoring the second API manifest restores eligible service through Envoy",
+      "matched": true,
+      "observed": {
+        "secondary_readiness_restored": true,
+        "secondary_reentry_observed": true,
+        "shared_endpoint_readable": true
       }
     },
     {
