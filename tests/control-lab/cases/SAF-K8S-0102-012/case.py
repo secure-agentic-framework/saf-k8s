@@ -14,7 +14,8 @@ PROM_IMAGE = (
 SCOPE = (
     "Native readiness, endpoint status and passive metrics on one healthy v1.36.1 kind etcd "
     "member. Prometheus evaluates the actual sample for leadership and quota and separately "
-    "checks labeled synthetic lag, missing telemetry and latency. No live outage or load is induced."
+    "checks labeled synthetic lag, missing telemetry and latency. Expected peer census is a separate "
+    "synthetic input tested against missing, incomplete and present histogram telemetry."
 )
 CERTS = "/etc/kubernetes/pki/etcd"
 METRICS = {
@@ -133,6 +134,29 @@ def offline_cases(actual):
     for alert, samples, labels in cases:
         tests.append({"name": f"synthetic-{alert}", "input_series": samples,
                       "alert_rule_test": [assertion(alert, 1), assertion(alert, 7, labels)]})
+
+    # This expected-peer inventory series is synthetic test input, not an etcd
+    # native metric. It distinguishes a valid singleton's absent peer family
+    # from missing telemetry on a target that should observe remote peers.
+    expected_peers = "etcd_expected_peer_count"
+    tests.extend([
+        {"name": "synthetic-singleton-peer-family-not-applicable",
+         "input_series": [series("up", "1x8"), series(expected_peers, "0x8")],
+         "alert_rule_test": [assertion("EtcdPeerTelemetryUnavailable", 3)]},
+        {"name": "synthetic-expected-peers-but-peer-family-missing",
+         "input_series": [series("up", "1x8"), series(expected_peers, "1x8")],
+         "alert_rule_test": [assertion("EtcdPeerTelemetryUnavailable", 1),
+                             assertion("EtcdPeerTelemetryUnavailable", 3, TARGET)]},
+        {"name": "synthetic-expected-peers-with-incomplete-peer-coverage",
+         "input_series": [series("up", "1x8"), series(expected_peers, "2x8"),
+                           series(PEER_HISTOGRAM, "0x8", {**TARGET, "To": "fixture-b", "le": "+Inf"})],
+         "alert_rule_test": [assertion("EtcdPeerTelemetryUnavailable", 3, TARGET)]},
+        {"name": "synthetic-expected-peers-with-peer-family-present",
+         "input_series": [series("up", "1x8"), series(expected_peers, "1x8"),
+                           *[series(PEER_HISTOGRAM, "0x8", {**TARGET, "To": "fixture-b", "le": bound})
+                             for bound in ("0.1", "1", "+Inf")]],
+         "alert_rule_test": [assertion("EtcdPeerTelemetryUnavailable", 3)]},
+    ])
     return tests
 
 
@@ -148,17 +172,17 @@ def run(lab):
             "--mount", f"type=bind,source={root},target=/assessment,readonly",
             "--entrypoint=/bin/promtool", PROM_IMAGE, "test", "rules",
         ]
-        baseline = {"rule_files": [], "evaluation_interval": "1m", "tests": [tests[2]]}
+        baseline = {"rule_files": [], "evaluation_interval": "1m", "tests": [tests[2], tests[-3]]}
         active = {"rule_files": ["alerts.yml"], "evaluation_interval": "1m", "tests": tests}
         (root / "baseline.yml").write_text(json.dumps(baseline, indent=2) + "\n")
         (root / "with-rules.yml").write_text(json.dumps(active, indent=2) + "\n")
         missing = lab.command(*command, "/assessment/baseline.yml", allow_failure=True, timeout=90)
         expected_failure = (missing.returncode != 0 and "EtcdNoLeader" in missing.stderr
-                            and "FAILED" in missing.stderr)
-        lab.check("red", "Expected leader-loss alert is absent with no rules loaded",
+                            and "EtcdPeerTelemetryUnavailable" in missing.stderr and "FAILED" in missing.stderr)
+        lab.check("red", "Expected leader-loss and missing-peer alerts are absent with no rules loaded",
                   expected_failure, expected_failure)
         enabled = lab.command(*command, "/assessment/with-rules.yml", allow_failure=True, timeout=90)
-        lab.check("green", "Promtool distinguishes all eight labeled fault fixtures from the passive healthy input",
+        lab.check("green", "Promtool distinguishes known fault and peer inventory fixtures from positive comparisons",
                   enabled.returncode == 0,
-                  {"healthy_inputs": 1, "synthetic_faults": len(tests) - 1,
+                  {"healthy_inputs": 1, "synthetic_comparisons": len(tests) - 1,
                    "rule_engine_passed": enabled.returncode == 0})

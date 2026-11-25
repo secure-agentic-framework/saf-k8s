@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0102-012",
-  "catalog_revision": "862b83a0676cdf1ca5cb025080012d1e14e1e453",
-  "catalog_sha256": "67df268920c5bc79b942d6aa35c7aa6d4d739f1d68046a9333bc5b5a3f65acfb",
+  "catalog_revision": "b90e62e06b9b9dd9148714e037b67eafddc74a92",
+  "catalog_sha256": "1c78a76489ca604a14fdf3824565e4bcb568f55832e793e78fa752772ba60eab",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "c23366274e0b20d81e494950b016e19bf4dfb7b74a70171e786fe1afde420231",
-  "scope": "Native readiness, endpoint status and passive metrics on one healthy v1.36.1 kind etcd member. Prometheus evaluates the actual sample for leadership and quota and separately checks labeled synthetic lag, missing telemetry and latency. No live outage or load is induced.",
-  "cluster": "saf-lab-cc35353899c4",
+  "scope": "Native readiness, endpoint status and passive metrics on one healthy v1.36.1 kind etcd member. Prometheus evaluates the actual sample for leadership and quota and separately checks labeled synthetic lag, missing telemetry and latency. Expected peer census is a separate synthetic input tested against missing, incomplete and present histogram telemetry.",
+  "cluster": "saf-lab-7185ccc743bc",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -56,17 +56,17 @@
     },
     {
       "phase": "red",
-      "claim": "Expected leader-loss alert is absent with no rules loaded",
+      "claim": "Expected leader-loss and missing-peer alerts are absent with no rules loaded",
       "matched": true,
       "observed": true
     },
     {
       "phase": "green",
-      "claim": "Promtool distinguishes all eight labeled fault fixtures from the passive healthy input",
+      "claim": "Promtool distinguishes known fault and peer inventory fixtures from positive comparisons",
       "matched": true,
       "observed": {
         "healthy_inputs": 1,
-        "synthetic_faults": 8,
+        "synthetic_comparisons": 12,
         "rule_engine_passed": true
       }
     }

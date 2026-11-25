@@ -25,3 +25,18 @@ groups:
       - alert: EtcdSlowPeer
         expr: histogram_quantile(0.99, sum by (le, instance, cluster, To) (rate(etcd_network_peer_round_trip_time_seconds_bucket{job="etcd"}[5m]))) > 0.15
         for: 2m
+      - alert: EtcdPeerTelemetryUnavailable
+        expr: >-
+          (
+            etcd_expected_peer_count{job="etcd"}
+            > on (job, instance, cluster)
+              (
+                count by (job, instance, cluster) (
+                  count by (job, instance, cluster, To) (
+                    etcd_network_peer_round_trip_time_seconds_bucket{job="etcd",le="+Inf",To!=""}
+                  )
+                )
+                or on (job, instance, cluster) (0 * etcd_expected_peer_count{job="etcd"})
+              )
+          ) and on (job, instance, cluster) (up{job="etcd"} == 1)
+        for: 2m
