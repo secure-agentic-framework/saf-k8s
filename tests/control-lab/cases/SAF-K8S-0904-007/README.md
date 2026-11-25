@@ -12,3 +12,7 @@ and actual ownership and expiry. It covers tagged fixtures in one namespace.
 It leaves production data permissions, governance and change monitoring,
 selection and lifecycle coverage, and overlapping schedule behavior for
 separate evidence.
+
+## Verify an adopting implementation
+
+Compare the admitted CronJob, owned Job, and resulting Pod to the deployed schedule policy. Verify reviewer/editor/workload identities, suspension/change authority, concurrency and overlap controls, deadlines, least-privilege data access, image provenance, and runtime settings across every applicable namespace. The fixture observes native controller ownership and deadline expiry for one namespace and does not establish real data entitlements or full schedule coverage.
