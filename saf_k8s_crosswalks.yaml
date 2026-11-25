@@ -4853,13 +4853,13 @@
   framework_version: '1.0'
   framework_requirement_id: MAP 4.1
   framework_requirement_title: Approaches for mapping AI technology and legal risks of its components - including the use of third-party data or software - are in place, followed, and documented, as are risks of infringement of a third-party's intellectual property or other rights.
-  framework_mapping_notes: SBOM and ML-BOM generation documents all software and model dependencies. ML dependency vulnerability management tracks known vulnerabilities in third-party components.
+  framework_mapping_notes: An ML-BOM provides component and data records for the documented technology and legal risk assessment.
   control_id: SAF-K8S-0905-042
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization uses the inventory in a documented process for mapping technology and legal risk for model components, third-party data and software, and applicable intellectual property rights.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -59912,15 +59912,12 @@
   framework_version: 5.2.0
   framework_requirement_id: SR-4(2)
   framework_requirement_title: Track and Trace
-  framework_mapping_notes: 'Track and trace of AI model and tool artifacts through the supply chain
-
-
-    9.6 - Training data provenance tracking (lineage from ingestion to training); 10.2 - Distributed tracing for ML pipelines'
+  framework_mapping_notes: Identifiable model, dataset, and configuration records support tracking the designated components across the stated workflow. This mapping applies to the lifecycle stages covered by the adopter's tracking process.
   control_id: SAF-K8S-0905-042
   relation_type: direct
   strength_level: strong
-  applicability: required
-  applicability_condition: null
+  applicability: conditional
+  applicability_condition: The organization designates the relevant models, data, or configuration components for supply-chain tracking and preserves their identifiers and lineage across the defined lifecycle.
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -60408,16 +60405,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SR-4(4)
   framework_requirement_title: Supply Chain Integrity -- Pedigree
-  framework_mapping_notes: 'Supply chain pedigree for AI models documents complete chain of custody
-
-
-    9.5 - ML-BOM (training data lineage, framework versions, training infrastructure identity); 6.4 - ML-BOM generation'
+  framework_mapping_notes: Versioned component and training lineage metadata provide input to the analysis that validates the composition and provenance of critical models.
   control_id: SAF-K8S-0905-042
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization uses the ML-BOM in a documented assessment of composition and provenance for designated critical or mission-essential models and their components.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
