@@ -38,3 +38,39 @@ targets.
 - [Kubernetes v1.36.1 LimitRanger implementation](https://github.com/kubernetes/kubernetes/blob/v1.36.1/plugin/pkg/admission/limitranger/admission.go)
 - [Kubernetes manifest-based admission control](https://kubernetes.io/docs/reference/access-authn-authz/manifest-admission-control/)
 - [Kubernetes ValidatingAdmissionPolicy](https://kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
+
+## Adopter verification
+
+1. Pin the Kubernetes release, provider or distribution and tier, API-server
+   replicas, and approved baseline revision. Record the owner, approver,
+   approved ordered chains, plugin configuration and applicable policy and
+   webhook sources. Retain the approval with the exact version it covers.
+2. Compare the baseline with the rendered provisioning source and the
+   effective runtime configuration on every applicable API server. Inventory
+   API-hosted policies and bindings and webhook configurations. Verify
+   target scope, selectors, and failure policy using native configuration
+   and supported evidence. For webhook behavior, pair the inventory with
+   the [webhook failure-policy case](../SAF-K8S-0605-007/README.md).
+3. For v1.37 file-backed policy, inspect the feature state, plugin
+   configuration, mounted paths, file digests and change permissions. On a
+   disposable profile, confirm that startup admission produces the
+   expected denial and authorized comparison before API-hosted policies
+   are installed. Review the intended scope and approved changes for any
+   protected API-hosted objects.
+4. Record each deviation with its exact affected profiles, justification,
+   approving owner, expiry, and verified compensation or remediation.
+   Reconcile approved exceptions after upgrades and control-plane changes.
+   An unapproved or expired deviation remains a finding.
+5. For managed services, match customer-visible settings and provider
+   documentation or attestation to the exact offering and revision.
+   Record which runtime details are available, which controls the
+   customer can verify, and the evidence for each compensation. Keep
+   uncovered provider settings unverified.
+
+Retain the applicable baseline, versioned runtime and configuration
+inventory, approved deviations, and allowed and denied evidence with their
+collection dates. Verify actual approvals through the adopter's own
+change process.
+
+- [Kubernetes v1.37 manifest-based admission](https://v1-37.docs.kubernetes.io/docs/reference/access-authn-authz/manifest-admission-control/)
+- [Kubernetes v1.37 API-based ValidatingAdmissionPolicy](https://v1-37.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
