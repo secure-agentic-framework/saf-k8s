@@ -18,7 +18,7 @@ LABEL = "saf.example.org/token-review"
 SCOPE = (
     "Use metadata from two owned Kubernetes Secret-backed token fixtures plus one isolated "
     "projected-token Pod. Check exception classification and retirement, then observe the "
-    "actual issuer-issued JWT lifetime and TokenReview acceptance through expiration. Token "
+    "actual issuer-issued JWT lifetime, a configured compatibility extension, and TokenReview expiration and retirement. Token "
     "bytes stay in process memory and are excluded from logs and evidence."
 )
 
@@ -106,16 +106,21 @@ def projected_claims(token):
     return issued, expires, expires - issued
 
 
-def token_review(lab, token):
+def token_review(lab, token, *, explicit_audience=True):
+    spec = {"token": token}
+    if explicit_audience:
+        spec["audiences"] = [AUDIENCE]
     request = json.dumps({"apiVersion": "authentication.k8s.io/v1", "kind": "TokenReview",
-                          "spec": {"audiences": [AUDIENCE], "token": token}})
+                          "spec": spec})
     response = quiet_kubectl(lab, "create", "-f", "-", "-o", "json", payload=request)
     status = json.loads(response.stdout).get("status", {})
     valid = status.get("authenticated") is True
     if valid:
         user = status.get("user", {})
-        if user.get("username") != f"system:serviceaccount:{NS}:{ACCOUNT}" or status.get("audiences") != [AUDIENCE]:
-            lab.block("TokenReview identified a different subject or audience")
+        if user.get("username") != f"system:serviceaccount:{NS}:{ACCOUNT}":
+            lab.block("TokenReview identified a different subject")
+        if explicit_audience and status.get("audiences") != [AUDIENCE]:
+            lab.block("TokenReview identified a different audience")
     return valid
 
 
@@ -184,6 +189,69 @@ def observe_projected_lifetime(lab):
     token = raw = fresh = None
     lab.kubectl("delete", f"pod/{name}", f"pod/{fresh_name}", "--wait=true")
 
+def read_legacy_token(lab):
+    end = time.monotonic() + 35
+    while time.monotonic() < end:
+        response = quiet_kubectl(lab, "get", f"secret/{LEGACY}", "-o", "jsonpath={.data.token}")
+        if response.stdout.strip():
+            return base64.b64decode(response.stdout.strip(), validate=True).decode("ascii")
+        time.sleep(0.5)
+    lab.block("Controller did not populate the fixture legacy Secret")
+
+
+def verify_legacy_revocation(lab, token, accepted):
+    end = time.monotonic() + 30
+    authenticated = token_review(lab, token, explicit_audience=False)
+    while authenticated and time.monotonic() < end:
+        time.sleep(0.5)
+        authenticated = token_review(lab, token, explicit_audience=False)
+    lab.check("green", "Native TokenReview accepts the fixture legacy credential before retirement and rejects it after retirement",
+              accepted and not authenticated, {"legacy_before": accepted, "legacy_after": authenticated})
+
+
+def verify_extended_settings(lab):
+    namespace = NS
+    endpoint = f"/api/v1/namespaces/{namespace}/serviceaccounts/{ACCOUNT}/token"
+    requested = 4 * 60 * 60
+    cap = 2 * 60 * 60
+    body = {"apiVersion": "authentication.k8s.io/v1", "kind": "TokenRequest",
+            "spec": {"audiences": [AUDIENCE], "expirationSeconds": requested}}
+    reply = quiet_kubectl(lab, "create", "--raw", endpoint, "-f", "-", payload=json.dumps(body))
+    issued = json.loads(reply.stdout)
+    token = issued["status"]["token"]
+    _, _, ttl = projected_claims(token)
+    direct_valid = token_review(lab, token)
+    lab.check("green", "A larger direct TokenRequest is capped at the configured two-hour duration",
+              issued["spec"].get("expirationSeconds") == cap and ttl == cap and direct_valid,
+              {"requested_seconds": requested, "token_claim_seconds": ttl,
+               "cap_applied": issued["spec"].get("expirationSeconds") == cap,
+               "same_audience_review_accepted": direct_valid})
+
+    name = "fixture-compatibility-projection"
+    resource = pod(name, [container("wait")], serviceAccountName=ACCOUNT,
+                   automountServiceAccountToken=True)
+    lab.create(resource)
+    lab.kubectl("wait", "--for=condition=Ready", f"pod/{name}", "--timeout=90s", timeout=100)
+    describe = lab.kubectl("get", f"pod/{name}", "-o", "json")
+    observed = json.loads(describe.stdout)
+    durations = [source["serviceAccountToken"]["expirationSeconds"]
+                 for item in observed["spec"]["volumes"]
+                 for source in item.get("projected", {}).get("sources", [])
+                 if "serviceAccountToken" in source]
+    if len(durations) != 1:
+        lab.block("Expected a single admission-injected token projection")
+    reply = quiet_kubectl(lab, "exec", name, "--", "cat",
+                          "/var/run/secrets/kubernetes.io/serviceaccount/token")
+    token = reply.stdout.strip()
+    _, _, effective = projected_claims(token)
+    extended_valid = token_review(lab, token)
+    lab.check("positive", "The admission-injected compatibility credential carries its own extended expiry",
+              0 < durations[0] < cap < effective and extended_valid,
+              {"configured_projection_seconds": durations[0], "issuer_claim_seconds": effective,
+               "beyond_direct_cap": effective > cap, "same_audience_review_accepted": extended_valid})
+    lab.kubectl("delete", f"pod/{name}", "--wait=true")
+
+
 def run(lab):
     now = datetime.now(timezone.utc)
     lab.create({"apiVersion": "v1", "kind": "ServiceAccount", "metadata": {"name": ACCOUNT},
@@ -215,7 +283,11 @@ def run(lab):
     reviewed = classify(lab, inventory(lab), now)
     lab.check("green", "The review identifies the overdue exception and preserves the current, exact exception",
               reviewed == {LEGACY: "action-due", MANUAL: "current-exception"}, reviewed)
+    legacy_token = read_legacy_token(lab)
+    legacy_valid = token_review(lab, legacy_token, explicit_audience=False)
     lab.kubectl("delete", "secret/" + LEGACY, "--wait=true")
+    verify_legacy_revocation(lab, legacy_token, legacy_valid)
+    del legacy_token
     after = inventory(lab)
     remaining = classify(lab, after, now)
     lab.check("positive", "Retirement removes the exact Secret from the inventory and leaves the separate current exception",
@@ -227,4 +299,5 @@ def run(lab):
         "metadata_probe_requested_seconds": int(requested),
     }, indent=2) + "\n")
 
+    verify_extended_settings(lab)
     observe_projected_lifetime(lab)

@@ -1,0 +1,18 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+kubeadmConfigPatches:
+  - |
+    apiVersion: kubeadm.k8s.io/v1beta4
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        - name: api-audiences
+          value: "https://kubernetes.default.svc"
+        - name: service-account-max-token-expiration
+          value: "2h"
+        - name: service-account-extend-token-expiration
+          value: "true"
+        - name: service-account-lookup
+          value: "true"

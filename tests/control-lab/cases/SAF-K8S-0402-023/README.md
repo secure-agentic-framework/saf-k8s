@@ -1,11 +1,22 @@
-# SAF-K8S-0402-023 supervised TTL supplement
+# SAF-K8S-0402-023 — Kubernetes token inventory, issuance and retirement
 
-Scratch-only candidate based on the current published 0402-023 case. It retains the original three inventory, exception and retirement assertions, then creates one owned Pod with a projected ServiceAccount token (`audience=https://kubernetes.default.svc`, `expirationSeconds=600`). It reads the synthetic JWT only into subprocess memory, validates `iat`, `exp`, audience and exact issued lifetime, and submits it to TokenReview before and after expiry. No token bytes enter CLI arguments, command logs, receipts or evidence files.
+```sh
+python3 lab.py test SAF-K8S-0402-023 --docker-context desktop-linux
+```
 
-Expected total: **5 checks** (the existing three plus two actual issuance/lifetime and expiry checks). Expected runtime: **about 11–13 minutes** beyond cluster startup: Pod readiness, 600 seconds to expiry, and 65 seconds of expiration margin for API-server JWT clock skew. The original Pod UID is checked after expiry. Metadata observations and the safe timing receipt contain only booleans, requested/issued seconds and UTC timestamps.
+The live Kind v1.36.1 case distinguishes a linked Secret-backed token fixture from an unlinked manual token fixture. It checks exact time-bounded exceptions, then confirms that retiring the overdue fixture removes only its named Secret and causes the native API to reject that original credential. The reference uses an explicit owned link to represent legacy inventory metadata.
 
-This is a proposed supervised local case, not executed or passed. Before adoption, validate exact v1.36.1 TokenReview behavior, expiry skew and projected volume path against the pinned 0402-012 pattern. Do not expand the conclusion to legacy Secret token validity, long-running workload rotation/consumer reload, Kubernetes versions or configuration other than the fixture, cloud/Vault/database exchanges, or production fleet coverage. 0402-012 separately demonstrates expiration of a frozen original token; it does not establish long-running application reload.
+The API server fixture caps ordinary TokenRequests at two hours and enables compatibility extension. A direct four-hour request receives a two-hour JWT. The admission-injected projection declares 3,607 seconds and receives a JWT with an effective lifetime of 31,536,000 seconds under the tested configuration. An explicitly declared 600-second projection receives 600 seconds, authenticates before expiry and is refused after expiry while its original Pod stays present. A fresh token for the same scope authenticates afterward.
 
-Adopter follow-up remains to inventory governed clusters/workloads, effective token issuance limits and provider exchanges; retain only metadata, identity lineage, measured lifetime, exception owner/approval/deadlines, coverage gaps and retirement evidence.
+Plan for about 12 minutes plus cluster startup due to the real expiry comparison. The fixture uses the native TokenReview verifier and retains only sanitized metadata and outcome predicates. Credential bytes stay in process memory. Long-running application reload, other Kubernetes or provider configurations, and external credential exchanges require their own evidence.
 
-A fresh projection for a separate Pod with the same ServiceAccount and audience confirms that authentication remains available after the original credential expires.
+## Adopter verification
+
+1. Inventory all governed clusters, issuers, workloads and token classes. Identify the applicable lookup, maximum lifetime and extension settings and note issuer paths you cannot observe.
+2. Reconcile each exception to exact identities, owner, approval, purpose, review and retirement dates. Check legacy metadata and actual linked workload references.
+3. Observe both requested duration and issued validity. Trace verifier acceptance and expiry for each eligible class and record measured results without storing the credentials.
+4. Verify exact retirement at the accepting service and confirm continued use by separate permitted identities. Verify exchanged credentials under their own issuer and retention policy.
+
+- [Kubernetes v1.36 kube-apiserver arguments](https://v1-36.docs.kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/)
+- [Kubernetes v1.36.1 TokenRequest storage](https://raw.githubusercontent.com/kubernetes/kubernetes/v1.36.1/pkg/registry/core/serviceaccount/storage/token.go)
+- [Kubernetes v1.36 ServiceAccounts](https://v1-36.docs.kubernetes.io/docs/concepts/security/service-accounts/)
