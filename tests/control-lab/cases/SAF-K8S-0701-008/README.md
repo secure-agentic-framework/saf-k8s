@@ -22,3 +22,16 @@ production evidence.
 
 - [Kubernetes v1.36 immutable ConfigMaps](https://v1-36.docs.kubernetes.io/docs/concepts/configuration/configmap/#immutable-configmaps)
 - [OCI content descriptors](https://github.com/opencontainers/image-spec/blob/main/descriptor.md)
+
+## Adopter verification
+
+1. Record the dataset source, immutable version and digest, authenticated
+   producer, approving owner, storage location, and lineage reference
+   from the actual pipeline or training job.
+2. Verify immutable version resolution and the effective owner and
+   consumer permissions. Rehearse rejection of a substituted artifact.
+3. Confirm retained access and isolated recovery for the selected
+   storage integration. Verify the actual restored digest and lineage.
+4. Repeat a representative approved run with the pinned inputs and
+   recorded execution environment. Record equivalent outputs using the
+   documented criteria, or record the unexplained divergence.
