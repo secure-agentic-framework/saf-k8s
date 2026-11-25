@@ -79,3 +79,13 @@ that wider obligation.
 The training Pod reads the mounted checkpoint before suspension. The healthy fixture reads
 the same immutable checkpoint after containment, and the case checks both digests against
 the bytes and object identity returned by the API.
+
+## Verify an adopting implementation
+
+Map inference endpoints, orchestration controllers,
+stateful jobs, checkpoint dependencies, and independent services. In an
+approved production-equivalent drill, quarantine the affected route, suspend
+the actual workflow safely, and validate checkpoint consistency and restore
+with application owners. Verify independent service health and record
+customer-impact boundaries, approval, measured timing, rollback, and recovery
+signoff.
