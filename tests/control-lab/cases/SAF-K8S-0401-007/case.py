@@ -1,18 +1,24 @@
 """Verify separated GPU-like quota, PriorityClass, and telemetry RBAC."""
 import json
+import importlib.util
 from pathlib import Path
 
 from fixtures import BUSYBOX_IMAGE, container, pod
 
 
 HERE = Path(__file__).parent
+_PRIORITY_SPEC = importlib.util.spec_from_file_location(
+    "saf_0401_007_priority_assignment", HERE / "priority_assignment.py")
+priority_assignment = importlib.util.module_from_spec(_PRIORITY_SPEC)
+_PRIORITY_SPEC.loader.exec_module(priority_assignment)
 NAMESPACE = "saf-0401-007"
 SCOPE = (
     "Kubernetes v1.36.1 synthetic ServiceAccount tests for a namespaced GPU-like quota dry-run "
     "increase, an exact named PriorityClass metadata dry run, and an actual test-owned HTTP "
     "metrics marker through the Service proxy. Isolated fixture roles preserve ownership of "
-    "each distinct action. Actual GPU allocation, workload priority assignment, provider "
-    "and group governance, and production metrics pipeline authorization remain separate."
+    "each distinct action. A scratch supplement tests namespace-scoped direct Pod priority-class "
+    "assignment with server-side dry-run only. Actual GPU allocation, workload-controller template "
+    "governance, provider and group mapping, and production metrics-route authorization remain separate."
 )
 PODS = {
     "workload": "saf-0401-007-workload-probe",
@@ -122,7 +128,7 @@ def run(lab):
               quota_unchanged, {"unchanged": quota_unchanged})
     lab.check("positive", "PriorityClass dry-run probes did not persist a priority mutation",
               priority_unchanged, {"unchanged": priority_unchanged})
-
+    priority_assignment.run(lab)
 
 
 def install_metrics_fixture(lab):

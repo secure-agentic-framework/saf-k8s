@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0401-007",
-  "catalog_revision": "b126a9987a2383122872317e04a923f2137b2591",
-  "catalog_sha256": "b5c2f4a8bfac5aa27b81f5b3a84c72083b81b5210bba5d600c9cb6f4424dca4c",
+  "catalog_revision": "ff66695bdcf5d2c715a5ab4b72397e2f6376b684",
+  "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d1ec6c0eaba96c02cc177fb515c1f9826767f212333994b958421c07f227942e",
-  "scope": "Kubernetes v1.36.1 synthetic ServiceAccount tests for a namespaced GPU-like quota dry-run increase, an exact named PriorityClass metadata dry run, and an actual test-owned HTTP metrics marker through the Service proxy. Isolated fixture roles preserve ownership of each distinct action. Actual GPU allocation, workload priority assignment, provider and group governance, and production metrics pipeline authorization remain separate.",
-  "cluster": "saf-lab-16e6b23a1edf",
+  "scope": "Kubernetes v1.36.1 synthetic ServiceAccount tests for a namespaced GPU-like quota dry-run increase, an exact named PriorityClass metadata dry run, and an actual test-owned HTTP metrics marker through the Service proxy. Isolated fixture roles preserve ownership of each distinct action. A scratch supplement tests namespace-scoped direct Pod priority-class assignment with server-side dry-run only. Actual GPU allocation, workload-controller template governance, provider and group mapping, and production metrics-route authorization remain separate.",
+  "cluster": "saf-lab-a28d517cf058",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -594,6 +594,31 @@
       "matched": true,
       "observed": {
         "unchanged": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before policy binding, the synthetic actors can dry-run the governed class",
+      "matched": true,
+      "observed": {
+        "approved_subject_matches": true,
+        "approved_actor_dry_run_accepted": true,
+        "unapproved_actor_dry_run_accepted_before_policy": true,
+        "governed_priority_resolved": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The namespace policy denies unapproved governed assignment and preserves permitted/default classes",
+      "matched": true,
+      "observed": {
+        "policy_typecheck_clean": true,
+        "binding_selects_only_owned_fixture_namespace": true,
+        "approved_governed_assignment_allowed": true,
+        "unapproved_governed_assignment_denied_by_policy": true,
+        "ordinary_class_assignment_allowed": true,
+        "no_class_default_remains_zero": true,
+        "all_pod_requests_were_server_side_dry_run": true
       }
     }
   ]
