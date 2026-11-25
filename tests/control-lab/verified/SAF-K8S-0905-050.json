@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-050",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "3c9e366438d85d825c8e08ef349f57d1cb37afcc",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "0daaea403024f6a3b3e596b62b20201a20192c1dece9d9eb4bddb51a8f764376",
-  "scope": "Kubernetes v1.36.1 runs two case-owned copies of a small promotion API. Both receive the same case-minted ServiceAccount token and fixed inert decision; the disabled gate accepts it, while the enabled gate uses authentication.k8s.io/v1 TokenReview with a fixed audience and an exact reviewer allowlist. The enabled gate rejects wrong-audience, missing, and authenticated-but-unapproved identities and accepts the allowlisted reviewer. This proves the Kubernetes token identity/audience boundary for one inert decision only; external OIDC/SSO, human session binding, audit binding, and deployed workflow coverage need separate evidence.",
-  "cluster": "saf-lab-fc5af84830f1",
+  "scope": "Kubernetes v1.36.1 runs case-owned copies of a small promotion API. The original two receive the same case-minted ServiceAccount token and fixed inert decision; the disabled gate accepts it, while the enabled gate uses authentication.k8s.io/v1 TokenReview with a fixed audience and an exact reviewer allowlist. The enabled gate rejects wrong-audience, missing, and authenticated-but-unapproved identities and accepts the allowlisted reviewer. This proves the Kubernetes token identity and audience boundary for one inert decision. A third copy validates an owned synthetic OIDC JWT through native API-server JWT authentication and TokenReview, binds its session and exact artifact digest at the gate, and checks a narrowly scoped native SubjectAccessReview grant that the case withdraws. This remains synthetic lab evidence; enterprise identity provider login, MFA, human session issuance, and production workflow coverage require separate evidence.",
+  "cluster": "saf-lab-480ada900dc1",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -92,6 +92,85 @@
         "audiences": [
           "https://promotion.saf.invalid"
         ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The native Kubernetes API rejects the synthetic human JWT before its issuer is configured",
+      "matched": true,
+      "observed": {
+        "http_status": 403,
+        "accepted": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Kubernetes JWT authentication plus TokenReview binds the approved reviewer session and exact artifact path",
+      "matched": true,
+      "observed": {
+        "http_status": 200,
+        "authenticated": true,
+        "username_match": true,
+        "reviewer_group_present": true,
+        "native_tokenreview_http": 201,
+        "reason": "native-rbac-grant"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A cryptographically valid reviewer JWT cannot approve a different artifact path",
+      "matched": true,
+      "observed": {
+        "http_status": 403,
+        "reason": "session-or-path-rejected"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A cryptographically valid reviewer JWT from another session is denied",
+      "matched": true,
+      "observed": {
+        "http_status": 403,
+        "reason": "session-or-path-rejected"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A different native human subject cannot use the approved reviewer's grant",
+      "matched": true,
+      "observed": {
+        "http_status": 403,
+        "reason": "identity-or-group-rejected"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The native JWT authenticator rejects a signed reviewer token with the wrong audience",
+      "matched": true,
+      "observed": {
+        "http_status": 403,
+        "native_tokenreview_http": 201,
+        "native_authenticated": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Removing the case RoleBinding withdraws native SAR authorization for the exact review target",
+      "matched": true,
+      "observed": {
+        "http_status": 403,
+        "reason": "native-rbac-grant-withdrawn",
+        "identity_still_authenticated": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The disposable API is ready after restoration and no longer accepts the fixture issuer",
+      "matched": true,
+      "observed": {
+        "api_ready": true,
+        "fixture_issuer_disabled_http": 403,
+        "fixture_issuer_authenticated": false
       }
     }
   ]

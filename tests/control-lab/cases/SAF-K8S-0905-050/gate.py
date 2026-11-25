@@ -1,6 +1,7 @@
 """Minimal case-owned promotion endpoint backed by Kubernetes TokenReview."""
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
+import base64
 import os
 from pathlib import Path
 import ssl
@@ -17,11 +18,13 @@ def _is_allowed(identity, reviewer, audience):
             audience in identity["audiences"])
 
 
-def _review(token):
-    # The token is held only in memory and sent directly to the in-cluster API server.
-    request_body = {"apiVersion": "authentication.k8s.io/v1", "kind": "TokenReview",
-                    "spec": {"token": token,
-                             "audiences": [os.environ["PROMOTION_AUDIENCE"]]}}
+def _review(token, audience):
+    # Native external JWT authentication uses the API's implicit TokenReview
+    # audience. The configured OIDC authenticator validates the JWT audience.
+    spec = {"token": token}
+    if audience is not None:
+        spec["audiences"] = [audience]
+    request_body = {"apiVersion": "authentication.k8s.io/v1", "kind": "TokenReview", "spec": spec}
     reviewer_token = TOKEN_PATH.read_text().strip()
     request = urllib.request.Request(
         "https://kubernetes.default.svc/apis/authentication.k8s.io/v1/tokenreviews",
@@ -34,13 +37,67 @@ def _review(token):
             if response.status != 201:
                 raise RuntimeError("unexpected TokenReview response")
             result = json.load(response)
-    except (OSError, urllib.error.URLError, json.JSONDecodeError) as error:
-        raise RuntimeError("TokenReview unavailable") from error
+    except urllib.error.HTTPError as error:
+        raise RuntimeError(f"tokenreview-http-{error.code}") from None
+    except (OSError, urllib.error.URLError, json.JSONDecodeError):
+        raise RuntimeError("tokenreview-transport-or-response") from None
     status = result.get("status", {})
     return {"http_status": 201,
             "authenticated": status.get("authenticated") is True,
             "username": status.get("user", {}).get("username"),
-            "audiences": sorted(status.get("audiences", []))}
+            "audiences": sorted(status.get("audiences", [])),
+            "groups": sorted(status.get("user", {}).get("groups", []))}
+
+
+def _claims_after_native_auth(token):
+    # Called only after TokenReview confirms this exact bearer token's signature,
+    # issuer, audience, expiry, and required class with the Kubernetes API server.
+    try:
+        _header, payload, _signature = token.split(".", 2)
+        payload += "=" * (-len(payload) % 4)
+        claims = json.loads(base64.urlsafe_b64decode(payload.encode()))
+    except (ValueError, TypeError, json.JSONDecodeError):
+        return None
+    return claims if isinstance(claims, dict) else None
+
+
+def _is_human_allowed(identity, token, decision):
+    reviewer = os.environ["HUMAN_REVIEWER_USERNAME"]
+    if (not identity["authenticated"] or identity["username"] != reviewer or
+            "oidc-fixture:reviewers" not in identity["groups"]):
+        return False, "identity-or-group-rejected"
+    claims = _claims_after_native_auth(token)
+    if claims is None:
+        return False, "claims-unavailable"
+    expected = {"model": "saf-fixture-model-v1", "environment": "production",
+                "artifact_digest": "sha256:" + "a" * 64}
+    if claims.get("aud") != os.environ["PROMOTION_AUDIENCE"]:
+        return False, "approval-audience-rejected"
+    if (claims.get("session") != "session-fixture-01" or
+            claims.get("approval_path") != expected or decision != expected):
+        return False, "session-or-path-rejected"
+
+    # Native RBAC is the revocable grant: the TokenReview service account asks
+    # the API server whether this mapped human may read only the fixture approval.
+    reviewer_token = TOKEN_PATH.read_text().strip()
+    sar = {"apiVersion": "authorization.k8s.io/v1", "kind": "SubjectAccessReview",
+           "spec": {"user": identity["username"], "groups": identity["groups"],
+                    "resourceAttributes": {"namespace": "saf-test", "verb": "get",
+                                           "group": "", "resource": "configmaps",
+                                           "name": "promotion-approval"}}}
+    request = urllib.request.Request(
+        "https://kubernetes.default.svc/apis/authorization.k8s.io/v1/subjectaccessreviews",
+        data=json.dumps(sar).encode(), method="POST",
+        headers={"Authorization": "Bearer " + reviewer_token,
+                 "Content-Type": "application/json"})
+    context = ssl.create_default_context(cafile=CA_PATH)
+    try:
+        with urllib.request.urlopen(request, context=context, timeout=5) as response:
+            result = json.load(response)
+    except (OSError, urllib.error.URLError, json.JSONDecodeError):
+        raise RuntimeError("SubjectAccessReview unavailable") from None
+    allowed = result.get("status", {}).get("allowed") is True
+    return allowed, "native-rbac-grant" if allowed else "native-rbac-grant-withdrawn"
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -75,7 +132,10 @@ class Handler(BaseHTTPRequestHandler):
         except (ValueError, json.JSONDecodeError):
             self._reply(400, {"error": "invalid-decision"})
             return
-        if decision != {"model": "saf-fixture-model-v1", "environment": "production"}:
+        if decision not in (
+                {"model": "saf-fixture-model-v1", "environment": "production"},
+                {"model": "saf-fixture-model-v1", "environment": "production",
+                 "artifact_digest": "sha256:" + "a" * 64}):
             self._reply(400, {"error": "unexpected-decision"})
             return
 
@@ -91,16 +151,31 @@ class Handler(BaseHTTPRequestHandler):
             self._reply(403, {"accepted": False, "reason": "missing-credential",
                               "identity": None})
             return
+        human_mode = bool(os.environ.get("HUMAN_REVIEWER_USERNAME"))
+        audience = None if human_mode else os.environ["PROMOTION_AUDIENCE"]
         try:
-            identity = _review(token)
-        except RuntimeError:
-            self._reply(503, {"error": "identity-review-unavailable"})
+            identity = _review(token, audience)
+        except RuntimeError as error:
+            details = str(error)
+            allowed_details = {"tokenreview-http-400", "tokenreview-http-401",
+                               "tokenreview-http-403", "tokenreview-http-500",
+                               "tokenreview-http-503", "tokenreview-transport-or-response"}
+            self._reply(503, {"error": "identity-review-unavailable",
+                              "reason": details if details in allowed_details else "tokenreview-failed"})
             return
-        accepted = _is_allowed(identity, os.environ["REVIEWER_USERNAME"],
-                               os.environ["PROMOTION_AUDIENCE"])
+        if human_mode:
+            try:
+                accepted, reason = _is_human_allowed(identity, token, decision)
+            except RuntimeError:
+                self._reply(503, {"error": "authorization-review-unavailable"})
+                return
+        else:
+            accepted = _is_allowed(identity, os.environ["REVIEWER_USERNAME"],
+                                   os.environ["PROMOTION_AUDIENCE"])
+            reason = "reviewer-accepted" if accepted else "identity-or-audience-rejected"
         self._reply(200 if accepted else 403,
                     {"accepted": bool(accepted),
-                     "reason": "reviewer-accepted" if accepted else "identity-or-audience-rejected",
+                     "reason": reason,
                      "identity": identity})
 
 

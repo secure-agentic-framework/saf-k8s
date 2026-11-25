@@ -1,22 +1,44 @@
-# SAF-K8S-0905-050
+# SAF-K8S-0905-050 authenticated model promotion review
 
-This case runs a disposable promotion API in the lab's Kubernetes v1.36.1 cluster. The gate's
-service account has only `create` permission for `TokenReview`. The runner mints short-lived,
-case-owned ServiceAccount tokens in memory, submits a fixed inert decision to the deployed gate,
-and retains only HTTP outcome, TokenReview authentication, username, and returned audience facts.
-No token or credential is written to evidence or logs.
+Run the reference test in the framework checkout:
 
-The same wrong-audience token must be accepted by the disabled deployment and rejected by the
-enabled deployment. Additional enabled-gate probes cover an authenticated but unapproved service
-account, a missing credential, and the allowlisted identity. Infrastructure failures, unexpected
-HTTP statuses, and TokenReview errors block the run and do not count as control observations.
+```sh
+python3 tests/control-lab/lab.py test SAF-K8S-0905-050 --docker-context desktop-linux
+```
 
-This validates Kubernetes-issued workload identity and audience enforcement for one fixture gate.
-It does not establish human identity, an external OIDC/SSO provider, session-bound approval,
-approval-to-model audit binding, or use by production promotion workflows. Run with `python3 lab.py test SAF-K8S-0905-050`.
+The thirteen checks distinguish workload identity and a synthetic human
+reviewer. The ServiceAccount comparison exercises an explicit promotion
+TokenReview audience. With enforcement enabled, the gate rejects the same
+wrong-audience request accepted by the baseline, along with missing and
+unapproved credentials. It accepts the approved ServiceAccount.
 
-## Versioned primary references
+A separate gate calls native TokenReview for an owned synthetic OIDC JWT.
+It uses TokenReview's implicit Kubernetes API audience. The API server's
+configured JWT authenticator independently verifies the JWT's promotion
+audience. The gate verifies the authenticated reviewer and selected group,
+then checks the signed fixture session and exact artifact target. Kubernetes
+SubjectAccessReview verifies the named approval permission. The test rejects
+a different session, artifact, reviewer and signed JWT audience. Removing
+the scoped grant denies approval while the same reviewer still authenticates.
+Restoring the API removes the temporary issuer and the same synthetic JWT is
+no longer authenticated. The receipt contains sanitized decisions.
 
-- [Kubernetes v1.36 authentication and TokenReview](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/authentication/)
-- [Kubernetes v1.36 TokenReview API](https://v1-36.docs.kubernetes.io/docs/reference/kubernetes-api/definitions/token-review-v1-authentication/)
-- [Kubernetes v1.36 `kubectl create token`](https://v1-36.docs.kubernetes.io/docs/reference/generated/kubectl/kubectl-commands/)
+## Verify an adopting implementation
+
+1. Inventory each approval entry point, the participating identity providers,
+   issuer and audience policy, trusted roots, MFA requirements, and session
+   issuance and expiry. Identify all human and automated reviewer roles and
+   who can independently grant and withdraw permission.
+2. Bind the approval to the authenticated reviewer session and exact target
+   at the live decision boundary. Exercise a valid scoped approval, a
+   mismatched or expired session, a different target, a different reviewer,
+   and missing or wrong-audience credentials using authorized test identities.
+3. Withdraw the exact approval grant and verify that identity authentication
+   alone no longer allows that reviewer to approve. Repeat wherever promotion
+   can be initiated. Retain bounded decision, timing and role evidence.
+4. Review separately any downstream audit-record binding and transfer
+   between security domains. The synthetic promotion decision demonstrates
+   the local authentication, session, target and authorization mechanism.
+
+[Kubernetes v1.36 authentication](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/authentication/)
+and [the pinned API server's JWT audience adapter](https://github.com/kubernetes/kubernetes/blob/v1.36.1/pkg/kubeapiserver/authenticator/config.go).
