@@ -13,3 +13,12 @@ notification windows independently.
 - [Git grep](https://git-scm.com/docs/git-grep)
 - [OCI image layout](https://github.com/opencontainers/image-spec/blob/main/image-layout.md)
 - [Kubernetes logging architecture](https://v1-36.docs.kubernetes.io/docs/concepts/cluster-administration/logging/)
+
+## Verify an adopting implementation
+
+Map each governed publication and runtime surface to an
+enabled detector, supported formats, owner, and alert destination. Submit an
+approved harmless marker per surface and retain source attribution, detection
+latency, delivery receipt, and retention location; submit a clean comparator
+to verify no false finding. Document excluded surfaces, exception expiry,
+and escalation ownership.
