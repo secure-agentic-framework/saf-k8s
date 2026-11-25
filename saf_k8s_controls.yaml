@@ -6766,12 +6766,12 @@
   knowledge_area: '7.3'
   control_seq: 009
   control_title: GPU spending limits and budget enforcement
-  control_statement: Organizations must configure GPU spending limits and budget alerts with automatic enforcement actions (job suspension, scale-down triggers) to prevent uncontrolled GPU expenditure at the namespace or team level.
-  objective: Prevent GPU budget overruns by establishing spending boundaries with automated enforcement that halts or reduces consumption when limits are approached or exceeded.
-  rationale: Without spending limits and automatic enforcement, a single misconfigured job or runaway training loop can exhaust an organization's entire GPU budget before manual intervention occurs. Budget alerts without enforcement actions provide awareness but cannot prevent overruns during off-hours or when responsible parties are unavailable. Automatic enforcement actions (job suspension, scale-down) provide a safety net.
-  scope: Applies to all Kubernetes clusters with GPU resources. Spending limits and automatic enforcement must be configured at the namespace or team level. Enforcement actions must include job suspension and scale-down triggers. Budget alerts must notify relevant stakeholders before limits are reached. Integration with FinOps platforms is required for accurate cost tracking.
-  primary_enforcement_point: Budget alert integrations and automated enforcement controllers that suspend jobs or scale down deployments upon budget threshold breach.
-  implementation_surface: Cloud budget alerts (AWS Budgets, GCP Budget API, Azure Cost Management) with automatic enforcement actions, namespace-level spending limits enforced by custom controllers, job suspension and scale-down triggers on budget threshold breach, and alert notification pipelines.
+  control_statement: Establish an approved GPU spending budget for each applicable team or namespace. Use attributable metering, timely alerts and a reviewed workload response where the platform supports it.
+  objective: Limit the risk and duration of GPU spending overruns and verify that authorized cost responses are scoped, timely and effective.
+  rationale: Kubernetes quotas can bound declared requests and provider notifications can report estimated spending. Billing data and notification delays can permit further consumption before action. Financial spend limits and workload control require separate evidence.
+  scope: Applies to managed or self-operated GPU environments covered by the budget policy. Document accountable teams, currency, window, usage and billing sources, confidence and lag, approved notifications and workload response, exceptions and continuity needs.
+  primary_enforcement_point: Verified capacity or rate policy for declared requests, attributable actual cost monitoring, and an approved provider integration or scoped Kubernetes workload controller for actions.
+  implementation_surface: Reconcile workload and device usage to actual or estimated charges by budget scope and period. Verify alert delivery, delayed or unavailable input handling and the approved response. Where authorized, exercise scoped suspension or scale-down and preserve unaffected workloads. Verify the exact scope and limitations of any supported provider spend cap.
   owner_primary: FinOps
   owner_supporting: Platform Engineering; ML Engineering
   baseline_or_ai_specific: ai-specific
@@ -6779,7 +6779,7 @@
   status: draft
   superseded_by_control_id: null
   date_created: '2026-03-06'
-  date_modified: '2026-03-17'
+  date_modified: '2026-11-25'
 - control_id: SAF-K8S-0703-010
   domain_code: D07
   domain_name: Storage, Multi-tenancy, and Resource Governance
