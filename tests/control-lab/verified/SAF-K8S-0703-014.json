@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0703-014",
-  "catalog_revision": "d4328fde2e235c4d4a65baf2e08f7e45cfb81217",
-  "catalog_sha256": "e8d024860997c85e65dcb4d9a1c10c9e716416ecfea1f4d4479987609b4092f0",
+  "catalog_revision": "ce5c6614ebd65cfd164dfde6895541e0cf8e5b8c",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "2fb7933bcb7686f5829fabc4fe736cb83743ecc3664a2425366eea39610e6eeb",
   "scope": "Kubernetes v1.36.1 on a disposable kind cluster. A benign BusyBox container uses a bounded 100m CPU limit and 25m request to generate deterministic local resource metrics through Metrics Server v0.9.1. The case demonstrates that an autoscaling/v2 HPA can scale above a chosen replica threshold when maxReplicas is permissive, and that lowering maxReplicas limits its Deployment target under the same demand. It creates no GPU or provider resources and makes no cloud bill, spend-ceiling, billing-alert, node-group or node-autoscaler claim. Metrics Server authenticates the fixture kubelet against a locally issued serving certificate.",
-  "cluster": "saf-lab-a20db62b99bd",
+  "cluster": "saf-lab-65739132bef3",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
