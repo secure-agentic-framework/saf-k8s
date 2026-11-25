@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-AI-RMF
 - Version: 1.0
-- Total Reverse Mappings: 120
-- Distinct Requirements Mapped: 50
+- Total Reverse Mappings: 113
+- Distinct Requirements Mapped: 49
 
 ## Requirements
 
@@ -56,4 +56,3 @@
 - [MEASURE 2.8 - Risks associated with transparency and accountability - as identified in the MAP function - are examined and documented.](measure-2-8.md)
 - [MEASURE 3.1 - Approaches, personnel, and documentation are in place to regularly identify and track existing, unanticipated, and emergent AI risks based on factors such as intended and actual performance in deployed contexts.](measure-3-1.md)
 - [MEASURE 3.2 - Risk tracking approaches are considered for settings where AI risks are difficult to assess using currently available measurement techniques or where metrics are not yet available.](measure-3-2.md)
-- [MEASURE 4.1 - Measurement approaches for identifying AI risks are connected to deployment context(s) and informed through consultation with domain experts and end users. Measurement results are documented.](measure-4-1.md)

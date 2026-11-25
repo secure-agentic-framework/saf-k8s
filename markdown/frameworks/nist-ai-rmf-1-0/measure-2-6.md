@@ -9,15 +9,6 @@ Metrics endpoint security and AI workload telemetry provide real-time safety mon
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-1002-001 - Metric endpoint authentication](../../controls/SAF-K8S-1002-001.md)
-
-- Domain: D10 - Observability, Incident Response, and Governance
-- Knowledge Area: 10.2
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: partial-control-coverage
-
 ### [SAF-K8S-1002-002 - Distributed tracing for ML pipelines](../../controls/SAF-K8S-1002-002.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance

@@ -9,15 +9,6 @@ AI workload telemetry measures performance in production conditions. Distributed
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-1002-001 - Metric endpoint authentication](../../controls/SAF-K8S-1002-001.md)
-
-- Domain: D10 - Observability, Incident Response, and Governance
-- Knowledge Area: 10.2
-- Relation Type: supports
-- Strength: weak
-- Applicability: required
-- Strength Reason Code: semantic-mismatch-candidate
-
 ### [SAF-K8S-1002-002 - Distributed tracing for ML pipelines](../../controls/SAF-K8S-1002-002.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance

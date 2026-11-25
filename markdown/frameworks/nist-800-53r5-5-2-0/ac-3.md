@@ -55,3 +55,12 @@ Core to agent authorization -- enforcing what agents can do
 - Strength: moderate
 - Applicability: conditional
 - Strength Reason Code: partial-control-coverage
+
+### [SAF-K8S-1002-001 - Metric endpoint authentication](../../controls/SAF-K8S-1002-001.md)
+
+- Domain: D10 - Observability, Incident Response, and Governance
+- Knowledge Area: 10.2
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

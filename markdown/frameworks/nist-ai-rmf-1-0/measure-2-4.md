@@ -33,8 +33,8 @@ SAF-K8S mandates comprehensive production monitoring: audit policies capture AI-
 - Knowledge Area: 10.2
 - Relation Type: supports
 - Strength: weak
-- Applicability: required
-- Strength Reason Code: implementation-specific
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1002-002 - Distributed tracing for ML pipelines](../../controls/SAF-K8S-1002-002.md)
 
