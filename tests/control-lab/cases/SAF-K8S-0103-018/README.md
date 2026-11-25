@@ -44,3 +44,21 @@ This fixture can verify local stacked-etcd mechanics and one-member maintenance 
 ## Cleanup
 
 The runner creates a unique kind cluster and deletes it in its cleanup path. During maintenance, the case restarts the exact stopped node in a `finally` block before checking recovery. Case-owned API data consists of the three probe ConfigMaps in `saf-test` and is removed with the cluster. If a supervisor interruption prevents the runner's cleanup block from completing, inspect only the reported generated cluster/container and remove that case-owned cluster; do not target unrelated containers or clusters.
+
+## Adopter verification
+
+1. Inventory the API server, scheduler, controller-manager and voting etcd
+   members. Map each replica and voter to its actual host and failure domain.
+   Account for shared disks, networking and the supported API endpoint.
+2. Verify the approved number of replicas, independent placement and the
+   quorum of the effective voting membership. Calculate surviving voters and
+   control-plane capacity for every failure domain in scope. Record the
+   provider's architecture evidence where these components are managed.
+3. During an authorized rehearsal, record the initial API readiness, health,
+   voting membership and agreed availability objective. Isolate the approved
+   representative failure domain, check supported API operations and data
+   continuity within the objective, and observe member rejoin and recovery.
+4. Retain the dated topology, placement and availability evidence and assign
+   an owner to any exception or unavailable provider detail. The three
+   case-owned Kind nodes exercise the stacked-etcd quorum mechanism. Use
+   actual placement evidence for rack, zone and shared infrastructure claims.
