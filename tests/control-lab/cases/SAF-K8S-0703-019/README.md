@@ -12,3 +12,17 @@ when requesting the other team's report.
 
 The test uses invented amounts. Separate evidence is needed for deployed
 sources, report distribution, owner review and finance-controlled chargeback.
+
+## Adopter verification
+
+1. Identify the approved report inputs and owners, including actual
+   telemetry, provider charges, namespace/workload ownership and shared
+   allocation rules. Verify the exact reporting window and source lineage.
+2. Review how the report represents allocated, shared, unallocated and
+   unpriced quantities. Reconcile representative rows to authorized
+   source totals and record exceptions and owners.
+3. Verify delivery to the approved recipients. Exercise an authorized
+   team view and representative refusal for a different team, using the
+   selected distribution mechanism.
+4. Record the finance review and decision, report version, active cadence,
+   corrections and approved evidence retention.
