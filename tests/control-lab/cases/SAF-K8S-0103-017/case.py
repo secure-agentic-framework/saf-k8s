@@ -4,6 +4,7 @@ import json
 import re
 import subprocess
 import tempfile
+import time
 from pathlib import Path
 
 
@@ -13,6 +14,23 @@ NODE_IMAGE = (
 )
 TIMEOUT = 8
 HEALTH_PATH = "/healthz"
+METRICS_PATH = "/metrics"
+MONITOR_ACCOUNT = "fixture-secure-metrics-monitor"
+MONITOR_ROLE = "fixture-secure-metrics-reader"
+MONITOR_BINDING = "fixture-secure-metrics-reader"
+TRUST_CA_NODE_PATH = "/etc/kubernetes/pki/saf-k8s-0103-017-fixture-ca.crt"
+SERVING_CERTS = {
+    "kube-controller-manager": (
+        "/etc/kubernetes/saf-serving-0103-017/kube-controller-manager/server.crt",
+        "/etc/kubernetes/saf-serving-0103-017/kube-controller-manager/server.key",
+        "fixture-kube-controller-manager",
+    ),
+    "kube-scheduler": (
+        "/etc/kubernetes/saf-serving-0103-017/kube-scheduler/server.crt",
+        "/etc/kubernetes/saf-serving-0103-017/kube-scheduler/server.key",
+        "fixture-kube-scheduler",
+    ),
+}
 COMPONENTS = {
     "kube-controller-manager": {"port": 10257, "pod": "kube-controller-manager"},
     "kube-scheduler": {"port": 10259, "pod": "kube-scheduler"},
@@ -25,10 +43,12 @@ SCOPE = (
     "effective Pod arguments contain no legacy --port, --address, or "
     "--insecure-port options, and no TCP listeners use the historical insecure "
     "ports 10252/10251. Compare secure ports 10257/10259 bound to 127.0.0.1 "
-    "against an intentionally broad 0.0.0.0 bind. Probe only the owned node's "
+    "against an intentionally broad 0.0.0.0 bind. Probe the owned node's "
     "fixed /healthz endpoint over HTTPS, discard response bodies, and retain only "
-    "status/connectivity and listener metadata. No ports are published and no "
-    "metrics, profiling, or other route is requested."
+    "status/connectivity and listener metadata. In the loopback profile only, "
+    "verify fixture-CA-signed loopback serving identities and compare "
+    "no-credential and short-lived API-audience ServiceAccount-token requests "
+    "to /metrics; discard every body. No ports are published."
 )
 
 
@@ -153,12 +173,13 @@ def bind_arguments(argv):
     return found
 
 
-def health_probe(lab, cluster, address, port):
-    """Return status/connectivity only; curl sends the body to /dev/null."""
+def health_probe(lab, cluster, address, port, *, trust_ca=None):
+    """Return status/connectivity only; use fixture CA when supplied."""
     node = f"{cluster}-control-plane"
+    trust = ["--cacert", trust_ca] if trust_ca else ["--insecure"]
     result = subprocess.run(
         ["docker", "exec", "--user=65534:65534", node, "/usr/bin/curl",
-         "--silent", "--show-error", "--insecure", "--noproxy", "*",
+         "--silent", "--show-error", *trust, "--noproxy", "*",
          "--connect-timeout", "2", "--max-time", str(TIMEOUT), "--request", "GET",
          "--output", "/dev/null", "--write-out", "%{http_code}",
          f"https://{address}:{port}{HEALTH_PATH}"],
@@ -172,7 +193,202 @@ def health_probe(lab, cluster, address, port):
     lab.block("Health probe failed for a reason other than connection refusal")
 
 
-def check_profile(lab, cluster, mode):
+def issue_monitor_token(lab):
+    """Keep the short-lived synthetic bearer in memory and out of command logs."""
+    result = subprocess.run(
+        ["kubectl", "--kubeconfig", str(lab.kubeconfig), "--context", f"kind-{lab.cluster}",
+         "--namespace", "saf-test", "--request-timeout=8s", "create", "token", MONITOR_ACCOUNT,
+         "--duration=10m"],
+        env=lab.env, capture_output=True, text=True, timeout=15,
+    )
+    token = result.stdout.strip()
+    if result.returncode and "expirationSeconds" in result.stderr:
+        lab.block("The pinned TokenRequest API rejected the fixture token lifetime")
+    if result.returncode or not re.fullmatch(r"[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+", token):
+        lab.block("Could not issue a short-lived fixture monitoring token")
+    return token
+
+
+def route_status(lab, cluster, port, path, *, bearer=None):
+    """Probe one owned loopback route; verify local CA; body/token stay on stdin."""
+    config = f'url = "https://127.0.0.1:{port}{path}"\n'
+    if bearer is not None:
+        config += f'header = "Authorization: Bearer {bearer}"\n'
+    result = subprocess.run(
+        ["docker", "exec", "-i", "--user=65534:65534", f"{cluster}-control-plane",
+         "/usr/bin/curl", "--config", "-", "--silent", "--show-error",
+         "--cacert", TRUST_CA_NODE_PATH,
+         "--noproxy", "*", "--connect-timeout", "2", "--max-time", str(TIMEOUT),
+         "--output", "/dev/null", "--write-out", "%{http_code}"],
+        input=config, env=lab.env, capture_output=True, text=True, timeout=TIMEOUT + 5,
+    )
+    status = result.stdout.strip()
+    if result.returncode == 0 and re.fullmatch(r"[1-5][0-9][0-9]", status):
+        return int(status)
+    lab.block("Owned HTTPS route probe failed without retaining response content")
+
+
+def install_monitor_identity(lab):
+    lab.create({"apiVersion": "v1", "kind": "ServiceAccount",
+                "metadata": {"name": MONITOR_ACCOUNT}, "automountServiceAccountToken": False})
+    lab.create({"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "ClusterRole",
+                "metadata": {"name": MONITOR_ROLE}, "rules": [{
+                    "nonResourceURLs": [METRICS_PATH], "verbs": ["get"]}]})
+    lab.create({"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "ClusterRoleBinding",
+                "metadata": {"name": MONITOR_BINDING},
+                "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "ClusterRole",
+                            "name": MONITOR_ROLE},
+                "subjects": [{"kind": "ServiceAccount", "name": MONITOR_ACCOUNT,
+                              "namespace": "saf-test"}]})
+
+
+def metrics_auth_checks(lab, cluster):
+    install_monitor_identity(lab)
+    token = issue_monitor_token(lab)
+    try:
+        for component, row in COMPONENTS.items():
+            no_credential = route_status(lab, cluster, row["port"], METRICS_PATH)
+            lab.check("green", f"{component} denies unauthenticated loopback GET /metrics",
+                      no_credential in (401, 403),
+                      {"http_status": no_credential, "body_discarded": True})
+
+            authorized = route_status(lab, cluster, row["port"], METRICS_PATH, bearer=token)
+            lab.check("positive", f"{component} permits scoped synthetic monitor GET /metrics",
+                      authorized == 200,
+                      {"http_status": authorized, "body_discarded": True,
+                       "identity": f"system:serviceaccount:saf-test:{MONITOR_ACCOUNT}"})
+
+    finally:
+        # Never emit or persist the credential; delete its bound authorization
+        # objects after the local probes. The runner also owns final cluster teardown.
+        del token
+        for kind, name in (("clusterrolebinding", MONITOR_BINDING),
+                           ("clusterrole", MONITOR_ROLE)):
+            lab.command("kubectl", "--kubeconfig", str(lab.kubeconfig), "--context",
+                        f"kind-{lab.cluster}", "--request-timeout=8s", "delete", kind, name,
+                        "--ignore-not-found=true", timeout=TIMEOUT + 5)
+        lab.kubectl("delete", "serviceaccount", MONITOR_ACCOUNT,
+                    "--ignore-not-found=true", timeout=TIMEOUT + 5)
+
+
+def create_serving_certificate(lab, directory, component, leaf, key, common_name):
+    extensions = directory / f"{component}.ext"
+    csr = directory / f"{component}.csr"
+    extensions.write_text(
+        "basicConstraints=critical,CA:FALSE\n"
+        "keyUsage=critical,digitalSignature,keyEncipherment\n"
+        "extendedKeyUsage=serverAuth\n"
+        "subjectAltName=IP:127.0.0.1,DNS:localhost\n"
+    )
+    lab.command("openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-sha256",
+                "-keyout", str(key), "-out", str(csr), "-subj", f"/CN={common_name}", timeout=30)
+    lab.command("openssl", "x509", "-req", "-in", str(csr), "-CA", str(directory / "ca.crt"),
+                "-CAkey", str(directory / "ca.key"), "-CAcreateserial", "-out", str(leaf),
+                "-days", "1", "-sha256", "-extfile", str(extensions), timeout=30)
+    verified = lab.command("openssl", "verify", "-CAfile", str(directory / "ca.crt"),
+                           str(leaf), allow_failure=True, timeout=15)
+    public_certificate = lab.command("openssl", "x509", "-in", str(leaf), "-noout", "-text", timeout=15)
+    exact_san = "IP Address:127.0.0.1" in public_certificate.stdout
+    lab.check("positive", f"{component} serving certificate chains to fixture CA and includes loopback SAN",
+              verified.returncode == 0 and verified.stdout.rstrip().endswith(": OK") and exact_san,
+              {"fixture_ca_verified": verified.returncode == 0,
+               "loopback_ip_san": exact_san, "identity": common_name})
+
+
+def manifest_with_serving_cert(text, cert_path, key_path):
+    # kubeadm emits one command list per control-plane static Pod. Add only the
+    # two secure-serving file flags immediately before that container's image.
+    replacement = (f"    - --tls-cert-file={cert_path}\n"
+                   f"    - --tls-private-key-file={key_path}\n"
+                   "    image:")
+    updated, count = re.subn(r"(?m)^    image:", replacement, text, count=1)
+    mount_dir = str(Path(cert_path).parent)
+    mount_entry = ("    volumeMounts:\n"
+                   f"    - mountPath: {mount_dir}\n"
+                   "      name: saf-fixture-serving\n"
+                   "      readOnly: true\n")
+    volume_entry = ("  volumes:\n"
+                    "  - hostPath:\n"
+                    f"      path: {mount_dir}\n"
+                    "      type: Directory\n"
+                    "    name: saf-fixture-serving\n")
+    if (count != 1 or "--tls-cert-file=" in text or text.count("    volumeMounts:\n") != 1
+            or text.count("\n  volumes:\n") != 1 or Path(key_path).parent.as_posix() != mount_dir):
+        raise ValueError("Unexpected kubeadm static Pod manifest shape")
+    return updated.replace("    volumeMounts:\n", mount_entry, 1).replace("\n  volumes:\n", "\n" + volume_entry, 1)
+
+
+def install_serving_identities(lab, directory):
+    """Pin both loopback servers to fixture-CA-signed, distinct identities."""
+    ca_key = directory / "ca.key"
+    ca_cert = directory / "ca.crt"
+    lab.command("openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-sha256",
+                "-days", "1", "-keyout", str(ca_key), "-out", str(ca_cert),
+                "-subj", "/CN=SAF-K8S-0103-017-local-fixture-CA",
+                "-addext", "basicConstraints=critical,CA:TRUE",
+                "-addext", "keyUsage=critical,keyCertSign,cRLSign", timeout=30)
+    node = f"{lab.cluster}-control-plane"
+    lab.command("docker", "exec", node, "mkdir", "-p", "/etc/kubernetes/pki", timeout=TIMEOUT)
+    lab.command("docker", "cp", str(ca_cert), f"{node}:{TRUST_CA_NODE_PATH}", timeout=TIMEOUT + 5)
+    lab.command("docker", "exec", node, "chmod", "0644", TRUST_CA_NODE_PATH, timeout=TIMEOUT)
+
+    before = {}
+    for component, (cert_path, key_path, common_name) in SERVING_CERTS.items():
+        leaf = directory / f"{component}.crt"
+        key = directory / f"{component}.key"
+        create_serving_certificate(lab, directory, component, leaf, key, common_name)
+        pod = f"{COMPONENTS[component]['pod']}-{lab.cluster}-control-plane"
+        current = json.loads(kubectl(lab, lab.cluster, "-n", "kube-system", f"get", f"pod/{pod}", "-o", "json"))
+        before[component] = current["metadata"]["uid"]
+        lab.command("docker", "exec", node, "mkdir", "-p", str(Path(cert_path).parent), timeout=TIMEOUT)
+        lab.command("docker", "cp", str(leaf), f"{node}:{cert_path}", timeout=TIMEOUT + 5)
+        lab.command("docker", "cp", str(key), f"{node}:{key_path}", timeout=TIMEOUT + 5)
+        lab.command("docker", "exec", node, "chmod", "0600", key_path, timeout=TIMEOUT)
+        source = directory / f"{component}.yaml"
+        lab.command("docker", "cp", f"{node}:/etc/kubernetes/manifests/{component}.yaml",
+                    str(source), timeout=TIMEOUT + 5)
+        try:
+            manifest = manifest_with_serving_cert(source.read_text(), cert_path, key_path)
+        except (OSError, ValueError):
+            lab.block(f"Could not safely update owned {component} static Pod manifest")
+        source.write_text(manifest)
+        staged = f"/etc/kubernetes/{component}-saf-fixture.yaml"
+        lab.command("docker", "cp", str(source), f"{node}:{staged}", timeout=TIMEOUT + 5)
+        lab.command("docker", "exec", node, "mv", "--", staged,
+                    f"/etc/kubernetes/manifests/{component}.yaml", timeout=TIMEOUT)
+
+    # Require replacement Pods to be Ready before sending any HTTPS request.
+    for component in COMPONENTS:
+        pod = f"{COMPONENTS[component]['pod']}-{lab.cluster}-control-plane"
+        deadline = time.monotonic() + 100
+        replacement_ready = False
+        while time.monotonic() < deadline:
+            result = lab.command(
+                "kubectl", "--kubeconfig", str(lab.kubeconfig), "--context", f"kind-{lab.cluster}",
+                "--namespace", "kube-system", "--request-timeout=4s", "get", f"pod/{pod}", "-o", "json",
+                timeout=TIMEOUT + 5, allow_failure=True,
+            )
+            if result.returncode == 0:
+                try:
+                    row = json.loads(result.stdout)
+                    ready = any(item.get("type") == "Ready" and item.get("status") == "True"
+                                for item in row.get("status", {}).get("conditions", []))
+                    if row["metadata"]["uid"] != before[component] and ready:
+                        replacement_ready = True
+                        break
+                except (ValueError, KeyError, TypeError):
+                    pass
+            time.sleep(1)
+        else:
+            lab.block(f"{component} did not become Ready with its fixture serving certificate")
+        lab.check("positive", f"{component} replacement mirror Pod becomes Ready with fixture serving identity",
+                  replacement_ready,
+                  {"replacement_uid_observed": replacement_ready,
+                   "ready_condition": replacement_ready,
+                   "readiness_oracle": "Kubernetes API mirror Pod status"})
+
+
+def check_profile(lab, cluster, mode, *, trust_ca=None):
     expected_bind = "127.0.0.1" if mode == "loopback" else "0.0.0.0"
     node_address = node_ipv4(lab, cluster)
 
@@ -204,7 +420,8 @@ def check_profile(lab, cluster, mode):
               not any(legacy.values()), {"legacy_port_listeners": legacy})
 
     for component, row in COMPONENTS.items():
-        local_status, local_connected = health_probe(lab, cluster, "127.0.0.1", row["port"])
+        local_status, local_connected = health_probe(
+            lab, cluster, "127.0.0.1", row["port"], trust_ca=trust_ca)
         lab.check("positive", f"{component} permitted HTTPS /healthz on loopback returns 200",
                   local_connected and local_status == 200, {"http_status": local_status})
 
@@ -217,6 +434,8 @@ def check_profile(lab, cluster, mode):
             lab.check("green", f"{component} non-loopback node address cannot reach loopback listener",
                       not remote_connected,
                       {"http_status": remote_status, "connected": remote_connected})
+    if mode == "loopback":
+        metrics_auth_checks(lab, cluster)
 
 
 def wildcard_config():
@@ -234,7 +453,10 @@ def wildcard_config():
 
 def run(lab):
     # The runner's case-owned kind.yaml supplies the loopback-only green profile.
-    check_profile(lab, lab.cluster, "loopback")
+    with tempfile.TemporaryDirectory(prefix="saf-k8s-0103-017-serving-identity-") as temp:
+        certificate_dir = Path(temp)
+        install_serving_identities(lab, certificate_dir)
+        check_profile(lab, lab.cluster, "loopback", trust_ca=TRUST_CA_NODE_PATH)
 
     cluster = f"{lab.cluster}-exposure-red"
     if cluster in lab.command("kind", "get", "clusters").stdout.splitlines():

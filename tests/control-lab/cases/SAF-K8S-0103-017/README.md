@@ -25,3 +25,19 @@ deployment-specific review.
 - [Kubernetes v1.24 change log](https://github.com/kubernetes/kubernetes/blob/v1.24.0/CHANGELOG/CHANGELOG-1.24.md)
 - [Kubernetes v1.36 controller-manager flags](https://v1-36.docs.kubernetes.io/docs/reference/command-line-tools-reference/kube-controller-manager/)
 - [Kubernetes v1.36 scheduler flags](https://v1-36.docs.kubernetes.io/docs/reference/command-line-tools-reference/kube-scheduler/)
+
+## Authorized secure metrics
+
+The approved loopback profile mounts a fixture-issued certificate into each
+owned component and waits for the actual replacement mirror Pod to become
+Ready. Local curl validates the exact loopback IP against the fixture CA and
+discards every response body. The unauthenticated metrics request is refused.
+A short-lived synthetic ServiceAccount with a separate `GET /metrics` grant
+receives `200`. Existing health and listener comparisons remain. No external
+port is published.
+
+For adoption, inventory the effective listeners and permitted routes for every
+replica, approved monitoring identities and certificate trust. Exercise the
+intended approved scrape and denied non-monitoring request. Verify health
+exceptions and the IPv4 or IPv6 address scope the deployment uses. For managed
+components, record the evidence source and provider/customer responsibility.
