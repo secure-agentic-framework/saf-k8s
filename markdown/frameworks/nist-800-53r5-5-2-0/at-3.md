@@ -11,15 +11,6 @@ Role-specific training for agent developers/operators
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0401-001 - RBAC least-privilege design](../../controls/SAF-K8S-0401-001.md)
-
-- Domain: D04 - Identity, Access, and Secrets Management
-- Knowledge Area: 4.1
-- Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0401-002 - RBAC permission audit and analysis](../../controls/SAF-K8S-0401-002.md)
 
 - Domain: D04 - Identity, Access, and Secrets Management

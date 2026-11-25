@@ -14122,16 +14122,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-5
   framework_requirement_title: Separation of Duties
-  framework_mapping_notes: 'Separating agent roles (executor vs. approver)
-
-
-    4.1 - Design and enforce RBAC (separation of duties between ML engineers, platform engineers, security teams)'
+  framework_mapping_notes: "Kubernetes RBAC can enforce the authorizations assigned to distinct roles when those duties have already been defined. Retain the approved separation-of-duties policy and matching authorization evidence."
   control_id: SAF-K8S-0401-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: "The organization has documented distinct duties and implements their Kubernetes API grants through RBAC."
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -14962,16 +14959,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-6(7)
   framework_requirement_title: Review of User Privileges
-  framework_mapping_notes: 'Periodic review of agent privilege assignments
-
-
-    4.1 - Permission audit and analysis (identifying overly permissive roles, RBAC tooling: rakkess, kubectl-who-can)'
+  framework_mapping_notes: "Periodic Kubernetes RBAC configuration audits supply evidence for reviewing assigned privileges. The organization defines the review frequency and reassigns or removes privileges whose need cannot be confirmed."
   control_id: SAF-K8S-0401-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: "The periodic review uses Kubernetes authorization evidence for the affected roles and corrects unnecessary grants."
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -15607,22 +15601,6 @@
   control_id: SAF-K8S-1003-002
   relation_type: supports
   strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AT-3
-  framework_requirement_title: Role-based Training
-  framework_mapping_notes: 'Role-specific training for agent developers/operators
-
-
-    4.1 - RBAC separation of duties (role-specific training for ML engineers, platform engineers, security teams)'
-  control_id: SAF-K8S-0401-001
-  relation_type: supports
-  strength_level: moderate
   applicability: required
   applicability_condition: null
   strength_reason_code: null
@@ -19032,22 +19010,6 @@
 
     10.1 - Log integrity (cryptographic protection of audit records)'
   control_id: SAF-K8S-1001-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-9(4)
-  framework_requirement_title: Access by Subset of Privileged Users
-  framework_mapping_notes: 'Restricting who can access agent audit data
-
-
-    4.1 - Design and enforce RBAC (restricting audit log access to security team subset)'
-  control_id: SAF-K8S-0401-001
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -26849,22 +26811,6 @@
 
 
     4.1 - RBAC design (identity and access policy); 4.2 - Service account and workload identity policy'
-  control_id: SAF-K8S-0401-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-1
-  framework_requirement_title: Policy and Procedures
-  framework_mapping_notes: 'Identity/auth policy for agent systems
-
-
-    4.1 - RBAC design (identity and access policy); 4.2 - Service account and workload identity policy'
   control_id: SAF-K8S-0401-002
   relation_type: supports
   strength_level: strong
@@ -27968,22 +27914,6 @@
 
     4.2 - OIDC integration (MFA for all K8s users); 9.4 - Notebook environment authentication (MFA for notebook access)'
   control_id: SAF-K8S-0904-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-2(5)
-  framework_requirement_title: Individual Authentication with Group Authentication
-  framework_mapping_notes: 'Individual auth within shared agent access
-
-
-    4.2 - OIDC group mappings (individual auth with group bindings); 4.1 - RBAC group-based role bindings'
-  control_id: SAF-K8S-0401-001
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -32865,22 +32795,6 @@
 
 
     4.1 - Separation of duties (ML engineers, platform engineers, security team workforce planning)'
-  control_id: SAF-K8S-0401-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-13
-  framework_requirement_title: Security and Privacy Workforce
-  framework_mapping_notes: 'Security workforce needs specialized skills for agentic AI security operations
-
-
-    4.1 - Separation of duties (ML engineers, platform engineers, security team workforce planning)'
   control_id: SAF-K8S-0401-002
   relation_type: supports
   strength_level: moderate
@@ -33999,22 +33913,6 @@
 
     4.5 - Detect identity abuse (revoking access on personnel termination); 10.7 - Decommissioning access grants'
   control_id: SAF-K8S-1007-006
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PS-5
-  framework_requirement_title: Personnel Transfer
-  framework_mapping_notes: 'Personnel transfers require updating agent system access privileges and roles
-
-
-    4.1 - Design and enforce RBAC (updating role bindings on personnel transfer between teams)'
-  control_id: SAF-K8S-0401-001
   relation_type: supports
   strength_level: moderate
   applicability: required
@@ -35522,22 +35420,6 @@
   control_id: SAF-K8S-0602-001
   relation_type: direct
   strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-10(7)
-  framework_requirement_title: Security and Privacy Representatives
-  framework_mapping_notes: 'Security representatives in agent development teams ensure security is addressed throughout SDLC
-
-
-    4.1 - Separation of duties (security and privacy representatives in development process)'
-  control_id: SAF-K8S-0401-001
-  relation_type: supports
-  strength_level: moderate
   applicability: required
   applicability_condition: null
   strength_reason_code: null
@@ -40370,22 +40252,6 @@
 
     5.4 - mTLS overhead on GPU training traffic; 9.2 - Inference resource controls (performance vs security tradeoffs)'
   control_id: SAF-K8S-0902-009
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(27)
-  framework_requirement_title: Human Factored Security
-  framework_mapping_notes: 'Human-agent interaction design must make security decisions clear and actionable
-
-
-    4.1 - Separation of duties (human-factored security design); 9.4 - Notebook environment usable security controls'
-  control_id: SAF-K8S-0401-001
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -56692,22 +56558,6 @@
 
 
     4.5 - Privilege escalation detection (monitoring privileged users); 4.1 - RBAC audit (tracking privileged access)'
-  control_id: SAF-K8S-0401-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(20)
-  framework_requirement_title: Privileged Users
-  framework_mapping_notes: 'Enhanced monitoring of privileged users operating agent systems detects insider threats
-
-
-    4.5 - Privilege escalation detection (monitoring privileged users); 4.1 - RBAC audit (tracking privileged access)'
   control_id: SAF-K8S-0401-004
   relation_type: direct
   strength_level: strong
@@ -63027,19 +62877,6 @@
   control_id: SAF-K8S-0604-007
   relation_type: direct
   strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SSDF 1.1
-  framework_code: NIST-SSDF
-  framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
-  framework_version: '1.1'
-  framework_requirement_id: PO.2.1
-  framework_requirement_title: Create new roles and alter responsibilities for existing roles as needed to encompass all parts of the SDLC.
-  framework_mapping_notes: SAF-K8S defines distinct roles (platform engineer, security engineer, ML engineer) with RBAC enforcement and separation of duties. While not SDLC-scoped, SAF-K8S operationalizes role separation for the infrastructure layer.
-  control_id: SAF-K8S-0401-001
-  relation_type: supports
-  strength_level: weak
   applicability: required
   applicability_condition: null
   strength_reason_code: null

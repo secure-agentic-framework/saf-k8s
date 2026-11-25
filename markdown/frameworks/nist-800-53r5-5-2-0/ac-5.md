@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Separating agent roles (executor vs. approver)
-
-4.1 - Design and enforce RBAC (separation of duties between ML engineers, platform engineers, security teams)
+Kubernetes RBAC can enforce the authorizations assigned to distinct roles when those duties have already been defined. Retain the approved separation-of-duties policy and matching authorization evidence.
 
 ## SAF-K8S Controls
 
@@ -15,10 +13,10 @@ Separating agent roles (executor vs. approver)
 
 - Domain: D04 - Identity, Access, and Secrets Management
 - Knowledge Area: 4.1
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0401-002 - RBAC permission audit and analysis](../../controls/SAF-K8S-0401-002.md)
 
