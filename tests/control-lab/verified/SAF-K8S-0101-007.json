@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0101-007",
-  "catalog_revision": "37034ddbba9f4625e5eb8e70199252709b8babb6",
-  "catalog_sha256": "a5934b5ab1bbc78eab30866af7e007083d3f432260692fb405d3e51ea78c8630",
+  "catalog_revision": "041127adb87e8d57942b0890cc416ddf96c1e2d7",
+  "catalog_sha256": "6aeee6cde1e28b35528b2b79710a26b9933c277077ed5887ca3ef13abbffe6a9",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "9e91a4a4da90aab976daf650908e4480fe967688bf2e5c70b7a495b4fc83836f",
-  "scope": "A local Kubernetes v1.36.1 kind API server only. Use four ordinary GET /version requests and two named kube-scheduler Lease requests total, before and after a narrow FlowSchema. Capture only APF classification response headers and bounded response identity. No contention, load, rejection, or queue behavior is induced. This does not assess production or managed control planes, traffic under load, tenant fairness, or provider defaults.",
-  "cluster": "saf-lab-b97654e895f1",
+  "control_sha256": "2187b3769368b00caad76883dce5420ce087fc39e888eef21726f2cec1ac6c69",
+  "scope": "A local Kubernetes v1.36.1 kind API server only. Use four ordinary GET /version requests and two named kube-scheduler Lease requests total, before and after a narrow FlowSchema. Capture only APF classification response headers and bounded response identity, plus passive seat and dispatch metrics. No synthetic contention or rejection is induced. This does not assess production or managed control planes, traffic under load, tenant fairness, or provider defaults.",
+  "cluster": "saf-lab-ead8f1ea64ba",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -54,6 +54,14 @@
     },
     {
       "phase": "red",
+      "claim": "Before the fixture policy the API server exports no metrics for the dedicated priority",
+      "matched": true,
+      "observed": {
+        "fixture_series_present": false
+      }
+    },
+    {
+      "phase": "red",
       "claim": "Before narrow configuration, the synthetic ServiceAccount follows the built-in broad service-accounts FlowSchema",
       "matched": true,
       "observed": {
@@ -86,6 +94,17 @@
       "observed": {
         "flow_schema": "saf-apf-exact-subject",
         "priority_level": "saf-apf-limited"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A bounded request increments the dedicated dispatch and wait histogram counters under the live queue configuration",
+      "matched": true,
+      "observed": {
+        "queue_configuration_matches": true,
+        "nominal_seats": 27,
+        "dispatch_delta": 1,
+        "executed_wait_sample_delta": 1
       }
     },
     {

@@ -15,7 +15,7 @@ SCOPE = (
     "A local Kubernetes v1.36.1 kind API server only. Use four ordinary GET /version "
     "requests and two named kube-scheduler Lease requests total, before and "
     "after a narrow FlowSchema. Capture only APF classification response headers "
-    "and bounded response identity. No contention, load, rejection, or queue behavior "
+    "and bounded response identity, plus passive seat and dispatch metrics. No synthetic contention or rejection "
     "is induced. This does not assess production or managed control planes, traffic "
     "under load, tenant fairness, or provider defaults."
 )
@@ -71,6 +71,45 @@ def kubectl_verbose(lab, raw_path, *, as_user=None, as_groups=()):
     ):
         lab.block("The bounded kube-scheduler probe did not return its lease")
     return headers
+
+
+def fixture_metrics(lab):
+    """Return only the exact local fixture priority's passive metric samples."""
+    command = ["kubectl", "--kubeconfig", str(lab.kubeconfig), "--context",
+               f"kind-{lab.cluster}", "--request-timeout=12s", "get", "--raw=/metrics"]
+    try:
+        response = subprocess.run(command, env=lab.env, text=True, capture_output=True,
+                                  timeout=17, check=False)
+    except (OSError, subprocess.TimeoutExpired) as error:
+        lab.block(f"Could not collect the local APF metrics: {type(error).__name__}")
+    if response.returncode:
+        lab.block("The approved runner context could not collect local API server metrics")
+    wanted = {
+        "apiserver_flowcontrol_nominal_limit_seats": ("seats", None),
+        "apiserver_flowcontrol_dispatched_requests_total": ("dispatched", CUSTOM_FLOW_SCHEMA),
+        "apiserver_flowcontrol_request_wait_duration_seconds_count": ("wait_samples", CUSTOM_FLOW_SCHEMA),
+    }
+    values = {}
+    for line in response.stdout.splitlines():
+        metric, separator, sample = line.partition("{")
+        if not separator or metric not in wanted:
+            continue
+        labels, _, number = sample.partition("}")
+        fields = dict(re.findall(r'(\w+)="([^"]*)"', labels))
+        key, schema = wanted[metric]
+        if fields.get("priority_level") != CUSTOM_PRIORITY:
+            continue
+        if schema and fields.get("flow_schema") != schema:
+            continue
+        if key == "wait_samples" and fields.get("execute") != "true":
+            continue
+        if key in values:
+            lab.block(f"The local APF exporter returned duplicate {metric} fixture samples")
+        values[key] = int(float(number.split()[0]))
+    with (lab.evidence / "commands.log").open("a") as log:
+        log.write("Local GET /metrics, selected APF fixture series only: "
+                  + json.dumps(values, sort_keys=True) + "\n")
+    return values
 
 
 def object_by_uid(rows, uid):
@@ -162,6 +201,9 @@ def run(lab):
     lab.kubectl(
         "create", "serviceaccount", SERVICE_ACCOUNT, "--namespace", NAMESPACE
     )
+    before_policy = fixture_metrics(lab)
+    lab.check("red", "Before the fixture policy the API server exports no metrics for the dedicated priority",
+              not before_policy, {"fixture_series_present": bool(before_policy)})
     prior = classification(lab, as_user=SYNTHETIC_USER)
     lab.check(
         "red",
@@ -195,7 +237,9 @@ def run(lab):
             "nominalConcurrencyShares": 10,
             "lendablePercent": 0,
             "borrowingLimitPercent": 0,
-            "limitResponse": {"type": "Reject"},
+            "limitResponse": {"type": "Queue", "queuing": {
+                "queues": 8, "handSize": 2, "queueLengthLimit": 5,
+            }},
         }},
     }
     lab.create(priority)
@@ -221,12 +265,28 @@ def run(lab):
     lab.kubectl("wait", "--for=condition=Dangling=false",
                 f"flowschema/{CUSTOM_FLOW_SCHEMA}", "--timeout=25s", timeout=35)
 
+    before_request = fixture_metrics(lab)
     after = classification(lab, as_user=SYNTHETIC_USER)
     lab.check(
         "green",
         "The exact ServiceAccount and GET /version request route to the dedicated limited priority",
         after == {"flow_schema": CUSTOM_FLOW_SCHEMA, "priority_level": CUSTOM_PRIORITY},
         after,
+    )
+    after_request = fixture_metrics(lab)
+    live_level = json.loads(lab.kubectl(
+        "get", "prioritylevelconfiguration", CUSTOM_PRIORITY, "-o", "json",
+    ).stdout)["spec"]["limited"]
+    dispatch_delta = after_request.get("dispatched", 0) - before_request.get("dispatched", 0)
+    wait_delta = after_request.get("wait_samples", 0) - before_request.get("wait_samples", 0)
+    seat_limit = after_request.get("seats", 0)
+    limit_matches = live_level["limitResponse"] == priority["spec"]["limited"]["limitResponse"]
+    lab.check(
+        "green", "A bounded request increments the dedicated dispatch and wait histogram counters under the live queue configuration",
+        limit_matches and 0 < seat_limit < facts["apf_total_concurrency_limit"]
+        and dispatch_delta == 1 and wait_delta == 1,
+        {"queue_configuration_matches": limit_matches, "nominal_seats": seat_limit,
+         "dispatch_delta": dispatch_delta, "executed_wait_sample_delta": wait_delta},
     )
     admin_after = classification(lab)
     lab.check(
