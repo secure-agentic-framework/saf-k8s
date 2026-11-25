@@ -1,6 +1,9 @@
 # SAF-K8S-1005-027 — Scoped accelerator evidence preservation
 
-Run with `python3 lab.py test SAF-K8S-1005-027 --docker-context desktop-linux`. The supervisor must execute the case on its fresh digest-pinned Kind v1.36.1 cluster and verify the result. This draft has not been run.
+Run with `python3 tests/control-lab/lab.py test SAF-K8S-1005-027 --docker-context desktop-linux`
+from the framework checkout. The four checks passed independently on distinct
+disposable v1.36.1 clusters.
+
 
 ## Control review
 
@@ -16,11 +19,11 @@ The runner retains `forensic-acquisition.raw.json` as raw case evidence. It cont
 
 ## Coverage and limits
 
-**Covered if the supervisor obtains a passing replay:** native v1 API readback for ResourceSlice, DeviceClass and scheduler-populated ResourceClaim allocation metadata; identity binding to the fresh cluster, namespace, node, object UIDs and pinned image references; fixed synthetic accelerator/device state and telemetry; artifact hashing and digest mismatch detection; safe source ownership checks; and exact evidence retention after source removal.
+**Observed in both runs:** native v1 API readback for ResourceSlice, DeviceClass and scheduler-populated ResourceClaim allocation metadata; identity binding to the fresh cluster, namespace, node, object UIDs and pinned image references; fixed synthetic accelerator/device state and telemetry; artifact hashing and digest mismatch detection; safe source ownership checks; and exact evidence retention after source removal.
 
-**Unresolved:** actual accelerator hardware, a production DRA/device driver, driver/kernel telemetry, volatile device state, node recycling or restart timing, device plugin-specific artifacts, hardware memory or disk acquisition, completeness of real incident evidence, production collection authority, external custody and chain of custody, durable evidence storage/retention, and whether this procedure reconstructs compromise or misuse. Kind's single node and synthetic `all`/capacity semantics are not hardware behavior. A scheduler-populated allocation only demonstrates Kubernetes API metadata when the ResourceSlice is synthetic. The CPU-only fixture is not an AI inference workload.
+**Unresolved:** actual accelerator hardware, a production DRA/device driver, driver/kernel telemetry, volatile device state, node recycling or restart timing, device plugin-specific artifacts, hardware memory or disk acquisition, completeness of real incident evidence, production collection authority, external custody and chain of custody, durable evidence storage/retention, and whether this procedure reconstructs compromise or misuse. Kind's single node and synthetic `all`/capacity semantics are not hardware behavior. A scheduler-populated allocation only demonstrates Kubernetes API metadata when the ResourceSlice is synthetic. The CPU-only workload emits fixed telemetry.
 
-The scope is limited to synthetic defensive metadata, reserved placeholders and inert mock workloads. No Docker or Kubernetes command was run while drafting this case.
+The scope is limited to synthetic defensive metadata, reserved placeholders and inert mock workloads.
 
 ## Primary sources
 
@@ -28,3 +31,9 @@ The scope is limited to synthetic defensive metadata, reserved placeholders and 
 - [Kubernetes v1.36 Allocate Devices with DRA](https://v1-36.docs.kubernetes.io/docs/tasks/configure-pod-container/assign-resources/allocate-devices-dra/) — stable v1 API and workload claim reference pattern.
 - [Kubernetes ResourceClaim v1 API](https://kubernetes.io/docs/reference/kubernetes-api/resource/resource-claim-v1/) and [ResourceSlice v1 API](https://kubernetes.io/docs/reference/kubernetes-api/resource/resource-slice-v1/).
 - [Kind v0.32.0 release](https://github.com/kubernetes-sigs/kind/releases/tag/v0.32.0) — v1.36.1 node image digest. The runner uses this digest-pinned node image; the CPU fixture image is also pinned to a SHA-256 digest.
+
+## Verify an adopting implementation
+
+1. Define approved responders, acquisition timing, the exact incident and workload identities, and evidence requirements for every deployed accelerator and driver class. List which information disappears on workload or node restart.
+2. In a controlled exercise, bind authorized scheduler, plugin, hardware and available volatile telemetry to the same device and workload at a known time. Check completeness and digests before remediation. Preserve only approved evidence and avoid collecting unrelated workload data.
+3. Transfer the redacted bundle to the approved evidence store and record individual custody transfers, policy, expiry and integrity. Use an authorized reviewer to reconstruct the exercise after source cleanup and document any evidence the deployed platform cannot expose.
