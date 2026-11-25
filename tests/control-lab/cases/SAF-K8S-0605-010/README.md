@@ -12,3 +12,12 @@ with no Ready backends, followed by a probe after restoration.
 
 The test measures routine fixture availability. Production rate limits, sizing,
 operator-specific deployment and adversarial capacity remain separate evidence.
+
+## Verify an adopting implementation
+
+Inventory webhook matches, endpoint topology, resource
+limits, timeout/failure policy, and version-specific operator settings.
+Measure authorized representative serial and concurrency profiles against
+approved latency/error objectives; test a controlled backend replacement and
+unavailable endpoint, and verify alerts plus fail-closed/recovery behavior.
+The fixture's sequential requests do not establish production capacity.
