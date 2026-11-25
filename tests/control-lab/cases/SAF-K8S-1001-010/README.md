@@ -38,3 +38,10 @@ body-field presence. The fixture Secret has metadata only.
 Production policy adequacy and admission, authorization and backend capacity
 require evidence from the deployed environment.
 [Kubernetes v1.36 audit documentation](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/).
+
+## Adopter verification
+
+1. Inventory effective audit policy, API-server flags or provider settings, event backend, AI-relevant APIs/verbs, and approved request-body sensitivity. Record which controls are provider-managed.
+2. In an approved non-production rehearsal, issue a bounded set of synthetic representative requests and a watch. Correlate response Audit-IDs to persisted events. Verify required levels, stages, fields, and filtered stages for each resource class.
+3. Measure event rate and size at normal/peak AI workload conditions against backend ingest, buffer, disk, and retention capacity. Verify backend failure alerts and recovery without exposing real prompts or Secret values.
+4. Retain effective settings, source/provider evidence, request-to-event correlation, redacted capacity measures, and reviewed exceptions.
