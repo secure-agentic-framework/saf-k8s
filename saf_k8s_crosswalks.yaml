@@ -10767,22 +10767,6 @@
 
 
     4.1 - Design and enforce RBAC (RBAC primitives: Roles, ClusterRoles, RoleBindings, ClusterRoleBindings)'
-  control_id: SAF-K8S-0910-022
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-3(7)
-  framework_requirement_title: Role-based Access Control
-  framework_mapping_notes: 'RBAC for agent roles and permissions
-
-
-    4.1 - Design and enforce RBAC (RBAC primitives: Roles, ClusterRoles, RoleBindings, ClusterRoleBindings)'
   control_id: SAF-K8S-0910-025
   relation_type: direct
   strength_level: strong
@@ -10952,16 +10936,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-4
   framework_requirement_title: Information Flow Enforcement
-  framework_mapping_notes: 'Core to agent data flow control between trust boundaries
-
-
-    5.1 - Implement network policies (default deny, namespace isolation, egress controls for information flow enforcement)'
+  framework_mapping_notes: The fixture demonstrates identity-to-operation enforcement for a covered receiving service. Assess network default-deny and other governed information flows using separately observed evidence.
   control_id: SAF-K8S-0910-022
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The deployed policy governs defined cross-cluster information flows, and the receiving service enforces the approved source identity, destination, and operation.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -14367,16 +14348,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-6
   framework_requirement_title: Least Privilege
-  framework_mapping_notes: 'Foundational -- agents must operate with minimum necessary permissions
-
-
-    4.1 - Design and enforce RBAC (least-privilege access design); 4.2 - Default SA restrictions, disabling auto-mount of tokens; 1.4 - Control plane configuration file permissions (least-privilege file ownership and modes)'
+  framework_mapping_notes: Each tested identity keeps its assigned operation and is denied the other operation at the receiving service. Evaluate least privilege for additional tasks and resource grants at their own enforcement points.
   control_id: SAF-K8S-0910-022
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Each deployed source receives only the operations necessary for its assigned task, and excess operations are denied.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
