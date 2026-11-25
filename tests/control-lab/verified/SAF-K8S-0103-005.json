@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0103-005",
-  "catalog_revision": "3126590dbab52ee9accd8f22e6a624d21f4764e6",
-  "catalog_sha256": "9391332ee0db464f87144b25065e1f0762473db8806f648732451728d05c92e5",
+  "catalog_revision": "e60d10d9996f9e299fb53bd48a423dccd288a363",
+  "catalog_sha256": "e9f6fa833b262a8a83ee18b153898d7bcc085edf71e0766795a6e78bd509705d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "a727d093a55e0600eaa43a62c3c801d601d2dd3b9aa2e6e59a170e8cbc53776f",
   "scope": "Case-owned kind clusters only: default kube-controller-manager behavior is compared with --terminated-pod-gc-threshold=2 using three inert pinned-image Pods that exit directly and one running benign control Pod. The assertion is count-based across two namespaces. The test checks fixture retention, while provider availability and production retention requirements depend on the deployment.",
-  "cluster": "saf-lab-4cbefd191c7c",
+  "cluster": "saf-lab-0cbca8c871e6",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

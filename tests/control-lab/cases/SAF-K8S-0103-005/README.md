@@ -21,3 +21,16 @@ managed providers' effective settings are tracked in Beads.
 - [Kubernetes v1.36 controller-manager reference](https://v1-36.docs.kubernetes.io/docs/reference/command-line-tools-reference/kube-controller-manager/)
 - [Kubernetes v1.36 Pod lifecycle](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#garbage-collection-of-pods)
 - [PodGC implementation at v1.36.1](https://github.com/kubernetes/kubernetes/blob/v1.36.1/pkg/controller/podgc/gc_controller.go)
+
+## Adopter verification
+
+Record the effective controller-manager terminated Pod threshold, cluster
+version, owner and approved job diagnostics retention. Inventory terminated
+Pod counts across namespaces and confirm the selected positive threshold is
+appropriate to the observed batch workload. In an approved representative
+fixture, compare excess terminated Pod removal, retained current records
+and continued execution of nonterminated workloads. Retain the measured
+cluster state and configuration source. Document the separate lifecycle
+policy if the workload needs an upper age limit. For managed settings,
+collect version-specific evidence from the responsible provider and record
+which part of retention is customer-configurable.
