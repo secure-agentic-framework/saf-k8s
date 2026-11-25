@@ -21,3 +21,11 @@ The case uses ephemeral locally generated server credentials. No private key byt
 - [Kind v0.32.0 release](https://github.com/kubernetes-sigs/kind/releases/tag/v0.32.0) publishes the Kubernetes v1.36.1 node image digest used by the harness. [Docker Official Images Python metadata](https://github.com/docker-library/official-images/blob/master/library/python) is the source for the pinned Python worker image reference. This case does not create or select a custom Kind profile.
 
 The two fixtures are pinned to separate Kind nodes. The sender observes the plaintext and TLS bytes only through its own local fixture relays.
+
+## Verify an adopting implementation
+
+Enumerate actual worker communication paths and configure the training
+framework itself to use the authenticated TLS mode. Verify CA and peer-name
+validation on all endpoints, capture a bounded benign framework-originated
+exchange, and show no marker in the actual wire capture. The case proves a
+mock Python transport using TLS 1.3, not NCCL, MPI, gRPC, or GPU gradients.
