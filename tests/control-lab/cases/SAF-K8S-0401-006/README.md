@@ -29,10 +29,18 @@ case's explicit conflict check detects that combination. Removing the added
 binding restores the expected authorization matrix. Each operation stays
 inside the disposable test namespace.
 
-For adoption, use a complete identity and binding inventory and map users,
-groups, external identity attributes and service accounts to their effective
-functional grants. Reconcile namespaced, cluster-wide and indirect bindings,
-including groups shared across assignments. Test selected expected permissions
-and incompatible combinations in an approved environment. Require independent
-review of proposed overlap, a scope and expiry for approved exceptions, and
-evidence that the grant was withdrawn or reviewed.
+## Adopter verification
+
+1. Inventory the user, group, service account, and external identity
+   attributes that determine ML, platform, and security assignments. Record
+   effective dates and include nested groups and shared attributes.
+2. Resolve direct, aggregated, and indirect Kubernetes grants, including
+   cluster-wide and operator permissions. Compare each effective subject's
+   functional grants with the approved separation and exception policy.
+3. Use an approved rehearsal to submit a representative cross-functional
+   assignment to the actual change workflow. Retain the rejected unapproved
+   decision and the approved limited exception, including independent
+   approver authority. Confirm resulting permissions after each decision.
+4. Record the exception owner, rationale, compensating controls, expiry,
+   and re-review date. Verify the scheduled review withdraws or renews
+   the grant under documented authority.

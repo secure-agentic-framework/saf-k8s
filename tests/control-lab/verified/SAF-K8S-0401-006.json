@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0401-006",
-  "catalog_revision": "cefcdc706692b28e65c67e9821d4e208fa86ccba",
+  "catalog_revision": "30e6577dbd53c3e7fb59c4ac736c2f28786f5a03",
   "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "227b2cb548713868273d0192091d5cce8854c678360ed6850336af04381ab161",
   "scope": "Kubernetes v1.36.1 native namespaced RBAC in one disposable kind cluster. Three independent synthetic ServiceAccounts use their actual projected Pod tokens to GET one inert named ConfigMap or send a server-side dry-run PATCH to one inert named ConfigMap. The case compares all three operations before and after exact RoleBindings and includes a fourth bounded admin-check ServiceAccount. A temporary negative-control binding demonstrates additive permission overlap and is removed before the case completes. The overlap oracle is fixture-only. It does not validate IdP group mapping, organization approval, role ownership, production access, AI operator CRDs, or cluster-wide grants.",
-  "cluster": "saf-lab-c1069f6d28b5",
+  "cluster": "saf-lab-499be3d1dffc",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
