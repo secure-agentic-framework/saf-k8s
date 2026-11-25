@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0101-017",
-  "catalog_revision": "862b83a0676cdf1ca5cb025080012d1e14e1e453",
-  "catalog_sha256": "67df268920c5bc79b942d6aa35c7aa6d4d739f1d68046a9333bc5b5a3f65acfb",
+  "catalog_revision": "7f48ad49cb3df96423e927113f0dd7effa306eb8",
+  "catalog_sha256": "479dd34cbc528dfa061f5555b19fc586c71385dcacd427f88979b910e0151d5e",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "507921e2b329b1ada4a8ddf51b4a7fba4c48c5d4d213facfe91ce726fcba195b",
-  "scope": "Kubernetes v1.36.1 kube-apiserver file audit backend on one disposable kind control-plane; synthetic rotated-file names test age and count cleanup when a harmless ConfigMap patch causes a size rotation. Read only the new synthetic API audit event and retain only outcome booleans.",
-  "cluster": "saf-lab-ebbf43b9d84d",
+  "scope": "Kubernetes v1.36.1 kube-apiserver file audit backend on one disposable kind control-plane; synthetic rotated-file names test age and count cleanup when a harmless ConfigMap patch causes a size rotation. The selected audit event goes to a disposable downstream store with a separate retention clock. The receipt keeps outcome booleans.",
+  "cluster": "saf-lab-b92b43191f09",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -64,6 +64,52 @@
         "removed": true,
         "backup_count": 2,
         "rotation_observed": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before the downstream policy runs the already-expired record remains retrievable",
+      "matched": true,
+      "observed": {
+        "old_record_present": true,
+        "live_audit_event_retrievable": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Downstream retention removes only the expired record and preserves the real audit event",
+      "matched": true,
+      "observed": {
+        "fixture": "0101-017.1 local downstream retention companion",
+        "retention_seconds": 172800,
+        "retention_clock_injected": true,
+        "event_timestamps_modified": false,
+        "live_api_audit_event_count": 1,
+        "live_event_retrieval_before_prune": true,
+        "live_event_retrieval_after_prune": true,
+        "synthetic_retrieval_before_prune": {
+          "expired_before_cutoff": true,
+          "exact_cutoff": true,
+          "inside_window": true,
+          "recent": true
+        },
+        "synthetic_retrieval_after_prune": {
+          "expired_before_cutoff": false,
+          "exact_cutoff": true,
+          "inside_window": true,
+          "recent": true
+        },
+        "expired_removed": true,
+        "exact_cutoff_protected": true,
+        "inside_window_protected": true,
+        "recent_protected": true,
+        "counts": {
+          "before": 5,
+          "kept": 4,
+          "removed": 1
+        },
+        "raw_events_written_to_fixture_store": true,
+        "receipt_contains_event_bodies_or_ids": false
       }
     },
     {

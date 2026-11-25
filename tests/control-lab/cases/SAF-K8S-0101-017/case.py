@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 import json
 from pathlib import Path
 import re
+import runpy
 import tempfile
 import time
 
@@ -24,7 +25,7 @@ PADDING_BYTES = MAX_SIZE_MB * 1024 * 1024
 SCOPE = (
     "Kubernetes v1.36.1 kube-apiserver file audit backend on one disposable kind control-plane; "
     "synthetic rotated-file names test age and count cleanup when a harmless ConfigMap patch "
-    "causes a size rotation. Read only the new synthetic API audit event and retain only outcome booleans."
+    "causes a size rotation. The selected audit event goes to a disposable downstream store with a separate retention clock. The receipt keeps outcome booleans."
 )
 
 
@@ -167,9 +168,9 @@ def submit_marker(lab, cluster, kubeconfig, directory, name):
                             "response_code": event.get("responseStatus", {}).get("code")}
                 if observed == {"stage": "ResponseComplete", "verb": "patch",
                                 "named_route": True, "response_code": 200}:
-                    return True, observed
+                    return True, observed, event
         if time.monotonic() >= deadline:
-            return False, {**observed, "active_log_bytes": active.stat().st_size if active.is_file() else 0}
+            return False, {**observed, "active_log_bytes": active.stat().st_size if active.is_file() else 0}, None
         time.sleep(0.2)
 
 
@@ -188,7 +189,7 @@ def run_age_check(lab):
                             and (directory / "audit.log").stat().st_size == PADDING_BYTES)
             lab.check("red", "Both age fixtures and a full active file exist before an audit write",
                       pre_rotation, pre_rotation)
-            written, observed = submit_marker(lab, cluster, kubeconfig, directory, marker)
+            written, observed, event = submit_marker(lab, cluster, kubeconfig, directory, marker)
             lab.check("positive", "The harmless synthetic ConfigMap patch is recorded after age rotation",
                       written, observed)
             result = wait_for_pruning(directory, [fixtures["inside_fixture"]],
@@ -196,6 +197,23 @@ def run_age_check(lab):
             lab.check("green", "Age pruning removes only the expired backup and keeps the new rotation",
                       result == {"kept": True, "removed": True, "backup_count": 2,
                                  "rotation_observed": True}, result)
+            store = runpy.run_path(str(CASE_DIR / "retention_fixture.py"))
+            clock = store["event_time"](event).replace(microsecond=0)
+            summary = store["run_fixture"](
+                directory / "downstream", retention_clock=clock.isoformat(), live_events=[event],
+            )
+            lab.check("red", "Before the downstream policy runs the already-expired record remains retrievable",
+                      all(summary["synthetic_retrieval_before_prune"].values())
+                      and summary["live_api_audit_event_count"] == 1
+                      and summary["live_event_retrieval_before_prune"],
+                      {"old_record_present": summary["synthetic_retrieval_before_prune"]["expired_before_cutoff"],
+                       "live_audit_event_retrievable": summary["live_event_retrieval_before_prune"]})
+            lab.check("green", "Downstream retention removes only the expired record and preserves the real audit event",
+                      summary["expired_removed"] and summary["exact_cutoff_protected"]
+                      and summary["inside_window_protected"] and summary["recent_protected"]
+                      and summary["live_event_retrieval_after_prune"]
+                      and summary["counts"] == {"before": 5, "kept": 4, "removed": 1},
+                      summary)
 
 
 def run_count_check(lab):
@@ -210,7 +228,7 @@ def run_count_check(lab):
                             and (directory / "audit.log").stat().st_size == PADDING_BYTES)
             lab.check("red", "Three backups exist before a write triggers the two-backup cap",
                       pre_rotation, pre_rotation)
-            written, observed = submit_marker(lab, cluster, kubeconfig, directory, marker)
+            written, observed, _ = submit_marker(lab, cluster, kubeconfig, directory, marker)
             lab.check("positive", "The harmless synthetic ConfigMap patch is recorded after count rotation",
                       written, observed)
             result = wait_for_pruning(directory, [fixtures["new_fixture"]],
