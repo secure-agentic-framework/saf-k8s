@@ -12,3 +12,13 @@ targets separately.
 
 - [OpenSSL CA and CRL operations](https://docs.openssl.org/3.0/man1/openssl-ca/)
 - [Python TLS verification flags](https://docs.python.org/3/library/ssl.html#ssl.VERIFY_CRL_CHECK_LEAF)
+
+## Verify an adopting implementation
+
+Identify issuer revocation mechanisms and every
+relying party, including control-plane and application consumers. Under the
+approved change process, revoke an inert certificate and publish/distribute
+the current CRL or equivalent status. Retain evidence each verifier rejects
+the exact old leaf and accepts a replacement and unaffected peer. Measure
+propagation, record issuer retirement and residual cached sessions, and assign
+owners for any consumer that cannot enforce revocation.
