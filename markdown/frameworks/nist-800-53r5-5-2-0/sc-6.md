@@ -18,15 +18,6 @@ Namespace quotas allocate or cap declared requests, and PriorityClasses express 
 - Applicability: conditional
 - Strength Reason Code: framework-language-interpretation
 
-### [SAF-K8S-0703-002 - Pod Disruption Budgets for workload availability](../../controls/SAF-K8S-0703-002.md)
-
-- Domain: D07 - Storage, Multi-tenancy, and Resource Governance
-- Knowledge Area: 7.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0703-005 - AI workload resource exhaustion guardrails](../../controls/SAF-K8S-0703-005.md)
 
 - Domain: D07 - Storage, Multi-tenancy, and Resource Governance
