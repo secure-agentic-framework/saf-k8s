@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0304-010",
-  "catalog_revision": "4e25c97db26578a1564eccd7d36f94bc80a6c0fd",
-  "catalog_sha256": "dbb6123b0e1913a1d4b79ee665955e432270186ddbbcfccc1500ad71d7246f81",
+  "catalog_revision": "98d3a772732ccf653c6dd5214f67ff17475bbf42",
+  "catalog_sha256": "62121cb8fdf28a466aa37ef357e1b2cd48f554917b8ef46137103393bf15422b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "b4c5f1055f2e1b9dc69944d085127e788e5b8aeb7a61d7b99d0e38aea3a21bcb",
+  "control_sha256": "8ca1260827089c0dd292e95845abe103dbbbe74e968b4a34c01e360fe7862877",
   "scope": "Explicit CPU, memory and ephemeral-storage declarations for regular and init containers. The source check sees the raw manifest. Admission sees defaulted resource values. A bounded disk-backed emptyDir probe compares below-limit completion with kubelet container-local ephemeral-storage limit eviction. An upstream kubelet device plugin supplies exactly two synthetic device allocations without physical accelerator claims.",
-  "cluster": "saf-lab-a8d37997ac82",
+  "cluster": "saf-lab-0e107a8e67c0",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

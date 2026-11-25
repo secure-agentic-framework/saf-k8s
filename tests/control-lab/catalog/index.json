@@ -741,7 +741,7 @@
     "SAF-K8S-0304-010": {
       "catalog_status": "draft",
       "domain": "D03",
-      "sha256": "b4c5f1055f2e1b9dc69944d085127e788e5b8aeb7a61d7b99d0e38aea3a21bcb",
+      "sha256": "8ca1260827089c0dd292e95845abe103dbbbe74e968b4a34c01e360fe7862877",
       "title": "Pod resource requests and limits specification"
     },
     "SAF-K8S-0304-011": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "18f3c2dd42a0edc7b42cf30b83e58397881ddd2d",
-  "sha256": "044bf7085d167e0cebc119fadb5265399823a05a596346af59f25fe7dc9ad3a6",
+  "revision": "5cdce51e072bf8d2199182edd791b3051c23e986",
+  "sha256": "62121cb8fdf28a466aa37ef357e1b2cd48f554917b8ef46137103393bf15422b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
