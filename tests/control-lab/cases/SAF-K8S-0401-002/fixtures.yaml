@@ -50,7 +50,34 @@ rules:
   - apiGroups: [""]
     resources: ["configmaps"]
     resourceNames: ["saf-0401-002-unneeded-config"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: saf-0401-002-cross-namespace-reader
+  labels:
+    saf-k8s.example/control-case: SAF-K8S-0401-002
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["saf-0401-002-required-config"]
     verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: saf-0401-002-cross-namespace-reader
+  labels:
+    saf-k8s.example/control-case: SAF-K8S-0401-002
+subjects:
+  - kind: ServiceAccount
+    name: saf-0401-002-audited-reader
+    namespace: saf-0401-002
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: saf-0401-002-cross-namespace-reader
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

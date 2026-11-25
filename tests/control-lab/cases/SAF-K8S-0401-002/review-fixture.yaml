@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-0401-002-required-config
+  namespace: saf-0401-002-review
+  labels:
+    saf-k8s.example/control-case: SAF-K8S-0401-002
+data:
+  marker: second-namespace-fixture

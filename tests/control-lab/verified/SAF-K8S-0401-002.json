@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0401-002",
-  "catalog_revision": "3f2c45b07cab1372d80dc649cce6a5d40f2000e2",
-  "catalog_sha256": "0decf495b5f1d40eeb3f160be10f54351993ceb48c799c63c547928aedf41319",
+  "catalog_revision": "f3cc4f7c292191aba12125829157872674c11ae7",
+  "catalog_sha256": "d349202ee2a53ae35fd3d0b6c36098d2d5cc45a51aa71fbf557812fcda78d4a0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6070733308e304589b4570dd25316bca0dc37cfabc9d7f9d6a16c46e45c83c9f",
   "scope": "Replays the existing synthetic ConfigMap permission audit. A second isolated namespace tests v1.36.1 SubjectAccessReview decisions for ordinary ResourceClaim status plus the DRA binding and driver permissions. The test uses fixed synthetic principals, driver names and node-aware verbs. Production role inventory, native status request construction, node association, actual driver behavior and allocation remain separate.",
-  "cluster": "saf-lab-2520ccb2789f",
+  "cluster": "saf-lab-0efe92519cfa",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -71,23 +71,74 @@
               "configmaps"
             ],
             "verbs": [
-              "get"
+              "get",
+              "patch"
             ]
           }
         ],
         "required_binding_matches": true,
         "unneeded_binding_matches": true,
+        "cluster_role_matches": true,
+        "cluster_role_binding_matches": true,
         "required_named_get": {
           "allowed": true,
           "denied": false,
-          "reason": "RBAC: allowed by RoleBinding \"saf-0401-002-required-reader/saf-0401-002\" of Role \"saf-0401-002-required-reader\" to ServiceAccount \"saf-0401-002-audited-reader/saf-0401-002\""
+          "reason": "RBAC: allowed by ClusterRoleBinding \"saf-0401-002-cross-namespace-reader\" of ClusterRole \"saf-0401-002-cross-namespace-reader\" to ServiceAccount \"saf-0401-002-audited-reader/saf-0401-002\""
         },
         "unneeded_named_get": {
           "allowed": true,
           "denied": false,
           "reason": "RBAC: allowed by RoleBinding \"saf-0401-002-unneeded-reader/saf-0401-002\" of Role \"saf-0401-002-unneeded-reader\" to ServiceAccount \"saf-0401-002-audited-reader/saf-0401-002\""
         },
-        "both_bindings_present": true
+        "both_bindings_present": true,
+        "case_owned_inventory": {
+          "roles": [
+            "saf-0401-002-required-reader",
+            "saf-0401-002-unneeded-reader"
+          ],
+          "clusterroles": [
+            "saf-0401-002-cross-namespace-reader"
+          ],
+          "rolebindings": [
+            "saf-0401-002-required-reader",
+            "saf-0401-002-unneeded-reader"
+          ],
+          "clusterrolebindings": [
+            "saf-0401-002-cross-namespace-reader"
+          ]
+        },
+        "authorization_matrix_before": {
+          "required_get_home": {
+            "allowed": true,
+            "denied": false,
+            "reason": "RBAC: allowed by ClusterRoleBinding \"saf-0401-002-cross-namespace-reader\" of ClusterRole \"saf-0401-002-cross-namespace-reader\" to ServiceAccount \"saf-0401-002-audited-reader/saf-0401-002\""
+          },
+          "required_get_review_namespace": {
+            "allowed": true,
+            "denied": false,
+            "reason": "RBAC: allowed by ClusterRoleBinding \"saf-0401-002-cross-namespace-reader\" of ClusterRole \"saf-0401-002-cross-namespace-reader\" to ServiceAccount \"saf-0401-002-audited-reader/saf-0401-002\""
+          },
+          "unneeded_get_home": {
+            "allowed": true,
+            "denied": false,
+            "reason": "RBAC: allowed by RoleBinding \"saf-0401-002-unneeded-reader/saf-0401-002\" of Role \"saf-0401-002-unneeded-reader\" to ServiceAccount \"saf-0401-002-audited-reader/saf-0401-002\""
+          },
+          "unneeded_patch_home": {
+            "allowed": true,
+            "denied": false,
+            "reason": "RBAC: allowed by RoleBinding \"saf-0401-002-unneeded-reader/saf-0401-002\" of Role \"saf-0401-002-unneeded-reader\" to ServiceAccount \"saf-0401-002-audited-reader/saf-0401-002\""
+          },
+          "required_patch_home": {
+            "allowed": false,
+            "denied": false,
+            "reason": ""
+          },
+          "unbound_synthetic_get": {
+            "allowed": false,
+            "denied": false,
+            "reason": ""
+          }
+        }
       }
     },
     {
@@ -98,7 +149,7 @@
         "required_named_get": {
           "allowed": true,
           "denied": false,
-          "reason": "RBAC: allowed by RoleBinding \"saf-0401-002-required-reader/saf-0401-002\" of Role \"saf-0401-002-required-reader\" to ServiceAccount \"saf-0401-002-audited-reader/saf-0401-002\""
+          "reason": "RBAC: allowed by ClusterRoleBinding \"saf-0401-002-cross-namespace-reader\" of ClusterRole \"saf-0401-002-cross-namespace-reader\" to ServiceAccount \"saf-0401-002-audited-reader/saf-0401-002\""
         },
         "unneeded_named_get": {
           "allowed": false,
@@ -106,22 +157,70 @@
           "reason": ""
         },
         "required_binding_remains": true,
-        "unneeded_binding_removed": true
+        "unneeded_binding_removed": true,
+        "authorization_matrix_after": {
+          "required_get_home": {
+            "allowed": true,
+            "denied": false,
+            "reason": "RBAC: allowed by ClusterRoleBinding \"saf-0401-002-cross-namespace-reader\" of ClusterRole \"saf-0401-002-cross-namespace-reader\" to ServiceAccount \"saf-0401-002-audited-reader/saf-0401-002\""
+          },
+          "required_get_review_namespace": {
+            "allowed": true,
+            "denied": false,
+            "reason": "RBAC: allowed by ClusterRoleBinding \"saf-0401-002-cross-namespace-reader\" of ClusterRole \"saf-0401-002-cross-namespace-reader\" to ServiceAccount \"saf-0401-002-audited-reader/saf-0401-002\""
+          },
+          "unneeded_get_home": {
+            "allowed": false,
+            "denied": false,
+            "reason": ""
+          },
+          "unneeded_patch_home": {
+            "allowed": false,
+            "denied": false,
+            "reason": ""
+          },
+          "required_patch_home": {
+            "allowed": false,
+            "denied": false,
+            "reason": ""
+          },
+          "unbound_synthetic_get": {
+            "allowed": false,
+            "denied": false,
+            "reason": ""
+          }
+        },
+        "case_owned_inventory_after": {
+          "roles": [
+            "saf-0401-002-required-reader",
+            "saf-0401-002-unneeded-reader"
+          ],
+          "clusterroles": [
+            "saf-0401-002-cross-namespace-reader"
+          ],
+          "rolebindings": [
+            "saf-0401-002-required-reader"
+          ],
+          "clusterrolebindings": [
+            "saf-0401-002-cross-namespace-reader"
+          ]
+        },
+        "review_decision": {
+          "finding": "unnecessary named ConfigMap get and patch",
+          "decision": "remove the case-owned unneeded-reader RoleBinding",
+          "retained_access": "named get on required ConfigMap in both fixture namespaces"
+        }
       }
     },
     {
       "phase": "positive",
-      "claim": "The required named ConfigMap get remains authorized after remediation",
+      "claim": "Actual named reads return the expected marker in both audited namespaces",
       "matched": true,
       "observed": {
-        "subject": "system:serviceaccount:saf-0401-002:saf-0401-002-audited-reader",
-        "namespace": "saf-0401-002",
-        "verb": "get",
-        "resource": "configmaps",
-        "name": "saf-0401-002-required-config",
-        "allowed": true,
-        "denied": false,
-        "reason": "RBAC: allowed by RoleBinding \"saf-0401-002-required-reader/saf-0401-002\" of Role \"saf-0401-002-required-reader\" to ServiceAccount \"saf-0401-002-audited-reader/saf-0401-002\""
+        "named_reads_preserved": {
+          "saf-0401-002": true,
+          "saf-0401-002-review": true
+        }
       }
     },
     {
