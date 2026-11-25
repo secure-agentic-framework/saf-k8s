@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0401-004",
-  "catalog_revision": "d3578710406221046942a7437b7726308c7015b3",
-  "catalog_sha256": "2c939594d57db831d028cf98022701e2580ed633aed4608b27bfb82196524934",
+  "catalog_revision": "33b168c53fd47b79205a28fe9bd3b5b1a9dfcfec",
+  "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "7e3640209f1b79c77ad2dbd7ad613b7f9d83e7d437855fc48ec911194a96d8a0",
   "scope": "Kubernetes v1.36.1 native RBAC on two case-owned namespaced CRDs in one synthetic API group. The ML service account receives create/get/list/watch/update/patch/delete only on modelruns in saf-0401-004; trainingruns, modelruns/status, and modelruns in another namespace are outside that grant. A distinct synthetic admin actor has an explicit namespaced role for both fixture resources. No operator controller, real AI CRD, admission policy, workload, or production identity mapping is present.",
-  "cluster": "saf-lab-59bfb92a13b1",
+  "cluster": "saf-lab-27ab55541510",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
