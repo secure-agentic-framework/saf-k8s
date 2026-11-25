@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0601-010",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "f20ec27957d39cb826af72476c62f0f0aa9af22c",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "015d710dce285ee49cef00f78e7730a14f737cc8d672f0bebbcda33c9c8bf01b",
   "scope": "One owned Kubernetes v1.36.1 cluster and pinned OCI Distribution registry. A running Deployment uses an exact digest. A disposable direct deletion proves the registry can remove its manifest despite that running workload. The same digest is restored and preserved by a cleanup rule that reads the live deployment and uses fixed-age records. A recent Helm chart and an older retained model fixture remain fetchable, while a separate expired model manifest and unique blob are collected. Coverage of production replicas, all workload sources, legal holds, signatures and provider policy remains separate.",
-  "cluster": "saf-lab-301ac2760086",
+  "cluster": "saf-lab-c3c2e69c8557",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
