@@ -59,3 +59,12 @@ they remain source assertions requiring separate validation.
 The control maps to NIST SP 800-53 SI-15 in `control.md`; this small case does
 not assert that the mapping or the broader control rationale has been
 independently validated.
+
+## Verify an adopting implementation
+
+Inventory each real response format and serving path. Test private-marker
+filtering and body-size caps at the trusted response boundary with approved
+synthetic fixtures, verify exact intended output preservation and deny
+behavior, and establish logging, false-positive review and latency limits.
+The case exercises one local HTTP response filter and exact dummy markers,
+not model output policy or classifier quality.
