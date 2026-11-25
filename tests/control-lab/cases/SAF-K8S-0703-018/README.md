@@ -13,3 +13,17 @@ share, and an unmatched charge remains unallocated.
 The timestamp offsets, utilization signals, rate policy and charge lines are
 synthetic. Hardware telemetry, provider exports and real costs require
 separate verification.
+
+## Adopter verification
+
+1. Inventory actual devices, capacity and usable allocation units, workload
+   identity and ownership, telemetry sources, and provider billing records.
+   Preserve each source's units, reporting window and completeness.
+2. Join workload observations to immutable Pod UIDs and effective ownership
+   during the exact reported window. Check same-name replacement, late or
+   missing samples and overlapping billing intervals.
+3. Reconcile source line items with approved cost-allocation rules. Retain
+   measured usage, capacity, charged quantities, shared allocations and
+   amounts that could not be allocated, with their separate evidence.
+4. Review representative report totals and evidence with the accountable
+   finance and platform owners, and record cadence and adjustments.
