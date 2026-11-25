@@ -1,12 +1,11 @@
 # SAF-K8S-1005-023 — GPU-aware node containment and quarantine
 
-This case is a draft for the lab supervisor's two-run verification on a fresh,
-disposable Kind Kubernetes v1.36.1 cluster. `case.py` uses the lab's existing
-`saf-test` namespace and the digest-pinned Kind node image recorded in the
-lab's runner. It creates only uniquely named case resources and reads only
-those resources plus the selected disposable node.
+The current control digest selects the verified v1.37.2 device-level fixture.
+The earlier control digest selects the original v1.36.1 node-only comparison.
+Both use the runner's disposable Kind cluster and only case-owned resources.
+See the patched profile and run command below for the current case.
 
-The fixture labels one Kind node with synthetic accelerator inventory metadata.
+The original node-only fixture labels one Kind node with synthetic accelerator inventory metadata.
 It does not assert that Kind has a GPU, install a device plugin, request an
 accelerator resource, execute inference, use model data, or connect to a feed
 or target. Its digest-pinned Docker Official Python container only sleeps.
@@ -124,3 +123,9 @@ update, the selected Pod's UID, the independent Service endpoint and the HTTP
 readbacks. The responder's RBAC applies to one rule name. Field-level
 selector restrictions, finite or indefinite tolerations, release criteria,
 hardware recovery and vendor backports remain deployed-evidence work.
+
+## Verify an adopting implementation
+
+1. Inventory accelerator nodes, devices, driver/runtime versions, workload owners and the approved incident authority. Record the exact isolation target and the availability expectations for unaffected workloads.
+2. Exercise device and node containment in a representative authorized environment with approved inert workloads. Verify selected workload removal or quarantine, continued service on unrelated devices, limits on voluntary eviction, and checkpoint or distributed-job recovery where applicable.
+3. Record pre-change identity and device state, impact and timestamps, independent approval, and chain of custody before disruptive operations. Verify rollback or safe release criteria and retain outcomes from both selected and unaffected workloads.
