@@ -17,3 +17,12 @@ ConfigMap matches Git, and that the same Pod sees the restored marker.
 This fixture covers Argo CD reconciliation. Notification delivery and
 actual GitOps enrollment and operations require separate evidence.
 [Argo CD auto-sync and self-heal](https://github.com/argoproj/argo-cd/blob/v3.6.1/docs/user-guide/auto_sync.md).
+
+## Verify an adopting implementation
+
+Inventory all GitOps controllers, applications and
+production scopes; record drift detection interval, notification destination,
+self-heal policy and approved exceptions. For an inert workload, create a
+controlled live change, verify detection and the chosen notification or
+reconciliation response, and confirm the final workload matches its approved
+source. Cover exclusions and every controller type separately.
