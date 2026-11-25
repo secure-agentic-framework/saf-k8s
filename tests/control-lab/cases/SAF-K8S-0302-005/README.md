@@ -55,3 +55,11 @@ must not be adopted as a production profile.
 - [Kubernetes v1.36 seccomp](https://v1-36.docs.kubernetes.io/docs/tutorials/security/seccomp/)
 - [Kubernetes v1.36 AppArmor](https://v1-36.docs.kubernetes.io/docs/tutorials/security/apparmor/)
 - [Kubernetes v1.36 Pod Security Standards](https://v1-36.docs.kubernetes.io/docs/concepts/security/pod-security-standards/)
+
+## Adopter verification
+
+1. Inventory every eligible node pool's Kubernetes/kernel version, architecture, CRI/runtime, seccomp profile root and AppArmor support. Record profile delivery and update mechanism.
+2. Read-only verify the exact approved profile path and digest on each eligible node, and, for AppArmor, the loaded profile is in enforce mode. Bind each result to node identity and the approved profile revision.
+3. Review effective admission policies/bindings and run approved server-dry-run positive and negative requests for regular, init and ephemeral containers. Confirm only the exact profile and read-only-root pattern is accepted for the governed workload class.
+4. On a representative real workload, retain a harmless allowed operation, one approved denied-operation result, process UID/seccomp/AppArmor identity, read-only root outcome and intended writable-volume behavior. For device or RDMA claims, verify separately on authorized matching hardware and mark unsupported combinations.
+5. Record policy/profile revision, node/workload identity, results, exception scope and owner, and repeat after kernel, runtime, admission, profile or driver changes. Do not adopt the fixture's `uname` rule as a production profile.
