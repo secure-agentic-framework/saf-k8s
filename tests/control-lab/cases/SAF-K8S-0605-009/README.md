@@ -40,3 +40,18 @@ Kubernetes v1.36.1 source supports this specific ordering: the generic registry 
 - [Kubernetes v1.36.1 create handler](https://github.com/kubernetes/kubernetes/blob/v1.36.1/staging/src/k8s.io/apiserver/pkg/endpoints/handlers/create.go#L165-L174)
 
 The lab retained the original result in `evidence/SAF-K8S-0605-009/20261122T092125Z-c16ab5eb/result.json` and the corrected result in `evidence/SAF-K8S-0605-009/20261122T092125Z-92b344a5/result.json`. The outcomes and observed details match exactly across both revisions. The corrected source preserves the mandatory validating webhook for security and organizational policy.
+
+## Adopter verification
+
+1. Inventory each installed AI operator, served CRD version, schema, webhook,
+   quota, and namespace selector. Include all version conversions and upgrade
+   paths.
+2. With separately authorized harmless requests, test malformed structure,
+   out-of-range accelerator values, disallowed model references, and
+   quota-invalid declarations. Retain exact admission decisions and scope
+   comparisons.
+3. Verify generated workloads separately for model/data authorization,
+   resource enforcement, and security context. A CR admission result alone
+   does not prove downstream safety.
+
+Open child: `saf-lab-0605-009.2`. Native receipt: 12 checks.
