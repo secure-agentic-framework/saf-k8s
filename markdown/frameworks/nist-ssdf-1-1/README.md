@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-SSDF
 - Version: 1.1
-- Total Reverse Mappings: 64
-- Distinct Requirements Mapped: 20
+- Total Reverse Mappings: 63
+- Distinct Requirements Mapped: 19
 
 ## Requirements
 
@@ -14,7 +14,6 @@
 - [PO.3.2 - Follow recommended security practices to deploy, operate, and maintain tools and toolchains.](po-3-2.md)
 - [PO.3.3 - Configure tools to generate artifacts of their support of secure software development practices as defined by the organization.](po-3-3.md)
 - [PO.5.1 - Separate and protect each environment involved in software development.](po-5-1.md)
-- [PS.1.1 - Store all forms of code -- including source code, executable code, and configuration-as-code -- based on the principle of least privilege.](ps-1-1.md)
 - [PS.2.1 - Make software integrity verification information available to software acquirers.](ps-2-1.md)
 - [PS.3.1 - Securely archive the necessary files and supporting data to be retained for each software release.](ps-3-1.md)
 - [PS.3.2 - Collect, safeguard, maintain, and share provenance data for all components of each software release (e.g., in an SBOM).](ps-3-2.md)

@@ -62787,19 +62787,6 @@
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
   framework_version: '1.1'
-  framework_requirement_id: PS.1.1
-  framework_requirement_title: Store all forms of code -- including source code, executable code, and configuration-as-code -- based on the principle of least privilege.
-  framework_mapping_notes: SAF-K8S enforces least-privilege access to container images in registries, GitOps repositories, Helm charts, and Kubernetes manifests. Registry access controls, RBAC, and repository security controls restrict who can read and modify code and configuration artifacts.
-  control_id: SAF-K8S-0401-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SSDF 1.1
-  framework_code: NIST-SSDF
-  framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
-  framework_version: '1.1'
   framework_requirement_id: PS.2.1
   framework_requirement_title: Make software integrity verification information available to software acquirers.
   framework_mapping_notes: SAF-K8S requires image signing (cosign/Sigstore, Notary v2), SLSA provenance, and transparency logging to provide integrity verification for container images, ML models, and deployment artifacts.
