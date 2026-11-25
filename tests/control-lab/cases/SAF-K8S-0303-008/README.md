@@ -3,8 +3,8 @@
 Run `python3 lab.py test SAF-K8S-0303-008` with the catalog revision recorded in
 the verified result. One namespace-scoped ValidatingAdmissionPolicy checks
 explicit named-profile approval, Pod defaults and overrides across regular,
-init and ephemeral containers. API requests for an unconfined Pod use server
-dry-run. An actual Pod serves as the inert, scheduling-gated target of
+init and ephemeral containers. The admission matrix initially exercises unconfined requests with server
+dry-run. A separate inert, scheduling-gated Pod is the target of
 `pods/ephemeralcontainers` dry-run updates.
 
 A separate namespace holds the exception ConfigMap. The fixture tests an
@@ -15,7 +15,7 @@ namespace but cannot edit the named approval. The example requires effective
 `RuntimeDefault` seccomp and disables token automount for the exception.
 Kubernetes evaluates a fixed time supplied by the fixture controller.
 If the ConfigMap is absent, the matched admission policy fails closed.
-No unconfined workload is created or started by this case.
+The running withdrawal comparison below covers one owned inert workload.
 
 ## Adopter checks
 
@@ -32,3 +32,19 @@ compensating controls are present at admission and enforced in the runtime.
 - [Kubernetes AppArmor tutorial](https://v1-36.docs.kubernetes.io/docs/tutorials/security/apparmor/)
 - [Validating Admission Policy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
 - [Kubernetes seccomp tutorial](https://v1-36.docs.kubernetes.io/docs/tutorials/security/seccomp/)
+
+## Running exception withdrawal
+
+The reference creates a single inert workload with its exact active exception,
+then revokes the grant. The API refuses an update to the same object while that
+Pod remains running. An independent, precisely named remediator removes the
+observed Pod with UID and resource-version preconditions. The original submitter
+and unrelated target comparisons fail authorization. The now-revoked request
+cannot recreate the workload, and an unrelated Pod remains available.
+
+Admission and cleanup evidence tracks this fixture's declared profile and
+workload lifecycle. Direct evidence of loaded AppArmor behavior comes from the
+separate [profile delivery and enforcement case](../SAF-K8S-0303-007/README.md).
+In a deployment, verify the profile for each supported node and the approved
+response to withdrawal or expiry for both new and existing workloads. Record
+approval, exception scope, observed decision and remediation timing.

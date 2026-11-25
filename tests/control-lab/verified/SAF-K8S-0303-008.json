@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0303-008",
-  "catalog_revision": "2d4ac191914abdbad8896a6270711bc4bcefbd46",
-  "catalog_sha256": "d349202ee2a53ae35fd3d0b6c36098d2d5cc45a51aa71fbf557812fcda78d4a0",
+  "catalog_revision": "8ec767eccb0b832c712039a4c6407f688dd62f3b",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "a83792951c856fe5ef43c5321ea0c69df547730b3992cca23f8061d74b1858de",
-  "scope": "Verify approved AppArmor inheritance and overrides across Kubernetes container types. An exact named direct Pod and requester may receive a dry-run exception under an externally owned grant, bounded fixture time and required compensating safeguards. All exception requests are dry-run only.",
-  "cluster": "saf-lab-94802ec2ca90",
+  "scope": "Verify approved AppArmor inheritance and overrides across Kubernetes container types. An exact named direct Pod and requester may receive a dry-run exception under an externally owned grant, bounded fixture time and required compensating safeguards. Test initial permission by dry-run and exercise explicit scoped revocation handling on one inert Pod.",
+  "cluster": "saf-lab-bacefed123a7",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -99,6 +99,34 @@
         "exception-evaluator_cannot_edit_grant": true,
         "applicant_cannot_edit_grant": true,
         "no_exception_pod_created": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Revoking the grant refuses an update but the previously admitted Pod remains running",
+      "matched": true,
+      "observed": {
+        "same_owned_pod_running": true,
+        "exact_revocation_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Only the scoped remediator can delete the exact previously admitted UID",
+      "matched": true,
+      "observed": {
+        "original_submitter_denied": true,
+        "unrelated_target_denied": true,
+        "exact_preconditioned_removal_observed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The revoked exception refuses recreation and the unrelated Pod continues",
+      "matched": true,
+      "observed": {
+        "recreation_denied": true,
+        "unrelated_comparator_running": true
       }
     }
   ]

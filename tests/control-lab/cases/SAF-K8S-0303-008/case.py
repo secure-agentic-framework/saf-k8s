@@ -2,7 +2,6 @@
 
 import json
 import time
-from pathlib import Path
 
 from fixtures import container, pod
 
@@ -33,7 +32,7 @@ SCOPE = (
     "Verify approved AppArmor inheritance and overrides across Kubernetes container types. "
     "An exact named direct Pod and requester may receive a dry-run exception under an "
     "externally owned grant, bounded fixture time and required compensating safeguards. "
-    "All exception requests are dry-run only."
+    "Test initial permission by dry-run and exercise explicit scoped revocation handling on one inert Pod."
 )
 
 
@@ -240,6 +239,88 @@ def ephemeral(lab, profile=None):
                        allow_failure=True)
 
 
+def verify_running_exception_revocation(lab):
+    evaluator = EXCEPTION_IDENTITY.split(":")[-1]
+    remediator = "apparmor-fixture-remediator"
+    for role, name, action in (
+        ("fixture-own-approval-probe", evaluator, "patch"),
+        ("fixture-own-revocation", remediator, "delete"),
+    ):
+        if name == remediator:
+            lab.kubectl("create", "serviceaccount", name)
+        lab.create({"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role",
+                    "metadata": {"name": role}, "rules": [{
+                        "apiGroups": [""], "resources": ["pods"],
+                        "verbs": [action, "get"] if action == "patch" else [action],
+                        "resourceNames": [EXCEPTION_WORKLOAD]}]})
+        lab.kubectl("create", "rolebinding", role, f"--role={role}",
+                    f"--serviceaccount={NS}:{name}")
+
+    set_exception_record(lab)
+    initially_allowed = converge(lambda: exception_attempt(lab), lambda result: result.returncode == 0)
+    if initially_allowed.returncode != 0:
+        lab.block("The active exception did not propagate to the exact admitted request")
+    admitted = workload(EXCEPTION_WORKLOAD, UNCONFINED)
+    admitted["spec"].pop("schedulingGates")
+    admitted["spec"]["containers"][0]["command"] = ["sh", "-c", "sleep 300"]
+    response = lab.kubectl(f"--as={EXCEPTION_IDENTITY}", "create", "-f", "-", "-o", "json",
+                           payload=json.dumps(admitted))
+    uid = json.loads(response.stdout)["metadata"]["uid"]
+    lab.kubectl("wait", "--for=condition=Ready", f"pod/{EXCEPTION_WORKLOAD}",
+                "--timeout=80s", timeout=90)
+
+    sentinel = pod("fixture-same-control-unrelated", [container("sentinel")],
+                   automountServiceAccountToken=False)
+    lab.kubectl("-n", CONTROL_NS, "create", "-f", "-", "-o", "name", payload=json.dumps(sentinel))
+    lab.kubectl("-n", CONTROL_NS, "wait", "--for=condition=Ready", "pod/fixture-same-control-unrelated",
+                "--timeout=75s", timeout=85)
+
+    set_exception_record(lab, revoked="true")
+    def update_request():
+        return lab.kubectl(f"--as={EXCEPTION_IDENTITY}", "patch", "pod", EXCEPTION_WORKLOAD,
+                            "--type=merge", "--dry-run=server",
+                            "-p", '{"metadata":{"annotations":{"saf.example.org/exception-observe":"true"}}}',
+                            allow_failure=True)
+    denied_update = converge(update_request, lambda result: result.returncode != 0
+                             and EXCEPTION_MESSAGES["revoked"] in result.stderr)
+    readback = json.loads(lab.kubectl("get", "pod", EXCEPTION_WORKLOAD, "-o", "json").stdout)
+    still_running = (readback["metadata"]["uid"] == uid and readback["status"]["phase"] == "Running"
+                     and not readback["metadata"].get("deletionTimestamp"))
+    rejected = denied_update.returncode != 0 and EXCEPTION_MESSAGES["revoked"] in denied_update.stderr
+    lab.check("red", "Revoking the grant refuses an update but the previously admitted Pod remains running",
+              still_running and rejected,
+              {"same_owned_pod_running": still_running, "exact_revocation_denial": rejected})
+
+    delete_options = {"apiVersion": "v1", "kind": "DeleteOptions", "gracePeriodSeconds": 0,
+                      "preconditions": {"uid": uid, "resourceVersion": readback["metadata"]["resourceVersion"]}}
+    route = f"/api/v1/namespaces/{NS}/pods/{EXCEPTION_WORKLOAD}"
+    without_grant = lab.kubectl(f"--as={EXCEPTION_IDENTITY}", "delete", "--raw", route,
+                                 "-f", "-", payload=json.dumps(delete_options), allow_failure=True)
+    denied_delete = without_grant.returncode != 0 and "forbidden" in without_grant.stderr.lower()
+
+    approved_actor = f"system:serviceaccount:{NS}:{remediator}"
+    outside_scope = lab.kubectl(f"--as={approved_actor}", "delete", "--raw",
+                                 f"/api/v1/namespaces/{CONTROL_NS}/pods/fixture-same-control-unrelated",
+                                 "-f", "-", payload=json.dumps(delete_options), allow_failure=True)
+    unrelated_denied = outside_scope.returncode != 0 and "forbidden" in outside_scope.stderr.lower()
+    removed = lab.kubectl(f"--as={approved_actor}", "delete", "--raw", route,
+                           "-f", "-", payload=json.dumps(delete_options), allow_failure=True)
+    if removed.returncode:
+        lab.block("Exact owned Pod removal failed at the approved authorizer or preconditions")
+    lab.kubectl("wait", "--for=delete", f"pod/{EXCEPTION_WORKLOAD}", "--timeout=60s", timeout=70)
+    lab.check("green", "Only the scoped remediator can delete the exact previously admitted UID",
+              denied_delete and unrelated_denied,
+              {"original_submitter_denied": denied_delete, "unrelated_target_denied": unrelated_denied,
+               "exact_preconditioned_removal_observed": True})
+    denied_recreate = exception_attempt(lab)
+    sentinel_status = lab.kubectl("-n", CONTROL_NS, "get", "pod", "fixture-same-control-unrelated",
+                                  "-o", "jsonpath={.status.phase}").stdout.strip()
+    refused = denied_recreate.returncode != 0 and EXCEPTION_MESSAGES["revoked"] in denied_recreate.stderr
+    lab.check("positive", "The revoked exception refuses recreation and the unrelated Pod continues",
+              refused and sentinel_status == "Running",
+              {"recreation_denied": refused, "unrelated_comparator_running": sentinel_status == "Running"})
+
+
 def run(lab):
     unprofiled = workload("fixture-omitted")
     lab.kubectl("label", "namespace", NS, f"{LABEL}=named-profile")
@@ -291,6 +372,7 @@ def run(lab):
               all(accepted.values()), accepted)
 
     exception_results = verify_exceptions(lab)
+    verify_running_exception_revocation(lab)
 
     (lab.evidence / "apparmor-admission-observations.json").write_text(json.dumps({
         "approved_local_profile": LOCAL["localhostProfile"], "pre_binding_omission_admitted": baseline,
