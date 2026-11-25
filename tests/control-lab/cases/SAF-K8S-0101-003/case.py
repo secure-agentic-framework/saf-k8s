@@ -4,6 +4,7 @@ from contextlib import contextmanager
 import json
 import os
 from pathlib import Path
+import runpy
 import secrets
 import subprocess
 import tempfile
@@ -15,8 +16,7 @@ from lab import NAMESPACE, NODE_IMAGE
 SCOPE = (
     "Kubernetes v1.36.1 kind. Compare stock storage and two Secretbox configuration "
     "profiles using the core-group and all-group wildcards. Inspect only an exact "
-    "synthetic Secret key and an exact synthetic apps Deployment key. Existing object "
-    "rewrite, external KMS and managed control planes require separate evidence."
+    "synthetic Secret key and an exact synthetic apps Deployment key. A separate owned profile verifies a native provider reload and the rewrite of one synthetic Secret."
 )
 MARKER = "saf-k8s-public-synthetic-marker-0101-003"
 NAME = "saf-encryption-probe"
@@ -149,3 +149,6 @@ def run(lab):
     for suffix, wildcard in (("core", "*."), ("all", "*.*")):
         with encrypted_profile(lab, suffix, wildcard) as (cluster, kubeconfig):
             check_storage(lab, kubeconfig, cluster, wildcard)
+
+    rewrite = runpy.run_path(str(Path(__file__).with_name("rewrite_fixture.py")))
+    rewrite["run_rewrite"](lab)
