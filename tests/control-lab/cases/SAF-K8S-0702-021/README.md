@@ -27,3 +27,10 @@ same arguments.
 - [Kubernetes v1.36 ResourceQuota](https://v1-36.docs.kubernetes.io/docs/concepts/policy/resource-quotas/#quota-for-extended-resources)
 - [kube-state-metrics v2.20.0 quota metric](https://github.com/kubernetes/kube-state-metrics/blob/v2.20.0/docs/metrics/policy/resourcequota-metrics.md)
 - [Prometheus alerting rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/)
+
+## Adopter verification
+
+1. Map each production GPU/AI namespace and quota to its actual extended resource, device plugin or DRA source, exporter metric, and dashboard. Reconcile observed used/hard values to the Kubernetes API quota status.
+2. Approve thresholds, hold periods, and recovery behavior based on each service's capacity. Confirm alerts fire before exhaustion while headroom remains and clear when usage falls.
+3. Route a controlled test alert to the approved on-call destination. Capture delivery, acknowledgement, operator response, and recovery. Include billing evidence where spend anomaly detection is claimed.
+4. Identify gaps for physical device use, non-ResourceQuota consumption, missing metrics, and provider billing. The synthetic Prometheus alert is not evidence those sources are covered.
