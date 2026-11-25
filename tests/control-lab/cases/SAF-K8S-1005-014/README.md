@@ -12,3 +12,13 @@ incident response and recurring preparedness work need organization-specific evi
 
 - [CISA StopRansomware recovery guidance](https://www.cisa.gov/stopransomware/ransomware-guide)
 - [NIST SP 800-61r3](https://csrc.nist.gov/pubs/sp/800/61/r3/final)
+
+## Verify an adopting implementation
+
+Obtain approved service-impact tiers and dependency owners;
+map critical control-plane and workload prerequisites to restoration order.
+Use an authorized recovery exercise to show the approved order recreates
+required services and preserves data, with measured recovery objectives.
+Record each exercise finding, accountable remediation, linked runbook change,
+and independent review. Keep the synthetic plan result separate from real
+backup validation and business approval.
