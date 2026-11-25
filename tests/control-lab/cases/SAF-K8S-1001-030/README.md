@@ -57,3 +57,17 @@ one stdout event. The collector reads all three events through Kubernetes
 - [Kubernetes v1.36 RBAC authorization](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
 - [Kubernetes v1.36 Jobs](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/job/)
 - [Kubernetes v1.36 Services](https://v1-36.docs.kubernetes.io/docs/concepts/services-networking/service/)
+
+## Adopter verification
+
+1. Inventory production training, inference, and pipeline log sources, owners,
+   namespaces, collection agents, routing rules, and enterprise destinations.
+2. In an approved rehearsal, emit unique synthetic events from each source.
+   Show the approved collector reads only intended workload logs and that the
+   enterprise backend receives each expected event once with source and event
+   identity intact. Include a denied or unrouted control.
+3. Reconcile source counts to destination counts over a representative window. Show retries, collector restart, and destination-unavailable handling do not
+   silently lose or duplicate events. Record alert and recovery ownership.
+4. Retain effective routing configuration, source inventory, redacted query
+   results, reconciliation, and dated approval. Keep tenant segregation and
+   content redaction evidence separate, as the control excludes them.
