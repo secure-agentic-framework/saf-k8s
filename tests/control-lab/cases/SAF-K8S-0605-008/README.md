@@ -31,3 +31,16 @@ Replay can establish that this synthetic API server rejects an untrusted webhook
 - [Kubernetes v1.36.1 validating webhook failure and dry-run handling](https://raw.githubusercontent.com/kubernetes/kubernetes/v1.36.1/staging/src/k8s.io/apiserver/pkg/admission/plugin/webhook/validating/dispatcher.go)
 
 The fixture structure reuses the certificate generation, TLS AdmissionReview server, and bounded ConfigMap dry-run patterns from SAF-K8S-0605-007 and SAF-K8S-0101-015. It does not import from or read those case directories at runtime.
+
+## Adopter verification
+
+1. Record the actual issuer, certificate automation, SANs, trust distribution,
+   replica topology, endpoint health, and alert route for every admission
+   webhook.
+2. In a controlled rollout, retain old/new overlap evidence, prove both
+   renewed endpoints serve under the new trust, then retire old trust and
+   verify admission still succeeds. Include rollback and expiry alert evidence.
+3. Confirm disruption budgets and availability objectives for the deployed
+   topology; do not treat the fixture's sampled latency as a universal SLO.
+
+Open child: `saf-lab-0605-008.1`. Native receipt: 13 checks.
