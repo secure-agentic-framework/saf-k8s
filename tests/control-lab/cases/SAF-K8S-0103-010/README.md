@@ -64,3 +64,22 @@ deployment evidence. Include external/cloud-controller identities where
 applicable.
 
 - [Kubernetes v1.36.1 namespaced bootstrap Roles and bindings](https://github.com/kubernetes/kubernetes/blob/v1.36.1/plugin/pkg/auth/authorizer/rbac/bootstrappolicy/namespace_policy.go#L99-L130)
+
+## Adopter verification
+
+1. Identify each enabled election participant, its actual user and groups
+   or ServiceAccount, its coordination namespace and Lease name, and its
+   effective lease duration, renew deadline, and retry period. Include any
+   external cloud controller that participates.
+2. Resolve every granting authorizer and effective binding per identity.
+   Review the original namespaced bootstrap grants along with the named
+   roles. In an approved rehearsal, retain an allowed own-Lease request
+   and a denied other-Lease request through the effective identity. Check
+   the required create and collection operations separately.
+3. Record representative API read and update latency under ordinary and
+   expected peak load. Compare tail latency and observed renewals with
+   the approved timing margins. Document the required request budget and
+   repeat the measurement whenever the API path or timing policy changes.
+4. Rehearse the applicable recovery or leader-replacement procedure.
+   Confirm continued coordination and record administrative exceptions,
+   their permitted actions, scope, and owner.
