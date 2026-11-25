@@ -67,10 +67,10 @@ STRIDE threat modeling evaluates security posture across six threat categories. 
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.3
-- Relation Type: supports
+- Relation Type: partial
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: compound-control-split-required
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1004-001 - ML threat taxonomy per CTA-2114 mapped to Kubernetes](../../controls/SAF-K8S-1004-001.md)
 
