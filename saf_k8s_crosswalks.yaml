@@ -14135,16 +14135,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-5
   framework_requirement_title: Separation of Duties
-  framework_mapping_notes: 'Separating agent roles (executor vs. approver)
-
-
-    4.1 - Design and enforce RBAC (separation of duties between ML engineers, platform engineers, security teams)'
+  framework_mapping_notes: 'A Kubernetes RBAC audit can compare effective permissions against duties already defined by the organization. It does not define or document those duties; retain the approved separation-of-duties policy and review evidence.'
   control_id: SAF-K8S-0401-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: "The organization has documented distinct duties and the audit compares effective Kubernetes grants with those approved duties."
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -14972,16 +14969,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-6(7)
   framework_requirement_title: Review of User Privileges
-  framework_mapping_notes: 'Periodic review of agent privilege assignments
-
-
-    4.1 - Permission audit and analysis (identifying overly permissive roles, RBAC tooling: rakkess, kubectl-who-can)'
+  framework_mapping_notes: 'A Kubernetes RBAC audit supplies authorization evidence for periodic privilege review. The organization defines the review frequency and validates each grant against current role need, then reassigns or removes privileges that are no longer needed.'
   control_id: SAF-K8S-0401-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: "The review covers the affected roles at the organization-defined frequency, validates that assigned privileges remain necessary, and corrects unnecessary grants."
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -15601,22 +15595,6 @@
   control_id: SAF-K8S-1003-002
   relation_type: supports
   strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AT-3
-  framework_requirement_title: Role-based Training
-  framework_mapping_notes: 'Role-specific training for agent developers/operators
-
-
-    4.1 - RBAC separation of duties (role-specific training for ML engineers, platform engineers, security teams)'
-  control_id: SAF-K8S-0401-002
-  relation_type: supports
-  strength_level: moderate
   applicability: required
   applicability_condition: null
   strength_reason_code: null
@@ -27840,22 +27818,6 @@
 
 
     4.2 - OIDC group mappings (individual auth with group bindings); 4.1 - RBAC group-based role bindings'
-  control_id: SAF-K8S-0401-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-2(5)
-  framework_requirement_title: Individual Authentication with Group Authentication
-  framework_mapping_notes: 'Individual auth within shared agent access
-
-
-    4.2 - OIDC group mappings (individual auth with group bindings); 4.1 - RBAC group-based role bindings'
   control_id: SAF-K8S-0401-004
   relation_type: supports
   strength_level: strong
@@ -32696,22 +32658,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: framework-language-interpretation
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-13
-  framework_requirement_title: Security and Privacy Workforce
-  framework_mapping_notes: 'Security workforce needs specialized skills for agentic AI security operations
-
-
-    4.1 - Separation of duties (ML engineers, platform engineers, security team workforce planning)'
-  control_id: SAF-K8S-0401-002
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
