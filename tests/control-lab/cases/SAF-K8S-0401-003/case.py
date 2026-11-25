@@ -12,13 +12,14 @@ SOURCE = "saf-0401-003-synthetic-source"
 AGGREGATE = "saf-0401-003-synthetic-aggregate"
 UNMARKED = "saf-0401-003-unmarked-role"
 CONFIGMAP = "saf-0401-003-owned-fixture"
+SELECTOR_GUARD = "synthetic aggregate selector requires an approved policy rotation"
 DENIAL = (
     "synthetic aggregate input requires the exact SAF-K8S-0401-003 owner, "
     "signed-off metadata, and subject"
 )
 SCOPE = (
     "Kubernetes v1.36.1 validating admission for fixture ClusterRole updates and matching "
-    "contributors, followed by live ClusterRole "
+    "contributors, enforced selector stability, followed by live ClusterRole "
     "aggregation into a case-owned aggregate role. Only get on a case-owned "
     "ConfigMap is exercised by an independent consumer through a namespace RoleBinding. "
     "A labeled CRD alone does not contribute rules. Built-in roles, "
@@ -108,10 +109,40 @@ def run(lab):
         red.stderr.strip() or "server dry-run accepted the unapproved metadata change",
     )
 
+    selector_patch = json.dumps({"aggregationRule": {"clusterRoleSelectors": [
+        {"matchLabels": {"saf-k8s.example/aggregate-to-case": "retired"}}
+    ]}})
+    approved_selector = role(lab, AGGREGATE)["aggregationRule"]
+    before_guard = lab.kubectl(
+        "patch", "clusterrole", AGGREGATE, "--type=merge", "-p", selector_patch,
+        "--dry-run=server", "-o", "json", allow_failure=True,
+    )
+    dry_run_selector = json.loads(before_guard.stdout).get("aggregationRule") if not before_guard.returncode else None
+    lab.check(
+        "red", "Before selector protection, a server dry-run accepts the proposed selector change",
+        dry_run_selector is not None and dry_run_selector != approved_selector,
+        {"candidate_selector": dry_run_selector, "approved_selector": approved_selector},
+    )
+
     lab.apply(HERE / "admission-policy.yaml")
     rejected_metadata = expect_policy(lab, unapproved)
     lab.check("green", "Policy denies the same subject's unapproved metadata update",
               denied(rejected_metadata), {"exact_policy_denial": denied(rejected_metadata)})
+
+    rejected_selector = lab.kubectl(
+        "patch", "clusterrole", AGGREGATE, "--type=merge", "-p", selector_patch,
+        "--dry-run=server", "-o", "json", allow_failure=True,
+    )
+    retained_selector = role(lab, AGGREGATE).get("aggregationRule")
+    exact_denial = (
+        rejected_selector.returncode != 0 and "(Forbidden)" in rejected_selector.stderr
+        and SELECTOR_GUARD in rejected_selector.stderr
+    )
+    lab.check(
+        "green", "The admission policy rejects that exact selector change and the approved selector is retained",
+        exact_denial and retained_selector == approved_selector,
+        {"selector_protection_denied": exact_denial, "retained_selector": retained_selector},
+    )
 
     approved = {
         "metadata": {

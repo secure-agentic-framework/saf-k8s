@@ -34,6 +34,13 @@ spec:
          request.userInfo.username == 'system:serviceaccount:saf-0401-003:saf-0401-003-subject')
       message: "synthetic aggregate input requires the exact SAF-K8S-0401-003 owner, signed-off metadata, and subject"
       reason: Forbidden
+    - expression: >-
+        object.metadata.name != 'saf-0401-003-synthetic-aggregate' ||
+        oldObject == null ||
+        (has(object.aggregationRule) && has(oldObject.aggregationRule) &&
+         object.aggregationRule == oldObject.aggregationRule)
+      message: "synthetic aggregate selector requires an approved policy rotation"
+      reason: Forbidden
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingAdmissionPolicyBinding

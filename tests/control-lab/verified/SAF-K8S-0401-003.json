@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0401-003",
-  "catalog_revision": "3e55e75211d64e0b66762ad2930127f06d59fa0f",
-  "catalog_sha256": "aefc685b3b821305b42ce28f3c1614edc0bed7ccef3e0ffa1004fa9e0cfc902c",
+  "catalog_revision": "dec412f3ca950f6e603e4a25ed86917e63b74964",
+  "catalog_sha256": "d349202ee2a53ae35fd3d0b6c36098d2d5cc45a51aa71fbf557812fcda78d4a0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "26b47cbc081758ddd3c9d0d93e26293a119c2390a4e33ca013970c0e33b10f9e",
-  "scope": "Kubernetes v1.36.1 validating admission for fixture ClusterRole updates and matching contributors, followed by live ClusterRole aggregation into a case-owned aggregate role. Only get on a case-owned ConfigMap is exercised by an independent consumer through a namespace RoleBinding. A labeled CRD alone does not contribute rules. Built-in roles, other aggregate selectors, deployments, and production policy are not tested.",
-  "cluster": "saf-lab-98c190b8ccce",
+  "scope": "Kubernetes v1.36.1 validating admission for fixture ClusterRole updates and matching contributors, enforced selector stability, followed by live ClusterRole aggregation into a case-owned aggregate role. Only get on a case-owned ConfigMap is exercised by an independent consumer through a namespace RoleBinding. A labeled CRD alone does not contribute rules. Built-in roles, other aggregate selectors, deployments, and production policy are not tested.",
+  "cluster": "saf-lab-1914a606df80",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -54,11 +54,53 @@
       "observed": "server dry-run accepted the unapproved metadata change"
     },
     {
+      "phase": "red",
+      "claim": "Before selector protection, a server dry-run accepts the proposed selector change",
+      "matched": true,
+      "observed": {
+        "candidate_selector": {
+          "clusterRoleSelectors": [
+            {
+              "matchLabels": {
+                "saf-k8s.example/aggregate-to-case": "retired"
+              }
+            }
+          ]
+        },
+        "approved_selector": {
+          "clusterRoleSelectors": [
+            {
+              "matchLabels": {
+                "saf-k8s.example/aggregate-to-case": "approved"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
       "phase": "green",
       "claim": "Policy denies the same subject's unapproved metadata update",
       "matched": true,
       "observed": {
         "exact_policy_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The admission policy rejects that exact selector change and the approved selector is retained",
+      "matched": true,
+      "observed": {
+        "selector_protection_denied": true,
+        "retained_selector": {
+          "clusterRoleSelectors": [
+            {
+              "matchLabels": {
+                "saf-k8s.example/aggregate-to-case": "approved"
+              }
+            }
+          ]
+        }
       }
     },
     {
