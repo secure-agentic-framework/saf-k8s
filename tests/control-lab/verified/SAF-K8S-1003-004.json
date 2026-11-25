@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1003-004",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "d8d9feebb2ada4a3289df3259d2e3bf49ca1ab21",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "45775658ceee3763e8fa28984db673a5697cf40a85d04dfea2a1f608409796c8",
   "scope": "Disposable Kind v1.36.1 Jobs validate three selected Containers technique records against pinned MITRE v20.1 metadata and case-owned synthetic event and mitigation artifacts. The validator checks accountable gaps and rejects unsupported deployment claims. Full-matrix assessment and operational coverage require separate evidence.",
-  "cluster": "saf-lab-61e76ca0eb1d",
+  "cluster": "saf-lab-cb4bff6b1774",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
