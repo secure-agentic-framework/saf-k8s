@@ -19,3 +19,15 @@ evidence across execution and storage stages.
 
 - [Tagged Kubernetes v1.36.1 Job controller](https://github.com/kubernetes/kubernetes/blob/v1.36.1/pkg/controller/job/job_controller.go#L1768-L1772)
 - [Kubernetes v1.36 Jobs](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/job/)
+
+## Adopter verification
+
+1. Inventory the actual pipeline stage APIs, expected owned Jobs, Pods,
+   artifacts and storage references from an independent source.
+2. Check stage labels in the exact submitted workload templates and in
+   their generated child resources. Reconcile label ownership and
+   drift using the selected controllers and namespaces.
+3. Compare selector-based discovery with the expected full inventory.
+   Verify that missing, misplaced or conflicting labels produce a finding.
+4. Record every stage, artifact and exception with the responsible
+   owner, periodic review cadence and evidence source.
