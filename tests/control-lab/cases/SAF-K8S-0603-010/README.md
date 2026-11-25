@@ -13,3 +13,15 @@ independently retrieves the same image and signed SBOM through the local registr
 Production SBOM completeness, signer governance, registry compatibility,
 and deployment coverage require separate evidence.
 [Registry attachment test](registry-referrers/README.md).
+
+## Adopter verification
+
+1. For each deployed platform manifest or index, record the exact promoted
+   digest, SBOM generator and version, package inventory source, signer, and
+   trust policy.
+2. Verify the signed SBOM subject equals the digest actually promoted and
+   that the registry attachment is retrievable and retained with that digest.
+3. Demonstrate rejection of a validly signed SBOM for another digest and
+   document multi-architecture selection, retention, and rollback behavior.
+
+Open child: `saf-lab-0603-010.2`. Native receipt: 10 checks.
