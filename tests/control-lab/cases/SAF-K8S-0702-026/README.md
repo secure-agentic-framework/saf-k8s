@@ -20,3 +20,10 @@ The separate [label propagation](../SAF-K8S-0702-027/README.md) and
 
 - [Kubernetes v1.36 ConfigMaps](https://v1-36.docs.kubernetes.io/docs/concepts/configuration/configmap/)
 - [Kubernetes v1.36 Jobs](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/job/)
+
+## Adopter verification
+
+1. Produce the organization-approved taxonomy with named owner, approver, version, effective date, review interval, data categories, synonyms, and handling rule for each category.
+2. Demonstrate that ETL, preprocessing, feature engineering, training, checkpoint, and serving stages use the same approved version or a documented compatible version.
+3. Retain versioned approval and change history. Verify consumers resolve the chosen revision and that prior definitions remain available where records or reproducibility require them.
+4. Link the approved production taxonomy and stage coverage evidence to the in-cluster consumer proof. The synthetic categories only validate structure; they do not define the organization's classification values.
