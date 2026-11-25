@@ -13,3 +13,12 @@ authority, and production enforcement separately.
 
 - [Git hooks](https://git-scm.com/docs/githooks)
 - [Kubernetes ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
+
+## Verify an adopting implementation
+
+Enumerate every write and promotion path, including
+mirrors, bots, generated artifacts, and direct deployment credentials. For
+each path, retain policy/configuration and an inert marker denial showing no
+state change, followed by an approved benign promotion. Record scanner rule
+coverage, bypass controls, exception owner/expiry, and correlated audit
+evidence. Link workload admission and pipeline gates separately.
