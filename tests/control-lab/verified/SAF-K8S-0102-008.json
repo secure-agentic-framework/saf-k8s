@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0102-008",
-  "catalog_revision": "37034ddbba9f4625e5eb8e70199252709b8babb6",
-  "catalog_sha256": "a5934b5ab1bbc78eab30866af7e007083d3f432260692fb405d3e51ea78c8630",
+  "catalog_revision": "3e05910b8991dcc3cccefeacc7d8589b29ff12ec",
+  "catalog_sha256": "1c78a76489ca604a14fdf3824565e4bcb568f55832e793e78fa752772ba60eab",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9de85f348b60cbc8a95f8e148a4f2047cb64033903e42d8bb9797b35d35196f9",
-  "scope": "One synthetic ConfigMap on kind v1.36.1 with etcd v3.6.8. Use a detached local integrity manifest, reject a truncated artifact and a different valid snapshot, then restore with revision bump into a Docker container with no network. Read only the exact synthetic marker. Deployed backup custody and controller recovery require separate evidence.",
-  "cluster": "saf-lab-ec2234ee43ff",
+  "scope": "One synthetic ConfigMap on kind v1.36.1 with etcd v3.6.8. Use a detached local integrity manifest, reject a truncated artifact and a different valid snapshot, then restore with revision bump into a Docker container with no network. Read only the exact synthetic value bytes. Deployed backup custody and controller recovery require separate evidence.",
+  "cluster": "saf-lab-22a6fc7b99c0",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -53,7 +53,7 @@
       "matched": true,
       "observed": {
         "mismatch": true,
-        "restore_attempted": false
+        "restore_call_count": 0
       }
     },
     {
@@ -63,7 +63,7 @@
       "observed": {
         "native_snapshot_readable": true,
         "digest_mismatch": true,
-        "restore_attempted": false
+        "restore_call_count": 0
       }
     },
     {
@@ -88,6 +88,15 @@
       "observed": {
         "revision_bumped": true,
         "old_revision_compacted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Only the trusted artifact reached the native restore",
+      "matched": true,
+      "observed": {
+        "restore_call_count": 1,
+        "trusted_artifact_accepted": true
       }
     }
   ]

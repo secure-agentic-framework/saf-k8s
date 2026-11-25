@@ -23,7 +23,7 @@ SCOPE = (
     "One synthetic ConfigMap on kind v1.36.1 with etcd v3.6.8. Use a detached local "
     "integrity manifest, reject a truncated artifact and a different valid snapshot, "
     "then restore with revision bump into a Docker container with no network. Read only "
-    "the exact synthetic marker. Deployed backup custody and controller recovery require "
+    "the exact synthetic value bytes. Deployed backup custody and controller recovery require "
     "separate evidence."
 )
 
@@ -70,7 +70,7 @@ def native_status(lab, mount, filename):
     return int(json.loads(result.stdout)["revision"])
 
 
-def restore(lab, mount, name, artifact, original_revision):
+def restore(lab, mount, name, artifact, original_revision, expected_value):
     node = f"{lab.cluster}-recovery"
     if quiet(lab, ["docker", "container", "inspect", node]).returncode == 0:
         lab.block("The recovery container name is already in use")
@@ -107,8 +107,8 @@ def restore(lab, mount, name, artifact, original_revision):
         observed = json.loads(result.stdout)
         records = observed.get("kvs", [])
         restored = (
-            len(records) == 1 and base64.b64decode(records[0]["key"]).decode() == FIXTURE_KEY
-            and MARKER in base64.b64decode(records[0]["value"], validate=True)
+            len(records) == 1 and base64.b64decode(records[0]["key"], validate=True).decode() == FIXTURE_KEY
+            and base64.b64decode(records[0]["value"], validate=True) == expected_value
         )
         lab.check("positive", "Restored etcd returns the unchanged synthetic fixture",
                   restored, restored)
@@ -120,6 +120,39 @@ def restore(lab, mount, name, artifact, original_revision):
                   bumped and compacted, {"revision_bumped": bumped, "old_revision_compacted": compacted})
     finally:
         lab.command("docker", "rm", "-f", node)
+
+
+def capture_fixture_value(lab, etcd):
+    """Read the exact value bytes for the one case-owned synthetic key."""
+    tls = [
+        "--endpoints=https://127.0.0.1:2379", "--cacert=/etc/kubernetes/pki/etcd/ca.crt",
+        "--cert=/etc/kubernetes/pki/etcd/server.crt", "--key=/etc/kubernetes/pki/etcd/server.key",
+    ]
+    result = quiet(lab, [
+        "kubectl", "--kubeconfig", str(lab.kubeconfig), "--context", f"kind-{lab.cluster}",
+        "--request-timeout=15s", "-n", "kube-system", "exec", etcd, "-c", "etcd", "--",
+        "etcdctl", *tls, "get", FIXTURE_KEY, "--write-out=json",
+    ])
+    if result.returncode:
+        lab.block("The isolated exact-key baseline could not be read")
+    records = json.loads(result.stdout).get("kvs", [])
+    if (len(records) != 1 or base64.b64decode(records[0].get("key", ""), validate=True).decode()
+            != FIXTURE_KEY):
+        lab.block("Could not capture exactly the case-owned synthetic etcd key")
+    value = base64.b64decode(records[0].get("value", ""), validate=True)
+    if MARKER not in value:
+        lab.block("The case-owned etcd key does not contain the expected synthetic marker")
+    return value
+
+
+def restore_if_trusted(lab, mount, name, artifact, expected_digest, original_revision,
+                       expected_value, restore_calls):
+    """One restore gate for both rejected artifacts and the accepted snapshot."""
+    if sha256(artifact) != expected_digest:
+        return False
+    restore_calls.append(artifact.name)
+    restore(lab, mount, name, artifact.name, original_revision, expected_value)
+    return True
 
 
 def run(lab):
@@ -134,6 +167,8 @@ def run(lab):
         lab.block("Expected the pinned Kubernetes v1.36.1 etcd profile")
 
     lab.apply(Path(__file__).with_name("fixture.yaml"))
+    expected_value = capture_fixture_value(lab, etcd)
+    restore_calls = []
     with tempfile.TemporaryDirectory(prefix="saf-etcd-integrity-") as temp:
         root = Path(temp).resolve()
         staging = root / "staging"
@@ -160,8 +195,12 @@ def run(lab):
         with damaged.open("r+b") as artifact:
             artifact.truncate(damaged.stat().st_size // 2)
         mismatch = sha256(damaged) != expected
+        damaged_restore = restore_if_trusted(
+            lab, mount, "saf-recovery-damaged", damaged, expected, revision,
+            expected_value, restore_calls)
         lab.check("red", "Offline truncation fails the trusted digest check before restore",
-                  mismatch, {"mismatch": mismatch, "restore_attempted": False})
+                  mismatch and not damaged_restore and len(restore_calls) == 0,
+                  {"mismatch": mismatch, "restore_call_count": len(restore_calls)})
 
         lab.kubectl("patch", "configmap", FIXTURE, "--type=merge",
                     "-p", '{"data":{"marker":"alternate-synthetic-snapshot"}}')
@@ -169,13 +208,21 @@ def run(lab):
         snapshot(lab, etcd, alternate)
         valid_other = native_status(lab, mount, alternate.name) is not None
         different = sha256(alternate) != expected
+        alternate_restore = restore_if_trusted(
+            lab, mount, "saf-recovery-alternate", alternate, expected, revision,
+            expected_value, restore_calls)
         lab.check("red", "A different valid snapshot still fails the trusted digest check",
-                  valid_other and different, {"native_snapshot_readable": valid_other,
-                                              "digest_mismatch": different, "restore_attempted": False})
+                  valid_other and different and not alternate_restore and len(restore_calls) == 0,
+                  {"native_snapshot_readable": valid_other, "digest_mismatch": different,
+                   "restore_call_count": len(restore_calls)})
 
         staged_match = sha256(stored) == trust.read_text(encoding="ascii")
         staged_revision = native_status(lab, mount, stored.name)
         lab.check("green", "The staged snapshot passes the trusted reference and native inspection before restore",
                   staged_match and staged_revision == revision,
                   {"matches": staged_match, "same_revision": staged_revision == revision})
-        restore(lab, mount, "saf-recovery", stored.name, revision)
+        accepted = restore_if_trusted(
+            lab, mount, "saf-recovery", stored, expected, revision, expected_value, restore_calls)
+        lab.check("positive", "Only the trusted artifact reached the native restore",
+                  accepted and restore_calls == [stored.name],
+                  {"restore_call_count": len(restore_calls), "trusted_artifact_accepted": accepted})
