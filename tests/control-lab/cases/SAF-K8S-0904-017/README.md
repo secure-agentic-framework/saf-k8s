@@ -26,3 +26,7 @@ fleet rollout require separate evidence.
 
 - [Kubernetes v1.36 dynamic admission control](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/)
 - [Argo Workflows v3.7.6 WorkflowTemplate CRD](https://github.com/argoproj/argo-workflows/blob/v3.7.6/manifests/base/crds/minimal/argoproj.io_workflowtemplates.yaml)
+
+## Verify an adopting implementation
+
+Identify every production pipeline definition kind and admission path. Enforce signatures over the complete canonical spec and object identity. Verify signing-key custody, trusted signer rotation/revocation, freshness policy, controller execution path, and that mutation with an old signature is denied. The fixture tests Kubernetes admission for WorkflowTemplate objects with a local Ed25519 key and no Argo controller.
