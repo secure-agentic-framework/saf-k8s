@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0102-006",
-  "catalog_revision": "8a2e4993302c08a93f2094440c015e832d865ec7",
-  "catalog_sha256": "5f2ee9cc6d0aa7b2009df54cb7c958b99e0be0197aa4e522ca5344bc55625e51",
+  "catalog_revision": "182e27976e21faaf128557f20fc9b42a74f0e58c",
+  "catalog_sha256": "044bf7085d167e0cebc119fadb5265399823a05a596346af59f25fe7dc9ad3a6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "f121308c9a8db57aea8885107b94affe4e07bf05a87698bce6b16d612df92bab",
   "scope": "Native Secretbox key rotation for a dedicated custom resource on one disposable Kubernetes API server.",
-  "cluster": "saf-lab-3ed1d363179a",
+  "cluster": "saf-lab-e8c2d9d88c8d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -65,14 +65,45 @@
     },
     {
       "phase": "positive",
-      "claim": "The exact API rewrite migrates the old record and both markers remain readable after retirement",
+      "claim": "Rollback restores the old write key while retaining reads for both key generations",
+      "matched": true,
+      "observed": {
+        "fresh_rollback_write": {
+          "label": "fixture-old-key",
+          "marker_visible": false
+        },
+        "readable": {
+          "pre-rotation": true,
+          "post-rotation": true,
+          "rollback-write": true
+        },
+        "stored_envelopes": {
+          "pre-rotation": {
+            "label": "fixture-old-key",
+            "marker_visible": false
+          },
+          "post-rotation": {
+            "label": "fixture-new-key",
+            "marker_visible": false
+          },
+          "rollback-write": {
+            "label": "fixture-old-key",
+            "marker_visible": false
+          }
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The API rewrite migrates both old-key records and all three markers remain readable after retirement",
       "matched": true,
       "observed": {
         "rewrite_observed": true,
         "only_current_key_configured": true,
         "retained": {
           "pre-rotation": true,
-          "post-rotation": true
+          "post-rotation": true,
+          "rollback-write": true
         }
       }
     }

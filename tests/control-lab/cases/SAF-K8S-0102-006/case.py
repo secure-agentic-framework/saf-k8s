@@ -16,7 +16,8 @@ RESOURCE = f"rotationmarkers.{GROUP}"
 CONFIG_DIR = "/etc/kubernetes/saf-rotation-fixture"
 OLD = "fixture-old-key"
 NEW = "fixture-new-key"
-MARKERS = {"pre-rotation": "fixture-public-before", "post-rotation": "fixture-public-after"}
+MARKERS = {"pre-rotation": "fixture-public-before", "post-rotation": "fixture-public-after",
+           "rollback-write": "fixture-public-during-rollback"}
 
 
 def key(label):
@@ -148,7 +149,6 @@ def run(lab):
     new_key = key(NEW)
     old_key = json.loads(path.read_text())["resources"][0]["providers"][0]["secretbox"]["keys"][0]
     write_config(path, [new_key, old_key])
-    del old_key
     restart_owned_api(lab)
     add_marker(lab, "post-rotation")
     prior = stored(lab, "pre-rotation")
@@ -158,17 +158,44 @@ def run(lab):
               fresh == new_envelope and prior == old_envelope and prior_readable,
               {"new_write": fresh, "old_record": prior, "old_record_readable": prior_readable})
 
+    # Counterfactual rollback before migration: restore the prior key as writer,
+    # keeping the newer key available for records already written during rotation.
+    write_config(path, [old_key, new_key])
+    restart_owned_api(lab)
+    add_marker(lab, "rollback-write")
+    rollback = stored(lab, "rollback-write")
+    rollback_reads = {name: readable(lab, name) for name in ("pre-rotation", "post-rotation", "rollback-write")}
+    rollback_envelopes = {name: stored(lab, name) for name in ("pre-rotation", "post-rotation", "rollback-write")}
+    rollback_ok = (rollback == old_envelope and all(rollback_reads.values()) and
+                   rollback_envelopes == {"pre-rotation": old_envelope,
+                                          "post-rotation": new_envelope,
+                                          "rollback-write": old_envelope})
+    lab.check("positive", "Rollback restores the old write key while retaining reads for both key generations",
+              rollback_ok, {"fresh_rollback_write": rollback, "readable": rollback_reads,
+                            "stored_envelopes": rollback_envelopes})
+
+    # Resume the forward path with the new writer before exact migration/retirement.
+    write_config(path, [new_key, old_key])
+    restart_owned_api(lab)
+    resumed = {name: readable(lab, name) for name in ("pre-rotation", "post-rotation", "rollback-write")}
+    if not all(resumed.values()):
+        lab.block("The forward rotation could not resume with all owned records readable")
+    del old_key
+
     lab.kubectl("annotate", RESOURCE, "pre-rotation", "fixture.example/rotation=migrated")
-    migrated = stored(lab, "pre-rotation") == new_envelope
+    lab.kubectl("annotate", RESOURCE, "rollback-write", "fixture.example/rotation=migrated")
+    migrated = all(stored(lab, name) == new_envelope for name in ("pre-rotation", "rollback-write"))
     if not migrated:
         lab.block("The old fixture must be migrated before retaining only the current read key")
     write_config(path, [new_key])
     del new_key
     restart_owned_api(lab)
     retained = {name: readable(lab, name) and stored(lab, name) == new_envelope for name in MARKERS}
-    lab.check("positive", "The exact API rewrite migrates the old record and both markers remain readable after retirement",
+    lab.check("positive", "The API rewrite migrates both old-key records and all three markers remain readable after retirement",
               all(retained.values()), {"rewrite_observed": migrated, "only_current_key_configured": True, "retained": retained})
     (lab.evidence / "etcd-key-rotation-observations.json").write_text(json.dumps({
-        "old_envelope": first, "new_write_envelope": fresh, "migration_verified": migrated,
+        "old_envelope": first, "new_write_envelope": fresh, "rollback_write_envelope": rollback,
+        "rollback_verified": rollback_ok, "resumed_forward_rotation": resumed,
+        "migration_verified": migrated,
         "after_retirement": retained, "provider_kms_tested": False,
     }, indent=2) + "\n")
