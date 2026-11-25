@@ -28,3 +28,10 @@ protection require separate evidence.
 
 - [SeaweedFS 4.53 S3 upload implementation](https://github.com/seaweedfs/seaweedfs/blob/4.53/weed/s3api/s3api_object_handlers_put.go)
 - [SeaweedFS 4.53 embedded server configuration](https://github.com/seaweedfs/seaweedfs/blob/4.53/weed/command/mini.go)
+
+## Adopter verification
+
+1. Inventory the actual artifact stores, versions, encryption-at-rest configuration, keys and access identities for intermediate data and model artifacts.
+2. Verify key custody, rotation/revocation and policy permissions with an approved synthetic object; test anonymous/unapproved denial and approved identity access.
+3. Trace pipeline context and TLS through transfer, then inspect provider evidence for durable data, backups, restore and replica coverage.
+4. Separate SeaweedFS fixture results from the deployed object-store encryption and IAM proof.
