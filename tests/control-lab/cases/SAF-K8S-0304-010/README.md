@@ -61,3 +61,10 @@ private kubelet plugin socket and synthetic markers.
 - [Kubernetes v1.36 validating admission](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
 - [Kubernetes v1.36 device plugins](https://v1-36.docs.kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/)
 - [European Commission Article 13 text](https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-13)
+
+## Adopter resource and accelerator verification
+
+1. For each governed workload and rendered revision, retain raw authored manifests and admitted Pod specs. Verify every regular and init container has approved CPU, memory and ephemeral-storage requests and limits. Identify namespace defaults and exemptions. Kubernetes may copy limits into absent requests. Check the authored template to verify the declaration.
+2. Compare approved quantities with measured representative workload demand, node allocatable capacity, system reservations, Pod overhead and scheduling headroom. Record CPU throttling and memory limit behavior from the actual runtime. Establish local ephemeral-storage accounting and eviction behavior for the deployed kubelet, filesystem layout and disk-backed `emptyDir` use. Keep node pressure and per-Pod limit eviction as separate outcomes.
+3. For accelerator workloads, capture the actual resource key and device-plugin/driver/runtime versions, node inventory, scheduler assignment, admitted request, device allocation and a safe application smoke result on supported hardware. Verify physical device support using the approved smoke workload on that device.
+4. Retain workload and node-profile identity, measurement window, policy revision, admitted fields, runtime/cgroup or kubelet observations, scheduling/eviction events, and exceptions with owners and expiry. Recheck after node image, filesystem, kubelet, admission, driver or workload changes. Do not include workload secrets or unrelated process data.
