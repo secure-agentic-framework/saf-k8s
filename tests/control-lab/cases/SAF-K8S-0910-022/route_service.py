@@ -11,6 +11,7 @@ import identity_fixture
 OPERATIONS = {
     "spiffe://saf.test/ns/saf-test/sa/fixture-signed-caller": "/v1/gradient/shard-a",
     "spiffe://saf.test/ns/saf-test/sa/fixture-other-caller": "/v1/gradient/shard-b",
+    "spiffe://saf.test/ns/saf-test/sa/fixture-network-unapproved": "/v1/gradient/shard-a",
 }
 BODY = b'{"synthetic":"gradient-shard"}'
 

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0910-022",
-  "catalog_revision": "32586089a2ae1e085c967e173f21bc9bf3a1343d",
-  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
+  "catalog_revision": "33a9b0c71c48a18b94b691c61b47069c959d7785",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "ac6a1d91b91e8d4a016ea04a5aa9d22b6f59f0b73988f7819b64e67e5541fe8f",
-  "scope": "Two actual Kind API servers and one case-owned route. Both clients authenticate with distinct fixture certificates and exercise both operations before and after the exact route policy. The destination's own application log independently records each governed decision. The fixture covers these two operations and does not claim production mesh or RBAC coverage.",
-  "cluster": "saf-lab-f482b2444b3a",
+  "scope": "Two actual Kind API servers and one case-owned route. Both clients authenticate with distinct fixture certificates and exercise both operations before and after the exact route policy. The destination's own application log independently records each governed decision. The fixture adds source-cluster egress policy over the exact private peer node IP and dynamic NodePort. It does not infer or match the NodePort-observed source address and does not claim production CNI coverage.",
+  "cluster": "saf-lab-12b929f4bb4f",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -38,6 +38,128 @@
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
+    {
+      "phase": "positive",
+      "claim": "Source cluster reports pinned Kind/Kubernetes versions and the kindnet daemonset",
+      "matched": true,
+      "observed": {
+        "kind_version": "kind v0.32.0 go1.26.3 darwin/arm64",
+        "kubernetes_version": "v1.36.1",
+        "kindnet_images": [
+          "docker.io/kindest/kindnetd:v20260528-9350166c"
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The exact private peer NodePort route works for authenticated source Pods before default deny",
+      "matched": true,
+      "observed": {
+        "source_replies": [
+          {
+            "body": {
+              "caller": "spiffe://saf.test/ns/saf-test/sa/fixture-signed-caller",
+              "decision": "accepted",
+              "operation": "/v1/gradient/shard-a"
+            },
+            "status": 200,
+            "tls": "TLSv1.3"
+          },
+          {
+            "body": {
+              "caller": "spiffe://saf.test/ns/saf-test/sa/fixture-other-caller",
+              "decision": "accepted",
+              "operation": "/v1/gradient/shard-a"
+            },
+            "status": 200,
+            "tls": "TLSv1.3"
+          },
+          {
+            "body": {
+              "caller": "spiffe://saf.test/ns/saf-test/sa/fixture-network-unapproved",
+              "decision": "accepted",
+              "operation": "/v1/gradient/shard-a"
+            },
+            "status": 200,
+            "tls": "TLSv1.3"
+          }
+        ],
+        "destination_events": [
+          {
+            "caller": "spiffe://saf.test/ns/saf-test/sa/fixture-signed-caller",
+            "decision": "accepted",
+            "mode": "baseline",
+            "operation": "/v1/gradient/shard-a",
+            "status": 200
+          },
+          {
+            "caller": "spiffe://saf.test/ns/saf-test/sa/fixture-other-caller",
+            "decision": "accepted",
+            "mode": "baseline",
+            "operation": "/v1/gradient/shard-a",
+            "status": 200
+          },
+          {
+            "caller": "spiffe://saf.test/ns/saf-test/sa/fixture-network-unapproved",
+            "decision": "accepted",
+            "mode": "baseline",
+            "operation": "/v1/gradient/shard-a",
+            "status": 200
+          }
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Default-deny egress blocks the previously working cross-cluster route before the peer application receives requests",
+      "matched": true,
+      "observed": {
+        "source_replies": [
+          {
+            "status": "route-unavailable"
+          },
+          {
+            "status": "route-unavailable"
+          },
+          {
+            "status": "route-unavailable"
+          }
+        ],
+        "destination_events_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact peer node IP and NodePort are restored only for reviewed source Pods; the other source remains denied",
+      "matched": true,
+      "observed": {
+        "allowed_sources": [
+          {
+            "body": {
+              "caller": "spiffe://saf.test/ns/saf-test/sa/fixture-signed-caller",
+              "decision": "accepted",
+              "operation": "/v1/gradient/shard-a"
+            },
+            "status": 200,
+            "tls": "TLSv1.3"
+          },
+          {
+            "body": {
+              "caller": "spiffe://saf.test/ns/saf-test/sa/fixture-other-caller",
+              "decision": "accepted",
+              "operation": "/v1/gradient/shard-a"
+            },
+            "status": 200,
+            "tls": "TLSv1.3"
+          }
+        ],
+        "unapproved_source": {
+          "status": "route-unavailable"
+        },
+        "exact_observed_peer_ipv4_and_nodeport_policy": true,
+        "only_approved_source_events": true
+      }
+    },
     {
       "phase": "red",
       "claim": "Each authenticated caller can reach both operations before route scoping",
