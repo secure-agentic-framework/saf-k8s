@@ -13,3 +13,7 @@ The disposable kind v0.32.0 cluster runs Kubernetes v1.36.1 and bundled kindnet.
 - The approved gateway can reach the inference Pod, and the client outside the gateway namespace is denied.
 
 The fixture uses synthetic listeners. Deployed verification needs actual NCCL listening ports and transport, governed label assignments, parameter-server traffic, external registry allowlists, and gateway and storage paths. [Kubernetes NetworkPolicy](https://v1-36.docs.kubernetes.io/docs/concepts/services-networking/network-policies/) · [Pinned kindnet policy engine](https://raw.githubusercontent.com/kubernetes-sigs/kube-network-policies/f67f0fb35e2b/pkg/networkpolicy/networkpolicy.go) · [NVIDIA NCCL networking](https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/troubleshooting/networking_troubleshooting.html)
+
+## Verify an adopting implementation
+
+Record the deployed NCCL version, selected transport, measured listener ports and representative training job identity from approved platform inventory and telemetry. Review the effective NetworkPolicy union and CNI release for each training, registry, storage and inference path; verify endPort semantics and who may set governed labels. Use an authorized deployment canary to check allowed same-job traffic, denied neighboring-job traffic, approved registry/storage destinations and gateway-only inference ingress. Retain CNI policy/version snapshots, endpoint and flow observations, exception approvals, and change ownership; document hostname-aware enforcement when registry policy uses FQDNs.
