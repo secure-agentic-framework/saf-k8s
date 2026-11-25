@@ -7,3 +7,12 @@ The ungoverned baseline accepts an alternate model and emits a different vector.
 Independently verify production signer authorization, custody and revocation, policy selection, transparency requirements, parser coverage, and approved reproducibility tolerances across the supported runtime and hardware.
 
 [Sigstore signature verification](https://docs.sigstore.dev/cosign/verifying/verify/) · [NIST Secure Hash Standard](https://csrc.nist.gov/pubs/fips/180-4/upd1/final)
+
+## Verify an adopting implementation
+
+Verify production signer authorization, exact subject digest binding,
+trusted key distribution, revocation/transparency policy and supported
+parser/runtime path. Demonstrate signature and digest failures stop model
+initialization before inference, and compare an approved synthetic vector.
+The fixture uses Cosign verification and a fixed UTF-8 toy model. It does
+not prove real model quality or reproducibility across hardware.
