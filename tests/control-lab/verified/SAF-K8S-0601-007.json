@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0601-007",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "459f26d31442aee0a7f68a28bd0b461c45fd1e3b",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "982b6524729f4c3ebd0997559a3d3728c219b99bb01ef4303e484e65aad33cba",
   "scope": "Offline synthetic test of one digest-pinned inert CUDA/PyTorch base identity. A locally HMAC-authenticated synthetic approval record binds that digest to a GPU/framework profile and curation assertions; a Kubernetes ValidatingAdmissionPolicy then admits only that exact image and evidence metadata in the runner's saf-test namespace. The approved pinned BusyBox fixture runs under the configured policy. Negative requests use server-side dry-run. GPU, driver and framework compatibility, trusted production signers and release coverage remain unverified deployment scope.",
-  "cluster": "saf-lab-03fa9aaa86fa",
+  "cluster": "saf-lab-8321d76356f1",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
