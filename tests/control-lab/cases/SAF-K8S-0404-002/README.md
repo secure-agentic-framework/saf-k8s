@@ -58,6 +58,27 @@ receiver. Verify the deployed list of possible negotiated suites and
 endpoints against the adopter's approval policy. If the provider does
 not disclose a path, retain its disposition and evidence request.
 
+## Aggregated API serving leaf transition
+
+The test issues a distinct serving certificate under the fixture's approved CA
+with the same Kubernetes Service DNS SAN. It starts the successor behind that
+Service, waits for the two exact Ready Pod endpoints, and withdraws the
+original Pod from the Service through its fixture label. The original Pod
+remains available for rollback. The APIService group, version, Service
+identity, port and trust remain fixed.
+
+The native aggregation route returns the expected marker both before and
+after the endpoint switch. Receipt assertions bind the operation to the exact
+serving Pod UID and loaded public certificate fingerprint, attest to TLS 1.3,
+and verify an ordinary API read. Rollback reselects the original Pod, removes
+the successor, and verifies the original leaf through the same route.
+
+For an adopted APIService, identify the issuer, accepted service name, exact
+ready endpoints, lifecycle owner, and the configured reload or rollout.
+Rehearse with approved trust and record actual served identity, availability,
+and rollback for each governed replica. The case covers one controlled
+same-CA transition through the API aggregation layer.
+
 - [Kubernetes v1.36 validating webhooks](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/)
 - [Kubernetes v1.36 aggregation layer](https://v1-36.docs.kubernetes.io/docs/concepts/extend-kubernetes/api-extension/apiserver-aggregation/)
 - [Go 1.26.2 TLS implementation](https://github.com/golang/go/blob/go1.26.2/src/crypto/tls/cipher_suites.go)

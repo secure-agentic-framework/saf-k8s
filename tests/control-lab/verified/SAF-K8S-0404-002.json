@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0404-002",
-  "catalog_revision": "18f3b9fc0704c6476b5609b404e7a6faceda5f39",
+  "catalog_revision": "ec2ece688cf2003a78358f7b6dafe4d29647ab9b",
   "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9982d3d3098a8318200ede5025cfabe1d879510670fc51e0c7beb7d071969b23",
   "scope": "Separate native Kubernetes admission and API aggregation paths use the same case-owned HTTPS server. Actual API-server decisions distinguish trusted CA, service DNS identity, and an explicit admission denial. Workload-to-workload transports, extension-client authentication, CA reload and production trust policy need independent verification. The owned receivers require TLS 1.3 and record negotiated version and cipher for exact API-server extension calls.  A separate selector-isolated Service with no endpoints checks fail-closed API extension calls and same-route recovery without stopping workloads.",
-  "cluster": "saf-lab-d3c76b6b8e2c",
+  "cluster": "saf-lab-9c32789eeda9",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -226,6 +226,63 @@
           "cipher": "TLS_AES_256_GCM_SHA384",
           "single_profile_for_exact_operation": true
         }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The successor is a distinct public leaf under the same fixture CA",
+      "matched": true,
+      "observed": {
+        "distinct_sha256": true,
+        "same_approved_issuer": true,
+        "same_service_dns_san": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The actual aggregation route returns its marker from the original Pod and loaded leaf",
+      "matched": true,
+      "observed": {
+        "exact_api_service_and_trust": true,
+        "exact_marker": true,
+        "event_uid_matches_endpoint_pod": true,
+        "loaded_old_leaf_observed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The successor Pod is Ready and joined the exact owned Service before cutover",
+      "matched": true,
+      "observed": {
+        "successor_pod_uid_present": true,
+        "old_and_successor_endpoint_uids_present": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The unchanged API aggregation route observes the successor's loaded leaf",
+      "matched": true,
+      "observed": {
+        "exact_successor_endpoint_uid_only": true,
+        "api_service_and_ca_unchanged": true,
+        "successor_fingerprint_distinct": true,
+        "exact_marker": true,
+        "event_uid_matches_successor_pod": true,
+        "loaded_successor_leaf_observed": true,
+        "ordinary_api_read_succeeded": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The original approved-trust aggregation backend is restored and the successor is removed",
+      "matched": true,
+      "observed": {
+        "original_backend_endpoint_restored": true,
+        "successor_endpoint_removed": true,
+        "api_service_available": true,
+        "approved_ca_unchanged": true,
+        "restored_old_leaf_observed_on_route": true,
+        "original_pod_unchanged_and_reselected": true
       }
     }
   ]

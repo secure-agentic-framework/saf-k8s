@@ -1,12 +1,19 @@
 """Minimal case-owned HTTPS admission and aggregation endpoints."""
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import base64
+import hashlib
 import json
+import os
 import ssl
 from urllib.parse import parse_qs, urlsplit
 
 GROUP = "extension-fixture.saf-k8s.example"
 VERSION = GROUP + "/v1"
+with open("/tls/tls.crt", encoding="ascii") as _leaf_file:
+    LOADED_LEAF_SHA256 = hashlib.sha256(
+        ssl.PEM_cert_to_DER_cert(_leaf_file.read())
+    ).hexdigest()
+OWNED_POD_UID = os.environ.get("OWNED_POD_UID", "")
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -39,7 +46,9 @@ class Handler(BaseHTTPRequestHandler):
             if probe.startswith("fixture-availability-"):
                 print("fixture-aggregating " + json.dumps({"route": "aggregate", "probe": probe,
                                                             "tls": self.connection.version(),
-                                                            "cipher": self.connection.cipher()[0]}), flush=True)
+                                                            "cipher": self.connection.cipher()[0],
+                                                            "leaf_sha256": LOADED_LEAF_SHA256,
+                                                            "pod_uid": OWNED_POD_UID}), flush=True)
             self.answer(200, {"apiVersion": VERSION, "kind": "FixtureMarkerList", "metadata": {},
                               "items": [{"apiVersion": VERSION, "kind": "FixtureMarker",
                                          "metadata": {"name": "owned-aggregation-marker"}}]})

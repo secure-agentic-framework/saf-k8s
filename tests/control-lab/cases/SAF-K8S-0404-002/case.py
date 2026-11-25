@@ -1,7 +1,9 @@
 """Observe API-server trust validation for two distinct extension paths."""
 import base64
+import hashlib
 import json
 from pathlib import Path
+import ssl
 import time
 
 from fixtures import container, pod, ready
@@ -55,6 +57,7 @@ def endpoint(lab):
     lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": "fixture-extension-code"},
                 "data": {"extension.py": (HERE / "extension.py").read_text()}})
     unit = container("app", image=PYTHON, command=["python3", "/code/extension.py"],
+        env=[{"name": "OWNED_POD_UID", "valueFrom": {"fieldRef": {"fieldPath": "metadata.uid"}}}],
         volumeMounts=[{"name": "tls", "mountPath": "/tls", "readOnly": True},
                       {"name": "code", "mountPath": "/code", "readOnly": True}],
         readinessProbe={"tcpSocket": {"port": 8443}, "periodSeconds": 1})
@@ -67,6 +70,248 @@ def endpoint(lab):
         lab.create({"apiVersion": "v1", "kind": "Service", "metadata": {"name": service},
                     "spec": {"selector": {"app": NAME}, "ports": [{"port": 443, "targetPort": 8443}]}})
     ready(lab, NAME)
+
+
+def _leaf_sha256(cert_path):
+    pem = cert_path.read_text(encoding="ascii")
+    return hashlib.sha256(ssl.PEM_cert_to_DER_cert(pem)).hexdigest()
+
+
+def _aggregation_route_state(lab):
+    resource = json.loads(lab.kubectl("get", "apiservice", APISERVICE, "-o", "json").stdout)
+    spec = resource.get("spec", {})
+    service = spec.get("service", {})
+    available = any(row.get("type") == "Available" and row.get("status") == "True"
+                    for row in resource.get("status", {}).get("conditions", []))
+    return {
+        "group": spec.get("group"), "version": spec.get("version"),
+        "service_name": service.get("name"), "service_namespace": service.get("namespace"),
+        "service_port": service.get("port"),
+        "insecure_skip_tls_verify": spec.get("insecureSkipTLSVerify", False),
+        "ca_bundle": spec.get("caBundle"), "available": available,
+    }
+
+
+def _ready_endpoint_targets(lab):
+    items = json.loads(lab.kubectl("get", "endpointslices", "-l",
+                                   f"kubernetes.io/service-name={NAME}", "-o", "json").stdout)["items"]
+    targets = []
+    for item in items:
+        for endpoint in item.get("endpoints") or []:
+            target = endpoint.get("targetRef") or {}
+            if (endpoint.get("conditions", {}).get("ready") is True
+                    and target.get("kind") == "Pod" and target.get("namespace", NS) == NS):
+                targets.append({"name": target.get("name"), "uid": target.get("uid")})
+    return sorted(targets, key=lambda row: (row["name"] or "", row["uid"] or ""))
+
+
+def _owned_backend_pod(name, secret_name):
+    unit = container("app", image=PYTHON, command=["python3", "/code/extension.py"],
+        env=[{"name": "OWNED_POD_UID", "valueFrom": {"fieldRef": {"fieldPath": "metadata.uid"}}}],
+        volumeMounts=[{"name": "tls", "mountPath": "/tls", "readOnly": True},
+                      {"name": "code", "mountPath": "/code", "readOnly": True}],
+        readinessProbe={"tcpSocket": {"port": 8443}, "periodSeconds": 1})
+    workload = pod(name, [unit], automountServiceAccountToken=False,
+                   securityContext={"fsGroup": 65534},
+                   volumes=[{"name": "tls", "secret": {"secretName": secret_name,
+                                                               "defaultMode": 0o440}},
+                            {"name": "code", "configMap": {"name": "fixture-extension-code"}}])
+    workload["metadata"]["labels"] = {"app": NAME}
+    return workload
+
+
+def _aggregation_observation(lab, pod_name, pod_uid, probe):
+    marker_path = f"/apis/{GROUP}/v1/fixturemarkers?probe={probe}"
+    deadline = time.monotonic() + 30
+    while time.monotonic() < deadline:
+        raw = lab.kubectl("get", "--raw", marker_path, allow_failure=True, timeout=12)
+        marker_ok = False
+        if raw.returncode == 0:
+            try:
+                items = json.loads(raw.stdout).get("items", [])
+                marker_ok = [row.get("metadata", {}).get("name") for row in items] == [
+                    "owned-aggregation-marker"]
+            except (json.JSONDecodeError, TypeError, AttributeError):
+                marker_ok = False
+        logs = lab.kubectl("logs", pod_name, "--tail=100", allow_failure=True, timeout=12)
+        leaf = None
+        for line in logs.stdout.splitlines():
+            if not line.startswith("fixture-aggregating "):
+                continue
+            try:
+                row = json.loads(line.removeprefix("fixture-aggregating "))
+            except json.JSONDecodeError:
+                continue
+            if row.get("probe") == probe and row.get("route") == "aggregate":
+                leaf = row
+        if marker_ok and leaf is not None:
+            return {"marker": True, "event": leaf,
+                    "event_matches_pod_uid": leaf.get("pod_uid") == pod_uid,
+                    "tls13": leaf.get("tls") == "TLSv1.3"}
+        time.sleep(.5)
+    return {"marker": False, "event": None, "event_matches_pod_uid": False, "tls13": False}
+
+
+def check_aggregation_successor(lab, path, approved, original_ca_bundle):
+    """Replace one owned extension Pod and observe its loaded leaf through API aggregation."""
+    successor_name = "fixture-extension-successor"
+    successor_secret = "fixture-extension-successor-tls"
+    successor_key = path / "fixture-extension-successor.key"
+    successor_csr = path / "fixture-extension-successor.csr"
+    successor_cert = path / "fixture-extension-successor.crt"
+    extension_conf = path / "fixture-extension-successor.ext"
+    san = f"{NAME}.{NS}.svc"
+    extension_conf.write_text(f"subjectAltName=DNS:{san}\n"
+                              "extendedKeyUsage=serverAuth\n"
+                              "basicConstraints=critical,CA:FALSE\n")
+    lab.command("openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-subj", f"/CN={san}",
+                "-keyout", str(successor_key), "-out", str(successor_csr))
+    lab.command("openssl", "x509", "-req", "-in", str(successor_csr), "-CA", str(approved[0]),
+                "-CAkey", str(approved[1]), "-CAcreateserial", "-days", "1", "-extfile",
+                str(extension_conf), "-out", str(successor_cert))
+    original_cert = path / "fixture-service.crt"
+    lab.command("openssl", "verify", "-CAfile", str(approved[0]), "-purpose", "sslserver",
+                str(original_cert), str(successor_cert))
+    expected_san = f"DNS:{san}"
+    dns_matches = []
+    for leaf in (original_cert, successor_cert):
+        inspection = lab.command("openssl", "x509", "-in", str(leaf), "-noout", "-text").stdout
+        lines = inspection.splitlines()
+        names = [lines[index + 1].strip() for index, line in enumerate(lines[:-1])
+                 if line.strip() == "X509v3 Subject Alternative Name:"]
+        dns_matches.append(names == [expected_san])
+    same_service_san = all(dns_matches)
+    old_fingerprint = _leaf_sha256(original_cert)
+    successor_fingerprint = _leaf_sha256(successor_cert)
+    distinct_leaf = old_fingerprint != successor_fingerprint
+    lab.check("positive", "The successor is a distinct public leaf under the same fixture CA",
+              distinct_leaf and same_service_san, {"distinct_sha256": distinct_leaf,
+                              "same_approved_issuer": True,
+                              "same_service_dns_san": same_service_san})
+
+    before_route = _aggregation_route_state(lab)
+    original = json.loads(lab.kubectl("get", "pod", NAME, "-o", "json").stdout)
+    old_uid = original.get("metadata", {}).get("uid")
+    old_targets = _ready_endpoint_targets(lab)
+    old_route_exact = (before_route["group"] == GROUP and before_route["version"] == "v1"
+                       and before_route["service_name"] == NAME
+                       and before_route["service_namespace"] == NS
+                       and before_route["service_port"] == 443
+                       and before_route["insecure_skip_tls_verify"] is False
+                       and before_route["ca_bundle"] == original_ca_bundle
+                       and before_route["available"]
+                       and old_targets == [{"name": NAME, "uid": old_uid}])
+    old_probe = "fixture-availability-agg-leaf-old"
+    old_observation = _aggregation_observation(lab, NAME, old_uid, old_probe)
+    old_leaf_seen = (old_observation["marker"] and old_observation["event_matches_pod_uid"]
+                     and old_observation["tls13"]
+                     and old_observation["event"].get("leaf_sha256") == old_fingerprint)
+    lab.check("positive", "The actual aggregation route returns its marker from the original Pod and loaded leaf",
+              old_route_exact and old_leaf_seen,
+              {"exact_api_service_and_trust": old_route_exact,
+               "exact_marker": old_observation["marker"],
+               "event_uid_matches_endpoint_pod": old_observation["event_matches_pod_uid"],
+               "loaded_old_leaf_observed": old_leaf_seen})
+
+    restored = False
+    try:
+        lab.kubectl("create", "secret", "tls", successor_secret, "--key=" + str(successor_key),
+                    "--cert=" + str(successor_cert), "-o", "name")
+        lab.create(_owned_backend_pod(successor_name, successor_secret))
+        lab.kubectl("wait", "--for=condition=Ready", f"pod/{successor_name}",
+                    "--timeout=60s", timeout=70)
+        successor = json.loads(lab.kubectl("get", "pod", successor_name, "-o", "json").stdout)
+        successor_uid = successor.get("metadata", {}).get("uid")
+        deadline = time.monotonic() + 25
+        two_ready = False
+        while time.monotonic() < deadline:
+            targets = _ready_endpoint_targets(lab)
+            if ({"name": NAME, "uid": old_uid} in targets
+                    and {"name": successor_name, "uid": successor_uid} in targets):
+                two_ready = True
+                break
+            time.sleep(.5)
+        lab.check("positive", "The successor Pod is Ready and joined the exact owned Service before cutover",
+                  two_ready, {"successor_pod_uid_present": successor_uid is not None,
+                              "old_and_successor_endpoint_uids_present": two_ready})
+
+        lab.kubectl("label", "pod", NAME, f"app={NAME}-retired", "--overwrite")
+        deadline = time.monotonic() + 25
+        only_successor = False
+        while time.monotonic() < deadline:
+            if _ready_endpoint_targets(lab) == [{"name": successor_name, "uid": successor_uid}]:
+                only_successor = True
+                break
+            time.sleep(.5)
+        core = lab.kubectl("get", "namespace", NS, allow_failure=True, timeout=12)
+        new_probe = "fixture-availability-agg-leaf-successor"
+        new_observation = _aggregation_observation(lab, successor_name, successor_uid, new_probe)
+        new_leaf_seen = (new_observation["marker"] and new_observation["event_matches_pod_uid"]
+                         and new_observation["tls13"]
+                         and new_observation["event"].get("leaf_sha256") == successor_fingerprint)
+        current_route = _aggregation_route_state(lab)
+        route_preserved = (current_route["group"] == before_route["group"]
+                           and current_route["version"] == before_route["version"]
+                           and current_route["service_name"] == before_route["service_name"]
+                           and current_route["service_namespace"] == before_route["service_namespace"]
+                           and current_route["service_port"] == before_route["service_port"]
+                           and current_route["insecure_skip_tls_verify"] is False
+                           and current_route["ca_bundle"] == original_ca_bundle
+                           and current_route["available"])
+        lab.check("positive", "The unchanged API aggregation route observes the successor's loaded leaf",
+                  only_successor and route_preserved and core.returncode == 0 and new_leaf_seen
+                  and old_fingerprint != successor_fingerprint,
+                  {"exact_successor_endpoint_uid_only": only_successor,
+                   "api_service_and_ca_unchanged": route_preserved,
+                   "successor_fingerprint_distinct": old_fingerprint != successor_fingerprint,
+                   "exact_marker": new_observation["marker"],
+                   "event_uid_matches_successor_pod": new_observation["event_matches_pod_uid"],
+                   "loaded_successor_leaf_observed": new_leaf_seen,
+                   "ordinary_api_read_succeeded": core.returncode == 0})
+    finally:
+        # Put the original Ready backend back in the Service before retiring the successor.
+        try:
+            lab.kubectl("label", "pod", NAME, f"app={NAME}", "--overwrite")
+            deadline = time.monotonic() + 25
+            while time.monotonic() < deadline:
+                if {"name": NAME, "uid": old_uid} in _ready_endpoint_targets(lab):
+                    restored = True
+                    break
+                time.sleep(.5)
+        finally:
+            lab.kubectl("delete", "pod", successor_name, "--ignore-not-found=true",
+                        "--grace-period=1", "--wait=true", "--timeout=30s", timeout=40)
+            lab.kubectl("delete", "secret", successor_secret, "--ignore-not-found=true",
+                        allow_failure=True, timeout=15)
+    restored_pod = json.loads(lab.kubectl("get", "pod", NAME, "-o", "json").stdout)
+    restored_uid = restored_pod.get("metadata", {}).get("uid")
+    recovery = _aggregation_observation(lab, NAME, restored_uid,
+                                       "fixture-availability-agg-leaf-restored")
+    final_targets = _ready_endpoint_targets(lab)
+    final_route = _aggregation_route_state(lab)
+    recovery_ok = (restored and restored_uid == old_uid and recovery["marker"] and recovery["event_matches_pod_uid"]
+                   and recovery["tls13"]
+                   and recovery["event"].get("leaf_sha256") == old_fingerprint
+                   and final_targets == [{"name": NAME, "uid": restored_uid}]
+                   and final_route["available"]
+                   and final_route["ca_bundle"] == original_ca_bundle
+                   and final_route["group"] == GROUP and final_route["version"] == "v1"
+                   and final_route["service_name"] == NAME
+                   and final_route["service_namespace"] == NS
+                   and final_route["service_port"] == 443
+                   and final_route["insecure_skip_tls_verify"] is False)
+    lab.check("green", "The original approved-trust aggregation backend is restored and the successor is removed",
+              recovery_ok, {"original_backend_endpoint_restored": recovery_ok,
+                            "successor_endpoint_removed": not any(row.get("name") == successor_name
+                                                                  for row in final_targets),
+                            "api_service_available": final_route["available"],
+                            "approved_ca_unchanged": final_route["ca_bundle"] == original_ca_bundle,
+                            "restored_old_leaf_observed_on_route": recovery_ok,
+                            "original_pod_unchanged_and_reselected": restored and restored_uid == old_uid})
+    return {"old_public_leaf_sha256": old_fingerprint,
+            "successor_public_leaf_sha256": successor_fingerprint,
+            "successor_observed_on_aggregation_route": True,
+            "api_service_trust_unchanged": True}
 
 
 def webhook(service, trust):
@@ -531,11 +776,13 @@ def run(lab):
                      for row in negotiated_profiles.values())
     lab.check("positive", "Admission, aggregation, mutation and validation each record their exact TLS 1.3 cipher profile",
               profile_ok, negotiated_profiles)
+    aggregation_leaf_rotation = check_aggregation_successor(lab, path, approved, pass_ca)
     (lab.evidence / "extension-tls-observations.json").write_text(json.dumps({
         "wrong_authority": first, "wrong_endpoint_name": wrong, "correct_tls": positive, "negotiated_protocols": protocols,
         "negotiated_extension_profiles": negotiated_profiles,
         "mutating_webhook": mutating,
         "extension_unavailability_and_recovery": availability,
+        "aggregation_backend_leaf_replacement": aggregation_leaf_rotation,
     }, indent=2) + "\n")
 
 SCOPE += " The owned receivers require TLS 1.3 and record negotiated version and cipher for exact API-server extension calls. "
