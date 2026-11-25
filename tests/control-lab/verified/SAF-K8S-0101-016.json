@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0101-016",
-  "catalog_revision": "87f9b8c3a541f78796eb3ca8058e8b8c8d7dc232",
-  "catalog_sha256": "84059ed85131d0153bb153008cedec76dcd757fbcee95dd30abdca488a39e443",
+  "catalog_revision": "7f48ad49cb3df96423e927113f0dd7effa306eb8",
+  "catalog_sha256": "479dd34cbc528dfa061f5555b19fc586c71385dcacd427f88979b910e0151d5e",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6f44b4b5bec15350e936d811058ad75b95d8b1d30137c6b7ee834a5f08d49553",
-  "scope": "One case-owned local kind Kubernetes v1.36.1 control-plane. Synthetic Metadata-only ConfigMap patch events are first generated with no audit output path, then with the file backend writing to an explicitly host-mounted audit file. The case verifies exact request metadata, retains a pre-restart event, stops the owned API server container for kubelet to recreate, and verifies both retained and post-restart delivery. This tests local file visibility and restart survival only; it does not test power-loss durability, remote archival, tamper resistance, provider-managed control planes, or webhook delivery.",
-  "cluster": "saf-lab-d3144bc18cdc",
+  "scope": "One case-owned local kind Kubernetes v1.36.1 control-plane. Synthetic Metadata-only ConfigMap patch events are first generated with no audit output path, then with the file backend writing to an explicitly host-mounted audit file. The case verifies exact request metadata, retains a pre-restart event, stops the owned API server container for kubelet to recreate, and verifies both retained delivery and a size rotation after restart. This tests local file visibility and restart survival only; it does not test power-loss durability, remote archival, tamper resistance, provider-managed control planes, or webhook delivery.",
+  "cluster": "saf-lab-ba71e1fe2c04",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -80,6 +80,17 @@
         "resource": "configmaps",
         "name": "saf-audit-durable-after-restart",
         "response_code": 200
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native rotation preserves the original event and writes the new event to the active file",
+      "matched": true,
+      "observed": {
+        "exact_backup_event": true,
+        "original_not_in_active_log": true,
+        "backup_count_within_limit": true,
+        "new_event_in_active_log": true
       }
     }
   ]

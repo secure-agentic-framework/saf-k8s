@@ -22,7 +22,7 @@ kubeadmConfigPatches:
         - name: audit-log-mode
           value: blocking
         - name: audit-log-maxsize
-          value: "10"
+          value: "1"
         - name: audit-log-maxbackup
           value: "2"
       extraVolumes:
