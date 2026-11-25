@@ -8,10 +8,12 @@ TRUST_BUNDLES = run_path(str(ROOT / "case.py"))
 NODE_IMAGE = TRUST_BUNDLES["NODE_IMAGE"]
 prepare_kind = TRUST_BUNDLES["prepare_kind"]
 SCOPE = (
-    "Kubernetes v1.37.0 kind with synthetic Pods. Validate selection and live update of public "
-    "trust anchors, then authorized Pod certificate issuance, projection, and refresh under an "
-    "exactly scoped test signer. Cross-cluster exchange, peer authentication and production "
-    "authorization require independent evidence."
+    "Two runner-owned Kubernetes v1.37.0 Kind clusters on the same inspected local Kind node "
+    "network. Retain the existing trust-anchor selection and PodCertificate issuance/projection/"
+    "refresh checks. Add an exact synthetic public-root CTB exchange and an A Pod using its own "
+    "projected certificate/key to authenticate to B's private NodePort, with SNI and URI checks, "
+    "an untrusted-issuer rejection, and trusted wrong-subject denial. Private workload keys stay "
+    "in Pods. This is a local fixture, not cloud federation or production authorization evidence."
 )
 
 

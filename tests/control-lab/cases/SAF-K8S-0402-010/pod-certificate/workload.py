@@ -43,6 +43,9 @@ def inspect(bundle: bytes):
     eku_ok = ExtendedKeyUsageOID.CLIENT_AUTH in leaf.extensions.get_extension_for_class(
         x509.ExtendedKeyUsage).value
     ca_ok = ca.extensions.get_extension_for_class(x509.BasicConstraints).value.ca
+    ca_ski = ca.extensions.get_extension_for_class(x509.SubjectKeyIdentifier).value
+    leaf_aki = leaf.extensions.get_extension_for_class(x509.AuthorityKeyIdentifier).value
+    leaf_usage = leaf.extensions.get_extension_for_class(x509.KeyUsage).value
     signature_ok = leaf.issuer == ca.subject
     try:
         ca.public_key().verify(leaf.signature, leaf.tbs_certificate_bytes,
@@ -54,7 +57,10 @@ def inspect(bundle: bytes):
     metadata = (leaf.serial_number, leaf.fingerprint(hashes.SHA256()))
     return {
         "pair_ok": key_public == cert_public,
-        "chain_ok": ca_ok and signature_ok,
+        "chain_ok": (ca_ok and signature_ok and ca_ski.digest == leaf_aki.key_identifier
+                     and leaf_usage.digital_signature
+                     and ca.subject.rfc4514_string()
+                     == "CN=saf-k8s synthetic pod signer identity.example.test"),
         "metadata_ok": bool(leaf.serial_number > 0 and time_ok and san_ok and eku_ok),
         "metadata": metadata,
         "public_key": cert_public,

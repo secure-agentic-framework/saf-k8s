@@ -3,3 +3,7 @@
 !requirements.txt
 !signer.py
 !workload.py
+!peer_client.py
+!peer_server.py
+!peer_wrong_subject.py
+!peer_foreign_issuer.py

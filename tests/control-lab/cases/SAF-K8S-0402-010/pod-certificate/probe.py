@@ -2,6 +2,7 @@
 from datetime import datetime
 import json
 from pathlib import Path
+from runpy import run_path
 import subprocess
 import time
 
@@ -50,7 +51,7 @@ def get_version(lab):
     return json.loads(lab.kubectl("version", "-o", "json").stdout)["serverVersion"]["gitVersion"]
 
 
-def fixtures(node, image):
+def fixtures(node, image, peer_node_ip):
     *documents, signer = json.loads((HERE / "manifests.json").read_text())
     container = signer["spec"]["containers"][0]
     container["env"] = [{"name": key, "value": node[field]}
@@ -58,6 +59,23 @@ def fixtures(node, image):
     for document in [*documents, signer]:
         if document["kind"] == "Pod":
             document["spec"]["containers"][0]["image"] = image
+    workload = next(item for item in documents
+                    if item.get("kind") == "Pod" and item.get("metadata", {}).get("name") == WORKLOAD)
+    workload["spec"]["volumes"].append({"name": "peer-trust", "projected": {"sources": [{
+        "clusterTrustBundle": {"signerName": "domain-b.fixture.invalid/pod-workload",
+                                "labelSelector": {"matchLabels": {"saf-k8s.example/peer-root": "domain-b"}},
+                                "path": "domain-b.pem", "optional": True}}]}})
+    workload["spec"]["containers"].append({
+        "name": "peer-client", "image": image, "imagePullPolicy": "Never",
+        "command": ["python", "/opt/fixture/peer_client.py"],
+        "env": [{"name": "PEER_NODE_IP", "value": peer_node_ip}],
+        "volumeMounts": [
+            {"name": "pod-identity", "mountPath": "/var/run/pod-identity", "readOnly": True},
+            {"name": "peer-trust", "mountPath": "/var/run/peer-trust", "readOnly": True}],
+        "securityContext": {"allowPrivilegeEscalation": False, "readOnlyRootFilesystem": True,
+                             "capabilities": {"drop": ["ALL"]}},
+        "resources": {"requests": {"cpu": "10m", "memory": "32Mi"},
+                      "limits": {"cpu": "100m", "memory": "64Mi"}}})
     return documents, signer
 
 
@@ -121,7 +139,7 @@ def wait_for_unissued_request(lab, node, pod_uid, account_uid):
     lab.block("The owned workload did not create its initial certificate request")
 
 
-def wait_for_projection(lab, node, pod_uid, account_uid, first_request):
+def wait_for_projection(lab, node, pod_uid, account_uid, first_request, peer):
     start = time.monotonic()
     observations = {}
     initial = False
@@ -137,6 +155,7 @@ def wait_for_projection(lab, node, pod_uid, account_uid, first_request):
             if reason in {"CreateContainerConfigError", "ErrImageNeverPull"}:
                 lab.block(f"The fixture signer could not start: {reason}")
         observations.update(in_memory_requests(lab, node, pod_uid, account_uid))
+        peer.observe_peer_results()
         events = verifier_events(lab)
         if not initial and any(item == {"initial_projection": True} for item in events):
             first_issued = observations.get(first_request) == (True, True)
@@ -153,6 +172,8 @@ def wait_for_projection(lab, node, pod_uid, account_uid, first_request):
             lab.check("positive", "The same Pod sees a new valid key and certificate from a distinct issued request",
                       initial and refreshed and unchanged,
                       {"same_pod": unchanged, "distinct_api_issuance": refreshed, "projection": final})
+            if not peer.observe_peer_results():
+                peer.wait_peer_results()
             return
         if not initial and time.monotonic() - start > 120:
             lab.block("The owned workload did not observe an initial certificate within two minutes")
@@ -166,16 +187,27 @@ def run(lab):
     if lab.command("docker", "image", "inspect", image, allow_failure=True).returncode == 0:
         lab.block("Expected an unused local fixture image name")
     lab.command("docker", "build", "--tag", image, str(HERE), timeout=480)
+    peer = None
     try:
         lab.command("kind", "load", "docker-image", image, "--name", lab.cluster, timeout=120)
-        documents, signer = fixtures(node, image)
+        Peer = run_path(str(HERE.parent / "peer_case.py"))["PeerRun"]
+        peer = Peer.create(lab, image, lab.kubeconfig.parent / "peer-kubeconfig")
+        peer.bootstrap()
+        documents, signer = fixtures(node, image, peer.peer_ip)
         for document in documents:
             create(lab, document)
         pod_uid = get(lab, "pod", "-n", NAMESPACE, WORKLOAD)["metadata"]["uid"]
         account_uid = get(lab, "serviceaccount", "-n", NAMESPACE, ACCOUNT)["metadata"]["uid"]
         pending_request = wait_for_unissued_request(lab, node, pod_uid, account_uid)
         create(lab, signer)
-        wait_for_projection(lab, node, pod_uid, account_uid, pending_request)
+        peer.publish_a_root_and_start_server()
+        wait_for_projection(lab, node, pod_uid, account_uid, pending_request, peer)
+        if not peer.observe_peer_results():
+            peer.wait_peer_results()
     finally:
-        lab.command("docker", "image", "rm", image, timeout=90)
+        try:
+            if peer is not None:
+                peer.cleanup()
+        finally:
+            lab.command("docker", "image", "rm", image, timeout=90)
     lab.check("positive", "The lab removes its local fixture image tag", True, {"removed": True})

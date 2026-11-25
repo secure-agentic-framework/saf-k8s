@@ -124,7 +124,23 @@
           "identity.example.test/pod-workload"
         ],
         "verbs": [
+          "attest",
           "sign"
+        ]
+      },
+      {
+        "apiGroups": [
+          "certificates.k8s.io"
+        ],
+        "resources": [
+          "clustertrustbundles"
+        ],
+        "resourceNames": [
+          "identity.example.test:pod-workload:selected"
+        ],
+        "verbs": [
+          "get",
+          "update"
         ]
       }
     ]

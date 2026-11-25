@@ -22,11 +22,16 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.x509.oid import ExtendedKeyUsageOID, NameOID
 
 
-NAMESPACE = "saf-0402-010-pcr"
-POD_NAME = "authorized-workload"
-WORKLOAD_SA = "pod-workload"
+NAMESPACE = os.environ.get("FIXTURE_NAMESPACE", "saf-0402-010-pcr")
+POD_NAME = os.environ.get("FIXTURE_POD_NAME", "authorized-workload")
+WORKLOAD_SA = os.environ.get("FIXTURE_WORKLOAD_SA", "pod-workload")
 SIGNER_SA = "podcert-test-signer"
-SIGNER_NAME = "identity.example.test/pod-workload"
+IDENTITY_DOMAIN = os.environ.get("FIXTURE_DOMAIN", "identity.example.test")
+SIGNER_NAME = os.environ.get("FIXTURE_SIGNER_NAME", f"{IDENTITY_DOMAIN}/pod-workload")
+CTB_NAME = os.environ.get("FIXTURE_CTB_NAME", "identity.example.test:pod-workload:selected")
+CTB_LABEL_KEY = "saf-k8s.example/peer-root"
+CTB_LABEL_VALUE = os.environ.get("FIXTURE_CTB_LABEL", "domain-a")
+SERVER_DNS = os.environ.get("FIXTURE_SERVER_DNS", "peer-a.fixture.invalid")
 EXPECTED_NODE_NAME = os.environ["EXPECTED_NODE_NAME"]
 EXPECTED_NODE_UID = os.environ["EXPECTED_NODE_UID"]
 MAX_LIFETIME = 3600
@@ -59,7 +64,7 @@ def make_ca():
     key = ec.generate_private_key(ec.SECP256R1())
     now = dt.datetime.now(dt.timezone.utc)
     subject = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME,
-                                            "saf-k8s synthetic pod signer")])
+                                            f"saf-k8s synthetic pod signer {IDENTITY_DOMAIN}")])
     cert = (x509.CertificateBuilder().subject_name(subject).issuer_name(subject)
             .public_key(key.public_key()).serial_number(x509.random_serial_number())
             .not_valid_before((now - dt.timedelta(minutes=1)).replace(tzinfo=None))
@@ -70,6 +75,8 @@ def make_ca():
                                          key_agreement=False, key_cert_sign=True,
                                          crl_sign=True, encipher_only=False, decipher_only=False),
                            critical=True)
+            .add_extension(x509.SubjectKeyIdentifier.from_public_key(key.public_key()),
+                           critical=False)
             .sign(key, hashes.SHA256()))
     return key, cert
 
@@ -120,17 +127,27 @@ def issue(pcr: dict, ca_key, ca_cert):
     now = dt.datetime.now(dt.timezone.utc).replace(microsecond=0)
     not_before = now - dt.timedelta(seconds=30)
     not_after = not_before + dt.timedelta(seconds=MAX_LIFETIME)
-    san = f"spiffe://identity.example.test/ns/{NAMESPACE}/sa/{WORKLOAD_SA}"
+    san = f"spiffe://{IDENTITY_DOMAIN}/ns/{NAMESPACE}/sa/{WORKLOAD_SA}"
     leaf = (x509.CertificateBuilder()
             .subject_name(x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, POD_NAME)]))
             .issuer_name(ca_cert.subject).public_key(pub)
             .serial_number(x509.random_serial_number())
             .not_valid_before(not_before.replace(tzinfo=None))
             .not_valid_after(not_after.replace(tzinfo=None))
-            .add_extension(x509.SubjectAlternativeName([x509.UniformResourceIdentifier(san)]),
+            .add_extension(x509.SubjectAlternativeName([x509.UniformResourceIdentifier(san),
+                                                           x509.DNSName(SERVER_DNS)]),
                           critical=False)
             .add_extension(x509.BasicConstraints(ca=False, path_length=None), critical=True)
-            .add_extension(x509.ExtendedKeyUsage([ExtendedKeyUsageOID.CLIENT_AUTH]),
+            .add_extension(x509.KeyUsage(digital_signature=True, content_commitment=False,
+                                         key_encipherment=False, data_encipherment=False,
+                                         key_agreement=False, key_cert_sign=False,
+                                         crl_sign=False, encipher_only=False, decipher_only=False),
+                           critical=True)
+            .add_extension(x509.AuthorityKeyIdentifier.from_issuer_subject_key_identifier(
+                ca_cert.extensions.get_extension_for_class(x509.SubjectKeyIdentifier).value),
+                critical=False)
+            .add_extension(x509.ExtendedKeyUsage([ExtendedKeyUsageOID.CLIENT_AUTH,
+                                                   ExtendedKeyUsageOID.SERVER_AUTH]),
                            critical=False)
             .sign(ca_key, hashes.SHA256()))
     # Verify the just-built chain before placing any certificate into API status.
@@ -151,8 +168,22 @@ def issue(pcr: dict, ca_key, ca_cert):
     }
 
 
+def publish_ctb(ca_cert):
+    path = f"/apis/certificates.k8s.io/v1/clustertrustbundles/{urllib.parse.quote(CTB_NAME, safe='')}"
+    current = api(path)
+    labels = dict(current["metadata"].get("labels", {}))
+    labels[CTB_LABEL_KEY] = CTB_LABEL_VALUE
+    body = {"apiVersion": "certificates.k8s.io/v1", "kind": "ClusterTrustBundle",
+            "metadata": {"name": CTB_NAME, "resourceVersion": current["metadata"]["resourceVersion"],
+                         "labels": labels},
+            "spec": {"signerName": SIGNER_NAME,
+                     "trustBundle": ca_cert.public_bytes(serialization.Encoding.PEM).decode("ascii")}}
+    api(path, method="PUT", body=body)
+
+
 def main():
     ca_key, ca_cert = make_ca()  # Never serialized; lost when this process exits.
+    publish_ctb(ca_cert)
     collection = (f"/apis/certificates.k8s.io/v1/namespaces/{NAMESPACE}"
                   "/podcertificaterequests")
     while True:

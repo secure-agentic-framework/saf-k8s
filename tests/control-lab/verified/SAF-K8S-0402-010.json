@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0402-010",
-  "catalog_revision": "484ff64d07e3de8facdcc75775502bbfbe1e9434",
-  "catalog_sha256": "aad618405b58b8592bf2f3dbcfc3a090fab001ddf61239d4bd37fe08af9adb52",
+  "catalog_revision": "64c070da680666278c5cfd9ea1b03859f9d2cc93",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5",
   "control_sha256": "5ec9acef992fd2ea3489155097175422e95cd787c55fa53b2697d8b763b1cb59",
-  "scope": "Kubernetes v1.37.0 kind with synthetic Pods. Validate selection and live update of public trust anchors, then authorized Pod certificate issuance, projection, and refresh under an exactly scoped test signer. Cross-cluster exchange, peer authentication and production authorization require independent evidence.",
-  "cluster": "saf-lab-f7d193a05765",
+  "scope": "Two runner-owned Kubernetes v1.37.0 Kind clusters on the same inspected local Kind node network. Retain the existing trust-anchor selection and PodCertificate issuance/projection/refresh checks. Add an exact synthetic public-root CTB exchange and an A Pod using its own projected certificate/key to authenticate to B's private NodePort, with SNI and URI checks, an untrusted-issuer rejection, and trusted wrong-subject denial. Private workload keys stay in Pods. This is a local fixture, not cloud federation or production authorization evidence.",
+  "cluster": "saf-lab-4cd69c1575d4",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -91,6 +91,25 @@
       }
     },
     {
+      "phase": "positive",
+      "claim": "A and B are pinned v1.37.0 clusters on the same inspected kind node network",
+      "matched": true,
+      "observed": {
+        "a_version": "v1.37.0",
+        "b_version": "v1.37.0",
+        "shared_kind_network": true,
+        "peer_node_ip_matches_internal": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "B's exact public issuer root is enrolled in A's named peer CTB",
+      "matched": true,
+      "observed": {
+        "approved_source_root_matches": true
+      }
+    },
+    {
       "phase": "red",
       "claim": "Without the fixture signer, the matching request is unissued and the Pod stays Pending",
       "matched": true,
@@ -101,11 +120,58 @@
     },
     {
       "phase": "green",
+      "claim": "A's exact public issuer root is enrolled in B's named peer CTB",
+      "matched": true,
+      "observed": {
+        "approved_source_root_matches": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "B exposes only its fixture NodePort Service without host port publication",
+      "matched": true,
+      "observed": {
+        "node_port": 30443,
+        "host_mapping": false,
+        "server_identity_and_two_roots_valid": true
+      }
+    },
+    {
+      "phase": "green",
       "claim": "The authorized signer issues the expected one-hour certificate and kubelet projects it",
       "matched": true,
       "observed": {
         "initial_projection": true,
         "expected_api_identity_and_lifetime": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A's in-Pod workload certificate proves mutual TLS, exact B SNI/URI, and B allows exact A URI",
+      "matched": true,
+      "observed": {
+        "tls_established": true,
+        "server_sni_verified": true,
+        "server_uri_verified": true,
+        "server_authorized_client": true,
+        "server_authorized_exact_peer": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A-like subject from the unexchanged synthetic issuer is rejected during B TLS authentication",
+      "matched": true,
+      "observed": {
+        "issuer_rejected": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "B authenticates its trusted B-issued certificate then denies the non-A URI subject",
+      "matched": true,
+      "observed": {
+        "trusted_peer_authenticated": true,
+        "subject_policy_denied": true
       }
     },
     {
