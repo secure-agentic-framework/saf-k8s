@@ -1,18 +1,35 @@
-# SAF-K8S-0910-030 registry replication channel authentication
+# SAF-K8S-0910-030 mTLS verification for registry replication
 
-Run `python3 lab.py test SAF-K8S-0910-030` from the lab directory.
+Run from the framework checkout:
 
-The synthetic source reads a fixed OCI manifest and its blobs from its own
-Distribution registry. The peer uses a narrow TLS 1.3 receiver in front of
-a separate digest-pinned Distribution instance. The client verifies both
-the destination DNS name and its exact URI. The peer requires a trusted
-client certificate and, with policy enabled, the approved client URI.
+```sh
+python3 tests/control-lab/lab.py test SAF-K8S-0910-030 --docker-context desktop-linux
+```
 
-The baseline allows a different client URI under the same CA. With scoped
-authentication, the peer rejects that URI, a missing certificate and a
-wrong destination name. A separate observer container with no TLS private
-key reads the actual peer Distribution manifest and blobs. The test uses
-disposable issuer material and case-owned endpoints.
+The fixture reads a deterministic OCI manifest and blob in its source Kind
+cluster. An exact receiver in a second disposable Kind cluster accepts the
+approved replication connection only after verifying the source certificate
+and expected service URI. The source verifies the receiver's DNS identity
+and chain. A separate observer confirms the exact manifest and blob digest
+at the destination.
 
-- [TLS 1.3 authentication messages](https://www.rfc-editor.org/rfc/rfc8446.html#section-4.4)
-- [OCI Distribution Specification](https://github.com/opencontainers/distribution-spec/blob/v1.1.1/spec.md)
+The comparisons cover a baseline that trusts a different source identity
+from the same CA, rejection of that identity under the intended policy,
+rejection of an absent client certificate or wrong receiver name, and an
+approved transfer. The fixture uses a synthetic issuer, one private bridge
+and no deployed registry credentials.
+
+## Verify an adopting implementation
+
+1. Inventory each source and destination registry, replication route,
+   termination point, exact client URI and receiver DNS identity, and issuer
+   or trust domain. Verify each required hop is protected.
+2. Exercise an approved replication and independently read back the
+   destination digest. Compare missing, untrusted or wrong-source identity
+   and a receiver identity mismatch in an approved staging environment.
+3. Record replication authority separately from peer authentication.
+   Inspect certificate issuance, trust distribution, permitted TLS settings,
+   rotation, revocation, and alerts. Correlate each receipt to its approved
+   replication job, artifact and exact route.
+
+[NIST SP 800-53 Rev. 5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final).

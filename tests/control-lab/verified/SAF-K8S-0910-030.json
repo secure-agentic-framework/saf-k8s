@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0910-030",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "9407b9c7b49330c95131d3ed573beac958361d25",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "982ac1ce4f1700cf4786524c0eef529ef7f7900b09b878bfd7973585c1479710",
   "scope": "The source cluster sends one deterministic inert OCI fixture to one fixed mTLS ingress on an owned peer Kind cluster. The ingress accepts only a fixed POST operation, repository, tag, and bounded fixture byte set, then writes through loopback to the peer's pinned Distribution registry. A trusted-chain-only counterfactual accepts a separately scoped client URI; after registry reset, URI authorization refuses it. Missing client credentials and wrong peer DNS identity are separately refused. An independent peer-cluster readback verifies the manifest and blob digests in Distribution. Registry enrollment approval is outside this identity test.",
-  "cluster": "saf-lab-9ab2678e99b9",
+  "cluster": "saf-lab-9e7e16b70b1d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
