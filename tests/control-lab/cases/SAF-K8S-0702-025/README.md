@@ -23,3 +23,14 @@ evidence.
 
 - [Kubernetes v1.36 ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
 - [Kubernetes v1.36 RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
+
+## Adopter verification
+
+1. Identify the actual tenant namespace and ownership sources, effective
+   policy enrollment, applicable resource kinds and API versions.
+2. Rehearse benign create and update requests under the actual deployed
+   policy. Verify that mismatched tenant labels or subject namespaces
+   receive the intended denial and matching declarations remain usable.
+3. Review controller-generated resources, exemptions and failure policy.
+   Retain approved exceptions with scope, owner and expiry.
+4. Record active policy source and outcome evidence for periodic review.
