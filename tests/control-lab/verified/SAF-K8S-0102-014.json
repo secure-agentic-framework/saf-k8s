@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0102-014",
-  "catalog_revision": "573f2e74f97872a53617b4465787bcefb36f124d",
-  "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
+  "catalog_revision": "fcdf74503f377d1d2fbfe6ae253e2423e5315169",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "111dbac1de0df05ecf94b68716dbaac9a9625ba60ed2d77073e77b00b77a340d",
-  "scope": "One disposable Kind v1.36.1 control-plane node using kubeadm's local PKI and stacked etcd. A pure planner evaluates each public leaf lifetime under explicit synthetic expiry-offset timestamps and selects the existing server/client/peer command order without changing host time. The case detects a partial renewal, completes kubeadm certificate renewal, restarts the etcd and kube-apiserver static Pods, compares public certificate receipts before/after and live etcd server/peer receipts to renewed files, then writes and reads back a synthetic ConfigMap through the Kubernetes API. A namespaced CronJob makes real not-due and due invocations against the exact public leaf inventory, using explicitly labeled synthetic expiry-offset decision instants; its Pod cannot renew or restart. No private key, token, secret value, external PKI, multi-member behavior, real-clock lead-window scheduling, or production cluster is exercised.",
-  "cluster": "saf-lab-55ff750af885",
+  "scope": "Serial kubeadm renewal of each etcd member's server, peer, and API-server client certificates on three isolated control-plane nodes. Verify a real member pause, quorum and native storage continuity, then observe active server and peer leaves and a local API storage read before advancing. Issuer policy, scheduling and managed or external etcd paths are separate adopter evidence.",
+  "cluster": "saf-lab-93dce30f423f",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -40,147 +40,198 @@
   "checks": [
     {
       "phase": "positive",
-      "claim": "Synthetic pre-expiry decisions select each exact public leaf at its boundary and all roles before expiry",
+      "claim": "Exactly three mapped healthy members and role-correct fixture leaves establish baseline",
       "matched": true,
       "observed": {
-        "lead_seconds": 2592000,
-        "clock_basis_is_synthetic_expiry_offset": true,
-        "all_role_boundary_checks_pass": true,
-        "all_roles_selected_in_declared_order": true,
-        "all_due_decision_precedes_every_expiry": true,
-        "all_due_decision_follows_every_not_before": true,
-        "due_plan_splits_into_existing_command_phases": true,
-        "role_boundary_predicates": {
-          "etcd/server": {
-            "outside_window_excludes_role": true,
-            "at_boundary_includes_role": true,
-            "outside_time_within_leaf_lifetime": true,
-            "boundary_time_within_leaf_lifetime": true,
-            "expired_role_outside_planned_window": true
-          },
-          "apiserver-etcd-client": {
-            "outside_window_excludes_role": true,
-            "at_boundary_includes_role": true,
-            "outside_time_within_leaf_lifetime": true,
-            "boundary_time_within_leaf_lifetime": true,
-            "expired_role_outside_planned_window": true
-          },
-          "etcd/peer": {
-            "outside_window_excludes_role": true,
-            "at_boundary_includes_role": true,
-            "outside_time_within_leaf_lifetime": true,
-            "boundary_time_within_leaf_lifetime": true,
-            "expired_role_outside_planned_window": true
-          }
-        }
-      }
-    },
-    {
-      "phase": "positive",
-      "claim": "Scheduled identity has only named public-input and receipt ConfigMap permissions",
-      "matched": true,
-      "observed": {
-        "exact_named_rbac": true,
-        "rule_count": 2
-      }
-    },
-    {
-      "phase": "positive",
-      "claim": "Scheduled identity cannot read credentials or access nodes or Pods",
-      "matched": true,
-      "observed": {
-        "named_configmap_permissions_only": true
-      }
-    },
-    {
-      "phase": "positive",
-      "claim": "The CronJob uses stable Job labels and has no host or certificate access",
-      "matched": true,
-      "observed": {
-        "bounded_pod_and_job_identity": true
-      }
-    },
-    {
-      "phase": "positive",
-      "claim": "A real CronJob-owned Job records not-due for the exact public role inventory",
-      "matched": true,
-      "observed": {
-        "job_owned_by_current_cronjob_uid": true,
-        "exact_public_inventory_bound": true,
-        "clock_basis": "synthetic_expiry_offsets_only"
-      }
-    },
-    {
-      "phase": "positive",
-      "claim": "A distinct CronJob-owned Job requests the exact native all-role plan at synthetic due boundary",
-      "matched": true,
-      "observed": {
-        "exact_ordered_roles_and_fingerprints": true,
-        "distinct_controller_job": true,
-        "clock_basis": "synthetic_expiry_offsets_only"
-      }
-    },
-    {
-      "phase": "positive",
-      "claim": "Exactly two successful Jobs owned by this CronJob produced the two receipts",
-      "matched": true,
-      "observed": {
-        "exactly_two_successful_controller_jobs": true
-      }
-    },
-    {
-      "phase": "positive",
-      "claim": "Scheduled controller receipt matches the existing native all-role plan",
-      "matched": true,
-      "observed": {
-        "scheduled_order_matches_native_order": true,
-        "selected_role_count": 3,
-        "clock_basis": "synthetic_expiry_offsets_only"
-      }
-    },
-    {
-      "phase": "red",
-      "claim": "The live certificate audit detects that the partial renewal omitted the peer class",
-      "matched": true,
-      "observed": {
-        "required_classes": [
-          "apiserver-etcd-client",
-          "etcd/peer",
-          "etcd/server"
-        ],
-        "unchanged_after_partial_renewal": [
-          "etcd/peer"
-        ]
+        "pinned_kubeadm_nodes": 3,
+        "member_count": 3,
+        "membership_unchanged": true,
+        "healthy_endpoints": 3,
+        "leader_present": true,
+        "shared_etcd_ca": true,
+        "all_nine_role_leaves_current_and_usage_correct": true,
+        "api_ready": true,
+        "api_marker_readback": true
       }
     },
     {
       "phase": "green",
-      "claim": "The completed kubeadm renewal replaces all three public leaf receipts and preserves their usage flags",
+      "claim": "One member's three kubeadm leaves renew without changing another member",
       "matched": true,
       "observed": {
-        "all_required_classes_compared": true,
-        "all_fingerprints_and_serials_changed": true,
-        "all_expiries_extended_and_current": true,
-        "all_usage_flags_preserved": true,
-        "all_extended_key_usages_match_roles": true,
-        "raw_evidence_file": "certificate-rotation.raw.json"
+        "member": "member-1",
+        "three_roles_changed_and_current": true,
+        "role_usage_preserved": true,
+        "other_members_unchanged": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The paused member's listener is unavailable while its two survivors retain quorum and native API writes",
+      "matched": true,
+      "observed": {
+        "member": "member-1",
+        "paused_listener_refuses_connection": true,
+        "two_healthy_survivors": true,
+        "surviving_leader": true,
+        "existing_membership": true,
+        "native_api_write_read": true
       }
     },
     {
       "phase": "positive",
-      "claim": "Restarted etcd serves renewed server and peer certs, and the restarted apiserver stores and reads permitted data",
+      "claim": "Etcd returns with unchanged membership and renewed active server/peer leaves",
       "matched": true,
       "observed": {
-        "etcd_static_pod_restarted": true,
-        "apiserver_static_pod_restarted": true,
-        "active_server_and_peer_match_renewed_receipts": {
-          "etcd/server": true,
-          "etcd/peer": true
-        },
-        "apiserver_manifest_references_renewed_client_cert_path": true,
-        "permitted_api_write_readback": true,
-        "preexisting_data_retained": true,
-        "raw_evidence_file": "certificate-rotation.raw.json"
+        "member": "member-1",
+        "two_survivors_healthy_before_return": true,
+        "all_three_healthy_after_return": true,
+        "leader_present": true,
+        "membership_unchanged": true,
+        "active_server_matches_file": true,
+        "active_peer_matches_file": true,
+        "api_marker_readback": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Target API-server adopts the renewed client path with cluster API and etcd continuity",
+      "matched": true,
+      "observed": {
+        "member": "member-1",
+        "all_api_server_pods_ready": true,
+        "all_three_etcd_endpoints_healthy": true,
+        "leader_present": true,
+        "membership_unchanged": true,
+        "api_ready": true,
+        "renewed_client_path_referenced": true,
+        "target_api_exact_storage_read": true,
+        "api_marker_readback": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "One member's three kubeadm leaves renew without changing another member",
+      "matched": true,
+      "observed": {
+        "member": "member-2",
+        "three_roles_changed_and_current": true,
+        "role_usage_preserved": true,
+        "other_members_unchanged": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The paused member's listener is unavailable while its two survivors retain quorum and native API writes",
+      "matched": true,
+      "observed": {
+        "member": "member-2",
+        "paused_listener_refuses_connection": true,
+        "two_healthy_survivors": true,
+        "surviving_leader": true,
+        "existing_membership": true,
+        "native_api_write_read": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Etcd returns with unchanged membership and renewed active server/peer leaves",
+      "matched": true,
+      "observed": {
+        "member": "member-2",
+        "two_survivors_healthy_before_return": true,
+        "all_three_healthy_after_return": true,
+        "leader_present": true,
+        "membership_unchanged": true,
+        "active_server_matches_file": true,
+        "active_peer_matches_file": true,
+        "api_marker_readback": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Target API-server adopts the renewed client path with cluster API and etcd continuity",
+      "matched": true,
+      "observed": {
+        "member": "member-2",
+        "all_api_server_pods_ready": true,
+        "all_three_etcd_endpoints_healthy": true,
+        "leader_present": true,
+        "membership_unchanged": true,
+        "api_ready": true,
+        "renewed_client_path_referenced": true,
+        "target_api_exact_storage_read": true,
+        "api_marker_readback": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "One member's three kubeadm leaves renew without changing another member",
+      "matched": true,
+      "observed": {
+        "member": "member-3",
+        "three_roles_changed_and_current": true,
+        "role_usage_preserved": true,
+        "other_members_unchanged": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The paused member's listener is unavailable while its two survivors retain quorum and native API writes",
+      "matched": true,
+      "observed": {
+        "member": "member-3",
+        "paused_listener_refuses_connection": true,
+        "two_healthy_survivors": true,
+        "surviving_leader": true,
+        "existing_membership": true,
+        "native_api_write_read": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Etcd returns with unchanged membership and renewed active server/peer leaves",
+      "matched": true,
+      "observed": {
+        "member": "member-3",
+        "two_survivors_healthy_before_return": true,
+        "all_three_healthy_after_return": true,
+        "leader_present": true,
+        "membership_unchanged": true,
+        "active_server_matches_file": true,
+        "active_peer_matches_file": true,
+        "api_marker_readback": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Target API-server adopts the renewed client path with cluster API and etcd continuity",
+      "matched": true,
+      "observed": {
+        "member": "member-3",
+        "all_api_server_pods_ready": true,
+        "all_three_etcd_endpoints_healthy": true,
+        "leader_present": true,
+        "membership_unchanged": true,
+        "api_ready": true,
+        "renewed_client_path_referenced": true,
+        "target_api_exact_storage_read": true,
+        "api_marker_readback": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "All three members finish renewed, healthy, and serving retained API data",
+      "matched": true,
+      "observed": {
+        "members_completed_serially": true,
+        "all_members_retained": true,
+        "all_three_endpoints_healthy": true,
+        "leader_present": true,
+        "membership_unchanged": true,
+        "all_nine_leaves_current_and_role_correct": true,
+        "api_ready_and_retained_marker": true,
+        "decision_clock_tested": false
       }
     }
   ]
