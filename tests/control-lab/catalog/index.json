@@ -2025,7 +2025,7 @@
     "SAF-K8S-0703-009": {
       "catalog_status": "draft",
       "domain": "D07",
-      "sha256": "df9676b245101c7ce180a52c86a0bd94a9ed66cbca1d850b89808aab2a5e7ad1",
+      "sha256": "68ba33ad5f4e9b7e0a444257a9c5ae5bf00a2f2cf6a764030e732b2cee7cae82",
       "title": "GPU spending limits and budget enforcement"
     },
     "SAF-K8S-0703-010": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "4570cd388ce0099d9c969f6fa186899d5f82c9d0",
-  "sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
+  "revision": "ad0bcd0a7b84fd725a02f404796bcf600dadf624",
+  "sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

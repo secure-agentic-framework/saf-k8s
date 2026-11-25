@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0703-009",
-  "catalog_revision": "a9eef518e77909c0a258d716a4a0a1b50be8f10d",
-  "catalog_sha256": "d0505b3cef6e27ac3451a0998acf0350819409280331edf48be9cfacfd4f73a7",
+  "catalog_revision": "4e8020957f09b3a3f183de97c26e00fd86125512",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "df9676b245101c7ce180a52c86a0bd94a9ed66cbca1d850b89808aab2a5e7ad1",
-  "scope": "Kueue v0.20.6 ClusterQueue quota admission for one isolated team namespace. The only accounted resource is a synthetic integer example.com/usd-per-hour request, with one declared unit standing for a fictional whole USD/hour of requested rate and a five-unit cap. Raw Kueue Workloads are used; this creates no Job, Pod, GPU allocation, device request, cloud budget, invoice, charge, billing record, external notification, job suspension, or scale-down. It does not measure actual GPU use, provider prices, cumulative spend, a budget window, or production tenant ownership/RBAC.",
-  "cluster": "saf-lab-47a1a351e8ed",
+  "control_sha256": "68ba33ad5f4e9b7e0a444257a9c5ae5bf00a2f2cf6a764030e732b2cee7cae82",
+  "scope": "Kueue v0.20.6 ClusterQueue quota admission for one isolated team namespace. The only accounted resource is a synthetic integer example.com/usd-per-hour request, with one declared unit standing for a fictional whole USD/hour of requested rate and a five-unit cap. The rate comparison uses raw Workloads and creates no Job, Pod, GPU allocation, device request, cloud budget, invoice, charge, billing record, external notification, job suspension, or scale-down. It does not measure actual GPU use, provider prices, cumulative spend, a budget window, or production tenant ownership/RBAC. A separate synthetic budget signal exercises scoped native Job suspension, Deployment scale-down and an unrelated allowed workload.",
+  "cluster": "saf-lab-73bb154edf36",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -69,6 +69,46 @@
         "remaining_reservations": 4,
         "previous_overage_admitted": true,
         "fixture_pods": 0
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A synthetic budget threshold without the actuator leaves both workloads running",
+      "matched": true,
+      "observed": {
+        "advisory": "alert",
+        "active_job": true,
+        "serving_ready": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An approaching threshold yields an advisory and stale observations do not trigger workload actions",
+      "matched": true,
+      "observed": {
+        "approaching": "alert",
+        "stale": "hold",
+        "workloads_active": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A current threshold observation suspends the named Job and reduces the named Deployment to zero",
+      "matched": true,
+      "observed": {
+        "enforced": true,
+        "job_suspended": true,
+        "active_job_pods": 0,
+        "ready_serving_replicas": 0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The actual API refuses actuator access to an unrelated Deployment and its Pod remains ready",
+      "matched": true,
+      "observed": {
+        "authorization_refused": true,
+        "unrelated_ready": true
       }
     }
   ]

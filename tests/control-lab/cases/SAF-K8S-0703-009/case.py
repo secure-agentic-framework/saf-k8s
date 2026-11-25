@@ -2,8 +2,10 @@
 
 Kueue sees a raw Workload and a fictional rate resource. No Job or Pod is created.
 """
+import importlib.util
 from hashlib import sha256
 import json
+from pathlib import Path
 import time
 
 
@@ -25,11 +27,12 @@ SCOPE = (
     "Kueue v0.20.6 ClusterQueue quota admission for one isolated team namespace. "
     "The only accounted resource is a synthetic integer example.com/usd-per-hour "
     "request, with one declared unit standing for a fictional whole USD/hour of "
-    "requested rate and a five-unit cap. Raw Kueue Workloads are used; this creates "
+    "requested rate and a five-unit cap. The rate comparison uses raw Workloads and creates "
     "no Job, Pod, GPU allocation, device request, cloud budget, invoice, charge, "
     "billing record, external notification, job suspension, or scale-down. It does "
     "not measure actual GPU use, provider prices, cumulative spend, a budget window, "
-    "or production tenant ownership/RBAC."
+    "or production tenant ownership/RBAC. A separate synthetic budget signal exercises "
+    "scoped native Job suspension, Deployment scale-down and an unrelated allowed workload."
 )
 
 
@@ -223,3 +226,9 @@ def run(lab):
               [units(freed, base) for base in ("baseline", "over-bound")] == ["3", "1"] and no_pods(lab),
               {"remaining_reservations": 4, "previous_overage_admitted": admitted(freed["over-bound"]),
                "fixture_pods": 0 if no_pods(lab) else "nonzero"})
+
+    path = Path(__file__).resolve().with_name("budget_actions.py")
+    spec = importlib.util.spec_from_file_location("budget_actions", path)
+    actions = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(actions)
+    actions.run(lab)
