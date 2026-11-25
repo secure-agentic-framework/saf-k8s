@@ -31,3 +31,7 @@ Pinned inputs and scope sources:
 - [MLflow 3.17.0 RBAC documentation](https://mlflow.org/docs/3.17.0/self-hosting/security/role-based-access-control/)
 - [Official MLflow image package versions](https://github.com/mlflow/mlflow/pkgs/container/mlflow/versions)
 - [MLflow 3.17.0 release](https://github.com/mlflow/mlflow/releases/tag/v3.17.0)
+
+## Verify an adopting implementation
+
+Bind actual MLflow users/groups to exact experiment grants. Test listings, reads, searches, writes, and denied cross-experiment access using the real auth path. Inspect run-tier overrides, artifact-store ACLs, admin routes, TLS/ingress, user lifecycle, and audit evidence. Fixture scope is MLflow 3.17.0 basic-auth RBAC over two synthetic experiments. It does not establish general tenant isolation or artifact-store isolation.
