@@ -13,3 +13,7 @@ On a fresh Kubernetes v1.36.1 Kind cluster, the case installs Cilium 1.20.5 from
 3. The unselected comparison Pod must retain both correct answers for the same queries. Each check matches the DNS transaction and requires the specific result.
 
 All 11 assertions passed in `evidence/SAF-K8S-0503-016/20261122T091044Z-1a3c141b/result.json` on Kubernetes v1.36.1. The test covers the two owned A records in one CNI and resolver configuration. Effective policy across deployed namespaces and workloads, other record types and resolver paths, and cross-tenant inventory coverage require separate evidence. The tested control concerns DNS discovery. Service connectivity and authorization require their own controls.
+
+## Verify an adopting implementation
+
+Inventory CoreDNS or managed DNS topology, NodeLocal/proxy components, CNI DNS-aware policy version, tenant namespaces and the source identities those policies select. For representative tenant canaries, verify approved and out-of-scope A/AAAA/SRV or other required record lookups against the deployed resolver; record DNS decision separately from service connection authorization. Check policy rollout, exceptions and ownership across all clusters and workload classes; verify DNS results cannot be mistaken for authorization to connect to the returned address. Retain resolver, policy and workload inventory snapshots plus sanitized positive/negative query evidence and drift alerts.
