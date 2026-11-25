@@ -29,3 +29,16 @@ TLS 1.3 receiver event.
 Adopters verify the expected CA and route identity for each extension,
 test the rejected and permitted states in an approved rehearsal, and
 retain the actual API decision and continuity evidence.
+
+## Unavailable backend and recovery
+
+Each actual extension path is tested separately. The API server is pointed
+at a case-owned Service with no endpoints while retaining the approved CA.
+The matching dry-run webhook or read-only aggregation request reports the
+route-specific unavailable condition. An ordinary namespace read continues.
+After the healthy Service is restored, the exact route succeeds and emits
+its expected receiver evidence. The healthy workload remains running.
+
+Use the same approach when rehearsing unavailable target behavior for each
+governed extension. Record the actual API policy, approved trust material,
+failure and positive result, and any provider-specific visibility limits.

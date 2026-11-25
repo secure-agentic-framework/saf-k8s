@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0404-002",
-  "catalog_revision": "ff66695bdcf5d2c715a5ab4b72397e2f6376b684",
+  "catalog_revision": "95d733ea566e0a388472c285fb53dde8fd57c476",
   "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9982d3d3098a8318200ede5025cfabe1d879510670fc51e0c7beb7d071969b23",
-  "scope": "Separate native Kubernetes admission and API aggregation paths use the same case-owned HTTPS server. Actual API-server decisions distinguish trusted CA, service DNS identity, and an explicit admission denial. Workload-to-workload transports, extension-client authentication, CA reload and production trust policy need independent verification. The owned receivers require TLS 1.3 and record the negotiated version for each exact API-server operation.",
-  "cluster": "saf-lab-3a76fdcf8ac3",
+  "scope": "Separate native Kubernetes admission and API aggregation paths use the same case-owned HTTPS server. Actual API-server decisions distinguish trusted CA, service DNS identity, and an explicit admission denial. Workload-to-workload transports, extension-client authentication, CA reload and production trust policy need independent verification. The owned receivers require TLS 1.3 and record the negotiated version for each exact API-server operation.  A separate selector-isolated Service with no endpoints checks fail-closed API extension calls and same-route recovery without stopping workloads.",
+  "cluster": "saf-lab-22056d534aab",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -104,6 +104,97 @@
         "dry_run_allowed": true,
         "exact_annotation_mutation": true,
         "owned_backend_event": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The distinct case-owned Service has no selected backend endpoints",
+      "matched": true,
+      "observed": {
+        "exact_no_endpoint_selector": true,
+        "healthy_extension_service_untouched": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The exact mutating webhook dry-run fails because its selected Service has no endpoints",
+      "matched": true,
+      "observed": {
+        "mutator_points_to_empty_service": true,
+        "route_specific_no_endpoint_failure": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Ordinary API reads continue during mutating-webhook unavailability",
+      "matched": true,
+      "observed": {
+        "namespace_read_succeeded": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Restoring the mutating webhook Service restores the exact JSONPatch response",
+      "matched": true,
+      "observed": {
+        "exact_mutation_returned": true,
+        "healthy_mutator_event": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The validating webhook dry-run fails at its empty Service after the mutator is reached",
+      "matched": true,
+      "observed": {
+        "validator_points_to_empty_service": true,
+        "route_specific_no_endpoint_failure": true,
+        "healthy_mutator_served_same_probe": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Ordinary API reads continue during validating-webhook unavailability",
+      "matched": true,
+      "observed": {
+        "namespace_read_succeeded": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Restoring validation accepts the route and returns the exact mutation",
+      "matched": true,
+      "observed": {
+        "exact_mutation_returned": true,
+        "healthy_mutator_event": true,
+        "healthy_validator_event": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The exact aggregation marker read reports APIService unavailable for its empty Service",
+      "matched": true,
+      "observed": {
+        "api_service_unavailable": true,
+        "service_no_endpoint_reason": true,
+        "marker_read_service_unavailable": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Ordinary API reads continue during aggregation endpoint unavailability",
+      "matched": true,
+      "observed": {
+        "namespace_read_succeeded": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Restoring the APIService route restores readiness and the exact marker read",
+      "matched": true,
+      "observed": {
+        "api_service_available": true,
+        "exact_marker_returned": true,
+        "healthy_aggregation_event": true
       }
     }
   ]

@@ -3,7 +3,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import base64
 import json
 import ssl
-from urllib.parse import urlsplit
+from urllib.parse import parse_qs, urlsplit
 
 GROUP = "extension-fixture.saf-k8s.example"
 VERSION = GROUP + "/v1"
@@ -30,6 +30,10 @@ class Handler(BaseHTTPRequestHandler):
                                              "namespaced": False, "kind": "FixtureMarker", "verbs": ["list"]}]})
         elif path == "/apis/" + VERSION + "/fixturemarkers":
             self.record_protocol("aggregation")
+            probe = parse_qs(urlsplit(self.path).query).get("probe", ["fixture-existing-marker"])[0]
+            if probe.startswith("fixture-availability-"):
+                print("fixture-aggregating " + json.dumps({"route": "aggregate", "probe": probe,
+                                                            "tls": self.connection.version()}), flush=True)
             self.answer(200, {"apiVersion": VERSION, "kind": "FixtureMarkerList", "metadata": {},
                               "items": [{"apiVersion": VERSION, "kind": "FixtureMarker",
                                          "metadata": {"name": "owned-aggregation-marker"}}]})
@@ -63,6 +67,10 @@ class Handler(BaseHTTPRequestHandler):
             return
         if request["object"].get("metadata", {}).get("name") == "fixture-admission-probe":
             self.record_protocol("admission")
+        probe_name = request.get("object", {}).get("metadata", {}).get("name", "")
+        if probe_name.startswith("fixture-mutator-validator-"):
+            print("fixture-validating " + json.dumps({"route": "validate", "probe": probe_name,
+                                                        "tls": self.connection.version()}), flush=True)
         allowed = "deny" not in request["object"].get("data", {})
         response = {"uid": request["uid"], "allowed": allowed}
         if not allowed:
