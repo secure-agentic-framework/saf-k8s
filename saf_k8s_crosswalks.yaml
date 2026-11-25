@@ -11814,16 +11814,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-4(2)
   framework_requirement_title: Processing Domains
-  framework_mapping_notes: 'Separating agent processing domains/sandboxes
-
-
-    7.2 - Implement namespace isolation and multi-tenancy (namespace as security boundary, processing domains); 5.1 - AI workload network segmentation'
+  framework_mapping_notes: Scoped Pod network rules contribute to processing-domain traffic separation. Review non-network interactions and alternate interfaces under their applicable controls.
   control_id: SAF-K8S-0702-013
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopting organization defines processing domains and maps the relevant tenant Pod traffic to reviewed namespace and Pod selectors on a policy-enforcing CNI.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -12118,16 +12115,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-4(21)
   framework_requirement_title: Physical or Logical Separation of Information Flows
-  framework_mapping_notes: 'Logical separation of agent data channels
-
-
-    5.1 - AI workload network segmentation (isolation between training, inference, pipeline, notebook workloads); 7.2 - Namespace isolation'
+  framework_mapping_notes: The fixture verifies logical separation of the selected cross-node Pod traffic. The applicable implementation must assess the other interfaces and information-flow classes separately.
   control_id: SAF-K8S-0702-013
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization defines the tenant information flows assessed here as supported Pod IP and port traffic across the selected namespaces and address families.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -44062,22 +44056,6 @@
 
 
     8.1 - MIG GPU partitioning (hardware-enforced partitioning); 7.2 - Namespace isolation (system partitioning)'
-  control_id: SAF-K8S-0702-013
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-32
-  framework_requirement_title: System Partitioning
-  framework_mapping_notes: 'Partitioning agent systems by function and trust level limits compromise propagation
-
-
-    8.1 - MIG GPU partitioning (hardware-enforced partitioning); 7.2 - Namespace isolation (system partitioning)'
   control_id: SAF-K8S-0702-018
   relation_type: direct
   strength_level: strong
@@ -46140,16 +46118,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-46
   framework_requirement_title: Cross Domain Policy Enforcement
-  framework_mapping_notes: 'Cross-domain policy enforcement controls agent data flows between different trust domains
-
-
-    7.2 - Namespace isolation (cross-domain policy enforcement between tenants); 5.4 - Service mesh authorization policies'
+  framework_mapping_notes: Ingress and egress rules can enforce the defined logical boundary for covered Pod TCP flows. Assess every other relevant interface and route separately.
   control_id: SAF-K8S-0702-013
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization defines the assessed security domains and their connecting Pod network interfaces, and verifies the selected NetworkPolicy plugin enforces the policy on those routes.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -46614,22 +46589,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-5(1)
-  framework_requirement_title: Restrict Ability to Attack Other Systems
-  framework_mapping_notes: 'Preventing compromised agents from being used to attack other systems limits lateral movement
-
-
-    5.1 - Egress controls (restricting outbound to prevent attacking other systems); 7.2 - Namespace isolation'
-  control_id: SAF-K8S-0702-013
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -48015,16 +47974,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-7(21)
   framework_requirement_title: Isolation of System Components
-  framework_mapping_notes: 'Isolating agent system components limits blast radius of compromise
-
-
-    7.2 - Namespace isolation; 1.3 - Control plane component isolation from workloads'
+  framework_mapping_notes: Default-deny and exact allowances can contribute to component isolation at the tested Pod traffic boundary. The adopter verifies node, host-network and control-plane paths separately.
   control_id: SAF-K8S-0702-013
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopter identifies the selected tenant workloads as system components and uses an enforcing plugin for covered Pod network paths between those components.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
