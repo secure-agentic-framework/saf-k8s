@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0101-012",
-  "catalog_revision": "9672d1ef113c4d79b983b4e31cd24cd611d32be9",
-  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
+  "catalog_revision": "b72f2d9dad4f88e7e3b5c09996e28b695f300761",
+  "catalog_sha256": "d349202ee2a53ae35fd3d0b6c36098d2d5cc45a51aa71fbf557812fcda78d4a0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "3e5adeb40e9baa500ce92aae2cf579de9dfd513c5e12007b145ab9decce894ec",
   "scope": "TLS handshake policy and client certificate-chain validation for case-owned kind kube-apiserver client-facing loopback endpoints. A default Kubernetes profile is compared with a TLS 1.3 minimum-version profile; a separate TLS 1.2 reference profile evaluates a configured cipher allow-list. No application request or non-loopback host is contacted. Outbound kube-apiserver connections, service-specific TLS paths, and managed-provider controls are outside this case. The owned default cluster also verifies the API server kubelet and etcd trust routes and restoration.",
-  "cluster": "saf-lab-7acb818e74d7",
+  "cluster": "saf-lab-2d1a3065dbc0",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

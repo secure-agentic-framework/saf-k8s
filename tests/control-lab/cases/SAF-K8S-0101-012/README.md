@@ -80,3 +80,62 @@ owned cluster. The case demonstrates the tested self-managed configurations.
 
 - [Kubernetes v1.36 control-plane communication](https://v1-36.docs.kubernetes.io/docs/concepts/architecture/control-plane-node-communication/)
 - [Kubernetes v1.36 API server flags](https://v1-36.docs.kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/)
+
+## Replay prerequisite
+
+Run the case with a Python build that reports TLS 1.3 support. Verify the
+interpreter that will invoke the runner with
+`python3 -c 'import ssl; print(ssl.OPENSSL_VERSION, ssl.HAS_TLSv1_3)'`.
+
+## Adopter verification
+
+Record the Kubernetes release, service and tier, endpoint type, assessment
+time, and approved PKI and TLS policy. Record the approving owner, allowed
+protocols and TLS 1.2 cipher suites, certificate identity rules, rotation
+expectations, and any exception. Treat a provider-managed CA as approved
+only if the organization explicitly approves that trust policy.
+
+Inventory the client-to-API, API-to-kubelet, API-to-etcd, aggregation, and
+webhook connection paths that apply. Include TLS terminations at gateways,
+proxies, or tunnels. For each path, record the peer names, enforcing settings,
+trust roots, applicable protocol and cipher policy, rotation responsibility,
+and evidence source. For self-managed servers compare approved source with
+the effective process configuration. Review the outbound client trust
+configuration separately from the API server listener.
+
+From an approved vantage, confirm the selected kubeconfig context and API
+endpoint. If the policy permits TLS 1.2 and the endpoint is DNS-named,
+confirm one allowed negotiation using the applicable documented CA. Use
+the selected service endpoint and CA through the normal approved access
+path. Record the protocol, cipher, and verification result.
+
+```sh
+openssl s_client -connect "${API_HOST}:${API_PORT}" -servername "$API_HOST" \
+  -verify_hostname "$API_HOST" -CAfile "$API_CA_FILE" -verify_return_error \
+  -tls1_2 -brief </dev/null
+```
+
+For IP endpoints validate the IP subject alternative name with the applicable
+client option. Use the relevant policy and library options for other allowed
+protocols. Test excluded protocol, cipher, and CA settings in a controlled
+fixture with an independent positive comparison. A successful allowed
+negotiation is evidence for that endpoint, client, and vantage. For a managed
+internal path, request release- and path-specific provider evidence for the
+TLS floor, cipher policy, peer authentication, and certificate lifecycle.
+
+- For EKS, collect the endpoint access configuration and cluster trust
+  metadata and review the control-plane paths covered by provider evidence.
+  [EKS endpoint documentation](https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html)
+  [EKS control-plane architecture](https://docs.aws.amazon.com/eks/latest/best-practices/control-plane.html)
+- For GKE, distinguish DNS and IP endpoint termination. Review the documented
+  IP endpoint trust and control-plane-to-node TLS scope. [GKE network isolation](https://docs.cloud.google.com/kubernetes-engine/docs/concepts/network-isolation)
+  [GKE cluster trust](https://docs.cloud.google.com/kubernetes-engine/docs/concepts/cluster-trust)
+- For AKS, record the API endpoint and certificate and rotation scope. Match
+  control-plane tunnel evidence to its actual peer path. [AKS certificate rotation](https://learn.microsoft.com/en-us/azure/aks/certificate-rotation)
+  [AKS networking FAQ](https://learn.microsoft.com/en-us/azure/aks/faq)
+
+Retain a path-by-path result with the version, assessment time, evidence
+references, owner, and disposition. Record provider-attested evidence at its
+documented scope. Mark undisclosed settings and untested paths unverified.
+Retain only redacted configuration and handshake observations. Keep tokens,
+private keys, and client credentials outside shared evidence.
