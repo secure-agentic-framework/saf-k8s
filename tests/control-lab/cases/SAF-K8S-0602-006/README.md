@@ -19,3 +19,10 @@ Restore transport and verify that digest and a fresh signed digest pass.
 
 Admission scope, cache behavior, all container classes, pre-existing workloads
 and deployed signer trust require separate evidence.
+
+## Adopter verification
+
+1. Inventory covered clusters, namespaces, API resources and every image-bearing container field, including init and ephemeral containers. record admission registration and exclusions.
+2. Verify authorized signer identities, trust rotation, registry access, audit delivery and cached-verification behavior for each policy path.
+3. In an approved nonproduction namespace, confirm valid images are admitted and unsigned/invalid images denied. test bounded verifier/registry and webhook-unavailable cases with expected fail-closed behavior and recovery.
+4. Separately assess already-running workloads versus new admission, and verify registration, certificates and policy survive controller shutdown, upgrade and restart.
