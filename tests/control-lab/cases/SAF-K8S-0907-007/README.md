@@ -33,3 +33,7 @@ namespace-local pull Secret. The case requires OpenSSL, htpasswd, and the three
 digest-pinned images listed in registry_runtime.py. It retains scoped runtime
 and registry observations. Production promotion authority, per-repository ACLs,
 and image signing require separate evidence.
+
+## Verify an adopting implementation
+
+Bind the deployment caller to a real authenticated identity and namespace-scoped authorization. Verify the exact approved model ID, image digest, promotion record, registry repository grants, pull secret, and rollout destination. Prove unapproved staging/production writes are denied and the admitted image actually pulls. Fixture evidence includes native API/RBAC/admission and a private registry with inert content. Promotion authority and production provenance remain adopter evidence.
