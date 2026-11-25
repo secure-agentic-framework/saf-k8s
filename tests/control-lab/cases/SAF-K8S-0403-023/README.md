@@ -12,3 +12,9 @@ evidence and ongoing review remain separate obligations.
 
 - [Kubernetes auditing](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/)
 - [Kubernetes authorization](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/authorization/)
+
+From the SAF-K8S repository root, run `python3 tests/control-lab/lab.py test SAF-K8S-0403-023 --docker-context desktop-linux`.
+
+## Adopter verification
+
+Inventory the governed issuers and consumers. Snapshot effective privileges, actor binding, expected use, approved exceptions and their deadlines. In a reviewed evidence window, correlate representative allowed and denied operations and a narrowly scoped permission change to the corresponding workload. Verify separate owner decisions for unapproved privileges and candidates for retirement, and preserve an unknown state for uncovered sources. Retain effective before/after authorization decisions and the owner review.
