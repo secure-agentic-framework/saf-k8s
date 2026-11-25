@@ -21,3 +21,12 @@ deploy credential storage, rotation and rollout need separate evidence.
 
 - [Gitea 1.23 deploy keys](https://docs.gitea.com/api/1.23/operations/repo-create-key/)
 - [Gitea 1.23 repository permissions](https://docs.gitea.com/1.23/usage/permissions/)
+
+## Verify an adopting implementation
+
+Identify each GitOps controller identity and repository/key
+pair. Review effective repository and branch grants; prove the controller can
+read only required repos and cannot write protected branches or unrelated
+repos. Rotate and revoke an inert deploy key, verify old-key denial and
+controller recovery, and retain branch-protection and repository-owner
+approval evidence.
