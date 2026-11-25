@@ -26,3 +26,13 @@ arguments. Use a kubectl client within the supported skew for v1.37.
 - [Kubernetes v1.37 Storage Version Migration](https://kubernetes.io/blog/2026/08/31/kubernetes-v1-37-storage-version-migration-ga/)
 - [Kubernetes Storage Version Migration procedure](https://kubernetes.io/docs/tasks/manage-kubernetes-objects/storage-version-migration/)
 - [Kubernetes encryption at rest](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/)
+
+## Verify an adopting implementation
+
+Record the provider key/version and rotation schedule,
+the API-server encryption configuration rollout, and audit trail. Reconcile a
+complete Secret inventory against the active key after migration; preserve
+previous decrypt capability across every retained backup and verify an
+isolated cold restore before approved retirement. Record migration completion
+and per-record coverage separately; a successful schedule alone is not proof
+that every retained object has been rewritten.
