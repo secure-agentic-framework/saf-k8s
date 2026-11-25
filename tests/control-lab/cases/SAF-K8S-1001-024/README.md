@@ -11,3 +11,10 @@ The API denies append before the RoleBinding. After binding, the writer can appe
 The fixtures cover Kubernetes API storage and ordinary scoped identities in the disposable cluster. Production log ingestion completeness, storage administration and exception boundaries, and centralized SIEM or archive durability require separate evidence.
 
 [Kubernetes immutable ConfigMaps](https://v1-36.docs.kubernetes.io/docs/concepts/configuration/configmap/#immutable-configmaps) · [Kubernetes audit records](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/) · [RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/) · [Validating admission policies](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
+
+## Adopter verification
+
+1. Inventory audit ingestion destinations, record writer/reader/maintenance principals, and each storage administrator or exception route.
+2. In a controlled rehearsal with synthetic records, confirm the normal writer can append and read only its intended records but cannot update, delete, or overwrite an existing record. Verify mutable comparator records remain separate from archived records.
+3. Verify approved maintenance operations require the documented authority and leave an independent audit trail. Check effective object-lock/immutability settings or equivalent at primary and replicated stores.
+4. Retain effective role/policy settings, denied and permitted operation results, immutable record identifiers/digests, and independent review evidence.
