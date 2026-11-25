@@ -13,3 +13,10 @@ priority runs an inert Pod in the reserved namespace.
 
 Review the actual deployed roles, class inventory, template and controller
 entry points, scheduling and GPU policy separately.
+
+## Adopter verification
+
+1. Inventory PriorityClass objects, values, global defaults, owners, and distinct object-management grants. Confirm class-object write access is separately reviewed from Pod submission.
+2. Inventory every production submission route: direct Pods, Deployment/Job templates, custom controllers, operators, admission webhooks, and namespaces. Identify the exact allowed class for each identity/workload tier.
+3. Verify admission checks the effective Pod field for both direct and controller-created Pods. Test missing, unauthorized, and allowed classes without scheduling disruptive workload demand.
+4. Reconcile real GPU placement and availability policies with the allowlist. Retain policy version, namespace enrollment, and exception evidence. The case does not establish deployed cluster inventory or GPU policy.
