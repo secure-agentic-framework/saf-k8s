@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0101-014",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "cf483a70cfcde4a4096c04c27dd54f6fc7a6a292",
+  "catalog_sha256": "479dd34cbc528dfa061f5555b19fc586c71385dcacd427f88979b910e0151d5e",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "dd1569d6095848684ea5f392d0e03b50b88a493c339ea534d8bfa5c422917eee",
   "scope": "Self-managed kind Kubernetes v1.36.1 API server configured by kubeadm flags. Observe the effective Node and RBAC mode chain, narrow service-account authorization, and a node identity's access to a referenced ConfigMap.",
-  "cluster": "saf-lab-be22ffaac3fe",
+  "cluster": "saf-lab-034994352107",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
