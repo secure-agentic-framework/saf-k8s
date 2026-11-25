@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0102-014",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "182e27976e21faaf128557f20fc9b42a74f0e58c",
+  "catalog_sha256": "044bf7085d167e0cebc119fadb5265399823a05a596346af59f25fe7dc9ad3a6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "111dbac1de0df05ecf94b68716dbaac9a9625ba60ed2d77073e77b00b77a340d",
-  "scope": "One disposable Kind v1.36.1 control-plane node using kubeadm's local PKI and stacked etcd. The case detects a partial renewal, completes kubeadm certificate renewal, restarts the etcd and kube-apiserver static Pods, compares public certificate receipts before/after and live etcd server/peer receipts to renewed files, then writes and reads back a synthetic ConfigMap through the Kubernetes API. No private key, token, secret value, external PKI, multi-member behavior, scheduled rotation, or production cluster is exercised.",
-  "cluster": "saf-lab-5a8ae10f601f",
+  "scope": "One disposable Kind v1.36.1 control-plane node using kubeadm's local PKI and stacked etcd. A pure planner evaluates each public leaf lifetime under explicit synthetic expiry-offset timestamps and selects the existing server/client/peer command order without changing host time. The case detects a partial renewal, completes kubeadm certificate renewal, restarts the etcd and kube-apiserver static Pods, compares public certificate receipts before/after and live etcd server/peer receipts to renewed files, then writes and reads back a synthetic ConfigMap through the Kubernetes API. No private key, token, secret value, external PKI, multi-member behavior, scheduled rotation, or production cluster is exercised.",
+  "cluster": "saf-lab-5a432b0e9acb",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -38,6 +38,43 @@
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
+    {
+      "phase": "positive",
+      "claim": "Synthetic pre-expiry decisions select each exact public leaf at its boundary and all roles before expiry",
+      "matched": true,
+      "observed": {
+        "lead_seconds": 2592000,
+        "clock_basis_is_synthetic_expiry_offset": true,
+        "all_role_boundary_checks_pass": true,
+        "all_roles_selected_in_declared_order": true,
+        "all_due_decision_precedes_every_expiry": true,
+        "all_due_decision_follows_every_not_before": true,
+        "due_plan_splits_into_existing_command_phases": true,
+        "role_boundary_predicates": {
+          "etcd/server": {
+            "outside_window_excludes_role": true,
+            "at_boundary_includes_role": true,
+            "outside_time_within_leaf_lifetime": true,
+            "boundary_time_within_leaf_lifetime": true,
+            "expired_role_outside_planned_window": true
+          },
+          "apiserver-etcd-client": {
+            "outside_window_excludes_role": true,
+            "at_boundary_includes_role": true,
+            "outside_time_within_leaf_lifetime": true,
+            "boundary_time_within_leaf_lifetime": true,
+            "expired_role_outside_planned_window": true
+          },
+          "etcd/peer": {
+            "outside_window_excludes_role": true,
+            "at_boundary_includes_role": true,
+            "outside_time_within_leaf_lifetime": true,
+            "boundary_time_within_leaf_lifetime": true,
+            "expired_role_outside_planned_window": true
+          }
+        }
+      }
+    },
     {
       "phase": "red",
       "claim": "The live certificate audit detects that the partial renewal omitted the peer class",

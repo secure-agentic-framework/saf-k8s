@@ -9,6 +9,8 @@ import time
 
 SCOPE = (
     "One disposable Kind v1.36.1 control-plane node using kubeadm's local PKI and stacked etcd. "
+    "A pure planner evaluates each public leaf lifetime under explicit synthetic expiry-offset "
+    "timestamps and selects the existing server/client/peer command order without changing host time. "
     "The case detects a partial renewal, completes kubeadm "
     "certificate renewal, restarts the etcd and kube-apiserver static Pods, compares public "
     "certificate receipts before/after and live etcd server/peer receipts to renewed files, "
@@ -31,6 +33,14 @@ EXPECTED_EKU = {
     "apiserver-etcd-client": "TLS Web Client Authentication",
 }
 RAW_FILE = "certificate-rotation.raw.json"
+LEAD_SECONDS = 30 * 24 * 60 * 60  # Example fixture policy, not a Kubernetes default.
+ROTATION_ORDER = ("etcd/server", "apiserver-etcd-client", "etcd/peer")
+RENEW_TARGETS = {
+    "etcd/server": "etcd-server",
+    "etcd/peer": "etcd-peer",
+    "apiserver-etcd-client": "apiserver-etcd-client",
+}
+DELIBERATE_OMISSION = "etcd/peer"
 
 
 def node(lab, script, *, timeout=30):
@@ -86,6 +96,61 @@ def expiry_epoch(value):
     return datetime.strptime(value, "%b %d %H:%M:%S %Y %Z").replace(
         tzinfo=timezone.utc
     ).timestamp()
+
+
+def plan_due_roles(receipts, now_epoch, lead_seconds):
+    """Pure decision helper; now_epoch is explicit and may be synthetic."""
+    due = []
+    for role in ROTATION_ORDER:
+        receipt = receipts[role]
+        start = expiry_epoch(receipt["not_before"])
+        expiry = expiry_epoch(receipt["not_after"])
+        if start <= now_epoch < expiry and expiry - now_epoch <= lead_seconds:
+            due.append(role)
+    return due
+
+
+def preexpiry_decision_evidence(receipts):
+    """Exercise deterministic window edges without reading or changing host time."""
+    expiries = {role: expiry_epoch(receipts[role]["not_after"]) for role in ROTATION_ORDER}
+    starts = {role: expiry_epoch(receipts[role]["not_before"]) for role in ROTATION_ORDER}
+    edge_results = {}
+    for role in ROTATION_ORDER:
+        outside_now = expiries[role] - LEAD_SECONDS - 1
+        boundary_now = expiries[role] - LEAD_SECONDS
+        edge_results[role] = {
+            "outside_window_excludes_role": role not in plan_due_roles(
+                receipts, outside_now, LEAD_SECONDS
+            ),
+            "at_boundary_includes_role": role in plan_due_roles(
+                receipts, boundary_now, LEAD_SECONDS
+            ),
+            "outside_time_within_leaf_lifetime": starts[role] <= outside_now < expiries[role],
+            "boundary_time_within_leaf_lifetime": starts[role] <= boundary_now < expiries[role],
+            "expired_role_outside_planned_window": role not in plan_due_roles(
+                receipts, expiries[role], LEAD_SECONDS),
+        }
+
+    all_due_now = max(expiries.values()) - LEAD_SECONDS
+    all_due = plan_due_roles(receipts, all_due_now, LEAD_SECONDS)
+    all_due_before_expiry = all_due_now < min(expiries.values())
+    all_due_after_not_before = all_due_now >= max(starts.values())
+    checks = {
+        "clock_basis_is_synthetic_expiry_offset": True,
+        "all_role_boundary_checks_pass": all(
+            all(row.values()) for row in edge_results.values()
+        ),
+        "all_roles_selected_in_declared_order": tuple(all_due) == ROTATION_ORDER,
+        "all_due_decision_precedes_every_expiry": all_due_before_expiry,
+        "all_due_decision_follows_every_not_before": all_due_after_not_before,
+        "due_plan_splits_into_existing_command_phases": (
+            tuple(role for role in all_due if role != DELIBERATE_OMISSION)
+            == ("etcd/server", "apiserver-etcd-client")
+            and tuple(role for role in all_due if role == DELIBERATE_OMISSION)
+            == ("etcd/peer",)
+        ),
+    }
+    return all_due, {"lead_seconds": LEAD_SECONDS, **checks, "role_boundaries": edge_results}
 
 
 def active_fingerprint(lab, address, port, client_cert, client_key):
@@ -161,6 +226,20 @@ def run(lab):
 
     before = public_receipts(lab)
     required = set(CERTS)
+    planned_roles, planner_evidence = preexpiry_decision_evidence(before)
+    planner_ok = all(value for key, value in planner_evidence.items()
+                     if key not in {"lead_seconds", "role_boundaries"}) and all(
+                         all(row.values()) for row in planner_evidence["role_boundaries"].values()
+                     )
+    lab.check(
+        "positive",
+        "Synthetic pre-expiry decisions select each exact public leaf at its boundary and all roles before expiry",
+        planner_ok,
+        {key: value for key, value in planner_evidence.items() if key != "role_boundaries"}
+        | {"role_boundary_predicates": planner_evidence["role_boundaries"]},
+    )
+    if not planner_ok or set(planned_roles) != required:
+        lab.block("The synthetic pre-expiry planner did not select exactly the required roles")
 
     marker = {"apiVersion": "v1", "kind": "ConfigMap",
               "metadata": {"name": "cert-rotation-before"},
@@ -168,8 +247,11 @@ def run(lab):
     lab.create(marker)
 
     # Detect the coverage gap without putting partially renewed files in service.
-    first = node(lab, "kubeadm certs renew etcd-server && kubeadm certs renew apiserver-etcd-client",
-                 timeout=90)
+    initial_roles = [role for role in planned_roles if role != DELIBERATE_OMISSION]
+    renewal_commands = " && ".join(
+        f"kubeadm certs renew {RENEW_TARGETS[role]}" for role in initial_roles
+    )
+    first = node(lab, renewal_commands, timeout=90)
     incomplete = public_receipts(lab)
     unchanged = sorted(name for name in required if
                        before[name]["sha256_fingerprint"] == incomplete[name]["sha256_fingerprint"])
@@ -179,7 +261,11 @@ def run(lab):
         unchanged == ["etcd/peer"],
         {"required_classes": sorted(required), "unchanged_after_partial_renewal": unchanged},
     )
-    renewal = node(lab, "kubeadm certs renew etcd-peer", timeout=90)
+    remaining_roles = [role for role in planned_roles if role not in initial_roles]
+    remaining_commands = " && ".join(
+        f"kubeadm certs renew {RENEW_TARGETS[role]}" for role in remaining_roles
+    )
+    renewal = node(lab, remaining_commands, timeout=90)
     after = public_receipts(lab)
     now = time.time()
     per_class = {}
@@ -286,4 +372,14 @@ def run(lab):
                              "apiserver_client_certificate_path_referenced": True,
                              "synthetic_configmap_data_readback": data_ok},
         "renewal_output": first.stdout.strip() + "\n" + renewal.stdout.strip(),
+        "preexpiry_plan": {
+            "lead_seconds": LEAD_SECONDS,
+            "clock_basis": "synthetic_expiry_offsets_only",
+            "all_due_role_order": list(planned_roles),
+            "existing_first_phase_roles": initial_roles,
+            "existing_followup_role": remaining_roles,
+            "executed_renewal_command_count": len(initial_roles) + len(remaining_roles),
+            "host_clock_changed": False,
+            "role_boundary_predicates": planner_evidence["role_boundaries"],
+        },
     })

@@ -15,3 +15,22 @@ externally managed issuance and deployment policy remain unverified here.
 
 - [Kubernetes v1.36 kubeadm certificate management](https://v1-36.docs.kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/)
 - [etcd transport security](https://etcd.io/docs/v3.6/op-guide/security/)
+
+## Pre-expiry rotation plan
+
+The case evaluates the exact inspected public `notBefore` and `notAfter` values
+under explicit synthetic timestamps. Each role is excluded one second outside
+its example 30-day lead window and included at its boundary. The all-due plan
+selects all three currently valid roles in order and drives the native
+renewals. The omission comparison deliberately holds back the peer until its
+absence is verified. The workflow then renews the peer and applies the existing
+etcd and API server restarts.
+
+The example policy is a fixture choice. Reproduce actual periodic invocation,
+role and member coverage, issuer approval, active certificate replacement and
+post-rotation readiness against an adopter-approved schedule. Determine the
+lead time from renewal, approval, alerting and recovery requirements. Record
+the trigger and due-role decision, ordered renewals, health and allowed
+operations, and evidence of rollout. Route already-expired certificates to the
+approved recovery procedure and record completion. The test uses a synthetic
+clock for the selection comparison and preserves the host clock.
