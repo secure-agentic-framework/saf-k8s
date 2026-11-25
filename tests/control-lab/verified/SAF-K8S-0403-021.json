@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0403-021",
-  "catalog_revision": "2616207ad8cf8f9d62fa8e9cf1250751c14151ed",
-  "catalog_sha256": "7bd5c83d431c9e088850a6c51a4ba451ff1354116c27e2d04ca0a5618d3ad3c5",
+  "catalog_revision": "1f8d13a1fabddcd925a9bd56f1893beedccedc0d",
+  "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "ad7b6b66c9a7776a67a18faeba569fe83fcae405d8fd69a540c688606299e1ca",
-  "scope": "Collect actual metadata for a known projected Kubernetes credential and enumerated Vault service tokens. Verify issuer state, Pod identity, defined expiry, explicit missing coverage and failure handling. Kubernetes cluster-wide TokenRequest enumeration, Vault dynamic secret lease inventory, cloud and external issuers need separate evidence.",
-  "cluster": "saf-lab-cbebb268ddf4",
+  "scope": "Collect actual metadata for a known projected Kubernetes credential and enumerated Vault service tokens. Verify issuer state, Pod identity, defined expiry, explicit missing coverage and failure handling. Kubernetes cluster-wide TokenRequest enumeration, Vault dynamic secret lease inventory, cloud and external issuers need separate evidence. A separate pure fixture comparator classifies only synthetic metadata for one declared issuer and credential class against an explicit clock; it establishes no real-source freshness.",
+  "cluster": "saf-lab-fb56d28d30f6",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -64,6 +64,31 @@
       "observed": {
         "released_from_active_inventory": true,
         "prior_metadata_remains_available": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Synthetic scoped metadata yields explicit freshness and coverage states",
+      "matched": true,
+      "observed": {
+        "states_match": true,
+        "freshness_age_limit_seconds": 300,
+        "synthetic_clock_used": true,
+        "credential_values_used": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Observed Vault fixture metadata traverses the freshness comparator under controlled stamps",
+      "matched": true,
+      "observed": {
+        "actual_fixture_rows_used": true,
+        "sanitized_row_count": 2,
+        "scope_matched": true,
+        "fresh_at_boundary": true,
+        "stale_after_boundary": true,
+        "synthetic_timestamps_used": true,
+        "credential_values_used": false
       }
     }
   ]

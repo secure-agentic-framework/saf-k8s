@@ -1,4 +1,4 @@
-"""Reconcile covered Kubernetes binding and Vault issuance metadata without retaining values."""
+"""Reconcile covered credential metadata and compare deterministic freshness states."""
 
 import base64
 import json
@@ -18,8 +18,72 @@ SCOPE = (
     "Collect actual metadata for a known projected Kubernetes credential and enumerated "
     "Vault service tokens. Verify issuer state, Pod identity, defined expiry, explicit missing "
     "coverage and failure handling. Kubernetes cluster-wide TokenRequest enumeration, "
-    "Vault dynamic secret lease inventory, cloud and external issuers need separate evidence."
+    "Vault dynamic secret lease inventory, cloud and external issuers need separate evidence. "
+    "A separate pure fixture comparator classifies only synthetic metadata for one declared "
+    "issuer and credential class against an explicit clock; it establishes no real-source freshness."
 )
+
+FRESHNESS_NOW = 1_800_000_000
+FRESHNESS_MAX_AGE = 300
+
+
+def metadata_coverage(source, *, now, max_age):
+    """Classify metadata-source coverage without reading or creating credentials."""
+    coverage = source.get("coverage")
+    if coverage in {"denied", "unavailable", "unsupported", "partial"}:
+        return coverage
+    if coverage != "collected" or source.get("complete") is not True:
+        return "partial"
+    observed_at = source.get("observed_at")
+    if not isinstance(observed_at, int) or observed_at > now:
+        return "unavailable"
+    return "fresh" if now - observed_at <= max_age else "stale"
+
+
+def synthetic_freshness_comparison():
+    """Fixed synthetic rows for one issuer and credential class; no values or tokens."""
+    metadata = {"issuer_class": "fixture-token-issuer",
+                "credential_class": "synthetic-workload-token",
+                "owner_ref": "fixture-workload-a"}
+    sources = {
+        "fresh": {"coverage": "collected", "complete": True,
+                  "observed_at": FRESHNESS_NOW - FRESHNESS_MAX_AGE, "rows": [metadata]},
+        "stale": {"coverage": "collected", "complete": True,
+                  "observed_at": FRESHNESS_NOW - FRESHNESS_MAX_AGE - 1, "rows": [metadata]},
+        "denied": {"coverage": "denied", "rows": None},
+        "unavailable": {"coverage": "unavailable", "rows": None},
+        "partial": {"coverage": "collected", "complete": False, "rows": [metadata]},
+        "unsupported": {"coverage": "unsupported", "rows": None},
+    }
+    return {name: metadata_coverage(source, now=FRESHNESS_NOW, max_age=FRESHNESS_MAX_AGE)
+            for name, source in sources.items()}
+
+
+def observed_rows_freshness_comparison(rows, expected_owner_uid):
+    """Use actual selected fixture rows, but inject only synthetic freshness stamps."""
+    if not isinstance(rows, list) or not rows:
+        return {"scope_matched": False, "sanitized_row_count": 0,
+                "fresh_at_boundary": False, "stale_after_boundary": False}
+    scope_matched = all(row.get("source") == "vault-service-token"
+                        and row.get("owner_uid") == expected_owner_uid for row in rows)
+    if not scope_matched:
+        return {"scope_matched": False, "sanitized_row_count": 0,
+                "fresh_at_boundary": False, "stale_after_boundary": False}
+
+    # Do not pass the observed owner UID, labels, expiry values, or any Vault
+    # response fields into the comparator or its evidence.
+    sanitized = [{"issuer_class": "fixture-token-issuer",
+                  "credential_class": "vault-service-token",
+                  "owner_ref": "fixture-workload-a"} for _ in rows]
+    fresh_source = {"coverage": "collected", "complete": True,
+                    "observed_at": FRESHNESS_NOW - FRESHNESS_MAX_AGE, "rows": sanitized}
+    stale_source = {"coverage": "collected", "complete": True,
+                    "observed_at": FRESHNESS_NOW - FRESHNESS_MAX_AGE - 1, "rows": sanitized}
+    return {"scope_matched": True, "sanitized_row_count": len(sanitized),
+            "fresh_at_boundary": metadata_coverage(
+                fresh_source, now=FRESHNESS_NOW, max_age=FRESHNESS_MAX_AGE) == "fresh",
+            "stale_after_boundary": metadata_coverage(
+                stale_source, now=FRESHNESS_NOW, max_age=FRESHNESS_MAX_AGE) == "stale"}
 
 
 def issue(lab, token, owner, label, ttl):
@@ -139,3 +203,31 @@ def run(lab):
         "known_sources_metadata_only": fresh, "unavailable_sources_explicit": unavailable,
         "prior_inventory_available": historical,
     }, indent=2) + "\n")
+    freshness = synthetic_freshness_comparison()
+    expected_freshness = {"fresh": "fresh", "stale": "stale", "denied": "denied",
+                          "unavailable": "unavailable", "partial": "partial",
+                          "unsupported": "unsupported"}
+    lab.check("positive", "Synthetic scoped metadata yields explicit freshness and coverage states",
+              freshness == expected_freshness,
+              {"states_match": freshness == expected_freshness,
+               "freshness_age_limit_seconds": FRESHNESS_MAX_AGE,
+               "synthetic_clock_used": True,
+               "credential_values_used": False})
+    observed_freshness = observed_rows_freshness_comparison(
+        first.get("rows"), kubernetes["owner_uid"])
+    observed_freshness_ok = (
+        first.get("coverage") == "collected"
+        and observed_freshness["scope_matched"]
+        and observed_freshness["sanitized_row_count"] == len(first.get("rows") or [])
+        and observed_freshness["fresh_at_boundary"]
+        and observed_freshness["stale_after_boundary"]
+    )
+    lab.check("positive", "Observed Vault fixture metadata traverses the freshness comparator under controlled stamps",
+              observed_freshness_ok,
+              {"actual_fixture_rows_used": bool(first.get("rows")),
+               "sanitized_row_count": observed_freshness["sanitized_row_count"],
+               "scope_matched": observed_freshness["scope_matched"],
+               "fresh_at_boundary": observed_freshness["fresh_at_boundary"],
+               "stale_after_boundary": observed_freshness["stale_after_boundary"],
+               "synthetic_timestamps_used": True,
+               "credential_values_used": False})
