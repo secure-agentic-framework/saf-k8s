@@ -49,3 +49,16 @@ completion. A local rule evaluation is not notification-path proof.
 - Prometheus rule evaluator: `prom/prometheus:v3.5.0@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996`.
 - Reference exporter/parser: Python standard library only (`http.server`, `threading`, `http.client`, `re`, `math`). No additional images, packages, services, or dependencies.
 - Adopter mode: adopter must pin and report its own exporter version/digest, scrape config revision and expected member inventory; no generic exporter is assumed.
+
+## Inert notification route
+
+The case submits two synthetic alert events to a disposable Alertmanager.
+Its route delivers only the event matching the approved fixture cluster,
+expiry rule, severity and certificate role to a local inert receiver.
+The receiver retains the matching event in memory. The other event leaves
+the receiver count unchanged. The separate Promtool checks prove the
+rule decisions for the observed healthy inventory and modeled faults.
+
+For adoption, verify the real exporter-to-rule link, actual rule-to-
+Alertmanager delivery, and acknowledgement at the approved receiver.
+Record the route, timing, owner, certificate scope and escalation evidence.

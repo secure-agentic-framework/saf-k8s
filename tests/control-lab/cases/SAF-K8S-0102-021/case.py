@@ -2,6 +2,7 @@
 from datetime import datetime, timezone
 from http.client import HTTPConnection
 from http.server import BaseHTTPRequestHandler, HTTPServer
+import importlib.util
 import json
 import math
 from pathlib import Path
@@ -12,6 +13,9 @@ import tempfile
 
 
 HERE = Path(__file__).parent
+ROUTE_SPEC = importlib.util.spec_from_file_location("alert_route", HERE / "alert_route.py")
+alert_route = importlib.util.module_from_spec(ROUTE_SPEC)
+ROUTE_SPEC.loader.exec_module(alert_route)
 PROM_IMAGE = (
     "docker.io/prom/prometheus:v3.5.0@sha256:"
     "63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996"
@@ -387,3 +391,5 @@ def run(lab):
              "synthetic_test_groups": len(tests) - 1,
              "rule_engine_passed": green.returncode == 0},
         )
+
+    alert_route.run(lab)

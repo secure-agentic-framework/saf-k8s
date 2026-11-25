@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0102-021",
-  "catalog_revision": "b90e62e06b9b9dd9148714e037b67eafddc74a92",
-  "catalog_sha256": "1c78a76489ca604a14fdf3824565e4bcb568f55832e793e78fa752772ba60eab",
+  "catalog_revision": "bff28aa301c4f430c3c731c3b5be15d0d5eeda55",
+  "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "c95e66f3b19cc2dc0d05702b830ba638ee104c0d8cc03bb5dfc368b45aa19f82",
   "scope": "On the harness's pinned kubeadm v1.36.1 kind control-plane node, inspect only public notAfter values and etcd-CA verification for etcd-server, etcd-peer and apiserver-etcd-client. Scrape those exact role observations from a single loopback reference exporter, validate labels and timestamps, and evaluate a healthy Prometheus sample and controlled synthetic samples around an example 30-day lead time and a five-minute per-role missing-series hold. The metric is a synthetic telemetry contract, not a claim that kubeadm exports this Prometheus metric. No private key, notification route, production cluster, external etcd, externally managed certificate, or real alert delivery is tested.",
-  "cluster": "saf-lab-32649e8d7449",
+  "cluster": "saf-lab-0ef04aed0e24",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -105,6 +105,26 @@
         "healthy_inventory": 1,
         "synthetic_test_groups": 12,
         "rule_engine_passed": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A wrong-cluster certificate alert does not reach the case-local receiver",
+      "matched": true,
+      "observed": {
+        "wrong_cluster_event_submitted": true,
+        "inert_receiver_count_unchanged": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The approved synthetic etcd certificate alert reaches the exact inert route",
+      "matched": true,
+      "observed": {
+        "receiver_identity_exact": true,
+        "notification_count": 1,
+        "matched_labels_only": true,
+        "external_integrations": 0
       }
     }
   ]
