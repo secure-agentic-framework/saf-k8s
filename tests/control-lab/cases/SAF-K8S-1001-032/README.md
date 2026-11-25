@@ -23,3 +23,19 @@ log sources require separate evidence.
 - [Kubernetes v1.36 DaemonSets](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/daemonset/)
 - [Kubernetes v1.36 taints and tolerations](https://v1-36.docs.kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
 - [Kubernetes v1.36 logging architecture](https://v1-36.docs.kubernetes.io/docs/concepts/cluster-administration/logging/)
+
+## Adopter verification
+
+1. Inventory production clusters, node pools and roles, control-plane and
+   provider sources, container/kubelet paths, GPU models/drivers, and the
+   collectors assigned to each.
+2. Compare the live node and source inventory to collector targets, including
+   GPU taints/tolerations, autoscaled and replacement nodes, and provider log
+   export configuration. Identify uncovered roles and sources.
+3. Emit or select approved synthetic markers from each source. Verify
+   receipt at the collector and downstream destination, with timestamps and
+   source identity, on every node role. Exercise a newly joined/replaced node
+   and reconcile expected versus observed sources.
+4. Retain dated inventory, collector configuration, source-to-destination
+   results, gap disposition, and real driver/provider evidence. Do not treat a
+   simulated accelerator marker as proof of device log capture.
