@@ -7,3 +7,12 @@ The baseline indexes a benign alternate document. In the governed path, a Cosign
 Verify production authority, signer lifecycle, real source identity and freshness, alternate intake routes and update policy, and recovery of the storage commit paths.
 
 [Sigstore signature verification](https://docs.sigstore.dev/cosign/verifying/verify/)
+
+## Verify an adopting implementation
+
+Verify trusted document approval and signature scope binds publisher,
+source, digest, freshness, parser and intended destination before chunking.
+Prove altered approval and matching approval for different bytes stop before
+writes, while approved content persists and is retrievable. The fixture uses
+Cosign, synthetic documents and local PVCs. Production authority, source
+freshness and alternate intake paths remain deployment evidence.
