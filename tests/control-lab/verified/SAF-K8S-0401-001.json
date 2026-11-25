@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0401-001",
-  "catalog_revision": "3dfa2140855cd620a814fd1c3918cfdbacc31ae4",
-  "catalog_sha256": "9f3a36256cfdd93b4f2874549aa7792ac0af792b496e00a83549929ab1dac73a",
+  "catalog_revision": "f3cc4f7c292191aba12125829157872674c11ae7",
+  "catalog_sha256": "d349202ee2a53ae35fd3d0b6c36098d2d5cc45a51aa71fbf557812fcda78d4a0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "0c8bc46353756c942a2a80e064a862e6c45694cc12e85ddef19bf534eb89a536",
-  "scope": "Kubernetes v1.36.1 native RBAC for one synthetic ServiceAccount and three case-owned ConfigMaps. A broad namespace Role/RoleBinding baseline permits get, list, watch, update, patch and delete on every ConfigMap in its namespace. The corrected Role permits only get on the exact required ConfigMap in saf-0401-001. Ordinary API requests are issued as the synthetic subject. No built-in role is edited. ClusterRoles, ClusterRoleBindings, other subjects, admission policies, production identities and real data are outside this case.",
-  "cluster": "saf-lab-de36093daa7b",
+  "scope": "Kubernetes v1.36.1 native RBAC for one synthetic ServiceAccount, synthetic impersonated groups, and three case-owned ConfigMaps. A broad namespace Role/RoleBinding baseline permits get, list, watch, update, patch and delete on every ConfigMap in its namespace. The corrected Role permits only get on the exact required ConfigMap in saf-0401-001. Checks include additive group grants, an exact-name aggregated ClusterRoleBinding, source-manifest drift and restoration, and a namespace-scoped ValidatingAdmissionPolicy dry-run. No built-in role is edited; no overbroad Role is bound. Production identities and real data are outside scope.",
+  "cluster": "saf-lab-70cda6c75dd1",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -78,6 +78,84 @@
         "resource": "configmaps",
         "name": "saf-0401-001-required-config",
         "marker_matches": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A synthetic group binding adds only its named ConfigMap read",
+      "matched": true,
+      "observed": {
+        "group_extra_get_yes": "yes",
+        "direct_required_get_yes": "yes"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Revoking the additive binding removes only its extra grant",
+      "matched": true,
+      "observed": {
+        "unneeded_get_no_reason": "no matching grant after binding removal",
+        "required_get_yes": "yes"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Aggregated ClusterRoleBinding resolves the exact namespaced read",
+      "matched": true,
+      "observed": {
+        "aggregation_controller_copied_rule": true,
+        "required_named_get_yes": "yes",
+        "unrelated_name_no_reason": "no matching resourceName rule",
+        "cluster_binding_cross_namespace_get_yes": "yes",
+        "scope_note": "ClusterRoleBinding applies the ClusterRole in every namespace"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Removing the cluster binding restores namespace denial",
+      "matched": true,
+      "observed": {
+        "outside_named_get_no_reason": "no matching grant after ClusterRoleBinding removal",
+        "required_named_get_yes": "yes"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Source review finds an added benign named read",
+      "matched": true,
+      "observed": {
+        "source_rules_differ": true,
+        "manifest_diff_detected": true,
+        "extra_named_get_yes": "yes"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Approved source restoration revokes the extra read",
+      "matched": true,
+      "observed": {
+        "rules_match_approved_source": true,
+        "manifest_diff_clear": true,
+        "extra_named_get_no_reason": "no matching RBAC grant after restoration",
+        "required_named_get_yes": "yes"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "An unbound wildcard Role passes server dry-run before the fixture policy",
+      "matched": true,
+      "observed": {
+        "wildcard_role_admitted_before_policy": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Admission rejects the wildcard in the selected namespace and preserves the permitted cases",
+      "matched": true,
+      "observed": {
+        "overbroad_role_denied_by_policy": true,
+        "approved_role_dry_run_admitted": true,
+        "unselected_namespace_unaffected": true
       }
     }
   ]

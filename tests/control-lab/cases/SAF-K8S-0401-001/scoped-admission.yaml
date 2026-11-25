@@ -1,0 +1,28 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-0401-001-no-wildcard-rbac
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    matchPolicy: Equivalent
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/control-case: SAF-K8S-0401-001
+    resourceRules:
+      - apiGroups: [rbac.authorization.k8s.io]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [roles]
+        scope: Namespaced
+  validations:
+    - expression: "!object.rules.exists(r, r.verbs.exists(v, v == '*') || r.resources.exists(x, x == '*'))"
+      message: "wildcard verbs or resources are not allowed in the SAF-K8S-0401-001 fixture namespace"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-0401-001-no-wildcard-rbac
+spec:
+  policyName: saf-0401-001-no-wildcard-rbac
+  validationActions: [Deny]

@@ -1,7 +1,13 @@
 """Exercise least-privilege native RBAC on synthetic ConfigMaps."""
 from pathlib import Path
+from importlib.util import module_from_spec, spec_from_file_location
 
 HERE = Path(__file__).parent
+_EXTENDED_SPEC = spec_from_file_location(
+    "saf_0401_001_extended_checks", HERE / "extended_checks.py")
+_EXTENDED_CHECKS = module_from_spec(_EXTENDED_SPEC)
+_EXTENDED_SPEC.loader.exec_module(_EXTENDED_CHECKS)
+run_extended_checks = _EXTENDED_CHECKS.run
 NAMESPACE = "saf-0401-001"
 OTHER_NAMESPACE = "saf-0401-001-outside"
 SERVICE_ACCOUNT = "saf-0401-001-reader"
@@ -11,13 +17,15 @@ OTHER = "saf-0401-001-unneeded-config"
 OUTSIDE = "saf-0401-001-outside-config"
 
 SCOPE = (
-    "Kubernetes v1.36.1 native RBAC for one synthetic ServiceAccount and three "
+    "Kubernetes v1.36.1 native RBAC for one synthetic ServiceAccount, synthetic "
+    "impersonated groups, and three "
     "case-owned ConfigMaps. A broad namespace Role/RoleBinding baseline permits "
     "get, list, watch, update, patch and delete on every ConfigMap in its namespace. "
     "The corrected Role permits only get on the exact required ConfigMap in "
-    f"{NAMESPACE}. Ordinary API requests are issued as the synthetic subject. "
-    "No built-in role is edited. ClusterRoles, ClusterRoleBindings, other subjects, "
-    "admission policies, production identities and real data are outside this case."
+    f"{NAMESPACE}. Checks include additive group grants, an exact-name aggregated "
+    "ClusterRoleBinding, source-manifest drift and restoration, and a namespace-"
+    "scoped ValidatingAdmissionPolicy dry-run. No built-in role is edited; no "
+    "overbroad Role is bound. Production identities and real data are outside scope."
 )
 
 
@@ -103,3 +111,6 @@ def run(lab):
         {"namespace": NAMESPACE, "verb": "get", "resource": "configmaps",
          "name": TARGET, "marker_matches": permitted.stdout == TARGET},
     )
+
+    # Supplemental checks run only in the same disposable fixture.
+    run_extended_checks(lab)
