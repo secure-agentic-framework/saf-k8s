@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0902-008",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "21f778a64742561b3e988aab3872185e3e4ec692",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "ccfe058c28b3b973ae18fa6c8ab890022ce47206bea66c45fafad42f772ef93f",
   "scope": "One disposable Kind v1.36.1 cluster; one local fixture gateway; two fixed synthetic identities; and two case-owned model mock endpoints. An ephemeral per-run HS256 test key signs short-lived fixture tokens for only those fixed identity/model grants. Identical ordinary fixed GETs to two owned paths are observed in an open red baseline, then with gateway verification/enforcement, plus one positive request per authorized identity. Gateway and independent backend event logs use fixed event IDs and contain no tokens or authorization headers. No real issuer, ingress, feed, target, model, credential, or user data is used.",
-  "cluster": "saf-lab-741941d1f6ad",
+  "cluster": "saf-lab-bf0e1dc39f73",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -72,6 +72,66 @@
     },
     {
       "phase": "green",
+      "claim": "Gateway rejects correctly signed token with an unapproved issuer before model dispatch",
+      "matched": true,
+      "observed": {
+        "event_id": "green-wrong-issuer",
+        "status": 401,
+        "decision": "authentication-required"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Gateway rejects correctly signed token with an unapproved audience before model dispatch",
+      "matched": true,
+      "observed": {
+        "event_id": "green-wrong-audience",
+        "status": 401,
+        "decision": "authentication-required"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Gateway rejects correct HMAC over a token declaring an unapproved algorithm before model dispatch",
+      "matched": true,
+      "observed": {
+        "event_id": "green-wrong-algorithm",
+        "status": 401,
+        "decision": "authentication-required"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Gateway rejects correctly signed token for an unregistered synthetic subject before model dispatch",
+      "matched": true,
+      "observed": {
+        "event_id": "green-unregistered-subject",
+        "status": 401,
+        "decision": "authentication-required"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Gateway rejects well-formed token with a changed signature before model dispatch",
+      "matched": true,
+      "observed": {
+        "event_id": "green-bad-signature",
+        "status": 401,
+        "decision": "authentication-required"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Gateway rejects correctly signed token with a non-integer expiry claim before model dispatch",
+      "matched": true,
+      "observed": {
+        "event_id": "green-malformed-claims",
+        "status": 401,
+        "decision": "authentication-required"
+      }
+    },
+    {
+      "phase": "green",
       "claim": "Enforced gateway denies green-absent before the backend",
       "matched": true,
       "observed": {
@@ -126,7 +186,7 @@
     },
     {
       "phase": "positive",
-      "claim": "Gateway and independent backends agree on each allow or deny",
+      "claim": "Gateway and backends agree; token matrix is rejected before dispatch and evidence omits credential fields",
       "matched": true,
       "observed": {
         "red-absent": {
@@ -145,6 +205,36 @@
           "backend_observed": false
         },
         "green-expired": {
+          "gateway_matches": true,
+          "backend_matches_expected": true,
+          "backend_observed": false
+        },
+        "green-wrong-issuer": {
+          "gateway_matches": true,
+          "backend_matches_expected": true,
+          "backend_observed": false
+        },
+        "green-wrong-audience": {
+          "gateway_matches": true,
+          "backend_matches_expected": true,
+          "backend_observed": false
+        },
+        "green-wrong-algorithm": {
+          "gateway_matches": true,
+          "backend_matches_expected": true,
+          "backend_observed": false
+        },
+        "green-unregistered-subject": {
+          "gateway_matches": true,
+          "backend_matches_expected": true,
+          "backend_observed": false
+        },
+        "green-bad-signature": {
+          "gateway_matches": true,
+          "backend_matches_expected": true,
+          "backend_observed": false
+        },
+        "green-malformed-claims": {
           "gateway_matches": true,
           "backend_matches_expected": true,
           "backend_observed": false

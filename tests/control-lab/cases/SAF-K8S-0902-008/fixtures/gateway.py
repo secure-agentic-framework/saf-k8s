@@ -16,7 +16,10 @@ POLICY = json.loads(Path("/case/policy.json").read_text())["identities"]
 ENFORCE = os.environ["GATEWAY_MODE"] == "enforced"
 MODELS = {"model-alpha", "model-beta"}
 EVENTS = {"red-absent", "red-wrong-model", "green-absent", "green-expired",
-          "green-wrong-model", "positive-alpha", "positive-beta"}
+          "green-wrong-issuer", "green-wrong-audience", "green-wrong-algorithm",
+          "green-unregistered-subject", "green-bad-signature", "green-malformed-claims",
+          "green-wrong-model",
+          "positive-alpha", "positive-beta"}
 
 
 def decode(segment):

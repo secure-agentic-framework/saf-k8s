@@ -3,7 +3,6 @@ import json
 from pathlib import Path
 import secrets
 import tempfile
-import time
 
 
 HERE = Path(__file__).resolve().parent
@@ -36,6 +35,18 @@ SCENARIOS = {
                         "SAF-SYNTHETIC-INFERENCE-BETA-0902-008"),
     "green-absent": ("model-alpha", None, 401, "authentication-required"),
     "green-expired": ("model-alpha", "synthetic-client-a", 401, "authentication-required"),
+    "green-wrong-issuer": ("model-alpha", "synthetic-client-a", 401,
+                            "authentication-required"),
+    "green-wrong-audience": ("model-alpha", "synthetic-client-a", 401,
+                              "authentication-required"),
+    "green-wrong-algorithm": ("model-alpha", "synthetic-client-a", 401,
+                               "authentication-required"),
+    "green-unregistered-subject": ("model-alpha", "synthetic-client-a", 401,
+                                   "authentication-required"),
+    "green-bad-signature": ("model-alpha", "synthetic-client-a", 401,
+                            "authentication-required"),
+    "green-malformed-claims": ("model-alpha", "synthetic-client-a", 401,
+                               "authentication-required"),
     "green-wrong-model": ("model-beta", "synthetic-client-a", 403, "model-not-authorized"),
     "positive-alpha": ("model-alpha", "synthetic-client-a", 200,
                        "SAF-SYNTHETIC-INFERENCE-ALPHA-0902-008"),
@@ -263,6 +274,23 @@ def run(lab):
 
     green_absent = probe(lab, "green-absent")
     green_expired = probe(lab, "green-expired")
+    token_matrix = {
+        "green-wrong-issuer": "correctly signed token with an unapproved issuer",
+        "green-wrong-audience": "correctly signed token with an unapproved audience",
+        "green-wrong-algorithm": "correct HMAC over a token declaring an unapproved algorithm",
+        "green-unregistered-subject": "correctly signed token for an unregistered synthetic subject",
+        "green-bad-signature": "well-formed token with a changed signature",
+        "green-malformed-claims": "correctly signed token with a non-integer expiry claim",
+    }
+    token_matrix_results = {}
+    for event_id, case_description in token_matrix.items():
+        result = probe(lab, event_id)
+        passed = (result.get("status") == 401
+                  and result.get("body", {}).get("result") == "authentication-required")
+        token_matrix_results[event_id] = passed
+        lab.check("green", f"Gateway rejects {case_description} before model dispatch",
+                  passed, {"event_id": event_id, "status": result.get("status"),
+                           "decision": result.get("body", {}).get("result")})
     green_wrong = probe(lab, "green-wrong-model")
     for result, decision in ((green_absent, "authentication-required"),
                              (green_expired, "authentication-required"),
@@ -295,6 +323,12 @@ def run(lab):
         "red-wrong-model": ("model-beta", "unauthenticated", "allow", 200, 200),
         "green-absent": ("model-alpha", "unauthenticated", "deny-no-token", 401, None),
         "green-expired": ("model-alpha", "unauthenticated", "deny-invalid-token", 401, None),
+        "green-wrong-issuer": ("model-alpha", "unauthenticated", "deny-invalid-token", 401, None),
+        "green-wrong-audience": ("model-alpha", "unauthenticated", "deny-invalid-token", 401, None),
+        "green-wrong-algorithm": ("model-alpha", "unauthenticated", "deny-invalid-token", 401, None),
+        "green-unregistered-subject": ("model-alpha", "unauthenticated", "deny-invalid-token", 401, None),
+        "green-bad-signature": ("model-alpha", "unauthenticated", "deny-invalid-token", 401, None),
+        "green-malformed-claims": ("model-alpha", "unauthenticated", "deny-invalid-token", 401, None),
         "green-wrong-model": ("model-beta", "synthetic-client-a", "deny-model", 403, None),
         "positive-alpha": ("model-alpha", "synthetic-client-a", "allow", 200, 200),
         "positive-beta": ("model-beta", "synthetic-client-b", "allow", 200, 200),
@@ -316,15 +350,26 @@ def run(lab):
         agreements[event_id] = {"gateway_matches": gateway_matches,
                                 "backend_matches_expected": backend_matches,
                                 "backend_observed": backend_record is not None}
+    safe_gateway_fields = {
+        "event_id", "model", "principal", "decision", "status", "backend_status",
+    }
+    safe_probe_fields = {"event_id", "model", "identity", "status", "body"}
+    no_credential_fields = (
+        all(set(record) == safe_gateway_fields
+            for record in [*gateway_red, *gateway_live])
+        and all(set(record) == safe_probe_fields for record in PROBE_OBSERVATIONS)
+        and all(result for result in token_matrix_results.values())
+    )
     all_agree = (len(gateway_red) + len(gateway_live) == len(expected_gateway)
                  and len(records_backend) == len(by_event_backend) == 4
                  and sum(len(records) for records in backend_red.values()) == 2
+                 and no_credential_fields
                  and all(item["gateway_matches"] and item["backend_matches_expected"]
                          for item in agreements.values()))
     (lab.evidence / "requests.raw.jsonl").write_text(
         "".join(json.dumps(item, sort_keys=True) + "\n" for item in PROBE_OBSERVATIONS),
         encoding="utf-8")
-    lab.check("positive", "Gateway and independent backends agree on each allow or deny",
+    lab.check("positive", "Gateway and backends agree; token matrix is rejected before dispatch and evidence omits credential fields",
               all_agree, agreements)
 
     # Evidence excludes Secret objects, token strings, request headers and arbitrary bodies.
