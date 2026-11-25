@@ -31,3 +31,21 @@ legacy exceptions and expiry require separate operational evidence.
 - [Kubernetes v1.36 Service Accounts](https://v1-36.docs.kubernetes.io/docs/concepts/security/service-accounts/)
 - [Kubernetes v1.36.1 controller construction](https://github.com/kubernetes/kubernetes/blob/v1.36.1/cmd/kube-controller-manager/app/controllermanager.go)
 - [Kubernetes v1.36 validating admission policy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
+
+## Adopter verification
+
+1. Record the Kubernetes release and managed-service responsibilities, API
+   server token issuer, approved audiences and lifetime policy, and projected
+   TokenRequest paths for each governed workload class.
+2. In a disposable namespace or equivalent approved environment, create a
+   fresh service account and verify automatic legacy Secret absence. Exercise
+   the effective admission policy against an unapproved explicit legacy token
+   Secret and retain the policy decision. Review applicable exceptions, actor,
+   namespace or object scope, duration, and verified expiry independently.
+3. In the intended workload, inspect only sanitized projected-token claims.
+   Compare expiration, audience, issuer and object binding with the policy and
+   verify the allowed API operation still succeeds. Record evidence of renewals
+   and application credential refresh separately when required.
+4. For each runtime or provider release, retain effective configuration and
+   contract evidence for TokenRequest, projection and admission. Coordinate
+   version or feature-gate policy through the linked upgrade control.

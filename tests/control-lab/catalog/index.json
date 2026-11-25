@@ -183,8 +183,8 @@
     "SAF-K8S-0103-001": {
       "catalog_status": "draft",
       "domain": "D01",
-      "sha256": "1dd40c5b1b9ef0e9b4936119f383608006504cdfce9c2700c3ec911defbc8375",
-      "title": "Controller-manager service account token hardening"
+      "sha256": "7c42501b68cddf70eae0811fef5ad9b5780adddfa2f2fb42b0f6b2412bcd7e55",
+      "title": "Workload service account token issuance and legacy token restrictions"
     },
     "SAF-K8S-0103-005": {
       "catalog_status": "draft",
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "7f54d70e4c164ffe23747d06d04853dfca2454a0",
-  "sha256": "62121cb8fdf28a466aa37ef357e1b2cd48f554917b8ef46137103393bf15422b",
+  "revision": "65fe568e88fd8c26161171025c4c7649e1444a2b",
+  "sha256": "e9f6fa833b262a8a83ee18b153898d7bcc085edf71e0766795a6e78bd509705d",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

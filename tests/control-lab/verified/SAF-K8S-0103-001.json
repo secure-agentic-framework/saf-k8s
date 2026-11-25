@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0103-001",
-  "catalog_revision": "9650733d79c28f4786e099ef91c8ea941db02054",
-  "catalog_sha256": "3092bf14626aef6e258b11d35bdddf9e8193d44db6468a4491b05e2d53649c7c",
+  "catalog_revision": "cee5dfc141581216e3621920e39cb063a806d1e1",
+  "catalog_sha256": "e9f6fa833b262a8a83ee18b153898d7bcc085edf71e0766795a6e78bd509705d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "1dd40c5b1b9ef0e9b4936119f383608006504cdfce9c2700c3ec911defbc8375",
+  "control_sha256": "7c42501b68cddf70eae0811fef5ad9b5780adddfa2f2fb42b0f6b2412bcd7e55",
   "scope": "Kubernetes v1.36.1 on disposable local kind clusters. Compare the stock kube-controller-manager with a profile that sets the legacy controller exclusion flag. Observe that no legacy token Secret is auto-generated and both profiles still populate an explicitly requested fixture. Apply namespace-scoped admission and confirm it rejects the same request while a harmless Pod still receives a projected, expiring bound token. Only boolean field-presence and boolean JWT-claim observations are retained; no token or Secret data is emitted. This does not assess production or managed-provider configuration.",
-  "cluster": "saf-lab-dfdad9016762",
+  "cluster": "saf-lab-19be41e0af9d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
