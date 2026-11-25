@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0702-013",
-  "catalog_revision": "3dfa2140855cd620a814fd1c3918cfdbacc31ae4",
-  "catalog_sha256": "9f3a36256cfdd93b4f2874549aa7792ac0af792b496e00a83549929ab1dac73a",
+  "catalog_revision": "26e955d20fc0e82b076a27ef0fd88e12be0d6188",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "51b53fdc0490ddaa45e962ba8deb9b29bd7d589abf6c98a553edd32cc708ddec",
   "scope": "Two case-owned kind v1.36.1 nodes, stock policy-capable kindnet, IPv4 TCP only. A fixed HTTP marker from fixture Pod IPs verifies isolated tenant egress and ingress independently, plus a joint allow and denied source and destination controls. No external network, DNS, host-network, production CNI or institutional review is tested.",
-  "cluster": "saf-lab-e69b3c8acd45",
+  "cluster": "saf-lab-f7304972961c",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
