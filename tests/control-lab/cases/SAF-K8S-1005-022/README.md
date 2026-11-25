@@ -48,3 +48,13 @@ credentials are included.
 - [Kubernetes ServiceAccount administration](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/) — Secret-bound token invalidation, object UID validation, and TokenReview verification. Kubernetes notes that an object pending deletion can remain valid until 60 seconds after its deletion timestamp; this case deletes marker Secrets without finalizers and polls the API outcome for up to 75 seconds.
 - [Kubernetes TokenReview API](https://v1-36.docs.kubernetes.io/docs/reference/kubernetes-api/authentication-resources/token-review-v1/) — authenticated outcome and audience semantics.
 - [Kind v0.32.0 release](https://github.com/kubernetes-sigs/kind/releases/tag/v0.32.0) — defaults to Kubernetes v1.36.1 and publishes its digest-pinned node image.
+
+## Verify an adopting implementation
+
+Inventory issuer and credential type for each affected
+workload and relying party. Under the approved incident procedure, retire the
+old issuer-side credential, verify denial through Kubernetes and external
+provider validation paths (including caches and existing sessions), issue a
+replacement only to intended consumers, and show unrelated identities remain
+valid. Record propagation timing, owner authorization, rollback constraints,
+and sanitized audit outcomes.
