@@ -12,3 +12,7 @@ The same-namespace account and route controls run alongside that check.
 
 [Istio authorization](https://istio.io/latest/docs/reference/config/security/authorization-policy/)
 · [Istio conditions](https://istio.io/latest/docs/reference/config/security/conditions/)
+
+## Adopter verification
+
+Inventory sensitive internal endpoints and namespace-qualified workload identities. For Istio, verify effective destination AuthorizationPolicy behavior for permitted identity and same-name identity from another namespace. For Linkerd, collect the deployed AuthorizationPolicy and MeshTLSAuthentication coverage where used. Separately verify admission/trust scope, application-layer authorization, workload attestation, incident monitoring and safe policy rollout on the actual traffic path.
