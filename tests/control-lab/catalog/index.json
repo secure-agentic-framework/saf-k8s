@@ -33,7 +33,7 @@
     "SAF-K8S-0101-013": {
       "catalog_status": "draft",
       "domain": "D01",
-      "sha256": "e10579cb85037b2ec3b86a7a00c50670c0cfe7d6c6ef230d69c815c12d28b760",
+      "sha256": "b6f8d16374ce3830ebabc1beb64a7d59dfef5d769d5795d07ad3be818d245960",
       "title": "API server certificate rotation and validation"
     },
     "SAF-K8S-0101-014": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "7f48ad49cb3df96423e927113f0dd7effa306eb8",
-  "sha256": "479dd34cbc528dfa061f5555b19fc586c71385dcacd427f88979b910e0151d5e",
+  "revision": "c3b3208e189fb67b2f88d12c7cb07c831970b1b7",
+  "sha256": "1c78a76489ca604a14fdf3824565e4bcb568f55832e793e78fa752772ba60eab",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

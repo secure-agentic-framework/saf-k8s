@@ -16,16 +16,17 @@ import urllib.parse
 SCOPE = (
     "Kubernetes v1.36.1 kubeadm-managed API server serving certificate on the one "
     "fresh runner-owned Kind cluster's host-published loopback endpoint. The case "
-    "uses kubeadm certs renew apiserver, observes the live process before and after "
+    "checks the expiry of a short-lived serving leaf and renews within the fixture lead time. It observes the live process before and after "
     "the documented static-Pod restart, and validates only local TLS trust and IP "
-    "identity. External PKI automation, production TLS termination paths, other "
-    "control-plane replicas, and non-serving certificates are outside this case."
+    "identity. External PKI and other certificate paths, replicas, and deployment scheduling "
+    "remain separate adoption evidence."
 )
 
 TIMEOUT = 5
 RELOAD_OBSERVATION_SECONDS = 5
 POD_STOP_DEADLINE = 60
 POD_READY_SECONDS = 120
+RENEW_BEFORE_SECONDS = 30 * 60
 
 
 def endpoint_and_ca(lab):
@@ -61,13 +62,14 @@ def tls_context(ca_pem):
 
 
 def probe(address, port, context, server_name):
-    """Return only normalized verification outcome and an internal leaf fingerprint."""
+    """Read verified leaf identity and expiry for this fixture only."""
     raw = socket.create_connection((address, port), timeout=TIMEOUT)
     tls = None
     try:
         tls = context.wrap_socket(raw, server_hostname=server_name)
         leaf = tls.getpeercert(binary_form=True)
-        return {"verified": True, "leaf": hashlib.sha256(leaf).digest()}
+        expiry = ssl.cert_time_to_seconds(tls.getpeercert()["notAfter"])
+        return {"verified": True, "leaf": hashlib.sha256(leaf).digest(), "expiry": expiry}
     except ssl.SSLCertVerificationError:
         return {"verified": False, "leaf": None, "certificate_rejected": True}
     except ssl.SSLError:
@@ -105,8 +107,15 @@ def assert_owned_control_plane_node(lab):
 
 def renew_certificate(lab, node):
     """Invoke kubeadm renewal inside only the verified runner-owned node container."""
+    config_path = "/etc/kubernetes/saf-serving-renewal.yaml"
+    policy = ("apiVersion: kubeadm.k8s.io/v1beta4\n"
+              "kind: ClusterConfiguration\n"
+              "certificateValidityPeriod: 8760h0m0s\n")
+    lab.command("docker", "exec", "-i", node, "sh", "-ceu", 'cat >"$1"',
+                "write-fixture-certificate-policy", config_path, payload=policy)
     result = lab.command(
-        "docker", "exec", node, "kubeadm", "certs", "renew", "apiserver", timeout=90,
+        "docker", "exec", node, "kubeadm", "certs", "renew", "apiserver",
+        "--config", config_path, timeout=90,
     )
     lab.check(
         "green", "kubeadm certs renew apiserver completed inside the owned control-plane node",
@@ -192,6 +201,13 @@ def run(lab):
         )
 
         node = assert_owned_control_plane_node(lab)
+        seconds_remaining = initial["expiry"] - time.time()
+        lab.check("red", "The original verified certificate is outside the one-minute renewal comparison",
+                  seconds_remaining > 60,
+                  {"valid_leaf_outside_comparison_window": seconds_remaining > 60})
+        lab.check("positive", "The original verified certificate is inside the fixture's thirty-minute renewal policy",
+                  0 < seconds_remaining <= RENEW_BEFORE_SECONDS,
+                  {"valid_leaf_due_for_renewal": 0 < seconds_remaining <= RENEW_BEFORE_SECONDS})
         renew_certificate(lab, node)
 
         # This short observation reports actual process behavior without assuming
@@ -231,6 +247,12 @@ def run(lab):
         )
         if not after["verified"] or after.get("leaf") == initial["leaf"]:
             lab.block("Renewed API server certificate did not become validly served at the same endpoint")
+        served_expiry = after["expiry"]
+        moved_past_window = served_expiry > initial["expiry"] and (
+            served_expiry - time.time() > RENEW_BEFORE_SECONDS
+        )
+        lab.check("green", "The renewed trusted leaf extends validity beyond the renewal lead time",
+                  moved_past_window, {"renewed_leaf_outside_window": moved_past_window})
 
         post_wrong_ca = probe(address, port, wrong_trust, address)
         post_wrong_identity = probe(address, port, correct, "saf-0101-013.invalid")
