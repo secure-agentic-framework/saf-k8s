@@ -27,7 +27,7 @@ See [`LICENSE`](LICENSE) for the summary.
 - Domains: 10
 - Knowledge areas: 55
 - Controls: 595
-- Crosswalk rows: 4025
+- Crosswalk rows: 4019
 
 ## YAML Files
 
@@ -182,13 +182,13 @@ This knowledge area focuses on: etcd storage-layer disk encryption with external
 
 ### Description
 
-This knowledge area focuses on: Controller-manager service account token hardening, Pod garbage collection threshold configuration, Profiling endpoint disablement for controller-manager and scheduler, Cloud controller-manager deployment isolation, and Leader election configuration and lease object RBAC. Additional controls in the table below extend this coverage.
+This knowledge area focuses on: Workload service account token issuance and legacy token restrictions, Pod garbage collection threshold configuration, Profiling endpoint disablement for controller-manager and scheduler, Cloud controller-manager deployment isolation, and Leader election configuration and lease object RBAC. Additional controls in the table below extend this coverage.
 
 ### Controls
 
 | Control ID | Title | Maturity | Class |
 | --- | --- | --- | --- |
-| [SAF-K8S-0103-001](markdown/controls/SAF-K8S-0103-001.md) | Controller-manager service account token hardening | Foundational | baseline |
+| [SAF-K8S-0103-001](markdown/controls/SAF-K8S-0103-001.md) | Workload service account token issuance and legacy token restrictions | Foundational | baseline |
 | [SAF-K8S-0103-005](markdown/controls/SAF-K8S-0103-005.md) | Pod garbage collection threshold configuration | Foundational | ai-specific |
 | [SAF-K8S-0103-006](markdown/controls/SAF-K8S-0103-006.md) | Profiling endpoint disablement for controller-manager and scheduler | Foundational | baseline |
 | [SAF-K8S-0103-008](markdown/controls/SAF-K8S-0103-008.md) | Cloud controller-manager deployment isolation | Practitioner | baseline |

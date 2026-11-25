@@ -11,15 +11,6 @@ Separating agent system functions from user-facing interfaces prevents privilege
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0103-001 - Controller-manager service account token hardening](../../controls/SAF-K8S-0103-001.md)
-
-- Domain: D01 - Control Plane and Cluster Hardening
-- Knowledge Area: 1.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0103-005 - Pod garbage collection threshold configuration](../../controls/SAF-K8S-0103-005.md)
 
 - Domain: D01 - Control Plane and Cluster Hardening

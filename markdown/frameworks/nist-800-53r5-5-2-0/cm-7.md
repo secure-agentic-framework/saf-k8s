@@ -5,20 +5,18 @@
 
 ## Mapping Notes
 
-Agents should expose minimum necessary functionality
-
-6.1 - Secure container images (distroless, scratch, minimal attack surface); 2.3 - Minimal host OS; 1.3 - Profiling endpoint disablement for controller-manager and scheduler (--profiling=false)
+Restrict explicit long-lived token Secrets where the organization identifies that credential capability as unnecessary to governed workloads.
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0103-001 - Controller-manager service account token hardening](../../controls/SAF-K8S-0103-001.md)
+### [SAF-K8S-0103-001 - Workload service account token issuance and legacy token restrictions](../../controls/SAF-K8S-0103-001.md)
 
 - Domain: D01 - Control Plane and Cluster Hardening
 - Knowledge Area: 1.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0103-005 - Pod garbage collection threshold configuration](../../controls/SAF-K8S-0103-005.md)
 

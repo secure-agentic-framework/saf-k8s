@@ -607,13 +607,13 @@
   domain_name: Control Plane and Cluster Hardening
   knowledge_area: '1.3'
   control_seq: '001'
-  control_title: Controller-manager service account token hardening
+  control_title: Workload service account token issuance and legacy token restrictions
   control_statement: Production Kubernetes clusters must use API-server TokenRequest and kubelet projection for bound, time-limited workload service account tokens. Do not use automatically generated legacy token Secrets. On versions where legacy Secret auto-generation is already absent, separately restrict explicit long-lived token Secrets. Use an admission policy or equivalent enforcement to prohibit unapproved explicit legacy token Secret creation. Document any narrowly scoped legacy exception and verify that it expires. See SAF-K8S-0104-009 for feature gate lifecycle tracking.
-  objective: Reduce the privilege and persistence of service account credentials and limit controller-manager behavior to well-understood, security-reviewed feature sets by enforcing bound tokens, disabling legacy provisioning, and governing feature gates.
+  objective: Use short-lived bound tokens for workload API access and prevent unapproved creation of long-lived service account token Secrets.
   rationale: Secret-backed service account tokens are long-lived credentials. Automatic generation of legacy token Secrets has been disabled by default since v1.24, with the transition completed in v1.27. Kubernetes v1.36.1 starts the legacy Secret-population controller through special handling, and the controller exclusion flag alone does not stop it from populating an explicitly requested legacy token Secret. Projected tokens requested by the kubelet have expiration, intended audience, and Pod binding claims, limiting the scope and lifetime of a leaked workload credential.
   scope: Applies to all production clusters. Covers the API server TokenRequest configuration, kubelet projection, and the policy governing explicit long-lived token Secrets. For managed Kubernetes, verify provider defaults and apply customer-configurable controls to legacy issuance and exceptions.
-  primary_enforcement_point: Controller-Manager Configuration
-  implementation_surface: API server and workload token configuration, legacy Secret admission policy, and managed-service documentation. Verify a new service account has no auto-generated token Secret, an unapproved explicit legacy request is denied, and a projected token continues to have bounded claims.
+  primary_enforcement_point: API server TokenRequest, kubelet token projection, and admission policy
+  implementation_surface: Configure and verify TokenRequest audiences and lifetimes and use kubelet-projected bound tokens for workload access. Verify new service accounts lack automatically generated token Secrets, admission refuses unapproved explicit legacy Secrets, and allowed projected tokens have the expected expiration, audience, and workload binding. Treat legacy controller behavior and provider defaults as version-specific. Record approved exceptions and expiry.
   owner_primary: Platform Engineering
   owner_supporting: Security Engineering; Application Platform teams
   baseline_or_ai_specific: baseline

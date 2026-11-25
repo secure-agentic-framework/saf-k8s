@@ -5,13 +5,11 @@
 
 ## Mapping Notes
 
-Secure config settings for agent systems
-
-1.4 - CIS benchmark application (configuration settings baseline); 1.3 - Controller-manager pod GC threshold; 2.1 - Kubelet hardening flags
+Record approved configuration settings, applied values and authorized deviations. For this token control, evidence includes configured TokenRequest scope, workload projection, and admission of explicit legacy token Secrets.
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0103-001 - Controller-manager service account token hardening](../../controls/SAF-K8S-0103-001.md)
+### [SAF-K8S-0103-001 - Workload service account token issuance and legacy token restrictions](../../controls/SAF-K8S-0103-001.md)
 
 - Domain: D01 - Control Plane and Cluster Hardening
 - Knowledge Area: 1.3
