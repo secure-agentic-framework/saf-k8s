@@ -29754,10 +29754,7 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-9
   framework_requirement_title: Service Identification and Authentication
-  framework_mapping_notes: 'Core -- agent service-to-service authentication
-
-
-    5.4 - SPIFFE/SPIRE workload identity (service-to-service identification and authentication); 4.4 - mTLS'
+  framework_mapping_notes: Mutual TLS checks the approved registry replication service identity at both ends of each governed session. The fixture uses a case-issued CA and verifies the exact source identity and destination name.
   control_id: SAF-K8S-0910-030
   relation_type: direct
   strength_level: strong
@@ -38622,10 +38619,7 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-8(18)
   framework_requirement_title: Trusted Communications Channels
-  framework_mapping_notes: 'Trusted channels between agents and tools prevent tampering and interception
-
-
-    5.4 - mTLS (trusted communication channels); 9.1 - Encrypted gradient communication (NCCL, MPI)'
+  framework_mapping_notes: Authenticate and protect the governed registry replication channel, with approved peer identities at any termination and independently verified trust for every required hop.
   control_id: SAF-K8S-0910-030
   relation_type: direct
   strength_level: strong
@@ -48983,10 +48977,7 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-8
   framework_requirement_title: Transmission Confidentiality and Integrity
-  framework_mapping_notes: 'Agent communications must be protected for confidentiality and integrity in transit
-
-
-    5.2 - Pod-to-pod encryption; 5.4 - mTLS (transmission confidentiality and integrity)'
+  framework_mapping_notes: The verified TLS channel protects the covered manifest and blob traffic during replication. Inventory all governed routes and verify each effective transmission boundary.
   control_id: SAF-K8S-0910-030
   relation_type: supports
   strength_level: strong
