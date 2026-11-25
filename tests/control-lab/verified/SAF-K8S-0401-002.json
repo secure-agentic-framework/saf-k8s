@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0401-002",
-  "catalog_revision": "553801eae1021062ab2ad5d802b4e97f31939514",
-  "catalog_sha256": "d349202ee2a53ae35fd3d0b6c36098d2d5cc45a51aa71fbf557812fcda78d4a0",
+  "catalog_revision": "44c9f846923e1faca4ae51269e167848c00cc76e",
+  "catalog_sha256": "e9f6fa833b262a8a83ee18b153898d7bcc085edf71e0766795a6e78bd509705d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6070733308e304589b4570dd25316bca0dc37cfabc9d7f9d6a16c46e45c83c9f",
   "scope": "Replays the synthetic ConfigMap permission audit and a scheduled self-review. A second isolated namespace tests v1.36.1 SubjectAccessReview decisions for ordinary ResourceClaim status plus the DRA binding and driver permissions. The test uses fixed synthetic principals, driver names and node-aware verbs. Production role inventory, native status request construction, node association, actual driver behavior and allocation remain separate.",
-  "cluster": "saf-lab-b99c4ef64738",
+  "cluster": "saf-lab-05a3a72ce132",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
