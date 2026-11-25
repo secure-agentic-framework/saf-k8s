@@ -11,3 +11,7 @@ remains available.
 The fixtures exercise a controlled gateway and native Kubernetes transport.
 Production approval custody, identity and policy integration, persistent
 stores, and downstream derived data need separate evidence.
+
+## Verify an adopting implementation
+
+Identify the production approval authority, approver identity, immutable artifact scope, expiry/revocation semantics, and gateway service identity. Verify missing, stale, mismatched, and valid approvals against actual transfer paths and destination receipts. Ensure denials create no destination object and ordinary same-class transfer remains functional. The fixture tests a controlled in-cluster gateway and synthetic approval record only.
