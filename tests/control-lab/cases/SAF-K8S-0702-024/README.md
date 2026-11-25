@@ -27,3 +27,15 @@ evidence.
 - [Kubernetes v1.36 RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
 - [Kubernetes v1.36 ServiceAccounts](https://v1-36.docs.kubernetes.io/docs/concepts/security/service-accounts/)
 - [Kubernetes v1.36 SelfSubjectAccessReview](https://v1-36.docs.kubernetes.io/docs/reference/kubernetes-api/definitions/self-subject-access-review-v1-authorization/)
+
+## Adopter verification
+
+1. Inventory actual ServiceAccounts, mapped users and groups, direct and
+   inherited grants, and each tenant namespace.
+2. Reconcile namespaced bindings and cluster-wide grants against the
+   approved scope. Include resolved group membership and shared-service
+   exceptions.
+3. Use authorized access reviews for expected permitted and denied tuples,
+   and record evidence for actual local access where appropriate.
+4. Retain the reviewed inventory, owner, assigned exceptions, and cadence.
+   Recheck after changes to identity sources and authorization policy.
