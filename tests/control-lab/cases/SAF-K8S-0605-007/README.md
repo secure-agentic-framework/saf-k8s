@@ -24,3 +24,10 @@ require separate evidence.
 
 [Kubernetes v1.36 dynamic admission](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/) ·
 [Kubernetes webhook good practices](https://v1-36.docs.kubernetes.io/docs/concepts/cluster-administration/admission-webhooks-good-practices/)
+
+## Adopter verification
+
+1. Inventory applicable validating and mutating webhooks, their dependencies, scope selectors, service endpoints and deployment ownership.
+2. Record each effective failure policy, timeout and end-to-end API latency budget. verify readiness, TLS trust and dependency health in every supported provider/zone.
+3. Use an approved nonproduction test object to exercise bounded delay and unavailability for each dependency, confirming outcomes match the intended policy without causing production admission disruption.
+4. Verify alerts, on-call ownership, recovery behavior and retained API/webhook telemetry against the defined error budget.
