@@ -51,8 +51,8 @@ AI system classification assigns control profiles based on risk tier, implicitly
 - Knowledge Area: 9.5
 - Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0905-057 - External model trust-signal assessment and approval review](../../controls/SAF-K8S-0905-057.md)
 

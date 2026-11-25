@@ -10465,22 +10465,6 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-3(2)
   framework_requirement_title: Dual Authorization
-  framework_mapping_notes: 'Requiring human+agent or multi-agent approval for critical actions
-
-
-    9.5 - Model promotion gates (approval workflows for production deployment); 10.7 - Change management approval workflows for model deployments'
-  control_id: SAF-K8S-0905-050
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-3(2)
-  framework_requirement_title: Dual Authorization
   framework_mapping_notes: The deployed workflow enforces independently authorized approval for controlled federation
     re-entry.
   control_id: SAF-K8S-0910-019
@@ -16219,22 +16203,6 @@
     9.5 - Reviewer identity validation in promotion approval workflows explicitly binds reviewer identity to approval decisions'
   control_id: SAF-K8S-0905-012
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-10(4)
-  framework_requirement_title: Validate Binding of Information Reviewer Identity
-  framework_mapping_notes: 'Verifying who/what reviewed agent outputs
-
-
-    9.5 - Reviewer identity validation in promotion approval workflows explicitly binds reviewer identity to approval decisions'
-  control_id: SAF-K8S-0905-050
-  relation_type: direct
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -61420,13 +61388,13 @@
   framework_version: '1.0'
   framework_requirement_id: GOVERN 3.2
   framework_requirement_title: Policies and procedures are in place to define and differentiate roles and responsibilities for human-AI configurations and oversight of AI systems.
-  framework_mapping_notes: AI system classification assigns control profiles based on risk tier, implicitly defining human oversight requirements. Model promotion gates enforce approval workflows requiring human review before deployment.
+  framework_mapping_notes: The promotion gate can enforce the documented human reviewer role by authenticating and authorizing that reviewer at the approval decision.
   control_id: SAF-K8S-0905-050
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  applicability: conditional
+  applicability_condition: The adopting organization documents human and automated reviewer roles, their decision authority and oversight responsibilities, and maps an approved human identity to the authorized reviewer role.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
