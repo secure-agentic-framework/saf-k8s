@@ -1,10 +1,12 @@
 """Check kubeadm API serving-certificate renewal on the owned Kind endpoint."""
 import base64
 import hashlib
+import http.client
 import ipaddress
 import json
 import os
 from pathlib import Path
+import re
 import socket
 import ssl
 import subprocess
@@ -17,9 +19,12 @@ SCOPE = (
     "Kubernetes v1.36.1 kubeadm-managed API server serving certificate on the one "
     "fresh runner-owned Kind cluster's host-published loopback endpoint. The case "
     "checks the expiry of a short-lived serving leaf and renews within the fixture lead time. It observes the live process before and after "
-    "the documented static-Pod restart, and validates only local TLS trust and IP "
+    "the documented static-Pod restart, and validates local TLS trust and IP "
     "identity. External PKI and other certificate paths, replicas, and deployment scheduling "
-    "remain separate adoption evidence."
+    "remain separate adoption evidence. A final comparison sequentially "
+    "serves the renewed old-CA leaf and a synthetic successor-CA leaf at the same "
+    "loopback origin, checking old-only, overlap, and new-only client trust plus "
+    "readiness, then restores the renewed leaf. It does not rotate the cluster CA."
 )
 
 TIMEOUT = 5
@@ -69,7 +74,7 @@ def probe(address, port, context, server_name):
         tls = context.wrap_socket(raw, server_hostname=server_name)
         leaf = tls.getpeercert(binary_form=True)
         expiry = ssl.cert_time_to_seconds(tls.getpeercert()["notAfter"])
-        return {"verified": True, "leaf": hashlib.sha256(leaf).digest(), "expiry": expiry}
+        return {"verified": True, "leaf": hashlib.sha256(leaf).hexdigest(), "expiry": expiry}
     except ssl.SSLCertVerificationError:
         return {"verified": False, "leaf": None, "certificate_rejected": True}
     except ssl.SSLError:
@@ -123,7 +128,7 @@ def renew_certificate(lab, node):
     )
 
 
-def restart_static_apiserver(lab, node):
+def restart_static_apiserver(lab, node, *, record=True):
     """Use kubeadm docs' manifest removal procedure and always restore the manifest."""
     manifest = "/etc/kubernetes/manifests/kube-apiserver.yaml"
     parked = "/etc/kubernetes/kube-apiserver.saf-0101-013.yaml"
@@ -151,9 +156,291 @@ def restart_static_apiserver(lab, node):
                 "docker", "exec", node, "sh", "-ec",
                 f"test -f {parked}; mv {parked} {manifest}", timeout=30,
             )
-    lab.check("green", "The owned static API server stopped while its manifest was parked",
-              stopped, {"previous_container_stopped": stopped})
+    if record:
+        lab.check("green", "The owned static API server stopped while its manifest was parked",
+                  stopped, {"previous_container_stopped": stopped})
     return running, previous[0]
+
+
+def ready_probe(address, port, context):
+    """Verify TLS identity and read /readyz, discarding response bytes afterward."""
+    connection = http.client.HTTPSConnection(address, port, context=context, timeout=TIMEOUT)
+    try:
+        connection.request("GET", "/readyz", headers={"Connection": "close"})
+        response = connection.getresponse()
+        body = response.read()
+        return {
+            "verified": True,
+            "ready": response.status == 200 and body.strip() == b"ok",
+            "http_status": response.status,
+        }
+    except ssl.SSLCertVerificationError:
+        return {"verified": False, "ready": False, "certificate_rejected": True}
+    except (OSError, ssl.SSLError, http.client.HTTPException):
+        return {"verified": False, "ready": False, "certificate_rejected": False}
+    finally:
+        connection.close()
+
+
+def wait_for_successor(address, port, overlap, fingerprint):
+    deadline = time.monotonic() + POD_READY_SECONDS
+    while time.monotonic() < deadline:
+        if ready_probe(address, port, overlap)["ready"]:
+            try:
+                served = probe(address, port, overlap, address)
+            except OSError:
+                pass
+            else:
+                if served.get("leaf") == fingerprint:
+                    return True
+        time.sleep(1)
+    return False
+
+
+def make_successor_material(directory, address):
+    """Create only temporary fixture keys; callers retain public receipt only."""
+    ca_key, ca_cert = directory / "successor-ca.key", directory / "successor-ca.crt"
+    leaf_key, csr, leaf_cert = (
+        directory / "successor-apiserver.key",
+        directory / "successor-apiserver.csr",
+        directory / "successor-apiserver.crt",
+    )
+    extensions = directory / "successor-apiserver.ext"
+    extensions.write_text(
+        f"subjectAltName=IP:{address}\n"
+        "extendedKeyUsage=serverAuth\n"
+        "basicConstraints=critical,CA:FALSE\n"
+        "keyUsage=critical,digitalSignature,keyEncipherment\n"
+        "authorityKeyIdentifier=keyid\nsubjectKeyIdentifier=hash\n",
+        encoding="ascii",
+    )
+    commands = [
+        ["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes",
+         "-keyout", str(ca_key), "-out", str(ca_cert), "-days", "2", "-sha256",
+         "-subj", "/CN=SAF-0101-013 fixture successor CA",
+         "-addext", "basicConstraints=critical,CA:TRUE",
+         "-addext", "keyUsage=critical,keyCertSign,cRLSign",
+         "-addext", "subjectKeyIdentifier=hash"],
+        ["openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes",
+         "-keyout", str(leaf_key), "-out", str(csr), "-sha256",
+         "-subj", "/CN=kube-apiserver"],
+        ["openssl", "x509", "-req", "-in", str(csr), "-CA", str(ca_cert),
+         "-CAkey", str(ca_key), "-CAcreateserial", "-out", str(leaf_cert),
+         "-days", "1", "-sha256", "-extfile", str(extensions)],
+        ["openssl", "verify", "-CAfile", str(ca_cert), "-purpose", "sslserver",
+         str(leaf_cert)],
+    ]
+    for command in commands:
+        result = subprocess.run(command, capture_output=True, text=True,
+                                timeout=30, check=False)
+        if result.returncode:
+            raise RuntimeError("Could not create or verify the fixture successor certificate")
+    for key in (ca_key, leaf_key):
+        os.chmod(key, 0o600)
+    fingerprint_result = subprocess.run(
+        ["openssl", "x509", "-in", str(leaf_cert), "-noout", "-fingerprint", "-sha256"],
+        capture_output=True, text=True, timeout=10, check=False,
+    )
+    match = re.search(r"(?:sha256 )?Fingerprint=([0-9A-Fa-f:]+)", fingerprint_result.stdout)
+    if fingerprint_result.returncode or not match:
+        raise RuntimeError("Could not read public successor leaf fingerprint")
+    fingerprint = match.group(1).replace(":", "").lower()
+    return ca_key, ca_cert, leaf_key, leaf_cert, fingerprint
+
+
+def install_serving_pair(lab, node, remote_dir):
+    lab.command(
+        "docker", "exec", node, "sh", "-ceu",
+        f"cp {remote_dir}/successor-apiserver.crt /etc/kubernetes/pki/apiserver.crt; "
+        f"cp {remote_dir}/successor-apiserver.key /etc/kubernetes/pki/apiserver.key; "
+        "chmod 0644 /etc/kubernetes/pki/apiserver.crt; "
+        "chmod 0600 /etc/kubernetes/pki/apiserver.key",
+        timeout=TIMEOUT + 5,
+    )
+
+
+def check_serving_ca_overlap(lab, node, address, port, old_ca_pem, old_leaf):
+    old_only = tls_context(old_ca_pem)
+    remote_dir = "/tmp/saf-0101-013-ca-overlap"
+    created = False
+    backed_up = False
+    switched = False
+    transition_error = None
+    new_leaf_fingerprint = None
+    overlap_pem = None
+    new_ca_pem = None
+    with tempfile.TemporaryDirectory(prefix="saf-0101-013-ca-overlap-") as temp:
+        directory = Path(temp)
+        try:
+            _, ca_cert, leaf_key, leaf_cert, new_leaf_fingerprint = make_successor_material(
+                directory, address)
+            new_ca_pem = ca_cert.read_bytes()
+            overlap_pem = old_ca_pem + b"\n" + new_ca_pem
+            overlap = tls_context(overlap_pem)
+            new_only = tls_context(new_ca_pem)
+            policy_ok = (
+                new_leaf_fingerprint != old_leaf
+                and hashlib.sha256(new_ca_pem).digest() != hashlib.sha256(old_ca_pem).digest()
+            )
+            lab.check(
+                "positive", "Successor server leaf chains to the distinct fixture successor CA",
+                policy_ok,
+                {"successor_leaf_fingerprint_differs": new_leaf_fingerprint != old_leaf,
+                 "successor_CA_differs": hashlib.sha256(new_ca_pem).digest()
+                 != hashlib.sha256(old_ca_pem).digest(),
+                 "signature_and_server_purpose_verified": True},
+            )
+
+            original_ready = ready_probe(address, port, old_only)
+            old_old_only = probe(address, port, old_only, address)
+            old_overlap = probe(address, port, overlap, address)
+            old_new_only = probe(address, port, new_only, address)
+            old_ready_leaf = (old_old_only["verified"] and old_old_only["leaf"] == old_leaf
+                              and original_ready["ready"])
+            lab.check("positive", "Old served leaf validates under old-only trust before the switch",
+                      old_ready_leaf and old_overlap["verified"]
+                      and old_overlap["leaf"] == old_leaf,
+                      {"old_only_matches_original_leaf": old_old_only.get("leaf") == old_leaf,
+                       "ready_status": original_ready.get("http_status"),
+                       "overlap_accepts_old_leaf": old_overlap["verified"]
+                       and old_overlap["leaf"] == old_leaf})
+            lab.check("red", "New-only trust rejects the old served leaf before the switch",
+                      not old_new_only["verified"] and old_new_only.get("certificate_rejected", False),
+                      {"certificate_rejected": old_new_only.get("certificate_rejected", False)})
+            overlap_old_ready = ready_probe(address, port, overlap)
+            new_only_old_ready = ready_probe(address, port, new_only)
+            lab.check("positive", "Old and overlap clients can read API readiness before the switch",
+                      original_ready["ready"] and overlap_old_ready["ready"],
+                      {"old_only_http_status": original_ready.get("http_status"),
+                       "overlap_http_status": overlap_old_ready.get("http_status")})
+            lab.check("red", "New-only readiness client rejects the old served leaf before the switch",
+                      not new_only_old_ready["verified"]
+                      and new_only_old_ready.get("certificate_rejected", False),
+                      {"certificate_rejected": new_only_old_ready.get("certificate_rejected", False)})
+
+            lab.command("docker", "exec", node, "mkdir", "-m", "0700", remote_dir)
+            created = True
+            lab.command("docker", "exec", node, "cp", "-p",
+                        "/etc/kubernetes/pki/apiserver.crt", f"{remote_dir}/original.crt")
+            lab.command("docker", "exec", node, "cp", "-p",
+                        "/etc/kubernetes/pki/apiserver.key", f"{remote_dir}/original.key")
+            backed_up = True
+            for material in (leaf_cert, leaf_key):
+                # Stream into the node's mounted /tmp and keep fixture keys out of
+                # the runner's command transcript, which records stdin.
+                result = subprocess.run(
+                    ["docker", "exec", "-i", node, "sh", "-ceu",
+                     'umask 077; cat > "$1"', "stage-fixture-tls",
+                     f"{remote_dir}/{material.name}"],
+                    input=material.read_bytes(), capture_output=True, env=lab.env, timeout=TIMEOUT + 5,
+                )
+                if result.returncode:
+                    lab.block("Could not privately stage the fixture serving certificate pair")
+            switched = True
+            install_serving_pair(lab, node, remote_dir)
+            restart_static_apiserver(lab, node)
+            if not wait_for_successor(address, port, overlap, new_leaf_fingerprint):
+                lab.block("The successor leaf did not become verified and ready through overlap trust")
+
+            new_old_only = probe(address, port, old_only, address)
+            new_overlap = probe(address, port, overlap, address)
+            new_new_only = probe(address, port, new_only, address)
+            lab.check("red", "Old-only trust rejects the new served leaf after the switch",
+                      not new_old_only["verified"]
+                      and new_old_only.get("certificate_rejected", False),
+                      {"certificate_rejected": new_old_only.get("certificate_rejected", False)})
+            lab.check("positive", "Overlap trust accepts the new served leaf at the same API origin",
+                      new_overlap["verified"] and new_overlap["leaf"] == new_leaf_fingerprint,
+                      {"served_leaf_matches_successor": new_overlap.get("leaf") == new_leaf_fingerprint})
+            lab.check("positive", "New-only trust accepts the new served leaf after the approved switch",
+                      new_new_only["verified"] and new_new_only["leaf"] == new_leaf_fingerprint,
+                      {"served_leaf_matches_successor": new_new_only.get("leaf") == new_leaf_fingerprint})
+            overlap_ready = ready_probe(address, port, overlap)
+            new_only_ready = ready_probe(address, port, new_only)
+            old_only_ready = ready_probe(address, port, old_only)
+            lab.check("positive", "API readiness succeeds through overlap trust after the switch",
+                      overlap_ready["ready"], {"http_status": overlap_ready.get("http_status")})
+            lab.check("positive", "API readiness succeeds through new-only trust after the switch",
+                      new_only_ready["ready"], {"http_status": new_only_ready.get("http_status")})
+            lab.check("red", "Old-only readiness trust rejects the new served leaf after the switch",
+                      not old_only_ready["verified"]
+                      and old_only_ready.get("certificate_rejected", False),
+                      {"certificate_rejected": old_only_ready.get("certificate_rejected", False)})
+        except Exception as error:
+            transition_error = error
+        finally:
+            restore_ok = True
+            try:
+                if switched and backed_up:
+                    lab.command(
+                        "docker", "exec", node, "sh", "-ceu",
+                        f"cp -p {remote_dir}/original.crt /etc/kubernetes/pki/apiserver.crt; "
+                        f"cp -p {remote_dir}/original.key /etc/kubernetes/pki/apiserver.key",
+                        timeout=TIMEOUT + 5,
+                    )
+                    restart_static_apiserver(lab, node, record=False)
+                    restored = wait_for_verified_endpoint(lab, address, port, old_ca_pem,
+                                                          POD_READY_SECONDS)
+                    restore_ok = (restored["verified"] and restored.get("leaf") == old_leaf)
+            except Exception:
+                restore_ok = False
+            finally:
+                if created:
+                    lab.command("docker", "exec", node, "rm", "-rf", remote_dir,
+                                timeout=TIMEOUT + 5, allow_failure=True)
+            if not restore_ok:
+                lab.block("Could not restore and verify the original owned API serving certificate")
+        if transition_error:
+            raise transition_error
+
+    restored_old = probe(address, port, old_only, address)
+    restored_overlap = probe(address, port, tls_context(old_ca_pem + b"\n" + new_ca_pem), address)
+    restored_new_only = probe(address, port, tls_context(new_ca_pem), address)
+    lab.check("positive", "Cleanup restore serves the original renewed leaf under old-only and overlap trust",
+              restored_old["verified"] and restored_old["leaf"] == old_leaf
+              and restored_overlap["verified"] and restored_overlap["leaf"] == old_leaf,
+              {"old_only_matches_original_leaf": restored_old.get("leaf") == old_leaf,
+               "overlap_matches_original_leaf": restored_overlap.get("leaf") == old_leaf})
+    lab.check("red", "New-only trust rejects the restored original leaf",
+              not restored_new_only["verified"]
+              and restored_new_only.get("certificate_rejected", False),
+              {"certificate_rejected": restored_new_only.get("certificate_rejected", False)})
+    restored_ready = ready_probe(address, port, old_only)
+    overlap_restored_ready = ready_probe(address, port, tls_context(old_ca_pem + b"\n" + new_ca_pem))
+    new_only_restored_ready = ready_probe(address, port, tls_context(new_ca_pem))
+    lab.check("positive", "Restored API endpoint reports ready with old-only and overlap trust",
+              restored_ready["ready"] and overlap_restored_ready["ready"],
+              {"old_only_http_status": restored_ready.get("http_status"),
+               "overlap_http_status": overlap_restored_ready.get("http_status")})
+    lab.check("red", "New-only readiness client rejects the restored old leaf",
+              not new_only_restored_ready["verified"]
+              and new_only_restored_ready.get("certificate_rejected", False),
+              {"certificate_rejected": new_only_restored_ready.get("certificate_rejected", False)})
+    (lab.evidence / "serving-ca-overlap-observations.json").write_text(json.dumps({
+        "origin": "runner-owned loopback API endpoint",
+        "old_leaf_sha256": old_leaf,
+        "successor_leaf_sha256": new_leaf_fingerprint,
+        "old_ca_bundle_sha256": hashlib.sha256(old_ca_pem).hexdigest(),
+        "successor_ca_bundle_sha256": hashlib.sha256(new_ca_pem).hexdigest(),
+        "trust_matrix": {
+            "old_leaf_old_only": old_ready_leaf,
+            "old_leaf_overlap": old_overlap["verified"],
+            "old_leaf_new_only_rejected": old_new_only.get("certificate_rejected", False),
+            "new_leaf_old_only_rejected": new_old_only.get("certificate_rejected", False),
+            "new_leaf_overlap": new_overlap["verified"],
+            "new_leaf_new_only": new_new_only["verified"],
+            "restored_old_leaf_old_only": restored_old["verified"],
+            "restored_old_leaf_overlap": restored_overlap["verified"],
+            "restored_old_leaf_new_only_rejected": restored_new_only.get("certificate_rejected", False),
+        },
+        "readiness": {
+            "old_state_old_and_overlap_trust": original_ready["ready"] and overlap_old_ready["ready"],
+            "new_state_overlap_and_new_trust": overlap_ready["ready"] and new_only_ready["ready"],
+            "restored_state_old_and_overlap_trust": restored_ready["ready"] and overlap_restored_ready["ready"],
+        },
+        "kubeconfig_or_private_key_recorded": False,
+        "provider_or_production_change": False,
+    }, indent=2) + "\n")
 
 
 def wait_for_verified_endpoint(lab, address, port, ca_pem, deadline_seconds):
@@ -267,3 +554,4 @@ def run(lab):
                 "wrong_identity_rejected_after_renewal": post_wrong_identity.get("certificate_rejected", False),
             },
         )
+        check_serving_ca_overlap(lab, node, address, port, ca_pem, after["leaf"])

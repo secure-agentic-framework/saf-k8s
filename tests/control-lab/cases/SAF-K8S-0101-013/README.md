@@ -49,3 +49,27 @@ certificate roles separately.
 - [Kubernetes v1.36 Certificate Management with kubeadm](https://v1-36.docs.kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-certs/)
 - [Kubernetes v1.36 kubeadm certs reference](https://v1-36.docs.kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-certs/)
 - [Kubeadm renewal implementation at v1.36.1](https://github.com/kubernetes/kubernetes/tree/v1.36.1/cmd/kubeadm/app/phases/certs/renewal)
+
+## Serving certificate trust transition
+
+After the existing renewal and trust checks, the case reuses the same
+owned node and loopback API origin. It keeps the currently served renewed leaf
+as the old state, creates a distinct temporary successor CA and an IP-SAN-correct
+API-server leaf, then switches the actual API serving certificate pair and
+restarts only that owned static Pod. Client-auth trust remains unchanged.
+
+At the old-leaf and successor-leaf states, the case checks actual socket-served
+SHA-256 fingerprints under old-only, overlap (old+new), and new-only trust. It
+requires the expected x509 rejection for the untrusted root combinations. It
+also GETs `/readyz` through each client trust context: old-only and overlap are
+ready in the old state; overlap and new-only are ready in the successor state.
+It restores the original renewed certificate pair in `finally`, restarts the
+owned API server, checks the restored leaf/readiness, and removes its temporary
+node files. Evidence contains only public fingerprints, trust/readiness
+booleans, and statuses; it does not contain private keys, kubeconfig content,
+or response bodies.
+
+This comparison covers one API serving endpoint. SAF-K8S-0605-008
+provides a separate example for webhook backend trust. Adopters must
+verify their own approved CA bundle distribution, all real endpoints and
+replicas, and the policy-defined trust removal and rollback gates.

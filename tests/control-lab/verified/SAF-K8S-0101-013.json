@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0101-013",
-  "catalog_revision": "9decb6e67c2fade0d046b80c27bd7c6ea2fec8ee",
-  "catalog_sha256": "1c78a76489ca604a14fdf3824565e4bcb568f55832e793e78fa752772ba60eab",
+  "catalog_revision": "04fd7f492a6f6f06f0f2710d64c91dcad56b7680",
+  "catalog_sha256": "7858ac696aa0fab345adc56211e616c9dbf9a0fd00aeec921bc13b07b6bee205",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b6f8d16374ce3830ebabc1beb64a7d59dfef5d769d5795d07ad3be818d245960",
-  "scope": "Kubernetes v1.36.1 kubeadm-managed API server serving certificate on the one fresh runner-owned Kind cluster's host-published loopback endpoint. The case checks the expiry of a short-lived serving leaf and renews within the fixture lead time. It observes the live process before and after the documented static-Pod restart, and validates only local TLS trust and IP identity. External PKI and other certificate paths, replicas, and deployment scheduling remain separate adoption evidence.",
-  "cluster": "saf-lab-0c10681ef9b9",
+  "scope": "Kubernetes v1.36.1 kubeadm-managed API server serving certificate on the one fresh runner-owned Kind cluster's host-published loopback endpoint. The case checks the expiry of a short-lived serving leaf and renews within the fixture lead time. It observes the live process before and after the documented static-Pod restart, and validates local TLS trust and IP identity. External PKI and other certificate paths, replicas, and deployment scheduling remain separate adoption evidence. A final comparison sequentially serves the renewed old-CA leaf and a synthetic successor-CA leaf at the same loopback origin, checking old-only, overlap, and new-only client trust plus readiness, then restores the renewed leaf. It does not rotate the cluster CA.",
+  "cluster": "saf-lab-bcf13236e79f",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -124,6 +124,141 @@
         "same_owned_loopback_endpoint": true,
         "wrong_ca_rejected_after_renewal": true,
         "wrong_identity_rejected_after_renewal": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Successor server leaf chains to the distinct fixture successor CA",
+      "matched": true,
+      "observed": {
+        "successor_leaf_fingerprint_differs": true,
+        "successor_CA_differs": true,
+        "signature_and_server_purpose_verified": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Old served leaf validates under old-only trust before the switch",
+      "matched": true,
+      "observed": {
+        "old_only_matches_original_leaf": true,
+        "ready_status": 200,
+        "overlap_accepts_old_leaf": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "New-only trust rejects the old served leaf before the switch",
+      "matched": true,
+      "observed": {
+        "certificate_rejected": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Old and overlap clients can read API readiness before the switch",
+      "matched": true,
+      "observed": {
+        "old_only_http_status": 200,
+        "overlap_http_status": 200
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "New-only readiness client rejects the old served leaf before the switch",
+      "matched": true,
+      "observed": {
+        "certificate_rejected": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The owned static API server stopped while its manifest was parked",
+      "matched": true,
+      "observed": {
+        "previous_container_stopped": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Old-only trust rejects the new served leaf after the switch",
+      "matched": true,
+      "observed": {
+        "certificate_rejected": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Overlap trust accepts the new served leaf at the same API origin",
+      "matched": true,
+      "observed": {
+        "served_leaf_matches_successor": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "New-only trust accepts the new served leaf after the approved switch",
+      "matched": true,
+      "observed": {
+        "served_leaf_matches_successor": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "API readiness succeeds through overlap trust after the switch",
+      "matched": true,
+      "observed": {
+        "http_status": 200
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "API readiness succeeds through new-only trust after the switch",
+      "matched": true,
+      "observed": {
+        "http_status": 200
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Old-only readiness trust rejects the new served leaf after the switch",
+      "matched": true,
+      "observed": {
+        "certificate_rejected": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Cleanup restore serves the original renewed leaf under old-only and overlap trust",
+      "matched": true,
+      "observed": {
+        "old_only_matches_original_leaf": true,
+        "overlap_matches_original_leaf": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "New-only trust rejects the restored original leaf",
+      "matched": true,
+      "observed": {
+        "certificate_rejected": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Restored API endpoint reports ready with old-only and overlap trust",
+      "matched": true,
+      "observed": {
+        "old_only_http_status": 200,
+        "overlap_http_status": 200
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "New-only readiness client rejects the restored old leaf",
+      "matched": true,
+      "observed": {
+        "certificate_rejected": true
       }
     }
   ]
