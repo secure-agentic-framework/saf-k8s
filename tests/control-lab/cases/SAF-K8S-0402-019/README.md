@@ -24,3 +24,16 @@ across deployed workloads need separate evidence.
 - [Tagged v1.36.1 ServiceAccount admission](https://github.com/kubernetes/kubernetes/blob/v1.36.1/plugin/pkg/admission/serviceaccount/admission.go)
 - [Tagged v1.36.1 bootstrap RBAC](https://github.com/kubernetes/kubernetes/blob/v1.36.1/plugin/pkg/auth/authorizer/rbac/bootstrappolicy/policy.go)
 - [Kubernetes v0.36.1 authorization API types](https://github.com/kubernetes/api/blob/v0.36.1/authorization/v1/types.go)
+
+## Adopter verification
+
+1. Identify the running workload's assigned ServiceAccount and effective
+   permissions, including the default identity and any template or
+   fallback assignments.
+2. Verify representative permitted and denied Kubernetes requests using
+   the effective identity and exact resource scope.
+3. Where federation applies, verify the actual provider issuer, audience,
+   subject, namespace mapping and accepting principal. Rehearse the
+   permitted provider action and a representative scope refusal.
+4. Inspect alternate credential sources and retain sanitized decisions,
+   provider audit references, responsible owner and review cadence.
