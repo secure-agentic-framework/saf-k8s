@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"syscall"
 	"time"
 )
@@ -151,15 +152,18 @@ func encrypted() {
 	})))
 }
 
-func resume(file string) int {
+// verifyResume is the single authenticated envelope gate shared by restore
+// and promotion. Keep the expected run/step, AAD and time window here.
+func verifyResume(file string) ([]byte, int) {
 	algorithm := gcm(read(resumeKey))
+	encoded := read(file)
 	var sealed envelope
-	if err := json.Unmarshal(read(file), &sealed); err != nil {
+	if err := json.Unmarshal(encoded, &sealed); err != nil {
 		fail("decode resume envelope", err)
 	}
 	plain, err := openEnvelope(algorithm, sealed, resumeContext)
 	if err != nil {
-		return authRejected
+		return nil, authRejected
 	}
 
 	var record resumeRecord
@@ -167,12 +171,69 @@ func resume(file string) int {
 		fail("decode authenticated metadata", err)
 	}
 	if record.Run != resumeRun || record.Step != resumeStep || record.Payload != marker {
-		return bindingRejected
+		return nil, bindingRejected
 	}
 	if record.CreatedAt > resumeClock || record.CreatedAt < resumeClock-300 {
-		return freshnessRejected
+		return nil, freshnessRejected
+	}
+	return encoded, 0
+}
+
+func resume(file string) int {
+	_, status := verifyResume(file)
+	if status != 0 {
+		return status
 	}
 	fmt.Println("SAF-CHECKPOINT-RESUMED")
+	return 0
+}
+
+func promotionDestination(file string) string {
+	if filepath.Dir(file) != dir {
+		fail("promotion source is outside the case-owned checkpoint directory", nil)
+	}
+	return filepath.Join(dir, "promoted-"+filepath.Base(file))
+}
+
+func promote(file string) int {
+	// No destination path is accepted from the caller. A destination is derived
+	// only inside the fixture-owned checkpoint directory after verifyResume passes.
+	encoded, status := verifyResume(file)
+	if status != 0 {
+		return status
+	}
+	destination := promotionDestination(file)
+	part := destination + ".part"
+	if _, err := os.Lstat(destination); !errors.Is(err, os.ErrNotExist) {
+		fail("promotion destination already exists", err)
+	}
+	if _, err := os.Lstat(part); !errors.Is(err, os.ErrNotExist) {
+		fail("promotion temporary path already exists", err)
+	}
+	output, err := os.OpenFile(part, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
+	if err != nil {
+		fail("create approved promotion copy", err)
+	}
+	if _, err := output.Write(encoded); err != nil {
+		output.Close()
+		removeOwned(part)
+		fail("write approved promotion copy", err)
+	}
+	if err := output.Sync(); err != nil {
+		output.Close()
+		removeOwned(part)
+		fail("sync approved promotion copy", err)
+	}
+	if err := output.Close(); err != nil {
+		removeOwned(part)
+		fail("close approved promotion copy", err)
+	}
+	if err := os.Link(part, destination); err != nil {
+		removeOwned(part)
+		fail("publish approved promotion copy", err)
+	}
+	removeOwned(part)
+	fmt.Println("SAF-CHECKPOINT-PROMOTED")
 	return 0
 }
 
@@ -218,9 +279,11 @@ func lifecycle() {
 	}
 
 	checks := map[string]bool{"key_tmpfs_mode_0600": true}
+	owned := make(map[string]string, len(probes))
 	for _, probe := range probes {
 		file := dir + "/" + probe.name + ".json"
 		write(file, encode(probe.sealed))
+		owned[probe.name] = file
 		output, err := exec.Command(os.Args[0], "resume", file).CombinedOutput()
 		status := 0
 		if err != nil {
@@ -235,11 +298,69 @@ func lifecycle() {
 			expectedOutput = "SAF-CHECKPOINT-RESUMED\n"
 		}
 		checks[probe.name] = status == probe.wantStatus && string(output) == expectedOutput
+	}
+	promotionChecks := make(map[string]bool, len(probes))
+	for _, probe := range probes {
+		file := owned[probe.name]
+		destination := promotionDestination(file)
+		part := destination + ".part"
+		if _, err := os.Lstat(destination); !errors.Is(err, os.ErrNotExist) {
+			fail("promotion destination must begin absent", err)
+		}
+		if _, err := os.Lstat(part); !errors.Is(err, os.ErrNotExist) {
+			fail("promotion temporary path must begin absent", err)
+		}
+		output, err := exec.Command(os.Args[0], "promote", file).CombinedOutput()
+		status := 0
+		if err != nil {
+			var child *exec.ExitError
+			if !errors.As(err, &child) {
+				fail("start fresh promotion consumer", err)
+			}
+			status = child.ExitCode()
+		}
+		expectedOutput := ""
+		if probe.wantStatus == 0 {
+			expectedOutput = "SAF-CHECKPOINT-PROMOTED\n"
+		}
+		if probe.wantStatus == 0 {
+			data, readErr := os.ReadFile(destination)
+			info, statErr := os.Stat(destination)
+			_, verifyStatus := verifyResume(destination)
+			_, partErr := os.Lstat(part)
+			promotionChecks["approved_copy_written"] = status == 0 && string(output) == expectedOutput &&
+				readErr == nil && statErr == nil && bytes.Equal(data, read(file)) &&
+				!bytes.Contains(data, []byte(marker)) && verifyStatus == 0 &&
+				info.Mode().Perm() == 0600 && errors.Is(partErr, os.ErrNotExist)
+		} else {
+			_, destinationErr := os.Lstat(destination)
+			_, partErr := os.Lstat(part)
+			promotionChecks["tampered_no_destination"] = promotionChecks["tampered_no_destination"] ||
+				(probe.name == "changed_rejected" && status == probe.wantStatus && string(output) == "" &&
+					errors.Is(destinationErr, os.ErrNotExist) && errors.Is(partErr, os.ErrNotExist))
+			promotionChecks["wrong_run_no_destination"] = promotionChecks["wrong_run_no_destination"] ||
+				(probe.name == "wrong_run_rejected" && status == probe.wantStatus && string(output) == "" &&
+					errors.Is(destinationErr, os.ErrNotExist) && errors.Is(partErr, os.ErrNotExist))
+			promotionChecks["wrong_step_no_destination"] = promotionChecks["wrong_step_no_destination"] ||
+				(probe.name == "wrong_step_rejected" && status == probe.wantStatus && string(output) == "" &&
+					errors.Is(destinationErr, os.ErrNotExist) && errors.Is(partErr, os.ErrNotExist))
+			promotionChecks["stale_no_destination"] = promotionChecks["stale_no_destination"] ||
+				(probe.name == "stale_rejected" && status == probe.wantStatus && string(output) == "" &&
+					errors.Is(destinationErr, os.ErrNotExist) && errors.Is(partErr, os.ErrNotExist))
+			promotionChecks["future_no_destination"] = promotionChecks["future_no_destination"] ||
+				(probe.name == "future_rejected" && status == probe.wantStatus && string(output) == "" &&
+					errors.Is(destinationErr, os.ErrNotExist) && errors.Is(partErr, os.ErrNotExist))
+		}
+	}
+	for _, file := range owned {
 		removeOwned(file)
+		if filepath.Base(file) == "authorized_retained_verified.json" {
+			removeOwned(promotionDestination(file))
+		}
 	}
 	removeOwned(resumeKey)
 	checks["cleanup_verified"] = true
-	fmt.Println(string(encode(checks)))
+	fmt.Println(string(encode(map[string]any{"resume": checks, "promotion": promotionChecks})))
 }
 
 func removeOwned(file string) {
@@ -276,6 +397,9 @@ func observer() {
 func main() {
 	if len(os.Args) == 3 && os.Args[1] == "resume" {
 		os.Exit(resume(os.Args[2]))
+	}
+	if len(os.Args) == 3 && os.Args[1] == "promote" {
+		os.Exit(promote(os.Args[2]))
 	}
 	if len(os.Args) != 2 {
 		fail("expected one fixture mode", nil)

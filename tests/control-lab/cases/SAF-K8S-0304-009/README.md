@@ -46,3 +46,15 @@ owned files and key and checks that they are absent. The framework retains
 - [Kubernetes v1.36 emptyDir volumes](https://v1-36.docs.kubernetes.io/docs/concepts/storage/volumes/#emptydir)
 - [Kubernetes v1.36 RBAC authorization](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
 - [Go standard-library AES-GCM interface](https://pkg.go.dev/crypto/cipher#NewGCM)
+
+## Promotion comparison
+
+The retained checkpoint is written to a case-owned promotion destination only
+after the fresh process applies the same authenticated envelope, run, step,
+and freshness gate used for restore. An allowed promotion preserves the exact
+verified ciphertext, which is accepted on reinspection. Tampered, wrong-run,
+wrong-step, stale and future envelopes surface their expected rejection and
+leave neither a destination nor a staging file. The destination is a local
+reference fixture. Exercise the adopter's actual promotion path with the same
+allowed and refused selections and ensure only the approved storage identity
+can publish it.

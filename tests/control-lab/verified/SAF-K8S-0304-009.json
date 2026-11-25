@@ -4,8 +4,8 @@
   "catalog_sha256": "044bf7085d167e0cebc119fadb5265399823a05a596346af59f25fe7dc9ad3a6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b4b0c9ea4406eb9d3d90c5c6696e6ebe3c115912b654d2a8595ca39e247b5270",
-  "scope": "Small inert checkpoint in an actual disk-backed emptyDir using a process-local AES-GCM key. Verify the on-volume record, authentic reuse, alteration rejection, and read/write denial for a different UID. Separately verify API access to a named ciphertext ConfigMap by synthetic ServiceAccounts. A fresh process in the same Pod authenticates a retained record against expected run, step and time using a separate tmpfs key. Provider encryption and durable cross-Pod key custody are adopter-specific.",
-  "cluster": "saf-lab-f7c261a38ba7",
+  "scope": "Small inert checkpoint in an actual disk-backed emptyDir using a process-local AES-GCM key. Verify the on-volume record, authentic reuse, alteration rejection, and read/write denial for a different UID. Separately verify API access to a named ciphertext ConfigMap by synthetic ServiceAccounts. A fresh process in the same Pod authenticates a retained record against expected run, step and time using a separate tmpfs key. A separate fresh process also promotes only the authorized encrypted envelope. Provider encryption and durable cross-Pod key custody are adopter-specific.",
+  "cluster": "saf-lab-0c9dc7893eb7",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -94,6 +94,26 @@
       "matched": true,
       "observed": {
         "cleanup_verified": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved checkpoint is promoted as the same verified ciphertext",
+      "matched": true,
+      "observed": {
+        "approved_copy_written": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Rejected checkpoints never create a promotion destination object",
+      "matched": true,
+      "observed": {
+        "tampered_no_destination": true,
+        "wrong_run_no_destination": true,
+        "wrong_step_no_destination": true,
+        "stale_no_destination": true,
+        "future_no_destination": true
       }
     },
     {

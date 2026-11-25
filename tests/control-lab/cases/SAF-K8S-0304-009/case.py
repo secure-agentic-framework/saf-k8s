@@ -15,6 +15,7 @@ SCOPE = (
     "and read/write denial for a different UID. Separately verify API access to a named "
     "ciphertext ConfigMap by synthetic ServiceAccounts. A fresh process in the same Pod "
     "authenticates a retained record against expected run, step and time using a separate tmpfs key. "
+    "A separate fresh process also promotes only the authorized encrypted envelope. "
     "Provider encryption and durable cross-Pod key custody are adopter-specific."
 )
 
@@ -119,16 +120,27 @@ def run(lab):
         lab.check("green", "The independent unprivileged container cannot read or write the checkpoint file",
                   observer == {"read_denied": True, "write_denied": True}, observer)
         lifecycle, = on_volume(lab, image, "saf-checkpoint-lifecycle", "lifecycle")
+        resume = lifecycle.get("resume", {})
         lab.check("positive", "A fresh process authenticates the retained checkpoint before resume",
-                  lifecycle.get("authorized_retained_verified") is True
-                  and lifecycle.get("key_tmpfs_mode_0600") is True,
-                  {key: lifecycle.get(key) for key in ("authorized_retained_verified", "key_tmpfs_mode_0600")})
-        rejected = {key: lifecycle.get(key) for key in ("changed_rejected", "wrong_run_rejected",
+                  resume.get("authorized_retained_verified") is True
+                  and resume.get("key_tmpfs_mode_0600") is True,
+                  {key: resume.get(key) for key in ("authorized_retained_verified", "key_tmpfs_mode_0600")})
+        rejected = {key: resume.get(key) for key in ("changed_rejected", "wrong_run_rejected",
                     "wrong_step_rejected", "stale_rejected", "future_rejected")}
         lab.check("green", "Resume rejects altered, wrong-run, wrong-step, expired and future checkpoints",
                   all(value is True for value in rejected.values()), rejected)
         lab.check("green", "The process removes the temporary records and key and confirms absence",
-                  lifecycle.get("cleanup_verified") is True, {"cleanup_verified": lifecycle.get("cleanup_verified")})
+                  resume.get("cleanup_verified") is True,
+                  {"cleanup_verified": resume.get("cleanup_verified")})
+        promotion = lifecycle.get("promotion", {})
+        lab.check("positive", "The approved checkpoint is promoted as the same verified ciphertext",
+                  promotion.get("approved_copy_written") is True,
+                  {"approved_copy_written": promotion.get("approved_copy_written")})
+        blocked_promotions = {key: promotion.get(key) for key in (
+            "tampered_no_destination", "wrong_run_no_destination", "wrong_step_no_destination",
+            "stale_no_destination", "future_no_destination")}
+        lab.check("green", "Rejected checkpoints never create a promotion destination object",
+                  all(value is True for value in blocked_promotions.values()), blocked_promotions)
         verify_api_boundary(lab, envelope)
     finally:
         lab.command("docker", "image", "rm", image, timeout=45, allow_failure=True)
