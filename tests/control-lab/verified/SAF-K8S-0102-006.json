@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0102-006",
-  "catalog_revision": "95d733ea566e0a388472c285fb53dde8fd57c476",
-  "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
+  "catalog_revision": "515c9e08927499cffaa0dfb786232e6c381102b2",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "f121308c9a8db57aea8885107b94affe4e07bf05a87698bce6b16d612df92bab",
-  "scope": "Native Secretbox key rotation for a dedicated custom resource on one disposable Kubernetes API server, plus a pure synthetic schedule and backup-retirement decision predicate with no operational actions.",
-  "cluster": "saf-lab-8d4b0d9c6dac",
+  "scope": "Native Secretbox key rotation for a dedicated custom resource on one disposable Kubernetes API server, plus a bounded real CronJob decision and exact synthetic-record rewrite; planner boundary scenarios remain synthetic.",
+  "cluster": "saf-lab-2356507c6388",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -171,8 +171,56 @@
       }
     },
     {
+      "phase": "green",
+      "claim": "Retirement remains blocked while an old-key fixture dependency exists",
+      "matched": true,
+      "observed": {
+        "dual_reader_configuration_present": true,
+        "old_dependency_detected": true
+      }
+    },
+    {
       "phase": "positive",
-      "claim": "The API rewrite migrates both old-key records and all three markers remain readable after retirement",
+      "claim": "Minute-cadence scheduler uses bounded jobs and exact named-object authority",
+      "matched": true,
+      "observed": {
+        "both_cronjobs_pinned_to_minute_cadence": true,
+        "role_rules_match_exact_named_allowlists": true,
+        "not_due_has_no_rotationmarker_permission": true,
+        "separate_service_accounts": true,
+        "node_or_key_mounts": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Owned not-due and due Jobs make only the approved API rewrite with real scheduler time",
+      "matched": true,
+      "observed": {
+        "not_due_job_owner_valid": true,
+        "due_job_owner_valid": true,
+        "both_scheduled_timestamps_valid": true,
+        "both_cronjobs_suspended_after_first_job": true,
+        "job_and_pod_owner_uids_valid": true,
+        "both_receipts_bound_to_plans_and_jobs": true,
+        "not_due_decision_and_no_side_effect": true,
+        "due_decision_and_exact_target_count": true,
+        "all_due_targets_reencrypted": true,
+        "no_raw_plan_or_marker_values_retained": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Due scheduled rewrite clears the owned old-key inventory before retirement",
+      "matched": true,
+      "observed": {
+        "due_dependencies_use_new_writer": true,
+        "no_due_control_unchanged_before_cleanup": true,
+        "retirement_preflight_clear": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The existing rollback and native rotation retain all three marker objects after retirement",
       "matched": true,
       "observed": {
         "rewrite_observed": true,
@@ -182,6 +230,17 @@
           "post-rotation": true,
           "rollback-write": true
         }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The retained synthetic backup marker and recovery re-create work with only the current key",
+      "matched": true,
+      "observed": {
+        "synthetic_backup_readable": true,
+        "recovery_readback_created_and_read": true,
+        "api_ready_after_retirement": true,
+        "new_only_key_configured": true
       }
     }
   ]

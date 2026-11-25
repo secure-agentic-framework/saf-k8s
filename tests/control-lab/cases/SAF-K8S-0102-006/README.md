@@ -1,32 +1,24 @@
-# SAF-K8S-0102-006 Native API encryption key rotation
+# SAF-K8S-0102-006 — Scheduled API data key rotation
 
-The disposable API server encrypts a dedicated public-marker resource. It uses the previous key for existing data and the next key for new writes during rotation. The test verifies the exact migration with a metadata rewrite and reads both owned markers after retirement of the old key. It restarts only the case's disposable API server at each transition.
+Run the isolated case from the control lab checkout:
 
-The key values are ephemeral and held in a restrictive temporary config. Evidence retains only public key labels and boolean observations. Remote KMS, media encryption, production rotation policy and managed-control-plane operations require deployment-specific evidence.
+```sh
+python3 lab.py test SAF-K8S-0102-006 --docker-context desktop-linux
+```
 
-## Pre-migration rollback comparison
+The case runs on a digest-pinned Kubernetes v1.36.1 Kind cluster. It configures the API server's Secretbox provider for a dedicated custom resource containing only public fixture markers. The case first reads an older envelope, selects the new writer, rolls back, and resumes rotation while retaining both keys for reads. Real CronJobs then consume separately approved synthetic plans. The not-due Job creates no migration side effects. The due Job rewrites exactly three named records, and the case verifies their new envelopes before removing the old key. After restart it verifies the API and retained records, including re-creating and reading a synthetic recovery marker through the API.
 
-The disposable API server temporarily selects the original key for new writes
-while retaining both keys for reads. The exact new rollback write appears under
-the original envelope. The earlier records keep their old and new envelopes
-and remain readable. The fixture then restores the new writer, migrates both
-records still under the old envelope, and verifies all three after retirement.
-This reference exercises authenticated local-provider behavior. For managed
-KMS, verify the release-specific provider key identifiers, active writer and
-read-back, approved cadence, audit proof, migration counts, recovery readiness
-and retirement. Keep key material out of evidence.
+The two CronJobs use a minute cadence and separate service accounts. Each service account can read only its exact named plan and update its own receipt. Only the due account can patch the migration targets. Key material stays in a private temporary fixture configuration. The retained evidence includes the gate decisions, public key labels, and sanitized schedule checks.
 
-## Schedule and retirement planner
+The recovery comparison covers an API-level re-create. For durable recovery, verify separately with the provider or storage layer. The companion [KMS v2 integration fixture](../SAF-K8S-0403-020/README.md) covers remote Vault Transit version changes and retained-version recovery in an isolated deployment.
 
-A fixed-clock synthetic comparison accepts a complete approved plan and
-rejects plans with missing, self-issued or expired approval, an overdue
-schedule, early retirement, a legal hold, or incomplete recovery coverage.
-The fixture values exercise the decision boundaries. It records only
-scenario outcomes and performs no key or backup action.
+## Adopter verification
 
-For adoption, record each active scheduled workflow, its approval and owner.
-Confirm the actual writer version and compare each applicable record and
-backup before and after migration. Retain scoped inventory, immutable hold
-decisions and isolated recovery evidence for every dependent copy. Verify
-remote-provider rotation and authorized retirement from the selected
-provider's records and recovery observations.
+1. Record the governed resources, key authority, version, writer and compatible readers, schedule, trigger, approval, change window and rollback owner.
+2. Verify the actual trigger and measured writer change on owned representative records. Confirm that prior generations remain readable and that migrated objects use the intended new envelope. Preserve per-scope progress, remaining old dependencies, holds, and failed or unobserved paths.
+3. Identify every retained copy, including backup, restore, provider or export paths. Restore the applicable copies in an isolated approved environment and confirm the responsible key versions. Retain approvals, exact successful recovery coverage and the outstanding dependencies before authorizing retirement.
+4. Verify observable retirement at the applicable layer, write and read continuity, alerting, and rollback. For remote KMS record provider version identifiers, integration health, effective retention and destroy/disable policy. Keep key material out of retained evidence.
+
+- [Kubernetes v1.36 CronJobs](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/)
+- [Kubernetes v1.36 API encryption at rest](https://v1-36.docs.kubernetes.io/docs/tasks/administer-cluster/encrypt-data/)
+- [Kubernetes v1.36 RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)

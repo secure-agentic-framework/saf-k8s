@@ -1,0 +1,219 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0102-006-scheduler-not-due
+  namespace: saf-test
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-0102-006-scheduler-due
+  namespace: saf-test
+automountServiceAccountToken: true
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0102-006-scheduler-not-due
+  namespace: saf-test
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["saf-0102-006-scheduler-not-due-plan"]
+    verbs: ["get"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["saf-0102-006-scheduler-not-due-receipt"]
+    verbs: ["patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-0102-006-scheduler-due
+  namespace: saf-test
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["saf-0102-006-scheduler-due-plan"]
+    verbs: ["get"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["saf-0102-006-scheduler-due-receipt"]
+    verbs: ["patch"]
+  - apiGroups: ["rotation.saf.example"]
+    resources: ["rotationmarkers"]
+    resourceNames: ["pre-rotation", "rollback-write", "fixture-backup"]
+    verbs: ["patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0102-006-scheduler-not-due
+  namespace: saf-test
+subjects:
+  - kind: ServiceAccount
+    name: saf-0102-006-scheduler-not-due
+    namespace: saf-test
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0102-006-scheduler-not-due
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-0102-006-scheduler-due
+  namespace: saf-test
+subjects:
+  - kind: ServiceAccount
+    name: saf-0102-006-scheduler-due
+    namespace: saf-test
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-0102-006-scheduler-due
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: saf-0102-006-scheduler-not-due
+  namespace: saf-test
+  labels:
+    app.kubernetes.io/name: saf-0102-006-scheduler
+    saf.example/phase: not-due
+spec:
+  schedule: "* * * * *"
+  timeZone: Etc/UTC
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 90
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    metadata:
+      labels:
+        app.kubernetes.io/name: saf-0102-006-scheduler
+        saf.example/phase: not-due
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 30
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: saf-0102-006-scheduler
+            saf.example/phase: not-due
+        spec:
+          serviceAccountName: saf-0102-006-scheduler-not-due
+          automountServiceAccountToken: true
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: dispatch
+              image: docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90
+              imagePullPolicy: IfNotPresent
+              command: ["python", "/fixture/dispatch.py"]
+              env:
+                - name: JOB_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.labels['batch.kubernetes.io/job-name']
+                - name: PLAN_NAME
+                  value: saf-0102-006-scheduler-not-due-plan
+                - name: RECEIPT_NAME
+                  value: saf-0102-006-scheduler-not-due-receipt
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 24Mi
+                limits:
+                  cpu: 100m
+                  memory: 64Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
+              volumeMounts:
+                - name: code
+                  mountPath: /fixture
+                  readOnly: true
+          volumes:
+            - name: code
+              configMap:
+                name: saf-0102-006-scheduler-code
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: saf-0102-006-scheduler-due
+  namespace: saf-test
+  labels:
+    app.kubernetes.io/name: saf-0102-006-scheduler
+    saf.example/phase: due
+spec:
+  schedule: "* * * * *"
+  timeZone: Etc/UTC
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 90
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    metadata:
+      labels:
+        app.kubernetes.io/name: saf-0102-006-scheduler
+        saf.example/phase: due
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 30
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: saf-0102-006-scheduler
+            saf.example/phase: due
+        spec:
+          serviceAccountName: saf-0102-006-scheduler-due
+          automountServiceAccountToken: true
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: dispatch
+              image: docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90
+              imagePullPolicy: IfNotPresent
+              command: ["python", "/fixture/dispatch.py"]
+              env:
+                - name: JOB_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.labels['batch.kubernetes.io/job-name']
+                - name: PLAN_NAME
+                  value: saf-0102-006-scheduler-due-plan
+                - name: RECEIPT_NAME
+                  value: saf-0102-006-scheduler-due-receipt
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 24Mi
+                limits:
+                  cpu: 100m
+                  memory: 64Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
+              volumeMounts:
+                - name: code
+                  mountPath: /fixture
+                  readOnly: true
+          volumes:
+            - name: code
+              configMap:
+                name: saf-0102-006-scheduler-code
