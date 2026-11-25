@@ -24,3 +24,10 @@ logging paths, access to restricted samples, and retention governance.
 See [Fluent Bit Lua](https://docs.fluentbit.io/manual/data-pipeline/filters/lua),
 [Fluent Bit 5.1.2 Tail source](https://github.com/fluent/fluent-bit/blob/v5.1.2/plugins/in_tail/tail_file.c),
 and [Loki query_range](https://grafana.com/docs/loki/latest/reference/loki-http-api/#query-logs-within-a-range-of-time).
+
+## Adopter verification
+
+1. Classify request/response fields and enumerate every application logger, sidecar, collector, queue, backend, replica, and export path that may receive inference payloads.
+2. In an approved rehearsal, send synthetic canary identifiers through each path. Query raw source and every storage destination to verify prohibited fields and patterns are absent before persistence while approved operational metadata remains useful.
+3. Exercise malformed, nested, alternate-encoding, and benign inputs under the approved detector suite. Verify restricted forensic samples use an authorized identity and bounded retention.
+4. Retain redacted configuration, test corpus IDs (not sensitive values), destination query results, detector coverage, reviewer approval, and historical retention/access decisions.
