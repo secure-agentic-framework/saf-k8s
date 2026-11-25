@@ -19,3 +19,33 @@ pool, accelerator capacity and driver configuration require deployment evidence.
 [Kubernetes taints and tolerations](https://v1-36.docs.kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/) ·
 [Kubernetes node affinity](https://v1-36.docs.kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/) ·
 [Kubernetes admission policy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
+
+## Adopter verification
+
+1. Inventory actual AI and general node pools, GPU/device and driver versions,
+   advertised product labels, taints, capacity, health and pool ownership.
+   Preserve source and observation time for each node label and taint.
+2. Identify who may create or change qualifying node labels, taints, workload
+   classification labels, affinity and tolerations. Review the effective
+   authorizer/admission controls and retain approval records for exceptions.
+3. Reconcile deployed AI Pod templates against the exact affinity selectors
+   and matching tolerations; check that non-AI workloads cannot tolerate or
+   bypass the AI-only pool policy unless approved. Include all workload
+   controllers and submission paths.
+4. In an owned target or approved low-risk environment, test a known-allowed
+   AI workload and a known-disallowed ordinary workload. Record scheduler
+   decision/events, selected node labels/taints, resource availability and
+   that existing protected workloads remain in place.
+5. Verify real accelerator allocation, driver readiness and usable capacity
+   separately from successful scheduling. Repeat coverage after pool,
+   scheduler, driver, label-authority or admission changes and retain dated
+   inventory, exceptions, decisions and remediation.
+
+**Portable evidence:** current digest `9cc82b4d0ef875f27e008b42ff073701acc31feac294a2999530667cfe44a860`
+matches the passed **9-check** receipt, catalog revision
+`d4328fde2e235c4d4a65baf2e08f7e45cfb81217`; Beads records paired lab/framework
+runs, both clusters deleted. The three-node Kind fixture checks AI/general
+placement before and after a `NoSchedule` taint, matching product affinity and
+toleration, and admission for complete/incomplete declarations. It provides
+no GPU hardware, production pool/driver, real label authority or capacity
+evidence.
