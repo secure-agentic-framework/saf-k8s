@@ -44,3 +44,36 @@ Primary references:
 - [kind v0.32.0 kindnetd source](https://github.com/kubernetes-sigs/kind/blob/v0.32.0/images/kindnetd/cmd/kindnetd/main.go) — standard NetworkPolicy evaluator and dataplane controller setup.
 - [Kubernetes v1.36 Persistent Volumes](https://v1-36.docs.kubernetes.io/docs/concepts/storage/persistent-volumes/) — PV/PVC matching, claim selectors, binding, and Pod volume use.
 - [Kubernetes v1.36 ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/) — matching, binding, and enforcement of the scoped Pod admission rule.
+
+## Adopter verification
+
+1. Reconcile the authoritative classification source, approved label values,
+   workload identities and enrolled pipeline namespaces to actual workloads
+   and PVCs. Record label ownership, exception approval and the exact policies
+   bound to each classification.
+2. For each storage class/backend, trace a classified PVC to its PV and
+   workload mounts. Verify the approved class/selector, namespace and
+   identity permissions, and any admission rule preventing a lower-class
+   workload from using the sensitive claim. Include encryption and backend
+   access evidence separately where required.
+3. Inventory expected in-cluster, cross-namespace and external network flows
+   for each classification, including CNI/version, address families,
+   protocols, DNS and shared-service exceptions. Map each flow to effective
+   NetworkPolicy or provider controls.
+4. In an approved safe test window, validate representative allowed and
+   prohibited storage/API and network paths with synthetic markers or
+   controlled endpoints. Record caller, source/target, class, policy, result
+   and timestamp. Verify a policy object is enforced by actual dataplane
+   behavior, not just accepted by the API.
+5. Repeat the independent boundary inventory on a defined cadence and after
+   label, namespace, storage, CNI, service or external endpoint changes. Retain
+   coverage, exceptions, review, remediation and evidence of corrected paths.
+
+**Portable evidence:** current digest `39909a0e00e20c8036621b91a85e7909265929286ada73b40d4c55207ee02396`
+matches the passed **8-check** receipt, catalog revision
+`7e2e05c327f54bcc2c6aefd64c255880a81ce7c9`; paired lab/framework runs are in
+Beads and clusters were deleted. The fixture covers one IPv4 TCP/8080 kindnet
+path plus static hostPath synthetic PVC selection, scoped admission denial of
+a lower-class Pod mount, and separate writer/reader marker persistence. It
+does not establish deployed classification authority, production CNI,
+external/DNS/IPv6 flows, backend isolation or encryption.
