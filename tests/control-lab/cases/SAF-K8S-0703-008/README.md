@@ -21,3 +21,17 @@ release of actual capacity require deployment evidence.
 - [Prometheus v3.16.0](https://github.com/prometheus/prometheus/releases/tag/v3.16.0)
 - [Prometheus alerting rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/)
 - [Kubernetes v1.36 Deployments](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/deployment/)
+
+## Adopter verification
+
+1. Inventory the actual devices, telemetry agent and metric-to-device
+   mapping. Verify fresh samples, usable accelerator capacity and the
+   observable effect of changes on representative workloads.
+2. Review threshold, window, telemetry coverage and ownership. Run an
+   approved scoped alert rehearsal with known eligible and ineligible
+   workload states.
+3. Capture authorized scale or recovery decisions from the actual
+   workflow and confirm required workloads and protected capacity remain
+   available. Retain recipient, timing and remediation evidence.
+4. Record exception criteria, approver, review cadence and the behavior
+   when telemetry or authorized spare capacity is unavailable.
