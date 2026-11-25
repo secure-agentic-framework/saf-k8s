@@ -53,3 +53,12 @@ response times, remediation completion, approved closure authority, upstream
 coordination, cloud-provider procedures, external contact behavior, or production
 coverage. Those remain unresolved source/control claims requiring organizational
 records and independent operational evidence.
+
+## Verify an adopting implementation
+
+Maintain accountable owners and deputies for affected
+components, with approved escalation and provider/upstream channels. In a
+controlled exercise, verify authenticated acknowledgement and handoff timing,
+keep work open until remediation evidence and closure approval are present,
+and demonstrate that unresolved or unacknowledged work stays open. Retain
+component coverage, handoff audit, and exception evidence.
