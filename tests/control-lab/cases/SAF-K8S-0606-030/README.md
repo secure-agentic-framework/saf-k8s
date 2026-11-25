@@ -18,3 +18,12 @@ other renderers, complete deployed configuration and durable event coverage
 require additional evidence.
 
 [Argo CD v3.6.1 deployment history](https://github.com/argoproj/argo-cd/blob/v3.6.1/docs/user-guide/commands/argocd_app_history.md)
+
+## Verify an adopting implementation
+
+Retain immutable release records containing repository
+commit/tree, chart/dependencies, renderer/tool versions, values digest,
+rendered manifest digest, controller sync, and cluster rollout identity.
+Authorize who can access/retain them, then reconstruct a prior inert release
+from the archived inputs and compare the resulting manifest and health state.
+Document exclusions, retention periods, and independent recovery access.
