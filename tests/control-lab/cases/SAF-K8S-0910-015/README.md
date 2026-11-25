@@ -16,3 +16,7 @@ The still-altered digest is refused under the clean receipt.
 
 Live registry authentication, immutable promotion and end-to-end reconciler
 authorization remain deployment evidence. No model code or GPU workload runs.
+
+## Verify an adopting implementation
+
+Verify destination-side signature and digest checks against the independently approved source identity and immutable artifact statement before any consumer can read/use the artifact. Confirm tampering under the same tag is held, receipt state is bound to the exact bytes, and the approved bytes alone can be consumed. The fixture uses two local registries and inert metadata. Real registry authentication, immutable promotion, and reconciler authorization are not established.
