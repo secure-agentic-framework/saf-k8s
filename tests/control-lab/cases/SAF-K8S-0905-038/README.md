@@ -8,3 +8,13 @@ The inference Pod uses an explicit Kubernetes ServiceAccount with token automoun
 
 - [Zot 2.1.23 authentication and authorization](https://zotregistry.dev/v2.1.23/articles/authn-authz/)
 - [OCI Distribution Specification v1.1.1](https://github.com/opencontainers/distribution-spec/blob/v1.1.1/spec.md)
+
+## Verify an adopting implementation
+
+Bind deployed inference and publisher identities to repository-specific
+read, publish, update and delete grants. Pull the approved manifest and
+exact blob by digest. Prove cross-repository reads and unintended
+writes/deletes are denied through all deployed registry paths. Review
+credential rotation, human/steward access, federation and audit separately.
+The fixture tests native Zot 2.1.23 authorization and a digest-pinned inert
+OCI artifact.
