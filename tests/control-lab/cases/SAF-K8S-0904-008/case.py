@@ -15,14 +15,21 @@ IMAGE = (
 REFERENCE_INSTANT = "2025-06-01T12:00:00Z"
 TRUSTED_SHA256 = "ce5a7af15a1cd190f49300c99992eb3973a2263214316ea9149ba6f8794782e0"
 PROGRAMS = "saf0904008-programs"
-INPUTS = ("valid", "stale", "mismatch")
+INPUTS = ("valid", "stale", "mismatch", "anomaly")
+ANOMALY_SHA256 = "0be4b1e16ac03cef02c6f2c04860750bed3117fb37d9c2bb2c533e7f60f2f18f"
+ANOMALY_POLICY = {"policy_id": "SYNTH-0904-008-orders30d-range-v1", "dataset_id": "SYNTH-EVENTS-0904-008",
+                  "field_path": "records[0].orders_30d", "minimum_inclusive": 0,
+                  "maximum_inclusive": 100, "unit": "count",
+                  "rationale": "Fixed synthetic acceptable range for this fixture only."}
+ANOMALY_POLICY_SHA256 = "9abcae2db8c8b668bb4dbb98e9dc6e3ffe7229d7a1d52d0b158d01e56487102b"
 SCOPE = (
-    "One disposable Kind v1.36.1 cluster and five short Kubernetes Jobs using a previously used, "
+    "One disposable Kind v1.36.1 cluster and seven short Kubernetes Jobs using a previously used, "
     "digest-pinned Python image. Each Job has a read-only ConfigMap input, an init-container gate, "
     "and a downstream consumer that records only fixed synthetic dataset metadata. A fixed reference "
-    "instant tests an inclusive 300-second freshness boundary, one-second staleness, and a canonical "
-    "JSON SHA-256 mismatch. The case covers this fixture gate only; feature stores, provenance custody, "
-    "poisoning/anomaly detection, and operational alerting remain unverified."
+    "instant tests an inclusive 300-second freshness boundary, one-second staleness, a canonical "
+    "JSON SHA-256 mismatch, and a separate fixed synthetic feature-range decision. The case covers "
+    "this fixture gate only; production anomaly models, poisoning labels, feature provenance custody, "
+    "and operational alerting remain unverified."
 )
 
 
@@ -43,17 +50,32 @@ def _load_inputs():
         canonical = _canonical(dataset)
         if manifest.get("dataset_id") != "SYNTH-EVENTS-0904-008":
             raise ValueError(f"{name} fixture has an unexpected synthetic dataset ID")
-        if manifest.get("sha256") != TRUSTED_SHA256:
-            raise ValueError(f"{name} fixture manifest has an unexpected trusted digest")
+        expected_manifest_digest = ANOMALY_SHA256 if name == "anomaly" else TRUSTED_SHA256
+        if manifest.get("sha256") != expected_manifest_digest:
+            raise ValueError(f"{name} fixture manifest has an unexpected expected digest")
         if name == "valid" and hashlib.sha256(canonical).hexdigest() != TRUSTED_SHA256:
             raise ValueError("trusted fixture digest does not match the canonical valid dataset")
+        if name == "anomaly":
+            if hashlib.sha256(canonical).hexdigest() != ANOMALY_SHA256:
+                raise ValueError("anomaly fixture digest does not match its pinned approved digest")
+            policy = json.loads((root / "anomaly-range.json").read_text(encoding="utf-8"))
+            if policy != ANOMALY_POLICY:
+                raise ValueError("anomaly range differs from the independently pinned fixture policy")
+            result_policy = _canonical(policy).decode("utf-8")
+        else:
+            result_policy = None
         result[name] = {"manifest": manifest, "dataset": dataset,
                         "manifest_bytes": _canonical(manifest).decode("utf-8"),
-                        "dataset_bytes": canonical.decode("utf-8")}
+                        "dataset_bytes": canonical.decode("utf-8"),
+                        "anomaly_policy_bytes": result_policy}
     if result["valid"]["dataset"] != result["stale"]["dataset"]:
         raise ValueError("stale fixture must contain the same fixed benign dataset")
     if result["valid"]["dataset"] == result["mismatch"]["dataset"]:
         raise ValueError("mismatch comparator must use its separate fixed benign dataset")
+    if result["anomaly"]["manifest"]["created_at"] != "2025-06-01T11:59:00Z":
+        raise ValueError("anomaly fixture must be fresh at the fixed reference instant")
+    if result["anomaly"]["dataset"]["records"][0]["orders_30d"] <= ANOMALY_POLICY["maximum_inclusive"]:
+        raise ValueError("anomaly fixture must be outside the independently approved synthetic range")
     return result
 
 
@@ -79,11 +101,28 @@ try:
     if os.environ["POLICY_MODE"] == "full":
         if actual != manifest.get("sha256") or actual != os.environ["TRUSTED_SHA256"]:
             raise ValueError("sha256-mismatch")
+    anomaly_policy_id = None
+    if os.environ.get("ANOMALY_MODE", "off") == "range":
+        policy_path = pathlib.Path("/input/anomaly-range.json")
+        policy_bytes = policy_path.read_bytes()
+        if hashlib.sha256(policy_bytes).hexdigest() != os.environ["ANOMALY_POLICY_SHA256"]:
+            raise ValueError("anomaly-policy-mismatch")
+        policy = json.loads(policy_bytes)
+        value = dataset["records"][0]["orders_30d"]
+        if (policy.get("dataset_id") != dataset.get("dataset_id")
+                or policy.get("field_path") != "records[0].orders_30d"
+                or type(value) is not int
+                or value < policy["minimum_inclusive"]
+                or value > policy["maximum_inclusive"]):
+            raise ValueError("anomaly")
+        anomaly_policy_id = policy["policy_id"]
     pathlib.Path("/receipt/validated.json").write_text(json.dumps({"dataset_id": manifest["dataset_id"],
         "created_at": manifest["created_at"], "age_seconds": age, "sha256": actual,
-        "policy_mode": os.environ["POLICY_MODE"]}, sort_keys=True), encoding="utf-8")
+        "policy_mode": os.environ["POLICY_MODE"],
+        "anomaly_policy_id": anomaly_policy_id}, sort_keys=True), encoding="utf-8")
     emit({"event": "validated", "dataset_id": manifest["dataset_id"], "age_seconds": age,
-          "sha256": actual, "policy_mode": os.environ["POLICY_MODE"]})
+          "sha256": actual, "policy_mode": os.environ["POLICY_MODE"],
+          "anomaly_policy_id": anomaly_policy_id})
 except ValueError as error:
     reason = str(error) or "invalid-input"
     emit({"event": "rejected", "reason": reason})
@@ -122,7 +161,9 @@ def _create_inputs(lab, fixtures):
                          "labels": _labels()},
             "immutable": True,
             "data": {"manifest.json": value["manifest_bytes"],
-                     "dataset.json": value["dataset_bytes"]},
+                     "dataset.json": value["dataset_bytes"],
+                     **({"anomaly-range.json": value["anomaly_policy_bytes"]}
+                        if value["anomaly_policy_bytes"] is not None else {})},
         })
         if obj.get("immutable") is not True:
             raise ValueError(f"{name} input ConfigMap was not created immutable")
@@ -137,9 +178,11 @@ def _create_programs(lab):
     })
 
 
-def _job_resource(name, input_name, policy_mode):
+def _job_resource(name, input_name, policy_mode, *, anomaly_mode="off", trusted_sha256=TRUSTED_SHA256):
     env = [{"name": "REFERENCE_INSTANT", "value": REFERENCE_INSTANT},
-           {"name": "TRUSTED_SHA256", "value": TRUSTED_SHA256},
+           {"name": "TRUSTED_SHA256", "value": trusted_sha256},
+           {"name": "ANOMALY_MODE", "value": anomaly_mode},
+           {"name": "ANOMALY_POLICY_SHA256", "value": ANOMALY_POLICY_SHA256},
            {"name": "MAX_AGE_SECONDS", "value": "300"},
            {"name": "POLICY_MODE", "value": policy_mode}]
     common_security = {"allowPrivilegeEscalation": False, "readOnlyRootFilesystem": True,
@@ -312,6 +355,25 @@ def run(lab):
               bool(weak_observed) and weak_observed["sha256"] != TRUSTED_SHA256,
               weak_observed or weak)
 
+    # Same fresh, digest-correct outlier reaches the harmless consumer when only
+    # freshness and integrity are checked; the independent range gate blocks it.
+    anomaly_digest = fixtures["anomaly"]["manifest"]["sha256"]
+    lab.create(_job_resource("saf0904008-anomaly-off", "saf0904008-anomaly", "full",
+                             trusted_sha256=anomaly_digest))
+    anomaly_off = _job_result(lab, "saf0904008-anomaly-off", expected="full")
+    anomaly_off_observed = _consume_ok(anomaly_off, mode="full", age=60, digest=anomaly_digest)
+    lab.check("red", "Fresh digest-correct synthetic outlier reaches consumer when anomaly range checking is disabled",
+              bool(anomaly_off_observed), anomaly_off_observed or anomaly_off)
+
+    lab.create(_job_resource("saf0904008-anomaly-on", "saf0904008-anomaly", "full",
+                             anomaly_mode="range", trusted_sha256=anomaly_digest))
+    anomaly_on = _job_result(lab, "saf0904008-anomaly-on", expected="full")
+    anomaly_ok, anomaly_observation = _reject_ok(anomaly_on, "anomaly")
+    lab.check("green", "Fresh digest-correct outlier is rejected by the independently pinned feature range before consumer start",
+              anomaly_ok, anomaly_observation)
+
     (lab.evidence / "feature-gate.raw.json").write_text(json.dumps(
         {"without_gate": red, "stale": stale, "digest_mismatch": mismatch,
-         "inclusive_boundary": boundary, "without_integrity": weak}, indent=2) + "\n")
+         "inclusive_boundary": boundary, "without_integrity": weak,
+         "anomaly_without_range": anomaly_off, "anomaly_with_range": anomaly_on,
+         "anomaly_policy": ANOMALY_POLICY, "anomaly_policy_sha256": ANOMALY_POLICY_SHA256}, indent=2) + "\n")

@@ -1,0 +1,1 @@
+{"dataset_id":"SYNTH-EVENTS-0904-008","field_path":"records[0].orders_30d","maximum_inclusive":100,"minimum_inclusive":0,"policy_id":"SYNTH-0904-008-orders30d-range-v1","rationale":"Fixed synthetic acceptable range for this fixture only.","unit":"count"}
