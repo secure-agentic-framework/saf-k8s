@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0404-002",
-  "catalog_revision": "c37fd72e2efa47f56387146e602a0bdf5c860a12",
-  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
+  "catalog_revision": "ff66695bdcf5d2c715a5ab4b72397e2f6376b684",
+  "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9982d3d3098a8318200ede5025cfabe1d879510670fc51e0c7beb7d071969b23",
   "scope": "Separate native Kubernetes admission and API aggregation paths use the same case-owned HTTPS server. Actual API-server decisions distinguish trusted CA, service DNS identity, and an explicit admission denial. Workload-to-workload transports, extension-client authentication, CA reload and production trust policy need independent verification. The owned receivers require TLS 1.3 and record the negotiated version for each exact API-server operation.",
-  "cluster": "saf-lab-39c711b1a06e",
+  "cluster": "saf-lab-3a76fdcf8ac3",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -77,6 +77,33 @@
         "accepted_trusted_admission": true,
         "trusted_api_aggregation_marker_read": true,
         "explicit_valid_webhook_denial": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The actual mutating webhook route rejects an unrelated CA on a matching dry-run create",
+      "matched": true,
+      "observed": {
+        "x509_unknown_authority": true,
+        "same_owned_fixture_route": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Ordinary API reads continue while the mutating webhook trust is wrong",
+      "matched": true,
+      "observed": {
+        "namespace_read_succeeded": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Approved trust reaches the mutator and returns the exact fixture JSONPatch result",
+      "matched": true,
+      "observed": {
+        "dry_run_allowed": true,
+        "exact_annotation_mutation": true,
+        "owned_backend_event": true
       }
     }
   ]

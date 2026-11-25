@@ -16,3 +16,16 @@ need separate evidence.
 
 The owned extension listener requires TLS 1.3. It records the negotiated
 version on the scoped admission request and the aggregation marker read.
+
+## Trusted mutating webhook
+
+The same owned TLS receiver handles one labeled ConfigMap CREATE dry-run
+through a scoped MutatingWebhookConfiguration. An unrelated CA produces
+an X.509 refusal from that exact route. Ordinary API reads still succeed.
+With the approved CA bundle, the response contains the fixture's exact
+annotation change, retains the input annotation, and matches an observed
+TLS 1.3 receiver event.
+
+Adopters verify the expected CA and route identity for each extension,
+test the rejected and permitted states in an approved rehearsal, and
+retain the actual API decision and continuity evidence.

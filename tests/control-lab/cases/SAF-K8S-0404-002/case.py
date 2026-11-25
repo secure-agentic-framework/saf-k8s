@@ -16,6 +16,7 @@ WRONG = "fixture-other-extension"
 NS = "saf-test"
 LABEL = "saf-k8s.example/extension-fixture"
 POLICY_DENIAL = "Owned extension deliberately denies this public fixture"
+MUTATOR = "saf-0404-002-mutator"
 SCOPE = (
     "Separate native Kubernetes admission and API aggregation paths use the same case-owned "
     "HTTPS server. Actual API-server decisions distinguish trusted CA, service DNS identity, "
@@ -78,6 +79,94 @@ def aggregate(service, trust):
     return {"group": GROUP, "version": "v1", "groupPriorityMinimum": 90, "versionPriority": 20,
             "service": {"name": service, "namespace": NS, "port": 443},
             "insecureSkipTLSVerify": False, "caBundle": trust}
+
+
+def mutator(trust):
+    return {"apiVersion": "admissionregistration.k8s.io/v1",
+            "kind": "MutatingWebhookConfiguration",
+            "metadata": {"name": MUTATOR},
+            "webhooks": [{
+                "name": "fixture-mutator.saf-k8s.example",
+                "admissionReviewVersions": ["v1"], "sideEffects": "None",
+                "failurePolicy": "Fail", "matchPolicy": "Exact", "timeoutSeconds": 4,
+                "clientConfig": {"caBundle": trust, "service": {
+                    "name": NAME, "namespace": NS, "path": "/mutate", "port": 443}},
+                "namespaceSelector": {"matchLabels": {"kubernetes.io/metadata.name": NS}},
+                "objectSelector": {"matchLabels": {LABEL: "checked"}},
+                "rules": [{"apiGroups": [""], "apiVersions": ["v1"],
+                           "operations": ["CREATE"], "resources": ["configmaps"],
+                           "scope": "Namespaced"}],
+            }]}
+
+
+def mutating_probe(lab, name):
+    return lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {
+        "name": name, "namespace": NS, "labels": {LABEL: "checked"},
+        "annotations": {"saf-k8s.example/original": "fixture"}},
+        "data": {"fixture": "synthetic dry-run mutation probe"}},
+        dry_run=True, allow_failure=True)
+
+
+def check_mutating_trust(lab, approved_ca, unrelated_ca):
+    approved = base64.b64encode(approved_ca.read_bytes()).decode()
+    unrelated = base64.b64encode(unrelated_ca.read_bytes()).decode()
+    lab.create(mutator(unrelated))
+    try:
+        denied_name = "fixture-mutator-wrong-ca"
+        deadline = time.monotonic() + 45
+        denied = None
+        while time.monotonic() < deadline:
+            denied = mutating_probe(lab, denied_name)
+            if denied.returncode != 0 and "fixture-mutator.saf-k8s.example" in denied.stderr \
+                    and "x509" in denied.stderr.lower() \
+                    and "unknown authority" in denied.stderr.lower():
+                break
+            time.sleep(.5)
+        rejected = (denied is not None and denied.returncode != 0
+                    and "fixture-mutator.saf-k8s.example" in denied.stderr
+                    and "x509" in denied.stderr.lower()
+                    and "unknown authority" in denied.stderr.lower())
+        lab.check("red", "The actual mutating webhook route rejects an unrelated CA on a matching dry-run create",
+                  rejected, {"x509_unknown_authority": rejected, "same_owned_fixture_route": True})
+        ordinary_read = lab.kubectl("get", "namespace", NS, allow_failure=True, timeout=12)
+        continuity = ordinary_read.returncode == 0
+        lab.check("positive", "Ordinary API reads continue while the mutating webhook trust is wrong",
+                  continuity, {"namespace_read_succeeded": continuity})
+
+        ca_patch = [{"op": "replace", "path": "/webhooks/0/clientConfig/caBundle", "value": approved}]
+        lab.kubectl("patch", "mutatingwebhookconfiguration", MUTATOR, "--type=json", "-p",
+                    json.dumps(ca_patch, separators=(",", ":")), timeout=15)
+        allowed_name = "fixture-mutator-approved-ca"
+        deadline = time.monotonic() + 45
+        result = None
+        mutated = False
+        event_seen = False
+        while time.monotonic() < deadline:
+            result = mutating_probe(lab, allowed_name)
+            if result.returncode == 0:
+                body = json.loads(result.stdout)
+                annotations = body.get("metadata", {}).get("annotations", {})
+                mutated = (annotations.get("saf-k8s.example/mutated") == "yes"
+                           and annotations.get("saf-k8s.example/original") == "fixture")
+                logs = lab.kubectl("logs", NAME, "--tail=100", allow_failure=True, timeout=12)
+                event_seen = any(
+                    entry.get("probe") == allowed_name and entry.get("route") == "mutate"
+                    and entry.get("tls") == "TLSv1.3"
+                    for line in logs.stdout.splitlines() if line.startswith("fixture-mutating ")
+                    for entry in [json.loads(line.removeprefix("fixture-mutating "))]
+                )
+                if mutated and event_seen:
+                    break
+            time.sleep(.5)
+        success = result is not None and result.returncode == 0 and mutated and event_seen
+        lab.check("positive", "Approved trust reaches the mutator and returns the exact fixture JSONPatch result",
+                  success, {"dry_run_allowed": result is not None and result.returncode == 0,
+                            "exact_annotation_mutation": mutated, "owned_backend_event": event_seen})
+    finally:
+        lab.kubectl("delete", "mutatingwebhookconfiguration", MUTATOR,
+                    "--ignore-not-found=true", allow_failure=True, timeout=15)
+    return {"unrelated_ca_refused": rejected, "ordinary_read_continued": continuity,
+            "approved_ca_mutated": success}
 
 
 def apply_trust(lab, service, trust, initial=False):
@@ -166,8 +255,10 @@ def run(lab):
                 and "x509" not in blocked.stderr}
     lab.check("positive", "Both trusted paths work and a valid webhook decision remains distinct from failed TLS",
               all(positive.values()), positive)
+    mutating = check_mutating_trust(lab, approved[0], unrelated[0])
     (lab.evidence / "extension-tls-observations.json").write_text(json.dumps({
         "wrong_authority": first, "wrong_endpoint_name": wrong, "correct_tls": positive, "negotiated_protocols": protocols,
+        "mutating_webhook": mutating,
     }, indent=2) + "\n")
 
 SCOPE += " The owned receivers require TLS 1.3 and record the negotiated version for each exact API-server operation."

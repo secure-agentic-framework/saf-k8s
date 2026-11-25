@@ -1,5 +1,6 @@
 """Minimal case-owned HTTPS admission and aggregation endpoints."""
 from http.server import BaseHTTPRequestHandler, HTTPServer
+import base64
 import json
 import ssl
 from urllib.parse import urlsplit
@@ -38,6 +39,28 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         review = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         request = review["request"]
+        path = urlsplit(self.path).path
+        if path == "/mutate":
+            name = request.get("name", "")
+            if (request.get("dryRun") is not True or request.get("operation") != "CREATE"
+                    or request.get("namespace") != "saf-test"
+                    or request.get("resource", {}).get("resource") != "configmaps"
+                    or not name.startswith("fixture-mutator-")):
+                self.send_error(400)
+                return
+            self.record_protocol("mutation")
+            print("fixture-mutating " + json.dumps({"route": "mutate", "probe": name,
+                                                      "tls": self.connection.version()}), flush=True)
+            patch = [{"op": "add", "path": "/metadata/annotations/saf-k8s.example~1mutated",
+                      "value": "yes"}]
+            response = {"uid": request["uid"], "allowed": True, "patchType": "JSONPatch",
+                        "patch": base64.b64encode(json.dumps(patch, separators=(",", ":")).encode()).decode()}
+            self.answer(200, {"apiVersion": "admission.k8s.io/v1", "kind": "AdmissionReview",
+                              "response": response})
+            return
+        if path != "/admit":
+            self.send_error(404)
+            return
         if request["object"].get("metadata", {}).get("name") == "fixture-admission-probe":
             self.record_protocol("admission")
         allowed = "deny" not in request["object"].get("data", {})
