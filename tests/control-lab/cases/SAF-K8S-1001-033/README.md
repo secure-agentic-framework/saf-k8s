@@ -20,3 +20,18 @@ evidence.
 
 - [Fluent Bit Loki output](https://docs.fluentbit.io/manual/data-pipeline/outputs/loki)
 - [Loki query and ingestion API](https://grafana.com/docs/loki/latest/reference/loki-http-api/)
+
+## Adopter verification
+
+1. Inventory already-collected node, container, managed-service, and AI
+workload streams, their source owners, approved aggregation targets, and
+provider export paths.
+2. In an approved rehearsal, emit identifiable synthetic records per source.
+   Query the actual central backend and prove each record arrives with the
+   expected source labels. Include an unapproved/disabled route comparison.
+3. Reconcile expected source counts and delivery lag against backend results.
+   Verify retry, outage, and recovery behavior under the service's approved
+   limits, and check that access follows the intended monitoring roles.
+4. Retain provider/onboarding configuration, source inventory, query and
+   completeness evidence, delivery/alert ownership, and exceptions. Assess
+   retention under the separate retention control.
