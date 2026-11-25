@@ -178,7 +178,7 @@ def wait_crd(lab):
         if result.returncode == 0:
             crd = json.loads(result.stdout)
             if any(condition.get("type") == "Established" and condition.get("status") == "True"
-                   for condition in crd.get("status", {}).get("conditions", [])):
+                   for condition in ((crd.get("status") or {}).get("conditions") or [])):
                 return
         time.sleep(0.25)
     lab.block("Synthetic CRD did not become discoverable")
@@ -200,7 +200,7 @@ def wait_workload(lab):
     while time.monotonic() < deadline:
         result = lab.kubectl("get", "pod", NAMES["pod"][0], "-o", "json")
         pod = json.loads(result.stdout)
-        conditions = pod.get("status", {}).get("conditions", [])
+        conditions = (pod.get("status") or {}).get("conditions") or []
         if any(row.get("type") == "Ready" and row.get("status") == "True" for row in conditions):
             return
         phase = pod.get("status", {}).get("phase")

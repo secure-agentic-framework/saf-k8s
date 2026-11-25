@@ -6,8 +6,8 @@ Run from the control lab root on a disposable local Docker context:
 python3 lab.py test SAF-K8S-1007-006 --docker-context desktop-linux
 ```
 
-The supervisor should execute the case twice on fresh Kind v1.36.1 clusters. This draft
-has not been run. The control lab runner pins its Kind node image by digest; the only
+The retained lab run and independent framework replay passed five checks on
+fresh Kind v1.36.1 clusters. The control lab runner pins its Kind node image by digest; the only
 workload image is the official `python:3.13-slim` image pinned in `case.py` by digest.
 The mock Pod runs a local sleep command, has no service-account token mount, and makes
 no network requests. Its Secret object is empty; no credential values are generated,
@@ -72,3 +72,16 @@ feeds, registry services, identity providers, storage, GPUs, or other targets.
 The test submits each deletion with a Kubernetes UID precondition. An independent
 wrong-UID request must fail, and the live marker reads verify the accepted and
 revoked RBAC paths against the still-existing objects.
+
+## Adopter verification for timed deletion
+
+Inventory the actual storage copies, snapshots, registries, caches, credentials,
+device grants and provider reservations used by the workload. For any applicable
+Article 4a processing, record the approved deletion trigger and deadline for
+each covered data copy. Reconcile native Kubernetes object removal with actual
+backend erasure, revocation and provider-acknowledged cleanup. Preserve the
+scope, owner, exception and completion record without recording sensitive data.
+
+The mapping is conditional on an adopted procedure that completes deletion
+by the earlier applicable trigger. The local test demonstrates removal of
+owned synthetic Kubernetes objects. [Article 4a official text](https://eur-lex.europa.eu/eli/reg/2026/1744/oj/eng).
