@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0102-014",
-  "catalog_revision": "182e27976e21faaf128557f20fc9b42a74f0e58c",
-  "catalog_sha256": "044bf7085d167e0cebc119fadb5265399823a05a596346af59f25fe7dc9ad3a6",
+  "catalog_revision": "573f2e74f97872a53617b4465787bcefb36f124d",
+  "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "111dbac1de0df05ecf94b68716dbaac9a9625ba60ed2d77073e77b00b77a340d",
-  "scope": "One disposable Kind v1.36.1 control-plane node using kubeadm's local PKI and stacked etcd. A pure planner evaluates each public leaf lifetime under explicit synthetic expiry-offset timestamps and selects the existing server/client/peer command order without changing host time. The case detects a partial renewal, completes kubeadm certificate renewal, restarts the etcd and kube-apiserver static Pods, compares public certificate receipts before/after and live etcd server/peer receipts to renewed files, then writes and reads back a synthetic ConfigMap through the Kubernetes API. No private key, token, secret value, external PKI, multi-member behavior, scheduled rotation, or production cluster is exercised.",
-  "cluster": "saf-lab-5a432b0e9acb",
+  "scope": "One disposable Kind v1.36.1 control-plane node using kubeadm's local PKI and stacked etcd. A pure planner evaluates each public leaf lifetime under explicit synthetic expiry-offset timestamps and selects the existing server/client/peer command order without changing host time. The case detects a partial renewal, completes kubeadm certificate renewal, restarts the etcd and kube-apiserver static Pods, compares public certificate receipts before/after and live etcd server/peer receipts to renewed files, then writes and reads back a synthetic ConfigMap through the Kubernetes API. A namespaced CronJob makes real not-due and due invocations against the exact public leaf inventory, using explicitly labeled synthetic expiry-offset decision instants; its Pod cannot renew or restart. No private key, token, secret value, external PKI, multi-member behavior, real-clock lead-window scheduling, or production cluster is exercised.",
+  "cluster": "saf-lab-55ff750af885",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -73,6 +73,69 @@
             "expired_role_outside_planned_window": true
           }
         }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Scheduled identity has only named public-input and receipt ConfigMap permissions",
+      "matched": true,
+      "observed": {
+        "exact_named_rbac": true,
+        "rule_count": 2
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Scheduled identity cannot read credentials or access nodes or Pods",
+      "matched": true,
+      "observed": {
+        "named_configmap_permissions_only": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The CronJob uses stable Job labels and has no host or certificate access",
+      "matched": true,
+      "observed": {
+        "bounded_pod_and_job_identity": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A real CronJob-owned Job records not-due for the exact public role inventory",
+      "matched": true,
+      "observed": {
+        "job_owned_by_current_cronjob_uid": true,
+        "exact_public_inventory_bound": true,
+        "clock_basis": "synthetic_expiry_offsets_only"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A distinct CronJob-owned Job requests the exact native all-role plan at synthetic due boundary",
+      "matched": true,
+      "observed": {
+        "exact_ordered_roles_and_fingerprints": true,
+        "distinct_controller_job": true,
+        "clock_basis": "synthetic_expiry_offsets_only"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Exactly two successful Jobs owned by this CronJob produced the two receipts",
+      "matched": true,
+      "observed": {
+        "exactly_two_successful_controller_jobs": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Scheduled controller receipt matches the existing native all-role plan",
+      "matched": true,
+      "observed": {
+        "scheduled_order_matches_native_order": true,
+        "selected_role_count": 3,
+        "clock_basis": "synthetic_expiry_offsets_only"
       }
     },
     {

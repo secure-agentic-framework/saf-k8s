@@ -34,3 +34,19 @@ the trigger and due-role decision, ordered renewals, health and allowed
 operations, and evidence of rollout. Route already-expired certificates to the
 approved recovery procedure and record completion. The test uses a synthetic
 clock for the selection comparison and preserves the host clock.
+
+## Scheduled inventory decision
+
+The case stages the three observed public certificates and tests two real,
+controller-owned CronJob invocations. The first records an out-of-window
+result. The second records the identical ordered expiry plan used by the
+native runner, tied to the exact public leaf fingerprints and expiry times.
+The comparison uses explicit synthetic decision instants because the
+fixture certificates have ordinary kubeadm lifetimes. The actual Job
+ownership, schedule and reported observations are checked independently.
+
+The Job receives only the named inventory and receipt grants. Verify the
+adopter's actual clock, schedule, approvals, request consumer, cleanup, and
+alerts from its real workflow. Follow the approved rolling process for
+each member and confirm healthy quorum and permitted storage operations
+before moving to the next member.

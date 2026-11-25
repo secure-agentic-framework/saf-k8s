@@ -1,5 +1,6 @@
 """Exercise kubeadm-managed stacked-etcd leaf certificate renewal in disposable Kind."""
 from datetime import datetime, timezone
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -15,8 +16,10 @@ SCOPE = (
     "certificate renewal, restarts the etcd and kube-apiserver static Pods, compares public "
     "certificate receipts before/after and live etcd server/peer receipts to renewed files, "
     "then writes and reads back a synthetic ConfigMap through the Kubernetes API. "
-    "No private key, token, secret value, external PKI, multi-member behavior, scheduled "
-    "rotation, or production cluster is exercised."
+    "A namespaced CronJob makes real not-due and due invocations against the exact public leaf inventory, "
+    "using explicitly labeled synthetic expiry-offset decision instants; its Pod cannot renew or restart. "
+    "No private key, token, secret value, external PKI, multi-member behavior, real-clock lead-window "
+    "scheduling, or production cluster is exercised."
 )
 
 NODE_IMAGE = (
@@ -41,6 +44,11 @@ RENEW_TARGETS = {
     "apiserver-etcd-client": "apiserver-etcd-client",
 }
 DELIBERATE_OMISSION = "etcd/peer"
+SCHEDULE_INPUT = "saf-0102-014-schedule-input"
+SCHEDULE_NOT_DUE = "saf-0102-014-schedule-not-due"
+SCHEDULE_DUE = "saf-0102-014-schedule-due"
+SCHEDULER = "saf-0102-014-scheduler"
+SCHEDULE_CLOCK_BASIS = "synthetic_expiry_offsets_only"
 
 
 def node(lab, script, *, timeout=30):
@@ -153,6 +161,216 @@ def preexpiry_decision_evidence(receipts):
     return all_due, {"lead_seconds": LEAD_SECONDS, **checks, "role_boundaries": edge_results}
 
 
+def run_scheduled_decisions(lab, receipts, expected_due):
+    """Use real CronJob ticks with explicitly synthetic expiry decision instants."""
+    directory = Path(__file__).resolve().parent
+    roles = [{"role": role,
+              "sha256_fingerprint": receipts[role]["sha256_fingerprint"],
+              "not_before_epoch": int(expiry_epoch(receipts[role]["not_before"])),
+              "not_after_epoch": int(expiry_epoch(receipts[role]["not_after"]))}
+             for role in ROTATION_ORDER]
+    expiries = [row["not_after_epoch"] for row in roles]
+    outside_epoch = min(expiries) - LEAD_SECONDS - 1
+    due_epoch = max(expiries) - LEAD_SECONDS
+    expected_outside = plan_due_roles(receipts, outside_epoch, LEAD_SECONDS)
+    expected_due_at = plan_due_roles(receipts, due_epoch, LEAD_SECONDS)
+    if expected_outside or tuple(expected_due_at) != tuple(expected_due):
+        lab.block("Synthetic scheduler decision instants do not match the native role planner")
+
+    receipts_names = (SCHEDULE_NOT_DUE, SCHEDULE_DUE)
+    initial_input = {"inventory_json": json.dumps(roles, sort_keys=True, separators=(",", ":")),
+                     "lead_seconds": str(LEAD_SECONDS),
+                     "decision_at_epoch": str(outside_epoch),
+                     "clock_basis": SCHEDULE_CLOCK_BASIS,
+                     "receipt_name": SCHEDULE_NOT_DUE}
+    resources = [
+        {"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": SCHEDULE_INPUT},
+         "data": initial_input},
+        *[{"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": name},
+           "data": {"decision": "pending"}} for name in receipts_names],
+        {"apiVersion": "v1", "kind": "ConfigMap",
+         "metadata": {"name": "saf-0102-014-scheduler-code"},
+         "data": {"dispatch.py": (directory / "dispatch.py").read_text(encoding="utf-8")}},
+    ]
+    created = []
+    selector = f"app.kubernetes.io/name={SCHEDULER}"
+    owner_uid = None
+
+    def read_receipt(name):
+        response = lab.kubectl("get", "configmap", name, "-o", "json")
+        return json.loads(response.stdout).get("data", {})
+
+    def wait_owned_receipt(name, decision):
+        deadline = time.monotonic() + 75
+        while time.monotonic() < deadline:
+            data = read_receipt(name)
+            if data.get("decision") == decision and data.get("job_name"):
+                jobs = json.loads(lab.kubectl(
+                    "get", "jobs", "-l", selector, "-o", "json").stdout)["items"]
+                owners = [job for job in jobs
+                          if job["metadata"].get("name") == data["job_name"]
+                          and job.get("status", {}).get("succeeded") == 1
+                          and any(owner.get("kind") == "CronJob"
+                                  and owner.get("name") == SCHEDULER
+                                  and owner.get("uid") == owner_uid
+                                  and owner.get("controller") is True
+                                  for owner in job["metadata"].get("ownerReferences", []))]
+                if len(owners) == 1:
+                    return data, owners[0]
+            time.sleep(2)
+        lab.block(f"Timed out waiting for CronJob-owned {decision} receipt")
+
+    try:
+        for resource in resources:
+            lab.create(resource)
+            created.append(("configmap", resource["metadata"]["name"]))
+        created.extend((kind, name) for kind, name in (
+            ("serviceaccount", SCHEDULER), ("role", SCHEDULER),
+            ("rolebinding", SCHEDULER), ("cronjob", SCHEDULER)))
+        lab.apply(directory / "cronjob.yaml")
+
+        role = json.loads(lab.kubectl("get", "role", SCHEDULER, "-o", "json").stdout)
+        actual_rules = sorted((tuple(row.get("apiGroups", [])),
+                               tuple(row.get("resources", [])),
+                               tuple(sorted(row.get("resourceNames", []))),
+                               tuple(row.get("verbs", []))) for row in role.get("rules", []))
+        expected_rules = sorted([
+            (("",), ("configmaps",), (SCHEDULE_INPUT,), ("get",)),
+            (("",), ("configmaps",), tuple(sorted(receipts_names)), ("patch",)),
+        ])
+        lab.check("positive", "Scheduled identity has only named public-input and receipt ConfigMap permissions",
+                  actual_rules == expected_rules,
+                  {"exact_named_rbac": actual_rules == expected_rules,
+                   "rule_count": len(actual_rules)})
+
+        cronjob = json.loads(lab.kubectl("get", "cronjob", SCHEDULER, "-o", "json").stdout)
+        owner_uid = cronjob["metadata"]["uid"]
+        subject = f"system:serviceaccount:saf-test:{SCHEDULER}"
+        permission_checks = (
+            ("get", f"configmaps/{SCHEDULE_INPUT}", "yes"),
+            ("patch", f"configmaps/{SCHEDULE_DUE}", "yes"),
+            ("patch", f"configmaps/{SCHEDULE_NOT_DUE}", "yes"),
+            ("patch", f"configmaps/{SCHEDULE_INPUT}", "no"),
+            ("get", "secrets", "no"), ("create", "pods", "no"), ("get", "nodes", "no"),
+        )
+        decisions_match = all(
+            lab.kubectl("auth", "can-i", verb, resource, "--as", subject,
+                        "--as-group=system:serviceaccounts",
+                        "--as-group=system:serviceaccounts:saf-test",
+                        "--as-group=system:authenticated", timeout=15,
+                        allow_failure=True).stdout.strip() == expected
+            for verb, resource, expected in permission_checks
+        )
+        lab.check("positive", "Scheduled identity cannot read credentials or access nodes or Pods",
+                  decisions_match,
+                  {"named_configmap_permissions_only": decisions_match})
+
+        pod = cronjob["spec"]["jobTemplate"]["spec"]["template"]["spec"]
+        container = pod["containers"][0]
+        job_template = cronjob["spec"]["jobTemplate"]
+        job_name_env = next((entry for entry in container.get("env", [])
+                             if entry.get("name") == "JOB_NAME"), {})
+        confined = (pod.get("serviceAccountName") == SCHEDULER
+                    and job_template.get("metadata", {}).get("labels", {}).get(
+                        "app.kubernetes.io/name") == SCHEDULER
+                    and job_name_env.get("valueFrom", {}).get("fieldRef", {}).get("fieldPath")
+                    == "metadata.labels['batch.kubernetes.io/job-name']"
+                    and not pod.get("hostNetwork", False) and not pod.get("hostPID", False)
+                    and not pod.get("hostIPC", False)
+                    and not any("hostPath" in volume for volume in pod.get("volumes", []))
+                    and container.get("securityContext", {}).get("readOnlyRootFilesystem") is True
+                    and container.get("securityContext", {}).get("allowPrivilegeEscalation") is False
+                    and not any("kubeconfig" in mount.get("mountPath", "")
+                                or "/etc/kubernetes/pki" in mount.get("mountPath", "")
+                                for mount in container.get("volumeMounts", [])))
+        lab.check("positive", "The CronJob uses stable Job labels and has no host or certificate access",
+                  confined, {"bounded_pod_and_job_identity": confined})
+
+        first, first_job = wait_owned_receipt(SCHEDULE_NOT_DUE, "not_due")
+        digest = hashlib.sha256(json.dumps(roles, sort_keys=True,
+                                          separators=(",", ":")).encode()).hexdigest()
+        receipt_keys = {"decision", "selected_roles_json", "selected_receipts_json",
+                        "inventory_sha256", "lead_seconds", "decision_at_epoch",
+                        "clock_basis", "observed_at_epoch", "job_name", "request_id"}
+        first_ok = (set(first) == receipt_keys
+                    and first.get("inventory_sha256") == digest
+                    and first.get("selected_roles_json") == "[]"
+                    and first.get("selected_receipts_json") == "[]"
+                    and int(first.get("lead_seconds", "-1")) == LEAD_SECONDS
+                    and int(first.get("decision_at_epoch", "-1")) == outside_epoch
+                    and first.get("clock_basis") == SCHEDULE_CLOCK_BASIS
+                    and int(first.get("observed_at_epoch", "0")) > 0
+                    and first.get("job_name") == first_job["metadata"]["name"]
+                    and first.get("request_id") == "")
+        lab.check("positive", "A real CronJob-owned Job records not-due for the exact public role inventory",
+                  first_ok, {"job_owned_by_current_cronjob_uid": True,
+                             "exact_public_inventory_bound": first_ok,
+                             "clock_basis": first.get("clock_basis")})
+
+        lab.kubectl("patch", "cronjob", SCHEDULER, "--type=merge", "-p",
+                    '{"spec":{"suspend":true}}', timeout=15)
+        due_input = {**initial_input, "decision_at_epoch": str(due_epoch),
+                     "receipt_name": SCHEDULE_DUE}
+        lab.kubectl("patch", "configmap", SCHEDULE_INPUT, "--type=merge", "-p",
+                    json.dumps({"data": due_input}, separators=(",", ":")), timeout=15)
+        suspended = json.loads(lab.kubectl("get", "cronjob", SCHEDULER, "-o", "json").stdout)
+        if suspended.get("spec", {}).get("suspend") is not True:
+            lab.block("Could not suspend scheduling while staging the due role receipt")
+        lab.kubectl("patch", "cronjob", SCHEDULER, "--type=merge", "-p",
+                    '{"spec":{"suspend":false}}', timeout=15)
+
+        second, second_job = wait_owned_receipt(SCHEDULE_DUE, "renewal_request")
+        selected_receipts = [{"role": row["role"],
+                              "sha256_fingerprint": row["sha256_fingerprint"],
+                              "not_before_epoch": row["not_before_epoch"],
+                              "not_after_epoch": row["not_after_epoch"]}
+                             for row in roles if row["role"] in expected_due]
+        stable_second = (set(second) == receipt_keys
+                         and second.get("inventory_sha256") == digest
+                         and json.loads(second.get("selected_roles_json", "null")) == expected_due
+                         and json.loads(second.get("selected_receipts_json", "null")) == selected_receipts
+                         and int(second.get("lead_seconds", "-1")) == LEAD_SECONDS
+                         and int(second.get("decision_at_epoch", "-1")) == due_epoch
+                         and second.get("clock_basis") == SCHEDULE_CLOCK_BASIS
+                         and int(second.get("observed_at_epoch", "0")) > 0
+                         and second.get("job_name") == second_job["metadata"]["name"]
+                         and second.get("job_name") != first.get("job_name")
+                         and second.get("request_id") == digest + ":" + str(due_epoch))
+        lab.check("positive", "A distinct CronJob-owned Job requests the exact native all-role plan at synthetic due boundary",
+                  stable_second,
+                  {"exact_ordered_roles_and_fingerprints": stable_second,
+                   "distinct_controller_job": second.get("job_name") != first.get("job_name"),
+                   "clock_basis": second.get("clock_basis")})
+
+        jobs = json.loads(lab.kubectl("get", "jobs", "-l", selector, "-o", "json").stdout)["items"]
+        successful = {job["metadata"]["name"] for job in jobs
+                      if job.get("status", {}).get("succeeded") == 1
+                      and any(owner.get("kind") == "CronJob" and owner.get("name") == SCHEDULER
+                              and owner.get("uid") == owner_uid and owner.get("controller") is True
+                              for owner in job["metadata"].get("ownerReferences", []))}
+        exactly_two = successful == {first["job_name"], second["job_name"]}
+        lab.check("positive", "Exactly two successful Jobs owned by this CronJob produced the two receipts",
+                  exactly_two, {"exactly_two_successful_controller_jobs": exactly_two})
+        (lab.evidence / "scheduled-role-plan-observations.json").write_text(json.dumps({
+            "clock_basis": SCHEDULE_CLOCK_BASIS,
+            "lead_seconds": LEAD_SECONDS,
+            "public_inventory_sha256": digest,
+            "not_due": first,
+            "due": second,
+            "successful_controller_jobs": sorted(successful),
+            "host_clock_changed": False,
+        }, indent=2, sort_keys=True) + "\n")
+        return json.loads(second["selected_roles_json"])
+    finally:
+        lab.kubectl("delete", "cronjob", SCHEDULER, "--ignore-not-found=true",
+                    timeout=15, allow_failure=True)
+        for kind, name in reversed(created):
+            if kind == "cronjob":
+                continue
+            lab.kubectl("delete", kind, name, "--ignore-not-found=true",
+                        timeout=15, allow_failure=True)
+
+
 def active_fingerprint(lab, address, port, client_cert, client_key):
     command = (
         "timeout 8 openssl s_client "
@@ -240,6 +458,17 @@ def run(lab):
     )
     if not planner_ok or set(planned_roles) != required:
         lab.block("The synthetic pre-expiry planner did not select exactly the required roles")
+
+    scheduled_roles = run_scheduled_decisions(lab, before, planned_roles)
+    schedule_matches = tuple(scheduled_roles) == tuple(planned_roles)
+    lab.check("positive", "Scheduled controller receipt matches the existing native all-role plan",
+              schedule_matches,
+              {"scheduled_order_matches_native_order": schedule_matches,
+               "selected_role_count": len(scheduled_roles),
+               "clock_basis": SCHEDULE_CLOCK_BASIS})
+    if not schedule_matches:
+        lab.block("The scheduled due role receipt differs from the native certificate plan")
+    planned_roles = scheduled_roles
 
     marker = {"apiVersion": "v1", "kind": "ConfigMap",
               "metadata": {"name": "cert-rotation-before"},
