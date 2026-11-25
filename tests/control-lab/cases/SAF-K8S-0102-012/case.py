@@ -1,11 +1,14 @@
 """Read passive etcd signals and execute alert rules using offline promtool."""
 import json
+import importlib.util
 from pathlib import Path
 import re
 import shutil
 import tempfile
-
 HERE = Path(__file__).parent
+_PEER_SPEC = importlib.util.spec_from_file_location("saf_0102_012_peer_fixture", HERE / "peer_fixture.py")
+peer_fixture = importlib.util.module_from_spec(_PEER_SPEC)
+_PEER_SPEC.loader.exec_module(peer_fixture)
 ETCD_IMAGE = "registry.k8s.io/etcd:3.6.8-0"
 PROM_IMAGE = (
     "docker.io/prom/prometheus:v3.5.0@sha256:"
@@ -13,7 +16,8 @@ PROM_IMAGE = (
 )
 SCOPE = (
     "Native readiness, endpoint status and passive metrics on one healthy v1.36.1 kind etcd "
-    "member. Prometheus evaluates the actual sample for leadership and quota and separately "
+    "member plus three owned synthetic etcd v3.6.8 peers sampled once each without etcd writes. "
+    "Prometheus evaluates the actual singleton sample for leadership and quota and separately "
     "checks labeled synthetic lag, missing telemetry and latency. Expected peer census is a separate "
     "synthetic input tested against missing, incomplete and present histogram telemetry."
 )
@@ -163,6 +167,13 @@ def offline_cases(actual):
 def run(lab):
     sample = member_observations(lab)
     tests = offline_cases(sample)
+    try:
+        peer_fixture.create_and_check_fixture(lab)
+        peer_sample = peer_fixture.observe_passively(lab)
+    finally:
+        peer_fixture.cleanup(lab)
+    tests.append(peer_fixture.passive_peer_promtool_test(peer_sample))
+    tests.extend(peer_fixture.quorum_rule_tests())
     with tempfile.TemporaryDirectory(prefix="saf-etcd-promtool-") as temp:
         root = Path(temp).resolve()
         root.chmod(0o755)
@@ -172,7 +183,9 @@ def run(lab):
             "--mount", f"type=bind,source={root},target=/assessment,readonly",
             "--entrypoint=/bin/promtool", PROM_IMAGE, "test", "rules",
         ]
-        baseline = {"rule_files": [], "evaluation_interval": "1m", "tests": [tests[2], tests[-3]]}
+        baseline_tests = [next(test for test in tests if test["name"] == "synthetic-EtcdNoLeader"),
+                          next(test for test in tests if test["name"] == "synthetic-expected-peers-but-peer-family-missing")]
+        baseline = {"rule_files": [], "evaluation_interval": "1m", "tests": baseline_tests}
         active = {"rule_files": ["alerts.yml"], "evaluation_interval": "1m", "tests": tests}
         (root / "baseline.yml").write_text(json.dumps(baseline, indent=2) + "\n")
         (root / "with-rules.yml").write_text(json.dumps(active, indent=2) + "\n")
@@ -184,5 +197,5 @@ def run(lab):
         enabled = lab.command(*command, "/assessment/with-rules.yml", allow_failure=True, timeout=90)
         lab.check("green", "Promtool distinguishes known fault and peer inventory fixtures from positive comparisons",
                   enabled.returncode == 0,
-                  {"healthy_inputs": 1, "synthetic_comparisons": len(tests) - 1,
+                  {"healthy_inputs": 2, "synthetic_comparisons": len(tests) - 2,
                    "rule_engine_passed": enabled.returncode == 0})

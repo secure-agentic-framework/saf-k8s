@@ -40,3 +40,15 @@ groups:
               )
           ) and on (job, instance, cluster) (up{job="etcd"} == 1)
         for: 2m
+      # Expected-member and quorum series are custom collector/inventory inputs,
+      # not native etcd metrics. They are included to distinguish missing scrape
+      # coverage from an explicitly observed loss of quorum.
+      - alert: EtcdMemberScrapeUnknown
+        expr: etcd_expected_member{job="etcd"} unless on (job, cluster, instance) (up{job="etcd"} == 1)
+        for: 2m
+      - alert: EtcdQuorumUnknown
+        expr: etcd_expected_cluster{job="etcd"} unless on (job, cluster) etcd_cluster_quorum_available{job="etcd"}
+        for: 2m
+      - alert: EtcdQuorumUnavailable
+        expr: etcd_cluster_quorum_available{job="etcd"} == 0
+        for: 2m

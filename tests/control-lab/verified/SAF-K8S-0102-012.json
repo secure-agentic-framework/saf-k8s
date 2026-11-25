@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0102-012",
-  "catalog_revision": "b90e62e06b9b9dd9148714e037b67eafddc74a92",
-  "catalog_sha256": "1c78a76489ca604a14fdf3824565e4bcb568f55832e793e78fa752772ba60eab",
+  "catalog_revision": "22c35292280840d8f8764de7f85d73d6885dd414",
+  "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "c23366274e0b20d81e494950b016e19bf4dfb7b74a70171e786fe1afde420231",
-  "scope": "Native readiness, endpoint status and passive metrics on one healthy v1.36.1 kind etcd member. Prometheus evaluates the actual sample for leadership and quota and separately checks labeled synthetic lag, missing telemetry and latency. Expected peer census is a separate synthetic input tested against missing, incomplete and present histogram telemetry.",
-  "cluster": "saf-lab-7185ccc743bc",
+  "scope": "Native readiness, endpoint status and passive metrics on one healthy v1.36.1 kind etcd member plus three owned synthetic etcd v3.6.8 peers sampled once each without etcd writes. Prometheus evaluates the actual singleton sample for leadership and quota and separately checks labeled synthetic lag, missing telemetry and latency. Expected peer census is a separate synthetic input tested against missing, incomplete and present histogram telemetry.",
+  "cluster": "saf-lab-ecdf832faf91",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -55,6 +55,16 @@
       }
     },
     {
+      "phase": "positive",
+      "claim": "Three passive etcd samples cover each member's exact two remote peer IDs",
+      "matched": true,
+      "observed": {
+        "member_sample_count": 3,
+        "each_member_has_two_expected_peer_ids": true,
+        "single_cluster_and_leader": true
+      }
+    },
+    {
       "phase": "red",
       "claim": "Expected leader-loss and missing-peer alerts are absent with no rules loaded",
       "matched": true,
@@ -65,8 +75,8 @@
       "claim": "Promtool distinguishes known fault and peer inventory fixtures from positive comparisons",
       "matched": true,
       "observed": {
-        "healthy_inputs": 1,
-        "synthetic_comparisons": 12,
+        "healthy_inputs": 2,
+        "synthetic_comparisons": 15,
         "rule_engine_passed": true
       }
     }
