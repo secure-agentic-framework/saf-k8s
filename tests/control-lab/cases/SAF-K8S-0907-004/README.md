@@ -27,3 +27,13 @@ read either backing object for the denied group even if its application check
 regresses. These backing objects model separate data paths. Repeat the checks
 against the actual feature registry, data engines, and alternate access paths
 where the control is deployed.
+
+## Verify an adopting implementation
+
+Verify the real feature-store identity and audience using authenticated API
+requests. Test each online/offline feature group, deny paths, backing-store
+ACLs and alternate direct access. The case uses Kubernetes TokenReview and
+an owned synthetic HTTP feature gateway, not a native Feast/Tecton/cloud
+store integration. The in-Pod backing-object requests also compare exact
+named ConfigMap authorization under Kubernetes RBAC for both synthetic
+stores. Repeat at the production backing permission boundary.
