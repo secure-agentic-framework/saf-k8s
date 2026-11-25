@@ -9249,22 +9249,6 @@
 
 
     9.2 - Model endpoint authentication (controlling public access to inference); 5.5 - Service exposure restriction'
-  control_id: SAF-K8S-0902-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-22
-  framework_requirement_title: Publicly Accessible Content
-  framework_mapping_notes: 'Managing what agents publish publicly
-
-
-    9.2 - Model endpoint authentication (controlling public access to inference); 5.5 - Service exposure restriction'
   control_id: SAF-K8S-0902-009
   relation_type: supports
   strength_level: strong
@@ -11464,22 +11448,6 @@
 
 
     9.2 - Harden inference (response filtering to prevent PII/sensitive data leakage); 4.3 - Secret leak detection and prevention'
-  control_id: SAF-K8S-0902-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(15)
-  framework_requirement_title: Detection of Unsanctioned Information
-  framework_mapping_notes: 'Detecting unauthorized data in agent flows (DLP)
-
-
-    9.2 - Harden inference (response filtering to prevent PII/sensitive data leakage); 4.3 - Secret leak detection and prevention'
   control_id: SAF-K8S-0902-009
   relation_type: supports
   strength_level: strong
@@ -12321,22 +12289,6 @@
 
 
     7.1 - Secure persistent storage (PV access modes: ReadOnlyMany); 9.2 - Read-only model mounts for inference servers'
-  control_id: SAF-K8S-0902-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(22)
-  framework_requirement_title: Access Only
-  framework_mapping_notes: 'Restricting agents to access-only (no copy/transfer)
-
-
-    7.1 - Secure persistent storage (PV access modes: ReadOnlyMany); 9.2 - Read-only model mounts for inference servers'
   control_id: SAF-K8S-0902-009
   relation_type: direct
   strength_level: strong
@@ -12434,22 +12386,6 @@
 
     9.7 - Privacy controls for training data (PII handling, anonymization); 9.2 - Response filtering to prevent sensitive data leakage'
   control_id: SAF-K8S-0902-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(23)
-  framework_requirement_title: Modify Non-releasable Information
-  framework_mapping_notes: 'Sanitizing non-releasable data before agent output
-
-
-    9.7 - Privacy controls for training data (PII handling, anonymization); 9.2 - Response filtering to prevent sensitive data leakage'
-  control_id: SAF-K8S-0902-008
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -12688,22 +12624,6 @@
 
 
     9.2 - Request format enforcement for inference inputs (normalization); 6.4 - SBOM standardized formats (SPDX, CycloneDX) enforce normalized representation'
-  control_id: SAF-K8S-0902-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(24)
-  framework_requirement_title: Internal Normalized Format
-  framework_mapping_notes: 'Normalizing agent data formats to prevent evasion
-
-
-    9.2 - Request format enforcement for inference inputs (normalization); 6.4 - SBOM standardized formats (SPDX, CycloneDX) enforce normalized representation'
   control_id: SAF-K8S-0902-009
   relation_type: supports
   strength_level: strong
@@ -12801,22 +12721,6 @@
 
     9.2 - Harden inference (input validation and sanitization); 9.7 - Protect training data (PII handling during feature engineering)'
   control_id: SAF-K8S-0902-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(25)
-  framework_requirement_title: Data Sanitization
-  framework_mapping_notes: 'Sanitizing data in agent pipelines
-
-
-    9.2 - Harden inference (input validation and sanitization); 9.7 - Protect training data (PII handling during feature engineering)'
-  control_id: SAF-K8S-0902-008
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -13645,22 +13549,6 @@
 
 
     9.2 - Input validation and sanitization for inference requests (adversarial input detection, request format enforcement, injection attack prevention) directly addresses embedded data type detection'
-  control_id: SAF-K8S-0902-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(5)
-  framework_requirement_title: Embedded Data Types
-  framework_mapping_notes: 'Detecting embedded content in agent data flows (injection vectors)
-
-
-    9.2 - Input validation and sanitization for inference requests (adversarial input detection, request format enforcement, injection attack prevention) directly addresses embedded data type detection'
   control_id: SAF-K8S-0902-009
   relation_type: supports
   strength_level: strong
@@ -13854,22 +13742,6 @@
 
     6.5 - Configure admission control (validation and mutation policies); 9.2 - Response filtering and output controls for inference'
   control_id: SAF-K8S-0902-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(8)
-  framework_requirement_title: Security and Privacy Policy Filters
-  framework_mapping_notes: 'Content filters on agent I/O (guardrails)
-
-
-    6.5 - Configure admission control (validation and mutation policies); 9.2 - Response filtering and output controls for inference'
-  control_id: SAF-K8S-0902-008
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -25907,22 +25779,6 @@
 
     1.3 - HA control plane (redundant systems); 9.2 - Multi-model serving and autoscaling for redundancy'
   control_id: SAF-K8S-0902-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-9(6)
-  framework_requirement_title: Redundant Secondary System
-  framework_mapping_notes: 'Redundant agent system for failover
-
-
-    1.3 - HA control plane (redundant systems); 9.2 - Multi-model serving and autoscaling for redundancy'
-  control_id: SAF-K8S-0902-008
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -39276,22 +39132,6 @@
 
 
     5.4 - mTLS overhead on GPU training traffic; 9.2 - Inference resource controls (performance vs security tradeoffs)'
-  control_id: SAF-K8S-0902-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(26)
-  framework_requirement_title: Performance Security
-  framework_mapping_notes: 'Security mechanisms must not degrade agent performance to the point users bypass them
-
-
-    5.4 - mTLS overhead on GPU training traffic; 9.2 - Inference resource controls (performance vs security tradeoffs)'
   control_id: SAF-K8S-0902-009
   relation_type: supports
   strength_level: strong
@@ -43996,22 +43836,6 @@
 
 
     6.1 - Read-only filesystems; 9.2 - Read-only model mounts (non-modifiable executable programs)'
-  control_id: SAF-K8S-0902-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-34
-  framework_requirement_title: Non-modifiable Executable Programs
-  framework_mapping_notes: 'Immutable agent runtime images prevent runtime tampering with agent code
-
-
-    6.1 - Read-only filesystems; 9.2 - Read-only model mounts (non-modifiable executable programs)'
   control_id: SAF-K8S-0902-009
   relation_type: direct
   strength_level: strong
@@ -44125,22 +43949,6 @@
 
     3.2 - readOnlyRootFilesystem; 9.2 - Read-only model mounts for inference servers (no writable storage)'
   control_id: SAF-K8S-0902-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-34(1)
-  framework_requirement_title: No Writable Storage
-  framework_mapping_notes: 'Read-only agent containers prevent persistent compromise through filesystem immutability
-
-
-    3.2 - readOnlyRootFilesystem; 9.2 - Read-only model mounts for inference servers (no writable storage)'
-  control_id: SAF-K8S-0902-008
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -46536,22 +46344,6 @@
 
 
     7.3 - Resource governance (GPU capacity, bandwidth, redundancy allocation); 9.2 - Inference queue management'
-  control_id: SAF-K8S-0902-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-5(2)
-  framework_requirement_title: Capacity, Bandwidth, and Redundancy
-  framework_mapping_notes: 'Capacity planning for agent services prevents resource exhaustion denial-of-service
-
-
-    7.3 - Resource governance (GPU capacity, bandwidth, redundancy allocation); 9.2 - Inference queue management'
   control_id: SAF-K8S-0902-009
   relation_type: direct
   strength_level: strong
@@ -47915,22 +47707,6 @@
 
 
     9.2 - Harden inference (limiting error information disclosure to clients on protocol validation failure)'
-  control_id: SAF-K8S-0902-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(23)
-  framework_requirement_title: Disable Sender Feedback on Protocol Validation Failure
-  framework_mapping_notes: 'Suppressing error details prevents information leakage about agent protocol implementation
-
-
-    9.2 - Harden inference (limiting error information disclosure to clients on protocol validation failure)'
   control_id: SAF-K8S-0902-009
   relation_type: supports
   strength_level: strong
@@ -49026,22 +48802,6 @@
 
 
     9.1 - Checkpoint security (pre/post-transmission integrity); 9.2 - Input/output validation and handling'
-  control_id: SAF-K8S-0902-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-8(2)
-  framework_requirement_title: Pre- and Post-transmission Handling
-  framework_mapping_notes: 'Agent data must be protected before and after transmission, not just in transit
-
-
-    9.1 - Checkpoint security (pre/post-transmission integrity); 9.2 - Input/output validation and handling'
   control_id: SAF-K8S-0902-009
   relation_type: supports
   strength_level: strong
@@ -49187,22 +48947,6 @@
 
     5.4 - mTLS (protecting message headers and metadata); 9.2 - TLS termination for inference endpoints'
   control_id: SAF-K8S-0902-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-8(3)
-  framework_requirement_title: Cryptographic Protection for Message Externals
-  framework_mapping_notes: 'Protecting message metadata prevents traffic analysis of agent communication patterns
-
-
-    5.4 - mTLS (protecting message headers and metadata); 9.2 - TLS termination for inference endpoints'
-  control_id: SAF-K8S-0902-008
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -49422,16 +49166,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-10
   framework_requirement_title: Information Input Validation
-  framework_mapping_notes: 'Input validation for agent prompts, tool responses, and data is critical for preventing injection
-
-
-    9.2 - Input validation and sanitization for inference requests; 9.6 - Data poisoning detection (input validation)'
+  framework_mapping_notes: The mapping covers token and selector inputs to the access gate. Application request payload validation requires its own governed checks.
   control_id: SAF-K8S-0902-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The implementing inference gateway treats defined identity and model-selector fields as approved access-control inputs and validates their exact types and values before model dispatch.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -49647,22 +49388,6 @@
 
 
     9.2 - Input validation (error handling for malformed inference requests); 10.5 - Post-incident activity (error review)'
-  control_id: SAF-K8S-0902-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-10(2)
-  framework_requirement_title: Review and Resolve Errors
-  framework_mapping_notes: 'Reviewing input validation errors in agent systems identifies attack attempts and tuning needs
-
-
-    9.2 - Input validation (error handling for malformed inference requests); 10.5 - Post-incident activity (error review)'
   control_id: SAF-K8S-0902-009
   relation_type: supports
   strength_level: strong
@@ -49851,16 +49576,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-10(3)
   framework_requirement_title: Predictable Behavior
-  framework_mapping_notes: 'Predictable agent behavior on invalid input prevents exploitation of error handling paths
-
-
-    9.2 - Inference request format enforcement (predictable input processing); 6.5 - Admission control (predictable policy behavior)'
+  framework_mapping_notes: The reference observes the specified 401 and 403 decisions at the inference gateway and checks independently that a rejected request did not reach a model.
   control_id: SAF-K8S-0902-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopter documents and verifies deterministic responses and no model dispatch for invalid authentication inputs and out-of-scope model requests.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -50040,16 +49762,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-10(5)
   framework_requirement_title: Restrict Inputs to Trusted Sources and Approved Formats
-  framework_mapping_notes: 'Restricting agent inputs to trusted sources and formats prevents injection attacks
-
-
-    9.2 - Input validation (request format enforcement, payload size controls); 9.6 - Secure data pipeline ingestion'
+  framework_mapping_notes: The mapping covers the gated identity token format and trust boundary. Verify the exact approved issuer, audience, algorithms, claims and denial results for the deployed gate.
   control_id: SAF-K8S-0902-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The gate accepts only tokens that match the approved format, signing mechanism, trusted issuer and intended audience and verifies denial before dispatch.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -50173,22 +49892,6 @@
 
     9.2 - Input validation (injection attack prevention for inference); 5.3 - WAF integration (request filtering)'
   control_id: SAF-K8S-0902-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-10(6)
-  framework_requirement_title: Injection Prevention
-  framework_mapping_notes: 'Injection prevention is paramount for agent systems facing prompt injection and command injection
-
-
-    9.2 - Input validation (injection attack prevention for inference); 5.3 - WAF integration (request filtering)'
-  control_id: SAF-K8S-0902-008
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -51689,22 +51392,6 @@
 
 
     9.2 - Response filtering and output controls (preventing model output leakage); 9.8 - Information exposure controls'
-  control_id: SAF-K8S-0902-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-15
-  framework_requirement_title: Information Output Filtering
-  framework_mapping_notes: 'Output filtering for agent responses prevents information leakage and injection propagation
-
-
-    9.2 - Response filtering and output controls (preventing model output leakage); 9.8 - Information exposure controls'
   control_id: SAF-K8S-0902-009
   relation_type: direct
   strength_level: strong
@@ -52406,22 +52093,6 @@
 
     9.8 - Information exposure controls (de-identification before release); 9.2 - Response filtering (PII filtering on output)'
   control_id: SAF-K8S-0902-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-19(3)
-  framework_requirement_title: Release
-  framework_mapping_notes: 'De-identification before agent data release prevents re-identification of individuals
-
-
-    9.8 - Information exposure controls (de-identification before release); 9.2 - Response filtering (PII filtering on output)'
-  control_id: SAF-K8S-0902-008
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -54977,22 +54648,6 @@
 
     9.7 - Privacy controls for training data (PII handling, risk to individuals); 9.2 - Response filtering (preventing PII leakage)'
   control_id: SAF-K8S-0902-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(19)
-  framework_requirement_title: Risk for Individuals
-  framework_mapping_notes: 'Monitoring for risks to individuals from agent processing protects privacy
-
-
-    9.7 - Privacy controls for training data (PII handling, risk to individuals); 9.2 - Response filtering (preventing PII leakage)'
-  control_id: SAF-K8S-0902-008
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -61920,4 +61575,30 @@
   strength_level: moderate
   applicability: conditional
   applicability_condition: The named training workloads are defined system components and the adopter verifies the boundary protection on all applicable paths between them.
+  strength_reason_code: partial-control-coverage
+- mapping_set_name: SAF-K8S to NIST SP 800-53r5
+  framework_code: NIST-800-53R5
+  framework_name: NIST SP 800-53 Revision 5
+  framework_version: 5.2.0
+  framework_requirement_id: AC-3
+  framework_requirement_title: Access Enforcement
+  framework_mapping_notes: The gateway decides each model request using its authenticated subject and approved model scope. The case compares denied cross-model use and permitted exact model operations.
+  control_id: SAF-K8S-0902-008
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization defines model-level access grants and verifies the governed inference entry points enforce those grants.
+  strength_reason_code: partial-control-coverage
+- mapping_set_name: SAF-K8S to NIST SP 800-53r5
+  framework_code: NIST-800-53R5
+  framework_name: NIST SP 800-53 Revision 5
+  framework_version: 5.2.0
+  framework_requirement_id: AC-6
+  framework_requirement_title: Least Privilege
+  framework_mapping_notes: The demonstrated model-level permission can contribute to minimum necessary inference access at the covered gateway.
+  control_id: SAF-K8S-0902-008
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Each governed principal receives only the model operations necessary for its assigned tasks and excess inference requests are refused.
   strength_reason_code: partial-control-coverage

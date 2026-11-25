@@ -46,3 +46,12 @@ Core to agent authorization -- enforcing what agents can do
 - Strength: strong
 - Applicability: required
 - Strength Reason Code: n/a
+
+### [SAF-K8S-0902-008 - Inference endpoint authentication and authorization](../../controls/SAF-K8S-0902-008.md)
+
+- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
+- Knowledge Area: 9.2
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
