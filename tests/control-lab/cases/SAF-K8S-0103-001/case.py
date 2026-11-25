@@ -1,4 +1,5 @@
 """Check v1.36.1 bound-token delivery and legacy token controller behavior."""
+import importlib.util
 import json
 from contextlib import contextmanager
 import tempfile
@@ -32,6 +33,10 @@ SCOPE = (
 )
 
 HERE = Path(__file__).resolve().parent
+EXPIRY_ORACLE_SPEC = importlib.util.spec_from_file_location(
+    "exception_expiry_oracle", HERE / "exception_expiry_oracle.py")
+expiry_oracle = importlib.util.module_from_spec(EXPIRY_ORACLE_SPEC)
+EXPIRY_ORACLE_SPEC.loader.exec_module(expiry_oracle)
 
 # This script runs inside the disposable probe pod. The bearer value is read and
 # decoded only in process memory. Its only output is four boolean claim checks.
@@ -297,3 +302,5 @@ def run(lab):
         secret = demonstrate_legacy_behavior(lab, kubeconfig, cluster, "With the exclusion flag present,")
         enforce_policy(lab, kubeconfig, cluster, secret)
         observe_projection(lab, kubeconfig, cluster)
+
+    expiry_oracle.run(lab)

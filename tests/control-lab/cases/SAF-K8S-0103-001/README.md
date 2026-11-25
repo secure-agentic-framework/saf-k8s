@@ -49,3 +49,18 @@ legacy exceptions and expiry require separate operational evidence.
 4. For each runtime or provider release, retain effective configuration and
    contract evidence for TokenRequest, projection and admission. Coordinate
    version or feature-gate policy through the linked upgrade control.
+
+## Explicit exception expiry
+
+A separate admission binding uses a case-owned namespace, an exact approved
+Secret name and ServiceAccount, a synthetic approval reference and a
+fixed-format cutoff. All comparison requests are server-side dry-runs.
+The expected tuple passes before the modeled cutoff, is refused at and after
+it, and passes again when the modeled time returns to the valid window.
+Unlisted and partially matching tuples are refused. An ordinary Opaque Secret
+remains admissible. Each request is followed by a NotFound check and a
+namespace count confirming zero stored legacy token Secrets.
+
+For adoption, verify the selected trusted clock and policy refresh, exact
+exception ownership and expiry, and removal or revocation of legacy
+credentials already created under an approved exception.

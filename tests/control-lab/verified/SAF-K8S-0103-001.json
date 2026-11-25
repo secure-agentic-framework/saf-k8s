@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0103-001",
-  "catalog_revision": "cee5dfc141581216e3621920e39cb063a806d1e1",
-  "catalog_sha256": "e9f6fa833b262a8a83ee18b153898d7bcc085edf71e0766795a6e78bd509705d",
+  "catalog_revision": "d73aefea6202594ca9d4836a4bcc0a3667207e93",
+  "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "7c42501b68cddf70eae0811fef5ad9b5780adddfa2f2fb42b0f6b2412bcd7e55",
   "scope": "Kubernetes v1.36.1 on disposable local kind clusters. Compare the stock kube-controller-manager with a profile that sets the legacy controller exclusion flag. Observe that no legacy token Secret is auto-generated and both profiles still populate an explicitly requested fixture. Apply namespace-scoped admission and confirm it rejects the same request while a harmless Pod still receives a projected, expiring bound token. Only boolean field-presence and boolean JWT-claim observations are retained; no token or Secret data is emitted. This does not assess production or managed-provider configuration.",
-  "cluster": "saf-lab-19be41e0af9d",
+  "cluster": "saf-lab-842d785ccb54",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -135,6 +135,116 @@
         "claims_aud": "true",
         "claims_pod": "true",
         "claims_serviceaccount": "true"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Unlisted Secret name is denied before the approved comparison",
+      "matched": true,
+      "observed": {
+        "dry_run_admission_matched": true,
+        "candidate_secret_not_found": true,
+        "namespace_has_zero_legacy_token_secrets": true,
+        "secret_data_fields_present": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Exact synthetic approved exception is admitted before expiry",
+      "matched": true,
+      "observed": {
+        "dry_run_admission_matched": true,
+        "candidate_secret_not_found": true,
+        "namespace_has_zero_legacy_token_secrets": true,
+        "secret_data_fields_present": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Exact exception is denied at modeled expiry",
+      "matched": true,
+      "observed": {
+        "dry_run_admission_matched": true,
+        "candidate_secret_not_found": true,
+        "namespace_has_zero_legacy_token_secrets": true,
+        "secret_data_fields_present": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Exact exception is denied after modeled expiry",
+      "matched": true,
+      "observed": {
+        "dry_run_admission_matched": true,
+        "candidate_secret_not_found": true,
+        "namespace_has_zero_legacy_token_secrets": true,
+        "secret_data_fields_present": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved tuple is admitted again when restored to the valid modeled window",
+      "matched": true,
+      "observed": {
+        "dry_run_admission_matched": true,
+        "candidate_secret_not_found": true,
+        "namespace_has_zero_legacy_token_secrets": true,
+        "secret_data_fields_present": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Wrong ServiceAccount subject is denied",
+      "matched": true,
+      "observed": {
+        "dry_run_admission_matched": true,
+        "candidate_secret_not_found": true,
+        "namespace_has_zero_legacy_token_secrets": true,
+        "secret_data_fields_present": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Wrong approval reference is denied",
+      "matched": true,
+      "observed": {
+        "dry_run_admission_matched": true,
+        "candidate_secret_not_found": true,
+        "namespace_has_zero_legacy_token_secrets": true,
+        "secret_data_fields_present": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Expiry value differing from the approved record is denied",
+      "matched": true,
+      "observed": {
+        "dry_run_admission_matched": true,
+        "candidate_secret_not_found": true,
+        "namespace_has_zero_legacy_token_secrets": true,
+        "secret_data_fields_present": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Missing approval and expiry metadata is denied",
+      "matched": true,
+      "observed": {
+        "dry_run_admission_matched": true,
+        "candidate_secret_not_found": true,
+        "namespace_has_zero_legacy_token_secrets": true,
+        "secret_data_fields_present": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Ordinary opaque Secret remains admitted by this policy",
+      "matched": true,
+      "observed": {
+        "dry_run_admission_matched": true,
+        "candidate_secret_not_found": true,
+        "namespace_has_zero_legacy_token_secrets": true,
+        "secret_data_fields_present": false
       }
     }
   ]
