@@ -392,7 +392,7 @@
   objective: Prevent storage-related denial of service in etcd by controlling revision-history growth and reclaiming storage headroom safely.
   rationale: Uncompacted revision history and fragmented storage can cause etcd to exceed quota or operate with degraded performance, pushing the cluster toward read-only behavior or instability. Compaction and defragmentation are maintenance controls that preserve safe storage headroom.
   scope: Applies to all production clusters running self-managed etcd and to managed services where provider compaction and defragmentation settings or SLAs are exposed. Covers auto-compaction retention configuration and sequential defragmentation procedures. Excludes health monitoring and alert generation.
-  primary_enforcement_point: Audit / Telemetry
+  primary_enforcement_point: etcd compaction configuration and scheduled per-member defragmentation
   implementation_surface: etcd auto-compaction configuration, scheduled defragmentation automation, and documented operational procedures ensuring members are defragmented sequentially without quorum loss.
   owner_primary: Platform Engineering
   owner_supporting: Site Reliability Engineering; Security Operations
