@@ -40,10 +40,10 @@ SAF-K8S mandates comprehensive production monitoring: audit policies capture AI-
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.2
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: partial-coverage
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0910-032 - Cross-cluster traffic anomaly monitoring for distributed AI workloads](../../controls/SAF-K8S-0910-032.md)
 

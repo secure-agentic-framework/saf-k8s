@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-AI-RMF
 - Version: 1.0
-- Total Reverse Mappings: 112
-- Distinct Requirements Mapped: 49
+- Total Reverse Mappings: 111
+- Distinct Requirements Mapped: 48
 
 ## Requirements
 
@@ -46,12 +46,11 @@
 - [MAP 4.2 - Internal risk controls for components of the AI system, including third-party AI technologies, are identified and documented.](map-4-2.md)
 - [MAP 5.1 - Likelihood and severity of each identified impact of the AI system's use, misuse, or failure - including effects on impacted communities - are assessed and documented.](map-5-1.md)
 - [MEASURE 1.1 - Approaches and metrics for measurement of AI risks enumerated during the MAP function are selected for implementation starting with the most significant AI risks. The risks or outcomes that cannot be measured through quantitative means are addressed qualitatively.](measure-1-1.md)
-- [MEASURE 1.2 - Appropriateness of AI metrics and effectiveness of existing measures are regularly assessed and updated, including measures of accuracy, fairness and bias, data quality, security, explainability, and privacy.](measure-1-2.md)
+- [MEASURE 1.2 - Appropriateness of AI metrics and effectiveness of existing controls are regularly assessed and updated, including reports of errors and potential impacts on affected communities.](measure-1-2.md)
 - [MEASURE 2.10 - Privacy risk of the AI system - as identified in the MAP function - is examined and documented.](measure-2-10.md)
-- [MEASURE 2.3 - AI system performance or assurance criteria are measured qualitatively or quantitatively and demonstrated for conditions similar to deployment conditions. Measurement results regarding AI system trustworthiness in deployment conditions and across the AI lifecycle are documented.](measure-2-3.md)
+- [MEASURE 2.3 - AI system performance or assurance criteria are measured qualitatively or quantitatively and demonstrated for conditions similar to deployment setting(s). Measures are documented.](measure-2-3.md)
 - [MEASURE 2.4 - The functionality and behavior of the AI system and its components - as identified in the MAP function - are monitored when in production.](measure-2-4.md)
 - [MEASURE 2.5 - The AI system to be deployed is demonstrated to be valid and reliable. Limitations of the generalizability beyond the conditions under which the technology was developed are documented.](measure-2-5.md)
-- [MEASURE 2.6 - The AI system is evaluated regularly for safety risks - as identified in the MAP function. The AI system to be deployed is demonstrated to be safe, its residual negative risk does not exceed the risk tolerance, and it can fail safely, particularly if made to operate beyond its knowledge limits. Safety metrics reflect system reliability and robustness, real-time monitoring, and response times for AI system failures.](measure-2-6.md)
 - [MEASURE 2.7 - AI system security and resilience - as identified in the MAP function - are evaluated and documented.](measure-2-7.md)
 - [MEASURE 2.8 - Risks associated with transparency and accountability - as identified in the MAP function - are examined and documented.](measure-2-8.md)
 - [MEASURE 3.1 - Approaches, personnel, and documentation are in place to regularly identify and track existing, unanticipated, and emergent AI risks based on factors such as intended and actual performance in deployed contexts.](measure-3-1.md)

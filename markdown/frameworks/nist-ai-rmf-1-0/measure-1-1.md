@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-AI workload telemetry and metrics endpoint security provide the measurement infrastructure. Distributed tracing enables quantitative measurement of AI pipeline behavior.
+The portable case proves W3C context propagation and trace parentage across synthetic ingestion, a native training Job, registry, and inference/KServe. Trace context can provide evidence inputs to selected AI-risk measurement approaches; it does not select risk metrics or evaluate AI outcomes.
 
 ## SAF-K8S Controls
 
@@ -13,7 +13,7 @@ AI workload telemetry and metrics endpoint security provide the measurement infr
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.2
-- Relation Type: partial
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
