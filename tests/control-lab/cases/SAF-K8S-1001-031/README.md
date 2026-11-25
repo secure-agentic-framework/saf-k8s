@@ -40,3 +40,18 @@ log class, or production rollout.
 The retained result includes the exact event IDs and tenant query membership
 observed with Fluent Bit 5.1.2 on Kubernetes v1.36.1. See
 [`source-review.md`](source-review.md) for the catalog revision and source review.
+
+## Adopter verification
+
+1. Define the authoritative tenant, namespace, workload, source, and event
+labels, including ownership and behavior when labels are absent or malformed.
+2. In a production-approved rehearsal, trace synthetic records for each
+workload class through the actual collector and backend. Query them as the
+authorized tenant identities; prove cross-tenant searches do not return the
+other tenant's events and unlabeled events are rejected or surfaced.
+3. Verify context survives parsing, normalization, indexing, retention,
+   replication, and export. Confirm backend permissions enforce the same
+   segregation instead of relying on search filters alone.
+4. Retain the effective enrichment and access configuration, identity-scoped
+   query outcomes, missing-context disposition, and evidence for each deployed
+   log class and destination.
