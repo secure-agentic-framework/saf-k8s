@@ -9,3 +9,7 @@ This test uses a pinned Apache APISIX 3.21.0 standalone data plane with an inter
 The file-backed configuration disables the administration endpoint and uses no etcd, external route, or test credentials. Deployed evidence should identify the actual gateway, schema source, endpoint and media-type coverage, allowed requests, and policy decisions before the backend.
 
 [APISIX request-validation plugin](https://apisix.apache.org/docs/apisix/plugins/request-validation/) and [APISIX standalone deployment](https://apisix.apache.org/docs/apisix/deployment-modes/).
+
+## Adopter verification
+
+Inventory governed routes and enforcement components, schema versions, permitted methods, fields, media types and backend alternatives. Use synthetic test payloads on approved destinations. Compare representative valid and out-of-contract requests including empty or malformed bodies and missing required fields. Independently correlate gateway decisions with backend logs to verify rejected requests stay at the boundary. Review every path to the backend, version and rollback behavior, and any justified protocol exceptions.
