@@ -11,3 +11,20 @@ The fixture policy specifies three days for audit logs, five for training logs a
 The durations are fixture inputs. Production log-class coverage, GPU and platform telemetry, approved schedules, lifecycle expiration, and recovery across production retention windows require separate evidence.
 
 [Kubernetes audit events](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/) · [Versity gateway v1.9.0](https://github.com/versity/versitygw/releases/tag/v1.9.0) · [S3 Object Lock](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html)
+
+## Adopter verification
+
+1. Obtain approved retention periods and legal holds for each required audit,
+   training, inference, GPU, and platform log class; identify stores, versions,
+   replicas, and cloud lifecycle rules.
+2. Compare effective backend retention for existing versions and newly
+   written synthetic records to the approved schedule. Verify the corrected
+   setting applies to future objects and that prior sensitive versions receive
+   the required extension or remediation.
+3. Read back exact object versions and compare digests. Inspect effective
+   expiration, legal hold, replication, and exception behavior without
+   weakening production controls.
+4. Retain the approved schedule, effective settings, per-class test results,
+   version/digest evidence, provider configuration, and any gaps. Exercise
+   durable retrieval across the real required window under the separate
+   retrieval control.
