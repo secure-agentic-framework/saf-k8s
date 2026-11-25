@@ -10,3 +10,13 @@ This scope leaves volatile memory and disk capture, CNI-wide production flow cov
 
 - [Kubernetes auditing](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/)
 - [NIST SP 800-86](https://csrc.nist.gov/pubs/sp/800/86/final)
+
+## Verify an adopting implementation
+
+Define investigator authority, legal/incident scope,
+approved acquisition tooling, target boundaries, and evidence handling before
+collection. In an authorized exercise with inert fixture data, capture the
+required memory/disk/network metadata classes, hash and independently verify
+the manifest, preserve acquisition audit and custody, and test retention and
+reconstruction. Document sources that are volatile or unavailable and the
+approval needed for real acquisition.
