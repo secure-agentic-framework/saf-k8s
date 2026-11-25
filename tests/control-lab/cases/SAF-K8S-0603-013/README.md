@@ -17,3 +17,12 @@ The fixture uses local DSSE signing and in-toto statements. Each stage has a
 separate short-lived key. Production release identities, secure clock, policy
 distribution, coverage of rollout paths, and audit retention require separate
 evidence.
+
+## Verify an adopting implementation
+
+Map all release transitions and bypass routes to their
+actual signer/identity, verified subject digest/index, trust roots, policy
+revision, freshness source, and deployment receipt. Submit inert wrong-stage,
+stale/replayed, and mismatched-index evidence at each transition; show denial
+and preserve the previous approved release. Retain root rotation, audit
+delivery, and coverage evidence for each entry point.
