@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0101-013",
-  "catalog_revision": "04fd7f492a6f6f06f0f2710d64c91dcad56b7680",
-  "catalog_sha256": "7858ac696aa0fab345adc56211e616c9dbf9a0fd00aeec921bc13b07b6bee205",
+  "catalog_revision": "c62ab1de08527b6ac9611e16de32184772c20d37",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b6f8d16374ce3830ebabc1beb64a7d59dfef5d769d5795d07ad3be818d245960",
-  "scope": "Kubernetes v1.36.1 kubeadm-managed API server serving certificate on the one fresh runner-owned Kind cluster's host-published loopback endpoint. The case checks the expiry of a short-lived serving leaf, records out-of-window and due decisions from two controller-owned CronJob Jobs, then renews within the fixture lead time. The scheduler identity cannot renew or access node material. It observes the live process before and after the documented static-Pod restart, and validates local TLS trust and IP identity. External PKI and other certificate paths, replicas, and deployment scheduling remain separate adoption evidence. A final comparison sequentially serves the renewed old-CA leaf and a synthetic successor-CA leaf at the same loopback origin, checking old-only, overlap, and new-only client trust plus readiness, then restores the renewed leaf. It does not rotate the cluster CA.",
-  "cluster": "saf-lab-c11c7eb9c336",
+  "scope": "Kubernetes v1.36.1 kubeadm-managed API server serving certificate on the one fresh runner-owned Kind cluster's host-published loopback endpoint. The case checks the expiry of a short-lived serving leaf, records out-of-window and due decisions from two controller-owned CronJob Jobs, then renews within the fixture lead time. A separate fixture approval record gates the runner's one native renewal call; the synthetic approver and runner are not a deployed approval service. The scheduler identity cannot renew or access node material. It observes the live process before and after the documented static-Pod restart, and validates local TLS trust and IP identity. External PKI and other certificate paths, replicas, and deployment scheduling remain separate adoption evidence. A final comparison sequentially serves the renewed old-CA leaf and a synthetic successor-CA leaf at the same loopback origin, checking old-only, overlap, and new-only client trust plus readiness, then restores the renewed leaf. It does not rotate the cluster CA.",
+  "cluster": "saf-lab-76f8f27e4fb1",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -79,7 +79,8 @@
       "claim": "Scheduled identity authorization permits named receipts and denies node, Secret and Pod access",
       "matched": true,
       "observed": {
-        "all_expected_authorization_decisions": true
+        "all_expected_authorization_decisions": true,
+        "actual_approval_patch_denied": true
       }
     },
     {
@@ -135,11 +136,66 @@
       }
     },
     {
+      "phase": "positive",
+      "claim": "The approval identity can read and patch only its named renewal approval record",
+      "matched": true,
+      "observed": {
+        "exact_named_role": true,
+        "approval_get_and_patch_allowed": true,
+        "other_request_secret_node_and_pod_access_denied": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Unapproved, mismatched or stale renewal requests cannot reach kubeadm",
+      "matched": true,
+      "observed": {
+        "request_bound_to_current_leaf": true,
+        "pending_approval_denied": true,
+        "wrong_request_id_denied": true,
+        "stale_leaf_denied": true,
+        "changed_current_leaf_denied": true,
+        "expired_request_denied": true,
+        "wrong_approver_denied": true,
+        "out_of_window_request_denied": true,
+        "native_renewal_not_invoked_for_denied_cases": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The separately authorized approval matches the due request and current public leaf",
+      "matched": true,
+      "observed": {
+        "exact_request_and_leaf_approved": true,
+        "approver_identity": "saf-0101-013-renewal-approver",
+        "public_key_material_only": true
+      }
+    },
+    {
       "phase": "green",
       "claim": "kubeadm certs renew apiserver completed inside the owned control-plane node",
       "matched": true,
       "observed": {
         "renewal_command_succeeded": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved handoff invokes the native kubeadm renewal path exactly once",
+      "matched": true,
+      "observed": {
+        "approved_request": true,
+        "renewal_invocation_count": 1,
+        "native_command_succeeded": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Consumed renewal request cannot authorize a duplicate action",
+      "matched": true,
+      "observed": {
+        "request_consumed": true,
+        "duplicate_request_denied": true
       }
     },
     {

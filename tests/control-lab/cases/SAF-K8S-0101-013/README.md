@@ -1,9 +1,9 @@
 # SAF-K8S-0101-013 — API server certificate rotation and validation
 
-Run from the lab root with Python, OpenSSL, Kind, Docker, and kubectl.
+Run from the framework checkout with Python, OpenSSL, Kind, Docker, and kubectl.
 
 ```sh
-python3 lab.py test SAF-K8S-0101-013 --docker-context desktop-linux
+python3 tests/control-lab/lab.py test SAF-K8S-0101-013 --docker-context desktop-linux
 ```
 
 The runner creates a fresh Kubernetes v1.36.1 cluster. The test connects to the
@@ -57,12 +57,21 @@ leaf against a 60-second lead time and reports an out-of-window decision.
 The second uses a 30-minute lead time and records a due request tied to the
 same fingerprint and expiry. The runner confirms both Job owners and
 effective Kubernetes authorization. The Job identity reads the exact input
-ConfigMap and updates its named receipts. The runner performs native kubeadm
-renewal under the existing fixture configuration.
+ConfigMap and updates its named receipts. The case binds the CronJob-owned request to the live leaf fingerprint and
+expiry. The scheduler identity is forbidden to update the approval record and
+receives no node credentials. A distinct fixture approval identity can read
+and patch only that named record. The supervisor checks the actual current
+TLS leaf and accepts only the exact unexpired approved request. The native
+command runs once. The recorded consumed request cannot trigger another
+renewal. The fixture uses an impersonated test subject and the supervisor
+acts as the local renewal broker.
 
-Adopters verify the request consumer, approved renewal credentials,
-overdue and missed-run monitoring, recovery behavior, and the staged
-rollout for each applicable endpoint and certificate role.
+The portable fixture exercises the precise Kubernetes approval and serving
+transition. In a deployed implementation, verify approver authentication,
+request and executor ownership, missed-run alerts, other TLS roles and
+replica coverage. The companion 0102-014, 0101-012 and 0605-008 fixtures
+cover the tested etcd, kubelet and webhook paths. Verify aggregation leaf
+adoption through the actual approved route separately.
 
 ## Serving certificate trust transition
 

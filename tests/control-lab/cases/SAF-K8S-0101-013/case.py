@@ -20,7 +20,9 @@ SCOPE = (
     "fresh runner-owned Kind cluster's host-published loopback endpoint. The case "
     "checks the expiry of a short-lived serving leaf, records out-of-window and due "
     "decisions from two controller-owned CronJob Jobs, then renews within the fixture lead time. "
-    "The scheduler identity cannot renew or access node material. It observes the live process before and after "
+    "A separate fixture approval record gates the runner's one native renewal call; the synthetic approver "
+    "and runner are not a deployed approval service. The scheduler identity cannot renew or access node material. "
+    "It observes the live process before and after "
     "the documented static-Pod restart, and validates local TLS trust and IP "
     "identity. External PKI and other certificate paths, replicas, and deployment scheduling "
     "remain separate adoption evidence. A final comparison sequentially "
@@ -38,11 +40,22 @@ SCHEDULE_INPUT = "saf-0101-013-schedule-input"
 SCHEDULE_NOT_DUE = "saf-0101-013-schedule-not-due"
 SCHEDULE_DUE = "saf-0101-013-schedule-due"
 SCHEDULER = "saf-0101-013-scheduler"
+RENEWAL_REQUEST = "saf-0101-013-renewal-request"
+RENEWAL_APPROVAL = "saf-0101-013-renewal-approval"
+APPROVER = "saf-0101-013-renewal-approver"
 
 
-def run_scheduled_decision(lab, initial):
+def run_scheduled_decision(lab, initial, node):
     """Require two CronJob-owned decisions, then leave renewal to the runner."""
     directory = Path(__file__).resolve().parent
+    scheduler_image = (
+        "docker.io/library/python:3.13-slim@sha256:"
+        "e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
+    )
+    if f"image: {scheduler_image}" not in (directory / "cronjob.yaml").read_text():
+        lab.block("The scheduled Job image does not match the reviewed content pin")
+    # Populate this fresh node's image store before starting the Job deadline.
+    lab.command("docker", "exec", node, "crictl", "pull", scheduler_image, timeout=120)
     leaf = {"not_after_epoch": str(initial["expiry"]),
             "leaf_sha256": initial["leaf"], "lead_seconds": "60",
             "receipt_name": SCHEDULE_NOT_DUE}
@@ -52,6 +65,8 @@ def run_scheduled_decision(lab, initial):
          "data": leaf},
         *[{"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": name},
            "data": {"decision": "pending"}} for name in receipts],
+        {"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": RENEWAL_APPROVAL},
+         "data": {"decision": "pending"}},
         {"apiVersion": "v1", "kind": "ConfigMap",
          "metadata": {"name": "saf-0101-013-scheduler-code"},
          "data": {"dispatch.py": (directory / "dispatch.py").read_text()}},
@@ -63,7 +78,7 @@ def run_scheduled_decision(lab, initial):
         return json.loads(lab.kubectl("get", "configmap", name, "-o", "json").stdout).get("data", {})
 
     def wait_receipt(name, expected):
-        deadline = time.monotonic() + 75
+        deadline = time.monotonic() + 90
         while time.monotonic() < deadline:
             data = receipt(name)
             if data.get("decision") == expected and data.get("job_name"):
@@ -77,6 +92,12 @@ def run_scheduled_decision(lab, initial):
                 if len(owners) == 1:
                     return data, owners[0]
             time.sleep(2)
+        latest = json.loads(lab.kubectl(
+            "get", "jobs", "-l", job_selector, "-o", "json").stdout)["items"]
+        status = [{key: row.get("status", {}).get(key, 0)
+                   for key in ("active", "succeeded", "failed")} for row in latest]
+        (lab.evidence / "scheduled-renewal-timeout.json").write_text(
+            json.dumps({"expected": expected, "jobs": status}, indent=2) + "\n")
         lab.block(f"Timed out waiting for the CronJob-owned {expected} receipt")
 
     try:
@@ -108,6 +129,8 @@ def run_scheduled_decision(lab, initial):
             ("patch", f"configmaps/{SCHEDULE_DUE}", "yes"),
             ("patch", f"configmaps/{SCHEDULE_NOT_DUE}", "yes"),
             ("patch", f"configmaps/{SCHEDULE_INPUT}", "no"),
+            ("get", f"configmaps/{RENEWAL_REQUEST}", "no"),
+            ("patch", f"configmaps/{RENEWAL_APPROVAL}", "no"),
             ("get", "secrets", "no"),
             ("create", "pods", "no"),
             ("get", "nodes", "no"),
@@ -120,8 +143,19 @@ def run_scheduled_decision(lab, initial):
                         timeout=15, allow_failure=True).stdout.strip() == expected
             for verb, resource, expected in permission_checks
         )
+        scheduler_subject = f"system:serviceaccount:saf-test:{SCHEDULER}"
+        scheduler_groups = ("--as-group=system:serviceaccounts", "--as-group=system:serviceaccounts:saf-test",
+                            "--as-group=system:authenticated")
+        unauthorized_patch = lab.kubectl(
+            "patch", "configmap", RENEWAL_APPROVAL, "--type=merge",
+            "-p", '{"data":{"decision":"approved"}}', "--as", scheduler_subject,
+            *scheduler_groups, timeout=15, allow_failure=True)
+        scheduler_cannot_approve = (unauthorized_patch.returncode != 0
+                                    and "forbidden" in unauthorized_patch.stderr.lower())
         lab.check("positive", "Scheduled identity authorization permits named receipts and denies node, Secret and Pod access",
-                  decisions_match, {"all_expected_authorization_decisions": decisions_match})
+                  decisions_match and scheduler_cannot_approve,
+                  {"all_expected_authorization_decisions": decisions_match,
+                   "actual_approval_patch_denied": scheduler_cannot_approve})
         pod = cronjob["spec"]["jobTemplate"]["spec"]["template"]["spec"]
         container = pod["containers"][0]
         safe_pod = (pod.get("serviceAccountName") == SCHEDULER
@@ -190,6 +224,7 @@ def run_scheduled_decision(lab, initial):
                    {first["job_name"], second["job_name"]}})
         (lab.evidence / "scheduled-renewal-observations.json").write_text(
             json.dumps({"out_of_window": first, "due": second}, indent=2, sort_keys=True) + "\n")
+        return second
 
     finally:
         lab.kubectl("delete", "cronjob", SCHEDULER, "--ignore-not-found=true", timeout=15,
@@ -293,6 +328,165 @@ def renew_certificate(lab, node):
         "green", "kubeadm certs renew apiserver completed inside the owned control-plane node",
         result.returncode == 0, {"renewal_command_succeeded": result.returncode == 0},
     )
+    return result.returncode == 0
+
+
+def handoff_allows(request, approval, current_leaf, expected_leaf, expected_expiry, now):
+    """Accept only one unexpired due request approved for its exact leaf."""
+    request_id = expected_leaf + ":" + str(expected_expiry)
+    try:
+        due = (request.get("decision") == "renewal_request"
+               and request.get("request_id") == request_id
+               and request.get("leaf_sha256") == expected_leaf
+               and int(request.get("not_after_epoch", "0")) == expected_expiry
+               and 0 < expected_expiry - now <= int(request.get("lead_seconds", "0")))
+        approved = (approval.get("decision") == "approved"
+                    and approval.get("request_id") == request_id
+                    and approval.get("leaf_sha256") == expected_leaf
+                    and int(approval.get("not_after_epoch", "0")) == expected_expiry
+                    and approval.get("approved_by") == f"system:serviceaccount:saf-test:{APPROVER}")
+    except (TypeError, ValueError):
+        return False
+    return due and approved and current_leaf == expected_leaf
+
+
+def approved_renewal_handoff(lab, node, initial, request, verify_served_leaf):
+    """Require a separately authorized exact request before one native renewal."""
+    request_id = initial["leaf"] + ":" + str(initial["expiry"])
+    resources = [
+        {"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": RENEWAL_REQUEST, "namespace": "saf-test"},
+         "data": {key: str(request.get(key, "")) for key in
+                  ("decision", "request_id", "leaf_sha256", "not_after_epoch", "lead_seconds", "job_name")}},
+        {"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": RENEWAL_APPROVAL, "namespace": "saf-test"},
+         "data": {"decision": "pending"}},
+        {"apiVersion": "v1", "kind": "ServiceAccount", "metadata": {"name": APPROVER, "namespace": "saf-test"},
+         "automountServiceAccountToken": False},
+        {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role",
+         "metadata": {"name": APPROVER, "namespace": "saf-test"},
+         "rules": [{"apiGroups": [""], "resources": ["configmaps"],
+                    "resourceNames": [RENEWAL_APPROVAL], "verbs": ["get", "patch"]}]},
+        {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding",
+         "metadata": {"name": APPROVER, "namespace": "saf-test"},
+         "subjects": [{"kind": "ServiceAccount", "name": APPROVER, "namespace": "saf-test"}],
+         "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "Role", "name": APPROVER}},
+    ]
+    created = []
+    subject = f"system:serviceaccount:saf-test:{APPROVER}"
+    invoked_request_ids = set()
+    groups = ("--as-group=system:serviceaccounts", "--as-group=system:serviceaccounts:saf-test",
+              "--as-group=system:authenticated")
+    try:
+        for resource in resources:
+            lab.create(resource)
+            created.append((resource["kind"].lower(), resource["metadata"]["name"]))
+        role = json.loads(lab.kubectl("get", "role", APPROVER, "-n", "saf-test", "-o", "json").stdout)
+        exact_role = role.get("rules") == [{"apiGroups": [""], "resources": ["configmaps"],
+                                             "resourceNames": [RENEWAL_APPROVAL], "verbs": ["get", "patch"]}]
+        permission = lambda verb, resource, as_subject: lab.kubectl(
+            "auth", "can-i", verb, resource, "-n", "saf-test", "--as", as_subject, *groups,
+            timeout=15, allow_failure=True).stdout.strip()
+        allowed = all(permission(verb, f"configmaps/{RENEWAL_APPROVAL}", subject) == "yes"
+                      for verb in ("get", "patch"))
+        denied = all(permission(verb, resource, subject) == "no" for verb, resource in (
+            ("get", f"configmaps/{RENEWAL_REQUEST}"), ("patch", f"configmaps/{RENEWAL_REQUEST}"),
+            ("list", "configmaps"), ("get", "secrets"),
+            ("get", "nodes"), ("create", "pods")))
+        lab.check("positive", "The approval identity can read and patch only its named renewal approval record",
+                  exact_role and allowed and denied,
+                  {"exact_named_role": exact_role, "approval_get_and_patch_allowed": allowed,
+                   "other_request_secret_node_and_pod_access_denied": denied})
+
+        now = int(time.time())
+        empty = {"decision": "pending"}
+        mismatch = {"decision": "approved", "request_id": "wrong-request",
+                    "leaf_sha256": initial["leaf"], "not_after_epoch": str(initial["expiry"]),
+                    "approved_by": subject}
+        stale = {"decision": "approved", "request_id": request_id,
+                 "leaf_sha256": "0" * 64, "not_after_epoch": str(initial["expiry"]),
+                 "approved_by": subject}
+        request_matches = (request.get("decision") == "renewal_request"
+                           and request.get("request_id") == request_id
+                           and request.get("leaf_sha256") == initial["leaf"]
+                           and int(request.get("not_after_epoch", "0")) == int(initial["expiry"]))
+        denied_controls = {
+            "pending_approval_denied": not handoff_allows(request, empty, initial["leaf"], initial["leaf"], int(initial["expiry"]), now),
+            "wrong_request_id_denied": not handoff_allows(request, mismatch, initial["leaf"], initial["leaf"], int(initial["expiry"]), now),
+            "stale_leaf_denied": not handoff_allows(request, stale, initial["leaf"], initial["leaf"], int(initial["expiry"]), now),
+        }
+        approved = {"decision": "approved", "request_id": request_id,
+                    "leaf_sha256": initial["leaf"], "not_after_epoch": str(initial["expiry"]),
+                    "approved_by": subject}
+        wrong_approver = {**approved, "approved_by": "system:serviceaccount:saf-test:unapproved"}
+        not_due_request = {**request, "decision": "not_due", "request_id": ""}
+        denied_controls["changed_current_leaf_denied"] = not handoff_allows(
+            request, approved, "f" * 64, initial["leaf"], int(initial["expiry"]), now)
+        denied_controls["expired_request_denied"] = not handoff_allows(
+            request, approved, initial["leaf"], initial["leaf"], int(initial["expiry"]),
+            int(initial["expiry"]) + 1)
+        denied_controls["wrong_approver_denied"] = not handoff_allows(
+            request, wrong_approver, initial["leaf"], initial["leaf"], int(initial["expiry"]), now)
+        denied_controls["out_of_window_request_denied"] = not handoff_allows(
+            not_due_request, approved, initial["leaf"], initial["leaf"], int(initial["expiry"]), now)
+        no_renewal_before_approval = not invoked_request_ids
+        lab.check("red", "Unapproved, mismatched or stale renewal requests cannot reach kubeadm",
+                  request_matches and all(denied_controls.values()) and no_renewal_before_approval,
+                  {"request_bound_to_current_leaf": request_matches, **denied_controls,
+                   "native_renewal_not_invoked_for_denied_cases": no_renewal_before_approval})
+
+        def invoke_native_once(candidate_request, candidate_approval, current_leaf):
+            if not handoff_allows(candidate_request, candidate_approval, current_leaf,
+                                  initial["leaf"], int(initial["expiry"]), int(time.time())):
+                return False
+            candidate_id = candidate_request["request_id"]
+            if candidate_id in invoked_request_ids:
+                return False
+            invoked_request_ids.add(candidate_id)
+            return renew_certificate(lab, node)
+
+        patch = {"data": {"decision": "approved", "request_id": request_id,
+                          "leaf_sha256": initial["leaf"], "not_after_epoch": str(initial["expiry"]),
+                          "approved_by": subject}}
+        lab.kubectl("patch", "configmap", RENEWAL_APPROVAL, "-n", "saf-test", "--type=merge",
+                    "-p", json.dumps(patch, separators=(",", ":")), "--as", subject, *groups, timeout=15)
+        approval = json.loads(lab.kubectl("get", "configmap", RENEWAL_APPROVAL, "-n", "saf-test", "-o", "json").stdout).get("data", {})
+        actual = verify_served_leaf()
+        valid = (actual.get("verified") and actual.get("expiry") == initial["expiry"]
+                 and handoff_allows(request, approval, actual["leaf"], initial["leaf"],
+                                    int(initial["expiry"]), int(time.time())))
+        if not valid:
+            lab.block("The scheduled due request lacks an exact live approval; refusing native renewal")
+        lab.check("positive", "The separately authorized approval matches the due request and current public leaf",
+                  valid, {"exact_request_and_leaf_approved": valid,
+                          "approver_identity": APPROVER, "public_key_material_only": True})
+        renewed = invoke_native_once(request, approval, actual["leaf"])
+        if renewed:
+            lab.kubectl("patch", "configmap", RENEWAL_APPROVAL, "-n", "saf-test", "--type=merge",
+                        "-p", json.dumps({"data": {"decision": "consumed", "consumed_request_id": request_id}},
+                                          separators=(",", ":")), timeout=15)
+        consumed = json.loads(lab.kubectl("get", "configmap", RENEWAL_APPROVAL, "-n", "saf-test", "-o", "json").stdout).get("data", {})
+        duplicate_attempt_rejected = not invoke_native_once(request, consumed, initial["leaf"])
+        renewal_invocation_count = len(invoked_request_ids)
+        replay_denied = (renewed and consumed.get("decision") == "consumed"
+                         and consumed.get("consumed_request_id") == request_id
+                         and duplicate_attempt_rejected and renewal_invocation_count == 1)
+        lab.check("positive", "The approved handoff invokes the native kubeadm renewal path exactly once",
+                  valid and renewed and renewal_invocation_count == 1,
+                  {"approved_request": valid, "renewal_invocation_count": renewal_invocation_count,
+                                     "native_command_succeeded": renewed})
+        lab.check("positive", "Consumed renewal request cannot authorize a duplicate action",
+                  replay_denied, {"request_consumed": consumed.get("decision") == "consumed",
+                                  "duplicate_request_denied": replay_denied})
+        (lab.evidence / "renewal-approval-handoff.json").write_text(json.dumps({
+            "request_matched_due_job": request_matches, "approver_role_exact": exact_role,
+            "approval_identity": APPROVER, "approval_matches_leaf": valid,
+            "native_renewal_invocations": renewal_invocation_count, "denied_controls": denied_controls,
+            "consumed_request_replay_denied": replay_denied,
+            "approval_service_account_has_node_credentials": False,
+        }, indent=2, sort_keys=True) + "\n")
+    finally:
+        for kind, name in reversed(created):
+            lab.kubectl("delete", kind, name, "-n", "saf-test", "--ignore-not-found=true",
+                        timeout=15, allow_failure=True)
 
 
 def restart_static_apiserver(lab, node, *, record=True):
@@ -655,7 +849,7 @@ def run(lab):
         )
 
         node = assert_owned_control_plane_node(lab)
-        run_scheduled_decision(lab, initial)
+        scheduled_request = run_scheduled_decision(lab, initial, node)
         seconds_remaining = initial["expiry"] - time.time()
         lab.check("red", "The original verified certificate is outside the one-minute renewal comparison",
                   seconds_remaining > 60,
@@ -663,7 +857,8 @@ def run(lab):
         lab.check("positive", "The original verified certificate is inside the fixture's thirty-minute renewal policy",
                   0 < seconds_remaining <= RENEW_BEFORE_SECONDS,
                   {"valid_leaf_due_for_renewal": 0 < seconds_remaining <= RENEW_BEFORE_SECONDS})
-        renew_certificate(lab, node)
+        approved_renewal_handoff(
+            lab, node, initial, scheduled_request, lambda: probe(address, port, correct, address))
 
         # This short observation reports actual process behavior without assuming
         # that every API server build reloads this certificate dynamically.
