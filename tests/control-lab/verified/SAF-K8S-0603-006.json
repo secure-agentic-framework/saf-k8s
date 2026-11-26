@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0603-006",
-  "catalog_revision": "3949c990789ab869914718b048db47bfe3e1b6af",
-  "catalog_sha256": "de36bf947da0d4e4ef851ebeea82845dcdf0f1d069a6251e2d03f465aec010f3",
+  "catalog_revision": "a0a3f57af4eec0ea84f97edde5254a93c9a77d47",
+  "catalog_sha256": "637809ee915d1f3ed4451dd9d8256edcfd4ba9cb18559e7ee016de3f8a91c693",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "61a54c759f2ae0941e6bcde710843d9d5d624bc9b5c0f03fd412b984a20a7f6e",
   "scope": "python-tuf 7.0.1 on Kubernetes v1.36.1 with a case-owned Service and two Pods. An authenticated fixture root controls a synthetic repository with local Ed25519 signing. The case exercises digest and version binding, distinct signatures, metadata limits, expiry, persisted rollback protection, exact target acceptance and root rotation. Live custody, managed services and signing ceremonies require separate evidence.",
-  "cluster": "saf-lab-e6ef2ff4482d",
+  "cluster": "saf-lab-0cb09323d50b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
