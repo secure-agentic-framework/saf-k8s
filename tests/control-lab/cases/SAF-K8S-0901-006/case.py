@@ -31,8 +31,10 @@ SCOPE = (
     "Fair Sharing and uses StrictFIFO; it observes the exact 100m seed admitted, Ready, "
     "and completed in its queue while the peer remains unseeded, then observes the older "
     "of two equal-priority, seed-matched candidates admitted first after release. These "
-    "are bounded CPU-only scheduler observations. Preemption, Volcano, accelerator "
-    "quotas, production demand behavior, and deployed behavior require separate evidence."
+    "are bounded CPU-only scheduler observations. A third isolated Kueue ClusterQueue enables only within-queue LowerPriority "
+    "preemption; it observes a 100m victim's eviction by a higher-priority Job and recovery of the same victim Job with a "
+    "replacement Ready Pod after exact preemptor Job, Workload and owned Pod cleanup. The case does not establish Volcano "
+    "behavior, accelerator quotas, production demand behavior, or deployed configuration."
 )
 
 
@@ -197,3 +199,4 @@ def run(lab):
     runpy.run_path(str(HERE / "queue_admission.py"))["run"](lab)
     runpy.run_path(str(HERE / "admission_fair_sharing.py"))["run"](lab)
     runpy.run_path(str(HERE / "admission_fair_sharing_off.py"))["run"](lab)
+    runpy.run_path(str(HERE / "kueue_priority_preemption.py"))["run"](lab)

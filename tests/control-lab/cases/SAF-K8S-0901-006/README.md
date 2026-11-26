@@ -139,8 +139,8 @@ older peer after the first reservation is released. Exact Workload and Job
 identities and queue accounting are retained in the raw evidence.
 
 This exercises the enabled mode for one controlled CPU workload profile. The
-mode-off FIFO comparator, separately configured preemption, Volcano, GPU and
-adopted fairness remain separate verification work.
+mode-off FIFO comparator, Volcano, GPU and adopted fairness remain separate
+verification work.
 
 [Kueue Admission Fair Sharing](https://kueue.sigs.k8s.io/v0.17/docs/concepts/admission_fair_sharing/)
 
@@ -151,3 +151,26 @@ of admission or reservation. StrictFIFO can leave a later Job unevaluated while
 the head of the queue is waiting, so the probe also accepts an unset quota
 condition. It independently checks 100m held by the exact holder and zero
 reserved by either contender before release.
+
+
+## Bounded within-queue preemption and recovery
+
+The additive scratch extension creates a separate CPU-only Kueue v0.17.7
+ClusterQueue with `withinClusterQueue: LowerPriority`, no cohort, and 100m
+nominal CPU quota. It observes an admitted 100m victim with its exact
+Job-owned Ready Pod, then creates a same-queue 100m preemptor whose live
+WorkloadPriorityClass value is higher. The witness checks `Evicted=True` with
+reason `Preempted`, victim Job suspension and owned-Pod removal, plus the
+preemptor's admission and Ready Pod. Before checking recovery, it records the
+preemptor's exact Job and Workload UIDs and status, foreground-deletes that Job,
+and waits for those exact UIDs and its owned Pod to disappear. It then verifies
+the same victim Job UID receives quota and a distinct replacement Ready Pod.
+Raw API objects are persisted by phase; receipt observations use stable
+booleans.
+
+This demonstrates one explicitly configured same-ClusterQueue
+lower-priority preemption and recovery path. It does not establish cohort or
+cross-queue preemption, other controller policies, Volcano, accelerator
+behavior, production demand behavior, or adopted-cluster configuration. The
+pinned policy and candidate logic are in the [Kueue v0.17.7 preemptor](https://github.com/kubernetes-sigs/kueue/blob/v0.17.7/pkg/scheduler/preemption/preemption.go)
+and [priority policy](https://github.com/kubernetes-sigs/kueue/blob/v0.17.7/pkg/scheduler/preemption/common/preemption_policy.go).
