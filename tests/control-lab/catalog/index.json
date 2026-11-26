@@ -2817,8 +2817,8 @@
     "SAF-K8S-0906-002": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "fffde1c88876a23a32bd81aa6aa2d39f27591879f5bbd918f3e924d01c1e54db",
-      "title": "Large-scale data integrity verification"
+      "sha256": "03f8ab3a3bf9f590f0f22bd0fa63853f45838afb9e5f65f7771c0d14db8a8219",
+      "title": "Segmented dataset integrity verification"
     },
     "SAF-K8S-0906-004": {
       "catalog_status": "draft",
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "2542c40971a2de585782617b6ab6251ae2fbe332",
-  "sha256": "ee08fed36e8c39b164e5d28c4c624a1cf8e763ca11accc56a52ae6e45e81e354",
+  "revision": "acf115bf09e75c1acd231a460e66372554bd1f13",
+  "sha256": "f90c94c673d20660168dfaa86a14af064fc386b44cfe4af6b5263d264c1e59b3",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

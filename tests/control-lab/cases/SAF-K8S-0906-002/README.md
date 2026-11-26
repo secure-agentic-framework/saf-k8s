@@ -13,3 +13,5 @@ The five checks use a fixed trusted fixture manifest and immutable test ConfigMa
 
 - [Kubernetes Persistent Volumes](https://v1-36.docs.kubernetes.io/docs/concepts/storage/persistent-volumes/)
 - [European Commission AI Act Service Desk, Article 15](https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-15)
+
+The fixture uses small fixed segments and checks the segmented verification contract. For a deployment, measure throughput and memory at the sizes and concurrency in scope, verify independent manifest authenticity and accepted-partition delivery to the actual trainer, and confirm durable recovery and rejection evidence.
