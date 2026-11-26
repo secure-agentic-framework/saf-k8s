@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Risk management strategy is foundational for governing agentic AI security risks
-
-10.3 - Threat modeling (risk management strategy for K8s AI environments)
+The adopted assessment can provide findings for strategy decisions and updates.
 
 ## SAF-K8S Controls
 
@@ -16,9 +14,9 @@ Risk management strategy is foundational for governing agentic AI security risks
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.3
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAF-K8S-1003-002.md)
 

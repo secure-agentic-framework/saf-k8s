@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Security architecture is critical for agentic AI systems with complex trust boundaries and data flows
-
-5.4 - Zero trust architecture; 10.3 - Threat modeling (security architecture design for K8s AI)
+Reviewed findings on Kubernetes trust boundaries and assets can inform architecture decisions.
 
 ## SAF-K8S Controls
 
@@ -16,9 +14,9 @@ Security architecture is critical for agentic AI systems with complex trust boun
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.3
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAF-K8S-1003-002.md)
 

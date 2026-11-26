@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-A detailed description of the risk management system in accordance with Article 9;
-
-SAF-K8S supports risk management through threat modeling integration, security control catalogs, and continuous monitoring infrastructure. The formal risk management system documentation is organizational, but SAF-K8S provides technical evidence and control mappings.
+The actual component and trust-boundary threat model can supply the Kubernetes infrastructure portion of the documented risk-management-system description.
 
 ## SAF-K8S Controls
 
@@ -17,8 +15,8 @@ SAF-K8S supports risk management through threat modeling integration, security c
 - Knowledge Area: 10.3
 - Relation Type: partial
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAF-K8S-1003-002.md)
 

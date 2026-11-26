@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Risk response strategies (accept, avoid, mitigate, transfer) apply to agentic AI risks
-
-10.3 - Threat modeling (risk response strategies for identified K8s AI threats)
+Documented threat-to-treatment links can help trace risk response decisions and review their evidence.
 
 ## SAF-K8S Controls
 
@@ -16,9 +14,9 @@ Risk response strategies (accept, avoid, mitigate, transfer) apply to agentic AI
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.3
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAF-K8S-1003-002.md)
 

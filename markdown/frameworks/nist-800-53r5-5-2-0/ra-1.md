@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Risk assessment policy is foundational for evaluating agentic AI system security risks
-
-10.3 - Threat modeling (risk assessment policy and procedures for K8s AI environments)
+The worksheet workflow can assist implementation of the specified Kubernetes assessment procedure.
 
 ## SAF-K8S Controls
 
@@ -17,8 +15,8 @@ Risk assessment policy is foundational for evaluating agentic AI system security
 - Knowledge Area: 10.3
 - Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAF-K8S-1003-002.md)
 

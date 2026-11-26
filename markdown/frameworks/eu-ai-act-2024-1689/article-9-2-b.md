@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-the estimation and evaluation of the risks that may emerge when the high-risk AI system is used in accordance with its intended purpose, and under conditions of reasonably foreseeable misuse;
-
-SAF-K8S threat modeling addresses infrastructure-level risk estimation. Misuse risk evaluation for the AI system's intended purpose is an application-layer concern.
+The adopted STRIDE assessment contributes documented infrastructure-level scenarios. The provider must separately estimate and evaluate the applicable AI system risks, including those from reasonably foreseeable misuse.
 
 ## SAF-K8S Controls
 
@@ -17,8 +15,8 @@ SAF-K8S threat modeling addresses infrastructure-level risk estimation. Misuse r
 - Knowledge Area: 10.3
 - Relation Type: partial
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAF-K8S-1003-002.md)
 

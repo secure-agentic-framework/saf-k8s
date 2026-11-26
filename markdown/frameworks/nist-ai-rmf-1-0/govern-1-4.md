@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-STRIDE and OCTAVE threat modeling establish risk management processes. Automated audit readiness dashboards provide transparency into risk posture and control status.
+The adopted STRIDE workflow can structure the Kubernetes infrastructure part of the documented process.
 
 ## SAF-K8S Controls
 
@@ -15,8 +15,8 @@ STRIDE and OCTAVE threat modeling establish risk management processes. Automated
 - Knowledge Area: 10.3
 - Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAF-K8S-1003-002.md)
 

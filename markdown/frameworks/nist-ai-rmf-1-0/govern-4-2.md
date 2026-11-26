@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-STRIDE and OCTAVE assessments produce documented risk analysis. ML threat taxonomy mapping documents AI-specific risks. Compliance mapping workbooks communicate risk posture.
+The reviewed component and trust-boundary threat model can document Kubernetes infrastructure threats in the broader AI risk record used by the responsible teams.
 
 ## SAF-K8S Controls
 
@@ -15,8 +15,8 @@ STRIDE and OCTAVE assessments produce documented risk analysis. ML threat taxono
 - Knowledge Area: 10.3
 - Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAF-K8S-1003-002.md)
 

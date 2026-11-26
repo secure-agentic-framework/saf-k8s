@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-A risk management system shall be established, implemented, documented and maintained in relation to high-risk AI systems.
-
-SAF-K8S provides threat modeling controls (D10 KA 10.3, 10.4) and governance controls (D10 KA 10.6) that form the infrastructure component of a risk management system. The organizational risk management framework is out of scope.
+The adopted STRIDE assessment can supply infrastructure cybersecurity evidence for one part of the continuous AI risk-management process.
 
 ## SAF-K8S Controls
 
@@ -17,8 +15,8 @@ SAF-K8S provides threat modeling controls (D10 KA 10.3, 10.4) and governance con
 - Knowledge Area: 10.3
 - Relation Type: partial
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAF-K8S-1003-002.md)
 

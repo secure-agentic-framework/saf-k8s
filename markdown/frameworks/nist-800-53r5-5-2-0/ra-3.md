@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Risk assessment is essential for identifying threats to agentic AI systems
-
-10.3 - Threat modeling (STRIDE, OCTAVE methodology applied to K8s AI risk assessment)
+The reviewed component and trust-boundary threat model can contribute to the Kubernetes portion of the system risk assessment.
 
 ## SAF-K8S Controls
 
@@ -15,10 +13,10 @@ Risk assessment is essential for identifying threats to agentic AI systems
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAF-K8S-1003-002.md)
 

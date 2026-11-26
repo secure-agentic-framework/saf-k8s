@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-the identification and analysis of the known and the reasonably foreseeable risks that the high-risk AI system can pose to health, safety or fundamental rights when the high-risk AI system is used in accordance with its intended purpose;
-
-SAF-K8S threat modeling controls (STRIDE, OCTAVE, MITRE ATT&CK mapping) in D10 KA 10.3 address infrastructure and AI-specific threat identification. Health, safety, and fundamental rights risk analysis is an application-layer and organizational concern.
+The adopted STRIDE assessment contributes analysis of known and foreseeable platform cybersecurity risks when those risks are tied to intended AI system use and separately reviewed for the applicable impacts.
 
 ## SAF-K8S Controls
 
@@ -17,8 +15,8 @@ SAF-K8S threat modeling controls (STRIDE, OCTAVE, MITRE ATT&CK mapping) in D10 K
 - Knowledge Area: 10.3
 - Relation Type: partial
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAF-K8S-1003-002.md)
 
