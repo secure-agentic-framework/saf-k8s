@@ -10,6 +10,8 @@ A digest-pinned Versity v1.9.0 S3 gateway and AWS CLI fixture run entirely insid
 
 The runner stores the selected audit JSONL bytes, their SHA-256, and the probe's sanitized raw JSON result. The probe never prints credential values or complete API error bodies. Credentials are random and scoped to the disposable local gateway. Images are pinned by digest.
 
+The gateway stores its versioned objects and retention metadata on a case-owned local-path PVC. After the original test, the runner replaces the gateway Pod, verifies a different Pod UID and the same PVC and PV binding, and uses a new independent Job to retrieve the exact locked bytes and unchanged COMPLIANCE deadline. The successor remains current. This recovery test covers Pod replacement on the same storage.
+
 ## Coverage and limits
 
 This is an integration demonstration for the pinned Versity S3 gateway's local POSIX backend and one synthetic Kubernetes API audit event. The unlocked control version is created before the bucket default is configured, to demonstrate that a bucket default protects newly written versions rather than retroactively locking old objects. Passing does not establish production audit ingestion or coverage of AI workload logs, deployed S3-compatible provider behavior, administrator separation, bucket-policy protections, multi-region copies, retention beyond the two-day synthetic requirement, capacity planning, or survival of volume/cluster loss. The conditional AU-9 crosswalk covers protection of the selected retained audit bytes and versions from premature deletion or shortening.

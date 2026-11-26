@@ -25,6 +25,21 @@ until s3 list-buckets >/tmp/gateway-ready 2>&1; do
   sleep 1
 done
 
+if [ "${1:-}" = recover ]; then
+  valid_version "$LOCKED_VERSION"
+  s3 get-object --bucket "$S3_BUCKET" --key "$S3_KEY" --version-id "$LOCKED_VERSION" /tmp/recovered.jsonl >/dev/null
+  s3 get-object --bucket "$S3_BUCKET" --key "$S3_KEY" /tmp/recovered-current.jsonl >/dev/null
+  mode=$(s3 get-object-retention --bucket "$S3_BUCKET" --key "$S3_KEY" --version-id "$LOCKED_VERSION" \
+    --query 'Retention.Mode' --output text)
+  until=$(s3 get-object-retention --bucket "$S3_BUCKET" --key "$S3_KEY" --version-id "$LOCKED_VERSION" \
+    --query 'Retention.RetainUntilDate' --output text)
+  test "$(digest /tmp/recovered.jsonl)" = "$EXPECTED_SHA256"
+  test "$(digest /tmp/recovered-current.jsonl)" = "$SUCCESSOR_SHA256"
+  test "$mode" = COMPLIANCE && test "$until" = "$RETAIN_UNTIL"
+  printf '%s\n' '{"exact_version_survived":true,"same_compliance_deadline":true,"successor_still_current":true}'
+  exit
+fi
+
 created_at=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
 required_until=$(date -u -d "$created_at +$REQUIRED_DAYS days" '+%Y-%m-%dT%H:%M:%SZ')
 shorter_until=$(date -u -d "$created_at +1 day" '+%Y-%m-%dT%H:%M:%SZ')

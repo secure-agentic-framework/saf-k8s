@@ -1,5 +1,6 @@
 """Verify inherited S3 COMPLIANCE retention for one native synthetic audit event."""
-from datetime import datetime, timedelta, timezone
+from copy import deepcopy
+from datetime import datetime, timezone
 import hashlib
 import json
 import secrets
@@ -31,6 +32,8 @@ STORE_POD = "saf-1001-027-s3"
 CREDENTIALS = "saf-1001-027-synthetic-credentials"
 FIXTURE_CONFIG = "saf-1001-027-probe-files"
 CLIENT_JOB = "saf-1001-027-probe"
+RECOVERY_JOB = "saf-1001-027-recover"
+STORAGE_CLAIM = "saf-1001-027-storage"
 BUCKET_PREFIX = "saf-k8s-1001-027-audit"
 KEY = "audit/kube-apiserver-event.jsonl"
 
@@ -41,7 +44,8 @@ SCOPE = (
     "three-day COMPLIANCE bucket default. The S3 API observations verify the configured default, "
     "effective per-version retention, successful deletion of the unlocked counterpart, denial "
     "of early protected-version deletion or shortening, and exact-version retrieval after a "
-    "benign replacement. This tests the pinned Versity gateway data plane only; it does not "
+    "benign replacement. A new gateway Pod retains the locked bytes and metadata on the same bound PVC. "
+    "This tests the pinned Versity gateway data plane only; it does not "
     "establish production log coverage, provider equivalence, legal retention requirements, "
     "administrative separation, storage capacity, or sustained durability."
 )
@@ -155,24 +159,21 @@ def wait_gateway(lab):
         pod = json.loads(lab.kubectl("get", "pod", STORE_POD, "-o", "json").stdout)
         statuses = pod.get("status", {}).get("containerStatuses", [])
         if pod["status"]["phase"] == "Failed":
-            lab.kubectl("logs", STORE_POD, "-c", "gateway", "--tail=8", allow_failure=True)
             lab.block("The local S3 gateway exited before readiness")
         if pod["status"]["phase"] == "Running" and len(statuses) == 1 and statuses[0].get("ready"):
             return pod
         time.sleep(1)
-    lab.kubectl("logs", STORE_POD, "--tail=8", allow_failure=True)
     lab.block("The digest-pinned local S3 gateway did not become ready")
 
 
-def wait_job(lab):
+def wait_job(lab, name=CLIENT_JOB):
     deadline = time.monotonic() + 150
     while time.monotonic() < deadline:
-        status = json.loads(lab.kubectl("get", "job", CLIENT_JOB, "-o", "json").stdout)["status"]
+        status = json.loads(lab.kubectl("get", "job", name, "-o", "json").stdout)["status"]
         if status.get("succeeded") == 1:
             return
         if status.get("failed"):
-            output = lab.kubectl("logs", f"job/{CLIENT_JOB}", allow_failure=True).stdout
-            lab.block(f"The S3 retention probe failed: {output[-500:]}")
+            lab.block(f"The owned S3 retention probe Job {name} failed")
         time.sleep(1)
     lab.block("The S3 retention probe did not finish")
 
@@ -189,6 +190,14 @@ def run(lab):
         event_digest + "  selected-audit-event.jsonl\n")
 
     install_credentials(lab)
+    storage_class = json.loads(lab.kubectl("get", "storageclass", "standard", "-o", "json").stdout)
+    if storage_class.get("provisioner") != "rancher.io/local-path":
+        lab.block("The expected disposable local-path storage provisioner is unavailable")
+    lab.create(object_spec("v1", "PersistentVolumeClaim", STORAGE_CLAIM, spec={
+        "storageClassName": "standard",
+        "accessModes": ["ReadWriteOnce"],
+        "resources": {"requests": {"storage": "32Mi"}},
+    }))
     mounts = [{"name": "data", "mountPath": "/data"}]
     setup = container(
         "setup", command=["sh", "-c", "mkdir -p /data/objects /data/versions"],
@@ -197,7 +206,7 @@ def run(lab):
                         "allowPrivilegeEscalation": False, "capabilities": {"drop": ["ALL"]},
                         "seccompProfile": {"type": "RuntimeDefault"}},
     )
-    lab.create(object_spec("v1", "Pod", STORE_POD, spec={
+    gateway = object_spec("v1", "Pod", STORE_POD, spec={
         "restartPolicy": "Never", "automountServiceAccountToken": False,
         "securityContext": {"runAsNonRoot": True, "runAsUser": 1000, "runAsGroup": 1000,
                             "fsGroup": 1000, "seccompProfile": {"type": "RuntimeDefault"}},
@@ -215,9 +224,14 @@ def run(lab):
                                 "capabilities": {"drop": ["ALL"]},
                                 "seccompProfile": {"type": "RuntimeDefault"}},
         }],
-        "volumes": [{"name": "data", "emptyDir": {}}],
-    }))
-    address = wait_gateway(lab)["status"]["podIP"]
+        "volumes": [{"name": "data", "persistentVolumeClaim": {"claimName": STORAGE_CLAIM}}],
+    })
+    lab.create(gateway)
+    initial_pod = wait_gateway(lab)
+    initial_claim = json.loads(lab.kubectl("get", "pvc", STORAGE_CLAIM, "-o", "json").stdout)
+    if initial_claim.get("status", {}).get("phase") != "Bound" or not initial_claim["spec"].get("volumeName"):
+        lab.block("The owned retained-object directory did not bind to a volume")
+    address = initial_pod["status"]["podIP"]
     bucket = BUCKET_PREFIX + "-" + secrets.token_hex(4)
     script = (Path(__file__).with_name("s3-retention-probe.sh").read_text(encoding="utf-8"))
     lab.create(object_spec("v1", "ConfigMap", FIXTURE_CONFIG, data={
@@ -306,3 +320,30 @@ def run(lab):
          "successor_is_current": replacement["current_sha256"] == replacement["successor_sha256"],
          "original_exact_version_retrieved": replacement["original_sha256"] == event_digest},
     )
+
+    lab.kubectl("delete", "pod", STORE_POD, "--wait=true", "--timeout=45s", timeout=55)
+    lab.create(gateway)
+    restarted = wait_gateway(lab)
+    bound = json.loads(lab.kubectl("get", "pvc", STORAGE_CLAIM, "-o", "json").stdout)
+    same_binding = (bound["metadata"]["uid"] == initial_claim["metadata"]["uid"]
+                    and bound["spec"].get("volumeName") == initial_claim["spec"]["volumeName"])
+    recovery = deepcopy(job)
+    recovery["metadata"]["name"] = RECOVERY_JOB
+    runner = recovery["spec"]["template"]["spec"]["containers"][0]
+    runner["command"].append("recover")
+    for entry in runner["env"]:
+        if entry["name"] == "AWS_ENDPOINT_URL":
+            entry["value"] = f'http://{restarted["status"]["podIP"]}:7070'
+    runner["env"].extend([
+        {"name": "LOCKED_VERSION", "value": effective["version_id"]},
+        {"name": "RETAIN_UNTIL", "value": effective["retain_until"]},
+        {"name": "SUCCESSOR_SHA256", "value": replacement["successor_sha256"]},
+    ])
+    lab.create(recovery)
+    wait_job(lab, RECOVERY_JOB)
+    observed = json.loads(lab.kubectl("logs", f"job/{RECOVERY_JOB}").stdout)
+    expected = {"exact_version_survived": True, "same_compliance_deadline": True, "successor_still_current": True}
+    new_pod = restarted["metadata"]["uid"] != initial_pod["metadata"]["uid"]
+    lab.check("green", "A replacement gateway on the same bound volume preserves the exact audit version and retention",
+              new_pod and same_binding and observed == expected,
+              {"different_pod_uid": new_pod, "same_bound_pvc": same_binding, "storage_observations": observed})
