@@ -12,3 +12,8 @@ shared identities, bypass paths, and response workflow separately.
 
 - [Kubernetes ServiceAccounts](https://v1-36.docs.kubernetes.io/docs/concepts/security/service-accounts/)
 - [Kubernetes TokenReview](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/authentication/)
+
+The last comparison makes one ordinary request using a valid projected
+identity outside the route's approved set. The governed gateway reports
+`credential-unapproved`. Independent gateway and predictor event reads
+confirm the request never reached the predictor.

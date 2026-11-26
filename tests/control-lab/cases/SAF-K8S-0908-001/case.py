@@ -10,6 +10,7 @@ NS = "saf-test"
 AUDIENCE = "saf-scoped-inference"
 ALPHA = "fixture-inference-alpha"
 BETA = "fixture-inference-beta"
+GAMMA = "fixture-inference-gamma"
 VERIFIER = "fixture-inference-verifier"
 BASELINE = "fixture-inference-baseline"
 ENFORCED = "fixture-inference-governed"
@@ -38,7 +39,7 @@ def create(lab, kind, name, api="v1", **fields):
 
 
 def prerequisites(lab):
-    for account in (ALPHA, BETA, VERIFIER):
+    for account in (ALPHA, BETA, GAMMA, VERIFIER):
         create(lab, "ServiceAccount", account, automountServiceAccountToken=False)
     create(lab, "ClusterRole", VERIFIER, RBAC, rules=[
         {"apiGroups": ["authentication.k8s.io"], "resources": ["tokenreviews"], "verbs": ["create"]},
@@ -136,9 +137,9 @@ def run(lab):
     image = load_runtime(lab)
     prerequisites(lab)
     for name, mode in ((PREDICTOR, "predictor"), (BASELINE, "baseline"), (ENFORCED, "enforced"),
-                       (ALPHA, None), (BETA, None)):
+                       (ALPHA, None), (BETA, None), (GAMMA, None)):
         workload(lab, image, name, mode)
-    for name in (PREDICTOR, BASELINE, ENFORCED, ALPHA, BETA):
+    for name in (PREDICTOR, BASELINE, ENFORCED, ALPHA, BETA, GAMMA):
         ready(lab, name)
 
     prior = [calls(lab, ALPHA, BASELINE) for _ in range(3)]
@@ -175,6 +176,23 @@ def run(lab):
                     item["fixture_mode"]=="enforced" for item in events(lab, PREDICTOR)) == 4}
     lab.check("positive", "An independent approved principal can still reach the predictor",
               all(positive.values()), positive)
+
+    # One ordinary request from a valid projected identity outside the approved
+    # allowlist must stop at the gateway without changing either event source.
+    predictor_before = events(lab, PREDICTOR)
+    gateway_before = events(lab, ENFORCED)
+    unapproved = calls(lab, GAMMA, ENFORCED)
+    predictor_after = events(lab, PREDICTOR)
+    gateway_after = events(lab, ENFORCED)
+    negative = {
+        "valid_projected_identity_is_unapproved": unapproved == {
+            "status": 401, "decision": "credential-unapproved", "result": None},
+        "predictor_receives_no_additional_request": predictor_after == predictor_before,
+        "gateway_forwards_no_request_for_unapproved_identity": gateway_after == gateway_before,
+    }
+    lab.check("negative", "A valid projected identity outside the approved set is denied before prediction",
+              all(negative.values()), negative)
     (lab.evidence / "inference-serving-observations.json").write_text(json.dumps({
-        "baseline": baseline, "enforced": green, "positive": positive, "event": signal,
+        "baseline": baseline, "enforced": green, "positive": positive,
+        "unapproved_identity": negative, "event": signal,
     }, indent=2) + "\n")

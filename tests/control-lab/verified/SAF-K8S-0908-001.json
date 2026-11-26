@@ -5,7 +5,7 @@
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "1e307f9a96427229b4f42e72ce1d6f9b215ffe2166fd357ea1a42392a95ce9ce",
   "scope": "Real Kubernetes TokenReview authenticates two temporary pod identities to a fixture TLS gateway. A bounded quota refuses one ordinary request before the independent synthetic predictor and emits a minimal attributed event. The other identity remains within its budget. This demonstrates the named serving safeguard and event path.",
-  "cluster": "saf-lab-a373df13c037",
+  "cluster": "saf-lab-dedbc12cdc46",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -67,6 +67,16 @@
         "credential_required": true,
         "original_principal_recovers_after_window": true,
         "only_two_additional_predictions_forwarded": true
+      }
+    },
+    {
+      "phase": "negative",
+      "claim": "A valid projected identity outside the approved set is denied before prediction",
+      "matched": true,
+      "observed": {
+        "valid_projected_identity_is_unapproved": true,
+        "predictor_receives_no_additional_request": true,
+        "gateway_forwards_no_request_for_unapproved_identity": true
       }
     }
   ]
