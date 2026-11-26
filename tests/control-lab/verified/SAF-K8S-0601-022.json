@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0601-022",
-  "catalog_revision": "3694cdc91a9c6ce6f67fdba1e6410f800deb07ad",
-  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
+  "catalog_revision": "a2d4171abcb3d2532a0e97a2a08d870efd26b640",
+  "catalog_sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "2f506ffb92b7d54c3b26adb1480a96e32cc235e541fc3207f1f3d225f8758c4b",
   "scope": "One disposable namespace, an empty dockerconfigjson Secret and normal ServiceAccount admission. Reference injection and an ordinary public-image workload are verified. A pinned owned registry separately checks wrong-credential refusal and a correct same-namespace Secret pulling one exact inert digest. The correct Secret is additionally reconciled by pinned ESO from a case-owned HTTPS webhook provider. External Secret managers, CI delivery, rotation and production authorization need separate evidence.",
-  "cluster": "saf-lab-1e8f9e4ce2ba",
+  "cluster": "saf-lab-211efc306964",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

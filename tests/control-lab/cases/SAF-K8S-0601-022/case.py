@@ -1,5 +1,6 @@
 """Test namespace-local image pull Secret delivery and a private fixture pull."""
 import base64
+from dataclasses import dataclass
 import hashlib
 import json
 import os
@@ -11,11 +12,28 @@ import subprocess
 import tempfile
 import time
 import uuid
+from typing import Callable, Optional
 from collections import Counter
 from http.client import HTTPConnection
 from urllib.parse import unquote
 
 from fixtures import container, pod, ready
+
+@dataclass(frozen=True)
+class PrivatePullFixture:
+    """Case-owned handles only; credential values are deliberately absent."""
+    registry_container: str
+    node_container: str
+    registry_alias: str
+    repository: str
+    digest: str
+    image_ref: str
+    host_port: int
+    htpasswd_path: Path
+    secret_name: str
+    external_secret_name: str
+    provider_data_secret: str
+
 
 HERE = Path(__file__).resolve().parent
 ACCOUNT = "fixture-pull-account"
@@ -454,8 +472,8 @@ def _create_pull_secret(lab, name, path):
     return result.returncode == 0 and result.stdout.strip() == f"secret/{name} created"
 
 
-def run_private_pull_checks(lab):
-    """Prove wrong credentials fail and correct Secret credentials pull exact digest."""
+def run_private_pull_checks(lab, *, on_pull_verified: Optional[Callable[[PrivatePullFixture], None]] = None):
+    """Prove private pulls; optionally expose the owned lifecycle before cleanup."""
     registry = f"saf-private-{lab.cluster}"
     node = f"{lab.cluster}-control-plane"
     network = f"{lab.cluster}-pull-net"
@@ -614,6 +632,13 @@ def run_private_pull_checks(lab):
                   {"pod_succeeded": phase == "Succeeded", "command_succeeded": output.returncode == 0
                    and output.stdout.strip() == "private-pull-ok", "manifest_request_authorized": manifest_200,
                    "exact_digest_observed": exact_repo_digest})
+        if good_pull and on_pull_verified is not None:
+            on_pull_verified(PrivatePullFixture(
+                registry_container=registry, node_container=node,
+                registry_alias=alias, repository=repo, digest=digest, image_ref=image,
+                host_port=int(match.group(1)), htpasswd_path=htpasswd,
+                secret_name=good_secret, external_secret_name=ESO_EXTERNAL_SECRET,
+                provider_data_secret=ESO_SOURCE + "-data"))
     except RuntimeError as error:
         lab.block(str(error))
     finally:
