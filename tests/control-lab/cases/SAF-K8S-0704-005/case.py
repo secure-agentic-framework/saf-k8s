@@ -3,13 +3,25 @@
 import json
 import time
 
-SCOPE = "Two local endpoint markers, Pod approval checks and CNI-enforced fixture egress."
+SCOPE = (
+    "Two local endpoint markers, existing Pod approval checks and CNI-enforced fixture egress, "
+    "plus an exact synthetic service/purpose/information-class/Pod-ServiceAccount admission tuple "
+    "tested only by server-side dry-run. No external provider or API caller identity is tested."
+)
 IMAGE = "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
 STANDARD = "saf-external-standard"
 RESTRICTED = "saf-external-restricted"
 SERVICES = "saf-external-endpoints"
 LABEL = "saf.example/service"
 POLICY = "saf-external-fixture-approval"
+TUPLE_POLICY = "saf-external-fixture-approved-tuple"
+TUPLE_DENIAL = "external service use tuple is not approved"
+TUPLE = {
+    "saf.example/service-id": "approved-service",
+    "saf.example/purpose": "inference",
+    "saf.example/information-class": "public",
+    "serviceAccountName": "fixture-approved-client",
+}
 PORT = 18080
 
 
@@ -84,10 +96,53 @@ def declined(result):
     return result.returncode != 0 and POLICY in result.stderr and "fixture approval does not cover" in result.stderr
 
 
+def tuple_pod(name, overrides=None):
+    resource = pod(name, "approved")
+    labels = resource["metadata"]["labels"]
+    labels.update({key: value for key, value in TUPLE.items() if key != "serviceAccountName"})
+    resource["spec"]["serviceAccountName"] = TUPLE["serviceAccountName"]
+    for key, value in (overrides or {}).items():
+        if key == "serviceAccountName":
+            resource["spec"]["serviceAccountName"] = value
+        else:
+            labels[key] = value
+    return resource
+
+
+def tuple_admission_policy(lab):
+    label_keys = ["saf.example/service-id", "saf.example/purpose", "saf.example/information-class"]
+    label_checks = [f"'{key}' in object.metadata.labels && object.metadata.labels['{key}'] == '{TUPLE[key]}'"
+                    for key in label_keys]
+    expression = ("has(object.metadata.labels) && " + " && ".join(label_checks) +
+                  " && has(object.spec.serviceAccountName) && "
+                  f"object.spec.serviceAccountName == '{TUPLE['serviceAccountName']}'")
+    lab.create({"apiVersion": "admissionregistration.k8s.io/v1", "kind": "ValidatingAdmissionPolicy",
+                "metadata": {"name": TUPLE_POLICY}, "spec": {
+                    "failurePolicy": "Fail",
+                    "matchConstraints": {"resourceRules": [{"operations": ["CREATE"],
+                        "apiGroups": [""], "apiVersions": ["v1"], "resources": ["pods"],
+                        "scope": "Namespaced"}]},
+                    "validations": [{"expression": expression, "message": TUPLE_DENIAL}]}})
+    lab.create({"apiVersion": "admissionregistration.k8s.io/v1", "kind": "ValidatingAdmissionPolicyBinding",
+                "metadata": {"name": TUPLE_POLICY}, "spec": {
+                    "policyName": TUPLE_POLICY, "validationActions": ["Deny"],
+                    "matchResources": {"namespaceSelector": {"matchLabels": {
+                        "kubernetes.io/metadata.name": STANDARD}}}}})
+
+
+def tuple_denied(result):
+    return result.returncode != 0 and TUPLE_POLICY in result.stderr and TUPLE_DENIAL in result.stderr
+
+
 def run(lab):
     for namespace in (STANDARD, RESTRICTED, SERVICES):
         lab.create({"apiVersion": "v1", "kind": "Namespace", "metadata": {"name": namespace,
                     "labels": {"pod-security.kubernetes.io/enforce": "restricted"}}})
+    # These case-owned workload identities have no RBAC grants. Tuple Pods
+    # disable token mounting and are never persisted.
+    for name in (TUPLE["serviceAccountName"], "fixture-unapproved-client"):
+        create(lab, STANDARD, {"apiVersion": "v1", "kind": "ServiceAccount",
+                               "metadata": {"name": name}})
     selected = add_pod(lab, SERVICES, "approved-service", "approved", "approved-public-marker")
     other = add_pod(lab, SERVICES, "comparison-service", "comparison", "comparison-public-marker")
     add_pod(lab, STANDARD, "fixture-client", "approved")
@@ -99,6 +154,18 @@ def run(lab):
     before = create(lab, STANDARD, pod("request-comparison", "comparison"), dry=True)
     lab.check("red", "Before enforcement the owned comparison is reachable and its declaration is admitted",
               before.returncode == 0, {"comparison_reachable_and_request_admitted": before.returncode == 0})
+    tuple_mismatches = {
+        "service": {"saf.example/service-id": "comparison-service"},
+        "purpose": {"saf.example/purpose": "training"},
+        "information-class": {"saf.example/information-class": "restricted"},
+        "workload-service-account": {"serviceAccountName": "fixture-unapproved-client"},
+    }
+    tuple_baseline = [(case, create(lab, STANDARD, tuple_pod(f"tuple-before-{case}", override), dry=True))
+                      for case, override in [("approved", {}), *tuple_mismatches.items()]]
+    lab.check("red", "Before tuple enforcement, approved and one-field-mismatch dry-runs are admitted",
+              all(result.returncode == 0 for _, result in tuple_baseline),
+              [{"case": case, "accepted": result.returncode == 0, "detail": result.stderr.strip()}
+               for case, result in tuple_baseline])
     approval_policy(lab)
     converge(lab, lambda: declined(create(lab, STANDARD, pod("request-comparison", "comparison"), dry=True)),
              "The admission binding did not deny the unapproved service declaration")
@@ -107,6 +174,22 @@ def run(lab):
     lab.check("green", "Admission distinguishes approved standard use from a request in the restricted fixture namespace",
               declined(restricted) and valid.returncode == 0,
               {"restricted_service_request_refused": declined(restricted), "positively_approved_request_admitted": valid.returncode == 0})
+    tuple_admission_policy(lab)
+    converge(
+        lab,
+        lambda: tuple_denied(create(lab, STANDARD, tuple_pod("tuple-policy-ready", tuple_mismatches["service"]), dry=True)),
+        "The tuple policy did not deny the exact fixture service mismatch",
+    )
+    tuple_active = [(case, create(lab, STANDARD, tuple_pod(f"tuple-after-{case}", override), dry=True))
+                    for case, override in [("approved", {}), *tuple_mismatches.items()]]
+    tuple_result = {case: result for case, result in tuple_active}
+    lab.check("green", "Active policy admits the approved tuple and denies each one-field mismatch",
+              tuple_result["approved"].returncode == 0 and
+              all(tuple_denied(result) for case, result in tuple_active if case != "approved"),
+              [{"case": case,
+                "approved": result.returncode == 0 if case == "approved" else None,
+                "tuple_denied": tuple_denied(result) if case != "approved" else None,
+                "detail": result.stderr.strip()} for case, result in tuple_active])
     egress(lab, STANDARD, "approved-service-only", True)
     egress(lab, RESTRICTED, "no-service-egress", False)
     converge(lab, lambda: not other_path(STANDARD) and not approved_path(RESTRICTED) and not other_path(RESTRICTED) and approved_path(STANDARD),

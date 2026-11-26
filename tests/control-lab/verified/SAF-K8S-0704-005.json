@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0704-005",
-  "catalog_revision": "5d5be38f0d0be300bfacdefda73fa2764b72d33e",
-  "catalog_sha256": "483ec67ff5c9a22bb6ac81351af23bfbdb88324b11944fb85e4f4e07953cffba",
+  "catalog_revision": "b48e81e668aea4d54f916c03e4c61d0a49f35633",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "3d3f5c3d965e5de9d49eb6b5ece1665420b5bc5c77ed88927bb167532e9756af",
-  "scope": "Two local endpoint markers, Pod approval checks and CNI-enforced fixture egress.",
-  "cluster": "saf-lab-d182ae352e24",
+  "scope": "Two local endpoint markers, existing Pod approval checks and CNI-enforced fixture egress, plus an exact synthetic service/purpose/information-class/Pod-ServiceAccount admission tuple tested only by server-side dry-run. No external provider or API caller identity is tested.",
+  "cluster": "saf-lab-dd031bf8a87d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -47,6 +47,38 @@
       }
     },
     {
+      "phase": "red",
+      "claim": "Before tuple enforcement, approved and one-field-mismatch dry-runs are admitted",
+      "matched": true,
+      "observed": [
+        {
+          "case": "approved",
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "case": "service",
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "case": "purpose",
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "case": "information-class",
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "case": "workload-service-account",
+          "accepted": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
       "phase": "green",
       "claim": "Admission distinguishes approved standard use from a request in the restricted fixture namespace",
       "matched": true,
@@ -54,6 +86,43 @@
         "restricted_service_request_refused": true,
         "positively_approved_request_admitted": true
       }
+    },
+    {
+      "phase": "green",
+      "claim": "Active policy admits the approved tuple and denies each one-field mismatch",
+      "matched": true,
+      "observed": [
+        {
+          "case": "approved",
+          "approved": true,
+          "tuple_denied": null,
+          "detail": ""
+        },
+        {
+          "case": "service",
+          "approved": null,
+          "tuple_denied": true,
+          "detail": "The pods \"tuple-after-service\" is invalid: : ValidatingAdmissionPolicy 'saf-external-fixture-approved-tuple' with binding 'saf-external-fixture-approved-tuple' denied request: external service use tuple is not approved"
+        },
+        {
+          "case": "purpose",
+          "approved": null,
+          "tuple_denied": true,
+          "detail": "The pods \"tuple-after-purpose\" is invalid: : ValidatingAdmissionPolicy 'saf-external-fixture-approved-tuple' with binding 'saf-external-fixture-approved-tuple' denied request: external service use tuple is not approved"
+        },
+        {
+          "case": "information-class",
+          "approved": null,
+          "tuple_denied": true,
+          "detail": "The pods \"tuple-after-information-class\" is invalid: : ValidatingAdmissionPolicy 'saf-external-fixture-approved-tuple' with binding 'saf-external-fixture-approved-tuple' denied request: external service use tuple is not approved"
+        },
+        {
+          "case": "workload-service-account",
+          "approved": null,
+          "tuple_denied": true,
+          "detail": "The pods \"tuple-after-workload-service-account\" is invalid: : ValidatingAdmissionPolicy 'saf-external-fixture-approved-tuple' with binding 'saf-external-fixture-approved-tuple' denied request: external service use tuple is not approved"
+        }
+      ]
     },
     {
       "phase": "positive",

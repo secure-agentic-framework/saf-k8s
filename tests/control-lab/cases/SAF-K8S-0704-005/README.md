@@ -12,3 +12,33 @@ both endpoints from the restricted namespace.
 The case uses invented policy decisions and in-cluster addresses. External
 provider approvals, data handling, credential governance, and deployed egress
 and monitoring require their own evidence.
+
+## Approval tuple
+
+The five checks cover three service and network observations and two aggregate admission comparisons. A second case-owned
+ValidatingAdmissionPolicy is bound only to the synthetic standard namespace.
+Before it is enabled, server-side dry-run Pod CREATE requests accept the exact
+approved tuple and four one-field variants. After it is enabled, the exact
+tuple is admitted and each variant is denied with the policy's exact message:
+
+- local service identifier: `approved-service` vs `comparison-service`;
+- declared purpose: `inference` vs `training`;
+- declared information class: `public` vs `restricted`;
+- Pod `spec.serviceAccountName`: `fixture-approved-client` vs
+  `fixture-unapproved-client`.
+
+Both synthetic ServiceAccounts are owned by the fixture and have no RBAC
+grants. Dry-run Pods set `automountServiceAccountToken: false` and are never
+stored, scheduled, or used to contact an endpoint. The service, purpose and
+information-class labels are inert fixture data. The service-account check
+validates the workload identity declared on the Pod object. The request author and effective workload identity are verified separately in the adopting deployment.
+All marker endpoints remain local to the owned Kind cluster. No external
+provider, DNS name, credential, contract, TLS session, or real data is used.
+
+## Verify an adopting deployment
+
+1. Maintain a versioned external-service inventory: provider/service, approved endpoint and owner, data/purpose classes, authorized workload or user identities, required provider controls, legal/contract approval, and expiry/review trigger. Link each entry to the accountable risk/legal/security approval.
+2. Map every consumer and actual egress route. Record the policy enforcement point (admission, CNI, gateway or application), DNS and TLS identity validation, permitted ports/protocols, credential scope, and any alternate route. Verify one approved request and one denied service/purpose/data-class/identity case using controlled synthetic data in approved nonproduction.
+3. Independently verify the effective production policy at the actual provider boundary: admitted workload identity and purpose/data authorization; DNS resolution; certificate chain/expected service identity; egress allow/deny; and that the provider is the approved endpoint. Record CNI/gateway version and policy ownership.
+4. Preserve provider terms/assurance and audit evidence: data processing/use restrictions, retention/training terms where applicable, incident obligations, credential issuance/scope/rotation, request/response audit controls and log retention. Redact secrets and sensitive payloads from evidence.
+5. Reconcile approved inventory against all deployed consumers and routes; review after provider, policy, data class, identity, DNS/TLS, contract or network changes. Record exceptions with owner, scope, expiry and approved compensating controls. Keep local five-check receipt labeled as portable local mechanism evidence.
