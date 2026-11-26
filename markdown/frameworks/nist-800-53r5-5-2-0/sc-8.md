@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Agent communications must be protected for confidentiality and integrity in transit
-
-5.2 - Pod-to-pod encryption; 5.4 - mTLS (transmission confidentiality and integrity)
+The CNI-selection procedure can support transmission confidentiality when it requires and verifies the selected plugin encryption capability. Separate case SAF-K8S-0502-002 demonstrates Cilium 1.20.5 WireGuard on one cross-node path; SAF-K8S-0502-001 itself does not enable or test encryption. Same-node, host, other route, and other CNI coverage remain unverified.
 
 ## SAF-K8S Controls
 
@@ -15,10 +13,10 @@ Agent communications must be protected for confidentiality and integrity in tran
 
 - Domain: D05 - Network Security and Communication
 - Knowledge Area: 5.2
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0502-002 - Pod-to-pod traffic encryption](../../controls/SAF-K8S-0502-002.md)
 
