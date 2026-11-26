@@ -6501,22 +6501,6 @@
 
 
     5.5 - Protect API server (bastion host patterns, private cluster); 9.4 - Notebook environment remote access controls'
-  control_id: SAF-K8S-0505-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-17
-  framework_requirement_title: Remote Access
-  framework_mapping_notes: 'Agent API access is inherently remote
-
-
-    5.5 - Protect API server (bastion host patterns, private cluster); 9.4 - Notebook environment remote access controls'
   control_id: SAF-K8S-0505-005
   relation_type: supports
   strength_level: strong
@@ -6550,22 +6534,6 @@
 
     5.5 - Protect API server (bastion host patterns, private cluster); 9.4 - Notebook environment remote access controls'
   control_id: SAF-K8S-0904-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-17(1)
-  framework_requirement_title: Monitoring and Control
-  framework_mapping_notes: 'Monitoring remote agent connections
-
-
-    10.1 - Logging and Audit (monitoring remote API access); 5.5 - API server audit log analysis for remote access'
-  control_id: SAF-K8S-0505-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -6757,22 +6725,6 @@
 
 
     5.3 - Harden ingress (managed access control points); 5.5 - API server network access (managed endpoint access)'
-  control_id: SAF-K8S-0505-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-17(3)
-  framework_requirement_title: Managed Access Control Points
-  framework_mapping_notes: 'API gateways as managed access points for agents
-
-
-    5.3 - Harden ingress (managed access control points); 5.5 - API server network access (managed endpoint access)'
   control_id: SAF-K8S-0505-005
   relation_type: supports
   strength_level: strong
@@ -6843,22 +6795,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-17(4)
-  framework_requirement_title: Privileged Commands and Access
-  framework_mapping_notes: 'Controlling remote privileged agent operations
-
-
-    4.1 - RBAC (cluster-admin restrictions for privileged remote commands); 5.5 - Restricting access to control plane endpoints'
-  control_id: SAF-K8S-0505-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -8357,22 +8293,6 @@
   strength_level: moderate
   applicability: conditional
   applicability_condition: Training-data search or retrieval services enforce explicit sharing restrictions
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-22
-  framework_requirement_title: Publicly Accessible Content
-  framework_mapping_notes: 'Managing what agents publish publicly
-
-
-    9.2 - Model endpoint authentication (controlling public access to inference); 5.5 - Service exposure restriction'
-  control_id: SAF-K8S-0505-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -13211,22 +13131,6 @@
 
     1.1 - Secure the API server (network access restrictions to control plane); 5.5 - Protect API server and service exposure'
   control_id: SAF-K8S-0101-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-6(3)
-  framework_requirement_title: Network Access to Privileged Commands
-  framework_mapping_notes: 'Controlling agent network-based privileged operations
-
-
-    1.1 - Secure the API server (network access restrictions to control plane); 5.5 - Protect API server and service exposure'
-  control_id: SAF-K8S-0505-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -38385,22 +38289,6 @@
 
 
     5.5 - Private cluster configuration (concealing API server); 8.1 - GPU topology metadata concealment'
-  control_id: SAF-K8S-0505-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-30(5)
-  framework_requirement_title: Concealment of System Components
-  framework_mapping_notes: 'Concealing agent system components from adversary discovery prevents targeted attacks
-
-
-    5.5 - Private cluster configuration (concealing API server); 8.1 - GPU topology metadata concealment'
   control_id: SAF-K8S-0505-005
   relation_type: direct
   strength_level: strong
@@ -41572,22 +41460,6 @@
 
 
     5.5 - Protect API server (restricting networked privileged access to control plane endpoints)'
-  control_id: SAF-K8S-0505-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(15)
-  framework_requirement_title: Networked Privileged Accesses
-  framework_mapping_notes: 'Privileged access to agent management interfaces must traverse managed boundary points
-
-
-    5.5 - Protect API server (restricting networked privileged access to control plane endpoints)'
   control_id: SAF-K8S-0505-005
   relation_type: direct
   strength_level: strong
@@ -42129,22 +42001,6 @@
 
 
     5.5 - Protect service exposure (controlling connections to public networks for AI services)'
-  control_id: SAF-K8S-0505-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(28)
-  framework_requirement_title: Connections to Public Networks
-  framework_mapping_notes: 'Agent connections to public networks must be controlled and monitored
-
-
-    5.5 - Protect service exposure (controlling connections to public networks for AI services)'
   control_id: SAF-K8S-0505-005
   relation_type: direct
   strength_level: strong
@@ -42282,16 +42138,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-7(3)
   framework_requirement_title: Access Points
-  framework_mapping_notes: 'Limiting network access points to agent systems reduces attack surface
-
-
-    5.3 - Harden ingress (managed access points); 5.5 - Protect API server and service exposure (LoadBalancer, NodePort, ExternalIP restriction)'
+  framework_mapping_notes: Rejecting unapproved exposure-generating settings supports limiting Service-derived external connection points. Independently verify the effective set of external connections, including alternate ways to expose workloads.
   control_id: SAF-K8S-0505-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The approved external connection inventory includes Service-derived paths, and the adopter verifies actual network endpoints following admission and infrastructure reconciliation.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -48373,22 +48226,6 @@
 
     5.1 - Default deny network policies (detecting unauthorized services); 5.5 - Service exposure protection'
   control_id: SAF-K8S-0501-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(22)
-  framework_requirement_title: Unauthorized Network Services
-  framework_mapping_notes: 'Detecting unauthorized network services from agent systems identifies compromise
-
-
-    5.1 - Default deny network policies (detecting unauthorized services); 5.5 - Service exposure protection'
-  control_id: SAF-K8S-0505-002
   relation_type: direct
   strength_level: strong
   applicability: required
