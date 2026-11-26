@@ -9,15 +9,6 @@ OCTAVE risk assessment includes likelihood and impact scoring. Threat intelligen
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAF-K8S-1003-002.md)
-
-- Domain: D10 - Observability, Incident Response, and Governance
-- Knowledge Area: 10.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
-
 ### [SAF-K8S-1004-005 - Adversarial ML threat taxonomy and structured classification](../../controls/SAF-K8S-1004-005.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance

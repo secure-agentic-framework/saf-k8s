@@ -24,5 +24,5 @@ The worksheet workflow can assist implementation of the specified Kubernetes ass
 - Knowledge Area: 10.3
 - Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

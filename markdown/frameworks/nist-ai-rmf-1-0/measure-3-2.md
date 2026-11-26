@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-OCTAVE risk assessment framework accommodates qualitative risk assessment where quantitative metrics are unavailable, prioritizing based on organizational risk tolerance. CTA-2114 provides an AI-specific risk taxonomy for classifying hard-to-measure AI harms and failure modes.
+Periodic evidence-linked OCTAVE reviews may support tracking of relevant hard-to-measure platform risks.
 
 ## SAF-K8S Controls
 
@@ -15,5 +15,5 @@ OCTAVE risk assessment framework accommodates qualitative risk assessment where 
 - Knowledge Area: 10.3
 - Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: partial-coverage
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

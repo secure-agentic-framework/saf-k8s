@@ -1,11 +1,11 @@
 # NIST AI Risk Management Framework 1.0 - GOVERN 1.3
 
 - Framework Code: NIST-AI-RMF
-- Requirement Title: Processes, procedures, and practices are in place to determine the possible costs, including the potential for harm to individuals, communities, organizations, and society, and the benefits of AI system development, deployment, and operation.
+- Requirement Title: Determine the level of risk management required based on organizational risk tolerance
 
 ## Mapping Notes
 
-OCTAVE risk assessment includes business impact analysis. GPU cost governance tracks resource expenditure and reclaims idle resources, supporting cost determination for AI operations.
+Actual OCTAVE tolerance and impact records can support that decision for the assessed Kubernetes AI assets.
 
 ## SAF-K8S Controls
 
@@ -15,5 +15,5 @@ OCTAVE risk assessment includes business impact analysis. GPU cost governance tr
 - Knowledge Area: 10.3
 - Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

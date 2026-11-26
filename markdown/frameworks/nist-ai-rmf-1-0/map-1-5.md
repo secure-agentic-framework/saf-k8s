@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-OCTAVE risk assessment explicitly captures organizational risk tolerance and prioritizes treatment based on business impact. AI system classification assigns control profiles proportionate to risk tier.
+The OCTAVE record can identify the approved tolerance and connect it to the assessed assets and treatment decisions.
 
 ## SAF-K8S Controls
 
@@ -15,5 +15,5 @@ OCTAVE risk assessment explicitly captures organizational risk tolerance and pri
 - Knowledge Area: 10.3
 - Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

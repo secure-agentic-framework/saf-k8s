@@ -24,8 +24,8 @@ The adopted STRIDE workflow can structure the Kubernetes infrastructure part of 
 - Knowledge Area: 10.3
 - Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1006-004 - Automated audit readiness for Kubernetes AI platforms](../../controls/SAF-K8S-1006-004.md)
 

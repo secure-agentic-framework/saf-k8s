@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 1851
-- Distinct Requirements Mapped: 602
+- Total Reverse Mappings: 1836
+- Distinct Requirements Mapped: 590
 
 ## Requirements
 
@@ -106,12 +106,9 @@
 - [AC-9(3) - Notification of Account Changes](ac-9-3.md)
 - [AT-1 - Policy and Procedures](at-1.md)
 - [AT-2 - Literacy Training and Awareness](at-2.md)
-- [AT-2(1) - Practical Exercises](at-2-1.md)
 - [AT-2(2) - Insider Threat](at-2-2.md)
 - [AT-2(3) - Social Engineering and Mining](at-2-3.md)
 - [AT-2(4) - Suspicious Communications and Anomalous System Behavior](at-2-4.md)
-- [AT-2(5) - Advanced Persistent Threat](at-2-5.md)
-- [AT-2(6) - Cyber Threat Environment](at-2-6.md)
 - [AT-3(3) - Practical Exercises](at-3-3.md)
 - [AT-3(5) - Processing Personally Identifiable Information](at-3-5.md)
 - [AT-4 - Training Records](at-4.md)
@@ -167,7 +164,6 @@
 - [CA-1 - Policy and Procedures](ca-1.md)
 - [CA-2 - Control Assessments](ca-2.md)
 - [CA-2(1) - Independent Assessors](ca-2-1.md)
-- [CA-2(2) - Specialized Assessments](ca-2-2.md)
 - [CA-2(3) - Leveraging Results from External Organizations](ca-2-3.md)
 - [CA-3 - Information Exchange](ca-3.md)
 - [CA-5 - Plan of Action and Milestones](ca-5.md)
@@ -177,9 +173,7 @@
 - [CA-7(1) - Independent Assessment](ca-7-1.md)
 - [CA-7(4) - Risk Monitoring](ca-7-4.md)
 - [CA-7(6) - Automation Support for Monitoring](ca-7-6.md)
-- [CA-8 - Penetration Testing](ca-8.md)
 - [CA-8(1) - Independent Penetration Testing Agent or Team](ca-8-1.md)
-- [CA-8(2) - Red Team Exercises](ca-8-2.md)
 - [CA-9 - Internal System Connections](ca-9.md)
 - [CA-9(1) - Compliance Checks](ca-9-1.md)
 - [CM-1 - Policy and Procedures](cm-1.md)
@@ -312,7 +306,6 @@
 - [PM-12 - Insider Threat Program](pm-12.md)
 - [PM-14 - Testing, Training, and Monitoring](pm-14.md)
 - [PM-15 - Security and Privacy Groups and Associations](pm-15.md)
-- [PM-16 - Threat Awareness Program](pm-16.md)
 - [PM-16(1) - Automated Means for Sharing Threat Intelligence](pm-16-1.md)
 - [PM-2 - Information Security Program Leadership Role](pm-2.md)
 - [PM-21 - Accounting of Disclosures](pm-21.md)
@@ -357,7 +350,6 @@
 - [SA-11(1) - Static Code Analysis](sa-11-1.md)
 - [SA-11(2) - Threat Modeling and Vulnerability Analyses](sa-11-2.md)
 - [SA-11(3) - Independent Verification of Assessment Plans and Evidence](sa-11-3.md)
-- [SA-11(5) - Penetration Testing](sa-11-5.md)
 - [SA-11(6) - Attack Surface Reviews](sa-11-6.md)
 - [SA-11(7) - Verify Scope of Testing and Evaluation](sa-11-7.md)
 - [SA-11(8) - Dynamic Code Analysis](sa-11-8.md)
@@ -541,7 +533,6 @@
 - [SI-19(3) - Release](si-19-3.md)
 - [SI-19(4) - Removal, Masking, Encryption, Hashing, or Replacement of Direct Identifiers](si-19-4.md)
 - [SI-19(6) - Differential Privacy](si-19-6.md)
-- [SI-19(8) - Motivated Intruder](si-19-8.md)
 - [SI-2 - Flaw Remediation](si-2.md)
 - [SI-2(2) - Automated Flaw Remediation Status](si-2-2.md)
 - [SI-2(3) - Time to Remediate Flaws and Benchmarks for Corrective Actions](si-2-3.md)
@@ -561,7 +552,6 @@
 - [SI-4(12) - Automated Organization-generated Alerts](si-4-12.md)
 - [SI-4(13) - Analyze Traffic and Event Patterns](si-4-13.md)
 - [SI-4(16) - Correlate Monitoring Information](si-4-16.md)
-- [SI-4(17) - Integrated Situational Awareness](si-4-17.md)
 - [SI-4(19) - Risk for Individuals](si-4-19.md)
 - [SI-4(2) - Automated Tools and Mechanisms for Real-time Analysis](si-4-2.md)
 - [SI-4(20) - Privileged Users](si-4-20.md)
@@ -571,7 +561,6 @@
 - [SI-4(25) - Optimize Network Traffic Analysis](si-4-25.md)
 - [SI-4(4) - Inbound and Outbound Communications Traffic](si-4-4.md)
 - [SI-4(5) - System-generated Alerts](si-4-5.md)
-- [SI-4(7) - Automated Response to Suspicious Events](si-4-7.md)
 - [SI-4(9) - Testing of Monitoring Tools and Mechanisms](si-4-9.md)
 - [SI-5 - Security Alerts, Advisories, and Directives](si-5.md)
 - [SI-5(1) - Automated Alerts and Advisories](si-5-1.md)
@@ -590,7 +579,6 @@
 - [SI-7(9) - Verify Boot Process](si-7-9.md)
 - [SR-1 - Policy and Procedures](sr-1.md)
 - [SR-11 - Component Authenticity](sr-11.md)
-- [SR-11(1) - Anti-counterfeit Training](sr-11-1.md)
 - [SR-11(2) - Configuration Control for Component Service and Repair](sr-11-2.md)
 - [SR-12 - Component Disposal](sr-12.md)
 - [SR-2(1) - Establish SCRM Team](sr-2-1.md)

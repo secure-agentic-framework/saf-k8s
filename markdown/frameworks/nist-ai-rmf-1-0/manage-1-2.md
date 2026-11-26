@@ -22,7 +22,7 @@ This four-check fixture supplies limited context for a separate AI risk-treatmen
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

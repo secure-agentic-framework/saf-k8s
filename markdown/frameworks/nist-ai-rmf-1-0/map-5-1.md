@@ -1,11 +1,11 @@
 # NIST AI Risk Management Framework 1.0 - MAP 5.1
 
 - Framework Code: NIST-AI-RMF
-- Requirement Title: Likelihood and severity of each identified impact of the AI system's use, misuse, or failure - including effects on impacted communities - are assessed and documented.
+- Requirement Title: Document the likelihood and magnitude of identified beneficial and harmful impacts
 
 ## Mapping Notes
 
-OCTAVE risk assessment includes impact severity scoring and prioritization based on organizational risk tolerance. ML threat taxonomy documents failure modes and their impacts.
+The OCTAVE worksheet can contribute recorded infrastructure impact scenarios. AI system wide benefit, harm and likelihood evidence belongs in the broader assessment.
 
 ## SAF-K8S Controls
 
@@ -13,10 +13,10 @@ OCTAVE risk assessment includes impact severity scoring and prioritization based
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1004-001 - ML threat taxonomy per CTA-2114 mapped to Kubernetes](../../controls/SAF-K8S-1004-001.md)
 

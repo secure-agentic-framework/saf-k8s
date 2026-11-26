@@ -23,6 +23,6 @@ Documented threat-to-treatment links can help trace risk response decisions and 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.3
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

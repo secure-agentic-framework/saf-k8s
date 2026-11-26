@@ -459,13 +459,13 @@
   framework_requirement_id: Annex-IV.5
   legacy_requirement_id: Annex-IV:IV(2)(d)
   framework_requirement_title: Technical documentation referred to in Article 11(1)
-  framework_mapping_notes: "A detailed description of the risk management system in accordance with Article 9;\n\nSAF-K8S supports risk management through threat modeling integration, security control catalogs, and continuous monitoring infrastructure. The formal risk management system documentation is organizational, but SAF-K8S provides technical evidence and control mappings."
+  framework_mapping_notes: The actual asset, threat, impact and treatment assessment can supply the Kubernetes infrastructure portion of the documented risk-management-system description.
   control_id: SAF-K8S-1003-002
   relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  applicability: conditional
+  applicability_condition: The adopter is the applicable provider of an in-scope high-risk AI system and uses the documented assessment as input to the required AI system risk-management process.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -2265,16 +2265,13 @@
   framework_requirement_id: Article-9.1
   legacy_requirement_id: Art-9:9(1)
   framework_requirement_title: Risk management system
-  framework_mapping_notes: |-
-    A risk management system shall be established, implemented, documented and maintained in relation to high-risk AI systems.
-
-    SAF-K8S provides threat modeling controls (D10 KA 10.3, 10.4) and governance controls (D10 KA 10.6) that form the infrastructure component of a risk management system. The organizational risk management framework is out of scope.
+  framework_mapping_notes: The adopted OCTAVE assessment can supply infrastructure cybersecurity evidence for one part of the continuous AI risk-management process.
   control_id: SAF-K8S-1003-002
   relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  applicability: conditional
+  applicability_condition: The adopter is the applicable provider of an in-scope high-risk AI system and uses the documented assessment as input to the required AI system risk-management process.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -2344,16 +2341,13 @@
   framework_requirement_id: Article-9.2.a
   legacy_requirement_id: Art-9:9(2)(a)
   framework_requirement_title: Risk management system
-  framework_mapping_notes: |-
-    the identification and analysis of the known and the reasonably foreseeable risks that the high-risk AI system can pose to health, safety or fundamental rights when the high-risk AI system is used in accordance with its intended purpose;
-
-    SAF-K8S threat modeling controls (STRIDE, OCTAVE, MITRE ATT&CK mapping) in D10 KA 10.3 address infrastructure and AI-specific threat identification. Health, safety, and fundamental rights risk analysis is an application-layer and organizational concern.
+  framework_mapping_notes: The adopted OCTAVE assessment contributes analysis of known and foreseeable platform cybersecurity risks when those risks are tied to intended AI system use and separately reviewed for the applicable impacts.
   control_id: SAF-K8S-1003-002
   relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  applicability: conditional
+  applicability_condition: The adopter is the applicable provider of an in-scope high-risk AI system and uses the documented assessment as input to the required AI system risk-management process.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -2392,16 +2386,13 @@
   framework_requirement_id: Article-9.2.b
   legacy_requirement_id: Art-9:9(2)(b)
   framework_requirement_title: Risk management system
-  framework_mapping_notes: |-
-    the estimation and evaluation of the risks that may emerge when the high-risk AI system is used in accordance with its intended purpose, and under conditions of reasonably foreseeable misuse;
-
-    SAF-K8S threat modeling addresses infrastructure-level risk estimation. Misuse risk evaluation for the AI system's intended purpose is an application-layer concern.
+  framework_mapping_notes: The adopted OCTAVE assessment contributes documented infrastructure-level scenarios. The provider must separately estimate and evaluate the applicable AI system risks, including those from reasonably foreseeable misuse.
   control_id: SAF-K8S-1003-002
   relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  applicability: conditional
+  applicability_condition: The adopter is the applicable provider of an in-scope high-risk AI system and uses the documented assessment as input to the required AI system risk-management process.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -2597,19 +2588,6 @@
   framework_requirement_id: GOVERN 1.1
   framework_requirement_title: Legal and regulatory requirements involving AI are understood, managed, and documented.
   framework_mapping_notes: SAF-K8S regulatory compliance mapping (KA 10.6) maintains documented mappings of platform controls to NIST AI RMF, EU AI Act, and SOC 2. OCTAVE risk assessment captures regulatory exposure as part of threat analysis.
-  control_id: SAF-K8S-1003-002
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
-- mapping_set_name: SAF-K8S to NIST AI RMF 1.0
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
-  framework_requirement_id: GOVERN 1.1
-  framework_requirement_title: Legal and regulatory requirements involving AI are understood, managed, and documented.
-  framework_mapping_notes: SAF-K8S regulatory compliance mapping (KA 10.6) maintains documented mappings of platform controls to NIST AI RMF, EU AI Act, and SOC 2. OCTAVE risk assessment captures regulatory exposure as part of threat analysis.
   control_id: SAF-K8S-1006-001
   relation_type: direct
   strength_level: moderate
@@ -2647,14 +2625,14 @@
   framework_name: NIST AI Risk Management Framework
   framework_version: '1.0'
   framework_requirement_id: GOVERN 1.3
-  framework_requirement_title: Processes, procedures, and practices are in place to determine the possible costs, including the potential for harm to individuals, communities, organizations, and society, and the benefits of AI system development, deployment, and operation.
-  framework_mapping_notes: OCTAVE risk assessment includes business impact analysis. GPU cost governance tracks resource expenditure and reclaims idle resources, supporting cost determination for AI operations.
+  framework_requirement_title: Determine the level of risk management required based on organizational risk tolerance
+  framework_mapping_notes: Actual OCTAVE tolerance and impact records can support that decision for the assessed Kubernetes AI assets.
   control_id: SAF-K8S-1003-002
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
+  applicability: conditional
+  applicability_condition: The organization uses approved risk tolerance to decide the level of risk management required.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -2674,13 +2652,13 @@
   framework_version: '1.0'
   framework_requirement_id: GOVERN 1.4
   framework_requirement_title: The risk management process and its outcomes are established through transparent policies, procedures, and other controls based on organizational risk priorities.
-  framework_mapping_notes: STRIDE and OCTAVE threat modeling establish risk management processes. Automated audit readiness dashboards provide transparency into risk posture and control status.
+  framework_mapping_notes: The adopted OCTAVE workflow can structure the Kubernetes infrastructure part of the documented process.
   control_id: SAF-K8S-1003-002
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
+  applicability: conditional
+  applicability_condition: The organization adopts the assessment in approved and transparent AI risk processes.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -2823,13 +2801,13 @@
   framework_version: '1.0'
   framework_requirement_id: GOVERN 4.2
   framework_requirement_title: Organizational teams document the risks and potential impacts of the AI technology they design, develop, deploy, or use, and communicate about the impacts more broadly.
-  framework_mapping_notes: STRIDE and OCTAVE assessments produce documented risk analysis. ML threat taxonomy mapping documents AI-specific risks. Compliance mapping workbooks communicate risk posture.
+  framework_mapping_notes: The asset, threat, impact and treatment assessment can support risk and impact documentation for the selected AI environment.
   control_id: SAF-K8S-1003-002
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
+  applicability: conditional
+  applicability_condition: The responsible teams document the actual analysis and communicate approved findings to relevant audiences.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -2953,13 +2931,13 @@
   framework_version: '1.0'
   framework_requirement_id: MANAGE 1.2
   framework_requirement_title: Treatment of documented AI risks is prioritized based on impact, likelihood, and available resources or methods.
-  framework_mapping_notes: OCTAVE risk assessment prioritizes treatment by business impact and organizational risk tolerance. Vulnerability prioritization for AI workloads provides risk-ranked remediation guidance.
+  framework_mapping_notes: The OCTAVE assessment can supply the assessed asset, impact and proposed treatment links for those decisions.
   control_id: SAF-K8S-1003-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Authorized owners use documented impacts, likelihood and available resources or methods to prioritize actual treatments.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -3161,13 +3139,13 @@
   framework_version: '1.0'
   framework_requirement_id: MAP 1.5
   framework_requirement_title: Organizational risk tolerances are determined and documented.
-  framework_mapping_notes: OCTAVE risk assessment explicitly captures organizational risk tolerance and prioritizes treatment based on business impact. AI system classification assigns control profiles proportionate to risk tier.
+  framework_mapping_notes: The OCTAVE record can identify the approved tolerance and connect it to the assessed assets and treatment decisions.
   control_id: SAF-K8S-1003-002
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
+  applicability: conditional
+  applicability_condition: The organization determines and documents its actual risk tolerance.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -3215,19 +3193,6 @@
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
   framework_version: '1.0'
-  framework_requirement_id: MAP 3.1
-  framework_requirement_title: Potential benefits and costs, including potential harms to individuals, communities, organizations, and society, are understood and documented by the team or function performing the mapping.
-  framework_mapping_notes: STRIDE threat modeling systematically identifies threats across spoofing, tampering, repudiation, information disclosure, DoS, and elevation of privilege. OCTAVE assessment includes business impact analysis for identified risks.
-  control_id: SAF-K8S-1003-002
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
-- mapping_set_name: SAF-K8S to NIST AI RMF 1.0
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
   framework_requirement_id: MAP 3.2
   framework_requirement_title: Potential harms to people, organizations, and ecosystems arising from the AI system's intended use - and if relevant, across the lifecycle - are understood, characterized, and documented.
   framework_mapping_notes: ML threat taxonomy (CTA-2114) characterizes AI-specific harms including data poisoning, model disclosure, and evasion attacks. MITRE ATT&CK mapping documents infrastructure attack surfaces and potential harms.
@@ -3252,19 +3217,6 @@
   applicability_condition: The actual accepting services verify least privilege over approved resources and actions for
     each covered workload
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST AI RMF 1.0
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
-  framework_requirement_id: MAP 3.5
-  framework_requirement_title: Likelihood and magnitude of each identified risk based on expected use, past uses of similar systems, public incident reports, feedback from those external to the team that developed or deployed the AI system, or other data are assessed and documented.
-  framework_mapping_notes: OCTAVE risk assessment includes likelihood and impact scoring. Threat intelligence integration consumes external incident data and adversarial ML attack pattern libraries.
-  control_id: SAF-K8S-1003-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -3349,14 +3301,14 @@
   framework_name: NIST AI Risk Management Framework
   framework_version: '1.0'
   framework_requirement_id: MAP 5.1
-  framework_requirement_title: Likelihood and severity of each identified impact of the AI system's use, misuse, or failure - including effects on impacted communities - are assessed and documented.
-  framework_mapping_notes: OCTAVE risk assessment includes impact severity scoring and prioritization based on organizational risk tolerance. ML threat taxonomy documents failure modes and their impacts.
+  framework_requirement_title: Document the likelihood and magnitude of identified beneficial and harmful impacts
+  framework_mapping_notes: The OCTAVE worksheet can contribute recorded infrastructure impact scenarios. AI system wide benefit, harm and likelihood evidence belongs in the broader assessment.
   control_id: SAF-K8S-1003-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopter uses the OCTAVE findings for the infrastructure impact slice and separately assesses beneficial and harmful AI system impacts using expected use, operating history, feedback or other applicable evidence.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -3618,13 +3570,13 @@
   framework_version: '1.0'
   framework_requirement_id: MEASURE 3.2
   framework_requirement_title: Risk tracking approaches are considered for settings where AI risks are difficult to assess using currently available measurement techniques or where metrics are not yet available.
-  framework_mapping_notes: OCTAVE risk assessment framework accommodates qualitative risk assessment where quantitative metrics are unavailable, prioritizing based on organizational risk tolerance. CTA-2114 provides an AI-specific risk taxonomy for classifying hard-to-measure AI harms and failure modes.
+  framework_mapping_notes: Periodic evidence-linked OCTAVE reviews may support tracking of relevant hard-to-measure platform risks.
   control_id: SAF-K8S-1003-002
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: partial-coverage
+  applicability: conditional
+  applicability_condition: The organization documents which adopted AI risks lack applicable measures and selects an appropriate tracking method.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -8831,22 +8783,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AT-2(1)
-  framework_requirement_title: Practical Exercises
-  framework_mapping_notes: 'Hands-on exercises with agentic security scenarios
-
-
-    10.5 - Incident response (practical exercises, tabletop scenarios); 10.3 - Threat modeling exercises'
-  control_id: SAF-K8S-1003-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AT-2(2)
   framework_requirement_title: Insider Threat
   framework_mapping_notes: 'Awareness of agent misuse/insider threat vectors
@@ -8917,38 +8853,6 @@
 
     2.4 - Runtime threat detection (anomalous system behavior); 10.1 - Alert design for AI-specific failure modes'
   control_id: SAF-K8S-1001-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AT-2(5)
-  framework_requirement_title: Advanced Persistent Threat
-  framework_mapping_notes: 'APT awareness for agent-targeted attacks
-
-
-    10.3 - Threat modeling (MITRE ATT&CK for Containers, APT awareness); 10.5 - IR for K8s environments'
-  control_id: SAF-K8S-1003-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AT-2(6)
-  framework_requirement_title: Cyber Threat Environment
-  framework_mapping_notes: 'Threat landscape awareness for agentic systems
-
-
-    10.3 - Threat modeling (threat intelligence integration, K8s CVE feeds, attack pattern libraries)'
-  control_id: SAF-K8S-1003-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -10448,22 +10352,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: CA-2(2)
-  framework_requirement_title: Specialized Assessments
-  framework_mapping_notes: 'Specialized assessments (red team, pen test) of agents
-
-
-    10.3 - Threat modeling (specialized security assessments including penetration testing)'
-  control_id: SAF-K8S-1003-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: CA-2(3)
   framework_requirement_title: Leveraging Results from External Organizations
   framework_mapping_notes: 'Using external agent security assessment results
@@ -10860,22 +10748,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: CA-8
-  framework_requirement_title: Penetration Testing
-  framework_mapping_notes: 'Pen testing agent systems
-
-
-    10.3 - Threat modeling (penetration testing for K8s environments)'
-  control_id: SAF-K8S-1003-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: CA-8(1)
   framework_requirement_title: Independent Penetration Testing Agent or Team
   framework_mapping_notes: 'Independent pen test of agent infrastructure
@@ -10885,22 +10757,6 @@
   control_id: SAF-K8S-1006-001
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CA-8(2)
-  framework_requirement_title: Red Team Exercises
-  framework_mapping_notes: 'Red teaming agentic AI systems
-
-
-    10.3 - Threat modeling (red team exercises for K8s and AI workload attack scenarios)'
-  control_id: SAF-K8S-1003-002
-  relation_type: direct
-  strength_level: strong
   applicability: required
   applicability_condition: null
   strength_reason_code: null
@@ -13407,22 +13263,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: CP-3(1)
-  framework_requirement_title: Simulated Events
-  framework_mapping_notes: 'Simulating agent system failures
-
-
-    7.3 - Chaos engineering for GPU/AI resource controls; 10.3 - IR simulated events'
-  control_id: SAF-K8S-1003-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: CP-4
   framework_requirement_title: Contingency Plan Testing
   framework_mapping_notes: The case is a repeatable technical exercise of synthetic workload containment and gated recovery. It does not test an approved organizational contingency plan at its defined frequency, establish readiness of personnel, include organizational operational effects, or show officials reviewing results and initiating corrective actions. Count it only as one test component when those adopter program requirements are evidenced.
@@ -15865,22 +15705,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: IR-3(1)
-  framework_requirement_title: Automated Testing
-  framework_mapping_notes: 'Automated agent IR testing
-
-
-    7.3 - Chaos engineering (automated resilience testing); 10.3 - Automated IR plan testing'
-  control_id: SAF-K8S-1003-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: IR-3(3)
   framework_requirement_title: Continuous Improvement
   framework_mapping_notes: The synthetic exercise requires an independent review, evidence digest, and an owned due-dated follow-up before closure. It does not measure response effectiveness, provide incident-response metrics, complete the follow-up, or show repeated improvement. It contributes only to workflow tracking when paired with adopter evidence of actual test data analysis, accurate and reproducible measures, and implemented changes.
@@ -16536,16 +16360,13 @@
   framework_version: 5.2.0
   framework_requirement_id: PL-8
   framework_requirement_title: Security and Privacy Architectures
-  framework_mapping_notes: 'Security architecture is critical for agentic AI systems with complex trust boundaries and data flows
-
-
-    5.4 - Zero trust architecture; 10.3 - Threat modeling (security architecture design for K8s AI)'
+  framework_mapping_notes: Reviewed findings on Kubernetes trust boundaries and assets can inform architecture decisions.
   control_id: SAF-K8S-1003-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The architect uses the assessment in the maintained security and privacy architecture.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -16848,22 +16669,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: PM-16
-  framework_requirement_title: Threat Awareness Program
-  framework_mapping_notes: 'Threat awareness for agentic AI-specific attack vectors (prompt injection, tool poisoning) is critical
-
-
-    10.3 - Threat modeling (threat awareness: MITRE ATT&CK for Containers, K8s CVE feeds)'
-  control_id: SAF-K8S-1003-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: PM-16(1)
   framework_requirement_title: Automated Means for Sharing Threat Intelligence
   framework_mapping_notes: 'Automated threat intelligence sharing helps defend against evolving agentic AI threats
@@ -17022,16 +16827,13 @@
   framework_version: 5.2.0
   framework_requirement_id: PM-28
   framework_requirement_title: Risk Framing
-  framework_mapping_notes: 'Risk framing establishes context for evaluating agentic AI-specific risks
-
-
-    10.3 - Threat modeling (risk framing for K8s AI threat assessments)'
+  framework_mapping_notes: Assessment scope, dependencies and impact context can inform the infrastructure portion of that risk frame.
   control_id: SAF-K8S-1003-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization incorporates the adopted assessment into its documented risk frame.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -17307,16 +17109,13 @@
   framework_version: 5.2.0
   framework_requirement_id: PM-9
   framework_requirement_title: Risk Management Strategy
-  framework_mapping_notes: 'Risk management strategy is foundational for governing agentic AI security risks
-
-
-    10.3 - Threat modeling (risk management strategy for K8s AI environments)'
+  framework_mapping_notes: The adopted assessment can provide findings for strategy decisions and updates.
   control_id: SAF-K8S-1003-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Risk owners incorporate findings into the organization-wide risk-management strategy.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -17553,16 +17352,13 @@
   framework_version: 5.2.0
   framework_requirement_id: RA-1
   framework_requirement_title: Policy and Procedures
-  framework_mapping_notes: 'Risk assessment policy is foundational for evaluating agentic AI system security risks
-
-
-    10.3 - Threat modeling (risk assessment policy and procedures for K8s AI environments)'
+  framework_mapping_notes: The worksheet workflow can assist implementation of the specified Kubernetes assessment procedure.
   control_id: SAF-K8S-1003-002
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  applicability: conditional
+  applicability_condition: The organization adopts and approves procedures defining the applicable risk-assessment method and cadence.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -17678,16 +17474,13 @@
   framework_version: 5.2.0
   framework_requirement_id: RA-3
   framework_requirement_title: Risk Assessment
-  framework_mapping_notes: 'Risk assessment is essential for identifying threats to agentic AI systems
-
-
-    10.3 - Threat modeling (STRIDE, OCTAVE methodology applied to K8s AI risk assessment)'
+  framework_mapping_notes: The reviewed asset, threat, impact and treatment assessment can contribute to the Kubernetes portion of the system risk assessment.
   control_id: SAF-K8S-1003-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization integrates the assessment into the authorized system scope and covers required impact, likelihood and review criteria.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -17926,16 +17719,13 @@
   framework_version: 5.2.0
   framework_requirement_id: RA-7
   framework_requirement_title: Risk Response
-  framework_mapping_notes: 'Risk response strategies (accept, avoid, mitigate, transfer) apply to agentic AI risks
-
-
-    10.3 - Threat modeling (risk response strategies for identified K8s AI threats)'
+  framework_mapping_notes: Documented threat-to-treatment links can help trace risk response decisions and review their evidence.
   control_id: SAF-K8S-1003-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The responsible risk owners select, authorize and track responses to adopted assessment findings.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -18180,16 +17970,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-11(2)
   framework_requirement_title: Threat Modeling and Vulnerability Analyses
-  framework_mapping_notes: 'Threat modeling for agentic AI identifies unique attack vectors like prompt injection and tool poisoning
-
-
-    10.3 - Threat modeling (STRIDE, OCTAVE, ATT&CK for Containers, CTA-2114 ML threat taxonomy)'
+  framework_mapping_notes: The asset, threat, impact and treatment assessment can contribute scope and threat reasoning to the approved development assessment.
   control_id: SAF-K8S-1003-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The developer uses the assessment for the in-scope Kubernetes AI components and separately performs the required vulnerability analysis.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -18201,22 +17988,6 @@
 
     10.6 - Audit readiness (independent verification of security assessment plans and evidence)'
   control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-11(5)
-  framework_requirement_title: Penetration Testing
-  framework_mapping_notes: 'Penetration testing of agentic AI systems validates controls against real-world attack techniques
-
-
-    10.3 - Threat modeling (penetration testing for K8s AI environments and infrastructure)'
-  control_id: SAF-K8S-1003-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -18567,16 +18338,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-17
   framework_requirement_title: Developer Security and Privacy Architecture and Design
-  framework_mapping_notes: 'Security architecture design for agentic AI must address trust boundaries and data flows
-
-
-    10.3 - Threat modeling (security architecture and design for K8s AI systems)'
+  framework_mapping_notes: The Kubernetes assessment can inform specific component, trust-boundary and mitigation design decisions.
   control_id: SAF-K8S-1003-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The responsible developer uses the adopted findings in its security and privacy architecture and design documentation.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -26038,22 +25806,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-10(1)
-  framework_requirement_title: Manual Override Capability
-  framework_mapping_notes: 'Manual override of agent input validation enables human intervention for edge cases
-
-
-    9.3 - Autoscaling safety (manual override of scaling); 10.3 - IR containment (manual override for containment)'
-  control_id: SAF-K8S-1003-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-10(2)
   framework_requirement_title: Review and Resolve Errors
   framework_mapping_notes: 'Reviewing input validation errors in agent systems identifies attack attempts and tuning needs
@@ -27936,22 +27688,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-19(8)
-  framework_requirement_title: Motivated Intruder
-  framework_mapping_notes: 'Testing against motivated intruder re-identification validates agent privacy protections
-
-
-    9.8 - Oracle attack prevention (motivated intruder model  -- systematic querying); 10.3 - Threat modeling (adversary profiling)'
-  control_id: SAF-K8S-1003-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-2
   framework_requirement_title: Flaw Remediation
   framework_mapping_notes: An approved and validated emergency patch supports correction and installation for the affected Kubernetes component. Identification, issue tracking and broader configuration management have separate evidence.
@@ -28954,22 +28690,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-4(17)
-  framework_requirement_title: Integrated Situational Awareness
-  framework_mapping_notes: 'Integrated situational awareness of agent security posture enables informed decision-making
-
-
-    10.2 - AI workload telemetry integration (integrated situational awareness); 10.3 - Threat modeling'
-  control_id: SAF-K8S-1003-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-4(19)
   framework_requirement_title: Risk for Individuals
   framework_mapping_notes: 'Monitoring for risks to individuals from agent processing protects privacy
@@ -29369,22 +29089,6 @@
   applicability: conditional
   applicability_condition: Applies when system-generated indicators of compromise or potential compromise are defined for monitored AI workloads and routed to assigned roles. The portable case verifies delivery to a case-owned local receiver; adopter evidence must establish deployed indicators, receiver ownership, authenticated external delivery, and response ownership.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(7)
-  framework_requirement_title: Automated Response to Suspicious Events
-  framework_mapping_notes: 'Automated response to suspicious agent events contains threats before human intervention
-
-
-    2.4 - Runtime threat detection (automated response); 10.3 - IR containment strategies (automated containment)'
-  control_id: SAF-K8S-1003-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -30459,22 +30163,6 @@
   applicability: conditional
   applicability_condition: Only as a conditional contribution for the selected artifacts and signature-verification behavior; requires independently governed signer identity/trust, credential custody and lifecycle, and retained verification records as specified in the replacement note.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-11(1)
-  framework_requirement_title: Anti-counterfeit Training
-  framework_mapping_notes: 'Training to identify counterfeit AI models and components prevents use of malicious fakes
-
-
-    10.3 - Threat modeling (training teams to identify counterfeit/malicious components); 6.1 - AI-specific base image considerations'
-  control_id: SAF-K8S-1003-002
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -31860,13 +31548,13 @@
   framework_version: '1.1'
   framework_requirement_id: PW.1.1
   framework_requirement_title: Use forms of risk modeling -- such as threat modeling, attack modeling, or attack surface mapping -- to help assess the security risk.
-  framework_mapping_notes: 'SAF-K8S includes dedicated threat modeling controls: STRIDE for Kubernetes AI systems, OCTAVE risk assessment, and MITRE ATT&CK for Containers mapping. These apply to the infrastructure platform, not to application software design.'
+  framework_mapping_notes: The reviewed asset, threat, impact and treatment assessment can inform the platform dependency portion of the software design risk model.
   control_id: SAF-K8S-1003-002
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  applicability: conditional
+  applicability_condition: The software producer includes the affected Kubernetes AI platform in its software design risk analysis.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'

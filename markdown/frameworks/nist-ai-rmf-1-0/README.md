@@ -2,14 +2,14 @@
 
 - Framework Code: NIST-AI-RMF
 - Version: 1.0
-- Total Reverse Mappings: 87
-- Distinct Requirements Mapped: 43
+- Total Reverse Mappings: 84
+- Distinct Requirements Mapped: 42
 
 ## Requirements
 
 - [GOVERN 1.1 - Legal and regulatory requirements involving AI are understood, managed, and documented.](govern-1-1.md)
 - [GOVERN 1.2 - The characteristics of trustworthy AI are integrated into organizational policies, processes, procedures, and practices.](govern-1-2.md)
-- [GOVERN 1.3 - Processes, procedures, and practices are in place to determine the possible costs, including the potential for harm to individuals, communities, organizations, and society, and the benefits of AI system development, deployment, and operation.](govern-1-3.md)
+- [GOVERN 1.3 - Determine the level of risk management required based on organizational risk tolerance](govern-1-3.md)
 - [GOVERN 1.4 - The risk management process and its outcomes are established through transparent policies, procedures, and other controls based on organizational risk priorities.](govern-1-4.md)
 - [GOVERN 1.5 - Ongoing monitoring and periodic review of the risk management process and its outcomes are planned, organizational roles and responsibilities are clearly defined, including determining the frequency of periodic review.](govern-1-5.md)
 - [GOVERN 1.6 - Mechanisms are in place to inventory AI systems and are resourced according to organizational risk priorities.](govern-1-6.md)
@@ -35,12 +35,11 @@
 - [MAP 1.6 - System requirements (e.g., "the system shall respect the privacy of its users") are elicited from and understood by relevant AI actors. Design decisions take socio-technical implications into account to address AI risks.](map-1-6.md)
 - [MAP 2.1 - The specific tasks and methods used to implement the tasks that the AI system will support are defined (e.g., classifiers, generative models, recommenders).](map-2-1.md)
 - [MAP 2.2 - Information about the AI system's knowledge limits and how system output may be utilized and overseen by humans is documented. Documentation also includes a description of the capabilities the system can and cannot support, its intended scope of operation, and conditions under which it would not be advisable to deploy the system.](map-2-2.md)
-- [MAP 3.1 - Potential benefits and costs, including potential harms to individuals, communities, organizations, and society, are understood and documented by the team or function performing the mapping.](map-3-1.md)
 - [MAP 3.2 - Potential harms to people, organizations, and ecosystems arising from the AI system's intended use - and if relevant, across the lifecycle - are understood, characterized, and documented.](map-3-2.md)
 - [MAP 3.5 - Likelihood and magnitude of each identified risk based on expected use, past uses of similar systems, public incident reports, feedback from those external to the team that developed or deployed the AI system, or other data are assessed and documented.](map-3-5.md)
 - [MAP 4.1 - Approaches for mapping AI technology and legal risks of its components - including the use of third-party data or software - are in place, followed, and documented, as are risks of infringement of a third-party's intellectual property or other rights.](map-4-1.md)
 - [MAP 4.2 - Internal risk controls for components of the AI system, including third-party AI technologies, are identified and documented.](map-4-2.md)
-- [MAP 5.1 - Likelihood and severity of each identified impact of the AI system's use, misuse, or failure - including effects on impacted communities - are assessed and documented.](map-5-1.md)
+- [MAP 5.1 - Document the likelihood and magnitude of identified beneficial and harmful impacts](map-5-1.md)
 - [MEASURE 1.1 - Approaches and metrics for measurement of AI risks enumerated during the MAP function are selected for implementation starting with the most significant AI risks. The risks or outcomes that cannot be measured through quantitative means are addressed qualitatively.](measure-1-1.md)
 - [MEASURE 1.2 - Appropriateness of AI metrics and effectiveness of existing controls are regularly assessed and updated, including reports of errors and potential impacts on affected communities.](measure-1-2.md)
 - [MEASURE 2.10 - Privacy risk of the AI system - as identified in the MAP function - is examined and documented.](measure-2-10.md)
