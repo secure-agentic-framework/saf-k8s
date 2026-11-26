@@ -1,5 +1,6 @@
 """Preflight policy for three tiny inert SafeTensors fixtures."""
 import importlib.metadata
+from hashlib import sha256
 import json
 from pathlib import Path
 import struct
@@ -16,10 +17,14 @@ VALUES = {
 }
 
 
-def artifact(variant):
+def artifact(variant, extra_descriptor_field=False):
     dtype, data = VALUES[variant]
-    header = json.dumps({"weight": {"dtype": dtype, "shape": SHAPE, "data_offsets": [0, 16]}},
-                        sort_keys=True, separators=(",", ":")).encode()
+    descriptor = {"dtype": dtype, "shape": SHAPE, "data_offsets": [0, 16]}
+    if extra_descriptor_field:
+        # Harmless descriptive metadata only; no executable or model operation field.
+        descriptor["fixture_note"] = "benign"
+    header = json.dumps({"weight": descriptor}, sort_keys=True,
+                        separators=(",", ":")).encode()
     return struct.pack("<Q", len(header)) + header + data
 
 
@@ -41,6 +46,8 @@ def preflight(data):
     if not isinstance(metadata, dict) or set(metadata) != {"weight"}:
         raise ValueError("tensor-name")
     tensor = metadata["weight"]
+    if not isinstance(tensor, dict) or set(tensor) != {"dtype", "shape", "data_offsets"}:
+        raise ValueError("descriptor-fields")
     if tensor.get("dtype") != "F32":
         raise ValueError("dtype-policy")
     if tensor.get("shape") != SHAPE or any(type(dimension) is not int for dimension in tensor["shape"]):
@@ -56,15 +63,21 @@ def run():
     sys.path.insert(0, str(site))
     from safetensors import deserialize
     outcomes = {}
-    for mode, variant in (("baseline", "wrong-dtype"), ("governed", "wrong-dtype"),
-                          ("governed", "wrong-length"), ("governed", "approved")):
-        data = artifact(variant)
-        key = mode + "-" + variant
+    for mode, variant, extra_field in (("baseline", "wrong-dtype", False),
+                                       ("governed", "wrong-dtype", False),
+                                       ("governed", "wrong-length", False),
+                                       ("governed", "approved", False),
+                                       ("governed", "approved", True)):
+        data = artifact(variant, extra_descriptor_field=extra_field)
+        key = mode + "-" + variant + ("-extra-metadata" if extra_field else "")
         if mode == "governed":
             try:
                 preflight(data)
             except ValueError as error:
                 outcomes[key] = {"decision": "denied", "reason": str(error), "native_calls": 0}
+                if extra_field:
+                    outcomes["governed-extra-metadata"] = {
+                        **outcomes[key], "input_sha256": sha256(data).hexdigest()}
                 continue
         tensors = dict(deserialize(data))
         tensor = tensors["weight"]

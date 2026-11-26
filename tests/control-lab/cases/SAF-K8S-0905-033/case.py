@@ -1,5 +1,6 @@
 """Check a bounded model preflight against the official native SafeTensors loader."""
 from hashlib import sha256
+import struct
 import importlib.util
 import json
 from pathlib import Path
@@ -70,6 +71,17 @@ def run(lab):
     lab.check("green", "The bounded preflight refuses both input mismatches before the load call",
               gate == {"wrong-dtype": {"decision": "denied", "reason": "dtype-policy", "native_calls": 0},
                        "wrong-length": {"decision": "denied", "reason": "payload-length", "native_calls": 0}}, gate)
+    extra = rows["governed-extra-metadata"]
+    # Independently construct the expected inert fixture bytes in the controller process.
+    descriptor = {"dtype": "F32", "shape": [2, 2], "data_offsets": [0, 16],
+                  "fixture_note": "benign"}
+    header = json.dumps({"weight": descriptor}, sort_keys=True,
+                        separators=(",", ":")).encode()
+    expected_extra_digest = sha256(struct.pack("<Q", len(header)) + header
+                                   + struct.pack("<4f", 0.25, -0.5, 1.0, 2.0)).hexdigest()
+    lab.check("green", "An unknown benign tensor descriptor field is rejected before native loading",
+              extra == {"decision": "denied", "reason": "descriptor-fields", "native_calls": 0,
+                        "input_sha256": expected_extra_digest}, extra)
     positive = rows["governed-approved"]
     lab.check("positive", "The pinned native loader returns the exact approved tensor",
               report["library"] == "0.8.0" and positive == {

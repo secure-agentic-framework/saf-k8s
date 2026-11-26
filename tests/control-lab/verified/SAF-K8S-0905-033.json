@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-033",
-  "catalog_revision": "ffc51cf694119bc39da617db76e352e5f4d00033",
-  "catalog_sha256": "ff928f1c1f5eca015a2086b41f0d10664dbc857fe42d6ae654300bba102179b5",
+  "catalog_revision": "9a088a328f40f18c91fd4b896b8111b76519af68",
+  "catalog_sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "dc9a6721fb0511edb10796b4fc6b7d824f2ec8f407a9ac85feb98eb8beba1a15",
   "scope": "A live Kind Pod loads an official pinned SafeTensors library. The unchecked baseline loads a valid integer tensor that violates the case's F32 policy. The bounded case preflight rejects that tensor and a fixed wrong-length F32 file before calling the native tensor loader. The approved four-weight payload loads with exact values. This checks only the locked schema.",
-  "cluster": "saf-lab-05523cf08238",
+  "cluster": "saf-lab-bb31e4da2b63",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -73,6 +73,17 @@
           "native_calls": 0,
           "reason": "payload-length"
         }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An unknown benign tensor descriptor field is rejected before native loading",
+      "matched": true,
+      "observed": {
+        "decision": "denied",
+        "input_sha256": "867efce39cb05802e86d6f603bb41ea57ebe3e405266e41132be83f25206866e",
+        "native_calls": 0,
+        "reason": "descriptor-fields"
       }
     },
     {
