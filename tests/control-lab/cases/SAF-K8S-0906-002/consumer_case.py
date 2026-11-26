@@ -14,7 +14,7 @@ CONSUMER_NAMES = {
 }
 
 
-def _job(name, input_dir, image):
+def _job(name, input_dir, image, claim=PVC):
     return {
         "apiVersion": "batch/v1",
         "kind": "Job",
@@ -69,7 +69,7 @@ def _job(name, input_dir, image):
                             "name": MANIFEST,
                             "items": [{"key": "manifest.json", "path": "manifest.json"}],
                         }},
-                        {"name": "dataset", "persistentVolumeClaim": {"claimName": PVC}},
+                        {"name": "dataset", "persistentVolumeClaim": {"claimName": claim}},
                     ],
                 },
             },
@@ -77,8 +77,12 @@ def _job(name, input_dir, image):
     }
 
 
-def _run_consumer(lab, name, input_dir, image):
-    lab.create(_job(name, input_dir, image))
+def _run_consumer(lab, name, input_dir, image, claim=PVC):
+    return _observe_job(lab, name, _job(name, input_dir, image, claim))
+
+
+def _observe_job(lab, name, job):
+    lab.create(job)
     lab.kubectl("-n", NS, "wait", "--for=condition=Complete", f"job/{name}",
                 "--timeout=100s", timeout=110)
     completion = lab.kubectl("-n", NS, "get", "job", name,

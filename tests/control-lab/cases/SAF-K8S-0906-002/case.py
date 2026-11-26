@@ -17,9 +17,9 @@ SCOPE = (
     "manifest, denies deterministic changed or missing content, and accepts the explicitly "
     "named approved synthetic dataset. Separate read-only consumer Jobs then stream the approved "
     "fixture only after the same verification gate and record zero consumption for a changed "
-    "copy. Hashing uses at most two workers and emits bounded sanitized summaries. This does not "
-    "establish signed publisher provenance, production trainer integration, storage durability, "
-    "scale, throughput, latency, or deployment security."
+    "copy. A guarded file-level restore from a separate local PVC revalidates the commitment before "
+    "the read-only consumer resumes on a distinct replacement volume. Hashing uses at most two "
+    "workers. The reference uses one disposable cluster, one synthetic dataset, and a fixture-pinned manifest."
 )
 
 
@@ -56,6 +56,7 @@ def run(lab):
             data={
                 "dataset_fixture.py": (HERE / "dataset_fixture.py").read_text(encoding="utf-8"),
                 "training_consumer.py": (HERE / "training_consumer.py").read_text(encoding="utf-8"),
+                "restore_dataset.py": (HERE / "restore_dataset.py").read_text(encoding="utf-8"),
             })
     _create(lab, "ConfigMap", MANIFEST, immutable=True,
             data={"manifest.json": (HERE / "manifest.json").read_text(encoding="utf-8")})
@@ -130,3 +131,6 @@ def run(lab):
     # verification before its actual bounded input-streaming phase.
     consumer_case = _load_module("saf_k8s_0906_002_consumer_case", HERE / "consumer_case.py")
     consumer_case.run(lab, image)
+
+    recovery_case = _load_module("saf_k8s_0906_002_recovery_case", HERE / "recovery_case.py")
+    recovery_case.run(lab, image, consumer_case)

@@ -15,3 +15,15 @@ The five checks use a fixed trusted fixture manifest and immutable test ConfigMa
 - [European Commission AI Act Service Desk, Article 15](https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-15)
 
 The fixture uses small fixed segments and checks the segmented verification contract. For a deployment, measure throughput and memory at the sizes and concurrency in scope, verify independent manifest authenticity and accepted-partition delivery to the actual trainer, and confirm durable recovery and rejection evidence.
+
+
+## File-level recovery
+
+The backup Job validates and copies the approved fixture dataset to a separate
+PVC. The read-only consumer receives a different replacement PVC containing a
+changed segment and records zero consumption. A restore Job mounts the backup
+read-only, verifies the expected inventory and commitment, and then restores the
+approved bytes. A fresh consumer Job revalidates that replacement copy before
+reading the four exact approved segments. All three volumes belong to the same
+disposable cluster. For a deployment, exercise the adopted backup provider,
+its storage failure domains, and the measured recovery objectives.
