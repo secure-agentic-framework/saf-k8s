@@ -6,12 +6,11 @@ The portable case validates one mechanism: correlating technical records with sy
 
 This is a partial contribution to NIST SP 800-53 Rev. 5 AU-6(9), not proof of the full outcome. The normative control requires correlating information from nontechnical sources with audit record information to enhance organization-wide situational awareness. NIST notes that nontechnical sources may be sensitive, access should be limited to need-to-know personnel, and legal advice should be obtained before correlating records about suspected individuals. The fixture does not ingest actual audit or organizational records and proves neither those governance controls nor organization-wide awareness.
 
-## Existing paired portable evidence
+## Paired portable evidence
 
-Published lab receipt: `saf-k8s-control-lab/evidence/SAF-K8S-1004-006/20261122T171051Z-adbf22c5/result.json`.
-Published framework receipt: `saf-k8s-framework/tests/control-lab/evidence/SAF-K8S-1004-006/20261122T171051Z-a04c2944/result.json`.
+The [published receipt](../../verified/SAF-K8S-1004-006.json) records three matching checks on separate Kubernetes v1.36.1 Kind clusters, both deleted. The catalog revision is `957e1bbcd51c01ae43bfd37948f816f9b02f71d8` and the control-row digest is `9231ef42b8978d9f2c43f75df5a37f2af85d8cc86d788ee8f8f119c51dc3e8f2`. The lab run ID is `20261125T232447Z-4a1d3ea0`, and the independent framework run ID is `20261125T232715Z-5e12480b`.
 
-Both recorded 3 passing assertions under catalog revision `133a8698a45e2b335b51728bf4c62f7bda98d15f`, control-row digest `9231ef42b8978d9f2c43f75df5a37f2af85d8cc86d788ee8f8f119c51dc3e8f2`, and Kubernetes v1.36.1. The lab and framework cluster IDs differ; both receipts record cleanup `deleted`. The checks are: baseline severity ordering; exact workload/time context changes analyst review ordering while critical stays first; and mismatched, late, expired or ambiguous context does not improperly raise urgency. Recheck these exact revisions before carrying the result into a newer catalog or case.
+The checks verify baseline ordering, context limited to the matching workload and time, and rejection of wrong-scope, late, expired or ambiguous context. Check both the current catalog and case before carrying this evidence forward.
 
 ## Test dependencies and reproduction
 
