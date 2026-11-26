@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0502-004",
-  "catalog_revision": "24e33d8f43267d8fa4a43848d6e690d4885bb64b",
-  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
+  "catalog_revision": "49626be3b341581bdd3b3b07240d173c6646550e",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "f06e22c5c452b35b47b329f77be73d5507a0bfdd04d960b30efaec6d29dc09af",
-  "scope": "One fresh harness-owned Kind v0.32.0 / Kubernetes v1.36.1 cluster, with Kind's default CNI disabled and Cilium 1.20.5 installed from the checked OCI chart archive. The case verifies the chart and Cilium agent/operator image pins, then checks one TCP marker request between two case-owned pods in the cluster. A deliberately invalid readiness-probe threshold is submitted through Helm with and without --atomic. The case requires API rejection for both attempts, a deployed rollback revision for the atomic trial, restored user values, and the same marker request afterward. This does not assess a production baseline, CVE status or patch timeliness, provider SLAs, RBAC process, PSA configuration, or production-scale availability.",
-  "cluster": "saf-lab-575a3e5b0eae",
+  "scope": "One fresh harness-owned Kind v0.32.0 / Kubernetes v1.36.1 cluster, with Kind's default CNI disabled and Cilium 1.20.5 installed from the checked OCI chart archive. The case verifies the chart and Cilium agent/operator image pins, then checks one TCP marker request between two case-owned pods in the cluster. A deliberately invalid readiness-probe threshold is submitted through Helm with and without --atomic. The case requires API rejection for both attempts, a deployed rollback revision for the atomic trial, restored user values, and the same marker request afterward. An additive lifecycle branch rolls Cilium agents after a valid monitor-aggregation setting change, then observes a failed operator workload image rollout and explicit Helm rollback while keeping the agent datapath pinned. This does not test a new Cilium version or failed agent datapath rollout, and does not assess a production baseline, CVE status or patch timeliness, provider SLAs, RBAC process, PSA configuration, or production-scale availability.",
+  "cluster": "saf-lab-8b30d7173dd0",
   "kind_ready_wait": "0s",
   "kubernetes": {
     "clientVersion": {
@@ -101,6 +101,88 @@
     {
       "phase": "green",
       "claim": "Post-rollback marker service remains reachable",
+      "matched": true,
+      "observed": {
+        "returncode": 0,
+        "marker_received": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Valid Cilium agent configuration upgrade rolls out and becomes Ready",
+      "matched": true,
+      "observed": {
+        "upgrade_succeeded": true,
+        "agent_rollout_wait_succeeded": true,
+        "new_revision_deployed": true,
+        "effective_values_match": true,
+        "agent_images_pinned": true,
+        "desired_agents_updated_and_ready": true,
+        "config_checksum_rollout_observed": true,
+        "configmap_value_applied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Marker service remains reachable after the agent configuration rollout",
+      "matched": true,
+      "observed": {
+        "returncode": 0,
+        "marker_received": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Schema-valid operator image change starts and fails a real workload rollout",
+      "matched": true,
+      "observed": {
+        "helm_accepted_new_revision": true,
+        "kubernetes_rollout_wait_timed_out": true,
+        "exact_candidate_image_in_template": true,
+        "candidate_pod_failed_not_api_rejected": true,
+        "updated_replica_attempted": true,
+        "single_replica_no_surge_strategy": true,
+        "ready_replicas": 0,
+        "available_replicas": 0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Pinned Cilium datapath and marker stay healthy during operator rollout failure",
+      "matched": true,
+      "observed": {
+        "agent_images_pinned": true,
+        "all_agents_ready": true,
+        "valid_agent_config_retained": true,
+        "marker_reachable": true,
+        "marker_observed": {
+          "returncode": 0,
+          "marker_received": true
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Explicit Helm rollback restores the last known-good Cilium operator revision",
+      "matched": true,
+      "observed": {
+        "rollback_succeeded": true,
+        "operator_rollout_wait_succeeded": true,
+        "new_revision_statuses": [
+          "superseded",
+          "deployed"
+        ],
+        "known_good_values_restored": true,
+        "pinned_operator_image_restored": true,
+        "operator_ready": true,
+        "agent_images_pinned": true,
+        "all_agents_ready": true,
+        "valid_agent_config_retained": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Marker service remains reachable after operator rollback",
       "matched": true,
       "observed": {
         "returncode": 0,
