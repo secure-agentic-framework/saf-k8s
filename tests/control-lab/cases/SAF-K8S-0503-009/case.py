@@ -1,5 +1,6 @@
 """Exercise CoreDNS upstream selection with inert, cluster-local resolvers."""
 import json
+from pathlib import Path
 import time
 
 
@@ -25,23 +26,23 @@ SCOPE = (
     "same query through a baseline Corefile forwarding to the unapproved stub and a hardened "
     "Corefile forwarding only to the approved stub; checks a native cluster Service record, "
     "cache reuse, health/ready HTTP endpoints, configured loop-plugin startup, and scoped "
-    "configuration changes through the Kubernetes API. No external "
+    "configuration changes through the Kubernetes API, plus authenticated upstream TLS. No external "
     "DNS, NodeLocal DNSCache, production cluster, external resolver, or loop-failure exercise."
 )
 
 
 DNS_PROBE = r'''import http.client, json, secrets, socket, struct, sys
-def query(server, name):
+def query(server, name, port, allow_rcode, timeout):
     ident = secrets.randbits(16)
     labels = name.rstrip('.').split('.')
     q = b''.join(bytes([len(x)]) + x.encode() for x in labels) + b'\0' + struct.pack('!HH', 1, 1)
     packet = struct.pack('!HHHHHH', ident, 0x0100, 1, 0, 0, 0) + q
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); s.settimeout(3)
-    s.sendto(packet, (server, 53)); data, _ = s.recvfrom(4096); s.close()
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); s.settimeout(timeout)
+    s.sendto(packet, (server, port)); data, _ = s.recvfrom(4096); s.close()
     if len(data) < 12 or struct.unpack('!H', data[:2])[0] != ident:
         raise RuntimeError('malformed DNS response')
     flags, answers = struct.unpack('!H', data[2:4])[0], struct.unpack('!H', data[6:8])[0]
-    if flags & 15: raise RuntimeError('DNS rcode=' + str(flags & 15))
+    if flags & 15 and not allow_rcode: raise RuntimeError('DNS rcode=' + str(flags & 15))
     i = 12
     while data[i] != 0:
         if data[i] & 0xc0 == 0xc0: i += 2; break
@@ -58,7 +59,9 @@ def query(server, name):
         if typ == 1 and cls == 1 and size == 4: found.append(socket.inet_ntoa(data[i:i+4]))
         i += size
     print(json.dumps({'name': name, 'rcode': flags & 15, 'A': found}, sort_keys=True))
-if sys.argv[1] == 'dns': query(sys.argv[2], sys.argv[3])
+if sys.argv[1] == 'dns':
+    query(sys.argv[2], sys.argv[3], int(sys.argv[4]), sys.argv[5] == 'allow-rcode',
+          int(sys.argv[6]))
 elif sys.argv[1] == 'http':
     conn = http.client.HTTPConnection(sys.argv[2], int(sys.argv[3]), timeout=3)
     conn.request('GET', sys.argv[4])
@@ -128,9 +131,12 @@ def wait_pod(lab, name):
     return item["status"]["podIP"]
 
 
-def dns_probe(lab, pod, server, qname, *, retryable=False):
+def dns_probe(lab, pod, server, qname, *, retryable=False, port=53,
+              allow_rcode=False, socket_timeout=3):
+    args = ["dns", server, qname, str(port),
+            "allow-rcode" if allow_rcode else "strict", str(socket_timeout)]
     result = lab.kubectl("exec", pod, "--", "python", "-c", DNS_PROBE,
-                         "dns", server, qname, timeout=15, allow_failure=retryable)
+                         *args, timeout=int(socket_timeout + 12), allow_failure=retryable)
     if result.returncode:
         return {}
     return json.loads(result.stdout.strip())
@@ -309,6 +315,118 @@ def authorize_config_update(lab, corefile):
               unapproved_change)
 
 
+def create_tls_resolver(lab):
+    root = lab.kubeconfig.parent
+    key, cert, profile = (root / f"dot.{extension}" for extension in ("key", "crt", "cnf"))
+    profile.write_text(
+        "[req]\nprompt=no\ndistinguished_name=dn\nx509_extensions=ext\n"
+        "[dn]\nCN=approved-fixture.saf-0503-009.test\n"
+        "[ext]\nsubjectAltName=DNS:approved-fixture.saf-0503-009.test\n"
+        "basicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\n"
+        "extendedKeyUsage=serverAuth\n"
+    )
+    # The temporary server key stays in the runner's private directory and its Secret.
+    lab.command("openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "1",
+                "-config", str(profile), "-out", str(cert), "-keyout", str(key))
+    lab.kubectl("create", "secret", "tls", "saf-dns-supplement-tls",
+                "--cert", str(cert), "--key", str(key))
+    resource(lab, {"apiVersion": "v1", "kind": "ConfigMap",
+                   "metadata": {"name": "saf-dns-supplement-public"},
+                   "data": {"anchor.crt": cert.read_text(),
+                            "tls_resolver.py": Path(__file__).with_name("tls_resolver.py").read_text()}})
+    pod = resolver_pod("saf-0503-009-tls-resolver")
+    spec = pod["spec"]
+    spec["securityContext"]["fsGroup"] = 65534
+    spec["volumes"] = [
+        {"name": "tls", "secret": {"secretName": "saf-dns-supplement-tls", "defaultMode": 0o440}},
+        {"name": "code", "configMap": {"name": "saf-dns-supplement-public"}},
+    ]
+    container = spec["containers"][0]
+    container.update({
+        "command": ["python", "-B", "/fixture/tls_resolver.py"],
+        "ports": [{"name": "dot", "containerPort": 8853}],
+        "volumeMounts": [{"name": "tls", "mountPath": "/tls", "readOnly": True},
+                         {"name": "code", "mountPath": "/fixture", "readOnly": True}],
+        "readinessProbe": {"tcpSocket": {"port": 8853}, "periodSeconds": 2},
+    })
+    resource(lab, pod)
+    return wait_pod(lab, "saf-0503-009-tls-resolver")
+
+
+def verify_upstream_transport(lab, initial_config):
+    tls_ip = create_tls_resolver(lab)
+    config = initial_config
+    # Keep the comparison on separate listener ports: CoreDNS v1.14.2 documents
+    # that a forward instance has one TLS server name for all of its upstreams.
+    # Independent listeners also make selection visible as an exact Service port.
+    for port, peer in ((1054, "approved-fixture"), (1055, "other-fixture")):
+        config += (
+            f".:{port} {{\n"
+            "    errors\n"
+            "    log\n"
+            f"    forward . tls://{tls_ip}:8853 {{\n"
+            "        tls /resolver-trust/anchor.crt\n"
+            f"        tls_servername {peer}.{ZONE}\n"
+            "        max_connect_attempts 1\n"
+            "        max_fails 0\n"
+            "    }\n"
+            "}\n"
+        )
+    patch = {"spec": {"template": {"spec": {
+        "volumes": [{"name": "resolver-trust", "configMap": {"name": "saf-dns-supplement-public",
+                     "items": [{"key": "anchor.crt", "path": "anchor.crt"}]}}],
+        "containers": [{"name": "coredns", "volumeMounts": [
+            {"name": "resolver-trust", "mountPath": "/resolver-trust", "readOnly": True}]}],
+    }}}}
+    # Add the CA volume before switching Corefile so any projected ConfigMap
+    # reload sees its referenced path. This avoids a transient invalid config.
+    lab.kubectl("patch", "deployment", "saf-0503-009-coredns", "-p", json.dumps(patch))
+    update = lab.kubectl("exec", EDITOR, "--", "python", "-c", CONFIG_PATCH, CONFIG, config)
+    if json.loads(update.stdout) != {"code": 200, "reason": None, "matches_corefile": True}:
+        lab.block("The scoped identity could not apply the authenticated forwarding profile")
+    lab.kubectl("rollout", "restart", "deployment/saf-0503-009-coredns")
+    lab.kubectl("rollout", "status", "deployment/saf-0503-009-coredns", "--timeout=90s", timeout=100)
+    pods = json.loads(lab.kubectl("get", "pods", "-l", "app=saf-0503-009-coredns", "-o", "json").stdout)["items"]
+    pod = next(row for row in pods if not row["metadata"].get("deletionTimestamp")
+               and any(item["type"] == "Ready" and item["status"] == "True"
+                       for item in row["status"].get("conditions", [])))
+    probe_ip = pod["status"]["podIP"]
+    # Reuse exactly one reserved question name across both isolated listener ports.
+    question = f"query.verified.{ZONE}"
+    resolver = "saf-0503-009-tls-resolver"
+    before = log_count(lab, resolver, question)
+    good = {}
+    wait = time.monotonic() + 18
+    while not good and time.monotonic() < wait:
+        good = dns_probe(lab, "saf-0503-009-probe", probe_ip, question,
+                         retryable=True, port=1054)
+    good_seen = log_count(lab, resolver, question)
+    # Test the same Ready server Pod directly to isolate TLS from Service routing.
+    refused = dns_probe(lab, "saf-0503-009-probe", probe_ip, question,
+                        retryable=True, port=1055, allow_rcode=True, socket_timeout=12)
+    resolver_log = lab.kubectl("logs", "pod/" + resolver, timeout=15).stdout.splitlines()
+    bad_seen = resolver_log.count("query=" + question + ".")
+    core_logs = lab.kubectl("logs", "pod/" + pod["metadata"]["name"], timeout=15).stdout
+    # The errors plugin prints the numeric response code and the upstream certificate error.
+    bad_listener_logged = any(
+        f"plugin/errors: 2 {question}." in line
+        and "x509:" in line
+        and f"other-fixture.{ZONE}" in line
+        for line in core_logs.splitlines()
+    )
+    observed = {
+        "approved_listener_returned_marker": good.get("A") == [MARKER_IP] and good.get("rcode") == 0,
+        "approved_listener_delivered_same_query": good_seen > before,
+        "wrong_sni_certificate_rejected": "wrong_sni_bad_certificate" in resolver_log,
+        "wrong_sni_response_has_no_marker": MARKER_IP not in refused.get("A", []),
+        "wrong_sni_listener_returned_servfail": refused.get("rcode") == 2,
+        "wrong_sni_listener_logged_identity_rejection": bad_listener_logged,
+        "wrong_sni_query_not_delivered_to_resolver": bad_seen == good_seen,
+    }
+    lab.check("identity", "CoreDNS forwards over TLS only when the upstream certificate matches the configured name",
+              all(observed.values()), observed)
+
+
 def run(lab):
     server = json.loads(lab.kubectl("version", "-o", "json").stdout)["serverVersion"].get("gitVersion")
     lab.check("positive", "Case uses Kubernetes v1.36.1", server == "v1.36.1", server)
@@ -396,3 +514,4 @@ def run(lab):
     lab.check("positive", "CoreDNS starts with the loop plugin configured and no loop warning",
               loop_present, {"loop_plugin_configured": "    loop\n" in config,
                              "loop_warning_observed": loop_warning})
+    verify_upstream_transport(lab, config)

@@ -28,9 +28,13 @@ settings, and actual configuration-change governance.
 - [Kubernetes v1.36 DNS customization](https://v1-36.docs.kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/)
 - [CoreDNS v1.14.2 plugins](https://github.com/coredns/coredns/tree/v1.14.2/plugin)
 
+## Authenticate an upstream
+
+The runner host needs OpenSSL. The real CoreDNS forwarder sends the same reserved query through two listeners on the same Ready CoreDNS Pod. Both listeners use the same TLS endpoint and trusted synthetic certificate with independent expected server names. The matching name delivers the query and returns the fixture marker. The mismatched name must cause an observed TLS certificate alert with the presented server name, leave the query absent at the resolver, and return SERVFAIL.
+
 ## Verify an adopting deployment
 
-This guide supplements the local reference case. The verified fixture passed 14 checks on Kubernetes v1.36.1 with a separate CoreDNS v1.14.2 instance and two case-owned UDP resolver stubs. It demonstrates scoped Corefile authorization, resolver-target selection for one reserved query, one cache hit, Kubernetes Service lookup, and CoreDNS health/readiness responses. It does not establish a deployed cluster's DNS topology, authenticated upstream data, cache policy, monitoring, failover, or change governance.
+This guide supplements the local reference case. The original fourteen checks run on Kubernetes v1.36.1 with a separate CoreDNS v1.14.2 instance and two case-owned UDP resolver stubs. It demonstrates scoped Corefile authorization, resolver-target selection for one reserved query, one cache hit, Kubernetes Service lookup, and CoreDNS health/readiness responses. The TLS supplement also verifies one endpoint's server identity. Deployed DNS topology, DNSSEC record-origin validation, cache policy, monitoring, failover, and change governance need their own evidence.
 
 ## Evidence to collect for each deployed cluster
 
@@ -48,7 +52,7 @@ This guide supplements the local reference case. The verified fixture passed 14 
 
 ## Acceptance record
 
-For each check, retain cluster and resolver scope, collection time, deployed versions, sanitized effective configuration, query names limited to approved synthetic or internal test records, expected and observed resolver/answer, relevant counters and alert receipt, and the operator who reviewed the result. Redact credentials and unrelated internal names. Mark checks that do not apply and state why. Keep deployed observations separate from the 14-check disposable fixture receipt.
+For each check, retain cluster and resolver scope, collection time, deployed versions, sanitized effective configuration, query names limited to approved synthetic or internal test records, expected and observed resolver/answer, relevant counters and alert receipt, and the operator who reviewed the result. Redact credentials and unrelated internal names. Mark checks that do not apply and state why. Keep deployed observations separate from the disposable fixture receipt.
 
 ## Source behavior
 
