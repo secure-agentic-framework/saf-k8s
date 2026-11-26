@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-017",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "a1124b25b9389c3c7cd798e035603969ffb170ff",
+  "catalog_sha256": "f12ae6364344afb26f91116ad1ce2601988a84f4b414fcad71dc4bd9593b9951",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "502cb74f3331058a6ff566bf79d5752916df77da0e0b2b37558fdc828adb6a6f",
+  "control_sha256": "18d67578e7496280effa8ba6785ac379f4833a4bef4611f92e346de4a191af41",
   "scope": "Kubernetes v1.36.1 kube-apiserver file audit backend on the runner's fresh, single-control-plane kind cluster. Synthetic impersonated users issue harmless ConfigMap create requests, a named PodMetrics resource, and a synthetic HTTPS webhook. The audit policy selects ConfigMaps and metrics.k8s.io pods in saf-test and omits saf-audit-omitted; checks distinguish HTTP status, audit annotations, and persisted API effects. Records exact native SubjectAccessReview and Role creation at Request level.",
-  "cluster": "saf-lab-f04ba790c761",
+  "cluster": "saf-lab-b956ccc96727",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
