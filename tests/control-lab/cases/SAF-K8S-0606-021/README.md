@@ -26,3 +26,7 @@ deployment coverage require separate evidence.
 - [OpenSSL 3.3 digest and signature commands](https://docs.openssl.org/3.3/man1/openssl-dgst/)
 - [Kubernetes v1.36 init containers](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/pods/init-containers/)
 - [Kubernetes v1.36 ServiceAccounts](https://v1-36.docs.kubernetes.io/docs/concepts/security/service-accounts/)
+
+## Adopter verification
+
+Identify the exact manifest and source revision, authorized signing workflow and signer, and the verification material available to the intended consumer. Record the approved signer and algorithm, public key identifier, key access and rotation, and the source-to-signature binding. In an approved test, present an unsigned manifest, changed bytes, and a signature from a different signer. Verify each is rejected before promotion. Independently confirm the signed bytes and digest seen by the approved deployment identity. Retain only public signature evidence and the approval or change record.

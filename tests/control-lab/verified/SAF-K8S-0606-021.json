@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-021",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "44612682d9abe16bcf4ce6dd75d855c767bfc71c",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "4b8533818269b90366e0a4aabe16ef404af9ddd8407e206dcec6f24ee377f8fc",
   "scope": "Kubernetes v1.36.1, two independent fixture signer Jobs, a pinned OpenSSL signature over exact inert ConfigMap manifest bytes, and a separate scoped promotion Job. The authorized signature passes, while absent and independently signed untrusted artifacts are rejected. Enterprise CI identity and approval, key custody, repository protection and deployment coverage require separate evidence.",
-  "cluster": "saf-lab-eda156c08099",
+  "cluster": "saf-lab-0f55c2b6b0ef",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
