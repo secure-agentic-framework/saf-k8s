@@ -4,8 +4,8 @@
   "catalog_sha256": "1c3e887718db72c39815b9f3a4dc584599be17811f60780fda5744bdf21de8ea",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "61aa06e22bf3ff24752dc5ad98ea2c3da841db9893153ec159d5551eafba0145",
-  "scope": "One fresh local Kubernetes v1.36.1 Kind cluster. Two separate in-toto Statement JSON payloads model environment inventory and process/tool execution for the same inert synthetic artifact digest. Each payload is independently DSSE-pre-authenticated and signed with a distinct ephemeral local RSA key; Kubernetes Jobs verify the signatures, payload hashes and expected subject. Counterfactual Jobs reject a corrupted signature and a valid signature whose statement names the wrong subject. A second synthetic build subject has its own valid environment and process pair. This does not exercise or establish coverage of any production CI/CD system, builder identity, key custody, attestation generation, registry storage, or admission enforcement.",
-  "cluster": "saf-lab-1d71f0954a4e",
+  "scope": "One fresh local Kubernetes v1.36.1 Kind cluster. Two separate in-toto Statement JSON payloads model environment inventory and process/tool execution for the same inert synthetic artifact digest. Each payload is independently DSSE-pre-authenticated and signed with a distinct ephemeral local RSA key; Kubernetes Jobs verify the signatures, payload hashes and expected subject. Counterfactual Jobs reject a corrupted signature and a valid signature whose statement names the wrong subject. A second synthetic build subject has its own valid environment and process pair. This does not exercise or establish coverage of any production CI/CD system, builder identity, key custody, attestation generation, registry storage, or admission enforcement. A scratch additive path runs one real inert transformation Job, restricts evidence writes to a separate collector identity, captures actual Pod/node/image facts, and signs separate environment/process statements for an independent verifier; case-generated signer custody and production pipeline coverage remain adopter evidence.",
+  "cluster": "saf-lab-7c08ae314d2c",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -144,6 +144,43 @@
         "envelope_signature_validated_before_policy": true,
         "policy_rejection": true,
         "key_material_retained_in_receipt": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A real build Job transforms inert bytes and reports its running tool, input, output, and denied evidence write",
+      "matched": true,
+      "observed": {
+        "artifact_sha256": "5309709ee1bd3a336f4b603b81f026f618b482b95cfe5954a227302f2b2864b3",
+        "builder_artifact_write": 200,
+        "builder_evidence_write_denied": true,
+        "observed_python_version": "3.13.18",
+        "transformation_test_passed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A separate Kubernetes identity collects actual Job, Pod, image, node, and artifact facts",
+      "matched": true,
+      "observed": {
+        "attestor_evidence_write": 200,
+        "job_uid_matches_api": true,
+        "pod_uid_matches_api": true,
+        "image_id_observed": true,
+        "node_name_observed": true,
+        "node_platform_observed": true,
+        "artifact_sha256": "5309709ee1bd3a336f4b603b81f026f618b482b95cfe5954a227302f2b2864b3"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An independent verifier accepts both category signatures only for the observed artifact subject",
+      "matched": true,
+      "observed": {
+        "environment_attestation_accepted": true,
+        "process_attestation_accepted": true,
+        "wrong_subject_rejected": true,
+        "signing_keys_retained_in_evidence": false
       }
     }
   ]

@@ -31,7 +31,10 @@ SCOPE = (
     "and a valid signature whose statement names the wrong subject. A second synthetic build "
     "subject has its own valid environment and process pair. This does not exercise or establish "
     "coverage of any production CI/CD system, builder identity, key custody, attestation "
-    "generation, registry storage, or admission enforcement."
+    "generation, registry storage, or admission enforcement. A scratch additive path runs one real "
+    "inert transformation Job, restricts evidence writes to a separate collector identity, captures "
+    "actual Pod/node/image facts, and signs separate environment/process statements for an independent verifier; "
+    "case-generated signer custody and production pipeline coverage remain adopter evidence."
 )
 
 
@@ -241,3 +244,11 @@ def run(lab):
                       {"job": result, "expected_payload_verified": "signature-and-expected-payload-verified" in log})
         _SIGNER_POLICY.run_signer_policy(
             lab, claims, fixture, _pae, PAYLOAD_TYPE, NAMESPACE, IMAGE)
+
+        observed_path = HERE / "observed_build_supplement.py"
+        observed_spec = importlib.util.spec_from_file_location("saf_observed_build_supplement", observed_path)
+        if observed_spec is None or observed_spec.loader is None:
+            raise RuntimeError("Observed build supplement is unavailable")
+        observed_module = importlib.util.module_from_spec(observed_spec)
+        observed_spec.loader.exec_module(observed_module)
+        observed_module.run_observed_build(lab)
