@@ -106,16 +106,30 @@ def run(lab):
         "-n", RETIRE_NAMESPACE, "get", "secret", RETIRE_SECRET, "-o",
         "go-template={{if .data}}{{len .data}}{{else}}0{{end}}",
     ).stdout.strip()
+    annotation = lab.kubectl(
+        "-n", RETIRE_NAMESPACE, "get", "secret", RETIRE_SECRET, "-o",
+        'go-template={{index .metadata.annotations "kubernetes.io/service-account.name"}}',
+    ).stdout.strip()
+    inventory = lab.kubectl(
+        "-n", RETIRE_NAMESPACE, "get", "secrets", "--field-selector",
+        "type=kubernetes.io/service-account-token", "-o",
+        'go-template={{range .items}}{{.metadata.name}}:{{.type}}:{{index .metadata.annotations "kubernetes.io/service-account.name"}};{{end}}',
+    ).stdout.strip()
     name, separator, suffix = identity.partition(":")
     secret_type, separator2, uid = suffix.partition(":")
     visible = (
         created_secret.stdout.strip() == f"secret/{RETIRE_SECRET}"
         and separator and separator2 and name == RETIRE_SECRET
         and secret_type == "kubernetes.io/service-account-token" and bool(uid) and data_keys == "0"
+        and annotation == RETIRE_SA
+        and inventory == f"{RETIRE_SECRET}:kubernetes.io/service-account-token:{RETIRE_SA};"
     )
     lab.check("positive", "The empty annotated sentinel persists and is inventoried by metadata only",
               visible, {"exact_name_and_type_visible": visible, "uid_present": bool(uid),
-                        "data_key_count_zero": data_keys == "0"})
+                        "data_key_count_zero": data_keys == "0",
+                        "annotation_matches_absent_serviceaccount": annotation == RETIRE_SA,
+                        "type_inventory_contains_only_exact_linked_sentinel": (
+                            inventory == f"{RETIRE_SECRET}:kubernetes.io/service-account-token:{RETIRE_SA};")})
 
     lab.kubectl(
         "-n", RETIRE_NAMESPACE, "create", "-f",

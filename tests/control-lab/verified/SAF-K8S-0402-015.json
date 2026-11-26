@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0402-015",
-  "catalog_revision": "40b5ddfd2381e15bcf4d986bedca71abf3b6c561",
+  "catalog_revision": "32a7f1cf1191f5f333a01be4d9e83092768c5dc5",
   "catalog_sha256": "d65a8ba2d999d0a60a83345dbfd6f5235d9cd11cac65fdb011fac1cb9051e634",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "1ae388b84ef9d7e1f1ccd6023431ae7241e22d00f6e88002a9e64a8a0ff3d5d3",
   "scope": "Kubernetes v1.36.1 server-side dry runs of an empty synthetic legacy Secret and an inert Opaque Secret, with a namespace-scoped admission policy. The case also verifies the native tracking ConfigMap and a type-based inventory query. Credential migration and production scope remain separate. A case-owned Pod also makes one actual projected short-lived token read of a named inert ConfigMap over verified API-server HTTPS; the token and response body are never retained. Scratch supplement uses an isolated Kind control-plane profile with only the legacy service-account signer path explicitly empty, while projected TokenRequest credentials remain enabled. It proves deletion of an empty annotated sentinel; Secret data values are never observed.",
-  "cluster": "saf-lab-e606b00991c4",
+  "cluster": "saf-lab-20e457db1db1",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -103,7 +103,9 @@
       "observed": {
         "exact_name_and_type_visible": true,
         "uid_present": true,
-        "data_key_count_zero": true
+        "data_key_count_zero": true,
+        "annotation_matches_absent_serviceaccount": true,
+        "type_inventory_contains_only_exact_linked_sentinel": true
       }
     },
     {

@@ -9,6 +9,8 @@ remain absent. The fixture also checks the tracking start date.
 The disposable profile explicitly leaves the controller manager’s legacy
 signer path empty. The case verifies the argument, an absent referenced
 ServiceAccount, and the exact sentinel’s metadata and zero data entries.
+The type-selector inventory returns only the sentinel and its observed
+ServiceAccount annotation matches the absent reference.
 Manual deletion removes that object while an independent tokenless Pod
 stays Ready.
 
