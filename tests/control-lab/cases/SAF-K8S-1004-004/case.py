@@ -22,8 +22,9 @@ SCOPE = (
     "Offline, synthetic threat-intelligence fixture processing in a disposable Kubernetes v1.36.1 Kind cluster. "
     "Verifies SHA-256 pin quarantine, expiry quarantine, exact advisory enrichment for one approved mock "
     "observation, quiet package-version/image-digest near misses, and one case-owned HTTPS source with pinned local "
-    "trust and fixed public synthetic bytes. This does not exercise external feed authenticity, production ingestion "
-    "freshness/completeness, threat-sharing participation, or deployed SIEM/SOAR rule operation."
+    "trust and fixed public synthetic bytes. A separate tokenless Job reads the official Kubernetes JSON feed with "
+    "standard certificate and hostname validation. It verifies and records source and publication metadata. "
+    "Deployed ingestion freshness, coverage, threat-sharing and SIEM/SOAR decisions require adopter evidence."
 )
 
 
@@ -80,6 +81,51 @@ def establish_transport_fixture(lab):
         lab.kubectl("create", "secret", "tls", "saf-1004-004-feed-tls",
                     "--cert=" + str(cert), "--key=" + str(key), "-o", "name")
         return ca.read_text(), other.read_text()
+
+
+def verify_official_feed(lab):
+    name = "saf-1004-004-official-metadata"
+    lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": name},
+                "immutable": True, "data": {"official_feed.py": load("official_feed.py").decode()}})
+    lab.create({"apiVersion": "batch/v1", "kind": "Job", "metadata": {"name": name},
+                "spec": {"backoffLimit": 0, "activeDeadlineSeconds": 38,
+                         "template": {"spec": {
+                             "restartPolicy": "Never", "automountServiceAccountToken": False,
+                             "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
+                                                 "seccompProfile": {"type": "RuntimeDefault"}},
+                             "containers": [{
+                                 "name": "metadata-reader", "image": WORKER_IMAGE,
+                                 "command": ["python", "-B", "/case/official_feed.py"],
+                                 "resources": {"requests": {"cpu": "10m", "memory": "24Mi"},
+                                               "limits": {"cpu": "200m", "memory": "80Mi"}},
+                                 "securityContext": {"allowPrivilegeEscalation": False,
+                                                     "readOnlyRootFilesystem": True,
+                                                     "capabilities": {"drop": ["ALL"]}},
+                                 "volumeMounts": [{"name": "code", "mountPath": "/case", "readOnly": True}],
+                             }],
+                             "volumes": [{"name": "code", "configMap": {"name": name}}],
+                         }}}})
+    lab.kubectl("wait", "job/" + name, "--for=condition=complete", "--timeout=45s", timeout=54)
+    raw = lab.kubectl("logs", "job/" + name, timeout=15).stdout
+    (lab.evidence / "official-feed-metadata.raw.json").write_text(raw)
+    try:
+        observed = json.loads(raw)
+    except json.JSONDecodeError as error:
+        lab.block(f"The official feed worker did not return its bounded metadata report: {error}")
+    if observed.get("read_status") == "unavailable":
+        lab.block("The owned Job could not retrieve the reviewed official HTTPS endpoint")
+    source = "https://kubernetes.io/docs/reference/issues-security/official-cve-feed/index.json"
+    projection = observed.get("projection", {})
+    matches = (observed.get("source") == source
+               and observed.get("ssl_default_verification") is True
+               and observed.get("http_status") == 200 and observed.get("media_type") == "application/json"
+               and 0 < observed.get("body_bytes", 0) <= 2 * 1024 * 1024
+               and projection.get("version") == "https://jsonfeed.org/version/1.1"
+               and projection.get("unique_records", 0) > 0)
+    lab.check("positive", "A tokenless Job reads the official HTTPS advisory feed and validates publication metadata",
+              matches, {"source": source, "verified_https": observed.get("ssl_default_verification"),
+                        "status": observed.get("http_status"), "schema_and_time_checks": bool(projection),
+                        "nonempty_unique_records": projection.get("unique_records", 0) > 0})
 
 
 def run(lab):
@@ -274,3 +320,4 @@ def run(lab):
               approved["quiet_observation_ids"] == ["OBS-SYNTH-NEARMISS-VERSION",
                                                      "OBS-SYNTH-NEARMISS-IMAGE"],
               approved["quiet_observation_ids"])
+    verify_official_feed(lab)
