@@ -97,12 +97,15 @@ def _start_registry(r):
     extension.write_text(
         f"subjectAltName=DNS:{alias},IP:127.0.0.1\n"
         "basicConstraints=critical,CA:FALSE\n"
+        "subjectKeyIdentifier=hash\n"
+        "authorityKeyIdentifier=keyid,issuer\n"
         "keyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\n",
         encoding="ascii",
     )
     r.lab.command("openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "2",
           "-subj", "/CN=SAF fixture registry CA", "-keyout", str(ca_key), "-out", str(r.registry_ca),
-          "-addext", "basicConstraints=critical,CA:TRUE", "-addext", "keyUsage=critical,keyCertSign,cRLSign")
+          "-addext", "basicConstraints=critical,CA:TRUE", "-addext", "subjectKeyIdentifier=hash",
+          "-addext", "authorityKeyIdentifier=keyid:always", "-addext", "keyUsage=critical,keyCertSign,cRLSign")
     r.lab.command("openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-subj", f"/CN={alias}",
           "-keyout", str(leaf_key), "-out", str(csr))
     r.lab.command("openssl", "x509", "-req", "-in", str(csr), "-CA", str(r.registry_ca), "-CAkey", str(ca_key),

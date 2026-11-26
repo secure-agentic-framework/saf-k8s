@@ -13,3 +13,7 @@ For adoption, inventory the installed chart, controller and API versions, requir
 Check the actual registry, artifact subject, signing trust and attestation criteria. Reconcile running workloads with admission coverage and verify trust rotation. For a defined known failure state, check webhook scope and failure policy, choose the expected API behavior and retained state, and verify both a failure observation and recovery on an authorized test path. Preserve the version, exact decision and exception evidence.
 
 [Kyverno policy types](https://kyverno.io/docs/policy-types/) · [Kyverno v1.20.0](https://github.com/kyverno/kyverno/tree/v1.20.0) · [Separate Kyverno webhook failure reference](https://github.com/secure-agentic-framework/saf-k8s/blob/verified-control-tests/tests/control-lab/verified/SAF-K8S-0603-014.json)
+
+The owned registry certificate chain carries explicit issuer and subject key
+identifiers so strict TLS clients can verify the same approved CA and server
+name. The fixture uses a one-run trust root.
