@@ -91,7 +91,7 @@ class Handler(BaseHTTPRequestHandler):
             self.reply(400, {"status": 400, "decision": "refused", "reason": "invalid-request"})
             return
         name = request.get("name") if isinstance(request, dict) else None
-        if mode == "enforced" and who != ALLOWED_URI:
+        if mode in ("enforced", "rotation") and who != ALLOWED_URI:
             status, decision, reason = 403, "refused", "identity-not-approved"
         elif not isinstance(request, dict) or request.get("namespace") != NAMESPACE or name != WORKLOAD:
             status, decision, reason = 403, "refused", "placement-not-approved"
@@ -115,7 +115,7 @@ def serve():
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context.minimum_version = ssl.TLSVersion.TLSv1_3
     context.load_cert_chain("/tls/tls.crt", "/tls/tls.key")
-    context.load_verify_locations("/tls/ca.crt")
+    context.load_verify_locations("/tls/client-ca.crt")
     context.verify_mode = ssl.CERT_REQUIRED
     server = ThreadingHTTPServer(("0.0.0.0", 8443), Handler)
     server.socket = context.wrap_socket(server.socket, server_side=True)
@@ -139,9 +139,13 @@ def probe(host, port, server_name, name, namespace):
                 response = HTTPResponse(tls)
                 response.begin()
                 return json.load(response)
-    except (OSError, EOFError, ValueError) as error:
-        return {"status": 0, "decision": "transport-error",
-                "detail": f"{type(error).__name__}: {error}"}
+    except ssl.SSLError as error:
+        if error.reason in {"TLSV1_ALERT_UNKNOWN_CA", "SSLV3_ALERT_BAD_CERTIFICATE"}:
+            return {"status": 0, "decision": "peer-untrusted-certificate"}
+        return {"status": 0, "decision": "transport-error"}
+    except (OSError, EOFError, ValueError):
+        # Do not retain transport error text that varies by TLS/platform version.
+        return {"status": 0, "decision": "transport-error"}
 
 
 if __name__ == "__main__":
