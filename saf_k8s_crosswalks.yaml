@@ -18387,16 +18387,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-3(6)
   framework_requirement_title: Cryptography Management
-  framework_mapping_notes: 'Managing cryptographic configs for agent systems
-
-
-    6.3 - Cryptographic agility and post-quantum readiness (algorithm selection, migration planning)'
+  framework_mapping_notes: The reference supplies a tested migration comparison and digest continuity. Verify the actual cryptographic configuration and approved change process separately.
   control_id: SAF-K8S-0603-004
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The applicable change-control process governs actual artifact algorithms, signer trust, cutover, coexistence and retained verification.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -22607,22 +22604,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: IA-13(1)
-  framework_requirement_title: Protection of Cryptographic Keys
-  framework_mapping_notes: 'Protecting IdP keys for agent auth
-
-
-    4.4 - cert-manager (certificate key protection); 6.3 - TUF HSM-based key storage for signing roles'
-  control_id: SAF-K8S-0603-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: IA-13(2)
   framework_requirement_title: Verification of Identity Assertions and Access Tokens
   framework_mapping_notes: 'Verifying agent tokens and assertions
@@ -24681,22 +24662,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-7
-  framework_requirement_title: Cryptographic Module Authentication
-  framework_mapping_notes: 'Cryptographic module auth for agent systems
-
-
-    6.3 - Cryptographic module authentication and FIPS 140 compliance for signing and verification operations; 4.4 - TLS/mTLS configuration'
-  control_id: SAF-K8S-0603-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -30851,22 +30816,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SA-4(6)
-  framework_requirement_title: Use of Information Assurance Products
-  framework_mapping_notes: 'Information assurance products (cryptographic modules, etc.) apply to securing agent communications
-
-
-    6.3 - Sigstore, TUF (approved information assurance products for image/model signing and verification)'
-  control_id: SAF-K8S-0603-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SA-4(8)
   framework_requirement_title: Continuous Monitoring Plan for Controls
   framework_mapping_notes: 'Continuous monitoring plans for agentic AI security controls enable ongoing assurance
@@ -33406,16 +33355,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-13
   framework_requirement_title: Cryptographic Protection
-  framework_mapping_notes: 'Cryptographic protection mechanisms secure agent data at rest, in transit, and in use
-
-
-    6.3 - Cryptographic agility and post-quantum readiness (overall cryptographic protection strategy)'
+  framework_mapping_notes: The scoped test demonstrates classical and post-quantum signing policy and exact artifact hashes. Assess the actual selected algorithms, implementation and covered assets independently.
   control_id: SAF-K8S-0603-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopter identifies the exact cryptographic uses and required mechanisms and verifies their operation for the governed signing and hashing paths.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -43145,22 +43091,6 @@
 
 
     6.3 - Cryptographic agility (validated cryptographic algorithms); 9.5 - ML dependency vulnerability management'
-  control_id: SAF-K8S-0603-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-19(7)
-  framework_requirement_title: Validated Algorithms and Software
-  framework_mapping_notes: 'Validated de-identification algorithms ensure agent privacy controls are effective
-
-
-    6.3 - Cryptographic agility (validated cryptographic algorithms); 9.5 - ML dependency vulnerability management'
   control_id: SAF-K8S-0905-001
   relation_type: supports
   strength_level: strong
@@ -43385,22 +43315,6 @@
   applicability: conditional
   applicability_condition: The timeline is tied to a recorded flaw and an approved benchmark for corrective action.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-2(3)
-  framework_requirement_title: Time to Remediate Flaws and Benchmarks for Corrective Actions
-  framework_mapping_notes: 'Remediation time benchmarks for agent vulnerabilities drive timely patching
-
-
-    1.4 - CVE response (patch prioritization timelines); 6.3 - Vulnerability prioritization (remediation benchmarks)'
-  control_id: SAF-K8S-0603-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -46853,16 +46767,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-7(6)
   framework_requirement_title: Cryptographic Protection
-  framework_mapping_notes: 'Cryptographic integrity protection for agent binaries and models prevents tampering
-
-
-    6.2 - Image signing with Sigstore/cosign (cryptographic integrity); 9.5 - Model signing; 6.3 - Cryptographic agility'
+  framework_mapping_notes: The scoped promotion consumer refuses changed or misbound bytes and verifies the same accepted data at use. Verify actual watched artifacts, authorized trust roots and response separately.
   control_id: SAF-K8S-0603-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopted integrity protection covers the selected files and release artifacts and the verified policy checks their exact signatures and digests before use.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -48079,22 +47990,6 @@
 
     6.4 - SBOM/dependency tracking (sub-tier dependency visibility); 6.6 - Helm chart dependency pinning'
   control_id: SAF-K8S-0606-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-4
-  framework_requirement_title: Provenance
-  framework_mapping_notes: 'Provenance tracking for AI models, training data, and agent tools verifies origin and integrity
-
-
-    6.3 - SLSA provenance, in-toto attestations; 9.5 - Model signing and provenance; 6.6 - Build attestation per NIST SP 800-204D'
-  control_id: SAF-K8S-0603-004
   relation_type: direct
   strength_level: strong
   applicability: required

@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 2848
-- Distinct Requirements Mapped: 685
+- Total Reverse Mappings: 2842
+- Distinct Requirements Mapped: 682
 
 ## Requirements
 
@@ -280,7 +280,6 @@
 - [IA-1 - Policy and Procedures](ia-1.md)
 - [IA-11 - Re-authentication](ia-11.md)
 - [IA-13 - Identity Providers and Authorization Servers](ia-13.md)
-- [IA-13(1) - Protection of Cryptographic Keys](ia-13-1.md)
 - [IA-13(2) - Verification of Identity Assertions and Access Tokens](ia-13-2.md)
 - [IA-13(3) - Token Management](ia-13-3.md)
 - [IA-2 - Identification and Authentication (Organizational Users)](ia-2.md)
@@ -308,7 +307,6 @@
 - [IA-5(7) - No Embedded Unencrypted Static Authenticators](ia-5-7.md)
 - [IA-5(8) - Multiple System Accounts](ia-5-8.md)
 - [IA-5(9) - Federated Credential Management](ia-5-9.md)
-- [IA-7 - Cryptographic Module Authentication](ia-7.md)
 - [IA-8 - Identification and Authentication (Non-organizational Users)](ia-8.md)
 - [IA-8(2) - Acceptance of External Authenticators](ia-8-2.md)
 - [IA-8(4) - Use of Defined Profiles](ia-8-4.md)
@@ -443,7 +441,6 @@
 - [SA-4(2) - Design and Implementation Information for Controls](sa-4-2.md)
 - [SA-4(3) - Development Methods, Techniques, and Practices](sa-4-3.md)
 - [SA-4(5) - System, Component, and Service Configurations](sa-4-5.md)
-- [SA-4(6) - Use of Information Assurance Products](sa-4-6.md)
 - [SA-4(8) - Continuous Monitoring Plan for Controls](sa-4-8.md)
 - [SA-4(9) - Functions, Ports, Protocols, and Services in Use](sa-4-9.md)
 - [SA-5 - System Documentation](sa-5.md)
