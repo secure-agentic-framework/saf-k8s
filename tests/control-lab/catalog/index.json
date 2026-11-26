@@ -807,8 +807,8 @@
     "SAF-K8S-0402-003": {
       "catalog_status": "draft",
       "domain": "D04",
-      "sha256": "f559012f897daaf820103fb3ab47e2f4c23fc941d3d46af2b24e88207c188bfe",
-      "title": "Service account identifier exposure prevention"
+      "sha256": "833a7d3684dbf32824234f5e43cfcf454b4acfba7e69b4ddad14d5c9b452fe3e",
+      "title": "Service account authenticator and identifier exposure protection"
     },
     "SAF-K8S-0402-004": {
       "catalog_status": "draft",
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "a17d40a5ef66748577025486517217dd3395bda0",
-  "sha256": "e670092688043f3873e5b141c9c9e45fa91bab5ff9c7a9419e33be9fd2978ef8",
+  "revision": "4f355f05e1605324fa5ad0b71871a0fedf2b600c",
+  "sha256": "80c7da0fd4f41cb7830cb16c47d2d08461aee78c45806ed496151b90cef2011d",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

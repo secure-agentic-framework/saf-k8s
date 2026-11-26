@@ -2,6 +2,8 @@
 import json
 from pathlib import Path
 import re
+import subprocess
+import tempfile
 
 from fixtures import container, pod
 
@@ -49,3 +51,55 @@ def run(lab):
               {"redacted_lines": green.count(REDACTED), "total_lines": len(green)})
     lab.check("positive", "An unrelated name and a longer shared-prefix name remain intact",
               green[1:] == expected[1:], {"unrelated_lines_intact": green[1:] == expected[1:]})
+
+    # Fixed, deliberately invalid marker: this is not a Kubernetes token or credential.
+    bearer_marker = "synthetic-bearer-canary-not-a-credential"
+    bearer_line = f"Authorization: Bearer {bearer_marker}"
+    bearer_env = [{"name": "OUTPUT", "value": bearer_line},
+                  {"name": "IDENTIFIER", "value": name},
+                  {"name": "REDACTED", "value": REDACTED}]
+    bearer_red = stdout(lab, "saf-0402-003-bearer-raw", emit, bearer_env)
+    lab.check("red", "The inert bearer lookalike is visible in the unfiltered fixture path",
+              bearer_red == [bearer_line], {"exact_inert_marker_seen": bearer_red == [bearer_line]})
+    bearer_filter = r''' | sed -E 's/(Authorization:[[:space:]]*Bearer[[:space:]]+)[^[:space:]]+/\1[synthetic bearer redacted]/' '''
+    bearer_green = stdout(lab, "saf-0402-003-bearer-filtered",
+                          emit + bearer_filter + script, bearer_env)
+    expected_bearer = "Authorization: Bearer [synthetic bearer redacted]"
+    lab.check("green", "The bearer value lookalike is removed before case-Pod stdout",
+              bearer_green == [expected_bearer] and bearer_marker not in "\n".join(bearer_green),
+              {"redacted": bearer_green == [expected_bearer],
+               "marker_absent": bearer_marker not in "\n".join(bearer_green)})
+
+    # A separate disposable local repository checks inert canary detection in the
+    # current tree and in history. Command output is captured and never recorded.
+    def git(repo, *args):
+        return subprocess.run(["git", "-C", str(repo), *args], stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE, text=True, check=False)
+
+    with tempfile.TemporaryDirectory(prefix="saf-0402-003-git-") as temporary:
+        repo = Path(temporary)
+        marker_file = repo / "fixture-ci.log"
+        marker_file.write_text(bearer_line + "\n", encoding="utf-8")
+        setup = [git(repo, "init", "-q"),
+                 git(repo, "config", "user.name", "SAF inert fixture"),
+                 git(repo, "config", "user.email", "fixture@example.invalid"),
+                 git(repo, "add", "fixture-ci.log"),
+                 git(repo, "commit", "-q", "-m", "Add inert canary fixture")]
+        if any(result.returncode != 0 for result in setup):
+            lab.block("Disposable local Git fixture setup failed (details suppressed)")
+        current_leak = git(repo, "grep", "-I", "-F", "-l", "-e", bearer_marker, "HEAD", "--")
+        lab.check("red", "The local repository check detects the inert bearer marker in a committed fixture",
+                  current_leak.returncode == 0 and current_leak.stdout.strip() == "HEAD:fixture-ci.log",
+                  {"current_fixture_marker_detected": current_leak.returncode == 0})
+        marker_file.unlink()
+        removed = [git(repo, "add", "-A"),
+                   git(repo, "commit", "-q", "-m", "Remove inert canary from current tree")]
+        if any(result.returncode != 0 for result in removed):
+            lab.block("Disposable local Git cleanup commit failed (details suppressed)")
+        current_clean = git(repo, "grep", "-I", "-F", "-l", "-e", bearer_marker, "HEAD", "--")
+        history_hit = git(repo, "log", "--all", "--format=%H", "-S" + bearer_marker, "--", ".")
+        lab.check("positive", "Current-tree scan is clean while history scan still identifies the prior canary commit",
+                  current_clean.returncode == 1 and not current_clean.stdout.strip()
+                  and history_hit.returncode == 0 and bool(history_hit.stdout.strip()),
+                  {"current_tree_clean": current_clean.returncode == 1 and not current_clean.stdout.strip(),
+                   "historical_marker_detected": history_hit.returncode == 0 and bool(history_hit.stdout.strip())})
