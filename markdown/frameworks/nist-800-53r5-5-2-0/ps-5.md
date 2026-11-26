@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Personnel transfers require updating agent system access privileges and roles
-
-4.1 - Design and enforce RBAC (updating role bindings on personnel transfer between teams)
+Periodic RBAC review can support the access-update portion of PS-5 when the organization links personnel transfer events to affected identities, reviews assigned permissions, and records resulting updates. The fixture demonstrates only synthetic grant review and reconciliation; it does not implement personnel transfer notification or offboarding.
 
 ## SAF-K8S Controls
 
@@ -17,5 +15,5 @@ Personnel transfers require updating agent system access privileges and roles
 - Knowledge Area: 4.1
 - Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

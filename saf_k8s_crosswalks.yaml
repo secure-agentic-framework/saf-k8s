@@ -276,20 +276,6 @@
   legacy_requirement_id: Annex-IV:IV(13)
   framework_requirement_title: Technical documentation referred to in Article 11(1)
   framework_mapping_notes: "assessment of the human oversight measures needed in accordance with Article 14, including an assessment of the technical measures needed to facilitate the interpretation of the outputs of AI systems by the deployers, in accordance with Article 13(3), point (d);\n\nSAF-K8S RBAC (D4), audit logging (D10), and dashboard infrastructure support human oversight tooling. The specific human oversight measures and procedures are organizational, but SAF-K8S provides the technical access control and monitoring backbone."
-  control_id: SAF-K8S-0401-002
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Annex-IV.2.e
-  legacy_requirement_id: Annex-IV:IV(13)
-  framework_requirement_title: Technical documentation referred to in Article 11(1)
-  framework_mapping_notes: "assessment of the human oversight measures needed in accordance with Article 14, including an assessment of the technical measures needed to facilitate the interpretation of the outputs of AI systems by the deployers, in accordance with Article 13(3), point (d);\n\nSAF-K8S RBAC (D4), audit logging (D10), and dashboard infrastructure support human oversight tooling. The specific human oversight measures and procedures are organizational, but SAF-K8S provides the technical access control and monitoring backbone."
   control_id: SAF-K8S-1001-017
   relation_type: partial
   strength_level: moderate
@@ -4940,22 +4926,6 @@
 
 
     4.1 - RBAC for custom resources (authorized configuration of classification labels on AI CRDs)'
-  control_id: SAF-K8S-0401-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-16(10)
-  framework_requirement_title: Attribute Configuration by Authorized Individuals
-  framework_mapping_notes: 'Configuring agent security attribute policies
-
-
-    4.1 - RBAC for custom resources (authorized configuration of classification labels on AI CRDs)'
   control_id: SAF-K8S-0401-003
   relation_type: supports
   strength_level: strong
@@ -5005,22 +4975,6 @@
 
     7.2 - Label/annotation standards (authorized modifications); 4.1 - RBAC controlling who can modify classification labels'
   control_id: SAF-K8S-0401-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-16(2)
-  framework_requirement_title: Attribute Value Changes by Authorized Individuals
-  framework_mapping_notes: 'Managing who can modify security labels in agent flows
-
-
-    7.2 - Label/annotation standards (authorized modifications); 4.1 - RBAC controlling who can modify classification labels'
-  control_id: SAF-K8S-0401-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -5905,22 +5859,6 @@
 
     4.1 - RBAC (cluster-admin restrictions for privileged remote commands); 5.5 - Restricting access to control plane endpoints'
   control_id: SAF-K8S-0401-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-17(4)
-  framework_requirement_title: Privileged Commands and Access
-  framework_mapping_notes: 'Controlling remote privileged agent operations
-
-
-    4.1 - RBAC (cluster-admin restrictions for privileged remote commands); 5.5 - Restricting access to control plane endpoints'
-  control_id: SAF-K8S-0401-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -7747,22 +7685,6 @@
 
 
     6.5 - Configure admission control (application-level access enforcement); 4.1 - RBAC for custom resources and AI operators CRDs'
-  control_id: SAF-K8S-0401-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-3(12)
-  framework_requirement_title: Assert and Enforce Application Access
-  framework_mapping_notes: 'Application-level agent access enforcement
-
-
-    6.5 - Configure admission control (application-level access enforcement); 4.1 - RBAC for custom resources and AI operators CRDs'
   control_id: SAF-K8S-0401-003
   relation_type: supports
   strength_level: strong
@@ -7956,16 +7878,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-3(15)
   framework_requirement_title: Discretionary and Mandatory Access Control
-  framework_mapping_notes: 'Combined DAC/MAC for agent systems
-
-
-    3.3 - Implement mandatory access controls (seccomp, AppArmor, SELinux); 4.1 - Design and enforce RBAC (discretionary access)'
+  framework_mapping_notes: The case supplies a bounded example of reviewing and reconciling discretionary Kubernetes RBAC grants using inventory and API authorization decisions. It does not implement the mandatory access-control portion of AC-3(15), so any contribution is partial and conditional on separate MAC controls.
   control_id: SAF-K8S-0401-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only the discretionary Kubernetes RBAC portion is in scope. Separate evidence must implement any mandatory access-control portion required by the organization; this fixture does not configure or evaluate SELinux, AppArmor, seccomp, or equivalent MAC policy.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -23100,16 +23019,13 @@
   framework_version: 5.2.0
   framework_requirement_id: PS-5
   framework_requirement_title: Personnel Transfer
-  framework_mapping_notes: 'Personnel transfers require updating agent system access privileges and roles
-
-
-    4.1 - Design and enforce RBAC (updating role bindings on personnel transfer between teams)'
+  framework_mapping_notes: Periodic RBAC review can support the access-update portion of PS-5 when the organization links personnel transfer events to affected identities, reviews assigned permissions, and records resulting updates. The fixture demonstrates only synthetic grant review and reconciliation; it does not implement personnel transfer notification or offboarding.
   control_id: SAF-K8S-0401-002
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  applicability: conditional
+  applicability_condition: Retain only where personnel transfer events or current position/role data are included in the approved RBAC review workflow and trigger timely validation and removal or adjustment of unneeded grants. The fixture itself uses synthetic service accounts and no HR/personnel transfer evidence.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -24103,22 +24019,6 @@
   control_id: SAF-K8S-0602-001
   relation_type: direct
   strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-10(7)
-  framework_requirement_title: Security and Privacy Representatives
-  framework_mapping_notes: 'Security representatives in agent development teams ensure security is addressed throughout SDLC
-
-
-    4.1 - Separation of duties (security and privacy representatives in development process)'
-  control_id: SAF-K8S-0401-002
-  relation_type: supports
-  strength_level: moderate
   applicability: required
   applicability_condition: null
   strength_reason_code: null
@@ -27247,22 +27147,6 @@
 
     5.4 - mTLS overhead on GPU training traffic; 9.2 - Inference resource controls (performance vs security tradeoffs)'
   control_id: SAF-K8S-0902-009
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(27)
-  framework_requirement_title: Human Factored Security
-  framework_mapping_notes: 'Human-agent interaction design must make security decisions clear and actionable
-
-
-    4.1 - Separation of duties (human-factored security design); 9.4 - Notebook environment usable security controls'
-  control_id: SAF-K8S-0401-002
   relation_type: supports
   strength_level: strong
   applicability: required

@@ -20,15 +20,6 @@ SAF-K8S RBAC (D4), audit logging (D10), and dashboard infrastructure support hum
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0401-002 - RBAC permission audit and analysis](../../controls/SAF-K8S-0401-002.md)
-
-- Domain: D04 - Identity, Access, and Secrets Management
-- Knowledge Area: 4.1
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-1001-017 - Audit capture of admission, authorization, and privileged API decisions for AI workloads](../../controls/SAF-K8S-1001-017.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
