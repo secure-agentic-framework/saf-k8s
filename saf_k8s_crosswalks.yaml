@@ -32115,16 +32115,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-4(16)
   framework_requirement_title: Correlate Monitoring Information
-  framework_mapping_notes: 'Correlating monitoring data across agent components reveals coordinated attacks
-
-
-    10.1 - SIEM integration (correlation rule development); 10.2 - Distributed tracing for ML pipelines'
+  framework_mapping_notes: Conditional support for organization-defined correlation of AI workload monitoring information from distinct tools or mechanisms. The reference validates deterministic synthetic predicates and one case-local Kubernetes Pod/Event UID join, but the two records are from the Kubernetes API and no SIEM or independent monitoring source is connected. It does not demonstrate the full SI-4(16) system-wide correlation capability.
   control_id: SAF-K8S-1001-012
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only where the deployed SIEM or other monitoring system correlates information from distinct monitoring tools or mechanisms across the system. The retained fixture validates six static synthetic detection predicates and one local Kubernetes Pod/Event UID join; it does not establish cross-tool correlation, SIEM operation, or alert delivery.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
