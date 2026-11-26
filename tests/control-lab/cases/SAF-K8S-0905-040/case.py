@@ -1,10 +1,13 @@
 """Check independently retained Zot audit and HTTP events using Fluent Bit."""
 from collections import Counter
 import json
+import os
 from pathlib import Path
 import secrets
 import subprocess
+import tempfile
 import time
+from contextlib import contextmanager
 
 HERE = Path(__file__).resolve().parent
 ZOT = "ghcr.io/project-zot/zot:v2.1.23@sha256:9d3de83ac2099e6f4843045b4c9b65b7e8baf40f92d28f54906dee9d4d390fd7"
@@ -12,13 +15,14 @@ PYTHON = "docker.io/library/python:3.13.2-alpine@sha256:323a717dc4a010fee21e3f1a
 FLUENT_BIT = "cr.fluentbit.io/fluent/fluent-bit:5.1.2@sha256:d792375ca8e53be72fc25716c28f291f32c6fc6f4f31d12d0d14bc78cefe9226"
 BUSYBOX = "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
 ACTOR = "fixture-publisher"
+SINK_ACTOR = "fixture-forwarder"
 REPO = "saf-test/audit-model"
 AUDIT = "/events/audit.jsonl"
 ACCESS = "/events/access.jsonl"
 SCOPE = (
     "One fresh Kind cluster runs two authenticated Zot v2.1.23 registries. The same "
     "inert OCI operations occur with forwarding off and on. Fluent Bit 5.1.2 ships "
-    "native audit and HTTP access events to an independent HTTP receiver backed by a "
+    "native audit and HTTP access events to an authenticated HTTPS receiver backed by a "
     "PVC. The receiver is replaced, retained events are compared, and a fresh event "
     "sequence is delivered. Covers model manifest publish, pull, retag and digest "
     "deletion. Permission and administrative event sources, loss recovery during "
@@ -71,6 +75,68 @@ def _deployment(lab, name, containers, volumes, port=None):
                                "ports": [{"port": port, "targetPort": port}]}})
 
 
+@contextmanager
+def _temporary_forwarding_material():
+    """Generate test-only CA, leaf and auth files without putting values in argv."""
+    temporary = tempfile.TemporaryDirectory(prefix="saf-0905-040-forwarding-")
+    root = Path(temporary.name)
+    os.chmod(root, 0o700)
+    ca_key, ca_csr, ca_cert = root / "ca.key", root / "ca.csr", root / "ca.pem"
+    sink_key, sink_csr, sink_cert = root / "sink.key", root / "sink.csr", root / "sink.crt"
+    ca_ext, sink_ext = root / "ca.ext", root / "sink.ext"
+    username, password = root / "username", root / "password"
+    wrong_password = root / "wrong-password"
+    ca_ext.write_text("basicConstraints=critical,CA:TRUE,pathlen:0\n"
+                      "keyUsage=critical,keyCertSign,cRLSign\n"
+                      "subjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid:always,issuer\n")
+    sink_dns = "sink.saf-test.svc.cluster.local"
+    sink_ext.write_text("basicConstraints=critical,CA:FALSE\n"
+                        "keyUsage=critical,digitalSignature,keyEncipherment\n"
+                        "extendedKeyUsage=serverAuth\n"
+                        f"subjectAltName=DNS:{sink_dns}\n"
+                        "subjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid,issuer\n")
+    username.touch(mode=0o600, exist_ok=False)
+    username.write_text(SINK_ACTOR)
+    password.touch(mode=0o600, exist_ok=False)
+    valid_password = secrets.token_urlsafe(24)
+    password.write_text(valid_password)
+    wrong_password.touch(mode=0o600, exist_ok=False)
+    invalid_password = secrets.token_urlsafe(24)
+    while invalid_password == valid_password:
+        invalid_password = secrets.token_urlsafe(24)
+    wrong_password.write_text(invalid_password)
+    commands = [
+        ["openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-keyout", str(ca_key),
+         "-out", str(ca_csr), "-subj", "/CN=SAF-K8S-0905-040 fixture CA"],
+        ["openssl", "x509", "-req", "-in", str(ca_csr), "-signkey", str(ca_key), "-days", "2",
+         "-extfile", str(ca_ext), "-out", str(ca_cert)],
+        ["openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-keyout", str(sink_key),
+         "-out", str(sink_csr), "-subj", f"/CN={sink_dns}"],
+        ["openssl", "x509", "-req", "-in", str(sink_csr), "-CA", str(ca_cert), "-CAkey", str(ca_key),
+         "-CAcreateserial", "-days", "2", "-extfile", str(sink_ext), "-out", str(sink_cert)],
+    ]
+    try:
+        for command in commands:
+            subprocess.run(command, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                           timeout=20)
+        for path in (ca_key, sink_key, username, password, wrong_password):
+            os.chmod(path, 0o600)
+        template = (Path(__file__).resolve().parent / "fluent-bit.yaml").read_text()
+        rendered = template.replace("__SINK_USER__", json.dumps(SINK_ACTOR))
+        rendered = rendered.replace("__SINK_PASSWORD__", json.dumps(valid_password))
+        forwarding_config = root / "fluent-bit.yaml"
+        forwarding_config.touch(mode=0o600, exist_ok=False)
+        forwarding_config.write_text(rendered)
+        os.chmod(forwarding_config, 0o600)
+        yield {"ca_cert": ca_cert, "sink_cert": sink_cert, "sink_key": sink_key,
+               "username": username, "password": password, "wrong_password": wrong_password,
+               "forwarding_config": forwarding_config}
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        raise RuntimeError("temporary fixture sink identity/TLS generation failed") from None
+    finally:
+        temporary.cleanup()
+
+
 def _wait(lab, name):
     lab.kubectl("rollout", "status", f"deployment/{name}", "--timeout=90s", timeout=100)
 
@@ -93,6 +159,18 @@ def _fixture_identity(lab):
 
 def _setup(lab):
     _fixture_identity(lab)
+    with _temporary_forwarding_material() as material:
+        _configmap(lab, "sink-ca", {"ca.pem": material["ca_cert"].read_text()})
+        lab.kubectl("create", "secret", "tls", "sink-tls", "--cert", str(material["sink_cert"]),
+                    "--key", str(material["sink_key"]))
+        lab.kubectl("create", "secret", "generic", "sink-auth",
+                    f"--from-file=username={material['username']}",
+                    f"--from-file=password={material['password']}")
+        lab.kubectl("create", "secret", "generic", "sink-wrong-auth",
+                    f"--from-file=username={material['username']}",
+                    f"--from-file=password={material['wrong_password']}")
+        lab.kubectl("create", "secret", "generic", "forwarding-config",
+                    f"--from-file=fluent-bit.yaml={material['forwarding_config']}")
     config = {"distSpecVersion": "1.1.0", "storage": {"rootDirectory": "/var/lib/registry"},
               "log": {"level": "info", "output": ACCESS, "audit": AUDIT},
               "http": {"address": "0.0.0.0", "port": "5000",
@@ -101,21 +179,32 @@ def _setup(lab):
                            {"users": [ACTOR], "actions": ["read", "create", "update", "delete"]}
                        ]}}}}}
     _configmap(lab, "registry-config", {"config.json": json.dumps(config)})
-    _configmap(lab, "scripts", {name: (HERE / name).read_text() for name in ("sink.py", "probe.py")})
-    _configmap(lab, "forwarding-config", {"fluent-bit.yaml": (HERE / "fluent-bit.yaml").read_text()})
+    _configmap(lab, "scripts", {name: (HERE / name).read_text() for name in
+                                 ("sink.py", "probe.py", "read_sink.py", "sink_auth_probe.py")})
     _submit(lab, {"apiVersion": "v1", "kind": "PersistentVolumeClaim",
                   "metadata": {"name": "sink-data"},
                   "spec": {"accessModes": ["ReadWriteOnce"],
                            "resources": {"requests": {"storage": "64Mi"}}}})
     scripts = _volume("scripts", configMap={"name": "scripts"})
     script_mount = _mount("scripts", "/app", read_only=True)
-    _deployment(lab, "sink", [_container("sink", PYTHON, [script_mount, _mount("data", "/sink")],
-                                        command=["python", "/app/sink.py"], ready_port=8080)],
-                [scripts, _volume("data", persistentVolumeClaim={"claimName": "sink-data"})], 8080)
-    _deployment(lab, "probe", [_container("probe", PYTHON, [script_mount, _mount("auth", "/auth", read_only=True)],
+    _deployment(lab, "sink", [_container("sink", PYTHON, [script_mount, _mount("data", "/sink"),
+                                        _mount("tls", "/tls", read_only=True),
+                                        _mount("sink-auth", "/sink-auth", read_only=True)],
+                                        command=["python", "/app/sink.py"], ready_port=8443)],
+                [scripts, _volume("data", persistentVolumeClaim={"claimName": "sink-data"}),
+                 _volume("tls", secret={"secretName": "sink-tls", "defaultMode": 0o440}),
+                 _volume("sink-auth", secret={"secretName": "sink-auth", "defaultMode": 0o440})], 8443)
+    _deployment(lab, "probe", [_container("probe", PYTHON, [script_mount,
+                                          _mount("auth", "/auth", read_only=True),
+                                          _mount("sink-auth", "/sink-auth", read_only=True),
+                                          _mount("sink-wrong-auth", "/sink-wrong-auth", read_only=True),
+                                          _mount("sink-ca", "/sink-ca", read_only=True)],
                                           command=["python", "-c", "import time; time.sleep(3600)"])],
                 [scripts, _volume("auth", secret={"secretName": "registry-auth",
-                                                  "items": [{"key": "password", "path": "password"}]})])
+                                                  "items": [{"key": "password", "path": "password"}]}),
+                 _volume("sink-auth", secret={"secretName": "sink-auth", "defaultMode": 0o440}),
+                 _volume("sink-wrong-auth", secret={"secretName": "sink-wrong-auth", "defaultMode": 0o440}),
+                 _volume("sink-ca", configMap={"name": "sink-ca"})])
     for registry in ("without-forwarding", "with-forwarding"):
         read_events = _mount("events", "/events", read_only=True)
         volumes = [_volume("config", configMap={"name": "registry-config"}),
@@ -130,9 +219,13 @@ def _setup(lab):
             _container("observer", BUSYBOX, [read_events], command=["sleep", "3600"]),
         ]
         if registry == "with-forwarding":
-            volumes.append(_volume("forwarding", configMap={"name": "forwarding-config"}))
+            volumes.extend([_volume("forwarding", secret={"secretName": "forwarding-config",
+                                                          "defaultMode": 0o440}),
+                            _volume("sink-auth", secret={"secretName": "sink-auth", "defaultMode": 0o440}),
+                            _volume("sink-ca", configMap={"name": "sink-ca"})])
             containers.append(_container("fluent-bit", FLUENT_BIT,
-                                         [read_events, _mount("forwarding", "/config", read_only=True)],
+                                         [read_events, _mount("forwarding", "/config", read_only=True),
+                                          _mount("sink-ca", "/sink-ca", read_only=True)],
                                          args=["-c", "/config/fluent-bit.yaml"]))
         _deployment(lab, registry, containers, volumes, 5000)
     for name in ("sink", "probe", "without-forwarding", "with-forwarding"):
@@ -171,8 +264,8 @@ def _local(lab, registry, targets):
 
 
 def _read_sink(lab, targets):
-    raw = lab.kubectl("exec", "deployment/sink", "--", "python", "-c",
-                      "import urllib.request; print(urllib.request.urlopen('http://localhost:8080/events', timeout=3).read().decode())")
+    raw = lab.kubectl("exec", "deployment/probe", "--", "python", "/app/read_sink.py",
+                      "https://sink.saf-test.svc.cluster.local:8443/events")
     rows = _rows(raw.stdout)
     return [entry for stream in ("audit", "access")
             for entry in _selected([row["event"] for row in rows if row["stream"] == stream], stream, targets)]
@@ -248,3 +341,10 @@ def run(lab):
               old_uid != new_uid and retained_exact and continued,
               {"receiver_replaced": old_uid != new_uid, "prior_records_exact": retained_exact,
                "new_records_exact": continued})
+
+    auth_probe = lab.kubectl("exec", "deployment/probe", "--", "python", "/app/sink_auth_probe.py",
+                             "https://sink.saf-test.svc.cluster.local:8443/audit")
+    auth_result = json.loads(auth_probe.stdout)
+    auth_ok = auth_result == {"unauthorized_rejected": True, "status": 401}
+    lab.check("identity", "The local central receiver requires its synthetic forwarding credential",
+              auth_ok, auth_result)

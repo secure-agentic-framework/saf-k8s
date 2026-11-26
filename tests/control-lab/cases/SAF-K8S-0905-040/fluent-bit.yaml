@@ -18,20 +18,32 @@ pipeline:
   outputs:
     - name: http
       match: zot.audit
-      host: sink
-      port: 8080
+      host: sink.saf-test.svc.cluster.local
+      port: 8443
       uri: /audit
       format: json_lines
       json_date_key: false
       workers: 1
+      tls: on
+      tls.verify: on
+      tls.verify_hostname: on
+      tls.ca_file: /sink-ca/ca.pem
+      http_user: __SINK_USER__
+      http_passwd: __SINK_PASSWORD__
     - name: http
       match: zot.access
-      host: sink
-      port: 8080
+      host: sink.saf-test.svc.cluster.local
+      port: 8443
       uri: /access
       format: json_lines
       json_date_key: false
       workers: 1
+      tls: on
+      tls.verify: on
+      tls.verify_hostname: on
+      tls.ca_file: /sink-ca/ca.pem
+      http_user: __SINK_USER__
+      http_passwd: __SINK_PASSWORD__
 parsers:
   - name: zot_json
     format: json

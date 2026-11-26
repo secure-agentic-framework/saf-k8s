@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-040",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "1d6c455b67df663302f463a3b2eacf153ccdb364",
+  "catalog_sha256": "99dfcf4e7690631de3a5a538c5e0434405de93779ba25e0e5ce0cff09d9d7f38",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "34975efdc8472f9c74cbb1cbc89aebcb0657f44c1f559fb8687e01a568f3216b",
-  "scope": "One fresh Kind cluster runs two authenticated Zot v2.1.23 registries. The same inert OCI operations occur with forwarding off and on. Fluent Bit 5.1.2 ships native audit and HTTP access events to an independent HTTP receiver backed by a PVC. The receiver is replaced, retained events are compared, and a fresh event sequence is delivered. Covers model manifest publish, pull, retag and digest deletion. Permission and administrative event sources, loss recovery during a receiver outage, production access controls, SIEM delivery and retention are open.",
-  "cluster": "saf-lab-42b9f50e4278",
+  "scope": "One fresh Kind cluster runs two authenticated Zot v2.1.23 registries. The same inert OCI operations occur with forwarding off and on. Fluent Bit 5.1.2 ships native audit and HTTP access events to an authenticated HTTPS receiver backed by a PVC. The receiver is replaced, retained events are compared, and a fresh event sequence is delivered. Covers model manifest publish, pull, retag and digest deletion. Permission and administrative event sources, loss recovery during a receiver outage, production access controls, SIEM delivery and retention are open.",
+  "cluster": "saf-lab-f1d5a605f45e",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -65,6 +65,15 @@
         "receiver_replaced": true,
         "prior_records_exact": true,
         "new_records_exact": true
+      }
+    },
+    {
+      "phase": "identity",
+      "claim": "The local central receiver requires its synthetic forwarding credential",
+      "matched": true,
+      "observed": {
+        "status": 401,
+        "unauthorized_rejected": true
       }
     }
   ]
