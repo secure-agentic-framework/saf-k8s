@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0403-002",
-  "catalog_revision": "600aa46d14fe8d377dfcf9e668cd23fc68951d9b",
-  "catalog_sha256": "08e921c1f2aefcbbc6f8736b0e445e6aada028a4e769b84fba159977e377b013",
+  "catalog_revision": "03197b5f34c07adf30de371cb78cb9f0dfb5587b",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "67376295ae2c53441357f62b5428120b3110bfd2e7c8c6107c0035365ea11b88",
-  "scope": "Test External Secrets Operator against a separate, disposable HTTPS provider with public markers. Verify an approved controller write, synchronized Secret, actual application directory read, source failure indication and recovery. Managed cloud stores, CSI direct mounts, authority-side actual credential rotation and production provider audit are separate.",
-  "cluster": "saf-lab-451e1ba09eb0",
+  "scope": "Test External Secrets Operator against a separate, disposable HTTPS provider with public markers. Verify scoped fixture HTTPS principal decisions, an approved controller write, synchronized Secret and application directory read, source failure indication and recovery. Managed cloud stores, CSI direct mounts, authority-side actual credential rotation and production provider audit are separate.",
+  "cluster": "saf-lab-8bc89f7ed875",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -48,6 +48,14 @@
       }
     },
     {
+      "phase": "positive",
+      "claim": "The HTTPS provider independently observes an approved synthetic header principal",
+      "matched": true,
+      "observed": {
+        "approved_principal_accepted_by_provider": true
+      }
+    },
+    {
       "phase": "green",
       "claim": "The manual API write is denied while the real controller creates an owned synchronized copy",
       "matched": true,
@@ -65,6 +73,18 @@
         "failed_reconciliation_observed": true,
         "retained_while_unavailable": true,
         "recovered_reader": true
+      }
+    },
+    {
+      "phase": "negative",
+      "claim": "A separately refused fixture principal cannot persist a target Secret or disturb the approved reader",
+      "matched": true,
+      "observed": {
+        "different_name_target_server_dry_run_admitted": true,
+        "provider_refused_fixture_principal": true,
+        "denied_external_secret_not_ready": true,
+        "target_secret_absent": true,
+        "approved_reader_unchanged": true
       }
     }
   ]
