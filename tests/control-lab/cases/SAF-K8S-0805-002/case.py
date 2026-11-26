@@ -13,6 +13,11 @@ CONTAINER = "unit"
 IMAGE = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 LOG = "/var/log/kubernetes/saf-allocation-audit.log"
 KEYS = ("cluster", "namespace", "node", "uid", "container", "resource")
+DRA_DRIVER = "mock.saf-lab.example"
+DRA_CLASS = "fixture-accelerator-class"
+DRA_SLICE = "fixture-accelerator-slice"
+DRA_CLAIM = "fixture-accelerator-claim"
+DRA_POD = "fixture-dra-workload"
 
 
 def prepare_kind(_lab, temporary):
@@ -123,6 +128,205 @@ def correlate(workload, snapshots):
     return {"status": "synthetic-snapshot", "device": next(iter(matching)), "exact_duration": None}
 
 
+def _dra_objects(node):
+    labels = {"saf-k8s.example/control": "SAF-K8S-0805-002",
+              "saf-k8s.example/fixture": "synthetic-dra-only"}
+    device_class = {
+        "apiVersion": "resource.k8s.io/v1", "kind": "DeviceClass",
+        "metadata": {"name": DRA_CLASS, "labels": labels},
+        "spec": {"selectors": [{"cel": {"expression": (
+            f"device.driver == '{DRA_DRIVER}' && "
+            f"device.attributes['{DRA_DRIVER}'].type == 'accelerator'"
+        )}}]},
+    }
+    resource_slice = {
+        "apiVersion": "resource.k8s.io/v1", "kind": "ResourceSlice",
+        "metadata": {"name": DRA_SLICE, "labels": labels},
+        "spec": {
+            "driver": DRA_DRIVER, "nodeName": node,
+            "pool": {"name": "fixture-pool", "generation": 1, "resourceSliceCount": 1},
+            "devices": [{"name": "fixture-device-001", "attributes": {
+                f"{DRA_DRIVER}/type": {"string": "accelerator"},
+                f"{DRA_DRIVER}/evidence": {"string": "synthetic-only"},
+            }}],
+        },
+    }
+    claim = {
+        "apiVersion": "resource.k8s.io/v1", "kind": "ResourceClaim",
+        "metadata": {"name": DRA_CLAIM, "namespace": NS, "labels": labels,
+                     "annotations": {"saf-k8s.example/evidence-class": "synthetic-scheduler-metadata"}},
+        "spec": {"devices": {"requests": [{"name": "fixture-device", "exactly": {
+            "deviceClassName": DRA_CLASS, "allocationMode": "ExactCount", "count": 1,
+        }}]}},
+    }
+    pod = {
+        "apiVersion": "v1", "kind": "Pod",
+        "metadata": {"name": DRA_POD, "namespace": NS, "labels": labels},
+        "spec": {
+            "serviceAccountName": ACCOUNT, "automountServiceAccountToken": False,
+            "restartPolicy": "Never", "terminationGracePeriodSeconds": 1,
+            "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
+                                "seccompProfile": {"type": "RuntimeDefault"}},
+            "resourceClaims": [{"name": "fixture-device", "resourceClaimName": DRA_CLAIM}],
+            "containers": [{"name": "fixture", "image": IMAGE,
+                "command": ["python", "-c", "import time; time.sleep(60)"],
+                "resources": {"claims": [{"name": "fixture-device"}],
+                              "requests": {"cpu": "5m", "memory": "12Mi"},
+                              "limits": {"cpu": "100m", "memory": "64Mi"}},
+                "securityContext": {"allowPrivilegeEscalation": False,
+                    "readOnlyRootFilesystem": True, "capabilities": {"drop": ["ALL"]}},
+            }],
+        },
+    }
+    return device_class, resource_slice, claim, pod
+
+
+def _wait_dra_allocation(lab, pod_uid):
+    deadline = time.monotonic() + 50
+    last_claim = {}
+    last_pod = {}
+    while time.monotonic() < deadline:
+        last_claim = json.loads(lab.kubectl("-n", NS, "get", "resourceclaim", DRA_CLAIM,
+                                           "-o", "json").stdout)
+        last_pod = json.loads(lab.kubectl("-n", NS, "get", "pod", DRA_POD, "-o", "json").stdout)
+        results = (last_claim.get("status", {}).get("allocation", {})
+                   .get("devices", {}).get("results", []))
+        reserved = last_claim.get("status", {}).get("reservedFor", [])
+        if (last_pod.get("metadata", {}).get("uid") == pod_uid
+                and last_pod.get("spec", {}).get("nodeName")
+                and len(results) == 1
+                and any(item.get("uid") == pod_uid and item.get("resource") == "pods"
+                        for item in reserved)):
+            return last_claim, last_pod, results[0]
+        time.sleep(0.5)
+    lab.block("The native scheduler allocation and exact Pod reservation were not observed")
+
+
+def _delete_and_wait_absent(lab, kind, name, namespace=None):
+    args = ["delete", kind, name, "--wait=true", "--timeout=35s"]
+    if namespace:
+        args[0:0] = ["-n", namespace]
+    lab.kubectl(*args, timeout=45, allow_failure=True)
+    deadline = time.monotonic() + 20
+    while time.monotonic() < deadline:
+        get_args = ["get", kind, name, "-o", "json"]
+        if namespace:
+            get_args[0:0] = ["-n", namespace]
+        result = lab.kubectl(*get_args, allow_failure=True)
+        if result.returncode != 0:
+            return
+        time.sleep(0.5)
+    lab.block(f"Owned DRA object did not disappear after deletion: {kind}/{name}")
+
+
+def native_dra_recreation_comparison(lab, node):
+    """Observe actual scheduler-written DRA status for same-name Pod recreation."""
+    device_class, resource_slice, claim, pod = _dra_objects(node)
+    pair_rows = []
+    try:
+        created_class = lab.create(device_class)
+        created_slice = lab.create(resource_slice)
+
+        first_claim = lab.create(claim)
+        first_pod = lab.create(pod)
+        lab.kubectl("wait", "--for=condition=PodScheduled", f"pod/{DRA_POD}",
+                    "--timeout=55s", timeout=64)
+        claim_one, pod_one, allocation_one = _wait_dra_allocation(
+            lab, first_pod["metadata"]["uid"])
+        pair_rows.append({
+            "claim": claim_one, "pod": pod_one,
+            "allocation": allocation_one,
+            "created_claim_uid": first_claim["metadata"]["uid"],
+            "created_pod_uid": first_pod["metadata"]["uid"],
+        })
+
+        _delete_and_wait_absent(lab, "pods", DRA_POD, NS)
+        _delete_and_wait_absent(lab, "resourceclaims", DRA_CLAIM, NS)
+
+        second_claim = lab.create(claim)
+        second_pod = lab.create(pod)
+        lab.kubectl("wait", "--for=condition=PodScheduled", f"pod/{DRA_POD}",
+                    "--timeout=55s", timeout=64)
+        claim_two, pod_two, allocation_two = _wait_dra_allocation(
+            lab, second_pod["metadata"]["uid"])
+        pair_rows.append({
+            "claim": claim_two, "pod": pod_two,
+            "allocation": allocation_two,
+            "created_claim_uid": second_claim["metadata"]["uid"],
+            "created_pod_uid": second_pod["metadata"]["uid"],
+        })
+
+        first, second = pair_rows
+        observed_slice = json.loads(lab.kubectl("get", "resourceslice", DRA_SLICE,
+                                                "-o", "json").stdout)
+        def exact(row):
+            claim_uid = row["claim"].get("metadata", {}).get("uid")
+            pod_uid = row["pod"].get("metadata", {}).get("uid")
+            allocation = row["allocation"]
+            reserved = row["claim"].get("status", {}).get("reservedFor", [])
+            claim_ref = next((entry for entry in row["pod"].get("spec", {}).get("resourceClaims", [])
+                              if entry.get("name") == "fixture-device"), {})
+            return (
+                claim_uid == row["created_claim_uid"]
+                and pod_uid == row["created_pod_uid"]
+                and claim_ref.get("resourceClaimName") == DRA_CLAIM
+                and allocation.get("driver") == DRA_DRIVER
+                and allocation.get("pool") == "fixture-pool"
+                and allocation.get("device") == "fixture-device-001"
+                and any(item.get("uid") == pod_uid and item.get("resource") == "pods"
+                        for item in reserved)
+            )
+
+        same_name = (first["pod"]["metadata"]["name"] == second["pod"]["metadata"]["name"]
+                     and first["claim"]["metadata"]["name"] == second["claim"]["metadata"]["name"])
+        distinct_pod_uids = first["pod"]["metadata"]["uid"] != second["pod"]["metadata"]["uid"]
+        distinct_claim_uids = first["claim"]["metadata"]["uid"] != second["claim"]["metadata"]["uid"]
+        exact_first, exact_second = exact(first), exact(second)
+        slice_uid_matches = (observed_slice.get("metadata", {}).get("uid")
+                             == created_slice.get("metadata", {}).get("uid"))
+        slice_advertises_assigned_device = (
+            observed_slice.get("spec", {}).get("driver") == DRA_DRIVER
+            and observed_slice.get("spec", {}).get("pool", {}).get("name") == "fixture-pool"
+            and any(device.get("name") == "fixture-device-001"
+                    for device in observed_slice.get("spec", {}).get("devices", []))
+        )
+        allocation_source_matches_owned_slice = slice_uid_matches and slice_advertises_assigned_device
+        passed = (same_name and distinct_pod_uids and distinct_claim_uids and exact_first
+                  and exact_second and allocation_source_matches_owned_slice)
+        observed = {
+            "same_pod_and_claim_names_recreated": same_name,
+            "pod_uids_distinct": distinct_pod_uids,
+            "claim_uids_distinct": distinct_claim_uids,
+            "first_allocation_and_reservation_match": exact_first,
+            "replacement_allocation_and_reservation_match": exact_second,
+            "allocation_source_matches_owned_slice": allocation_source_matches_owned_slice,
+            "classification": "synthetic scheduler allocation metadata; no driver or physical device",
+        }
+        (lab.evidence / "native-dra-recreation.raw.json").write_text(json.dumps({
+            "classification": "synthetic scheduler allocation metadata",
+            "device_driver_installed": False, "physical_device_observed": False,
+            "resource_class_uid": created_class.get("metadata", {}).get("uid"),
+            "resource_slice_uid": created_slice.get("metadata", {}).get("uid"),
+            "pairs": [{
+                "pod_name": row["pod"]["metadata"].get("name"),
+                "pod_uid": row["pod"]["metadata"].get("uid"),
+                "claim_name": row["claim"]["metadata"].get("name"),
+                "claim_uid": row["claim"]["metadata"].get("uid"),
+                "resource_slice_uid": created_slice.get("metadata", {}).get("uid"),
+                "allocation": row["allocation"],
+                "reserved_for": row["claim"].get("status", {}).get("reservedFor", []),
+            } for row in pair_rows],
+            "assertions": observed,
+        }, indent=2, sort_keys=True) + "\n")
+        lab.check("positive", "Native DRA allocation and reservation bind each recreated Pod UID to its claim",
+                  passed, observed)
+    finally:
+        _delete_and_wait_absent(lab, "pods", DRA_POD, NS)
+        _delete_and_wait_absent(lab, "resourceclaims", DRA_CLAIM, NS)
+        _delete_and_wait_absent(lab, "resourceslices", DRA_SLICE)
+        _delete_and_wait_absent(lab, "deviceclasses", DRA_CLASS)
+
+
 def run(lab):
     lab.kubectl("label", "namespace", NS, "pod-security.kubernetes.io/enforce=restricted")
     lab.create({"apiVersion": "v1", "kind": "ServiceAccount", "metadata": {"name": ACCOUNT},
@@ -149,6 +353,7 @@ def run(lab):
     lab.check("positive", "Wrong-node and conflicting records stay unresolved and snapshots yield no exact interval",
               wrong_node["status"] == "missing" and conflict["status"] == "ambiguous" and first_match["exact_duration"] is None,
               {"wrong_node": wrong_node["status"], "conflict": conflict["status"], "exact_duration": first_match["exact_duration"]})
+    native_dra_recreation_comparison(lab, node)
     (lab.evidence / "accelerator-audit-observations.json").write_text(json.dumps({
         "workloads": [first, second], "creation_audit": audit, "first_relation": first_match,
         "replacement_relation": second_match, "conflicting_relation": conflict,
