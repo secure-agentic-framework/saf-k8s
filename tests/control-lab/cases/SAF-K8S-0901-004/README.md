@@ -1,6 +1,6 @@
 # SAF-K8S-0901-004 — Training fault tolerance and security
 
-This draft exercises a narrow, synthetic recovery path for the pinned control.
+This case exercises a narrow synthetic recovery path for the pinned control.
 It creates two named immutable snapshot ConfigMaps in `saf-test`, each carrying
 the canonical fixture record and its checked-in SHA-256 digest. The case reads
 both back through the Kubernetes API, changes a case-owned mock recovery target,
@@ -24,17 +24,17 @@ the lab's usual disposable-cluster runner and a valid local Docker context:
 python3 lab.py test SAF-K8S-0901-004 --docker-context desktop-linux
 ```
 
-This draft has not been run against Docker or Kubernetes. The normal runner
-result should retain the matched red, positive, and green checks. The case also
-writes `recovery-integrity.raw.json` under the run evidence directory. It
+The current public receipt records a passed run with five matched checks across
+red, positive, and green phases. The case also writes
+`recovery-integrity.raw.json` under the run evidence directory. It
 contains the fixture snapshot names and digests, sanitized Job status, Job
 logs, and the exact API-observed target fields; it does not collect Secrets,
 tokens, or kubeconfig contents. The lab's command log captures API requests and
 responses for the disposable namespace.
 
-## Expected observations
+## Receipt observations
 
-| Phase | Independently observed result |
+| Phase | Recorded result |
 | --- | --- |
 | Red | Altered bytes produce `digest-mismatch`; the target remains unchanged. |
 | Red | `attempts=3` is refused under the explicit maximum of 2; the target remains unchanged. |

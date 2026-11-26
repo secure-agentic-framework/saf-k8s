@@ -22,16 +22,17 @@ These tests exercise image metadata, the final built image and actual process
 behavior. An organization's registry and admission gates, exceptions, and
 production image and mount inventories need separate verification.
 
-The scratch candidate adds one namespaced native Kubernetes
-ValidatingAdmissionPolicy comparison. Five fixed proposals are server-side
-dry-run only: four omit or set false one of `runAsNonRoot` or
+The current seven-check public receipt includes one namespaced native
+Kubernetes ValidatingAdmissionPolicy comparison. Five fixed proposals are
+server-side dry-run only: four omit or set false one of `runAsNonRoot` or
 `readOnlyRootFilesystem`, and one supplies both as true. The same proposals
 are admitted before policy activation; after the binding activates, the four
 incomplete proposals are denied and the compliant proposal remains
 admissible. The policy requires both fields on every regular and init
 container. It is bound only to a newly created fixture-labeled namespace. No
 Pod from this comparison is persisted or scheduled. The original six image
-and runtime assertions remain intact; the candidate has seven total.
+and runtime assertions remain intact. The public receipt records seven matched
+checks.
 
 For adoption, inventory the exact released image digest and its final USER and
 file list in the build pipeline. Verify the deployed admission policy's

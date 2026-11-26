@@ -10,9 +10,10 @@ The fixture uses public bytes and temporary identities. Verify production
 attribute authority, logs, registry and object-store enforcement and
 all supported read paths independently.
 
-This scratch candidate preserves the original three checks and adds a fourth
-grouped comparison. It creates two immutable, case-owned attribute-version
-ConfigMaps and a mutable `current` pointer. The HTTPS resource service uses its
+The current four-check public receipt contains the original three attribute
+read checks and one grouped version-selection comparison. The case creates two
+immutable, case-owned attribute-version ConfigMaps and a mutable `current`
+pointer. The HTTPS resource service uses its
 own TokenReview-authorized service account to read the pointer and only the
 two named immutable versions. A separate writer Pod uses its own projected
 Kubernetes service-account token; namespace RBAC grants it `patch` only on

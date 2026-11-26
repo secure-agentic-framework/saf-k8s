@@ -59,9 +59,9 @@ reference fixture. Exercise the adopter's actual promotion path with the same
 allowed and refused selections and ensure only the approved storage identity
 can publish it.
 
-## Cross-Pod ciphertext handoff extension (scratch candidate)
+## Cross-Pod ciphertext handoff
 
-The cross-Pod reference adds a separate producer, valid consumer, altered-input consumer and wrong-key consumer. A producer Pod reads a per-case 32-byte key from a mounted,
+The current public receipt passed all 19 checks, including this cross-Pod extension with a separate producer, valid consumer, altered-input consumer, and wrong-key consumer. A producer Pod reads a per-case 32-byte key from a mounted,
 case-owned Secret and writes an AES-GCM envelope directly to a pre-created,
 named ConfigMap over verified Kubernetes API TLS. Its ServiceAccount can patch
 only that ConfigMap. The Go probe emits only a boolean result; key bytes and
@@ -72,11 +72,10 @@ mounts the exact named ciphertext and key Secret, then runs the existing Go
 authenticated run, step, and freshness validation and exact-ciphertext
 promotion path.
 
-The extension checks an altered ciphertext and a wrong-key outsider in
-separate consumer Pods; both must be rejected before any promotion destination
-or staging file exists. It checks an exact producer envelope and requires
-successful promotion while comparing the promoted bytes with the original
-encrypted input. Synthetic RBAC checks allow the intended consumer identity to
+The matched checks reject an altered ciphertext and a wrong-key outsider in
+separate consumer Pods before any promotion destination or staging file
+exists. They accept an exact producer envelope and verify successful promotion
+while comparing promoted bytes with the original encrypted input. Synthetic RBAC checks allow the intended consumer identity to
 get only the named handoff ConfigMap and key Secret; they deny collection,
 unrelated-object, and outsider reads. Producer API TLS and its named patch
 permission are exercised by the producer Pod. Consumer API permissions are

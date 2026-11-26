@@ -2,8 +2,7 @@
 
 ## Case design
 
-This draft is a narrow mock-workload demonstration for the pinned control. It
-creates two separately named and labeled Pods in `saf-0902-004`. Both run the
+This mock-workload demonstration for the pinned control creates two separately named and labeled Pods in `saf-0902-004`. Both run the
 same small, case-owned Python fixture from the official digest-pinned Python
 image. Each Pod receives its own memory-backed `emptyDir` with `sizeLimit: 8Mi`
 mounted at `/dev/shm`. Each writes `model-cache.marker` at that identical path,
@@ -41,12 +40,12 @@ runner, then independently repeat it from a fresh cluster:
 python3 lab.py test SAF-K8S-0902-004 --docker-context desktop-linux
 ```
 
-The authoring draft has not been run. Do not treat the expected outcomes below
-as observed results. The runner requires local `openssl` to generate the
-ephemeral synthetic certificate hierarchy. The case itself makes no request
-outside its cluster; the pinned official workload image must be available to
-the Kind node (a cold image pull may require the supervisor's normal image
-preparation).
+The current public receipt records a passed run with six matched checks. The
+observed check categories are summarized below. The runner requires local
+`openssl` to generate the ephemeral synthetic certificate hierarchy. The case
+makes no request outside its cluster; the pinned official workload image must
+be available to the Kind node (a cold image pull may require the supervisor's
+normal image preparation).
 
 The case writes `image-lock.raw.json` and `isolation-accounting.raw.json` in
 the run evidence directory. They contain pinned image references, Kubernetes
@@ -57,9 +56,9 @@ kubeconfig contents, or arbitrary request data. The runner's ordinary
 `commands.log` records the temporary file paths passed to `kubectl` and
 OpenSSL, not file contents.
 
-## Expected independently observable outcomes
+## Receipt observations
 
-| Phase | Expected observation |
+| Phase | Recorded observation |
 | --- | --- |
 | Positive | Kubernetes reports the two case-owned Pods with distinct UIDs and their configured memory requests and limits. |
 | Positive | Each workload reports a nonzero current usage and a finite memory limit from its own cgroup matching its declared container limit. |
