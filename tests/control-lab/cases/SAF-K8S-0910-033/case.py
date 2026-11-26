@@ -227,8 +227,30 @@ def run(lab):
                             actor(monitor.SOURCE), source_pod["metadata"]["uid"])
         api_uids = [command("get", "namespace", "kube-system", "-o", "jsonpath={.metadata.uid}").stdout.strip()
                     for command in (lab.kubectl, peer)]
+        disposition = classify(receiver, source, event)
+        investigation_documentation = {
+            "scope": {
+                "trace_id": TRACE,
+                "source_identity": receiver["source"],
+                "source_cluster_uid": api_uids[0],
+                "source_pod_uid": source_pod["metadata"]["uid"],
+                "destination_service": monitor.SERVER_NAME,
+                "receiver_cluster_uid": api_uids[1],
+            },
+            "findings": {
+                "summary": "The bounded synthetic telemetry record and threshold alert are independently attributed to the fixture source.",
+                "received_body_matches_source_receipt": receiver["body_sha256"] == source["body_sha256"],
+                "source_receipt_matches_native_audit_action": (
+                    event["pod_uid"] == source_pod["metadata"]["uid"]
+                    and event["actor"] == actor(monitor.SOURCE)
+                    and event["status"] == 200),
+                "alert_event": alert["event"],
+            },
+            "disposition": disposition,
+        }
         complete = {**before, "native_source_observation": event, "source_receipt": source,
-                    "member_api_uids": api_uids, "disposition": classify(receiver, source, event)}
+                    "member_api_uids": api_uids, "disposition": disposition,
+                    "investigation_documentation": investigation_documentation}
         publish_report(lab, FINAL, complete)
         actual = retrieve(lab, FINAL)
         outsider = read_report(lab, FINAL, OUTSIDER)
@@ -254,6 +276,30 @@ def run(lab):
                     actual["disposition"] == "authorized-fixture-traffic"}
         lab.check("positive", "The scoped investigator retrieves the complete bounded attribution",
                   all(positive.values()), positive)
+        expected_scope = {
+            "trace_id": TRACE,
+            "source_identity": receiver["source"],
+            "source_cluster_uid": api_uids[0],
+            "source_pod_uid": source_pod["metadata"]["uid"],
+            "destination_service": monitor.SERVER_NAME,
+            "receiver_cluster_uid": api_uids[1],
+        }
+        recorded = actual.get("investigation_documentation", {})
+        documented = (recorded.get("scope") == expected_scope
+                      and recorded.get("findings", {}).get("received_body_matches_source_receipt") is True
+                      and recorded.get("findings", {}).get("source_receipt_matches_native_audit_action") is True
+                      and recorded.get("findings", {}).get("alert_event") == alert["event"]
+                      and bool(recorded.get("findings", {}).get("summary"))
+                      and recorded.get("disposition") == "authorized-fixture-traffic"
+                      and actual.get("disposition") == recorded.get("disposition")
+                      and actual == complete
+                      and incomplete.get("disposition") == "unknown-incomplete"
+                      and classify(receiver, altered_receipt, event) == "unknown-inconsistent")
+        lab.check("positive", "The immutable investigation report explicitly records bounded scope, findings, and disposition",
+                  documented, {"explicit_scope_and_findings": documented,
+                               "missing_evidence_stays_unknown": incomplete.get("disposition") == "unknown-incomplete",
+                               "inconsistent_evidence_stays_unknown": classify(receiver, altered_receipt, event) == "unknown-inconsistent",
+                               "disposition": recorded.get("disposition")})
         (lab.evidence / "cross-cluster-investigation.json").write_text(
             json.dumps({"before": incomplete, "after": actual, "checks": {**green, **positive}},
                        indent=2, sort_keys=True) + "\n")

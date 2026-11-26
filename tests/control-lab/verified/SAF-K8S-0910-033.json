@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0910-033",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "6fe53b7226f0cf58ab657679ae2c7da5bf33bbfb",
+  "catalog_sha256": "22247eefd313dd32a20f4c16174eb0dcc1c0ab843abe2f2d7b5c3126011ae8db",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "297b7a76a9d51efccfc33b80c2685cb40cf1d9035b099f8692d457673527f3e3",
   "scope": "One harmless, threshold-triggering transfer across two owned Kind clusters. A receiver observer reads the actual mTLS-attributed record. A separate source Kubernetes API provides a native Metadata audit event of an exact named receipt written by the same bound Pod. A scoped investigator reads the resulting immutable correlated or incomplete report.",
-  "cluster": "saf-lab-3f7764913d09",
+  "cluster": "saf-lab-4c80c272dd98",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -76,6 +76,17 @@
       "observed": {
         "independent_report_matches_complete_evidence": true,
         "classification_is_exact_fixture_disposition": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The immutable investigation report explicitly records bounded scope, findings, and disposition",
+      "matched": true,
+      "observed": {
+        "explicit_scope_and_findings": true,
+        "missing_evidence_stays_unknown": true,
+        "inconsistent_evidence_stays_unknown": true,
+        "disposition": "authorized-fixture-traffic"
       }
     }
   ]
