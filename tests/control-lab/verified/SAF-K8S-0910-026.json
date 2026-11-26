@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0910-026",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "322f40029405be4d443068d299d5f81dd15df8db",
+  "catalog_sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "1b1180a24ec532b1e526dcee77451a201d71bb35ed25bbf8b2d5e80fbf6a1ca5",
   "scope": "Native Deployment admission on two separately owned Kind API servers using the same hash-bound approved policy bundle. All policy probes use server-side dry run.",
-  "cluster": "saf-lab-789ca391b191",
+  "cluster": "saf-lab-c84bddf52dc6",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -72,12 +72,14 @@
           "local": {
             "version": "v1",
             "sha256": "f3242795f4c3f2d9158755996adc41e0f535ab19a86f8eb136ae9587f34a1767",
+            "envelope_sha256": "33ee9470059b1fa58df2b800d87cbe5b167b6d522e39a2fbed4fda6ac3d23a4b",
             "policy": "saf026-ai-deployment-baseline-v1",
             "immutable": true
           },
           "remote": {
             "version": "v1",
             "sha256": "f3242795f4c3f2d9158755996adc41e0f535ab19a86f8eb136ae9587f34a1767",
+            "envelope_sha256": "33ee9470059b1fa58df2b800d87cbe5b167b6d522e39a2fbed4fda6ac3d23a4b",
             "policy": "saf026-ai-deployment-baseline-v1",
             "immutable": true
           }
@@ -114,19 +116,48 @@
       "matched": true,
       "observed": {
         "apply": {
-          "local": [
-            true,
-            ""
-          ],
-          "remote": [
-            true,
-            ""
-          ]
+          "local": {
+            "phase_succeeded": true,
+            "writer_service_account": true,
+            "decision": "applied",
+            "version_match": true,
+            "bundle_match": true,
+            "envelope_match": true,
+            "fixed_resources": true,
+            "policy_patch_accepted": true,
+            "binding_patch_accepted": true
+          },
+          "remote": {
+            "phase_succeeded": true,
+            "writer_service_account": true,
+            "decision": "applied",
+            "version_match": true,
+            "bundle_match": true,
+            "envelope_match": true,
+            "fixed_resources": true,
+            "policy_patch_accepted": true,
+            "binding_patch_accepted": true
+          }
         },
         "accepted": {
           "local": true,
           "remote": true
         }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Scoped in-cluster writers distribute only the approved bundle on both APIs",
+      "matched": true,
+      "observed": {
+        "two_owned_targets": true,
+        "writer_identity_used": true,
+        "approved_version_and_digest_matched": true,
+        "approved_resources_read_back_on_both": true,
+        "wrong_version_withheld_on_both": true,
+        "wrong_version_left_placeholders_unchanged": true,
+        "both_apis_accepted_compliant_request_after_wrong_version": true,
+        "compliant_request_accepted_after_distribution_on_both": true
       }
     },
     {
