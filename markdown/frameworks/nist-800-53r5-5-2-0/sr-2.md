@@ -20,15 +20,6 @@ SCRM plan for agentic AI addresses model provenance, tool integrity, and vendor 
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0606-009 - SSDF v1.1 alignment for secure development practices](../../controls/SAF-K8S-0606-009.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.6
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0904-001 - Pipeline orchestrator hardening](../../controls/SAF-K8S-0904-001.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines

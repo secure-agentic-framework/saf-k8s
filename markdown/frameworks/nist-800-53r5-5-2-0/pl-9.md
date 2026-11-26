@@ -20,15 +20,6 @@ Central management of security controls is important for governing distributed a
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0606-009 - SSDF v1.1 alignment for secure development practices](../../controls/SAF-K8S-0606-009.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.6
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0910-029 - Centralized multi-cluster secret, certificate, and incident governance coordination](../../controls/SAF-K8S-0910-029.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines

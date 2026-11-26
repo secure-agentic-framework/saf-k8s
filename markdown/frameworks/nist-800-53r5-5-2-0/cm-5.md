@@ -45,15 +45,6 @@ Restrictive modes and ownership limit filesystem changes to these artifacts. Rec
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0606-009 - SSDF v1.1 alignment for secure development practices](../../controls/SAF-K8S-0606-009.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.6
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0606-024 - Policy-as-code and runtime configuration integrity governance](../../controls/SAF-K8S-0606-024.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control

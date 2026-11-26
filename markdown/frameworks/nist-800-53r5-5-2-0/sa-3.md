@@ -20,15 +20,6 @@ SDLC for agentic AI must integrate security at every phase including model train
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0606-009 - SSDF v1.1 alignment for secure development practices](../../controls/SAF-K8S-0606-009.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.6
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0606-017 - CNCF lifecycle phase security coverage](../../controls/SAF-K8S-0606-017.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control

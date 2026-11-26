@@ -38,15 +38,6 @@ Provenance tracking for AI models, training data, and agent tools verifies origi
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0606-009 - SSDF v1.1 alignment for secure development practices](../../controls/SAF-K8S-0606-009.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.6
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0606-018 - Zero-trust CI/CD handoff verification and independent evidence generation](../../controls/SAF-K8S-0606-018.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
