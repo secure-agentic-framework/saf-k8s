@@ -89,3 +89,12 @@ The actual API path verifies the expected certificate-backed identity of each se
 - Strength: moderate
 - Applicability: conditional
 - Strength Reason Code: partial-control-coverage
+
+### [SAF-K8S-0501-006 - Multi-cluster network segmentation for federated AI workloads](../../controls/SAF-K8S-0501-006.md)
+
+- Domain: D05 - Network Security and Communication
+- Knowledge Area: 5.1
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

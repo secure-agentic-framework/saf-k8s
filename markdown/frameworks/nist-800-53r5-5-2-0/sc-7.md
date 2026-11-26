@@ -49,10 +49,10 @@ The case demonstrates one internal workload boundary enforced by NetworkPolicy. 
 
 - Domain: D05 - Network Security and Communication
 - Knowledge Area: 5.1
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0501-007 - East-west AI workload traffic monitoring](../../controls/SAF-K8S-0501-007.md)
 

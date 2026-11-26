@@ -43,9 +43,9 @@ Managing internal agent-to-system connections
 - Domain: D05 - Network Security and Communication
 - Knowledge Area: 5.1
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0501-008 - AI workload type network microsegmentation](../../controls/SAF-K8S-0501-008.md)
 

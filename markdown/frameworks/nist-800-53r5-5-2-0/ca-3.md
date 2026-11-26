@@ -20,15 +20,6 @@ Managing agent information exchange agreements
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0501-006 - Multi-cluster network segmentation for federated AI workloads](../../controls/SAF-K8S-0501-006.md)
-
-- Domain: D05 - Network Security and Communication
-- Knowledge Area: 5.1
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0501-008 - AI workload type network microsegmentation](../../controls/SAF-K8S-0501-008.md)
 
 - Domain: D05 - Network Security and Communication
