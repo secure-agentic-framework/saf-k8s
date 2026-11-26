@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0703-021",
-  "catalog_revision": "4c79834780061df50b667c94bee472aa367b6148",
-  "catalog_sha256": "9e06b319942c6734af90d7c5a8a864afa453f52032df740d201e5484c1b801c9",
+  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
+  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "ec85c2b0e74d0e00918b0099ee706be0c1c6b4c7a1bacb1b2b650f3b4b0532c1",
-  "scope": "Scoped Pod CREATE admission, synthetic accelerator quota and scheduling, and actual ServiceAccount-authenticated Job-template dry-runs. Device assignment and deployed controller-generated Pod authorization require separate evidence.",
-  "cluster": "saf-lab-eb42187b70cf",
+  "scope": "Scoped Pod CREATE admission, synthetic accelerator quota and scheduling, actual ServiceAccount-authenticated Job-template dry-runs, and one actual benign Job-controller Pod admitted only for an immutable exact Job owner UID. Physical device assignment, isolation and deployed controller authorization remain separate evidence.",
+  "cluster": "saf-lab-1abefbeca886",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -99,6 +99,26 @@
         "authenticated_identity_matches": true,
         "policy_denial": true,
         "dry_run_jobs_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved controller creates an owner-bound accelerator Pod admitted by the exact scoped policy",
+      "matched": true,
+      "observed": {
+        "checks": {
+          "created_by_approved_submitter": true,
+          "pod_has_exact_controller_job_owner_uid": true,
+          "pod_satisfies_exact_synthetic_resource_request_and_owned_node": true,
+          "namespace_quota_accounts_controller_pod_while_running": true,
+          "running_pod_has_expected_digest_pinned_runtime": true,
+          "benign_controller_job_completes_successfully": true
+        },
+        "requested_image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+        "runtime_image_id": "docker.io/library/busybox@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+        "quota_used_while_running": "1",
+        "policy_name": "saf-fixture-accelerator-controller-pod",
+        "controller_actor": "system:serviceaccount:kube-system:job-controller"
       }
     }
   ]
