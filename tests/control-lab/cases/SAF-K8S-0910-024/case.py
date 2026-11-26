@@ -17,9 +17,13 @@ DESTINATION_REGISTRY = "fixture-destination-registry"
 SOURCE_CLIENT = "fixture-provenance-source-client"
 TRANSFER_CLIENT = "fixture-provenance-transfer"
 VALIDATOR_CLIENT = "fixture-provenance-validator"
+WITHDRAWN_CLIENT = "fixture-provenance-withdrawn-client"
 SOURCE_CODE = "fixture-provenance-source-code"
 PEER_CODE = "fixture-provenance-peer-code"
+PEER_TRUST = "fixture-provenance-peer-trust"
 REPO = "fixtures/model"
+APPROVED_SIGNER = "fixture://model-release-signer"
+UNAPPROVED_SIGNER = "fixture://model-release-signer-unapproved"
 NOW_VALUE = datetime.now(timezone.utc).replace(microsecond=0)
 NOW = NOW_VALUE.isoformat().replace("+00:00", "Z")
 REGISTRY = ("docker.io/library/registry:3.0.0@sha256:"
@@ -30,8 +34,9 @@ SCOPE = (
     "owned peer cluster on the isolated Kind bridge. The same source blob is transferred in a control-off "
     "baseline that strips signed provenance and a control-on path that requires source-bound signed "
     "in-toto/SLSA lineage. A different peer pod independently reads the destination manifest and blob, "
-    "compares exact source bytes and digests, and verifies the signature using only approved public-key "
-    "bytes and the signature bytes returned by the registry."
+    "compares exact source bytes and digests, and verifies the signature against a separately published "
+    "peer trust policy. A grouped addition rejects a valid unapproved signer and a previously approved "
+    "signer after the fixture trust policy records withdrawal."
 )
 
 
@@ -54,7 +59,7 @@ def model_blob():
                       sort_keys=True, separators=(",", ":")).encode()
 
 
-def statement(created=NOW, subject=None):
+def statement(created=NOW, subject=None, signer=APPROVED_SIGNER):
     model_digest = subject or sha256(model_blob()).hexdigest()
     value = {
         "_type": "https://in-toto.io/Statement/v1",
@@ -69,7 +74,7 @@ def statement(created=NOW, subject=None):
                                         "startedOn": created, "finishedOn": created}},
             "saf_created_at": created,
             "saf_origin_cluster": "fixture-training-cluster",
-            "saf_signing_identity": "fixture://model-release-signer",
+            "saf_signing_identity": signer,
             "saf_promotion_workflow": "fixture-model-approved",
         },
     }
@@ -119,9 +124,9 @@ def client(lab, name, image, command, mounts, volumes):
     create(lab, pod(name, [unit], automountServiceAccountToken=False, volumes=volumes))
 
 
-def code_map(lab, name, files):
+def code_map(lab, name, files, immutable=True):
     create(lab, {"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": name},
-                 "immutable": True, "data": files})
+                 "immutable": immutable, "data": files})
 
 
 def wait(lab, name):
@@ -160,9 +165,16 @@ def pod_code_config(lab, peer, public_pem, source_route):
     code_map(lab, SOURCE_CODE, shared)
     code_map(peer, PEER_CODE, {
         **shared, "destination_validator.py": (HERE / "destination_validator.py").read_text(),
-        "approved-public.pem": public_pem.decode("ascii"),
         "source-route.json": json.dumps(source_route),
     })
+    trust_policy = {"version": 1, "signers": {APPROVED_SIGNER: {
+        "state": "active", "public_key_file": "approved-public.pem",
+        "public_key_sha256": sha256(public_pem).hexdigest(),
+    }}}
+    code_map(peer, PEER_TRUST, {
+        "approved-public.pem": public_pem.decode("ascii"),
+        "trusted-signers.json": json.dumps(trust_policy, sort_keys=True, separators=(",", ":")),
+    }, immutable=False)
 
 
 def create_clients(lab, peer, image):
@@ -172,8 +184,27 @@ def create_clients(lab, peer, image):
         client_kube = peer if name != SOURCE_CLIENT else source_kubectl(lab)
         mounts = [{"name": "fixture", "mountPath": "/fixture", "readOnly": True}]
         volumes = [{"name": "fixture", "configMap": {"name": code_name}}]
+        if name != SOURCE_CLIENT:
+            mounts.append({"name": "trust", "mountPath": "/trust", "readOnly": True})
+            volumes.append({"name": "trust", "configMap": {"name": PEER_TRUST}})
         client(client_kube, name, image, ["sleep", "360"], mounts, volumes)
         wait(client_kube, name)
+
+
+def create_peer_transfer_client(peer, name, image):
+    mounts = [{"name": "fixture", "mountPath": "/fixture", "readOnly": True},
+              {"name": "trust", "mountPath": "/trust", "readOnly": True}]
+    volumes = [{"name": "fixture", "configMap": {"name": PEER_CODE}},
+               {"name": "trust", "configMap": {"name": PEER_TRUST}}]
+    client(peer, name, image, ["sleep", "360"], mounts, volumes)
+    wait(peer, name)
+
+
+def peer_trust_state(peer):
+    value = json.loads(peer("get", "configmap", PEER_TRUST, "-o", "json").stdout)
+    policy = json.loads(value.get("data", {}).get("trusted-signers.json", "{}"))
+    signer = policy.get("signers", {}).get(APPROVED_SIGNER, {})
+    return value.get("metadata", {}).get("resourceVersion"), policy, signer
 
 
 def source_kubectl(lab):
@@ -202,8 +233,14 @@ def run(lab):
                  "--timeout=95s", timeout=105)
             source = SOURCE_REGISTRY + "." + NS + ".svc"
             node_address = source_host(lab)
-            statement_b64, signature_b64 = sign(lab, key_path, key_dir, "source", statement())
             pod_code_config(lab, peer, public_pem, {"host": node_address, "port": source_port})
+            published_rv, initial_policy, initial_signer = peer_trust_state(peer)
+            approved_fingerprint = sha256(public_pem).hexdigest()
+            trust_published_before_sign = (
+                bool(published_rv) and initial_policy.get("version") == 1
+                and initial_signer.get("state") == "active"
+                and initial_signer.get("public_key_sha256") == approved_fingerprint)
+            statement_b64, signature_b64 = sign(lab, key_path, key_dir, "source", statement())
             create_clients(lab, peer, image)
 
             source_command = source_kubectl(lab)
@@ -310,6 +347,82 @@ def run(lab):
             lab.check("green", "Control-on refuses invalid lineage without destination writes",
                       refusal_ok, refusal_results)
 
+            # A second, valid signer demonstrates that cryptographic validity alone is not trust.
+            unapproved_private = Path(key_dir) / "unapproved-signing-key.pem"
+            unapproved_public_path = Path(key_dir) / "unapproved-public.pem"
+            lab.command("openssl", "genpkey", "-algorithm", "RSA", "-pkeyopt", "rsa_keygen_bits:2048",
+                        "-out", str(unapproved_private), timeout=30)
+            lab.command("openssl", "pkey", "-in", str(unapproved_private), "-pubout",
+                        "-out", str(unapproved_public_path), timeout=20)
+            unapproved_public = unapproved_public_path.read_bytes()
+            unapproved_statement = statement(signer=UNAPPROVED_SIGNER)
+            unapproved_statement_b64, unapproved_signature_b64 = sign(
+                lab, unapproved_private, key_dir, "unapproved", unapproved_statement)
+            unapproved_signature_path = Path(key_dir) / "unapproved.sig"
+            unapproved_payload_path = Path(key_dir) / "unapproved.json"
+            unapproved_verify = lab.command(
+                "openssl", "dgst", "-sha256", "-verify", str(unapproved_public_path),
+                "-signature", str(unapproved_signature_path), str(unapproved_payload_path), timeout=20)
+            unapproved_signature_valid = "Verified OK" in unapproved_verify.stdout
+            unapproved_seed = exec_json(source_command, SOURCE_CLIENT, "replication_fixture.py", "seed", {
+                "source_host": source,
+                "source_tag": "unapproved",
+                "statement_b64": unapproved_statement_b64,
+                "signature_b64": unapproved_signature_b64,
+                "public_pem_b64": base64.b64encode(unapproved_public).decode(),
+            })
+            unapproved_transfer = exec_json(peer, TRANSFER_CLIENT, "replication_fixture.py", "transfer", {
+                "mode": "on", "tag": "refuse-unapproved", "source_tag": "unapproved",
+                "expected_source_digest": unapproved_seed.get("source_digest"),
+                "statement_b64": unapproved_statement_b64,
+                "signature_b64": unapproved_signature_b64,
+            })
+            unapproved_absent = exec_json(peer, VALIDATOR_CLIENT, "destination_validator.py", "absent",
+                                          tag="refuse-unapproved")
+
+            # Change only the peer trust status, observe the API resourceVersion/state transition,
+            # and use a fresh verifier Pod that mounts the withdrawn policy for a later replay.
+            current_rv, current_policy, current_signer = peer_trust_state(peer)
+            withdrawn_policy = json.loads(json.dumps(current_policy))
+            withdrawn_policy["signers"][APPROVED_SIGNER]["state"] = "withdrawn"
+            peer("patch", "configmap", PEER_TRUST, "--type=merge", "-p",
+                 json.dumps({"data": {"trusted-signers.json": json.dumps(
+                     withdrawn_policy, sort_keys=True, separators=(",", ":"))}}), timeout=20)
+            withdrawn_rv, observed_policy, observed_signer = peer_trust_state(peer)
+            observed_withdrawal = (
+                bool(current_rv) and withdrawn_rv != current_rv
+                and current_signer.get("state") == "active"
+                and observed_signer.get("state") == "withdrawn"
+                and observed_signer.get("public_key_sha256") == approved_fingerprint)
+            create_peer_transfer_client(peer, WITHDRAWN_CLIENT, image)
+            withdrawn_transfer = exec_json(peer, WITHDRAWN_CLIENT, "replication_fixture.py", "transfer", {
+                **common, "mode": "on", "tag": "refuse-withdrawn",
+                "statement_b64": source_readback["statement_b64"],
+                "signature_b64": source_readback["signature_b64"],
+            })
+            withdrawn_absent = exec_json(peer, VALIDATOR_CLIENT, "destination_validator.py", "absent",
+                                         tag="refuse-withdrawn")
+            trust_lifecycle = {
+                "approved_peer_policy_preceded_source_signing_and_seed": trust_published_before_sign,
+                "active_policy_fingerprint_matches_approved_public_key": initial_signer.get(
+                    "public_key_sha256") == approved_fingerprint,
+                "approved_transfer_was_accepted": enforced["control_on_transfer_allowed"],
+                "unapproved_signature_is_cryptographically_valid": unapproved_signature_valid,
+                "valid_unapproved_signer_refused_before_destination_write":
+                    unapproved_transfer.get("decision") == "signer-unapproved"
+                    and unapproved_transfer.get("written") is False
+                    and unapproved_absent.get("status") == 404
+                    and unapproved_absent.get("checks", {}).get("destination_tag_absent") is True,
+                "withdrawal_transition_observed": observed_withdrawal,
+                "withdrawn_signer_refused_on_later_transfer":
+                    withdrawn_transfer.get("decision") == "signer-withdrawn"
+                    and withdrawn_transfer.get("written") is False
+                    and withdrawn_absent.get("status") == 404
+                    and withdrawn_absent.get("checks", {}).get("destination_tag_absent") is True,
+            }
+            lab.check("trust", "Peer trust publication, unapproved signer refusal, and signer withdrawal fail closed",
+                      all(trust_lifecycle.values()), trust_lifecycle)
+
             (lab.evidence / "cross-cluster-provenance.json").write_text(json.dumps({
                 "fixture": "SAF-K8S-0910-024",
                 "normalized": {
@@ -318,5 +431,6 @@ def run(lab):
                     "refusals": {name: {"decision_matches": row["decision_matches"],
                                         "destination_tag_absent": row["destination_tag_absent"]}
                                  for name, row in refusal_results.items()},
+                    "trust_lifecycle": trust_lifecycle,
                 },
             }, indent=2, sort_keys=True) + "\n")

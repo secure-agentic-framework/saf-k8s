@@ -5,7 +5,7 @@ from http.client import HTTPConnection
 import json
 import sys
 
-from verify_signature import verify as verify_signature
+from verify_signature import verify as verify_signature, trusted_public_key
 
 HOST = "fixture-destination-registry.saf-test.svc"
 PORT = 5000
@@ -67,12 +67,14 @@ def inspect(tag, expected):
             signature_bytes = base64.b64decode(signature_b64, validate=True)
             source_statement = base64.b64decode(expected["statement_b64"], validate=True)
             source_signature = base64.b64decode(expected["signature_b64"], validate=True)
-            public_pem = open("/fixture/approved-public.pem", "rb").read(16 * 1024 + 1)
             parsed = json.loads(statement_bytes)
+            signer_identity = parsed["predicate"]["saf_signing_identity"]
+            public_pem, trust_decision = trusted_public_key(signer_identity)
             checks["lineage_bytes_equal_source"] = (
                 statement_bytes == source_statement and signature_bytes == source_signature)
-            checks["lineage_signature_check_passed_from_readback_bytes"] = verify_signature(
-                statement_bytes, signature_bytes, public_pem)
+            checks["lineage_trust_policy_active"] = trust_decision == "allowed"
+            checks["lineage_signature_check_passed_from_readback_bytes"] = (
+                trust_decision == "allowed" and verify_signature(statement_bytes, signature_bytes, public_pem))
             checks["lineage_subject_binds_blob"] = (
                 parsed["subject"][0]["digest"]["sha256"] == actual_blob_digest.removeprefix("sha256:"))
             checks["lineage_policy_fields_match"] = (

@@ -1,6 +1,9 @@
 """Verify fixture lineage against the pinned runtime's OpenSSL library."""
 from contextlib import ExitStack
 from ctypes import CDLL, c_char_p, c_int, c_size_t, c_void_p
+from hashlib import sha256
+import json
+from pathlib import Path
 
 OPENSSL = CDLL("libcrypto.so.3")
 SIGNATURES = (
@@ -42,3 +45,25 @@ def verify(payload, signature, public_pem):
         if OPENSSL.EVP_DigestVerifyInit_ex(context, None, b"SHA256", None, None, public_key, None) != 1:
             return False
         return OPENSSL.EVP_DigestVerify(context, signature, len(signature), payload, len(payload)) == 1
+
+
+def trusted_public_key(signer_identity, trust_dir="/trust"):
+    """Resolve a signer only from separately mounted peer trust policy."""
+    root = Path(trust_dir)
+    policy_bytes = (root / "trusted-signers.json").read_bytes()
+    if len(policy_bytes) > 65536:
+        return None, "trust-policy-too-large"
+    policy = json.loads(policy_bytes)
+    signer = policy.get("signers", {}).get(signer_identity)
+    if not isinstance(signer, dict):
+        return None, "signer-unapproved"
+    if signer.get("state") == "withdrawn":
+        return None, "signer-withdrawn"
+    if signer.get("state") != "active":
+        return None, "trust-policy-invalid"
+    public_pem = (root / signer.get("public_key_file", "approved-public.pem")).read_bytes()
+    if len(public_pem) > 16384:
+        return None, "trusted-key-too-large"
+    if sha256(public_pem).hexdigest() != signer.get("public_key_sha256"):
+        return None, "trusted-key-fingerprint-mismatch"
+    return public_pem, "allowed"

@@ -6,7 +6,7 @@ import json
 import sys
 import time
 
-from verify_signature import verify as verify_rsa_sha256
+from verify_signature import verify as verify_rsa_sha256, trusted_public_key
 from datetime import datetime, timezone
 from urllib.parse import parse_qsl, urlencode, urlsplit
 
@@ -78,7 +78,7 @@ def _lineage(manifest):
     return statement_bytes, signature_bytes, json.loads(statement_bytes)
 
 
-def lineage_reason(manifest, blob_digest, source_digest, expected_source_digest, public_pem,
+def lineage_reason(manifest, blob_digest, source_digest, expected_source_digest,
                    statement_b64, signature_b64):
     try:
         if not statement_b64 or not signature_b64:
@@ -88,6 +88,10 @@ def lineage_reason(manifest, blob_digest, source_digest, expected_source_digest,
         statement = json.loads(statement_bytes)
     except (ValueError, TypeError, json.JSONDecodeError):
         return "lineage-malformed"
+    signer_identity = statement.get("predicate", {}).get("saf_signing_identity")
+    public_pem, trust_decision = trusted_public_key(signer_identity)
+    if trust_decision != "allowed":
+        return trust_decision
     if not verify_rsa_sha256(statement_bytes, signature_bytes, public_pem):
         return "signature-invalid"
     try:
@@ -147,8 +151,11 @@ def seed_source(proposal):
         raise ValueError("seed lineage signature did not verify")
     _upload_blob_to(proposal["source_host"], blob, PORT)
     body = json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
+    source_tag = proposal.get("source_tag", SOURCE_TAG)
+    if source_tag not in {SOURCE_TAG, "unapproved"}:
+        raise ValueError("source tag is outside the fixture allowlist")
     status, _, _ = request(proposal["source_host"], PORT, "PUT",
-                           f"/v2/{REPOSITORY}/manifests/{SOURCE_TAG}", body, MEDIA)
+                           f"/v2/{REPOSITORY}/manifests/{source_tag}", body, MEDIA)
     if status != 201:
         raise RuntimeError("source registry refused OCI manifest")
     return {"source_digest": digest(body), "blob_digest": digest(blob)}
@@ -177,10 +184,15 @@ def source_route():
 
 def transfer(proposal):
     host, port = source_route()
-    source_body, manifest, blob, source_digest, blob_digest = read_source(host, source_port=port)
+    source_tag = proposal.get("source_tag", SOURCE_TAG)
+    if source_tag not in {SOURCE_TAG, "unapproved"}:
+        return {"decision": "source-tag-not-allowed", "written": False}
+    source_body, manifest, blob, source_digest, blob_digest = read_source(
+        host, reference=source_tag, source_port=port)
     mode, tag = proposal.get("mode"), proposal.get("tag")
     refused_tags = {"refuse-missing", "refuse-stale", "refuse-subject",
-                    "refuse-source-digest", "refuse-signature"}
+                    "refuse-source-digest", "refuse-signature", "refuse-unapproved",
+                    "refuse-withdrawn"}
     if tag not in {"baseline", "preserved"} | refused_tags:
         return {"decision": "tag-not-allowed", "written": False}
     if mode == "off":
@@ -194,12 +206,8 @@ def transfer(proposal):
                                     separators=(",", ":")).encode()
         reason = "unchecked-baseline"
     elif mode == "on":
-        with open("/fixture/approved-public.pem", "rb") as key_file:
-            public_pem = key_file.read(16 * 1024 + 1)
-        if len(public_pem) > 16 * 1024:
-            raise ValueError("approved verifier material exceeds limit")
         reason = lineage_reason(manifest, blob_digest, source_digest,
-                                proposal.get("expected_source_digest"), public_pem,
+                                proposal.get("expected_source_digest"),
                                 proposal.get("statement_b64"), proposal.get("signature_b64"))
         if reason != "allowed":
             return {"decision": reason, "written": False}

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0910-024",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "4c5a3251c93a775d74135474dfc05192992c3306",
+  "catalog_sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "48c73c000a062baaba5413d510a97dd62a9043ce7d5bf72a15182ed7966bc8d9",
-  "scope": "An inert model-metadata blob and OCI manifest are seeded through the Distribution API in the harness-owned source cluster. The exact SAF-K8S-0910-020 owned_peer manager creates a separately owned peer cluster on the isolated Kind bridge. The same source blob is transferred in a control-off baseline that strips signed provenance and a control-on path that requires source-bound signed in-toto/SLSA lineage. A different peer pod independently reads the destination manifest and blob, compares exact source bytes and digests, and verifies the signature using only approved public-key bytes and the signature bytes returned by the registry.",
-  "cluster": "saf-lab-3054e9ebeda3",
+  "scope": "An inert model-metadata blob and OCI manifest are seeded through the Distribution API in the harness-owned source cluster. The exact SAF-K8S-0910-020 owned_peer manager creates a separately owned peer cluster on the isolated Kind bridge. The same source blob is transferred in a control-off baseline that strips signed provenance and a control-on path that requires source-bound signed in-toto/SLSA lineage. A different peer pod independently reads the destination manifest and blob, compares exact source bytes and digests, and verifies the signature against a separately published peer trust policy. A grouped addition rejects a valid unapproved signer and a previously approved signer after the fixture trust policy records withdrawal.",
+  "cluster": "saf-lab-1a5956e0500d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -93,6 +93,20 @@
           "decision_matches": true,
           "destination_tag_absent": true
         }
+      }
+    },
+    {
+      "phase": "trust",
+      "claim": "Peer trust publication, unapproved signer refusal, and signer withdrawal fail closed",
+      "matched": true,
+      "observed": {
+        "approved_peer_policy_preceded_source_signing_and_seed": true,
+        "active_policy_fingerprint_matches_approved_public_key": true,
+        "approved_transfer_was_accepted": true,
+        "unapproved_signature_is_cryptographically_valid": true,
+        "valid_unapproved_signer_refused_before_destination_write": true,
+        "withdrawal_transition_observed": true,
+        "withdrawn_signer_refused_on_later_transfer": true
       }
     }
   ]
