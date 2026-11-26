@@ -2141,14 +2141,12 @@
   framework_requirement_id: Article-15.4
   legacy_requirement_id: Art-15:15(4)-feedback-loops
   framework_requirement_title: Accuracy, robustness and cybersecurity
-  framework_mapping_notes: Verify integrity-failure detection and recovery as part of applicable robustness and resilience
-    evidence.
+  framework_mapping_notes: Integrity detection for a selected training-data alteration risk can contribute to applicable resilience evidence. Independently verify recovery, restored data identity and revalidation on the adopted storage path.
   control_id: SAF-K8S-0906-002
   relation_type: supports
   strength_level: weak
   applicability: conditional
-  applicability_condition: Verify integrity-failure detection and recovery as part of applicable robustness and resilience
-    evidence
+  applicability_condition: Verify integrity-failure detection and recovery as part of applicable robustness and resilience evidence
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
