@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0910-027",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "d58f551f5e9ea421a0316060ebf3afc600dde93d",
+  "catalog_sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "77126852edc6e3b9b2629f4de09f649edfcd04fcb4e719f477f9d48496631156",
-  "scope": "One ValidatingAdmissionPolicy and ValidatingAdmissionPolicyBinding on two owned Kind API servers. The policy denies Pod CREATE requests setting hostNetwork=true in one case-labeled namespace; ordinary hostNetwork=false Pods remain permitted. Remote drift changes only that binding's validationActions from Deny to Warn. A distinct scoped writer makes the change, a bounded reconciler restores the desired revision, and an independent consumer verifies actual API state. All probe Pods use a nonexistent scheduler name and never run.",
-  "cluster": "saf-lab-191347e11b70",
+  "scope": "One ValidatingAdmissionPolicy and ValidatingAdmissionPolicyBinding on two owned Kind API servers. The policy denies Pod CREATE requests setting hostNetwork=true in one case-labeled namespace; ordinary hostNetwork=false Pods remain permitted. Remote drift changes only that binding's validationActions from Deny to Warn. A distinct scoped writer makes the change, a bounded reconciler restores the desired revision, and an independent consumer verifies actual API state. The additive scratch check reintroduces one drift and requires one actual CronJob-owned in-cluster pass plus an independent read of its metadata-only receipt. It does not prove recurring fleet monitoring or external alert delivery. All probe Pods use a nonexistent scheduler name and never run.",
+  "cluster": "saf-lab-e6f4d1e2b51d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -265,6 +265,21 @@
           "persisted_hostNetwork": false,
           "scheduler_name": "saf-fixture-no-scheduler"
         }
+      }
+    },
+    {
+      "phase": "scheduled_alert",
+      "claim": "A CronJob-owned workload detects one binding drift, repairs it, and emits an independently read receipt",
+      "matched": true,
+      "observed": {
+        "cronjob_owned_successful_job": true,
+        "scheduled_spec_ok": true,
+        "exact_binding_rbac": true,
+        "authorization_decisions": true,
+        "workload_security_shape": true,
+        "independent_receipt_read": true,
+        "receipt_matches_observed_and_repaired_state": true,
+        "binding_restored": true
       }
     }
   ]

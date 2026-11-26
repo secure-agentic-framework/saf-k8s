@@ -1,0 +1,151 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fixture-scheduled-reconciler
+  namespace: saf-test
+automountServiceAccountToken: true
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fixture-scheduled-reconciler
+rules:
+  - apiGroups: [admissionregistration.k8s.io]
+    resources: [validatingadmissionpolicybindings]
+    resourceNames: [fixture-no-hostnetwork-binding]
+    verbs: [get, patch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: fixture-scheduled-reconciler
+subjects:
+  - kind: ServiceAccount
+    name: fixture-scheduled-reconciler
+    namespace: saf-test
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: fixture-scheduled-reconciler
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: fixture-scheduled-reconciler-alert
+  namespace: saf-test
+rules:
+  - apiGroups: [""]
+    resources: [configmaps]
+    verbs: [create]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: fixture-scheduled-reconciler-alert
+  namespace: saf-test
+subjects:
+  - kind: ServiceAccount
+    name: fixture-scheduled-reconciler
+    namespace: saf-test
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: fixture-scheduled-reconciler-alert
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: fixture-alert-consumer
+  namespace: saf-test
+rules:
+  - apiGroups: [""]
+    resources: [configmaps]
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: fixture-alert-consumer
+  namespace: saf-test
+subjects:
+  - kind: ServiceAccount
+    name: fixture-alert-consumer
+    namespace: saf-test
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: fixture-alert-consumer
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fixture-alert-consumer
+  namespace: saf-test
+automountServiceAccountToken: false
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: fixture-drift-scheduled-reconcile
+  namespace: saf-test
+spec:
+  schedule: "* * * * *"
+  suspend: true
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 50
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    metadata:
+      labels:
+        app.kubernetes.io/name: fixture-drift-scheduled-reconcile
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 45
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: fixture-drift-scheduled-reconcile
+        spec:
+          serviceAccountName: fixture-scheduled-reconciler
+          automountServiceAccountToken: true
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: reconcile
+              image: docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90
+              imagePullPolicy: IfNotPresent
+              command: [python, /fixture/drift_monitor.py]
+              env:
+                - name: EXPECTED_REVISION
+                  value: "REPLACE_EXPECTED_REVISION"
+                - name: MEMBER_UID
+                  value: "REPLACE_MEMBER_UID"
+                - name: JOB_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.labels['batch.kubernetes.io/job-name']
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 24Mi
+                limits:
+                  cpu: 100m
+                  memory: 64Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: [ALL]
+              volumeMounts:
+                - name: code
+                  mountPath: /fixture
+                  readOnly: true
+          volumes:
+            - name: code
+              configMap:
+                name: fixture-drift-scheduled-code

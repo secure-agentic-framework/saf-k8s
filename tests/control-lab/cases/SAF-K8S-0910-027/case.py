@@ -27,7 +27,9 @@ SCOPE = (
     "ordinary hostNetwork=false Pods remain permitted. Remote drift changes only that binding's "
     "validationActions from Deny to Warn. A distinct scoped writer makes the change, a bounded "
     "reconciler restores the desired revision, and an independent consumer verifies actual API state. "
-    "All probe Pods use a nonexistent scheduler name and never run."
+    "The additive scratch check reintroduces one drift and requires one actual CronJob-owned in-cluster "
+    "pass plus an independent read of its metadata-only receipt. It does not prove recurring fleet monitoring "
+    "or external alert delivery. All probe Pods use a nonexistent scheduler name and never run."
 )
 
 
@@ -218,6 +220,167 @@ def verify_denial(row_result):
             and row_result["resource_persisted"] is False and row_result["resource_absent"] is True)
 
 
+
+SCHEDULED_RECONCILER = "fixture-scheduled-reconciler"
+ALERT_CONSUMER = "fixture-alert-consumer"
+SCHEDULED_CRONJOB = "fixture-drift-scheduled-reconcile"
+ALERT_CONFIG = "fixture-scheduled-reconcile-code"
+ALERT_LABEL = "app.kubernetes.io/name=fixture-drift-scheduled-reconcile"
+
+
+def run_scheduled_alert(lab, peer, revision, peer_uid, runtime_image):
+    """Exercise one actual CronJob-owned, in-cluster drift detection and repair."""
+    directory = HERE
+    worker = (directory / "drift_monitor.py").read_text()
+    create(peer, row("ConfigMap", ALERT_CONFIG, "v1", immutable=True,
+                     data={"drift_monitor.py": worker}))
+    # The runner command supports no shell interpolation here: placeholders are
+    # replaced in a local manifest string and passed as kubectl stdin.
+    manifest = (directory / "cronjob.yaml").read_text()
+    manifest = manifest.replace("REPLACE_EXPECTED_REVISION", revision)
+    manifest = manifest.replace("REPLACE_MEMBER_UID", peer_uid)
+    manifest = manifest.replace(
+        "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90",
+        runtime_image)
+    manifest = manifest.replace("fixture-drift-scheduled-code", ALERT_CONFIG)
+    applied = peer("apply", "-f", "-", payload=manifest, allow_failure=True, timeout=35)
+    if applied.returncode != 0:
+        lab.block("Could not install the namespace-scoped scheduled monitor")
+
+    # Reintroduce the known harmless one-field drift so the scheduled workload,
+    # rather than the earlier host process, must observe and repair this instance.
+    current = json.loads(call(peer, "get", "validatingadmissionpolicybinding", BINDING,
+                              "-o", "json", actor=DRIFT_WRITER).stdout)
+    drift = patch_binding(peer, DRIFT_WRITER, current["metadata"]["resourceVersion"],
+                          ["Warn"], revision)
+    if drift.returncode != 0:
+        lab.block("Could not inject the exact owned scheduled-pass drift")
+    injected = actual_policy_state(peer)
+    if injected["validation_actions"] != ["Warn"] or injected["desired_revision_annotation"] != revision:
+        lab.block("Scheduled-pass drift did not match the intended one-field change")
+
+    call(peer, "patch", "cronjob", SCHEDULED_CRONJOB, "--type=merge",
+         "-p", '{"spec":{"suspend":false}}')
+    cronjob = json.loads(call(peer, "get", "cronjob", SCHEDULED_CRONJOB, "-o", "json").stdout)
+    cron_uid = cronjob["metadata"]["uid"]
+    spec = cronjob.get("spec", {})
+    pod_spec = spec.get("jobTemplate", {}).get("spec", {}).get("template", {}).get("spec", {})
+    container = pod_spec.get("containers", [{}])[0]
+    role = json.loads(call(peer, "get", "clusterrole", SCHEDULED_RECONCILER, "-o", "json").stdout)
+    rules = role.get("rules", [])
+    exact_rule = (len(rules) == 1
+                  and rules[0].get("apiGroups") == ["admissionregistration.k8s.io"]
+                  and rules[0].get("resources") == ["validatingadmissionpolicybindings"]
+                  and rules[0].get("resourceNames") == [BINDING]
+                  and sorted(rules[0].get("verbs", [])) == ["get", "patch"])
+
+    jobs = []
+    alert_data = None
+    alert_immutable = False
+    owned_job = None
+    deadline = time.monotonic() + 105
+    while time.monotonic() < deadline:
+        listing = json.loads(call(peer, "get", "jobs", "-l", ALERT_LABEL, "-o", "json").stdout)
+        jobs = listing.get("items", [])
+        owned = [job for job in jobs
+                 if job["metadata"].get("annotations", {}).get("batch.kubernetes.io/cronjob-scheduled-timestamp")
+                 and any(ref.get("kind") == "CronJob" and ref.get("uid") == cron_uid
+                         and ref.get("controller") is True
+                         for ref in job.get("metadata", {}).get("ownerReferences", []))]
+        for failed_job in owned:
+            if failed_job.get("status", {}).get("failed", 0) > 0:
+                failed_name = failed_job["metadata"]["name"]
+                call(peer, "logs", f"job/{failed_name}", allow_failure=True, timeout=15)
+                lab.block("The exact CronJob-owned drift monitor failed")
+        owned = [job for job in owned if job.get("status", {}).get("succeeded") == 1]
+        if owned:
+            owned_job = sorted(owned, key=lambda item: item["metadata"]["name"])[-1]
+            alert_name = "fixture-drift-alert-" + owned_job["metadata"]["name"][-35:]
+            observed = call(peer, "get", "configmap", alert_name, "-o", "json",
+                            actor=ALERT_CONSUMER, allow_failure=True)
+            if observed.returncode == 0:
+                alert_record = json.loads(observed.stdout)
+                alert_data = alert_record.get("data", {})
+                alert_immutable = alert_record.get("immutable") is True
+                break
+        time.sleep(2)
+    call(peer, "patch", "cronjob", SCHEDULED_CRONJOB, "--type=merge",
+         "-p", '{"spec":{"suspend":true}}', allow_failure=True, timeout=15)
+
+    after = actual_policy_state(peer)
+    worker_job_name = owned_job.get("metadata", {}).get("name") if owned_job else None
+    if not alert_data and worker_job_name:
+        name = "fixture-drift-alert-" + worker_job_name[-35:]
+        observed = call(peer, "get", "configmap", name, "-o", "json",
+                        actor=ALERT_CONSUMER, allow_failure=True)
+        if observed.returncode == 0:
+            alert_record = json.loads(observed.stdout)
+            alert_data = alert_record.get("data", {})
+            alert_immutable = alert_record.get("immutable") is True
+    alert_timestamp = None
+    if alert_data:
+        try:
+            alert_timestamp = time.strptime(alert_data.get("detected_at_utc", ""), "%Y-%m-%dT%H:%M:%S%z")
+        except ValueError:
+            pass
+    subject = f"system:serviceaccount:{NS}:{SCHEDULED_RECONCILER}"
+    groups = ("--as-group=system:serviceaccounts", f"--as-group=system:serviceaccounts:{NS}",
+              "--as-group=system:authenticated")
+    permissions = [
+        ("get", f"validatingadmissionpolicybindings/{BINDING}", "yes"),
+        ("patch", f"validatingadmissionpolicybindings/{BINDING}", "yes"),
+        ("get", "secrets", "no"), ("create", "pods", "no"), ("patch", "validatingadmissionpolicies", "no"),
+    ]
+    rbac_ok = all(call(peer, "auth", "can-i", verb, resource, "--as", subject, *groups,
+                       allow_failure=True, timeout=15).stdout.strip() == expected
+                  for verb, resource, expected in permissions)
+    alert_ok = bool(alert_data) and alert_immutable and (
+        alert_data.get("event") == "admission-policy-binding-drift-repaired"
+        and alert_data.get("member_uid") == peer_uid
+        and alert_data.get("binding") == BINDING
+        and alert_data.get("desired_revision") == revision
+        and alert_data.get("observed_revision") == revision
+        and alert_data.get("observed_actions") == '["Warn"]'
+        and alert_data.get("repaired_revision") == revision
+        and alert_data.get("repaired_actions") == '["Deny"]'
+        and alert_data.get("repair_verified") == "true"
+        and alert_timestamp is not None)
+    secure_pod = (pod_spec.get("serviceAccountName") == SCHEDULED_RECONCILER
+                  and pod_spec.get("automountServiceAccountToken") is True
+                  and pod_spec.get("securityContext", {}).get("runAsNonRoot") is True
+                  and container.get("image") == runtime_image
+                  and container.get("securityContext", {}).get("readOnlyRootFilesystem") is True
+                  and container.get("securityContext", {}).get("allowPrivilegeEscalation") is False
+                  and container.get("securityContext", {}).get("capabilities", {}).get("drop") == ["ALL"]
+                  and not any("hostPath" in volume for volume in pod_spec.get("volumes", [])))
+    schedule_ok = (spec.get("schedule") == "* * * * *"
+                   and spec.get("concurrencyPolicy") == "Forbid"
+                   and spec.get("startingDeadlineSeconds") == 50
+                   and spec.get("jobTemplate", {}).get("spec", {}).get("backoffLimit") == 0)
+    receipt_read_ok = alert_data is not None
+    matched = (exact_rule and schedule_ok and secure_pod and rbac_ok and receipt_read_ok and alert_ok
+               and owned_job is not None
+               and injected["validation_actions"] == ["Warn"]
+               and after["validation_actions"] == ["Deny"]
+               and after["policy_and_binding_digest"] == revision
+               and after["desired_revision_annotation"] == revision)
+    lab.check("scheduled_alert",
+              "A CronJob-owned workload detects one binding drift, repairs it, and emits an independently read receipt",
+              matched, {"cronjob_owned_successful_job": owned_job is not None,
+                        "scheduled_spec_ok": schedule_ok,
+                        "exact_binding_rbac": exact_rule, "authorization_decisions": rbac_ok,
+                        "workload_security_shape": secure_pod, "independent_receipt_read": receipt_read_ok,
+                        "receipt_matches_observed_and_repaired_state": alert_ok,
+                        "binding_restored": after["validation_actions"] == ["Deny"]
+                        and after["desired_revision_annotation"] == revision})
+    (lab.evidence / "scheduled-drift-alert.json").write_text(json.dumps(
+        {"scheduled_job_owned_by_cronjob": owned_job is not None,
+         "alert_receipt": alert_data, "binding_after_job": after,
+         "checks": {"schedule": schedule_ok, "rbac": rbac_ok, "secure_workload": secure_pod,
+                    "independent_read": receipt_read_ok, "receipt_matches": alert_ok}},
+        sort_keys=True, indent=2) + "\n")
+
+
 def run(lab):
     # The helper creates a second owned Kind API server on the private test bridge.
     helper_spec = importlib.util.spec_from_file_location(
@@ -231,7 +394,8 @@ def run(lab):
         "saf_drift_runtime", HERE.parent / "SAF-K8S-0908-001" / "case.py")
     runtime = importlib.util.module_from_spec(runtime_spec)
     runtime_spec.loader.exec_module(runtime)
-    with helper.owned_peer(lab, runtime.load_runtime(lab)) as (peer, _):
+    runtime_image = runtime.load_runtime(lab)
+    with helper.owned_peer(lab, runtime_image) as (peer, _):
         local_uid = lab.kubectl("get", "namespace", "kube-system", "-o",
                                 "jsonpath={.metadata.uid}").stdout.strip()
         peer_uid = peer("get", "namespace", "kube-system", "-o",
@@ -394,6 +558,7 @@ def run(lab):
         lab.check("positive", "Both members continue to admit and persist the compliant case-owned Pod",
                   all(row["decision"] == "allowed" and row["resource_persisted"]
                       and row["persisted_hostNetwork"] is False for row in post_allowed.values()), post_allowed)
+        run_scheduled_alert(lab, peer, revision, peer_uid, runtime_image)
         evidence = {"case": "SAF-K8S-0910-027", "scope": SCOPE,
                     "policy_mechanism": "ValidatingAdmissionPolicy",
                     "desired_revision": revision, "desired_policy_and_binding_digest": expected_digest,
