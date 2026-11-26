@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0503-009",
-  "catalog_revision": "619c1478dc53b82ee7825214d7a3dd81af588371",
-  "catalog_sha256": "ba2c83990b7e8dabd3521401627a287dc143c1661a28469381ebabfdcef4730b",
+  "catalog_revision": "a267f229cf82971cd058d14bf8e492dd274f4cab",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "0453381bec9c2f86fc190bf06a23784ccb4c258d6e1fe9a48fe74e7d70794ba1",
   "scope": "One disposable kind Kubernetes v1.36.1 cluster with the stock DNS addon disabled, one case-owned CoreDNS v1.14.2 deployment with the Kubernetes plugin, and two case-owned UDP DNS stubs in saf-test. Uses only saf-0503-009.test names and RFC 5737 documentation addresses. Compares the same query through a baseline Corefile forwarding to the unapproved stub and a hardened Corefile forwarding only to the approved stub; checks a native cluster Service record, cache reuse, health/ready HTTP endpoints, configured loop-plugin startup, and scoped configuration changes through the Kubernetes API. No external DNS, NodeLocal DNSCache, production cluster, external resolver, or loop-failure exercise.",
-  "cluster": "saf-lab-7cfed3f31632",
+  "cluster": "saf-lab-e26a24aabe05",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
