@@ -2689,13 +2689,13 @@
   domain_name: Identity, Access, and Secrets Management
   knowledge_area: '4.2'
   control_seq: '003'
-  control_title: Service account identifier exposure prevention
-  control_statement: Service account names, tokens, and associated identifiers must not be exposed in public repositories, container images, application logs, error messages, or externally accessible API responses.
-  objective: Prevent disclosure of service account identifiers that would allow attackers to target specific accounts for credential theft or to craft targeted attacks against known workload identities.
-  rationale: Exposed service account names reveal the identity structure of a cluster, enabling attackers to identify high-value targets such as accounts with broad permissions or accounts bound to cloud IAM roles. Leaked tokens provide direct API access. Even without tokens, knowing account names aids reconnaissance for RBAC bypass, impersonation attacks, and social engineering of operators who manage those accounts.
-  scope: Applies to all service accounts in all clusters. Covers source code repositories, CI/CD pipeline logs, container image layers, application stdout/stderr logs, API error responses, and documentation artifacts. Scanning must include both real-time log filtering and retrospective repository scanning.
-  primary_enforcement_point: Secret scanning tools in CI/CD pipelines and source repositories, log filtering rules that redact service account tokens and identifiers, and container image scanning for embedded credentials.
-  implementation_surface: Secret scanning tools in CI/CD pipelines (GitHub push protection, GitLeaks, TruffleHog) with Kubernetes JWT token patterns, container image layer scanning for embedded service account credentials, log aggregation filtering rules redacting Authorization Bearer headers and service account tokens, and API error response sanitization configurations.
+  control_title: Service account authenticator and identifier exposure protection
+  control_statement: Prevent disclosure of service account bearer tokens and other service account authenticators through public repositories, container images, application logs, errors, or externally accessible API responses. Minimize public disclosure of service account names and other identifiers when they reveal sensitive account or workload structure. Retain authorized operational and audit identity fields where required.
+  objective: Protect service account authenticators from disclosure and minimize exposure of sensitive account identifiers where policy requires.
+  rationale: A valid bearer token can authenticate its holder to the configured relying party. Exposed identifiers can disclose workload relationships or account structure. Apply secret protection to authenticator values and keep account identifiers available to authorized operational and audit systems.
+  scope: Applies to service account credentials and sensitive identifiers in governed repositories and history, CI artifacts and logs, container image layers, application and retained logs, external API responses and documentation.
+  primary_enforcement_point: Credential scanning and controlled redaction at repository, build, application response, and log boundaries.
+  implementation_surface: Use approved scanners for service account authenticator forms and independently verify current and historical repository, CI, image and log coverage. Minimize credential values before retention and public responses. Apply a distinct policy for sensitive identifiers, preserve required audit fields and exercise inert canary comparisons on all governed paths.
   owner_primary: Security Engineering
   owner_supporting: Application Development; Platform Engineering
   baseline_or_ai_specific: baseline

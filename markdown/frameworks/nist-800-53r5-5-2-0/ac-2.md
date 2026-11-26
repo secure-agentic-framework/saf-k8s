@@ -18,15 +18,6 @@ This control supports the inactivity, monitoring and retirement portions of acco
 - Applicability: conditional
 - Strength Reason Code: partial-control-coverage
 
-### [SAF-K8S-0402-003 - Service account identifier exposure prevention](../../controls/SAF-K8S-0402-003.md)
-
-- Domain: D04 - Identity, Access, and Secrets Management
-- Knowledge Area: 4.2
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0402-004 - Workload identity attribute integrity](../../controls/SAF-K8S-0402-004.md)
 
 - Domain: D04 - Identity, Access, and Secrets Management

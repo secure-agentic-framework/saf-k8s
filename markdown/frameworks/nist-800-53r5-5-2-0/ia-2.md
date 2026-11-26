@@ -11,15 +11,6 @@ Authenticating users and agents interacting with agent systems
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0402-003 - Service account identifier exposure prevention](../../controls/SAF-K8S-0402-003.md)
-
-- Domain: D04 - Identity, Access, and Secrets Management
-- Knowledge Area: 4.2
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0402-004 - Workload identity attribute integrity](../../controls/SAF-K8S-0402-004.md)
 
 - Domain: D04 - Identity, Access, and Secrets Management

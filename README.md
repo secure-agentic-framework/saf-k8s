@@ -27,7 +27,7 @@ See [`LICENSE`](LICENSE) for the summary.
 - Domains: 10
 - Knowledge areas: 55
 - Controls: 595
-- Crosswalk rows: 2525
+- Crosswalk rows: 2480
 
 ## YAML Files
 
@@ -477,14 +477,14 @@ This knowledge area focuses on: RBAC least-privilege design, RBAC permission aud
 
 ### Description
 
-This knowledge area focuses on: Inactive service account and stale credential remediation, Service account identifier exposure prevention, Workload identity attribute integrity, Cloud workload identity federation for AI services, and OIDC authentication integration. Additional controls in the table below extend this coverage.
+This knowledge area focuses on: Inactive service account and stale credential remediation, Service account authenticator and identifier exposure protection, Workload identity attribute integrity, Cloud workload identity federation for AI services, and OIDC authentication integration. Additional controls in the table below extend this coverage.
 
 ### Controls
 
 | Control ID | Title | Maturity | Class |
 | --- | --- | --- | --- |
 | [SAF-K8S-0402-002](markdown/controls/SAF-K8S-0402-002.md) | Inactive service account and stale credential remediation | Practitioner | baseline |
-| [SAF-K8S-0402-003](markdown/controls/SAF-K8S-0402-003.md) | Service account identifier exposure prevention | Practitioner | baseline |
+| [SAF-K8S-0402-003](markdown/controls/SAF-K8S-0402-003.md) | Service account authenticator and identifier exposure protection | Practitioner | baseline |
 | [SAF-K8S-0402-004](markdown/controls/SAF-K8S-0402-004.md) | Workload identity attribute integrity | Practitioner | baseline |
 | [SAF-K8S-0402-006](markdown/controls/SAF-K8S-0402-006.md) | Cloud workload identity federation for AI services | Practitioner | ai-specific |
 | [SAF-K8S-0402-007](markdown/controls/SAF-K8S-0402-007.md) | OIDC authentication integration | Practitioner | baseline |
