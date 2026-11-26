@@ -30896,22 +30896,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SA-15
-  framework_requirement_title: Development Process, Standards, and Tools
-  framework_mapping_notes: 'Development standards for agentic AI must address model safety, prompt engineering, and tool security
-
-
-    6.6 - CNCF lifecycle security (development process standards and tool selection for K8s AI)'
-  control_id: SAF-K8S-0606-017
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SA-15(1)
   framework_requirement_title: Quality Metrics
   framework_mapping_notes: 'Quality metrics for agent development track security defect rates and test coverage
@@ -32433,16 +32417,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-3
   framework_requirement_title: System Development Life Cycle
-  framework_mapping_notes: 'SDLC for agentic AI must integrate security at every phase including model training and deployment
-
-
-    6.6 - CNCF lifecycle security (Develop-Distribute-Deploy); 10.4 - SSDF v1.1 alignment for SDLC'
+  framework_mapping_notes: For a selected governed Kubernetes delivery path, enforce and retain decisions at the defined Develop, Distribute, and Deploy checkpoints for the same artifact; assess Runtime separately. This is partial implementation evidence for lifecycle security checkpoints and does not establish the full SA-3 system development life cycle, roles, responsibilities, or risk-management integration.
   control_id: SAF-K8S-0606-017
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Apply only when the organization has assigned this control to enforce defined security and privacy checkpoints for the selected Kubernetes artifact lifecycle. The contribution is limited to the tested Develop, Distribute, and Deploy decisions and one post-deployment marker check. It does not establish the organization's full system development life cycle, security/privacy roles and named responsibilities, or integration of its risk-management process.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -52974,19 +52955,6 @@
   framework_requirement_id: MANAGE 1.1
   framework_requirement_title: A determination is made as to whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed.
   framework_mapping_notes: AI system classification defines expected control profiles. Model promotion gates enforce go/no-go decisions before production deployment based on validation criteria.
-  control_id: SAF-K8S-0606-017
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
-  framework_requirement_id: MANAGE 1.1
-  framework_requirement_title: A determination is made as to whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed.
-  framework_mapping_notes: AI system classification defines expected control profiles. Model promotion gates enforce go/no-go decisions before production deployment based on validation criteria.
   control_id: SAF-K8S-0606-018
   relation_type: supports
   strength_level: strong
@@ -53079,19 +53047,6 @@
   framework_requirement_title: The functionality and behavior of the AI system and its components - as identified in the MAP function - are monitored when in production.
   framework_mapping_notes: 'SAF-K8S mandates comprehensive production monitoring: audit policies capture AI-relevant CRD operations, SIEM integration detects AI-specific attack patterns, metrics endpoints monitor model performance, and distributed tracing tracks pipeline execution.'
   control_id: SAF-K8S-0910-032
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-SSDF
-  framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
-  framework_version: '1.1'
-  framework_requirement_id: PO.3.2
-  framework_requirement_title: Follow recommended security practices to deploy, operate, and maintain tools and toolchains.
-  framework_mapping_notes: CI/CD pipeline hardening controls in SAF-K8S secure the build and deployment toolchain that produces artifacts admitted to the cluster.
-  control_id: SAF-K8S-0606-017
   relation_type: supports
   strength_level: strong
   applicability: required

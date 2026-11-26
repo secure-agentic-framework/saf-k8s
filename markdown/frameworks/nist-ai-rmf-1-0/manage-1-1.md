@@ -36,15 +36,6 @@ AI system classification defines expected control profiles. Model promotion gate
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0606-017 - CNCF lifecycle phase security coverage](../../controls/SAF-K8S-0606-017.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.6
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0606-018 - Zero-trust CI/CD handoff verification and independent evidence generation](../../controls/SAF-K8S-0606-018.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control

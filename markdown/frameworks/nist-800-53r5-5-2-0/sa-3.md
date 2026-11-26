@@ -42,10 +42,10 @@ SDLC for agentic AI must integrate security at every phase including model train
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.6
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1004-001 - ML threat taxonomy per CTA-2114 mapped to Kubernetes](../../controls/SAF-K8S-1004-001.md)
 
