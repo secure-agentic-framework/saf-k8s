@@ -1,10 +1,22 @@
-# SAF-K8S-0905-054 — Protect model downloads with namespace egress policy
+# Verify network egress and approved model-source selection
 
-Run `python3 tests/control-lab/lab.py test SAF-K8S-0905-054 --docker-context desktop-linux` from the framework checkout.
+```sh
+python3 tests/control-lab/lab.py test SAF-K8S-0905-054 --docker-context desktop-linux
+```
 
-The same client downloads inert model JSON from an approved in-cluster proxy, a case-owned in-cluster hub, and a case-owned off-cluster hub on a disposable internal Docker bridge. The native NetworkPolicy limits all Pods in the protected namespace to the labeled proxy and CoreDNS. Both denied endpoints remain reachable from an independent namespace. The runner records status and exact allowed bytes, confirms DNS remains functional, and cleans up the isolated bridge.
+The case checks default-deny client egress to owned in-cluster and
+outside-cluster endpoints, then permits DNS and a narrowly selected proxy.
+An independent namespace remains able to reach the fixture endpoints.
+The test uses the bundled kindnet CNI.
 
-This case checks destination isolation for the reviewed network topology. Verify real public hub destinations, trusted proxy upstream policy, cloud egress, production deny telemetry, and any host or node access paths separately. Kubernetes NetworkPolicy expresses network destinations using selectors and CIDRs.
+The model proxy maps one exact source identifier to an approved fixture
+upstream. It retrieves the approved JSON marker and refuses a second
+reachable source. Separate counters at each upstream show that the approved
+request was sent and the refused source received none.
 
-- [Kubernetes 1.36 NetworkPolicy](https://v1-36.docs.kubernetes.io/docs/concepts/services-networking/network-policies/)
-- [Kubernetes 1.36 DNS](https://v1-36.docs.kubernetes.io/docs/concepts/services-networking/dns-pod-service/)
+In a deployment, inventory all fetch paths and apply egress controls to
+both workloads and the proxy. Verify resolution and redirects, the actual
+approved destinations, IP families, and equivalent provider boundaries.
+Use fixture endpoints and demonstrate that removing a source approval
+blocks it for the governed workloads. Kubernetes NetworkPolicy selects
+network peers and ports. Application source selection runs at the proxy.

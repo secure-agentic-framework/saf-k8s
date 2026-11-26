@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-054",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "9063d7cea1d72404ea3cd11d812e1863420484a0",
+  "catalog_sha256": "80c7da0fd4f41cb7830cb16c47d2d08461aee78c45806ed496151b90cef2011d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b6c7afe0bfa2fdbff093a0b33e27448baa30dc6efd73baab4cc497518b3c3e09",
-  "scope": "A disposable Kubernetes v1.36.1 cluster with bundled kindnet compares the same protected client's HTTP model downloads before and after a native NetworkPolicy. The policy allows CoreDNS and the exact labeled proxy namespace and Pods. The case checks in-cluster Service and direct Pod IP paths and a case-owned off-cluster Docker peer on an internal bridge. The unselected namespace can still reach denied targets. The synthetic JSON requests use TCP/8080. Production telemetry, public-hub and domain identity, proxy upstream governance, provider paths and non-Pod consumers are open.",
-  "cluster": "saf-lab-609aaf5b2d31",
+  "scope": "A disposable Kubernetes v1.36.1 cluster with bundled kindnet compares the same protected client's HTTP model downloads before and after a native NetworkPolicy. The policy allows CoreDNS and the exact labeled proxy namespace and Pods. The case checks in-cluster Service and direct Pod IP paths and a case-owned off-cluster Docker peer on an internal bridge. The unselected namespace can still reach denied targets. A supplemental application proxy maps one exact source identifier to fixed bytes from an owned in-cluster upstream and refuses a different owned source before fetching it. These application source rules are separate from NetworkPolicy selectors. The synthetic JSON requests use TCP/8080. Production telemetry, public-hub and domain identity, provider paths and non-Pod consumers are open.",
+  "cluster": "saf-lab-a1e0b25a7728",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -158,6 +158,24 @@
           "hub": true
         },
         "same_pod_uid": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved proxy fetches only its exact owned upstream and refuses the separately named source",
+      "matched": true,
+      "observed": {
+        "approved_source_directly_live_from_control_namespace": true,
+        "unapproved_source_directly_live_from_control_namespace": true,
+        "protected_client_direct_source_blocked": true,
+        "approved_source_returned_exact_upstream_digest": true,
+        "separately_named_unapproved_source_refused_403": true,
+        "approved_upstream_fetch_count_incremented_once": true,
+        "unapproved_upstream_fetch_count_unchanged": true,
+        "proxy_namespace_has_no_networkpolicy": true,
+        "protected_client_identity_unchanged": true,
+        "probe_cleanup_succeeded": true,
+        "passed": true
       }
     }
   ]
