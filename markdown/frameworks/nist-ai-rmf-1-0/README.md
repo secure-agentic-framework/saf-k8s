@@ -38,7 +38,7 @@
 - [MAP 3.5 - Processes for human oversight are defined, assessed, and documented in accordance with organizational policies from the GOVERN function.](map-3-5.md)
 - [MAP 4.1 - Approaches for mapping AI technology and legal risks of its components - including the use of third-party data or software - are in place, followed, and documented, as are risks of infringement of a third-party's intellectual property or other rights.](map-4-1.md)
 - [MAP 4.2 - Internal risk controls for components of the AI system, including third-party AI technologies, are identified and documented.](map-4-2.md)
-- [MAP 5.1 - Document the likelihood and magnitude of identified beneficial and harmful impacts](map-5-1.md)
+- [MAP 5.1 - Likelihood and magnitude of beneficial and harmful impacts](map-5-1.md)
 - [MEASURE 1.1 - Approaches and metrics for measurement of AI risks enumerated during the MAP function are selected for implementation starting with the most significant AI risks. The risks or outcomes that cannot be measured through quantitative means are addressed qualitatively.](measure-1-1.md)
 - [MEASURE 1.2 - Appropriateness of AI metrics and effectiveness of existing controls are regularly assessed and updated, including reports of errors and potential impacts on affected communities.](measure-1-2.md)
 - [MEASURE 2.10 - Privacy risk of the AI system - as identified in the MAP function - is examined and documented.](measure-2-10.md)

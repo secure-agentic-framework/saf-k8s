@@ -1,7 +1,7 @@
 # NIST AI Risk Management Framework 1.0 - MAP 5.1
 
 - Framework Code: NIST-AI-RMF
-- Requirement Title: Document the likelihood and magnitude of identified beneficial and harmful impacts
+- Requirement Title: Likelihood and magnitude of beneficial and harmful impacts
 
 ## Mapping Notes
 

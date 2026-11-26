@@ -3207,7 +3207,7 @@
   framework_name: NIST AI Risk Management Framework
   framework_version: '1.0'
   framework_requirement_id: MAP 5.1
-  framework_requirement_title: Document the likelihood and magnitude of identified beneficial and harmful impacts
+  framework_requirement_title: Likelihood and magnitude of beneficial and harmful impacts
   framework_mapping_notes: The OCTAVE worksheet can contribute recorded infrastructure impact scenarios. AI system wide benefit, harm and likelihood evidence belongs in the broader assessment.
   control_id: SAF-K8S-1003-002
   relation_type: supports
