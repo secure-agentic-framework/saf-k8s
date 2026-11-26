@@ -1,6 +1,8 @@
 """Scrape two fixture feeds and evaluate review-only alert rules in Prometheus."""
 
 import json
+import importlib.util
+from pathlib import Path
 import time
 from urllib.parse import urlencode
 
@@ -129,3 +131,11 @@ def run(lab):
         "input_basis": "synthetic", "activity_samples": activity, "authorization_context": authorization,
         "activity_only_candidates": sorted(threshold), "review_alerts": firing,
     }, indent=2) + "\n")
+
+    quality_path = Path(__file__).with_name("telemetry_quality.py")
+    quality_spec = importlib.util.spec_from_file_location("saf_0703_022_telemetry_quality", quality_path)
+    if quality_spec is None or quality_spec.loader is None:
+        lab.block("Could not load the case-local telemetry freshness comparison")
+    quality_module = importlib.util.module_from_spec(quality_spec)
+    quality_spec.loader.exec_module(quality_module)
+    quality_module.run(lab, workload, rules(), prom_api, vector)

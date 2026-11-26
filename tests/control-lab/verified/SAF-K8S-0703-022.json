@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0703-022",
-  "catalog_revision": "cdea19aba4bba6fbcc0e470f349d7c68ee3db588",
-  "catalog_sha256": "6a656806bb202ced76159061c70a2e4745ef716ccd94e9e13ff68f50da4eae65",
+  "catalog_revision": "f46bc3bf26a84d628f3d4e8c478116f16624e439",
+  "catalog_sha256": "22247eefd313dd32a20f4c16174eb0dcc1c0ab843abe2f2d7b5c3126011ae8db",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "12d4290a1596a0c73edcc0f0b4957698524cdbab9a1d01a7b9cc29d9cb77867b",
+  "control_sha256": "48380c4bf359016da88fccc8aec5c4508d5586331a56173b744dfb02c8ec5bc0",
   "scope": "Prometheus triage of invented activity and authorization context on an isolated Kind cluster.",
-  "cluster": "saf-lab-b14a5eab6aac",
+  "cluster": "saf-lab-dff5804162a5",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -68,6 +68,22 @@
       "observed": {
         "approved_activity_observed": true,
         "low_activity_not_alerted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Fresh approved activity stays visible while stale, missing, and unavailable telemetry remain distinct review-quality states",
+      "matched": true,
+      "observed": {
+        "expected_inventory_complete": true,
+        "fresh_sample_age_within_window": true,
+        "stale_sample_age_exceeds_window": true,
+        "missing_sample_alert": true,
+        "unavailable_source_alert": true,
+        "approved_high_activity_observed": true,
+        "approved_context_observed": true,
+        "approved_activity_review_alerted": false,
+        "review_reasons_preserved": true
       }
     }
   ]

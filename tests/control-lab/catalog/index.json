@@ -2091,8 +2091,8 @@
     "SAF-K8S-0703-022": {
       "catalog_status": "draft",
       "domain": "D07",
-      "sha256": "12d4290a1596a0c73edcc0f0b4957698524cdbab9a1d01a7b9cc29d9cb77867b",
-      "title": "GPU abuse pattern monitoring and detection for Kubernetes AI workloads"
+      "sha256": "48380c4bf359016da88fccc8aec5c4508d5586331a56173b744dfb02c8ec5bc0",
+      "title": "Accelerator activity monitoring and policy-context triage"
     },
     "SAF-K8S-0703-023": {
       "catalog_status": "draft",
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c1034bc1e35f79c86017519fdeac76798fe21ae4",
-  "sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
+  "revision": "a07902e219d0b0ee4754a693516dcd838e7086b0",
+  "sha256": "22247eefd313dd32a20f4c16174eb0dcc1c0ab843abe2f2d7b5c3126011ae8db",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
