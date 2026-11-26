@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 1956
-- Distinct Requirements Mapped: 624
+- Total Reverse Mappings: 1938
+- Distinct Requirements Mapped: 616
 
 ## Requirements
 
@@ -145,7 +145,6 @@
 - [AU-16(3) - Disassociability](au-16-3.md)
 - [AU-2 - Event Logging](au-2.md)
 - [AU-3 - Content of Audit Records](au-3.md)
-- [AU-3(1) - Additional Audit Information](au-3-1.md)
 - [AU-3(3) - Limit Personally Identifiable Information Elements](au-3-3.md)
 - [AU-4 - Audit Log Storage Capacity](au-4.md)
 - [AU-4(1) - Transfer to Alternate Storage](au-4-1.md)
@@ -157,7 +156,6 @@
 - [AU-5(5) - Alternate Audit Logging Capability](au-5-5.md)
 - [AU-6 - Audit Record Review, Analysis, and Reporting](au-6.md)
 - [AU-6(1) - Automated Process Integration](au-6-1.md)
-- [AU-6(3) - Correlate Audit Record Repositories](au-6-3.md)
 - [AU-6(4) - Central Review and Analysis](au-6-4.md)
 - [AU-6(5) - Integrated Analysis of Audit Records](au-6-5.md)
 - [AU-6(7) - Permitted Actions](au-6-7.md)
@@ -184,7 +182,6 @@
 - [CA-6 - Authorization](ca-6.md)
 - [CA-7 - Continuous Monitoring](ca-7.md)
 - [CA-7(1) - Independent Assessment](ca-7-1.md)
-- [CA-7(3) - Trend Analyses](ca-7-3.md)
 - [CA-7(4) - Risk Monitoring](ca-7-4.md)
 - [CA-7(6) - Automation Support for Monitoring](ca-7-6.md)
 - [CA-8 - Penetration Testing](ca-8.md)
@@ -198,7 +195,6 @@
 - [CM-11(3) - Automated Enforcement and Monitoring](cm-11-3.md)
 - [CM-12 - Information Location](cm-12.md)
 - [CM-12(1) - Automated Tools to Support Information Location](cm-12-1.md)
-- [CM-13 - Data Action Mapping](cm-13.md)
 - [CM-14 - Signed Components](cm-14.md)
 - [CM-2 - Baseline Configuration](cm-2.md)
 - [CM-2(2) - Automation Support for Accuracy and Currency](cm-2-2.md)
@@ -302,14 +298,12 @@
 - [IR-4(14) - Security Operations Center](ir-4-14.md)
 - [IR-4(2) - Dynamic Reconfiguration](ir-4-2.md)
 - [IR-4(3) - Continuity of Operations](ir-4-3.md)
-- [IR-4(4) - Information Correlation](ir-4-4.md)
 - [IR-4(6) - Insider Threats](ir-4-6.md)
 - [IR-4(8) - Correlation with External Organizations](ir-4-8.md)
 - [IR-5 - Incident Monitoring](ir-5.md)
 - [IR-5(1) - Automated Tracking, Data Collection, and Analysis](ir-5-1.md)
 - [IR-6(1) - Automated Reporting](ir-6-1.md)
 - [IR-6(3) - Supply Chain Coordination](ir-6-3.md)
-- [IR-7(1) - Automation Support for Availability of Information and Support](ir-7-1.md)
 - [IR-8 - Incident Response Plan](ir-8.md)
 - [IR-9 - Information Spillage Response](ir-9.md)
 - [PL-1 - Policy and Procedures](pl-1.md)
@@ -340,7 +334,6 @@
 - [PM-32 - Purposing](pm-32.md)
 - [PM-4 - Plan of Action and Milestones Process](pm-4.md)
 - [PM-5 - System Inventory](pm-5.md)
-- [PM-6 - Measures of Performance](pm-6.md)
 - [PM-7 - Enterprise Architecture](pm-7.md)
 - [PM-9 - Risk Management Strategy](pm-9.md)
 - [PS-4 - Personnel Termination](ps-4.md)
@@ -589,7 +582,6 @@
 - [SI-4(23) - Host-based Devices](si-4-23.md)
 - [SI-4(24) - Indicators of Compromise](si-4-24.md)
 - [SI-4(25) - Optimize Network Traffic Analysis](si-4-25.md)
-- [SI-4(3) - Automated Tool and Mechanism Integration](si-4-3.md)
 - [SI-4(4) - Inbound and Outbound Communications Traffic](si-4-4.md)
 - [SI-4(5) - System-generated Alerts](si-4-5.md)
 - [SI-4(7) - Automated Response to Suspicious Events](si-4-7.md)

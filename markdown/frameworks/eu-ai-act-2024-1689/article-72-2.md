@@ -22,7 +22,7 @@ This tracing control may contribute a source of interaction and operational data
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.2
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

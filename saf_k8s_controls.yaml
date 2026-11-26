@@ -10886,12 +10886,12 @@
   knowledge_area: '10.2'
   control_seq: '003'
   control_title: AI workload telemetry integration into cluster monitoring
-  control_statement: Organizations must integrate AI workload telemetry, including GPU metrics via DCGM exporter, training job progress, inference latency, and model performance indicators, into the cluster monitoring stack.
+  control_statement: Integrate the approved AI workload telemetry into the cluster monitoring stack. Collect relevant training progress, inference service and model performance signals from the actual workloads. Where in-scope NVIDIA GPUs, drivers and DCGM are supported, collect the applicable hardware metrics using DCGM Exporter. Use a validated vendor-supported source for other accelerator platforms.
   objective: Ensure that AI-specific telemetry is available in the cluster monitoring stack for performance monitoring and anomaly detection.
-  rationale: Without integrated AI workload telemetry, operators lack visibility into GPU health, training progress, and inference degradation, delaying detection of cryptomining, model theft via side-channel analysis, or adversarial input attacks.
-  scope: Applies to all Kubernetes clusters hosting AI workloads. Covers GPU metrics collection, training job telemetry, inference serving metrics, and model performance indicators. Includes DCGM exporter deployment and AI workload metric endpoint integration.
-  primary_enforcement_point: DCGM exporter deployment manifests and AI workload metric endpoint configuration.
-  implementation_surface: DCGM exporter DaemonSet deployment on GPU nodes with taint tolerations and minimal RBAC, AI workload telemetry endpoints from inference serving frameworks (Triton, vLLM, TorchServe native metrics), training job progress metrics (epoch completion, loss convergence), and Prometheus ServiceMonitor or PodMonitor configuration for AI workload metric scraping.
+  rationale: Integrated workload and accelerator telemetry can expose GPU health issues, stalled training, elevated inference latency and changes in measured model performance. Choose fields and levels of coverage appropriate to the deployed platform and document what each signal measures.
+  scope: Applies to Kubernetes clusters hosting in-scope AI workloads. Select training, inference and model performance telemetry according to each workload. Hardware telemetry applies where an accelerator is present and its exporter, device, driver, runtime and metrics are supported.
+  primary_enforcement_point: AI workload metric endpoints, accelerator exporter configuration where applicable, and governed monitoring target selection.
+  implementation_surface: For supported NVIDIA GPU deployments, configure DCGM Exporter on the applicable nodes and verify supported fields with the enrolled driver and exporter. Use required device access, scheduling tolerations and least-privilege RBAC appropriate to the selected features. Instrument training and inference endpoints with workload-appropriate signals. Use Prometheus ServiceMonitor or PodMonitor where available, or an equivalent configured monitoring integration, and independently query attributed samples.
   owner_primary: AI/ML Engineering
   owner_supporting: Platform Engineering; Security Operations
   baseline_or_ai_specific: ai-specific

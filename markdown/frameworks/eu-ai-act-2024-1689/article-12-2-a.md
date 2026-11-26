@@ -18,15 +18,6 @@ Selected Kubernetes admission, authorization and metrics API records can contrib
 - Applicability: conditional
 - Strength Reason Code: partial-control-coverage
 
-### [SAF-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAF-K8S-1002-003.md)
-
-- Domain: D10 - Observability, Incident Response, and Governance
-- Knowledge Area: 10.2
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-1007-005 - Change management for production AI model deployments](../../controls/SAF-K8S-1007-005.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance

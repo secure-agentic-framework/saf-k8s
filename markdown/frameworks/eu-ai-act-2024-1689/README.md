@@ -2,8 +2,8 @@
 
 - Framework Code: EU-AI-ACT
 - Version: 2024/1689
-- Total Reverse Mappings: 189
-- Distinct Requirements Mapped: 76
+- Total Reverse Mappings: 171
+- Distinct Requirements Mapped: 72
 
 ## Requirements
 
@@ -23,7 +23,6 @@
 - [Annex-IV.6 - Technical documentation referred to in Article 11(1)](annex-iv-6.md)
 - [Annex-IV.9 - Technical documentation referred to in Article 11(1)](annex-iv-9.md)
 - [Annex-VI.3 - Conformity assessment procedure based on internal control](annex-vi-3.md)
-- [Annex-VI.4 - Conformity assessment procedure based on internal control](annex-vi-4.md)
 - [Annex-VII.3.1.c - Conformity based on an assessment of the quality management system and an assessment of the technical documentation](annex-vii-3-1-c.md)
 - [Annex-VII.3.1.d - Conformity based on an assessment of the quality management system and an assessment of the technical documentation](annex-vii-3-1-d.md)
 - [Annex-VII.3.2 - Conformity based on an assessment of the quality management system and an assessment of the technical documentation](annex-vii-3-2.md)
@@ -46,9 +45,7 @@
 - [Article-12.1 - Record-keeping](article-12-1.md)
 - [Article-12.2 - Record-keeping](article-12-2.md)
 - [Article-12.2.a - Record-keeping](article-12-2-a.md)
-- [Article-12.2.b - Record-keeping](article-12-2-b.md)
 - [Article-12.2.c - Record-keeping](article-12-2-c.md)
-- [Article-13.1 - Transparency and provision of information to deployers](article-13-1.md)
 - [Article-13.3.b.ii - Transparency and provision of information to deployers](article-13-3-b-ii.md)
 - [Article-13.3.b.vi - Transparency and provision of information to deployers](article-13-3-b-vi.md)
 - [Article-13.3.e - Transparency and provision of information to deployers](article-13-3-e.md)
@@ -68,7 +65,6 @@
 - [Article-55.1.d - Obligations of providers of general-purpose AI models with systemic risk](article-55-1-d.md)
 - [Article-6.1.a - Classification rules for high-risk AI systems](article-6-1-a.md)
 - [Article-60.1 - Testing of high-risk AI systems in real world conditions outside AI regulatory sandboxes](article-60-1.md)
-- [Article-60.8 - Testing of high-risk AI systems in real world conditions outside AI regulatory sandboxes](article-60-8.md)
 - [Article-72.1 - Post-market monitoring by providers and post-market monitoring plan for high-risk AI systems](article-72-1.md)
 - [Article-72.2 - Post-market monitoring by providers and post-market monitoring plan for high-risk AI systems](article-72-2.md)
 - [Article-72.3 - Post-market monitoring by providers and post-market monitoring plan for high-risk AI systems](article-72-3.md)
