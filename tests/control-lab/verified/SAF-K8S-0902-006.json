@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0902-006",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "d1b8447a22de8db36ec31676b53c34496d4d3f59",
+  "catalog_sha256": "63ca25b48ffb8f35202c5c4db9c599eb98e12d31aa18f4d0d69d91a9e3ec5423",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b38eea1e6699b39b8978480602f6122c198a289f723e55e3864069d45cfca006",
   "scope": "One disposable Kind v1.36.1 cluster runs one case-owned Python mock serving process from a digest-pinned Docker Official Python image. The fixture maps one fixed public content string to a synthetic prefix digest, maintains bounded in-memory cache and accounting state and returns a fixed mock marker without per-request cache telemetry. Red demonstrates the unscoped comparator; green demonstrates a tenant-scoped synthetic key; positive demonstrates exact same-tenant/same-prefix reuse. Two ordinary requests occupy one active and one queued slot, and an additional fixed request is refused by the fixture's depth cap. Raw observations omit content, salts, and credentials. No LLM, model, GPU, inference framework, real prompt, secret, feed, target, or attack is present. This does not establish vLLM/TGI/Triton behavior, KV-memory zeroing, tenant isolation, production queue limits, or framework-level scheduling.",
-  "cluster": "saf-lab-0b97276831ad",
+  "cluster": "saf-lab-a4618ffddc01",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -192,6 +192,26 @@
       "observed": {
         "completed": true,
         "request_count": 2
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "b9519 reports prompt tokens reused on a repeated request to one instance",
+      "matched": true,
+      "observed": {
+        "first_cache_n": 0,
+        "second_cache_n": 4,
+        "endpoint": "/completion timings.cache_n"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same fixed request starts without reused prompt tokens on a fresh server instance",
+      "matched": true,
+      "observed": {
+        "a_cached_prompt_tokens": 4,
+        "fresh_b_cached_prompt_tokens": 0,
+        "distinct_pod_uids": true
       }
     }
   ]

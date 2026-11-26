@@ -18,3 +18,19 @@ configuration, and integration with vLLM, TGI, and Triton remain separate.
 
 - [vLLM v0.11.0 Automatic Prefix Caching](https://raw.githubusercontent.com/vllm-project/vllm/v0.11.0/docs/design/prefix_caching.md)
 - [Kubernetes Services](https://v1-36.docs.kubernetes.io/docs/concepts/services-networking/service/)
+
+## Native CPU prompt-cache witness
+
+The existing mock tenancy and queue checks are followed by two separate CPU-only
+llama.cpp b9519 Pods with the same verified tiny Stories model. A tokenless client
+sends a fixed request twice to the first Pod, then sends it to a fresh Pod. The
+fixture checks the pinned tokenizer output and one-token completion bound, then
+compares the server's `timings.cache_n` counters. Raw evidence identifies the two
+Pod UIDs and pinned image and model. The source fixture binds both sibling
+`SAF-K8S-0903-004` build files by SHA-256 before reusing its image-load procedure.
+The existing validation command runs both parts and needs that companion case,
+Docker with BuildKit, and HTTPS access for the pinned model and image assets.
+
+The result covers reuse in one process and an empty initial prompt cache in a
+second process. Tenant mapping, concurrent request isolation, cache zeroing,
+accelerator behavior, and adoption in deployed engines require separate evidence.

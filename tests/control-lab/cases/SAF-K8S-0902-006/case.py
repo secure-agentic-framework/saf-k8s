@@ -1,5 +1,6 @@
 """Observe synthetic prefix-cache key scoping and a two-request queue fixture."""
 import http.client
+import importlib.util
 import json
 from pathlib import Path
 import socket
@@ -285,3 +286,9 @@ def run(lab):
                                   "request_count": len(first_result) + len(second_result)})
     finally:
         _stop(process)
+
+    witness_spec = importlib.util.spec_from_file_location(
+        "saf_k8s_0902_006_kv_cache_witness", HERE / "kv_cache_witness.py")
+    witness = importlib.util.module_from_spec(witness_spec)
+    witness_spec.loader.exec_module(witness)
+    witness.run_kv_cache_witness(lab)
