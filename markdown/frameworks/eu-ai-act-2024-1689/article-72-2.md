@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-The post-market monitoring system shall actively and systematically collect, document and analyse relevant data which may be provided by deployers or which may be collected through other sources on the performance of high-risk AI systems throughout their lifetime, and which allow the provider to evaluate the continuous compliance of AI systems with the requirements set out in Chapter III, Section 2. Where relevant, post-market monitoring shall include an analysis of the interaction with other AI systems. This obligation shall not cover sensitive operational data of deployers which are law-enforcement authorities.
-
-SAF-K8S platform controls support systematic data collection through audit logging (D10 KA 10.1), metrics pipelines (D10 KA 10.2), and observability infrastructure (D10 KA 10.5). Data analysis, compliance evaluation, and the full monitoring lifecycle require application-layer and organizational action.
+This tracing control may contribute a source of interaction and operational data to post-market monitoring only when deployed traces are actively and systematically collected, documented, retained as required, and analyzed by the provider against named performance and continuous-compliance criteria throughout the system lifecycle. The reference proves synthetic trace propagation and span parentage, not systematic production collection, analysis, lifetime coverage, or compliance evaluation.
 
 ## SAF-K8S Controls
 
@@ -15,10 +13,10 @@ SAF-K8S platform controls support systematic data collection through audit loggi
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.2
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAF-K8S-1002-003.md)
 

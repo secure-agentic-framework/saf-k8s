@@ -431,13 +431,13 @@
   framework_requirement_id: Annex-IV.3
   legacy_requirement_id: Annex-IV:IV(3)
   framework_requirement_title: Technical documentation referred to in Article 11(1)
-  framework_mapping_notes: "Detailed information about the monitoring, functioning and control of the AI system, in particular with regard to: its capabilities and limitations in performance, including the degrees of accuracy for specific persons or groups of persons on which the system is intended to be used and the overall expected level of accuracy in relation to its intended purpose; the foreseeable unintended outcomes and sources of risks to health and safety, fundamental rights and discrimination in view of the intended purpose of the AI system; the human oversight measures needed in accordance with Article 14, including the technical measures put in place to facilitate the interpretation of the outputs of AI systems by the deployers; specifications on input data, as appropriate;\n\nSAF-K8S observability stack (D10) provides performance monitoring, anomaly detection, and audit logging. Human oversight tooling integration and input data specifications require application-layer implementation, but SAF-K8S provides the infrastructure backbone."
+  framework_mapping_notes: This tracing control may support a limited description of monitoring and functioning only when the adopter's actual trace instrumentation, stage inventory, carrier handoffs and interpretation are included in system technical documentation. The reference proves W3C context propagation and parentage in synthetic ingestion, registry, training Job and KServe fixtures. It does not document the AI system's capabilities, performance accuracy or limitations, intended purpose, risk outcomes, human-oversight measures, or input data.
   control_id: SAF-K8S-1002-002
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only where actual deployed trace instrumentation is part of the provider's description of system monitoring and functioning in technical documentation; trace telemetry alone does not supply the remaining Annex IV system information.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -547,13 +547,13 @@
   framework_requirement_id: Annex-IV.9
   legacy_requirement_id: Annex-IV:IV(8)
   framework_requirement_title: Technical documentation referred to in Article 11(1)
-  framework_mapping_notes: "A detailed description of the system in place to evaluate the AI system performance in the post-market phase in accordance with Article 72, including the post-market monitoring plan referred to in Article 72(3).\n\nSAF-K8S observability and incident response controls (D10) provide the monitoring infrastructure backbone: telemetry collection, anomaly detection, alerting pipelines. However, the complete post-market monitoring system design, including what metrics to track, what thresholds constitute degradation, and how to evaluate ongoing compliance, requires organizational and application-layer decisions."
+  framework_mapping_notes: This tracing control may contribute one evidence source to a provider's documented post-market performance-evaluation system only when actual deployed traces are tied to defined performance criteria, evaluation methods, sampling and limitations in the system documentation. The reference verifies trace propagation and parentage; it does not evaluate an AI performance criterion or establish a post-market evaluation system or plan.
   control_id: SAF-K8S-1002-002
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code: framework-language-interpretation
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only where actual deployed traces are used in a documented post-market performance-evaluation approach with defined AI performance criteria, method, sampling and limitations.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -1527,13 +1527,13 @@
   framework_requirement_id: Article-12.2
   legacy_requirement_id: Annex-IV:IV(9)(b)
   framework_requirement_title: Record-keeping
-  framework_mapping_notes: "In order to ensure a level of traceability of the functioning of a high-risk AI system that is appropriate to the intended purpose of the system, logging capabilities shall enable the recording of events relevant for:\n\nSAF-K8S provides tracing infrastructure through distributed tracing, deployment history, pipeline execution records, and model versioning. However, ensuring adequate tracing of AI system functioning requires application-layer instrumentation (inference logging, decision auditing) beyond platform-level tracing."
+  framework_mapping_notes: This tracing control may support Article 12(2) logging only when an adopter configures the actual high-risk AI system to automatically record events relevant to identified risk situations, post-market monitoring, or applicable operational monitoring, and verifies required lifecycle retention and access. The reference proves synthetic trace generation and context propagation, not lifetime logging, complete event selection, durable retention, or deployed AI system records.
   control_id: SAF-K8S-1002-002
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only where the actual high-risk AI system automatically records selected trace events relevant to the intended purpose and applicable Article 12(2) objectives, and the adopter separately verifies event coverage, access and required retention.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -1790,23 +1790,6 @@
   applicability: "conditional"
   applicability_condition: "Authorized human overseers of an applicable high-risk AI system receive actionable accelerator alerts relevant to system operation."
   strength_reason_code: "partial-control-coverage"
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Article-14.4.a
-  legacy_requirement_id: Art-14:14(4)(a)
-  framework_requirement_title: Human oversight
-  framework_mapping_notes: |-
-    to properly understand the relevant capacities and limitations of the high-risk AI system and be able to duly monitor its operation, including in view of detecting and addressing anomalies, dysfunctions and unexpected performance;
-
-    SAF-K8S observability controls (D10) provide the monitoring infrastructure for detecting anomalies and dysfunctions: AI workload telemetry, accuracy drift alerts, GPU anomaly detection. Understanding system capabilities is an organizational/training concern.
-  control_id: SAF-K8S-1002-002
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -2518,16 +2501,13 @@
   framework_requirement_id: Article-72.1
   legacy_requirement_id: Annex-VI:VI(6)
   framework_requirement_title: Post-market monitoring by providers and post-market monitoring plan for high-risk AI systems
-  framework_mapping_notes: |-
-    Providers shall establish and document a post-market monitoring system in a manner that is proportionate to the nature of the AI technologies and the risks of the high-risk AI system.
-
-    SAF-K8S observability controls (D10) provide the monitoring infrastructure that is a critical component of any post-market monitoring system on Kubernetes: telemetry collection, anomaly detection, alerting, and audit logging. The system design, documentation, and organizational processes are out of scope.
+  framework_mapping_notes: This tracing control may be one technical component of a provider-established and documented post-market monitoring system only when its deployed coverage and signal selection are proportionate to the actual AI technology and risks and are included in the provider's system description. The reference is a synthetic collector path; it does not establish or document the provider's monitoring system.
   control_id: SAF-K8S-1002-002
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only where deployed trace collection is one documented, risk-proportionate component of the provider's established post-market monitoring system.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -2552,16 +2532,13 @@
   framework_requirement_id: Article-72.2
   legacy_requirement_id: Art-72:72(2)
   framework_requirement_title: Post-market monitoring by providers and post-market monitoring plan for high-risk AI systems
-  framework_mapping_notes: |-
-    The post-market monitoring system shall actively and systematically collect, document and analyse relevant data which may be provided by deployers or which may be collected through other sources on the performance of high-risk AI systems throughout their lifetime, and which allow the provider to evaluate the continuous compliance of AI systems with the requirements set out in Chapter III, Section 2. Where relevant, post-market monitoring shall include an analysis of the interaction with other AI systems. This obligation shall not cover sensitive operational data of deployers which are law-enforcement authorities.
-
-    SAF-K8S platform controls support systematic data collection through audit logging (D10 KA 10.1), metrics pipelines (D10 KA 10.2), and observability infrastructure (D10 KA 10.5). Data analysis, compliance evaluation, and the full monitoring lifecycle require application-layer and organizational action.
+  framework_mapping_notes: This tracing control may contribute a source of interaction and operational data to post-market monitoring only when deployed traces are actively and systematically collected, documented, retained as required, and analyzed by the provider against named performance and continuous-compliance criteria throughout the system lifecycle. The reference proves synthetic trace propagation and span parentage, not systematic production collection, analysis, lifetime coverage, or compliance evaluation.
   control_id: SAF-K8S-1002-002
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only where deployed trace data is actively and systematically collected, documented, retained and analyzed for named post-market performance and continuous-compliance objectives throughout the system lifecycle.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -2596,23 +2573,6 @@
   applicability_condition: The provider incorporates these relevant records in its documented post-market monitoring
     system
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Article-72.3
-  legacy_requirement_id: Art-72:72(4)(b)
-  framework_requirement_title: Post-market monitoring by providers and post-market monitoring plan for high-risk AI systems
-  framework_mapping_notes: |-
-    The post-market monitoring system shall be based on a post-market monitoring plan. The post-market monitoring plan shall be part of the technical documentation referred to in Annex IV. The Commission shall adopt an implementing act laying down detailed provisions establishing a template for the post-market monitoring plan and the list of elements to be included in the plan by 2 February 2026. That implementing act shall be adopted in accordance with the examination procedure referred to in Article 98(2).
-
-    SAF-K8S security monitoring and anomaly detection controls (D10) support identification of infrastructure-level risks (resource exhaustion, security events, performance degradation). Risk assessment methodology and corrective action decisions require organizational processes.
-  control_id: SAF-K8S-1002-002
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -2876,23 +2836,6 @@
   applicability: conditional
   applicability_condition: Only where relevant audit events enter the deployed post-market monitoring and risk-evaluation process for an applicable high-risk AI system; the audit policy does not perform the evaluation.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Article-9.2.c
-  legacy_requirement_id: Art-9:9(2)(c)
-  framework_requirement_title: Risk management system
-  framework_mapping_notes: |-
-    the evaluation of other risks possibly arising, based on the analysis of data gathered from the post-market monitoring system referred to in Article 72;
-
-    SAF-K8S observability and monitoring controls (D10) collect the operational data that feeds risk evaluation: inference telemetry, anomaly detection, and audit trail analysis. However, the risk evaluation itself -- determining whether new risks have emerged from post-market findings -- is an organizational activity.
-  control_id: SAF-K8S-1002-002
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act

@@ -33,10 +33,10 @@ SAF-K8S observability stack (D10) provides performance monitoring, anomaly detec
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.2
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAF-K8S-1002-003.md)
 
