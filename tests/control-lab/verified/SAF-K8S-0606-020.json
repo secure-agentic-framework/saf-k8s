@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-020",
-  "catalog_revision": "f2a8ef5e17702dc6f4885fc5ca5d4d1fcd625f01",
-  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
+  "catalog_revision": "eda2bdfb99e443d3243fc63b9ec8c4428f35b4bb",
+  "catalog_sha256": "99dfcf4e7690631de3a5a538c5e0434405de93779ba25e0e5ce0cff09d9d7f38",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "c189cc738866de2ca46783c66c2b1e299d18007d90e398f6bb6b2b2579dd9e16",
   "scope": "An owned Helm chart and vendored dependency that create public ConfigMaps in Kind.",
-  "cluster": "saf-lab-fc3d3edd24a5",
+  "cluster": "saf-lab-d87c305d86b7",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -95,6 +95,50 @@
       "observed": {
         "merged_value_confirmed": true,
         "approved_dependency_confirmed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The common release boundary denies altered nested bytes before Helm and leaves no API objects",
+      "matched": true,
+      "observed": {
+        "verification_denied": true,
+        "helm_install_called": false,
+        "nested_digest_mismatch": true,
+        "release_and_workload_objects_absent": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The common release boundary denies a valid signature from a non-pinned key before Helm",
+      "matched": true,
+      "observed": {
+        "alternate_signature_valid_for_unpinned_key": true,
+        "pinned_signature_denied": true,
+        "helm_install_called": false,
+        "release_and_workload_objects_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The common release boundary installs pinned packages and readback confirms approved merged values",
+      "matched": true,
+      "observed": {
+        "root_direct_nested_markers_match": true,
+        "signature_valid_for_pinned_key": true,
+        "package_count": 3,
+        "installed_replicas": 0,
+        "installed_token_automount_false": true,
+        "workload_pods_created_by_fixture": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The verified release path reaches Helm but schema blocks the unsafe value before release objects exist",
+      "matched": true,
+      "observed": {
+        "token_value_rejected": true,
+        "release_and_workload_objects_absent": true
       }
     }
   ]

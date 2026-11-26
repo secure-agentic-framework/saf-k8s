@@ -1,28 +1,23 @@
-# Verify Helm merged values and dependency integrity
+# SAF-K8S-0606-020 Verify Helm values and dependency integrity
 
-```sh
-python3 lab.py test SAF-K8S-0606-020 --docker-context desktop-linux
-```
+Run `python3 tests/control-lab/lab.py test SAF-K8S-0606-020 --docker-context desktop-linux` from the framework checkout. The case was verified with Helm 3.17.0 and uses OpenSSL for fixture signatures.
 
-Helm installs only local synthetic charts that create inert ConfigMaps. The
-values schema refuses a disallowed marker from the normal CLI override path.
-Rebuilding the fixture dependency at the same declared version preserves
-`Chart.lock` while producing different package bytes. An independent archive
-digest check refuses those bytes. The approved package installs with the
-allowed CLI value and the original dependency marker.
+Real Helm resolves local chart dependencies and produces the release archive. The first comparison keeps the same resolution lock while the package bytes change. A separate byte check refuses the changed dependency. The reference also validates the merged security setting and checks the rendered workload.
 
-The case illustrates a local release gate. Actual deployed dependency sources,
-authentic package provenance, security-sensitive values and controller policy
-require separate verification.
+The signed comparison pins a synthetic publisher key before producing release evidence. Helm 3.17.0 serializes the subchart trees inside the parent package. The signed record binds the complete archive and canonical file inventories for the root, direct, and transitive charts. The verifier refuses the altered nested chart and an independently valid signature from an unpinned key. Independent API reads find no release or workload objects for either refusal.
 
-## Security-relevant rendered values
+The same gate passes the exact verified archive bytes to Helm for the approved release. Kubernetes readback verifies the merged values for the root and subcharts and disabled token automount for the zero-replica Deployment. Helm separately refuses an invalid token automount override before it stores a release. No fixture workload Pods run.
 
-A separate render-only comparison rejects a requested service account token automount through the merged-values schema and verifies the approved value renders as `spec.automountServiceAccountToken: false` in the exact inert Pod. Its manifest is never submitted to the API. The local dependency comparisons retain the distinction between version resolution and package byte integrity.
+## Verify an adopting implementation
 
-## Adopter verification
+1. Inventory the actual Helm and GitOps deployment paths, sources, mirrors, dependency trees and value inputs. Record which values have security impact and the approved values for each deployed chart.
+2. Preserve the approved dependency resolution and independently establish the expected integrity or signer for every consumed chart artifact. Bind the exact package, supplier identity, source and complete dependency closure to the approved trust policy. Control access to trust configuration and release outputs through actual deployment identities.
+3. Exercise the same gate using representative allowed releases and separately scoped altered artifacts or unapproved test signer comparisons. Observe refusal before release creation. Independently verify the final rendered and installed security settings and selected deployment paths.
+4. Collect the approved source, lock and provenance records, authenticated producer, key version, exact artifact digest, effective merged values, acceptance or denial, and the deployed release revision. Verify how update, rotation, mirrors and reviewed exceptions are handled.
 
-1. Inventory chart and dependency sources, including mirrors, transitive dependencies, and every supported values input (defaults, `-f` files, `--set`, environment/automation inputs, and controller-specific overrides). Define the security-sensitive values and the permitted values for the deployed chart versions.
-2. Enforce the merged-value policy at the actual deployment boundary. Test rejected overrides before any API object or release is created; demonstrate approved normal overrides still render and deploy correctly.
-3. Resolve and review `Chart.yaml` / `Chart.lock`; retain exact resolved names, versions, repository/source, and the lock digest. Helm documentation describes `dependency build` as reconstructing dependencies from `Chart.lock`; the lock is resolution metadata and must not be treated as proof that retrieved archive bytes are authentic.
-4. For every consumed direct and transitive dependency, verify the exact archive bytes against an independently approved digest or signature, and bind that expectation to approved supplier/repository identity. Fail closed on missing or mismatched evidence. Record the verifier, policy/key version, artifact digest, source, and denial result without retaining secret material.
-5. Repeat the negative and positive comparisons with the deployed Helm/client/controller versions and actual CI/GitOps paths. Review source and mirror permissions, update/key rotation, exceptions, and evidence retention. Registry verification, OCI charts, GitOps reconciliation, and organizational trust/key lifecycle are not established by this local case.
+The signed fixture establishes cryptographic behavior with case-owned keys and explicit public-key inputs. Adopters must establish genuine supplier identity, signing authority, independent trust custody and coverage of their deployment paths.
+
+- [Helm v3.17.0 archive serialization](https://github.com/helm/helm/blob/v3.17.0/pkg/chartutil/save.go)
+- [Helm v3.17.0 chart load behavior](https://github.com/helm/helm/blob/v3.17.0/pkg/chart/loader/load.go)
+- [NIST SP 800-53 Rev. 5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)
+- [NIST SSDF 1.1](https://csrc.nist.gov/pubs/sp/800/218/final)
