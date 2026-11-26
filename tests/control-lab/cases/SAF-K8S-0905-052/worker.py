@@ -1,4 +1,5 @@
 """Small in-cluster evaluator/publisher for inert SAF source records."""
+import hashlib
 import json
 import os
 import re
@@ -11,6 +12,7 @@ from pathlib import Path
 NS = "saf-test"
 TARGET = "approved-model-sources"
 CRITERIA = "source-approval-criteria"
+RECEIPTS = "source-approval-receipts"
 ROOT = Path("/var/run/secrets/kubernetes.io/serviceaccount")
 
 
@@ -70,6 +72,11 @@ def valid(record, criteria):
             and record["evidence"] == criteria["evidence_ref"])
 
 
+def review_digest(proposal):
+    data = json.dumps(proposal, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(data).hexdigest()
+
+
 def main():
     mode, proposal_name = os.sys.argv[1:3]
 
@@ -97,7 +104,18 @@ def main():
         print("EVALUATION_APPROVED record=%s criteria=%s approver=%s" %
               (proposal_name, criteria["criteria_id"], criteria["approver"]))
         return
+    if mode == "approve":
+        digest = review_digest(proposal)
+        status, _ = request(RECEIPTS, "PATCH", {"data": {proposal_name: digest}})
+        if status not in (200, 403):
+            raise RuntimeError("APPROVAL_WRITE_FAILED_%s" % status)
+        print("APPROVAL_WRITE status=%s" % status)
+        return
     if mode == "publish":
+        receipt = read(RECEIPTS)["data"].get(proposal_name)
+        if receipt != review_digest(proposal):
+            print("APPROVAL_REQUIRED record=%s" % proposal_name)
+            return
         records = json.loads(read(TARGET)["data"]["records.json"])
         if proposal not in records:
             records.append(proposal)

@@ -48,6 +48,7 @@ SCOPE = (
     "registry-namespace/CID approval records. Immutable ConfigMap proposals are read by a restricted "
     "review Job. An isolated publisher Job can patch only the named allowlist ConfigMap; a separate "
     "unprivileged Job is denied. Red, green, and positive observations use the same in-cluster API path. "
+    "The reviewer must also record the exact digest before publication. "
     "This tests fixture policy evaluation, Kubernetes authorization, and persistence only; it does not "
     "establish that the named approver is a real person or that the documented evidence is true."
 )
@@ -67,6 +68,8 @@ def _policy_resources(lab):
     _create(lab, {"apiVersion": "v1", "kind": "ConfigMap",
                   "metadata": {"name": "approved-model-sources"},
                   "data": {"records.json": "[]"}})
+    _create(lab, {"apiVersion": "v1", "kind": "ConfigMap",
+                  "metadata": {"name": "source-approval-receipts"}, "data": {"version": "v1"}})
     for name, record in (("proposal-incomplete", INCOMPLETE), ("proposal-unapproved", UNAPPROVED),
                          ("proposal-repository", APPROVED[0]), ("proposal-publisher", APPROVED[1]),
                          ("proposal-registry", APPROVED[2])):
@@ -83,6 +86,8 @@ def _policy_resources(lab):
                                               "proposal-unapproved", "proposal-repository",
                                               "proposal-publisher", "proposal-registry"],
                             "verbs": ["get"]}]}
+    read_role["rules"].append({"apiGroups": [""], "resources": ["configmaps"],
+                               "resourceNames": ["source-approval-receipts"], "verbs": ["patch"]})
     _create(lab, read_role)
     _create(lab, {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding",
                   "metadata": {"name": "source-review-read", "namespace": NAMESPACE},
@@ -99,6 +104,7 @@ def _policy_resources(lab):
                                  "verbs": ["get"]},
                                 {"apiGroups": [""], "resources": ["configmaps"],
                                  "resourceNames": ["approved-model-sources"], "verbs": ["get", "patch"]}]}
+    publisher_role["rules"][0]["resourceNames"].append("source-approval-receipts")
     _create(lab, publisher_role)
     _create(lab, {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding",
                   "metadata": {"name": "source-allowlist-publish", "namespace": NAMESPACE},
@@ -178,6 +184,10 @@ def run(lab):
     lab.check("green", "An unprivileged Job identity cannot patch the allowlist ConfigMap",
               denied, {"allowlist_patch_forbidden": denied})
 
+    before_approval = _job(lab, "source-no-approval", "source-publisher", "publish", "proposal-repository")
+    self_approval = _job(lab, "source-self-approval", "source-publisher", "approve", "proposal-repository")
+    gated = before_approval == "APPROVAL_REQUIRED record=proposal-repository" and _stored(lab) == []
+
     for suffix, proposal in (("repository", "proposal-repository"),
                              ("publisher", "proposal-publisher"),
                              ("registry", "proposal-registry")):
@@ -186,11 +196,19 @@ def run(lab):
         expected = "EVALUATION_APPROVED record=%s criteria=%s approver=%s" % (proposal, CRITERIA_ID, APPROVER)
         if evaluated != expected:
             lab.block("Approved record evaluation did not complete as expected")
+        approved_write = _job(lab, "source-approve-" + suffix, "source-reviewer", "approve", proposal)
+        if approved_write != "APPROVAL_WRITE status=200":
+            lab.block("The authorized reviewer could not record the exact approval")
         published = _job(lab, "source-publish-" + suffix, "source-publisher", "publish", proposal)
         if "PUBLISHED kind=" + approved["kind"] not in published:
             lab.block("Approved record publication did not complete as expected")
 
     rows = _stored(lab)
+    observed = {"missing_independent_receipt_prevents_publication": gated,
+                "publisher_cannot_self_approve": self_approval == "APPROVAL_WRITE status=403",
+                "after_authorized_approval_all_three_publish": rows == APPROVED}
+    lab.check("identity", "Only the independent authenticated reviewer can authorize the exact source publication",
+              all(observed.values()), observed)
     positive = rows == APPROVED and all(row["approver"] == APPROVER and
                                          row["criteria_id"] == CRITERIA_ID and
                                          row["evidence"] == EVIDENCE for row in rows)
