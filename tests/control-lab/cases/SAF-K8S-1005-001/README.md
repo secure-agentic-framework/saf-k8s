@@ -79,3 +79,36 @@ workload and evidence collectors.
    observed evidence. The disposable lifecycle example verifies selected
    workflow steps. Separate contingency facilities, production standby
    systems and broader process requirements have distinct evidence.
+
+## Review the scoped framework mappings
+
+Eleven rows need weaker conditional scope. The incident workflow can supply
+implementation evidence for a bounded technical contribution when the adopter
+uses it within the applicable provider obligations or AI risk process. The
+case starts from an assigned synthetic signal, exercises containment and
+restoration of an owned Deployment, and preserves metadata and review records.
+
+Article 14(4)(e) and SSDF RV.1.3 retain their existing conditional scope. The
+former requires exercising the actual authorized operator's interruption
+and verifying the resulting safe state. The latter requires integration
+with the adopter's vulnerability disclosure and remediation process.
+
+- [Regulation (EU) 2024/1689 as published](https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng)
+- [NIST AI RMF Core](https://airc.nist.gov/airmf-resources/airmf/5-sec-core/)
+- [NIST Secure Software Development Framework 1.1](https://csrc.nist.gov/pubs/sp/800/218/final)
+- [NIST SP 800-53 Rev. 5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)
+
+## Verify the scoped eradication step
+
+The test records a benign, case-owned ConfigMap in the immutable evidence
+snapshot. The named object remains present while the Deployment is
+contained, and the recovery gate refuses restoration. The case then deletes
+only the captured UID and resourceVersion, observes its absence while the
+Deployment is still scaled down, and restores the exact approved workload.
+A scoped metadata audit confirms the order of the marker and workload
+operations. Raw evidence retains object IDs, and the replay compares the
+stable assertions.
+
+When adopting this procedure, identify the actual cause, verify the
+authorized eradication plan, and retain evidence that the cause and relevant
+persistence paths have been resolved before approving recovery.

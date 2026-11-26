@@ -12,6 +12,8 @@ PREFIX = FIXTURES["case_prefix"]
 INCIDENT_ID = FIXTURES["incident_id"]
 DEPLOYMENT = f"{PREFIX}-mock-inference"
 EVIDENCE = f"{PREFIX}-evidence"
+ERADICATION_MARKER = f"{PREFIX}-eradication-marker"
+ERADICATION_VALUE = "SYNTHETIC-OWNED-MARKER-1005-001"
 AUDIT_CONFIG = "/etc/kubernetes/saf-1005-001/audit-policy.yaml"
 AUDIT_DIR = "/var/log/kubernetes/saf-1005-001"
 AUDIT_LOG = f"{AUDIT_DIR}/audit.jsonl"
@@ -22,7 +24,7 @@ MOCK_IMAGE = (
 SCOPE = (
     "Synthetic defensive incident exercise in one fresh Kind v1.36.1 cluster. Checks role ownership, "
     "ordered timeline records, metadata-only Kubernetes audit evidence, pre-containment snapshot, "
-    "namespace-scoped mock Deployment containment and recovery, and independent post-exercise review "
+    "namespace-scoped mock Deployment containment, synthetic marker eradication and recovery, and independent post-exercise review "
     "gates. The mock workload uses a digest-pinned public Python image and performs no network or "
     "application activity. All event, role, incident, and follow-up data is invented. This does not "
     "establish production policy completeness, external escalation or legal decisions, durable evidence "
@@ -119,7 +121,7 @@ def _audit_records(lab):
     for line in result.stdout.splitlines():
         row = json.loads(line)
         ref = row.get("objectRef") or {}
-        if ref.get("namespace") == "saf-test" and ref.get("name") in {DEPLOYMENT, EVIDENCE}:
+        if ref.get("namespace") == "saf-test" and ref.get("name") in {DEPLOYMENT, EVIDENCE, ERADICATION_MARKER}:
             selected.append(row)
     (lab.evidence / "audit.case.raw.jsonl").write_text(
         "".join(json.dumps(row, sort_keys=True) + "\n" for row in selected))
@@ -158,6 +160,10 @@ def _wait_contained(lab):
 def _verified(snapshot, approved_digest):
     digest = hashlib.sha256(snapshot["data"]["payload.json"].encode()).hexdigest()
     return snapshot.get("immutable") is True and digest == snapshot["data"]["sha256"] == approved_digest
+
+
+def _recovery_gate(snapshot, approved_digest, eradication_complete):
+    return _verified(snapshot, approved_digest) and eradication_complete
 
 
 def run(lab):
@@ -227,12 +233,36 @@ def run(lab):
               {"generation": baseline_generation, "replicas": baseline["status"].get("availableReplicas"),
                "image": MOCK_IMAGE})
 
-    # Preserve only the deliberately synthetic workload metadata before applying containment.
+    # One inert synthetic ConfigMap is the sole eradication target for this exercise.
+    marker_object = {
+        "apiVersion": "v1", "kind": "ConfigMap",
+        "metadata": {"name": ERADICATION_MARKER, "namespace": "saf-test",
+                     "labels": {"saf-k8s.example/fixture": INCIDENT_ID,
+                                "saf-k8s.example/eradication-marker": "true"}},
+        "data": {"marker": ERADICATION_VALUE},
+    }
+    lab.create(marker_object)
+    marker_readback = json.loads(lab.kubectl("get", "configmap", ERADICATION_MARKER, "-o", "json").stdout)
+    marker_uid = marker_readback["metadata"]["uid"]
+    marker_sha = hashlib.sha256(_canonical({"name": ERADICATION_MARKER,
+                                             "namespace": "saf-test",
+                                             "marker": ERADICATION_VALUE})).hexdigest()
+    # Raw API identity is retained outside check details so fresh-cluster UIDs do not
+    # destabilize normalized lab.check observations.
+    marker_raw = {"name": ERADICATION_MARKER, "uid": marker_uid,
+                  "namespace": "saf-test", "marker": ERADICATION_VALUE,
+                  "marker_sha256": marker_sha}
+    (lab.evidence / "eradication.marker.raw.json").write_text(
+        json.dumps(marker_raw, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+
+    # Preserve only the deliberately synthetic workload and marker identity before containment.
     evidence_bytes = _canonical({
         "incident_evidence": evidence_payload,
         "capture": {"deployment": DEPLOYMENT, "generation": baseline_generation,
                     "replicas": baseline["spec"]["replicas"],
                     "image": baseline["spec"]["template"]["spec"]["containers"][0]["image"]},
+        "eradication_marker": {"name": ERADICATION_MARKER, "namespace": "saf-test",
+                               "marker_sha256": marker_sha},
     })
     evidence_sha = hashlib.sha256(evidence_bytes).hexdigest()
     evidence_object = {
@@ -259,6 +289,19 @@ def run(lab):
               positive_evidence_ok, {"sha256": evidence_sha,
                                      "source_generation": evidence_readback["data"]["source_generation"],
                                      "immutable": evidence_readback["immutable"]})
+    bound_marker = json.loads(evidence_readback["data"]["payload.json"])["eradication_marker"]
+    marker_readback_ok = (
+        marker_readback["metadata"]["name"] == ERADICATION_MARKER
+        and marker_readback["metadata"]["namespace"] == "saf-test"
+        and marker_readback["metadata"]["labels"].get("saf-k8s.example/fixture") == INCIDENT_ID
+        and marker_readback["metadata"]["labels"].get("saf-k8s.example/eradication-marker") == "true"
+        and marker_readback["data"] == {"marker": ERADICATION_VALUE}
+    )
+    lab.check("green", "Incident evidence binds the exact owned synthetic eradication marker",
+              marker_readback_ok and bound_marker["name"] == ERADICATION_MARKER
+              and bound_marker["namespace"] == "saf-test" and bound_marker["marker_sha256"] == marker_sha,
+              {"marker_name": ERADICATION_MARKER, "marker_sha256": marker_sha,
+               "evidence_bound": True})
 
     # Containment changes only this named mock Deployment in the disposable cluster.
     lab.kubectl("scale", f"deployment/{DEPLOYMENT}", "--replicas=0")
@@ -270,11 +313,49 @@ def run(lab):
     saved = json.loads(lab.kubectl("get", "configmap", EVIDENCE, "-o", "json").stdout)
     bad_digest = FIXTURES["evidence"]["red_expected_sha256"]
     lab.check("red", "The recovery gate rejects a mismatched approval digest while replicas remain zero",
-              not _verified(saved, bad_digest) and _workload(lab)["spec"]["replicas"] == 0,
+              not _verified(saved, bad_digest)
+              and _workload(lab)["spec"]["replicas"] == 0,
               {"invalid_digest_rejected": True, "desired_replicas": 0})
-    saved_digest_ok = _verified(saved, evidence_sha) and saved["data"]["payload.json"].encode() == evidence_bytes
+
+    marker_present = json.loads(lab.kubectl("get", "configmap", ERADICATION_MARKER, "-o", "json").stdout)
+    marker_matches = (marker_present["metadata"]["uid"] == marker_uid
+                      and marker_present["metadata"]["labels"].get("saf-k8s.example/fixture") == INCIDENT_ID
+                      and marker_present["metadata"]["labels"].get("saf-k8s.example/eradication-marker") == "true"
+                      and marker_present["data"] == {"marker": ERADICATION_VALUE})
+    lab.check("red", "Recovery remains blocked while the exact evidence-bound synthetic marker exists",
+              marker_matches and not _recovery_gate(saved, evidence_sha, eradication_complete=False)
+              and _workload(lab)["spec"]["replicas"] == 0,
+              {"marker_name": ERADICATION_MARKER, "marker_present": True,
+               "recovery_allowed": False, "desired_replicas": 0})
+
+    # Fail closed if the target was replaced or changed; delete the exact UID with a precondition.
+    if not marker_matches:
+        lab.block("The case-owned eradication marker identity or content changed")
+    options = {
+        "apiVersion": "v1", "kind": "DeleteOptions",
+        "preconditions": {"uid": marker_uid,
+                          "resourceVersion": marker_present["metadata"]["resourceVersion"]},
+    }
+    marker_path = f"/api/v1/namespaces/saf-test/configmaps/{ERADICATION_MARKER}"
+    lab.kubectl("delete", "--raw", marker_path, "-f", "-", payload=json.dumps(options))
+    marker_absent = lab.kubectl("get", "configmap", ERADICATION_MARKER, "-o", "name",
+                                allow_failure=True)
+    marker_not_found = (marker_absent.returncode != 0
+                        and "NotFound" in marker_absent.stderr)
+    marker_absent_ok = marker_not_found and _workload(lab)["spec"]["replicas"] == 0
+    marker_raw["deleted_uid"] = marker_uid
+    marker_raw["absent_after_delete"] = marker_not_found
+    (lab.evidence / "eradication.marker.raw.json").write_text(
+        json.dumps(marker_raw, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+    lab.check("green", "Exact owned synthetic marker is eradicated and remains absent before approved restore",
+              marker_absent_ok,
+              {"marker_name": ERADICATION_MARKER, "marker_absent": marker_absent_ok,
+               "desired_replicas": 0})
+
+    saved_digest_ok = (_recovery_gate(saved, evidence_sha, eradication_complete=marker_absent_ok)
+                       and saved["data"]["payload.json"].encode() == evidence_bytes)
     if not saved_digest_ok:
-        lab.block("The approved snapshot did not match the persisted evidence")
+        lab.block("The approved snapshot or eradication gate did not match persisted evidence")
     lab.kubectl("scale", f"deployment/{DEPLOYMENT}", "--replicas=1")
     lab.kubectl("rollout", "status", f"deployment/{DEPLOYMENT}", "--timeout=90s", timeout=100)
     recovered = _workload(lab)
@@ -335,3 +416,22 @@ def run(lab):
     }, indent=2) + "\n", encoding="utf-8")
     lab.check("positive", "Native API audit metadata contains the mock workload and evidence operations",
               all(audit_checks.values()), audit_checks)
+    marker_created = _matching_audit(raw_audit, {"create"}, "configmaps", ERADICATION_MARKER)
+    marker_deleted = _matching_audit(raw_audit, {"delete"}, "configmaps", ERADICATION_MARKER)
+    marker_times = ([marker_created[0].get("stageTimestamp"), captured[0].get("stageTimestamp"),
+                     scales[0].get("stageTimestamp"), marker_deleted[0].get("stageTimestamp"),
+                     scales[1].get("stageTimestamp")]
+                    if len(marker_created) == len(marker_deleted) == len(captured) == 1
+                    and len(scales) == 2 else [])
+    marker_order_ok = (len(marker_times) == 5 and marker_times == sorted(marker_times)
+                       and len(set(marker_times)) == 5)
+    eradication_audit_ok = (len(marker_created) == 1 and len(marker_deleted) == 1
+                            and marker_order_ok
+                            and all("requestObject" not in row and "responseObject" not in row
+                                    for row in marker_created + marker_deleted))
+    lab.check("positive", "Native metadata audit records ordered exact marker creation and deletion before recovery",
+              eradication_audit_ok,
+              {"marker_name": ERADICATION_MARKER, "create_count": len(marker_created),
+               "delete_count": len(marker_deleted), "ordered_before_recovery": marker_order_ok,
+               "delete_uid_preconditioned": True,
+               "metadata_only": eradication_audit_ok})

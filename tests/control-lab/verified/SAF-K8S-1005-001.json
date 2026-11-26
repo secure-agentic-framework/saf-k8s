@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1005-001",
-  "catalog_revision": "f9c0a618210283ffb89431e9158737b25abee915",
+  "catalog_revision": "340b35e178e31fa9a2bde5662aef1abafbd15651",
   "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "34d63abdf5e7a313bb49872564bf87ec639afa12e655105ca641cb5264116951",
-  "scope": "Synthetic defensive incident exercise in one fresh Kind v1.36.1 cluster. Checks role ownership, ordered timeline records, metadata-only Kubernetes audit evidence, pre-containment snapshot, namespace-scoped mock Deployment containment and recovery, and independent post-exercise review gates. The mock workload uses a digest-pinned public Python image and performs no network or application activity. All event, role, incident, and follow-up data is invented. This does not establish production policy completeness, external escalation or legal decisions, durable evidence retention, organization-wide readiness, AI-specific response sufficiency, or annual exercise cadence.",
-  "cluster": "saf-lab-62f7aa4ecfe3",
+  "scope": "Synthetic defensive incident exercise in one fresh Kind v1.36.1 cluster. Checks role ownership, ordered timeline records, metadata-only Kubernetes audit evidence, pre-containment snapshot, namespace-scoped mock Deployment containment, synthetic marker eradication and recovery, and independent post-exercise review gates. The mock workload uses a digest-pinned public Python image and performs no network or application activity. All event, role, incident, and follow-up data is invented. This does not establish production policy completeness, external escalation or legal decisions, durable evidence retention, organization-wide readiness, AI-specific response sufficiency, or annual exercise cadence.",
+  "cluster": "saf-lab-9043f157f110",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -172,7 +172,7 @@
       "matched": true,
       "observed": {
         "evidence_name": "saf-1005-001-evidence",
-        "sha256": "be7b93c8aad6bd3986bbd26ff0cfa65a246499b75b8fff31d9e36ca392e0439a",
+        "sha256": "7b4cb8d6c00c49d16dbfb65c4de615f5eba4687f6f87b3c4a843a3d25c8a365c",
         "source_generation": 1
       }
     },
@@ -181,9 +181,19 @@
       "claim": "Independent API readback preserves the exact immutable pre-containment evidence bytes",
       "matched": true,
       "observed": {
-        "sha256": "be7b93c8aad6bd3986bbd26ff0cfa65a246499b75b8fff31d9e36ca392e0439a",
+        "sha256": "7b4cb8d6c00c49d16dbfb65c4de615f5eba4687f6f87b3c4a843a3d25c8a365c",
         "source_generation": "1",
         "immutable": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Incident evidence binds the exact owned synthetic eradication marker",
+      "matched": true,
+      "observed": {
+        "marker_name": "saf-1005-001-eradication-marker",
+        "marker_sha256": "b94765c8db690e79abbb3532fca31c8ea0ff16032775fb00304f4ece8398a0b6",
+        "evidence_bound": true
       }
     },
     {
@@ -206,13 +216,34 @@
       }
     },
     {
+      "phase": "red",
+      "claim": "Recovery remains blocked while the exact evidence-bound synthetic marker exists",
+      "matched": true,
+      "observed": {
+        "marker_name": "saf-1005-001-eradication-marker",
+        "marker_present": true,
+        "recovery_allowed": false,
+        "desired_replicas": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Exact owned synthetic marker is eradicated and remains absent before approved restore",
+      "matched": true,
+      "observed": {
+        "marker_name": "saf-1005-001-eradication-marker",
+        "marker_absent": true,
+        "desired_replicas": 0
+      }
+    },
+    {
       "phase": "green",
       "claim": "Recovery restores the pinned mock workload and preserves verified pre-containment evidence",
       "matched": true,
       "observed": {
         "available_replicas": 1,
         "image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90",
-        "evidence_sha256": "be7b93c8aad6bd3986bbd26ff0cfa65a246499b75b8fff31d9e36ca392e0439a",
+        "evidence_sha256": "7b4cb8d6c00c49d16dbfb65c4de615f5eba4687f6f87b3c4a843a3d25c8a365c",
         "immutable": true
       }
     },
@@ -245,7 +276,7 @@
       "observed": {
         "status": "reviewed",
         "reviewer": "urn:example:saf:role:independent-reviewer",
-        "evidence_digest": "sha256:be7b93c8aad6bd3986bbd26ff0cfa65a246499b75b8fff31d9e36ca392e0439a",
+        "evidence_digest": "sha256:7b4cb8d6c00c49d16dbfb65c4de615f5eba4687f6f87b3c4a843a3d25c8a365c",
         "follow_up": {
           "action": "revise synthetic playbook exercise note",
           "owner": "urn:example:saf:role:platform-engineering",
@@ -260,7 +291,7 @@
       "observed": {
         "status": "reviewed",
         "reviewer": "urn:example:saf:role:independent-reviewer",
-        "evidence_digest": "sha256:be7b93c8aad6bd3986bbd26ff0cfa65a246499b75b8fff31d9e36ca392e0439a",
+        "evidence_digest": "sha256:7b4cb8d6c00c49d16dbfb65c4de615f5eba4687f6f87b3c4a843a3d25c8a365c",
         "follow_up": {
           "action": "revise synthetic playbook exercise note",
           "owner": "urn:example:saf:role:platform-engineering",
@@ -278,6 +309,19 @@
         "evidence_created": true,
         "two_exact_scale_operations": true,
         "ordered_distinct_successful_operations": true,
+        "metadata_only": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native metadata audit records ordered exact marker creation and deletion before recovery",
+      "matched": true,
+      "observed": {
+        "marker_name": "saf-1005-001-eradication-marker",
+        "create_count": 1,
+        "delete_count": 1,
+        "ordered_before_recovery": true,
+        "delete_uid_preconditioned": true,
         "metadata_only": true
       }
     }
