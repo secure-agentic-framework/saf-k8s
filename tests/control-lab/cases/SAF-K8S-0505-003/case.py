@@ -56,7 +56,9 @@ SCOPE = (
     "services in the owned namespace. An ingress NetworkPolicy protects the selected endpoint "
     "on TCP/8080. Both internal clients reach both service types and the pod IP before policy. "
     "The unselected client times out on all three routes after policy while the selected "
-    "client still reaches the marker on each. Production inventory and exceptions remain open."
+    "client still reaches the marker on each. Admission additionally compares LoadBalancer "
+    "CREATE before/after policy and ClusterIP/LoadBalancer UPDATE dry-runs against one stored "
+    "synthetic ClusterIP Service. Production inventory and exceptions remain open."
 )
 TARGET = "saf0505003-server"
 ALLOWED = "saf0505003-allowed"
@@ -88,6 +90,22 @@ def service(lab, name, service_type=None):
 
 def state(lab, label, **kwargs):
     return json.loads(lab.kubectl(*label, "-o", "json", **kwargs).stdout)
+
+
+def admission_service(name, service_type="ClusterIP"):
+    return {"apiVersion": "v1", "kind": "Service",
+            "metadata": {"name": name, "namespace": "saf-test"},
+            "spec": {"type": service_type, "ports": [{"port": 8080}]}}
+
+
+def dryrun_service_create(lab, obj):
+    return lab.kubectl("create", "--dry-run=server", "-f", "-", "-o", "json",
+                       payload=json.dumps(obj), allow_failure=True)
+
+
+def dryrun_service_replace(lab, obj):
+    return lab.kubectl("replace", "--dry-run=server", "-f", "-", "-o", "json",
+                       payload=json.dumps(obj), allow_failure=True)
 
 
 def run(lab):
@@ -130,6 +148,20 @@ def run(lab):
     accepted = nodeport_before.returncode == 0 and json.loads(nodeport_before.stdout)["spec"]["type"] == "NodePort"
     lab.check("red", "The API accepts an explicit NodePort before internal-service admission policy",
               accepted, {"accepted_explicit_nodeport": accepted})
+    lb_before = dryrun_service_create(lab, admission_service("internal-lb-before", "LoadBalancer"))
+    lb_before_object = json.loads(lb_before.stdout) if lb_before.returncode == 0 else {}
+    lb_baseline = lb_before.returncode == 0 and lb_before_object.get("spec", {}).get("type") == "LoadBalancer"
+    lab.check("red", "The API accepts a server-side dry-run LoadBalancer CREATE before the policy",
+              lb_baseline, {"accepted_loadbalancer_dryrun_before": lb_baseline})
+
+    # Persist only an owned ClusterIP object; all non-ClusterIP probes remain dry-run.
+    update_target = admission_service("internal-update-target")
+    lab.kubectl("create", "-f", "-", "-o", "json", payload=json.dumps(update_target))
+    stored_before = json.loads(lab.kubectl("get", "service", update_target["metadata"]["name"],
+                                           "-n", "saf-test", "-o", "json").stdout)
+    if (stored_before.get("spec", {}).get("type") != "ClusterIP"
+            or not stored_before.get("metadata", {}).get("resourceVersion")):
+        lab.block("The owned UPDATE target was not stored as a versioned ClusterIP Service")
     lab.apply(HERE / "admission.yaml")
     deadline = time.monotonic() + 25
     while time.monotonic() < deadline:
@@ -141,10 +173,46 @@ def run(lab):
         lab.block("The namespace admission policy did not become effective")
     lab.check("green", "The applied admission policy rejects explicit NodePort in the internal namespace",
               True, {"denied_nodeport_by_expected_rule": True})
+    lb_after = dryrun_service_create(lab, admission_service("internal-lb-after", "LoadBalancer"))
+    lb_denied = lb_after.returncode != 0 and ADMISSION_MESSAGE in lb_after.stderr
+    lab.check("green", "The applied policy rejects LoadBalancer CREATE by the expected rule",
+              lb_denied, {"loadbalancer_create_denied_by_policy": lb_denied})
     permitted = service(lab, "internal-default-after")
     allowed = permitted.returncode == 0 and json.loads(permitted.stdout)["spec"]["type"] == "ClusterIP"
     lab.check("positive", "The admission policy still permits an omitted Service type defaulted to ClusterIP",
               allowed, {"admitted_defaulted_cluster_ip": allowed})
+
+    # A type-preserving UPDATE is admitted as dry-run and must not persist its annotation.
+    update_candidate = json.loads(json.dumps(stored_before))
+    update_candidate.setdefault("metadata", {}).setdefault("annotations", {})["saf.example/dryrun-probe"] = "clusterip-update"
+    clusterip_update = dryrun_service_replace(lab, update_candidate)
+    clusterip_response = json.loads(clusterip_update.stdout) if clusterip_update.returncode == 0 else {}
+    stored_after_allowed_dryrun = json.loads(lab.kubectl(
+        "get", "service", update_target["metadata"]["name"], "-n", "saf-test", "-o", "json").stdout)
+    allowed_update = (clusterip_update.returncode == 0
+                      and clusterip_response.get("spec", {}).get("type") == "ClusterIP"
+                      and clusterip_response.get("metadata", {}).get("annotations", {}).get("saf.example/dryrun-probe") == "clusterip-update"
+                      and stored_after_allowed_dryrun.get("metadata", {}).get("resourceVersion") == stored_before.get("metadata", {}).get("resourceVersion")
+                      and "saf.example/dryrun-probe" not in stored_after_allowed_dryrun.get("metadata", {}).get("annotations", {}))
+    lab.check("positive", "The policy permits an allowed ClusterIP UPDATE dry-run without persisting it",
+              allowed_update, {"clusterip_update_dryrun_allowed": allowed_update,
+                               "stored_type_after_dryrun": stored_after_allowed_dryrun.get("spec", {}).get("type"),
+                               "stored_resource_version_unchanged": stored_after_allowed_dryrun.get("metadata", {}).get("resourceVersion") == stored_before.get("metadata", {}).get("resourceVersion"),
+                               "probe_annotation_persisted": "saf.example/dryrun-probe" in stored_after_allowed_dryrun.get("metadata", {}).get("annotations", {})})
+
+    # Attempt only a server-side dry-run UPDATE; verify the stored object remains unchanged.
+    loadbalancer_candidate = json.loads(json.dumps(stored_after_allowed_dryrun))
+    loadbalancer_candidate["spec"]["type"] = "LoadBalancer"
+    lb_update = dryrun_service_replace(lab, loadbalancer_candidate)
+    stored_after_denied_dryrun = json.loads(lab.kubectl(
+        "get", "service", update_target["metadata"]["name"], "-n", "saf-test", "-o", "json").stdout)
+    update_denied = (lb_update.returncode != 0 and ADMISSION_MESSAGE in lb_update.stderr
+                     and stored_after_denied_dryrun.get("spec", {}).get("type") == "ClusterIP"
+                     and stored_after_denied_dryrun.get("metadata", {}).get("resourceVersion") == stored_before.get("metadata", {}).get("resourceVersion"))
+    lab.check("green", "The policy rejects a non-ClusterIP UPDATE and leaves stored state unchanged",
+              update_denied, {"loadbalancer_update_denied_by_policy": update_denied,
+                              "stored_type_after_denial": stored_after_denied_dryrun.get("spec", {}).get("type"),
+                              "stored_resource_version_unchanged": stored_after_denied_dryrun.get("metadata", {}).get("resourceVersion") == stored_before.get("metadata", {}).get("resourceVersion")})
 
     lab.apply(HERE / "policy.yaml")
     deadline = time.monotonic() + 35

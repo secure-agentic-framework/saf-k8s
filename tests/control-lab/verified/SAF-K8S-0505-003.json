@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0505-003",
-  "catalog_revision": "3d0d3f8a46b5b33ed6923b1d1ecff99e98b897c8",
-  "catalog_sha256": "82c8181a0369adafde249681e946cf7daa42ac28325e8e01d8ff0e0b7f17a071",
+  "catalog_revision": "bd6c26e582d3b241f31dc4e9f4316a777193b431",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "f80239ceb4452039a5d3b4e758dcf6d3625b3b0da1da45706c00e8a8b1a33e09",
-  "scope": "One fresh Kubernetes v1.36.1 cluster with pinned Cilium 1.20.5. Inspect the API default, selector-backed headless DNS, and an explicit admission policy requiring ClusterIP for services in the owned namespace. An ingress NetworkPolicy protects the selected endpoint on TCP/8080. Both internal clients reach both service types and the pod IP before policy. The unselected client times out on all three routes after policy while the selected client still reaches the marker on each. Production inventory and exceptions remain open.",
-  "cluster": "saf-lab-abcef1879c5b",
+  "scope": "One fresh Kubernetes v1.36.1 cluster with pinned Cilium 1.20.5. Inspect the API default, selector-backed headless DNS, and an explicit admission policy requiring ClusterIP for services in the owned namespace. An ingress NetworkPolicy protects the selected endpoint on TCP/8080. Both internal clients reach both service types and the pod IP before policy. The unselected client times out on all three routes after policy while the selected client still reaches the marker on each. Admission additionally compares LoadBalancer CREATE before/after policy and ClusterIP/LoadBalancer UPDATE dry-runs against one stored synthetic ClusterIP Service. Production inventory and exceptions remain open.",
+  "cluster": "saf-lab-e6de3e0370b8",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -129,6 +129,14 @@
       }
     },
     {
+      "phase": "red",
+      "claim": "The API accepts a server-side dry-run LoadBalancer CREATE before the policy",
+      "matched": true,
+      "observed": {
+        "accepted_loadbalancer_dryrun_before": true
+      }
+    },
+    {
       "phase": "green",
       "claim": "The applied admission policy rejects explicit NodePort in the internal namespace",
       "matched": true,
@@ -137,11 +145,40 @@
       }
     },
     {
+      "phase": "green",
+      "claim": "The applied policy rejects LoadBalancer CREATE by the expected rule",
+      "matched": true,
+      "observed": {
+        "loadbalancer_create_denied_by_policy": true
+      }
+    },
+    {
       "phase": "positive",
       "claim": "The admission policy still permits an omitted Service type defaulted to ClusterIP",
       "matched": true,
       "observed": {
         "admitted_defaulted_cluster_ip": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The policy permits an allowed ClusterIP UPDATE dry-run without persisting it",
+      "matched": true,
+      "observed": {
+        "clusterip_update_dryrun_allowed": true,
+        "stored_type_after_dryrun": "ClusterIP",
+        "stored_resource_version_unchanged": true,
+        "probe_annotation_persisted": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The policy rejects a non-ClusterIP UPDATE and leaves stored state unchanged",
+      "matched": true,
+      "observed": {
+        "loadbalancer_update_denied_by_policy": true,
+        "stored_type_after_denial": "ClusterIP",
+        "stored_resource_version_unchanged": true
       }
     },
     {
