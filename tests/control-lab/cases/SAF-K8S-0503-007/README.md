@@ -43,3 +43,16 @@ Kubernetes Gateway API controller referenced by the updated examples.
 - [Traefik Gateway API provider](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/gateway-api/)
 - [Traefik Helm chart v42.4.1](https://github.com/traefik/traefik-helm-chart/releases/tag/v42.4.1)
 - [Gateway API v1.6.3](https://github.com/kubernetes-sigs/gateway-api/releases/tag/v1.6.3)
+
+## Verify an adopting gateway
+
+Use this per deployed TLS termination path. Keep it separate from the 10-check Traefik v3.7.19 Gateway API reference run.
+
+1. Inventory every externally reachable Ingress, Gateway, cloud load balancer, listener, and backend route. Record the controller project/version, address exposure, owner, and whether it is an application endpoint or designated remote-access point. Include alternate IPv4/IPv6, private/public, and provider paths that apply.
+2. Capture the effective listener policy and approved profile: TLS minimum and maximum, allowed protocol/cipher combinations, certificate identity and trust chain, issuer/renewal process, and any exception record. Do not infer certificate lifecycle from the fixture-issued leaf.
+3. From an authorized client on the intended path, request a harmless owner-controlled marker. Require the approved CA, hostname, protocol, and cipher to return the exact marker; check configured disallowed protocol/cipher and wrong-identity cases fail with expected TLS errors. Record negotiated protocol/cipher and effective served certificate fingerprint without storing private key material.
+4. Verify cleartext behavior and route boundaries only where the policy requires them. Treat HTTP 404 for unmatched Host/path as application routing evidence; it does not prove a network-layer deny-by-default rule.
+5. For any SC-7 claim, retain the complete system external-interface inventory and managed-interface traffic-flow policy. Show approved exceptions with business need, owner, duration and review; capture evidence for external control-plane filtering where applicable. A single working Gateway route does not show that all other external connections are limited.
+6. For AC-17(3), apply the mapping only if the organization designates the endpoint as a managed remote-access control point. Retain the organization-defined control-point count and evidence that all remote-access paths traverse those points. A public application Gateway alone does not satisfy that condition.
+
+Source requirements: [NIST SP 800-53 Rev. 5.1 derived OSCAL](https://csrc.nist.gov/CSRC/media/Projects/risk-management/800-53%20Downloads/800-53r5/SP_800-53_v5_1-derived-OSCAL.pdf), AC-17(3), SC-7(3), and SC-7(4). SC-7(5) is not a mapped requirement for this control; the fixture's unmatched route 404 is not evidence for it.
