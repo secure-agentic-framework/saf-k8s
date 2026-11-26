@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0502-009",
-  "catalog_revision": "892f1ff28c1eb2b4b7d9d2684f1e1ef12d700c15",
-  "catalog_sha256": "1a03ceb6640631ae309f3f6597c1384ee040e1d7141831b96052702b1e653474",
+  "catalog_revision": "3694cdc91a9c6ce6f67fdba1e6410f800deb07ad",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "f85b269e4db761a9f1fef109aa59bef37489a131b3fcb623f6ef7ead75ee6c1c",
-  "scope": "A single-node local Kind v0.32.0 and Kubernetes v1.36.1 cluster. The API server allocates all remaining addresses in a deliberately small IPv4 ServiceCIDR. A second ServiceCIDR adds capacity, and the original and new ClusterIP Services both serve the same owned marker through cluster DNS. Node PodCIDR containment is inspected. Deployed CNI Pod IPAM sizing, node pool exhaustion, dual-stack, telemetry, and alerts require separate evidence.",
-  "cluster": "saf-lab-45454d3e74de",
+  "scope": "A single-node local Kind v0.32.0 and Kubernetes v1.36.1 cluster. The API server allocates addresses in deliberately small IPv4 ServiceCIDRs. The case reads native ServiceCIDR/IPAddress allocations, reports a synthetic two-address low-spare threshold, and creates case-owned events.events.k8s.io/v1 Warning/Normal records from the test harness. A second ServiceCIDR adds capacity, and both ClusterIP Services serve the same owned marker through cluster DNS. Node PodCIDR containment is inspected. The event producer is modeled, not a deployed monitoring controller. CNI Pod IPAM sizing, node pool exhaustion, dual-stack, production telemetry, and alert routing require separate evidence.",
+  "cluster": "saf-lab-c6a282f24606",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -48,11 +48,40 @@
       }
     },
     {
+      "phase": "positive",
+      "claim": "Native ServiceCIDR and IPAddress inventory shows baseline spare capacity above threshold",
+      "matched": true,
+      "observed": {
+        "servicecidrs": [
+          "kubernetes"
+        ],
+        "allocated_ipaddresses": 3,
+        "available_ipaddresses": 11,
+        "low_spare_threshold": 2,
+        "warning_events_at_baseline": 0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A case-owned Warning Event is recorded at the exact native low-spare threshold",
+      "matched": true,
+      "observed": {
+        "warning_type": "Warning",
+        "warning_reason": "ServiceCIDRLowSpareAddresses",
+        "allocated_ipaddresses": 12,
+        "available_ipaddresses": 2,
+        "warning_event_count": 1,
+        "warning_targets_original_service": true,
+        "reporter": "saf-0502-009-capacity-fixture"
+      }
+    },
+    {
       "phase": "red",
       "claim": "A new Service is rejected after all usable addresses are allocated",
       "matched": true,
       "observed": {
         "all_usable_addresses_allocated": true,
+        "native_ipaddresses_exhaust_pool": true,
         "range_is_full": true,
         "original_service_still_works": true
       }
@@ -64,6 +93,24 @@
       "observed": {
         "extra_pool": "10.96.1.0/28",
         "assigned_from_extra_pool": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native allocation inventory recovers above threshold with a case-owned Normal Event",
+      "matched": true,
+      "observed": {
+        "servicecidrs": [
+          "kubernetes",
+          "saf-capacity-extra"
+        ],
+        "allocated_ipaddresses": 15,
+        "available_ipaddresses": 13,
+        "threshold": 2,
+        "recovery_targets_expanded_service": true,
+        "recovery_reports_native_pools": true,
+        "warning_event_preserved": true,
+        "normal_recovery_event_count": 1
       }
     },
     {
