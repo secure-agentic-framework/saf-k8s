@@ -8,6 +8,9 @@ OUTSIDE = "saf-source-outside"
 PARAM = "model-source-allowlist"
 APPROVED_URL = "https://models.example.test/approved/model-v1"
 APPROVED_OCI = "registry.example.test/approved/model:v1"
+APPROVED_MODEL_CARRIER_IMAGE = "registry.example.test/approved/model-runtime:v1"
+OTHER_MODEL_CARRIER_IMAGE = "registry.unapproved.test/fixture/model-runtime:v9"
+UNRELATED_HELPER_IMAGE = "registry.unrelated.test/fixtures/worker:v1"
 OTHER_URL = "https://other.example.test/unapproved/model-v1"
 OTHER_OCI = "registry.other.test/unapproved/model:v1"
 NEXT_URL = "https://models.example.test/approved/model-v2"
@@ -16,17 +19,20 @@ OCI_VAR = "MODEL_SOURCE_OCI"
 DENIAL = "declared model source is outside the approved allowlist"
 SCOPE = (
     "Native Kubernetes v1.36.1 admission checks exact HTTPS and OCI values in declared "
-    "environment fields on Pods, Deployments, StatefulSets, DaemonSets, Jobs and CronJobs "
+    "environment fields on Pods, Deployments, ReplicaSets, ReplicationControllers, StatefulSets, DaemonSets, Jobs and CronJobs "
     "in a protected namespace, including normal and init containers. Requests use server "
-    "dry-run and a real zero-replica Deployment. The test covers an admissible update, "
-    "allowlist rotation and a missing parameter. The scope is explicit fields, including "
-    "rejection of valueFrom for those fields. Image pulls, arbitrary application source "
-    "references, other controllers and production governance are open."
+    "dry-run and a real zero-replica Deployment. A separate VAP checks the image of a "
+    "container explicitly named model-carrier on Pods and Deployments against its own "
+    "key in the same ConfigMap; unrelated container images are not interpreted as model "
+    "carriers. No image is pulled. The test covers an admissible update, allowlist rotation "
+    "and a missing parameter. Other model-source fields, additional image-carrier object "
+    "kinds, actual image pulls and production governance remain open."
 )
 
 
 def _workload(kind, *, ns=NS, source=APPROVED_URL, oci=APPROVED_OCI, name=None):
-    api = ("v1" if kind == "Pod" else "batch/v1" if kind in ("Job", "CronJob") else "apps/v1")
+    api = ("v1" if kind in ("Pod", "ReplicationController")
+           else "batch/v1" if kind in ("Job", "CronJob") else "apps/v1")
     name = name or f"fixture-{kind.lower()}"
     workload = {"apiVersion": api, "kind": kind, "metadata": {"name": name, "namespace": ns}}
     spec = {"automountServiceAccountToken": False,
@@ -45,7 +51,8 @@ def _workload(kind, *, ns=NS, source=APPROVED_URL, oci=APPROVED_OCI, name=None):
     elif kind == "Job":
         workload["spec"] = {"template": template}
     else:
-        workload["spec"] = {"selector": {"matchLabels": labels}, "template": template}
+        selector = labels if kind == "ReplicationController" else {"matchLabels": labels}
+        workload["spec"] = {"selector": selector, "template": template}
         if kind != "DaemonSet":
             workload["spec"]["replicas"] = 0
         if kind == "StatefulSet":
@@ -68,7 +75,8 @@ def _update(lab):
 
 def _map(lab, urls):
     obj = {"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": PARAM, "namespace": NS},
-           "data": {"https": ",".join(urls), "oci": APPROVED_OCI}}
+           "data": {"https": ",".join(urls), "oci": APPROVED_OCI,
+                    "model_carrier_images": APPROVED_MODEL_CARRIER_IMAGE}}
     lab.kubectl("apply", "-f", "-", payload=json.dumps(obj))
 
 
@@ -107,12 +115,12 @@ def _check_denial(lab, description, obj, *, update=False, param_missing=False, c
     deadline = time.monotonic() + 15
     while True:
         result = _update(lab) if update else _request(lab, obj)
-        if result.returncode or not converge or time.monotonic() >= deadline:
+        error = result.stderr
+        expected = "param" in error.lower() if param_missing else DENIAL in error
+        named = "ValidatingAdmissionPolicy '" + _policy_name(obj["kind"]) + "'" in error
+        if (result.returncode and named and expected) or not converge or time.monotonic() >= deadline:
             break
         time.sleep(0.3)
-    error = result.stderr
-    expected = "param" in error.lower() if param_missing else DENIAL in error
-    named = "ValidatingAdmissionPolicy '" + _policy_name(obj["kind"]) + "'" in error
     lab.check("green", description, result.returncode != 0 and named and expected,
               {"api_rejection": result.returncode != 0, "expected_policy_named": named,
                "expected_parameter_error" if param_missing else "expected_denial_message": expected})
@@ -124,10 +132,103 @@ def _check_create(lab, description, obj, *, phase="positive"):
               {"admitted": result.returncode == 0, "kind": obj["kind"], "namespace": obj["metadata"]["namespace"]})
 
 
+
+def _model_carrier_workload(kind, *, image=None, carrier=True):
+    name = f"model-carrier-{kind.lower()}"
+    containers = []
+    if carrier:
+        containers.append({"name": "model-carrier", "image": image or APPROVED_MODEL_CARRIER_IMAGE})
+    containers.append({"name": "ordinary-helper", "image": UNRELATED_HELPER_IMAGE})
+    pod_spec = {"automountServiceAccountToken": False, "containers": containers}
+    if kind == "Pod":
+        return {"apiVersion": "v1", "kind": "Pod",
+                "metadata": {"name": name, "namespace": NS},
+                "spec": {**pod_spec, "restartPolicy": "Never"}}
+    labels = {"app": name}
+    return {"apiVersion": "apps/v1", "kind": "Deployment",
+            "metadata": {"name": name, "namespace": NS},
+            "spec": {"replicas": 0, "selector": {"matchLabels": labels},
+                     "template": {"metadata": {"labels": labels}, "spec": pod_spec}}}
+
+
+def _install_model_carrier_image_policy(lab):
+    def field(spec):
+        return (
+            "params != null && has(params.data) && has(params.data.model_carrier_images) && "
+            f"{spec}.containers.all(c, c.name != 'model-carrier' || "
+            "c.image in params.data.model_carrier_images.split(',')) && "
+            f"(!has({spec}.initContainers) || {spec}.initContainers.all(c, "
+            "c.name != 'model-carrier' || c.image in params.data.model_carrier_images.split(',')))"
+        )
+
+    expression = (
+        "object.kind == 'Pod' ? (" + field("object.spec") + ") : (" +
+        field("object.spec.template.spec") + ")"
+    )
+    lab.create({
+        "apiVersion": "admissionregistration.k8s.io/v1", "kind": "ValidatingAdmissionPolicy",
+        "metadata": {"name": "model-carrier-image-source"},
+        "spec": {"failurePolicy": "Fail",
+                 "paramKind": {"apiVersion": "v1", "kind": "ConfigMap"},
+                 "matchConstraints": {"resourceRules": [
+                     {"apiGroups": [""], "apiVersions": ["v1"],
+                      "operations": ["CREATE", "UPDATE"], "resources": ["pods"],
+                      "scope": "Namespaced"},
+                     {"apiGroups": ["apps"], "apiVersions": ["v1"],
+                      "operations": ["CREATE", "UPDATE"], "resources": ["deployments"],
+                      "scope": "Namespaced"}]},
+                 "validations": [{"expression": expression,
+                                  "message": "model carrier image is outside the approved source allowlist",
+                                  "reason": "Forbidden"}]}
+    })
+    lab.create({
+        "apiVersion": "admissionregistration.k8s.io/v1", "kind": "ValidatingAdmissionPolicyBinding",
+        "metadata": {"name": "model-carrier-image-source"},
+        "spec": {"policyName": "model-carrier-image-source", "validationActions": ["Deny"],
+                 "paramRef": {"name": PARAM, "namespace": NS,
+                              "parameterNotFoundAction": "Deny"},
+                 "matchResources": {"namespaceSelector": {
+                     "matchLabels": {"kubernetes.io/metadata.name": NS}}}}
+    })
+
+
+def _exercise_model_carrier_image_policy(lab):
+    bad = {kind: _model_carrier_workload(kind, image=OTHER_MODEL_CARRIER_IMAGE)
+           for kind in ("Pod", "Deployment")}
+    before = {kind: _request(lab, obj).returncode == 0 for kind, obj in bad.items()}
+    lab.check("red", "Unapproved model-carrier image references reach Pod and Deployment admission before their image policy",
+              all(before.values()), {kind.lower() + "_admitted_before_policy": value
+                                     for kind, value in before.items()})
+
+    _install_model_carrier_image_policy(lab)
+    denied = {kind: False for kind in bad}
+    deadline = time.monotonic() + 20
+    while time.monotonic() < deadline and not all(denied.values()):
+        for kind, obj in bad.items():
+            result = _request(lab, obj)
+            denied[kind] = (result.returncode != 0
+                            and "ValidatingAdmissionPolicy 'model-carrier-image-source'" in result.stderr
+                            and "model carrier image is outside the approved source allowlist" in result.stderr)
+        if not all(denied.values()):
+            time.sleep(0.4)
+    approved = {kind: _request(lab, _model_carrier_workload(kind)).returncode == 0
+                for kind in ("Pod", "Deployment")}
+    unrelated = {kind: _request(lab, _model_carrier_workload(kind, carrier=False)).returncode == 0
+                 for kind in ("Pod", "Deployment")}
+    observed = {
+        "unapproved_model_carrier_denied_for_pod_and_deployment": all(denied.values()),
+        "approved_model_carrier_allowed_for_pod_and_deployment": all(approved.values()),
+        "unrelated_helper_image_outside_allowlist_allowed": all(unrelated.values()),
+    }
+    lab.check("green", "Model-carrier images use the exact allowlist while unrelated workload images remain admissible",
+              all(observed.values()), observed)
+
+
 def run(lab):
     lab.kubectl("create", "namespace", OUTSIDE)
     _map(lab, [APPROVED_URL])
-    kinds = ("Pod", "Deployment", "StatefulSet", "DaemonSet", "Job", "CronJob")
+    kinds = ("Pod", "Deployment", "ReplicaSet", "ReplicationController",
+             "StatefulSet", "DaemonSet", "Job", "CronJob")
     denied = {kind: _workload(kind, source=OTHER_URL) for kind in kinds}
     bad_oci = _workload("Pod", oci=OTHER_OCI)
     indirect = _workload("Pod")
@@ -150,7 +251,8 @@ def run(lab):
 
     _install(lab, "model-source-pod", "object.spec", [("", ["pods"])])
     _install(lab, "model-source-template", "object.spec.template.spec",
-             [("apps", ["deployments", "statefulsets", "daemonsets"]), ("batch", ["jobs"])])
+             [("apps", ["deployments", "replicasets", "statefulsets", "daemonsets"]),
+         ("", ["replicationcontrollers"]), ("batch", ["jobs"])])
     _install(lab, "model-source-cronjob", "object.spec.jobTemplate.spec.template.spec", [("batch", ["cronjobs"])])
     for kind in kinds:
         _check_denial(lab, f"The enrolled API rejects the alternate-source {kind} for the expected policy",
@@ -162,6 +264,10 @@ def run(lab):
     _check_denial(lab, "The API blocks the same update to the persisted Deployment", _workload("Deployment"), update=True)
     _check_create(lab, "The alternate source is still admissible outside the enrolled namespace",
                   _workload("Pod", ns=OUTSIDE, source=OTHER_URL, oci=OTHER_OCI))
+
+    _exercise_model_carrier_image_policy(lab)
+    # Isolate the original missing-parameter assertion from the independent image policy.
+    lab.kubectl("delete", "validatingadmissionpolicybinding", "model-carrier-image-source")
 
     _map(lab, [NEXT_URL])
     _check_denial(lab, "A bound update removes the previously accepted URL", _workload("Pod"), converge=True)

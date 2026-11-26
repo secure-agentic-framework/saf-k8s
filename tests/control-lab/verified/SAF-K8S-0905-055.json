@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-055",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "8ea1e776b33fa9f3effaa55df6237c35ce718150",
+  "catalog_sha256": "99dfcf4e7690631de3a5a538c5e0434405de93779ba25e0e5ce0cff09d9d7f38",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "86ba644904f34bf61a7b69aa9c316bca2e935f51a289c45052608b176b127bdd",
-  "scope": "Native Kubernetes v1.36.1 admission checks exact HTTPS and OCI values in declared environment fields on Pods, Deployments, StatefulSets, DaemonSets, Jobs and CronJobs in a protected namespace, including normal and init containers. Requests use server dry-run and a real zero-replica Deployment. The test covers an admissible update, allowlist rotation and a missing parameter. The scope is explicit fields, including rejection of valueFrom for those fields. Image pulls, arbitrary application source references, other controllers and production governance are open.",
-  "cluster": "saf-lab-f77396b3ce74",
+  "scope": "Native Kubernetes v1.36.1 admission checks exact HTTPS and OCI values in declared environment fields on Pods, Deployments, ReplicaSets, ReplicationControllers, StatefulSets, DaemonSets, Jobs and CronJobs in a protected namespace, including normal and init containers. Requests use server dry-run and a real zero-replica Deployment. A separate VAP checks the image of a container explicitly named model-carrier on Pods and Deployments against its own key in the same ConfigMap; unrelated container images are not interpreted as model carriers. No image is pulled. The test covers an admissible update, allowlist rotation and a missing parameter. Other model-source fields, additional image-carrier object kinds, actual image pulls and production governance remain open.",
+  "cluster": "saf-lab-1ef1eb9bd0ff",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -55,6 +55,26 @@
       "observed": {
         "admitted": true,
         "kind": "Deployment",
+        "namespace": "saf-test"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The exact alternate-source ReplicaSet reaches the API before enrollment",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "ReplicaSet",
+        "namespace": "saf-test"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The exact alternate-source ReplicationController reaches the API before enrollment",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "ReplicationController",
         "namespace": "saf-test"
       }
     },
@@ -173,6 +193,46 @@
       "observed": {
         "admitted": true,
         "kind": "Deployment",
+        "namespace": "saf-test"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enrolled API rejects the alternate-source ReplicaSet for the expected policy",
+      "matched": true,
+      "observed": {
+        "api_rejection": true,
+        "expected_policy_named": true,
+        "expected_denial_message": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The enrolled API still accepts approved source values on ReplicaSet",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "ReplicaSet",
+        "namespace": "saf-test"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enrolled API rejects the alternate-source ReplicationController for the expected policy",
+      "matched": true,
+      "observed": {
+        "api_rejection": true,
+        "expected_policy_named": true,
+        "expected_denial_message": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The enrolled API still accepts approved source values on ReplicationController",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "kind": "ReplicationController",
         "namespace": "saf-test"
       }
     },
@@ -304,6 +364,25 @@
         "admitted": true,
         "kind": "Pod",
         "namespace": "saf-source-outside"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Unapproved model-carrier image references reach Pod and Deployment admission before their image policy",
+      "matched": true,
+      "observed": {
+        "pod_admitted_before_policy": true,
+        "deployment_admitted_before_policy": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Model-carrier images use the exact allowlist while unrelated workload images remain admissible",
+      "matched": true,
+      "observed": {
+        "unapproved_model_carrier_denied_for_pod_and_deployment": true,
+        "approved_model_carrier_allowed_for_pod_and_deployment": true,
+        "unrelated_helper_image_outside_allowlist_allowed": true
       }
     },
     {
