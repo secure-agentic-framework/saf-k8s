@@ -100,3 +100,12 @@ Core to agent data flow control between trust boundaries
 - Strength: moderate
 - Applicability: conditional
 - Strength Reason Code: partial-control-coverage
+
+### [SAF-K8S-0501-009 - Model download path isolation from training data paths](../../controls/SAF-K8S-0501-009.md)
+
+- Domain: D05 - Network Security and Communication
+- Knowledge Area: 5.1
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
