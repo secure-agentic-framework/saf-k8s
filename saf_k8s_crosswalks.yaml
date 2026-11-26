@@ -53958,22 +53958,6 @@
 
 
     9.5 - Model origin verification at deploy time; 6.2 - Image signature verification; 9.6 - Data integrity at scale'
-  control_id: SAF-K8S-0606-022
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-7(12)
-  framework_requirement_title: Integrity Verification
-  framework_mapping_notes: 'Integrity verification of agent components validates authenticity before execution
-
-
-    9.5 - Model origin verification at deploy time; 6.2 - Image signature verification; 9.6 - Data integrity at scale'
   control_id: SAF-K8S-0905-001
   relation_type: direct
   strength_level: strong
@@ -54899,22 +54883,6 @@
 
     6.2 - Image signing and verification (component authenticity); 9.5 - Model signing and provenance (model authenticity)'
   control_id: SAF-K8S-0606-019
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-11
-  framework_requirement_title: Component Authenticity
-  framework_mapping_notes: 'Component authenticity verification ensures AI models and tools are genuine and untampered
-
-
-    6.2 - Image signing and verification (component authenticity); 9.5 - Model signing and provenance (model authenticity)'
-  control_id: SAF-K8S-0606-022
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -56528,22 +56496,6 @@
 
     6.2 - Image signing verification (validate genuine and unaltered); 9.5 - Model integrity verification at deploy time'
   control_id: SAF-K8S-0606-020
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-4(3)
-  framework_requirement_title: Validate as Genuine and Not Altered
-  framework_mapping_notes: 'Validating AI components as genuine and unaltered prevents supply chain tampering
-
-
-    6.2 - Image signing verification (validate genuine and unaltered); 9.5 - Model integrity verification at deploy time'
-  control_id: SAF-K8S-0606-022
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -58960,4 +58912,20 @@
   strength_level: moderate
   applicability: conditional
   applicability_condition: For an applicable high-risk AI system only where covered Kubernetes audit events are relevant to at least one Article 12(2) traceability purpose and are included in the provider-controlled logging path; the reference case uses synthetic fixture CRDs and does not prove deployed system logging or retention.
+  strength_reason_code: partial-control-coverage
+- mapping_set_name: SAF-K8S to NIST SP 800-53r5
+  framework_code: NIST-800-53R5
+  framework_name: NIST SP 800-53 Revision 5
+  framework_version: 5.2.0
+  framework_requirement_id: SI-7(6)
+  framework_requirement_title: Cryptographic Protection
+  framework_mapping_notes: 'Cryptographic integrity protection for agent binaries and models prevents tampering
+
+
+    6.2 - Image signing with Sigstore/cosign (cryptographic integrity); 9.5 - Model signing; 6.3 - Cryptographic agility'
+  control_id: SAF-K8S-0606-022
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only for signed Kubernetes manifest information within the selected supported resource kinds and signed-field projection; this admission case does not verify the integrity of installed software or other supply-chain components.
   strength_reason_code: partial-control-coverage
