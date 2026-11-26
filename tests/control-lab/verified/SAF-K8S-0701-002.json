@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0701-002",
-  "catalog_revision": "ade092c39de13bdd5b24d341f629033f78bf3367",
-  "catalog_sha256": "d0505b3cef6e27ac3451a0998acf0350819409280331edf48be9cfacfd4f73a7",
+  "catalog_revision": "be58ca21dbb0d82530bec6bfefe2f47fa5028d8f",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d980b46abb69296bfc92d75227112e1ee1408ba580fcd9498a24092f8310d8c1",
-  "scope": "One fresh kind Kubernetes v1.36.1 cluster. A named synthetic ServiceAccount owns the fixture Pod and receives only named get access to one synthetic Pod and ConfigMap plus create on SelfSubjectAccessReview. The Pod submits its own read-only authorization queries using its projected token. It compares those permitted requests with StorageClass and CSI snapshot resource queries. No CSI driver, cloud provider, snapshot controller, or sensitive volume is installed.",
-  "cluster": "saf-lab-ffc253c58d20",
+  "scope": "One fresh single-node Kubernetes v1.36.1 Kind cluster. Preserves the prior authenticated workload identity checks, and adapts the pinned upstream Kubernetes v1.36.1 SIG Storage hostpath e2e fixture to filesystem provisioning with the pinned hostpathplugin, node-driver-registrar and external-provisioner images. The upstream fixture uses one shared CSI ServiceAccount for its combined node/controller Pod; this case checks that actual shared identity's effective authorization and does not claim separate node/controller identities. A benign PVC marker is written and read back. No snapshots, block devices, resize, attachment, external sockets or user host mounts.",
+  "cluster": "saf-lab-ce5e1c6a85a6",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -40,6 +40,22 @@
   "checks": [
     {
       "phase": "positive",
+      "claim": "The reviewed Kind profile declares no host extraMounts",
+      "matched": true,
+      "observed": {
+        "kind_profile_has_no_extra_mounts": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The disposable Kind node has no user host bind mounts",
+      "matched": true,
+      "observed": {
+        "kind_node_has_no_user_host_bind_mounts": true
+      }
+    },
+    {
+      "phase": "positive",
       "claim": "The API server authenticates the Pod's projected token as its named synthetic ServiceAccount",
       "matched": true,
       "observed": {
@@ -70,6 +86,59 @@
           "snapshot-delete": "denied"
         },
         "review_count": 7
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact upstream driver and required sidecars run with only the reviewed node privilege/mount profile",
+      "matched": true,
+      "observed": {
+        "pinned_images_match": true,
+        "no_dev_mount": true,
+        "shared_actual_service_account": true,
+        "privileged_only_hostpath_container": true,
+        "api_token_mounted_only_in_provisioner": true,
+        "node_mount_paths_are_kind_internal": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The actual shared CSI ServiceAccount has only the selected provisioner authorization",
+      "matched": true,
+      "observed": {
+        "effective_sar_decisions": {
+          "pv-create": true,
+          "pvc-watch": true,
+          "storageclass-get": true,
+          "storageclass-create": false,
+          "snapshot-create": false,
+          "secret-list": false,
+          "namespace-delete": false
+        },
+        "all_expected": true,
+        "service_account_name": "csi-hostpathplugin-sa",
+        "controller_and_node_share_identity": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An owned CSI PVC is provisioned and its inert marker is read back through the mounted volume",
+      "matched": true,
+      "observed": {
+        "pvc_bound": true,
+        "marker_readback_matches": true,
+        "workload_image_matches_pinned_reference": true,
+        "volume_uid_present": true,
+        "pv_matches_case_claim_and_csi_driver": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The case-owned PVC and dynamically provisioned PV are reclaimed before cluster deletion",
+      "matched": true,
+      "observed": {
+        "owned_pv_reclaimed": true,
+        "owned_volume_attachment_expected": false
       }
     }
   ]

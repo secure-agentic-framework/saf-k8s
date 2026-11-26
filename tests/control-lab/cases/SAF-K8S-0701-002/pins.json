@@ -1,0 +1,25 @@
+{
+  "kubernetes_e2e_tag": "v1.36.1",
+  "upstream_manifest_blob": "2fe67ffb719cb2165364420581c3e7b835755f54",
+  "images": {
+    "hostpath": {
+      "image": "registry.k8s.io/sig-storage/hostpathplugin:v1.17.1@sha256:ec6ded2430d4c5c6251e8d3a6ca55c675d6bd1b1ee8c012eab13aaa81be9c967",
+      "linux/arm64": "sha256:a28d9a736b343381e9e73d8f795aea608df4bda40ab83807a17cf602265dba12",
+      "linux/amd64": "sha256:cf08eec6a810b81299e6342719fb77c4c4072fbd43541c30ae1a4ca47a93c326"
+    },
+    "registrar": {
+      "image": "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.16.0@sha256:ab482308a4921e28a6df09a16ab99a457e9af9641ff44fb1be1a690d07ce8b70",
+      "linux/arm64": "sha256:108aadeb3bcdea7c60199f83ff53358bdcf42c365ed274b754baac2f81dd3883",
+      "linux/amd64": "sha256:aeecba5b171b50558bab359fdb8e28b9da185f666cef35cd87ac9784e51956c5"
+    },
+    "provisioner": {
+      "image": "registry.k8s.io/sig-storage/csi-provisioner:v6.1.1@sha256:d992c36d4ddd6dfa37c81b487e5a673920e1360e2977eb779051df8da1c5787d",
+      "linux/arm64": "sha256:b15a18cdf066d56d6c47f7c616d78ba0400390f3815f51ff704d9fbe5cba457c",
+      "linux/amd64": "sha256:60751c039762f43183f9ec93ed137ea5acae9485f2b8a0fd0e1f26aed9979746"
+    },
+    "workload": {
+      "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
+    }
+  },
+  "kind_node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
+}
