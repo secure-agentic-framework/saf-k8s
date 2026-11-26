@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "saf-k8s-secagg-reference"
+version = "0.1.0"
+description = "Fixed-vector Flower SecAgg+ reference fixture"
+requires-python = ">=3.10"
+dependencies = ["flwr==1.29.0", "numpy>=1.23,<3"]
+
+[tool.hatch.build.targets.wheel]
+only-include = ["client_app.py", "server_app.py"]
+
+[tool.flwr.app]
+publisher = "saf-k8s-control-lab"
+
+[tool.flwr.app.components]
+serverapp = "server_app:app"
+clientapp = "client_app:app"
+
+[tool.flwr.app.config]
+num-server-rounds = 1
+num-shares = 1.0
+reconstruction-threshold = 1.0
+clipping-range = 8.0
+quantization-range = 65536
+modulus-range = 1073741824
+max-weight = 1.0
+timeout = 45.0

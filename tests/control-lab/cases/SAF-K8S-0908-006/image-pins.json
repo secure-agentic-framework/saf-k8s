@@ -1,0 +1,30 @@
+{
+  "framework": "Flower Framework",
+  "version": "1.29.0",
+  "source": "official Docker Hub OCI index responses retrieved for this review",
+  "images": {
+    "superlink": {
+      "repository": "docker.io/flwr/superlink",
+      "reference": "docker.io/flwr/superlink@sha256:8057b29ae7585f1f6208acc356f19f095998310c59c0ad8de616a3b7488b5b17",
+      "index_sha256": "8057b29ae7585f1f6208acc356f19f095998310c59c0ad8de616a3b7488b5b17",
+      "platform_manifests": {
+        "linux/amd64": "sha256:ef103a165745ac65457a356370c06c7513a936b95951a0443a9d11b925b7f5b8",
+        "linux/arm64": "sha256:68b6969b763fbfea741f814b9286c65ba51dde8a7e8598e3508f81362e86adae"
+      }
+    },
+    "supernode": {
+      "repository": "docker.io/flwr/supernode",
+      "reference": "docker.io/flwr/supernode@sha256:e4a05f85ab3eb2a25fd5f475697fc55ec17fa6a1dea9153380d2bf73dfd1ef75",
+      "index_sha256": "e4a05f85ab3eb2a25fd5f475697fc55ec17fa6a1dea9153380d2bf73dfd1ef75",
+      "platform_manifests": {
+        "linux/amd64": "sha256:9d0eedfa90c1efe5e289edfda68ea786ae4dc527fe28d8508b457bcbcd50a808",
+        "linux/arm64": "sha256:5cc5948f9ba7b18c9562672a46e5a7eb35434408378caabe1f52df2ad81fa6f1"
+      }
+    }
+  },
+  "notes": [
+    "Index digests are SHA-256 of the retrieved official OCI index bytes.",
+    "Attestation descriptors with unknown/unknown platform are intentionally excluded from platform selection.",
+    "Application dependency flwr==1.29.0 is declared exactly in pyproject.toml."
+  ]
+}

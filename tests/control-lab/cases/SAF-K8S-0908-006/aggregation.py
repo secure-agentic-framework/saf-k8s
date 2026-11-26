@@ -244,6 +244,33 @@ def drop_vector(member, lane):
     return {"status": 200, "identity_bound": True}
 
 
+FLOWER_REPORT = "fixture-flower-closed-aggregate"
+FLOWER_APPROVAL = "fixture-flower-release-approval"
+FLOWER_RELEASE_PRINCIPAL = "system:serviceaccount:saf-test:fixture-aggregate-release"
+
+
+def release_flower_aggregate():
+    if self_username() != FLOWER_RELEASE_PRINCIPAL:
+        return {"decision": "held", "reason": "identity"}
+    status, approval = exchange(FLOWER_APPROVAL)
+    if status == 404:
+        return {"decision": "held", "reason": "approval-absent"}
+    if status != 200:
+        raise ValueError("Unable to read the fixture release approval")
+    raw = fetch(FLOWER_REPORT)["report.json"]
+    digest = hashlib.sha256(raw.encode()).hexdigest()
+    if approval != {"decision": "approved", "receipt-sha256": digest, "cohort-size": "3"}:
+        return {"decision": "held", "reason": "approval-mismatch"}
+    result = json.loads(raw)
+    if (set(result) != {"workflow", "round", "participant_result_count", "failure_count", "aggregate"}
+            or result["workflow"] != "SecAggPlusWorkflow" or result["round"] != 1
+            or result["participant_result_count"] != 3 or result["failure_count"] != 0
+            or len(result["aggregate"]) != 2
+            or any(type(value) not in (int, float) or not -8 <= value <= 8 for value in result["aggregate"])):
+        return {"decision": "held", "reason": "aggregate-policy"}
+    return {"decision": "released", "contributors": 3, "aggregate": result["aggregate"]}
+
+
 def main():
     operation, *args = sys.argv[1:]
     if operation == "contribute":
@@ -266,6 +293,8 @@ def main():
         result = summarize_vector(*args)
     elif operation == "release-vector":
         result = release_vector()
+    elif operation == "release-flower":
+        result = release_flower_aggregate()
     elif operation == "drop-vector":
         result = drop_vector(*args)
     else:

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0908-006",
-  "catalog_revision": "5c35dd2a43235883edfca56e842a56e15209008d",
+  "catalog_revision": "7007ee237ed349d96fde7ac4300cb415ccd39192",
   "catalog_sha256": "f90c94c673d20660168dfaa86a14af064fc386b44cfe4af6b5263d264c1e59b3",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "a05fa0d7cb3572067dac5a8cbbb577311d6b4e9552635d656eef7eb762f00fe9",
-  "scope": "Two temporary contributors create complementary modular shares with fresh masks in actual pods. Separately authenticated aggregators process only their respective share records. A release principal reads only lane totals, withholds an undersized cohort, and returns the correct two-contributor sum. A second fixed vector round checks ServiceAccount-to-member binding, named-share write denial, sequential replay rejection, and a mismatched-lane dropout hold. This is a reference share lifecycle, not a cryptographic secure-aggregation protocol. Production protocol review, collusion resistance, atomic replay fencing, dropout recovery, release privacy and managed operator isolation require their own evidence.",
-  "cluster": "saf-lab-c750e1a38c2e",
+  "scope": "Preserve the four published Kubernetes identity, authorization, replay and release checks. Add one actual Flower 1.29.0 SecAggPlusWorkflow round over three fixed synthetic vectors in four owned Pods; this checks library execution, not deployment privacy or protocol security.",
+  "cluster": "saf-lab-b1c4b2f5abf0",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -80,6 +80,33 @@
         "sequential_replay_rejected_before_state_change": true,
         "approved_fixed_vector_aggregate": true,
         "asymmetric_dropout_makes_lane_cohorts_mismatch": true
+      }
+    },
+    {
+      "phase": "supplement",
+      "claim": "Pinned Flower SecAgg+ completes one fixed-vector round",
+      "matched": true,
+      "observed": {
+        "flower_cli_completed": true,
+        "pinned_flower_and_numpy_available_in_all_subprocess_parents": true,
+        "case_owned_four_pod_topology": true,
+        "protocol": true,
+        "one_round_three_client_results_no_failures": true,
+        "aggregate_matches_fixed_vector_mean": true,
+        "receipt_contains_aggregate_only_schema": true
+      }
+    },
+    {
+      "phase": "supplement",
+      "claim": "Independent workload identity releases only the approved Flower aggregate",
+      "matched": true,
+      "observed": {
+        "release_refused_without_approval": true,
+        "wrong_digest_refused": true,
+        "unapproved_identity_refused": true,
+        "unapproved_service_account_cannot_read_aggregate": true,
+        "release_identity_cannot_read_individual_share": true,
+        "approved_exact_result_has_only_aggregate": true
       }
     }
   ]
