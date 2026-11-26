@@ -14725,15 +14725,12 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-6
   framework_requirement_title: Configuration Settings
-  framework_mapping_notes: 'Secure config settings for agent systems
-
-
-    1.4 - CIS benchmark application (configuration settings baseline); 1.3 - Controller-manager pod GC threshold; 2.1 - Kubelet hardening flags'
+  framework_mapping_notes: The fixture constrains the merged Helm value for spec.automountServiceAccountToken to false and reads it back from an installed zero-replica Deployment. This contribution applies only to this setting and tested release path; broader configuration baselines, deviations, monitoring and change control remain separate.
   control_id: SAF-K8S-0606-020
   relation_type: supports
   strength_level: moderate
   applicability: conditional
-  applicability_condition: Only for the specific Helm-managed Pod setting spec.automountServiceAccountToken in the tested chart and deployment path. The additive fixture constrains it to false in the merged values schema and checks the rendered Pod spec. It does not establish the broader component baseline, deviation approvals, monitoring, or change control required for CM-6.
+  applicability_condition: Only for the specific Helm-managed Pod setting spec.automountServiceAccountToken in the tested chart and deployment path. The additive fixture constrains it to false in the merged values schema and reads false back from the installed zero-replica Deployment template. It does not establish the broader component baseline, deviation approvals, monitoring, or change control required for CM-6.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -37032,15 +37029,12 @@
   framework_version: 5.2.0
   framework_requirement_id: SR-4(3)
   framework_requirement_title: Validate as Genuine and Not Altered
-  framework_mapping_notes: 'Validating AI components as genuine and unaltered prevents supply chain tampering
-
-
-    6.2 - Image signing verification (validate genuine and unaltered); 9.5 - Model integrity verification at deploy time'
+  framework_mapping_notes: The disposable fixture signs the exact Helm release archive and binds canonical file inventories for its root chart and direct and transitive dependencies. The verifier rejects a changed nested chart and a signature from an unpinned key before installation. Actual supplier identity and the independent organizational trust anchor require adopter evidence.
   control_id: SAF-K8S-0606-020
   relation_type: supports
   strength_level: moderate
   applicability: conditional
-  applicability_condition: Only for a governed Helm dependency whose consumed archive is checked against an approved digest or signature before installation. The fixture uses a value captured from its original local synthetic package in the same run; it does not establish independent supplier identity or enterprise-trusted digest provenance.
+  applicability_condition: Only for a governed Helm dependency package closure whose exact root, direct, and transitive archives are verified against an independently pinned digest or signature policy before installation. The fixture demonstrates a pinned fixture key and pre-install rejection of altered package bytes and a signature from a non-pinned key; it does not establish actual supplier identity, organization-approved trust-root custody or rotation, repository/mirror governance, or the broader SR-4 process.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -37871,7 +37865,7 @@
   framework_version: '1.1'
   framework_requirement_id: PW.4.1
   framework_requirement_title: Acquire and maintain well-secured software components from commercial, open-source, and other third-party developers.
-  framework_mapping_notes: 'SAF-K8S enforces vetting of third-party components at admission: image vulnerability scanning, signature verification, public model quarantine workflows, and approved source allowlists.'
+  framework_mapping_notes: The fixture contributes a local direct and transitive Helm dependency integrity gate. It does not assess component security, supplier/build provenance, component selection, or ongoing maintenance.
   control_id: SAF-K8S-0606-020
   relation_type: supports
   strength_level: moderate
@@ -37910,12 +37904,12 @@
   framework_version: '1.1'
   framework_requirement_id: PW.9.1
   framework_requirement_title: Define a secure baseline by determining how to configure each setting that has an effect on security.
-  framework_mapping_notes: 'SAF-K8S defines secure baseline configurations for Kubernetes components: CIS Benchmark automated assessment, Pod Security Standards, Cloud Native 8 secure defaults, and inference server hardening.'
+  framework_mapping_notes: The fixture constrains one selected Helm-managed setting, spec.automountServiceAccountToken=false, through merged schema validation and installed API readback. It does not define a complete secure baseline or the organization rationale for all security-relevant settings.
   control_id: SAF-K8S-0606-020
   relation_type: supports
   strength_level: moderate
   applicability: conditional
-  applicability_condition: Only for the one explicitly selected setting spec.automountServiceAccountToken in this synthetic Helm chart. The additive fixture constrains the merged value to false and verifies that false appears in the rendered Pod spec. It does not determine a secure baseline for every setting that can affect security or document why the value is the approved default.
+  applicability_condition: Only for the one explicitly selected setting spec.automountServiceAccountToken in this synthetic Helm chart. The additive fixture constrains the merged value to false and verifies false in the installed zero-replica Deployment template. It does not determine a secure baseline for every setting that can affect security or document why the value is the approved default.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
