@@ -18,7 +18,7 @@ Raw API snapshots and assessment inputs are written to the run evidence director
 
 Demonstrated in this fixture: API-visible posture snapshots; drift detection for one Namespace's Pod Security Admission labels, one NetworkPolicy, and one namespaced Role; desired-state recovery by reapplying owned manifests; digest-pinned mock workload identity; exact synthetic advisory/component matching and a near miss; and exclusion of an out-of-scope fixture neighboring object from the fixture's fingerprint.
 
-Not demonstrated: complete CIS Kubernetes Benchmark coverage or a kube-bench scan; functional packet filtering (Kind's default networking does not establish NetworkPolicy enforcement); image layer/package inspection or vulnerability-scanner integration; real advisory authenticity, freshness, ingestion, or vulnerability exposure; NVIDIA GPU/CUDA bulletin correlation; managed Kubernetes settings; webhook, OPA, or Kyverno configuration monitoring; ClusterRole/Binding and ServiceAccount-token monitoring; continuous scheduling, near-real-time alert delivery, remediation approval, or production dashboard behavior. The fixture provides no evidence for those claims in the pinned control.
+Not demonstrated: complete CIS Kubernetes Benchmark coverage or a kube-bench scan; functional packet filtering (Kind's default networking does not establish NetworkPolicy enforcement); deployed image or scanner coverage; real advisory authenticity, freshness, ingestion, or vulnerability exposure; NVIDIA GPU/CUDA bulletin correlation; managed Kubernetes settings; webhook, OPA, or Kyverno configuration monitoring; ClusterRole/Binding and ServiceAccount-token monitoring; continuous scheduling, near-real-time alert delivery, remediation approval, or production dashboard behavior. The fixture provides no evidence for those claims in the pinned control.
 
 The control's statement about systematic lifecycle monitoring is testable only for this finite synthetic resource scope. A successful case would support the narrow implementation behavior above, not prove organization-wide continuous security posture management.
 
@@ -41,3 +41,16 @@ The control's statement about systematic lifecycle monitoring is testable only f
 6. Review the broad Article 15.5 claim against model/data poisoning, adversarial examples, confidentiality and model flaws; this case establishes only selected Kubernetes configuration controls.
 
 The scratch mapping plan corrects the MEASURE 1.2 row and selected same-source misattributions. It does not purport to disposition every current crosswalk row for this control.
+
+## Exact scanner-to-Pod evidence
+
+The case builds a harmless Python package fixture using the pinned companion
+builder. Pinned OSV-Scanner reads the same image offline using a fictional
+advisory. This offline PyPI fixture disables DPKG extraction. The proof binds
+image configuration, scanner history and every nonempty layer digest to the
+preserved OCI manifest and compares that exact digest with the observed Kind
+Pod image ID. The posture result identifies the fictional finding, with missing
+or mismatched observations classified unknown. Raw evidence preserves the
+scanner output, report digest, OCI subject, and exact runtime identity.
+
+- [OSV-Scanner v2.7.1](https://github.com/google/osv-scanner/releases/tag/v2.7.1)

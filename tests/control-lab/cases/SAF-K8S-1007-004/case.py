@@ -1,6 +1,8 @@
 """Passively assess synthetic Kubernetes posture, drift, and owned-policy recovery."""
 import hashlib
 import json
+import os
+import runpy
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -15,10 +17,10 @@ SCOPE = (
     "a default-deny NetworkPolicy, and a named-object read-only Role. Captures API-visible posture, detects "
     "controlled changes to Pod Security Admission labels, NetworkPolicy rules and Role verbs, reapplies the "
     "desired manifests, and verifies recovery from live API reads. Joins an offline fictional advisory fixture "
-    "to a synthetic component observation. This does not run a CIS Kubernetes Benchmark scanner, validate "
-    "NetworkPolicy packet enforcement, inspect real image contents, consume advisory feeds, establish source "
-    "authenticity or freshness, assess managed-service settings, or cover GPU/CUDA advisories, webhook/OPA/Kyverno "
-    "change monitoring, cluster-wide RBAC, vulnerability scanning, or production alert delivery."
+    "to a synthetic component observation. Pinned offline OSV-Scanner reads the inert package metadata in a "
+    "case-built runnable image, and the posture result binds to the exact image observed in Kind. "
+    "Benchmark coverage, actual advisory feeds, managed and accelerator settings, and deployed "
+    "monitoring and alerting have separate evidence requirements."
 )
 
 
@@ -285,3 +287,6 @@ def run(lab):
               and before_neighbor_change == after_neighbor_change,
               {"out_of_scope_neighbor_changed": neighbor["spec"].get("ingress") == [{}],
                "owned_assessment_fingerprint_stable": before_neighbor_change == after_neighbor_change})
+
+    cases_root = Path(os.environ.get("SAF_CONTROL_CASES_ROOT", HERE.parent)).resolve()
+    runpy.run_path(str(HERE / "scanner_posture_addon.py"))["run"](lab, cases_root)
