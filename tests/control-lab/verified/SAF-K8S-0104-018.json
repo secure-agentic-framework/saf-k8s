@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0104-018",
-  "catalog_revision": "8f3ab195afbdfc594aebed18c15f440d3089809d",
-  "catalog_sha256": "b13085fffcc414b504ce34f1a8df0fae3520e701b0adca01e92c2c2add5002cb",
+  "catalog_revision": "1c4c6cf76afc06783141311ae8a05be8c54f57cf",
+  "catalog_sha256": "3f6d0b09957f7ae05620954a6210b52df977b8cbc7dcdd43769137d72662c8bb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "49cb7a94a77befa71b031c47a406ece3675dc6cabc32d77b2d09a57fcc43921d",
   "scope": "A disposable kind cluster runs a CronJob against an in-cluster inert HTTP fixture. Synthetic records preserve JSON Feed 1.1 and RSS 2.0 field meanings. The case observes controller-created Jobs during an upstream outage and recovery and verifies receipts at an isolated recipient which persists events across polling Jobs and the feed-server rollout.",
-  "cluster": "saf-lab-475d76de317f",
+  "cluster": "saf-lab-78589379cb41",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

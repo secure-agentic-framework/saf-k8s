@@ -27,6 +27,10 @@ the cluster and dependency inventory, notification delivery and response.
 - [Kubernetes JSON feed field definitions as published](https://kubernetes.io/docs/reference/issues-security/official-cve-feed/index.json)
 - [AWS Security Bulletins](https://aws.amazon.com/security/security-bulletins/)
 - [GKE cluster notifications](https://docs.cloud.google.com/kubernetes-engine/docs/concepts/cluster-notifications)
+- [Go release history and security fixes](https://go.dev/doc/devel/release)
+- [Go Vulnerability Database and OSV schema](https://go.dev/doc/security/vuln/database)
+- [GO-2026-6851: Go toolchain `cmd/go` and `cmd/link`](https://pkg.go.dev/vuln/GO-2026-6851)
+- [GO-2026-6859: Go standard library `net/http`](https://pkg.go.dev/vuln/GO-2026-6859)
 
 The poller sends the inert records and source failure to a separate, named
 fixture recipient. The recipient's ledger persists across polling Jobs and
@@ -40,6 +44,12 @@ disposable receiver Pod's volume for the rehearsal.
    add-ons and provider services. Map each to an authoritative maintained
    advisory source, expected polling interval or subscription, assigned
    recipient and backup route. Record coverage for each cluster and version.
+   For Go-built in-scope components and their build systems, also monitor the
+   Go release/security channel and Go Vulnerability Database. Track each GO
+   advisory ID and CVE alias, affected module (`toolchain` or `stdlib`),
+   affected Go version range, source revision/retrieval time, supported-release
+   status and owner. Keep builder-toolchain advisories distinct from
+   standard-library findings in deployed binaries.
 2. Record the last successful collection, expected cadence and evidence
    that feed access or subscription authorization still works. Test a
    representative outage and recovery. Verify health errors reach the
