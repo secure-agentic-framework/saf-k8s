@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0601-011",
-  "catalog_revision": "40b19c20224b53d49276db7a9f1ff1623af82796",
-  "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
+  "catalog_revision": "5baaadd565f2b475544b0ff22d3d9faddb30a7d1",
+  "catalog_sha256": "e21df5ef6d7be8d3be548d48d3650f2dfc630a3e395f036b3e3eb0533fc68fe4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "bb8438103be279a672ab461aff4a9f9bbb1362ebe7a27c70004e6a0ba7758cca",
   "scope": "Verify exact OCI subject and referrer descriptors, synthetic lifecycle eligibility and orphan hold. Exercise a disposable loopback-only OCI registry with three synthetic metadata manifest types, then observe early-loss baseline, protected retention and eligible retirement. The extended fixture exercises both OCI discovery modes, synthetic DSSE validation, digest-preserving copies, and Distribution filesystem GC. An actual Kubernetes CronJob retires only an eligible OCI cohort while age, retention, subject retention and hold each protect a counterpart. Production retention and replication remain separate.",
-  "cluster": "saf-lab-9676abefb2e8",
+  "cluster": "saf-lab-d4f663a4dfe1",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -158,6 +158,23 @@
         "distribution_gc_completed": true,
         "manifests_and_indexes_absent_after_gc": true,
         "unreferenced_payload_blobs_absent_after_gc": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Zot native retention preserves protected cohorts and re-push restores an eligible cohort",
+      "matched": true,
+      "observed": {
+        "decision_eligible": true,
+        "initial_native_referrers": 3,
+        "all_manifests_absent_after_retirement": true,
+        "native_discovery_empty_after_retirement": true,
+        "re_pushed_subject_digest_unchanged": true,
+        "re_pushed_referrer_digests_unchanged": true,
+        "restored_payload_signature_verified": true,
+        "restored_statement_binds_subject": true,
+        "protected_cohorts_unchanged": true,
+        "completed_ordered_manifest_deletions": 4
       }
     },
     {

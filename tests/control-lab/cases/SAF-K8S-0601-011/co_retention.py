@@ -316,6 +316,132 @@ def assert_artifact_set(reg: LocalRegistry, repo: str, subject: dict, artifacts:
             raise FixtureError("referrer payload bytes differ from the case-owned fixture")
 
 
+def apply_zot_native_retention(reg: LocalRegistry, repo: str, subject_digest: str,
+                               artifacts: list[dict], decision: dict) -> list[str]:
+    """Bounded controller path: discover exact links, preserve or retire cohort."""
+    mode, rows = reg.discover(repo, subject_digest, False)
+    expected = {item["digest"] for item in artifacts}
+    if mode != "native-referrers-api" or {row["digest"] for row in rows} != expected:
+        raise FixtureError("Zot retention precondition did not find the exact native cohort")
+    # Re-read every descriptor before using the policy decision to authorize deletion.
+    for item in artifacts:
+        _, raw = reg.get_manifest(repo, item["digest"])
+        doc = json.loads(raw)
+        if (digest(raw) != item["digest"] or doc.get("subject", {}).get("digest") != subject_digest
+                or reg.read_blob(repo, doc["layers"][0]["digest"]) != item["blob"]):
+            raise FixtureError("Zot retention precondition lost a referrer digest or subject link")
+    _, subject_raw = reg.get_manifest(repo, subject_digest)
+    if digest(subject_raw) != subject_digest:
+        raise FixtureError("Zot retention precondition lost the subject bytes")
+    if not decision["eligible"]:
+        return []
+    deleted = []
+    for item in artifacts:
+        reg.request(f"/v2/{repo}/manifests/{item['digest']}", "DELETE", expected=(202,))
+        deleted.append(item["digest"])
+    reg.request(f"/v2/{repo}/manifests/{subject_digest}", "DELETE", expected=(202,))
+    deleted.append(subject_digest)
+    return deleted
+
+
+def zot_native_cohort_lifecycle(zot: LocalRegistry, subject_raw: bytes, subject_config: bytes,
+                                materials: list[tuple[str, bytes]],
+                                openssl: str, work: Path) -> dict:
+    """Apply the bounded policy decision to actual Zot-native OCI cohorts."""
+    subject_digest = digest(subject_raw)
+    subject_size = len(subject_raw)
+    if digest(subject_config) != json.loads(subject_raw)["config"]["digest"]:
+        raise FixtureError("the case-owned subject configuration does not match its manifest")
+    zot.subject_sizes[subject_digest] = subject_size
+    day = 31
+    specs = {
+        "held": {"created_day": 0, "minimum_age_days": 7, "retain_until_day": 30,
+                 "subject_retained": False, "budget_exceeded": True, "legal_hold": True},
+        "retention-active": {"created_day": 0, "minimum_age_days": 7, "retain_until_day": 60,
+                             "subject_retained": False, "budget_exceeded": True, "legal_hold": False},
+        "expired": {"created_day": 0, "minimum_age_days": 7, "retain_until_day": 30,
+                    "subject_retained": False, "budget_exceeded": True, "legal_hold": False},
+    }
+    seeded = {}
+    for cohort, fields in specs.items():
+        repo = f"saf-case/zot-retention/{RUN_ID}/{cohort}"
+        zot.push_blob(repo, subject_config)
+        zot.put_manifest(repo, subject_digest, subject_raw)
+        artifacts = [zot.attach(repo, subject_digest, artifact_type, blob, False)
+                     for artifact_type, blob in materials]
+        assert_artifact_set(zot, repo, {"digest": subject_digest}, artifacts, False)
+        seeded[cohort] = {"repo": repo, "subject": subject_digest, "artifacts": artifacts,
+                          "decision": retention_decision({"id": cohort, **fields}, day)}
+
+    protected_results = {}
+    for cohort in ("held", "retention-active"):
+        item = seeded[cohort]
+        before = len(zot.events)
+        deleted = apply_zot_native_retention(zot, item["repo"], item["subject"],
+                                             item["artifacts"], item["decision"])
+        # The controller path performs no DELETE for a protected decision.
+        if item["decision"]["eligible"]:
+            raise FixtureError(f"protected Zot cohort unexpectedly eligible: {cohort}")
+        protected_results[cohort] = {
+            "ineligible": not item["decision"]["eligible"],
+            "delete_requests": [event for event in zot.events[before:] if event["method"] == "DELETE"],
+            "controller_deleted": deleted,
+        }
+        assert_artifact_set(zot, item["repo"], {"digest": item["subject"]}, item["artifacts"], False)
+        protected_results[cohort]["still_discoverable"] = True
+
+    expired = seeded["expired"]
+    if not expired["decision"]["eligible"]:
+        raise FixtureError("expired Zot cohort did not meet the synthetic retention policy")
+    expected_refs = {artifact["digest"] for artifact in expired["artifacts"]}
+    deleted = apply_zot_native_retention(zot, expired["repo"], expired["subject"],
+                                         expired["artifacts"], expired["decision"])
+    if sorted(deleted[:-1]) != sorted(expected_refs) or deleted[-1] != expired["subject"]:
+        raise FixtureError("eligible cohort did not retire referrers before its subject")
+    missing = [zot.get_manifest(expired["repo"], digest_value, expected=(404,))[0] == 404
+               for digest_value in [expired["subject"]] + sorted(expected_refs)]
+    status, _, raw_index = zot.request(f"/v2/{expired['repo']}/referrers/{expired['subject']}",
+                                       accept=OCI_INDEX, expected=(200, 404))
+    index_empty = status == 404 or json.loads(raw_index).get("manifests", []) == []
+    if not all(missing) or not index_empty:
+        raise FixtureError("Zot did not remove the exact eligible cohort from manifests and discovery")
+
+    # Restore the same inert subject/referrers from the in-memory case fixture,
+    # then require identical descriptors, payloads and DSSE subject signature.
+    zot.push_blob(expired["repo"], subject_config)
+    zot.put_manifest(expired["repo"], expired["subject"], subject_raw)
+    restored = [zot.attach(expired["repo"], expired["subject"], artifact_type, blob, False)
+                for artifact_type, blob in materials]
+    assert_artifact_set(zot, expired["repo"], {"digest": expired["subject"]}, restored, False)
+    restored_refs = {artifact["digest"] for artifact in restored}
+    if restored_refs != expected_refs:
+        raise FixtureError("re-push recovery changed a referrer manifest digest")
+    envelope = json.loads(zot.read_blob(expired["repo"], restored[0]["manifest"]["layers"][0]["digest"]))
+    payload = base64.b64decode(envelope["payload"], validate=True)
+    payload_type = envelope["payloadType"]
+    pae = (b"DSSEv1 " + str(len(payload_type)).encode() + b" " + payload_type.encode() + b" "
+           + str(len(payload)).encode() + b" " + payload)
+    pae_path, signature_path = work / "zot-recovered.pae", work / "zot-recovered.sig"
+    pae_path.write_bytes(pae)
+    signature_path.write_bytes(base64.b64decode(envelope["signatures"][0]["sig"], validate=True))
+    command(openssl, "pkeyutl", "-verify", "-pubin", "-inkey", str(work / "fixture.pub"),
+            "-rawin", "-in", str(pae_path), "-sigfile", str(signature_path))
+    statement = json.loads(payload)
+    statement_subject = statement.get("subject", [{}])[0].get("digest", {}).get("sha256")
+    signature_binds_subject = (statement_subject == expired["subject"].removeprefix("sha256:"))
+    if not signature_binds_subject:
+        raise FixtureError("recovered Zot DSSE statement no longer binds to the exact subject")
+    return {"protected_cohorts": protected_results,
+            "expired_cohort": {"decision_eligible": True, "initial_native_referrers": len(expected_refs),
+                               "deleted_referrers_then_subject": deleted,
+                               "all_manifests_absent_after_retirement": all(missing),
+                               "native_discovery_empty_after_retirement": index_empty,
+                               "re_pushed_subject_digest_unchanged": digest(subject_raw) == expired["subject"],
+                               "re_pushed_referrer_digests_unchanged": restored_refs == expected_refs,
+                               "restored_payload_signature_verified": True,
+                               "restored_statement_binds_subject": signature_binds_subject}}
+
+
 def run_fixture(context: str, workspace: Path) -> dict:
     openssl = openssl_binary()
     ctx = json.loads(command("docker", "context", "inspect", context).stdout)
@@ -464,6 +590,8 @@ def run_fixture(context: str, workspace: Path) -> dict:
             "manifests_absent_before_gc": True,
             "fallback_indexes_absent_before_gc": True, "distribution_gc_completed": True,
             "manifests_and_indexes_absent_after_gc": True, "unreferenced_payload_blobs_absent_after_gc": True}
+        report["zot_native_lifecycle"] = zot_native_cohort_lifecycle(zot, subject_raw, c, materials,
+                                                                       openssl, work)
         report["limitations"] = [
             "Distribution 3.0.0 is tested through an actual Referrers API request and its OCI tag-schema fallback; API 404 is expected for this pinned release/harness.",
             "Zot native API behavior is observed only for this pinned local fixture; no native registry GC claim is made.",
@@ -471,6 +599,7 @@ def run_fixture(context: str, workspace: Path) -> dict:
             "The ephemeral DSSE signature is cryptographically generated but this fixture does not verify a production identity or trust policy.",
             "Copy is deliberate within each disposable registry across two repositories; it does not establish fleet replication or provider-specific copy semantics.",
             "Distribution GC tests its filesystem-backed disposable volume after explicit manifest deletions; it does not prove managed registry GC behavior or recoverability.",
+            "Zot retention recovery re-pushes only the same in-memory synthetic manifest and payload bytes; it is not a backup/restore or Zot storage-GC proof.",
         ]
         report["external_tracking"] = ["organization retention schedule", "registry fleet and provider inventory",
                                         "authorized legal-hold source and release authority", "production recovery evidence"]
@@ -514,3 +643,25 @@ def run_registry_evidence(lab):
     reclaimed = report["eligible_cleanup_and_gc"]
     lab.check("green", "Distribution GC removes unreferenced payload bytes and preserves the retained cohort",
               all(reclaimed.values()), reclaimed)
+    zot_lifecycle = report["zot_native_lifecycle"]
+    protected = zot_lifecycle["protected_cohorts"]
+    expired = zot_lifecycle["expired_cohort"]
+    safe_zot = (all(row["ineligible"] and not row["delete_requests"]
+                    and not row["controller_deleted"] and row["still_discoverable"]
+                    for row in protected.values())
+                and expired["decision_eligible"]
+                and expired["all_manifests_absent_after_retirement"]
+                and expired["native_discovery_empty_after_retirement"]
+                and expired["re_pushed_subject_digest_unchanged"]
+                and expired["re_pushed_referrer_digests_unchanged"]
+                and expired["restored_payload_signature_verified"]
+                and expired["restored_statement_binds_subject"])
+    observation = {key: value for key, value in expired.items()
+                   if key != "deleted_referrers_then_subject"}
+    observation.update(
+        protected_cohorts_unchanged=all(
+            row["still_discoverable"] and not row["delete_requests"] for row in protected.values()),
+        completed_ordered_manifest_deletions=len(expired["deleted_referrers_then_subject"]),
+    )
+    lab.check("positive", "Zot native retention preserves protected cohorts and re-push restores an eligible cohort",
+              safe_zot, observation)

@@ -51,3 +51,17 @@ Production policy configuration, release authority, and any provider-specific
 behavior remain separate evidence.
 
 - [Kubernetes v1.36 CronJobs](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/)
+
+## Zot API lifecycle
+
+The case's retention decision code applies the same synthetic criteria to
+three distinct Zot repositories owned by the fixture. A held cohort and an
+active retention period both preserve the exact subject, referrers and
+payloads without issuing deletion requests. The eligible cohort retires its
+referrers before the subject. After the check observes exact absence,
+re-pushing the original fixture bytes restores each digest, native referrer
+discovery and the verified signature binding to the subject.
+
+Verify Zot storage recovery, storage garbage collection, backups and actual
+legal hold and retention authority in the adopted registry. The local
+recovery input here is the original inert fixture data.
