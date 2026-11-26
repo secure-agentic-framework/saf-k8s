@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 3232
-- Distinct Requirements Mapped: 718
+- Total Reverse Mappings: 3228
+- Distinct Requirements Mapped: 714
 
 ## Requirements
 
@@ -532,10 +532,6 @@
 - [SC-18(5) - Allow Execution Only in Confined Environments](sc-18-5.md)
 - [SC-2 - Separation of System and User Functionality](sc-2.md)
 - [SC-2(1) - Interfaces for Non-privileged Users](sc-2-1.md)
-- [SC-20 - Secure Name/Address Resolution Service (Authoritative Source)](sc-20.md)
-- [SC-20(2) - Data Origin and Integrity](sc-20-2.md)
-- [SC-21 - Secure Name/Address Resolution Service (Recursive or Caching Resolver)](sc-21.md)
-- [SC-22 - Architecture and Provisioning for Name/Address Resolution Service](sc-22.md)
 - [SC-23 - Session Authenticity](sc-23.md)
 - [SC-23(1) - Invalidate Session Identifiers at Logout](sc-23-1.md)
 - [SC-23(3) - Unique System-generated Session Identifiers](sc-23-3.md)
