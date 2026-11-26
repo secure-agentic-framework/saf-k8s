@@ -38,3 +38,40 @@ separate fixture keys. Gatekeeper calls the pinned Ratify v1.4.8 external
 data provider over HTTPS and requires the approved Cosign signature for
 the GPU Pod. The comparison checks wrong-signer admission and provider
 unavailability. No Kyverno policies are applied by this fixture.
+
+## Verify the adopted policy
+
+1. Inventory the Kubernetes and Gatekeeper versions, matching namespaces and
+   workload kinds, deployed webhook settings, policy templates and constraints,
+   and approved exceptions. Record the versions and policy release revision
+   together. Identify the effective GPU resource names, quota, approved
+   RuntimeClasses and runtime or device-plugin versions.
+2. Run Gator tests at the exact proposed Git revision. Include the allowed
+   workload, boundary values, wrong or missing runtime class, effective limit
+   defaults, init and sidecar accounting, and an out-of-scope comparator.
+   Apply the proposal to a disposable environment with matching versions.
+   Compare server-side admission before and after applying the policy and
+   verify both the approved object's state and the exact denial reason. Run
+   each installed training CRD through the same checks and inspect the Pod
+   produced by the real controller.
+3. Submit a harmless nonconforming workload before applying the policy.
+   Confirm the Gatekeeper audit identifies the existing object and exact
+   violation. Record ownership, approved exceptions and the disposition.
+4. With an owned registry and the approved verification chain, compare an
+   approved signed digest, a digest signed by another fixture key, and an
+   unsigned digest. Temporarily remove the test verifier endpoint from the
+   disposable deployment. Confirm the affected workload is refused while
+   Gatekeeper stays available. Restore the verifier and verify that the
+   approved digest is accepted again. Check signer rotation, trust configuration
+   and independent inventory in the adopted environment.
+5. Require the approved test results on the exact policy revision before
+   protected Git promotion. Verify the promoted commit matches the deployed
+   policy and that ordinary contributors cannot bypass approval. Retain the
+   test results, rule decisions, exception register and change records.
+   [SAF-K8S-0606-024 verifies the protected-ref comparison](https://github.com/secure-agentic-framework/saf-k8s/blob/83c0ba792c56d925793aa8ee2a5acf9b58b2654f/tests/control-lab/cases/SAF-K8S-0606-024/README.md).
+
+The executable case checks the Gatekeeper, Gator, Ratify and API assertions
+with disposable repositories and fixture signing keys. The two RuntimeClass
+names share the runc handler and the extended TrainJob checks use server-side
+dry run. Verify hardware allocation, runtime isolation and real generated
+workloads on each adopter's supported platform.

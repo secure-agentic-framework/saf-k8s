@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0605-001",
-  "catalog_revision": "22e1e9d6859018643f7f9d7c355edc81f5e58ba4",
-  "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
+  "catalog_revision": "e36bc810e65ba277d2a482baa5d3105f67e25657",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "5690c05dac3dca7439c37531206367d9b0057485196f29fc55fe365f9550cd72",
   "scope": "Kubernetes v1.36.1 and digest-pinned Gatekeeper v3.23.1. A Rego ConstraintTemplate and namespace-selected constraint check aggregate regular-container requests for nvidia.com/gpu and require an approved RuntimeClass for those Pods. A real denied CREATE, actual approved persistence, audit of an existing violation, and a namespace comparison are observed. Fixture classes use runc and synthetic GPU resources. The extension checks init and sidecar accounting and TrainJob declarations. The same cluster tests Gatekeeper admission with Ratify verification of the approved Cosign signature and a provider outage.",
-  "cluster": "saf-lab-9469a87f1a22",
+  "cluster": "saf-lab-266cba5251dd",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
