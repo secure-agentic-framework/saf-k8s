@@ -41,3 +41,19 @@ telemetry, or production trust governance.
 
 Run the parent lab command from the framework checkout. The runner creates
 and cleans up the owned Kubernetes cluster and the disconnected guest.
+
+## Kernel load authorization comparison
+
+A seventh check reads the same verified public `marker.o` as a guest user
+with UID and GID 65534 and zero effective Linux capabilities. Before it runs
+the pinned loader, it independently reads the approved digest and creates
+and removes an entry in the exact owned writable pin directory. The guest
+retains `kernel.unprivileged_bpf_disabled=2` throughout the check.
+
+Both runs received `EPERM` from libbpf's preliminary `BPF_PROG_LOAD` call
+before the signed object could load. Neither created the requested pin.
+The existing privileged comparator loads the exact signed marker, reads its
+program identity and removes it from inventory. Each verified receipt applies
+to the disconnected guest and the selected kernel and loader. See the
+[Linux setting](https://docs.kernel.org/6.12/admin-guide/sysctl/kernel.html#unprivileged-bpf-disabled)
+and the [libbpf loading probe](https://github.com/libbpf/libbpf/blob/v1.5.0/src/libbpf.c#L4705).

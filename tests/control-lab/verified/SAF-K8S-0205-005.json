@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0205-005",
-  "catalog_revision": "235c61df1efd30e1ae349c374acca2553bfba87a",
+  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
   "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "84c5b2699575fda21d247ff07c53558d1ddf7f90a2bd365a3873938dc687776e",
   "scope": "Verify capability admission, signed guest BPF identity, unattached load inventory, and a scoped guest attachment lifecycle.",
-  "cluster": "saf-lab-f32905c01f20",
+  "cluster": "saf-lab-c8cdeb243e10",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -102,6 +102,21 @@
       "matched": true,
       "observed": {
         "accepted_load_reconciled_with_inventory": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A no-capability guest cannot load the approved signed marker because its BPF load syscall is refused",
+      "matched": true,
+      "observed": {
+        "non_root_identity": true,
+        "zero_effective_caps": true,
+        "unprivileged_bpf_disabled_two": true,
+        "same_approved_marker_digest": true,
+        "writable_pin_parent_preflight": true,
+        "bpf_load_stage_eprem": true,
+        "refusal_at_load_or_library_load_probe": true,
+        "no_pin_created": true
       }
     }
   ]

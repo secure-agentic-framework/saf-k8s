@@ -45,18 +45,24 @@ grep -qx 'CONFIG_CGROUP_BPF=y' "/boot/config-$version"
 if gzip -t "$kernel" >/dev/null 2>&1; then gzip -dc "$kernel" >kernel.img; else cp "$kernel" kernel.img; fi
 mkdir -p fs/bin fs/dev fs/proc fs/sys
 cp "$(command -v busybox)" fs/bin/busybox
+ln -s busybox fs/bin/sh
 tool=$(command -v bpftool)
 cp "$tool" fs/bin/bpftool
+chmod 0555 fs/bin/busybox fs/bin/bpftool
 ldd "$tool" | awk '$1 ~ /^\// {print $1} $2=="=>" && $3 ~ /^\// {print $3}' >libraries
 while IFS= read -r library; do
     mkdir -p "$(dirname "fs$library")"
     cp -L "$library" "fs$library"
+    chmod 0555 "fs$library"
 done <libraries
+find fs -type d -exec chmod 0755 {} +
 cp "$original" fs/marker.o
 cmp "$original" fs/marker.o
+chmod 0444 fs/marker.o
 cp "$attachment" fs/attach_marker.o
 cmp "$attachment" fs/attach_marker.o
 printf '%s  /marker.o\n' "$approved_digest" >fs/marker.sha256
+chmod 0444 fs/marker.o fs/marker.sha256
 printf '%s  /attach_marker.o\n' "$attachment_digest" >fs/attach_marker.sha256
 printf 'SAF-APPROVED-DIGEST: %s\n' "$approved_digest"
 printf 'SAF-ALTERED-DIGEST: %s\n' "$(sha256sum changed.o | cut -d' ' -f1)"
@@ -139,6 +145,79 @@ $b rmdir /sys/fs/cgroup/saf-0205-005
 $b umount /sys/fs/cgroup
 printf 'SAF-BPF-ATTACHMENT: {"signature_verified":true,"approved_sha256":"%s","program_type":"cgroup_sysctl","cgroup_path":"/sys/fs/cgroup/saf-0205-005","attached_program_matches":true,"counter_before":%s,"counter_after_attached_read":%s,"detached_program_absent":true,"counter_after_detached_read":%s,"cgroup_removed":true}\n' \
     "$attachment_digest" "$count_before" "$count_attached" "$count_detached"
+# Run exactly one failed load attempt as an unprivileged guest identity. The
+# same signed marker already passed the root loader above; no sysctl is changed.
+refused_parent=/sys/fs/bpf/saf-0205-005-unprivileged
+approved_digest=$($b cut -d ' ' -f1 /marker.sha256)
+if ! $b --list | $b grep -qx su; then
+    printf 'SAF-BPF-REFUSED-LOAD: {"result":"blocked","reason":"pinned_busybox_su_applet_unavailable"}\n'
+else
+    $b mkdir -p /etc
+    printf '%s\n' 'root:x:0:0:guest root:/:/bin/sh' 'saf-bpf-deny:x:65534:65534:case-only BPF denial user:/:/bin/sh' > /etc/passwd
+    printf '%s\n' 'root:x:0:' 'saf-bpf-deny:x:65534:' > /etc/group
+    if $b mkdir "$refused_parent" && $b chmod 0777 "$refused_parent"; then
+      if $b su -s /bin/sh saf-bpf-deny -c '\
+        test "$(/bin/busybox id -u)" = 65534 || exit 31; \
+        test "$(/bin/busybox id -g)" = 65534 || exit 32; \
+        echo exact_guest_uid_gid_verified; \
+        cap_eff=$(/bin/busybox awk "/^CapEff:/ {print \$2}" /proc/self/status); \
+        test "$cap_eff" = 0000000000000000 || exit 33; \
+        echo zero_effective_capabilities_verified; \
+        test "$(/bin/busybox cat /proc/sys/kernel/unprivileged_bpf_disabled)" = 2 || exit 34; \
+        /bin/busybox sha256sum -c /marker.sha256 >/dev/null || exit 35; \
+        echo identity_digest_and_zero_caps_verified; \
+        /bin/busybox mkdir /sys/fs/bpf/saf-0205-005-unprivileged/preflight || exit 36; \
+        /bin/busybox rmdir /sys/fs/bpf/saf-0205-005-unprivileged/preflight || exit 37; \
+        echo writable_pin_parent_verified; \
+        echo bpf_prog_load_attempted; \
+        exec /bin/bpftool prog load /marker.o /sys/fs/bpf/saf-0205-005-unprivileged/refused' \
+          >unprivileged-load.stdout 2>unprivileged-load.stderr; then
+          load_status=0
+      else
+          load_status=$?
+      fi
+      pin_absent=false
+      if test ! -e "$refused_parent/refused"; then pin_absent=true; fi
+      identity_verified=false
+      identity_and_digest=false
+      cap_eff_zero=false
+      pin_parent_verified=false
+      load_attempted=false
+      if $b grep -Fxq exact_guest_uid_gid_verified unprivileged-load.stdout; then identity_verified=true; fi
+      if $b grep -Fxq zero_effective_capabilities_verified unprivileged-load.stdout; then cap_eff_zero=true; fi
+      if $b grep -Fxq identity_digest_and_zero_caps_verified unprivileged-load.stdout; then identity_and_digest=true; fi
+      if $b grep -Fxq writable_pin_parent_verified unprivileged-load.stdout; then pin_parent_verified=true; fi
+      if $b grep -Fxq bpf_prog_load_attempted unprivileged-load.stdout; then load_attempted=true; fi
+      load_eprem=false
+      rejection_stage=unclassified
+      if $b grep -Fq 'failed to load program: Operation not permitted' unprivileged-load.stderr \
+         || $b grep -Fq 'BPF program load failed: Operation not permitted' unprivileged-load.stderr; then
+          load_eprem=true
+          rejection_stage=object_program_load
+      elif $b grep -Eq 'bpf_object__probe_loading\(\):[[:space:]]*Operation not permitted\(1\).*trivial BPF' unprivileged-load.stderr; then
+          # The pin's libbpf probe calls BPF_PROG_LOAD before loading the object.
+          load_eprem=true
+          rejection_stage=libbpf_prog_load_probe
+      fi
+      if test "$load_status" -eq 0; then
+          # This path is uniquely case-owned; remove only an unexpected exact pin.
+          $b rm -f "$refused_parent/refused"
+          result=unexpected_success
+      elif test "$identity_and_digest" != true || test "$pin_parent_verified" != true || test "$load_attempted" != true; then
+          result=inconclusive_preflight
+      elif test "$load_eprem" = true && test "$pin_absent" = true; then
+          result=load_eprem
+      else
+          result=inconclusive_error_stage
+      fi
+      $b rmdir "$refused_parent"
+      printf 'SAF-BPF-REFUSED-LOAD: {"result":"%s","uid":65534,"gid":65534,"identity_uid_gid_verified":%s,"cap_eff_zero":%s,"loader_exit_status":%s,"setting":"%s","approved_sha256":"%s","identity_and_digest_verified":%s,"writable_pin_parent_verified":%s,"load_attempted":%s,"load_stage_eprem":%s,"rejection_stage":"%s","pin_absent":%s}\n' \
+          "$result" "$identity_verified" "$cap_eff_zero" "$load_status" "$($b cat /proc/sys/kernel/unprivileged_bpf_disabled)" \
+          "$approved_digest" "$identity_and_digest" "$pin_parent_verified" "$load_attempted" "$load_eprem" "$rejection_stage" "$pin_absent"
+    else
+      printf 'SAF-BPF-REFUSED-LOAD: {"result":"blocked","reason":"case_owned_bpffs_pin_parent_unavailable"}\n'
+    fi
+fi
 $b poweroff -f
 INIT
 chmod 0755 fs/init
@@ -150,7 +229,7 @@ if ! timeout 48s qemu-system-aarch64 -machine virt -accel tcg -cpu cortex-a57 -m
     tail -32 guest.log >&2
     exit 1
 fi
-for expected in 'SAF-BPF-LOAD: succeeded' '"type":"socket_filter"' '"name":"saf_marker"' 'SAF-BPF-CLEANUP: pin removed' 'SAF-BPF-ATTACHMENT: '; do
+for expected in 'SAF-BPF-LOAD: succeeded' '"type":"socket_filter"' '"name":"saf_marker"' 'SAF-BPF-CLEANUP: pin removed' 'SAF-BPF-ATTACHMENT: ' 'SAF-BPF-REFUSED-LOAD: '; do
     grep -Fq "$expected" guest.log || { tail -32 guest.log >&2; exit 1; }
 done
 tr -d '\r' <guest.log | grep '^SAF-'

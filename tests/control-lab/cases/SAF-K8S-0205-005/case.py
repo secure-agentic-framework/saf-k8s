@@ -179,6 +179,34 @@ def run(lab):
         item["id"] == program["id"] and item["tag"] == program["tag"] for item in active)
     lab.check("positive", "An accepted unattached guest load has an inventory ID and disappears after unpinning",
               supports_load and tracked, {"accepted_load_reconciled_with_inventory": supports_load and tracked})
+    refused_load = json.loads(report["SAF-BPF-REFUSED-LOAD"])
+    if refused_load.get("result") == "blocked":
+        lab.block("The guest cannot exercise the refused-load comparator: "
+                  + str(refused_load.get("reason", "unknown guest prerequisite")))
+    identity_verified = (refused_load.get("identity_uid_gid_verified") is True
+                         and refused_load.get("uid") == 65534 and refused_load.get("gid") == 65534)
+    refusal_stage_is_load = refused_load.get("rejection_stage") in {"object_program_load", "libbpf_prog_load_probe"}
+    refused_load_passed = (
+        refused_load.get("result") == "load_eprem"
+        and identity_verified
+        and refused_load.get("cap_eff_zero") is True
+        and refused_load.get("setting") == "2"
+        and refused_load.get("approved_sha256") == expected_marker_digest
+        and refused_load.get("identity_and_digest_verified") is True
+        and refused_load.get("writable_pin_parent_verified") is True
+        and refused_load.get("load_attempted") is True
+        and refused_load.get("load_stage_eprem") is True and refusal_stage_is_load
+        and refused_load.get("pin_absent") is True)
+    lab.check("green", "A no-capability guest cannot load the approved signed marker because its BPF load syscall is refused",
+              refused_load_passed, {
+                  "non_root_identity": identity_verified,
+                  "zero_effective_caps": refused_load.get("cap_eff_zero") is True,
+                  "unprivileged_bpf_disabled_two": refused_load.get("setting") == "2",
+                  "same_approved_marker_digest": refused_load.get("approved_sha256") == expected_marker_digest,
+                  "writable_pin_parent_preflight": refused_load.get("writable_pin_parent_verified") is True,
+                  "bpf_load_stage_eprem": refused_load.get("load_attempted") is True and refused_load.get("load_stage_eprem") is True,
+                  "refusal_at_load_or_library_load_probe": refusal_stage_is_load,
+                  "no_pin_created": refused_load.get("pin_absent") is True})
     observations = {"unrestricted_dry_run": baseline, "restricted_dry_run_denied": denied,
                     "admission_response": admission_response, "changed_artifact_rejected": refused,
                     "workload_process": {"uid": int(report["SAF-WORKLOAD-UID"]),
@@ -194,7 +222,8 @@ def run(lab):
                                  "independent_signature_verified": "approved_object_signature_verified" in results},
                     "load_and_inventory": {"loader_result": report["SAF-BPF-LOAD"], "program": program,
                                            "before": before, "active": active, "after_unpin": after},
-                    "attachment": attachment}
+                    "attachment": attachment,
+                    "refused_load": refused_load}
     rows = json.loads(lab.kubectl("get", "pods", "-l", f"job-name={NAME}", "-o", "json").stdout)["items"]
     worker, = rows
     status, = worker["status"]["containerStatuses"]
