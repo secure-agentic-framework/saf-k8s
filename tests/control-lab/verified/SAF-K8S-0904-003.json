@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0904-003",
-  "catalog_revision": "064d68098f8cc2cfee85241c1b6fc57cdb42ada3",
-  "catalog_sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
+  "catalog_revision": "caf2a3eacaaf1e839e08e25d33bae77c46ad203e",
+  "catalog_sha256": "4405c9978776100ed8ef8fc46713da985401a03e9d813cb2e5df3261133b0e6b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d0b57a1ca68aec60e4ca9d14eb14c94e299fe8f5eee724abc6465e94f7cbbbdd",
   "scope": "One fresh Kind v1.36.1 cluster, two pinned upstream Jupyter base-notebook Pods, and two case-owned benign dataset endpoints. The notebook Pods have distinct non-root UIDs and tokenless service accounts, configured CPU/RAM bounds and restrictive security contexts. Native NetworkPolicy limits each to its labeled endpoint, and native admission enforces the approved image reference. Each real Jupyter kernel executes a fixed harmless cell after policy is active. Kernel exposure, optional extensions, JupyterHub authentication, full provenance and dataset policy, and deployed controls require separate evidence.",
-  "cluster": "saf-lab-c3625f79d7bc",
+  "cluster": "saf-lab-b8cc4b6f6d5b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -106,6 +106,23 @@
         "kernel": "python3",
         "stdout": "fixture-notebook-ok\n",
         "uid": 1001
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "One allowlisted synthetic Hub login rejects a wrong password and routes an authenticated session to its KubeSpawner Pod",
+      "matched": true,
+      "observed": {
+        "wrong_password_denied": true,
+        "wrong_password_created_no_pod": true,
+        "successful_login_session": true,
+        "spawned_server_route_ok": true,
+        "exactly_one_user_pod": true,
+        "pod_uid_present": true,
+        "hub_username_selector_matched": true,
+        "dedicated_tokenless_service_account": true,
+        "approved_singleuser_image": true,
+        "pod_running_and_ready": true
       }
     }
   ]

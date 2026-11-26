@@ -1,0 +1,29 @@
+{
+  "chart": {
+    "name": "jupyterhub",
+    "version": "4.4.5",
+    "appVersion": "5.5.5",
+    "url": "https://jupyterhub.github.io/helm-chart/jupyterhub-4.4.5.tgz",
+    "sha256": "27ad182c708244537f425a7ec3354d1a098776e7acd96b7f0d9a4d38f0cda415"
+  },
+  "images": {
+    "hub": {
+      "reference": "quay.io/jupyterhub/k8s-hub:4.4.5",
+      "indexDigest": "sha256:6ce210488f5598e2dd5130d82e84d9f74b72538b66895861240bd84926ec50bd",
+      "linuxAmd64Manifest": "sha256:7e38b56cfd4327faf7c7f065481e1405a32864e8449860067659458bca086554",
+      "linuxArm64Manifest": "sha256:1ab67254862c4ddf1fcbba8892575f2de54f69765ccfddaedb19cff38fa1e999"
+    },
+    "proxy": {
+      "reference": "quay.io/jupyterhub/configurable-http-proxy:5.4.0",
+      "indexDigest": "sha256:7977d796d372642aa9eb962ff36590b3019f8f24493fcf9f1d07d2c81e8e6080",
+      "linuxAmd64Manifest": "sha256:2bfe0a36563aaf7251142921af39c587505d2f848b59f6aedff2cfcdff698b23",
+      "linuxArm64Manifest": "sha256:9eceb54948090f854e12518ffc084c673d0e768f6dbc54b4a872e1740975b1f8"
+    },
+    "singleuser": {
+      "reference": "quay.io/jupyterhub/k8s-singleuser-sample:4.4.5",
+      "indexDigest": "sha256:2a05d2f69486f5087b75168da60946891490c788626141b39334d67cae5f97aa",
+      "linuxAmd64Manifest": "sha256:7eafff0bd0110c47be2c4885c52573f82a9dbc31720bec8d504938ce61327a67",
+      "linuxArm64Manifest": "sha256:aabbb7077bcf3c79fb398615f83dc0e7bff499d050b81bb7344c7c59135e588c"
+    }
+  }
+}
