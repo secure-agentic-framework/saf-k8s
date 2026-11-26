@@ -105,11 +105,16 @@ if errors:
                       "unresolved_count": len(unresolved) if isinstance(unresolved, list) else None},
                      sort_keys=True))
     raise SystemExit(1)
+if mode == "recovery" and decision.get("recovery_action") != "rollback":
+    print(json.dumps({"decision": "blocked", "errors": ["recovery_action_not_approved_rollback"],
+                      "fixture_only": True, "record_id": decision.get("decision_id")}, sort_keys=True))
+    raise SystemExit(1)
 print(json.dumps({"decision": "approved_fixture_only_conditional",
                   "fixture_only": True, "record_id": decision["decision_id"],
                   "rollback_target": target["artifact_ref"],
                   "unresolved_count": len(unresolved),
                   "unresolved_status": "explicitly_owned_nonblocking_for_fixture_only_review",
+                  "recovery_action": decision.get("recovery_action"),
                   "production_readiness": "unverified"}, sort_keys=True))
 '''
 CONTROL_LABEL = "saf-lab.example/control"
@@ -119,10 +124,11 @@ SCOPE = (
     "case-owned ConfigMaps containing synthetic JSON and inert text. A bypass Job accepts an "
     "invalid fictional rollback decision; enforced Jobs block invalid owner, reason, evidence-ref, "
     "rollback-target, and unresolved-evidence fields; a positive Job accepts a fixture-only "
-    "conditional approval while retaining production validation as unverified. Jobs only emit "
-    "decisions and never perform rollback, retraining, quarantine, deployment, or network calls. "
-    "No model, real incident, secret, live feed, external target, or attack input is present. "
-    "This tests the synthetic evidence workflow and Kubernetes observation path only; it does not "
+    "conditional approval while retaining production validation as unverified. A scratch-only "
+    "extension gates one same-cluster Deployment update to a synthetic marker using the exact "
+    "approved fixture target; the Pod only prints that marker and sleeps. No model, real incident, "
+    "secret, live feed, externally reachable endpoint, or attack input is present. This tests the "
+    "synthetic evidence workflow and local Kubernetes reconciliation only; it does not "
     "establish authorization identity, fixture provenance beyond this case's files, integrity of "
     "evidence against a cluster administrator, AI-specific recovery criteria, production readiness, "
     "or organizational response coverage."
@@ -283,7 +289,7 @@ def run(lab):
     target, trusted, fixture_digests = _fixture_bundle()
     variants = _decision_variants(trusted)
     observations = {
-        "notice": "Synthetic fixture-only approval workflow; no secret, model, incident, feed, or target.",
+        "notice": "Synthetic approval workflow; no secret, model, incident, live feed, or external target.",
         "node_image": NODE_IMAGE,
         "python_image": PYTHON_IMAGE,
         "fixture_sha256": fixture_digests,
@@ -373,3 +379,14 @@ def run(lab):
     lab.check("positive", "A trusted fixture-only rollback decision preserves its owned unresolved evidence",
               accepted, {"job_condition": positive["job_condition"], "exit_code": positive["exit_code"],
                          "outcome": positive["outcome"]})
+
+    # Scratch extension: the existing fixture gates one exact, inert Deployment
+    # reconciliation. No model or application artifact is executed.
+    import importlib.util
+    extension_path = HERE / "recovery_extension.py"
+    extension_spec = importlib.util.spec_from_file_location("saf_1005_016_recovery_extension", extension_path)
+    if extension_spec is None or extension_spec.loader is None:
+        lab.block("Scratch recovery extension could not be loaded")
+    extension = importlib.util.module_from_spec(extension_spec)
+    extension_spec.loader.exec_module(extension)
+    extension.run_extension(lab, target, trusted, VALIDATOR, PYTHON_IMAGE)

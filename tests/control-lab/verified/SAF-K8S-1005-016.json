@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1005-016",
-  "catalog_revision": "e64644f984ad8e5283c1c7490062e434cf2b2c61",
-  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
+  "catalog_revision": "7c3baea51daeee549889a02037bae9ddd1dccf68",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "7ce0cbfb8a5b088e9edb6df6ffb63b88e695d95a2d9e430b4af8bfad89554419",
-  "scope": "One disposable Kind v1.36.1 cluster runs tokenless restricted Python Jobs against immutable, case-owned ConfigMaps containing synthetic JSON and inert text. A bypass Job accepts an invalid fictional rollback decision; enforced Jobs block invalid owner, reason, evidence-ref, rollback-target, and unresolved-evidence fields; a positive Job accepts a fixture-only conditional approval while retaining production validation as unverified. Jobs only emit decisions and never perform rollback, retraining, quarantine, deployment, or network calls. No model, real incident, secret, live feed, external target, or attack input is present. This tests the synthetic evidence workflow and Kubernetes observation path only; it does not establish authorization identity, fixture provenance beyond this case's files, integrity of evidence against a cluster administrator, AI-specific recovery criteria, production readiness, or organizational response coverage.",
-  "cluster": "saf-lab-87c969836ed5",
+  "scope": "One disposable Kind v1.36.1 cluster runs tokenless restricted Python Jobs against immutable, case-owned ConfigMaps containing synthetic JSON and inert text. A bypass Job accepts an invalid fictional rollback decision; enforced Jobs block invalid owner, reason, evidence-ref, rollback-target, and unresolved-evidence fields; a positive Job accepts a fixture-only conditional approval while retaining production validation as unverified. A scratch-only extension gates one same-cluster Deployment update to a synthetic marker using the exact approved fixture target; the Pod only prints that marker and sleeps. No model, real incident, secret, live feed, externally reachable endpoint, or attack input is present. This tests the synthetic evidence workflow and local Kubernetes reconciliation only; it does not establish authorization identity, fixture provenance beyond this case's files, integrity of evidence against a cluster administrator, AI-specific recovery criteria, production readiness, or organizational response coverage.",
+  "cluster": "saf-lab-930941341ef8",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -260,10 +260,119 @@
           "fixture_only": true,
           "production_readiness": "unverified",
           "record_id": "urn:example:saf:decision:recovery-fixture-016-001",
+          "recovery_action": null,
           "rollback_target": "urn:example:saf:model-fixture:stable-000",
           "unresolved_count": 1,
           "unresolved_status": "explicitly_owned_nonblocking_for_fixture_only_review"
         }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The owned baseline Deployment is Ready with its exact inert baseline marker",
+      "matched": true,
+      "observed": {
+        "deployment_uid_observed": true,
+        "generation": 1,
+        "status": {
+          "observedGeneration": 1,
+          "replicas": 1,
+          "updatedReplicas": 1,
+          "readyReplicas": 1,
+          "availableReplicas": 1
+        },
+        "pod_uid_observed": true,
+        "marker": {
+          "marker": {
+            "artifact_ref": "urn:example:saf:fixture:baseline",
+            "artifact_sha256": "852b245a65a8b52291f246444bce60d9aa7e32a83cfc1d26de71658418a4e4ed",
+            "fixture_only": true,
+            "state": "healthy"
+          },
+          "state": "ready"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A reviewed wrong-target decision is denied and leaves the native target unchanged",
+      "matched": true,
+      "observed": {
+        "denial": {
+          "decision": "blocked",
+          "errors": [
+            "rollback_target_untrusted_or_mismatched"
+          ],
+          "fixture_only": true,
+          "record_id": "urn:example:saf:decision:recovery-fixture-016-001",
+          "unresolved_count": 1
+        },
+        "same_deployment_uid": true,
+        "same_generation": true,
+        "same_pod_uid": true,
+        "same_marker": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact approved rollback record and fixture evidence are immutable before execution",
+      "matched": true,
+      "observed": {
+        "immutable": true,
+        "uid_matches_create": true,
+        "exact_data_readback": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The immutable reviewed rollback record authorizes only its exact fixture target",
+      "matched": true,
+      "observed": {
+        "decision_id": "urn:example:saf:decision:recovery-fixture-016-001",
+        "target": "urn:example:saf:model-fixture:stable-000",
+        "sha256": "e040d1a5d1a5d0fbd43351ab891629126564d8db7e50792766f242496347690e",
+        "validator": {
+          "condition": "Complete",
+          "exit_code": 0,
+          "outcome": {
+            "decision": "approved_fixture_only_conditional",
+            "fixture_only": true,
+            "production_readiness": "unverified",
+            "record_id": "urn:example:saf:decision:recovery-fixture-016-001",
+            "recovery_action": "rollback",
+            "rollback_target": "urn:example:saf:model-fixture:stable-000",
+            "unresolved_count": 1,
+            "unresolved_status": "explicitly_owned_nonblocking_for_fixture_only_review"
+          }
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved rollback reconciles to one Ready Pod serving the exact target marker",
+      "matched": true,
+      "observed": {
+        "generation_before": 1,
+        "generation_after": 2,
+        "status": {
+          "observedGeneration": 2,
+          "replicas": 1,
+          "updatedReplicas": 1,
+          "readyReplicas": 1,
+          "availableReplicas": 1
+        },
+        "deployment_uid_preserved": true,
+        "pod_uid_replaced": true,
+        "marker": {
+          "marker": {
+            "artifact_ref": "urn:example:saf:model-fixture:stable-000",
+            "artifact_sha256": "e040d1a5d1a5d0fbd43351ab891629126564d8db7e50792766f242496347690e",
+            "fixture_only": true,
+            "state": "healthy"
+          },
+          "state": "ready"
+        },
+        "decision_id": "urn:example:saf:decision:recovery-fixture-016-001"
       }
     }
   ]

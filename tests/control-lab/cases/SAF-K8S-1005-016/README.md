@@ -46,3 +46,25 @@ The portable fixture demonstrates only the evidence-record gate; it is not opera
 ## Primary source
 
 NIST SP 800-218, *Secure Software Development Framework (SSDF) Version 1.1*, RV.2.2: https://nvlpubs.nist.gov/nistpubs/specialpublications/nist.sp.800-218.pdf. Official publication page: https://csrc.nist.gov/pubs/sp/800/218/final. RV.2.2 addresses responses to vulnerabilities, including risk-based remediation or other vulnerability response, temporary mitigation, and security advisories.
+
+## Reconcile the approved recovery target
+
+The case starts an inert Deployment pinned to a local marker. While it is
+running, a separate restricted review Job refuses a decision with a
+mismatched target digest, and the same Deployment and Pod keep the baseline
+marker. The case then reads back an immutable approved decision record and
+runs the review Job against its exact fixture evidence. After approval, the
+case applies the target revision and confirms the same Deployment reaches a
+new generation with one Ready replacement Pod and the approved marker.
+
+The case harness applies the Deployment only after the review succeeds.
+The target uses synthetic evidence and serves no application endpoint. Use
+the procedure below for actual model and incident recovery.
+
+## Verify an adopting incident recovery process
+
+1. Open an incident record, assign an incident commander and recovery owner, identify affected model versions and deployments, and preserve the incident, release, and integrity evidence before changing service state.
+2. Have an authorized independent reviewer verify the integrity result against a trusted registry or release record, exact model digest, signature/checksum method, evidence provenance, and verification time. Record any unavailable or inconclusive evidence as a blocker or explicit risk decision.
+3. Select rollback, retraining, quarantine, or another response using the verified findings. Record the target revision/digest, rationale, alternatives, scope, risk, approver, and any time-bounded exception before execution. Keep decision ownership separate from approval and execution where policy requires.
+4. Execute through the approved recovery/change path with a bounded rollout or maintenance window. Define the stop and reversal conditions in advance; monitor replica availability, readiness, error rate, latency, and required service capacity during transition. Pause or reverse if the approved health limits are breached; preserve the observed state and decision trail.
+5. Verify the exact intended model/deployment revision and digest after recovery, repeat required integrity checks, confirm service health and monitoring, and obtain independent closure approval. Record residual risks with owners and due dates and link all records to the incident and control revision.
