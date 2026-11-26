@@ -21,7 +21,9 @@ SCOPE = (
     "Admission labels twice. It writes both "
     "snapshots to a PVC where a separate Pod reads them. The lab demonstrates missing, "
     "fresh, stale, and recovered states under a fixture timing threshold. The scoped follow-on checks live RoleBindings, NetworkPolicies, Namespace labels, "
-    "object provenance, and cross-namespace denial. Scope is capture and freshness for the synthetic inputs."
+    "object provenance, and cross-namespace denial. A separate source-pinned synthetic fixture "
+    "checks crosswalk import and readiness-gap projection; it does not assert any actual NIST, EU, "
+    "or other framework coverage. Scope remains capture and freshness for the native inputs."
 )
 
 

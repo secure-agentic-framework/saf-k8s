@@ -27,3 +27,26 @@ The same test also runs the [scoped API collector](scoped/README.md) against two
 synthetic namespaces. It checks exact live RoleBindings, NetworkPolicies and Pod Security
 labels, verifies source identity and resource versions, and retains the old scheduled
 retention checks in the same run.
+
+## Verify the crosswalk readiness projection
+
+The scheduled collection and independent reader remain the native reference.
+The synthetic crosswalk importer verifies the exact source bytes and revision,
+control and catalog pins, and the named in-source objective. A valid link
+produces a ready row. Missing required links and stale source or objective
+references produce an attention status and explicit gap codes. Inspect
+`crosswalk-readiness.raw.json` for the three reproducible outcomes.
+
+The source and objective are fictional. The projection represents a dashboard
+input. Use actual authoritative sources and dashboard consumers when gathering
+evidence for an adopting deployment.
+
+1. Record the applicable framework version, exact objectives, reviewed control
+   revisions and the owner who approves each relationship.
+2. Retain evidence links showing applicability, strength, scope and provision
+   of the actual control. Verify each source pin and required relation.
+3. In a controlled reporting environment, compare an acceptable input with
+   missing and stale links and verify that the actual dashboard and alert
+   consumer show the gaps. Record collection time, retention and access scope.
+4. Reconcile the inventory and evidence following catalog, deployment or
+   framework revisions. Give each unresolved link an owner and review date.

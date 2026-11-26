@@ -1,0 +1,21 @@
+{
+  "fixture_only": true,
+  "catalog_revision": "4e518d3bd0aab7847f62755ce1c7076d7478b3fb",
+  "control_id": "SAF-K8S-1006-004",
+  "control_sha256": "8877e0aea2bbffdc28a808535c9c9920647990571e0060d3e184ab6fc9fdf3a2",
+  "crosswalk_revision": "synthetic-crosswalk-rev-stale",
+  "source_id": "urn:example:saf:crosswalk-source:synthetic-v1",
+  "source_version": "1",
+  "source_revision": "synthetic-revision-0",
+  "source_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "links": [
+    {
+      "control_id": "SAF-K8S-1006-004",
+      "control_sha256": "8877e0aea2bbffdc28a808535c9c9920647990571e0060d3e184ab6fc9fdf3a2",
+      "requirement_id": "SYN-OBJ-OLD",
+      "relation_type": "supports",
+      "applicability": "conditional",
+      "applicability_condition": "Stale synthetic fixture objective; must be reported as a gap."
+    }
+  ]
+}

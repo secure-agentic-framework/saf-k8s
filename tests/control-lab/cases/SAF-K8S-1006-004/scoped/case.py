@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 import json
 import hashlib
 from pathlib import Path
+import runpy
 import time
 
 HERE = Path(__file__).resolve().parent
@@ -305,3 +306,5 @@ def run(lab):
                          "assessment": {"state": positive_state, "age_seconds": positive_age}})
     (lab.evidence / "raw-captures.json").write_text(
         json.dumps(raw_evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    # Synthetic crosswalk import/report oracle only; it asserts no real framework coverage.
+    runpy.run_path(str(HERE / "crosswalk_oracle.py"))["run"](lab)

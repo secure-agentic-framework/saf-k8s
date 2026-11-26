@@ -4,8 +4,8 @@
   "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "8877e0aea2bbffdc28a808535c9c9920647990571e0060d3e184ab6fc9fdf3a2",
-  "scope": "Disposable Kind cluster. A Kubernetes CronJob uses its own read-only, named-object identity to collect inert catalog and crosswalk records and live Pod Security Admission labels twice. It writes both snapshots to a PVC where a separate Pod reads them. The lab demonstrates missing, fresh, stale, and recovered states under a fixture timing threshold. The scoped follow-on checks live RoleBindings, NetworkPolicies, Namespace labels, object provenance, and cross-namespace denial. Scope is capture and freshness for the synthetic inputs.",
-  "cluster": "saf-lab-32979092225a",
+  "scope": "Disposable Kind cluster. A Kubernetes CronJob uses its own read-only, named-object identity to collect inert catalog and crosswalk records and live Pod Security Admission labels twice. It writes both snapshots to a PVC where a separate Pod reads them. The lab demonstrates missing, fresh, stale, and recovered states under a fixture timing threshold. The scoped follow-on checks live RoleBindings, NetworkPolicies, Namespace labels, object provenance, and cross-namespace denial. A separate source-pinned synthetic fixture checks crosswalk import and readiness-gap projection; it does not assert any actual NIST, EU, or other framework coverage. Scope remains capture and freshness for the native inputs.",
+  "cluster": "saf-lab-7c598a4293b8",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -166,6 +166,72 @@
         "capture_state": "fresh",
         "source_matches_fixture": true,
         "different_namespace_uid": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The source-pinned synthetic relation imports as a ready dashboard row",
+      "matched": true,
+      "observed": {
+        "fixture_only": true,
+        "catalog_revision": "4e518d3bd0aab7847f62755ce1c7076d7478b3fb",
+        "crosswalk_revision": "synthetic-crosswalk-rev-1",
+        "source_revision": "synthetic-revision-1",
+        "expected_control_count": 1,
+        "verified_link_count": 1,
+        "gap_count": 0,
+        "gaps": [],
+        "dashboard_status": "ready"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A required relation missing from the synthetic import appears as a dashboard gap",
+      "matched": true,
+      "observed": {
+        "fixture_only": true,
+        "catalog_revision": "4e518d3bd0aab7847f62755ce1c7076d7478b3fb",
+        "crosswalk_revision": "synthetic-crosswalk-rev-missing",
+        "source_revision": "synthetic-revision-1",
+        "expected_control_count": 1,
+        "verified_link_count": 0,
+        "gap_count": 1,
+        "gaps": [
+          {
+            "code": "missing_required_link",
+            "control_id": "SAF-K8S-1006-004",
+            "objective_id": "SYN-OBJ-001"
+          }
+        ],
+        "dashboard_status": "attention"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A stale source revision and removed synthetic objective remain visible as dashboard gaps",
+      "matched": true,
+      "observed": {
+        "fixture_only": true,
+        "catalog_revision": "4e518d3bd0aab7847f62755ce1c7076d7478b3fb",
+        "crosswalk_revision": "synthetic-crosswalk-rev-stale",
+        "source_revision": "synthetic-revision-0",
+        "expected_control_count": 1,
+        "verified_link_count": 0,
+        "gap_count": 2,
+        "gaps": [
+          {
+            "code": "crosswalk_source_reference_stale",
+            "control_id": "SAF-K8S-1006-004",
+            "observed_source_revision": "synthetic-revision-0"
+          },
+          {
+            "code": "objective_not_in_pinned_source",
+            "control_id": "SAF-K8S-1006-004",
+            "requirement_id": "SYN-OBJ-OLD",
+            "source_revision": "synthetic-revision-0"
+          }
+        ],
+        "dashboard_status": "attention"
       }
     }
   ]

@@ -1,0 +1,12 @@
+{
+  "fixture_only": true,
+  "source_id": "urn:example:saf:crosswalk-source:synthetic-v1",
+  "source_version": "1",
+  "source_revision": "synthetic-revision-1",
+  "objectives": [
+    {
+      "id": "SYN-OBJ-001",
+      "title": "Synthetic objective fixture; not a regulatory requirement"
+    }
+  ]
+}
