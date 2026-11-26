@@ -1,15 +1,15 @@
-# SAF-K8S-0505-004 audit detection
+# SAF-K8S-0505-004 — API server audit observations
 
-The test creates a dedicated Kind cluster and enables a blocking
-Metadata audit policy for three harmless exact-name ConfigMap requests.
-A restrictive Role admits two reads and rejects one. The audit policy
-keeps the ordinary and rejected records and explicitly omits the other
-ordinary request. A local rule correlates the 403 with the expected
-identity and audit ID while the ordinary record produces no alert.
+Run from the framework repository.
 
-The recorded network address is context for this fixture. Verify trusted
-origin attribution, audit forwarding, alert delivery, and supported
-provider configuration in the deployment.
+```sh
+python3 tests/control-lab/lab.py test SAF-K8S-0505-004 --docker-context desktop-linux
+```
 
-[Kubernetes auditing](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/)
-· [Audit Event reference](https://kubernetes.io/docs/reference/config-api/apiserver-audit.v1/#Event)
+The Kubernetes v1.36.1 Kind API server writes native Metadata audit events. Three case-owned ConfigMap reads compare a permitted request, an explicitly excluded request, and an RBAC authorization denial. The detector starts with no rule and then matches the exact 403 Audit ID without flagging the ordinary request.
+
+A separate TLS-verified request with an inert invalid bearer value goes to the owned loopback API. The fixture compares the returned 401 and Audit-Id with the native ResponseStarted event, verifies it has no authenticated actor or payload objects, checks the recorded peer context, and verifies only the enabled 401 rule produces the matching finding. The 403 comparator uses ResponseComplete. Evidence contains stable assertions rather than the bearer string or audit IDs.
+
+For adoption, inventory the API endpoints, policy rules and event stages across managed and self-hosted control planes. Confirm each expected event reaches the approved destination. Validate the source address trust chain at direct, proxy and load-balancer paths before using an address to attribute a request. Replay representative benign denied and admitted requests and verify rule thresholds, duplicates, alert delivery, responder access, and retention with redacted evidence. The fixture tests exact 401 and 403 matching, and the procedure gives the deployment checks for anomaly rules and forwarded addresses.
+
+[Kubernetes v1.36 audit logging](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/) · [Kubernetes v1.36.1 API request filters](https://github.com/kubernetes/kubernetes/blob/v1.36.1/staging/src/k8s.io/apiserver/pkg/server/config.go)

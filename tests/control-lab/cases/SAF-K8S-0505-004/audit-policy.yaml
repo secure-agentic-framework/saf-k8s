@@ -1,7 +1,14 @@
 apiVersion: audit.k8s.io/v1
 kind: Policy
-omitStages: ["RequestReceived", "ResponseStarted", "Panic"]
+omitStages: ["RequestReceived", "Panic"]
 rules:
+  - level: Metadata
+    verbs: ["get"]
+    namespaces: ["saf-test"]
+    resources:
+      - group: ""
+        resources: ["configmaps"]
+        resourceNames: ["synthetic-auth-failure"]
   - level: None
     verbs: ["get"]
     namespaces: ["saf-test"]
@@ -10,6 +17,7 @@ rules:
         resources: ["configmaps"]
         resourceNames: ["routine-excluded"]
   - level: Metadata
+    omitStages: ["ResponseStarted"]
     verbs: ["get"]
     namespaces: ["saf-test"]
     resources:
