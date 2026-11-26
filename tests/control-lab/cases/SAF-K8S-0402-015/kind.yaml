@@ -1,0 +1,14 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    kubeadmConfigPatches:
+      - |
+        apiVersion: kubeadm.k8s.io/v1beta4
+        kind: ClusterConfiguration
+        controllerManager:
+          extraArgs:
+            - name: controllers
+              value: "*,-serviceaccount-token-controller"
+            - name: service-account-private-key-file
+              value: ""

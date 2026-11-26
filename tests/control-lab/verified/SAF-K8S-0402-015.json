@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0402-015",
-  "catalog_revision": "eb20db0ee5548718a069c3b2d70a657802455c6a",
-  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
+  "catalog_revision": "40b5ddfd2381e15bcf4d986bedca71abf3b6c561",
+  "catalog_sha256": "d65a8ba2d999d0a60a83345dbfd6f5235d9cd11cac65fdb011fac1cb9051e634",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "1ae388b84ef9d7e1f1ccd6023431ae7241e22d00f6e88002a9e64a8a0ff3d5d3",
-  "scope": "Kubernetes v1.36.1 server-side dry runs of an empty synthetic legacy Secret and an inert Opaque Secret, with a namespace-scoped admission policy. The case also verifies the native tracking ConfigMap and a type-based inventory query. Credential issuance, actual token use and removal, migration and production scope remain separate.",
-  "cluster": "saf-lab-8ea58e18bfbe",
+  "scope": "Kubernetes v1.36.1 server-side dry runs of an empty synthetic legacy Secret and an inert Opaque Secret, with a namespace-scoped admission policy. The case also verifies the native tracking ConfigMap and a type-based inventory query. Credential migration and production scope remain separate. A case-owned Pod also makes one actual projected short-lived token read of a named inert ConfigMap over verified API-server HTTPS; the token and response body are never retained. Scratch supplement uses an isolated Kind control-plane profile with only the legacy service-account signer path explicitly empty, while projected TokenRequest credentials remain enabled. It proves deletion of an empty annotated sentinel; Secret data values are never observed.",
+  "cluster": "saf-lab-e606b00991c4",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -77,6 +77,69 @@
       "matched": true,
       "observed": {
         "tracking_start_present": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The disposable controller-manager has the legacy signer path explicitly empty and excludes the legacy token controller",
+      "matched": true,
+      "observed": {
+        "token_controller_excluded": true,
+        "legacy_signer_path_empty": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The synthetic token Secret references no existing ServiceAccount",
+      "matched": true,
+      "observed": {
+        "referenced_serviceaccount_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The empty annotated sentinel persists and is inventoried by metadata only",
+      "matched": true,
+      "observed": {
+        "exact_name_and_type_visible": true,
+        "uid_present": true,
+        "data_key_count_zero": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The benign comparator Pod is Ready with token automount disabled",
+      "matched": true,
+      "observed": {
+        "running_ready_automount_disabled": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact empty sentinel is deleted and absent by metadata name",
+      "matched": true,
+      "observed": {
+        "delete_succeeded": true,
+        "exact_name_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The benign comparator Pod remains Ready after sentinel retirement",
+      "matched": true,
+      "observed": {
+        "running_ready_automount_disabled": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A case-owned Pod uses one 600-second projected token and API CA for an HTTPS GET of its named inert ConfigMap",
+      "matched": true,
+      "observed": {
+        "explicit_projection_and_ca": true,
+        "single_named_get_grant": true,
+        "https_status_200": true,
+        "token_or_response_body_emitted": false
       }
     }
   ]

@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: saf-k8s-0402-015-retirement-health
+  namespace: saf-0402-015-retirement
+  labels:
+    app.kubernetes.io/name: saf-k8s-0402-015-retirement-health
+    app.kubernetes.io/part-of: saf-control-lab
+spec:
+  automountServiceAccountToken: false
+  restartPolicy: Never
+  containers:
+    - name: hold-ready
+      image: docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec
+      command: ["sh", "-c", "sleep 3600"]
+      resources:
+        requests:
+          cpu: 5m
+          memory: 8Mi
+        limits:
+          cpu: 25m
+          memory: 16Mi
