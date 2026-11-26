@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0703-010",
-  "catalog_revision": "6838d59c8941c27b2188821ee381e6cd7a852036",
-  "catalog_sha256": "a686bfbe52cded89985495c3a14f05eb580c3499b772f2473beb3accc1c99e38",
+  "catalog_revision": "265d646991760b53c656c5e90473ed1cb43dda0f",
+  "catalog_sha256": "015d61b2fcea3d0ff68d32e1ac467d9b1277b9037754d2c072f6d7d7848d7a6e",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "a77cb2435fd4b13331506004c9d472aefe8c15dfd0139322aeb61be0afbe9ddd",
+  "control_sha256": "a8cb78e12e04a488c9e09ac8563c57bd4d4e7eb13f8b8bd9566bf242c7568488",
   "scope": "Kubernetes v1.36.1 multi-node kind. A fractional Pod and one Guaranteed integer-CPU Pod have separate effective CPU sets on the same AI-labeled worker with kubelet CPU Manager static. The nonroot fractional Pod sees its cgroup v2 CPU and memory limits. NUMA, Memory Manager, interconnect, workload throughput and actual GPU or production node behavior require separate evidence.",
-  "cluster": "saf-lab-39627a4764a9",
+  "cluster": "saf-lab-3f60158e386b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

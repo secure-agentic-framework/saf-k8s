@@ -2031,7 +2031,7 @@
     "SAF-K8S-0703-010": {
       "catalog_status": "draft",
       "domain": "D07",
-      "sha256": "a77cb2435fd4b13331506004c9d472aefe8c15dfd0139322aeb61be0afbe9ddd",
+      "sha256": "a8cb78e12e04a488c9e09ac8563c57bd4d4e7eb13f8b8bd9566bf242c7568488",
       "title": "Host-level resource isolation for AI workload nodes"
     },
     "SAF-K8S-0703-012": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "d36b802eb0b237e70e15ef512655d031c3832be5",
-  "sha256": "2d9ee748aef43609d9be38b0a9ebcc19019b6faa6b32c4acb2501c7241eebaee",
+  "revision": "0e90d7b0aeeeed647474582e4e5672689df65665",
+  "sha256": "015d61b2fcea3d0ff68d32e1ac467d9b1277b9037754d2c072f6d7d7848d7a6e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
