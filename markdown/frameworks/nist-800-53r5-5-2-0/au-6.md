@@ -32,9 +32,9 @@ The portable case reads effective registry ACL configuration and compares it wit
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.10
 - Relation Type: supports
-- Strength: moderate
+- Strength: weak
 - Applicability: conditional
-- Strength Reason Code: n/a
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0910-025 - Cross-cluster registry federation endpoint authorization and reconciliation governance](../../controls/SAF-K8S-0910-025.md)
 

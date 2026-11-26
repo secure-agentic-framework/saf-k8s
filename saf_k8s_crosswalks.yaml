@@ -9815,13 +9815,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-12
   framework_requirement_title: Audit Record Generation
-  framework_mapping_notes: The relevant deployed boundary emits defined audit events for actual cross-cluster actions.
+  framework_mapping_notes: The portable control generates and delivers selected native Kubernetes orchestration records from two defined sources. Adopters substantiate their selected event types, required record contents and covered component inventory.
   control_id: SAF-K8S-0910-017
   relation_type: supports
   strength_level: moderate
   applicability: conditional
-  applicability_condition: The relevant deployed boundary emits defined audit events for actual cross-cluster actions
-  strength_reason_code: null
+  applicability_condition: The applicable boundary generates the selected events and required record contents from the governed source component inventory.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -9883,15 +9883,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-12(1)
   framework_requirement_title: System-wide and Time-correlated Audit Trail
-  framework_mapping_notes: The deployed collector time-correlates the required records across the selected system components
-    with verified clocks.
+  framework_mapping_notes: The two source APIs contribute native UTC event timestamps to the protected central record. Correlation tolerance and verified clock offsets need separate evidence.
   control_id: SAF-K8S-0910-017
   relation_type: supports
-  strength_level: moderate
+  strength_level: weak
   applicability: conditional
-  applicability_condition: The deployed collector time-correlates the required records across the selected system components
-    with verified clocks
-  strength_reason_code: null
+  applicability_condition: The adopter compiles audit records from the defined components into a time-correlated trail and verifies the configured tolerance.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -10493,13 +10491,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-6
   framework_requirement_title: Audit Record Review, Analysis, and Reporting
-  framework_mapping_notes: The authorized central audit workflow reviews and analyzes relevant orchestration records.
+  framework_mapping_notes: Independent read-only access to governed central audit records helps authorized reviewers retrieve evidence, while the actual reviews, analysis and reports are separate operational evidence.
   control_id: SAF-K8S-0910-017
   relation_type: supports
-  strength_level: moderate
+  strength_level: weak
   applicability: conditional
-  applicability_condition: The authorized central audit workflow reviews and analyzes relevant orchestration records
-  strength_reason_code: null
+  applicability_condition: The authorized workflow defines review frequency, activity criteria and reporting roles and demonstrates review, analysis, reporting and risk-based adjustment.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
