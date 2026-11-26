@@ -2,6 +2,7 @@
 from datetime import datetime
 import importlib.util
 import json
+import hashlib
 import re
 from pathlib import Path
 
@@ -16,6 +17,7 @@ PROCESSOR = "fixture-data-processor"
 ALLOWED = "fixture-data-reader"
 DENIED = "fixture-other-reader"
 AUDITOR = "fixture-data-auditor"
+PURPOSE_POLICY = "fixture-data-purpose-policy"
 RBAC = "rbac.authorization.k8s.io/v1"
 DATASET = "fixture-training-approved-v1"
 SCOPE = (
@@ -23,7 +25,8 @@ SCOPE = (
     "version. A governed processor minimizes the approved version and creates only a hold receipt "
     "for the second. Distinct read-only UIDs with different supplemental groups exercise actual file "
     "reads. Kubernetes separately enforces exact ConfigMap and Pod log read permissions. Pod logs "
-    "are application data-access evidence, not API-server or provider-level auditing."
+    "are application data-access evidence, not API-server or provider-level auditing. A pinned "
+    "purpose policy also binds one synthetic source and minimized derivative to one fixture purpose."
 )
 
 
@@ -51,11 +54,14 @@ def pod(lab, image, name, account, command, uid, groups, *, read_only=False, roo
                                      "supplementalGroups": groups, "runAsNonRoot": not root,
                                      "seccompProfile": {"type": "RuntimeDefault"}},
                  "volumes": [{"name": "data", "persistentVolumeClaim": {"claimName": PVC}},
-                             {"name": "code", "configMap": {"name": CODE}}],
+                             {"name": "code", "configMap": {"name": CODE}},
+                             {"name": "purpose", "configMap": {"name": PURPOSE_POLICY,
+                                                                   "defaultMode": 0o444}}],
                  "containers": [{
                      "name": "fixture", "image": image, "imagePullPolicy": "Never", "command": command,
                      "volumeMounts": [{"name": "data", "mountPath": "/store", "readOnly": read_only},
-                                      {"name": "code", "mountPath": "/fixture", "readOnly": True}],
+                                      {"name": "code", "mountPath": "/fixture", "readOnly": True},
+                                      {"name": "purpose", "mountPath": "/purpose", "readOnly": True}],
                      "securityContext": security,
                      "env": [{"name": env, "valueFrom": {"fieldRef": {"fieldPath": field}}}
                              for env, field in (("POD_NAMESPACE", "metadata.namespace"),
@@ -95,15 +101,17 @@ def run(lab):
     create(lab, "ConfigMap", CODE, immutable=True, data={
         name: (HERE / name).read_text() for name in ("privacy_worker.py", "data_fixture.py")
     })
+    create(lab, "ConfigMap", PURPOSE_POLICY, immutable=True,
+           data={"policy.json": (HERE / "purpose-policy.json").read_text()})
     for index, classification in ((INDEX, "internal-synthetic"), (OTHER, "restricted-synthetic")):
         create(lab, "ConfigMap", index, immutable=True, data={"classification": classification})
     create(lab, "PersistentVolumeClaim", PVC, spec={
         "accessModes": ["ReadWriteOnce"], "resources": {"requests": {"storage": "64Mi"}}
     })
 
-    seed = ["sh", "-ec", "mkdir /store/approved /store/held /store/baseline; "
-            "chmod 2750 /store/approved; chmod 2700 /store/held /store/baseline; "
-            "chown 10001:20100 /store/approved /store/held /store/baseline"]
+    seed = ["sh", "-ec", "mkdir /store/approved /store/held /store/baseline /store/purpose; "
+            "chmod 2750 /store/approved /store/purpose; chmod 2700 /store/held /store/baseline; "
+            "chown 10001:20100 /store/approved /store/held /store/baseline /store/purpose"]
     pod(lab, image, "fixture-data-seed", PROCESSOR, seed, 0, [], root=True)
     worker = ["python", "/fixture/privacy_worker.py"]
     pod(lab, image, "fixture-unchecked-data", PROCESSOR, [*worker, "baseline"], 10001, [GROUP])
@@ -168,9 +176,85 @@ def run(lab):
     }
     lab.check("positive", "Authorized reader and scoped auditor can use the minimized data path",
               all(positive.values()), positive)
+
+    pod(lab, image, "fixture-purpose-transform", PROCESSOR,
+        [*worker, "purpose"], 10001, [GROUP])
+    purpose_result = observed(lab, "fixture-purpose-transform")
+    pod(lab, image, "fixture-purpose-outsider", DENIED,
+        [*worker, "purpose-outsider"], 10003, [], read_only=True)
+    outsider_result = observed(lab, "fixture-purpose-outsider")
+    pod(lab, image, "fixture-purpose-audit", AUDITOR,
+        [*worker, "inspect-purpose"], 10002, [GROUP], read_only=True)
+    derivative = observed(lab, "fixture-purpose-audit")
+
+    grant(lab, "fixture-purpose-policy-reader", [{
+        "apiGroups": [""], "resources": ["configmaps"], "resourceNames": [PURPOSE_POLICY],
+        "verbs": ["get"]
+    }], PROCESSOR)
+    processor_subject = principal(PROCESSOR)
+    policy_patch_can = lab.kubectl("auth", "can-i", "patch", f"configmaps/{PURPOSE_POLICY}",
+                                   f"--as={processor_subject}", allow_failure=True)
+    policy_before = json.loads(lab.kubectl("get", "configmap", PURPOSE_POLICY, "-o", "json").stdout)
+    scoped_read = lab.kubectl("get", "configmap", PURPOSE_POLICY, "-o", "json",
+                              f"--as={processor_subject}", allow_failure=True)
+    patch_result = lab.kubectl("patch", "configmap", PURPOSE_POLICY, "--type=merge", "-p",
+                               json.dumps({"metadata": {"annotations": {"saf-test/probe": "inert"}}}),
+                               f"--as={processor_subject}", allow_failure=True)
+    policy_after = json.loads(lab.kubectl("get", "configmap", PURPOSE_POLICY, "-o", "json").stdout)
+    policy_auth = {
+        "purpose_policy_is_immutable": policy_before.get("immutable") is True,
+        "processor_can_read_purpose_policy": scoped_read.returncode == 0
+        and json.loads(scoped_read.stdout)["data"] == policy_before["data"],
+        "processor_cannot_patch_purpose_policy": policy_patch_can.returncode == 1
+        and policy_patch_can.stdout.strip() == "no",
+        "actual_policy_patch_is_forbidden": patch_result.returncode != 0
+        and "forbidden" in patch_result.stderr.lower()
+        and "cannot patch resource" in patch_result.stderr.lower(),
+        "policy_digest_unchanged": hashlib.sha256(policy_before["data"]["policy.json"].encode()).hexdigest()
+        == hashlib.sha256(policy_after["data"]["policy.json"].encode()).hexdigest(),
+        "policy_object_unchanged": policy_before == policy_after,
+    }
+    purpose_check = {
+        "actual_processor_identity_is_scoped": purpose_result["principal_account"] == PROCESSOR
+        and purpose_result["principal_name"] == processor_subject,
+        "policy_digest_matches_independent_code_pin": purpose_result["policy_digest_matches_pin"],
+        "exact_source_purpose_and_derivative_are_approved":
+            purpose_result["approved_request"]["accepted"] is True
+            and purpose_result["approved_request"]["reason"] == "approved"
+            and purpose_result["approved_request"]["derivative_created"] is True
+            and purpose_result["approved_request"]["derivative_digest_matches_policy"] is True,
+        "wrong_purpose_version_parent_digest_are_held_without_outputs":
+            purpose_result["denied_requests"] == {
+                "wrong-purpose": {"accepted": False, "reason": "purpose_not_approved", "denied_output_absent": True},
+                "wrong-version": {"accepted": False, "reason": "source_scope_or_digest_mismatch",
+                                  "denied_output_absent": True},
+                "wrong-parent-digest": {"accepted": False, "reason": "parent_digest_not_approved",
+                                        "denied_output_absent": True},
+            } and purpose_result["denied_outputs_absent"],
+        "other_actual_service_account_cannot_authorize_derivative":
+            outsider_result["principal_account"] == DENIED and outsider_result["request_denied"]
+            and outsider_result["reason"] == "principal_not_approved"
+            and outsider_result["derivative_write_not_attempted"],
+        "independent_reader_verifies_exact_derivative_scope_and_bytes":
+            all(derivative[key] is True for key in (
+                "derivative_present", "source_id_bound", "source_digest_bound",
+                "target_id_version_purpose_bound", "target_approval_and_classification_bound",
+                "approved_minimized_data_exact", "derivative_digest_exact",
+                "identifier_fields_and_values_absent"))
+            and derivative["row_count"] == 2,
+        "derivative_is_unchanged_after_denied_identity_request":
+            purpose_result["approved_request"]["derivative_sha256"]
+            == derivative["derivative_sha256"] == "dacc51e337faa9002ff532eba8b9504ecaefadf3bac25bcd0d86a92f5a2f3b61",
+    }
+    lab.check("positive", "Purpose and immutable source scope gate an exact minimized derivative before independent readback",
+              all(policy_auth.values()) and all(purpose_check.values()),
+              {"policy_authority": policy_auth, "purpose_bound_derivative": purpose_check,
+               "derivative_file_sha256": derivative["file_sha256"]})
     (lab.evidence / "privacy-classification-observations.json").write_text(json.dumps({
         "processor": processor, "durable_observation": inspection, "api_reads": api,
         "access_events": [allowed_event, denied_event],
         "timestamped_log_records_verified": [allowed_timestamp, denied_timestamp],
+        "purpose_result": purpose_result, "purpose_outsider": outsider_result,
+        "purpose_derivative": derivative, "purpose_policy_authority": policy_auth,
         "checks": {"red": red, "green": green, "positive": positive},
     }, indent=2, sort_keys=True) + "\n")

@@ -1,0 +1,23 @@
+{
+  "policy_id": "fixture-purpose-policy-v1",
+  "principal_account": "fixture-data-processor",
+  "purpose": "synthetic-fixture-training-v1",
+  "source": {
+    "dataset_id": "fixture-training-approved-v1",
+    "version": "fixture-training-approved-v1",
+    "approval": "approved-training-v1",
+    "classification": "internal-synthetic",
+    "sha256": "bb302f8d6e8c9ce6124b14bad8433b47f0ec4178774b7dfa53de7e9a419b7938"
+  },
+  "derivative": {
+    "dataset_id": "fixture-training-minimized-v1",
+    "version": "minimized-v1",
+    "approval": "approved-training-derivative-v1",
+    "classification": "internal-synthetic",
+    "purpose": "synthetic-fixture-training-v1",
+    "parent_dataset_id": "fixture-training-approved-v1",
+    "parent_sha256": "bb302f8d6e8c9ce6124b14bad8433b47f0ec4178774b7dfa53de7e9a419b7938",
+    "data_sha256": "85831f1fed0472f83427dc1e798463a00cbe13181f20ccd62755fd032d8b2155",
+    "sha256": "dacc51e337faa9002ff532eba8b9504ecaefadf3bac25bcd0d86a92f5a2f3b61"
+  }
+}

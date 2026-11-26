@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0907-002",
-  "catalog_revision": "4896da386bcc5a5bd5d7c988a0b5e8784754b450",
-  "catalog_sha256": "fc8f5b4a89186e84364f8182c34b50e803b2494bff7161fe549aaa8087b7827c",
+  "catalog_revision": "b1a7202a5e73ad7b590125e9be85906ae77e3e4b",
+  "catalog_sha256": "cbae4c66841adb325f0cbd5a9efded2d03572c3b279a4136ba23f626a1cd0e5d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "09ffdcb1ae437ad07bd3bb9fcd8a4f812e73aa9fa343150b105dc89e57893f7a",
-  "scope": "On local Kind, an unchecked baseline publishes invented identifiers and an unapproved data version. A governed processor minimizes the approved version and creates only a hold receipt for the second. Distinct read-only UIDs with different supplemental groups exercise actual file reads. Kubernetes separately enforces exact ConfigMap and Pod log read permissions. Pod logs are application data-access evidence, not API-server or provider-level auditing.",
-  "cluster": "saf-lab-f168d4fd95a7",
+  "scope": "On local Kind, an unchecked baseline publishes invented identifiers and an unapproved data version. A governed processor minimizes the approved version and creates only a hold receipt for the second. Distinct read-only UIDs with different supplemental groups exercise actual file reads. Kubernetes separately enforces exact ConfigMap and Pod log read permissions. Pod logs are application data-access evidence, not API-server or provider-level auditing. A pinned purpose policy also binds one synthetic source and minimized derivative to one fixture purpose.",
+  "cluster": "saf-lab-5d8a1a405c8d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -66,6 +66,31 @@
       "observed": {
         "approved_uid_reads_exact_minimized_bytes": true,
         "scoped_auditor_queries_both_timestamped_events": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Purpose and immutable source scope gate an exact minimized derivative before independent readback",
+      "matched": true,
+      "observed": {
+        "policy_authority": {
+          "purpose_policy_is_immutable": true,
+          "processor_can_read_purpose_policy": true,
+          "processor_cannot_patch_purpose_policy": true,
+          "actual_policy_patch_is_forbidden": true,
+          "policy_digest_unchanged": true,
+          "policy_object_unchanged": true
+        },
+        "purpose_bound_derivative": {
+          "actual_processor_identity_is_scoped": true,
+          "policy_digest_matches_independent_code_pin": true,
+          "exact_source_purpose_and_derivative_are_approved": true,
+          "wrong_purpose_version_parent_digest_are_held_without_outputs": true,
+          "other_actual_service_account_cannot_authorize_derivative": true,
+          "independent_reader_verifies_exact_derivative_scope_and_bytes": true,
+          "derivative_is_unchanged_after_denied_identity_request": true
+        },
+        "derivative_file_sha256": "685ad1d10a16520347c48d611c5b9d7b4f896665da92c2fcdd14c6e16e99887c"
       }
     }
   ]
