@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0602-001",
-  "catalog_revision": "5baaadd565f2b475544b0ff22d3d9faddb30a7d1",
-  "catalog_sha256": "e21df5ef6d7be8d3be548d48d3650f2dfc630a3e395f036b3e3eb0533fc68fe4",
+  "catalog_revision": "ae2b27cbc2136dad26f2d673a1cc46d9dbd25b88",
+  "catalog_sha256": "4405c9978776100ed8ef8fc46713da985401a03e9d813cb2e5df3261133b0e6b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "a04bb85dfdaee2b6a48f14ac0f1400666289fc5691df686a106f924062b4ba03",
+  "control_sha256": "b183f7931379e730328cf51dc07944d5b092fc6951f3eac3a09a07e2e228df35",
   "scope": "Kind v1.36.1 with a cluster-local Kubernetes-issued OIDC service account token, private Fulcio, certificate transparency, Rekor v2, timestamp and TUF services, and a test-owned TLS registry. Pinned Cosign verifies the exact OCI image digest and required transparency and time evidence before a release creates the fixture Pod. Native admission consumes the verified image reference from an immutable fixture approval. Deployed identity policy, verifier integration, admission coverage and provenance require separate evidence.",
-  "cluster": "saf-lab-4bdf92f2fc1d",
+  "cluster": "saf-lab-2fb6b98b1785",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
