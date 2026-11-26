@@ -46,3 +46,12 @@ Protecting agent audit logs from tampering
 - Strength: strong
 - Applicability: required
 - Strength Reason Code: n/a
+
+### [SAF-K8S-1001-027 - Tamper-resistant retention for Kubernetes AI audit backends](../../controls/SAF-K8S-1001-027.md)
+
+- Domain: D10 - Observability, Incident Response, and Governance
+- Knowledge Area: 10.1
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
