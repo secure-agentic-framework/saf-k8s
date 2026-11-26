@@ -1,6 +1,7 @@
 """Check independently retained Zot audit and HTTP events using Fluent Bit."""
 from collections import Counter
 import json
+import hashlib
 import os
 from pathlib import Path
 import secrets
@@ -9,7 +10,11 @@ import tempfile
 import time
 from contextlib import contextmanager
 
+from lab import NODE_IMAGE
+
 HERE = Path(__file__).resolve().parent
+NAMESPACE = "saf-test"
+CONFIG_OWNER = "system:serviceaccount:saf-test:registry-config-owner"
 ZOT = "ghcr.io/project-zot/zot:v2.1.23@sha256:9d3de83ac2099e6f4843045b4c9b65b7e8baf40f92d28f54906dee9d4d390fd7"
 PYTHON = "docker.io/library/python:3.13.2-alpine@sha256:323a717dc4a010fee21e3f1aac738ee10bb485de4e7593ce242b36ee48d6b352"
 FLUENT_BIT = "cr.fluentbit.io/fluent/fluent-bit:5.1.2@sha256:d792375ca8e53be72fc25716c28f291f32c6fc6f4f31d12d0d14bc78cefe9226"
@@ -28,8 +33,22 @@ SCOPE = (
     "PVC. The receiver is replaced, retained events are compared, and a fresh event "
     "sequence is delivered. Covers model manifest publish, pull, retag and digest "
     "deletion plus one permitted admin-only Cosign public-key upload. Other permission and administrative event sources, loss recovery during "
-    "a receiver outage, production access controls, SIEM delivery and retention are open."
+    "a receiver outage, production access controls, SIEM delivery and retention are open. A final case-only "
+    "Kubernetes configuration-owner update records a metadata-only API audit event for the named Zot config "
+    "ConfigMap and compares one inert registry read before and after its access-policy revision. This is not a "
+    "native Zot permission-change audit event or production GitOps identity proof."
 )
+
+
+def prepare_kind(lab, temporary):
+    audit = temporary / "audit"
+    audit.mkdir(mode=0o700)
+    lab.audit_file = audit / "audit.log"
+    content = (HERE / "kind.yaml.in").read_text()
+    config = temporary / "kind.yaml"
+    config.write_text(content.replace("@POLICY_PATH@", json.dumps(str(HERE / "audit-policy.yaml")))
+                      .replace("@AUDIT_DIR@", json.dumps(str(audit))))
+    return config
 
 
 def _submit(lab, obj):
@@ -193,9 +212,13 @@ def _setup(lab):
                 f"--from-file=public.pem={HERE / 'cosign-public.pem'}")
     _configmap(lab, "scripts", {name: (HERE / name).read_text() for name in
                                  ("sink.py", "probe.py", "read_sink.py", "sink_auth_probe.py",
-                                  "admin_event_probe.py")})
+                                  "admin_event_probe.py", "config_read_probe.py")})
     _submit(lab, {"apiVersion": "v1", "kind": "PersistentVolumeClaim",
                   "metadata": {"name": "sink-data"},
+                  "spec": {"accessModes": ["ReadWriteOnce"],
+                           "resources": {"requests": {"storage": "64Mi"}}}})
+    _submit(lab, {"apiVersion": "v1", "kind": "PersistentVolumeClaim",
+                  "metadata": {"name": "registry-data"},
                   "spec": {"accessModes": ["ReadWriteOnce"],
                            "resources": {"requests": {"storage": "64Mi"}}}})
     scripts = _volume("scripts", configMap={"name": "scripts"})
@@ -223,16 +246,21 @@ def _setup(lab):
                  _volume("cosign-key", configMap={"name": "cosign-public-key"})])
     for registry in ("without-forwarding", "with-forwarding"):
         read_events = _mount("events", "/events", read_only=True)
-        volumes = [_volume("config", configMap={"name": "registry-config"}),
+        config_volume = _volume("config", configMap={"name": "registry-config"})
+        volumes = [config_volume,
                    _volume("auth", secret={"secretName": "registry-auth",
                                            "items": [{"key": "htpasswd", "path": "htpasswd"}]}),
-                   _volume("registry", emptyDir={}), _volume("events", emptyDir={})]
+                   (_volume("registry", persistentVolumeClaim={"claimName": "registry-data"})
+                    if registry == "with-forwarding" else _volume("registry", emptyDir={})),
+                   _volume("events", emptyDir={})]
         containers = [
             _container("zot", ZOT, [_mount("config", "/etc/zot", read_only=True),
                                    _mount("auth", "/auth", read_only=True),
                                    _mount("registry", "/var/lib/registry"), _mount("events", "/events")],
                        args=["serve", "/etc/zot/config.json"], ready_port=5000),
-            _container("observer", BUSYBOX, [read_events], command=["sleep", "3600"]),
+            _container("observer", BUSYBOX,
+                       [read_events, _mount("config", "/config", read_only=True)],
+                       command=["sleep", "3600"]),
         ]
         if registry == "with-forwarding":
             volumes.extend([_volume("forwarding", secret={"secretName": "forwarding-config",
@@ -339,6 +367,188 @@ def _sink_uid(lab):
     return pod["metadata"]["uid"]
 
 
+def _effective_audit_user(event):
+    return (event.get("impersonatedUser") or event.get("user") or {}).get("username")
+
+
+def _config_owner_events(lab):
+    if not lab.audit_file.is_file():
+        return []
+    selected = []
+    for line in lab.audit_file.read_text().splitlines():
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        ref = event.get("objectRef", {})
+        if (event.get("level") == "Metadata" and event.get("stage") == "ResponseComplete"
+                and event.get("verb") in {"patch", "update"}
+                and ref.get("namespace") == NAMESPACE and ref.get("resource") == "configmaps"
+                and ref.get("name") == "registry-config"):
+            selected.append(event)
+    return selected
+
+
+def _read_count(rows, status, path):
+    return sum(row["stream"] == "access" and row["method"] == "GET" and row["path"] == path
+               and row["status"] == status and row["actor"] == ACTOR for row in rows)
+
+
+def verify_config_owner_change(lab):
+    tag = "permission-change"
+    registry = "http://with-forwarding:5000"
+    seeded = json.loads(lab.kubectl("exec", "deployment/probe", "--", "python", "/app/probe.py",
+                                     registry, tag, "seed").stdout)
+    if seeded.get("publish_status") != 201 or not seeded.get("digest", "").startswith("sha256:"):
+        lab.block("The owned authorization comparison manifest was not seeded")
+    reference, expected_digest = f"{tag}-v1", seeded["digest"]
+
+    # Scope the owner to the named ConfigMap, including kubectl patch's preliminary GET.
+    _submit(lab, {"apiVersion": "v1", "kind": "ServiceAccount",
+                  "metadata": {"name": "registry-config-owner"}})
+    _submit(lab, {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role",
+                  "metadata": {"name": "registry-config-owner"},
+                  "rules": [{"apiGroups": [""], "resources": ["configmaps"],
+                             "resourceNames": ["registry-config"], "verbs": ["get", "patch"]}]})
+    _submit(lab, {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding",
+                  "metadata": {"name": "registry-config-owner"},
+                  "subjects": [{"kind": "ServiceAccount", "name": "registry-config-owner",
+                                "namespace": NAMESPACE}],
+                  "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "Role",
+                              "name": "registry-config-owner"}})
+
+    before_object = json.loads(lab.kubectl("get", "configmap/registry-config", "-o", "json").stdout)
+    config_before = json.loads(before_object["data"]["config.json"])
+    policy_before = config_before["http"]["accessControl"]["repositories"][REPO]
+    policy_before_hash = hashlib.sha256(json.dumps(policy_before, sort_keys=True,
+                                                   separators=(",", ":")).encode()).hexdigest()
+    config_json = before_object["data"]["config.json"]
+    config_projection_hash = hashlib.sha256(config_json.encode()).hexdigest()
+    read_path = f"/v2/{REPO}/manifests/{reference}"
+    access_targets = {("GET", read_path)}
+    local_before = _local(lab, "with-forwarding", access_targets)
+
+    allowed = json.loads(lab.kubectl("exec", "deployment/probe", "--", "python", "/app/config_read_probe.py",
+                                     registry, reference, expected_digest).stdout)
+    local_after_allowed = _local(lab, "with-forwarding", access_targets)
+    allowed_recorded_once = (_read_count(local_after_allowed, 200, read_path)
+                             - _read_count(local_before, 200, read_path) == 1)
+
+    config_after = json.loads(before_object["data"]["config.json"])
+    config_after["http"]["accessControl"]["repositories"][REPO]["policies"][0]["users"] = [
+        "fixture-alternate-owner"
+    ]
+    config_after_json = json.dumps(config_after, separators=(",", ":"))
+    policy_after = config_after["http"]["accessControl"]["repositories"][REPO]
+    policy_after_hash = hashlib.sha256(json.dumps(policy_after, sort_keys=True,
+                                                  separators=(",", ":")).encode()).hexdigest()
+    patch = json.dumps({"data": {"config.json": config_after_json}}, separators=(",", ":"))
+    lab.kubectl("patch", "configmap/registry-config", "--type=merge", "-p", patch,
+                f"--as={CONFIG_OWNER}")
+    after_object = json.loads(lab.kubectl("get", "configmap/registry-config", "-o", "json").stdout)
+    # Bind observed behavior to a controlled reload of the exact mounted revisions.
+    allowed_forwarded = _count(_await_corpus(lab, access_targets, local_after_allowed), timestamp=True)
+    before_restart = _count(local_after_allowed, timestamp=True)
+    def ready_pod_uid():
+        result = lab.kubectl("get", "pods", "-l", "app=with-forwarding", "-o", "json")
+        pods = [pod for pod in json.loads(result.stdout)["items"]
+                if any(c.get("type") == "Ready" and c.get("status") == "True"
+                       for c in pod.get("status", {}).get("conditions", []))
+                and not pod["metadata"].get("deletionTimestamp")]
+        if len(pods) != 1:
+            lab.block("Expected one ready owned registry Pod")
+        return pods[0]["metadata"]["uid"]
+
+    previous_pod = ready_pod_uid()
+    lab.kubectl("rollout", "restart", "deployment/with-forwarding")
+    _wait(lab, "with-forwarding")
+    registry_replaced = ready_pod_uid() != previous_pod
+
+    # Wait for the projected ConfigMap to expose the exact revised bytes before one denied app read.
+    expected_projection = hashlib.sha256(config_after_json.encode()).hexdigest()
+    projected = None
+    deadline = time.monotonic() + 150
+    while time.monotonic() < deadline:
+        result = lab.kubectl("exec", "deployment/with-forwarding", "-c", "observer", "--",
+                             "sha256sum", "/config/config.json")
+        projected = result.stdout.split()[0] if result.stdout.split() else None
+        if projected == expected_projection:
+            break
+        time.sleep(0.25)
+    if projected != expected_projection:
+        lab.block("The updated registry ConfigMap was not projected to the owned Zot Pod")
+
+    denied = json.loads(lab.kubectl("exec", "deployment/probe", "--", "python", "/app/config_read_probe.py",
+                                    registry, reference, expected_digest).stdout)
+    local_after_denied = _local(lab, "with-forwarding", access_targets)
+    denied_recorded_once = (_read_count(local_after_denied, 403, read_path) == 1
+                           and _read_count(local_after_denied, 200, read_path) == 0)
+
+    events = _config_owner_events(lab)
+    event, = events if len(events) == 1 else (None,)
+    audit_match = (event is not None and event.get("verb") == "patch"
+                   and _effective_audit_user(event) == CONFIG_OWNER
+                   and event.get("responseStatus", {}).get("code") == 200
+                   and event.get("auditID")
+                   and event.get("requestObject") is None and event.get("responseObject") is None)
+    ok = (before_object["metadata"]["uid"] == after_object["metadata"]["uid"]
+          and before_object["metadata"]["resourceVersion"] != after_object["metadata"]["resourceVersion"]
+          and config_projection_hash != expected_projection and policy_before_hash != policy_after_hash
+          and allowed == {"status": 200, "digest_matches": True} and allowed_recorded_once
+          and denied == {"status": 403, "digest_matches": False} and denied_recorded_once
+          and audit_match and registry_replaced)
+    receipt = {
+        "config_owner_effective_identity": _effective_audit_user(event) if event else None,
+        "audit_id": event.get("auditID") if event else None,
+        "audit_stage_timestamp": event.get("stageTimestamp") if event else None,
+        "metadata_audit_events_for_named_configmap": len(events),
+        "audit_verb": event.get("verb") if event else None,
+        "audit_status": event.get("responseStatus", {}).get("code") if event else None,
+        "audit_metadata_only": bool(event and event.get("requestObject") is None
+                                     and event.get("responseObject") is None),
+        "audit_id_present": bool(event and event.get("auditID")),
+        "config_uid_stable": before_object["metadata"]["uid"] == after_object["metadata"]["uid"],
+        "config_uid": before_object["metadata"]["uid"],
+        "config_resource_version_before": before_object["metadata"]["resourceVersion"],
+        "config_resource_version_after": after_object["metadata"]["resourceVersion"],
+        "resource_version_advanced": before_object["metadata"]["resourceVersion"]
+                                     != after_object["metadata"]["resourceVersion"],
+        "config_sha256_before": config_projection_hash,
+        "config_sha256_after": expected_projection,
+        "config_sha256_changed": config_projection_hash != expected_projection,
+        "policy_projection_sha256_before": policy_before_hash,
+        "policy_projection_sha256_after": policy_after_hash,
+        "policy_projection_sha256_changed": policy_before_hash != policy_after_hash,
+        "projected_config_sha256_matches": projected == expected_projection,
+        "registry_pod_replaced": registry_replaced,
+        "allowed_read_status": allowed["status"],
+        "allowed_marker_digest_matches": allowed["digest_matches"],
+        "allowed_access_record_count": int(allowed_recorded_once),
+        "denied_read_status": denied["status"],
+        "denied_marker_digest_matches": denied["digest_matches"],
+        "denied_access_record_count": int(denied_recorded_once),
+        "native_zot_policy_change_event_claimed": False,
+    }
+    (lab.evidence / "zot-config-owner-change.json").write_text(
+        json.dumps(receipt, indent=2, sort_keys=True) + "\n")
+    combined = local_after_allowed + local_after_denied
+    operations_are_forwarded = (allowed_forwarded == before_restart and _count(
+        _await_corpus(lab, access_targets, combined), timestamp=True
+    ) == _count(combined, timestamp=True))
+    stable_evidence = {key: receipt[key] for key in (
+        "config_owner_effective_identity", "metadata_audit_events_for_named_configmap", "audit_verb",
+        "audit_status", "audit_metadata_only", "audit_id_present", "config_uid_stable",
+        "resource_version_advanced", "config_sha256_changed", "policy_projection_sha256_changed",
+        "projected_config_sha256_matches", "registry_pod_replaced", "allowed_read_status",
+        "allowed_marker_digest_matches",
+        "allowed_access_record_count", "denied_read_status", "denied_marker_digest_matches",
+        "denied_access_record_count", "native_zot_policy_change_event_claimed",
+    )}
+    stable_evidence["registry_access_events_forwarded"] = operations_are_forwarded
+    lab.check("config-owner", "A scoped Kubernetes ConfigMap owner change is metadata-audited and changes the allowed marker read to denied",
+              ok and operations_are_forwarded, stable_evidence)
+
+
 def run(lab):
     _setup(lab)
     red = _exercise(lab, "without-forwarding", "first")
@@ -417,3 +627,5 @@ def run(lab):
     (lab.evidence / "admin-event-forwarding.json").write_text(json.dumps(safe_admin, indent=2, sort_keys=True) + "\n")
     lab.check("admin-event", "The permitted Zot trust-key administration is attributed in native audit and access records and forwarded exactly",
               admin_event_ok, safe_admin)
+
+    verify_config_owner_change(lab)

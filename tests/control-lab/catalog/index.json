@@ -2697,7 +2697,7 @@
     "SAF-K8S-0905-040": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "34975efdc8472f9c74cbb1cbc89aebcb0657f44c1f559fb8687e01a568f3216b",
+      "sha256": "f120a9173b0ac21a9c4714b3bb6fe5df3ae8dc6f59939d2ad0c646bd795f8276",
       "title": "Model registry audit event generation and centralized forwarding"
     },
     "SAF-K8S-0905-041": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "cbeeb7a20f219a23e417f156118ea466ee10dc1e",
-  "sha256": "ad76e583a56536df95369c3970b62fc18473961db4e68eb58f67b0c421dc41a5",
+  "revision": "0ce6b66bea2c073005fd1b450ed0510c02d49146",
+  "sha256": "b4bc486cbaf4d7095c392838351d3abb12ca503c75b7e8244bc767f035f02d16",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

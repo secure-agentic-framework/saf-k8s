@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-040",
-  "catalog_revision": "40b5ddfd2381e15bcf4d986bedca71abf3b6c561",
-  "catalog_sha256": "d65a8ba2d999d0a60a83345dbfd6f5235d9cd11cac65fdb011fac1cb9051e634",
+  "catalog_revision": "4cd669fe5993d668f9c244d100ca61735c0dee79",
+  "catalog_sha256": "b4bc486cbaf4d7095c392838351d3abb12ca503c75b7e8244bc767f035f02d16",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "34975efdc8472f9c74cbb1cbc89aebcb0657f44c1f559fb8687e01a568f3216b",
-  "scope": "One fresh Kind cluster runs two authenticated Zot v2.1.23 registries. The same inert OCI operations occur with forwarding off and on. Fluent Bit 5.1.2 ships native audit and HTTP access events to an independent HTTP receiver backed by a PVC. The receiver is replaced, retained events are compared, and a fresh event sequence is delivered. Covers model manifest publish, pull, retag and digest deletion plus one permitted admin-only Cosign public-key upload. Other permission and administrative event sources, loss recovery during a receiver outage, production access controls, SIEM delivery and retention are open.",
-  "cluster": "saf-lab-2e4f9cc6eaef",
+  "control_sha256": "f120a9173b0ac21a9c4714b3bb6fe5df3ae8dc6f59939d2ad0c646bd795f8276",
+  "scope": "One fresh Kind cluster runs two authenticated Zot v2.1.23 registries. The same inert OCI operations occur with forwarding off and on. Fluent Bit 5.1.2 ships native audit and HTTP access events to an independent HTTP receiver backed by a PVC. The receiver is replaced, retained events are compared, and a fresh event sequence is delivered. Covers model manifest publish, pull, retag and digest deletion plus one permitted admin-only Cosign public-key upload. Other permission and administrative event sources, loss recovery during a receiver outage, production access controls, SIEM delivery and retention are open. A final case-only Kubernetes configuration-owner update records a metadata-only API audit event for the named Zot config ConfigMap and compares one inert registry read before and after its access-policy revision. This is not a native Zot permission-change audit event or production GitOps identity proof.",
+  "cluster": "saf-lab-9716f4b1d93f",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -91,6 +91,33 @@
         "local_access_denial_count": 1,
         "local_access_admin_success_count": 1,
         "forwarded_exactly": true
+      }
+    },
+    {
+      "phase": "config-owner",
+      "claim": "A scoped Kubernetes ConfigMap owner change is metadata-audited and changes the allowed marker read to denied",
+      "matched": true,
+      "observed": {
+        "config_owner_effective_identity": "system:serviceaccount:saf-test:registry-config-owner",
+        "metadata_audit_events_for_named_configmap": 1,
+        "audit_verb": "patch",
+        "audit_status": 200,
+        "audit_metadata_only": true,
+        "audit_id_present": true,
+        "config_uid_stable": true,
+        "resource_version_advanced": true,
+        "config_sha256_changed": true,
+        "policy_projection_sha256_changed": true,
+        "projected_config_sha256_matches": true,
+        "registry_pod_replaced": true,
+        "allowed_read_status": 200,
+        "allowed_marker_digest_matches": true,
+        "allowed_access_record_count": 1,
+        "denied_read_status": 403,
+        "denied_marker_digest_matches": false,
+        "denied_access_record_count": 1,
+        "native_zot_policy_change_event_claimed": false,
+        "registry_access_events_forwarded": true
       }
     }
   ]

@@ -1,18 +1,25 @@
-# Verify Zot audit forwarding to an authenticated receiver
+# Verify registry audit delivery and authoritative permission changes
 
     python3 tests/control-lab/lab.py test SAF-K8S-0905-040 --docker-context desktop-linux
 
-The case compares local access and audit observations with and without
-Fluent Bit forwarding. It covers the fixture registry's OCI publication,
-pull, tag and deletion actions, the HTTPS receiver's enrolled credential,
-and retained readback after receiver Pod replacement.
+The case compares Zot's local audit and access records with authenticated
+Fluent Bit forwarding. It covers selected OCI publication, pulls, tag and
+deletion actions, a registered public fixture trust key, the receiver's
+enrolled credential, and readback after the receiver Pod is replaced.
 
-The administrative check submits only a fixed public fixture key. The
-registry compares the publisher and scoped administrator requests. The
-observer verifies the administrator's attributed local audit and access
-records and the matching forwarded events.
+A separate case-owned Kubernetes configuration owner modifies the
+exact registry ConfigMap. Metadata-only audit records the scoped actor
+and the successful change. The observer compares the resource revision,
+the deployed configuration and an owned registry read that changes from
+allowed to denied after rolling the registry Pod with its persistent data. The
+registry access records reach the receiver. The policy-change audit event comes
+from the Kubernetes configuration owner’s API path.
 
-For a deployment, inventory covered administrative and OCI actions, the
-authenticated collector and independent protected receiver, loss and retry
-handling, and durable retention. Capture ordinary authorized comparisons
-through the adopted registry and audit delivery path.
+For each deployed registry, inventory the authoritative event sources,
+effective authorization revisions, adopted administrative and OCI
+operations, and protected forwarding. Verify delivery, interruption and
+retry behavior, covered providers, and the required retention of both
+registry and configuration-owner records.
+
+- [Zot v2.1.23 configuration and reload](https://zotregistry.dev/v2.1.23/admin-guide/admin-configuration/)
+- [Kubernetes API audit](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/)

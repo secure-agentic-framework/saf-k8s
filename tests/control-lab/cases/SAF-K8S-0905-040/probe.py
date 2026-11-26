@@ -29,7 +29,9 @@ def _request(url, method, body=None, media=None):
         return error.code, error.headers, error.read()
 
 
-def main(base, tag):
+def main(base, tag, mode="exercise"):
+    if mode not in {"exercise", "seed"}:
+        raise ValueError("Unsupported fixture operation")
     root = f"{base}/v2/{REPO}"
     config = b"{}"
     config_digest = _digest(config)
@@ -50,6 +52,9 @@ def main(base, tag):
     digest = _digest(manifest)
     manifests = f"{root}/manifests"
     publish = _request(f"{manifests}/{tag}-v1", "PUT", manifest, MEDIA)[0]
+    if mode == "seed":
+        print(json.dumps({"publish_status": publish, "digest": digest}))
+        return
     pull, _, fetched = _request(f"{manifests}/{tag}-v1", "GET")
     retag = _request(f"{manifests}/{tag}-v2", "PUT", manifest, MEDIA)[0]
     deleted = _request(f"{manifests}/{digest}", "DELETE")[0]

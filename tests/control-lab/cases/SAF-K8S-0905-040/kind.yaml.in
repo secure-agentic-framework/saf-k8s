@@ -1,0 +1,34 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    extraMounts:
+      - hostPath: @POLICY_PATH@
+        containerPath: /etc/kubernetes/saf-zot-owner-audit-policy.yaml
+        readOnly: true
+      - hostPath: @AUDIT_DIR@
+        containerPath: /var/log/kubernetes/saf-zot-owner-audit
+        readOnly: false
+kubeadmConfigPatches:
+  - |
+    apiVersion: kubeadm.k8s.io/v1beta4
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        - name: audit-policy-file
+          value: /etc/kubernetes/saf-zot-owner-audit-policy.yaml
+        - name: audit-log-path
+          value: /var/log/kubernetes/saf-zot-owner-audit/audit.log
+        - name: audit-log-mode
+          value: blocking
+      extraVolumes:
+        - name: saf-zot-owner-audit-policy
+          hostPath: /etc/kubernetes/saf-zot-owner-audit-policy.yaml
+          mountPath: /etc/kubernetes/saf-zot-owner-audit-policy.yaml
+          readOnly: true
+          pathType: File
+        - name: saf-zot-owner-audit-log
+          hostPath: /var/log/kubernetes/saf-zot-owner-audit
+          mountPath: /var/log/kubernetes/saf-zot-owner-audit
+          readOnly: false
+          pathType: DirectoryOrCreate
