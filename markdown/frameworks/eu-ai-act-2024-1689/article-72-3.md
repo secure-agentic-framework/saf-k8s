@@ -18,15 +18,6 @@ Sensor coverage and delivery records can substantiate the collection of selected
 - Applicability: conditional
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0501-001 - Default deny ingress and egress network policies](../../controls/SAF-K8S-0501-001.md)
-
-- Domain: D05 - Network Security and Communication
-- Knowledge Area: 5.1
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0605-001 - OPA/Gatekeeper policies for Kubernetes and AI workloads](../../controls/SAF-K8S-0605-001.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control

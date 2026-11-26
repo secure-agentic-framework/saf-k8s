@@ -20,15 +20,6 @@ SAF-K8S controls map to several Chapter III Section 2 requirements (cybersecurit
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0501-001 - Default deny ingress and egress network policies](../../controls/SAF-K8S-0501-001.md)
-
-- Domain: D05 - Network Security and Communication
-- Knowledge Area: 5.1
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-1006-001 - Regulatory compliance mapping for Kubernetes AI platforms](../../controls/SAF-K8S-1006-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance

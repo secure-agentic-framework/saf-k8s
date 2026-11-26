@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Network boundary protection isolates agent systems and controls data flows
-
-5.1 - Implement network policies (default deny, boundary protection for pods and namespaces)
+The case demonstrates one internal workload boundary enforced by NetworkPolicy. It does not test external managed interfaces, node or hostNetwork traffic, or production network boundaries.
 
 ## SAF-K8S Controls
 
@@ -15,10 +13,10 @@ Network boundary protection isolates agent systems and controls data flows
 
 - Domain: D05 - Network Security and Communication
 - Knowledge Area: 5.1
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0501-002 - Namespace network isolation patterns](../../controls/SAF-K8S-0501-002.md)
 

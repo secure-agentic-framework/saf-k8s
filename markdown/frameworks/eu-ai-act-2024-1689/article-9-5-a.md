@@ -29,15 +29,6 @@ SAF-K8S controls implement risk reduction through secure design: minimal base im
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0501-001 - Default deny ingress and egress network policies](../../controls/SAF-K8S-0501-001.md)
-
-- Domain: D05 - Network Security and Communication
-- Knowledge Area: 5.1
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0601-014 - Container image runtime hardening with non-root and read-only filesystem](../../controls/SAF-K8S-0601-014.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control

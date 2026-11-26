@@ -29,15 +29,6 @@ SAF-K8S controls ARE risk management measures for infrastructure-level risks: ne
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0501-001 - Default deny ingress and egress network policies](../../controls/SAF-K8S-0501-001.md)
-
-- Domain: D05 - Network Security and Communication
-- Knowledge Area: 5.1
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0601-008 - CI/CD build-time container image vulnerability scanning](../../controls/SAF-K8S-0601-008.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control

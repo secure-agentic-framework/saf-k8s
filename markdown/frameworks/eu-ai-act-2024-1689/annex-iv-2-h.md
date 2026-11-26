@@ -29,15 +29,6 @@ SAF-K8S is directly scoped to provide comprehensive cybersecurity controls for A
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0501-001 - Default deny ingress and egress network policies](../../controls/SAF-K8S-0501-001.md)
-
-- Domain: D05 - Network Security and Communication
-- Knowledge Area: 5.1
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0604-001 - SBOM generation for container and AI artifacts](../../controls/SAF-K8S-0604-001.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control

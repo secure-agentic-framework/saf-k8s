@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Core to agent data flow control between trust boundaries
-
-5.1 - Implement network policies (default deny, namespace isolation, egress controls for information flow enforcement)
+The case verifies selected network communication flows: both listeners are reachable with no policy, staged ingress and egress restrictions deny the unapproved path, and explicit rules preserve one path. It does not examine payload-level information labels or all organization-defined flows.
 
 ## SAF-K8S Controls
 
@@ -16,9 +14,9 @@ Core to agent data flow control between trust boundaries
 - Domain: D05 - Network Security and Communication
 - Knowledge Area: 5.1
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0501-002 - Namespace network isolation patterns](../../controls/SAF-K8S-0501-002.md)
 

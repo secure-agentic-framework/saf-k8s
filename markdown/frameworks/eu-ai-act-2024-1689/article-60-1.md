@@ -29,15 +29,6 @@ SAF-K8S provides technical safeguards relevant to real-world testing: workload i
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0501-001 - Default deny ingress and egress network policies](../../controls/SAF-K8S-0501-001.md)
-
-- Domain: D05 - Network Security and Communication
-- Knowledge Area: 5.1
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0701-001 - PersistentVolume and PersistentVolumeClaim access mode enforcement](../../controls/SAF-K8S-0701-001.md)
 
 - Domain: D07 - Storage, Multi-tenancy, and Resource Governance

@@ -2,7 +2,7 @@
 
 - Framework Code: EU-AI-ACT
 - Version: 2024/1689
-- Total Reverse Mappings: 224
+- Total Reverse Mappings: 216
 - Distinct Requirements Mapped: 83
 
 ## Requirements
