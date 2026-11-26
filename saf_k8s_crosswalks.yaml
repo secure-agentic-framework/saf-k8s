@@ -6402,22 +6402,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AC-2(1)
-  framework_requirement_title: Automated System Account Management
-  framework_mapping_notes: 'Automated agent identity provisioning at scale
-
-
-    4.2 - Secure service accounts and workload identity (automated identity lifecycle for ephemeral training jobs)'
-  control_id: SAF-K8S-0402-013
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AC-2(11)
   framework_requirement_title: Usage Conditions
   framework_mapping_notes: 'Constraining when/how agent accounts can be used
@@ -6861,22 +6845,6 @@
 
     4.2 - Secure service accounts and workload identity (identity lifecycle management for ephemeral training jobs)'
   control_id: SAF-K8S-0402-010
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-2(8)
-  framework_requirement_title: Dynamic Account Management
-  framework_mapping_notes: 'Dynamic management of agent account attributes
-
-
-    4.2 - Secure service accounts and workload identity (identity lifecycle management for ephemeral training jobs)'
-  control_id: SAF-K8S-0402-013
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -20539,16 +20507,13 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-13(3)
   framework_requirement_title: Token Management
-  framework_mapping_notes: 'Agent token lifecycle management
-
-
-    4.2 - Projected service account tokens (token lifecycle management); 4.3 - Secret rotation and expiration'
+  framework_mapping_notes: 'The paired native cases and additive in-Pod client reload candidate cover the selected Kubernetes projected-token lifecycle operations: issuance for a named synthetic audience, short expiry, kubelet refresh, audience-restricted TokenReview, in-Pod reopening of the projected file, and rejection of the stale token after expiry. They do not exercise token revocation, every organization-defined token policy, or any Vault/cloud token issuer. This is partial support for the token-refresh/time/audience portions only; the 9-check scratch candidate must pass independently before including its in-Pod reader witness as observed evidence.'
   control_id: SAF-K8S-0402-013
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: partial
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only when the organization selects NIST SP 800-53 IA-13(3) for its system and uses Kubernetes projected service-account tokens for an ephemeral workload; the reference supports selected issuance, refresh, time-limit and audience-limit operations. IA-13(3) is not included in a 800-53 Rev. 5 baseline profile by default, and this case does not support token revocation or non-Kubernetes provider integrations.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
