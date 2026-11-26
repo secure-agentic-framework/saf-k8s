@@ -10508,12 +10508,12 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-12
   framework_requirement_title: Audit Record Generation
-  framework_mapping_notes: The case matches selected native registry audit and HTTP access records to a separate authenticated receiver. It observes an authorized administrative trust-key registration and a refused publisher request, with exact delivery evidence. Verify applicable account and permission changes, other registry or administration paths, complete retention and provider coverage under the adopter’s defined audit event set.
+  framework_mapping_notes: The reference compares native registry audit and access observations with authenticated central receiver readback, including one trust-key registration. A separate Kubernetes metadata audit record identifies the approved owner’s permission configuration change and the registry observes the change from an allowed to a denied marker read. Verify central collection and retention of each adopted producer, revocation and failure handling under the adopted audit scope.
   control_id: SAF-K8S-0905-040
   relation_type: supports
   strength_level: moderate
   applicability: conditional
-  applicability_condition: For registry event classes in the adopter’s documented audit scope and components that demonstrably generate and forward them. The fixture covers selected Zot v2.1.23 publish, pull, retag, deletion and registration of a public trust key.
+  applicability_condition: For event types and source components in the documented adopter audit scope, with evidence of authoritative event generation, forwarding and retention. The reference exercises selected Zot events and one controlled Kubernetes configuration-source event.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5

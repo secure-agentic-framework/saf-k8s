@@ -9006,12 +9006,12 @@
   knowledge_area: '9.5'
   control_seq: '040'
   control_title: Model registry audit event generation and centralized forwarding
-  control_statement: Model registries must generate audit logs for model publish, pull, tag, permission, deletion, and administrative operations and must forward those events to centralized monitoring or SIEM platforms with verified delivery and retention.
+  control_statement: Model registry deployments must collect audit evidence for publish, pull, tag, permission, deletion and administrative operations. Capture each applicable event at the registry or the authoritative component that makes the change, then forward the evidence to centralized monitoring with verified delivery and retention.
   objective: Create reliable telemetry coverage for model-registry abuse by ensuring registry operations are recorded and forwarded into centralized monitoring.
   rationale: Registry compromises often manifest first as unusual publish, pull, deletion, or permission-change activity. Without complete event generation and forwarding, malicious model substitution, unauthorized access, and registry tampering can occur without durable telemetry or centralized visibility.
   scope: Applies to all model registry deployments on Kubernetes, including Harbor, MLflow Model Registry, and on-premises Hugging Face Hub instances. Covers registry audit event generation and forwarding into centralized monitoring. Excludes alert triage and operational review procedures.
   primary_enforcement_point: Registry audit log configuration and forwarding pipeline into centralized monitoring or SIEM.
-  implementation_surface: Registry audit log enablement, event export or webhook forwarding, log ingestion verification, and delivery checks for sensitive registry operations.
+  implementation_surface: Enable and verify the selected native registry audit and access events. For permission rules managed outside the registry API, capture the authorized change at the configuration owner and correlate identities and revisions with effective registry authorization. Verify collection, protected forwarding, delivery, outage handling and retention for each selected source.
   owner_primary: ML Platform Engineering
   owner_supporting: Security Engineering; Platform Engineering
   baseline_or_ai_specific: ai-specific
