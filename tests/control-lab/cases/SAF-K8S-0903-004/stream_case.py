@@ -10,6 +10,8 @@ FIXTURE = 'saf-bpe-stream'
 GUARD_OFF = 'saf-bpe-stream-input-limit-off'
 CLIENT = 'saf-bpe-stream-client'
 TCP_PORT = 8080
+CPU_MILLICORES = 400
+MEMORY_MIB = 192
 
 
 def tokenizer_image(lab):
@@ -24,7 +26,7 @@ def pod(name, image, command, readiness=None):
         'name': 'fixture', 'image': image, 'imagePullPolicy': 'Never',
         'command': ['python', '-B', *command],
         'resources': {'requests': {'cpu': '25m', 'memory': '64Mi'},
-                      'limits': {'cpu': '400m', 'memory': '192Mi'}},
+                      'limits': {'cpu': f'{CPU_MILLICORES}m', 'memory': f'{MEMORY_MIB}Mi'}},
         'securityContext': {'allowPrivilegeEscalation': False,
                             'readOnlyRootFilesystem': True,
                             'capabilities': {'drop': ['ALL']}},
@@ -91,7 +93,7 @@ sys.exit('The tokenizer Service did not accept a TCP connection')
 
 def run(lab):
     image, provenance = tokenizer_image(lab)
-    scripts = {file: (HERE / file).read_text() for file in ('stream_worker.py', 'stream_client.py', 'stream_guard_off_client.py')}
+    scripts = {file: (HERE / file).read_text() for file in ('stream_worker.py', 'stream_client.py', 'stream_guard_off_client.py', 'cgroup_bounds.py')}
     lab.create({'apiVersion': 'v1', 'kind': 'ConfigMap', 'metadata': {'name': FIXTURE},
                 'immutable': True, 'data': scripts})
     lab.create({'apiVersion': 'v1', 'kind': 'Service', 'metadata': {'name': FIXTURE},
@@ -131,4 +133,33 @@ def run(lab):
         observations['input_limit_off_comparison'] = json.loads(comparator.stdout)
     except json.JSONDecodeError as error:
         lab.block(f'The guard-off comparator returned invalid observations: {error}')
+
+    # Measure the guarded serving container's own cgroup; compare its effective
+    # CPU quota and memory ceiling to the live Pod spec. This is observational
+    # only and does not create load or inspect GPU/cache allocation.
+    pod_doc = json.loads(lab.kubectl('get', 'pod', FIXTURE, '-o', 'json').stdout)
+    declared_limits = pod_doc['spec']['containers'][0].get('resources', {}).get('limits', {})
+    probe = lab.kubectl('exec', 'pod/' + FIXTURE, '--', 'python', '-B',
+                        '/fixture/cgroup_bounds.py', timeout=10, allow_failure=True)
+    (lab.evidence / 'tokenizer-serving-cgroup.raw.log').write_text(probe.stdout + probe.stderr)
+    if probe.returncode:
+        lab.block("Could not read the guarded serving Pod's cgroup bounds")
+    try:
+        actual = json.loads(probe.stdout)
+    except json.JSONDecodeError as error:
+        lab.block(f"The cgroup fixture did not return JSON: {error}")
+    if actual.get('supported') is not True:
+        lab.block('This fixture could not observe a supported CPU and memory cgroup')
+    expected = {'cpu': f'{CPU_MILLICORES}m', 'memory': f'{MEMORY_MIB}Mi'}
+    normalized = {
+        'cgroup_version': actual['cgroup_version'],
+        'declared_cpu': declared_limits.get('cpu'),
+        'declared_memory': declared_limits.get('memory'),
+        'observed_cpu_millicores': actual['cpu_effective_limit_millicores'],
+        'observed_memory_bytes': actual['memory_effective_limit_bytes'],
+    }
+    matches = (declared_limits == expected
+               and actual['cpu_effective_limit_millicores'] == str(CPU_MILLICORES)
+               and actual['memory_effective_limit_bytes'] == MEMORY_MIB * 1024 ** 2)
+    observations['serving_cgroup_bounds'] = {'matches': matches, 'observed': normalized}
     return observations, provenance

@@ -4,15 +4,15 @@ This case combines two disposable Kind fixtures.
 
 The original in-process fixture compares an unguarded fake generator with a guarded one. It counts whitespace-separated tokens, applies input and request/session output caps, and uses a logical clock for its synthetic rate check. Session identifiers are fixed fixture strings, not authenticated identities.
 
-A second fixture builds a digest-pinned Python image with upstream tiktoken 0.12.0 and the SHA-pinned cl100k_base vocabulary. A separate client reaches the BPE worker through a Kubernetes Service. Five sequential HTTP requests exercise fixed prompt expansion, BPE counts, pre-dispatch input rejection, bounded streams of synthetic token IDs, and backend counters.
+A second fixture builds a digest-pinned Python image with upstream tiktoken 0.12.0 and the SHA-pinned cl100k_base vocabulary. A separate client reaches the BPE worker through a Kubernetes Service. The existing five-request guarded HTTP sequence exercises fixed prompt expansion, BPE counts, pre-dispatch input rejection, bounded streams of synthetic token IDs, and backend counters. An additive bounded comparison sends the same fixed oversized prompt to a second instance of the same worker with only the input guard disabled.
 
 ## Evidence boundary
 
-The HTTP worker exercises only its guarded configuration. It emits finite, fixed token IDs and does not call a language model or an actual inference serving framework. The tests do not authenticate caller or session identity, exercise concurrent generation, verify every production route or replica, or configure and measure a real KV cache or GPU memory budget.
+Both HTTP instances emit finite, fixed token IDs and do not call a language model or an actual inference serving framework. The guard comparison changes only the fixture input-limit Boolean; it does not validate another serving control. The tests do not authenticate caller or session identity, exercise concurrent generation, verify every production route or replica, or configure and measure a real KV cache or GPU memory budget.
 
-The Pod manifests declare CPU and memory requests and limits. The receipt does not inspect effective cgroup files, usage, throttling, or memory pressure. Those declarations are not proof of model memory safety or production capacity.
+The Pod manifests declare CPU and memory requests and limits. The earlier receipt predates the additive observation below and did not inspect effective cgroup bounds. Those declarations and the new container-bound observation are not proof of model memory safety or production capacity.
 
-The 14 checks show behavior of these bounded fixtures. Adopters still need evidence from their deployed serving framework, complete tokenizer/template and routes; authenticated identity and session lifecycle; concurrent streaming/cancellation and effective budgets; actual cache and device allocations; and operational resource monitoring.
+The existing 16 behavioral checks show behavior of these bounded fixtures. Adopters still need evidence from their deployed serving framework, complete tokenizer/template and routes; authenticated identity and session lifecycle; concurrent streaming/cancellation and effective budgets; actual cache and device allocations; and operational resource monitoring.
 
 The [FlashAttention paper](https://arxiv.org/abs/2205.14135) explains exact tiled attention and reduced GPU-memory traffic. The [PagedAttention paper](https://arxiv.org/abs/2309.06180) discusses serving-side KV-cache blocks, sharing, and allocation.
 
@@ -27,3 +27,8 @@ limit is disabled in that Pod. The identical expanded prompt is refused before
 dispatch by the guarded Service and dispatched by the comparator. The comparison
 client accepts only the fixture Service name and uses four bounded HTTP
 exchanges with fixed inputs. Separate backend counters confirm the difference.
+
+
+## Additive serving-container cgroup observation
+
+A read-only probe runs inside the guarded serving Pod and reads the serving process's own cgroup membership and CPU/memory limit files. It reports the tightest finite CPU quota and memory ceiling visible through the cgroup hierarchy, then compares them with the guarded container's declared limits from the Pod specification. A missing bound, probe failure, or mismatch fails a green safeguard check; it does not change the existing 16 checks. The evidence is limited to observed container CPU and memory bounds. It does not measure CPU behavior under load, memory pressure or actual model allocation, GPU limits, or KV/cache limits.

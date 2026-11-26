@@ -11,10 +11,8 @@ SCOPE = (
     "A second Pod uses the exact same executable and prompts with only the input guard disabled. "
     "Disposable Kubernetes v1.36.1 Pods run deterministic synthetic generation fixtures. "
     "The original in-process fixture has on/off branches for whitespace-token input and fake "
-    "output, with fixed synthetic session IDs and a logical clock. The separate BPE HTTP "
-    "service exercises only its guarded path: fixed template-expanded cl100k_base prompts, "
-    "synthetic token IDs, and five sequential client requests. Pod CPU/memory requests and "
-    "limits are declared, but effective cgroup values, usage, and pressure are not measured. "
+    "output, with fixed synthetic session IDs and a logical clock. The BPE HTTP fixture uses "
+    "fixed template-expanded cl100k_base prompts, synthetic tokens, a guarded path and a same-worker input-guard-off comparison. The guarded serving container's effective CPU quota and memory cgroup ceiling are observed and compared with declared limits. This is container-bound evidence only; no CPU load, GPU, or cache validation. "
     "The HTTP fixture has no authenticated caller/session identity or concurrent generation. "
     "Neither fixture runs a real model or serving framework, configures a real KV cache, or "
     "measures GPU memory. Production route coverage, identity binding, concurrency, cache and "
@@ -172,3 +170,7 @@ def run(lab):
     for check in comparison_checks:
         lab.check("positive", expected_comparison[check["name"]],
                   check.get("passed") is True, check.get("detail"))
+
+    bounds = report["serving_cgroup_bounds"]
+    lab.check("green", "The guarded serving container's observed CPU and memory bounds match its live Pod limits",
+              bounds["matches"], bounds["observed"])
