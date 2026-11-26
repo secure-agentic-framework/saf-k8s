@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0903-003",
-  "catalog_revision": "1de05227db26b99927ec22e018d3d3edaef255cd",
-  "catalog_sha256": "a868b4ea141c0e3de49227b6eeabffa4a2330712afd28048221b89ce9b63aa55",
+  "catalog_revision": "3ce181d10b14aa25220eca15069a4b3c32ca3b61",
+  "catalog_sha256": "ee08fed36e8c39b164e5d28c4c624a1cf8e763ca11accc56a52ae6e45e81e354",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "517a9f2a8c13e82cf434806d71335e8d4580d3ec9a7bfae605454b8e6c472293",
+  "control_sha256": "1786a6d8895f15e74377264f373596c7d941920869d15f1cbe00b4259e4e0928",
   "scope": "One default Kubernetes v1.36.1 Kind cluster runs a digest-pinned Python fixture. The fixture executes fixed, small synthetic compute and records deterministic backend counters for exact input size, request work/deadline, cumulative session work/deadline, batch size/deadline, and a fixture-controlled overload/degradation decision. The clock, work units, occupancy, and releases are synthetic; this is application-policy evidence, not wall-clock latency, accelerator behavior, a deployed inference server, or a production circuit breaker. Kubernetes CPU/memory container limits are inspected separately from extended-resource quantity. Real GPU memory ceilings, device-plugin/MIG behavior, cloud quotas/costs, ingress/service-mesh configuration, and production policy require separate evidence.",
-  "cluster": "saf-lab-98a0a550ee43",
+  "cluster": "saf-lab-90bb1e223761",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

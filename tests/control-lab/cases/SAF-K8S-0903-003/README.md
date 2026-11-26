@@ -14,3 +14,5 @@ pre-work policy decisions and do not measure in-flight deadline interruption
 or real overload. The test reads CPU and RAM limits from the Pod spec.
 Production GPU memory isolation, circuit breakers, wall-clock timeouts,
 and real cluster serving policy require separate deployment evidence.
+
+Kubernetes GPU extended-resource requests and ResourceQuota govern device counts. For an actual GPU-memory ceiling, verify the deployed GPU model, sharing or partition profile and runtime enforcement, including independent measurement under controlled authorized pressure. Confirm CPU and host-memory limits separately.

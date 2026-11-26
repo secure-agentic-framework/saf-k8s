@@ -2493,7 +2493,7 @@
     "SAF-K8S-0903-003": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "517a9f2a8c13e82cf434806d71335e8d4580d3ec9a7bfae605454b8e6c472293",
+      "sha256": "1786a6d8895f15e74377264f373596c7d941920869d15f1cbe00b4259e4e0928",
       "title": "Inference-time resource controls"
     },
     "SAF-K8S-0903-004": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6c96bf851c11c61642eafce8a3395014a339c9e7",
-  "sha256": "dede1d9259de5189313db60e51a83642e6553720a862b2f1ccfc404eac488add",
+  "revision": "2542c40971a2de585782617b6ab6251ae2fbe332",
+  "sha256": "ee08fed36e8c39b164e5d28c4c624a1cf8e763ca11accc56a52ae6e45e81e354",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
