@@ -20,15 +20,6 @@ Provenance tracking for AI models, training data, and agent tools verifies origi
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0603-005 - FIPS 140 cryptographic module validation](../../controls/SAF-K8S-0603-005.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0606-007 - CI/CD build activity monitoring](../../controls/SAF-K8S-0606-007.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
