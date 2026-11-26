@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-058",
-  "catalog_revision": "579109de116b4b20611ac49f7c2fd917ae6461e6",
-  "catalog_sha256": "5d300b2f3b1823e3cbb4aee50b95ef1970adf01a5b145ef7ca8309eb785d1ee4",
+  "catalog_revision": "298aa7cfbfeeab9a51cc0c00c260b2d07b790a84",
+  "catalog_sha256": "e670092688043f3873e5b141c9c9e45fa91bab5ff9c7a9419e33be9fd2978ef8",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e636fe6ee817b011211f2b01221ea5e0c959d5cb4359c53ed7a0c85219e58cab",
-  "scope": "One disposable Kubernetes v1.36.1 cluster. A real OCI registry stores an inert model by manifest and blob digest. Separate publisher and organization OpenSSL Jobs generate ephemeral keys and sign the identical model bytes. An independent verifier checks those signatures before a digest-bound immutable promotion record is written. Native admission uses that record to gate a model consumer Pod. The allowed Pod fetches and checks exact registry bytes. Production key custody, registry identity, signer authority, namespace coverage, and policy enrollment are open.",
-  "cluster": "saf-lab-fdcaad194735",
+  "scope": "One disposable Kubernetes v1.36.1 cluster. A real OCI registry stores an inert model by manifest and blob digest. Separate publisher and organization OpenSSL Jobs generate ephemeral keys and sign the identical model bytes. An independent verifier checks those signatures before a digest-bound immutable promotion record is written. Native admission uses that record to gate a model consumer Pod. The allowed Pod fetches and checks exact registry bytes. A supplemental non-signing verifier reads an immutable, separately named organization trust ConfigMap and verifies the signature over the exact fixture model; a publisher key and changed bytes are rejected. The trust ConfigMap is still created by the test harness from the synthetic signer result. Production key custody, independently governed trust configuration, registry identity, signer authority, namespace coverage, and policy enrollment remain open.",
+  "cluster": "saf-lab-ecbda3da54ce",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -66,6 +66,17 @@
         "publisher_signature_rejected_under_organization_key": true,
         "changed_model_bytes_rejected": true,
         "distinct_signing_keys": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A separate verifier loads an explicit immutable organization trust config and rejects publisher-key or changed-content substitution",
+      "matched": true,
+      "observed": {
+        "separate_trust_config_matches_approved_signer": true,
+        "approved_signature_verifies_using_mounted_trust_config": true,
+        "publisher_key_rejected_by_downstream_verifier": true,
+        "changed_model_rejected_by_downstream_verifier": true
       }
     },
     {

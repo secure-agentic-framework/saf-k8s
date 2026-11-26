@@ -21,14 +21,42 @@ SCOPE = (
     "ephemeral keys and sign the identical model bytes. An independent verifier checks those "
     "signatures before a digest-bound immutable promotion record is written. Native admission "
     "uses that record to gate a model consumer Pod. The allowed Pod fetches and checks exact "
-    "registry bytes. Production key custody, registry identity, signer authority, "
-    "namespace coverage, and policy enrollment are open."
+    "registry bytes. A supplemental non-signing verifier reads an immutable, separately named "
+    "organization trust ConfigMap and verifies the signature over the exact fixture model; "
+    "a publisher key and changed bytes are rejected. The trust ConfigMap is still created by "
+    "the test harness from the synthetic signer result. Production key custody, independently "
+    "governed trust configuration, registry identity, signer authority, namespace coverage, "
+    "and policy enrollment remain open."
 )
 PYTHON = "docker.io/library/python:3.13.2-alpine@sha256:323a717dc4a010fee21e3f1aac738ee10bb485de4e7593ce242b36ee48d6b352"
 REGISTRY = "docker.io/library/registry:3.0.0@sha256:6c5666b861f3505b116bb9aa9b25175e71210414bd010d92035ff64018f9457e"
 REGISTRY_HOST = "model-promotion-registry:5000"
 READY_RECORD = "saf-0905-058-release"
 CODE = "registry-consumer-code"
+TRUST = "saf-0905-058-downstream-trust"
+SIGNATURE = "saf-0905-058-downstream-signature"
+WRONG_TRUST = "saf-0905-058-unapproved-trust"
+VERIFIER = "saf-0905-058-downstream-verifier"
+
+VERIFY = r'''set -eu
+test "$(sha256sum /trust/organization.pub | cut -d ' ' -f1)" = "$(cat /trust/organization.sha256)"
+wget -q -O /tmp/model.bin "http://model-promotion-registry:5000/v2/inert/models/blobs/sha256:@BLOB_SHA256@"
+test "$(sha256sum /tmp/model.bin | cut -d ' ' -f1)" = "@BLOB_SHA256@"
+openssl dgst -sha256 -verify /trust/organization.pub -signature /signature/model.sig /tmp/model.bin >/dev/null 2>&1
+echo APPROVED_TRUST_ACCEPTED
+if openssl dgst -sha256 -verify /wrong/publisher.pub -signature /signature/model.sig /tmp/model.bin >/dev/null 2>&1; then
+  echo UNAPPROVED_TRUST_ACCEPTED
+  exit 41
+fi
+echo UNAPPROVED_TRUST_REJECTED
+cp /tmp/model.bin /tmp/changed-model.bin
+printf '\n' >> /tmp/changed-model.bin
+if openssl dgst -sha256 -verify /trust/organization.pub -signature /signature/model.sig /tmp/changed-model.bin >/dev/null 2>&1; then
+  echo CHANGED_MODEL_ACCEPTED
+  exit 42
+fi
+echo CHANGED_MODEL_REJECTED
+'''
 
 
 def cm(name, *, data=None, binary=None, immutable=False):
@@ -224,6 +252,35 @@ def _independent_verification(lab, publisher, organization):
                 "changed_model_bytes_rejected": changed_rejected}
 
 
+def _downstream_trust_verifier(lab, publisher, organization, signer_fingerprint):
+    lab.create(cm(TRUST, data={"organization.sha256": signer_fingerprint},
+                  binary={"organization.pub": organization[0]}, immutable=True))
+    lab.create(cm(SIGNATURE, binary={"model.sig": organization[1]}, immutable=True))
+    lab.create(cm(WRONG_TRUST, binary={"publisher.pub": publisher[0]}, immutable=True))
+    mounts = [
+        {"name": "trust", "mountPath": "/trust", "readOnly": True},
+        {"name": "signature", "mountPath": "/signature", "readOnly": True},
+        {"name": "wrong", "mountPath": "/wrong", "readOnly": True},
+    ]
+    volumes = [
+        {"name": "trust", "configMap": {"name": TRUST}},
+        {"name": "signature", "configMap": {"name": SIGNATURE}},
+        {"name": "wrong", "configMap": {"name": WRONG_TRUST}},
+    ]
+    script = VERIFY.replace("@BLOB_SHA256@", hashlib.sha256(MODEL).hexdigest())
+    lab.create(job(VERIFIER, script, mounts, volumes))
+    complete = wait(lab, VERIFIER)
+    output = logs(lab, VERIFIER).splitlines()
+    return {
+        "separate_trust_config_matches_approved_signer": complete and output.count("APPROVED_TRUST_ACCEPTED") == 1,
+        "approved_signature_verifies_using_mounted_trust_config": complete and "APPROVED_TRUST_ACCEPTED" in output,
+        "publisher_key_rejected_by_downstream_verifier": complete and "UNAPPROVED_TRUST_REJECTED" in output
+        and "UNAPPROVED_TRUST_ACCEPTED" not in output,
+        "changed_model_rejected_by_downstream_verifier": complete and "CHANGED_MODEL_REJECTED" in output
+        and "CHANGED_MODEL_ACCEPTED" not in output,
+    }
+
+
 def run(lab):
     registry = _seed_registry(lab)
     ref = registry["reference"]
@@ -248,6 +305,9 @@ def run(lab):
     lab.check("green", "Independent verification accepts both correct signatures and rejects the wrong trust key and changed model",
               all(verification.values()) and distinct, {**verification, "distinct_signing_keys": distinct})
     release = {"digest": DIGEST, "signer": fp(org[0]), "signature-sha256": fp(org[1]), "reference": ref}
+    downstream = _downstream_trust_verifier(lab, publisher, org, release["signer"])
+    lab.check("positive", "A separate verifier loads an explicit immutable organization trust config and rejects publisher-key or changed-content substitution",
+              all(downstream.values()), downstream)
     lab.create(cm(READY_RECORD, data=release, immutable=True))
     install_policy(lab)
 
@@ -273,5 +333,6 @@ def run(lab):
               fetched == registry, {"consumed_model_sha256": fetched["model_sha256"],
                                     "same_registry_manifest": fetched["reference"] == ref})
     evidence = {"promotion_record": release, "verification": verification,
+                "downstream_trust_verifier": downstream,
                 "publisher_signer_fingerprint": fp(publisher[0]), "consumer": fetched}
     (lab.evidence / "model-promotion.json").write_text(json.dumps(evidence, sort_keys=True, indent=2) + "\n")
