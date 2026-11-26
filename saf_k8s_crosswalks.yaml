@@ -14790,22 +14790,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AT-2(4)
-  framework_requirement_title: Suspicious Communications and Anomalous System Behavior
-  framework_mapping_notes: 'Recognizing anomalous agent behaviors
-
-
-    2.4 - Runtime threat detection (anomalous system behavior); 10.1 - Alert design for AI-specific failure modes'
-  control_id: SAF-K8S-1001-012
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AT-2(5)
   framework_requirement_title: Advanced Persistent Threat
   framework_mapping_notes: 'APT awareness for agent-targeted attacks
@@ -29577,11 +29561,11 @@
 
     10.1 - Logging and Audit (continuous incident monitoring for K8s AI clusters)'
   control_id: SAF-K8S-1001-012
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only where detections from the SIEM correlation rules are integrated into the organization's incident-monitoring and incident-tracking process; the reference case does not establish deployed incident monitoring.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -29642,10 +29626,10 @@
     10.1 - SIEM integration (automated incident tracking, data collection, and analysis)'
   control_id: SAF-K8S-1001-012
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only where detected records automatically feed incident tracking, collection, and analysis mechanisms; static rule-fixture decisions alone do not prove those mechanisms.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -29705,22 +29689,6 @@
 
     10.1 - SIEM integration (automated incident report generation and forwarding)'
   control_id: SAF-K8S-1001-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-6(1)
-  framework_requirement_title: Automated Reporting
-  framework_mapping_notes: 'Automated agent incident reporting
-
-
-    10.1 - SIEM integration (automated incident report generation and forwarding)'
-  control_id: SAF-K8S-1001-012
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -52125,11 +52093,11 @@
 
     10.1 - SIEM integration (automated alert generation); 10.2 - Alert design for AI failure modes'
   control_id: SAF-K8S-1001-012
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only where the deployed rule engine generates organization alerts and delivery is verified; this control and its reference fixture do not establish alert delivery or reporting.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
