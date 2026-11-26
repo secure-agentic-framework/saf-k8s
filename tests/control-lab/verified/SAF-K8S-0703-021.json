@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0703-021",
-  "catalog_revision": "25775b61b5d447468f37045c44e148e6341db4f6",
-  "catalog_sha256": "0fc795283778ad9bce9a686e0adf4f4526fc73c53d6b68784718a8e8763c0ee2",
+  "catalog_revision": "4c79834780061df50b667c94bee472aa367b6148",
+  "catalog_sha256": "9e06b319942c6734af90d7c5a8a864afa453f52032df740d201e5484c1b801c9",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "ec85c2b0e74d0e00918b0099ee706be0c1c6b4c7a1bacb1b2b650f3b4b0532c1",
-  "scope": "Scoped Pod CREATE admission and namespace quota for a synthetic accelerator slot in Kind.",
-  "cluster": "saf-lab-9278c4bf8518",
+  "scope": "Scoped Pod CREATE admission, synthetic accelerator quota and scheduling, and actual ServiceAccount-authenticated Job-template dry-runs. Device assignment and deployed controller-generated Pod authorization require separate evidence.",
+  "cluster": "saf-lab-eb42187b70cf",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -71,6 +71,34 @@
       "observed": {
         "quota_denial_verified": true,
         "node_slots": 2
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved submitting ServiceAccount can server-dry-run a resource-declared Job template",
+      "matched": true,
+      "observed": {
+        "authenticated_identity_matches": true,
+        "dry_run_http": 201
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An ordinary submitting ServiceAccount is denied by the Job-template admission policy",
+      "matched": true,
+      "observed": {
+        "authenticated_identity_matches": true,
+        "policy_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An approved submitter cannot omit the synthetic resource from a Job template",
+      "matched": true,
+      "observed": {
+        "authenticated_identity_matches": true,
+        "policy_denial": true,
+        "dry_run_jobs_absent": true
       }
     }
   ]
