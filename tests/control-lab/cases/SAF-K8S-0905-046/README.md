@@ -8,3 +8,11 @@ This case uses local key-based signing with an explicitly chosen fixture trust r
 
 - [Sigstore blob signing](https://docs.sigstore.dev/cosign/signing/signing_with_blobs/)
 - [OpenSSL 3.3 digest and signature commands](https://docs.openssl.org/3.3/man1/openssl-dgst/)
+
+## Verify an adopted pipeline
+
+1. Enumerate files from one actual run, match each file to its pipeline stage and release identifier, and compare the inventory against signed statements for exact artifact names and SHA-256 digests. Record any exclusions and who approved them.
+2. Verify the managed key or keyless signer subject, issuer, pipeline or workflow identity, and release authorization against identities established independently of the artifact. Inspect key custody, planned rotation and revocation, and confirm the verifier rejects a retired or unrelated identity according to policy.
+3. Use an approved artifact and controlled copies to show that the deployed verifier accepts the expected signer and exact bytes, then rejects a missing signature, modified bytes, and a signature from another identity. Record the verifier and trust-policy revisions with the results.
+4. If the pipeline imports signed external artifacts, trace one intake to its approved supplier and verification result, the authorized re-signing step, and the new internal trust statement. Run the same rejection checks on controlled intake copies and retain the original and internal evidence references.
+5. Record run ID, artifact digests, signer identity and trust-policy revision with the verification results. Test deployment enforcement independently wherever the policy requires it.
