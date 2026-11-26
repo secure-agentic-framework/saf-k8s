@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-022",
-  "catalog_revision": "52668d3016b8ce2e80f2c18c0d0af70ecb9cf457",
-  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
+  "catalog_revision": "5c35dd2a43235883edfca56e842a56e15209008d",
+  "catalog_sha256": "f90c94c673d20660168dfaa86a14af064fc386b44cfe4af6b5263d264c1e59b3",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "036ecc3750b41ed9eacd25714414ddc3086e62bc67966977ae8510ac2894fe2b",
   "scope": "One disposable Kubernetes v1.36.1 Kind cluster with an HTTPS validating webhook. Ed25519 protects canonical JSON for apiVersion, kind, name, namespace, labels, data, binaryData and an optional immutable field on the selected ConfigMaps. Tests real CREATE and UPDATE, absent authorization, an unrelated valid signer, and changes to signed data and binaryData. An additive, namespaced core/v1 Pod CREATE comparison uses server-side dry-run only and signs the complete Pod spec. Trust custody, other meaningful metadata, all resources and production submission paths remain open.",
-  "cluster": "saf-lab-62072570f732",
+  "cluster": "saf-lab-30bd76dd3c47",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -179,6 +179,19 @@
         "changed_spec_denied": true,
         "pod_not_persisted": true,
         "exact_dry_run_decisions": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The webhook outage fails closed without storing the request and the approved path recovers",
+      "matched": true,
+      "observed": {
+        "owned_target_absent_before_outage": true,
+        "webhook_service_ready_endpoints_during_outage": 0,
+        "request_denied_by_webhook_call_failure": true,
+        "target_absent_after_denial": true,
+        "webhook_service_ready_endpoints_after_recovery": 1,
+        "exact_authorized_create_succeeds_after_recovery": true
       }
     }
   ]

@@ -9,6 +9,7 @@ import time
 
 HERE = Path(__file__).resolve().parent
 NAMESPACE = "saf-test"
+WEBHOOK_NAMESPACE = "saf-signature-system"
 WEBHOOK = "saf-signature-webhook"
 OBJECT = "signed-fixture"
 POD_OBJECT = "signed-inert-workload"
@@ -145,7 +146,7 @@ def admission_configuration(ca_pem):
             "matchPolicy": "Equivalent",
             "timeoutSeconds": 5,
             "clientConfig": {
-                "service": {"namespace": NAMESPACE, "name": WEBHOOK, "path": "/validate", "port": 443},
+                "service": {"namespace": WEBHOOK_NAMESPACE, "name": WEBHOOK, "path": "/validate", "port": 443},
                 "caBundle": b64encode(ca_pem).decode("ascii"),
             },
             "namespaceSelector": {"matchLabels": {"saf.example.test/signature-enforcement": "required"}},
@@ -175,21 +176,27 @@ def denied(lab, label, result, message):
 
 
 def deploy(lab, material, image):
-    lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": WEBHOOK + "-keys"},
+    lab.kubectl("create", "namespace", WEBHOOK_NAMESPACE)
+
+    def provision(resource):
+        lab.kubectl("-n", WEBHOOK_NAMESPACE, "create", "-f", "-", "-o", "name",
+                    payload=json.dumps(resource))
+
+    provision({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": WEBHOOK + "-keys", "namespace": WEBHOOK_NAMESPACE},
                 "immutable": True, "data": {f"{signer}-public.pem":
                     (material / f"{signer}-public.pem").read_text()
                     for signer in ("authorized-test", "unrelated-test")}})
     leaf = material / "tls.key"
     try:
-        lab.kubectl("create", "secret", "tls", WEBHOOK + "-tls",
-                    f"--cert={material / 'tls.crt'}", f"--key={leaf}")
+        lab.kubectl("-n", WEBHOOK_NAMESPACE, "create", "secret", "tls", WEBHOOK + "-tls",
+                    f"--cert={material / 'tls.crt'}", f"--key={leaf}", "-o", "name")
     finally:
         leaf.unlink()
     labels = {"app": WEBHOOK}
     security = {"runAsNonRoot": True, "runAsUser": 10001, "runAsGroup": 10001,
                 "fsGroup": 10001, "seccompProfile": {"type": "RuntimeDefault"}}
-    lab.create({
-        "apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": WEBHOOK},
+    provision({
+        "apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": WEBHOOK, "namespace": WEBHOOK_NAMESPACE},
         "spec": {"replicas": 1, "selector": {"matchLabels": labels},
                  "template": {"metadata": {"labels": labels}, "spec": {
                      "automountServiceAccountToken": False, "securityContext": security,
@@ -211,9 +218,9 @@ def deploy(lab, material, image):
                      }],
                  }}},
     })
-    lab.create({"apiVersion": "v1", "kind": "Service", "metadata": {"name": WEBHOOK},
+    provision({"apiVersion": "v1", "kind": "Service", "metadata": {"name": WEBHOOK, "namespace": WEBHOOK_NAMESPACE},
                 "spec": {"selector": labels, "ports": [{"name": "https", "port": 443, "targetPort": "https"}]}})
-    lab.kubectl("rollout", "status", f"deployment/{WEBHOOK}", "--timeout=60s", timeout=70)
+    lab.kubectl("-n", WEBHOOK_NAMESPACE, "rollout", "status", f"deployment/{WEBHOOK}", "--timeout=60s", timeout=70)
     lab.create(admission_configuration((material / "webhook-ca.crt").read_bytes()))
     deadline = time.monotonic() + 18
     while time.monotonic() < deadline:
@@ -251,7 +258,7 @@ def workload_pod_dry_run(lab, material, defaulted_pod):
     absent = lab.kubectl("get", "pod", POD_OBJECT, "-o", "json", allow_failure=True)
     pod_not_persisted = absent.returncode != 0 and "NotFound" in absent.stderr
 
-    raw_log = lab.kubectl("logs", f"deployment/{WEBHOOK}").stdout
+    raw_log = lab.kubectl("-n", WEBHOOK_NAMESPACE, "logs", f"deployment/{WEBHOOK}").stdout
     pattern = re.compile(
         r'resource="pods" operation="CREATE" dry_run=true '
         r'object_json_sha256=([a-f0-9]{64}) projection_sha256=([a-f0-9]{64}) '
@@ -290,6 +297,82 @@ def workload_pod_dry_run(lab, material, defaulted_pod):
                "changed_spec_denied": changed.returncode != 0 and MISMATCH in changed.stderr,
                "pod_not_persisted": pod_not_persisted,
                "exact_dry_run_decisions": observed == expected})
+
+
+def service_endpoint_count(lab):
+    response = lab.kubectl("-n", WEBHOOK_NAMESPACE, "get", "endpointslices.discovery.k8s.io",
+                           "-l", f"kubernetes.io/service-name={WEBHOOK}", "-o", "json")
+    slices = json.loads(response.stdout)["items"]
+    return sum(len(endpoint["addresses"]) for item in slices for endpoint in (item.get("endpoints") or [])
+               if endpoint.get("conditions", {}).get("ready") is True)
+
+
+def wait_for_endpoint_count(lab, expected):
+    deadline = time.monotonic() + 20
+    while time.monotonic() < deadline:
+        if service_endpoint_count(lab) == expected:
+            return True
+        time.sleep(0.5)
+    return service_endpoint_count(lab) == expected
+
+
+def webhook_outage_and_recovery(lab, material):
+    # Reuse the one owned ConfigMap name, but remove its prior approved object so
+    # the outage request must leave no object behind. Only the owned webhook is
+    # scaled; no API server or unrelated service is changed.
+    lab.kubectl("delete", "configmap", OBJECT, "--wait=true")
+    before = lab.kubectl("get", "configmap", OBJECT, "-o", "json", allow_failure=True)
+    absent_before = before.returncode != 0 and "NotFound" in before.stderr
+    approved = signed(object_template(), material, "authorized-test", "create")
+    pods = json.loads(lab.kubectl("-n", WEBHOOK_NAMESPACE, "get", "pods",
+                                  "-l", f"app={WEBHOOK}", "-o", "json").stdout)["items"]
+    if len(pods) != 1 or service_endpoint_count(lab) != 1:
+        lab.block("The fixture expects exactly one ready owned admission webhook")
+    old_pod = pods[0]["metadata"]["name"]
+    lab.kubectl("-n", WEBHOOK_NAMESPACE, "scale", f"deployment/{WEBHOOK}", "--replicas=0")
+    no_ready_endpoints = False
+    failed_call = False
+    no_object_after_denial = False
+    try:
+        lab.kubectl("-n", WEBHOOK_NAMESPACE, "wait", "--for=delete", f"pod/{old_pod}",
+                    "--timeout=55s", timeout=65)
+        no_ready_endpoints = wait_for_endpoint_count(lab, 0)
+        denied_request = lab.create(approved, allow_failure=True)
+        failed_call = (denied_request.returncode != 0
+                       and "failed calling webhook" in denied_request.stderr
+                       and "signature.saf.example.test" in denied_request.stderr)
+        absent_during = lab.kubectl("get", "configmap", OBJECT, "-o", "json",
+                                    allow_failure=True)
+        no_object_after_denial = (absent_during.returncode != 0
+                                  and "NotFound" in absent_during.stderr)
+    finally:
+        # Restore the owned verifier even if the denied request or read fails.
+        lab.kubectl("-n", WEBHOOK_NAMESPACE, "scale", f"deployment/{WEBHOOK}", "--replicas=1")
+        lab.kubectl("-n", WEBHOOK_NAMESPACE, "rollout", "status", f"deployment/{WEBHOOK}", "--timeout=60s", timeout=70)
+    restored_endpoint = wait_for_endpoint_count(lab, 1)
+    deadline = time.monotonic() + 20
+    while True:
+        health = lab.create(approved, dry_run=True, allow_failure=True)
+        if health.returncode == 0 or "failed calling webhook" not in health.stderr:
+            break
+        if time.monotonic() >= deadline:
+            break
+        time.sleep(0.5)
+    recovered_create = lab.create(approved, allow_failure=True)
+    stored = get_object(lab) if recovered_create.returncode == 0 else {}
+    recovery_allowed = (restored_endpoint and health.returncode == 0 and recovered_create.returncode == 0
+                       and stored.get("data") == approved["data"]
+                       and stored.get("binaryData") == approved["binaryData"])
+
+    lab.check("green", "The webhook outage fails closed without storing the request and the approved path recovers",
+              absent_before and no_ready_endpoints and failed_call and no_object_after_denial
+              and recovery_allowed,
+              {"owned_target_absent_before_outage": absent_before,
+               "webhook_service_ready_endpoints_during_outage": 0 if no_ready_endpoints else "unexpected",
+               "request_denied_by_webhook_call_failure": failed_call,
+               "target_absent_after_denial": no_object_after_denial,
+               "webhook_service_ready_endpoints_after_recovery": 1 if restored_endpoint else "unexpected",
+               "exact_authorized_create_succeeds_after_recovery": recovery_allowed})
 
 
 def run(lab):
@@ -343,7 +426,7 @@ def run(lab):
               and stored["binaryData"] == approved_update["binaryData"],
               {"returncode": update_result.returncode, "payload": stored["data"]["payload"]})
 
-    raw_log = lab.kubectl("logs", f"deployment/{WEBHOOK}").stdout
+    raw_log = lab.kubectl("-n", WEBHOOK_NAMESPACE, "logs", f"deployment/{WEBHOOK}").stdout
     (lab.evidence / "webhook-decisions.log").write_text(raw_log)
     public = {filename: (material / filename).read_text() for filename in (
         "authorized-test-public.pem", "unrelated-test-public.pem", "authorized-test-create.sig",
@@ -376,3 +459,4 @@ def run(lab):
     lab.check("green", "Real AdmissionReviews match every expected operation, signed projection and decision",
               seen == expected, {"decisions": seen})
     workload_pod_dry_run(lab, material, defaulted_pod)
+    webhook_outage_and_recovery(lab, material)

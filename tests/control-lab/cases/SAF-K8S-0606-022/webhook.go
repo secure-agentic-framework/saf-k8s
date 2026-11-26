@@ -306,10 +306,10 @@ func generateTLS(dir string) error {
 		NotAfter: now.Add(2 * time.Hour), IsCA: true, BasicConstraintsValid: true,
 		KeyUsage: x509.KeyUsageCertSign}
 	leaf := &x509.Certificate{SerialNumber: big.NewInt(2),
-		Subject: pkix.Name{CommonName: "saf-signature-webhook.saf-test.svc"}, NotBefore: now.Add(-time.Minute),
+		Subject: pkix.Name{CommonName: "saf-signature-webhook.saf-signature-system.svc"}, NotBefore: now.Add(-time.Minute),
 		NotAfter: now.Add(2 * time.Hour), KeyUsage: x509.KeyUsageDigitalSignature,
 		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
-		DNSNames:    []string{"saf-signature-webhook.saf-test.svc"}}
+		DNSNames:    []string{"saf-signature-webhook.saf-signature-system.svc"}}
 	caDER, err := x509.CreateCertificate(rand.Reader, ca, ca, caPub, caKey)
 	if err != nil {
 		return err

@@ -56,3 +56,17 @@ The portable ConfigMap projection signs `apiVersion`, `kind`, `metadata.name`, `
 ## Do not overclaim
 
 The portable receipt is mechanism evidence only for ConfigMap CREATE/UPDATE projection and Pod CREATE dry-run. OCI, other Kubernetes kinds, Pod-template/controller reconciliation, actual GitOps admission, organization-wide key custody/rotation, verifier outages, and production cluster coverage require separate adopter evidence. The paired live runs recorded in the current issue notes report 10 passing checks on two separate disposable clusters; the workspace copy retains the published receipt for one current run.
+
+## Admission endpoint loss and recovery
+
+The webhook runs in a separate infrastructure namespace so its controller
+can recreate the verifier during an outage. The case scales the owned
+verification endpoint down and confirms zero
+ready EndpointSlice addresses. It submits an otherwise approved signed
+request. The API reports a failure calling the configured webhook and
+independently confirms the object is absent. After recovery, the same
+request is admitted and its governed fields are read back.
+
+For an adopted deployment, verify all applicable webhook registrations and
+request paths, signer-key lifecycle, effective failure policy, and tested
+availability and recovery objectives.
