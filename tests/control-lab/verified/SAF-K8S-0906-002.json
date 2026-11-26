@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0906-002",
-  "catalog_revision": "32d84080fed3b3823fe263ef83767a2696f7ed46",
-  "catalog_sha256": "deae6983a7f768a55f82f1f7cfe506da1b8daa06d9aec89bf21345e82d37a993",
+  "catalog_revision": "e8cb72dbd0c3bf662f3404b8f9be86ff7dcff9a4",
+  "catalog_sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "fffde1c88876a23a32bd81aa6aa2d39f27591879f5bbd918f3e924d01c1e54db",
-  "scope": "A local Kind lab streams four fixed synthetic 4 KiB partitions in 257-byte chunks, compares inventory, lengths, SHA-256 digests and a Merkle root to an immutable trusted manifest, denies deterministic changed or missing content, and accepts the explicitly named approved synthetic dataset. Hashing uses at most two workers and emits only a bounded sanitized summary. This is representative control wiring only; it does not establish production storage durability, integrity provenance, scale, throughput, latency, or deployment security.",
-  "cluster": "saf-lab-1d74cff8a170",
+  "scope": "A local Kind lab streams four fixed synthetic 4 KiB partitions in 257-byte chunks, compares inventory, lengths, SHA-256 digests and a Merkle root to an immutable trusted manifest, denies deterministic changed or missing content, and accepts the explicitly named approved synthetic dataset. Separate read-only consumer Jobs then stream the approved fixture only after the same verification gate and record zero consumption for a changed copy. Hashing uses at most two workers and emits bounded sanitized summaries. This does not establish signed publisher provenance, production trainer integration, storage durability, scale, throughput, latency, or deployment security.",
+  "cluster": "saf-lab-c868e6336bdc",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -70,6 +70,33 @@
         "merkle_root": "b7c253078bb623fdab4352f577115c434eb1fef43622e5f925623d845f80f94b",
         "partition_count": 4,
         "stream_chunk_bytes": 257
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A separate read-only Kubernetes Job consumes only the approved exact dataset",
+      "matched": true,
+      "observed": {
+        "job_succeeded_once": true,
+        "consumed_bytes": 16384,
+        "consumed_partitions": 4,
+        "consumer_started": true,
+        "dataset_id": "synthetic-approved-v1",
+        "decision": "accepted",
+        "manifest_merkle_root": "b7c253078bb623fdab4352f577115c434eb1fef43622e5f925623d845f80f94b"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The consumer Job records denial and zero consumption for a changed segment",
+      "matched": true,
+      "observed": {
+        "job_completed_denial_once": true,
+        "consumed_bytes": 0,
+        "consumed_partitions": 0,
+        "consumer_started": false,
+        "decision": "denied",
+        "reason": "digest_or_size_mismatch"
       }
     }
   ]

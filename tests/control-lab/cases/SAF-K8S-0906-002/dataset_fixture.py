@@ -166,6 +166,11 @@ def run(root, manifest_path):
         "stream_chunk_bytes": CHUNK_SIZE,
         "merkle_root": approved.get("merkle_root"),
     }
+    # Stage a second approved copy and a fixed altered near-miss for separate
+    # read-only Kubernetes consumer Jobs. These are outside the verifier's
+    # `segments/` inventory and never alter the original three assertions.
+    prepare(Path(root).parent / "consumer-approved")
+    prepare(Path(root).parent / "consumer-altered", altered=3)
     emit(observations)
 
 

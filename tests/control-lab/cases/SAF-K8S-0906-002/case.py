@@ -15,10 +15,11 @@ SCOPE = (
     "A local Kind lab streams four fixed synthetic 4 KiB partitions in 257-byte chunks, "
     "compares inventory, lengths, SHA-256 digests and a Merkle root to an immutable trusted "
     "manifest, denies deterministic changed or missing content, and accepts the explicitly "
-    "named approved synthetic dataset. Hashing uses at most two workers and emits only a "
-    "bounded sanitized summary. This is representative control wiring only; it does not "
-    "establish production storage durability, integrity provenance, scale, throughput, "
-    "latency, or deployment security."
+    "named approved synthetic dataset. Separate read-only consumer Jobs then stream the approved "
+    "fixture only after the same verification gate and record zero consumption for a changed "
+    "copy. Hashing uses at most two workers and emits bounded sanitized summaries. This does not "
+    "establish signed publisher provenance, production trainer integration, storage durability, "
+    "scale, throughput, latency, or deployment security."
 )
 
 
@@ -52,7 +53,10 @@ def run(lab):
     """Create one bounded PVC consumer and record deterministic lab assertions."""
     image = load_runtime(lab)
     _create(lab, "ConfigMap", CODE, immutable=True,
-            data={"dataset_fixture.py": (HERE / "dataset_fixture.py").read_text(encoding="utf-8")})
+            data={
+                "dataset_fixture.py": (HERE / "dataset_fixture.py").read_text(encoding="utf-8"),
+                "training_consumer.py": (HERE / "training_consumer.py").read_text(encoding="utf-8"),
+            })
     _create(lab, "ConfigMap", MANIFEST, immutable=True,
             data={"manifest.json": (HERE / "manifest.json").read_text(encoding="utf-8")})
     _create(lab, "PersistentVolumeClaim", PVC, spec={
@@ -120,3 +124,9 @@ def run(lab):
     (lab.evidence / "dataset-integrity-observations.json").write_text(
         json.dumps(observations, sort_keys=True, indent=2) + "\n"
     )
+
+    # A distinct Kubernetes Job consumes the same case-owned PVC content and
+    # immutable manifest using read-only mounts. It performs a separate complete
+    # verification before its actual bounded input-streaming phase.
+    consumer_case = _load_module("saf_k8s_0906_002_consumer_case", HERE / "consumer_case.py")
+    consumer_case.run(lab, image)

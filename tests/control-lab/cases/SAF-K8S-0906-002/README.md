@@ -1,46 +1,15 @@
-# Local synthetic dataset integrity fixture
+# SAF-K8S-0906-002 — Verify integrity before dataset consumption
 
-This is a defensive, local Kind lab. `case.py` exposes the SAF runner contract:
-module-level `SCOPE` and `run(lab)`. The runner uses the real adjacent helper at
-`HERE.parent / "SAF-K8S-0908-001" / "case.py"` and calls its `load_runtime(lab)`.
-The helper supplies the lab's pinned local image. The workload namespace is
-`saf-test`, which is owned by the outer runner; this case does not create it.
+Run `python3 tests/control-lab/lab.py test SAF-K8S-0906-002 --docker-context desktop-linux` from the framework checkout.
 
-## What it demonstrates
+The five checks use a fixed trusted fixture manifest and immutable test ConfigMap. Kubernetes workloads verify exact segment inventory, sizes, hashes and the pinned Merkle root. Separate Jobs mount the same synthetic dataset read-only. The approved Job independently verifies the manifest and streams four segments totaling 16,384 bytes. The changed-copy Job verifies and refuses the input before its consumption step. The fixture keeps only status and exact synthetic manifest and dataset identifiers in its published receipt.
 
-- A baseline streams and accepts a fixed, benign deterministic alteration to
-  one synthetic partition because it performs no trusted comparison.
-- The governed path checks the exact partition inventory, declared byte length,
-  and SHA-256 digest against the immutable `manifest.json`; it denies changed or
-  missing content and accepts only `synthetic-approved-v1`.
-- Each file is read in 257-byte chunks. At most two partition hash workers run
-  concurrently. Output is one bounded summary with fixed labels, counts, and
-  booleans; partition bytes and records are never logged.
-- PVC and its consumer Pod are created before waiting. This supports storage
-  classes using delayed `WaitForFirstConsumer` binding.
+## Verify an adopted dataset and storage path
 
-Run through the SAF harness by invoking `run(lab)` in the established local Kind
-environment. This source packet does not invoke Docker or Kind. It also does not
-create the runner-owned namespace.
+1. Identify the authorized dataset version, independently governed signer and verification trust, exact storage version or object identities, expected inventory and partition boundaries. Check manifest signature, freshness, scope and trusted version before reading the data.
+2. Verify the trainer or actual consuming service receives the same immutable version that preflight checks. Use benign controlled comparisons with missing or changed segments, an incorrect commitment, and incorrect manifest identity. Observe trusted denial and zero consumer processing on every governed entry point.
+3. Define verification cadence, scope, incremental coverage and failed-verification action for the actual dataset size. Record responsibility, approved exceptions and complete inventory coverage.
+4. Exercise the authorized storage recovery procedure separately. Restore an approved version, verify the exact inventory and commitment, and observe controlled recovery of consumption. Record service and data recovery objectives, actual results and the owner for outstanding paths.
 
-## Evidence scope
-
-The fixture is four 4 KiB synthetic partitions (16 KiB total), generated inside
-the lab PVC. This is representative control wiring, not production-scale
-benchmarking or production-storage evidence. It does not establish manifest
-signing or publisher identity, storage durability, crash consistency, race
-resistance against concurrent writers, access-path coverage, multi-node behavior,
-or throughput/latency at training-data scale. Production evaluation must include
-the trusted manifest distribution and approval chain, the actual storage and
-ingestion path, workload concurrency, capacity/performance measurements, and
-recovery behavior under the organization's threat model.
-
-No hostile inputs, attack traffic, private data, or unowned targets are used.
-
-The trusted fixture manifest also contains a Merkle root built from sorted
-partition names, lengths and observed digests. Domain prefixes distinguish
-leaves from parent nodes. An otherwise valid dataset with a mismatched root is
-rejected. The retained observations include the derived root for the positive
-case. This exercise uses an immutable manifest in a fresh cluster with separate
-authority for installation. Production signing, partition storage and recovery
-require evidence from the deployed system.
+- [Kubernetes Persistent Volumes](https://v1-36.docs.kubernetes.io/docs/concepts/storage/persistent-volumes/)
+- [European Commission AI Act Service Desk, Article 15](https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-15)
