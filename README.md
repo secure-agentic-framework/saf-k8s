@@ -27,7 +27,7 @@ See [`LICENSE`](LICENSE) for the summary.
 - Domains: 10
 - Knowledge areas: 55
 - Controls: 595
-- Crosswalk rows: 2804
+- Crosswalk rows: 2797
 
 ## YAML Files
 
@@ -120,7 +120,7 @@ See [`LICENSE`](LICENSE) for the summary.
 
 ### Description
 
-This knowledge area focuses on: Encryption at rest for Secrets and sensitive API resources, Streaming connection idle timeout enforcement, API server request rate limiting and API Priority and Fairness, API server audit policy coverage and event detail, and API server TLS enforcement. Additional controls in the table below extend this coverage.
+This knowledge area focuses on: Encryption at rest for Secrets and sensitive API resources, Streaming connection idle timeout enforcement, API server request concurrency and API Priority and Fairness, API server audit policy coverage and event detail, and API server TLS enforcement. Additional controls in the table below extend this coverage.
 
 ### Controls
 
@@ -128,7 +128,7 @@ This knowledge area focuses on: Encryption at rest for Secrets and sensitive API
 | --- | --- | --- | --- |
 | [SAF-K8S-0101-003](markdown/controls/SAF-K8S-0101-003.md) | Encryption at rest for Secrets and sensitive API resources | Foundational | baseline |
 | [SAF-K8S-0101-005](markdown/controls/SAF-K8S-0101-005.md) | Streaming connection idle timeout enforcement | Foundational | baseline |
-| [SAF-K8S-0101-007](markdown/controls/SAF-K8S-0101-007.md) | API server request rate limiting and API Priority and Fairness | Practitioner | ai-specific |
+| [SAF-K8S-0101-007](markdown/controls/SAF-K8S-0101-007.md) | API server request concurrency and API Priority and Fairness | Practitioner | ai-specific |
 | [SAF-K8S-0101-008](markdown/controls/SAF-K8S-0101-008.md) | API server audit policy coverage and event detail | Foundational | baseline |
 | [SAF-K8S-0101-012](markdown/controls/SAF-K8S-0101-012.md) | API server TLS enforcement | Foundational | baseline |
 | [SAF-K8S-0101-013](markdown/controls/SAF-K8S-0101-013.md) | API server certificate rotation and validation | Foundational | baseline |

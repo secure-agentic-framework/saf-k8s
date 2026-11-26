@@ -80,3 +80,12 @@ Namespace quotas allocate or cap declared requests, and PriorityClasses express 
 - Strength: moderate
 - Applicability: conditional
 - Strength Reason Code: partial-control-coverage
+
+### [SAF-K8S-0101-007 - API server request concurrency and API Priority and Fairness](../../controls/SAF-K8S-0101-007.md)
+
+- Domain: D01 - Control Plane and Cluster Hardening
+- Knowledge Area: 1.1
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

@@ -4703,22 +4703,6 @@
 
 
     9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
-  control_id: SAF-K8S-0101-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-12
-  framework_requirement_title: Session Termination
-  framework_mapping_notes: 'Terminating idle or expired agent sessions
-
-
-    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-0402-003
   relation_type: supports
   strength_level: strong
@@ -4879,22 +4863,6 @@
 
     1.1 - Secure API server (anonymous auth disabling); 2.1 - Harden kubelet (anonymous access prevention)'
   control_id: SAF-K8S-0101-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-14
-  framework_requirement_title: Permitted Actions Without Identification or Authentication
-  framework_mapping_notes: 'Defining what unauthenticated agent actions are allowed
-
-
-    1.1 - Secure API server (anonymous auth disabling); 2.1 - Harden kubelet (anonymous access prevention)'
-  control_id: SAF-K8S-0101-007
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -5995,22 +5963,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AC-17(10)
-  framework_requirement_title: Authenticate Remote Commands
-  framework_mapping_notes: 'Authenticating commands sent to agents
-
-
-    1.1 - Secure API server (RBAC, webhook authorization for remote commands); 2.1 - Kubelet authentication enforcement'
-  control_id: SAF-K8S-0101-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AC-17(2)
   framework_requirement_title: Protection of Confidentiality and Integrity Using Encryption
   framework_mapping_notes: 'Encrypting agent API communications (TLS/mTLS)
@@ -6034,22 +5986,6 @@
 
     1.1 - Secure API server (TLS configuration); 5.4 - Implement zero trust (mTLS for encrypted remote access)'
   control_id: SAF-K8S-0101-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-17(2)
-  framework_requirement_title: Protection of Confidentiality and Integrity Using Encryption
-  framework_mapping_notes: 'Encrypting agent API communications (TLS/mTLS)
-
-
-    1.1 - Secure API server (TLS configuration); 5.4 - Implement zero trust (mTLS for encrypted remote access)'
-  control_id: SAF-K8S-0101-007
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -7694,22 +7630,6 @@
 
     1.1 - Secure API server (anonymous auth disabling); 4.2 - Default SA restrictions (preventing access without identity)'
   control_id: SAF-K8S-0101-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-24(2)
-  framework_requirement_title: No User or Process Identity
-  framework_mapping_notes: 'Attribute-based decisions without fixed agent identity
-
-
-    1.1 - Secure API server (anonymous auth disabling); 4.2 - Default SA restrictions (preventing access without identity)'
-  control_id: SAF-K8S-0101-007
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -10879,22 +10799,6 @@
 
 
     4.1 - Design and enforce RBAC (cluster-admin and security team roles); 1.1 - API server access controls'
-  control_id: SAF-K8S-0101-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-6(1)
-  framework_requirement_title: Authorize Access to Security Functions
-  framework_mapping_notes: 'Restricting agent access to security-critical functions
-
-
-    4.1 - Design and enforce RBAC (cluster-admin and security team roles); 1.1 - API server access controls'
   control_id: SAF-K8S-0401-001
   relation_type: supports
   strength_level: strong
@@ -11056,22 +10960,6 @@
 
     1.1 - Secure the API server (network access restrictions to control plane); 5.5 - Protect API server and service exposure'
   control_id: SAF-K8S-0101-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-6(3)
-  framework_requirement_title: Network Access to Privileged Commands
-  framework_mapping_notes: 'Controlling agent network-based privileged operations
-
-
-    1.1 - Secure the API server (network access restrictions to control plane); 5.5 - Protect API server and service exposure'
-  control_id: SAF-K8S-0101-007
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -28684,22 +28572,6 @@
 
 
     10.5 - Containment (network disconnect/isolation during incidents); 9.4 - Notebook environment session termination; 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
-  control_id: SAF-K8S-0101-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-10
-  framework_requirement_title: Network Disconnect
-  framework_mapping_notes: 'Automatic session disconnect for inactive agent connections prevents unauthorized reuse
-
-
-    10.5 - Containment (network disconnect/isolation during incidents); 9.4 - Notebook environment session termination; 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
   control_id: SAF-K8S-0904-001
   relation_type: direct
   strength_level: strong
@@ -43415,4 +43287,17 @@
   strength_level: moderate
   applicability: conditional
   applicability_condition: For organization-designated model artifacts with independently governed integrity baselines, implemented discrepancy detection and documented response.
+  strength_reason_code: partial-control-coverage
+- mapping_set_name: SAF-K8S to NIST SP 800-53r5
+  framework_code: NIST-800-53R5
+  framework_name: NIST SP 800-53 Revision 5
+  framework_version: 5.2.0
+  framework_requirement_id: SC-6
+  framework_requirement_title: Resource Availability
+  framework_mapping_notes: Native APF divides API concurrency among selected priorities. Verify actual allocations and governed request classification, wait and rejection in the deployed environment before claiming a resource availability contribution.
+  control_id: SAF-K8S-0101-007
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: For adopted APF control-plane request priority levels whose allocated concurrency protects availability of named management functions.
   strength_reason_code: partial-control-coverage
