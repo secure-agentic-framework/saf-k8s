@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 2192
-- Distinct Requirements Mapped: 659
+- Total Reverse Mappings: 2187
+- Distinct Requirements Mapped: 657
 
 ## Requirements
 
@@ -231,7 +231,6 @@
 - [CM-7(5) - Authorized Software -- Allow-by-exception](cm-7-5.md)
 - [CM-7(6) - Confined Environments with Limited Privileges](cm-7-6.md)
 - [CM-7(7) - Code Execution in Protected Environments](cm-7-7.md)
-- [CM-7(8) - Binary or Machine Executable Code](cm-7-8.md)
 - [CM-8 - System Component Inventory](cm-8.md)
 - [CM-8(1) - Updates During Installation and Removal](cm-8-1.md)
 - [CM-8(2) - Automated Maintenance](cm-8-2.md)
@@ -458,7 +457,6 @@
 - [SA-8(4) - Partially Ordered Dependencies](sa-8-4.md)
 - [SA-8(5) - Efficiently Mediated Access](sa-8-5.md)
 - [SA-8(6) - Minimized Sharing](sa-8-6.md)
-- [SA-8(7) - Reduced Complexity](sa-8-7.md)
 - [SA-8(8) - Secure Evolvability](sa-8-8.md)
 - [SA-8(9) - Trusted Components](sa-8-9.md)
 - [SA-9 - External System Services](sa-9.md)

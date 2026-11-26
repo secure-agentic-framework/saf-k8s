@@ -49,7 +49,7 @@ Restrict explicit long-lived token Secrets where the organization identifies tha
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.1
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

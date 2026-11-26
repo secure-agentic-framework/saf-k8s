@@ -3092,16 +3092,13 @@
   framework_requirement_id: Article-9.5.a
   legacy_requirement_id: Art-9:9(5)(a)
   framework_requirement_title: Risk management system
-  framework_mapping_notes: |-
-    elimination or reduction of risks identified and evaluated pursuant to paragraph 2 in as far as technically feasible through adequate design and development of the high-risk AI system;
-
-    SAF-K8S controls implement risk reduction through secure design: minimal base images, least-privilege access, default-deny networking, supply chain integrity, and runtime hardening.
+  framework_mapping_notes: Article 9(5)(a) requires elimination or reduction, as far as technically feasible, of risks identified and evaluated under Article 9(2) through adequate design and development. The tested minimal image, non-root settings, read-only root filesystem, and explicit writable scratch are examples of selected technical measures only. They do not demonstrate the system's risk-management process or that the chosen measures address its identified risks.
   control_id: SAF-K8S-0601-014
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only as one technically feasible risk-reduction measure for an applicable high-risk AI system and its identified risks. This reference covers a case-owned minimal image and selected Kubernetes process settings; it does not establish the Article 9 risk-management system, hazard identification, residual-risk acceptance, or other measures.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -14975,16 +14972,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-7
   framework_requirement_title: Least Functionality
-  framework_mapping_notes: 'Agents should expose minimum necessary functionality
-
-
-    6.1 - Secure container images (distroless, scratch, minimal attack surface); 2.3 - Minimal host OS; 1.3 - Profiling endpoint disablement for controller-manager and scheduler (--profiling=false)'
+  framework_mapping_notes: CM-7 requires systems to provide mission-essential capabilities and prohibit or restrict organization-defined functions, ports, protocols, software, or services. This case supports that objective for one controlled image and selected workload settings. It does not evidence minimal host OS configuration or control-plane profiling settings.
   control_id: SAF-K8S-0601-014
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only for assigned container image and workload components whose mission-essential software and functionality are defined. This case verifies one two-file image and selected container settings; it does not establish the organization's complete restricted-functions list, periodic review, or enforcement across its system.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -15221,22 +15215,6 @@
 
     8.4 - Confidential computing (TEE for protected code execution); 2.2 - Sandboxed runtimes'
   control_id: SAF-K8S-0804-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-7(8)
-  framework_requirement_title: Binary or Machine Executable Code
-  framework_mapping_notes: 'Controlling binary/executable code in agent environments
-
-
-    6.1 - Image hardening (no shell binaries, minimal attack surface); 2.4 - Drift detection for unexpected binary execution'
-  control_id: SAF-K8S-0601-014
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -22919,16 +22897,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-15(5)
   framework_requirement_title: Attack Surface Reduction
-  framework_mapping_notes: 'Attack surface reduction in agent design minimizes exposed interfaces and tool endpoints
-
-
-    6.1 - Minimal images (distroless, attack surface reduction); 3.2 - Drop ALL capabilities'
+  framework_mapping_notes: SA-15(5) requires the developer to reduce attack surfaces to organization-defined thresholds. A two-file scratch image and non-root/read-only process settings are relevant example measures for a selected component. This case does not set or assess the required thresholds, demonstrate a development-process assessment, or establish the broader system attack surface.
   control_id: SAF-K8S-0601-014
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only where the organization defines attack-surface thresholds for the applicable component and uses this image inventory and process configuration as one means of meeting them. The case does not define or assess organization thresholds and does not demonstrate capability dropping.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -24348,22 +24323,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SA-8(13)
-  framework_requirement_title: Minimized Security Elements
-  framework_mapping_notes: 'Minimizing security-critical agent components reduces the trusted computing base
-
-
-    6.1 - Minimal images; 3.2 - Drop ALL capabilities (minimized security elements and attack surface)'
-  control_id: SAF-K8S-0601-014
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SA-8(14)
   framework_requirement_title: Least Privilege
   framework_mapping_notes: 'Least privilege is fundamental to constraining agent permissions and tool access
@@ -25643,22 +25602,6 @@
 
     8.1 - MIG GPU partitioning (minimized hardware sharing); 7.2 - Namespace isolation (minimized resource sharing)'
   control_id: SAF-K8S-0801-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(7)
-  framework_requirement_title: Reduced Complexity
-  framework_mapping_notes: 'Reducing complexity in agent architectures decreases attack surface and verification difficulty
-
-
-    6.1 - Minimal images (distroless, reduced complexity); 2.3 - Minimal host OS (unnecessary service removal)'
-  control_id: SAF-K8S-0601-014
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -27807,22 +27750,6 @@
 
     8.1 - MIG GPU partitioning (hardware-enforced partitioning); 7.2 - Namespace isolation (system partitioning)'
   control_id: SAF-K8S-0801-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-34
-  framework_requirement_title: Non-modifiable Executable Programs
-  framework_mapping_notes: 'Immutable agent runtime images prevent runtime tampering with agent code
-
-
-    6.1 - Read-only filesystems; 9.2 - Read-only model mounts (non-modifiable executable programs)'
-  control_id: SAF-K8S-0601-014
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -32631,22 +32558,6 @@
 
     3.2 - readOnlyRootFilesystem (non-persistent container state); 6.1 - Minimal images (ephemeral, non-persistent workloads)'
   control_id: SAF-K8S-0302-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-14
-  framework_requirement_title: Non-persistence
-  framework_mapping_notes: 'Non-persistent agent environments (ephemeral containers) eliminate persistent compromise
-
-
-    3.2 - readOnlyRootFilesystem (non-persistent container state); 6.1 - Minimal images (ephemeral, non-persistent workloads)'
-  control_id: SAF-K8S-0601-014
   relation_type: direct
   strength_level: strong
   applicability: required
