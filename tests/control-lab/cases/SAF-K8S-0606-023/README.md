@@ -18,10 +18,17 @@ compares it with the scan evidence. It withholds the marker after the
 failed scan and creates an inert ConfigMap tied to the clean scan and
 the matching digest after the successful scan.
 
-The case performs static scanning on local fixtures. Deployed CI policy,
-approval protections, broader rules and template coverage, other IaC
-engines, and integration with production infrastructure require separate
-evidence.
+The case performs static scanning on local fixtures. Its adopter procedure
+covers the actual CI gate, approval protections, rules, and deployment
+paths for each configured format.
 
 - [Checkov 3.3.16 policy](https://github.com/bridgecrewio/checkov/blob/3.3.16/checkov/terraform/checks/graph_checks/aws/S3PublicACLRead.yaml)
 - [Kubernetes v1.36 Jobs](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/job/)
+
+## CloudFormation comparison
+
+The same pinned scanner and selected rule evaluate two inert CloudFormation templates. The native Jobs must verify the expected failing and passing exit status and resource report. A separate promotion Job checks the scanner Job identity and exact mounted template digest. The failing input leaves its marker absent, and the successful input produces an immutable marker for that exact template hash. The cases use the local Kubernetes API and deploy only fixture marker ConfigMaps.
+
+## Adopter verification
+
+Inventory the languages and repositories that the actual deployment workflow accepts. For each, record the scanner and rule revision, required severity gates, artifact identity, authorized exceptions and deployment identity. Verify a harmless failing change blocks the approved path, an approved passing change promotes the exact scanned bytes, and unrelated artifacts or bypass paths are refused. Record Pulumi separately when it is in scope, along with the actual CI workflow and approval requirements.

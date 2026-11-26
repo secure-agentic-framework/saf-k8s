@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-023",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "b18b0b5921b6642628bdac7e937389df73a01668",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "be4b4a1ea2b23b06251712540cff29734e6050a004041ba78eaf028669abd653",
-  "scope": "A disposable Kubernetes v1.36.1 kind cluster runs the official Checkov 3.3.16 image against case-owned inert Terraform files. The test observes one configured Checkov rule, the real Job and process exit statuses, and a separate marker promotion gate. It never initializes or applies Terraform and has no cloud credentials. This establishes Terraform coverage for this scanner/rule and delivery path only; other IaC languages, production CI protection, policy completeness, and deployment blocking require separate evidence.",
-  "cluster": "saf-lab-fd1d01340a96",
+  "scope": "A disposable Kubernetes v1.36.1 kind cluster runs the official Checkov 3.3.16 image against case-owned inert Terraform files and an added CloudFormation fail/pass pair with a matching local hash-bound marker gate. The test observes one configured Checkov rule, real Job and process exit statuses, and separate marker gates for each format. It never initializes or applies infrastructure and has no cloud credentials. CloudFormation coverage is scanner behavior only, not gate enforcement; Pulumi, production CI protection, policy completeness, and production deployment blocking for each format require separate evidence.",
+  "cluster": "saf-lab-19aa334a64eb",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -111,6 +111,52 @@
       "observed": {
         "kind": "ConfigMap",
         "scanner_job": "iac-compliant-check"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The pinned Checkov image scans inert CloudFormation with the expected fail/pass results",
+      "matched": true,
+      "observed": {
+        "framework": "cloudformation",
+        "check_id": "CKV_AWS_20",
+        "noncompliant": {
+          "job_state": "Failed",
+          "exit_code": 1,
+          "failed_count": 1,
+          "passed_count": 0,
+          "violations": [
+            {
+              "check_id": "CKV_AWS_20",
+              "resource": "AWS::S3::Bucket.SafLabPublicAclBucket",
+              "file": "template.yaml"
+            }
+          ],
+          "report_parseable": true,
+          "cloudformation_sha256": "de6d18b10431a9f922eca32b9f8a95cee35233587a069887cb92a62db0ea20b5"
+        },
+        "compliant": {
+          "job_state": "Complete",
+          "exit_code": 0,
+          "failed_count": 0,
+          "passed_count": 1,
+          "violations": [],
+          "report_parseable": true,
+          "cloudformation_sha256": "cc6a8f035e16dc40bef132306cce014181f67c58f57f1be45824f96d27fdac13"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The hash-bound gate withholds failed CloudFormation and marks only the exact clean template",
+      "matched": true,
+      "observed": {
+        "marker_absent_before_gate": true,
+        "failed_scan_withheld": true,
+        "failed_marker_absent": true,
+        "clean_template_promoted": true,
+        "marker_data_matches_cloudformation_sha256": true,
+        "marker_kind": "ConfigMap"
       }
     }
   ]

@@ -1,4 +1,4 @@
-"""Exercise a digest-pinned Checkov Terraform gate in isolated Kubernetes Jobs."""
+"""Exercise a digest-pinned Checkov Terraform gate and CloudFormation scan."""
 from hashlib import sha256
 import json
 from pathlib import Path
@@ -15,11 +15,11 @@ CHECKOV_IMAGE = (
 )
 SCOPE = (
     "A disposable Kubernetes v1.36.1 kind cluster runs the official Checkov 3.3.16 image "
-    "against case-owned inert Terraform files. The test observes one configured Checkov rule, "
-    "the real Job and process exit statuses, and a separate marker promotion gate. It never "
-    "initializes or applies Terraform and has no cloud credentials. This establishes Terraform "
-    "coverage for this scanner/rule and delivery path only; other IaC languages, production "
-    "CI protection, policy completeness, and deployment blocking require separate evidence."
+    "against case-owned inert Terraform files and an added CloudFormation fail/pass pair with a matching local hash-bound marker gate. The test observes "
+    "one configured Checkov rule, real Job and process exit statuses, and separate marker gates for each format. "
+    "It never initializes or applies infrastructure and has no cloud credentials. CloudFormation coverage "
+    "is scanner behavior only, not gate enforcement; Pulumi, production CI protection, policy completeness, "
+    "and production deployment blocking for each format require separate evidence."
 )
 
 
@@ -31,7 +31,7 @@ def configmap(name, data):
     }
 
 
-def job_manifest(name, fixture_configmap):
+def job_manifest(name, fixture_configmap, *, framework="terraform", check_id="CKV_AWS_20"):
     return {
         "apiVersion": "batch/v1", "kind": "Job",
         "metadata": {"name": name, "labels": {"saf-k8s.example/control": "0606-023"}},
@@ -49,8 +49,8 @@ def job_manifest(name, fixture_configmap):
                         "name": "checkov", "image": CHECKOV_IMAGE,
                         "imagePullPolicy": "IfNotPresent",
                         "command": ["checkov"],
-                        "args": ["--directory", "/terraform", "--framework", "terraform",
-                                 "--check", "CKV_AWS_20", "--output", "json",
+                        "args": ["--directory", "/terraform", "--framework", framework,
+                                 "--check", check_id, "--output", "json",
                                  "--skip-download"],
                         "env": [{"name": "HOME", "value": "/tmp"},
                                 {"name": "TMPDIR", "value": "/tmp"}],
@@ -106,12 +106,12 @@ def stable_result(job_state, exit_code, report):
     }
 
 
-def run_scan(lab, case_name, terraform_file):
+def run_scan(lab, case_name, terraform_file, *, framework="terraform", input_file="main.tf"):
     cm_name = f"iac-{case_name}-input"
     job_name = f"iac-{case_name}-check"
     source = (HERE / "fixtures" / terraform_file).read_text()
-    lab.create(configmap(cm_name, {"main.tf": source}))
-    lab.create(job_manifest(job_name, cm_name))
+    lab.create(configmap(cm_name, {input_file: source}))
+    lab.create(job_manifest(job_name, cm_name, framework=framework))
 
     deadline = time.monotonic() + 180
     terminal_state = None
@@ -146,14 +146,68 @@ def run_scan(lab, case_name, terraform_file):
     (lab.evidence / f"{case_name}.checkov.stdout.raw").write_text(stdout)
     report = parse_report(stdout)
     stable = stable_result(terminal_state, exit_code, report)
-    stable["terraform_sha256"] = sha256(source.encode()).hexdigest()
+    digest_field = "terraform_sha256" if framework == "terraform" else "cloudformation_sha256"
+    stable[digest_field] = sha256(source.encode()).hexdigest()
     (lab.evidence / f"{case_name}.checkov.observation.json").write_text(
         json.dumps(stable, sort_keys=True, indent=2) + "\n")
     return stable
 
 
-def marker(lab):
-    result = lab.kubectl("get", "configmap/iac-promotion-marker", "-o", "json", "--ignore-not-found")
+def run_cloudformation_scan_pair(lab):
+    red = run_scan(lab, "cloudformation-noncompliant", "noncompliant.yaml",
+                   framework="cloudformation", input_file="template.yaml")
+    green = run_scan(lab, "cloudformation-compliant", "compliant.yaml",
+                     framework="cloudformation", input_file="template.yaml")
+    violation_shape = (len(red["violations"]) == 1
+                       and red["violations"][0].get("check_id") == "CKV_AWS_20"
+                       and red["violations"][0].get("file") == "template.yaml"
+                       and bool(red["violations"][0].get("resource")))
+    red_ok = (red["job_state"] == "Failed" and red["exit_code"] == 1
+              and red["failed_count"] == 1 and red["passed_count"] == 0
+              and violation_shape and red["report_parseable"])
+    green_ok = (green["job_state"] == "Complete" and green["exit_code"] == 0
+                and green["failed_count"] == 0 and green["violations"] == []
+                and green["passed_count"] == 1 and green["report_parseable"])
+    lab.check("positive", "The pinned Checkov image scans inert CloudFormation with the expected fail/pass results",
+              red_ok and green_ok,
+              {"framework": "cloudformation", "check_id": "CKV_AWS_20",
+               "noncompliant": red, "compliant": green})
+    marker_name = "iac-cloudformation-promotion-marker"
+    marker_absent_before_gate = marker(lab, marker_name) is None
+    blocked = promote(lab, "cloudformation-noncompliant", red, source_file="template.yaml",
+                      digest_key="cloudformation_sha256", marker_name=marker_name,
+                      framework="cloudformation")
+    marker_absent_after_red = marker(lab, marker_name) is None
+    red_withheld = (blocked == {"withheld": True, "created": False,
+                                "artifact_matches": True, "job_matches": True}
+                    and marker_absent_after_red)
+    promoted = promote(lab, "cloudformation-compliant", green, source_file="template.yaml",
+                       digest_key="cloudformation_sha256", marker_name=marker_name,
+                       framework="cloudformation")
+    observed = marker(lab, marker_name)
+    green_promoted = (
+        promoted == {"withheld": False, "created": True,
+                     "artifact_matches": True, "job_matches": True}
+        and observed is not None
+        and observed.get("data") == {
+            "decision": "promoted", "scanner_job": "iac-cloudformation-compliant-check",
+            "cloudformation_sha256": green["cloudformation_sha256"],
+        }
+    )
+    lab.check("green", "The hash-bound gate withholds failed CloudFormation and marks only the exact clean template",
+              marker_absent_before_gate and red_withheld and green_promoted,
+              {"marker_absent_before_gate": marker_absent_before_gate,
+               "failed_scan_withheld": red_withheld,
+               "failed_marker_absent": marker_absent_after_red,
+               "clean_template_promoted": green_promoted,
+               "marker_data_matches_cloudformation_sha256": bool(
+                   observed and observed.get("data", {}).get("cloudformation_sha256")
+                   == green["cloudformation_sha256"]),
+               "marker_kind": observed.get("kind") if observed else None})
+
+
+def marker(lab, name="iac-promotion-marker"):
+    result = lab.kubectl("get", f"configmap/{name}", "-o", "json", "--ignore-not-found")
     return json.loads(result.stdout) if result.stdout.strip() else None
 
 
@@ -165,7 +219,9 @@ def prepare_promoter(lab):
         "apiVersion": f"{rbac_api}/v1", "kind": "Role", "metadata": {"name": name},
         "rules": [
             {"apiGroups": ["batch"], "resources": ["jobs"], "verbs": ["get"],
-             "resourceNames": ["iac-noncompliant-check", "iac-compliant-check"]},
+             "resourceNames": ["iac-noncompliant-check", "iac-compliant-check",
+                               "iac-cloudformation-noncompliant-check",
+                               "iac-cloudformation-compliant-check"]},
             {"apiGroups": [""], "resources": ["configmaps"], "verbs": ["create"]},
         ],
     })
@@ -176,7 +232,9 @@ def prepare_promoter(lab):
     })
 
 
-def promote(lab, case_name, verdict):
+def promote(lab, case_name, verdict, *, source_file="main.tf",
+            digest_key="terraform_sha256", marker_name="iac-promotion-marker",
+            framework="terraform", check_id="CKV_AWS_20"):
     name = f"iac-{case_name}-promotion"
     input_name = f"iac-{case_name}-input"
     scan = f"iac-{case_name}-check"
@@ -190,7 +248,8 @@ def promote(lab, case_name, verdict):
                                 "seccompProfile": {"type": "RuntimeDefault"}},
             "containers": [{
                 "name": "promotion", "image": PYTHON_IMAGE,
-                "command": ["python", "/decision/promote.py", NAMESPACE, scan, input_name, CHECKOV_IMAGE],
+                "command": ["python", "/decision/promote.py", NAMESPACE, scan, input_name, CHECKOV_IMAGE,
+                            source_file, digest_key, marker_name, framework, check_id],
                 "securityContext": {"allowPrivilegeEscalation": False, "readOnlyRootFilesystem": True,
                                     "capabilities": {"drop": ["ALL"]}},
                 "volumeMounts": [{"name": "decision", "mountPath": "/decision", "readOnly": True},
@@ -251,3 +310,5 @@ def run(lab):
               created and observed.get("kind") == "ConfigMap",
               {"kind": observed.get("kind") if observed else None,
                "scanner_job": observed.get("data", {}).get("scanner_job") if observed else None})
+
+    run_cloudformation_scan_pair(lab)

@@ -1,0 +1,7 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Inert CloudFormation input for a local Checkov scanner fixture.
+Resources:
+  SafLabPublicAclBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
