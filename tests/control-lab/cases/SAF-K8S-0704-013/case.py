@@ -1,9 +1,16 @@
 """Verify collection and local receipt separately from an enabled audit producer."""
 
 import json
+from pathlib import Path
+import sys
 import time
 
-SCOPE = "Actual metadata-only Kubernetes audit producer with a local collector and openly synthetic provider input."
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from delivery_supplement import run_supplement
+
+SCOPE = ("Actual metadata-only Kubernetes API audit producer forwarded by a case-owned in-cluster source reader "
+         "to an independent local HTTP receiver, plus one clearly synthetic provider fixture record. "
+         "Managed provider configuration, external delivery security, coverage and retention remain adopter evidence.")
 NODE_IMAGE = "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
 MARKER = "audit-receipt-marker"
 LOG = "/var/log/kubernetes/saf-receipt-audit.log"
@@ -115,3 +122,4 @@ def run(lab):
                "receipt_sources": [row["source"] for row in actual], "exact_kubernetes_receipt": authoritative,
                "provider_input_is_synthetic": fixture_distinct, "receipt_file": destination.name}
     (lab.evidence / "audit-delivery-observations.json").write_text(json.dumps(summary, indent=2) + "\n")
+    run_supplement(lab, event, read_audit)
