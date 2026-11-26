@@ -38,15 +38,6 @@ Provenance tracking for AI models, training data, and agent tools verifies origi
 - Applicability: conditional
 - Strength Reason Code: partial-control-coverage
 
-### [SAF-K8S-0905-012 - Development-to-production environment separation for AI workloads](../../controls/SAF-K8S-0905-012.md)
-
-- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
-- Knowledge Area: 9.5
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0905-047 - Training pipeline attestation generation for ML artifacts](../../controls/SAF-K8S-0905-047.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines

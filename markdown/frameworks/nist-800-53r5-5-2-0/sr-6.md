@@ -38,15 +38,6 @@ Supplier assessments for AI model providers and tool vendors validate security p
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0905-012 - Development-to-production environment separation for AI workloads](../../controls/SAF-K8S-0905-012.md)
-
-- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
-- Knowledge Area: 9.5
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0905-053 - Approved external model source periodic review and allowlist update governance](../../controls/SAF-K8S-0905-053.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines

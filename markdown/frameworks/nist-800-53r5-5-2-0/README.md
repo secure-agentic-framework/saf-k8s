@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 2245
-- Distinct Requirements Mapped: 671
+- Total Reverse Mappings: 2193
+- Distinct Requirements Mapped: 659
 
 ## Requirements
 
@@ -127,7 +127,6 @@
 - [AU-10(1) - Association of Identities](au-10-1.md)
 - [AU-10(2) - Validate Binding of Information Producer Identity](au-10-2.md)
 - [AU-10(3) - Chain of Custody](au-10-3.md)
-- [AU-10(4) - Validate Binding of Information Reviewer Identity](au-10-4.md)
 - [AU-11 - Audit Record Retention](au-11.md)
 - [AU-11(1) - Long-term Retrieval Capability](au-11-1.md)
 - [AU-12 - Audit Record Generation](au-12.md)
@@ -195,8 +194,6 @@
 - [CA-9 - Internal System Connections](ca-9.md)
 - [CA-9(1) - Compliance Checks](ca-9-1.md)
 - [CM-1 - Policy and Procedures](cm-1.md)
-- [CM-10 - Software Usage Restrictions](cm-10.md)
-- [CM-10(1) - Open-source Software](cm-10-1.md)
 - [CM-11 - User-installed Software](cm-11.md)
 - [CM-11(2) - Software Installation with Privileged Status](cm-11-2.md)
 - [CM-11(3) - Automated Enforcement and Monitoring](cm-11-3.md)
@@ -219,7 +216,6 @@
 - [CM-3(7) - Review System Changes](cm-3-7.md)
 - [CM-3(8) - Prevent or Restrict Configuration Changes](cm-3-8.md)
 - [CM-4 - Impact Analyses](cm-4.md)
-- [CM-4(1) - Separate Test Environments](cm-4-1.md)
 - [CM-4(2) - Verification of Controls](cm-4-2.md)
 - [CM-5 - Access Restrictions for Change](cm-5.md)
 - [CM-5(1) - Automated Access Enforcement and Audit Records](cm-5-1.md)
@@ -256,7 +252,6 @@
 - [CP-2(6) - Alternate Processing and Storage Sites](cp-2-6.md)
 - [CP-2(8) - Identify Critical Assets](cp-2-8.md)
 - [CP-3(1) - Simulated Events](cp-3-1.md)
-- [CP-3(2) - Mechanisms Used in Training Environments](cp-3-2.md)
 - [CP-4 - Contingency Plan Testing](cp-4.md)
 - [CP-4(2) - Alternate Processing Site](cp-4-2.md)
 - [CP-4(3) - Automated Testing](cp-4-3.md)
@@ -400,7 +395,6 @@
 - [SA-11(9) - Interactive Application Security Testing](sa-11-9.md)
 - [SA-15 - Development Process, Standards, and Tools](sa-15.md)
 - [SA-15(1) - Quality Metrics](sa-15-1.md)
-- [SA-15(11) - Archive System or Component](sa-15-11.md)
 - [SA-15(12) - Minimize Personally Identifiable Information](sa-15-12.md)
 - [SA-15(13) - Logging Syntax](sa-15-13.md)
 - [SA-15(2) - Security and Privacy Tracking Tools](sa-15-2.md)
@@ -470,7 +464,6 @@
 - [SA-9 - External System Services](sa-9.md)
 - [SA-9(2) - Identification of Functions, Ports, Protocols, and Services](sa-9-2.md)
 - [SA-9(3) - Establish and Maintain Trust Relationship with Providers](sa-9-3.md)
-- [SA-9(5) - Processing, Storage, and Service Location](sa-9-5.md)
 - [SA-9(6) - Organization-controlled Cryptographic Keys](sa-9-6.md)
 - [SA-9(7) - Organization-controlled Integrity Checking](sa-9-7.md)
 - [SC-1 - Policy and Procedures](sc-1.md)
@@ -590,16 +583,12 @@
 - [SI-15 - Information Output Filtering](si-15.md)
 - [SI-16 - Memory Protection](si-16.md)
 - [SI-17 - Fail-safe Procedures](si-17.md)
-- [SI-18 - Personally Identifiable Information Quality Operations](si-18.md)
 - [SI-18(1) - Automation Support](si-18-1.md)
 - [SI-18(2) - Data Tags](si-18-2.md)
-- [SI-18(5) - Notice of Correction or Deletion](si-18-5.md)
 - [SI-19 - De-identification](si-19.md)
-- [SI-19(2) - Archiving](si-19-2.md)
 - [SI-19(3) - Release](si-19-3.md)
 - [SI-19(4) - Removal, Masking, Encryption, Hashing, or Replacement of Direct Identifiers](si-19-4.md)
 - [SI-19(6) - Differential Privacy](si-19-6.md)
-- [SI-19(7) - Validated Algorithms and Software](si-19-7.md)
 - [SI-19(8) - Motivated Intruder](si-19-8.md)
 - [SI-2 - Flaw Remediation](si-2.md)
 - [SI-2(2) - Automated Flaw Remediation Status](si-2-2.md)
@@ -652,7 +641,6 @@
 - [SI-7(8) - Auditing Capability for Significant Events](si-7-8.md)
 - [SI-7(9) - Verify Boot Process](si-7-9.md)
 - [SR-1 - Policy and Procedures](sr-1.md)
-- [SR-10 - Inspection of Systems or Components](sr-10.md)
 - [SR-11 - Component Authenticity](sr-11.md)
 - [SR-11(1) - Anti-counterfeit Training](sr-11-1.md)
 - [SR-11(2) - Configuration Control for Component Service and Repair](sr-11-2.md)
