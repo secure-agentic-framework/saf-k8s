@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-027",
-  "catalog_revision": "5d09ad15b63defddfa7cc8e9087f64ad76d53dee",
-  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
+  "catalog_revision": "be51e36d445e3477ca7c4fbb30df96c0ea5716e9",
+  "catalog_sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "91390198c97536bcc6221ee1936649206d2d31493e91932c1b4f6e2b36b53753",
-  "scope": "A disposable Kubernetes v1.36.1 Kind control plane writes a native Metadata-level audit event for one case-owned ConfigMap create. The case preserves that exact JSONL record and stores identical bytes in an unlocked S3 version and a version inheriting a synthetic three-day COMPLIANCE bucket default. The S3 API observations verify the configured default, effective per-version retention, successful deletion of the unlocked counterpart, denial of early protected-version deletion or shortening, and exact-version retrieval after a benign replacement. A new gateway Pod retains the locked bytes and metadata on the same bound PVC. This tests the pinned Versity gateway data plane only; it does not establish production log coverage, provider equivalence, legal retention requirements, administrative separation, storage capacity, or sustained durability.",
-  "cluster": "saf-lab-3476edfde075",
+  "scope": "A disposable Kubernetes v1.36.1 Kind control plane writes a native Metadata-level audit event for one case-owned ConfigMap create. The case preserves that exact JSONL record and stores identical bytes in an unlocked S3 version and a version inheriting a synthetic three-day COMPLIANCE bucket default. The S3 API observations verify the configured default, effective per-version retention, successful deletion of the unlocked counterpart, denial of early protected-version deletion or shortening, and exact-version retrieval after a benign replacement. A new gateway Pod retains the locked bytes and metadata on the same bound PVC. A second digest-pinned gateway with a separate PVC and independent fixture credentials begins without the object, receives the exact locked source-version bytes through a bounded client-mediated copy under its own COMPLIANCE default, and remains readable after the original gateway, PVC, and PV are deleted. This second store is still on the same disposable Kind node and is not an independent physical failure domain or a claim of native provider replication. This tests the pinned Versity gateway data plane only; it does not establish production log coverage, provider equivalence, legal retention requirements, administrative separation, storage capacity, or sustained durability.",
+  "cluster": "saf-lab-d27cc6fa1652",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -95,6 +95,35 @@
           "same_compliance_deadline": true,
           "successor_still_current": true
         }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The separate protected replica is explicitly absent before the copy",
+      "matched": true,
+      "observed": {
+        "replica_object_absent_before_copy": true,
+        "expected_not_found_observed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A separately credentialed gateway stores the exact audit version as a protected PVC-backed copy",
+      "matched": true,
+      "observed": {
+        "source_and_replica_credentials_distinct": true,
+        "source_and_replica_pvcs_distinct": true,
+        "exact_version_bytes_and_retention_verified": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "After deleting the original gateway and PVC, an independent job retrieves the protected replica version",
+      "matched": true,
+      "observed": {
+        "original_gateway_pvc_pv_absent": true,
+        "replica_pvc_still_bound": true,
+        "exact_named_replica_version_and_digest_retrieved": true
       }
     }
   ]

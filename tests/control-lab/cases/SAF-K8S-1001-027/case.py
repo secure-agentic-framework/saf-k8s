@@ -33,7 +33,12 @@ CREDENTIALS = "saf-1001-027-synthetic-credentials"
 FIXTURE_CONFIG = "saf-1001-027-probe-files"
 CLIENT_JOB = "saf-1001-027-probe"
 RECOVERY_JOB = "saf-1001-027-recover"
+REPLICA_JOB = "saf-1001-027-replica"
+REPLICA_RECOVERY_JOB = "saf-1001-027-replica-recover"
 STORAGE_CLAIM = "saf-1001-027-storage"
+REPLICA_STORAGE_CLAIM = "saf-1001-027-replica-storage"
+REPLICA_STORE_POD = "saf-1001-027-replica-s3"
+REPLICA_CREDENTIALS = "saf-1001-027-replica-credentials"
 BUCKET_PREFIX = "saf-k8s-1001-027-audit"
 KEY = "audit/kube-apiserver-event.jsonl"
 
@@ -45,6 +50,11 @@ SCOPE = (
     "effective per-version retention, successful deletion of the unlocked counterpart, denial "
     "of early protected-version deletion or shortening, and exact-version retrieval after a "
     "benign replacement. A new gateway Pod retains the locked bytes and metadata on the same bound PVC. "
+    "A second digest-pinned gateway with a separate PVC and independent fixture credentials begins "
+    "without the object, receives the exact locked source-version bytes through a bounded client-mediated "
+    "copy under its own COMPLIANCE default, and remains readable after the original gateway, PVC, and PV "
+    "are deleted. This second store is still on the same disposable Kind node and is not an independent "
+    "physical failure domain or a claim of native provider replication. "
     "This tests the pinned Versity gateway data plane only; it does not "
     "establish production log coverage, provider equivalence, legal retention requirements, "
     "administrative separation, storage capacity, or sustained durability."
@@ -112,8 +122,9 @@ def prepare_kind(_lab, temporary):
 
 def install_credentials(lab):
     """Install throwaway local credentials without placing their values in command evidence."""
+    key_id = "saf-fixture-" + secrets.token_hex(8)
     secret = object_spec("v1", "Secret", CREDENTIALS, stringData={
-        "key-id": "saf-fixture-" + secrets.token_hex(8),
+        "key-id": key_id,
         "key-material": secrets.token_urlsafe(32),
     })
     result = subprocess.run(
@@ -123,10 +134,31 @@ def install_credentials(lab):
     )
     if result.returncode:
         lab.block("Could not install throwaway S3 credentials in the owned cluster")
+    return key_id
+
+
+def install_replica_credentials(lab):
+    key_id = "saf-replica-" + secrets.token_hex(8)
+    secret = object_spec("v1", "Secret", REPLICA_CREDENTIALS, stringData={
+        "key-id": key_id,
+        "key-material": secrets.token_urlsafe(32),
+    })
+    result = subprocess.run(
+        ["kubectl", "--kubeconfig", str(lab.kubeconfig), "--context", f"kind-{lab.cluster}",
+         "--namespace", NAMESPACE, "create", "-f", "-"],
+        input=json.dumps(secret), text=True, capture_output=True, env=lab.env, timeout=20,
+    )
+    if result.returncode:
+        lab.block("Could not install separate throwaway replica credentials")
+    return key_id
 
 
 def secret_env(name, key):
     return {"name": name, "valueFrom": {"secretKeyRef": {"name": CREDENTIALS, "key": key}}}
+
+
+def secret_env_for(secret, name, key):
+    return {"name": name, "valueFrom": {"secretKeyRef": {"name": secret, "key": key}}}
 
 
 def selected_event(lab, marker):
@@ -153,10 +185,10 @@ def selected_event(lab, marker):
     lab.block("The kube-apiserver did not persist the exact synthetic request audit event")
 
 
-def wait_gateway(lab):
+def wait_gateway(lab, name=STORE_POD):
     deadline = time.monotonic() + 100
     while time.monotonic() < deadline:
-        pod = json.loads(lab.kubectl("get", "pod", STORE_POD, "-o", "json").stdout)
+        pod = json.loads(lab.kubectl("get", "pod", name, "-o", "json").stdout)
         statuses = pod.get("status", {}).get("containerStatuses", [])
         if pod["status"]["phase"] == "Failed":
             lab.block("The local S3 gateway exited before readiness")
@@ -173,6 +205,7 @@ def wait_job(lab, name=CLIENT_JOB):
         if status.get("succeeded") == 1:
             return
         if status.get("failed"):
+            lab.kubectl("logs", f"job/{name}", allow_failure=True)
             lab.block(f"The owned S3 retention probe Job {name} failed")
         time.sleep(1)
     lab.block("The S3 retention probe did not finish")
@@ -189,11 +222,17 @@ def run(lab):
     (lab.evidence / "selected-audit-event.sha256").write_text(
         event_digest + "  selected-audit-event.jsonl\n")
 
-    install_credentials(lab)
+    source_key_id = install_credentials(lab)
+    replica_key_id = install_replica_credentials(lab)
     storage_class = json.loads(lab.kubectl("get", "storageclass", "standard", "-o", "json").stdout)
     if storage_class.get("provisioner") != "rancher.io/local-path":
         lab.block("The expected disposable local-path storage provisioner is unavailable")
     lab.create(object_spec("v1", "PersistentVolumeClaim", STORAGE_CLAIM, spec={
+        "storageClassName": "standard",
+        "accessModes": ["ReadWriteOnce"],
+        "resources": {"requests": {"storage": "32Mi"}},
+    }))
+    lab.create(object_spec("v1", "PersistentVolumeClaim", REPLICA_STORAGE_CLAIM, spec={
         "storageClassName": "standard",
         "accessModes": ["ReadWriteOnce"],
         "resources": {"requests": {"storage": "32Mi"}},
@@ -232,10 +271,36 @@ def run(lab):
     if initial_claim.get("status", {}).get("phase") != "Bound" or not initial_claim["spec"].get("volumeName"):
         lab.block("The owned retained-object directory did not bind to a volume")
     address = initial_pod["status"]["podIP"]
+    replica_gateway = deepcopy(gateway)
+    replica_gateway["metadata"]["name"] = REPLICA_STORE_POD
+    replica_gateway["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] = REPLICA_STORAGE_CLAIM
+    for entry in replica_gateway["spec"]["containers"][0]["env"]:
+        entry["valueFrom"]["secretKeyRef"]["name"] = REPLICA_CREDENTIALS
+    lab.create(replica_gateway)
+    replica_pod = wait_gateway(lab, REPLICA_STORE_POD)
+    replica_address = replica_pod["status"]["podIP"]
+    replica_claim = json.loads(lab.kubectl("get", "pvc", REPLICA_STORAGE_CLAIM, "-o", "json").stdout)
+    if replica_claim.get("status", {}).get("phase") != "Bound" or not replica_claim["spec"].get("volumeName"):
+        lab.block("The independent replica storage directory did not bind to a volume")
+    source_pv_name = initial_claim["spec"]["volumeName"]
+    replica_pv_name = replica_claim["spec"]["volumeName"]
+    source_pv = json.loads(lab.kubectl("get", "pv", source_pv_name, "-o", "json").stdout)
+    replica_pv = json.loads(lab.kubectl("get", "pv", replica_pv_name, "-o", "json").stdout)
+    source_path = source_pv.get("spec", {}).get("hostPath", {}).get("path")
+    replica_path = replica_pv.get("spec", {}).get("hostPath", {}).get("path")
+    independent_storage = (source_pv_name != replica_pv_name
+                           and initial_claim["metadata"]["uid"] != replica_claim["metadata"]["uid"]
+                           and source_pv.get("spec", {}).get("claimRef", {}).get("uid") == initial_claim["metadata"]["uid"]
+                           and replica_pv.get("spec", {}).get("claimRef", {}).get("uid") == replica_claim["metadata"]["uid"]
+                           and bool(source_path) and bool(replica_path) and source_path != replica_path)
+    if not independent_storage or source_key_id == replica_key_id:
+        lab.block("The original and replica stores do not have distinct PVC backing and credentials")
     bucket = BUCKET_PREFIX + "-" + secrets.token_hex(4)
     script = (Path(__file__).with_name("s3-retention-probe.sh").read_text(encoding="utf-8"))
+    replica_script = Path(__file__).with_name("replica-recovery-probe.sh").read_text(encoding="utf-8")
     lab.create(object_spec("v1", "ConfigMap", FIXTURE_CONFIG, data={
-        "run.sh": script, "audit-event.jsonl": raw_event.decode("utf-8"),
+        "run.sh": script, "replica.sh": replica_script,
+        "audit-event.jsonl": raw_event.decode("utf-8"),
     }))
     job = object_spec("batch/v1", "Job", CLIENT_JOB, spec={
         "backoffLimit": 0,
@@ -347,3 +412,120 @@ def run(lab):
     lab.check("green", "A replacement gateway on the same bound volume preserves the exact audit version and retention",
               new_pod and same_binding and observed == expected,
               {"different_pod_uid": new_pod, "same_bound_pvc": same_binding, "storage_observations": observed})
+
+    # Replicate the exact locked source version to a second gateway with separate
+    # credentials and a separate PVC. This remains a client-mediated reference copy.
+    replica_bucket = bucket + "-protected-replica"
+    replica_job = deepcopy(job)
+    replica_job["metadata"]["name"] = REPLICA_JOB
+    replica_job["spec"]["template"]["metadata"]["labels"]["app"] = REPLICA_JOB
+    replica_runner = replica_job["spec"]["template"]["spec"]["containers"][0]
+    replica_runner["command"] = ["/bin/sh", "/fixture/replica.sh"]
+    replica_runner["env"] = [entry for entry in replica_runner["env"] if entry["name"] != "AWS_ENDPOINT_URL"]
+    replica_runner["env"].extend([
+        {"name": "SOURCE_ENDPOINT_URL", "value": f'http://{restarted["status"]["podIP"]}:7070'},
+        {"name": "SOURCE_BUCKET", "value": bucket}, {"name": "SOURCE_KEY", "value": KEY},
+        {"name": "SOURCE_VERSION_ID", "value": effective["version_id"]},
+        {"name": "SOURCE_RETAIN_UNTIL", "value": effective["retain_until"]},
+        secret_env_for(REPLICA_CREDENTIALS, "REPLICA_AWS_ACCESS_KEY_ID", "key-id"),
+        secret_env_for(REPLICA_CREDENTIALS, "REPLICA_AWS_SECRET_ACCESS_KEY", "key-material"),
+        {"name": "REPLICA_ENDPOINT_URL", "value": f"http://{replica_address}:7070"},
+        {"name": "REPLICA_BUCKET", "value": replica_bucket}, {"name": "REPLICA_KEY", "value": KEY},
+        {"name": "REPLICA_RETENTION_DAYS", "value": str(DEFAULT_DAYS)},
+    ])
+    lab.create(replica_job)
+    wait_job(lab, REPLICA_JOB)
+    replica_raw = lab.kubectl("logs", f"job/{REPLICA_JOB}").stdout
+    try:
+        replica_observed = json.loads(replica_raw)
+    except json.JSONDecodeError:
+        lab.block("The independent replica probe did not emit structured observations")
+    (lab.evidence / "independent-replica-observations.raw.json").write_text(replica_raw)
+    baseline_miss = replica_observed.get("replica_baseline_absent") is True
+    lab.check("red", "The separate protected replica is explicitly absent before the copy",
+              baseline_miss and replica_observed.get("baseline_error") in
+              {"404", "NoSuchKey", "NoSuchVersion", "NotFound"},
+              {"replica_object_absent_before_copy": baseline_miss,
+               "expected_not_found_observed": replica_observed.get("baseline_error") in
+               {"404", "NoSuchKey", "NoSuchVersion", "NotFound"}})
+    replica_copy_ok = (replica_observed.get("source_exact_version_read") is True
+                       and replica_observed.get("replica_exact_version_read") is True
+                       and replica_observed.get("replica_content_matches") is True
+                       and replica_observed.get("replica_mode") == "COMPLIANCE"
+                       and replica_observed.get("replica_retention_covers_source") is True
+                       and replica_observed.get("replica_delete_denied") is True
+                       and replica_observed.get("replica_version_survived_denial") is True
+                       and replica_observed.get("replica_delete_error") in {"AccessDenied", "InvalidRequest"}
+                       and independent_storage and source_key_id != replica_key_id)
+    lab.check("positive", "A separately credentialed gateway stores the exact audit version as a protected PVC-backed copy",
+              replica_copy_ok,
+              {"source_and_replica_credentials_distinct": source_key_id != replica_key_id,
+               "source_and_replica_pvcs_distinct": independent_storage,
+               "exact_version_bytes_and_retention_verified": replica_copy_ok})
+
+    # Make source object service and its original local volume unavailable, then
+    # retrieve only from the second endpoint with only replica credentials.
+    if source_pv.get("spec", {}).get("persistentVolumeReclaimPolicy") != "Delete":
+        lab.block("The owned source PVC is not configured for safe case-owned deletion")
+    lab.kubectl("delete", "pod", STORE_POD, "--wait=true", "--timeout=45s", timeout=55)
+    lab.kubectl("delete", "pvc", STORAGE_CLAIM, "--wait=true", "--timeout=90s", timeout=100)
+    def absent(resource, name):
+        deadline = time.monotonic() + 90
+        while time.monotonic() < deadline:
+            result = lab.kubectl("get", resource, name, allow_failure=True)
+            if result.returncode and "NotFound" in result.stderr:
+                return True
+            time.sleep(0.5)
+        return False
+    source_pod_absent = absent("pod", STORE_POD)
+    source_pvc_absent = absent("pvc", STORAGE_CLAIM)
+    source_pv_absent = absent("pv", source_pv_name)
+    if not (source_pod_absent and source_pvc_absent and source_pv_absent):
+        lab.block("The exact case-owned source gateway/PVC/PV did not become unavailable and absent")
+
+    replica_recovery = deepcopy(replica_job)
+    replica_recovery["metadata"]["name"] = REPLICA_RECOVERY_JOB
+    replica_recovery["spec"]["template"]["metadata"]["labels"]["app"] = REPLICA_RECOVERY_JOB
+    recovery_runner = replica_recovery["spec"]["template"]["spec"]["containers"][0]
+    recovery_runner["command"] = ["/bin/sh", "/fixture/replica.sh", "recover"]
+    recovery_runner["env"] = [
+        {"name": "AWS_EC2_METADATA_DISABLED", "value": "true"}, {"name": "AWS_PAGER", "value": ""},
+        {"name": "AWS_DEFAULT_REGION", "value": "us-east-1"},
+        secret_env_for(REPLICA_CREDENTIALS, "REPLICA_AWS_ACCESS_KEY_ID", "key-id"),
+        secret_env_for(REPLICA_CREDENTIALS, "REPLICA_AWS_SECRET_ACCESS_KEY", "key-material"),
+        {"name": "REPLICA_ENDPOINT_URL", "value": f"http://{replica_address}:7070"},
+        {"name": "REPLICA_BUCKET", "value": replica_bucket}, {"name": "REPLICA_KEY", "value": KEY},
+        {"name": "REPLICA_VERSION_ID", "value": replica_observed["replica_version_id"]},
+        {"name": "REPLICA_RETAIN_UNTIL", "value": replica_observed["replica_retain_until"]},
+        {"name": "EXPECTED_SHA256", "value": event_digest},
+    ]
+    lab.create(replica_recovery)
+    wait_job(lab, REPLICA_RECOVERY_JOB)
+    recovered_replica = json.loads(lab.kubectl("logs", f"job/{REPLICA_RECOVERY_JOB}").stdout)
+    (lab.evidence / "independent-replica-recovery.raw.json").write_text(
+        json.dumps({"object_key": KEY, "replica_bucket": replica_bucket,
+                    "source_bucket": bucket, "source_version_id": effective["version_id"],
+                    "source_retain_until": effective["retain_until"],
+                    "replica_version_id": replica_observed["replica_version_id"],
+                    "replica_retain_until": replica_observed["replica_retain_until"],
+                    "expected_sha256": event_digest,
+                    "storage": {"source_claim_uid": initial_claim["metadata"]["uid"],
+                                "source_pv_uid": source_pv["metadata"]["uid"],
+                                "replica_claim_uid": replica_claim["metadata"]["uid"],
+                                "replica_pv_uid": replica_pv["metadata"]["uid"],
+                                "distinct_pvc_pv_paths": independent_storage},
+                    "recovery": recovered_replica}, indent=2) + "\n")
+    replica_pod_after = json.loads(lab.kubectl("get", "pod", REPLICA_STORE_POD, "-o", "json").stdout)
+    replica_claim_after = json.loads(lab.kubectl("get", "pvc", REPLICA_STORAGE_CLAIM, "-o", "json").stdout)
+    replica_still_owned = (replica_pod_after["metadata"]["uid"] == replica_pod["metadata"]["uid"]
+                           and replica_claim_after["metadata"]["uid"] == replica_claim["metadata"]["uid"]
+                           and replica_claim_after["spec"].get("volumeName") == replica_pv_name)
+    replica_recovery_ok = (recovered_replica == {"exact_replica_version": True,
+                                                  "content_digest_matches": True,
+                                                  "replica_retention_unchanged": True,
+                                                  "replica_version_id": replica_observed["replica_version_id"]})
+    lab.check("green", "After deleting the original gateway and PVC, an independent job retrieves the protected replica version",
+              source_pod_absent and source_pvc_absent and source_pv_absent
+              and replica_still_owned and replica_recovery_ok,
+              {"original_gateway_pvc_pv_absent": True, "replica_pvc_still_bound": replica_still_owned,
+               "exact_named_replica_version_and_digest_retrieved": replica_recovery_ok})
