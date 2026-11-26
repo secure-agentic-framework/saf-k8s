@@ -8146,12 +8146,12 @@
   knowledge_area: '9.2'
   control_seq: '003'
   control_title: Inference request validation and input sanitization
-  control_statement: Inference endpoints must validate and sanitize all incoming requests through adversarial input detection, payload size limits, request format enforcement, and injection attack prevention to protect inference servers from malicious inputs.
-  objective: Protect inference servers from malicious inputs that exploit model behavior or crash the server through adversarial examples, oversized payloads, malformed requests, or injection attacks.
-  rationale: Inference APIs accept untrusted input that can contain adversarial examples, oversized payloads, malformed requests, or injection attacks designed to manipulate model behavior or crash the server. Without input validation, these attacks succeed silently. Input validation at the API gateway and inference preprocessing layer provides defense in depth.
-  scope: Applies to all inference request processing paths on Kubernetes, including HTTP/gRPC inference APIs, batch prediction endpoints, and streaming inference channels. Covers input preprocessing pipelines. Excludes model-internal robustness (adversarial training) which is addressed in KA 9.3. Response filtering is covered by SAF-K8S-0902-009.
-  primary_enforcement_point: Inference API gateway request validation policies and inference server input preprocessing configuration.
-  implementation_surface: API gateway and ingress controller request validation policies (payload size limits, schema enforcement), inference server input preprocessing configuration, adversarial input detection middleware, and prompt injection detection for LLM endpoints.
+  control_statement: Enforce the agreed request schema, content type and input-size limits on each supported inference route before dispatch. Define model-specific preprocessing, sanitization and input safety decisions separately where the application risk assessment requires them. Verify which deployed layer makes each decision.
+  objective: Limit invalid or excessive inference input and establish the expected request validation behavior before model execution on each governed route.
+  rationale: A gateway or serving process can enforce a specified wire format and size boundary. Model-specific preprocessing and semantic safety require their own validation, and different routes can have different limits and enforcement components.
+  scope: Applies to adopted inference request paths, including HTTP, gRPC, batch and streaming where deployed. Verify the actual gateway and inference boundaries and separately validate the model-specific input handling. Model robustness and response filtering are covered separately.
+  primary_enforcement_point: Effective request validation at the gateway and inference endpoint for each supported protocol, with separate application preprocessing and input safety where required.
+  implementation_surface: Specify and test actual schemas, request formats, limits, authorized routes, bounded streaming or batch handling, and observable refusal before model dispatch. Verify independent application preprocessing and any semantic input detection through their applicable validation process.
   owner_primary: ML Platform Engineering
   owner_supporting: Security Engineering; Application Security
   baseline_or_ai_specific: ai-specific
