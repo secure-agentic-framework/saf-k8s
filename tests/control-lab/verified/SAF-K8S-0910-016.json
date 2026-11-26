@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0910-016",
-  "catalog_revision": "27082409295eeb71b29b8080ecbc9358a5ecec23",
-  "catalog_sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
+  "catalog_revision": "983484997b834622941dae57b0109f1ef3bba970",
+  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9cee42c1b40128e67899036732d5937ade1f75fab9ce8530e96f7a65d695d4e3",
   "scope": "Two distinct owned Kind APIs. A source-cluster orchestrator calls one private peer-cluster mTLS gateway. The gateway measures the certificate URI and gates one exact deployment placement; its separate Kubernetes service account is limited to Deployment CREATE in the target namespace, and target admission independently constrains the resource name and fixture labels. Baseline accepts a same-CA alternate URI; enforced mode refuses that identity and an alternate placement, then allows the approved request to persist on the peer API. A separate rotation stage uses fixture-only old-only, overlap, and successor-only client trust bundles.",
-  "cluster": "saf-lab-859412968161",
+  "cluster": "saf-lab-0f359c1d59b6",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -88,6 +88,21 @@
         "same_requester_pod_restarted_with_distinct_successor_leaf": true,
         "successor_retains_exact_approved_spiiffe_uri": true,
         "accepted_rotation_events_bind_mtls_identity_and_exact_peer_action": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "SPIRE-issued federated mTLS identity authorizes only the exact peer placement",
+      "matched": true,
+      "observed": {
+        "both_kubelet_serving_csrs_bound_to_owned_nodes": true,
+        "both_agents_attested_and_three_svids_match_exact_selectors": true,
+        "two_way_federation_roots_match_the_other_issuer": true,
+        "mTLS_readiness_uses_the_exact_peer_gateway_svid": true,
+        "same_domain_alternate_svid_refused_before_target_write": true,
+        "approved_svid_created_exact_peer_placement": true,
+        "native_peer_admission_remains_active": true,
+        "gateway_event_binds_svid_to_api_result": true
       }
     }
   ]

@@ -423,10 +423,22 @@ def placement(peer, name):
 
 
 def run(lab):
-    runtime = load(HERE.parent / "SAF-K8S-0908-001" / "case.py", "saf_0910_016_runtime")
-    peer_helper = load(HERE.parent / "SAF-K8S-0910-020" / "owned_peer.py", "saf_0910_016_peer")
+    def case_path(case_id):
+        for parent in (HERE, *HERE.parents):
+            candidates = (parent / "saf-k8s-control-lab" / "cases" / case_id / "case.py",
+                          parent / "cases" / case_id / "case.py",
+                          parent / case_id / "case.py")
+            for candidate in candidates:
+                if candidate.is_file():
+                    return candidate
+        lab.block(f"Could not locate the pinned local helper case {case_id}")
+
+    runtime = load(case_path("SAF-K8S-0908-001"), "saf_0910_016_runtime")
+    peer_helper = load(HERE / "owned_peer.py", "saf_0910_016_peer")
+    spire = load(HERE / "spire_integration.py", "saf_0910_016_spire")
     image = runtime.load_runtime(lab)
-    with peer_helper.owned_peer(lab, image) as (peer, peer_address):
+    with peer_helper.owned_peer(lab, image) as (peer, peer_address, peer_info):
+        kubelet_csrs = spire.prepare_kubelets(lab, peer_info)
         peer_uid = peer("get", "namespace", "kube-system", "-o", "jsonpath={.metadata.uid}").stdout.strip()
         source_uid = lab.kubectl("get", "namespace", "kube-system", "-o",
                                  "jsonpath={.metadata.uid}").stdout.strip()
@@ -545,3 +557,8 @@ def run(lab):
             evidence["placement_uid"] = positive_placement_uid
             (lab.evidence / "cross-cluster-orchestration-identity.json").write_text(
                 json.dumps(evidence, sort_keys=True, indent=2) + "\n")
+            # Add the actual SPIRE issuer/federation path after preserving the
+            # certificate-backed baseline and rollover receipts above.
+            spire_observation = spire.run(lab, peer, peer_address, peer_info, image, image, kubelet_csrs)
+            (lab.evidence / "spire-federated-orchestration-normalized.json").write_text(
+                json.dumps(spire_observation, sort_keys=True, indent=2) + "\n")
