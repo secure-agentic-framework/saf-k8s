@@ -43,3 +43,16 @@ same harmless admission request succeeds before closure and is refused after it.
 The local fixture exercises a review decision and its effect. Deployment
 scheduling, approved role assignments, and retained operating records require
 evidence from the deployment under review.
+
+## Verify an adopting deployment
+
+The paired case checks the exception record and a live consumption path.
+Use the deployment's own records to establish its time source, scheduled
+reviews, role assignments, and coverage.
+
+1. Inventory every deployed policy consumer that honors exceptions; record its policy revision, exception store, decision owner, and authoritative time source.
+2. For each consumer, record the approved clock source and measured skew/availability envelope, then set and document the maximum exception lifetime and expiry behavior.
+3. Retain each approved exception with a unique identifier, authenticated approver, justification, exact workload and namespace scope, start/expiry timestamps, compensating controls, and linked evidence.
+4. Show the deployed approver, reviewer, renewal, and closure roles and their effective permissions. Preserve scheduled review decisions, renewal approvals, and closures with timestamps and exact exception IDs.
+5. In an authorized non-production environment, verify the same harmless request is permitted only for the precise approved record, then denied after expiry or closure. Verify missing records and dependency failures follow the approved fail-closed behavior; retain consumer responses and UTC time brackets.
+6. Reconcile evidence to the deployed policy revision and assigned owner. Do not treat this fixture receipt as evidence of adopter clock trust, role assignment, recurring review, or production policy coverage.
