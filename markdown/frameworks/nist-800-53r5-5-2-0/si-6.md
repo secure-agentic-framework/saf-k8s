@@ -56,15 +56,6 @@ Verification of agent security functions ensures controls operate as intended
 - Applicability: required
 - Strength Reason Code: exact-text-match
 
-### [SAF-K8S-0703-015 - Chaos engineering validation for AI resource governance controls](../../controls/SAF-K8S-0703-015.md)
-
-- Domain: D07 - Storage, Multi-tenancy, and Resource Governance
-- Knowledge Area: 7.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
-
 ### [SAF-K8S-1007-004 - Continuous security posture management for AI clusters](../../controls/SAF-K8S-1007-004.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance

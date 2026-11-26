@@ -12115,22 +12115,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AT-3(3)
-  framework_requirement_title: Practical Exercises
-  framework_mapping_notes: 'Hands-on exercises for agent security roles
-
-
-    10.5 - IR practical exercises; 7.3 - Chaos engineering for GPU/AI resource controls'
-  control_id: SAF-K8S-0703-015
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AT-3(5)
   framework_requirement_title: Processing Personally Identifiable Information
   framework_mapping_notes: 'PII handling training for agent system operators
@@ -18645,22 +18629,6 @@
 
 
     7.3 - Chaos engineering for GPU/AI resource controls; 10.3 - IR simulated events'
-  control_id: SAF-K8S-0703-015
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-3(1)
-  framework_requirement_title: Simulated Events
-  framework_mapping_notes: 'Simulating agent system failures
-
-
-    7.3 - Chaos engineering for GPU/AI resource controls; 10.3 - IR simulated events'
   control_id: SAF-K8S-1003-001
   relation_type: supports
   strength_level: strong
@@ -18958,16 +18926,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CP-4(3)
   framework_requirement_title: Automated Testing
-  framework_mapping_notes: 'Automated agent contingency testing
-
-
-    7.3 - Chaos engineering (automated resilience testing for GPU/AI resource controls)'
+  framework_mapping_notes: Automated replay of one independently approved queue or recovery scenario can support the predetermined contingency-plan tests. Verify adoption into the approved plan, result review and corrective action.
   control_id: SAF-K8S-0703-015
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only when the organization selects this exact queue/resource scenario as a documented automated contingency-plan test/self-challenge and records the plan, expected service objective, review, and corrective actions.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -19067,16 +19032,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CP-4(5)
   framework_requirement_title: Self-challenge
-  framework_mapping_notes: 'Self-testing agent resilience mechanisms
-
-
-    7.3 - Chaos engineering (self-challenge resilience testing for GPU/AI resource controls)'
+  framework_mapping_notes: A bounded adverse condition followed by observed queue or workload recovery can support the selected component self-challenge. Verify the challenge authority, resources, expected service outcomes and correction process.
   control_id: SAF-K8S-0703-015
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only when the organization explicitly selects the Kueue queue/resource component and bounded scenario as a contingency-plan self-challenge, authorizes it, reviews results, and records corrective actions.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -22390,22 +22352,6 @@
 
 
     7.3 - Chaos engineering (automated IR training environments); 9.5 - Dev-to-prod environment separation'
-  control_id: SAF-K8S-0703-015
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-2(2)
-  framework_requirement_title: Automated Training Environments
-  framework_mapping_notes: 'Automated agent IR training environments
-
-
-    7.3 - Chaos engineering (automated IR training environments); 9.5 - Dev-to-prod environment separation'
   control_id: SAF-K8S-0905-001
   relation_type: supports
   strength_level: strong
@@ -22548,22 +22494,6 @@
 
     7.3 - Chaos engineering (automated resilience testing); 10.3 - Automated IR plan testing'
   control_id: SAF-K8S-0703-012
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-3(1)
-  framework_requirement_title: Automated Testing
-  framework_mapping_notes: 'Automated agent IR testing
-
-
-    7.3 - Chaos engineering (automated resilience testing); 10.3 - Automated IR plan testing'
-  control_id: SAF-K8S-0703-015
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -27355,16 +27285,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-24
   framework_requirement_title: Design For Cyber Resiliency
-  framework_mapping_notes: 'Cyber resiliency design enables agent systems to withstand and recover from attacks
-
-
-    7.3 - Resource exhaustion resilience (chaos engineering, cyber resiliency); 9.3 - Circuit breakers, graceful degradation'
+  framework_mapping_notes: Recorded controlled-failure and recovery evidence supports a selected resilience objective where the approved engineering process links the tested resource-governance mechanism to that objective.
   control_id: SAF-K8S-0703-015
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only when the organization records this tested resource-governance behavior as a selected cyber-resiliency objective/technique in its approved risk-management or systems-security-engineering process; fixture alone does not establish design.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -40560,22 +40487,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-4(9)
-  framework_requirement_title: Testing of Monitoring Tools and Mechanisms
-  framework_mapping_notes: 'Testing monitoring tools validates detection capabilities against agent-specific threats
-
-
-    2.4 - Detection rule development (testing detection efficacy); 7.3 - Chaos engineering for GPU controls'
-  control_id: SAF-K8S-0703-015
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-5
   framework_requirement_title: Security Alerts, Advisories, and Directives
   framework_mapping_notes: Receiving Kubernetes advisories and directing them to the assigned recipients supports the external receipt and dissemination portions of this requirement. Internal alerts and directive implementation have separate evidence.
@@ -40736,22 +40647,6 @@
 
 
     10.7 - Security posture management (verifying security function effectiveness); 7.3 - Chaos engineering'
-  control_id: SAF-K8S-0703-015
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-6
-  framework_requirement_title: Security and Privacy Function Verification
-  framework_mapping_notes: 'Verification of agent security functions ensures controls operate as intended
-
-
-    10.7 - Security posture management (verifying security function effectiveness); 7.3 - Chaos engineering'
   control_id: SAF-K8S-1007-004
   relation_type: direct
   strength_level: strong
@@ -40865,22 +40760,6 @@
 
     7.3 - Chaos engineering for GPU controls (automated distributed testing); 10.7 - Continuous assessment'
   control_id: SAF-K8S-0703-012
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-6(2)
-  framework_requirement_title: Automation Support for Distributed Testing
-  framework_mapping_notes: 'Distributed testing automation verifies agent security across deployment environments
-
-
-    7.3 - Chaos engineering for GPU controls (automated distributed testing); 10.7 - Continuous assessment'
-  control_id: SAF-K8S-0703-015
   relation_type: direct
   strength_level: strong
   applicability: required
