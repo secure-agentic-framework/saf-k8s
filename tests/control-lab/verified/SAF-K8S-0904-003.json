@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0904-003",
-  "catalog_revision": "caf2a3eacaaf1e839e08e25d33bae77c46ad203e",
-  "catalog_sha256": "4405c9978776100ed8ef8fc46713da985401a03e9d813cb2e5df3261133b0e6b",
+  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
+  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d0b57a1ca68aec60e4ca9d14eb14c94e299fe8f5eee724abc6465e94f7cbbbdd",
   "scope": "One fresh Kind v1.36.1 cluster, two pinned upstream Jupyter base-notebook Pods, and two case-owned benign dataset endpoints. The notebook Pods have distinct non-root UIDs and tokenless service accounts, configured CPU/RAM bounds and restrictive security contexts. Native NetworkPolicy limits each to its labeled endpoint, and native admission enforces the approved image reference. Each real Jupyter kernel executes a fixed harmless cell after policy is active. Kernel exposure, optional extensions, JupyterHub authentication, full provenance and dataset policy, and deployed controls require separate evidence.",
-  "cluster": "saf-lab-b8cc4b6f6d5b",
+  "cluster": "saf-lab-f0180e4cc81a",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -123,6 +123,25 @@
         "dedicated_tokenless_service_account": true,
         "approved_singleuser_image": true,
         "pod_running_and_ready": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Two separately authenticated Hub usernames read their own workspace marker and cannot read the other user's marker",
+      "matched": true,
+      "observed": {
+        "separate_authenticated_sessions": true,
+        "own_marker_read": {
+          "saf-workspace-alice": true,
+          "saf-workspace-bob": true
+        },
+        "cross_user_forbidden": {
+          "saf-workspace-alice_to_saf-workspace-bob": true,
+          "saf-workspace-bob_to_saf-workspace-alice": true
+        },
+        "distinct_ready_user_pods": true,
+        "two_user_pods_observed": true,
+        "authorization_path": "JupyterHub 5.5.5 single-user server native access scope"
       }
     }
   ]

@@ -26,3 +26,12 @@ The chart license is included with the archive.
 
 - [Zero to JupyterHub 4.4.5](https://github.com/jupyterhub/zero-to-jupyterhub-k8s/releases/tag/4.4.5)
 - [JupyterHub 5.5.5 authentication](https://jupyterhub.readthedocs.io/en/5.5.5/reference/authenticators.html)
+
+## Distinct Hub user workspaces
+
+Two case-owned usernames sign in through separate browser-style cookie jars.
+Each accesses its own harmless marker through the Jupyter Contents API. The
+harness binds each response to a distinct spawned Pod and compares both
+reciprocal cross-user read decisions. The local authenticator uses one
+temporary shared fixture password. For deployment, verify actual identity
+provider enrollment and credential assurance separately from workspace access.

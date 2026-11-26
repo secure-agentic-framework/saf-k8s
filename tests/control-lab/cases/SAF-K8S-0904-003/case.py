@@ -32,9 +32,12 @@ ROOT = Path(__file__).resolve().parent
 
 HUB_RELEASE = "saf-jhub"
 HUB_USER = "saf-fixture-user"
+HUB_ALICE = "saf-workspace-alice"
+HUB_BOB = "saf-workspace-bob"
 HUB_USER_SA = "saf-hub-user"
 HUB_SECRET = "saf-hub-password"
 HUB_PROBE_SCRIPT = "hub-auth-probe.py"
+HUB_WORKSPACE_SCRIPT = "hub-workspace-matrix.py"
 CHART = ROOT / "vendor" / "jupyterhub-4.4.5.tgz"
 CHART_SHA256 = "27ad182c708244537f425a7ec3354d1a098776e7acd96b7f0d9a4d38f0cda415"
 HUB_IMAGE = "quay.io/jupyterhub/k8s-hub:4.4.5@sha256:6ce210488f5598e2dd5130d82e84d9f74b72538b66895861240bd84926ec50bd"
@@ -308,7 +311,7 @@ def _hub_values():
                       "tag": "4.4.5@sha256:6ce210488f5598e2dd5130d82e84d9f74b72538b66895861240bd84926ec50bd"},
             "config": {
                 "JupyterHub": {"authenticator_class": "shared-password", "admin_access": False},
-                "Authenticator": {"allow_all": False, "allowed_users": [HUB_USER], "admin_users": []},
+                "Authenticator": {"allow_all": False, "allowed_users": [HUB_USER, HUB_ALICE, HUB_BOB], "admin_users": []},
             },
             "extraConfig": {
                 "00-read-fixture-password.py": (
@@ -454,10 +457,195 @@ def _run_job(lab, name, mode):
     return result
 
 
-def _hub_user_pods(lab):
+def _hub_workspace_matrix_source():
+    # Separate cookie jars model two independently authenticated usernames.
+    # The fixture-only SharedPasswordAuthenticator has one temporary shared
+    # password, so this does not claim distinct user passwords or IdP behavior.
+    return r'''import http.cookiejar, json, os, time, urllib.error, urllib.parse, urllib.request
+
+BASE = "http://proxy-public.saf-test.svc.cluster.local"
+PASSWORD = open("/run/saf-auth/password", encoding="utf-8").read().strip()
+USERS = ("saf-workspace-alice", "saf-workspace-bob")
+MARKERS = {USERS[0]: "workspace-marker-alice", USERS[1]: "workspace-marker-bob"}
+progress = {}
+
+class Fields(__import__("html.parser", fromlist=["HTMLParser"]).HTMLParser):
+    def __init__(self): super().__init__(); self.values = {}
+    def handle_starttag(self, tag, attrs):
+        fields = dict(attrs)
+        if tag == "input" and fields.get("type") == "hidden" and fields.get("name"):
+            self.values[fields["name"]] = fields.get("value", "")
+
+class SameServiceRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        target = urllib.parse.urlparse(urllib.parse.urljoin(req.full_url, newurl))
+        if target.scheme != "http" or target.netloc != urllib.parse.urlparse(BASE).netloc:
+            raise urllib.error.URLError("redirect outside owned service")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+def new_session():
+    jar = http.cookiejar.CookieJar()
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}),
+        urllib.request.HTTPCookieProcessor(jar), SameServiceRedirect())
+    return jar, opener
+
+def request(opener, path, method="GET", payload=None, xsrf=None, content_type=None, referer=None):
+    headers = {}
+    if payload is not None:
+        headers["Content-Type"] = content_type or "application/x-www-form-urlencoded"
+    if xsrf: headers["X-XSRFToken"] = xsrf
+    if referer: headers["Referer"] = referer
+    req = urllib.request.Request(BASE + path, data=payload, method=method, headers=headers)
+    try:
+        with opener.open(req, timeout=5) as response:
+            body = response.read(262145)
+            if len(body) > 262144: raise ValueError("bounded response exceeded")
+            return response.status, response.geturl(), body
+    except urllib.error.HTTPError as error:
+        body = error.read(262145)
+        return error.code, error.geturl(), body
+
+def xsrf_for_path(jar, path):
+    matches = [cookie for cookie in jar if cookie.name == "_xsrf" and path.startswith(cookie.path)]
+    return max(matches, key=lambda cookie: len(cookie.path)).value if matches else None
+
+def login_and_spawn(username):
+    progress.update(phase="login", identity=username)
+    jar, opener = new_session()
+    status, _, body = request(opener, "/hub/login")
+    if status != 200: raise ValueError("login form unavailable")
+    parser = Fields(); parser.feed(body.decode("utf-8", "replace"))
+    xsrf = parser.values.get("_xsrf")
+    if not xsrf: raise ValueError("login xsrf unavailable")
+    fields = urllib.parse.urlencode({"_xsrf": xsrf, "username": username,
+                                     "password": PASSWORD, "next": "/hub/"}).encode()
+    status, _, _ = request(opener, "/hub/login", "POST", fields)
+    if not any(c.name == "jupyterhub-session-id" for c in jar):
+        raise ValueError("synthetic login did not establish a session")
+    xsrf = xsrf_for_path(jar, "/hub/spawn")
+    if not xsrf: raise ValueError("session xsrf cookie unavailable")
+    progress["phase"] = "spawn"
+    status, _, _ = request(opener, "/hub/spawn")
+    if status not in (200, 202, 424): raise ValueError("spawn page unavailable")
+    request(opener, "/hub/spawn", "POST", urllib.parse.urlencode({"_xsrf": xsrf}).encode())
+    deadline = time.monotonic() + 180
+    routed = False
+    while time.monotonic() < deadline:
+        try:
+            status, final, _ = request(opener, "/user/" + username + "/")
+            if status == 200 and urllib.parse.urlparse(final).path.startswith("/user/" + username + "/"):
+                routed = True; break
+        except (OSError, TimeoutError, urllib.error.URLError): pass
+        time.sleep(1)
+    if not routed: raise ValueError("owned server route did not become ready")
+    return jar, opener
+
+def main():
+    sessions = {user: login_and_spawn(user) for user in USERS}
+    own_read = {}
+    for user in USERS:
+        jar, opener = sessions[user]
+        progress.update(phase="own_marker", identity=user)
+        path = "/user/" + user + "/api/contents/saf-fixture-workspace.txt?content=1&format=text"
+        document = json.dumps({"path": "saf-fixture-workspace.txt", "type": "file",
+                               "format": "text", "content": MARKERS[user]}).encode()
+        referer = BASE + "/user/" + user + "/"
+        request(opener, path, referer=referer)
+        xsrf = xsrf_for_path(jar, path.split("?", 1)[0])
+        if not xsrf: raise ValueError("notebook xsrf token unavailable")
+        status, _, _ = request(opener, path, "PUT", document, xsrf, "application/json", referer)
+        progress["status"] = status
+        if status not in (200, 201): raise ValueError("owned marker write refused")
+        status, _, body = request(opener, path, referer=referer)
+        try: model = json.loads(body)
+        except (ValueError, UnicodeDecodeError): model = {}
+        own_read[user] = status == 200 and model.get("content") == MARKERS[user]
+    cross_denied = {}
+    for reader, owner in ((USERS[0], USERS[1]), (USERS[1], USERS[0])):
+        _, opener = sessions[reader]
+        path = "/user/" + owner + "/api/contents/saf-fixture-workspace.txt?content=1&format=text"
+        status, _, _ = request(opener, path, referer=BASE + "/user/" + reader + "/")
+        cross_denied[reader + "_to_" + owner] = status == 403
+    print(json.dumps({"own_marker_read": own_read, "cross_user_forbidden": cross_denied,
+                      "separate_authenticated_sessions": len(sessions) == 2}))
+
+try:
+    main()
+except Exception as exc:
+    # Exception messages and HTTP bodies can contain cookies or submitted data.
+    print(json.dumps({"completed": False, "failure_type": type(exc).__name__, **progress}))
+    raise SystemExit(1)
+'''.replace("http://proxy-public.saf-test.svc.cluster.local", "http://" + HUB_SERVICE)
+
+
+def _exercise_hub_workspace_matrix(lab):
+    job_name = "saf-hub-workspace-matrix"
+    resource = {
+        "apiVersion": "batch/v1", "kind": "Job",
+        "metadata": {"name": job_name, "namespace": NAMESPACE,
+                     "labels": {"saf.example/fixture": "hub-auth"}},
+        "spec": {"backoffLimit": 0, "activeDeadlineSeconds": 390,
+                 "template": {"metadata": {"labels": {"saf.example/fixture": "hub-auth"}},
+                              "spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,
+                                       "securityContext": {"runAsNonRoot": True, "runAsUser": 1000,
+                                                           "fsGroup": 100, "runAsGroup": 100,
+                                                           "seccompProfile": {"type": "RuntimeDefault"}},
+                                       "containers": [{"name": "probe", "image": SINGLEUSER_IMAGE,
+                                                       "imagePullPolicy": "IfNotPresent",
+                                                       "command": ["python", "-B", "/opt/saf/" + HUB_WORKSPACE_SCRIPT],
+                                                       "volumeMounts": [
+                                                           {"name": "script", "mountPath": "/opt/saf", "readOnly": True},
+                                                           {"name": "auth", "mountPath": "/run/saf-auth", "readOnly": True}],
+                                                       "resources": {"requests": {"cpu": "25m", "memory": "64Mi"},
+                                                                     "limits": {"cpu": "100m", "memory": "192Mi"}}}],
+                                       "volumes": [{"name": "script", "configMap": {"name": "saf-hub-probe"}},
+                                                   {"name": "auth", "secret": {"secretName": HUB_SECRET,
+                                                                                 "defaultMode": 0o440}}]}}}
+    }
+    lab.create(resource)
+    deadline = time.monotonic() + 410
+    terminal = set()
+    while time.monotonic() < deadline:
+        statuses = lab.kubectl("get", "job", job_name, "-o",
+            'jsonpath={range .status.conditions[?(@.status=="True")]}{.type}{"\\n"}{end}', timeout=12).stdout
+        terminal = set(statuses.split())
+        if terminal & {"Complete", "Failed"}: break
+        time.sleep(1)
+    log = lab.kubectl("logs", f"job/{job_name}", allow_failure=True, timeout=15).stdout.strip()
+    try: result = json.loads(log)
+    except json.JSONDecodeError: lab.block("Two-user workspace probe returned no stable JSON")
+    if "Complete" not in terminal or result.get("completed") is False:
+        lab.block("Two-user workspace probe did not complete")
+    expected = {user: True for user in (HUB_ALICE, HUB_BOB)}
+    cross = {HUB_ALICE + "_to_" + HUB_BOB: True, HUB_BOB + "_to_" + HUB_ALICE: True}
+    rows = {user: _hub_user_pods(lab, user) for user in (HUB_ALICE, HUB_BOB)}
+    for user in (HUB_ALICE, HUB_BOB):
+        lab.kubectl("wait", "--for=condition=Ready", "pod", "-l",
+                    f"hub.jupyter.org/username={user}", "--timeout=30s", timeout=40)
+        rows[user] = _hub_user_pods(lab, user)
+    identities = all(len(rows[user]) == 1 and len(rows[user][0]) == 4
+                     and rows[user][0][1] == HUB_USER_SA
+                     and rows[user][0][2] == SINGLEUSER_IMAGE
+                     and rows[user][0][3] == "Running" for user in (HUB_ALICE, HUB_BOB))
+    identities = identities and rows[HUB_ALICE][0][0] != rows[HUB_BOB][0][0]
+    passed = (result.get("own_marker_read") == expected
+              and result.get("cross_user_forbidden") == cross
+              and result.get("separate_authenticated_sessions") is True and identities)
+    lab.check("positive", "Two separately authenticated Hub usernames read their own workspace marker and cannot read the other user's marker",
+              passed,
+              {"separate_authenticated_sessions": result.get("separate_authenticated_sessions") is True,
+               "own_marker_read": result.get("own_marker_read"),
+               "cross_user_forbidden": result.get("cross_user_forbidden"),
+               "distinct_ready_user_pods": identities,
+               "two_user_pods_observed": all(len(rows[user]) == 1 for user in (HUB_ALICE, HUB_BOB)),
+               "authorization_path": "JupyterHub 5.5.5 single-user server native access scope"})
+    (lab.evidence / "hub-workspace-matrix-summary.json").write_text(json.dumps(lab.checks[-1], indent=2) + "\n")
+
+
+def _hub_user_pods(lab, user=HUB_USER):
     query = ("{range .items[*]}{.metadata.uid}{\"|\"}{.spec.serviceAccountName}{\"|\"}"
              "{.spec.containers[0].image}{\"|\"}{.status.phase}{\"\\n\"}{end}")
-    result = lab.kubectl("get", "pods", "-l", f"hub.jupyter.org/username={HUB_USER}", "-o", f"jsonpath={query}")
+    result = lab.kubectl("get", "pods", "-l", f"hub.jupyter.org/username={user}", "-o", f"jsonpath={query}")
     return [line.split("|") for line in result.stdout.splitlines() if line]
 
 
@@ -507,7 +695,8 @@ def _exercise_hub_identity(lab):
             lab.create({"apiVersion": "v1", "kind": "ConfigMap",
                         "metadata": {"name": "saf-hub-probe", "namespace": NAMESPACE,
                                      "labels": {"saf.example/fixture": "hub-auth"}},
-                        "data": {HUB_PROBE_SCRIPT: _hub_probe_source()}})
+                        "data": {HUB_PROBE_SCRIPT: _hub_probe_source(),
+                                 HUB_WORKSPACE_SCRIPT: _hub_workspace_matrix_source()}})
             lab.command(*_helm_args(lab), "upgrade", "--install", HUB_RELEASE, str(CHART), "--namespace", NAMESPACE,
                         "--values", str(values_path), "--wait", "--timeout", "240s", timeout=250)
             lab.kubectl("rollout", "status", "deployment/hub", "--timeout=180s", timeout=190)
@@ -549,6 +738,7 @@ def _exercise_hub_identity(lab):
              "approved_singleuser_image": image == SINGLEUSER_IMAGE, "pod_running_and_ready": phase == "Running"},
         )
         (lab.evidence / "hub-auth-summary.json").write_text(json.dumps(lab.checks[-1], indent=2) + "\n")
+        _exercise_hub_workspace_matrix(lab)
     except Exception:
         _save_failure_diagnostics(lab, password)
         raise
@@ -556,11 +746,13 @@ def _exercise_hub_identity(lab):
         # Remove only this fixture's spawned identity and named resources; the
         # runner also deletes its uniquely named cluster on every terminal path.
         try:
-            lab.kubectl("delete", "pods", "-l", f"hub.jupyter.org/username={HUB_USER}",
-                        "--ignore-not-found=true", allow_failure=True)
+            for user in (HUB_USER, HUB_ALICE, HUB_BOB):
+                lab.kubectl("delete", "pods", "-l", f"hub.jupyter.org/username={user}",
+                            "--ignore-not-found=true", allow_failure=True)
             lab.command(*_helm_args(lab), "uninstall", HUB_RELEASE, "--namespace", NAMESPACE,
                         allow_failure=True, timeout=45)
             for kind, name in (("job", "saf-hub-auth-denied"), ("job", "saf-hub-auth-allowed"),
+                               ("job", "saf-hub-workspace-matrix"),
                                ("configmap", "saf-hub-probe"), ("serviceaccount", HUB_USER_SA),
                                ("secret", HUB_SECRET)):
                 lab.kubectl("delete", kind, name, "--ignore-not-found=true", allow_failure=True)
