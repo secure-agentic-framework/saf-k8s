@@ -1,0 +1,13 @@
+{
+  "cve_id": "CVE-2023-45803",
+  "source_component": {
+    "vendor": "urllib3",
+    "product": "urllib3"
+  },
+  "affected_versions": [
+    {"range": ">= 2.0.0, < 2.0.7", "status": "affected"},
+    {"range": "< 1.26.18", "status": "affected"}
+  ],
+  "source_provenance_file": "source-provenance.json",
+  "interpretation": "Version-range match means review required; this snapshot alone does not establish applicability or exploitability."
+}

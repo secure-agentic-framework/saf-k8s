@@ -1,0 +1,15 @@
+{
+  "publisher": "CVE Program",
+  "repository": "CVEProject/cvelistV5",
+  "repository_ref_observed": "main",
+  "path": "cves/2023/45xxx/CVE-2023-45803.json",
+  "record_id": "CVE-2023-45803",
+  "git_blob_sha1": "8774a806fca4a0c5d3474e7671a609cd8c8ee5b2",
+  "raw_record_sha256": "d0233f8d7c5614e1ae54db79c32ae2b166cd8801c8ef463e65fbe349b52f1e44",
+  "raw_record_bytes": 10050,
+  "record_updated": "2025-11-03T21:49:53.115Z",
+  "retrieved_date": "2026-11-25",
+  "note": "The source bytes were fetched through the GitHub connector and hash-checked, then discarded. Only the package and version-range fields needed by this benign metadata test were retained; no vulnerability description or precondition text is copied into the fixture.",
+  "source_url": "https://github.com/CVEProject/cvelistV5/blob/main/cves/2023/45xxx/CVE-2023-45803.json",
+  "identity_note": "Git blob SHA and raw SHA-256 identify the frozen upstream bytes independently of the observed mutable main ref."
+}

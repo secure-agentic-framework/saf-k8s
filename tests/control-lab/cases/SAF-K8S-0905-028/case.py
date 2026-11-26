@@ -88,6 +88,101 @@ def check_observations(lab, observations):
               accepted)
 
 
+
+def _numeric_version(value):
+    parts = value.split(".")
+    if not parts or any(not part.isdigit() for part in parts):
+        raise ValueError("The pinned advisory fixture contains a non-numeric version")
+    return tuple(int(part) for part in parts)
+
+
+def _version_in_range(version, expression):
+    candidate = _numeric_version(version)
+    for clause in expression.split(","):
+        clause = clause.strip()
+        operator = next((op for op in (">=", "<=", ">", "<", "==") if clause.startswith(op)), None)
+        if operator is None:
+            raise ValueError("Unsupported version-range syntax in pinned source snapshot")
+        bound = _numeric_version(clause[len(operator):].strip())
+        width = max(len(candidate), len(bound))
+        left = candidate + (0,) * (width - len(candidate))
+        right = bound + (0,) * (width - len(bound))
+        if operator == ">=" and not left >= right:
+            return False
+        if operator == "<=" and not left <= right:
+            return False
+        if operator == ">" and not left > right:
+            return False
+        if operator == "<" and not left < right:
+            return False
+        if operator == "==" and not left == right:
+            return False
+    return True
+
+
+def check_offline_advisory_reference(lab):
+    # This is a normalized subset of an upstream record identified by its exact Git blob and raw digest.
+    advisory_path = HERE / "fixtures" / "advisory-reference.json"
+    provenance_path = HERE / "fixtures" / "source-provenance.json"
+    inventory_path = HERE / "fixtures" / "synthetic-inventory.json"
+    advisory_bytes = advisory_path.read_bytes()
+    advisory = json.loads(advisory_bytes)
+    provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+    inventory = json.loads(inventory_path.read_text(encoding="utf-8"))
+    snapshot_digest = __import__("hashlib").sha256(
+        json.dumps(advisory, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    source_pinned = (
+        snapshot_digest == "0bcc64f4bce24ed35da702708e857a90e5a82513e59b202e21b36b4e338cc708"
+        and advisory.get("cve_id") == "CVE-2023-45803"
+        and provenance.get("record_id") == advisory.get("cve_id")
+        and provenance.get("repository") == "CVEProject/cvelistV5"
+        and provenance.get("path") == "cves/2023/45xxx/CVE-2023-45803.json"
+        and provenance.get("git_blob_sha1") == "8774a806fca4a0c5d3474e7671a609cd8c8ee5b2"
+        and provenance.get("raw_record_sha256") == "d0233f8d7c5614e1ae54db79c32ae2b166cd8801c8ef463e65fbe349b52f1e44"
+    )
+    lab.check("positive", "The normalized advisory fixture is bound to the frozen official CVE record identity",
+              source_pinned, {"record_id": advisory.get("cve_id"),
+                              "upstream_git_blob_sha1_matches": provenance.get("git_blob_sha1") == "8774a806fca4a0c5d3474e7671a609cd8c8ee5b2",
+                              "normalized_snapshot_sha256": snapshot_digest})
+
+    affected = [item for item in advisory.get("affected_versions", []) if item.get("status") == "affected"]
+    expected_ranges = {">= 2.0.0, < 2.0.7", "< 1.26.18"}
+    parsed_ranges = {item.get("range") for item in affected}
+    rows = inventory.get("rows", [])
+    matches = []
+    for index, row in enumerate(rows):
+        if row.get("ecosystem") != "PyPI" or row.get("name", "").lower() != "urllib3":
+            continue
+        if any(_version_in_range(row.get("version", ""), expression) for expression in parsed_ranges):
+            matches.append(index)
+    range_match = (parsed_ranges == expected_ranges
+                   and matches == inventory.get("expected_matching_rows") == [0, 2]
+                   and inventory.get("inventory_kind") == "synthetic package metadata only; no distribution files or package code")
+    lab.check("green", "The pinned advisory ranges match only the two expected synthetic urllib3 inventory rows",
+              range_match, {"matching_synthetic_row_indexes": matches,
+                            "expected_matching_synthetic_row_indexes": [0, 2],
+                            "range_count": len(parsed_ranges)})
+
+    decisions = [{"row_index": index, "package": row.get("name"), "version": row.get("version"),
+                  "matched_advisory": index in matches,
+                  "disposition": "context_review_required" if index in matches else "outside_pinned_advisory_ranges"}
+                 for index, row in enumerate(rows)]
+    triage_review = (all(item["disposition"] == "context_review_required" for item in decisions if item["matched_advisory"])
+                     and all(item["disposition"] == "outside_pinned_advisory_ranges" for item in decisions if not item["matched_advisory"])
+                     and all("exploitability" not in item for item in decisions))
+    lab.check("green", "A version match remains a review-needed finding without an exploitability conclusion",
+              triage_review, {"matched_findings_require_review": True, "exploitability_assessed": False,
+                              "package_code_present": False, "synthetic_inventory_rows": len(rows)})
+    (lab.evidence / "advisory-reference-matching.json").write_text(
+        json.dumps({"source_record": advisory["cve_id"], "source_blob_sha1": provenance["git_blob_sha1"],
+                    "source_record_sha256": provenance["raw_record_sha256"],
+                    "normalized_snapshot_sha256": snapshot_digest, "decisions": decisions,
+                    "inventory_kind": inventory["inventory_kind"],
+                    "packages_installed_or_executed": False}, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8")
+
+
 def run(lab):
     try:
         observations = json.loads(_job(lab))
@@ -95,3 +190,4 @@ def run(lab):
         lab.block(f"Dependency gate worker returned invalid evidence: {error}")
     (lab.evidence / "dependency-gate.json").write_text(json.dumps(observations, indent=2, sort_keys=True) + "\n")
     check_observations(lab, observations)
+    check_offline_advisory_reference(lab)

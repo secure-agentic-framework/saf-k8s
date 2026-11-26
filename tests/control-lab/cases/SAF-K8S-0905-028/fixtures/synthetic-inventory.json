@@ -1,0 +1,11 @@
+{
+  "inventory_kind": "synthetic package metadata only; no distribution files or package code",
+  "rows": [
+    {"ecosystem": "PyPI", "name": "urllib3", "version": "2.0.6"},
+    {"ecosystem": "PyPI", "name": "urllib3", "version": "2.0.7"},
+    {"ecosystem": "PyPI", "name": "urllib3", "version": "1.26.17"},
+    {"ecosystem": "PyPI", "name": "urllib3", "version": "1.26.18"},
+    {"ecosystem": "PyPI", "name": "saf-example-only", "version": "2.0.6"}
+  ],
+  "expected_matching_rows": [0, 2]
+}
