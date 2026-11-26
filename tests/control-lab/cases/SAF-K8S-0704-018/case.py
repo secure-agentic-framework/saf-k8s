@@ -49,6 +49,18 @@ def observe(lab, expected):
     lab.block("The live authorizer did not converge to the expected fixture decision")
 
 
+def actual_read(lab, name):
+    result = lab.kubectl("--as", USER, "get", "configmap", name, "-o", "json", allow_failure=True)
+    if result.returncode == 0:
+        marker = json.loads(result.stdout).get("data", {}).get("marker")
+        if marker != name:
+            lab.block("The emergency fixture read returned unexpected content")
+        return "allowed"
+    if "(Forbidden)" not in result.stderr or name not in result.stderr:
+        lab.block("The actual emergency request did not return a named authorization denial")
+    return "forbidden"
+
+
 def run(lab):
     for name in (TARGET, OUTSIDE):
         lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": name}, "data": {"marker": name}})
@@ -57,6 +69,7 @@ def run(lab):
     record = {"id": RUN_ID, "requester": USER, "approvers": ["fixture-reviewer-one"], "start": 10, "end": 20}
     rejected = not reconcile(lab, record, 15, False)
     prior = allowed(lab, TARGET)
+    actual_before = actual_read(lab, TARGET)
     lab.check("red", "One approval leaves the owned emergency marker denied by Kubernetes", rejected and not prior,
               {"approval_rejected": rejected, "marker_allowed": prior})
 
@@ -64,6 +77,8 @@ def run(lab):
     active = reconcile(lab, record, 15, False)
     live = observe(lab, True)
     comparison = allowed(lab, OUTSIDE)
+    actual_active = actual_read(lab, TARGET)
+    actual_outside = actual_read(lab, OUTSIDE)
     binding = json.loads(lab.kubectl("get", "rolebinding", NAME, "-o", "json").stdout)
     traceable = binding["metadata"]["annotations"]["fixture.example/approval"] == RUN_ID
     lab.check("green", "Two approvals activate the exact owned marker read and the live binding links to the approval",
@@ -72,10 +87,19 @@ def run(lab):
 
     expired = not reconcile(lab, record, 20, active)
     final = observe(lab, False)
+    actual_after_expiry = actual_read(lab, TARGET)
     binding_removed = not lab.kubectl("get", "rolebinding", NAME, "--ignore-not-found", "-o", "name").stdout.strip()
     lab.check("positive", "At the fixture window expiry, the binding is removed and Kubernetes denies the read again",
               expired and not final and binding_removed,
               {"expired": expired, "marker_allowed_after_expiry": final, "binding_removed": binding_removed})
+    live_request_ok = (actual_before == "forbidden" and actual_active == "allowed"
+                       and actual_outside == "forbidden" and actual_after_expiry == "forbidden")
+    lab.check("green", "Actual API requests follow the scoped emergency window and deny the outside marker",
+              live_request_ok,
+              {"before_activation": actual_before, "approved_target_during_window": actual_active,
+               "outside_target_during_window": actual_outside, "target_after_expiry": actual_after_expiry})
     result = {"fixture_clock": True, "approval": record, "before": prior, "active": live, "outside": comparison,
-              "after": final, "binding_removed": binding_removed, "approval_link_matches": traceable}
+              "after": final, "binding_removed": binding_removed, "approval_link_matches": traceable,
+              "actual_before": actual_before, "actual_active": actual_active,
+              "actual_outside": actual_outside, "actual_after_expiry": actual_after_expiry}
     (lab.evidence / "emergency-window-observations.json").write_text(json.dumps(result, indent=2) + "\n")

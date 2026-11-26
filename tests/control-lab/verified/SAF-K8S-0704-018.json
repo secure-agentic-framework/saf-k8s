@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0704-018",
-  "catalog_revision": "bb33f9c9a0a2f5f5a003039ac386511e7b36e87e",
-  "catalog_sha256": "ffa49d84a9c6692ca7f86e752e19aadc580c10df2b0182e4311851876ee553cf",
+  "catalog_revision": "302c910b204bc0838d8a8d8c3e0be8604be32411",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "934bfb79e587107d86d8df8c97d461467bd7374e401a271ae00c1f91f6714053",
   "scope": "A synthetic two-person approval record with live namespaced access activation and revocation.",
-  "cluster": "saf-lab-fdf425397b3d",
+  "cluster": "saf-lab-6e7769c47cea",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -65,6 +65,17 @@
         "expired": true,
         "marker_allowed_after_expiry": false,
         "binding_removed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Actual API requests follow the scoped emergency window and deny the outside marker",
+      "matched": true,
+      "observed": {
+        "before_activation": "forbidden",
+        "approved_target_during_window": "allowed",
+        "outside_target_during_window": "forbidden",
+        "target_after_expiry": "forbidden"
       }
     }
   ]
