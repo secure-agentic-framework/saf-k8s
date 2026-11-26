@@ -3256,19 +3256,6 @@
   framework_version: '1.0'
   framework_requirement_id: MANAGE 4.3
   framework_requirement_title: Responses to the AI risks deemed high priority - as identified through the MAP function - are documented and monitored, and the risk management plan is updated as needed.
-  framework_mapping_notes: IR playbooks document high-priority incident responses. Audit readiness dashboards monitor compliance posture. Threat intelligence integration ensures awareness of evolving high-priority threats.
-  control_id: SAF-K8S-1004-004
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
-- mapping_set_name: SAF-K8S to NIST AI RMF 1.0
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
-  framework_requirement_id: MANAGE 4.3
-  framework_requirement_title: Responses to the AI risks deemed high priority - as identified through the MAP function - are documented and monitored, and the risk management plan is updated as needed.
   framework_mapping_notes: The fixture retains a review and owned follow-up. Actual risk prioritization, monitoring cadence and updates to risk records are verified separately.
   control_id: SAF-K8S-1005-001
   relation_type: supports
@@ -3739,13 +3726,13 @@
   framework_version: '1.0'
   framework_requirement_id: MEASURE 3.1
   framework_requirement_title: Approaches, personnel, and documentation are in place to regularly identify and track existing, unanticipated, and emergent AI risks based on factors such as intended and actual performance in deployed contexts.
-  framework_mapping_notes: Threat intelligence integration consumes CVE feeds, runtime threat intelligence, and adversarial ML attack pattern libraries. Security posture management provides continuous risk assessment with drift detection.
+  framework_mapping_notes: This control may contribute one external-threat-information input to MEASURE 3.1 only where the adopter uses current validated threat information to identify and track risks for actual AI systems in deployed contexts, with documented approaches and accountable personnel. The portable case verifies offline pin, change and expiry quarantine and one synthetic advisory-to-observation match. It does not prove live source authenticity, freshness/completeness, runtime coverage, deployed-context performance assessment, or an organizational risk-tracking process.
   control_id: SAF-K8S-1004-004
   relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: compound-control-split-required
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only when the adopter uses validated, relevant threat-intelligence observations in a documented process to identify and track AI risks affecting an actual deployed AI system, assigns responsible personnel, and relates the results to that system/context. The synthetic fixture does not prove a real source, complete coverage, risk tracking, or assessment.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -11066,22 +11053,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: CA-2(3)
-  framework_requirement_title: Leveraging Results from External Organizations
-  framework_mapping_notes: 'Using external agent security assessment results
-
-
-    10.4 - Threat intelligence integration (leveraging external vulnerability assessments, CVE feeds)'
-  control_id: SAF-K8S-1004-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: CA-3
   framework_requirement_title: Information Exchange
   framework_mapping_notes: 'Managing agent information exchange agreements
@@ -17064,22 +17035,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: IR-4(8)
-  framework_requirement_title: Correlation with External Organizations
-  framework_mapping_notes: 'Sharing agent incident data with external parties
-
-
-    10.4 - Threat intelligence (correlating incidents with external threat feeds, CVE databases, and partner orgs)'
-  control_id: SAF-K8S-1004-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: IR-5
   framework_requirement_title: Incident Monitoring
   framework_mapping_notes: 'Monitoring agent incidents across the ecosystem
@@ -17750,22 +17705,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: PM-15
-  framework_requirement_title: Security and Privacy Groups and Associations
-  framework_mapping_notes: 'Participation in AI security communities informs agentic AI threat awareness
-
-
-    10.4 - Threat intelligence (participation in K8s and AI security groups and associations)'
-  control_id: SAF-K8S-1004-004
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: PM-16
   framework_requirement_title: Threat Awareness Program
   framework_mapping_notes: 'Threat awareness for agentic AI-specific attack vectors (prompt injection, tool poisoning) is critical
@@ -17821,22 +17760,6 @@
 
     10.4 - Threat intelligence (automated sharing of threat intel, CVE feeds, attack pattern libraries)'
   control_id: SAF-K8S-1004-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-16(1)
-  framework_requirement_title: Automated Means for Sharing Threat Intelligence
-  framework_mapping_notes: 'Automated threat intelligence sharing helps defend against evolving agentic AI threats
-
-
-    10.4 - Threat intelligence (automated sharing of threat intel, CVE feeds, attack pattern libraries)'
-  control_id: SAF-K8S-1004-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -18791,16 +18714,13 @@
   framework_version: 5.2.0
   framework_requirement_id: RA-3(3)
   framework_requirement_title: Dynamic Threat Awareness
-  framework_mapping_notes: 'Dynamic threat awareness keeps agentic AI risk assessments current with evolving attacks
-
-
-    10.4 - Threat intelligence (dynamic threat awareness from MITRE ATT&CK for Containers, ATLAS)'
+  framework_mapping_notes: This control may contribute a bounded threat-information input to RA-3(3) only when an adopter uses validated current threat information in an actual documented risk assessment and maps the information to the in-scope system inventory. The portable proof tests synthetic bundle pin/expiry and exact mock advisory matching; it does not establish live source trust, coverage, inventory matching, risk-analysis judgments, or risk-assessment updates.
   control_id: SAF-K8S-1004-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only when an adopter validates current threat sources, maps the matched information to the actual assessed system/component inventory, and documents how the resulting information informs an authorized dynamic risk assessment. The fixture uses one synthetic observation and no risk assessment.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -19530,22 +19450,6 @@
 
     10.4 - Threat intelligence (reusing threat info from MITRE ATT&CK for Containers, ATLAS, CVE feeds)'
   control_id: SAF-K8S-1004-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-15(8)
-  framework_requirement_title: Reuse of Threat and Vulnerability Information
-  framework_mapping_notes: 'Reusing threat intelligence across agent development projects improves security posture
-
-
-    10.4 - Threat intelligence (reusing threat info from MITRE ATT&CK for Containers, ATLAS, CVE feeds)'
-  control_id: SAF-K8S-1004-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -30622,22 +30526,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-4(24)
-  framework_requirement_title: Indicators of Compromise
-  framework_mapping_notes: 'Indicators of compromise detection for agent systems identifies active threats
-
-
-    10.4 - Threat intelligence integration (consuming IoCs); 2.4 - Detection rule development (IoC-based rules)'
-  control_id: SAF-K8S-1004-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-4(25)
   framework_requirement_title: Optimize Network Traffic Analysis
   framework_mapping_notes: 'Optimized traffic analysis for agent networks improves detection of subtle attacks
@@ -33563,13 +33451,13 @@
   framework_version: '1.1'
   framework_requirement_id: RV.1.1
   framework_requirement_title: Gather information from software acquirers, users, and public sources on potential vulnerabilities in the software and third-party components, and investigate all credible reports.
-  framework_mapping_notes: SAF-K8S requires continuous vulnerability monitoring for container images, ML dependencies, GPU drivers, and Kubernetes components. VEX publication and threat intelligence integration formalize vulnerability information gathering.
+  framework_mapping_notes: This control may support the source-intake and triage portion of SSDF RV.1.1 only when the adopter monitors authorized public/vendor vulnerability sources relevant to actual Kubernetes AI components, verifies source updates, investigates credible reports, and records disposition. The portable case checks pin, changed-byte and expiry quarantine plus one exact synthetic advisory match; it does not verify a real subscription, actual vulnerability investigation, provenance of external reports, coverage, or remediation.
   control_id: SAF-K8S-1004-004
   relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only for the intake/triage component where the adopter monitors authorized public/vendor sources for in-scope software and third-party components, validates and records reports, investigates credible reports, and maintains disposition evidence. The fixture proves only handling of locally bundled synthetic bytes and matches.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'

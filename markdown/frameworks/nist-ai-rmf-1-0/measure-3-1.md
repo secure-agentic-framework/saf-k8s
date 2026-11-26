@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-Threat intelligence integration consumes CVE feeds, runtime threat intelligence, and adversarial ML attack pattern libraries. Security posture management provides continuous risk assessment with drift detection.
+This control may contribute one external-threat-information input to MEASURE 3.1 only where the adopter uses current validated threat information to identify and track risks for actual AI systems in deployed contexts, with documented approaches and accountable personnel. The portable case verifies offline pin, change and expiry quarantine and one synthetic advisory-to-observation match. It does not prove live source authenticity, freshness/completeness, runtime coverage, deployed-context performance assessment, or an organizational risk-tracking process.
 
 ## SAF-K8S Controls
 
@@ -14,9 +14,9 @@ Threat intelligence integration consumes CVE feeds, runtime threat intelligence,
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.4
 - Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: compound-control-split-required
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1007-004 - Continuous security posture management for AI clusters](../../controls/SAF-K8S-1007-004.md)
 

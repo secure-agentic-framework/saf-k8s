@@ -5,18 +5,9 @@
 
 ## Mapping Notes
 
-IR playbooks document high-priority incident responses. Audit readiness dashboards monitor compliance posture. Threat intelligence integration ensures awareness of evolving high-priority threats.
+The fixture retains a review and owned follow-up. Actual risk prioritization, monitoring cadence and updates to risk records are verified separately.
 
 ## SAF-K8S Controls
-
-### [SAF-K8S-1004-004 - Kubernetes AI threat intelligence feed ingestion and detection enrichment](../../controls/SAF-K8S-1004-004.md)
-
-- Domain: D10 - Observability, Incident Response, and Governance
-- Knowledge Area: 10.4
-- Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
 
 ### [SAF-K8S-1005-001 - Kubernetes incident response lifecycle](../../controls/SAF-K8S-1005-001.md)
 
