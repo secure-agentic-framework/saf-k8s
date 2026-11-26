@@ -5,7 +5,7 @@
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e25106f85d3b9744d569df177ace1b4d98296a175b4072d5d801f1f8211e4593",
   "scope": "Fresh Kubernetes v1.36.1 Kind cluster; Service CREATE and UPDATE admission for NodePort, LoadBalancer, and reserved documentation-only ExternalIPs, with exact synthetic owner-namespace exception and genuine projected identities. The built-in admission plugin is verified on a separate disposable node. All exposure-shaped requests are server-side dry-runs. Only selector-less ClusterIP Services are persisted; real network exposure and production registry behavior are outside this fixture.",
-  "cluster": "saf-lab-f29bfaa43fd1",
+  "cluster": "saf-lab-6cf421e9dffb",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -257,6 +257,36 @@
       "matched": true,
       "observed": {
         "unknown_gate_reported": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native plugin permits metadata-only update preserving an existing ExternalIP",
+      "matched": true,
+      "observed": {
+        "update_admitted": true,
+        "existing_value_preserved": true,
+        "no_endpoint_slices": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native plugin rejects changing a grandfathered ExternalIP and preserves stored state",
+      "matched": true,
+      "observed": {
+        "replacement_denied": true,
+        "original_value_preserved": true,
+        "no_endpoint_slices": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native plugin permits removing a grandfathered ExternalIP",
+      "matched": true,
+      "observed": {
+        "removal_admitted": true,
+        "external_ips_empty": true,
+        "no_endpoint_slices": true
       }
     },
     {

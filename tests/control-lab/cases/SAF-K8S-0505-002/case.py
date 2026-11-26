@@ -111,6 +111,16 @@ def denial(result, message):
             and message in result.stderr)
 
 
+def assert_empty_endpoint_slices(native, service_name):
+    result = native("get", "endpointslices", "-l",
+                    f"kubernetes.io/service-name={service_name}", "-o", "json",
+                    allow_failure=True)
+    if result.returncode != 0:
+        return False
+    items = json.loads(result.stdout).get("items", [])
+    return all(not row.get("endpoints") for row in items)
+
+
 def authorized_service(namespace, name, *, service_type="ClusterIP", external_ips=None):
     return service(namespace, name, service_type=service_type,
                    external_ips=external_ips, approved=True)
@@ -328,11 +338,12 @@ kubeadmConfigPatches:
   apiServer:
     extraArgs:
     - name: enable-admission-plugins
-      value: NodeRestriction,DenyServiceExternalIPs
+      value: NodeRestriction
 """)
-        def native(*args, payload=None, allow_failure=False):
+        def native(*args, payload=None, allow_failure=False, timeout=45):
             return lab.command("kubectl", "--kubeconfig", str(kubeconfig), "--context", f"kind-{peer}",
-                               "--request-timeout=20s", *args, payload=payload, allow_failure=allow_failure)
+                               "--request-timeout=20s", *args, payload=payload,
+                               allow_failure=allow_failure, timeout=timeout)
 
         listed = lab.command("kind", "get", "clusters").stdout.splitlines()
         if peer in listed:
@@ -342,6 +353,100 @@ kubeadmConfigPatches:
                         "--kubeconfig", str(kubeconfig),
                         "--image", "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
                         "--wait", "90s", timeout=300)
+            # Establish one inert grandfathered value while the native plugin
+            # is absent. The selector-less Service has no endpoints; the
+            # documentation-only address is never contacted.
+            legacy = service("default", "native-legacy-externalip",
+                             external_ips=["192.0.2.44"])
+            created_legacy = native("create", "-f", "-", "-o", "json",
+                                    payload=json.dumps(legacy))
+            stored_legacy = json.loads(created_legacy.stdout)
+            if (stored_legacy.get("spec", {}).get("type") != "ClusterIP"
+                    or stored_legacy.get("spec", {}).get("externalIPs") != ["192.0.2.44"]
+                    or "selector" in stored_legacy.get("spec", {})
+                    or not assert_empty_endpoint_slices(native, "native-legacy-externalip")):
+                lab.block("The pre-plugin TEST-NET Service was not a selector-less inert baseline")
+
+            # Enable the plugin on this disposable API server after the legacy
+            # object exists, then wait until the replacement apiserver is live.
+            node = f"{peer}-control-plane"
+            manifest = "/etc/kubernetes/manifests/kube-apiserver.yaml"
+            script = (
+                "set -eu; "
+                f"m={manifest}; "
+                "test -r \"$m\"; "
+                "test \"$(grep -F -c -- '--enable-admission-plugins=NodeRestriction' \"$m\")\" = 1; "
+                "! grep -Fq -- 'DenyServiceExternalIPs' \"$m\"; "
+                "sed -i 's/--enable-admission-plugins=NodeRestriction/--enable-admission-plugins=NodeRestriction,DenyServiceExternalIPs/' \"$m\"; "
+                "grep -Fq -- '--enable-admission-plugins=NodeRestriction,DenyServiceExternalIPs' \"$m\""
+            )
+            lab.command("docker", "exec", node, "sh", "-ceu", script, timeout=20)
+            ready_deadline = time.monotonic() + 75
+            active_args = []
+            while time.monotonic() < ready_deadline:
+                raw = native("get", "--raw=/readyz", allow_failure=True, timeout=10)
+                if raw.returncode == 0 and raw.stdout.strip() == "ok":
+                    status = json.loads(native("-n", "kube-system", "get", "pod",
+                                               f"kube-apiserver-{peer}-control-plane",
+                                               "-o", "json").stdout)
+                    active_args = status["spec"]["containers"][0]["command"]
+                    if any(arg.startswith("--enable-admission-plugins=") and
+                           "DenyServiceExternalIPs" in arg.split("=", 1)[1].split(",")
+                           for arg in active_args):
+                        break
+                time.sleep(1)
+            active = any(arg.startswith("--enable-admission-plugins=")
+                         and "DenyServiceExternalIPs" in arg.split("=", 1)[1].split(",")
+                         for arg in active_args)
+            if not active:
+                lab.block("The legacy Service fixture did not become paired with the active native plugin")
+
+            # A same-value metadata update is accepted. A replacement address
+            # is rejected and leaves the old value stored; removing it is
+            # accepted. Each observation checks that no endpoint appeared.
+            unchanged = native("patch", "service", "native-legacy-externalip", "--type=merge",
+                               "-p", json.dumps({"metadata": {"annotations": {
+                                   "saf-k8s.example/fixture-review": "grandfathered"}}}),
+                               "-o", "json", allow_failure=True)
+            unchanged_obj = json.loads(unchanged.stdout) if unchanged.returncode == 0 else {}
+            unchanged_empty = assert_empty_endpoint_slices(native, "native-legacy-externalip")
+            unchanged_ok = (unchanged.returncode == 0
+                            and unchanged_obj.get("spec", {}).get("externalIPs") == ["192.0.2.44"]
+                            and unchanged_empty)
+            lab.check("positive", "Native plugin permits metadata-only update preserving an existing ExternalIP",
+                      unchanged_ok, {"update_admitted": unchanged.returncode == 0,
+                                     "existing_value_preserved": unchanged_obj.get("spec", {}).get("externalIPs") == ["192.0.2.44"],
+                                     "no_endpoint_slices": unchanged_empty})
+
+            changed = native("patch", "service", "native-legacy-externalip", "--type=merge",
+                             "--dry-run=server", "-p",
+                             json.dumps({"spec": {"externalIPs": ["198.51.100.44"]}}),
+                             allow_failure=True)
+            changed_stored = json.loads(native("get", "service", "native-legacy-externalip", "-o", "json").stdout)
+            changed_empty = assert_empty_endpoint_slices(native, "native-legacy-externalip")
+            changed_denied = (("(forbidden)" in changed.stderr.casefold())
+                              and ("external ip" in changed.stderr.casefold()
+                                   or "externalips" in changed.stderr.casefold())
+                              and changed_stored.get("spec", {}).get("externalIPs") == ["192.0.2.44"]
+                              and changed_empty)
+            lab.check("green", "Native plugin rejects changing a grandfathered ExternalIP and preserves stored state",
+                      changed_denied, {"replacement_denied": changed.returncode != 0,
+                                       "original_value_preserved": changed_stored.get("spec", {}).get("externalIPs") == ["192.0.2.44"],
+                                       "no_endpoint_slices": changed_empty})
+
+            removed = native("patch", "service", "native-legacy-externalip", "--type=merge",
+                             "-p", json.dumps({"spec": {"externalIPs": []}}), "-o", "json",
+                             allow_failure=True)
+            removed_obj = json.loads(removed.stdout) if removed.returncode == 0 else {}
+            removed_empty = assert_empty_endpoint_slices(native, "native-legacy-externalip")
+            removal_ok = (removed.returncode == 0
+                          and not removed_obj.get("spec", {}).get("externalIPs")
+                          and removed_empty)
+            lab.check("positive", "Native plugin permits removing a grandfathered ExternalIP",
+                      removal_ok, {"removal_admitted": removed.returncode == 0,
+                                   "external_ips_empty": not removed_obj.get("spec", {}).get("externalIPs"),
+                                   "no_endpoint_slices": removed_empty})
+
             pod = f"kube-apiserver-{peer}-control-plane"
             obj = json.loads(native("-n", "kube-system", "get", "pod", pod, "-o", "json").stdout)
             flags = obj["spec"]["containers"][0]["command"]
