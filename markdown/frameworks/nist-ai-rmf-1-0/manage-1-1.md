@@ -23,9 +23,9 @@ AI system classification defines expected control profiles. Model promotion gate
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5
 - Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: partial-coverage
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0905-015 - AI system control profile enforcement](../../controls/SAF-K8S-0905-015.md)
 

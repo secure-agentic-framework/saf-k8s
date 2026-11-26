@@ -2,8 +2,8 @@
 
 - Framework Code: EU-AI-ACT
 - Version: 2024/1689
-- Total Reverse Mappings: 208
-- Distinct Requirements Mapped: 78
+- Total Reverse Mappings: 206
+- Distinct Requirements Mapped: 77
 
 ## Requirements
 
@@ -52,7 +52,6 @@
 - [Article-13.3.b.ii - Transparency and provision of information to deployers](article-13-3-b-ii.md)
 - [Article-13.3.b.vi - Transparency and provision of information to deployers](article-13-3-b-vi.md)
 - [Article-13.3.e - Transparency and provision of information to deployers](article-13-3-e.md)
-- [Article-14.3.a - Human oversight](article-14-3-a.md)
 - [Article-14.4.a - Human oversight](article-14-4-a.md)
 - [Article-14.4.e - Human oversight](article-14-4-e.md)
 - [Article-15.1 - Accuracy, robustness and cybersecurity](article-15-1.md)

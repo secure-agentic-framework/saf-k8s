@@ -23,9 +23,9 @@ The control can contribute a pre-promotion gate over applicable test evidence. I
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5
 - Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0905-012 - Development-to-production environment separation for AI workloads](../../controls/SAF-K8S-0905-012.md)
 
