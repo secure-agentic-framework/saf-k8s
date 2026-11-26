@@ -11684,16 +11684,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-10(1)
   framework_requirement_title: Association of Identities
-  framework_mapping_notes: 'Binding agent identity to audit records
-
-
-    8.5 - Audit and monitor GPU workloads (tracking pod-to-GPU allocation with workload identity)'
+  framework_mapping_notes: A scoped native Kubernetes audit event associates a selected synthetic reviewer identity with a digest-bound approval object. Independent readback verifies the approved decision, digest and reviewer. Verify the actual reviewer authority, promotion boundary and protected audit evidence.
   control_id: SAF-K8S-0905-051
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The authenticated and authorized reviewer identity is associated with the exact approved artifact and disposition at the actual workflow boundary, with protected corresponding records.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -11921,22 +11918,6 @@
     9.5 - Reviewer identity validation in promotion approval workflows explicitly binds reviewer identity to approval decisions'
   control_id: SAF-K8S-0905-012
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-10(4)
-  framework_requirement_title: Validate Binding of Information Reviewer Identity
-  framework_mapping_notes: 'Verifying who/what reviewed agent outputs
-
-
-    9.5 - Reviewer identity validation in promotion approval workflows explicitly binds reviewer identity to approval decisions'
-  control_id: SAF-K8S-0905-051
-  relation_type: direct
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -13520,16 +13501,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-8
   framework_requirement_title: Time Stamps
-  framework_mapping_notes: 'Accurate timestamps for agent action correlation
-
-
-    2.3 - Host OS and Kernel Hardening (node time synchronization with authoritative time sources, drift monitoring, and timestamp integrity); 10.1 - Audit logging (timestamps in audit records for forensic accuracy and event correlation)'
+  framework_mapping_notes: Native audit events record ordered request-received and response-complete timestamps for the scoped operation. Validate authoritative synchronization, timestamp format and accuracy separately.
   control_id: SAF-K8S-0905-051
   relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only for the ordered API-server timestamps recorded for the tested audit event; system time accuracy and synchronization require separate evidence.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
