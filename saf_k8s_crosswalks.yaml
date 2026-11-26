@@ -17141,22 +17141,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AU-5
-  framework_requirement_title: Response to Audit Logging Process Failures
-  framework_mapping_notes: 'Handling agent logging failures
-
-
-    10.1 - Logging architecture explicitly covers handling audit logging process failures and backend availability'
-  control_id: SAF-K8S-1001-029
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AU-5(1)
   framework_requirement_title: Storage Capacity Warning
   framework_mapping_notes: 'Alerts when agent log storage is near capacity
@@ -17196,22 +17180,6 @@
 
     10.1 - Log retention policies explicitly cover audit storage capacity monitoring and alerting'
   control_id: SAF-K8S-1001-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-5(1)
-  framework_requirement_title: Storage Capacity Warning
-  framework_mapping_notes: 'Alerts when agent log storage is near capacity
-
-
-    10.1 - Log retention policies explicitly cover audit storage capacity monitoring and alerting'
-  control_id: SAF-K8S-1001-029
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -17306,22 +17274,6 @@
 
     10.1 - Configurable audit traffic volume thresholds for high-throughput AI workloads explicitly covers traffic volume threshold configuration'
   control_id: SAF-K8S-1001-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-5(3)
-  framework_requirement_title: Configurable Traffic Volume Thresholds
-  framework_mapping_notes: 'Thresholds for agent audit traffic volume
-
-
-    10.1 - Configurable audit traffic volume thresholds for high-throughput AI workloads explicitly covers traffic volume threshold configuration'
-  control_id: SAF-K8S-1001-029
   relation_type: supports
   strength_level: strong
   applicability: required
