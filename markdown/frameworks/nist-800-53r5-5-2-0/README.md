@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 2137
-- Distinct Requirements Mapped: 657
+- Total Reverse Mappings: 2135
+- Distinct Requirements Mapped: 656
 
 ## Requirements
 
@@ -599,7 +599,6 @@
 - [SI-21 - Information Refresh](si-21.md)
 - [SI-22 - Information Diversity](si-22.md)
 - [SI-23 - Information Fragmentation](si-23.md)
-- [SI-3 - Malicious Code Protection](si-3.md)
 - [SI-3(10) - Malicious Code Analysis](si-3-10.md)
 - [SI-3(4) - Updates Only by Privileged Users](si-3-4.md)
 - [SI-4 - System Monitoring](si-4.md)

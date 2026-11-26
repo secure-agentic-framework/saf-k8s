@@ -29781,16 +29781,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-7(5)
   framework_requirement_title: Deny by Default -- Allow by Exception
-  framework_mapping_notes: 'Deny-by-default network policy for agent communications enforces least privilege
-
-
-    5.1 - Default deny ingress and egress policies as namespace security baselines (deny by default)'
+  framework_mapping_notes: For the approved quarantine workload path, the enforcing pinned kindnet policy initially denies both marker endpoints and permits only the named approved exception. Verify complete deployed quarantine boundary and traffic scope independently.
   control_id: SAF-K8S-0905-044
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only for quarantine workload paths where the deployed CNI enforces the reviewed default-deny and exact allow-by-exception rules. The current 0905-044 receipt proves the policy object exists but records traffic_drop_proven=false; apply this mapping to the reference only after the bounded Cilium marker comparison passes.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -29831,22 +29828,6 @@
 
     5.1 - Egress controls (restricting threatening outbound traffic, DNS-based egress policies)'
   control_id: SAF-K8S-0501-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(9)
-  framework_requirement_title: Restrict Threatening Outgoing Communications Traffic
-  framework_mapping_notes: 'Restricting outbound agent traffic prevents data exfiltration and command-and-control
-
-
-    5.1 - Egress controls (restricting threatening outbound traffic, DNS-based egress policies)'
-  control_id: SAF-K8S-0905-044
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -33322,22 +33303,6 @@
 
     9.1 - Distributed training (fragmenting data across workers); 7.1 - Distributed persistent volume storage'
   control_id: SAF-K8S-0901-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-3
-  framework_requirement_title: Malicious Code Protection
-  framework_mapping_notes: 'Malicious code protection for agent systems detects injected payloads and compromised tools
-
-
-    6.1 - Vulnerability scanning (malicious code detection in images); 2.4 - Runtime threat detection (malicious code at runtime)'
-  control_id: SAF-K8S-0905-044
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -37070,13 +37035,13 @@
   framework_version: '1.1'
   framework_requirement_id: PW.4.1
   framework_requirement_title: Acquire and maintain well-secured software components from commercial, open-source, and other third-party developers.
-  framework_mapping_notes: 'SAF-K8S enforces vetting of third-party components at admission: image vulnerability scanning, signature verification, public model quarantine workflows, and approved source allowlists.'
+  framework_mapping_notes: NIST SP 800-218 PW.4.1 calls for acquiring and maintaining well-secured third-party software components. This control supplies a limited preapproval/quarantine workflow contribution for externally sourced model packages only when the organization treats the relevant artifact as a software component. Its retained case accepts synthetic metadata and scan-decision records, not model bytes, and does not establish component security, provenance, vulnerability analysis, or maintenance. Actual artifact scanning, approved source inventory, provenance, and update maintenance remain adopter evidence.
   control_id: SAF-K8S-0905-044
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only when the acquired public model package or accompanying plugin/code is treated as a third-party software component within the organization SSDF scope and the actual artifact is bound to the intake scan record. Current portable evidence is metadata-only and does not inspect an artifact.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
