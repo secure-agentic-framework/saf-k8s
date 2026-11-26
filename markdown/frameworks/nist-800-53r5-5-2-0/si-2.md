@@ -27,15 +27,6 @@ An approved and validated emergency patch supports correction and installation f
 - Applicability: required
 - Strength Reason Code: exact-text-match
 
-### [SAF-K8S-0604-007 - Third-party component security requirements documentation](../../controls/SAF-K8S-0604-007.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0604-010 - Automated AI workload rebuild and redeployment patch pipelines](../../controls/SAF-K8S-0604-010.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control

@@ -31,10 +31,10 @@ The SBOM can supply a maintained inventory for one documented release image. Ver
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.4
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0905-009 - Model provenance verification at deployment](../../controls/SAF-K8S-0905-009.md)
 
