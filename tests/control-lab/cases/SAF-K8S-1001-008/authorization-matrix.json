@@ -60,5 +60,40 @@
     "verbs": ["get"],
     "expires": "case-run-only",
     "fixture_notice": "Synthetic approval metadata. It is not an organizational approval or production authorization."
+  },
+  "reversible_fixture_mitigation": {
+    "finding": {
+      "id": "SYN-AUDIT-008-03",
+      "summary": "A named synthetic responder has a temporary read grant to one harmless fixture ConfigMap.",
+      "scope": "case-owned namespace and case-owned ConfigMap only",
+      "subject": "system:serviceaccount:saf-1001-008:remediation-subject",
+      "resource": "core/configmaps/finding-remediation-marker",
+      "rolebinding": "observed-remediation-read",
+      "verbs": ["get"]
+    },
+    "revoke_decision": {
+      "approval_id": "SYN-APPROVAL-008-REVOKE-01",
+      "status": "approved",
+      "action": "revoke_named_rolebinding",
+      "approver_identities": ["synthetic-iam-approver", "synthetic-resource-owner"],
+      "namespace": "saf-1001-008",
+      "subject": "system:serviceaccount:saf-1001-008:remediation-subject",
+      "role": "observed-remediation-read",
+      "rolebinding": "observed-remediation-read",
+      "resource": "core/configmaps/finding-remediation-marker",
+      "verbs": ["get"]
+    },
+    "rollback_decision": {
+      "approval_id": "SYN-APPROVAL-008-ROLLBACK-01",
+      "status": "approved",
+      "action": "restore_exact_fixture_rolebinding",
+      "approver_identities": ["synthetic-iam-approver", "synthetic-resource-owner"],
+      "namespace": "saf-1001-008",
+      "subject": "system:serviceaccount:saf-1001-008:remediation-subject",
+      "role": "observed-remediation-read",
+      "rolebinding": "observed-remediation-read",
+      "resource": "core/configmaps/finding-remediation-marker",
+      "verbs": ["get"]
+    }
   }
 }

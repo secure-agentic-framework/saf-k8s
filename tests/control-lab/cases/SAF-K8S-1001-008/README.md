@@ -47,6 +47,28 @@ is installed. The matrix documents sample permitted responses and approval
 conditions. It does not prove that an organization approved the matrix or that
 any production workflow enforces it.
 
+## Reversible fixture mitigation reference
+
+The sixth check adds a grouped
+check for a second exact synthetic finding (`SYN-AUDIT-008-03`). The finding
+names one case-owned ServiceAccount, one harmless ConfigMap, and one temporary
+RoleBinding granting only `get` on that ConfigMap. The case observes the
+pre-existing named access, rejects a decision missing a required approver
+without changing the binding, then applies the exact approved response by
+deleting only that RoleBinding. It verifies the actor is denied by both an
+actual request and SubjectAccessReview while the separate peer and previously
+approved read remain allowed.
+
+A distinct synthetic rollback approval restores the exact recorded
+RoleBinding, verifies access is restored, then the disposable case deletes the
+same binding again and confirms the final mitigated state. The record includes
+before, denied, restored, and final observations plus exact binding metadata;
+it contains no credentials or real finding data. This demonstrates one
+reversible, namespace-scoped access-removal response, not an organizational
+approval, production incident, general policy adjustment, or ticket closure.
+The expected case count is six. Real severity criteria, approvers, escalation,
+response deadlines, evidence retention, and closure remain adopter evidence.
+
 Escalation delivery, policy adjustment, broader access-control changes,
 ticketing/workflow integration, actual audit-log sources, change management,
 closure/retention procedures, other API resources, external identity systems,

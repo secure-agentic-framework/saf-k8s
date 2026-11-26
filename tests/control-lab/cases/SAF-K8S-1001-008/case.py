@@ -13,18 +13,25 @@ BASELINE = "finding-peer-baseline"
 NEIGHBOR = "finding-unapproved-neighbor"
 ROLE = "approved-finding-read"
 BINDING = "approved-finding-read"
+REMEDIATION_SUBJECT = f"system:serviceaccount:{NAMESPACE}:remediation-subject"
+REMEDIATION_ROLE = "observed-remediation-read"
+REMEDIATION_BINDING = "observed-remediation-read"
+REMEDIATION_TARGET = "finding-remediation-marker"
 GROUPS = ["system:serviceaccounts", f"system:serviceaccounts:{NAMESPACE}", "system:authenticated"]
 EXPECTED_RULE = [{
     "apiGroups": [""], "resources": ["configmaps"], "resourceNames": [TARGET], "verbs": ["get"]
 }]
 
 SCOPE = (
-    "A disposable Kind Kubernetes v1.36.1 cluster with four inert ConfigMaps and two "
-    "synthetic ServiceAccount identities. The case checks a matrix-backed, read-only "
+    "A disposable Kind Kubernetes v1.36.1 cluster with five inert ConfigMaps and synthetic identities. "
+    "The existing response decision uses an impersonated investigator, and a separate remediation subject "
+    "is used for the reversible fixture mitigation. The case checks a matrix-backed, read-only "
     "investigation decision through an actual impersonated ConfigMap GET, API-server "
     "SubjectAccessReview, and live Role/RoleBinding readback. It does not create Pods, "
     "tokens, or persistent workloads. Approval identities and all finding data are "
-    "synthetic. The case does not establish organizational approval, real audit event "
+    "synthetic. It also removes and restores one approved RoleBinding scoped to a single "
+    "harmless ConfigMap and verifies the actor's access state before, during, and after. "
+    "The case does not establish organizational approval, real audit event "
     "handling, ticketing/workflow automation, escalation delivery, policy changes, "
     "production authorization, or organizational closure verification."
 )
@@ -140,6 +147,142 @@ def apply_approved_binding(lab):
     kubectl(lab, "create", "-f", "-", payload=json.dumps(binding))
 
 
+def remediation_rolebinding():
+    return {
+        "apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding",
+        "metadata": {"name": REMEDIATION_BINDING, "namespace": NAMESPACE},
+        "subjects": [{"kind": "ServiceAccount", "name": "remediation-subject", "namespace": NAMESPACE}],
+        "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "Role",
+                    "name": REMEDIATION_ROLE},
+    }
+
+
+def validate_mitigation_decision(decision, *, expected_action, approval_id):
+    required_approvers = {"synthetic-iam-approver", "synthetic-resource-owner"}
+    if (decision.get("status") != "approved" or decision.get("action") != expected_action
+            or decision.get("approval_id") != approval_id
+            or set(decision.get("approver_identities", [])) != required_approvers
+            or decision.get("namespace") != NAMESPACE
+            or decision.get("subject") != REMEDIATION_SUBJECT
+            or decision.get("role") != REMEDIATION_ROLE
+            or decision.get("rolebinding") != REMEDIATION_BINDING
+            or decision.get("resource") != f"core/configmaps/{REMEDIATION_TARGET}"
+            or decision.get("verbs") != ["get"]):
+        raise ValueError("Synthetic remediation decision does not match the exact fixture grant")
+
+
+def apply_remediation_binding(lab, binding):
+    kubectl(lab, "create", "-f", "-", payload=json.dumps(binding))
+
+
+def run_reversible_fixture_mitigation(lab, matrix):
+    fixture = matrix["reversible_fixture_mitigation"]
+    finding = fixture["finding"]
+    if (finding.get("id") != "SYN-AUDIT-008-03"
+            or finding.get("scope") != "case-owned namespace and case-owned ConfigMap only"
+            or finding.get("subject") != REMEDIATION_SUBJECT
+            or finding.get("resource") != f"core/configmaps/{REMEDIATION_TARGET}"
+            or finding.get("rolebinding") != REMEDIATION_BINDING
+            or finding.get("verbs") != ["get"]):
+        raise ValueError("Synthetic mitigation finding is not the exact case-owned fixture")
+
+    create_configmap(lab, REMEDIATION_TARGET, {"finding.json": json.dumps(finding, sort_keys=True)})
+    finding_object = json.loads(kubectl(lab, "get", "configmap", REMEDIATION_TARGET, "-o", "json").stdout)
+    finding_readback_ok = (finding_object.get("metadata", {}).get("uid")
+                           and json.loads(finding_object.get("data", {}).get("finding.json", "{}")) == finding)
+
+    kubectl(lab, "create", "serviceaccount", "remediation-subject")
+    role = {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role",
+            "metadata": {"name": REMEDIATION_ROLE, "namespace": NAMESPACE},
+            "rules": [{"apiGroups": [""], "resources": ["configmaps"],
+                       "resourceNames": [REMEDIATION_TARGET], "verbs": ["get"]}]}
+    kubectl(lab, "create", "-f", "-", payload=json.dumps(role))
+    binding = remediation_rolebinding()
+    apply_remediation_binding(lab, binding)
+
+    before = get_as(lab, REMEDIATION_SUBJECT, REMEDIATION_TARGET)
+    before_sar = review(lab, REMEDIATION_SUBJECT, REMEDIATION_TARGET)
+    before_object = json.loads(before.stdout) if before.returncode == 0 else {}
+    before_exact = before_object.get("metadata", {}).get("name") == REMEDIATION_TARGET
+    revoke = fixture["revoke_decision"]
+    missing_owner = {**revoke, "approver_identities": ["synthetic-iam-approver"]}
+    try:
+        validate_mitigation_decision(missing_owner, expected_action="revoke_named_rolebinding",
+                                     approval_id="SYN-APPROVAL-008-REVOKE-01")
+    except ValueError:
+        missing_owner_rejected = True
+    else:
+        missing_owner_rejected = False
+    unchanged_binding = kubectl(lab, "get", "rolebinding", REMEDIATION_BINDING,
+                                "--ignore-not-found", "-o", "name")
+    unchanged_access = get_as(lab, REMEDIATION_SUBJECT, REMEDIATION_TARGET)
+
+    validate_mitigation_decision(revoke, expected_action="revoke_named_rolebinding",
+                                 approval_id="SYN-APPROVAL-008-REVOKE-01")
+    kubectl(lab, "delete", "rolebinding", REMEDIATION_BINDING)
+    mitigated = get_as(lab, REMEDIATION_SUBJECT, REMEDIATION_TARGET)
+    mitigated_sar = review(lab, REMEDIATION_SUBJECT, REMEDIATION_TARGET)
+    absent_after_mitigation = kubectl(lab, "get", "rolebinding", REMEDIATION_BINDING,
+                                      "--ignore-not-found", "-o", "name")
+
+    rollback = fixture["rollback_decision"]
+    validate_mitigation_decision(rollback, expected_action="restore_exact_fixture_rolebinding",
+                                 approval_id="SYN-APPROVAL-008-ROLLBACK-01")
+    apply_remediation_binding(lab, binding)
+    rollback_read = get_as(lab, REMEDIATION_SUBJECT, REMEDIATION_TARGET)
+    rollback_object = json.loads(kubectl(lab, "get", "rolebinding", REMEDIATION_BINDING,
+                                         "-o", "json").stdout)
+    rollback_matches = (rollback_object.get("metadata", {}).get("namespace") == NAMESPACE
+                        and rollback_object.get("subjects") == binding["subjects"]
+                        and rollback_object.get("roleRef") == binding["roleRef"])
+
+    # Return the disposable fixture to the mitigated state after proving exact rollback.
+    kubectl(lab, "delete", "rolebinding", REMEDIATION_BINDING)
+    final = get_as(lab, REMEDIATION_SUBJECT, REMEDIATION_TARGET)
+    peer_final = get_as(lab, PEER, BASELINE)
+    unaffected_approved = get_as(lab, RESPONDER, TARGET)
+    role_readback = json.loads(kubectl(lab, "get", "role", REMEDIATION_ROLE, "-o", "json").stdout)
+    final_absent = kubectl(lab, "get", "rolebinding", REMEDIATION_BINDING,
+                           "--ignore-not-found", "-o", "name")
+    check_ok = (
+        finding_readback_ok and before.returncode == 0 and before_exact and before_sar["allowed"]
+        and missing_owner_rejected and bool(unchanged_binding.stdout.strip())
+        and unchanged_access.returncode == 0
+        and forbidden(mitigated) and not mitigated_sar["allowed"]
+        and not absent_after_mitigation.stdout.strip()
+        and rollback_read.returncode == 0 and rollback_matches
+        and forbidden(final) and not final_absent.stdout.strip()
+        and peer_final.returncode == 0 and unaffected_approved.returncode == 0
+        and role_readback.get("rules") == role["rules"]
+    )
+    result = {
+        "finding_id": finding["id"], "scope": finding["scope"],
+        "finding_object": {"name": REMEDIATION_TARGET,
+                           "uid_present": bool(finding_object.get("metadata", {}).get("uid")),
+                           "exact_readback": finding_readback_ok},
+        "binding_manifest": binding,
+        "before": {"get_allowed": before.returncode == 0, "target_exact": before_exact,
+                   "sar": before_sar},
+        "missing_approval": {"rejected": missing_owner_rejected,
+                             "binding_unchanged": bool(unchanged_binding.stdout.strip()),
+                             "access_unchanged": unchanged_access.returncode == 0},
+        "approved_mitigation": {"approval_id": revoke["approval_id"],
+                                 "read_denied": forbidden(mitigated), "sar": mitigated_sar,
+                                 "binding_absent": not absent_after_mitigation.stdout.strip()},
+        "approved_exact_rollback": {"approval_id": rollback["approval_id"],
+                                    "access_restored": rollback_read.returncode == 0,
+                                    "binding_spec_matches": rollback_matches},
+        "final_fixture_state": {"access_denied": forbidden(final),
+                                 "binding_absent": not final_absent.stdout.strip(),
+                                 "peer_unaffected": peer_final.returncode == 0,
+                                 "separate_approved_read_unaffected": unaffected_approved.returncode == 0,
+                                 "role_rules_unchanged": role_readback.get("rules") == role["rules"]},
+    }
+    lab.check("positive", "An exact approved response revokes one synthetic grant, missing approval leaves it unchanged, and separately approved rollback restores then removes only that grant",
+              check_ok, result)
+    return result
+
+
 def run(lab):
     matrix_raw = (HERE / "authorization-matrix.json").read_text()
     matrix = json.loads(matrix_raw)
@@ -235,6 +378,8 @@ def run(lab):
                "positive_peer_still_allowed": peer_after.returncode == 0,
                "rbac_readback": rb_readback})
 
+    mitigation = run_reversible_fixture_mitigation(lab, observed_matrix)
+
     evidence = {
         "control_id": "SAF-K8S-1001-008", "namespace": NAMESPACE,
         "evidence_notice": "Synthetic fixture data and identities only; no credentials or secrets are recorded.",
@@ -259,6 +404,7 @@ def run(lab):
             "peer_baseline_get_exit_code": peer_after.returncode,
             "rbac_readback": rb_readback,
         },
+        "reversible_fixture_mitigation": mitigation,
         "coverage_limits": [
             "The approval matrix and approver identities are synthetic fixtures, not organizational evidence.",
             "Escalation routing, policy changes, ticketing, production controls, real audit sources, and closure workflows are not exercised.",

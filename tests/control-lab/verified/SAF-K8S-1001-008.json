@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-008",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "be51e36d445e3477ca7c4fbb30df96c0ea5716e9",
+  "catalog_sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "2569412d314b4854ce61bb727df25efa6fcf55ad5d58d15dbd8b14308f86eb87",
-  "scope": "A disposable Kind Kubernetes v1.36.1 cluster with four inert ConfigMaps and two synthetic ServiceAccount identities. The case checks a matrix-backed, read-only investigation decision through an actual impersonated ConfigMap GET, API-server SubjectAccessReview, and live Role/RoleBinding readback. It does not create Pods, tokens, or persistent workloads. Approval identities and all finding data are synthetic. The case does not establish organizational approval, real audit event handling, ticketing/workflow automation, escalation delivery, policy changes, production authorization, or organizational closure verification.",
-  "cluster": "saf-lab-61b7ac9a871f",
+  "scope": "A disposable Kind Kubernetes v1.36.1 cluster with five inert ConfigMaps and synthetic identities. The existing response decision uses an impersonated investigator, and a separate remediation subject is used for the reversible fixture mitigation. The case checks a matrix-backed, read-only investigation decision through an actual impersonated ConfigMap GET, API-server SubjectAccessReview, and live Role/RoleBinding readback. It does not create Pods, tokens, or persistent workloads. Approval identities and all finding data are synthetic. It also removes and restores one approved RoleBinding scoped to a single harmless ConfigMap and verifies the actor's access state before, during, and after. The case does not establish organizational approval, real audit event handling, ticketing/workflow automation, escalation delivery, policy changes, production authorization, or organizational closure verification.",
+  "cluster": "saf-lab-6909d8004c48",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -126,6 +126,76 @@
             }
           ],
           "binding_matches": true
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An exact approved response revokes one synthetic grant, missing approval leaves it unchanged, and separately approved rollback restores then removes only that grant",
+      "matched": true,
+      "observed": {
+        "finding_id": "SYN-AUDIT-008-03",
+        "scope": "case-owned namespace and case-owned ConfigMap only",
+        "finding_object": {
+          "name": "finding-remediation-marker",
+          "uid_present": true,
+          "exact_readback": true
+        },
+        "binding_manifest": {
+          "apiVersion": "rbac.authorization.k8s.io/v1",
+          "kind": "RoleBinding",
+          "metadata": {
+            "name": "observed-remediation-read",
+            "namespace": "saf-1001-008"
+          },
+          "subjects": [
+            {
+              "kind": "ServiceAccount",
+              "name": "remediation-subject",
+              "namespace": "saf-1001-008"
+            }
+          ],
+          "roleRef": {
+            "apiGroup": "rbac.authorization.k8s.io",
+            "kind": "Role",
+            "name": "observed-remediation-read"
+          }
+        },
+        "before": {
+          "get_allowed": true,
+          "target_exact": true,
+          "sar": {
+            "allowed": true,
+            "denied": false,
+            "reason": "RBAC: allowed by RoleBinding \"observed-remediation-read/saf-1001-008\" of Role \"observed-remediation-read\" to ServiceAccount \"remediation-subject/saf-1001-008\""
+          }
+        },
+        "missing_approval": {
+          "rejected": true,
+          "binding_unchanged": true,
+          "access_unchanged": true
+        },
+        "approved_mitigation": {
+          "approval_id": "SYN-APPROVAL-008-REVOKE-01",
+          "read_denied": true,
+          "sar": {
+            "allowed": false,
+            "denied": false,
+            "reason": ""
+          },
+          "binding_absent": true
+        },
+        "approved_exact_rollback": {
+          "approval_id": "SYN-APPROVAL-008-ROLLBACK-01",
+          "access_restored": true,
+          "binding_spec_matches": true
+        },
+        "final_fixture_state": {
+          "access_denied": true,
+          "binding_absent": true,
+          "peer_unaffected": true,
+          "separate_approved_read_unaffected": true,
+          "role_rules_unchanged": true
         }
       }
     }
