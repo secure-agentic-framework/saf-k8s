@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0904-014",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "e8cb72dbd0c3bf662f3404b8f9be86ff7dcff9a4",
+  "catalog_sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "83b58f488ebb0d373f3a7818c9faaa8828daf1d3eb25c976aeaf58984b9deabb",
-  "scope": "One fresh Kind v1.36.1 cluster runs the digest-pinned SeaweedFS 4.53 mini S3 backend with emptyDir data and a standard-library SigV4 client. Two static stage identities first have broad Read/Write access to both stage buckets, then the mounted static IAM config changes only their action scopes and the same SeaweedFS container process restarts inside the same Pod. The case checks unchanged credentials, Pod UID, Service ClusterIP, image and S3 marker hashes, then verifies cross-bucket denies, own-stage reads/writes, and stage-specific lifecycle config readback. It does not await timed expiration or establish workflow identity federation, production storage, encryption, or backing-byte reclamation.",
-  "cluster": "saf-lab-badf210b519f",
+  "scope": "One fresh Kind v1.36.1 cluster runs the digest-pinned SeaweedFS 4.53 mini S3 backend with emptyDir data and a standard-library SigV4 client. Two static stage identities first have broad Read/Write access to both stage buckets, then the mounted static IAM config changes only their action scopes and the same SeaweedFS container process restarts inside the same Pod. The case checks unchanged credentials, Pod UID, Service ClusterIP, image and S3 marker hashes, then verifies cross-bucket denies, own-stage reads/writes, and stage-specific lifecycle config readback. An additive phase uses native Kubernetes TokenRequest projected ServiceAccount tokens with the disposable API server's discovered OIDC issuer/JWKS, SeaweedFS STS and synthetic bucket-scoped roles; its short configured-default STS credentials are checked before and after actual elapsed expiry. No production controller/provider behavior is claimed. The case does not establish production storage, encryption, or backing-byte reclamation.",
+  "cluster": "saf-lab-bd23aee12b12",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -251,6 +251,132 @@
           ]
         }
       ]
+    },
+    {
+      "phase": "positive",
+      "claim": "Kubernetes projects distinct stage ServiceAccount tokens with the exact issuer and audience",
+      "matched": true,
+      "observed": {
+        "stage_a": {
+          "audience_matches": true,
+          "expiration_window_matches": true,
+          "issuer_matches": true,
+          "operation": "inspect",
+          "snapshot_discovery_path_matches": true,
+          "snapshot_failure": null,
+          "snapshot_issuer_matches": true,
+          "snapshot_jwks_digest_matches": true,
+          "snapshot_public_keys_only": true,
+          "snapshot_tls_verified": true,
+          "subject_matches": true
+        },
+        "stage_b": {
+          "audience_matches": true,
+          "expiration_window_matches": true,
+          "issuer_matches": true,
+          "operation": "inspect",
+          "snapshot_discovery_path_matches": true,
+          "snapshot_failure": null,
+          "snapshot_issuer_matches": true,
+          "snapshot_jwks_digest_matches": true,
+          "snapshot_public_keys_only": true,
+          "snapshot_tls_verified": true,
+          "subject_matches": true
+        },
+        "issuer_configured": "https://kubernetes.default.svc.cluster.local",
+        "jwks_discovery_configured": "https://oidc-jwks-snapshot.saf-test.svc:8443/openid/v1/jwks",
+        "service_accounts_case_owned": true,
+        "projected_token_ttl_seconds": 600
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Stage-A Kubernetes identity obtains short-lived STS credentials for only its fixed bucket marker",
+      "matched": true,
+      "observed": {
+        "get_digest_matches": true,
+        "get_status": 200,
+        "operation": "positive",
+        "put_status": 200,
+        "readback_status": 200,
+        "short_session_window": true,
+        "sts_status": 200,
+        "subject_matches": true,
+        "token_claims_match": true,
+        "write_digest_matches": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Stage-B Kubernetes identity obtains short-lived STS credentials for only its fixed bucket marker",
+      "matched": true,
+      "observed": {
+        "get_digest_matches": true,
+        "get_status": 200,
+        "operation": "positive",
+        "put_status": 200,
+        "readback_status": 200,
+        "short_session_window": true,
+        "sts_status": 200,
+        "subject_matches": true,
+        "token_claims_match": true,
+        "write_digest_matches": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Stage-A ServiceAccount token cannot assume the stage-B SeaweedFS role",
+      "matched": true,
+      "observed": {
+        "denied": true,
+        "error_class": "AccessDenied",
+        "no_session_issued": true,
+        "operation": "deny",
+        "sts_status": 403
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "SeaweedFS STS refuses the otherwise valid ServiceAccount token with the wrong audience",
+      "matched": true,
+      "observed": {
+        "denied": true,
+        "error_class": "InvalidParameterValue",
+        "no_session_issued": true,
+        "operation": "deny",
+        "sts_status": 400
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "SeaweedFS trust policy refuses an unapproved ServiceAccount subject",
+      "matched": true,
+      "observed": {
+        "denied": true,
+        "error_class": "AccessDenied",
+        "no_session_issued": true,
+        "operation": "deny",
+        "sts_status": 403
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same STS session remains usable before its returned expiry",
+      "matched": true,
+      "observed": {
+        "sts_status": 200,
+        "before_expiry_status": 200,
+        "short_session_window": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "SeaweedFS refuses the same STS credentials after real elapsed expiry",
+      "matched": true,
+      "observed": {
+        "after_expiry_status": 403,
+        "expired_denied": true
+      }
     }
   ]
 }

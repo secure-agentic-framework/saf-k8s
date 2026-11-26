@@ -1,8 +1,11 @@
 """Stage-scoped artifact access and lifecycle configuration on SeaweedFS 4.53."""
 import hashlib
 import json
+import os
 from pathlib import Path
+import tempfile
 import time
+from urllib.parse import urlsplit
 
 HERE = Path(__file__).resolve().parent
 FIXTURES = HERE / "fixtures"
@@ -16,6 +19,15 @@ CLIENT_IMAGE = (
 )
 BUCKETS = {"a": "saf0904014-stage-a", "b": "saf0904014-stage-b"}
 CONFIGMAP = "artifact-store-fixtures"
+FED_CONFIGMAP = "federated-identity-fixtures"
+JWKS_FIXTURE_MAP = "oidc-jwks-snapshot-fixtures"
+JWKS_SNAPSHOT = "oidc-jwks-snapshot"
+FED_IAM_CONFIG = None
+FED_ISSUER = None
+FED_JWKS_URI = None
+FED_DISCOVERY = None
+FED_SNAPSHOT_CA = None
+FED_AUDIENCE = "saf-0904-014-seaweed-s3"
 
 SCOPE = (
     "One fresh Kind v1.36.1 cluster runs the digest-pinned SeaweedFS 4.53 mini S3 backend "
@@ -24,8 +36,11 @@ SCOPE = (
     "config changes only their action scopes and the same SeaweedFS container process restarts "
     "inside the same Pod. The case checks unchanged credentials, Pod UID, Service ClusterIP, "
     "image and S3 marker hashes, then verifies cross-bucket denies, own-stage reads/writes, and "
-    "stage-specific lifecycle config readback. It does not await timed expiration or establish "
-    "workflow identity federation, production storage, encryption, or backing-byte reclamation."
+    "stage-specific lifecycle config readback. An additive phase uses native Kubernetes TokenRequest "
+    "projected ServiceAccount tokens with the disposable API server's discovered OIDC issuer/JWKS, "
+    "SeaweedFS STS and synthetic bucket-scoped roles; its short configured-default STS credentials "
+    "are checked before and after actual elapsed expiry. No production controller/provider behavior "
+    "is claimed. The case does not establish production storage, encryption, or backing-byte reclamation."
 )
 
 
@@ -45,24 +60,341 @@ def pod_security(user, group, *, read_only=False):
     return result
 
 
-def config_map_object(config_text):
+def config_map_object(config_text, iam_config=None):
+    data = {
+        "s3-config.json": config_text,
+        "stage-a-marker.txt": read_fixture("stage-a-marker.txt"),
+        "stage-b-marker.txt": read_fixture("stage-b-marker.txt"),
+        "stage-a-lifecycle.xml": read_fixture("stage-a-lifecycle.xml"),
+        "stage-b-lifecycle.xml": read_fixture("stage-b-lifecycle.xml"),
+        "s3_probe.py": read_fixture("s3_probe.py"),
+    }
+    if iam_config is None:
+        iam_config = FED_IAM_CONFIG
+    if iam_config is not None:
+        data["iam-config.json"] = json.dumps(iam_config, sort_keys=True)
+    if FED_SNAPSHOT_CA is not None:
+        data["snapshot-ca.crt"] = FED_SNAPSHOT_CA
     return {
         "apiVersion": "v1", "kind": "ConfigMap",
         "metadata": {"name": CONFIGMAP, "namespace": NAMESPACE},
-        "data": {
-            "s3-config.json": config_text,
-            "stage-a-marker.txt": read_fixture("stage-a-marker.txt"),
-            "stage-b-marker.txt": read_fixture("stage-b-marker.txt"),
-            "stage-a-lifecycle.xml": read_fixture("stage-a-lifecycle.xml"),
-            "stage-b-lifecycle.xml": read_fixture("stage-b-lifecycle.xml"),
-            "s3_probe.py": read_fixture("s3_probe.py"),
+        "data": data,
+    }
+
+
+def projected_token_pod(name, service_account, audience=FED_AUDIENCE):
+    return {
+        "apiVersion": "v1", "kind": "Pod",
+        "metadata": {"name": name, "labels": {"app": "artifact-federated-client"}},
+        "spec": {
+            "serviceAccountName": service_account,
+            "automountServiceAccountToken": False,
+            "restartPolicy": "Always",
+            "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
+                                "runAsGroup": 65534},
+            "containers": [{
+                "name": "client", "image": CLIENT_IMAGE,
+                "imagePullPolicy": "IfNotPresent",
+                "command": ["python", "-B", "-c", "import time; time.sleep(3600)"],
+                "securityContext": pod_security(65534, 65534, read_only=True),
+                "resources": {"requests": {"cpu": "10m", "memory": "32Mi"},
+                              "limits": {"cpu": "200m", "memory": "128Mi"}},
+                "volumeMounts": [
+                    {"name": "fixtures", "mountPath": "/fixture", "readOnly": True},
+                    {"name": "workload-token", "mountPath": "/var/run/oidc", "readOnly": True},
+                ],
+            }],
+            "volumes": [
+                    {"name": "fixtures", "configMap": {"name": FED_CONFIGMAP}},
+                {"name": "workload-token", "projected": {"sources": [{
+                    "serviceAccountToken": {"path": "token", "audience": audience,
+                                             "expirationSeconds": 600}}]}},
+            ],
         },
     }
 
 
+def oidc_iam_config(issuer, jwks_uri):
+    def role(stage):
+        bucket = BUCKETS[stage]
+        sa = f"system:serviceaccount:{NAMESPACE}:stage-{stage}"
+        name = f"stage-{stage}-federated"
+        return {
+            "roleName": name,
+            "roleArn": f"arn:aws:iam::role/{name}",
+            "attachedPolicies": [f"{name}-policy"],
+            "trustPolicy": {
+                "Version": "2012-10-17",
+                "Statement": [{
+                    "Effect": "Allow", "Principal": {"Federated": "*"},
+                    "Action": ["sts:AssumeRoleWithWebIdentity"],
+                    "Condition": {"StringEquals": {
+                        "oidc:iss": issuer, "oidc:sub": sa,
+                    }},
+                }],
+            },
+        }
+
+    def policy(stage):
+        bucket = BUCKETS[stage]
+        name = f"stage-{stage}-federated"
+        return {
+            "name": f"{name}-policy",
+            "document": {
+                "Version": "2012-10-17",
+                "Statement": [{
+                    "Effect": "Allow", "Action": ["s3:GetObject", "s3:PutObject"],
+                    "Resource": [f"arn:aws:s3:::{bucket}/*"],
+                }],
+            },
+        }
+
+    return {
+        "sts": {"tokenDuration": "30s", "maxSessionLength": "35s",
+                "issuer": "saf-0904-014-local-sts"},
+        "providers": [{
+            "name": "kind-service-accounts", "type": "oidc", "enabled": True,
+            "config": {"issuer": issuer, "clientId": FED_AUDIENCE,
+                       "jwksUri": jwks_uri, "tlsCaCert": "/fixture/snapshot-ca.crt",
+                       "tlsInsecureSkipVerify": False,
+                       "jtiReplayProtectionEnabled": True},
+        }],
+        "policies": [policy("a"), policy("b")],
+        "roles": [role("a"), role("b")],
+    }
+
+
+def identity_fixture_map():
+    return {
+        "apiVersion": "v1", "kind": "ConfigMap",
+        "metadata": {"name": FED_CONFIGMAP, "namespace": NAMESPACE},
+        "data": {
+            "identity_probe.py": read_fixture("identity_probe.py"),
+            "stage-a-marker.txt": read_fixture("stage-a-marker.txt"),
+            "stage-b-marker.txt": read_fixture("stage-b-marker.txt"),
+            "snapshot-ca.crt": FED_SNAPSHOT_CA,
+        },
+    }
+
+
+def discover_cluster_oidc(lab):
+    """Read public API discovery through the runner's owned-cluster context."""
+    discovery_result = lab.kubectl("get", "--raw", "/.well-known/openid-configuration",
+                                   allow_failure=True)
+    if discovery_result.returncode:
+        lab.block("Owned Kubernetes API does not expose OIDC discovery")
+    try:
+        discovery = json.loads(discovery_result.stdout)
+    except json.JSONDecodeError:
+        lab.block("Owned Kubernetes OIDC discovery did not return JSON")
+    issuer = discovery.get("issuer", "")
+    api_jwks_uri = discovery.get("jwks_uri", "")
+    issuer_url, jwks_url = urlsplit(issuer), urlsplit(api_jwks_uri)
+    if (issuer_url.scheme != "https" or not issuer_url.hostname
+            or api_jwks_uri != "https://kubernetes.default.svc/openid/v1/jwks"
+            or jwks_url.scheme != "https" or jwks_url.path != "/openid/v1/jwks"
+            or jwks_url.query or jwks_url.fragment):
+        lab.block("Owned API discovery does not expose an HTTPS issuer and expected Kubernetes JWKS path")
+    return issuer, discovery, "https://oidc-jwks-snapshot.saf-test.svc:8443/openid/v1/jwks"
+
+
+def deploy_identity_clients(lab):
+    if FED_IAM_CONFIG is None or FED_ISSUER is None or FED_JWKS_URI is None:
+        lab.block("Federated identity config was not prepared before store creation")
+    for name in ("stage-a", "stage-b", "outsider"):
+        lab.create({"apiVersion": "v1", "kind": "ServiceAccount",
+                    "metadata": {"name": name, "namespace": NAMESPACE},
+                    "automountServiceAccountToken": False})
+    # A separate fresh TokenRequest-backed Pod is used for each comparison, so
+    # the provider's single-use JWT replay protection stays enabled.
+    clients = {
+        "federated-stage-a": ("stage-a", FED_AUDIENCE),
+        "federated-stage-b": ("stage-b", FED_AUDIENCE),
+        "federated-a-cross": ("stage-a", FED_AUDIENCE),
+        "federated-expiry": ("stage-a", FED_AUDIENCE),
+        "federated-wrong-aud": ("stage-a", FED_AUDIENCE + "-wrong"),
+        "federated-outsider": ("outsider", FED_AUDIENCE),
+    }
+    for name, (service_account, audience) in clients.items():
+        lab.create(projected_token_pod(name, service_account, audience))
+    for name in clients:
+        lab.kubectl("wait", "--for=condition=Ready", f"pod/{name}", "--timeout=80s", timeout=90)
+    return None
+
+
+def deploy_oidc_snapshot(lab):
+    """Use a bounded case-owned reader to relay only exact public API metadata."""
+    lab.create({"apiVersion": "v1", "kind": "ServiceAccount",
+                "metadata": {"name": "oidc-jwks-reader", "namespace": NAMESPACE},
+                "automountServiceAccountToken": False})
+    lab.create({
+        "apiVersion": "v1", "kind": "ConfigMap",
+        "metadata": {"name": JWKS_FIXTURE_MAP, "namespace": NAMESPACE},
+        "data": {
+            "snapshot_from_apiserver.py": read_fixture("snapshot_from_apiserver.py"),
+            "serve_jwks_snapshot.py": read_fixture("serve_jwks_snapshot.py"),
+        },
+    })
+    lab.create({
+        "apiVersion": "v1", "kind": "Service",
+        "metadata": {"name": JWKS_SNAPSHOT},
+        "spec": {"selector": {"app": JWKS_SNAPSHOT},
+                 "ports": [{"name": "https", "port": 8443, "targetPort": 8443}]},
+    })
+    lab.create({
+        "apiVersion": "v1", "kind": "Pod",
+        "metadata": {"name": JWKS_SNAPSHOT, "labels": {"app": JWKS_SNAPSHOT}},
+        "spec": {
+            "serviceAccountName": "oidc-jwks-reader",
+            "automountServiceAccountToken": False,
+            "restartPolicy": "Always",
+            "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
+                                "runAsGroup": 65534, "fsGroup": 65534},
+            "initContainers": [{
+                "name": "authenticated-api-snapshot",
+                "image": CLIENT_IMAGE,
+                "imagePullPolicy": "IfNotPresent",
+                "command": ["python", "-B", "/fixture/snapshot_from_apiserver.py"],
+                "env": [{"name": "EXPECTED_ISSUER", "value": FED_ISSUER}],
+                "securityContext": pod_security(65534, 65534, read_only=True),
+                "resources": {"requests": {"cpu": "10m", "memory": "32Mi"},
+                              "limits": {"cpu": "200m", "memory": "128Mi"}},
+                "volumeMounts": [
+                    {"name": "fixture", "mountPath": "/fixture", "readOnly": True},
+                    {"name": "api-token", "mountPath": "/var/run/kubernetes", "readOnly": True},
+                    {"name": "api-ca", "mountPath": "/var/run/kubernetes-ca", "readOnly": True},
+                    {"name": "snapshot", "mountPath": "/snapshot"},
+                ],
+            }],
+            "containers": [{
+                "name": "https-snapshot",
+                "image": CLIENT_IMAGE,
+                "imagePullPolicy": "IfNotPresent",
+                "command": ["python", "-B", "/fixture/serve_jwks_snapshot.py"],
+                "securityContext": pod_security(65534, 65534, read_only=True),
+                "ports": [{"name": "https", "containerPort": 8443}],
+                "resources": {"requests": {"cpu": "10m", "memory": "32Mi"},
+                              "limits": {"cpu": "200m", "memory": "128Mi"}},
+                "readinessProbe": {"tcpSocket": {"port": 8443}, "periodSeconds": 2,
+                                   "timeoutSeconds": 1, "failureThreshold": 20},
+                "volumeMounts": [
+                    {"name": "fixture", "mountPath": "/fixture", "readOnly": True},
+                    {"name": "tls", "mountPath": "/tls", "readOnly": True},
+                    {"name": "snapshot", "mountPath": "/snapshot", "readOnly": True},
+                ],
+            }],
+            "volumes": [
+                {"name": "fixture", "configMap": {"name": JWKS_FIXTURE_MAP}},
+                {"name": "tls", "secret": {"secretName": "oidc-jwks-snapshot-tls"}},
+                {"name": "api-token", "projected": {"sources": [{
+                    "serviceAccountToken": {"path": "token", "expirationSeconds": 600}}]}},
+                {"name": "api-ca", "configMap": {"name": "kube-root-ca.crt",
+                                                       "items": [{"key": "ca.crt", "path": "ca.crt"}]}},
+                {"name": "snapshot", "emptyDir": {"medium": "Memory", "sizeLimit": "8Mi"}},
+            ],
+        },
+    })
+    ready = lab.kubectl("wait", "--for=condition=Ready", f"pod/{JWKS_SNAPSHOT}",
+                        "--timeout=70s", timeout=80, allow_failure=True)
+    if ready.returncode:
+        lab.kubectl("logs", f"pod/{JWKS_SNAPSHOT}", "-c", "authenticated-api-snapshot",
+                    "--tail=3", allow_failure=True)
+        lab.kubectl("logs", f"pod/{JWKS_SNAPSHOT}", "-c", "https-snapshot",
+                    "--tail=3", allow_failure=True)
+        lab.kubectl("get", f"pod/{JWKS_SNAPSHOT}", "-o",
+                    "jsonpath={.status.initContainerStatuses[0].state}:{.status.containerStatuses[0].state}",
+                    allow_failure=True)
+        lab.block("Case-owned public key snapshot did not become ready; fixed diagnostics retained")
+
+
+def create_ephemeral_snapshot_tls(lab):
+    """Create per-run HTTPS credentials privately; retain only the public CA."""
+    with tempfile.TemporaryDirectory(prefix="saf-0904-014-jwks-") as temporary:
+        directory = Path(temporary)
+        ca_config = directory / "ca.cnf"
+        server_config = directory / "server.cnf"
+        ca_config.write_text("""[req]
+distinguished_name=dn
+x509_extensions=ca_ext
+prompt=no
+[dn]
+CN=SAF-0904-014 ephemeral JWKS CA
+[ca_ext]
+basicConstraints=critical,CA:TRUE
+keyUsage=critical,keyCertSign,cRLSign
+subjectKeyIdentifier=hash
+""")
+        server_config.write_text("""[req]
+distinguished_name=dn
+req_extensions=request_ext
+prompt=no
+[dn]
+CN=oidc-jwks-snapshot.saf-test.svc
+[request_ext]
+subjectAltName=DNS:oidc-jwks-snapshot.saf-test.svc
+[server_ext]
+basicConstraints=critical,CA:FALSE
+keyUsage=critical,digitalSignature,keyEncipherment
+extendedKeyUsage=serverAuth
+subjectAltName=DNS:oidc-jwks-snapshot.saf-test.svc
+subjectKeyIdentifier=hash
+authorityKeyIdentifier=keyid,issuer
+""")
+        ca_key = directory / "ca.key"
+        ca_cert = directory / "ca.crt"
+        server_key = directory / "server.key"
+        server_csr = directory / "server.csr"
+        server_cert = directory / "server.crt"
+        lab.command("openssl", "genrsa", "-out", str(ca_key), "2048")
+        os.chmod(ca_key, 0o600)
+        lab.command("openssl", "req", "-x509", "-new", "-key", str(ca_key),
+                    "-sha256", "-days", "2", "-config", str(ca_config),
+                    "-out", str(ca_cert))
+        lab.command("openssl", "genrsa", "-out", str(server_key), "2048")
+        os.chmod(server_key, 0o600)
+        lab.command("openssl", "req", "-new", "-key", str(server_key),
+                    "-config", str(server_config), "-out", str(server_csr))
+        lab.command("openssl", "x509", "-req", "-in", str(server_csr),
+                    "-CA", str(ca_cert), "-CAkey", str(ca_key), "-CAcreateserial",
+                    "-days", "2", "-sha256", "-extfile", str(server_config),
+                    "-extensions", "server_ext", "-out", str(server_cert))
+        lab.command("openssl", "verify", "-x509_strict", "-purpose", "sslserver",
+                    "-CAfile", str(ca_cert), str(server_cert))
+        tls_ca = ca_cert.read_text()
+        lab.kubectl("create", "secret", "generic", "oidc-jwks-snapshot-tls",
+                    f"--from-file=ca.crt={ca_cert}",
+                    f"--from-file=server.crt={server_cert}",
+                    f"--from-file=server.key={server_key}")
+        return tls_ca
+
+
+def identity_probe(lab, pod, operation, *arguments):
+    result = lab.kubectl("exec", f"pod/{pod}", "--", "python", "-B",
+                         "/fixture/identity_probe.py", operation, *arguments,
+                         timeout=65 if operation == "positive-expiry" else 40,
+                         allow_failure=True)
+    if result.returncode:
+        lab.block(f"Federated S3 probe did not complete ({operation}); see sanitized case process status")
+    try:
+        value = json.loads(result.stdout)
+    except json.JSONDecodeError as error:
+        lab.block(f"Federated S3 probe returned no sanitized JSON result: {error}")
+    expected_operation = ("positive" if operation in ("positive-a", "positive-b")
+                          else "deny" if operation.startswith("deny-") else operation)
+    if value.get("operation") != expected_operation:
+        lab.block(f"Federated S3 probe returned an unexpected operation result: {value}")
+    return value
+
+
 def deploy(lab):
+    global FED_IAM_CONFIG, FED_ISSUER, FED_JWKS_URI, FED_DISCOVERY, FED_SNAPSHOT_CA
     broad_config = read_fixture("s3-config-broad.json")
-    lab.create(config_map_object(broad_config))
+    FED_ISSUER, FED_DISCOVERY, FED_JWKS_URI = discover_cluster_oidc(lab)
+    FED_SNAPSHOT_CA = create_ephemeral_snapshot_tls(lab)
+    FED_IAM_CONFIG = oidc_iam_config(FED_ISSUER, FED_JWKS_URI)
+    lab.create(config_map_object(broad_config, FED_IAM_CONFIG))
+    lab.create(identity_fixture_map())
+    deploy_oidc_snapshot(lab)
     lab.create({
         "apiVersion": "v1", "kind": "Pod",
         "metadata": {"name": STORE, "labels": {"app": STORE}},
@@ -74,7 +406,8 @@ def deploy(lab):
             "containers": [{
                 "name": "seaweedfs", "image": STORE_IMAGE,
                 "imagePullPolicy": "IfNotPresent",
-                "command": ["weed", "mini", "-s3.config=/fixture/s3-config.json", "-dir=/data",
+                "command": ["weed", "mini", "-s3.config=/fixture/s3-config.json",
+                            "-s3.iam.config=/fixture/iam-config.json", "-dir=/data",
                             "-webdav=false", "-admin.ui=false", "-master.telemetry=false"],
                 "securityContext": pod_security(1000, 1000),
                 "ports": [{"name": "s3", "containerPort": 8333}],
@@ -121,6 +454,7 @@ def deploy(lab):
         },
     })
     lab.kubectl("wait", "--for=condition=Ready", f"pod/{CLIENT}", "--timeout=80s", timeout=90)
+    deploy_identity_clients(lab)
     assert_owned_s3_endpoint(lab)
     store = pod_json(lab, STORE)
     if store.get("spec", {}).get("containers", [{}])[0].get("image") != STORE_IMAGE:
@@ -313,3 +647,93 @@ def run(lab):
         and item.get("matches") is True for item in lifecycle)
     lab.check("positive", "SeaweedFS stores and reads back distinct stage-bucket lifecycle rules",
               lifecycle_ok, lifecycle)
+
+    # Native Kubernetes TokenRequest projection feeds SeaweedFS 4.53 STS. The
+    # probe prints only fixed statuses/digests/booleans; bearer and session
+    # values remain in Pod memory and never enter kubectl output or evidence.
+    token_a = identity_probe(lab, "federated-stage-a", "inspect",
+                             "system:serviceaccount:saf-test:stage-a", FED_AUDIENCE, FED_ISSUER)
+    token_b = identity_probe(lab, "federated-stage-b", "inspect",
+                             "system:serviceaccount:saf-test:stage-b", FED_AUDIENCE, FED_ISSUER)
+    token_a_pod = pod_json(lab, "federated-stage-a")
+    token_b_pod = pod_json(lab, "federated-stage-b")
+
+    def projected_spec_matches(pod, service_account):
+        spec = pod.get("spec", {})
+        token_sources = [source.get("serviceAccountToken", {})
+                         for volume in spec.get("volumes", [])
+                         for source in volume.get("projected", {}).get("sources", [])]
+        return (spec.get("serviceAccountName") == service_account
+                and spec.get("automountServiceAccountToken") is False
+                and token_sources == [{"path": "token", "audience": FED_AUDIENCE,
+                                      "expirationSeconds": 600}]
+                and any(volume.get("name") == "fixtures"
+                        and volume.get("configMap", {}).get("name") == FED_CONFIGMAP
+                        for volume in spec.get("volumes", [])))
+
+    projected_identities_ok = all(
+        row.get("subject_matches") and row.get("audience_matches")
+        and row.get("issuer_matches") and row.get("expiration_window_matches")
+        and row.get("snapshot_tls_verified") and row.get("snapshot_issuer_matches")
+        and row.get("snapshot_discovery_path_matches")
+        and row.get("snapshot_jwks_digest_matches")
+        and row.get("snapshot_public_keys_only")
+        for row in (token_a, token_b))
+    projected_identities_ok = (projected_identities_ok
+                               and projected_spec_matches(token_a_pod, "stage-a")
+                               and projected_spec_matches(token_b_pod, "stage-b"))
+    lab.check("positive", "Kubernetes projects distinct stage ServiceAccount tokens with the exact issuer and audience",
+              projected_identities_ok,
+              {"stage_a": token_a, "stage_b": token_b,
+               "issuer_configured": FED_ISSUER,
+               "jwks_discovery_configured": FED_JWKS_URI,
+               "service_accounts_case_owned": True,
+               "projected_token_ttl_seconds": 600})
+
+    federated_a = identity_probe(lab, "federated-stage-a", "positive-a")
+    stage_a_ok = (federated_a.get("sts_status") == 200
+                  and federated_a.get("subject_matches") is True
+                  and federated_a.get("token_claims_match") is True
+                  and federated_a.get("get_digest_matches") is True
+                  and federated_a.get("write_digest_matches") is True
+                  and federated_a.get("short_session_window") is True)
+    lab.check("positive", "Stage-A Kubernetes identity obtains short-lived STS credentials for only its fixed bucket marker",
+              stage_a_ok, federated_a)
+
+    federated_b = identity_probe(lab, "federated-stage-b", "positive-b")
+    stage_b_ok = (federated_b.get("sts_status") == 200
+                  and federated_b.get("subject_matches") is True
+                  and federated_b.get("token_claims_match") is True
+                  and federated_b.get("get_digest_matches") is True
+                  and federated_b.get("write_digest_matches") is True
+                  and federated_b.get("short_session_window") is True)
+    lab.check("positive", "Stage-B Kubernetes identity obtains short-lived STS credentials for only its fixed bucket marker",
+              stage_b_ok, federated_b)
+
+    cross_role = identity_probe(lab, "federated-a-cross", "deny-stage-b-role")
+    lab.check("green", "Stage-A ServiceAccount token cannot assume the stage-B SeaweedFS role",
+              cross_role.get("denied") is True and cross_role.get("no_session_issued") is True,
+              cross_role)
+
+    wrong_audience = identity_probe(lab, "federated-wrong-aud", "deny-stage-a-role")
+    lab.check("green", "SeaweedFS STS refuses the otherwise valid ServiceAccount token with the wrong audience",
+              wrong_audience.get("denied") is True and wrong_audience.get("no_session_issued") is True,
+              wrong_audience)
+
+    wrong_subject = identity_probe(lab, "federated-outsider", "deny-stage-a-role")
+    lab.check("green", "SeaweedFS trust policy refuses an unapproved ServiceAccount subject",
+              wrong_subject.get("denied") is True and wrong_subject.get("no_session_issued") is True,
+              wrong_subject)
+
+    expiry_probe = identity_probe(lab, "federated-expiry", "positive-expiry")
+    expiry_before_ok = (expiry_probe.get("sts_status") == 200
+                        and expiry_probe.get("before_expiry_status") == 200
+                        and expiry_probe.get("short_session_window") is True)
+    lab.check("positive", "The same STS session remains usable before its returned expiry",
+              expiry_before_ok,
+              {key: expiry_probe.get(key) for key in (
+                  "sts_status", "before_expiry_status", "short_session_window")})
+    lab.check("green", "SeaweedFS refuses the same STS credentials after real elapsed expiry",
+              expiry_probe.get("expired_denied") is True,
+              {"after_expiry_status": expiry_probe.get("after_expiry_status"),
+               "expired_denied": expiry_probe.get("expired_denied")})
