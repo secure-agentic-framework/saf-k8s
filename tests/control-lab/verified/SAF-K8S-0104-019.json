@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0104-019",
-  "catalog_revision": "4ce9ddf7a3a4834d1c228fc9ddbc7e60a3cf7b1c",
-  "catalog_sha256": "b13085fffcc414b504ce34f1a8df0fae3520e701b0adca01e92c2c2add5002cb",
+  "catalog_revision": "1c4c6cf76afc06783141311ae8a05be8c54f57cf",
+  "catalog_sha256": "3f6d0b09957f7ae05620954a6210b52df977b8cbc7dcdd43769137d72662c8bb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "c7d6e470a5d64df9c0f56a91bc2390914f79e46f9275f0cc70d5c615ae0c6357",
   "scope": "Kubernetes Jobs assess inert advisory metadata and synthetic inventory through ranking and build-specific evidence rules. The case retains unresolved cases with assigned review and a fixture deadline. Production inventory, advisories and response workflow remain open.",
-  "cluster": "saf-lab-d85d9ae18927",
+  "cluster": "saf-lab-7aaad6d2bfc1",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

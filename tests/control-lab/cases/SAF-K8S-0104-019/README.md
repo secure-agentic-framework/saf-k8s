@@ -47,10 +47,23 @@ Both evaluations use simulated checkpoints and inert records.
 1. Retain a dated scoped inventory with opaque cluster and asset IDs,
    exact installed builds, distribution and ownership, coverage and exclusions.
    Record the applicable authoritative advisory ID, issuer, revision, source
-   retrieval time and protected digest or immutable evidence reference.
-2. Match the affected component and build to the applicable source.
-   Keep conflicting, stale and missing applicability evidence open with a
-   named owner and a review deadline. Record the source and evidence that
+   retrieval time and protected digest or immutable evidence reference. For
+   each Go-built component, bind the deployed OCI image digest and executable
+   SHA-256 to the embedded Go version from `go version -m` on that exact
+   executable. Corroborate embedded build metadata, distributor builds and
+   any backports with verified provenance or a version-specific vendor
+   advisory. Verify the
+   provenance subject digest and trusted signer/builder identity, and retain
+   the Go toolchain input/version. If provenance omits the toolchain or cannot
+   be verified against the deployed digest, leave applicability unresolved.
+2. Match the affected component and build to the applicable source. For Go
+   advisories, distinguish `toolchain` findings (for example `cmd/go` and
+   `cmd/link`, which concern the build environment) from `stdlib` findings
+   linked into deployed executables. Match each GO ID to its affected module,
+   version range and relevant component/build. Keep conflicting, stale and
+   missing applicability evidence open with a named owner and a review
+   deadline. Apply that review to unsupported toolchains, missing provenance
+   and conflicting backport evidence. Record the source and evidence that
    support any closure. Mark exposure unknown when the attributable
    observation is missing or stale.
 3. Apply the approved risk policy. Retain severity and exploitation-status
@@ -63,3 +76,9 @@ Both evaluations use simulated checkpoints and inert records.
    accurately. Preserve the evidence bundle and the workflow decision.
 
 - [NIST SSDF v1.1, RV.2.1](https://csrc.nist.gov/pubs/sp/800/218/final)
+- [Go `go version -m` binary build metadata](https://go.dev/ref/mod#go-version-m)
+- [SLSA Build Provenance specification](https://slsa.dev/spec/v1.1/provenance)
+- [Go release history and supported-release policy](https://go.dev/doc/devel/release)
+- [Go Vulnerability Database and OSV schema](https://go.dev/doc/security/vuln/database)
+- [GO-2026-6851: Go toolchain `cmd/go` and `cmd/link`](https://pkg.go.dev/vuln/GO-2026-6851)
+- [GO-2026-6859: Go standard library `net/http`](https://pkg.go.dev/vuln/GO-2026-6859)
