@@ -5,20 +5,9 @@
 
 ## Mapping Notes
 
-Managing agent identifiers (non-human identity registry)
-
-4.2 - Service accounts (identifier lifecycle for workloads); 9.1 - Identity lifecycle for ephemeral training jobs
+Governed workload identifier assignment and approved provider identity binding are independently verified.
 
 ## SAF-K8S Controls
-
-### [SAF-K8S-0402-004 - Workload identity attribute integrity](../../controls/SAF-K8S-0402-004.md)
-
-- Domain: D04 - Identity, Access, and Secrets Management
-- Knowledge Area: 4.2
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
 
 ### [SAF-K8S-0402-006 - Cloud workload identity federation for AI services](../../controls/SAF-K8S-0402-006.md)
 

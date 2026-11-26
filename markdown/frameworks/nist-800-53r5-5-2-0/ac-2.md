@@ -18,15 +18,6 @@ This control supports the inactivity, monitoring and retirement portions of acco
 - Applicability: conditional
 - Strength Reason Code: partial-control-coverage
 
-### [SAF-K8S-0402-004 - Workload identity attribute integrity](../../controls/SAF-K8S-0402-004.md)
-
-- Domain: D04 - Identity, Access, and Secrets Management
-- Knowledge Area: 4.2
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
-
 ### [SAF-K8S-0402-007 - OIDC authentication integration](../../controls/SAF-K8S-0402-007.md)
 
 - Domain: D04 - Identity, Access, and Secrets Management

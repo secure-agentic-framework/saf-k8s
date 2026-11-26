@@ -4372,22 +4372,6 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-12
   framework_requirement_title: Session Termination
-  framework_mapping_notes: 'Terminating idle or expired agent sessions
-
-
-    9.4 - Notebook environment session timeout policies; 4.2 - Projected service account tokens (time-bound expiration); 1.1 - Verified idle timeout per enabled Pod stream path, or restricted routine access (SAF-K8S-0101-005)'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-12
-  framework_requirement_title: Session Termination
   framework_mapping_notes: The actual human session flow enforces and demonstrates the organization-defined session termination
     conditions.
   control_id: SAF-K8S-0402-007
@@ -5514,22 +5498,6 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-2
   framework_requirement_title: Account Management
-  framework_mapping_notes: 'Agent/service account lifecycle management
-
-
-    4.2 - Secure service accounts and workload identity (account management and lifecycle)'
-  control_id: SAF-K8S-0402-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-2
-  framework_requirement_title: Account Management
   framework_mapping_notes: The identity lifecycle, approved human access, offboarding and review are integrated and verified.
   control_id: SAF-K8S-0402-007
   relation_type: supports
@@ -5634,40 +5602,8 @@
 
 
     4.2 - Secure service accounts and workload identity (automated identity lifecycle for ephemeral training jobs)'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-2(1)
-  framework_requirement_title: Automated System Account Management
-  framework_mapping_notes: 'Automated agent identity provisioning at scale
-
-
-    4.2 - Secure service accounts and workload identity (automated identity lifecycle for ephemeral training jobs)'
   control_id: SAF-K8S-0402-010
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-2(11)
-  framework_requirement_title: Usage Conditions
-  framework_mapping_notes: 'Constraining when/how agent accounts can be used
-
-
-    4.2 - Secure service accounts and workload identity (audience-scoped, time-bound projected tokens with usage conditions)'
-  control_id: SAF-K8S-0402-004
-  relation_type: direct
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -5772,22 +5708,6 @@
 
 
     4.2 - Secure service accounts and workload identity (short-lived credentials, automatic rotation, cleanup on job completion)'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-2(2)
-  framework_requirement_title: Automated Temporary and Emergency Account Management
-  framework_mapping_notes: 'Temporary agent credentials, emergency access
-
-
-    4.2 - Secure service accounts and workload identity (short-lived credentials, automatic rotation, cleanup on job completion)'
   control_id: SAF-K8S-0402-010
   relation_type: supports
   strength_level: moderate
@@ -5807,22 +5727,6 @@
   applicability: conditional
   applicability_condition: The governed service accounts are within the defined inactivity time and disablement window for the applicable system account population.
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-2(3)
-  framework_requirement_title: Disable Accounts
-  framework_mapping_notes: 'Disabling compromised/unused agent identities
-
-
-    4.2 - Inactive service account identification and disabling, stale credential revocation explicitly covers disabling unused accounts'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -6006,40 +5910,8 @@
 
 
     4.2 - Secure service accounts and workload identity (identity lifecycle management for ephemeral training jobs)'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-2(8)
-  framework_requirement_title: Dynamic Account Management
-  framework_mapping_notes: 'Dynamic management of agent account attributes
-
-
-    4.2 - Secure service accounts and workload identity (identity lifecycle management for ephemeral training jobs)'
   control_id: SAF-K8S-0402-010
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-2(9)
-  framework_requirement_title: Restrictions on Use of Shared and Group Accounts
-  framework_mapping_notes: 'Shared agent credentials are a major risk; agents should have unique identities
-
-
-    4.2 - Secure service accounts and workload identity (dedicated service accounts per workload); 9.4 - Notebook environment user isolation (no shared accounts for notebook environments)'
-  control_id: SAF-K8S-0402-004
-  relation_type: direct
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -6095,22 +5967,6 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-20
   framework_requirement_title: Use of External Systems
-  framework_mapping_notes: 'Agents using external services/APIs
-
-
-    7.4 - Integrate cloud provider security; 4.2 - Workload identity federation with cloud providers (external system access)'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-20
-  framework_requirement_title: Use of External Systems
   framework_mapping_notes: Authorized external service access and its governing policy are independently verified.
   control_id: SAF-K8S-0402-006
   relation_type: supports
@@ -6147,22 +6003,6 @@
   applicability: conditional
   applicability_condition: Retain when authorized workloads/users process, store, transmit, or access organization-controlled information using a genuine external system and the adopter identifies applicable terms, external-system controls, or prohibition conditions. The fixture endpoint is in-cluster and proves only a local policy pattern.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-20(1)
-  framework_requirement_title: Limits on Authorized Use
-  framework_mapping_notes: 'Constraining agent use of external services
-
-
-    7.4 - Cloud IAM minimal permissions; 4.2 - Audience-scoped tokens limiting external system access scope'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -6583,22 +6423,6 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-24(1)
   framework_requirement_title: Transmit Access Authorization Information
-  framework_mapping_notes: 'Passing agent auth context between services
-
-
-    4.2 - Projected service account tokens (transmitting authorization info); 5.4 - SPIFFE/SPIRE identity propagation'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-24(1)
-  framework_requirement_title: Transmit Access Authorization Information
   framework_mapping_notes: Protected workload authorization attributes reach the provider policy decision and are consumed
     as intended.
   control_id: SAF-K8S-0402-006
@@ -6669,22 +6493,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-24(2)
-  framework_requirement_title: No User or Process Identity
-  framework_mapping_notes: 'Attribute-based decisions without fixed agent identity
-
-
-    1.1 - Secure API server (anonymous auth disabling); 4.2 - Default SA restrictions (preventing access without identity)'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -6958,22 +6766,6 @@
   applicability: conditional
   applicability_condition: The deployed system makes actual access decisions from approved subject and object attributes
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-3(14)
-  framework_requirement_title: Individual Access
-  framework_mapping_notes: 'Per-agent-instance access control
-
-
-    9.4 - Secure AI pipeline orchestration (Notebook environment user isolation, individual access); 4.2 - Dedicated service accounts per workload'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -9294,16 +9086,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-6
   framework_requirement_title: Least Privilege
-  framework_mapping_notes: 'Foundational -- agents must operate with minimum necessary permissions
-
-
-    4.1 - Design and enforce RBAC (least-privilege access design); 4.2 - Default SA restrictions, disabling auto-mount of tokens; 1.4 - Control plane configuration file permissions (least-privilege file ownership and modes)'
+  framework_mapping_notes: The reference case grants a registrar update permission scoped to one ServiceAccount and one namespace, denies update attempts by an ordinary workload identity, and uses admission to constrain registrar changes to registered values. This supports least-privilege access for those exact metadata mutations only; it does not assess other permissions or establish least privilege for the workload identity overall.
   control_id: SAF-K8S-0402-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only for the organization-defined permissions governing mutation of the covered ServiceAccount and namespace identity metadata, where registrar update rights are narrowly assigned and routine workload identities lack those rights.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -11106,22 +10895,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-16(1)
-  framework_requirement_title: Identity Preservation
-  framework_mapping_notes: 'Preserving agent identity in cross-org logs
-
-
-    4.2 - Workload identity federation (preserving identity across cross-org audit boundaries)'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -15441,22 +15214,6 @@
 
 
     9.5 - Registry federation (multi-cluster/multi-region replication); 4.2 - Cross-cluster identity federation'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-2(6)
-  framework_requirement_title: Alternate Processing and Storage Sites
-  framework_mapping_notes: 'Alternate sites for agent workloads
-
-
-    9.5 - Registry federation (multi-cluster/multi-region replication); 4.2 - Cross-cluster identity federation'
   control_id: SAF-K8S-0402-010
   relation_type: supports
   strength_level: strong
@@ -15604,22 +15361,6 @@
   applicability: conditional
   applicability_condition: Only when this synthetic scenario is adopted as an organization-defined contingency plan test at the approved frequency, its results are reviewed by designated officials, and identified corrective actions are initiated.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-4(2)
-  framework_requirement_title: Alternate Processing Site
-  framework_mapping_notes: 'Testing agent failover to alternate sites
-
-
-    9.5 - Registry federation (multi-cluster failover and alternate processing); 4.2 - Cross-cluster identity'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -16594,39 +16335,7 @@
 
 
     4.1 - RBAC design (identity and access policy); 4.2 - Service account and workload identity policy'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-1
-  framework_requirement_title: Policy and Procedures
-  framework_mapping_notes: 'Identity/auth policy for agent systems
-
-
-    4.1 - RBAC design (identity and access policy); 4.2 - Service account and workload identity policy'
   control_id: SAF-K8S-0402-010
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-11
-  framework_requirement_title: Re-authentication
-  framework_mapping_notes: 'Re-authenticating agents for sensitive operations
-
-
-    4.2 - Projected tokens (time-bound requiring re-authentication); 9.4 - Notebook environment session re-authentication'
-  control_id: SAF-K8S-0402-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -16683,22 +16392,6 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-13
   framework_requirement_title: Identity Providers and Authorization Servers
-  framework_mapping_notes: 'Core -- IdP/OAuth for agent systems
-
-
-    4.2 - OIDC integration (identity provider configuration, token validation, group mappings)'
-  control_id: SAF-K8S-0402-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-13
-  framework_requirement_title: Identity Providers and Authorization Servers
   framework_mapping_notes: The selected identity provider and authorization server manage the defined non-person workload
     identity and policy scope.
   control_id: SAF-K8S-0402-006
@@ -16734,22 +16427,6 @@
 
     4.2 - OIDC integration (identity provider configuration, token validation, group mappings)'
   control_id: SAF-K8S-0402-010
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-13(2)
-  framework_requirement_title: Verification of Identity Assertions and Access Tokens
-  framework_mapping_notes: 'Verifying agent tokens and assertions
-
-
-    4.2 - Projected tokens (audience-scoped token validation); 4.5 - Impersonation control (verification of identity assertions)'
-  control_id: SAF-K8S-0402-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -16829,22 +16506,6 @@
   applicability: conditional
   applicability_condition: The applicable token authority has an explicit revocation path, and the adopter verifies that the retired token is refused at its accepting service.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-13(3)
-  framework_requirement_title: Token Management
-  framework_mapping_notes: 'Agent token lifecycle management
-
-
-    4.2 - Projected service account tokens (token lifecycle management); 4.3 - Secret rotation and expiration'
-  control_id: SAF-K8S-0402-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -16956,22 +16617,6 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-2
   framework_requirement_title: Identification and Authentication (Organizational Users)
-  framework_mapping_notes: 'Authenticating users and agents interacting with agent systems
-
-
-    4.2 - OIDC integration for K8s authentication (organizational user identification); 4.5 - Kubeconfig hygiene'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-2
-  framework_requirement_title: Identification and Authentication (Organizational Users)
   framework_mapping_notes: The configured path uniquely identifies and authenticates each covered organizational human
     user.
   control_id: SAF-K8S-0402-007
@@ -16992,22 +16637,6 @@
 
     4.2 - OIDC integration for K8s authentication (organizational user identification); 4.5 - Kubeconfig hygiene'
   control_id: SAF-K8S-0402-010
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-2(1)
-  framework_requirement_title: Multi-factor Authentication to Privileged Accounts
-  framework_mapping_notes: 'MFA for privileged agent management accounts
-
-
-    4.5 - Credential management (MFA for cluster-admin access); 4.2 - OIDC with MFA for privileged accounts'
-  control_id: SAF-K8S-0402-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -17050,22 +16679,6 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-2(10)
   framework_requirement_title: Single Sign-on
-  framework_mapping_notes: 'SSO for agent management platforms
-
-
-    4.2 - OIDC integration (SSO for K8s cluster and AI platform tools)'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-2(10)
-  framework_requirement_title: Single Sign-on
   framework_mapping_notes: The deployed enterprise sign-on actually implements the defined human SSO scope.
   control_id: SAF-K8S-0402-007
   relation_type: supports
@@ -17084,22 +16697,6 @@
 
     4.2 - OIDC integration (SSO for K8s cluster and AI platform tools)'
   control_id: SAF-K8S-0402-010
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-2(2)
-  framework_requirement_title: Multi-factor Authentication to Non-privileged Accounts
-  framework_mapping_notes: 'MFA for agent system access
-
-
-    4.2 - OIDC integration (MFA for all K8s users); 9.4 - Notebook environment authentication (MFA for notebook access)'
-  control_id: SAF-K8S-0402-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -17162,40 +16759,8 @@
 
 
     4.2 - OIDC group mappings (individual auth with group bindings); 4.1 - RBAC group-based role bindings'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-2(5)
-  framework_requirement_title: Individual Authentication with Group Authentication
-  framework_mapping_notes: 'Individual auth within shared agent access
-
-
-    4.2 - OIDC group mappings (individual auth with group bindings); 4.1 - RBAC group-based role bindings'
   control_id: SAF-K8S-0402-010
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-2(8)
-  framework_requirement_title: Access to Accounts -- Replay Resistant
-  framework_mapping_notes: 'Replay-resistant agent authentication
-
-
-    4.2 - Projected tokens (time-bound, audience-scoped, replay-resistant); 4.4 - Certificate rotation'
-  control_id: SAF-K8S-0402-004
-  relation_type: direct
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -17420,22 +16985,6 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-4
   framework_requirement_title: Identifier Management
-  framework_mapping_notes: 'Managing agent identifiers (non-human identity registry)
-
-
-    4.2 - Service accounts (identifier lifecycle for workloads); 9.1 - Identity lifecycle for ephemeral training jobs'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-4
-  framework_requirement_title: Identifier Management
   framework_mapping_notes: Governed workload identifier assignment and approved provider identity binding are independently
     verified.
   control_id: SAF-K8S-0402-006
@@ -17580,22 +17129,6 @@
 
 
     4.2 - Preventing service account identifiers from public exposure is explicitly covered in service account restrictions'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-4(1)
-  framework_requirement_title: Prohibit Account Identifiers as Public Identifiers
-  framework_mapping_notes: 'Keeping agent identifiers non-public
-
-
-    4.2 - Preventing service account identifiers from public exposure is explicitly covered in service account restrictions'
   control_id: SAF-K8S-0402-010
   relation_type: supports
   strength_level: strong
@@ -17612,39 +17145,7 @@
 
 
     4.2 - Identity lifecycle for ephemeral training jobs (dynamic identifier management, short-lived credentials)'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-4(5)
-  framework_requirement_title: Dynamic Management
-  framework_mapping_notes: 'Dynamic agent identifier management
-
-
-    4.2 - Identity lifecycle for ephemeral training jobs (dynamic identifier management, short-lived credentials)'
   control_id: SAF-K8S-0402-010
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-4(6)
-  framework_requirement_title: Cross-organization Management
-  framework_mapping_notes: 'Cross-org agent identity management
-
-
-    4.2 - Workload identity federation (cross-cloud, cross-cluster identity); 5.4 - SPIFFE trust domain management'
-  control_id: SAF-K8S-0402-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -17672,16 +17173,13 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-4(9)
   framework_requirement_title: Attribute Maintenance and Protection
-  framework_mapping_notes: 'Protecting agent identity attributes
-
-
-    4.2 - Identity attribute maintenance and protection for workload identities; 7.2 - Label/annotation standards for attribute lifecycle management'
+  framework_mapping_notes: The reference case maintains two synthetic identity attributes in a case-owned registry and demonstrates narrow registrar RBAC, admission denial of unapproved changes and removals, approved-value readback, and RequestResponse audit. This supports protection and maintenance of selected Kubernetes service identity attributes only. The namespaced fixture registry is not an organization-wide central store and does not prove that a cloud federation provider, NetworkPolicy, or other consumer maps or honors the attribute; establish those bindings and coverage separately.
   control_id: SAF-K8S-0402-004
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only where the organization designates a protected central identity-attribute registry as authoritative for the covered ServiceAccount annotations and namespace labels, and validates mutations against it before relying authorization decisions.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -17838,22 +17336,6 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-5(10)
   framework_requirement_title: Dynamic Credential Binding
-  framework_mapping_notes: 'Dynamic agent credential binding
-
-
-    4.2 - Projected service account tokens (dynamic, time-bound credential binding)'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-5(10)
-  framework_requirement_title: Dynamic Credential Binding
   framework_mapping_notes: The provider exchange enforces the defined dynamic credential binding and independent policy
     checks.
   control_id: SAF-K8S-0402-006
@@ -17890,22 +17372,6 @@
 
     4.2 - Projected service account tokens (dynamic, time-bound credential binding)'
   control_id: SAF-K8S-0402-012
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-5(13)
-  framework_requirement_title: Expiration of Cached Authenticators
-  framework_mapping_notes: 'Expiring cached agent tokens
-
-
-    4.2 - Projected tokens (time-bound expiration of cached authenticators); 4.3 - Secret rotation policies'
-  control_id: SAF-K8S-0402-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -18106,39 +17572,7 @@
 
 
     4.2 - Dedicated service accounts per workload (separate authenticators for separate systems)'
-  control_id: SAF-K8S-0402-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-5(8)
-  framework_requirement_title: Multiple System Accounts
-  framework_mapping_notes: 'Managing agent accounts across multiple systems
-
-
-    4.2 - Dedicated service accounts per workload (separate authenticators for separate systems)'
   control_id: SAF-K8S-0402-010
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-5(9)
-  framework_requirement_title: Federated Credential Management
-  framework_mapping_notes: 'Federated credentials for multi-tenant agent systems
-
-
-    4.2 - Workload identity federation (GKE WI, EKS IRSA, AKS WI for federated credential management)'
-  control_id: SAF-K8S-0402-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -18200,22 +17634,6 @@
 
 
     4.2 - OIDC integration (external identity provider authentication); 7.4 - Cloud IAM to K8s RBAC mapping'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-8
-  framework_requirement_title: Identification and Authentication (Non-organizational Users)
-  framework_mapping_notes: 'Authenticating external users/agents
-
-
-    4.2 - OIDC integration (external identity provider authentication); 7.4 - Cloud IAM to K8s RBAC mapping'
   control_id: SAF-K8S-0402-010
   relation_type: supports
   strength_level: strong
@@ -18232,39 +17650,7 @@
 
 
     4.2 - OIDC external identity providers (accepting external authenticators); 5.4 - SPIFFE cross-cluster federation'
-  control_id: SAF-K8S-0402-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-8(2)
-  framework_requirement_title: Acceptance of External Authenticators
-  framework_mapping_notes: 'Accepting external agent credentials
-
-
-    4.2 - OIDC external identity providers (accepting external authenticators); 5.4 - SPIFFE cross-cluster federation'
   control_id: SAF-K8S-0402-010
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-8(4)
-  framework_requirement_title: Use of Defined Profiles
-  framework_mapping_notes: 'Using defined auth profiles for agents
-
-
-    4.2 - OIDC integration defines authentication profile standards for external identity provider configuration and token validation'
-  control_id: SAF-K8S-0402-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -23334,22 +22720,6 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-8(2)
   framework_requirement_title: Least Common Mechanism
-  framework_mapping_notes: 'Least common mechanism principle minimizes shared resources between agents to reduce attack surface
-
-
-    4.2 - Dedicated service accounts per workload (least common mechanism, separate identities per function)'
-  control_id: SAF-K8S-0402-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(2)
-  framework_requirement_title: Least Common Mechanism
   framework_mapping_notes: The scoped workload identity architecture verifies reduced sharing across independently governed
     workload principals.
   control_id: SAF-K8S-0402-006
@@ -23584,22 +22954,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(23)
-  framework_requirement_title: Secure Defaults
-  framework_mapping_notes: 'Secure defaults ensure agents start with restrictive permissions and safe configurations
-
-
-    3.4 - Cloud Native 8 secure defaults; 4.2 - Default SA restrictions (secure defaults for K8s)'
-  control_id: SAF-K8S-0402-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -25054,22 +24408,6 @@
 
 
     9.4 - Notebook environment session management; 4.2 - Projected tokens (session authenticity verification)'
-  control_id: SAF-K8S-0402-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-23
-  framework_requirement_title: Session Authenticity
-  framework_mapping_notes: 'Session authenticity prevents hijacking of agent communication sessions
-
-
-    9.4 - Notebook environment session management; 4.2 - Projected tokens (session authenticity verification)'
   control_id: SAF-K8S-0402-010
   relation_type: direct
   strength_level: strong
@@ -25092,22 +24430,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-23(1)
-  framework_requirement_title: Invalidate Session Identifiers at Logout
-  framework_mapping_notes: 'Invalidating agent session tokens on termination prevents replay attacks
-
-
-    9.4 - Notebook environment (session invalidation on logout); 4.2 - Token revocation on session end'
-  control_id: SAF-K8S-0402-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -25156,22 +24478,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-23(3)
-  framework_requirement_title: Unique System-generated Session Identifiers
-  framework_mapping_notes: 'Unique session IDs for agent interactions prevent session prediction attacks
-
-
-    4.2 - Projected service account tokens (unique, system-generated session identifiers)'
-  control_id: SAF-K8S-0402-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -30956,22 +30262,6 @@
 
 
     4.2 - Projected service account tokens (time-bound, non-persistent credentials); 9.1 - Ephemeral training job identities'
-  control_id: SAF-K8S-0402-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-14(3)
-  framework_requirement_title: Non-persistent Connectivity
-  framework_mapping_notes: 'Non-persistent agent network connections limit lateral movement opportunities
-
-
-    4.2 - Projected service account tokens (time-bound, non-persistent credentials); 9.1 - Ephemeral training job identities'
   control_id: SAF-K8S-0402-010
   relation_type: direct
   strength_level: strong
@@ -34918,22 +34208,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-4(1)
-  framework_requirement_title: Identity
-  framework_mapping_notes: 'Identity verification of AI component suppliers ensures legitimate sourcing
-
-
-    6.2 - Sigstore keyless signing with Fulcio (identity-based provenance); 4.2 - Workload identity'
-  control_id: SAF-K8S-0402-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5

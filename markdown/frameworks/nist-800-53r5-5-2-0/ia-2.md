@@ -5,20 +5,9 @@
 
 ## Mapping Notes
 
-Authenticating users and agents interacting with agent systems
-
-4.2 - OIDC integration for K8s authentication (organizational user identification); 4.5 - Kubeconfig hygiene
+The configured path uniquely identifies and authenticates each covered organizational human user.
 
 ## SAF-K8S Controls
-
-### [SAF-K8S-0402-004 - Workload identity attribute integrity](../../controls/SAF-K8S-0402-004.md)
-
-- Domain: D04 - Identity, Access, and Secrets Management
-- Knowledge Area: 4.2
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
 
 ### [SAF-K8S-0402-007 - OIDC authentication integration](../../controls/SAF-K8S-0402-007.md)
 
