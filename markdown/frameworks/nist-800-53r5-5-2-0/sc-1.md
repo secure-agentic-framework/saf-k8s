@@ -29,15 +29,6 @@ System and communications protection policy governs agent network security and i
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0501-007 - East-west AI workload traffic monitoring](../../controls/SAF-K8S-0501-007.md)
-
-- Domain: D05 - Network Security and Communication
-- Knowledge Area: 5.1
-- Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-1006-001 - Regulatory compliance mapping for Kubernetes AI platforms](../../controls/SAF-K8S-1006-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance

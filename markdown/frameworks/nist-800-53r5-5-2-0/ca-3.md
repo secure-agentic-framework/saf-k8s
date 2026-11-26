@@ -29,15 +29,6 @@ Managing agent information exchange agreements
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0501-007 - East-west AI workload traffic monitoring](../../controls/SAF-K8S-0501-007.md)
-
-- Domain: D05 - Network Security and Communication
-- Knowledge Area: 5.1
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0501-008 - AI workload type network microsegmentation](../../controls/SAF-K8S-0501-008.md)
 
 - Domain: D05 - Network Security and Communication
