@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-007",
-  "catalog_revision": "be6c73bd464ee92216dc552911a5203a895acd41",
-  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
+  "catalog_revision": "d5c16b88f7738cf51d1fdd125b8b79b675b3c3d9",
+  "catalog_sha256": "e21df5ef6d7be8d3be548d48d3650f2dfc630a3e395f036b3e3eb0533fc68fe4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "050633de1e56700ff57feadc9a46024367a9b868901b7a7ebae693398f40a8c9",
   "scope": "A disposable Kind node with pinned Tetragon, namespace-scoped JSON export and a non-enforcing filename observation rule. Only the fixture runner and its public harmless markers are observed. Operator audit integration, network and credential coverage, event loss and downstream alert delivery require separate evidence.",
-  "cluster": "saf-lab-8e10254f7f13",
+  "cluster": "saf-lab-cce6b6e59969",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -63,6 +63,17 @@
       "observed": {
         "comparison_execution_visible": true,
         "marker_specific_filter_preserved": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The namespaced Tetragon policy adds an attributed event for the owned TCP marker request",
+      "matched": true,
+      "observed": {
+        "tcp_event_absent_before_policy": true,
+        "tcp_event_attributed_to_fixture_pod": true,
+        "fixed_owned_listener_port_observed": true,
+        "exact_http_marker_response_verified": true
       }
     }
   ]

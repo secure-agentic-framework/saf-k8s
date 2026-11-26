@@ -1,15 +1,17 @@
-# Verify fixture runtime observation with Tetragon
+# Verify scoped build process, file and connection observations
 
-```sh
-python3 lab.py test SAF-K8S-0606-007 --docker-context desktop-linux
-```
+    python3 tests/control-lab/lab.py test SAF-K8S-0606-007 --docker-context desktop-linux
 
-The fixture installs a pinned Tetragon chart and images on an owned Kind node.
-The exported JSON is scoped to the case namespace. The comparison reads a
-public marker before and after a namespaced tracing rule. The test correlates
-the filename observation and execution by process ID and checks a separate
-public file remains outside the rule. The case needs Helm and a compatible
-kernel with supported BPF hooks.
+The lab checks the pinned Tetragon process and file events for an inert
+runner in a disposable namespace. Two successful HTTP marker requests use
+an owned ClusterIP Service. The first precedes the specific connection
+policy; the second produces a matching tcp_connect record attributed to
+the runner Pod, policy and destination port. The case retains the response
+and event observations for that comparison.
 
-Production audit delivery, connection coverage, credentials and detection
-latency need their own deployed evidence.
+For a deployment, inventory governed runners, build VMs and managed build
+services. Verify monitor versions, node and kernel coverage, namespace and
+workload attribution, policy state and approved event sources. Confirm
+separate CI and API audit records, the actual collector and alert route,
+latency and loss limits, redaction and evidence retention. This fixture
+covers the local sensor and its event output for the selected cases.

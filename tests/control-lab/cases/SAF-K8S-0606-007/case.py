@@ -17,6 +17,10 @@ EXPORTER = ("quay.io/cilium/hubble-export-stdout:v1.1.1@sha256:"
 AGENT_NS = "saf-fixture-observer"
 POD = "saf-runner-marker"
 POLICY = "saf-public-marker-read"
+NETWORK_POLICY = "saf-owned-network-connect"
+NETWORK_POD = "saf-owned-http-marker"
+NETWORK_SERVICE = "saf-owned-http-marker"
+NETWORK_PORT = 18080
 MARKER = "/tmp/saf-fixture-public.txt"
 OTHER = "/tmp/saf-fixture-control.txt"
 SCOPE = (
@@ -98,6 +102,23 @@ def filename_events(rows, ids):
             and record.get("policy_name") == POLICY and MARKER in json.dumps(record.get("args", []))]
 
 
+def connect_events(rows, namespace):
+    matched = []
+    for kind, record in rows:
+        if (kind != "process_kprobe" or record.get("function_name") != "tcp_connect"
+                or record.get("policy_name") != NETWORK_POLICY):
+            continue
+        process = record.get("process", {})
+        pod = process.get("pod", {})
+        if pod.get("namespace") != namespace or pod.get("name") != POD:
+            continue
+        args = record.get("args", [])
+        sockets = [arg.get("sock_arg", {}) for arg in args if isinstance(arg, dict)]
+        if any(sock.get("dport") == NETWORK_PORT for sock in sockets):
+            matched.append(record)
+    return matched
+
+
 def wait_for(lab, namespace, match, reason):
     end = time.monotonic() + 24
     while time.monotonic() < end:
@@ -133,6 +154,60 @@ def add_rule(lab, namespace):
     lab.block("The namespaced public-marker observation policy did not become active")
 
 
+def add_network_rule(lab, namespace):
+    scoped(lab, namespace, {
+        "apiVersion": "cilium.io/v1alpha1", "kind": "TracingPolicyNamespaced",
+        "metadata": {"name": NETWORK_POLICY},
+        "spec": {"kprobes": [{
+            "call": "tcp_connect", "syscall": False,
+            "args": [{"index": 0, "type": "sock"}],
+        }]},
+    })
+    end = time.monotonic() + 25
+    while time.monotonic() < end:
+        status = lab.kubectl("-n", AGENT_NS, "exec", "daemonset/tetragon", "-c", "tetragon",
+                             "--", "tetra", "tracingpolicy", "list", allow_failure=True)
+        if status.returncode == 0 and any(
+            NETWORK_POLICY in line and "enabled" in line.lower() for line in status.stdout.splitlines()
+        ):
+            return
+        time.sleep(0.5)
+    lab.block("The namespaced TCP-connect observation policy did not become active")
+
+
+def network_fixture(lab, namespace):
+    scoped(lab, namespace, {
+        "apiVersion": "v1", "kind": "Pod",
+        "metadata": {"name": NETWORK_POD, "labels": {"app": NETWORK_POD}},
+        "spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,
+                 "containers": [container("http", command=["sh", "-c",
+                     "printf 'owned network marker\\n' >/tmp/index.html; exec httpd -f -p "
+                     f"{NETWORK_PORT} -h /tmp"])]},
+    })
+    scoped(lab, namespace, {
+        "apiVersion": "v1", "kind": "Service",
+        "metadata": {"name": NETWORK_SERVICE},
+        "spec": {"type": "ClusterIP", "selector": {"app": NETWORK_POD},
+                 "ports": [{"name": "http", "port": NETWORK_PORT,
+                            "targetPort": NETWORK_PORT, "protocol": "TCP"}]},
+    })
+    lab.kubectl("-n", namespace, "wait", "--for=condition=Ready", f"pod/{NETWORK_POD}",
+                "--timeout=45s", timeout=55)
+    service_ip = lab.kubectl("-n", namespace, "get", "service", NETWORK_SERVICE,
+                             "-o", "jsonpath={.spec.clusterIP}").stdout.strip()
+    if not service_ip or service_ip.lower() == "none":
+        lab.block("The fixture HTTP marker Service has no assigned ClusterIP")
+    return service_ip
+
+
+def network_request(lab, namespace, service_ip):
+    result = lab.kubectl("-n", namespace, "exec", POD, "--", "/bin/busybox", "wget",
+                         "-q", "-T", "4", "-O", "-",
+                         f"http://{service_ip}:{NETWORK_PORT}/")
+    if result.stdout.strip() != "owned network marker":
+        lab.block("The owned in-cluster HTTP marker response was not exact")
+
+
 def run(lab):
     namespace = "saf-observed-" + lab.cluster[-9:]
     lab.kubectl("create", "namespace", namespace)
@@ -160,6 +235,28 @@ def run(lab):
     omitted = bool(unrelated) and not filename_events(compared, unrelated)
     lab.check("positive", "The other harmless read remains visible as execution without a matching file observation",
               omitted, {"comparison_execution_visible": bool(unrelated), "marker_specific_filter_preserved": omitted})
+
+    service_ip = network_fixture(lab, namespace)
+    network_request(lab, namespace, service_ip)
+    baseline_connections = connect_events(events(lab, namespace), namespace)
+    red_absent = not baseline_connections
+    add_network_rule(lab, namespace)
+    network_request(lab, namespace, service_ip)
+    observed_connections = wait_for(
+        lab, namespace, lambda rows: bool(connect_events(rows, namespace)),
+        "The selected owned TCP connection did not reach the Tetragon event export",
+    )
+    selected = connect_events(observed_connections, namespace)
+    fields_ok = bool(selected) and all(
+        any(isinstance(arg, dict) and arg.get("sock_arg", {}).get("dport") == NETWORK_PORT
+            for arg in record.get("args", [])) for record in selected
+    )
+    lab.check("green", "The namespaced Tetragon policy adds an attributed event for the owned TCP marker request",
+              red_absent and fields_ok,
+              {"tcp_event_absent_before_policy": red_absent,
+               "tcp_event_attributed_to_fixture_pod": bool(selected),
+               "fixed_owned_listener_port_observed": fields_ok,
+               "exact_http_marker_response_verified": True})
     (lab.evidence / "fixture-observation.json").write_text(json.dumps({
         "chart_sha256": CHART_HASH, "before_exec_ids": sorted(old), "matched_exec_ids": sorted(current),
         "observations": observed,
