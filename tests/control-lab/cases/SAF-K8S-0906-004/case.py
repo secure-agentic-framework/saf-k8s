@@ -11,7 +11,7 @@ CODE = "fixture-quality-code"
 CLAIM = "fixture-quality-output"
 EXPECTED = {
     "changed": "distribution_mean_shift", "outliers": "outlier_rate",
-    "out-of-bounds": "input_validation",
+    "out-of-bounds": "input_validation", "invalid-schema": "input_validation",
 }
 SCOPE = (
     "A real Kind processor reads an immutable approved snapshot and four small invented candidates. "
@@ -61,6 +61,12 @@ def run(lab):
     green = {name: decisions[name]["decision"] == "hold" and decisions[name]["cause"] == reason
              and name not in reads["approved"] for name, reason in EXPECTED.items()}
     green["bounds_verified"] = decisions["out-of-bounds"]["validation_errors"] == ["value_bounds"]
+    green["unsupported_schema_version_held_without_release_readback"] = (
+        decisions["invalid-schema"]["decision"] == "hold"
+        and decisions["invalid-schema"]["cause"] == "input_validation"
+        and decisions["invalid-schema"]["validation_errors"] == ["schema_version"]
+        and "invalid-schema" not in reads["approved"]
+    )
     green["outlier_signal_distinct_from_mean_shift"] = (
         decisions["outliers"]["comparison"]["absolute_mean_shift"] == 0
         and decisions["outliers"]["comparison"]["outlier_rate"] > 0.25

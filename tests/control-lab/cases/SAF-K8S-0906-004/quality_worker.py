@@ -75,7 +75,7 @@ def compare(approved, incoming):
                                 "approved_count": len(a), "incoming_count": len(b)}}
 
 
-NAMES = ("within-limits", "changed", "outliers", "out-of-bounds")
+NAMES = ("within-limits", "changed", "outliers", "out-of-bounds", "invalid-schema")
 
 
 def canonical(row):
