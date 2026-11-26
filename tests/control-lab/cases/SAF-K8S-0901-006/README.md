@@ -67,6 +67,31 @@ and managed-cluster behavior.
 - [Volcano Queue](https://volcano.sh/docs/concepts/queue/)
 - [Volcano scheduler actions](https://volcano.sh/docs/scheduler/actions/)
 
+## Bounded Kueue fair-sharing and FIFO observations
+
+This scratch extension preserves the published case's 21 checks and adds a
+separate CPU-only comparison on pinned Kueue v0.17.7. The AFS fixture compares
+equal-priority, equal-input pending Workloads after releasing a 100m holder and
+observes the newer lower-use Workload first. An independent ClusterQueue sets
+`admissionMode: NoAdmissionFairSharing` with `StrictFIFO`. It observes the exact
+100m seed's Workload assignment, Ready Job-owned Pod, completion, and absence
+from the peer queue; before release it rechecks equal live priorities and
+seed-matched candidate inputs. It then observes the older candidate admitted
+first and the younger candidate admitted after the older reservation is
+released. Exact API objects, queue accounting, quantities and timestamps are
+retained in raw evidence; normalized booleans feed the receipt. This is a
+bounded single-selection CPU observation, not evidence for GPU resources,
+production demand behavior, preemption, Volcano, or managed clusters.
+
+The existing indexed readiness-timeout fixture also records its exact Job and
+Workload UIDs and raw `status.requeueState` before foreground deletion. It waits
+for those exact UIDs and Job-owned Pods to disappear before the separate FIFO
+queue phase. This scopes fixture cleanup to the pinned controller's global
+PodsReady gate, whose v0.17.7 implementation considers Workloads across
+ClusterQueues.
+
+The version-pinned implementation is in the [v0.17.7 scheduler gate](https://github.com/kubernetes-sigs/kueue/blob/v0.17.7/pkg/scheduler/scheduler.go), [scheduler cache readiness check](https://github.com/kubernetes-sigs/kueue/blob/v0.17.7/pkg/cache/scheduler/cache.go), and [ClusterQueue readiness tracking](https://github.com/kubernetes-sigs/kueue/blob/v0.17.7/pkg/cache/scheduler/clusterqueue.go).
+
 ## Kueue queue admission
 
 The same case installs upstream Kueue v0.17.7 in the isolated cluster. It
@@ -118,3 +143,11 @@ mode-off FIFO comparator, separately configured preemption, Volcano, GPU and
 adopted fairness remain separate verification work.
 
 [Kueue Admission Fair Sharing](https://kueue.sigs.k8s.io/v0.17/docs/concepts/admission_fair_sharing/)
+
+The controller rollout has a 180-second startup bound. The measured workload readiness timeout and queue assertions keep their original bounds.
+
+The pending-state probe checks the exact Job owner, suspension and the absence
+of admission or reservation. StrictFIFO can leave a later Job unevaluated while
+the head of the queue is waiting, so the probe also accepts an unset quota
+condition. It independently checks 100m held by the exact holder and zero
+reserved by either contender before release.

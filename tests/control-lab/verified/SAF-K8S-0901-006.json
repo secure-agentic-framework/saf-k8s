@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0901-006",
-  "catalog_revision": "d1b8447a22de8db36ec31676b53c34496d4d3f59",
+  "catalog_revision": "3f65185f2e64894c20d741e3d13c7c17e373022a",
   "catalog_sha256": "63ca25b48ffb8f35202c5c4db9c599eb98e12d31aa18f4d0d69d91a9e3ec5423",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "0b1d02acd0d623612be51764643d1d762fb5a4c57b2c257968cde0799925db4d",
-  "scope": "A disposable Kind v1.36.1 cluster verifies native namespace quota, selected tenant and platform RBAC, and the pinned Kueue v0.17.7 controller's quota, readiness-timeout, and named tenant workload-priority behavior. Separate case-owned CPU LocalQueues demonstrate sampled historical-use ordering with Admission Fair Sharing enabled. With equal live priorities and sufficient quota after release, the newer lower-use Workload is admitted first and the older peer later. Mode-off FIFO comparison, preemption, Volcano, accelerator quotas, and deployed behavior require separate evidence.",
-  "cluster": "saf-lab-215476db9e0c",
+  "scope": "A disposable Kind v1.36.1 cluster verifies native namespace quota, selected tenant and platform RBAC, and the pinned Kueue v0.17.7 controller's quota, readiness-timeout, and named tenant workload-priority behavior. A case-owned timeout Job's exact Workload UID and raw requeue state are captured before foreground cleanup because the pinned controller has a global PodsReady gate. Separate CPU-only LocalQueues demonstrate sampled historical-use ordering with Admission Fair Sharing enabled: with equal live priorities and sufficient quota after release, the newer lower-use Workload is admitted first. A distinct ClusterQueue explicitly disables Admission Fair Sharing and uses StrictFIFO; it observes the exact 100m seed admitted, Ready, and completed in its queue while the peer remains unseeded, then observes the older of two equal-priority, seed-matched candidates admitted first after release. These are bounded CPU-only scheduler observations. Preemption, Volcano, accelerator quotas, production demand behavior, and deployed behavior require separate evidence.",
+  "cluster": "saf-lab-0cc5f7c4fd82",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -190,6 +190,16 @@
     },
     {
       "phase": "positive",
+      "claim": "The exact readiness-timeout fixture is removed before later queue phases",
+      "matched": true,
+      "observed": {
+        "job_uid_absent": true,
+        "workload_uid_absent": true,
+        "owned_pods_absent": true
+      }
+    },
+    {
+      "phase": "positive",
       "claim": "Tenant Jobs can use only the approved Kueue workload priority; higher Kueue and Pod priority fields are denied and the real Workload records the approved value",
       "matched": true,
       "observed": {
@@ -274,6 +284,68 @@
       "observed": {
         "older_peer_admitted_after_release": true,
         "expected_cluster_queue": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The comparator uses a separate StrictFIFO ClusterQueue with AFS explicitly disabled",
+      "matched": true,
+      "observed": {
+        "separate_cluster_queue": true,
+        "strict_fifo": true,
+        "admission_fair_sharing_disabled": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The mode-off 100m seed is admitted and Ready in its exact queue, then completes while the peer remains unseeded",
+      "matched": true,
+      "observed": {
+        "exact_100m_assignment_observed": true,
+        "seed_job_owned_pod_ready": true,
+        "seed_job_completed_after_ready": true,
+        "peer_queue_received_no_seed": true,
+        "mode_off_last_update_advanced": true,
+        "afs_specific_consumed_cpu_zero_observed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Live equal-priority FIFO candidates use the same 100m inputs as the seeded Workload, with the older candidate first",
+      "matched": true,
+      "observed": {
+        "equal_live_priorities": true,
+        "seeded_and_unseeded_inputs_match": true,
+        "older_candidate_created_first": true,
+        "both_candidates_held": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Immediately before release, the exact holder owns 100m and both FIFO candidates remain held",
+      "matched": true,
+      "observed": {
+        "holder_holds_nominal_100m": true,
+        "older_candidate_unreserved": true,
+        "newer_candidate_unreserved": true,
+        "mode_off_accounting_retained_in_raw": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "With AFS explicitly disabled, StrictFIFO admits the older seed-matched candidate first",
+      "matched": true,
+      "observed": {
+        "older_high_use_first": true,
+        "newer_low_use_still_pending": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The younger low-use peer is admitted after FIFO's older reservation is released",
+      "matched": true,
+      "observed": {
+        "younger_peer_admitted_after_release": true
       }
     }
   ]

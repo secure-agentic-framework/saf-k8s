@@ -22,11 +22,17 @@ QUOTA_NAME = "saf-0901-006-tenant-quota"
 SCOPE = (
     "A disposable Kind v1.36.1 cluster verifies native namespace quota, selected tenant "
     "and platform RBAC, and the pinned Kueue v0.17.7 controller's quota, readiness-timeout, "
-    "and named tenant workload-priority behavior. Separate case-owned CPU LocalQueues "
-    "demonstrate sampled historical-use ordering with Admission Fair Sharing enabled. "
-    "With equal live priorities and sufficient quota after release, the newer lower-use "
-    "Workload is admitted first and the older peer later. Mode-off FIFO comparison, "
-    "preemption, Volcano, accelerator quotas, and deployed behavior require separate evidence."
+    "and named tenant workload-priority behavior. A case-owned timeout Job's exact "
+    "Workload UID and raw requeue state are captured before foreground cleanup because "
+    "the pinned controller has a global PodsReady gate. Separate CPU-only LocalQueues "
+    "demonstrate sampled historical-use ordering with Admission Fair Sharing enabled: "
+    "with equal live priorities and sufficient quota after release, the newer lower-use "
+    "Workload is admitted first. A distinct ClusterQueue explicitly disables Admission "
+    "Fair Sharing and uses StrictFIFO; it observes the exact 100m seed admitted, Ready, "
+    "and completed in its queue while the peer remains unseeded, then observes the older "
+    "of two equal-priority, seed-matched candidates admitted first after release. These "
+    "are bounded CPU-only scheduler observations. Preemption, Volcano, accelerator "
+    "quotas, production demand behavior, and deployed behavior require separate evidence."
 )
 
 
@@ -190,3 +196,4 @@ def run(lab):
 
     runpy.run_path(str(HERE / "queue_admission.py"))["run"](lab)
     runpy.run_path(str(HERE / "admission_fair_sharing.py"))["run"](lab)
+    runpy.run_path(str(HERE / "admission_fair_sharing_off.py"))["run"](lab)

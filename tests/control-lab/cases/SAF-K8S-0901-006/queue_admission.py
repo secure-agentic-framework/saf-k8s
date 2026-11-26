@@ -152,7 +152,7 @@ def run(lab):
     installed.write_text(manifest.replace(config_marker, readiness_config, 1))
     _kubectl(lab, "apply", "--server-side", "-f", str(installed), timeout=110)
     _kubectl(lab, "rollout", "status", "deployment/kueue-controller-manager",
-             "-n", "kueue-system", "--timeout=110s", timeout=120)
+             "-n", "kueue-system", "--timeout=180s", timeout=190)
     deployment = _json(lab, "get", "deployment", "kueue-controller-manager", "-n", "kueue-system")
     controller, = deployment["spec"]["template"]["spec"]["containers"]
     if controller["image"] != CONTROLLER_IMAGE:
@@ -384,7 +384,58 @@ def verify_readiness_timeout(lab, namespace, image):
               after["remaining_pods"] == 0 and after["job_suspended"],
               {"reason": after["evicted"]["reason"], "remaining_owned_pods": after["remaining_pods"],
                "quota_released": after["quota_reserved"]["status"] == "False", "job_suspended": True})
-    return {"before": before, "after": after}
+
+    # Preserve the exact timed-out Job/Workload identity and Kueue retry state
+    # before removing the fixture. Kueue's v0.17.7 PodsReady gate is global
+    # across ClusterQueues, so a retained requeueing workload can affect later
+    # queue phases even when those phases use another ClusterQueue.
+    live_job = _json(lab, "get", "job", name, "-n", namespace)
+    job_uid = live_job.get("metadata", {}).get("uid")
+    if job_uid != job.get("metadata", {}).get("uid"):
+        lab.block("The readiness-timeout Job UID changed before cleanup")
+    workload = _owned_workload(lab, namespace, live_job)
+    if not workload:
+        lab.block("The readiness-timeout Workload disappeared before its retry state was captured")
+    workload_uid = workload.get("metadata", {}).get("uid")
+    owners = workload.get("metadata", {}).get("ownerReferences", [])
+    if not any(owner.get("kind") == "Job" and owner.get("uid") == job_uid for owner in owners):
+        lab.block("The readiness-timeout Workload does not reference the exact Job UID")
+    retry_state = workload.get("status", {}).get("requeueState")
+    retry_evidence = {
+        "job_uid": job_uid,
+        "workload_uid": workload_uid,
+        "requeue_state": retry_state,
+        "workload_conditions": workload.get("status", {}).get("conditions", []),
+        "quota_reservation": workload.get("status", {}).get("admission"),
+    }
+
+    _kubectl(lab, "delete", "job", name, "-n", namespace,
+             "--cascade=foreground", "--wait=true", timeout=45)
+
+    def retired():
+        jobs = _json(lab, "get", "jobs", "-n", namespace).get("items", [])
+        workloads = _json(lab, "get", "workloads.kueue.x-k8s.io", "-n", namespace).get("items", [])
+        pods = _json(lab, "get", "pods", "-n", namespace, "-l", f"app={name}").get("items", [])
+        job_absent = not any(item.get("metadata", {}).get("uid") == job_uid for item in jobs)
+        workload_absent = not any(item.get("metadata", {}).get("uid") == workload_uid
+                                  for item in workloads)
+        owned_pods_absent = not any(
+            any(owner.get("uid") == job_uid for owner in pod.get("metadata", {}).get("ownerReferences", []))
+            for pod in pods
+        )
+        return {"job_uid_absent": job_absent, "workload_uid_absent": workload_absent,
+                "owned_pods_absent": owned_pods_absent} if (
+                    job_absent and workload_absent and owned_pods_absent) else None
+
+    cleanup = _wait(lab, retired, "the exact readiness-timeout Job and Workload to be retired", seconds=40)
+    lab.check("positive", "The exact readiness-timeout fixture is removed before later queue phases",
+              cleanup["job_uid_absent"] and cleanup["workload_uid_absent"]
+              and cleanup["owned_pods_absent"],
+              {"job_uid_absent": cleanup["job_uid_absent"],
+               "workload_uid_absent": cleanup["workload_uid_absent"],
+               "owned_pods_absent": cleanup["owned_pods_absent"]})
+    return {"before": before, "after": after, "retry_state_before_cleanup": retry_evidence,
+            "cleanup": cleanup}
 
 
 def verify_priority_authorization(lab, namespace, cluster_queue, image, suffix):
