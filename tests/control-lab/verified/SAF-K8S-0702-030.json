@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0702-030",
-  "catalog_revision": "7e2e05c327f54bcc2c6aefd64c255880a81ce7c9",
-  "catalog_sha256": "df105e4d2453b18902086552ec1bae50b698ff889053abd168a340c3f200169b",
+  "catalog_revision": "03197b5f34c07adf30de371cb78cb9f0dfb5587b",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "8f8ee894d18af13f8d41eacce8551c1de3a48399de843dc7eb1db091a642164a",
-  "scope": "Three ordinary Kubernetes Jobs apply a versioned synthetic promotion policy to distinct artifact metadata objects. The case observes uplift, equality and unresolved policy, and preserves the source classification. Real model systems, policy authoring, production deployment permissions and governance require separate evidence.",
-  "cluster": "saf-lab-2f8132a43c12",
+  "scope": "Ordinary Kubernetes Jobs apply a versioned synthetic promotion policy to owned artifact metadata, preserve a higher existing classification, and expose API-backed authorization comparisons. Real model systems, policy governance and external deployment remain adopter evidence.",
+  "cluster": "saf-lab-0c26fe5ba5ac",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -66,6 +66,26 @@
         "unknown_target_unchanged": true,
         "source_unchanged": true,
         "unknown_applied": null
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Promotion preserves an existing higher target classification",
+      "matched": true,
+      "observed": {
+        "higher_target_preserved": true,
+        "resulting_classification": "synthetic-confidential"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Only the scoped promotion identity can update targets and the policy remains protected",
+      "matched": true,
+      "observed": {
+        "unapproved_target_patch_denied": true,
+        "policy_change_denied": true,
+        "target_unchanged": true,
+        "policy_unchanged": true
       }
     }
   ]

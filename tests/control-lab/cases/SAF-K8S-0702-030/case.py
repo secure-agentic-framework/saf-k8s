@@ -13,11 +13,11 @@ CLASSIFICATION = "saf-k8s.example/data-classification"
 SOURCE = "source-artifact"
 POLICY = "promotion-policy"
 ACCOUNT = "promotion-fixture"
+UNAPPROVED = "promotion-unapproved"
 SCOPE = (
-    "Three ordinary Kubernetes Jobs apply a versioned synthetic promotion policy to distinct "
-    "artifact metadata objects. The case observes uplift, equality and unresolved policy, "
-    "and preserves the source classification. Real model systems, policy authoring, "
-    "production deployment permissions and governance require separate evidence."
+    "Ordinary Kubernetes Jobs apply a versioned synthetic promotion policy to owned artifact "
+    "metadata, preserve a higher existing classification, and expose API-backed authorization "
+    "comparisons. Real model systems, policy governance and external deployment remain adopter evidence."
 )
 
 
@@ -28,9 +28,11 @@ def get(lab, name):
 def register_fixtures(lab, source, targets):
     names = [f"target-{target}" for target in targets]
     for name in [SOURCE, *names]:
+        classification = ("synthetic-confidential" if name == "target-already-higher"
+                          else source["classification"])
         lab.create({
             "apiVersion": "v1", "kind": "ConfigMap",
-            "metadata": {"name": name, "labels": {CLASSIFICATION: source["classification"]}},
+            "metadata": {"name": name, "labels": {CLASSIFICATION: classification}},
             "immutable": True, "data": {"artifact": source["artifact_id"]},
         })
     lab.create({
@@ -40,9 +42,11 @@ def register_fixtures(lab, source, targets):
                  for name in ("source-artifact.json", "promotion-policy-v1.json", "promote.py")},
     })
     lab.create({"apiVersion": "v1", "kind": "ServiceAccount", "metadata": {"name": ACCOUNT}})
+    lab.create({"apiVersion": "v1", "kind": "ServiceAccount", "metadata": {"name": UNAPPROVED}})
     lab.create({
         "apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role", "metadata": {"name": ACCOUNT},
-        "rules": [{"apiGroups": [""], "resources": ["configmaps"], "resourceNames": names, "verbs": ["patch"]}],
+        "rules": [{"apiGroups": [""], "resources": ["configmaps"], "resourceNames": names,
+                    "verbs": ["get", "update"]}],
     })
     lab.create({
         "apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding", "metadata": {"name": ACCOUNT},
@@ -72,6 +76,33 @@ def promote(lab, targets):
         name = f"job/promote-{target}"
         lab.kubectl("wait", "--for=condition=Complete", name, "--timeout=90s", timeout=100)
         yield target, json.loads(lab.kubectl("logs", name).stdout)
+
+
+def authorization_probes(lab):
+    probes = (("target", UNAPPROVED, "deny-target", "higher"),
+              ("policy", ACCOUNT, "deny-policy", ""))
+    for label, account, mode, argument in probes:
+        job = f"probe-{label}-authority"
+        command = ["python", "/fixture/promote.py", mode]
+        if argument:
+            command.append(argument)
+        lab.create({
+            "apiVersion": "batch/v1", "kind": "Job", "metadata": {"name": job},
+            "spec": {"activeDeadlineSeconds": 60, "backoffLimit": 0, "template": {"spec": {
+                "restartPolicy": "Never", "serviceAccountName": account,
+                "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
+                                    "seccompProfile": {"type": "RuntimeDefault"}},
+                "containers": [{"name": "probe", "image": IMAGE,
+                                "command": command,
+                                "securityContext": {"allowPrivilegeEscalation": False,
+                                                    "readOnlyRootFilesystem": True,
+                                                    "capabilities": {"drop": ["ALL"]}},
+                                "volumeMounts": [{"name": "policy", "mountPath": "/fixture", "readOnly": True}]}],
+                "volumes": [{"name": "policy", "configMap": {"name": POLICY}}],
+            }}},
+        })
+        lab.kubectl("wait", "--for=condition=Complete", f"job/{job}", "--timeout=75s", timeout=85)
+        yield label, json.loads(lab.kubectl("logs", f"job/{job}").stdout)
 
 
 def run(lab):
@@ -109,3 +140,34 @@ def run(lab):
               and events["unknown"]["decision"] == "unresolved_requirement" and events["unknown"]["applied"] is None,
               {"equal_preserved": equal_ok, "unknown_target_unchanged": unknown_unchanged,
                "source_unchanged": source_unchanged, "unknown_applied": events["unknown"]["applied"]})
+
+    already_higher = states["already-higher"]["metadata"]
+    monotonic = (already_higher["labels"][CLASSIFICATION] == "synthetic-confidential"
+                 and already_higher["annotations"]["saf-k8s.example/promotion-decision"] == "preserved"
+                 and states["already-higher"]["data"] == initial["already-higher"]["data"])
+    lab.check("positive", "Promotion preserves an existing higher target classification",
+              monotonic and events["already-higher"]["decision"] == "preserved",
+              {"higher_target_preserved": monotonic,
+               "resulting_classification": already_higher["labels"][CLASSIFICATION]})
+
+    target_before = get(lab, "target-higher")
+    policy_before = get(lab, POLICY)
+    probe_events = dict(authorization_probes(lab))
+    target_after = get(lab, "target-higher")
+    policy_after = get(lab, POLICY)
+    authz_ok = (probe_events["target"]["http_status"] == 403
+                and probe_events["target"]["denied"] is True
+                and probe_events["policy"]["http_status"] == 403
+                and probe_events["policy"]["denied"] is True
+                and target_after["metadata"]["resourceVersion"] == target_before["metadata"]["resourceVersion"]
+                and target_after["metadata"]["labels"] == target_before["metadata"]["labels"]
+                and policy_after["metadata"]["resourceVersion"] == policy_before["metadata"]["resourceVersion"]
+                and policy_after["data"] == policy_before["data"])
+    lab.check("green", "Only the scoped promotion identity can update targets and the policy remains protected",
+              authz_ok,
+              {"unapproved_target_patch_denied": probe_events["target"]["http_status"] == 403,
+               "policy_change_denied": probe_events["policy"]["http_status"] == 403,
+               "target_unchanged": target_after["metadata"]["resourceVersion"]
+               == target_before["metadata"]["resourceVersion"],
+               "policy_unchanged": policy_after["metadata"]["resourceVersion"]
+               == policy_before["metadata"]["resourceVersion"]})

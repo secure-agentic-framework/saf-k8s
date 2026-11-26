@@ -17,6 +17,10 @@
     "unknown": {
       "environment": "synthetic-unmapped-target",
       "required_classification": "synthetic-unknown"
+    },
+    "already-higher": {
+      "environment": "synthetic-existing-protected-target",
+      "required_classification": "synthetic-internal"
     }
   }
 }
