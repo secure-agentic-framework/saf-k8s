@@ -1,0 +1,25 @@
+{
+  "repository": "kubernetes-csi/external-snapshotter",
+  "ref": "a6a3d9d6b5f6f1e6fa0d311148b696556e4499e8",
+  "release_tag": "v8.2.1",
+  "files": {
+    "snapshot.storage.k8s.io_volumesnapshotclasses.yaml": {
+      "path": "client/config/crd/snapshot.storage.k8s.io_volumesnapshotclasses.yaml",
+      "git_blob_sha1": "8164952a4249f26c57b689d36157a9fa04a9ed96",
+      "sha256": "75e6565aac2c0f2949ed13ea884bbaa388cb7be576b558b709cf1168e011828d",
+      "bytes": 6636
+    },
+    "snapshot.storage.k8s.io_volumesnapshotcontents.yaml": {
+      "path": "client/config/crd/snapshot.storage.k8s.io_volumesnapshotcontents.yaml",
+      "git_blob_sha1": "cd0c879fc4287b4f98525cdc86fe5fdca4113450",
+      "sha256": "895a3c1e73b60f06a0deb566dd123d01bdf1b2efc5d5ff5231ff8bbcf42dafc7",
+      "bytes": 27525
+    },
+    "snapshot.storage.k8s.io_volumesnapshots.yaml": {
+      "path": "client/config/crd/snapshot.storage.k8s.io_volumesnapshots.yaml",
+      "git_blob_sha1": "6b96d7082f2db89d0ab54ce9c371efe8f02c5d46",
+      "sha256": "b032116e987fb1d7d93cec7d942833adeb9d95c9bdc7e00c10b280c2fe4a6c33",
+      "bytes": 22409
+    }
+  }
+}

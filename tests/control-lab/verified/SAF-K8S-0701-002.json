@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0701-002",
-  "catalog_revision": "be58ca21dbb0d82530bec6bfefe2f47fa5028d8f",
-  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
+  "catalog_revision": "265d646991760b53c656c5e90473ed1cb43dda0f",
+  "catalog_sha256": "015d61b2fcea3d0ff68d32e1ac467d9b1277b9037754d2c072f6d7d7848d7a6e",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d980b46abb69296bfc92d75227112e1ee1408ba580fcd9498a24092f8310d8c1",
-  "scope": "One fresh single-node Kubernetes v1.36.1 Kind cluster. Preserves the prior authenticated workload identity checks, and adapts the pinned upstream Kubernetes v1.36.1 SIG Storage hostpath e2e fixture to filesystem provisioning with the pinned hostpathplugin, node-driver-registrar and external-provisioner images. The upstream fixture uses one shared CSI ServiceAccount for its combined node/controller Pod; this case checks that actual shared identity's effective authorization and does not claim separate node/controller identities. A benign PVC marker is written and read back. No snapshots, block devices, resize, attachment, external sockets or user host mounts.",
-  "cluster": "saf-lab-ce5e1c6a85a6",
+  "scope": "One fresh single-node Kubernetes v1.36.1 Kind cluster. Preserves the prior authenticated workload identity checks, and adapts the pinned upstream Kubernetes v1.36.1 SIG Storage hostpath e2e fixture to filesystem provisioning with the pinned hostpathplugin, node-driver-registrar and external-provisioner images. The upstream fixture uses one shared CSI ServiceAccount for its combined node/controller Pod; this case checks that actual shared identity's effective authorization and does not claim separate node/controller identities. A benign PVC marker is written and read back. Native admission compares approved image pins and an inert altered image under server dry-run. Installed snapshot APIs compare actual namespaced projected-token authorization with no persisted snapshot. Provider snapshots, block devices, resize, attachment, external sockets and user host mounts are outside the case.",
+  "cluster": "saf-lab-75b920e7e2d1",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -102,6 +102,27 @@
       }
     },
     {
+      "phase": "positive",
+      "claim": "Scoped VAP allows pinned refs and denies the same altered ref that passed baseline dry-run",
+      "matched": true,
+      "observed": {
+        "unapproved_baseline_dry_run_accepted": true,
+        "baseline_candidate_absent": true,
+        "unapproved_after_policy_denied_by_exact_message": true,
+        "approved_after_policy_accepted": true,
+        "both_post_policy_candidates_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Dry-run admission leaves the already-running pinned CSI Pod unchanged",
+      "matched": true,
+      "observed": {
+        "same_live_pod_uid": true,
+        "same_live_container_image_refs": true
+      }
+    },
+    {
       "phase": "green",
       "claim": "The actual shared CSI ServiceAccount has only the selected provisioner authorization",
       "matched": true,
@@ -130,6 +151,54 @@
         "workload_image_matches_pinned_reference": true,
         "volume_uid_present": true,
         "pv_matches_case_claim_and_csi_driver": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "All official v8.2.1 snapshot API CRDs match verified hashes and are Established",
+      "matched": true,
+      "observed": {
+        "source_ref": "a6a3d9d6b5f6f1e6fa0d311148b696556e4499e8",
+        "crds": [
+          {
+            "name": "snapshot.storage.k8s.io_volumesnapshotclasses.yaml",
+            "git_blob_sha1_matches": true,
+            "sha256_matches": true,
+            "bytes": 6636
+          },
+          {
+            "name": "snapshot.storage.k8s.io_volumesnapshotcontents.yaml",
+            "git_blob_sha1_matches": true,
+            "sha256_matches": true,
+            "bytes": 27525
+          },
+          {
+            "name": "snapshot.storage.k8s.io_volumesnapshots.yaml",
+            "git_blob_sha1_matches": true,
+            "sha256_matches": true,
+            "bytes": 22409
+          }
+        ],
+        "all_three_established": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Projected actor with namespaced VolumeSnapshot create receives API-server dry-run acceptance; ungranted actor receives 403",
+      "matched": true,
+      "observed": {
+        "authorized_projected_token_status": 201,
+        "ungranted_projected_token_status": 403,
+        "both_probe_containers_succeeded": true,
+        "request_query": "dryRun=All"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Neither API dry-run persisted a VolumeSnapshot object",
+      "matched": true,
+      "observed": {
+        "exact_case_snapshot_absent": true
       }
     },
     {

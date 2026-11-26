@@ -22,7 +22,9 @@ SCOPE = (
     "ServiceAccount for its combined node/controller Pod; this case checks that "
     "actual shared identity's effective authorization and does not claim separate "
     "node/controller identities. A benign PVC marker is written and read back. "
-    "No snapshots, block devices, resize, attachment, external sockets or user host mounts."
+    "Native admission compares approved image pins and an inert altered image under server dry-run. "
+    "Installed snapshot APIs compare actual namespaced projected-token authorization with no persisted snapshot. "
+    "Provider snapshots, block devices, resize, attachment, external sockets and user host mounts are outside the case."
 )
 
 PINS_PATH = Path(__file__).with_name("pins.json")
@@ -285,6 +287,9 @@ def run(lab):
                "api_token_mounted_only_in_provisioner": token_only_controller,
                "node_mount_paths_are_kind_internal": True})
 
+    runpy.run_path(str(Path(__file__).with_name("driver_admission.py")))[
+        "run_driver_admission"](lab, driver_pod, IMAGE)
+
     effective = {
         "pv-create": _sar(lab, "create", "", "persistentvolumes"),
         "pvc-watch": _sar(lab, "watch", "", "persistentvolumeclaims"),
@@ -355,6 +360,9 @@ def run(lab):
                           "workload_image_matches_pinned_reference": workload_image_ok,
                           "volume_uid_present": bool(claim_uid),
                           "pv_matches_case_claim_and_csi_driver": owned_pv})
+    runpy.run_path(str(Path(__file__).with_name("snapshot_api.py")))[
+        "run_snapshot_api_dryrun"](lab)
+
     lab.kubectl("delete", "pod", WORKLOAD, "-n", NAMESPACE, "--wait=true", "--timeout=45s")
     lab.kubectl("delete", "pvc", PVC, "-n", NAMESPACE, "--wait=true", "--timeout=45s")
     _wait(lab, "case-owned PV reclamation",

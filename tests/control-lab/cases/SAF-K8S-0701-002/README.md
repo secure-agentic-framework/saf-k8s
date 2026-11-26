@@ -25,8 +25,19 @@ requires a privileged container and specific Kind-internal hostPath
 mounts. The case checks for absence of user host binds before starting
 it and leaves the project and host storage outside the profile. Only
 the external provisioner receives the projected API token. Both CSI
-functions share the upstream ServiceAccount. Snapshots, raw block,
-attachment, external sockets and expansion are outside this test.
+functions share the upstream ServiceAccount. The exact-image admission
+policy accepts the three pinned containers and refuses an otherwise
+valid server dry-run with one altered reference. The probes stay
+absent and the running driver's UID and images remain unchanged.
+
+The fixture installs three upstream snapshot API definitions after
+verifying the exact immutable commit, lengths, Git blob IDs and
+SHA-256 digests. Two actual projected-token Pods send identical
+server-dry-run requests for the owned bound claim. The scoped
+snapshot-create role receives HTTP 201, and the ungranted identity
+receives 403. The snapshot is absent afterward. Snapshot data-plane
+creation, restore, raw block, attachment and expansion require
+separate deployed evidence.
 
 ## Verify the adopted driver control
 
@@ -55,3 +66,5 @@ attachment, external sockets and expansion are outside this test.
 [Kubernetes CSI hostpath fixture at v1.36.1](https://github.com/kubernetes/kubernetes/blob/v1.36.1/test/e2e/testing-manifests/storage-csi/hostpath/hostpath/csi-hostpath-plugin.yaml),
 [SIG Storage hostpath test driver](https://github.com/kubernetes-csi/csi-driver-host-path/),
 and [external provisioner RBAC at v6.1.1](https://github.com/kubernetes-csi/external-provisioner/blob/v6.1.1/deploy/kubernetes/rbac.yaml).
+
+[External Snapshotter API definitions at the reviewed commit](https://github.com/kubernetes-csi/external-snapshotter/tree/a6a3d9d6b5f6f1e6fa0d311148b696556e4499e8/client/config/crd).
