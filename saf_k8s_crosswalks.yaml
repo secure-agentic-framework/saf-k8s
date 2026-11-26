@@ -6543,16 +6543,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-3(7)
   framework_requirement_title: Role-based Access Control
-  framework_mapping_notes: 'RBAC for agent roles and permissions
-
-
-    4.1 - Design and enforce RBAC (RBAC primitives: Roles, ClusterRoles, RoleBindings, ClusterRoleBindings)'
+  framework_mapping_notes: The reference applies a named native Role and RoleBinding to the receiving gateway identity for its permitted peer placement actions. The SPIFFE principal and target allowlist are separate authorization inputs. The native Role supplies scoped support where the adopted system applies its defined role model across the relevant subjects and objects.
   control_id: SAF-K8S-0910-016
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only where the adopter also implements its defined roles, eligible role holders, and corresponding object and operation permissions for the governed orchestration paths.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -8510,16 +8507,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-6
   framework_requirement_title: Least Privilege
-  framework_mapping_notes: 'Foundational -- agents must operate with minimum necessary permissions
-
-
-    4.1 - Design and enforce RBAC (least-privilege access design); 4.2 - Default SA restrictions, disabling auto-mount of tokens; 1.4 - Control plane configuration file permissions (least-privilege file ownership and modes)'
+  framework_mapping_notes: The receiving gateway checks the verified sender SPIFFE identity and exact placement and uses a restricted peer API identity. Scope remains the selected operation and destination. An adopter verifies effective permissions across each intended component and covered orchestration path.
   control_id: SAF-K8S-0910-016
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Where the organization has documented necessary orchestration operations and verifies that the effective privileges of its component identities stay within those bounds.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -16305,16 +16299,13 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-9
   framework_requirement_title: Service Identification and Authentication
-  framework_mapping_notes: 'Core -- agent service-to-service authentication
-
-
-    5.4 - SPIFFE/SPIRE workload identity (service-to-service identification and authentication); 4.4 - mTLS'
+  framework_mapping_notes: The two-domain SPIRE fixture authenticates the named workload peers using attested short-lived SVIDs and mutual TLS before a selected peer placement request. The result supplies scoped service identity evidence for that path. Adopted service coverage, trust ownership, rotation and revocation need implementation evidence.
   control_id: SAF-K8S-0910-016
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Where the adopted system identifies the organization-defined orchestration services and authenticates them with the approved service identity and trust rules before a governed request.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5

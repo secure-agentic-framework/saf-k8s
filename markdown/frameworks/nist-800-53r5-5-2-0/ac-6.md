@@ -130,10 +130,10 @@ The actual accepting services verify least privilege over approved resources and
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.10
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: partial
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0910-022 - Cross-cluster communication authorization policy enforcement](../../controls/SAF-K8S-0910-022.md)
 
