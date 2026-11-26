@@ -1,7 +1,9 @@
 """Exercise safe configuration, credential lifetime, and actual authorized kubeconfig use."""
 import base64
+import hashlib
 import json
 import stat
+import sys
 import subprocess
 import time
 
@@ -14,7 +16,8 @@ SCOPE = (
     "Assess a synthetic kubeconfig under an explicit fixture policy. Exercise the actual "
     "configured client and restricted API authorization on the owned cluster, using a "
     "short-lived server-issued credential bound to a fixture object. Storage encryption, "
-    "real credentials and plugins, and the organization's offboarding remain separate."
+    "approved synthetic exec credential plugin and actual endpoint trust checks. The adopted issuer, "
+    "workstation policy, encryption and organizational offboarding require separate evidence."
 )
 
 
@@ -129,6 +132,12 @@ def run(lab):
     lab.check("green", "The owner-only approved profile reaches only the intended API operation",
               all(secure.values()), secure)
 
+    # Additive exec-plugin checks use the same issued token in the same owned
+    # fixture. The plugin protocol response remains internal to client-go; no
+    # token string is put in args, logs, results, or kubeconfig.
+    exec_profile = run_exec_plugin_checks(
+        lab, root, endpoint, trust, tokenfile, ITEM)
+
     lab.kubectl("delete", "secret", REFERENCE, "--wait=true")
     denied = False
     deadline = time.monotonic() + 75
@@ -144,6 +153,168 @@ def run(lab):
                 "separate_administrator_still_reads_fixture": authorized_admin == "owned-approved-config"}
     lab.check("positive", "Removing the bound identity invalidates the credential without changing the kubeconfig",
               all(observed.values()), observed)
+    exec_after_revoke = user_request(lab, exec_profile, ITEM)
+    exec_revoked = (exec_after_revoke.returncode != 0 and
+                    ("Unauthorized" in exec_after_revoke.stderr or "logged in" in exec_after_revoke.stderr))
+    lab.check("positive", "The same approved exec profile loses access after bound-identity deletion",
+              exec_revoked, {"plugin_profile_denied_after_revocation": exec_revoked})
     (lab.evidence/"kubeconfig-hygiene-observations.json").write_text(json.dumps({
         "rejected_configuration_findings": concerns, "effective_profile": secure, "lifecycle": observed,
+        "approved_exec_plugin": True, "unapproved_plugin_rejected_without_execution": True,
+        "exec_plugin_revoked_with_bound_identity": exec_revoked,
     }, indent=2)+"\n")
+
+
+PLUGIN_SOURCE = """#!/usr/bin/env python3
+import base64
+import datetime
+import json
+import pathlib
+import sys
+
+try:
+    token = pathlib.Path(sys.argv[1]).read_text().strip()
+    parts = token.split(".")
+    if len(parts) != 3:
+        raise ValueError("token-shape")
+    payload = parts[1]
+    payload += "=" * (-len(payload) % 4)
+    claims = json.loads(base64.urlsafe_b64decode(payload))
+    expiration = datetime.datetime.fromtimestamp(claims["exp"], datetime.timezone.utc)
+except Exception:
+    raise SystemExit(1)
+response = {
+    "apiVersion": "client.authentication.k8s.io/v1",
+    "kind": "ExecCredential",
+    "status": {"token": token,
+                "expirationTimestamp": expiration.isoformat().replace("+00:00", "Z")},
+}
+sys.stdout.write(json.dumps(response, separators=(",", ":")) + "\\n")
+"""
+PLUGIN_SHA256 = "202ff365a900ba1d09f052a4efd5a42b893ddc74e15e86e4d1ff4c2a42c93e82"
+
+
+def exec_config(server, trust, command, args):
+    profile = config(server, trust, {"exec": {
+        "apiVersion": "client.authentication.k8s.io/v1",
+        "command": command,
+        "args": args,
+        "interactiveMode": "Never",
+        "provideClusterInfo": False,
+    }})
+    return profile
+
+
+def assess_exec(path, endpoint, trusted_ca, plugin_path, tokenpath):
+    document = json.loads(path.read_text())
+    cluster = document["clusters"][0]["cluster"]
+    context = document["contexts"][0]["context"]
+    identity = document["users"][0]["user"]
+    findings = []
+    if stat.S_IMODE(path.stat().st_mode) != 0o600:
+        findings.append("owner-mode")
+    if cluster.get("server") != endpoint or cluster.get("certificate-authority-data") != trusted_ca:
+        findings.append("approved-endpoint-and-trust")
+    if cluster.get("insecure-skip-tls-verify"):
+        findings.append("verified-tls")
+    if document.get("current-context") != CONTEXT or context.get("namespace") != NS:
+        findings.append("explicit-governed-context")
+    expected_exec = {
+        "apiVersion": "client.authentication.k8s.io/v1",
+        "command": sys.executable,
+        "args": [str(plugin_path), str(tokenpath)],
+        "interactiveMode": "Never",
+        "provideClusterInfo": False,
+    }
+    if set(identity) != {"exec"} or identity.get("exec") != expected_exec:
+        findings.append("approved-exec-command")
+    if not plugin_path.is_file() or plugin_path.read_text() != PLUGIN_SOURCE:
+        findings.append("reviewed-plugin-bytes")
+    elif stat.S_IMODE(plugin_path.stat().st_mode) != 0o700:
+        findings.append("owner-only-plugin-mode")
+    if not tokenpath.is_file() or stat.S_IMODE(tokenpath.stat().st_mode) != 0o600:
+        findings.append("owner-only-token-source")
+    if not plugin_path.is_file() or hashlib.sha256(plugin_path.read_bytes()).hexdigest() != PLUGIN_SHA256:
+        findings.append("reviewed-plugin-digest")
+    return sorted(findings)
+
+
+def run_exec_plugin_checks(lab, root, endpoint, trust, tokenpath, item):
+    plugin_path = root / "fixture-approved-exec-plugin.py"
+    owner_file(plugin_path, PLUGIN_SOURCE)
+    plugin_path.chmod(0o700)
+    plugin_profile = root / "approved-exec.kubeconfig"
+    profile = exec_config(endpoint, trust, sys.executable,
+                          [str(plugin_path), str(tokenpath)])
+    owner_file(plugin_profile, json.dumps(profile))
+    clean = assess_exec(plugin_profile, endpoint, trust, plugin_path, tokenpath)
+    lab.check(
+        "positive", "Reviewed owner-only exec plugin and kubeconfig pass exact command and trust checks",
+        clean == [],
+        {"approved_exec_profile": clean == [],
+         "plugin_owner_only": stat.S_IMODE(plugin_path.stat().st_mode) == 0o700,
+         "profile_owner_only": stat.S_IMODE(plugin_profile.stat().st_mode) == 0o600,
+         "token_file_owner_only": stat.S_IMODE(tokenpath.stat().st_mode) == 0o600,
+         "credential_value_in_profile_or_args": False},
+    )
+
+    unapproved_plugin = root / "fixture-unapproved-exec-plugin.py"
+    marker = root / "unapproved-plugin-was-run"
+    owner_file(unapproved_plugin, (
+        "#!/usr/bin/env python3\nimport pathlib, sys\n"
+        "pathlib.Path(sys.argv[1]).write_text('invoked')\n"
+    ))
+    unapproved_plugin.chmod(0o700)
+    unapproved_path = root / "unapproved-exec.kubeconfig"
+    unapproved = exec_config(endpoint, trust, sys.executable,
+                             [str(unapproved_plugin), str(marker)])
+    owner_file(unapproved_path, json.dumps(unapproved))
+    unapproved_findings = assess_exec(unapproved_path, endpoint, trust,
+                                      plugin_path, tokenpath)
+    passive_rejection = ("approved-exec-command" in unapproved_findings
+                         and not marker.exists())
+    lab.check(
+        "red", "Passive profile review rejects unapproved plugin bytes without executing them",
+        passive_rejection,
+        {"unapproved_command_rejected": "approved-exec-command" in unapproved_findings,
+         "plugin_marker_absent": not marker.exists(),
+         "finding_ids": unapproved_findings},
+    )
+
+    # Connect only to the fixture API. A separate valid CA cannot verify its serving chain.
+    ca, ca_key = root / "unrelated-fixture-ca.pem", root / "unrelated-fixture-ca.key"
+    lab.command("openssl", "req", "-x509", "-newkey", "rsa:2048",
+                "-nodes", "-days", "1",
+                "-subj", "/CN=unrelated SAF fixture CA",
+                "-addext", "basicConstraints=critical,CA:TRUE",
+                "-keyout", str(ca_key), "-out", str(ca), timeout=20)
+    ca_key.chmod(0o600)
+    wrong_trust_profile = root / "wrong-trust-exec.kubeconfig"
+    wrong_trust = exec_config(endpoint, base64.b64encode(ca.read_bytes()).decode("ascii"),
+                              sys.executable, [str(plugin_path), str(tokenpath)])
+    owner_file(wrong_trust_profile, json.dumps(wrong_trust))
+    trust_result = user_request(lab, wrong_trust_profile, item)
+    trust_diagnostic = (trust_result.stdout + trust_result.stderr).lower()
+    trust_rejected = (trust_result.returncode != 0 and "x509" in trust_diagnostic
+                      and "certificate signed by unknown authority" in trust_diagnostic)
+    lab.check(
+        "red", "The owned API TLS handshake rejects the valid but unrelated trust anchor",
+        trust_rejected,
+        {"owned_endpoint_tls_rejected": trust_rejected,
+         "api_operation_accepted": False,
+         "credential_value_logged": False},
+    )
+
+    allowed = user_request(lab, plugin_profile, item)
+    forbidden = user_request(lab, plugin_profile, "fixture-independent")
+    actual = (allowed.returncode == 0 and allowed.stdout == "owned-approved-config"
+              and forbidden.returncode != 0 and "(Forbidden)" in forbidden.stderr)
+    lab.check(
+        "green", "Reviewed exec plugin returns the existing scoped identity for the actual allowed API operation",
+        actual,
+        {"approved_operation_succeeded": allowed.returncode == 0
+         and allowed.stdout == "owned-approved-config",
+         "other_object_denied": forbidden.returncode != 0 and "(Forbidden)" in forbidden.stderr,
+         "plugin_token_output_logged": False},
+    )
+    return plugin_profile

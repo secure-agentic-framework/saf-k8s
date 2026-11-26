@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0405-003",
-  "catalog_revision": "a8d3079c6b7ab214371a0f128e4520b7f858495e",
-  "catalog_sha256": "c8134ecc4673e1bd2d7721c5d56733063dc5a37b95789db85abf11a8fc962127",
+  "catalog_revision": "03197b5f34c07adf30de371cb78cb9f0dfb5587b",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "a61e6407c617f2ee0522a485a593486fd857399615232a87d49f82e2bffdaa80",
-  "scope": "Assess a synthetic kubeconfig under an explicit fixture policy. Exercise the actual configured client and restricted API authorization on the owned cluster, using a short-lived server-issued credential bound to a fixture object. Storage encryption, real credentials and plugins, and the organization's offboarding remain separate.",
-  "cluster": "saf-lab-cb2be87d7df1",
+  "scope": "Assess a synthetic kubeconfig under an explicit fixture policy. Exercise the actual configured client and restricted API authorization on the owned cluster, using a short-lived server-issued credential bound to a fixture object. Storage encryption, approved synthetic exec credential plugin and actual endpoint trust checks. The adopted issuer, workstation policy, encryption and organizational offboarding require separate evidence.",
+  "cluster": "saf-lab-1be07ceb8e13",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -65,11 +65,63 @@
     },
     {
       "phase": "positive",
+      "claim": "Reviewed owner-only exec plugin and kubeconfig pass exact command and trust checks",
+      "matched": true,
+      "observed": {
+        "approved_exec_profile": true,
+        "plugin_owner_only": true,
+        "profile_owner_only": true,
+        "token_file_owner_only": true,
+        "credential_value_in_profile_or_args": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Passive profile review rejects unapproved plugin bytes without executing them",
+      "matched": true,
+      "observed": {
+        "unapproved_command_rejected": true,
+        "plugin_marker_absent": true,
+        "finding_ids": [
+          "approved-exec-command"
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The owned API TLS handshake rejects the valid but unrelated trust anchor",
+      "matched": true,
+      "observed": {
+        "owned_endpoint_tls_rejected": true,
+        "api_operation_accepted": false,
+        "credential_value_logged": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Reviewed exec plugin returns the existing scoped identity for the actual allowed API operation",
+      "matched": true,
+      "observed": {
+        "approved_operation_succeeded": true,
+        "other_object_denied": true,
+        "plugin_token_output_logged": false
+      }
+    },
+    {
+      "phase": "positive",
       "claim": "Removing the bound identity invalidates the credential without changing the kubeconfig",
       "matched": true,
       "observed": {
         "unchanged_config_loses_issued_access": true,
         "separate_administrator_still_reads_fixture": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same approved exec profile loses access after bound-identity deletion",
+      "matched": true,
+      "observed": {
+        "plugin_profile_denied_after_revocation": true
       }
     }
   ]
