@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-047",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "a85e295994b65dc5d2671112daf9aa64b8d24e28",
+  "catalog_sha256": "99dfcf4e7690631de3a5a538c5e0434405de93779ba25e0e5ce0cff09d9d7f38",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "ede65249c33c2fbe92fe21f9f4c2e0c50ee58b5a22ba6a42cf50952ca0e2d365",
   "scope": "One disposable Kind cluster runs separate restricted training, packaging and attestation Jobs over synthetic linear regression records. The attestor generates two in-toto Statement v1 DSSE envelopes with SLSA Provenance v1 predicates and an ephemeral RSA key. An independent host verifier checks DSSE authentication, expected step roles and hashes from measured inputs and outputs. Two envelopes are attached by OCI package digest and retrieved with byte verification through the Distribution 3.0.0 referrers tag fallback. SLSA level, trusted production builder identity, managed key custody, durable registry retention and production workflow coverage remain unverified.",
-  "cluster": "saf-lab-affd8300a49c",
+  "cluster": "saf-lab-a14d104758d7",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
