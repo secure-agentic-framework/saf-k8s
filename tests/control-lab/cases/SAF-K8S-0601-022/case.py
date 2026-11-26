@@ -642,6 +642,103 @@ def run_private_pull_checks(lab):
             lab.block("Owned private-pull registry or network cleanup did not complete")
 
 
+EMBED_NAMESPACE_LABEL = "saf.example.org/0601-022-literal-auth-fixture"
+EMBED_POLICY = "fixture-literal-registry-auth-deny"
+EMBED_DENIAL = "literal registry-auth marker values are not permitted in Pod environment fields"
+EMBED_MARKER = "PUBLIC_SYNTHETIC_FIXTURE_MARKER_ONLY"
+
+
+def _embedded_auth_pod(name, *, inline_marker):
+    env = ([{"name": "REGISTRY_AUTH", "value": EMBED_MARKER}]
+           if inline_marker else [])
+    request = pod(name, [container("probe", command=["true"], env=env)],
+                  serviceAccountName=ACCOUNT, automountServiceAccountToken=False)
+    request["metadata"].update({
+        "namespace": "saf-test",
+        "labels": {"saf.example.org/case": "0601-022-literal-auth"},
+    })
+    if not inline_marker:
+        request["spec"]["imagePullSecrets"] = [{"name": SECRET}]
+    return request
+
+
+def _literal_auth_vap(lab):
+    expression = (
+        "object.spec.containers.all(c, !has(c.env) || c.env.all(e, "
+        "!(e.name == 'REGISTRY_AUTH' && has(e.value) && e.value != ''))) && "
+        "(!has(object.spec.initContainers) || object.spec.initContainers.all(c, "
+        "!has(c.env) || c.env.all(e, !(e.name == 'REGISTRY_AUTH' && "
+        "has(e.value) && e.value != ''))))"
+    )
+    policy = {
+        "apiVersion": "admissionregistration.k8s.io/v1",
+        "kind": "ValidatingAdmissionPolicy",
+        "metadata": {"name": EMBED_POLICY},
+        "spec": {
+            "failurePolicy": "Fail",
+            "matchConstraints": {
+                "resourceRules": [{"apiGroups": [""], "apiVersions": ["v1"],
+                                   "operations": ["CREATE", "UPDATE"],
+                                   "resources": ["pods"]}],
+            },
+            "validations": [{"expression": expression, "message": EMBED_DENIAL}],
+        },
+    }
+    binding = {
+        "apiVersion": "admissionregistration.k8s.io/v1",
+        "kind": "ValidatingAdmissionPolicyBinding",
+        "metadata": {"name": EMBED_POLICY},
+        "spec": {
+            "policyName": EMBED_POLICY,
+            "validationActions": ["Deny"],
+            "matchResources": {"namespaceSelector": {
+                "matchLabels": {EMBED_NAMESPACE_LABEL: "true"}}},
+        },
+    }
+    lab.create(policy)
+    lab.create(binding)
+
+
+def run_literal_auth_vap(lab):
+    # This is a namespace-local reference case. The marker is public inert text,
+    # never a credential; only server-side dry-run Pods are submitted here.
+    lab.kubectl("label", "namespace", "saf-test",
+                 f"{EMBED_NAMESPACE_LABEL}=true", "--overwrite")
+    inline = _embedded_auth_pod("literal-auth-marker", inline_marker=True)
+    reference = _embedded_auth_pod("name-only-auth-reference", inline_marker=False)
+    baseline_inline = lab.create(inline, dry_run=True, allow_failure=True)
+    baseline_reference = lab.create(reference, dry_run=True, allow_failure=True)
+    baseline_ok = baseline_inline.returncode == 0 and baseline_reference.returncode == 0
+    lab.check("positive", "Before the fixture policy, the marker example and name-only pull reference are accepted",
+              baseline_ok,
+              {"marker_example_accepted": baseline_inline.returncode == 0,
+               "name_only_reference_accepted": baseline_reference.returncode == 0,
+               "scope": "fixed public marker; server-side dry-run only"})
+
+    _literal_auth_vap(lab)
+    deadline = time.monotonic() + 25
+    while True:
+        denied = lab.create(inline, dry_run=True, allow_failure=True)
+        denied_as_expected = denied.returncode != 0 and EMBED_DENIAL in denied.stderr
+        if denied_as_expected or time.monotonic() >= deadline:
+            break
+        time.sleep(0.4)
+    accepted = lab.create(reference, dry_run=True, allow_failure=True)
+    reference_remains_accepted = accepted.returncode == 0
+    persisted = lab.kubectl("get", "pod", inline["metadata"]["name"], reference["metadata"]["name"],
+                            "--ignore-not-found", "-o", "name").stdout.strip()
+    no_dry_run_pods = not persisted
+    lab.check("green", "The scoped VAP rejects the literal registry-auth marker in a Pod env value",
+              denied_as_expected and no_dry_run_pods,
+              {"expected_denial": denied_as_expected,
+               "neither_dry_run_pod_persisted": no_dry_run_pods,
+               "scope": "REGISTRY_AUTH env value; fixture namespace; server-side dry-run"})
+    lab.check("positive", "A name-only imagePullSecrets reference remains admissible under the VAP",
+              reference_remains_accepted and no_dry_run_pods,
+              {"name_only_reference_accepted": reference_remains_accepted,
+               "neither_dry_run_pod_persisted": no_dry_run_pods,
+               "scope": "existing case-owned empty pull Secret name; server-side dry-run"})
+
 def run(lab):
     evaluate_examples(lab)
     lab.kubectl("create", "serviceaccount", ACCOUNT)
@@ -672,3 +769,4 @@ def run(lab):
     lab.check("positive", "The live public-image Pod carries only the expected name reference",
               references == expected, {"pull_references": references, "workload_succeeded": True})
     run_private_pull_checks(lab)
+    run_literal_auth_vap(lab)

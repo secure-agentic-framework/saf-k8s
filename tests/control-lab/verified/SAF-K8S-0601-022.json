@@ -5,7 +5,7 @@
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "2f506ffb92b7d54c3b26adb1480a96e32cc235e541fc3207f1f3d225f8758c4b",
   "scope": "One disposable namespace, an empty dockerconfigjson Secret and normal ServiceAccount admission. Reference injection and an ordinary public-image workload are verified. A pinned owned registry separately checks wrong-credential refusal and a correct same-namespace Secret pulling one exact inert digest. The correct Secret is additionally reconciled by pinned ESO from a case-owned HTTPS webhook provider. External Secret managers, CI delivery, rotation and production authorization need separate evidence.",
-  "cluster": "saf-lab-dcf02613ec05",
+  "cluster": "saf-lab-1e8f9e4ce2ba",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -135,6 +135,36 @@
         "command_succeeded": true,
         "manifest_request_authorized": true,
         "exact_digest_observed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Before the fixture policy, the marker example and name-only pull reference are accepted",
+      "matched": true,
+      "observed": {
+        "marker_example_accepted": true,
+        "name_only_reference_accepted": true,
+        "scope": "fixed public marker; server-side dry-run only"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The scoped VAP rejects the literal registry-auth marker in a Pod env value",
+      "matched": true,
+      "observed": {
+        "expected_denial": true,
+        "neither_dry_run_pod_persisted": true,
+        "scope": "REGISTRY_AUTH env value; fixture namespace; server-side dry-run"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A name-only imagePullSecrets reference remains admissible under the VAP",
+      "matched": true,
+      "observed": {
+        "name_only_reference_accepted": true,
+        "neither_dry_run_pod_persisted": true,
+        "scope": "existing case-owned empty pull Secret name; server-side dry-run"
       }
     }
   ]

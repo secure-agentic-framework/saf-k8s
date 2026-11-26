@@ -47,3 +47,22 @@ comparison commands.
 - [External Secrets Operator v2.15.0](https://github.com/external-secrets/external-secrets/releases/tag/v2.15.0)
 - [ExternalSecret API](https://github.com/external-secrets/external-secrets/blob/v2.15.0/apis/externalsecrets/v1/externalsecret_types.go)
 - [Kubernetes v1.36 private registry pulls](https://v1-36.docs.kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+
+## Scratch candidate: native literal-value guard
+
+The candidate appends three checks and preserves the existing nine: both fixed
+proposals are accepted before the policy; after a fail-closed, namespace-scoped
+ValidatingAdmissionPolicy is active, a Pod with the public inert marker in the
+exact `REGISTRY_AUTH` environment value is rejected, while an ordinary
+name-only `imagePullSecrets` reference remains accepted. These are
+server-side dry-runs only. The marker is not a credential, no Pod is persisted,
+and the check makes no arbitrary-secret discovery claim.
+
+The policy covers only a non-empty literal value under `REGISTRY_AUTH` in
+regular or init container environment fields in the one owned namespace. It
+does not inspect Dockerfiles, CI environment declarations, other env names,
+indirect values, all namespaces, deployed manifests, or actual registry
+credentials. The existing adopter steps remain necessary for those sources.
+
+Expected total: 12 assertions (the original 9 plus 3 bounded admission
+comparisons). No Kubernetes run was performed for this scratch candidate.
