@@ -170,3 +170,12 @@ The actual accepting services verify least privilege over approved resources and
 - Strength: moderate
 - Applicability: conditional
 - Strength Reason Code: partial-control-coverage
+
+### [SAF-K8S-0701-002 - CSI driver security and privilege restriction](../../controls/SAF-K8S-0701-002.md)
+
+- Domain: D07 - Storage, Multi-tenancy, and Resource Governance
+- Knowledge Area: 7.1
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
