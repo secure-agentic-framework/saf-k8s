@@ -1,16 +1,13 @@
-# SAF-K8S-0603-005 — OpenSSL provider configuration
+# Verify provider selection and exact cryptographic operations
 
-Run `python3 lab.py test SAF-K8S-0603-005` from the control lab. The first run
-compiles a checksum-pinned OpenSSL release in Docker. Kind loads the case-owned
-image and the script compares default and FIPS provider selection.
+Run from the framework repository.
 
-The case verifies the module configuration and exercises the defined RSA-2048
-and SHA-256 signing path with a synthetic artifact. It challenges the exact
-signature with a changed artifact and compares an out-of-policy RSA key
-request with the default-provider result.
+```sh
+python3 tests/control-lab/lab.py test SAF-K8S-0603-005 --docker-context desktop-linux
+```
 
-CMVP certificate #5586 applies to the named OpenSSL FIPS Provider under the
-conditions in its security policy. The test measures the fixture configuration.
-Use deployed module provenance, applicable operational environment,
-vendor certificate, custody, and signing and verification mode evidence for
-the applicable requirements.
+The disposable Kind example builds OpenSSL 3.5.9 and verifies selected provider configuration and an exact signing and verification operation. It compares the variant that permits a smaller key with the selected provider policy that refuses it. An independent check refuses changed artifact bytes. The receipt covers the local build and operations tested.
+
+For adoption, identify the requirement governing each actual signing and verification boundary. Record the module certificate and status, exact module build, loaded version, module integrity evidence, applicable operating environment and versioned security policy. Verify installation and effective mode according to that policy. Observe the actual signing and verification service, including approved service indicators where applicable, and compare an approved request with an out-of-policy one. Evaluate HSM, managed operations and key custody within their actual validated boundaries. Record the certificate match and the independently observed service decision. The fixture's version alone leaves the operating environment and deployed service evidence open.
+
+[CMVP certificate 5586](https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/5586) · [Module security policy](https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp5586.pdf)

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0603-005",
-  "catalog_revision": "a0a3f57af4eec0ea84f97edde5254a93c9a77d47",
-  "catalog_sha256": "637809ee915d1f3ed4451dd9d8256edcfd4ba9cb18559e7ee016de3f8a91c693",
+  "catalog_revision": "331fc6dea2e926704760d143c14fe8b1b25b5ec2",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "0bcbbc59b20cf12ee3179d2e5dbe35aab98f02c9b97b13b289c028e91591f37f",
   "scope": "One fresh Kind cluster runs a locally built OpenSSL FIPS Provider 3.5.9 fixture. The case compares default and FIPS provider behavior, validates the fixture's module configuration, signs and verifies a harmless file using RSA-2048/SHA-256 and rejects an out-of-policy key and different artifact. Production CMVP applicability and the operational environment require separate evidence.",
-  "cluster": "saf-lab-bcfec847e47d",
+  "cluster": "saf-lab-3b9530d925d8",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
