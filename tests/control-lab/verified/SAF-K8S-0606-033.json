@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-033",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "7c3baea51daeee549889a02037bae9ddd1dccf68",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "0db9f36b8f952e8d01e260e3cd9e619b67f90306b5505c3b8044bde1c6583e13",
-  "scope": "One disposable Kind cluster; one case-owned namespace labelled as a production-like scope; one Deployment resource; Argo CD v3.6.1; Kubernetes v1.36.1. The case verifies the ordinary operator SA lacks Deployment write permissions, a separately write-granted out-of-band SA reaches and is denied by a ValidatingAdmissionPolicy, and the running Argo application controller reconciles an inert Deployment from a deterministic local Git repository. It does not establish fleet-wide or production operational coverage.",
-  "cluster": "saf-lab-f4407885fb31",
+  "scope": "One disposable Kind cluster; one case-owned namespace labelled as a production-like scope; one Deployment resource; Argo CD v3.6.1; Kubernetes v1.36.1. The case verifies the ordinary operator SA lacks Deployment write permissions, a separately write-granted out-of-band SA reaches and is denied by a ValidatingAdmissionPolicy, and the running Argo application controller reconciles an inert Deployment from a deterministic local Git repository. It adds explicit UPDATE and DELETE server-dry-run denials for one owned zero-replica Deployment and collects selected metadata-only API audit events. It does not establish fleet-wide or production operational coverage.",
+  "cluster": "saf-lab-d65e1be3d0bd",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -106,6 +106,24 @@
       }
     },
     {
+      "phase": "green",
+      "claim": "The scoped probe UPDATE is denied and the stored fixture Deployment remains unchanged",
+      "matched": true,
+      "observed": {
+        "rest_update_denied_by_policy": true,
+        "stored_projection_unchanged": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The scoped probe DELETE is denied and the stored fixture Deployment remains unchanged",
+      "matched": true,
+      "observed": {
+        "rest_delete_denied_by_policy": true,
+        "stored_projection_unchanged": true
+      }
+    },
+    {
       "phase": "positive",
       "claim": "The live Argo CD controller deploys the approved inert manifest from the exact local Git commit",
       "matched": true,
@@ -117,6 +135,53 @@
         "ready_replicas": 1,
         "controller_identity": "system:serviceaccount:argocd:argocd-application-controller",
         "policy_name": "saf-git-only-deployments"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Metadata-only API audit records correlate selected denied and approved Deployment writes",
+      "matched": true,
+      "observed": {
+        "metadata_only": true,
+        "selected_event_count": 6,
+        "operations": [
+          {
+            "verb": "create",
+            "identity": "system:serviceaccount:argocd:argocd-application-controller",
+            "name": "git-approved-demo",
+            "status_code": 201
+          },
+          {
+            "verb": "create",
+            "identity": "system:serviceaccount:saf-test:saf-operator",
+            "name": null,
+            "status_code": 403
+          },
+          {
+            "verb": "create",
+            "identity": "system:serviceaccount:saf-test:saf-out-of-band-probe",
+            "name": "out-of-band-fixture",
+            "status_code": 201
+          },
+          {
+            "verb": "create",
+            "identity": "system:serviceaccount:saf-test:saf-out-of-band-probe",
+            "name": "out-of-band-fixture",
+            "status_code": 403
+          },
+          {
+            "verb": "delete",
+            "identity": "system:serviceaccount:saf-test:saf-out-of-band-probe",
+            "name": "out-of-band-mutation-target",
+            "status_code": 403
+          },
+          {
+            "verb": "update",
+            "identity": "system:serviceaccount:saf-test:saf-out-of-band-probe",
+            "name": "out-of-band-mutation-target",
+            "status_code": 403
+          }
+        ]
       }
     }
   ]

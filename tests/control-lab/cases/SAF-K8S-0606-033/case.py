@@ -20,14 +20,72 @@ PROD = "prod-fixture"
 POLICY = "saf-git-only-deployments"
 CONTROLLER = "system:serviceaccount:argocd:argocd-application-controller"
 REPO_URL = "http://saf-git-source.saf-test.svc.cluster.local:8080/repo.git"
+NODE_IMAGE = (
+    "kindest/node:v1.36.1@sha256:"
+    "3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
+)
+
 SCOPE = (
     "One disposable Kind cluster; one case-owned namespace labelled as a production-like scope; "
     "one Deployment resource; Argo CD v3.6.1; Kubernetes v1.36.1. The case verifies the ordinary "
     "operator SA lacks Deployment write permissions, a separately write-granted out-of-band SA "
     "reaches and is denied by a ValidatingAdmissionPolicy, and the running Argo application "
-    "controller reconciles an inert Deployment from a deterministic local Git repository. "
+    "controller reconciles an inert Deployment from a deterministic local Git repository. It "
+    "adds explicit UPDATE and DELETE server-dry-run denials for one owned zero-replica Deployment "
+    "and collects selected metadata-only API audit events. "
     "It does not establish fleet-wide or production operational coverage."
 )
+AUDIT_DIR = "/var/log/kubernetes/saf-0606-033"
+AUDIT_LOG = f"{AUDIT_DIR}/audit.log"
+UPDATE_DELETE_TARGET = "out-of-band-mutation-target"
+
+
+def prepare_kind(lab, temporary):
+    policy = temporary / "audit-policy.yaml"
+    audit = temporary / "audit"
+    audit.mkdir(mode=0o700)
+    policy.write_text(
+        "apiVersion: audit.k8s.io/v1\nkind: Policy\nomitStages: [RequestReceived]\nrules:\n"
+        f"  - level: Metadata\n    namespaces: [{PROD}]\n"
+        "    verbs: [create, update, delete]\n"
+        '    resources: [{group: "apps", resources: [deployments]}]\n'
+        "  - level: None\n"
+    )
+    lab.fixture_audit = audit / "audit.log"
+    config = temporary / "kind-audit.yaml"
+    config.write_text(f"""kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    extraMounts:
+      - hostPath: {json.dumps(str(policy))}
+        containerPath: /etc/kubernetes/saf-audit-policy.yaml
+        readOnly: true
+      - hostPath: {json.dumps(str(audit))}
+        containerPath: {AUDIT_DIR}
+kubeadmConfigPatches:
+  - |
+    apiVersion: kubeadm.k8s.io/v1beta4
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        - name: audit-policy-file
+          value: /etc/kubernetes/saf-audit-policy.yaml
+        - name: audit-log-path
+          value: {AUDIT_LOG}
+      extraVolumes:
+        - name: saf-audit-policy
+          hostPath: /etc/kubernetes/saf-audit-policy.yaml
+          mountPath: /etc/kubernetes/saf-audit-policy.yaml
+          readOnly: true
+          pathType: File
+        - name: saf-audit-output
+          hostPath: {AUDIT_DIR}
+          mountPath: {AUDIT_DIR}
+          readOnly: false
+          pathType: Directory
+""")
+    return config
 
 
 def get_json(lab, *args):
@@ -41,6 +99,73 @@ def wait_until(lab, predicate, description, timeout=180):
             return
         time.sleep(3)
     lab.block(f"Timed out waiting for {description}")
+
+
+def _deployment_projection(obj):
+    metadata = obj["metadata"]
+    return {"uid": metadata.get("uid"), "resourceVersion": metadata.get("resourceVersion"),
+            "generation": metadata.get("generation"), "labels": metadata.get("labels"),
+            "annotations": metadata.get("annotations"), "spec": obj.get("spec")}
+
+
+def _hash_projection(obj):
+    return sha256(json.dumps(_deployment_projection(obj), sort_keys=True,
+                             separators=(",", ":")).encode()).hexdigest()
+
+
+def _selected_audit_events(lab, target_metadata):
+    probe_identity = "system:serviceaccount:saf-test:saf-out-of-band-probe"
+    operator_identity = "system:serviceaccount:saf-test:saf-operator"
+    expected = {
+        ("create", operator_identity, "operator-direct-attempt", 403, False),
+        ("create", probe_identity, "out-of-band-fixture", 201, True),
+        ("create", probe_identity, "out-of-band-fixture", 403, True),
+        ("update", probe_identity, UPDATE_DELETE_TARGET, 403, True),
+        ("delete", probe_identity, UPDATE_DELETE_TARGET, 403, True),
+        ("create", CONTROLLER, "git-approved-demo", 201, False),
+    }
+    selected = {}
+    deadline = time.monotonic() + 20
+    while time.monotonic() < deadline:
+        if lab.fixture_audit.is_file():
+            for line in lab.fixture_audit.read_text().splitlines():
+                try:
+                    event = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                ref = event.get("objectRef", {})
+                identity = event.get("user", {}).get("username")
+                name = ref.get("name")
+                # Authorization can refuse CREATE before decoding the object body.
+                operator_collection_denial = (
+                    not name and identity == operator_identity and event.get("verb") == "create"
+                )
+                query = event.get("requestURI", "").partition("?")[2].split("&")
+                dry_run = "dryRun=All" in query
+                key = (event.get("verb"), identity,
+                       "operator-direct-attempt" if operator_collection_denial else name,
+                       event.get("responseStatus", {}).get("code"), dry_run)
+                if (key in expected and ref.get("namespace") == PROD
+                        and ref.get("apiGroup") == "apps" and ref.get("resource") == "deployments"
+                        and event.get("stage") == "ResponseComplete"):
+                    if (event.get("level") != "Metadata"
+                            or any(event.get(field) is not None for field in ("requestObject", "responseObject"))
+                            or not event.get("auditID")):
+                        lab.block("Unexpected metadata-only audit event schema for selected Deployment request")
+                    projection = {"verb": key[0], "identity": key[1],
+                                  "name": name, "status_code": key[3], "dry_run": dry_run}
+                    if key[0] in {"update", "delete"}:
+                        for field in ("uid", "resourceVersion"):
+                            if ref.get(field) and ref[field] != target_metadata[field]:
+                                lab.block("Audit event identifies a different Deployment revision")
+                        projection.update(audit_uid_observed=bool(ref.get("uid")),
+                                          audit_resource_version_observed=bool(ref.get("resourceVersion")))
+                    selected.setdefault(key, {})[event["auditID"]] = projection
+            if expected <= selected.keys():
+                groups = [list(selected[key].values()) for key in sorted(expected)]
+                return [{**group[0], "matched_events": len(group)} for group in groups]
+        time.sleep(0.3)
+    lab.block("Missing metadata-only audit events for selected owned Deployment requests")
 
 
 def make_git_repo(lab):
@@ -165,13 +290,17 @@ def issue_token(lab, namespace, service_account, destination):
     del token
 
 
-def identity_command(lab, kubeconfig, *args, allow_failure=False):
+def identity_command(lab, kubeconfig, *args, allow_failure=False, input_text=None):
     command = ["kubectl", "--kubeconfig", str(kubeconfig), "--context", "fixture", "--namespace", PROD,
                "--request-timeout=20s", *args]
-    result = subprocess.run(command, text=True, capture_output=True, env=lab.env, timeout=30)
+    result = subprocess.run(command, input=input_text, text=True, capture_output=True, env=lab.env, timeout=30)
     with (lab.evidence / "identity-probes.log").open("a") as log:
-        log.write("$ kubectl --kubeconfig <private-short-lived-identity> --context fixture --namespace "
-                  + PROD + " " + " ".join(args) + "\n")
+        if input_text is None:
+            log.write("$ kubectl --kubeconfig <private-short-lived-identity> --context fixture --namespace "
+                      + PROD + " " + " ".join(args) + "\n")
+        else:
+            log.write("$ kubectl --kubeconfig <private-short-lived-identity> --context fixture --namespace "
+                      + PROD + " " + " ".join(args) + " <owned-inert-object-on-stdin>\n")
         log.write(result.stdout + result.stderr + f"\n[exit {result.returncode}]\n\n")
     if result.returncode and not allow_failure:
         lab.block("Identity probe command failed unexpectedly")
@@ -243,6 +372,19 @@ def run(lab):
     lab.check("red", "Before admission enforcement, the scoped out-of-band principal can create the inert fixture Deployment",
               baseline_created, {"created": baseline_created,
                                  "identity": "system:serviceaccount:saf-test:saf-out-of-band-probe"})
+
+    mutation_target = {"apiVersion": "apps/v1", "kind": "Deployment",
+                       "metadata": {"name": UPDATE_DELETE_TARGET,
+                                    "labels": {"saf.example.test/control": "SAF-K8S-0606-033"}},
+                       "spec": {"replicas": 0,
+                                "selector": {"matchLabels": {"app": UPDATE_DELETE_TARGET}},
+                                "template": {"metadata": {"labels": {"app": UPDATE_DELETE_TARGET}},
+                                             "spec": {"automountServiceAccountToken": False,
+                                                      "containers": [{"name": "inert", "image": BUSYBOX_IMAGE,
+                                                                      "command": ["sh", "-c", "sleep 3600"]}]}}}}
+    lab.kubectl("-n", PROD, "create", "-f", "-", payload=json.dumps(mutation_target))
+    before_mutation = get_json(lab, "-n", PROD, "get", "deployment", UPDATE_DELETE_TARGET)
+    before_hash = _hash_projection(before_mutation)
     policy(lab)
 
     # Registration and admission policy cache propagation are asynchronous.
@@ -259,6 +401,46 @@ def run(lab):
               {"role_grant_is_fixture_only": True, "api_request_denied": request.returncode != 0,
                "policy_response": "saf-git-only-deployments" in request.stderr,
                "identity": "system:serviceaccount:saf-test:saf-out-of-band-probe"})
+
+    update_object = {"apiVersion": before_mutation["apiVersion"], "kind": before_mutation["kind"],
+                     "metadata": {"name": UPDATE_DELETE_TARGET, "namespace": PROD,
+                                  "resourceVersion": before_mutation["metadata"]["resourceVersion"],
+                                  "labels": before_mutation["metadata"].get("labels", {}),
+                                  "annotations": {"saf.example.test/attempt": "denied-update"}},
+                     "spec": before_mutation["spec"]}
+    update_result = identity_command(lab, probe_cfg, "replace", "-f", "-", "--dry-run=server", "-o", "json",
+                                     allow_failure=True, input_text=json.dumps(update_object))
+    after_update = get_json(lab, "-n", PROD, "get", "deployment", UPDATE_DELETE_TARGET)
+    update_denied_unchanged = (update_result.returncode != 0
+                               and POLICY in update_result.stderr
+                               and "Production Deployment changes must be applied" in update_result.stderr
+                               and _hash_projection(after_update) == before_hash)
+    lab.check("green", "The scoped probe UPDATE is denied and the stored fixture Deployment remains unchanged",
+              update_denied_unchanged,
+              {"rest_update_denied_by_policy": update_result.returncode != 0 and POLICY in update_result.stderr,
+               "stored_projection_unchanged": _hash_projection(after_update) == before_hash})
+
+    target_metadata = before_mutation["metadata"]
+    delete_options = {
+        "apiVersion": "v1", "kind": "DeleteOptions", "dryRun": ["All"],
+        "preconditions": {
+            "uid": target_metadata["uid"],
+            "resourceVersion": target_metadata["resourceVersion"],
+        },
+    }
+    delete_uri = f"/apis/apps/v1/namespaces/{PROD}/deployments/{UPDATE_DELETE_TARGET}?dryRun=All"
+    delete_result = identity_command(
+        lab, probe_cfg, "delete", "--raw", delete_uri, "-f", "-",
+        allow_failure=True, input_text=json.dumps(delete_options))
+    after_delete = get_json(lab, "-n", PROD, "get", "deployment", UPDATE_DELETE_TARGET)
+    delete_denied_unchanged = (delete_result.returncode != 0
+                               and POLICY in delete_result.stderr
+                               and "Production Deployment changes must be applied" in delete_result.stderr
+                               and _hash_projection(after_delete) == before_hash)
+    lab.check("green", "The scoped probe DELETE is denied and the stored fixture Deployment remains unchanged",
+              delete_denied_unchanged,
+              {"rest_delete_denied_by_policy": delete_result.returncode != 0 and POLICY in delete_result.stderr,
+               "stored_projection_unchanged": _hash_projection(after_delete) == before_hash})
 
     app = {"apiVersion": "argoproj.io/v1alpha1", "kind": "Application",
            "metadata": {"name": APP, "namespace": "argocd"},
@@ -295,3 +477,13 @@ def run(lab):
     lab.check("positive", "The live Argo CD controller deploys the approved inert manifest from the exact local Git commit",
               observed["application_revision"] == git_revision and observed["sync"] == "Synced"
               and observed["health"] == "Healthy", observed)
+    audit_events = _selected_audit_events(lab, target_metadata)
+    audit_evidence = {"level": "Metadata", "stage": "ResponseComplete", "events": audit_events,
+                      "request_and_response_bodies_present": False}
+    (lab.evidence / "api-audit-observations.json").write_text(json.dumps(audit_evidence, indent=2) + "\n")
+    lab.check("positive", "Metadata-only API audit records correlate selected denied and approved Deployment writes",
+              len(audit_events) == 6 and all(event["status_code"] in (201, 403) for event in audit_events),
+              {"metadata_only": True, "selected_event_count": len(audit_events),
+               "operations": [{"verb": row["verb"], "identity": row["identity"],
+                               "name": row["name"], "status_code": row["status_code"]}
+                              for row in audit_events]})

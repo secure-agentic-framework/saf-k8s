@@ -1,54 +1,43 @@
-# SAF-K8S-0606-033 — Git-only production deployment path enforcement
+# SAF-K8S-0606-033 — Require the approved GitOps deployment path
 
-Runnable control-lab case for the catalog entry at
-[`133a8698a45e2b335b51728bf4c62f7bda98d15f`](https://github.com/secure-agentic-framework/saf-k8s/blob/133a8698a45e2b335b51728bf4c62f7bda98d15f/markdown/controls/SAF-K8S-0606-033.md).
-
-Run from the SAF-K8S framework checkout.
+Run from the framework checkout.
 
 ```sh
 python3 tests/control-lab/lab.py test SAF-K8S-0606-033 --docker-context desktop-linux
 ```
 
-This case uses the framework runner's Kubernetes v1.36.1 Kind node.
-It installs Argo CD v3.6.1 from its pinned upstream release manifest and checks
-its checksum before use. It creates a case-owned `prod-fixture` namespace
-labelled for the policy and verifies the following.
+This case uses a fresh Kubernetes v1.36.1 Kind cluster, one governed namespace,
+and a pinned Argo CD v3.6.1 install. It makes a deterministic fixture Git
+commit for an inert Deployment. The actual Argo application controller
+reconciles the exact commit, and Kubernetes observes the authorized workload.
 
-1. `saf-operator` cannot create, update, patch, or delete a Deployment there by
-   the effective RBAC rules.
-2. Before admission enforcement is enabled, a separate
-   `saf-out-of-band-probe` ServiceAccount can create an inert Deployment using
-   server dry-run. After the policy is enabled, the identical request receives
-   the explicit ValidatingAdmissionPolicy denial.
-3. Argo CD's running application controller reads a deterministic local Git
-   fixture and syncs the approved Deployment under its actual
-   `system:serviceaccount:argocd:argocd-application-controller` identity.
+The fixture's restricted operator is denied by RBAC. A separate scoped
+identity can submit a harmless server-side dry-run CREATE before the policy
+is active. With the policy active, Kubernetes denies its CREATE, UPDATE, and
+DELETE dry runs. The update names the observed resourceVersion, the delete
+sends UID and resourceVersion preconditions, and both leave the existing
+zero-replica target unchanged. A local metadata audit policy records selected
+request identities, operations, and response status.
 
-The probe SA exists only to show the policy response independently of RBAC's
-earlier authorization gate. It has a narrowly scoped temporary Role only in
-the disposable namespace and does not model a normal production permission
-set. Both SA tokens are requested through Kubernetes TokenRequest with a short
-lifetime, used through private temporary kubeconfigs, never written to evidence,
-and removed with the runner's temporary directory. The approved workload is an
-inert, single-replica BusyBox sleep Deployment pinned by digest.
+## Verify an adopting deployment
 
-This establishes the mechanism only for Deployments, namespace `prod-fixture`,
-and this Argo CD version/configuration. It does not establish coverage of other
-resource kinds, other namespaces or clusters, all Git change approvals, branch
-protection, Git identity provenance, controller credential isolation, or human
-operating procedures. The Argo controller identity is an allowlisted principal;
-this test does not prove that possession of that identity is itself constrained
-to Git-derived requests outside the controller process.
+1. Inventory the resources, namespaces, API verbs, and paths where direct
+   production changes must be restricted. Capture the GitOps version,
+   repositories, protected revisions, and effective reconciliation identity.
+2. Compare direct users and automation with the reconciler's effective
+   permissions. Verify admission registration, policy revision, selectors,
+   every affected resource and subresource, and the approved treatment of
+   administrative and emergency identities. Review emergency governance
+   under SAF-K8S-0606-034.
+3. In an authorized nonproduction equivalent, run positive and negative
+   comparisons against an inert resource for each covered change path.
+   Compare the protected commit with the reconciled object hash. Record the
+   authoritative identity and leave the harmless denied target unchanged.
+4. In the actual audit pipeline, correlate reconciler and refused requests
+   to the expected namespace, operation and response. Verify retention,
+   restricted access, and enrollment without storing sensitive payloads.
+5. Retain approvals, reconciliation status, observed revision, expected
+   deployment coverage, and the owner and expiry of each exception.
 
-Emergency governance remains separately scoped by SAF-K8S-0606-034. No
-impersonation, break-glass role, or admission bypass is implemented here.
-
-## Primary references
-
-- [Pinned original SAF-K8S-0606-033 control](https://github.com/secure-agentic-framework/saf-k8s/blob/133a8698a45e2b335b51728bf4c62f7bda98d15f/markdown/controls/SAF-K8S-0606-033.md)
-- [Kubernetes v1.36 RBAC authorization](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
-- [Kubernetes v1.36 authorization and admission ordering](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/authorization/)
-- [Kubernetes v1.36 Validating Admission Policy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
-- [Kubernetes v1.36 ServiceAccount TokenRequest](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/)
-- [Argo CD v3.6.1 release manifest](https://raw.githubusercontent.com/argoproj/argo-cd/v3.6.1/manifests/install.yaml)
-- [Argo CD v3.6.1 auto-sync documentation](https://argo-cd.readthedocs.io/en/release-3.6/user-guide/auto_sync/)
+- [Kubernetes v1.36 ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
+- [Kubernetes v1.36 auditing](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/)
