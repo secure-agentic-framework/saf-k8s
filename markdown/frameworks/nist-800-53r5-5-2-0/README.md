@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 2480
-- Distinct Requirements Mapped: 682
+- Total Reverse Mappings: 2463
+- Distinct Requirements Mapped: 671
 
 ## Requirements
 
@@ -104,7 +104,6 @@
 - [AC-6(3) - Network Access to Privileged Commands](ac-6-3.md)
 - [AC-6(4) - Separate Processing Domains](ac-6-4.md)
 - [AC-6(5) - Privileged Accounts](ac-6-5.md)
-- [AC-6(6) - Privileged Access by Non-organizational Users](ac-6-6.md)
 - [AC-6(7) - Review of User Privileges](ac-6-7.md)
 - [AC-6(8) - Privilege Levels for Code Execution](ac-6-8.md)
 - [AC-6(9) - Log Use of Privileged Functions](ac-6-9.md)
@@ -142,7 +141,6 @@
 - [AU-13(3) - Unauthorized Replication of Information](au-13-3.md)
 - [AU-14 - Session Audit](au-14.md)
 - [AU-14(1) - System Start-up](au-14-1.md)
-- [AU-16 - Cross-organizational Audit Logging](au-16.md)
 - [AU-16(1) - Identity Preservation](au-16-1.md)
 - [AU-16(2) - Sharing of Audit Information](au-16-2.md)
 - [AU-16(3) - Disassociability](au-16-3.md)
@@ -185,8 +183,6 @@
 - [CA-5 - Plan of Action and Milestones](ca-5.md)
 - [CA-5(1) - Automation Support for Accuracy and Currency](ca-5-1.md)
 - [CA-6 - Authorization](ca-6.md)
-- [CA-6(1) - Joint Authorization -- Intra-organization](ca-6-1.md)
-- [CA-6(2) - Joint Authorization -- Inter-organization](ca-6-2.md)
 - [CA-7 - Continuous Monitoring](ca-7.md)
 - [CA-7(1) - Independent Assessment](ca-7-1.md)
 - [CA-7(3) - Trend Analyses](ca-7-3.md)
@@ -258,7 +254,6 @@
 - [CP-2(3) - Resume Mission and Business Functions](cp-2-3.md)
 - [CP-2(5) - Continue Mission and Business Functions](cp-2-5.md)
 - [CP-2(6) - Alternate Processing and Storage Sites](cp-2-6.md)
-- [CP-2(7) - Coordinate with External Service Providers](cp-2-7.md)
 - [CP-2(8) - Identify Critical Assets](cp-2-8.md)
 - [CP-3(1) - Simulated Events](cp-3-1.md)
 - [CP-3(2) - Mechanisms Used in Training Environments](cp-3-2.md)
@@ -270,7 +265,6 @@
 - [CP-6(2) - Recovery Time and Recovery Point Objectives](cp-6-2.md)
 - [CP-7(3) - Priority of Service](cp-7-3.md)
 - [CP-8(2) - Single Points of Failure](cp-8-2.md)
-- [CP-8(4) - Provider Contingency Plan](cp-8-4.md)
 - [CP-9 - System Backup](cp-9.md)
 - [CP-9(1) - Testing for Reliability and Integrity](cp-9-1.md)
 - [CP-9(3) - Separate Storage for Critical Information](cp-9-3.md)
@@ -331,7 +325,6 @@
 - [IR-6(1) - Automated Reporting](ir-6-1.md)
 - [IR-6(3) - Supply Chain Coordination](ir-6-3.md)
 - [IR-7(1) - Automation Support for Availability of Information and Support](ir-7-1.md)
-- [IR-7(2) - Coordination with External Providers](ir-7-2.md)
 - [IR-8 - Incident Response Plan](ir-8.md)
 - [IR-9 - Information Spillage Response](ir-9.md)
 - [PL-1 - Policy and Procedures](pl-1.md)
@@ -365,12 +358,10 @@
 - [PM-5 - System Inventory](pm-5.md)
 - [PM-6 - Measures of Performance](pm-6.md)
 - [PM-7 - Enterprise Architecture](pm-7.md)
-- [PM-7(1) - Offloading](pm-7-1.md)
 - [PM-9 - Risk Management Strategy](pm-9.md)
 - [PS-4 - Personnel Termination](ps-4.md)
 - [PS-5 - Personnel Transfer](ps-5.md)
 - [PS-6 - Access Agreements](ps-6.md)
-- [PS-7 - External Personnel Security](ps-7.md)
 - [PT-2(1) - Data Tagging](pt-2-1.md)
 - [PT-2(2) - Automation](pt-2-2.md)
 - [PT-3(1) - Data Tagging](pt-3-1.md)
@@ -477,10 +468,8 @@
 - [SA-8(8) - Secure Evolvability](sa-8-8.md)
 - [SA-8(9) - Trusted Components](sa-8-9.md)
 - [SA-9 - External System Services](sa-9.md)
-- [SA-9(1) - Risk Assessments and Organizational Approvals](sa-9-1.md)
 - [SA-9(2) - Identification of Functions, Ports, Protocols, and Services](sa-9-2.md)
 - [SA-9(3) - Establish and Maintain Trust Relationship with Providers](sa-9-3.md)
-- [SA-9(4) - Consistent Interests of Consumers and Providers](sa-9-4.md)
 - [SA-9(5) - Processing, Storage, and Service Location](sa-9-5.md)
 - [SA-9(6) - Organization-controlled Cryptographic Keys](sa-9-6.md)
 - [SA-9(7) - Organization-controlled Integrity Checking](sa-9-7.md)

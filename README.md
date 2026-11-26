@@ -27,7 +27,7 @@ See [`LICENSE`](LICENSE) for the summary.
 - Domains: 10
 - Knowledge areas: 55
 - Controls: 595
-- Crosswalk rows: 2845
+- Crosswalk rows: 2828
 
 ## YAML Files
 
@@ -982,13 +982,13 @@ This knowledge area focuses on: Pod Disruption Budgets for workload availability
 
 ### Description
 
-This knowledge area focuses on: VPC and security group integration with Kubernetes network policies, IMDSv2 enforcement on Kubernetes nodes, Restricted use policies for non-organizationally owned systems and external AI services, Cloud provider contingency plans for managed Kubernetes services, and Cloud-to-Kubernetes event correlation for incident investigation. Additional controls in the table below extend this coverage.
+This knowledge area focuses on: Cloud network, Kubernetes API endpoint and Pod traffic boundaries, IMDSv2 enforcement on Kubernetes nodes, Restricted use policies for non-organizationally owned systems and external AI services, Cloud provider contingency plans for managed Kubernetes services, and Cloud-to-Kubernetes event correlation for incident investigation. Additional controls in the table below extend this coverage.
 
 ### Controls
 
 | Control ID | Title | Maturity | Class |
 | --- | --- | --- | --- |
-| [SAF-K8S-0704-002](markdown/controls/SAF-K8S-0704-002.md) | VPC and security group integration with Kubernetes network policies | Practitioner | baseline |
+| [SAF-K8S-0704-002](markdown/controls/SAF-K8S-0704-002.md) | Cloud network, Kubernetes API endpoint and Pod traffic boundaries | Practitioner | baseline |
 | [SAF-K8S-0704-004](markdown/controls/SAF-K8S-0704-004.md) | IMDSv2 enforcement on Kubernetes nodes | Foundational | baseline |
 | [SAF-K8S-0704-005](markdown/controls/SAF-K8S-0704-005.md) | Restricted use policies for non-organizationally owned systems and external AI services | Practitioner | ai-specific |
 | [SAF-K8S-0704-006](markdown/controls/SAF-K8S-0704-006.md) | Cloud provider contingency plans for managed Kubernetes services | Practitioner | ai-specific |

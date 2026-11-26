@@ -7025,7 +7025,7 @@
   domain_name: Storage, Multi-tenancy, and Resource Governance
   knowledge_area: '7.4'
   control_seq: '002'
-  control_title: VPC and security group integration with Kubernetes network policies
+  control_title: Cloud network, Kubernetes API endpoint and Pod traffic boundaries
   control_statement: Define intended cloud node and subnet flows, Kubernetes API endpoint reachability, and Pod ingress and egress separately. Assign each flow to its actual enforcement point and verify representative allowed and denied behavior after deployment and relevant changes.
   objective: Verify effective boundaries across cloud networking, control-plane reachability and workload connectivity with traceable evidence for each layer.
   rationale: Cloud firewalls and endpoint modes control provider-defined paths. Kubernetes NetworkPolicy depends on the installed enforcement implementation and the selected Pod traffic directions. Authentication and authorization remain separate decisions on a reachable API endpoint.

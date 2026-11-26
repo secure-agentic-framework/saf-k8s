@@ -6962,22 +6962,6 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-20
   framework_requirement_title: Use of External Systems
-  framework_mapping_notes: 'Agents using external services/APIs
-
-
-    7.4 - Integrate cloud provider security; 4.2 - Workload identity federation with cloud providers (external system access)'
-  control_id: SAF-K8S-0704-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-20
-  framework_requirement_title: Use of External Systems
   framework_mapping_notes: The control aligns with governing approved use of external systems and can contribute admission and egress restrictions. The portable case does not access an external system, validate provider controls/agreements, or prove external information handling.
   control_id: SAF-K8S-0704-005
   relation_type: supports
@@ -7039,22 +7023,6 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-20(1)
   framework_requirement_title: Limits on Authorized Use
-  framework_mapping_notes: 'Constraining agent use of external services
-
-
-    7.4 - Cloud IAM minimal permissions; 4.2 - Audience-scoped tokens limiting external system access scope'
-  control_id: SAF-K8S-0704-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-20(1)
-  framework_requirement_title: Limits on Authorized Use
   framework_mapping_notes: The local admission/egress example contributes an allow/deny mechanism for a synthetic service selection. It does not establish verification of external-system controls, agreements, or the authorized individual's use conditions required by AC-20(1).
   control_id: SAF-K8S-0704-005
   relation_type: supports
@@ -7062,22 +7030,6 @@
   applicability: conditional
   applicability_condition: Retain only when the approved external service is used to access, process, store, or transmit organization-controlled information and the adopter verifies external-system controls or retains the required approved connection/processing agreement. The fixture models none of those external-system facts.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-20(3)
-  framework_requirement_title: Non-organizationally Owned Systems -- Restricted Use
-  framework_mapping_notes: 'Agents interacting with third-party systems
-
-
-    7.4 - Restricted use policies for non-organizationally owned systems and external AI services; 9.5 - Registry federation security'
-  control_id: SAF-K8S-0704-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -11449,22 +11401,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AC-6(6)
-  framework_requirement_title: Privileged Access by Non-organizational Users
-  framework_mapping_notes: 'Third-party agent access controls
-
-
-    4.5 - Controls for non-organizational privileged users accessing cluster resources; 7.4 - Cloud IAM to K8s RBAC mapping for external users'
-  control_id: SAF-K8S-0704-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AC-6(7)
   framework_requirement_title: Review of User Privileges
   framework_mapping_notes: "Periodic Kubernetes RBAC configuration audits supply evidence for reviewing assigned privileges. The organization defines the review frequency and reassigns or removes privileges whose need cannot be confirmed."
@@ -13097,22 +13033,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AU-16
-  framework_requirement_title: Cross-organizational Audit Logging
-  framework_mapping_notes: 'Audit logs across multi-org agent ecosystems
-
-
-    7.4 - Cloud audit log integration (cross-organizational logging between K8s and cloud providers)'
-  control_id: SAF-K8S-0704-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AU-16(1)
   framework_requirement_title: Identity Preservation
   framework_mapping_notes: 'Preserving agent identity in cross-org logs
@@ -13822,22 +13742,6 @@
 
     10.1 - SIEM integration (automated forwarding and correlation); 2.4 - Runtime detection automation'
   control_id: SAF-K8S-1001-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-6(3)
-  framework_requirement_title: Correlate Audit Record Repositories
-  framework_mapping_notes: 'Correlating logs across multi-agent systems
-
-
-    7.4 - Cloud audit log integration (correlating cloud and K8s audit events); 10.2 - Distributed tracing for ML pipelines'
-  control_id: SAF-K8S-0704-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -14688,38 +14592,6 @@
 
     10.6 - Enforce compliance and governance (system authorization for K8s clusters running AI workloads)'
   control_id: SAF-K8S-1006-005
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CA-6(1)
-  framework_requirement_title: Joint Authorization -- Intra-organization
-  framework_mapping_notes: 'Joint ATO for shared agent platforms
-
-
-    7.4 - Cloud provider security (joint intra-org authorization between K8s and cloud platform teams)'
-  control_id: SAF-K8S-0704-002
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CA-6(2)
-  framework_requirement_title: Joint Authorization -- Inter-organization
-  framework_mapping_notes: 'Cross-org ATO for federated agent systems
-
-
-    7.4 - Cloud provider security (inter-org authorization for managed K8s services)'
-  control_id: SAF-K8S-0704-002
   relation_type: supports
   strength_level: moderate
   applicability: required
@@ -18300,22 +18172,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: CP-2(7)
-  framework_requirement_title: Coordinate with External Service Providers
-  framework_mapping_notes: 'Coordinating agent contingency with cloud/API providers
-
-
-    7.4 - Cloud provider security (coordinating contingency with cloud K8s service providers)'
-  control_id: SAF-K8S-0704-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: CP-2(8)
   framework_requirement_title: Identify Critical Assets
   framework_mapping_notes: 'Identifying critical agent assets (models, data, configs)
@@ -18972,22 +18828,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-8(4)
-  framework_requirement_title: Provider Contingency Plan
-  framework_mapping_notes: 'Agent cloud/API provider contingency plans
-
-
-    7.4 - Cloud provider contingency plan requirements for managed Kubernetes services explicitly covers provider contingency planning'
-  control_id: SAF-K8S-0704-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -21651,22 +21491,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: IA-8
-  framework_requirement_title: Identification and Authentication (Non-organizational Users)
-  framework_mapping_notes: 'Authenticating external users/agents
-
-
-    4.2 - OIDC integration (external identity provider authentication); 7.4 - Cloud IAM to K8s RBAC mapping'
-  control_id: SAF-K8S-0704-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: IA-8(2)
   framework_requirement_title: Acceptance of External Authenticators
   framework_mapping_notes: 'Accepting external agent credentials
@@ -22653,22 +22477,6 @@
 
     10.2 - Monitoring, Metrics, and Tracing (automated support for IR information availability and analysis)'
   control_id: SAF-K8S-1002-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-7(2)
-  framework_requirement_title: Coordination with External Providers
-  framework_mapping_notes: 'Coordinating with cloud/model providers during agent incidents
-
-
-    7.4 - Cloud provider security (coordinating incident response with cloud K8s service providers)'
-  control_id: SAF-K8S-0704-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -23987,22 +23795,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: PM-7(1)
-  framework_requirement_title: Offloading
-  framework_mapping_notes: 'Offloading non-essential functions applies to agent architectures using external services
-
-
-    7.4 - Cloud provider security (offloading security functions to managed K8s services)'
-  control_id: SAF-K8S-0704-002
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: PM-9
   framework_requirement_title: Risk Management Strategy
   framework_mapping_notes: 'Risk management strategy is foundational for governing agentic AI security risks
@@ -24143,22 +23935,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: framework-language-interpretation
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PS-7
-  framework_requirement_title: External Personnel Security
-  framework_mapping_notes: 'External personnel (contractors, vendors) managing agentic AI systems require security controls
-
-
-    7.4 - Cloud provider security (external personnel controls for managed K8s and AI platform access)'
-  control_id: SAF-K8S-0704-002
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -28786,22 +28562,6 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-9
   framework_requirement_title: External System Services
-  framework_mapping_notes: 'Agents rely heavily on external services (APIs, models, tools) requiring security controls
-
-
-    7.4 - Cloud provider security (managing external K8s services: EKS, GKE, AKS)'
-  control_id: SAF-K8S-0704-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-9
-  framework_requirement_title: External System Services
   framework_mapping_notes: The control's external-service approval and use restrictions can contribute to an organization's requirements and oversight process for external AI services. The local test validates only a synthetic admission decision and CNI path; it does not require provider compliance or monitor it over time.
   control_id: SAF-K8S-0704-005
   relation_type: supports
@@ -28809,22 +28569,6 @@
   applicability: conditional
   applicability_condition: Retain only for an actual external system service whose provider is subject to organizational security/privacy requirements, documented oversight/roles, and ongoing compliance monitoring. The fixture has no provider, contract, or ongoing provider monitoring.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-9(1)
-  framework_requirement_title: Risk Assessments and Organizational Approvals
-  framework_mapping_notes: 'Risk assessments needed for external AI model providers and tool services used by agents
-
-
-    7.4 - Cloud provider security (risk assessments and approvals for managed K8s services)'
-  control_id: SAF-K8S-0704-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -28847,22 +28591,6 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-9(3)
   framework_requirement_title: Establish and Maintain Trust Relationship with Providers
-  framework_mapping_notes: 'Trust relationships with AI model and tool providers must be formally established
-
-
-    7.4 - Cloud provider security (establishing and maintaining trust with cloud K8s service providers)'
-  control_id: SAF-K8S-0704-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-9(3)
-  framework_requirement_title: Establish and Maintain Trust Relationship with Providers
   framework_mapping_notes: The control can contribute to deciding whether an external AI service is approved for use, but its portable fixture does not establish or maintain provider trust, contractual terms, identity, or service assurance.
   control_id: SAF-K8S-0704-005
   relation_type: supports
@@ -28870,38 +28598,6 @@
   applicability: conditional
   applicability_condition: Retain only when the adopter establishes and documents a trust relationship with an external service provider using defined security/privacy requirements and independently verifies that relationship. The fixture endpoints are case-owned and are not providers.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-9(4)
-  framework_requirement_title: Consistent Interests of Consumers and Providers
-  framework_mapping_notes: 'Alignment of security interests between agent operators and service providers is critical
-
-
-    7.4 - Cloud provider security (aligning cloud provider and organizational security interests)'
-  control_id: SAF-K8S-0704-002
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-9(5)
-  framework_requirement_title: Processing, Storage, and Service Location
-  framework_mapping_notes: 'Data residency for agent processing and AI model hosting affects compliance requirements
-
-
-    9.5 - Registry federation (multi-region replication); 7.4 - Data residency and service location requirements'
-  control_id: SAF-K8S-0704-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -44083,4 +43779,30 @@
   strength_level: moderate
   applicability: conditional
   applicability_condition: For approved CSI driver identities and specifically independently verified privileges and mounts in the adopted configuration.
+  strength_reason_code: partial-control-coverage
+- mapping_set_name: SAF-K8S to NIST SP 800-53r5
+  framework_code: NIST-800-53R5
+  framework_name: NIST SP 800-53 Revision 5
+  framework_version: 5.2.0
+  framework_requirement_id: SC-7
+  framework_requirement_title: Boundary Protection
+  framework_mapping_notes: Assign cloud, API endpoint and Pod flows to their actual boundaries. The local fixture demonstrates observed ingress and egress control for the selected Pod path. Verify external and important internal interfaces separately.
+  control_id: SAF-K8S-0704-002
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: For a documented monitored boundary where approved network flows have verified provider and Kubernetes enforcement.
+  strength_reason_code: partial-control-coverage
+- mapping_set_name: SAF-K8S to NIST SP 800-53r5
+  framework_code: NIST-800-53R5
+  framework_name: NIST SP 800-53 Revision 5
+  framework_version: 5.2.0
+  framework_requirement_id: SC-7(5)
+  framework_requirement_title: Deny by Default -- Allow by Exception
+  framework_mapping_notes: The native CNI comparison observes default deny and limited marked-route allowance under paired ingress and egress policies. Apply only to the verified interface and flow scope and require separate evidence for other provider and Kubernetes paths.
+  control_id: SAF-K8S-0704-002
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: For explicitly governed interfaces where denied-by-default and approved exceptions are independently demonstrated in each adopted direction.
   strength_reason_code: partial-control-coverage
