@@ -1,0 +1,160 @@
+{
+  "v1.36.7": {
+    "binaries": {
+      "arm64": {
+        "kubeadm": {
+          "url": "https://dl.k8s.io/release/v1.36.7/bin/linux/arm64/kubeadm",
+          "sha256": "f296bc9525d81eb25d083bff47063594fc0263aed59b3c07857ff52b150de287"
+        },
+        "kubelet": {
+          "url": "https://dl.k8s.io/release/v1.36.7/bin/linux/arm64/kubelet",
+          "sha256": "31a34f49418719762fe24fc66232b5b6aeee5d13c8352735ab68b0d20e567bcc"
+        },
+        "kubectl": {
+          "url": "https://dl.k8s.io/release/v1.36.7/bin/linux/arm64/kubectl",
+          "sha256": "4e83edb4cc75beae9dc7cfb42be71899d5397a7b6a2384fbe1ae163d4f544aaf"
+        }
+      },
+      "amd64": {
+        "kubeadm": {
+          "url": "https://dl.k8s.io/release/v1.36.7/bin/linux/amd64/kubeadm",
+          "sha256": "ebecea5fe2db2efc6ccd17f590d158bad5d4e81d597e0f04542f6c43b72b624e"
+        },
+        "kubelet": {
+          "url": "https://dl.k8s.io/release/v1.36.7/bin/linux/amd64/kubelet",
+          "sha256": "549ae8c93ab608130176f109015757602c409e84e86dc40c1ef3c13a8f29b97f"
+        },
+        "kubectl": {
+          "url": "https://dl.k8s.io/release/v1.36.7/bin/linux/amd64/kubectl",
+          "sha256": "b08f96b43904747897fe569b3c51056b00ddfc67847f6db1bf9fe0c9583a2d26"
+        }
+      }
+    },
+    "images": {
+      "kube-apiserver": {
+        "ref": "registry.k8s.io/kube-apiserver:v1.36.7",
+        "index": "sha256:159ce7303f983e007c3b34bba0ffba1ab9d021c85a332e8b05e5e096763dec36",
+        "platforms": {
+          "amd64": "sha256:cf44a1d6e7ba77f40b8da0efd33f7de0b4adb5e519bba67d553542a12d45b6c6",
+          "arm64": "sha256:674e07d63973929e8ff9c2f656f88fcb6401ec398b32fa79deedc888760e257b"
+        }
+      },
+      "kube-controller-manager": {
+        "ref": "registry.k8s.io/kube-controller-manager:v1.36.7",
+        "index": "sha256:409b8bf1183ff6e8728faf3519c7d7e6932011c14d18e20bab50ca498281285d",
+        "platforms": {
+          "amd64": "sha256:3c98b248dbb649ddd420d11281158a1c4ed8037fc88e8ca5d52d582f8718ddcf",
+          "arm64": "sha256:bf813f7e4a66dbf4887cbf28f12cf8ecbb4960966e83c53ae9a48283efbf6272"
+        }
+      },
+      "kube-scheduler": {
+        "ref": "registry.k8s.io/kube-scheduler:v1.36.7",
+        "index": "sha256:6e673468ba00e468722553edea8982751939460da83fba9f926a593ec4b2924c",
+        "platforms": {
+          "amd64": "sha256:740ab45d9f481f29744beaa0452f311e3a2bf53db248cfa639b5f5af2353dcfc",
+          "arm64": "sha256:a50749d5fcc4fdfc5b5eb41175e25b19013789f0760d6b6a0f0ac08ef4f1726d"
+        }
+      },
+      "kube-proxy": {
+        "ref": "registry.k8s.io/kube-proxy:v1.36.7",
+        "index": "sha256:b96a60ec0ba3e6b2526fb648d5dd4d51ca094b7a785f77b1e32f87938cbae234",
+        "platforms": {
+          "amd64": "sha256:17f94a2a5cc35e8fc7c3272ea1f55dc281ff963156dec3f76fd9764d30967838",
+          "arm64": "sha256:aa1bcefd277467cc2ff4dffeb83b0ed873da544aa53ab8ec298f27c9e4481ac5"
+        }
+      },
+      "coredns": {
+        "ref": "registry.k8s.io/coredns/coredns:v1.14.2",
+        "source": "https://raw.githubusercontent.com/kubernetes/kubernetes/v1.36.7/cmd/kubeadm/app/constants/constants.go",
+        "index": "sha256:e7e6440cfd1e919280958f5b5a6ab2b184d385bba774c12ad2a9e1e4183f90d9",
+        "platforms": {
+          "amd64": "sha256:fd5079792b93909db3adefa91e41c3995455013394f0197c7346786ae19079fc",
+          "arm64": "sha256:3c5a66ca0d50fbd3ddb862857ce2a01a9d74dd409aea4b1fde83a9c68c598754"
+        }
+      }
+    },
+    "go": {
+      "source": "https://raw.githubusercontent.com/kubernetes/kubernetes/v1.36.7/.go-version",
+      "version": "1.26.11"
+    }
+  },
+  "v1.37.3": {
+    "binaries": {
+      "arm64": {
+        "kubeadm": {
+          "url": "https://dl.k8s.io/release/v1.37.3/bin/linux/arm64/kubeadm",
+          "sha256": "84c049c6cdb31ad66b4cecd4fbbd3a1ec188b866150341b6ad18da563b1db6da"
+        },
+        "kubelet": {
+          "url": "https://dl.k8s.io/release/v1.37.3/bin/linux/arm64/kubelet",
+          "sha256": "6cee0b602c761034f9327b448bef5ce9e1312d3960b8c9c95bf049d58a14f016"
+        },
+        "kubectl": {
+          "url": "https://dl.k8s.io/release/v1.37.3/bin/linux/arm64/kubectl",
+          "sha256": "da160b41491cc5c5e575d78bb665810fb900f70fad666d834094b24ec56d304f"
+        }
+      },
+      "amd64": {
+        "kubeadm": {
+          "url": "https://dl.k8s.io/release/v1.37.3/bin/linux/amd64/kubeadm",
+          "sha256": "7c3088f320de24b5bbf14998b2e4c6f04bf723e6346d923c843a671c3eae8e44"
+        },
+        "kubelet": {
+          "url": "https://dl.k8s.io/release/v1.37.3/bin/linux/amd64/kubelet",
+          "sha256": "2e70bce3577027e4c841a960cf357f6225995deb7e00a3b1a411723a820f36ae"
+        },
+        "kubectl": {
+          "url": "https://dl.k8s.io/release/v1.37.3/bin/linux/amd64/kubectl",
+          "sha256": "9a1b55af2795b25dd288dbef62387db9b5530087ab918d28c6ad067f2e3cb07c"
+        }
+      }
+    },
+    "images": {
+      "kube-apiserver": {
+        "ref": "registry.k8s.io/kube-apiserver:v1.37.3",
+        "index": "sha256:1a00343a748fe98faed757d719c4836465dfc63c96a6d3d07f2fc20397971773",
+        "platforms": {
+          "amd64": "sha256:05b7c09a7dc5d38e11545a2ec250ceb20818e1f829b41f8049c9661ad527043d",
+          "arm64": "sha256:a084f8e1183743f89e7241f562629185f665b6c646b17cac1a853491ec5a8b70"
+        }
+      },
+      "kube-controller-manager": {
+        "ref": "registry.k8s.io/kube-controller-manager:v1.37.3",
+        "index": "sha256:93a91189c9d78dff3143362a1e475a3edd04e8f01b91e621f23fdac3dea7cf8d",
+        "platforms": {
+          "amd64": "sha256:ed1be36e74994185f6101bc9cdb3cc25d656d2468482a968702cc53bf1535678",
+          "arm64": "sha256:20cfa7767e879e804723728ec05d26ad84a515d56ec36a90f2d744f8236439b0"
+        }
+      },
+      "kube-scheduler": {
+        "ref": "registry.k8s.io/kube-scheduler:v1.37.3",
+        "index": "sha256:baff652412202ea98dddc5caa2070800afb267374b3527b344105ae16689f933",
+        "platforms": {
+          "amd64": "sha256:ebc35049e21a5c3df28340b1006d4d13ed5b46f7f5fcfffee28fe4a6823be189",
+          "arm64": "sha256:3bb90e119121559581d2ec599cd404634cd7a981141b463f376fe51ae910edc9"
+        }
+      },
+      "kube-proxy": {
+        "ref": "registry.k8s.io/kube-proxy:v1.37.3",
+        "index": "sha256:bc290f252d4d1dbfd92dbfc66acf2d1f5a83855a0f3e2656e2acb0128dcfcea2",
+        "platforms": {
+          "amd64": "sha256:23bd6f84bdabd332579825cb9d370588b66d8c0072bc98b9f7eff6019be1ce78",
+          "arm64": "sha256:34fa9e8ac125500c9c6e5626c0a13111a6c5f4ddb1ad151acb2c9ce35900987d"
+        }
+      },
+      "coredns": {
+        "ref": "registry.k8s.io/coredns/coredns:v1.14.6",
+        "source": "https://raw.githubusercontent.com/kubernetes/kubernetes/v1.37.3/cmd/kubeadm/app/constants/constants.go",
+        "index": "sha256:900f9c109f7a33545d3c811516e8376df9019147b750f5ce3e254468769176ea",
+        "platforms": {
+          "amd64": "sha256:1ba6f47265602e2e50a9c4669e3a955e4298a0d30dc82f39293d4bf1a851e0ff",
+          "arm64": "sha256:d5cc132a34e034ecfd2d4c73c5bf341e5d8af9a0ba46bd7619d9448beb27e7a2"
+        }
+      }
+    },
+    "go": {
+      "source": "https://raw.githubusercontent.com/kubernetes/kubernetes/v1.37.3/.go-version",
+      "version": "1.26.11"
+    }
+  }
+}

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0104-013",
-  "catalog_revision": "0b8636dee16d289b945711d4519851377aae80e0",
-  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
+  "catalog_revision": "9f58bffb9f3c98213732b073c8d4524ff8bdd0f1",
+  "catalog_sha256": "63ca25b48ffb8f35202c5c4db9c599eb98e12d31aa18f4d0d69d91a9e3ec5423",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "ba06f8e40960ef6f77fce4e4fe94c74dc3ab0b8d60493a93b75fea97bf8d282e",
-  "scope": "Actual disposable kubeadm minor upgrade and kubelet replacement with a retained public marker. The separately exercised rollback affects only a fixture Deployment.",
-  "cluster": "saf-lab-821c4b1a3cbf",
+  "control_sha256": "9361e0269e14738f9e65069ee6bf4865ade33375607263a81c115447f481392f",
+  "scope": "Single-node owned Kind rehearsal starting at v1.36.1 and applying official checksummed v1.36.7 and v1.37.3 binaries and pinned component images in version order. A read-only user-namespace preflight checks bounded on-disk allocation and runtime inputs before each change. A non-root opted-in fixture Pod keeps its UID and effective namespace mappings. Marker retention and a fixture Deployment rollback are observed. Etcd, certificate renewal, control-plane downgrade and deployment-specific recovery are outside this case.",
+  "cluster": "saf-lab-72cc8237e003",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -40,24 +40,204 @@
   "checks": [
     {
       "phase": "red",
-      "claim": "The control plane and kubelet start on the previous minor and the exact target is planned",
+      "claim": "The owned node and live canary start on the exact baseline",
       "matched": true,
       "observed": {
         "apiserver": "v1.36.1",
         "kubelet": "v1.36.1",
-        "explicit_target_planned": true,
-        "preupgrade_marker": true
+        "original_workload_accessible": true
       }
     },
     {
       "phase": "green",
-      "claim": "The control plane upgrades first, followed by its kubelet, and the existing marker survives",
+      "claim": "The owned node reaches v1.36.7 using the reviewed artifacts after a passing preflight",
       "matched": true,
       "observed": {
+        "apiserver": "v1.36.7",
+        "kubelet": "v1.36.7",
+        "previous": "v1.36.1",
+        "pin_verified": true,
+        "api_go_version_matches": true,
+        "component_image_aliases_match": true,
+        "component_payloads_match": true,
         "control_plane_first": true,
-        "apiserver": "v1.37.0",
-        "kubelet": "v1.37.0",
-        "retained_marker": true
+        "retained_marker": true,
+        "preflight_passed": true,
+        "explicit_target_planned": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same hostUsers:false Pod remains Ready with its non-root UID/GID mapping across the upgrade",
+      "matched": true,
+      "observed": {
+        "comparisons": {
+          "pod_uid_unchanged": true,
+          "host_users_false_before_and_after": true,
+          "uid_map_unchanged": true,
+          "gid_map_unchanged": true,
+          "mapped_host_ids_unchanged": true,
+          "nonroot_identity_unchanged": true,
+          "same_node": true,
+          "ready_after_upgrade": true
+        },
+        "before": {
+          "stage": "pre-upgrade",
+          "pod_uid": "52e870d5-ed1f-4b18-b433-ea8dee12fe9f",
+          "namespace": "saf-test",
+          "node_name": "saf-lab-72cc8237e003-control-plane",
+          "host_users": false,
+          "phase": "Running",
+          "ready": true,
+          "container_id": "containerd://b854f7a168a0459649fc0c599aa68b386673dd88f853120ace21fa348d7aad74",
+          "restart_count": 0,
+          "euid": 65534,
+          "egid": 65534,
+          "uid_map": [
+            [
+              0,
+              871759872,
+              65536
+            ]
+          ],
+          "gid_map": [
+            [
+              0,
+              871759872,
+              65536
+            ]
+          ],
+          "mapped_host_uid": 871825406,
+          "mapped_host_gid": 871825406,
+          "user_namespace_inode": "user:[4026534675]"
+        },
+        "after": {
+          "stage": "v1.36.7",
+          "pod_uid": "52e870d5-ed1f-4b18-b433-ea8dee12fe9f",
+          "namespace": "saf-test",
+          "node_name": "saf-lab-72cc8237e003-control-plane",
+          "host_users": false,
+          "phase": "Running",
+          "ready": true,
+          "container_id": "containerd://b854f7a168a0459649fc0c599aa68b386673dd88f853120ace21fa348d7aad74",
+          "restart_count": 0,
+          "euid": 65534,
+          "egid": 65534,
+          "uid_map": [
+            [
+              0,
+              871759872,
+              65536
+            ]
+          ],
+          "gid_map": [
+            [
+              0,
+              871759872,
+              65536
+            ]
+          ],
+          "mapped_host_uid": 871825406,
+          "mapped_host_gid": 871825406,
+          "user_namespace_inode": "user:[4026534675]"
+        },
+        "user_namespace_inode_compared": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The owned node reaches v1.37.3 using the reviewed artifacts after a passing preflight",
+      "matched": true,
+      "observed": {
+        "apiserver": "v1.37.3",
+        "kubelet": "v1.37.3",
+        "previous": "v1.36.7",
+        "pin_verified": true,
+        "api_go_version_matches": true,
+        "component_image_aliases_match": true,
+        "component_payloads_match": true,
+        "control_plane_first": true,
+        "retained_marker": true,
+        "preflight_passed": true,
+        "explicit_target_planned": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same hostUsers:false Pod remains Ready with its non-root UID/GID mapping across the upgrade",
+      "matched": true,
+      "observed": {
+        "comparisons": {
+          "pod_uid_unchanged": true,
+          "host_users_false_before_and_after": true,
+          "uid_map_unchanged": true,
+          "gid_map_unchanged": true,
+          "mapped_host_ids_unchanged": true,
+          "nonroot_identity_unchanged": true,
+          "same_node": true,
+          "ready_after_upgrade": true
+        },
+        "before": {
+          "stage": "v1.36.7",
+          "pod_uid": "52e870d5-ed1f-4b18-b433-ea8dee12fe9f",
+          "namespace": "saf-test",
+          "node_name": "saf-lab-72cc8237e003-control-plane",
+          "host_users": false,
+          "phase": "Running",
+          "ready": true,
+          "container_id": "containerd://b854f7a168a0459649fc0c599aa68b386673dd88f853120ace21fa348d7aad74",
+          "restart_count": 0,
+          "euid": 65534,
+          "egid": 65534,
+          "uid_map": [
+            [
+              0,
+              871759872,
+              65536
+            ]
+          ],
+          "gid_map": [
+            [
+              0,
+              871759872,
+              65536
+            ]
+          ],
+          "mapped_host_uid": 871825406,
+          "mapped_host_gid": 871825406,
+          "user_namespace_inode": "user:[4026534675]"
+        },
+        "after": {
+          "stage": "v1.37.3",
+          "pod_uid": "52e870d5-ed1f-4b18-b433-ea8dee12fe9f",
+          "namespace": "saf-test",
+          "node_name": "saf-lab-72cc8237e003-control-plane",
+          "host_users": false,
+          "phase": "Running",
+          "ready": true,
+          "container_id": "containerd://b854f7a168a0459649fc0c599aa68b386673dd88f853120ace21fa348d7aad74",
+          "restart_count": 0,
+          "euid": 65534,
+          "egid": 65534,
+          "uid_map": [
+            [
+              0,
+              871759872,
+              65536
+            ]
+          ],
+          "gid_map": [
+            [
+              0,
+              871759872,
+              65536
+            ]
+          ],
+          "mapped_host_uid": 871825406,
+          "mapped_host_gid": 871825406,
+          "user_namespace_inode": "user:[4026534675]"
+        },
+        "user_namespace_inode_compared": false
       }
     },
     {

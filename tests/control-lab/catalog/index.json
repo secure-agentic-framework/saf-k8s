@@ -279,7 +279,7 @@
     "SAF-K8S-0104-013": {
       "catalog_status": "draft",
       "domain": "D01",
-      "sha256": "ba06f8e40960ef6f77fce4e4fe94c74dc3ab0b8d60493a93b75fea97bf8d282e",
+      "sha256": "9361e0269e14738f9e65069ee6bf4865ade33375607263a81c115447f481392f",
       "title": "Kubernetes upgrade strategy, validation, and rollback planning"
     },
     "SAF-K8S-0104-014": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ccad1973f2eb87c61c9386c39bd2976dbfa371ab",
-  "sha256": "d74adace95469852921fa48b0e1183d3bc7378cbdb14fb4b9d3f22b65a13d664",
+  "revision": "b7c02568186ae56cdaefa7e9fd6fcbcc40b5e7cd",
+  "sha256": "63ca25b48ffb8f35202c5c4db9c599eb98e12d31aa18f4d0d69d91a9e3ec5423",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

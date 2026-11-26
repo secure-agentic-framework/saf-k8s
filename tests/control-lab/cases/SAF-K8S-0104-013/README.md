@@ -59,3 +59,25 @@ their respective versions and topologies.
 - [Kubernetes v1.36 version skew policy](https://v1-36.docs.kubernetes.io/releases/version-skew-policy/)
 - [etcd v3.6 disaster recovery](https://etcd.io/docs/v3.6/op-guide/recovery/)
 - [NIST SP 800-53 Revision 5, release 5.2.0](https://github.com/usnistgov/oscal-content/blob/v1.4.0/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_catalog.json)
+
+## Versioned user namespace preflight
+
+For the catalog revision containing the user-namespace preflight, the runner
+selects the exact patch rehearsal. It starts with the reviewed v1.36.1 Kind
+image and applies v1.36.7 and v1.37.3 in order. Official binaries and OCI
+component manifests are pinned in `upgrade-pins.json`. Before each change
+it reads the owned node's kubelet configuration, effective mapping source,
+persisted Pod mappings and relevant events. Unknown or incompatible
+observations hold the upgrade before the kubelet is changed.
+
+A restricted non-root `hostUsers: false` canary stays Ready under its
+original Pod UID with the same effective UID and GID mappings through the
+two transitions. The case also retains the workload marker, verifies the
+running kubelet executable digest and API server build metadata, and
+rehearses the existing fixture Deployment recovery. The separate legacy
+snapshot still selects its original minor-upgrade case.
+
+The published receipt records the exact versions it exercised and the
+single-node rehearsal boundary. The adopter must repeat the preflight for
+each actual target release and pool. Select applicable provider, add-on,
+etcd, certificate and control-plane recovery evidence separately.

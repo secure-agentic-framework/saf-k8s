@@ -111,27 +111,17 @@ def await_revision(lab, accepted):
                   "--tail=35", allow_failure=True, timeout=15)
     return False
 
-def run(lab):
-    setup(lab)
-    baseline = versions(lab)
-    stage_binaries(lab)
-    plan = node(lab, KUBEADM, "upgrade", "plan", TARGET, timeout=100)
-    accepted = BASE in plan.stdout and TARGET in plan.stdout
-    initial = marker(lab)
-    lab.check("red", "The control plane and kubelet start on the previous minor and the exact target is planned",
-              baseline == {"apiserver": BASE, "kubelet": BASE} and accepted and initial,
-              {**baseline, "explicit_target_planned": accepted, "preupgrade_marker": initial})
-
-    upgraded = node(lab, KUBEADM, "upgrade", "apply", TARGET, "--yes", "--certificate-renewal=false",
+def apply_version(lab, base, target):
+    upgraded = node(lab, KUBEADM, "upgrade", "apply", target, "--yes", "--certificate-renewal=false",
                     "--etcd-upgrade=false", timeout=260)
     intermediate = versions(lab)
-    ordered = intermediate == {"apiserver": TARGET, "kubelet": BASE}
+    ordered = intermediate == {"apiserver": target, "kubelet": base}
     if not ordered:
         lab.block("The control-plane transition must precede the fixture kubelet binary transition")
     node(lab, "install", "-m", "0755", f"{NEW_BIN}/kubelet", "/usr/bin/kubelet.saf-next")
     node(lab, "mv", "/usr/bin/kubelet.saf-next", "/usr/bin/kubelet")
     node(lab, "systemctl", "restart", "kubelet")
-    expected = {"apiserver": TARGET, "kubelet": TARGET}
+    expected = {"apiserver": target, "kubelet": target}
     deadline = time.monotonic() + 70
     final = versions(lab)
     while final != expected and time.monotonic() < deadline:
@@ -139,11 +129,10 @@ def run(lab):
         final = versions(lab)
     lab.kubectl("wait", "--for=condition=Ready", "node/" + lab.cluster + "-control-plane",
                 "--timeout=60s", timeout=70)
-    retained = marker(lab)
-    lab.check("green", "The control plane upgrades first, followed by its kubelet, and the existing marker survives",
-              final == expected and retained,
-              {"control_plane_first": ordered, **final, "retained_marker": retained})
+    return ordered, final, upgraded.returncode
 
+
+def exercise_workload_recovery(lab, expected):
     control = on_target(lab, "get", "deployment", NAME, "-o", "json", allow_failure=True)
     if control.returncode:
         lab.block("The target-version API client could not read the reviewed workload")
@@ -162,9 +151,31 @@ def run(lab):
                 and marker(lab) and versions(lab) == expected)
     lab.check("positive", "Reapplying the reviewed workload template restores its readiness on the upgraded control plane",
               rejected and recovery, {"failed_rollout_exposed": rejected, "workload_recovery_verified": recovery})
+    return rejected, recovery
+
+
+def run(lab):
+    setup(lab)
+    baseline = versions(lab)
+    stage_binaries(lab)
+    plan = node(lab, KUBEADM, "upgrade", "plan", TARGET, timeout=100)
+    accepted = BASE in plan.stdout and TARGET in plan.stdout
+    initial = marker(lab)
+    lab.check("red", "The control plane and kubelet start on the previous minor and the exact target is planned",
+              baseline == {"apiserver": BASE, "kubelet": BASE} and accepted and initial,
+              {**baseline, "explicit_target_planned": accepted, "preupgrade_marker": initial})
+
+    ordered, final, upgrade_exit = apply_version(lab, BASE, TARGET)
+    expected = {"apiserver": TARGET, "kubelet": TARGET}
+    retained = marker(lab)
+    lab.check("green", "The control plane upgrades first, followed by its kubelet, and the existing marker survives",
+              final == expected and retained,
+              {"control_plane_first": ordered, **final, "retained_marker": retained})
+
+    rejected, recovery = exercise_workload_recovery(lab, expected)
     (lab.evidence / "kubeadm-upgrade-observations.json").write_text(json.dumps({
         "initial": baseline, "intermediate": intermediate, "final": final, "retained_marker": retained,
         "failed_rollout_observed": rejected, "workload_rollback_verified": recovery,
-        "kubeadm_exit_code": upgraded.returncode, "etcd_upgrade_tested": False,
+        "kubeadm_exit_code": upgrade_exit, "etcd_upgrade_tested": False,
         "control_plane_downgrade_or_restore_tested": False,
     }, indent=2) + "\n")
