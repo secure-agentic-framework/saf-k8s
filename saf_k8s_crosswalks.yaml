@@ -58784,7 +58784,7 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-3(2)
   framework_requirement_title: Testing, Validation, and Documentation of Changes
-  framework_mapping_notes: 'The CNI fixture verifies a bounded change-validation and recovery slice: digest-pinned Cilium installation and readiness, pre-change and post-rollback connectivity, Kubernetes API rejection of an invalid readiness threshold, and Helm atomic rollback to the prior deployed values and CNI image pins. It does not apply a new Cilium version or observe a failed CNI agent/operator rollout; the mapping is therefore supporting and partial, not direct or strong. Production change authorization and documentation remain separately unverified.'
+  framework_mapping_notes: The digest-pinned Cilium case verifies native API rejection before rollout, atomic recovery from the rejected value, an approved agent configuration rollout, a schema-valid operator workload failure with continuing agent traffic, and explicit Helm rollback to known-good values, operator readiness and marker connectivity. This is a partial contribution to CNI change validation and recovery. Verify actual version transitions, CRD or persistent-state changes, evidence of approval and production change documentation under the deployed change process.
   control_id: SAF-K8S-0502-004
   relation_type: supports
   strength_level: moderate
