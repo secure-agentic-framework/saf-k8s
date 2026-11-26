@@ -1,17 +1,58 @@
-# SAF-K8S-0501-007 — East-west AI workload traffic monitoring
+# SAF-K8S-0501-007 — East-west flow monitoring and a fixed alert rule
 
-From the framework repository, run:
+Run from the lab repository:
 
 ```sh
-python3 tests/control-lab/lab.py test SAF-K8S-0501-007 --docker-context desktop-linux
+python3 lab.py test SAF-K8S-0501-007 --docker-context desktop-linux
 ```
 
-Use Kind v0.32.0, Helm 3.13 or newer and a Linux Kind environment meeting Cilium requirements. The runner provisions Kubernetes v1.36.1 with the default CNI disabled. The case verifies the content digest of the pinned Cilium 1.20.5 chart from Quay, installs it into the disposable cluster, and waits for the Node and local Hubble observer. No relay or UI is required.
+From the framework repository use `python3 tests/control-lab/lab.py`. The
+case installs the pinned Cilium and embedded Hubble observer on a disposable
+Kubernetes cluster. It observes owned TCP/18080 paths from the training
+namespace to the pipeline and inference namespaces. A live application
+response and a Hubble event independently confirm the observed path.
 
-- **Red.** The training client reaches the inference and pipeline HTTP fixtures before policy. Hubble must record the exact paths and destination port reaching the destination endpoint at egress.
-- **Green.** Default-deny policies block the training-to-inference path. Both the workload timeout and a new egress Hubble `DROPPED` event with `POLICY_DENIED` must corroborate that result.
-- **Permitted.** The allowed training-to-pipeline path still returns its marker and produces a new `FORWARDED` flow.
+The baseline reaches both listeners. With the scoped NetworkPolicy active,
+the permitted training-to-pipeline request still succeeds. The other
+request is denied and appears as `POLICY_DENIED` with the expected workload,
+namespace and port. A local fixed rule evaluates these captured events.
+It emits one deduplicated alert for the baseline forwarded unexpected edge,
+stays quiet on the permitted pipeline and policy-denied inference events, and
+emits nothing when disabled for the same observed candidate.
 
-The case uses only scoped Hubble records from three owned namespaces. The retained `hubble-events.json` includes the matching egress events. Source-endpoint traces occur before the final egress decision, so the evidence uses `TO_ENDPOINT` for forwarded traffic and the policy drop reason for denied traffic. The fixed segment rule demonstrates attribution for this lab. Production anomaly models, additional segments including notebooks, encrypted visibility, and collection, retention, and alerting in a SIEM require separate evidence.
+The receipt preserves the native Cilium release, path decisions and
+alert predicates. Raw fixture events are in `hubble-events.json`.
+`anomaly-rule-evaluation.json` captures the local result. The case uses a
+single exact rule. The general detection engine, production monitoring
+and externally delivered alerts need separate verification.
 
-[Cilium v1.20 Kind installation](https://docs.cilium.io/en/v1.20/installation/kind/) · [Cilium v1.20 Hubble setup](https://docs.cilium.io/en/v1.20/gettingstarted/hubble_setup/) · [Kubernetes v1.36 NetworkPolicy](https://v1-36.docs.kubernetes.io/docs/concepts/services-networking/network-policies/)
+## Verify the adopted monitoring stack
+
+1. Inventory the enrolled training, inference, notebook and pipeline
+   namespaces and relevant intermediate and cross-node paths. Record
+   the enforcing CNI, sensor version, observation points and collection
+   filters. Identify owners and effective permitted and denied paths.
+2. Select harmless owned source and destination markers in a representative
+   environment. Record a permitted path, a governed denied path and one
+   test-only unexpectedly permitted path. Compare the application result
+   with the exact observer event and independent destination health.
+   Confirm direction, destination port, workload identities, verdict and
+   reason. Include a denied-flow alert rule when expected and approved.
+3. Test the adopted rule independently against all three outcomes. Verify
+   active and disabled behavior, clear and stale state, deduplication,
+   expected alert route and the correlating flow fields. Compare with the
+   separately approved baseline and document known blind spots and
+   unobserved paths.
+4. Verify successful delivery, access restriction, integrity and retention
+   at the actual SIEM or monitoring receiver with a benign test marker.
+   Verify collection when healthy and an observable loss signal during a
+   controlled receiver interruption. Confirm that a reviewer can retrieve
+   the specific test event, correlate it with the trigger, and handle
+   duplicate delivery or timing delays.
+5. Retain the effective policy and rules at their reviewed revisions,
+   independent application and flow observations, receiver evidence,
+   approved retention and the responsible team's sign-off.
+
+References
+[Cilium Hubble setup](https://docs.cilium.io/en/v1.20/gettingstarted/hubble_setup/)
+and [Hubble Flow API](https://docs.cilium.io/en/v1.20/_api/v1/flow/README/).

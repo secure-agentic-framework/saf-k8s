@@ -337,6 +337,109 @@ def _observe(lab, phase, segment, address):
     _record_and_check(lab, phase, segment, result, events)
 
 
+ANOMALY_RULE_ID = "synthetic-unexpected-training-to-inference-forward"
+
+
+def _flow_event_matches_anomaly(event):
+    flow = event.get("flow", event)
+    source = flow.get("source") or {}
+    destination = flow.get("destination") or {}
+    tcp = (flow.get("l4") or {}).get("TCP") or {}
+    return (
+        source.get("namespace") == NAMESPACES["training"]
+        and source.get("pod_name") == CLIENT
+        and destination.get("namespace") == NAMESPACES["inference"]
+        and destination.get("pod_name") == SERVERS["inference"]
+        and tcp.get("destination_port") == PORT
+        and flow.get("traffic_direction") == "EGRESS"
+        and flow.get("verdict") == "FORWARDED"
+        and flow.get("trace_observation_point") == "TO_ENDPOINT"
+    )
+
+
+def _apply_fixed_anomaly_rule(records, enabled):
+    matching = [record for record in records if _flow_event_matches_anomaly(record.get("event") or {})]
+    # Deduplicate the fixed rule into one case-local alert for this bounded run.
+    alerts = []
+    if enabled and matching:
+        alerts.append({
+            "alert_id": "fixture-alert-001",
+            "rule_id": ANOMALY_RULE_ID,
+            "phase": "red-prepolicy",
+            "source": f"{NAMESPACES['training']}/{CLIENT}",
+            "destination": f"{NAMESPACES['inference']}/{SERVERS['inference']}",
+            "protocol": f"TCP/{PORT}",
+            "verdict": "FORWARDED",
+            "reason": "expected-denied-segment-edge-reached-endpoint-before-policy",
+        })
+    return matching, alerts
+
+
+def _evaluate_anomaly_rule(lab):
+    evidence_path = lab.evidence / "hubble-events.json"
+    records = json.loads(evidence_path.read_text(encoding="utf-8"))
+    matching, alerts = _apply_fixed_anomaly_rule(records, enabled=True)
+    matches_baseline = bool(matching) and all(record.get("phase") == "red" for record in matching)
+
+    permitted = [
+        record for record in records
+        if record.get("segment_rule") == "synthetic-segment-training-to-pipeline-tcp-18080"
+        and record.get("event", {}).get("verdict") == "FORWARDED"
+    ]
+    denied = [
+        record for record in records
+        if record.get("segment_rule") == "synthetic-segment-training-to-inference-tcp-18080"
+        and record.get("phase") == "green"
+        and record.get("event", {}).get("verdict") == "DROPPED"
+        and record.get("event", {}).get("drop_reason_desc") == "POLICY_DENIED"
+    ]
+    benign = permitted + denied
+    benign_false_positives = [record for record in benign
+                              if _flow_event_matches_anomaly(record.get("event") or {})]
+
+    disabled_matching, disabled_alerts = _apply_fixed_anomaly_rule(records, enabled=False)
+    result = {
+        "rule_id": ANOMALY_RULE_ID,
+        "rule_enabled": True,
+        "matching_observed_flow_count": len(matching),
+        "deduplicated_alert_count": len(alerts),
+        "benign_comparator_count": len(benign),
+        "benign_false_positive_count": len(benign_false_positives),
+        "disabled_rule_alert_count": len(disabled_alerts),
+        "disabled_rule_candidate_count": len(disabled_matching),
+        "alerts": alerts,
+    }
+    alert_path = lab.evidence / "anomaly-rule-evaluation.json"
+    alert_path.write_text(
+        json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    persisted = json.loads(alert_path.read_text(encoding="utf-8"))
+
+    artifact_persisted = (persisted.get("rule_id") == ANOMALY_RULE_ID
+                          and persisted.get("deduplicated_alert_count") == 1
+                          and len(persisted.get("alerts", [])) == 1)
+    alert_emitted = matches_baseline and len(alerts) == 1 and artifact_persisted
+    lab.check(
+        "green", "Enabled fixed segment rule emits one alert for the observed forwarded expected-denied edge",
+        alert_emitted,
+        {"rule_enabled": True, "expected_one_deduplicated_alert": alert_emitted,
+         "source_identity_verified": matches_baseline, "alert_artifact_written": artifact_persisted},
+    )
+    comparators_present = bool(permitted and denied)
+    benign_clear = comparators_present and not benign_false_positives
+    lab.check(
+        "positive", "Permitted pipeline and policy-dropped inference comparator flows do not trigger the rule",
+        benign_clear,
+        {"benign_comparators_present": comparators_present, "no_comparator_alert": benign_clear},
+    )
+    disabled_clear = (bool(matching) and len(disabled_matching) == len(matching)
+                      and not disabled_alerts and not persisted.get("disabled_rule_alert_count"))
+    lab.check(
+        "positive", "Disabling the rule suppresses an alert for the same observed synthetic candidate",
+        disabled_clear,
+        {"same_observed_candidate_present": bool(matching), "disabled_rule_alert_count_zero": disabled_clear},
+    )
+
+
 def run(lab):
     kind_version = lab.command("kind", "version").stdout.strip()
     if not kind_version.startswith(f"kind {KIND_VERSION}"):
@@ -364,3 +467,4 @@ def run(lab):
     _install_policy(lab)
     _observe(lab, "green", "inference", addresses["inference"])
     _observe(lab, "positive", "pipeline", addresses["pipeline"])
+    _evaluate_anomaly_rule(lab)

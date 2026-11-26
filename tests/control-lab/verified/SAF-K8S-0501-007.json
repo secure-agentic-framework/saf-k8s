@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0501-007",
-  "catalog_revision": "7dae56b771cfddc1666de3630ee3cb0b2e07d930",
-  "catalog_sha256": "4de662fec02c2f5278b143f16828f0b54badc7e54ec878cde0661c8ab52a4ea7",
+  "catalog_revision": "402e8ab790b7f46be3caf1a694ae6f6541b3e564",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e66fafc771019e2c3e06c73b998766b91cf8391a95de55c1af2ea15490a5c701",
   "scope": "One fresh local Kind v0.32.0 / Kubernetes v1.36.1 cluster with Cilium 1.20.5 and its embedded Hubble observer. Three case-owned namespaces represent training, inference, and pipeline. Only fixed-marker IPv4 TCP/18080 requests between the training client and the two case-owned responders are examined. The red phase runs without NetworkPolicy; the green phase applies default deny and permits training to pipeline while denying training to inference. A named synthetic segment rule labels the training-to-inference flow as expected-denied and reports whether authentic Hubble telemetry agrees. No production workloads, external destinations, packet capture, model/data inspection, SIEM, baseline learning, or production anomaly detection are evaluated.",
-  "cluster": "saf-lab-569e39cc02a8",
+  "cluster": "saf-lab-0609bedca322",
   "kind_ready_wait": "0s",
   "kubernetes": {
     "clientVersion": {
@@ -111,6 +111,35 @@
         "identity_fields_verified": true,
         "segment_rule": "synthetic-segment-training-to-pipeline-tcp-18080",
         "application_observation": "fixed-marker-received"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Enabled fixed segment rule emits one alert for the observed forwarded expected-denied edge",
+      "matched": true,
+      "observed": {
+        "rule_enabled": true,
+        "expected_one_deduplicated_alert": true,
+        "source_identity_verified": true,
+        "alert_artifact_written": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Permitted pipeline and policy-dropped inference comparator flows do not trigger the rule",
+      "matched": true,
+      "observed": {
+        "benign_comparators_present": true,
+        "no_comparator_alert": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Disabling the rule suppresses an alert for the same observed synthetic candidate",
+      "matched": true,
+      "observed": {
+        "same_observed_candidate_present": true,
+        "disabled_rule_alert_count_zero": true
       }
     }
   ]
