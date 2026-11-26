@@ -5056,22 +5056,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AC-2
-  framework_requirement_title: Account Management
-  framework_mapping_notes: 'Agent/service account lifecycle management
-
-
-    4.2 - Secure service accounts and workload identity (account management and lifecycle)'
-  control_id: SAF-K8S-0910-031
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AC-2(1)
   framework_requirement_title: Automated System Account Management
   framework_mapping_notes: The workflow can automate selected ongoing account management actions. Confirm the actual scheduled mechanism and preserve account, exception and decision evidence.
@@ -5603,16 +5587,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-21(1)
   framework_requirement_title: Automated Decision Support
-  framework_mapping_notes: 'Automated controls for agent information sharing decisions
-
-
-    6.5 - Admission controllers make automated policy decisions on API requests; 9.5 - Model promotion gates automate security scan pass/fail decisions before production deployment'
+  framework_mapping_notes: The fixture contributes one automated, RBAC-separated decision that permits a fixed inert registry transfer only after the selected endpoint pair is approved and endpoint claims are present. The result is partial support for an adopter-defined information-sharing decision when partner access authorizations and information restrictions are also evaluated; those inputs and complete route coverage remain adopter evidence.
   control_id: SAF-K8S-0910-031
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only where the adopter's organization-defined information-sharing decision uses approved peer access authorizations and restrictions on the information being shared for this registry workflow. The portable case shows a separated approval and a gated transfer for one exact source/destination pair and one inert artifact; it does not establish those broader decision inputs or coverage of all sharing clients and routes.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -6021,22 +6002,6 @@
   applicability: conditional
   applicability_condition: Only for an organization-defined access-control policy whose relevant Pod/workload admission requests are explicitly matched, whose policy/binding/parameter changes are separately protected, and whose covered workload routes are inventoried. The fixture demonstrates a namespaced VAP decision for selected built-in workload objects and explicit model-source environment fields; it does not demonstrate a tamperproof monitor or completeness across every Pod creation path.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-25
-  framework_requirement_title: Reference Monitor
-  framework_mapping_notes: 'Foundational -- tamperproof policy enforcement for agent actions
-
-
-    6.5 - Admission controllers (reference monitor for all API requests); 3.3 - Mandatory access controls (seccomp, AppArmor as enforcement)'
-  control_id: SAF-K8S-0910-031
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
