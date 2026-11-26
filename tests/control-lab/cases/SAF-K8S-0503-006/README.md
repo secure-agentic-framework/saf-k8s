@@ -1,11 +1,13 @@
-# SAF-K8S-0503-006 cloud load-balancer security group admission
+# Verify cloud load-balancer source filtering
+
+Run the portable native admission case from the framework repository.
 
 ```sh
 python3 tests/control-lab/lab.py test SAF-K8S-0503-006 --docker-context desktop-linux
 ```
 
-This case uses an AWS Load Balancer Controller NLB annotation as a Kubernetes admission prerequisite. It stores two synthetic security-group IDs in a governed Kubernetes policy parameter. A scoped Service writer can read that parameter. Kubernetes rejects attempts by the writer to change it. The real API accepts an unapproved group before policy activation, rejects unapproved or missing groups afterward, and preserves legitimate create and update requests.
+The disposable API compares permitted and refused AWS NLB Service group references against the fixture's governed list. It verifies a permitted update and unchanged stored state after refused input. The receipt covers admission of declarations. Effective cloud network filtering is an adopter verification step.
 
-The fixture covers AWS-class Service admission. Collect deployed cloud evidence for the effective frontend rules, backend rules, controller settings and approved source checks. The example identifiers represent lab values.
+For each adopted provider and controller mode, inventory the real frontend listeners, source ranges, security groups or firewall rules, backends, address families and relevant node or host policy. Confirm which options the controller implements and where it applies them. Inspect the reconciled frontend and backend rules. On authorized owned test paths, compare sources inside and outside the approved range and record observed reachability and the effective rule at each relevant boundary. Include exceptions, alternate routes and changes made through the provider interface in the evidence.
 
-[AWS Load Balancer Controller Service annotations](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v3.2/guide/service/annotations/) and [Kubernetes ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/).
+[AWS Load Balancer Controller v3.2 Service annotations](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v3.2/guide/service/annotations/) · [GKE Service load balancer parameters](https://docs.cloud.google.com/kubernetes-engine/docs/concepts/service-load-balancer-parameters) · [AKS load balancer configuration](https://learn.microsoft.com/en-us/azure/aks/configure-load-balancer-standard)
