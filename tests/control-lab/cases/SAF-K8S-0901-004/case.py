@@ -1,5 +1,6 @@
 """Check bounded, digest-verified recovery of two inert synthetic snapshots."""
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 import time
@@ -31,9 +32,12 @@ SCOPE = (
     "target ConfigMap; one local bounded restore function; and two short digest-pinned "
     "Python Jobs. The case checks fixture SHA-256 values, altered-byte rejection, an "
     "over-limit retry request, exact approved payload/label/annotation restoration, and "
-    "Job conditions and Pod counts. It does not exercise an ML framework, training "
-    "operator, real checkpoint store, distributed training, data re-ingestion, or "
-    "production retry/rollback configuration."
+    "Job conditions and Pod counts. It additionally copies one fixed synthetic checkpoint "
+    "across source and backup PVCs and restores/read-checks it on a third fresh PVC using "
+    "three short tokenless Jobs. The three claims use the selected storage class in this "
+    "same cluster and do not establish independent failure domains. It does not exercise "
+    "an ML framework, training operator, real checkpoint store, distributed training, "
+    "data re-ingestion, external backup service, or production retry/rollback configuration."
 )
 
 
@@ -308,5 +312,13 @@ def run(lab):
               {"restore": restored, "api_observed": observed, "expected": expected})
     evidence["checks"].append({"phase": "green", "restore": restored,
                                "api_observed": observed, "expected": expected})
+
+    supplement_path = HERE / "pvc_backup.py"
+    supplement_spec = importlib.util.spec_from_file_location("saf_0901_004_pvc_backup", supplement_path)
+    if supplement_spec is None or supplement_spec.loader is None:
+        lab.block("PVC checkpoint supplement is unavailable")
+    supplement = importlib.util.module_from_spec(supplement_spec)
+    supplement_spec.loader.exec_module(supplement)
+    evidence["pvc_backup_restore"] = supplement.run(lab, item)
     (lab.evidence / "recovery-integrity.raw.json").write_text(
         json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")

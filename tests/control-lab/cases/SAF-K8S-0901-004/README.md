@@ -80,3 +80,22 @@ workload verifier only parses the mounted JSON and compares SHA-256 values.
 - [NIST FIPS 180-4, Secure Hash Standard](https://csrc.nist.gov/pubs/fips/180-4/upd1/final) — SHA-256 digest definition and change-detection purpose.
 - [Docker Official Python Image](https://hub.docker.com/_/python) — official image family used with a digest-pinned `3.13-slim` reference.
 - [kind Quick Start](https://kind.sigs.k8s.io/docs/user/quick-start) — Kind cluster usage and node image context.
+
+## File-backed PVC backup and fresh-volume restore supplement
+
+The scratch candidate preserves the five existing ConfigMap/API and Job
+assertions, then creates a source and a separate backup PVC. A bounded
+tokenless Job writes the exact inert checkpoint JSON from snapshot B to the
+source claim and copies it to the backup claim. After this Job completes, the
+case creates a third PVC for restore. A second Job copies backup bytes to that
+fresh volume, and an independent read-only Job verifies both backup and
+restored bytes against the fixture content and expected SHA-256. The check
+also requires three distinct PVC UIDs and bound PV names in the same Kind
+cluster. The supplement has not been run.
+
+This covers a local synthetic file transfer and restore on the selected
+cluster storage class. It does not prove storage-provider independence,
+external backup durability, encryption, immutable retention, RPO/RTO, or
+training framework/operator integration. Adoption must test actual
+provider-specific failure domains, retention and restore against approved
+data, then validate the recovered model state in its training workflow.

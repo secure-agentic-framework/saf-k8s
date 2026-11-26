@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-0901-004",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
+  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "bb5f98b699c374c57671af4c249861035dda0e135c0f930fcd524a86ec5329b5",
-  "scope": "One disposable Kind v1.36.1 cluster and the saf-test namespace; two immutable, case-owned ConfigMaps carrying synthetic named snapshots; a deliberately changed target ConfigMap; one local bounded restore function; and two short digest-pinned Python Jobs. The case checks fixture SHA-256 values, altered-byte rejection, an over-limit retry request, exact approved payload/label/annotation restoration, and Job conditions and Pod counts. It does not exercise an ML framework, training operator, real checkpoint store, distributed training, data re-ingestion, or production retry/rollback configuration.",
-  "review_timing": {
-    "queued_at": "2026-11-22T20:05:29.916262+00:00",
-    "cluster_ready_at": "2026-11-22T20:06:03.640621+00:00",
-    "approval_at": "2026-11-22T20:08:35.926859+00:00",
-    "case_loaded_at": "2026-11-22T20:08:36.097066+00:00"
-  },
-  "cluster": "saf-lab-84ac7eae9d1e",
+  "scope": "One disposable Kind v1.36.1 cluster and the saf-test namespace; two immutable, case-owned ConfigMaps carrying synthetic named snapshots; a deliberately changed target ConfigMap; one local bounded restore function; and two short digest-pinned Python Jobs. The case checks fixture SHA-256 values, altered-byte rejection, an over-limit retry request, exact approved payload/label/annotation restoration, and Job conditions and Pod counts. It additionally copies one fixed synthetic checkpoint across source and backup PVCs and restores/read-checks it on a third fresh PVC using three short tokenless Jobs. The three claims use the selected storage class in this same cluster and do not establish independent failure domains. It does not exercise an ML framework, training operator, real checkpoint store, distributed training, data re-ingestion, external backup service, or production retry/rollback configuration.",
+  "cluster": "saf-lab-681069078989",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "d200263769020d916a522d63052c38c07c8a910755b6aa1546f10561a256e4b9",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
@@ -159,6 +152,104 @@
             "saf-k8s.example/snapshot-set": "SYNTH-SNAPSHOT-SET-0901-004-01"
           }
         }
+      }
+    },
+    {
+      "phase": "recovery",
+      "claim": "A benign checkpoint is copied between distinct source and backup PVCs and restored/read back on a fresh third PVC",
+      "matched": true,
+      "observed": {
+        "scope": "case-owned synthetic checkpoint bytes on three PVCs in one disposable cluster",
+        "checkpoint_sha256": "2f8a895aefe4c9dce82ef7bf96d28a434cd99a0a71b40212c753c42e8525876a",
+        "checkpoint_size": 42,
+        "restore_claim_created_after_backup_job_completed": true,
+        "job_claim_mounts": {
+          "backup": {
+            "source": "saf0901004-checkpoint-source",
+            "backup": "saf0901004-checkpoint-backup"
+          },
+          "restore": {
+            "backup": "saf0901004-checkpoint-backup",
+            "restore": "saf0901004-checkpoint-restore"
+          },
+          "verify": {
+            "backup": "saf0901004-checkpoint-backup",
+            "restore": "saf0901004-checkpoint-restore"
+          }
+        },
+        "expected_job_claim_mounts": {
+          "backup": {
+            "source": "saf0901004-checkpoint-source",
+            "backup": "saf0901004-checkpoint-backup"
+          },
+          "restore": {
+            "backup": "saf0901004-checkpoint-backup",
+            "restore": "saf0901004-checkpoint-restore"
+          },
+          "verify": {
+            "backup": "saf0901004-checkpoint-backup",
+            "restore": "saf0901004-checkpoint-restore"
+          }
+        },
+        "job_claim_mounts_exact": true,
+        "jobs": {
+          "backup": {
+            "condition": "Complete",
+            "backoff_limit": 0,
+            "pod_count": 1,
+            "observation": {
+              "backup_digest": "2f8a895aefe4c9dce82ef7bf96d28a434cd99a0a71b40212c753c42e8525876a",
+              "backup_exact": true,
+              "backup_size": 42,
+              "expected_digest_matches_fixture": true,
+              "mode": "backup",
+              "result": "verified",
+              "source_backup_equal": true,
+              "source_digest": "2f8a895aefe4c9dce82ef7bf96d28a434cd99a0a71b40212c753c42e8525876a",
+              "source_exact": true,
+              "source_size": 42
+            }
+          },
+          "restore": {
+            "condition": "Complete",
+            "backoff_limit": 0,
+            "pod_count": 1,
+            "observation": {
+              "backup_digest": "2f8a895aefe4c9dce82ef7bf96d28a434cd99a0a71b40212c753c42e8525876a",
+              "backup_exact": true,
+              "backup_restore_equal": true,
+              "backup_size": 42,
+              "expected_digest_matches_fixture": true,
+              "mode": "restore",
+              "restored_digest": "2f8a895aefe4c9dce82ef7bf96d28a434cd99a0a71b40212c753c42e8525876a",
+              "restored_exact": true,
+              "restored_size": 42,
+              "result": "verified"
+            }
+          },
+          "independent_readback": {
+            "condition": "Complete",
+            "backoff_limit": 0,
+            "pod_count": 1,
+            "observation": {
+              "backup_digest": "2f8a895aefe4c9dce82ef7bf96d28a434cd99a0a71b40212c753c42e8525876a",
+              "backup_exact": true,
+              "backup_size": 42,
+              "byte_integrity_equal": true,
+              "checkpoint_json_valid": true,
+              "expected_digest_matches_fixture": true,
+              "mode": "verify",
+              "restored_digest": "2f8a895aefe4c9dce82ef7bf96d28a434cd99a0a71b40212c753c42e8525876a",
+              "restored_exact": true,
+              "restored_size": 42,
+              "result": "verified"
+            }
+          }
+        },
+        "external_storage_or_backup_service": false,
+        "independent_failure_domain": false,
+        "production_checkpoint_or_model": false,
+        "three_distinct_bound_pvc_and_pv_identities": true
       }
     }
   ]
