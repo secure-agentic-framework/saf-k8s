@@ -35052,12 +35052,12 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-7(12)
   framework_requirement_title: Integrity Verification
-  framework_mapping_notes: The reviewed manifest digest and associated blob digest are checked for the covered model reference. Verify the actual pre-execution control and governed user-installed software scope.
+  framework_mapping_notes: The review binds the approved model manifest and blob digests and the consumer verifies their bytes. NIST SP 800-53 Release 5.2.0 applies SI-7(12) to organization-defined software. Verify the actual pre-execution gate for the designated artifact.
   control_id: SAF-K8S-0905-048
   relation_type: supports
   strength_level: moderate
   applicability: conditional
-  applicability_condition: Only for organization-designated user-installed model or software components where the actual consumer verifies the approved content digest before execution or use.
+  applicability_condition: Only where the organization includes the model artifact in the software it designates for integrity verification prior to execution and the actual consumer verifies its approved content digest before execution.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
