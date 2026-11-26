@@ -107,6 +107,14 @@ def verify_artifact(fixture):
 
 def verify_deployment(fixture, obj):
     annotations = obj.get("metadata", {}).get("annotations", {})
+    expected_image = "saf.example.test/models/inert-fixture@sha256:" + fixture["manifest_sha256"]
+    containers = obj.get("spec", {}).get("template", {}).get("spec", {}).get("containers", [])
+    spec = obj.get("spec", {})
+    template_spec = spec.get("template", {}).get("spec", {})
+    if (spec.get("replicas") != 0 or template_spec.get("initContainers")
+            or len(containers) != 1 or containers[0].get("name") != "inert-model-fixture"
+            or containers[0].get("image") != expected_image):
+        return False, "Deployment image reference is not the verified inert model artifact or fixture is not zero-replica"
     digest = "sha256:" + fixture["manifest_sha256"]
     if annotations.get("saf.example.test/model-digest") != digest:
         return False, "model digest is absent or does not match the signed OCI manifest"

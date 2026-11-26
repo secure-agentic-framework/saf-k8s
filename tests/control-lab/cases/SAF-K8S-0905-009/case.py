@@ -14,14 +14,15 @@ SCOPE = (
     "One fresh Kubernetes 1.36.1 Kind cluster and namespace saf-test. A fixture-only HTTPS admission "
     "webhook examines CREATE requests for one inert Deployment shape, recomputes the exact fixed OCI "
     "manifest and layer digests, verifies an RSA-SHA256 manifest signature, verifies two sorted signed "
-    "in-toto Statement v1 DSSE approval/provenance materials with matching subjects, and returns a real "
-    "fail-closed Kubernetes admission denial or allow. Proves only this fixed test key, artifact, policy, "
+    "in-toto Statement v1 DSSE approval/provenance materials with matching subjects, and requires the sole "
+    "Deployment container image to equal the manifest-digest-pinned fixture reference. Accepted Deployments "
+    "have zero replicas. Proves only this fixed test key, artifact, policy, "
     "Deployment CREATE path, and namespace; not registry retrieval, arbitrary OCI artifacts, UPDATE, "
     "production trust custody, all provenance steps, or all model deployments."
 )
 
 
-def _resource(name, annotations=None):
+def _resource(name, annotations=None, image=PAUSE_IMAGE):
     metadata = {"name": name, "namespace": NAMESPACE}
     if annotations is not None:
         metadata["annotations"] = annotations
@@ -32,10 +33,15 @@ def _resource(name, annotations=None):
             "selector": {"matchLabels": {"app": name}},
             "template": {
                 "metadata": {"labels": {"app": name}},
-                "spec": {"containers": [{"name": "inert-model-fixture", "image": PAUSE_IMAGE}]},
+                "spec": {"containers": [{"name": "inert-model-fixture", "image": image,
+                                         "imagePullPolicy": "Never"}]},
             },
         },
     }
+
+
+def _artifact_image_ref(fixture):
+    return "saf.example.test/models/inert-fixture@sha256:" + fixture["manifest_sha256"]
 
 
 def _trusted_annotations(fixture):
@@ -114,7 +120,7 @@ def run(lab):
     deadline = time.monotonic() + 25
     while True:
         _, ready = _denial(lab, unsigned_name,
-                           _resource(unsigned_name, {"saf.example.test/model-digest": "sha256:00"}),
+                           _resource(unsigned_name, {"saf.example.test/model-digest": "sha256:00"}, image=_artifact_image_ref(fixture)),
                            "SAF fixture verifier: model digest is absent or does not match the signed OCI manifest",
                            dry_run=True)
         if ready:
@@ -123,7 +129,7 @@ def run(lab):
             lab.block("Verifier did not return the targeted admission response")
         time.sleep(0.5)
     unsigned, unsigned_denied = _denial(
-        lab, unsigned_name, _resource(unsigned_name, {"saf.example.test/model-digest": "sha256:00"}),
+        lab, unsigned_name, _resource(unsigned_name, {"saf.example.test/model-digest": "sha256:00"}, image=_artifact_image_ref(fixture)),
         "SAF fixture verifier: model digest is absent or does not match the signed OCI manifest")
     lab.check("green", "The fail-closed webhook denies fixed metadata with an untrusted digest",
               unsigned_denied, {"outcome": "denied", "reason": "model digest mismatch",
@@ -133,7 +139,7 @@ def run(lab):
     bad_annotations["saf.example.test/model-signature"] = "AA=="
     bad_name = "saf-model-reject-bad-signature"
     bad_signature, signature_denied = _denial(
-        lab, bad_name, _resource(bad_name, bad_annotations),
+        lab, bad_name, _resource(bad_name, bad_annotations, image=_artifact_image_ref(fixture)),
         "SAF fixture verifier: model signature is absent or does not match the fixed signer")
     lab.check("green", "The webhook denies a tampered fixed signature annotation",
               signature_denied, {"outcome": "denied", "reason": "model signature mismatch",
@@ -145,7 +151,7 @@ def run(lab):
     )
     unsorted_name = "saf-model-reject-unsorted-attestations"
     unsorted, attestations_denied = _denial(
-        lab, unsorted_name, _resource(unsorted_name, unsorted_annotations),
+        lab, unsorted_name, _resource(unsorted_name, unsorted_annotations, image=_artifact_image_ref(fixture)),
         "SAF fixture verifier: approval and provenance materials are missing, duplicated, or unsorted")
     lab.check("green", "The webhook denies fixed approval and provenance materials in the wrong order",
               attestations_denied, {"outcome": "denied", "reason": "attestation order mismatch",
@@ -155,16 +161,38 @@ def run(lab):
     incomplete["saf.example.test/attestations"] = json.dumps(fixture["attestations"][:1])
     missing_name = "saf-model-reject-incomplete-attestations"
     missing, missing_denied = _denial(
-        lab, missing_name, _resource(missing_name, incomplete),
+        lab, missing_name, _resource(missing_name, incomplete, image=_artifact_image_ref(fixture)),
         "SAF fixture verifier: attestation set must contain two materials")
     lab.check("green", "The webhook rejects a signed fixture with incomplete attestation evidence",
               missing_denied, {"required_materials": 2, "supplied_materials": 1, "targeted_denial": missing_denied})
 
+    wrong_ref = _artifact_image_ref(fixture).rsplit(":", 1)[0] + ":" + "0" * 64
+    mismatch_name = "saf-model-reject-image-reference-mismatch"
+    mismatch_result, mismatch_denied = _denial(
+        lab, mismatch_name,
+        _resource(mismatch_name, _trusted_annotations(fixture), image=wrong_ref),
+        "SAF fixture verifier: Deployment image reference is not the verified inert model artifact",
+        dry_run=True)
+    lab.check("green", "A signed artifact annotation cannot authorize a Deployment with a different image digest",
+              mismatch_denied, {"server_dry_run_denied": mismatch_denied, "expected_image_digest_bound": True})
+
     trusted_name = "saf-model-accept-trusted-fixture"
-    accepted = lab.create(_resource(trusted_name, _trusted_annotations(fixture)))
-    positive = accepted.get("metadata", {}).get("name") == trusted_name
+    accepted = lab.create(_resource(trusted_name, _trusted_annotations(fixture), image=_artifact_image_ref(fixture)))
+    actual_image = accepted.get("spec", {}).get("template", {}).get("spec", {}).get("containers", [{}])[0].get("image")
+    replicas_zero = accepted.get("spec", {}).get("replicas") == 0
+    image_bound = actual_image == _artifact_image_ref(fixture)
+    observed = json.loads(lab.kubectl("get", "deployment", trusted_name, "-o", "json").stdout)
+    pod_result = lab.kubectl("get", "pods", "-l", f"app={trusted_name}", "-o", "json")
+    no_pods = not json.loads(pod_result.stdout)["items"]
+    persisted = (observed["metadata"]["name"] == trusted_name
+                 and observed["spec"]["template"]["spec"]["containers"][0]["image"] == actual_image
+                 and observed["spec"]["replicas"] == 0)
+    positive = (accepted.get("metadata", {}).get("name") == trusted_name and image_bound
+                and replicas_zero and no_pods and persisted)
     lab.check("positive", "Kubernetes admits the trusted signed fixture Deployment",
-              positive, {"outcome": "accepted", "name_matches": positive,
+              positive, {"outcome": "accepted", "name_matches": accepted.get("metadata", {}).get("name") == trusted_name,
+                         "image_bound_to_manifest_digest": image_bound, "replicas_zero": replicas_zero,
+                         "persisted_exact_reference": persisted, "no_pods_created": no_pods,
                          "model_digest": "sha256:" + fixture["manifest_sha256"]})
     _record_runtime(lab, {
         "red": {"outcome": "accepted-before-webhook", "deployment": red_name},
@@ -174,6 +202,8 @@ def run(lab):
         "unsorted_attestations": {"returncode": unsorted.returncode,
                                   "stderr": unsorted.stderr.strip()},
         "incomplete": {"returncode": missing.returncode, "stderr": missing.stderr.strip()},
+        "image_reference_mismatch": {"returncode": mismatch_result.returncode,
+                                     "stderr": mismatch_result.stderr.strip()},
         "positive": {"outcome": "accepted", "deployment": trusted_name},
     })
 
