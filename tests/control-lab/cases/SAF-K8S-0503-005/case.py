@@ -12,8 +12,9 @@ SCOPE = (
     "The nine-check fixture copies observed rows into a ConfigMap for its static observer Job. "
     "An additive named ServiceAccount collector separately reads the exact owned CoreDNS Pod log "
     "through the Kubernetes API, checks exact benign rows and a refused unrelated Pod log path, "
-    "and emits sanitized predicates only. Production collection, analytic coverage and protective "
-    "enforcement need separate evidence."
+    "and feeds the API-read rows into the same bounded anomaly evaluator. It emits sanitized "
+    "predicates only. Production collection, analytic coverage and protective enforcement need "
+    "separate evidence."
 )
 PYTHON_IMAGE = (
     "docker.io/library/python:3.13-slim@sha256:"
@@ -264,4 +265,16 @@ def run(lab):
         and collected.get("unrelated_owned_pod_log_status_403") is True,
         {"unrelated_log_read_refused": collected.get("unrelated_owned_pod_log_status_403") is True,
          "http_status": collected.get("unrelated_status_class")},
+    )
+    lab.check(
+        "positive",
+        "The same anomaly evaluator identifies the expected volume, long-label, entropy, and TXT decisions from API-read rows",
+        collected.get("direct_anomaly_decisions_match") is True
+        and collected.get("direct_anomaly_rows_evaluated") == 8
+        and collected.get("direct_volume_counts_match") is True
+        and collected.get("direct_expected_rule_set_match") is True,
+        {"api_rows_evaluated": collected.get("direct_anomaly_rows_evaluated"),
+         "volume_decisions_match": collected.get("direct_volume_counts_match") is True,
+         "expected_rule_set_match": collected.get("direct_expected_rule_set_match") is True,
+         "direct_anomaly_decisions_match": collected.get("direct_anomaly_decisions_match") is True},
     )

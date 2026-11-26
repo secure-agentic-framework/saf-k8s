@@ -44,6 +44,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+from evaluator import evaluate
+
 BASE = "https://kubernetes.default.svc"
 TOKEN_FILE = Path("/var/run/saf-api/token")
 CA_FILE = "/var/run/saf-api/ca.crt"
@@ -136,6 +138,34 @@ def parse_expected():
     return collections.Counter(tuple(sorted(row.items())) for row in obj)
 
 
+def evaluate_direct_rows(rows):
+    config = json.loads(Path("/fixture/anomaly-expected.json").read_text(encoding="utf-8"))
+    selected_names = set(config["query_names"])
+    anomaly_rows = [row for row in rows if row["qname"] in selected_names]
+    decision = evaluate(anomaly_rows, {
+        "control_name": config["control_name"],
+        "volume_name": config["volume_name"],
+    })
+    observed_alerts = {(item["rule"], item["qname"]) for item in decision["alerts"]}
+    expected_alerts = {
+        ("fixture-query-volume", config["volume_name"]),
+        ("fixture-long-label", config["long_name"]),
+        ("fixture-high-entropy-label", config["entropy_name"]),
+        ("fixture-unusual-qtype", config["qtype_name"]),
+    }
+    volume_counts = (decision["volume_control_count"] == 2
+                     and decision["volume_burst_count"] == 3)
+    exact_rules = observed_alerts == expected_alerts
+    return {
+        "direct_anomaly_rows_evaluated": decision["observed_records"],
+        "direct_volume_counts_match": volume_counts,
+        "direct_expected_rule_set_match": exact_rules,
+        "direct_anomaly_decisions_match": (
+            decision["observed_records"] == 8 and volume_counts and exact_rules
+        ),
+    }
+
+
 def main():
     expected = json.loads(Path("/fixture/targets.json").read_text(encoding="utf-8"))
     target = expected["coredns"]
@@ -158,6 +188,12 @@ def main():
     exact_rows = status == 200 and collections.Counter(
         tuple(sorted(row.items())) for row in rows
     ) == parse_expected()
+    direct_anomaly = evaluate_direct_rows(rows) if exact_rows else {
+        "direct_anomaly_rows_evaluated": 0,
+        "direct_volume_counts_match": False,
+        "direct_expected_rule_set_match": False,
+        "direct_anomaly_decisions_match": False,
+    }
     denied_status = denied_log_status(other["name"])
     result = {
         "collector_completed": True,
@@ -166,6 +202,7 @@ def main():
         "target_log_api_status_200": status == 200,
         "exact_case_fixture_rows": exact_rows,
         "observed_fixture_row_count": len(rows),
+        **direct_anomaly,
         "unrelated_owned_pod_log_status_403": denied_status == 403,
         "unrelated_status_class": denied_status,
     }
@@ -209,6 +246,19 @@ def run_api_log_collector(lab, core_pod, extension):
         "metadata": {"name": CONFIG_NAME, "namespace": NAMESPACE, "labels": LABELS},
         "data": {"collector.py": _collector_script(),
                  "expected.json": json.dumps(expected, sort_keys=True),
+                 "evaluator.py": (HERE / "anomaly-evaluator.py").read_text(encoding="utf-8"),
+                 "anomaly-expected.json": json.dumps({
+                     "control_name": extension.QNAME_CONTROL,
+                     "volume_name": extension.QNAME_BURST,
+                     "long_name": extension.QNAME_LONG,
+                     "entropy_name": extension.QNAME_ENTROPY,
+                     "qtype_name": extension.QNAME_QTYPE,
+                     "query_names": sorted({
+                         extension.QNAME_CONTROL, extension.QNAME_BURST,
+                         extension.QNAME_LONG, extension.QNAME_ENTROPY,
+                         extension.QNAME_QTYPE,
+                     }),
+                 }, sort_keys=True),
                  "targets.json": json.dumps({
                      "coredns": {"name": core_name},
                      "other": {"name": OTHER_POD},

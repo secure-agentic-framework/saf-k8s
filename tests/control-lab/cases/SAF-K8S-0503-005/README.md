@@ -29,3 +29,13 @@ For a deployed collector, verify effective credentials, source scope,
 renewal, performance and failure detection. Preserve actual forwarding,
 processing and receipt at the approved analysis destination. Protect query
 data and verify alert delivery with approved benign control records.
+
+## Evaluate the collected DNS records
+
+The collector now passes the actual Kubernetes API records to the same
+anomaly evaluator as the original reference observer. From the selected
+records it confirms the two-query comparison stays below the three-query
+threshold, and the volume, long-label, entropy and TXT rules report exactly
+the expected decisions. The collector reports the decision checks and
+counts. The audit of actual production alert routing remains part of the
+adopter's acceptance procedure.
