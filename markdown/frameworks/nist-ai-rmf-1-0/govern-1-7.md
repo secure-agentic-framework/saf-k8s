@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-SAF-K8S requires secure decommissioning procedures including cleanup of data, artifacts, reservations, secrets, and access grants. Change management enforces approval workflows for model deployment lifecycle transitions.
+This fixture demonstrates one bounded technical contribution: it records a synthetic deletion notice across a fixed source-to-dependent graph and observes logical removal of selected Kubernetes API objects after releasing a Pod reference. It does not establish safe decommissioning procedures, impact/harm assessment, removal of secrets, grants, reservations or data bytes, or organization-wide phasing out of AI systems. Verify the actual adopted workflow and retained copies separately.
 
 ## SAF-K8S Controls
 
@@ -14,8 +14,8 @@ SAF-K8S requires secure decommissioning procedures including cleanup of data, ar
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5
 - Relation Type: supports
-- Strength: moderate
-- Applicability: required
+- Strength: weak
+- Applicability: conditional
 - Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1007-005 - Change management for production AI model deployments](../../controls/SAF-K8S-1007-005.md)

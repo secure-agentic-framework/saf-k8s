@@ -8707,11 +8707,11 @@
   control_seq: '006'
   control_title: Model artifact lifecycle management
   control_statement: Organizations must implement model deprecation, archival, and secure deletion procedures for retired model versions and must propagate data correction and deletion notices to all derived model artifacts using ML-BOM lineage tracking.
-  objective: Manage the full lifecycle of model artifacts including secure retirement, deletion, and regulatory data deletion propagation to derived models.
-  rationale: Without lifecycle management, retired models accumulate in registries creating storage costs and security exposure of obsolete model weights. Without propagation of data deletion notices, models trained on data subject to deletion requests (e.g., GDPR right to erasure) remain in production, creating regulatory violations.
+  objective: Manage model version retirement, archival and verified disposition. Trace data correction and deletion notices to affected releases and document approved action.
+  rationale: Retired artifacts can remain reachable through registries, replicas and retained copies. Lineage identifies potentially affected versions for review. Evaluate any applicable data protection obligations for the actual data and model before deciding and verifying the resulting action.
   scope: Applies to all model artifacts across their lifecycle on Kubernetes, from initial registration through deprecation and deletion. Covers model version archival, secure deletion, and data correction propagation. Excludes environment separation covered by SAF-K8S-0905-012.
   primary_enforcement_point: Model registry lifecycle policies and data deletion propagation workflows.
-  implementation_surface: Model registry lifecycle policies (active, deprecated, archived, deleted states), secure deletion procedures (cryptographic erasure of model weights), cold storage archival with maintained integrity verification, and data correction and deletion propagation workflows linking models to training datasets via ML-BOM lineage.
+  implementation_surface: Record owned model-version identities, governed deprecation and archival states, verified archive integrity and authorized disposition with evidence for actual copies, retention and recovery. Trace correction and deletion notices through reconciled ML-BOM lineage, assign review and follow through to the approved action. Independently verify any applicable erasure mechanism and result.
   owner_primary: ML Platform Engineering
   owner_supporting: Data Engineering; Compliance
   baseline_or_ai_specific: ai-specific
