@@ -17082,16 +17082,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-4(1)
   framework_requirement_title: Transfer to Alternate Storage
-  framework_mapping_notes: 'Offloading agent logs to long-term storage
-
-
-    10.1 - Centralized log aggregation (SIEM integration, forwarding to alternate storage backends)'
+  framework_mapping_notes: The native API-server webhook fixture transfers one metadata audit event to a separate receiver/storage component and confirms exact-event persistence across receiver Pod recreation. This supports transfer to alternate storage, but does not establish production storage durability across node/provider failure domains or long-term retention.
   control_id: SAF-K8S-1001-026
   relation_type: supports
-  strength_level: strong
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: null
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -17485,22 +17482,6 @@
 
     10.1 - SIEM integration (multiple logging backends for redundancy and alternate capability)'
   control_id: SAF-K8S-1001-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-5(5)
-  framework_requirement_title: Alternate Audit Logging Capability
-  framework_mapping_notes: 'Fallback logging for agent systems
-
-
-    10.1 - SIEM integration (multiple logging backends for redundancy and alternate capability)'
-  control_id: SAF-K8S-1001-026
   relation_type: supports
   strength_level: strong
   applicability: required
