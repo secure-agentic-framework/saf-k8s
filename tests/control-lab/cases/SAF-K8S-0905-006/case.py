@@ -1,10 +1,12 @@
 """Exercise built-in PVC protection and fixed synthetic model lineage in saf-test."""
 import hashlib
 import json
+from pathlib import Path
 import time
 
 
 NAMESPACE = "saf-test"
+HERE = Path(__file__).resolve().parent
 PV_NAME = "saf-0905-006-model-volume"
 PVC_NAME = "saf-0905-006-model-claim"
 POD_NAME = "saf-0905-006-active-release"
@@ -18,6 +20,19 @@ BUSYBOX_IMAGE = (
 )
 ARCHIVE_BYTES = b"SAF inert model artifact fixture v1\n"
 LINEAGE_VERSION = "fixture-lineage-v1"
+ZOT_IMAGE = (
+    "ghcr.io/project-zot/zot:v2.1.23@sha256:"
+    "9d3de83ac2099e6f4843045b4c9b65b7e8baf40f92d28f54906dee9d4d390fd7"
+)
+PYTHON_IMAGE = (
+    "docker.io/library/python:3.13.2-alpine@sha256:"
+    "323a717dc4a010fee21e3f1aac738ee10bb485de4e7593ce242b36ee48d6b352"
+)
+SOURCE_REPO = "saf-test/model-retire"
+ARCHIVE_REPO = "saf-test/model-archive"
+MANIFEST_TYPE = "application/vnd.oci.image.manifest.v1+json"
+LAYER_TYPE = "application/vnd.saf.fixture.model-bytes.v1"
+CONFIG_TYPE = "application/vnd.oci.empty.v1+json"
 
 # Explicit, fixed lineage graph. Edges point from source to every dependent.
 # The archive copy is a dependent and receives the notice; control-unrelated is not.
@@ -47,8 +62,11 @@ SCOPE = (
     "is gone. Separately, case-local fixture logic traverses the embedded fixture-lineage-v1 "
     "graph, annotates its source and every direct/transitive dependent ConfigMap, retrieves "
     "an inert archived ConfigMap value and compares its SHA-256, and leaves one unrelated "
-    "control ConfigMap unmarked. This does not prove a model registry, production release "
-    "controller, CycloneDX schema validation, ML-BOM ingestion, a general propagation service, "
+    "control ConfigMap unmarked. An additive reference starts one case-owned internal Zot registry, "
+    "archives the same inert bytes in a second repository, deletes the source repository manifest, "
+    "and restores from archive readback by exact digest. Both repositories use the same ephemeral "
+    "registry backend. This does not prove production archive independence, model registry policy, "
+    "a production release controller, CycloneDX schema validation, ML-BOM ingestion, a general propagation service, "
     "cold or external storage, retention policy, physical or backup erasure, cryptographic "
     "erasure, regulatory compliance, or deletion outside these fixture Kubernetes objects."
 )
@@ -297,6 +315,151 @@ def _lifecycle_objects(lab):
                      "physical_erasure_claimed": False})
 
 
+def _expected_registry_manifest_digest():
+    config = b"{}"
+    layer_digest = "sha256:" + hashlib.sha256(ARCHIVE_BYTES).hexdigest()
+    manifest = {
+        "schemaVersion": 2,
+        "mediaType": MANIFEST_TYPE,
+        "artifactType": "application/vnd.saf.fixture.model.v1",
+        "annotations": {
+            "org.opencontainers.image.title": "saf-inert-lineage-fixture",
+            "org.opencontainers.image.version": "1.0.0",
+            "saf-k8s.example/lineage-version": LINEAGE_VERSION,
+            "saf-k8s.example/lineage-source": LINEAGE["dataset"],
+            "saf-k8s.example/lineage-node": "model-archive",
+        },
+        "config": {"mediaType": CONFIG_TYPE,
+                   "digest": "sha256:" + hashlib.sha256(config).hexdigest(),
+                   "size": len(config)},
+        "layers": [{"mediaType": LAYER_TYPE, "digest": layer_digest,
+                    "size": len(ARCHIVE_BYTES)}],
+    }
+    raw = json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
+    return "sha256:" + hashlib.sha256(raw).hexdigest()
+
+
+def _oci_archive_restore(lab):
+    registry_config = {
+        "distSpecVersion": "1.1.0",
+        "storage": {"rootDirectory": "/var/lib/registry", "gc": False},
+        "http": {"address": "0.0.0.0", "port": "5000",
+                 "accessControl": {"repositories": {
+                     SOURCE_REPO: {"anonymousPolicy": ["read", "create", "delete"]},
+                     ARCHIVE_REPO: {"anonymousPolicy": ["read", "create", "delete"]},
+                 }}},
+    }
+    lab.create({"apiVersion": "v1", "kind": "ConfigMap",
+                "metadata": {"name": "model-archive-zot-config"}, "immutable": True,
+                "data": {"config.json": json.dumps(registry_config, sort_keys=True)}})
+    lab.create({"apiVersion": "apps/v1", "kind": "Deployment",
+                "metadata": {"name": "model-archive-zot"},
+                "spec": {"replicas": 1,
+                         "selector": {"matchLabels": {"app": "model-archive-zot"}},
+                         "template": {"metadata": {"labels": {"app": "model-archive-zot"}},
+                                      "spec": {"automountServiceAccountToken": False,
+                                               "containers": [{"name": "zot", "image": ZOT_IMAGE,
+                                                               "imagePullPolicy": "IfNotPresent",
+                                                               "args": ["serve", "/etc/zot/config.json"],
+                                                               "ports": [{"name": "registry", "containerPort": 5000}],
+                                                               "readinessProbe": {"tcpSocket": {"port": 5000},
+                                                                                  "periodSeconds": 1},
+                                                               "resources": {"requests": {"cpu": "20m", "memory": "32Mi"},
+                                                                             "limits": {"cpu": "200m", "memory": "192Mi"}},
+                                                               "volumeMounts": [{"name": "config", "mountPath": "/etc/zot",
+                                                                                 "readOnly": True},
+                                                                                {"name": "data", "mountPath": "/var/lib/registry"}]}],
+                                               "volumes": [{"name": "config", "configMap": {
+                                                   "name": "model-archive-zot-config"}},
+                                                   {"name": "data", "emptyDir": {"sizeLimit": "32Mi"}}]}}}})
+    lab.create({"apiVersion": "v1", "kind": "Service",
+                "metadata": {"name": "model-archive"},
+                "spec": {"type": "ClusterIP", "selector": {"app": "model-archive-zot"},
+                         "ports": [{"name": "registry", "port": 5000, "targetPort": 5000}]}})
+    lab.kubectl("wait", "--for=condition=Available", "deployment/model-archive-zot",
+                "--timeout=75s", timeout=85)
+
+    lab.create({"apiVersion": "v1", "kind": "ConfigMap",
+                "metadata": {"name": "model-archive-zot-probe"}, "immutable": True,
+                "data": {"registry_probe.py": (HERE / "registry_probe.py").read_text()}})
+    job_name = "model-archive-zot-probe"
+    lab.create({"apiVersion": "batch/v1", "kind": "Job",
+                "metadata": {"name": job_name},
+                "spec": {"backoffLimit": 0, "activeDeadlineSeconds": 75,
+                         "template": {"metadata": {"labels": {"app": job_name}},
+                                      "spec": {"restartPolicy": "Never",
+                                               "automountServiceAccountToken": False,
+                                               "securityContext": {"runAsNonRoot": True,
+                                                                   "runAsUser": 1000,
+                                                                   "runAsGroup": 1000,
+                                                                   "fsGroup": 1000,
+                                                                   "seccompProfile": {"type": "RuntimeDefault"}},
+                                               "containers": [{"name": "probe", "image": PYTHON_IMAGE,
+                                                               "imagePullPolicy": "IfNotPresent",
+                                                               "command": ["python", "-B", "/probe/registry_probe.py"],
+                                                               "resources": {"requests": {"cpu": "10m", "memory": "24Mi"},
+                                                                             "limits": {"cpu": "100m", "memory": "64Mi"}},
+                                                               "securityContext": {"allowPrivilegeEscalation": False,
+                                                                                   "readOnlyRootFilesystem": True,
+                                                                                   "capabilities": {"drop": ["ALL"]}},
+                                                               "volumeMounts": [{"name": "probe", "mountPath": "/probe",
+                                                                                 "readOnly": True}]}],
+                                               "volumes": [{"name": "probe", "configMap": {
+                                                   "name": "model-archive-zot-probe", "defaultMode": 292}}]}}}})
+    deadline = time.monotonic() + 90
+    while time.monotonic() < deadline:
+        job = _get_json(lab, f"job/{job_name}")
+        states = {condition["type"] for condition in job.get("status", {}).get("conditions", [])
+                  if condition.get("status") == "True"}
+        if "Failed" in states:
+            lab.kubectl("logs", "job/" + job_name, allow_failure=True)
+            lab.block("Case-owned OCI archive/restore probe failed")
+        if "Complete" in states:
+            try:
+                observation = json.loads(lab.kubectl("logs", "job/" + job_name).stdout)
+            except json.JSONDecodeError:
+                lab.block("Case-owned OCI archive/restore probe did not emit stable JSON")
+            break
+        time.sleep(0.5)
+    else:
+        lab.block("Case-owned OCI archive/restore probe timed out")
+
+    expected_manifest = _expected_registry_manifest_digest()
+    expected_layer = hashlib.sha256(ARCHIVE_BYTES).hexdigest()
+    verified = (
+        observation.get("source_publish_status") == 201
+        and observation.get("source_pull_digest_matches") is True
+        and observation.get("archive_publish_status") == 201
+        and observation.get("archive_manifest_digest") == expected_manifest
+        and observation.get("source_delete_status") == 202
+        and observation.get("source_manifest_absent_after_retirement") is True
+        and observation.get("source_digest_absent_after_retirement") is True
+        and observation.get("source_tag_absent_after_retirement") is True
+        and observation.get("archive_readback_matches") is True
+        and observation.get("archive_manifest_digest_after_retirement") == expected_manifest
+        and observation.get("layer_sha256") == expected_layer
+        and observation.get("layer_bytes_match") is True
+        and observation.get("lineage_version") == LINEAGE_VERSION
+        and observation.get("lineage_source") == LINEAGE["dataset"]
+        and observation.get("lineage_node") == "model-archive"
+        and observation.get("restore_publish_status") == 201
+        and observation.get("restored_manifest_digest") == expected_manifest
+        and observation.get("restored_layer_sha256") == expected_layer
+        and observation.get("restore_matches") is True
+        and observation.get("only_case_service_endpoint") is True
+        and observation.get("raw_bytes_emitted") is False
+        and observation.get("scope") == "one Zot instance; source and archive are separate repositories on the same ephemeral backend"
+    )
+    _save(lab, "oci-archive-restore-runtime-evidence.json", observation)
+    lab.check("positive", "A fixed lineage-bound OCI artifact remains retrievable by digest after source retirement and restores from the archive repository",
+              verified,
+              {"matched": verified, "manifest_sha256": expected_manifest,
+               "layer_sha256": expected_layer, "source_retired": observation.get("source_manifest_absent_after_retirement") is True,
+               "archive_readback": observation.get("archive_readback_matches") is True,
+               "restored": observation.get("restore_matches") is True,
+               "backend_scope": observation.get("scope")})
+
+
 def _has_deletion_timestamp(lab, name):
     try:
         return bool(_get_json(lab, f"pvc/{name}").get("metadata", {}).get("deletionTimestamp"))
@@ -341,3 +504,4 @@ def run(lab):
         "unrelated_control_preserved": "control-unrelated",
         "meaning": "Kubernetes API object deletion only; backing data and replicas were not measured",
     })
+    _oci_archive_restore(lab)

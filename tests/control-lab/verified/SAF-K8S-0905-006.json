@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-006",
-  "catalog_revision": "ee480faf56ece2a6efe4a90f4401a06fefb7957d",
-  "catalog_sha256": "1d7ee8bb6fda38d512e240ddc5dd8903eca46391185e844312addb22e4a4e39e",
+  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
+  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d948cc896109c8c3c5bd3ac60f10c048b4609169a396ac16c606d205438c6ae6",
-  "scope": "Kubernetes v1.36.1 in the lab-created Kind cluster and namespace saf-test. A fixed static hostPath PV/PVC and one pinned BusyBox Pod prove that the built-in PVC-protection finalizer keeps a namespaced claim terminating while a nonterminal Pod references it, and that the claim and PV API objects can be removed after the Pod is gone. Separately, case-local fixture logic traverses the embedded fixture-lineage-v1 graph, annotates its source and every direct/transitive dependent ConfigMap, retrieves an inert archived ConfigMap value and compares its SHA-256, and leaves one unrelated control ConfigMap unmarked. This does not prove a model registry, production release controller, CycloneDX schema validation, ML-BOM ingestion, a general propagation service, cold or external storage, retention policy, physical or backup erasure, cryptographic erasure, regulatory compliance, or deletion outside these fixture Kubernetes objects.",
-  "cluster": "saf-lab-9507bb650bf1",
+  "scope": "Kubernetes v1.36.1 in the lab-created Kind cluster and namespace saf-test. A fixed static hostPath PV/PVC and one pinned BusyBox Pod prove that the built-in PVC-protection finalizer keeps a namespaced claim terminating while a nonterminal Pod references it, and that the claim and PV API objects can be removed after the Pod is gone. Separately, case-local fixture logic traverses the embedded fixture-lineage-v1 graph, annotates its source and every direct/transitive dependent ConfigMap, retrieves an inert archived ConfigMap value and compares its SHA-256, and leaves one unrelated control ConfigMap unmarked. An additive reference starts one case-owned internal Zot registry, archives the same inert bytes in a second repository, deletes the source repository manifest, and restores from archive readback by exact digest. Both repositories use the same ephemeral registry backend. This does not prove production archive independence, model registry policy, a production release controller, CycloneDX schema validation, ML-BOM ingestion, a general propagation service, cold or external storage, retention policy, physical or backup erasure, cryptographic erasure, regulatory compliance, or deletion outside these fixture Kubernetes objects.",
+  "cluster": "saf-lab-53342807c32f",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -147,6 +147,20 @@
       "observed": {
         "archive_preserved": true,
         "retired_api_objects_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A fixed lineage-bound OCI artifact remains retrievable by digest after source retirement and restores from the archive repository",
+      "matched": true,
+      "observed": {
+        "matched": true,
+        "manifest_sha256": "sha256:8bc24728c668cf25a508fb67202ed7335ecc722dbd845de449c9b64d2d8060d2",
+        "layer_sha256": "c5542197fe8ee8c1943c7db38a3881f36490c14ab1e050b7908b52781bc6b927",
+        "source_retired": true,
+        "archive_readback": true,
+        "restored": true,
+        "backend_scope": "one Zot instance; source and archive are separate repositories on the same ephemeral backend"
       }
     }
   ]

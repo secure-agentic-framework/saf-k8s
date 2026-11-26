@@ -2,7 +2,11 @@
 
 Run `python3 tests/control-lab/lab.py test SAF-K8S-0905-006 --docker-context desktop-linux` from the framework checkout.
 
-The eight checks use inert model records, a fixed lineage graph and one case-owned storage fixture. They compare immediate-only and complete lineage traversal, track affected correction and deletion notices, preserve the unrelated comparator, verify digests of archived fixture data and observe PVC protection while an active Pod references the claim. After the reference ends, the native API objects are removed and the fixture archive and propagation records remain readable.
+The case includes eight checks for inert model records, a fixed lineage graph and owned storage. A ninth check uses a pinned Zot v2.1.23 OCI registry. A separate repository stores the exact same inert artifact manifest and layer. The fixture deletes the source-repository manifest by digest, reads the archive copy by immutable digest, restores from bytes fetched back from the archive repository, and compares an independently reconstructed expected manifest and layer digest.
+
+The artifact manifest carries fixed metadata tying it to `fixture-lineage-v1`, source `fixture-dataset`, and graph node `model-archive`. This is a metadata reference to the already-tested fixture graph; it does not parse or validate ML-BOM/CycloneDX. Both repositories share one Zot process and one ephemeral `emptyDir` backend. The supplement demonstrates repository-level archive/readback in a bounded reference, not independent backup, cold storage, provider retention, or disaster recovery.
+
+The Zot Service is ClusterIP-only, named and case-owned, and the probe's URL is fixed to that Service. Zot permits anonymous read/create/delete only for the two exact fixture repositories; no registry credential is created or used. The probe blocks redirects and checks every upload Location remains on the internal case Service. The probe Job is tokenless, non-root, read-only apart from its read-only mounted code, with no network exposure outside the disposable cluster. It emits only statuses, digests, fixed lineage identifiers and booleans, never artifact bytes.
 
 ## Verify an adopted model lifecycle
 
@@ -12,5 +16,7 @@ The eight checks use inert model records, a fixed lineage graph and one case-own
 4. Record how privacy and data-governance owners decide applicable obligations and exceptions for each case. Retain sanitized identifiers, version history, decision provenance and verified outcomes.
 
 - [Kubernetes Persistent Volumes](https://v1-36.docs.kubernetes.io/docs/concepts/storage/persistent-volumes/)
+- [Zot v2.1.23 configuration](https://zotregistry.dev/v2.1.23/admin-guide/admin-configuration/)
+- [OCI Distribution Specification v1.1.0](https://github.com/opencontainers/distribution-spec/blob/v1.1.0/spec.md)
 - [GDPR, Articles 16 and 17](https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng/)
 - [EDPB Opinion 28/2024 on AI models](https://www.edpb.europa.eu/system/files/documents/2024-12/edpb_opinion_202428_ai-models_en.pdf)
