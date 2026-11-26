@@ -2292,33 +2292,13 @@
   framework_requirement_id: Article-18.1
   legacy_requirement_id: Annex-VII:VII(10)
   framework_requirement_title: Documentation keeping
-  framework_mapping_notes: |-
-    The provider shall, for a period ending 10 years after the high-risk AI system has been placed on the market or put into service, keep at the disposal of the national competent authorities:
-
-    SAF-K8S artifact storage and retention controls (D10) support long-term retention infrastructure through persistent storage, backup policies, and access controls. However, the obligation to maintain and make certificates available to authorities is an organizational responsibility.
+  framework_mapping_notes: Keeping digest-linked software integrity evidence with the artifact can support retention of technical documentation covered by Article 18(1)(a). Verify separately which documentation is required, its period of availability from the applicable trigger, and access by the competent authority.
   control_id: SAF-K8S-0601-011
-  relation_type: partial
+  relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Article-18.1.d
-  legacy_requirement_id: Annex-VII:VII(10)
-  framework_requirement_title: Documentation keeping
-  framework_mapping_notes: |-
-    the decisions and other documents issued by the notified bodies, where applicable;
-
-    SAF-K8S artifact storage and retention controls (D10) support long-term retention infrastructure through persistent storage, backup policies, and access controls. However, the obligation to maintain and make certificates available to authorities is an organizational responsibility.
-  control_id: SAF-K8S-0601-011
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  applicability: conditional
+  applicability_condition: Where the provider incorporates the retained integrity evidence into the Article 11 technical documentation for the covered high-risk AI system and independently satisfies the Article 18 retention and authority-access requirements.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act

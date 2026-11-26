@@ -4752,10 +4752,10 @@
   control_title: Integrity metadata co-retention with software artifacts
   control_statement: Organizations must retain integrity verification data such as signatures, attestations, SBOMs, and related OCI referrers for at least as long as the artifact they describe, using lifecycle policies that prevent orphaning or premature deletion of integrity metadata.
   objective: Ensure provenance and integrity evidence remains available alongside retained artifacts for audit, vulnerability investigation, and trust verification.
-  rationale: Retaining an artifact without its associated signature, attestation, or SBOM destroys the evidence needed to validate provenance and investigate vulnerabilities, while retaining metadata without the subject artifact creates incomplete and misleading records.
+  rationale: Keeping integrity records linked to their exact subject preserves evidence for provenance checks and vulnerability investigation. When an artifact or referrer disappears unexpectedly, verify whether the connected records are still usable and restore missing records according to approved procedures. Track any independent retention requirements for archived evidence.
   scope: All registries and artifact stores that hold integrity verification metadata for container images, Helm charts, ML model artifacts, or other OCI artifacts.
   primary_enforcement_point: Lifecycle management for signatures, attestations, SBOMs, and related integrity metadata linked to stored artifacts.
-  implementation_surface: OCI referrer retention policy, signature and attestation retention rules, SBOM storage lifecycle controls, and metadata cleanup logic that tracks the lifecycle of the subject artifact.
+  implementation_surface: Apply retention rules to exact OCI subjects, referrers, signatures, attestations and stored SBOMs. Verify that protected records remain readable while the subject is retained and that eligible retirement preserves unrelated cohorts. Account for independent evidence retention schedules, applicable holds, recovery, and authoritative access requirements.
   owner_primary: Platform Engineering
   owner_supporting: DevSecOps / Release Engineering; ML Platform Engineering
   baseline_or_ai_specific: baseline

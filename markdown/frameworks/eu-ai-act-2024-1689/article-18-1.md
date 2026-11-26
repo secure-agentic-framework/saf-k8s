@@ -22,7 +22,7 @@ Registry retention and hold evidence can support custody of the specific documen
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.1
-- Relation Type: partial
+- Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

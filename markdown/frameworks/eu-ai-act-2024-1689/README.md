@@ -2,8 +2,8 @@
 
 - Framework Code: EU-AI-ACT
 - Version: 2024/1689
-- Total Reverse Mappings: 197
-- Distinct Requirements Mapped: 77
+- Total Reverse Mappings: 196
+- Distinct Requirements Mapped: 76
 
 ## Requirements
 
@@ -59,7 +59,6 @@
 - [Article-15.4 - Accuracy, robustness and cybersecurity](article-15-4.md)
 - [Article-15.5 - Accuracy, robustness and cybersecurity](article-15-5.md)
 - [Article-18.1 - Documentation keeping](article-18-1.md)
-- [Article-18.1.d - Documentation keeping](article-18-1-d.md)
 - [Article-20.2 - Corrective actions and duty of information](article-20-2.md)
 - [Article-4a.1.b - Technical limitations on re-use and security/privacy safeguards](article-4a-1-b.md)
 - [Article-4a.1.c - Safeguards for special categories of personal data processed for bias detection and correction](article-4a-1-c.md)
