@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib.error import URLError
 from urllib.request import Request, urlopen
 
 CONSUMER = "http://retrieval-consumer:8081"
@@ -87,6 +88,13 @@ def admit(scenario, enforce):
 if __name__ == "__main__":
     if sys.argv[1] == "consumer":
         serve()
+    elif sys.argv[1] == "ready":
+        try:
+            count = consumer_count()
+        except (OSError, URLError):
+            print("pending")
+        else:
+            print("ready" if count == 0 else "unexpected receiver state")
     else:
         scenario = sys.argv[1]
         print(json.dumps(admit(scenario, scenario != "baseline"), sort_keys=True))

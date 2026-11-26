@@ -4,8 +4,8 @@
   "catalog_sha256": "e13cdc23386f7894bc628f80bb5f925ebb6048d3c4863bc0baf4c7ba6874e1b2",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e683662a1f8965dbffb2dfc25553e0be4c2f9b6ceeb098bacaba24d4a5b0ce3f",
-  "scope": "An owned fixed index supplies benign retrieved chunks. A separate approved record binds each chunk to its source, version and digest. The governed workload computes token relevance before forwarding, limits the accepted count, and records decisions and mutations observed at an independent consumer Service.",
-  "cluster": "saf-lab-883459587dc8",
+  "scope": "An owned fixed index supplies benign retrieved chunks. A separate approved record binds each chunk to its source, version and digest. The governed workload computes token relevance before forwarding, limits the accepted count, and records decisions and mutations observed at an independent consumer Service. A case-bound retrieval identity is limited to reading the immutable approval record, and a distinct candidate proves strict score-based ranking.",
+  "cluster": "saf-lab-018beda6c8f4",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -63,6 +63,44 @@
       "observed": {
         "two_valid_chunks_met_threshold": true,
         "top_one_forwards_only_the_expected_bound_chunk": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Higher-scoring approved candidate wins and the retrieval identity cannot alter trusted metadata",
+      "matched": true,
+      "observed": {
+        "ranking": {
+          "both_candidates_pass_threshold": true,
+          "strictly_higher_score_wins_over_lexical_tie_break": true
+        },
+        "metadata_authority": {
+          "retrieval_identity_can_read_approved_metadata": true,
+          "retrieval_identity_cannot_patch_approved_metadata": true,
+          "actual_metadata_patch_was_denied": true,
+          "approval_configmap_is_immutable": true,
+          "approved_metadata_unchanged": true,
+          "approved_metadata_hash_unchanged": true
+        },
+        "ranked_decisions": [
+          {
+            "chunk_id": "cedar",
+            "decision": "accepted",
+            "score": 0.75
+          },
+          {
+            "chunk_id": "willow",
+            "decision": "accepted",
+            "score": 1.0
+          }
+        ],
+        "consumer_receipt": [
+          {
+            "chunk_id": "willow",
+            "received": true,
+            "text_sha256": "d4283ea450a292d2c6b1e260163b8ade080c7d17cbe6868d19cb4fcbe5b5a5d1"
+          }
+        ]
       }
     }
   ]
