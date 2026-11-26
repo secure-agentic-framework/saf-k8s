@@ -1,5 +1,7 @@
 """Exercise synthetic locality labels and failure-domain spread on ordinary kind."""
+import importlib.util
 import json
+from pathlib import Path
 import time
 
 from fixtures import BUSYBOX_IMAGE
@@ -11,7 +13,7 @@ GROUP = "saf.example/spread-group"
 SCOPE = (
     "Kubernetes v1.36.1 on a disposable three-node kind cluster. Synthetic worker labels "
     "exercise ordinary node-selector placement and Pod topology spread across two named "
-    "failure domains. The fixture does not configure kubelet Topology Manager, expose NUMA "
+    "failure domains. It withdraws one fixture worker from scheduling and checks Ready replica replacement and redistribution after return. The fixture does not configure kubelet Topology Manager, expose NUMA "
     "hardware or GPU resources, install a device plugin/vendor operator, or measure NVLink/"
     "NVSwitch connectivity or bandwidth. Production labels, hardware topology, plugin behavior, "
     "and workload fault tolerance require separate evidence."
@@ -177,3 +179,9 @@ def run(lab):
               spread_denial,
               {"scheduled": scheduled(spread_block), "reason": spread_condition.get("reason"),
                "spread_failure_confirmed": spread_denial, "nodeAffinityPolicy": "Ignore"})
+
+    path = Path(__file__).resolve().with_name("domain_recovery.py")
+    spec = importlib.util.spec_from_file_location("saf_0703_013_domain_recovery", path)
+    recovery = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(recovery)
+    recovery.run(lab)

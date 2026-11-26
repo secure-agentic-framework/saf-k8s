@@ -42,3 +42,15 @@ accelerator fabric performance require their own observations.
 [Kubernetes device plugins](https://v1-36.docs.kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/),
 [Kubernetes topology spread](https://v1-36.docs.kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/),
 and [one provider fabric topology integration](https://docs.nvidia.com/topograph/v1.1.0/engines/kubernetes/).
+
+## Observed replacement after withdrawing a scheduling domain
+
+The case puts two owned, probe-ready replicas in separate synthetic domains.
+It cordons and taints the owned `fd-a` worker, deletes the exact fixture Pod
+owned by the observed ReplicaSet on that worker, and verifies two Ready
+replicas on `fd-b`. After restoring the worker and replacing one owned Pod,
+it verifies one Ready replica in each domain again. Pod and ReplicaSet UIDs
+are retained in `domain-recovery-observations.json`. The test measures
+controller replacement and fresh scheduling after controlled domain withdrawal.
+Adopter evidence covers hardware locality, automatic failure detection,
+application recovery and the documented service objective.
