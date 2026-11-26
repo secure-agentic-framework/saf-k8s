@@ -14,6 +14,10 @@ ENROLLER = "fixture-endpoint-enroller"
 APPROVER = "fixture-endpoint-approver"
 COPIER = "fixture-endpoint-copier"
 OBSERVER = "fixture-endpoint-observer"
+SOURCE_OWNER = "fixture-source-endpoint-owner"
+DESTINATION_OWNER = "fixture-destination-endpoint-owner"
+SOURCE_CLAIM = "fixture-source-owner-claim"
+DESTINATION_CLAIM = "fixture-destination-owner-claim"
 SOURCE = "fixture-enrollment-source"
 APPROVED = "fixture-enrollment-approved"
 UNAPPROVED = "fixture-enrollment-unapproved"
@@ -28,7 +32,9 @@ SCOPE = (
     "first transfers the inert artifact through an open baseline. After destination reset, the "
     "governed copier reads an enrollment record from the source Kubernetes API and compares both "
     "exact endpoint strings. A distinct approver account is the only principal allowed to write "
-    "that record; a separate observer verifies the record and Distribution manifest digest."
+    "that record. Separate scoped source and destination endpoint-owner identities publish exact "
+    "fixture claims before activation; a separate observer verifies those records and the Distribution "
+    "manifest digest. This does not validate third-party endpoint ownership."
 )
 
 
@@ -75,13 +81,16 @@ def registry(lab, name, peer=None):
 
 
 def accounts(lab):
-    for actor in (ENROLLER, APPROVER, COPIER, OBSERVER):
+    for actor in (ENROLLER, APPROVER, COPIER, OBSERVER, SOURCE_OWNER, DESTINATION_OWNER):
         create(lab, "ServiceAccount", actor)
     rules = {
         ENROLLER: [(REQUEST, ["get", "patch"])],
         APPROVER: [(REQUEST, ["get"]), (APPROVAL, ["get", "patch"])],
-        COPIER: [(APPROVAL, ["get"])],
-        OBSERVER: [(REQUEST, ["get"]), (APPROVAL, ["get"])],
+        COPIER: [(APPROVAL, ["get"]), (SOURCE_CLAIM, ["get"]), (DESTINATION_CLAIM, ["get"])],
+        OBSERVER: [(REQUEST, ["get"]), (APPROVAL, ["get"]),
+                   (SOURCE_CLAIM, ["get"]), (DESTINATION_CLAIM, ["get"])],
+        SOURCE_OWNER: [(SOURCE_CLAIM, ["get", "patch"])],
+        DESTINATION_OWNER: [(DESTINATION_CLAIM, ["get", "patch"])],
     }
     for actor, grants in rules.items():
         permissions = [{"apiGroups": [""], "resources": ["configmaps"],
@@ -116,14 +125,20 @@ def run(lab):
         accounts(lab)
         create(lab, "ConfigMap", REQUEST, data={})
         create(lab, "ConfigMap", APPROVAL, data={})
+        create(lab, "ConfigMap", SOURCE_CLAIM, data={})
+        create(lab, "ConfigMap", DESTINATION_CLAIM, data={})
         registry(lab, SOURCE)
         approved_port = registry(lab, APPROVED, peer)
         unapproved_port = registry(lab, UNAPPROVED, peer)
         endpoint_map = fixture.endpoint_map(peer_ip, approved_port, unapproved_port)
+        source_uid = lab.kubectl("get", "service", SOURCE, "-o", "jsonpath={.metadata.uid}").stdout.strip()
+        destination_uid = peer("get", "service", APPROVED, "-o", "jsonpath={.metadata.uid}").stdout.strip()
+        if not source_uid or not destination_uid or source_uid == destination_uid:
+            lab.block("The two approved registry Services must have distinct Kubernetes identities")
         env = [{"name": name, "value": str(value)} for name, value in
-               (("PEER_IP", peer_ip), ("APPROVED_PORT", approved_port),
-                ("UNAPPROVED_PORT", unapproved_port))]
-        for actor in (ENROLLER, APPROVER, COPIER, OBSERVER):
+               (("PEER_IP", peer_ip), ("APPROVED_PORT", approved_port), ("UNAPPROVED_PORT", unapproved_port),
+                ("SOURCE_SERVICE_UID", source_uid), ("DESTINATION_SERVICE_UID", destination_uid))]
+        for actor in (ENROLLER, APPROVER, COPIER, OBSERVER, SOURCE_OWNER, DESTINATION_OWNER):
             runner(lab, image, actor, env)
 
         def invoke(actor, operation):
@@ -196,6 +211,44 @@ def run(lab):
         lab.check("green", "Missing approval, a mismatched endpoint pair, and enrollment by the wrong role are refused",
                   all(green.values()), green)
 
+        # An exact independent approval cannot activate copying until both endpoint owners
+        # attest the fixed case-owned endpoint identities through separately scoped records.
+        exact_request_before_claims = invoke(ENROLLER, "submit-exact-pair")
+        exact_approval_before_claims = invoke(APPROVER, "approver-approve-request")
+        before_claims = invoke(COPIER, "governed-copy-approved")
+        empty_before_claims = invoke(OBSERVER, "observe-approved")
+        destination_claim = invoke(DESTINATION_OWNER, "claim-destination-endpoint")
+        wrong_uid_claim = invoke(SOURCE_OWNER, "claim-source-wrong-uid")
+        wrong_uid_blocked = invoke(COPIER, "governed-copy-approved")
+        still_empty = invoke(OBSERVER, "observe-approved")
+        source_claim = invoke(SOURCE_OWNER, "claim-source-endpoint")
+        unauthorized_claim = invoke(ENROLLER, "claim-source-endpoint")
+        claims = invoke(OBSERVER, "observe-owner-claims")
+        expected_claims = {
+            "source": {"endpoint": endpoint_map["source"], "registry": "source", "service_uid": source_uid},
+            "destination": {"endpoint": endpoint_map["approved"],
+                            "registry": "approved-destination", "service_uid": destination_uid},
+        }
+        ownership = {
+            "exact_pair_approval_alone_does_not_activate":
+                exact_request_before_claims == {"http_status": 200}
+                and exact_approval_before_claims == {"http_status": 200}
+                and before_claims == {"decision": "denied-missing-endpoint-ownership"}
+                and empty_before_claims == {"digest": None, "status": 404},
+            "wrong_service_uid_leaves_destination_empty":
+                wrong_uid_claim == {"http_status": 200}
+                and wrong_uid_blocked == {"decision": "denied-missing-endpoint-ownership"}
+                and still_empty == {"digest": None, "status": 404},
+            "distinct_source_and_destination_owners_submit_exact_claims":
+                source_claim == destination_claim == {"http_status": 200}
+                and claims == expected_claims,
+            "unrelated_enroller_cannot_write_endpoint_claim":
+                unauthorized_claim == {"http_status": 403}
+                and invoke(OBSERVER, "observe-owner-claims") == expected_claims,
+        }
+        lab.check("ownership", "Exact authorized pair remains inactive until both scoped endpoint owners prove the fixture pair",
+                  all(ownership.values()), ownership)
+
         exact_request = invoke(ENROLLER, "submit-exact-pair")
         exact_approval = invoke(APPROVER, "approver-approve-request")
         approved_record = invoke(OBSERVER, "observe-approval").get("pair")
@@ -222,6 +275,7 @@ def run(lab):
                      "approved": ["source", "approved"]},
             "red": red,
             "green": green,
+            "ownership": ownership,
             "positive": positive,
         }
         (lab.evidence / "endpoint-enrollment-observations.json").write_text(

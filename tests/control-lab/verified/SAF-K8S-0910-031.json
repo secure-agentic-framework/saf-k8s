@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0910-031",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "5c35dd2a43235883edfca56e842a56e15209008d",
+  "catalog_sha256": "f90c94c673d20660168dfaa86a14af064fc386b44cfe4af6b5263d264c1e59b3",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "1cf561c57021f48af19895369e3fa4f0b8ef674634000f3b2b19b2cfe66f5166",
-  "scope": "An owned source Kind API server and a second owned peer Kind API server host a source registry and two fixed candidate destination registries. The same source-to-approved-destination pair first transfers the inert artifact through an open baseline. After destination reset, the governed copier reads an enrollment record from the source Kubernetes API and compares both exact endpoint strings. A distinct approver account is the only principal allowed to write that record; a separate observer verifies the record and Distribution manifest digest.",
-  "cluster": "saf-lab-464b13074c56",
+  "scope": "An owned source Kind API server and a second owned peer Kind API server host a source registry and two fixed candidate destination registries. The same source-to-approved-destination pair first transfers the inert artifact through an open baseline. After destination reset, the governed copier reads an enrollment record from the source Kubernetes API and compares both exact endpoint strings. A distinct approver account is the only principal allowed to write that record. Separate scoped source and destination endpoint-owner identities publish exact fixture claims before activation; a separate observer verifies those records and the Distribution manifest digest. This does not validate third-party endpoint ownership.",
+  "cluster": "saf-lab-df54d7c86c45",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -57,6 +57,17 @@
         "approved_pair_mismatch_denied_without_transfer": true,
         "approved_different_source_is_denied_without_transfer": true,
         "enroller_cannot_write_approval": true
+      }
+    },
+    {
+      "phase": "ownership",
+      "claim": "Exact authorized pair remains inactive until both scoped endpoint owners prove the fixture pair",
+      "matched": true,
+      "observed": {
+        "exact_pair_approval_alone_does_not_activate": true,
+        "wrong_service_uid_leaves_destination_empty": true,
+        "distinct_source_and_destination_owners_submit_exact_claims": true,
+        "unrelated_enroller_cannot_write_endpoint_claim": true
       }
     },
     {

@@ -19,6 +19,8 @@ APPROVED_NAME = "fixture-enrollment-approved"
 UNAPPROVED_NAME = "fixture-enrollment-unapproved"
 APPROVAL = "/api/v1/namespaces/saf-test/configmaps/fixture-endpoint-enrollment-approval"
 REQUEST = "/api/v1/namespaces/saf-test/configmaps/fixture-endpoint-enrollment-request"
+SOURCE_CLAIM = "/api/v1/namespaces/saf-test/configmaps/fixture-source-owner-claim"
+DESTINATION_CLAIM = "/api/v1/namespaces/saf-test/configmaps/fixture-destination-owner-claim"
 REPOSITORY = "fixtures/saf-endpoint-enrollment"
 TAG = "inert-v1"
 MEDIA_TYPE = "application/vnd.docker.distribution.manifest.v2+json"
@@ -223,17 +225,47 @@ def _submit(pair):
     return {"http_status": status}
 
 
+def _owner_claim(path):
+    status, record = _api("GET", path)
+    if status != 200:
+        return None
+    raw = record.get("data", {}).get("endpoint-owner.json")
+    return json.loads(raw) if raw else None
+
+
 def _governed(destination_label, values):
     source, destination = values["source"], values[destination_label]
     record = _approval()
     if record is None:
         return {"decision": "denied-missing-approval"}
-    # The record is trusted because only the distinct approver Role can patch this object.
-    # Compare both endpoint identities; the caller selects only a fixed case operation.
+    # Compare the approved pair first so the existing wrong-pair denials remain stable.
     if record != {"source": source, "destination": destination}:
         return {"decision": "denied-endpoint-pair"}
+    source_claim = _owner_claim(SOURCE_CLAIM)
+    destination_claim = _owner_claim(DESTINATION_CLAIM)
+    if source_claim != {"endpoint": source, "registry": "source",
+                        "service_uid": os.environ["SOURCE_SERVICE_UID"]} or destination_claim != {
+            "endpoint": values["approved"], "registry": "approved-destination",
+            "service_uid": os.environ["DESTINATION_SERVICE_UID"]}:
+        return {"decision": "denied-missing-endpoint-ownership"}
     result = _copy(source, destination, values)
     return {"decision": "allowed", "digest": result["digest"]}
+
+
+def _submit_owner_claim(which, *, wrong_uid=False):
+    if which == "source":
+        path, record = SOURCE_CLAIM, {"endpoint": endpoints()["source"], "registry": "source",
+                                      "service_uid": os.environ[
+                                          "DESTINATION_SERVICE_UID" if wrong_uid else "SOURCE_SERVICE_UID"
+                                      ]}
+    elif which == "destination":
+        path, record = DESTINATION_CLAIM, {"endpoint": endpoints()["approved"],
+                                            "registry": "approved-destination", "service_uid": os.environ["DESTINATION_SERVICE_UID"]}
+    else:
+        raise ValueError("Unknown fixed endpoint claim")
+    status, _ = _api("PATCH", path, {"data": {"endpoint-owner.json": json.dumps(
+        record, sort_keys=True, separators=(",", ":"))}})
+    return {"http_status": status}
 
 
 def _call(operation):
@@ -287,6 +319,15 @@ def _call(operation):
         return _observed(unapproved, values)
     if operation == "observe-approval":
         return {"pair": _approval()}
+    if operation == "claim-source-endpoint":
+        return _submit_owner_claim("source")
+    if operation == "claim-source-wrong-uid":
+        return _submit_owner_claim("source", wrong_uid=True)
+    if operation == "claim-destination-endpoint":
+        return _submit_owner_claim("destination")
+    if operation == "observe-owner-claims":
+        return {"source": _owner_claim(SOURCE_CLAIM),
+                "destination": _owner_claim(DESTINATION_CLAIM)}
     raise ValueError("Unknown fixed fixture operation")
 
 

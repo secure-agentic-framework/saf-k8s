@@ -12,3 +12,17 @@ and blobs. The case covers initial enrollment of one fixture pair.
 
 - [Kubernetes RBAC named resource rules](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#referring-to-resources)
 - [OCI Distribution Specification](https://github.com/opencontainers/distribution-spec/blob/v1.1.1/spec.md)
+
+## Owner claims before activation
+
+The source and destination owners each publish a claim for the selected
+endpoint and live Service UID using their separately scoped Kubernetes
+identity. An exact pair approval with missing owner claims leaves the
+destination empty. A valid owner claim bound to a different Service UID
+also leaves the destination empty. The request author cannot change an owner
+claim. After both correct claims and the independent approval are present,
+the local Distribution transfer produces the exact inert manifest and blobs.
+
+For an adoption, verify real endpoint ownership or the authorized tenant,
+protected claim and reviewer history, alternate transfer paths, and rollback,
+revocation, and destination-content evidence.
