@@ -60,7 +60,7 @@ SAF-K8S comprehensively covers cybersecurity measures across all 10 domains: net
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.5
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

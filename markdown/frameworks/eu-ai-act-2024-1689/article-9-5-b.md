@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-where appropriate, implementation of adequate mitigation and control measures addressing risks that cannot be eliminated;
-
-SAF-K8S controls serve as mitigation and control measures for residual risks: monitoring, detection, incident response, and containment controls address risks that cannot be eliminated by design.
+The exercised containment and restoration supply a scoped response contribution. Verify that the provider evaluated the risk and selected and assessed the actual mitigation.
 
 ## SAF-K8S Controls
 
@@ -15,7 +13,7 @@ SAF-K8S controls serve as mitigation and control measures for residual risks: mo
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.5
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

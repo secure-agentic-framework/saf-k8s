@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Where the high-risk AI system presents a risk within the meaning of Article 79(1) and the provider becomes aware of that risk, it shall immediately investigate the causes, in collaboration with the reporting deployer, where applicable, and inform the market surveillance authorities competent for the high-risk AI system concerned and, where applicable, the notified body that issued a certificate for that high-risk AI system in accordance with Article 44, in particular, of the nature of the non-compliance and of any relevant corrective action taken.
-
-SAF-K8S forensic and logging capabilities (D10) support root cause investigation through audit trails, resource monitoring history, and security event correlation. Cooperation with deployers and notification of authorities are organizational obligations.
+The exercise verifies an evidence snapshot and chronological incident actions. These can support the deployed investigation. Verify the provider's actual collaboration, investigation and notification obligations independently.
 
 ## SAF-K8S Controls
 
@@ -15,7 +13,7 @@ SAF-K8S forensic and logging capabilities (D10) support root cause investigation
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.5
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

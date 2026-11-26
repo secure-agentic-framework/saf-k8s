@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-IR lifecycle playbooks include procedures for unknown/novel incidents. Forensic evidence collection supports investigation of previously unknown attacks. Post-incident model validation verifies integrity after compromise.
+The repeatable containment and restoration exercise contributes a response mechanism. It uses a predefined synthetic scenario. Verify the actual newly identified risk and recovery evidence separately.
 
 ## SAF-K8S Controls
 
@@ -13,7 +13,7 @@ IR lifecycle playbooks include procedures for unknown/novel incidents. Forensic 
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.5
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
 - Strength Reason Code: partial-control-coverage

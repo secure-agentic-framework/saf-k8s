@@ -23,6 +23,6 @@ IR playbooks document high-priority incident responses. Audit readiness dashboar
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.5
 - Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

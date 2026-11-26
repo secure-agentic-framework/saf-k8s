@@ -40,10 +40,10 @@ SAF-K8S provides comprehensive post-deployment infrastructure: audit policies fo
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.5
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1007-005 - Change management for production AI model deployments](../../controls/SAF-K8S-1007-005.md)
 

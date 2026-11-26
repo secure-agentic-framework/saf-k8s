@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-IR lifecycle playbooks define response procedures for AI-specific incidents (compromised training, model poisoning, GPU cryptomining). Containment strategies document specific mitigation actions.
+The workflow contributes a documented technical response and review. Verify the applicable AI risk, selected response option and responsible owner.
 
 ## SAF-K8S Controls
 
@@ -14,9 +14,9 @@ IR lifecycle playbooks define response procedures for AI-specific incidents (com
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.5
 - Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: depends-on-adjacent-control
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1005-008 - AI-specific incident response playbooks for Kubernetes](../../controls/SAF-K8S-1005-008.md)
 

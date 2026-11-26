@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-IR plan covering agent-specific scenarios
-
-10.5 - AI-specific IR playbooks (compromised training, model poisoning, GPU cryptomining, inference abuse)
+This control describes a Kubernetes incident-response lifecycle and its reference exercise may support the operational procedures in an organization's IR-8 plan. The 19-check portable exercise uses synthetic roles, incident records, an immutable evidence snapshot, one namespace-scoped mock Deployment containment/recovery flow, and independent review. It does not establish a complete organization-specific plan, plan approval/distribution, incident reporting definitions, metrics/resources, external information sharing, or protection from unauthorized change.
 
 ## SAF-K8S Controls
 
@@ -15,7 +13,7 @@ IR plan covering agent-specific scenarios
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.5
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

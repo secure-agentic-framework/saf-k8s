@@ -23,6 +23,6 @@ A monitored node clock can support sequencing and correlation of AI test and inc
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.5
 - Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
