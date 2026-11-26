@@ -31,19 +31,74 @@ MODEL_METADATA_SHA256 = hashlib.sha256(
     json.dumps(PUBLIC_FIXTURE, sort_keys=True, separators=(",", ":")).encode()
 ).hexdigest()
 
+PYTHON_SCANNER_IMAGE = (
+    "docker.io/library/python:3.13.2-alpine@sha256:"
+    "323a717dc4a010fee21e3f1aac738ee10bb485de4e7593ce242b36ee48d6b352"
+)
+MODEL_ARTIFACT = {
+    "format": "saf-inert-model-json-v1",
+    "model_id": "fixture-model-0905-044",
+    "marker": "approved-fixture-marker-v1",
+    "parameters": [0.25, -0.5],
+}
+MODEL_ARTIFACT_BYTES = json.dumps(
+    MODEL_ARTIFACT, sort_keys=True, separators=(",", ":")
+).encode("utf-8")
+MODEL_ARTIFACT_SHA256 = hashlib.sha256(MODEL_ARTIFACT_BYTES).hexdigest()
+ARTIFACT_DIGEST_ANNOTATION = "saf.example/scanned-artifact-sha256"
+SCANNER_CONFIGMAP = "saf-fixture-model-bytes"
+SCANNER_JOB = "saf-fixture-model-scanner"
+SCANNER_SOURCE = r'''import hashlib, json, math
+from pathlib import Path
+
+raw = Path("/fixture/model.json").read_bytes()
+bounded = len(raw) <= 2048
+status = "reject"
+format_allowed = False
+marker_policy_allowed = False
+if bounded:
+    try:
+        value = json.loads(raw.decode("utf-8"))
+        format_allowed = (isinstance(value, dict)
+                          and value.get("format") == "saf-inert-model-json-v1"
+                          and value.get("model_id") == "fixture-model-0905-044"
+                          and set(value) == {"format", "model_id", "marker", "parameters"})
+        parameters = value.get("parameters", []) if isinstance(value, dict) else []
+        marker_policy_allowed = (
+            isinstance(value, dict)
+            and value.get("marker") == "approved-fixture-marker-v1"
+            and isinstance(parameters, list) and len(parameters) == 2
+            and all(type(item) in (int, float) and math.isfinite(item) and -1 <= item <= 1
+                    for item in parameters)
+        )
+        if format_allowed and marker_policy_allowed:
+            status = "pass"
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        pass
+print(json.dumps({"status": status,
+                  "artifact_sha256": hashlib.sha256(raw).hexdigest(),
+                  "format_allowed": format_allowed,
+                  "marker_policy_allowed": marker_policy_allowed,
+                  "within_size_limit": bounded}, sort_keys=True))
+'''
+
 SCOPE = (
-    "A disposable Kubernetes v1.36.1 Kind cluster uses synthetic public-model metadata only; "
-    "no model bytes or scanner signatures are downloaded or created. Bundled kindnet is checked "
+    "A disposable Kubernetes v1.36.1 Kind cluster uses synthetic public-model metadata and a "
+    "separate fixed inert model-like JSON specimen; no real model bytes or scanner signatures "
+    "are downloaded or created. Bundled kindnet is checked "
     "ready. The case applies a restricted quarantine namespace and default-deny ingress/egress "
     "NetworkPolicy, then proves its egress effect against two case-owned marker-only listeners "
     "with one exact allow exception and an unaffected comparator. It then uses the built-in "
     "Pod Security Admission controller and a ValidatingAdmissionPolicy to reject nonconforming "
     "pods and release pods whose clean-scan decision or exact metadata digest does not match. "
     "A narrowly bound ServiceAccount creates the positive release pod through the Kubernetes API; "
-    "a different ServiceAccount is denied. Synthetic offline scanner records exercise malware, "
+    "an additional tokenless restricted Job reads a fixed inert model-like JSON fixture, checks only "
+    "its approved format and fixed marker policy, hashes the exact bytes, and binds the observed hash "
+    "to the native release ValidatingAdmissionPolicy. A different ServiceAccount is denied. "
+    "Synthetic offline decision records exercise malware, "
     "unsafe-format, embedded-content, missing, and subject-mismatch decisions. This verifies the "
     "fixture policy, Kubernetes admission, API authorization, and exact metadata-digest readback. "
-    "It does not execute a scanner, inspect actual model content, prove a CNI other than this "
+    "It does not demonstrate malware detection or scanner/tool effectiveness, inspect real model content, prove a CNI other than this "
     "pinned bundled kindnet fixture, or prove production scanner coverage, source authenticity, model "
     "behavioral safety, promotion workflow adoption, or durable audit storage."
 )
@@ -101,6 +156,12 @@ def _release_policy():
                     f"object.metadata.annotations['{APPROVED_DIGEST}'] == '{MODEL_METADATA_SHA256}'"
                 ),
                 "message": "release pod must carry the clean decision and exact approved model metadata digest",
+            }, {
+                "expression": (
+                    "has(object.metadata.annotations) && "
+                    f"object.metadata.annotations['{ARTIFACT_DIGEST_ANNOTATION}'] == '{MODEL_ARTIFACT_SHA256}'"
+                ),
+                "message": "release pod must carry the exact scanned artifact digest",
             }],
         },
     }
@@ -116,11 +177,13 @@ def _policy_binding():
                          "matchLabels": {"saf.example/purpose": "model-release"}}}}}
 
 
-def _pod(name, digest, scan="clean", authorization="approved"):
+def _pod(name, digest, scan="clean", authorization="approved",
+         artifact_digest=MODEL_ARTIFACT_SHA256):
     return {"apiVersion": "v1", "kind": "Pod",
             "metadata": {"name": name,
                          "labels": {SCAN_LABEL: scan, AUTH_LABEL: authorization},
-                         "annotations": {APPROVED_DIGEST: digest}},
+                         "annotations": {APPROVED_DIGEST: digest,
+                                         ARTIFACT_DIGEST_ANNOTATION: artifact_digest}},
             "spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,
                      "containers": [{"name": "fixture", "image": BUSYBOX_IMAGE,
                                      "command": ["sh", "-c", "sleep 3600"],
@@ -197,6 +260,65 @@ def create_in(lab, namespace, obj):
     result = lab.kubectl("-n", namespace, "create", "-f", "-", "-o", "json",
                          payload=json.dumps(obj, sort_keys=True))
     return json.loads(result.stdout)
+
+
+def _run_fixture_scanner(lab):
+    """Read only the owned inert fixture and emit bounded predicate/digest output."""
+    config_created = False
+    try:
+        create_in(lab, QUARANTINE, {
+            "apiVersion": "v1", "kind": "ConfigMap",
+            "metadata": {"name": SCANNER_CONFIGMAP, "labels": {"saf.example/fixture": "model-scan"}},
+            "immutable": True,
+            "data": {"model.json": MODEL_ARTIFACT_BYTES.decode("utf-8"), "scanner.py": SCANNER_SOURCE},
+        })
+        config_created = True
+        create_in(lab, QUARANTINE, {
+            "apiVersion": "batch/v1", "kind": "Job",
+            "metadata": {"name": SCANNER_JOB, "labels": {"saf.example/fixture": "model-scan"}},
+            "spec": {
+                "backoffLimit": 0,
+                "activeDeadlineSeconds": 45,
+                "template": {
+                    "metadata": {"labels": {"saf.example/fixture": "model-scan"}},
+                    "spec": {
+                        "restartPolicy": "Never",
+                        "automountServiceAccountToken": False,
+                        "securityContext": {"runAsNonRoot": True, "runAsUser": 1000,
+                                             "runAsGroup": 1000,
+                                             "seccompProfile": {"type": "RuntimeDefault"}},
+                        "containers": [{
+                            "name": "fixture-inspector",
+                            "image": PYTHON_SCANNER_IMAGE,
+                            "imagePullPolicy": "IfNotPresent",
+                            "command": ["python", "-B", "/fixture/scanner.py"],
+                            "volumeMounts": [{"name": "fixture", "mountPath": "/fixture", "readOnly": True}],
+                            "resources": {"requests": {"cpu": "10m", "memory": "32Mi"},
+                                          "limits": {"cpu": "100m", "memory": "128Mi"}},
+                            "securityContext": {"allowPrivilegeEscalation": False,
+                                                 "readOnlyRootFilesystem": True,
+                                                 "capabilities": {"drop": ["ALL"]}},
+                        }],
+                        "volumes": [{"name": "fixture", "configMap": {"name": SCANNER_CONFIGMAP}}],
+                    },
+                },
+            },
+        })
+        lab.kubectl("-n", QUARANTINE, "wait", "--for=condition=complete", f"job/{SCANNER_JOB}",
+                    "--timeout=50s", timeout=60)
+        output = lab.kubectl("-n", QUARANTINE, "logs", f"job/{SCANNER_JOB}").stdout.strip()
+        receipt = json.loads(output)
+    except (ValueError, KeyError):
+        lab.block("The bounded fixture scanner returned no stable JSON receipt")
+    finally:
+        lab.kubectl("-n", QUARANTINE, "delete", "job", SCANNER_JOB,
+                    "--ignore-not-found=true", "--wait=true", allow_failure=True)
+        if config_created:
+            lab.kubectl("-n", QUARANTINE, "delete", "configmap", SCANNER_CONFIGMAP,
+                        "--ignore-not-found=true", allow_failure=True)
+    expected_fields = {"status", "artifact_sha256", "format_allowed",
+                       "marker_policy_allowed", "within_size_limit"}
+    return receipt if set(receipt) == expected_fields else {}
 
 
 MARKER_NS = "saf-model-marker-fixture"
@@ -375,8 +497,8 @@ def _quarantine_packet_check(lab, default_deny_observed):
 def run(lab):
     raw = {"fixture_metadata": PUBLIC_FIXTURE,
            "fixture_metadata_sha256": MODEL_METADATA_SHA256,
-           "synthetic_scanner": {"mode": "offline-fixture-only",
-                                 "scanner_executed": False,
+           "synthetic_decision_matrix": {"mode": "offline-fixture-only",
+                                 "model_content_inspected": False,
                                  "signatures_downloaded": False}}
 
     # A control-off public source reference can enter the default runner namespace.
@@ -403,6 +525,29 @@ def run(lab):
     observed_policy = json.loads(lab.kubectl(
         "get", "networkpolicy", "default-deny-all", "-n", QUARANTINE, "-o", "json").stdout)
     raw["quarantine_network_policy"] = observed_policy
+
+    # A separate tokenless Job reads the fixed inert JSON bytes from its
+    # read-only ConfigMap mount. No model payload is copied into evidence.
+    scanner_receipt = _run_fixture_scanner(lab)
+    scanner_digest = scanner_receipt.get("artifact_sha256", "")
+    scanner_match = (
+        scanner_receipt.get("status") == "pass"
+        and scanner_digest == MODEL_ARTIFACT_SHA256
+        and scanner_receipt.get("format_allowed") is True
+        and scanner_receipt.get("marker_policy_allowed") is True
+        and scanner_receipt.get("within_size_limit") is True
+    )
+    if not scanner_match:
+        lab.block("The case-owned scanner did not return the exact allowed fixture-byte digest and predicates")
+    raw["fixture_byte_scan"] = {
+        "scanner_job_completed": True,
+        "status_passed": scanner_receipt["status"] == "pass",
+        "artifact_digest_matches_runner_fixture": scanner_digest == MODEL_ARTIFACT_SHA256,
+        "format_allowed": scanner_receipt["format_allowed"],
+        "marker_policy_allowed": scanner_receipt["marker_policy_allowed"],
+        "within_size_limit": scanner_receipt["within_size_limit"],
+        "tokenless": True,
+    }
     candidate = _pod("quarantined-model-candidate", MODEL_METADATA_SHA256)
     candidate["metadata"]["namespace"] = QUARANTINE
     candidate["metadata"]["annotations"].update({
@@ -474,10 +619,18 @@ def run(lab):
         if time.monotonic() >= deadline:
             lab.block("Release policy did not produce the expected native admission decision")
         time.sleep(0.5)
+    wrong_artifact = _pod("wrong-artifact-digest-witness", MODEL_METADATA_SHA256,
+                          artifact_digest="0" * 64)
+    wrong_artifact_status, wrong_artifact_body = _api_post_pod(
+        lab, RELEASE_SA, wrong_artifact, dry_run=True)
+    if (wrong_artifact_status != 422
+            or "exact scanned artifact digest" not in wrong_artifact_body.get("message", "")):
+        lab.block("Release policy did not reject the wrong observed-artifact digest")
     unauthorized_status, unauthorized_body = _api_post_pod(
         lab, UNAUTHORIZED_SA, _pod("unauthorized-release-witness", MODEL_METADATA_SHA256))
     clean_status, clean_body = _api_post_pod(
-        lab, RELEASE_SA, _pod(RELEASE_POD, MODEL_METADATA_SHA256))
+        lab, RELEASE_SA, _pod(RELEASE_POD, MODEL_METADATA_SHA256,
+                               artifact_digest=scanner_digest))
     if clean_status == 201:
         lab.kubectl("-n", RELEASE, "wait", "--for=condition=Ready", f"pod/{RELEASE_POD}",
                     "--timeout=95s", timeout=105)
@@ -485,6 +638,7 @@ def run(lab):
                                             "-o", "json").stdout) if clean_status == 201 else {}
     raw["release_api_attempts"] = {
         "wrong_digest": {"status": mismatch_status, "body": mismatch_body},
+        "wrong_artifact_digest": {"status": wrong_artifact_status, "body": wrong_artifact_body},
         "unauthorized_principal": {"status": unauthorized_status, "body": unauthorized_body},
         "authorized_clean": {"status": clean_status, "body": clean_body,
                               "readback": clean_readback},
@@ -493,8 +647,9 @@ def run(lab):
     normalized = {
         "case": "SAF-K8S-0905-044",
         "fixture_metadata_sha256": MODEL_METADATA_SHA256,
-        "scanner": {"mode": "synthetic-offline-decision-witness",
-                    "executed": False, "model_bytes_present": False,
+        "scanner": {"mode": "fixture-byte-inspector-plus-synthetic-decision-witness",
+                    "fixture_inspector_executed": True,
+                    "real_model_bytes_present": False,
                     "signatures_downloaded": False},
         "red": {"unchecked_public_reference_admitted": baseline_status == 201},
         "isolation": {
@@ -515,6 +670,7 @@ def run(lab):
             "authorized_clean_digest_admitted": clean_status == 201 and
                 clean_readback.get("metadata", {}).get("annotations", {}).get(APPROVED_DIGEST)
                 == MODEL_METADATA_SHA256,
+            "scanned_artifact_digest": scanner_digest,
             "release_readback_sha256": MODEL_METADATA_SHA256 if clean_readback else None,
         },
     }
@@ -581,3 +737,23 @@ def run(lab):
               {"namespace": QUARANTINE, "approved_target": APPROVED_MARKER_POD,
                "denied_target": DENIED_MARKER_POD, "port": MARKER_PORT,
                "conditions": network_evidence})
+    lab.check(
+        "positive",
+        "A bounded tokenless scanner binds the allowed inert artifact bytes to native release admission",
+        scanner_match
+        and wrong_artifact_status == 422
+        and "exact scanned artifact digest" in wrong_artifact_body.get("message", "")
+        and clean_status == 201
+        and clean_readback.get("metadata", {}).get("annotations", {}).get(ARTIFACT_DIGEST_ANNOTATION)
+        == scanner_digest,
+        {"scanner_job_completed": True,
+         "format_allowed": scanner_receipt.get("format_allowed") is True,
+         "fixed_marker_policy_allowed": scanner_receipt.get("marker_policy_allowed") is True,
+         "artifact_bytes_within_bound": scanner_receipt.get("within_size_limit") is True,
+         "scanner_digest_matches_exact_fixture": scanner_digest == MODEL_ARTIFACT_SHA256,
+         "wrong_artifact_digest_refused_by_native_gate": wrong_artifact_status == 422,
+         "authorized_release_readback_matches_scanner_digest": (
+             clean_readback.get("metadata", {}).get("annotations", {}).get(ARTIFACT_DIGEST_ANNOTATION)
+             == scanner_digest),
+         "scan_scope": "fixed inert JSON format and marker only"},
+    )

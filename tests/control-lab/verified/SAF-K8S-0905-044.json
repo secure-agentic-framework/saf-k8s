@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-044",
-  "catalog_revision": "32a7f1cf1191f5f333a01be4d9e83092768c5dc5",
-  "catalog_sha256": "d65a8ba2d999d0a60a83345dbfd6f5235d9cd11cac65fdb011fac1cb9051e634",
+  "catalog_revision": "a7f51bdf1a39ac2d7e9fcd06bea494b5dcfda263",
+  "catalog_sha256": "4405c9978776100ed8ef8fc46713da985401a03e9d813cb2e5df3261133b0e6b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "3123872b3fe024f29471b3e6ea675c43cac9730a773d91170fe374c49dbc6007",
-  "scope": "A disposable Kubernetes v1.36.1 Kind cluster uses synthetic public-model metadata only; no model bytes or scanner signatures are downloaded or created. Bundled kindnet is checked ready. The case applies a restricted quarantine namespace and default-deny ingress/egress NetworkPolicy, then proves its egress effect against two case-owned marker-only listeners with one exact allow exception and an unaffected comparator. It then uses the built-in Pod Security Admission controller and a ValidatingAdmissionPolicy to reject nonconforming pods and release pods whose clean-scan decision or exact metadata digest does not match. A narrowly bound ServiceAccount creates the positive release pod through the Kubernetes API; a different ServiceAccount is denied. Synthetic offline scanner records exercise malware, unsafe-format, embedded-content, missing, and subject-mismatch decisions. This verifies the fixture policy, Kubernetes admission, API authorization, and exact metadata-digest readback. It does not execute a scanner, inspect actual model content, prove a CNI other than this pinned bundled kindnet fixture, or prove production scanner coverage, source authenticity, model behavioral safety, promotion workflow adoption, or durable audit storage.",
-  "cluster": "saf-lab-ff7397bebc18",
+  "scope": "A disposable Kubernetes v1.36.1 Kind cluster uses synthetic public-model metadata and a separate fixed inert model-like JSON specimen; no real model bytes or scanner signatures are downloaded or created. Bundled kindnet is checked ready. The case applies a restricted quarantine namespace and default-deny ingress/egress NetworkPolicy, then proves its egress effect against two case-owned marker-only listeners with one exact allow exception and an unaffected comparator. It then uses the built-in Pod Security Admission controller and a ValidatingAdmissionPolicy to reject nonconforming pods and release pods whose clean-scan decision or exact metadata digest does not match. A narrowly bound ServiceAccount creates the positive release pod through the Kubernetes API; an additional tokenless restricted Job reads a fixed inert model-like JSON fixture, checks only its approved format and fixed marker policy, hashes the exact bytes, and binds the observed hash to the native release ValidatingAdmissionPolicy. A different ServiceAccount is denied. Synthetic offline decision records exercise malware, unsafe-format, embedded-content, missing, and subject-mismatch decisions. This verifies the fixture policy, Kubernetes admission, API authorization, and exact metadata-digest readback. It does not demonstrate malware detection or scanner/tool effectiveness, inspect real model content, prove a CNI other than this pinned bundled kindnet fixture, or prove production scanner coverage, source authenticity, model behavioral safety, promotion workflow adoption, or durable audit storage.",
+  "cluster": "saf-lab-74771f45f6ec",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -118,6 +118,21 @@
           "exception_removed": true,
           "owned_fixture_cleanup_succeeded": true
         }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A bounded tokenless scanner binds the allowed inert artifact bytes to native release admission",
+      "matched": true,
+      "observed": {
+        "scanner_job_completed": true,
+        "format_allowed": true,
+        "fixed_marker_policy_allowed": true,
+        "artifact_bytes_within_bound": true,
+        "scanner_digest_matches_exact_fixture": true,
+        "wrong_artifact_digest_refused_by_native_gate": true,
+        "authorized_release_readback_matches_scanner_digest": true,
+        "scan_scope": "fixed inert JSON format and marker only"
       }
     }
   ]

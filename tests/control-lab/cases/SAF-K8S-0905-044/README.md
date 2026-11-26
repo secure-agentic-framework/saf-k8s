@@ -10,6 +10,12 @@ digest matching. Native admission and RBAC reject a mismatched digest and an
 unauthorized release identity. An authorized release identity reads back the
 exact digest allowed by those checks.
 
+A separate tokenless Job reads the exact inert model-like JSON bytes. It
+checks a bounded format and marker rule and emits the exact digest. A release
+with a different artifact digest is refused, and the authorized release is
+read back with the observed scanner digest. The artifact and marker checks
+illustrate the handoff for a known format.
+
 The bundled kindnet CNI enforces default-deny egress from a quarantine Pod to
 two fixture HTTP endpoints. A temporary policy allows only one endpoint on
 TCP/8080. An independent Pod remains able to reach the other endpoint, and
