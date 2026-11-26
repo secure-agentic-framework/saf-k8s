@@ -11074,16 +11074,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-12
   framework_requirement_title: Audit Record Generation
-  framework_mapping_notes: 'Generating audit records for agent actions
-
-
-    10.1 - K8s audit policy configuration (audit record generation at all stages)'
+  framework_mapping_notes: The fixture observes the selected Zot v2.1.23 registry actions in native audit and HTTP access records and forwards the exact matching records to a separate receiver. It does not establish administrative or permission-change event coverage, all-registry applicability, or required retention; those event sources and requirements must be verified for the adopter's defined AU-2 event set.
   control_id: SAF-K8S-0905-040
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only for adopter-defined registry event types and components for which the deployed registry demonstrably generates and forwards the selected audit record content; the reference fixture covers Zot v2.1.23 manifest publish, pull, retag, and digest deletion only.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -11148,16 +11145,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-12(1)
   framework_requirement_title: System-wide and Time-correlated Audit Trail
-  framework_mapping_notes: 'Correlated audit trail across agent ecosystem
-
-
-    10.2 - Distributed tracing for ML pipelines (system-wide, time-correlated audit trail)'
+  framework_mapping_notes: The fixture confirms equality of source timestamps in the selected Zot audit/access records and the received corpus, but does not test a multi-component clock-tolerance bound or establish system-wide coverage. The organization-defined component set and time-correlation tolerance remain adopter requirements.
   control_id: SAF-K8S-0905-040
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only where the adopter defines the relevant system components and time-correlation tolerance, verifies clock behavior for those components, and demonstrates their records are compiled into the central trail; the fixture covers two log streams from one Zot instance and preserves their original timestamps during forwarding.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
