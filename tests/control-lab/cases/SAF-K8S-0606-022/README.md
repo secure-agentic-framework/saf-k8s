@@ -1,4 +1,4 @@
-# SAF-K8S-0606-022 — Verify ConfigMap signatures at admission
+# SAF-K8S-0606-022 — Verify manifest signatures at admission
 
 ```sh
 python3 lab.py test SAF-K8S-0606-022 --docker-context desktop-linux
@@ -30,3 +30,11 @@ governance, and coverage of actual GitOps and deployment automation.
 See [the pinned control](https://github.com/secure-agentic-framework/saf-k8s/blob/133a8698a45e2b335b51728bf4c62f7bda98d15f/markdown/controls/SAF-K8S-0606-022.md),
 [Kubernetes v1.36 validating webhooks](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/),
 and the [v1.36.1 admission types](https://github.com/kubernetes/kubernetes/blob/v1.36.1/staging/src/k8s.io/api/admission/v1/types.go).
+
+## Typed Pod dry-run
+
+Before webhook registration, a server-side dry run obtains the Pod spec after Kubernetes defaults and admission mutation. The fixture signs its name, namespace, labels, and that complete spec with the approved key. With the webhook enabled, CREATE dry runs reject an unsigned request, accept the exact signed projection, and reject a harmless command change with the previous signature. The receipt checks each webhook decision and digest, verifies the returned projection, and confirms the Pod is absent from the API afterward.
+
+## Adopter verification
+
+List the API kinds, fields, scopes, CREATE and UPDATE paths, signers and trust roots the webhook policy actually governs. Check pod-template and controller paths, GitOps and direct applies, rules for object and namespace selection, update/defaulting behavior, CA and signer rotation, responder access and fail-closed behavior. In approved nonproduction, perform exact permit and reject comparisons for each supported kind and version, and retain sanitized admission and decision evidence.

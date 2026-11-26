@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-022",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "d8b3ddeb255740b882754ff7c5361219c51216ae",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "036ecc3750b41ed9eacd25714414ddc3086e62bc67966977ae8510ac2894fe2b",
-  "scope": "One disposable Kubernetes v1.36.1 Kind cluster with an HTTPS validating webhook. Ed25519 protects canonical JSON for apiVersion, kind, name, namespace, labels, data, binaryData and an optional immutable field on the selected ConfigMaps. Tests real CREATE and UPDATE, absent authorization, an unrelated valid signer, and changes to signed data and binaryData. Trust custody, other meaningful metadata, all resources and production submission paths remain open.",
-  "cluster": "saf-lab-4788935fbd54",
+  "scope": "One disposable Kubernetes v1.36.1 Kind cluster with an HTTPS validating webhook. Ed25519 protects canonical JSON for apiVersion, kind, name, namespace, labels, data, binaryData and an optional immutable field on the selected ConfigMaps. Tests real CREATE and UPDATE, absent authorization, an unrelated valid signer, and changes to signed data and binaryData. An additive, namespaced core/v1 Pod CREATE comparison uses server-side dry-run only and signs the complete Pod spec. Trust custody, other meaningful metadata, all resources and production submission paths remain open.",
+  "cluster": "saf-lab-a40e9c04405d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -166,6 +166,19 @@
             "authorized signature verified"
           ]
         ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A typed signature admits the inert Pod dry-run and denies a changed signed spec",
+      "matched": true,
+      "observed": {
+        "unsigned_create_denied": true,
+        "approved_create_dry_run_admitted": true,
+        "defaulted_server_projection_matches": true,
+        "changed_spec_denied": true,
+        "pod_not_persisted": true,
+        "exact_dry_run_decisions": true
       }
     }
   ]

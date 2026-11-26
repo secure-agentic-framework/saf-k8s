@@ -59,6 +59,12 @@ type signedProjection struct {
 	BinaryData map[string]string `json:"binaryData"`
 	Immutable  *bool             `json:"immutable,omitempty"`
 }
+type signedPodProjection struct {
+	APIVersion string         `json:"apiVersion"`
+	Kind       string         `json:"kind"`
+	Metadata   signedMetadata `json:"metadata"`
+	Spec       map[string]any `json:"spec"`
+}
 type signedMetadata struct {
 	Name      string            `json:"name"`
 	Namespace string            `json:"namespace"`
@@ -147,6 +153,15 @@ func readPublicKey(path string) (ed25519.PublicKey, error) {
 }
 
 func verify(raw json.RawMessage, keys map[string]ed25519.PublicKey) (bool, string, string) {
+	var envelope struct {
+		Kind string `json:"kind"`
+	}
+	if err := json.Unmarshal(raw, &envelope); err != nil {
+		return false, "object is not valid JSON", ""
+	}
+	if envelope.Kind == "Pod" {
+		return verifyPod(raw, keys)
+	}
 	var object struct {
 		APIVersion string `json:"apiVersion"`
 		Kind       string `json:"kind"`
@@ -193,6 +208,53 @@ func verify(raw json.RawMessage, keys map[string]ed25519.PublicKey) (bool, strin
 	return true, "authorized signature verified", fmt.Sprintf("%x", digest)
 }
 
+// verifyPod covers the entire Pod spec as seen by validating admission.
+func verifyPod(raw json.RawMessage, keys map[string]ed25519.PublicKey) (bool, string, string) {
+	var object struct {
+		APIVersion string `json:"apiVersion"`
+		Kind       string `json:"kind"`
+		Metadata   struct {
+			Name        string            `json:"name"`
+			Namespace   string            `json:"namespace"`
+			Labels      map[string]string `json:"labels"`
+			Annotations map[string]string `json:"annotations"`
+		} `json:"metadata"`
+		Spec map[string]any `json:"spec"`
+	}
+	if err := json.Unmarshal(raw, &object); err != nil {
+		return false, "object is not valid JSON", ""
+	}
+	if object.APIVersion != "v1" || object.Kind != "Pod" || object.Metadata.Name == "" ||
+		object.Metadata.Namespace == "" || object.Spec == nil {
+		return false, "object is outside the signed Pod projection", ""
+	}
+	projection := signedPodProjection{APIVersion: object.APIVersion, Kind: object.Kind,
+		Metadata: signedMetadata{Name: object.Metadata.Name, Namespace: object.Metadata.Namespace,
+			Labels: object.Metadata.Labels}, Spec: object.Spec}
+	payload, err := json.Marshal(projection)
+	if err != nil {
+		return false, "could not encode signed Pod field projection", ""
+	}
+	digest := sha256.Sum256(payload)
+	annotations := object.Metadata.Annotations
+	if annotations == nil || annotations[sigAnnotation] == "" || annotations[keyAnnotation] == "" {
+		return false, "signature is absent", fmt.Sprintf("%x", digest)
+	}
+	keyID := annotations[keyAnnotation]
+	key, known := keys[keyID]
+	if !known {
+		return false, "signature identity is unknown", fmt.Sprintf("%x", digest)
+	}
+	signature, err := base64.StdEncoding.DecodeString(annotations[sigAnnotation])
+	if err != nil || !ed25519.Verify(key, payload, signature) {
+		return false, "signature does not verify over the signed field projection", fmt.Sprintf("%x", digest)
+	}
+	if keyID != allowedKeyID {
+		return false, "signature is valid but signer is not authorized", fmt.Sprintf("%x", digest)
+	}
+	return true, "authorized signature verified", fmt.Sprintf("%x", digest)
+}
+
 func generateFixtures(dir string) error {
 	signers := map[string]ed25519.PrivateKey{}
 	for _, id := range []string{"authorized-test", "unrelated-test"} {
@@ -209,7 +271,7 @@ func generateFixtures(dir string) error {
 		}
 		signers[id] = key
 	}
-	for _, version := range []string{"create", "update"} {
+	for _, version := range []string{"create", "update", "pod-create"} {
 		bytes, err := os.ReadFile(filepath.Join(dir, version+"-projection.json"))
 		if err != nil {
 			return err

@@ -1,5 +1,6 @@
 """Verify scoped admission-time Ed25519 signatures on inert ConfigMaps."""
 from base64 import b64encode
+from copy import deepcopy
 from hashlib import sha256
 import json
 from pathlib import Path
@@ -10,6 +11,7 @@ HERE = Path(__file__).resolve().parent
 NAMESPACE = "saf-test"
 WEBHOOK = "saf-signature-webhook"
 OBJECT = "signed-fixture"
+POD_OBJECT = "signed-inert-workload"
 SIGNATURE = "saf.example.test/signature"
 KEY = "saf.example.test/signature-key"
 ORIGINAL = "hello from approved fixture"
@@ -20,6 +22,7 @@ SCOPE = (
     "Ed25519 protects canonical JSON for apiVersion, kind, name, namespace, labels, data, binaryData "
     "and an optional immutable field on the selected ConfigMaps. Tests real CREATE and UPDATE, "
     "absent authorization, an unrelated valid signer, and changes to signed data and binaryData. "
+    "An additive, namespaced core/v1 Pod CREATE comparison uses server-side dry-run only and signs the complete Pod spec. "
     "Trust custody, other meaningful metadata, all resources and production submission paths remain open."
 )
 
@@ -35,6 +38,56 @@ def canonical_preimage(obj):
     return json.dumps(obj, separators=(",", ":"), ensure_ascii=True).encode()
 
 
+def pod_template():
+    """One inert Pod request; it is only ever submitted as server-side dry-run."""
+    return {
+        "apiVersion": "v1", "kind": "Pod",
+        "metadata": {"name": POD_OBJECT, "namespace": NAMESPACE,
+                     "labels": {"saf.example.test/purpose": "inert-signature-workload"}},
+        "spec": {
+            "automountServiceAccountToken": False,
+            "containers": [{
+                "name": "fixture", "image": "registry.invalid/saf-fixture/workload:v1",
+                "imagePullPolicy": "IfNotPresent", "command": ["/fixture-marker"],
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "resources": {"requests": {"cpu": "10m", "memory": "16Mi"},
+                              "limits": {"cpu": "100m", "memory": "32Mi"}},
+                "securityContext": {"allowPrivilegeEscalation": False,
+                                     "capabilities": {"drop": ["ALL"]},
+                                     "runAsNonRoot": True, "runAsUser": 65534,
+                                     "seccompProfile": {"type": "RuntimeDefault"}},
+            }],
+            "dnsPolicy": "ClusterFirst", "enableServiceLinks": True,
+            "restartPolicy": "Never", "schedulerName": "default-scheduler",
+            "serviceAccountName": "default", "terminationGracePeriodSeconds": 5,
+            "securityContext": {"runAsNonRoot": True,
+                                "seccompProfile": {"type": "RuntimeDefault"}},
+        },
+    }
+
+
+def _sorted_json(value):
+    if isinstance(value, dict):
+        return {key: _sorted_json(value[key]) for key in sorted(value)}
+    if isinstance(value, list):
+        return [_sorted_json(row) for row in value]
+    return value
+
+
+def canonical_pod_preimage(obj):
+    projection = {
+        "apiVersion": obj["apiVersion"], "kind": obj["kind"],
+        "metadata": {"name": obj["metadata"]["name"],
+                     "namespace": obj["metadata"]["namespace"],
+                     "labels": _sorted_json(obj["metadata"].get("labels", {}))},
+        "spec": obj["spec"],
+    }
+    # Go encoding/json sorts all map keys while preserving this struct field order.
+    projection["spec"] = _sorted_json(projection["spec"])
+    return json.dumps(projection, separators=(",", ":"), ensure_ascii=True).encode()
+
+
 def signed(obj, directory, signer, version):
     obj["metadata"]["annotations"] = {
         KEY: signer, SIGNATURE: (directory / f"{signer}-{version}.sig").read_text(),
@@ -42,10 +95,18 @@ def signed(obj, directory, signer, version):
     return obj
 
 
-def fixture_material(lab, folder):
+def signed_pod(obj, directory, signer="authorized-test"):
+    obj["metadata"]["annotations"] = {
+        KEY: signer, SIGNATURE: (directory / f"{signer}-pod-create.sig").read_text(),
+    }
+    return obj
+
+
+def fixture_material(lab, folder, defaulted_pod):
     folder.mkdir(mode=0o700)
     for stage, payload in (("create", ORIGINAL), ("update", UPDATED)):
         (folder / f"{stage}-projection.json").write_bytes(canonical_preimage(object_template(payload)))
+    (folder / "pod-create-projection.json").write_bytes(canonical_pod_preimage(defaulted_pod))
     lab.command("env", "GOTOOLCHAIN=local", "GOPROXY=off", "CGO_ENABLED=0", "GOFLAGS=",
                 "go", "run", "-trimpath", str(HERE / "webhook.go"), "generate-fixtures",
                 str(folder), timeout=120)
@@ -93,6 +154,10 @@ def admission_configuration(ca_pem):
                 "apiGroups": [""],
                 "apiVersions": ["v1"],
                 "resources": ["configmaps"],
+                "scope": "Namespaced",
+            }, {
+                "operations": ["CREATE"], "apiGroups": [""],
+                "apiVersions": ["v1"], "resources": ["pods"],
                 "scope": "Namespaced",
             }],
         }],
@@ -168,6 +233,65 @@ def get_object(lab):
     return json.loads(lab.kubectl("get", "configmap", OBJECT, "-o", "json").stdout)
 
 
+def workload_pod_dry_run(lab, material, defaulted_pod):
+    unsigned = lab.create(defaulted_pod, dry_run=True, allow_failure=True)
+    approved_request = signed_pod(deepcopy(defaulted_pod), material)
+    approved = lab.create(approved_request, dry_run=True, allow_failure=True)
+    changed_request = deepcopy(defaulted_pod)
+    changed_request["spec"]["containers"][0]["command"] = ["/fixture-marker", "--revision=two"]
+    changed_request = signed_pod(changed_request, material)
+    changed = lab.create(changed_request, dry_run=True, allow_failure=True)
+
+    expected_preimage = canonical_pod_preimage(defaulted_pod)
+    expected_digest = sha256(expected_preimage).hexdigest()
+    changed_digest = sha256(canonical_pod_preimage(changed_request)).hexdigest()
+    approved_response = json.loads(approved.stdout) if approved.returncode == 0 else {}
+    server_projection_matches = (approved.returncode == 0 and
+                                 canonical_pod_preimage(approved_response) == expected_preimage)
+    absent = lab.kubectl("get", "pod", POD_OBJECT, "-o", "json", allow_failure=True)
+    pod_not_persisted = absent.returncode != 0 and "NotFound" in absent.stderr
+
+    raw_log = lab.kubectl("logs", f"deployment/{WEBHOOK}").stdout
+    pattern = re.compile(
+        r'resource="pods" operation="CREATE" dry_run=true '
+        r'object_json_sha256=([a-f0-9]{64}) projection_sha256=([a-f0-9]{64}) '
+        r'allowed=(true|false) decision="([^"]+)"'
+    )
+    observed = []
+    for line in raw_log.splitlines():
+        match = pattern.search(line)
+        if match:
+            _, projection_digest, allowed, decision = match.groups()
+            observed.append([projection_digest, allowed == "true", decision])
+    (lab.evidence / "webhook-decisions.log").write_text(raw_log)
+    expected = [
+        [expected_digest, False, "signature is absent"],
+        [expected_digest, True, "authorized signature verified"],
+        [changed_digest, False, MISMATCH],
+    ]
+    (lab.evidence / "typed-pod-signature-projection.json").write_text(json.dumps({
+        "projection_scope": ["apiVersion", "kind", "metadata.name", "metadata.namespace",
+                             "metadata.labels", "spec"],
+        "normalization": "API-defaulted complete spec, with no spec fields omitted",
+        "approved_projection_sha256": expected_digest,
+        "mutated_projection_sha256": changed_digest,
+        "admission_decisions": observed,
+        "pod_persisted": not pod_not_persisted,
+    }, indent=2, sort_keys=True) + "\n")
+    condition = (unsigned.returncode != 0 and "signature is absent" in unsigned.stderr
+                 and approved.returncode == 0 and server_projection_matches
+                 and changed.returncode != 0 and MISMATCH in changed.stderr
+                 and pod_not_persisted and observed == expected)
+    lab.check("green", "A typed signature admits the inert Pod dry-run and denies a changed signed spec",
+              condition,
+              {"unsigned_create_denied": unsigned.returncode != 0 and "signature is absent" in unsigned.stderr,
+               "approved_create_dry_run_admitted": approved.returncode == 0,
+               "defaulted_server_projection_matches": server_projection_matches,
+               "changed_spec_denied": changed.returncode != 0 and MISMATCH in changed.stderr,
+               "pod_not_persisted": pod_not_persisted,
+               "exact_dry_run_decisions": observed == expected})
+
+
 def run(lab):
     lab.kubectl("label", "namespace", NAMESPACE,
                 "saf.example.test/signature-enforcement=required", "--overwrite")
@@ -179,7 +303,13 @@ def run(lab):
     lab.kubectl("delete", "configmap", OBJECT, "--wait=true")
 
     material = lab.kubeconfig.parent / "materials"
-    fixture_material(lab, material)
+    baseline_pod = lab.create(pod_template(), dry_run=True)
+    defaulted_pod = {
+        "apiVersion": baseline_pod["apiVersion"], "kind": baseline_pod["kind"],
+        "metadata": {key: baseline_pod["metadata"][key] for key in ("name", "namespace", "labels")},
+        "spec": baseline_pod["spec"],
+    }
+    fixture_material(lab, material, defaulted_pod)
     image = container_image(lab, lab.kubeconfig.parent / "image")
     deploy(lab, material, image)
     denied(lab, "unsigned-create", lab.create(object_template(), allow_failure=True), "signature is absent")
@@ -217,8 +347,9 @@ def run(lab):
     (lab.evidence / "webhook-decisions.log").write_text(raw_log)
     public = {filename: (material / filename).read_text() for filename in (
         "authorized-test-public.pem", "unrelated-test-public.pem", "authorized-test-create.sig",
-        "unrelated-test-create.sig", "authorized-test-update.sig", "create-projection.json",
-        "update-projection.json", "webhook-ca.crt", "tls.crt",
+        "unrelated-test-create.sig", "authorized-test-update.sig", "authorized-test-pod-create.sig",
+        "create-projection.json", "update-projection.json", "pod-create-projection.json",
+        "webhook-ca.crt", "tls.crt",
     )}
     (lab.evidence / "public-signature-evidence.json").write_text(json.dumps(public, indent=2) + "\n")
     seen = []
@@ -244,3 +375,4 @@ def run(lab):
     ]
     lab.check("green", "Real AdmissionReviews match every expected operation, signed projection and decision",
               seen == expected, {"decisions": seen})
+    workload_pod_dry_run(lab, material, defaulted_pod)
