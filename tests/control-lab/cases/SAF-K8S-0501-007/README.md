@@ -1,6 +1,6 @@
 # SAF-K8S-0501-007 — East-west flow monitoring and a fixed alert rule
 
-Run from the lab repository:
+Run from the lab repository.
 
 ```sh
 python3 lab.py test SAF-K8S-0501-007 --docker-context desktop-linux
@@ -22,9 +22,17 @@ emits nothing when disabled for the same observed candidate.
 
 The receipt preserves the native Cilium release, path decisions and
 alert predicates. Raw fixture events are in `hubble-events.json`.
-`anomaly-rule-evaluation.json` captures the local result. The case uses a
-single exact rule. The general detection engine, production monitoring
-and externally delivered alerts need separate verification.
+`anomaly-rule-evaluation.json` captures the local result. A separate notebook client then reaches the approved pipeline listener.
+Its inference path is denied and observed as `POLICY_DENIED`. The case
+builds a fixed two-route reference profile from the permitted training
+and notebook observations. A separate rule emits one correlated event for
+the denied notebook path and none for the permitted comparators.
+
+The same normalized alert is sent to two separately trusted fixture TLS
+receiver services. For each endpoint, the forwarder verifies the CA and
+exact service name, receives an acknowledgment, then independently reads
+back one matching event. The receipt compares both observed payload
+digests and confirms the two receivers use distinct certificates.
 
 ## Verify the adopted monitoring stack
 

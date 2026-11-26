@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0501-007",
-  "catalog_revision": "402e8ab790b7f46be3caf1a694ae6f6541b3e564",
+  "catalog_revision": "03197b5f34c07adf30de371cb78cb9f0dfb5587b",
   "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e66fafc771019e2c3e06c73b998766b91cf8391a95de55c1af2ea15490a5c701",
-  "scope": "One fresh local Kind v0.32.0 / Kubernetes v1.36.1 cluster with Cilium 1.20.5 and its embedded Hubble observer. Three case-owned namespaces represent training, inference, and pipeline. Only fixed-marker IPv4 TCP/18080 requests between the training client and the two case-owned responders are examined. The red phase runs without NetworkPolicy; the green phase applies default deny and permits training to pipeline while denying training to inference. A named synthetic segment rule labels the training-to-inference flow as expected-denied and reports whether authentic Hubble telemetry agrees. No production workloads, external destinations, packet capture, model/data inspection, SIEM, baseline learning, or production anomaly detection are evaluated.",
-  "cluster": "saf-lab-0609bedca322",
+  "scope": "An owned Kubernetes v1.36.1 Kind instance runs pinned Cilium 1.20.5 with its embedded Hubble observer. Fixed benign IPv4 TCP paths compare training and notebook traffic with inference and pipeline responders. Local rules compare observed outcomes against a fixed synthetic profile. A correlated policy-denial event is delivered to two independent case-owned TLS receiver services and each independently returns a matching stored event. The case covers the named test paths and receivers, with adopter evidence required for the selected production flow collectors, rules and retention.",
+  "cluster": "saf-lab-214389111b4d",
   "kind_ready_wait": "0s",
   "kubernetes": {
     "clientVersion": {
@@ -140,6 +140,58 @@
       "observed": {
         "same_observed_candidate_present": true,
         "disabled_rule_alert_count_zero": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "One notebook-to-pipeline request is accepted and observed by Hubble",
+      "matched": true,
+      "observed": {
+        "application_marker_received": true,
+        "matching_forwarded_hubble_flow": true,
+        "tuple": "notebook->pipeline TCP/18080"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Notebook-to-inference is denied by the scoped egress policy and independently observed",
+      "matched": true,
+      "observed": {
+        "application_request_denied": true,
+        "policy_denied_hubble_flow": true,
+        "tuple": "notebook->inference TCP/18080"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The fixed baseline profile identifies one denied notebook edge outside its two allowed route keys",
+      "matched": true,
+      "observed": {
+        "profile_written": true,
+        "allowed_training_pipeline_observed": true,
+        "allowed_notebook_pipeline_observed": true,
+        "denied_notebook_inference_outside_profile": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The fixed rule emits exactly one alert for the Hubble policy-denied notebook path and none for allowed comparators",
+      "matched": true,
+      "observed": {
+        "one_alert_for_observed_denial": true,
+        "allowed_route_comparators_clear": true,
+        "deduplicated_alert_count": 1
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The single synthetic alert is independently received by two trusted TLS endpoints",
+      "matched": true,
+      "observed": {
+        "single_alert_exists": true,
+        "both_receiver_sans_verified": true,
+        "both_independent_receipts_match_once": true,
+        "distinct_trusted_receiver_certificates": true
       }
     }
   ]
