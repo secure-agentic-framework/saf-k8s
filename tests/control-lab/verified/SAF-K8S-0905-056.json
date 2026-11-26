@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-056",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "e7610a069ab5ed99933d57ac9c4ae876832d2ef3",
+  "catalog_sha256": "e670092688043f3873e5b141c9c9e45fa91bab5ff9c7a9419e33be9fd2978ef8",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "f104b3732ebbc3497fcfd126169452cbfe9a508c4252639e2fe6349bd81d3ee8",
   "scope": "A fresh Kubernetes v1.36.1 cluster runs a restricted intake Job using OpenSSL 3.3.2. The fixture generates a genuine local Git commit, exact model and card bytes and a signed release. An out-of-band public key and exact expected repository commit bind publisher and release metadata before persisting the approval. The test covers missing signature, untrusted signature, changed publisher metadata and content mismatch. Production provenance coverage, actual publisher identity, trust-root lifecycle, and cryptographic attestation of a public platform account are open.",
-  "review_timing": {
-    "queued_at": "2026-11-23T01:22:24.956927+00:00",
-    "cluster_ready_at": "2026-11-23T01:22:57.878841+00:00",
-    "approval_at": "2026-11-23T01:25:13.324403+00:00",
-    "case_loaded_at": "2026-11-23T01:25:13.529337+00:00"
-  },
-  "cluster": "saf-lab-d9877e4b3442",
+  "cluster": "saf-lab-39cd0b69dd04",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "53bbaeb73f45913c010fbc884987c129edf71698ab6a550e09876030874d6399",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
