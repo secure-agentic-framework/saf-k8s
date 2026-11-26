@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0703-007",
-  "catalog_revision": "302c910b204bc0838d8a8d8c3e0be8604be32411",
-  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
+  "catalog_revision": "235c61df1efd30e1ae349c374acca2553bfba87a",
+  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "5de6399d8efc138f2a9f36c76a526537296fde2f9ea0d0aa4a4f1522a3dd98bc",
-  "scope": "Kueue v0.20.6 controller with Fair Sharing and two single-unit quotas, on disposable kind Kubernetes v1.36.1. Three owned Kubernetes Jobs request only an unallocated synthetic resource. Kueue admission and reclamation are inspected, including the recovered nominal unit and queued overage. An additive two-Pod Job compares suspended quota shortage with full quota admission and creation of both unassigned Pods. This covers quota-based all-or-nothing admission, not GPU placement, Pod readiness, or gang recovery. Actual devices, sustained fairness, access control and production integrations require separate evidence.",
-  "cluster": "saf-lab-130b129fdf3c",
+  "scope": "Kueue v0.20.6 controller with Fair Sharing and two single-unit quotas, on disposable kind Kubernetes v1.36.1. Three owned Kubernetes Jobs request only an unallocated synthetic resource. Kueue admission and reclamation are inspected, including the recovered nominal unit and queued overage. An additive two-Pod Job compares suspended quota shortage with full quota admission and creation of both unassigned Pods. This covers quota-based all-or-nothing admission. A separate tiny CPU-only two-Pod Job passes through its exact Kueue queue, reaches both Pod Ready and Workload PodsReady, then completes. This does not prove GPU placement or gang recovery. Actual devices, sustained fairness, access control and production integrations require separate evidence.",
+  "cluster": "saf-lab-876e2aa3ec13",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -102,6 +102,31 @@
         "created_pods": 2,
         "all_pods_unassigned": true,
         "all_pods_unschedulable_for_unallocated_resource": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact Kueue queue admits the CPU Job and both owned Pods become Ready",
+      "matched": true,
+      "observed": {
+        "job_unsuspended": true,
+        "owned_workload_admitted": true,
+        "exact_local_queue": true,
+        "exact_cluster_queue": true,
+        "exactly_two_job_owned_pods": true,
+        "both_pods_running_and_ready": true,
+        "workload_pods_ready_condition": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same two-Pod Workload completes after its Ready state was observed",
+      "matched": true,
+      "observed": {
+        "job_completed_two_pods": true,
+        "workload_finished_condition": true,
+        "ready_state_observed_before_completion": true,
+        "failed_pod_count": 0
       }
     }
   ]

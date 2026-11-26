@@ -12,6 +12,9 @@ IMAGE = f"registry.k8s.io/kueue/kueue:{VERSION}"
 IMAGE_SHA256 = "20465f0e56a4eed90ec07fa7838866a90f7b6890c0adc84be86aaee307a6744a"
 API = "kueue.x-k8s.io/v1beta2"
 RESOURCE = "example.com/virtual-gpu"
+READY_QUEUE = "ready-queue"
+READY_CLUSTER_QUEUE = "ready-cq"
+READY_JOB = "ready-pair"
 TEAMS = ("team-a", "team-b")
 JOB_OWNERS = {"a-baseline": "team-a", "a-borrowed": "team-a", "b-demand": "team-b"}
 SCOPE = (
@@ -21,7 +24,9 @@ SCOPE = (
     "are inspected, including the recovered nominal unit and queued overage. An "
     "additive two-Pod Job compares suspended quota shortage with full quota "
     "admission and creation of both unassigned Pods. This covers quota-based "
-    "all-or-nothing admission, not GPU placement, Pod readiness, or gang recovery. "
+    "all-or-nothing admission. A separate tiny CPU-only two-Pod Job passes through "
+    "its exact Kueue queue, reaches both Pod Ready and Workload PodsReady, then completes. "
+    "This does not prove GPU placement or gang recovery. "
     "Actual devices, sustained fairness, access control and production integrations "
     "require separate evidence."
 )
@@ -303,7 +308,129 @@ def run_gang_candidate(lab):
                "all_pods_unschedulable_for_unallocated_resource": green["all_unschedulable"]})
 
 
+def _ready_pair_observation(lab):
+    job_resource = json.loads(lab.kubectl("get", "job", READY_JOB, "-n", "gang-team",
+                                         "-o", "json", timeout=20).stdout)
+    uid = job_resource["metadata"]["uid"]
+    workloads = json.loads(lab.kubectl("get", "workloads", "-n", "gang-team", "-o", "json",
+                                      timeout=20).stdout)["items"]
+    owned_workloads = [workload for workload in workloads if any(
+        owner.get("uid") == uid and owner.get("kind") == "Job" and owner.get("controller") is True
+        for owner in workload["metadata"].get("ownerReferences", []))]
+    if len(owned_workloads) != 1:
+        return None
+    workload = owned_workloads[0]
+    status = workload.get("status", {})
+    conditions = status.get("conditions", [])
+    admitted = any(item.get("type") == "Admitted" and item.get("status") == "True"
+                   for item in conditions)
+    workload_ready = any(item.get("type") == "PodsReady" and item.get("status") == "True"
+                         for item in conditions)
+    pods = json.loads(lab.kubectl("get", "pods", "-n", "gang-team",
+                                  "-l", f"batch.kubernetes.io/job-name={READY_JOB}",
+                                  "-o", "json", timeout=20).stdout)["items"]
+    owned_pods = [pod for pod in pods if any(
+        owner.get("uid") == uid and owner.get("kind") == "Job" and owner.get("controller") is True
+        for owner in pod["metadata"].get("ownerReferences", []))]
+    every_pod_ready = (len(owned_pods) == 2 and all(
+        pod.get("status", {}).get("phase") == "Running"
+        and any(condition.get("type") == "Ready" and condition.get("status") == "True"
+                for condition in pod.get("status", {}).get("conditions", []))
+        for pod in owned_pods))
+    admission = status.get("admission") or {}
+    job_ready = {
+        "job_unsuspended": job_resource.get("spec", {}).get("suspend") is not True,
+        "owned_workload_admitted": admitted,
+        "exact_local_queue": workload.get("spec", {}).get("queueName") == READY_QUEUE,
+        "exact_cluster_queue": admission.get("clusterQueue") == READY_CLUSTER_QUEUE,
+        "exactly_two_job_owned_pods": len(owned_pods) == 2,
+        "both_pods_running_and_ready": every_pod_ready,
+        "workload_pods_ready_condition": workload_ready,
+    }
+    return job_ready
+
+
+def _wait_ready_pair(lab):
+    deadline = time.monotonic() + 60
+    last = None
+    while time.monotonic() < deadline:
+        last = _ready_pair_observation(lab)
+        if last and all(last.values()):
+            return last
+        time.sleep(0.5)
+    lab.block(f"The exact CPU Job did not reach workload-wide Ready: {last}")
+
+
+def run_cpu_readiness_candidate(lab):
+    """Run a two-Pod low-resource Job through a Kueue queue to Ready and completion."""
+    create(lab, {
+        "apiVersion": API, "kind": "ClusterQueue", "metadata": {"name": READY_CLUSTER_QUEUE},
+        "spec": {
+            "namespaceSelector": {"matchLabels": {"saf-k8s.example/team": "gang-team"}},
+            "resourceGroups": [{"coveredResources": ["cpu", "memory"],
+                                "flavors": [{"name": "virtual-capacity",
+                                             "resources": [{"name": "cpu", "nominalQuota": "100m"},
+                                                           {"name": "memory", "nominalQuota": "128Mi"}]}]}],
+            "preemption": {"reclaimWithinCohort": "Never", "withinClusterQueue": "Never"},
+            "fairSharing": {"weight": "1"},
+        },
+    })
+    create(lab, {"apiVersion": API, "kind": "LocalQueue",
+                 "metadata": {"name": READY_QUEUE, "namespace": "gang-team"},
+                 "spec": {"clusterQueue": READY_CLUSTER_QUEUE}})
+    lab.kubectl("wait", "--for=condition=Active", f"clusterqueue/{READY_CLUSTER_QUEUE}",
+                "--timeout=60s", timeout=65)
+    lab.kubectl("wait", "--for=condition=Active", f"localqueue/{READY_QUEUE}", "-n", "gang-team",
+                "--timeout=60s", timeout=65)
+
+    create(lab, {
+        "apiVersion": "batch/v1", "kind": "Job",
+        "metadata": {"name": READY_JOB, "namespace": "gang-team",
+                     "labels": {"kueue.x-k8s.io/queue-name": READY_QUEUE}},
+        "spec": {"suspend": True, "parallelism": 2, "completions": 2,
+                 "backoffLimit": 0, "activeDeadlineSeconds": 30,
+                 "template": {"spec": {
+                     "restartPolicy": "Never", "automountServiceAccountToken": False,
+                     "containers": [{"name": "bounded", "image": BUSYBOX_IMAGE,
+                                     "command": ["sleep", "10"],
+                                     "readinessProbe": {"exec": {"command": ["sh", "-c", "test -r /proc/1/status"]},
+                                                        "periodSeconds": 1, "timeoutSeconds": 1,
+                                                        "failureThreshold": 3},
+                                     "resources": {"requests": {"cpu": "10m", "memory": "16Mi"},
+                                                   "limits": {"cpu": "50m", "memory": "32Mi"}},
+                                     "securityContext": {"allowPrivilegeEscalation": False,
+                                                         "runAsNonRoot": True, "runAsUser": 65534,
+                                                         "capabilities": {"drop": ["ALL"]},
+                                                         "seccompProfile": {"type": "RuntimeDefault"}}}],
+                 }}}})
+
+    ready = _wait_ready_pair(lab)
+    lab.check("positive", "The exact Kueue queue admits the CPU Job and both owned Pods become Ready",
+              all(ready.values()), ready)
+    lab.kubectl("wait", "--for=condition=complete", f"job/{READY_JOB}", "-n", "gang-team",
+                "--timeout=35s", timeout=40)
+    job_after = json.loads(lab.kubectl("get", "job", READY_JOB, "-n", "gang-team", "-o", "json",
+                                      timeout=20).stdout)
+    workload = json.loads(lab.kubectl("get", "workloads", "-n", "gang-team", "-o", "json",
+                                     timeout=20).stdout)["items"]
+    job_uid = job_after["metadata"]["uid"]
+    owned = [item for item in workload if any(
+        owner.get("uid") == job_uid and owner.get("kind") == "Job" and owner.get("controller") is True
+        for owner in item["metadata"].get("ownerReferences", []))]
+    finished = (len(owned) == 1 and any(
+        condition.get("type") == "Finished" and condition.get("status") == "True"
+        for condition in owned[0].get("status", {}).get("conditions", [])))
+    completed = job_after.get("status", {}).get("succeeded") == 2
+    ready_captured = all(ready.values())
+    lab.check("positive", "The same two-Pod Workload completes after its Ready state was observed",
+              completed and finished and ready_captured,
+              {"job_completed_two_pods": completed, "workload_finished_condition": finished,
+               "ready_state_observed_before_completion": ready_captured,
+               "failed_pod_count": job_after.get("status", {}).get("failed", 0)})
+
+
 def run(lab):
     # Preserve the original four fair-share and cohort-reclamation checks.
     run_fairshare(lab)
     run_gang_candidate(lab)
+    run_cpu_readiness_candidate(lab)

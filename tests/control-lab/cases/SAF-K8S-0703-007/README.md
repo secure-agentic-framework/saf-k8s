@@ -35,3 +35,13 @@ remain unassigned because the fixture has no device allocation.
 
 [Kueue fair sharing and preemption](https://kueue.sigs.k8s.io/v0.20/docs/concepts/preemption/)
 and [Kueue all-or-nothing scheduling](https://kueue.sigs.k8s.io/v0.20/docs/concepts/all_or_nothing/).
+
+## Bounded CPU group readiness
+
+A separate case-owned ClusterQueue and LocalQueue admit one two-Pod CPU Job.
+The harness verifies the exact queue admission, observes `PodsReady=True` and
+both Job-owned Pods Ready, then verifies completion and the matching
+Workload's `Finished=True`. This comparison adds two checks. Each Pod requests
+10m CPU and 16 MiB and runs an idle bounded process. Actual device assignment,
+coordinated placement, failure recovery and long-run fairness remain adopter
+verification. See [Kueue v0.20 Workload API](https://kueue.sigs.k8s.io/v0.20/docs/reference/kueue.v1beta2/).
