@@ -3261,7 +3261,7 @@
     "SAF-K8S-1002-003": {
       "catalog_status": "draft",
       "domain": "D10",
-      "sha256": "b946413aedef9f7592b455b46b8d70dbc1480d7ceebb401a0b757dfc55add8da",
+      "sha256": "19cbcfc550d34ef187e6e18bdada8dbfd56da69a016f646657c8c796630a2a4d",
       "title": "AI workload telemetry integration into cluster monitoring"
     },
     "SAF-K8S-1002-004": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "44ee01d444171208503c73e306b51be2633a328c",
-  "sha256": "f12ae6364344afb26f91116ad1ce2601988a84f4b414fcad71dc4bd9593b9951",
+  "revision": "d4c96388cfca2207b4b74d253df74b321855e36a",
+  "sha256": "c11e20f1ec20d984db838c86fdb56b8f5655671774a59cb9d1cbc01f9889c3df",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

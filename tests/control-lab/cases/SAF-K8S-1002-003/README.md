@@ -13,3 +13,8 @@ The scraper service account can list EndpointSlices in the fixture namespace. Ku
 Production training and serving framework instrumentation, GPU nodes and taints, exporter field availability, and real device metrics require separate deployment evidence.
 
 [Prometheus Operator v0.85.0](https://github.com/prometheus-operator/prometheus-operator/releases/tag/v0.85.0) · [Prometheus Operator troubleshooting](https://prometheus-operator.dev/docs/platform/troubleshooting/) · [NVIDIA DCGM Exporter](https://docs.nvidia.com/datacenter/cloud-native/gpu-telemetry/latest/dcgm-exporter.html)
+
+For adoption, record the actual vendor, hardware, driver, exporter version and metric field support for accelerator signals. Compare the exporter output with independently scraped, workload-attributed samples for the deployed nodes. For training and inference, record each real source, signal semantics, runtime version, identity labels, authorized scrape selectors and controlled coverage limits. The fixture's fixed quality, training and inference values exercise collection.
+
+- [NVIDIA DCGM Exporter installation and compatibility](https://docs.nvidia.com/datacenter/dcgm/latest/installation/install-dcgm-exporter.html)
+- [NVIDIA DCGM Exporter metric support](https://docs.nvidia.com/datacenter/dcgm/latest/reference/dcgm-exporter-metrics.html)
