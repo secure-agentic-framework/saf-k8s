@@ -1,27 +1,37 @@
-# SAF-K8S-0703-007 — Fair-share admission for synthetic GPU capacity
+# SAF-K8S-0703-007 — Kueue sharing, reclamation and grouped admission
+
+From the framework checkout, run the disposable queue comparison.
 
 ```sh
-python3 lab.py test SAF-K8S-0703-007 --docker-context desktop-linux
+python3 tests/control-lab/lab.py test SAF-K8S-0703-007 --docker-context desktop-linux
 ```
 
-The case verifies the official Kueue v0.20.6 manifest digest, pins
-the controller image and enables Fair Sharing before startup. It
-uses two equal-weight ClusterQueues in the same cohort. Each has
-one unit of synthetic capacity.
+From the lab checkout, invoke `python3 lab.py` with the same arguments.
+The pinned Kueue v0.20.6 controller demonstrates one tenant's borrowed
+unit, the other tenant waiting, and reclaiming that exact borrowed unit
+while retaining both nominal reservations. A separate two-Pod Job
+requests two units of an unallocated synthetic resource. With a quota of
+one, the exact Job is suspended and has no Pods. With quota restored to
+two, the same Workload is admitted and two Pods are created. Both Pods
+remain unassigned because the fixture has no device allocation.
 
-Two Jobs in team A reserve its nominal unit and the unused unit
-from team B. With reclamation disabled, team B's request remains
-pending for insufficient quota. Kueue reports two reservations,
-the one borrowed unit and a positive weighted share for team A.
-Enabling cohort reclamation admits the same pending request and
-releases team A's borrowed reservation. Both queues end with one
-admission and no fixture Pod assigned to a node.
+## Verify the adopted scheduler and accelerator policy
 
-The requested resource is an unallocated synthetic name. Hardware
-allocation, production fairness over time, gang scheduling, authority
-over tenant queue selection, and workload-specific coverage require
-their own evidence.
+1. Inventory actual job controllers, queues, cohorts, weights, installed
+   versions, node and device inventory, and the supported group placement
+   or running-readiness mechanism. Verify which owners may submit to and
+   change each queue and allocation.
+2. In a bounded approved test pool, compare steady state, borrowing from
+   one tenant, and reclamation when another eligible tenant requires its
+   nominal quota. Observe workload admission, preemption, timing and
+   effective allocations against documented sharing and fairness rules.
+3. For each workload requiring coordinated placement, compare capacity
+   below and at the complete group requirement. Observe admission,
+   physical device assignment, workload-wide readiness and bounded
+   recovery after an expected startup or device fault. Record the
+   scheduler, actual IDs, and meaningful Ready or completion outcomes.
+4. Retain effective policy and quota, approved comparison conditions,
+   workload and service observations, and alert or exception handling.
 
-- [Kueue v0.20.6 release](https://github.com/kubernetes-sigs/kueue/releases/tag/v0.20.6)
-- [Kueue v0.20 ClusterQueues](https://kueue.sigs.k8s.io/v0.20/docs/concepts/cluster_queue/)
-- [Kueue v0.20 Fair Sharing and preemption](https://kueue.sigs.k8s.io/v0.20/docs/concepts/preemption/)
+[Kueue fair sharing and preemption](https://kueue.sigs.k8s.io/v0.20/docs/concepts/preemption/)
+and [Kueue all-or-nothing scheduling](https://kueue.sigs.k8s.io/v0.20/docs/concepts/all_or_nothing/).

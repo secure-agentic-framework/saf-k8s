@@ -18,9 +18,12 @@ SCOPE = (
     "Kueue v0.20.6 controller with Fair Sharing and two single-unit quotas, "
     "on disposable kind Kubernetes v1.36.1. Three owned Kubernetes Jobs request "
     "only an unallocated synthetic resource. Kueue admission and reclamation "
-    "are inspected, including the recovered nominal unit and queued overage. "
-    "Actual devices and placement, broad fairness, access control and production "
-    "integrations require separate evidence."
+    "are inspected, including the recovered nominal unit and queued overage. An "
+    "additive two-Pod Job compares suspended quota shortage with full quota "
+    "admission and creation of both unassigned Pods. This covers quota-based "
+    "all-or-nothing admission, not GPU placement, Pod readiness, or gang recovery. "
+    "Actual devices, sustained fairness, access control and production integrations "
+    "require separate evidence."
 )
 
 
@@ -158,7 +161,7 @@ def observe_borrowing(lab):
         time.sleep(0.5)
 
 
-def run(lab):
+def run_fairshare(lab):
     install(lab)
     configure_queues(lab)
     job(lab, "a-baseline")
@@ -184,3 +187,123 @@ def run(lab):
     lab.check("positive", "Both queues keep one admission while no synthetic Pod has a bound node",
               green["a-baseline"]["admitted"] and green["b-demand"]["admitted"] and not unrelated,
               {"team_a_retained_nominal": True, "team_b_reclaimed_nominal": True, "bound_pods": len(unrelated)})
+
+
+def _gang_observation(lab):
+    job_resource = json.loads(lab.kubectl("get", "job", "gang-pair", "-n", "gang-team",
+                                         "-o", "json").stdout)
+    uid = job_resource["metadata"]["uid"]
+    candidates = json.loads(lab.kubectl("get", "workloads", "-n", "gang-team",
+                                        "-o", "json").stdout)["items"]
+    owned = [candidate for candidate in candidates if any(
+        owner.get("uid") == uid and owner.get("kind") == "Job" and owner.get("controller") is True
+        for owner in candidate["metadata"].get("ownerReferences", []))]
+    if len(owned) != 1:
+        return None
+    workload = owned[0]
+    status = workload.get("status", {})
+    conditions = status.get("conditions", [])
+    admitted = status.get("admission") is not None and any(
+        item.get("type") == "Admitted" and item.get("status") == "True"
+        for item in conditions)
+    waiting_for_quota = any(
+        item.get("type") == "QuotaReserved" and item.get("status") == "False"
+        and item.get("reason") == "ExceedsMaxQuota"
+        and RESOURCE in item.get("message", "")
+        and "maximum capacity (1)" in item.get("message", "")
+        for item in conditions)
+    pods = json.loads(lab.kubectl("get", "pods", "-n", "gang-team",
+                                  "-l", "batch.kubernetes.io/job-name=gang-pair",
+                                  "-o", "json").stdout)["items"]
+    return {"admitted": admitted, "waiting_for_quota": waiting_for_quota,
+            "job_suspended": job_resource.get("spec", {}).get("suspend") is True,
+            "pod_count": len(pods),
+            "all_unassigned": all(not pod.get("spec", {}).get("nodeName") for pod in pods),
+            "all_unschedulable": len(pods) == 2 and all(any(
+                condition.get("type") == "PodScheduled"
+                and condition.get("status") == "False"
+                and condition.get("reason") == "Unschedulable"
+                for condition in pod.get("status", {}).get("conditions", []))
+                for pod in pods)}
+
+
+def _wait_gang(lab, predicate, description, timeout=60):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        observed = _gang_observation(lab)
+        if observed is not None and predicate(observed):
+            return observed
+        time.sleep(0.75)
+    lab.block(f"Timed out waiting for {description}; last observation={observed}")
+
+
+def run_gang_candidate(lab):
+    """Show Kueue quota-based all-or-nothing Job admission with two tiny Pods."""
+    gang_namespace = {"apiVersion": "v1", "kind": "Namespace",
+                      "metadata": {"name": "gang-team",
+                                   "labels": {"saf-k8s.example/team": "gang-team"}}}
+    create(lab, gang_namespace)
+    cluster_queue = {
+        "apiVersion": API, "kind": "ClusterQueue", "metadata": {"name": "gang-cq"},
+        "spec": {
+            "namespaceSelector": {"matchLabels": {"saf-k8s.example/team": "gang-team"}},
+            "cohortName": "gang-cohort",
+            "resourceGroups": [{"coveredResources": [RESOURCE],
+                                 "flavors": [{"name": "virtual-capacity",
+                                              "resources": [{"name": RESOURCE,
+                                                             "nominalQuota": "1"}]}]}],
+            "preemption": {"reclaimWithinCohort": "Never", "withinClusterQueue": "Never"},
+            "fairSharing": {"weight": "1"},
+        },
+    }
+    create(lab, cluster_queue)
+    create(lab, {"apiVersion": API, "kind": "LocalQueue",
+                 "metadata": {"name": "gang-queue", "namespace": "gang-team"},
+                 "spec": {"clusterQueue": "gang-cq"}})
+    lab.kubectl("wait", "--for=condition=Active", "clusterqueue/gang-cq",
+                "--timeout=60s", timeout=65)
+    lab.kubectl("wait", "--for=condition=Active", "localqueue/gang-queue", "-n", "gang-team",
+                "--timeout=60s", timeout=65)
+
+    create(lab, {
+        "apiVersion": "batch/v1", "kind": "Job",
+        "metadata": {"name": "gang-pair", "namespace": "gang-team",
+                     "labels": {"kueue.x-k8s.io/queue-name": "gang-queue"}},
+        "spec": {"suspend": True, "parallelism": 2, "completions": 2,
+                 "backoffLimit": 0,
+                 "template": {"spec": {
+                     "restartPolicy": "Never", "automountServiceAccountToken": False,
+                     "containers": [{"name": "bounded", "image": BUSYBOX_IMAGE,
+                                     "command": ["sleep", "15"],
+                                     "resources": {"requests": {RESOURCE: "1"},
+                                                   "limits": {RESOURCE: "1"}}}],
+                 }}}})
+
+    red = _wait_gang(lab, lambda obs: (not obs["admitted"] and obs["waiting_for_quota"]
+                                        and obs["job_suspended"] and obs["pod_count"] == 0),
+                     "two-pod gang remains wholly queued below its two-unit quota")
+    lab.check("red", "With only one synthetic unit, Kueue leaves the two-pod Job suspended with no Pods",
+              red["waiting_for_quota"] and red["job_suspended"] and red["pod_count"] == 0,
+              {"admitted": red["admitted"], "quota_wait": red["waiting_for_quota"],
+               "job_suspended": red["job_suspended"], "created_pods": red["pod_count"]})
+
+    lab.kubectl("patch", "clusterqueue", "gang-cq", "--type=merge", "-p",
+                '{"spec":{"resourceGroups":[{"coveredResources":["example.com/virtual-gpu"],'
+                '"flavors":[{"name":"virtual-capacity","resources":[{"name":"example.com/virtual-gpu",'
+                '"nominalQuota":"2"}]}]}]}}')
+    green = _wait_gang(lab, lambda obs: (obs["admitted"] and not obs["job_suspended"]
+                                          and obs["pod_count"] == 2 and obs["all_unassigned"]
+                                          and obs["all_unschedulable"]),
+                       "both gang Pods are created after the full two-unit reservation")
+    lab.check("green", "After quota reaches two, Kueue admits the Job and both Pods exist; synthetic GPU requests keep them unassigned",
+              green["admitted"] and not green["job_suspended"] and green["pod_count"] == 2
+              and green["all_unassigned"] and green["all_unschedulable"],
+              {"admitted": green["admitted"], "job_suspended": green["job_suspended"],
+               "created_pods": green["pod_count"], "all_pods_unassigned": green["all_unassigned"],
+               "all_pods_unschedulable_for_unallocated_resource": green["all_unschedulable"]})
+
+
+def run(lab):
+    # Preserve the original four fair-share and cohort-reclamation checks.
+    run_fairshare(lab)
+    run_gang_candidate(lab)

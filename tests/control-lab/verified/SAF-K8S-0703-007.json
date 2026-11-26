@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0703-007",
-  "catalog_revision": "a9eef518e77909c0a258d716a4a0a1b50be8f10d",
-  "catalog_sha256": "d0505b3cef6e27ac3451a0998acf0350819409280331edf48be9cfacfd4f73a7",
+  "catalog_revision": "302c910b204bc0838d8a8d8c3e0be8604be32411",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "5de6399d8efc138f2a9f36c76a526537296fde2f9ea0d0aa4a4f1522a3dd98bc",
-  "scope": "Kueue v0.20.6 controller with Fair Sharing and two single-unit quotas, on disposable kind Kubernetes v1.36.1. Three owned Kubernetes Jobs request only an unallocated synthetic resource. Kueue admission and reclamation are inspected, including the recovered nominal unit and queued overage. Actual devices and placement, broad fairness, access control and production integrations require separate evidence.",
-  "cluster": "saf-lab-41acecbb0a64",
+  "scope": "Kueue v0.20.6 controller with Fair Sharing and two single-unit quotas, on disposable kind Kubernetes v1.36.1. Three owned Kubernetes Jobs request only an unallocated synthetic resource. Kueue admission and reclamation are inspected, including the recovered nominal unit and queued overage. An additive two-Pod Job compares suspended quota shortage with full quota admission and creation of both unassigned Pods. This covers quota-based all-or-nothing admission, not GPU placement, Pod readiness, or gang recovery. Actual devices, sustained fairness, access control and production integrations require separate evidence.",
+  "cluster": "saf-lab-130b129fdf3c",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -79,6 +79,29 @@
         "team_a_retained_nominal": true,
         "team_b_reclaimed_nominal": true,
         "bound_pods": 0
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "With only one synthetic unit, Kueue leaves the two-pod Job suspended with no Pods",
+      "matched": true,
+      "observed": {
+        "admitted": false,
+        "quota_wait": true,
+        "job_suspended": true,
+        "created_pods": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "After quota reaches two, Kueue admits the Job and both Pods exist; synthetic GPU requests keep them unassigned",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "job_suspended": false,
+        "created_pods": 2,
+        "all_pods_unassigned": true,
+        "all_pods_unschedulable_for_unallocated_resource": true
       }
     }
   ]
