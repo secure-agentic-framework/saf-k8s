@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 3387
-- Distinct Requirements Mapped: 729
+- Total Reverse Mappings: 3381
+- Distinct Requirements Mapped: 728
 
 ## Requirements
 
@@ -679,7 +679,6 @@
 - [SI-4(13) - Analyze Traffic and Event Patterns](si-4-13.md)
 - [SI-4(16) - Correlate Monitoring Information](si-4-16.md)
 - [SI-4(17) - Integrated Situational Awareness](si-4-17.md)
-- [SI-4(18) - Analyze Traffic and Covert Exfiltration](si-4-18.md)
 - [SI-4(19) - Risk for Individuals](si-4-19.md)
 - [SI-4(2) - Automated Tools and Mechanisms for Real-time Analysis](si-4-2.md)
 - [SI-4(20) - Privileged Users](si-4-20.md)
