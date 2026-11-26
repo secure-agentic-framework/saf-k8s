@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-020",
-  "catalog_revision": "09b5f0181cd8fcb0f57f3c553846b144f2b01587",
-  "catalog_sha256": "180c4e582ab91c70d57d14467a9be75f5a501be8433acb5e72444e0d2a4a0d7d",
+  "catalog_revision": "f2a8ef5e17702dc6f4885fc5ca5d4d1fcd625f01",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "c189cc738866de2ca46783c66c2b1e299d18007d90e398f6bb6b2b2579dd9e16",
   "scope": "An owned Helm chart and vendored dependency that create public ConfigMaps in Kind.",
-  "cluster": "saf-lab-b74da1115af8",
+  "cluster": "saf-lab-fc3d3edd24a5",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -52,6 +52,23 @@
       "matched": true,
       "observed": {
         "schema_denied_override": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The merged values schema rejects enabling Pod service-account token automount",
+      "matched": true,
+      "observed": {
+        "token_automount_true_rejected_before_any_api_write": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The approved security value renders false for the inert Pod fixture",
+      "matched": true,
+      "observed": {
+        "approved_false_value_in_rendered_pod_spec": true,
+        "render_only_no_api_submission": true
       }
     },
     {

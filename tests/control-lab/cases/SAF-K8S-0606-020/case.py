@@ -16,6 +16,18 @@ metadata:
 data:
   marker: {{ .Values.marker | quote }}
 '''
+POD_TEMPLATE = '''{{- if .Values.pod.enabled }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ .Release.Name }}-workload
+spec:
+  automountServiceAccountToken: {{ .Values.pod.automountServiceAccountToken }}
+  containers:
+    - name: inert-fixture
+      image: example.invalid/never-executed:0
+{{- end }}
+'''
 
 
 def fixture(path, name, marker, suffix, *, dependency=False):
@@ -25,7 +37,11 @@ def fixture(path, name, marker, suffix, *, dependency=False):
         metadata += (f"dependencies:\n  - name: {DEPENDENCY}\n    version: {TAG}\n"
                      f"    repository: file://../{DEPENDENCY}\n")
     (path / "Chart.yaml").write_text(metadata)
-    (path / "values.yaml").write_text(f"marker: {marker}\n")
+    defaults = f"marker: {marker}\n"
+    if name == CHART:
+        defaults += "pod:\n  enabled: false\n  automountServiceAccountToken: false\n"
+        (path / "templates" / "service-account-workload.yaml").write_text(POD_TEMPLATE)
+    (path / "values.yaml").write_text(defaults)
     (path / "templates" / "marker.yaml").write_text(TEMPLATE % suffix)
 
 
@@ -70,13 +86,33 @@ def demonstrate(lab, root):
               {"unchecked_override_reached_api": ungoverned})
     schema = {"type": "object", "required": ["marker"], "additionalProperties": False,
               "properties": {"marker": {"type": "string", "enum": ["approved-default", "approved-file", "approved-cli"]},
-                             DEPENDENCY: {"type": "object"}, "global": {"type": "object"}}}
+                             DEPENDENCY: {"type": "object"}, "global": {"type": "object"},
+                             "pod": {"type": "object", "required": ["enabled", "automountServiceAccountToken"],
+                                     "additionalProperties": False,
+                                     "properties": {"enabled": {"type": "boolean"},
+                                                    "automountServiceAccountToken": {"enum": [False]}}}}}
     (parent / "values.schema.json").write_text(json.dumps(schema))
     denied = live_helm(lab, "install", "checked-values", str(parent), "--set-string", "marker=outside-approved-values",
                        allow_failure=True)
     refused = denied.returncode != 0 and "specifications of the schema" in denied.stderr and "marker" in denied.stderr
     lab.check("green", "Helm validates the merged values and refuses the same unapproved override",
               refused and marker(lab, "checked-values") is None, {"schema_denied_override": refused})
+    token_override = live_helm(lab, "template", "unapproved-token-mount", str(parent),
+                               "--set", "pod.enabled=true", "--set", "pod.automountServiceAccountToken=true",
+                               allow_failure=True)
+    token_override_refused = (token_override.returncode != 0
+                              and "automountServiceAccountToken" in token_override.stderr)
+    lab.check("green", "The merged values schema rejects enabling Pod service-account token automount",
+              token_override_refused,
+              {"token_automount_true_rejected_before_any_api_write": token_override_refused})
+    safe_render = live_helm(lab, "template", "approved-token-policy", str(parent),
+                            "--set", "pod.enabled=true", "--set", "pod.automountServiceAccountToken=false").stdout
+    safe_rendered = ("name: approved-token-policy-workload" in safe_render
+                     and "automountServiceAccountToken: false" in safe_render)
+    lab.check("positive", "The approved security value renders false for the inert Pod fixture",
+              safe_rendered,
+              {"approved_false_value_in_rendered_pod_spec": safe_rendered,
+               "render_only_no_api_submission": True})
     values = root / "approved-values.yaml"
     values.write_text("marker: approved-file\n")
     (child / "values.yaml").write_text("marker: public-dependency-v2\n")
