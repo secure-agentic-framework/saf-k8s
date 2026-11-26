@@ -12,6 +12,23 @@ Job, Pod, and Node. The test rejects a document missing the actual dataset
 digest, accepts the matching record, and runs the pinned CycloneDX CLI for
 schema 1.7. No third-party training dependencies are present in this fixture.
 
+## CycloneDX 1.7 fields in this test
+
+| Evidence | Location in the generated BOM |
+| --- | --- |
+| Inert model, training task and referenced dataset | `metadata.component` and its `modelCard.modelParameters` |
+| Actual fixture dataset digest and classification | The data component's `hashes` and `data[].classification` |
+| In-BOM model-to-dataset relationship | The model's `datasets[].ref` and the BOM's `dependencies` |
+| Model and training configuration digests, exact runtime, Job, Pod and Node | Case-defined `saf:` properties on the model component |
+
+The pinned CycloneDX CLI v0.33.1 validates structure against schema 1.7. The
+fixture independently compares expected values with the observed Job output.
+The reported Python version identifies the fixture runtime. Verify the
+actual ML framework and its version in the adopted workflow. [CycloneDX 1.7
+JSON reference](https://cyclonedx.org/docs/1.7/json/), [CycloneDX AI/ML-BOM
+Guide](https://www.cyclonedx.org/guides/OWASP_CycloneDX-Authoritative-Guide-to-AI-ML-BOM-en.pdf),
+[CycloneDX CLI v0.33.1](https://github.com/CycloneDX/cyclonedx-cli/releases/tag/v0.33.1).
+
 For adoption, inventory the supported model, framework and dataset paths.
 Generate a BOM from a representative build, independently compare its digests
 with the registered model and source records, and preserve the Job, Pod, Node,
