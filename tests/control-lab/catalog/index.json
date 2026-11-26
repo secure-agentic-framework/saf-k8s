@@ -2499,7 +2499,7 @@
     "SAF-K8S-0903-004": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "1116d92cb8887aa2ae81c1ca08c9d8caec68038295f640eeedc9efcb4896f045",
+      "sha256": "8ab52426324ece7773d94406977a8d84ffcc1b89c2128202c0d70e6068b0fb6b",
       "title": "LLM context window and token resource controls"
     },
     "SAF-K8S-0903-006": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "b71aa4cf5bd5e7bc5883909aaaf53a2e08754a39",
-  "sha256": "7d6937a06790309ec74e86d3906c8513fc47187daddcb0c143094e42f6369a7b",
+  "revision": "2aca9cbd3145eac59c1d7ff857a16543c15df82d",
+  "sha256": "a69ceaa73a25f9d6241252111dbdfd5f31b431579d243c58c7df656c2ac5d450",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

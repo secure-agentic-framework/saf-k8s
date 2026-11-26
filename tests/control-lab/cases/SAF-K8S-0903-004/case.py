@@ -9,11 +9,15 @@ IMAGE = ("docker.io/library/python:3.13-slim@sha256:"
          "e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90")
 SCOPE = (
     "Disposable Kubernetes v1.36.1 Pods run deterministic synthetic generation fixtures. "
-    "The original process enforces whitespace-token input, request and session output limits "
-    "and a logical-time rate limit. A separate Kubernetes Service and client exercise real "
-    "cl100k_base BPE accounting after prompt expansion and bounded HTTP token streaming. "
-    "Deployed model templates and tokenizers, authenticated tenancy and concurrency, real "
-    "model and KV-cache behavior, and GPU memory remain separate adoption evidence."
+    "The original in-process fixture has on/off branches for whitespace-token input and fake "
+    "output, with fixed synthetic session IDs and a logical clock. The separate BPE HTTP "
+    "service exercises only its guarded path: fixed template-expanded cl100k_base prompts, "
+    "synthetic token IDs, and five sequential client requests. Pod CPU/memory requests and "
+    "limits are declared, but effective cgroup values, usage, and pressure are not measured. "
+    "The HTTP fixture has no authenticated caller/session identity or concurrent generation. "
+    "Neither fixture runs a real model or serving framework, configures a real KV cache, or "
+    "measures GPU memory. Production route coverage, identity binding, concurrency, cache and "
+    "device budgets, cgroup behavior, and monitoring require separate adopter evidence."
 )
 
 

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0903-004",
-  "catalog_revision": "9ff57158cade9ac81e50c55ad8dd8e6166f9b6f8",
-  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
+  "catalog_revision": "6b25d166dff807e3594a9232ffc31ebb605dce37",
+  "catalog_sha256": "a69ceaa73a25f9d6241252111dbdfd5f31b431579d243c58c7df656c2ac5d450",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "1116d92cb8887aa2ae81c1ca08c9d8caec68038295f640eeedc9efcb4896f045",
-  "scope": "Disposable Kubernetes v1.36.1 Pods run deterministic synthetic generation fixtures. The original process enforces whitespace-token input, request and session output limits and a logical-time rate limit. A separate Kubernetes Service and client exercise real cl100k_base BPE accounting after prompt expansion and bounded HTTP token streaming. Deployed model templates and tokenizers, authenticated tenancy and concurrency, real model and KV-cache behavior, and GPU memory remain separate adoption evidence.",
-  "cluster": "saf-lab-dfc02ff26bf0",
+  "control_sha256": "8ab52426324ece7773d94406977a8d84ffcc1b89c2128202c0d70e6068b0fb6b",
+  "scope": "Disposable Kubernetes v1.36.1 Pods run deterministic synthetic generation fixtures. The original in-process fixture has on/off branches for whitespace-token input and fake output, with fixed synthetic session IDs and a logical clock. The separate BPE HTTP service exercises only its guarded path: fixed template-expanded cl100k_base prompts, synthetic token IDs, and five sequential client requests. Pod CPU/memory requests and limits are declared, but effective cgroup values, usage, and pressure are not measured. The HTTP fixture has no authenticated caller/session identity or concurrent generation. Neither fixture runs a real model or serving framework, configures a real KV cache, or measures GPU memory. Production route coverage, identity binding, concurrency, cache and device budgets, cgroup behavior, and monitoring require separate adopter evidence.",
+  "cluster": "saf-lab-b3dbdb1e26cb",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
