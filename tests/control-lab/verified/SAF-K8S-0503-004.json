@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0503-004",
-  "catalog_revision": "a447319415e0acc4533e01cb08c5ad73ef91eb6c",
-  "catalog_sha256": "7afb8f92fd6b8686ffdff1601407c3a00ec8a124c7321849866ac4bdb5cdf2cc",
+  "catalog_revision": "f5b4ff2590c3bb77b925723e73bf5c7acdd7286e",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "911cad12b613f8d526585d644e076e69502b79a58c0eab57c68ec3d36aabc479",
   "scope": "Real v1.36.1 API admission for Services in the case-owned namespace. The explicit AWS scheme, separated fixture identities and allowed source ranges are checked on create and update. This cluster installs no cloud load-balancer controller. Provider reconciliation, reachability and production approval need separate evidence.",
-  "cluster": "saf-lab-3bfff76b88bf",
+  "cluster": "saf-lab-269de181e32d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
