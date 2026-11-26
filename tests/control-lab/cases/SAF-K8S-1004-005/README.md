@@ -24,3 +24,6 @@ Deployed detections, incident attribution, and analyst workflow need deployment
 evidence.
 
 - [NIST AI 100-2e2025, Sections 2 and 3](https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-2e2025.pdf)
+
+
+Scope clarification for this verification copy: the five fixture fields form a case-owned review projection, not five dimensions claimed by NIST. `system_type` is a local selector for the predictive and generative branches; the other selected fields are informed by NIST AI 100-2e2025 Sections 2 and 3. The fixture does not implement the complete NIST taxonomies. The existing five checks and synthetic-only boundary are unchanged.

@@ -34,13 +34,15 @@ HTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
 
 SCOPE = (
     "A disposable Kubernetes v1.36.1 Kind cluster runs one digest-pinned Python mock workload "
-    "that serves only checked-in synthetic review metadata. The case validates namespace, "
-    "freshness, evidence references, predictive and generative classification metadata, and five "
-    "NIST AI 100-2e2025 review dimensions; it detects "
-    "a synthetic marker-only overclaim, rejects stale/incomplete records, and preserves unknowns "
-    "without assigning an attack class. It does not connect to feeds or external targets, run an "
-    "AI model, establish an actual incident, prove deployed controls, or validate a production "
-    "classification workflow."
+    "that serves only checked-in synthetic review metadata. The case validates namespace, freshness, "
+    "evidence references, and a case-owned review schema projecting selected predictive and "
+    "generative taxonomy fields informed by NIST AI 100-2e2025 Sections 2 and 3. The system_type "
+    "field, namespace and freshness policy are local schema and review choices; the case does not "
+    "implement the full NIST taxonomy or all of its classification dimensions. It detects a synthetic "
+    "marker-only overclaim, rejects stale or incomplete records, and preserves unknowns without "
+    "assigning an attack class. It does not connect to feeds or external targets, run an AI model, "
+    "establish an actual incident, prove deployed controls, or validate a production classification "
+    "workflow."
 )
 
 
