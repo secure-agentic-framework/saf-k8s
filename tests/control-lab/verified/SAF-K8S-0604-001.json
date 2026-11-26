@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0604-001",
-  "catalog_revision": "d1b8447a22de8db36ec31676b53c34496d4d3f59",
+  "catalog_revision": "3f65185f2e64894c20d741e3d13c7c17e373022a",
   "catalog_sha256": "63ca25b48ffb8f35202c5c4db9c599eb98e12d31aa18f4d0d69d91a9e3ec5423",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "72f4fbe4a05d6d17a1cece970943dd69645f542b78ee313556f56c6c063202de",
-  "scope": "A pinned scanner catalogs Python dependencies and Debian runtime packages from owned OCI images. A digest-bound release gate holds the controlled incomplete inventory, and an independent launch verifies the approved libc6 package and loaded glibc. A separate immutable image installs a digest-pinned psutil wheel and joins its RECORD, its loaded native ELF bytes and Syft's inventory to the exact OCI manifest run on disposable Kind. Deployed native and vendored dependencies, accelerators, provenance, SBOM retention, and AI artifact inventory require separate evidence.",
-  "cluster": "saf-lab-29abbd2e55ea",
+  "scope": "A pinned scanner catalogs Python dependencies and Debian runtime packages from owned OCI images. A digest-bound release gate holds the controlled incomplete inventory, and an independent launch verifies the approved libc6 package and loaded glibc. A separate immutable image installs a digest-pinned psutil wheel and joins its RECORD, its loaded native ELF bytes and Syft's inventory to the exact OCI manifest run on disposable Kind. Its exact generated CycloneDX bytes are attached as an OCI subject referrer and read back from the case-owned registry. Deployed native and vendored dependencies, accelerators, provenance, production SBOM retention, and AI artifact inventory require separate evidence.",
+  "cluster": "saf-lab-47e765d4146b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -114,6 +114,19 @@
         "wheel_RECORD_to_native_hash_match": true,
         "CycloneDX_reports_psutil": true,
         "native_runtime_call_succeeded": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact generated wheel CycloneDX bytes are retained as a subject-bound OCI artifact",
+      "matched": true,
+      "observed": {
+        "subject_digest_matches_scanned_manifest": true,
+        "referrer_index_contains_artifact": true,
+        "subject_manifest_readback_matches_exact_scan_subject": true,
+        "artifact_manifest_subject_matches": true,
+        "registry_readback_matches_exact_bom_bytes": true,
+        "registry_readback_digest_matches": true
       }
     },
     {

@@ -35,8 +35,9 @@ SCOPE = (
     "images. A digest-bound release gate holds the controlled incomplete inventory, and an "
     "independent launch verifies the approved libc6 package and loaded glibc. A separate "
     "immutable image installs a digest-pinned psutil wheel and joins its RECORD, its loaded "
-    "native ELF bytes and Syft's inventory to the exact OCI manifest run on disposable Kind. "
-    "Deployed native and vendored dependencies, accelerators, provenance, SBOM retention, and "
+    "native ELF bytes and Syft's inventory to the exact OCI manifest run on disposable Kind. Its exact generated "
+    "CycloneDX bytes are attached as an OCI subject referrer and read back from the case-owned registry. "
+    "Deployed native and vendored dependencies, accelerators, provenance, production SBOM retention, and "
     "AI artifact inventory require separate evidence."
 )
 
@@ -213,7 +214,7 @@ def run_approved(registry, image, digest, inventoried_libc):
 
 
 def run(lab):
-    with load_registry()(lab) as (registry, _, _):
+    with load_registry()(lab) as (registry, host_port, _):
         missing_root, missing_digest = stage(registry, "missing", leaf_metadata=False)
         full_root, full_digest = stage(registry, "complete", leaf_metadata=True)
         absent, missing = scan(registry, missing_root, missing_digest)
@@ -248,4 +249,4 @@ def run(lab):
             lab.block("Could not load the scratch wheel/native-ELF witness")
         wheel_module = importlib.util.module_from_spec(wheel_spec)
         wheel_spec.loader.exec_module(wheel_module)
-        wheel_module.run(registry)
+        wheel_module.run(registry, host_port)

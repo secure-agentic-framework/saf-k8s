@@ -2,6 +2,7 @@
 import base64
 import gzip
 import hashlib
+import importlib.util
 import json
 import platform
 import re
@@ -294,7 +295,7 @@ def _runtime_probe(registry, image, manifest_digest, expected):
     return valid, observation, observed
 
 
-def run(registry):
+def run(registry, host_port):
     lab = registry.lab
     arch_text = registry.docker("info", "--format", "{{.Architecture}}").stdout.strip().lower()
     arch = {"aarch64": "arm64", "arm64": "arm64",
@@ -459,5 +460,35 @@ def run(registry):
                    "native_runtime_call_succeeded": runtime_data.get("native_loaded")})
         lab.evidence.joinpath("wheel-native-sbom.json").write_text(
             json.dumps(evidence, sort_keys=True, indent=2) + "\n")
+        retention_spec = importlib.util.spec_from_file_location(
+            "saf_0604_001_sbom_retention", HERE / "sbom_retention.py"
+        )
+        if retention_spec is None or retention_spec.loader is None:
+            lab.block("Could not load the CycloneDX retention witness")
+        retention_module = importlib.util.module_from_spec(retention_spec)
+        retention_spec.loader.exec_module(retention_module)
+        bom_bytes = (lab.evidence / "wheel-native-cyclonedx.json").read_bytes()
+        retained, retention_evidence = retention_module.retain_exact_bom(
+            lab, registry, host_port, repo.split("/", 1)[1], layout, manifest_digest,
+            manifest, bom_bytes
+        )
+        lab.check(
+            "positive",
+            "The exact generated wheel CycloneDX bytes are retained as a subject-bound OCI artifact",
+            retained,
+            {"subject_digest_matches_scanned_manifest":
+                 retention_evidence["subject_descriptor"]["digest"] == manifest_digest,
+             "referrer_index_contains_artifact":
+                 retention_evidence["readback"]["referrers_index_contains_exact_artifact_descriptor"],
+             "subject_manifest_readback_matches_exact_scan_subject":
+                 retention_evidence["readback"]["subject_manifest_bytes_identical"]
+                 and retention_evidence["readback"]["subject_manifest_digest_matches"],
+             "artifact_manifest_subject_matches":
+                 retention_evidence["readback"]["subject_descriptor_matches"],
+             "registry_readback_matches_exact_bom_bytes":
+                 retention_evidence["readback"]["sbom_blob_bytes_identical"],
+             "registry_readback_digest_matches":
+                 retention_evidence["readback"]["sbom_blob_digest_matches"]}
+        )
     finally:
         registry.docker("image", "rm", tag, allow_failure=True)
