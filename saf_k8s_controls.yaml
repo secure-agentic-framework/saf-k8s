@@ -8886,12 +8886,12 @@
   knowledge_area: '9.5'
   control_seq: '034'
   control_title: Canary and A/B candidate version isolation and traffic-splitting integrity
-  control_statement: Canary and A/B deployment infrastructure must isolate candidate and stable model versions and preserve traffic-splitting integrity so a compromised or faulty candidate cannot interfere with the stable production version or silently capture unintended production traffic.
+  control_statement: Separate candidate and stable serving versions at the applicable traffic and workload boundaries. Restrict who can change the approved traffic split, verify the effective routing and independent candidate-to-stable isolation, and confirm stable availability during candidate withdrawal.
   objective: Ensure multi-version serving infrastructure keeps candidate and stable versions isolated and enforces approved traffic distribution during staged rollout.
-  rationale: Without version isolation, a compromised candidate model can affect the stable model through shared resources or runtime interference. Without traffic-splitting integrity, a rollout controller or routing layer can silently direct more traffic to a candidate than intended, expanding the blast radius of a bad release.
+  rationale: Access controls on routing configuration limit unauthorized changes. Effective network policy can protect approved version-specific paths. Shared resources and device topology require independent controls where they affect the approved rollout design.
   scope: Applies to all multi-version model serving on Kubernetes, including canary deployments, A/B testing, and blue-green deployments. Covers resource and runtime isolation between versions and integrity of traffic-splitting configuration. Excludes rollback triggers and recovery automation, which are addressed separately.
   primary_enforcement_point: Canary or A/B rollout controller configuration and service-mesh or ingress routing policy.
-  implementation_surface: Canary and A/B rollout controllers, Istio VirtualService or Envoy route configuration for traffic splitting, resource isolation between candidate and stable model versions, and isolation settings such as separate GPU devices or MIG partitions where needed.
+  implementation_surface: Verify actual route and rollout-controller configuration, latest applied traffic weights or cohort rules, authority for changes and active version-specific policy. Observe permitted and denied traffic from the documented paths. Verify resource, placement and accelerator isolation where required.
   owner_primary: ML Platform Engineering
   owner_supporting: DevOps Engineering; Security Engineering
   baseline_or_ai_specific: ai-specific

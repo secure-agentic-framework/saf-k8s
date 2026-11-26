@@ -8603,16 +8603,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-4
   framework_requirement_title: Information Flow Enforcement
-  framework_mapping_notes: 'Core to agent data flow control between trust boundaries
-
-
-    5.1 - Implement network policies (default deny, namespace isolation, egress controls for information flow enforcement)'
+  framework_mapping_notes: The reference observes an approved constrained split and denied direct version-to-version traffic. Verify actual route behavior, effective policy and governed external or alternate paths.
   control_id: SAF-K8S-0905-034
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: For the governed stable/candidate traffic path with independently verified effective routing and approved information-flow policy.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -9403,16 +9400,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-4(21)
   framework_requirement_title: Physical or Logical Separation of Information Flows
-  framework_mapping_notes: 'Logical separation of agent data channels
-
-
-    5.1 - AI workload network segmentation (isolation between training, inference, pipeline, notebook workloads); 7.2 - Namespace isolation'
+  framework_mapping_notes: The native case demonstrates one explicitly separated version-to-version flow and preserves the designated router path. Verify affected versions, other interfaces, addresses and runtime or resource separation as required.
   control_id: SAF-K8S-0905-034
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: For actual deployments that define candidate and stable serving flows as requiring logical separation and verify it at the applicable boundaries.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
