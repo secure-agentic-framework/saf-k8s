@@ -111,3 +111,15 @@ the control.
 - [Kubernetes RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
 - [CronJob scheduling](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/)
 - [SubjectAccessReview](https://v1-36.docs.kubernetes.io/docs/reference/kubernetes-api/authorization-resources/subject-access-review-v1/)
+
+## Review unapplied definitions and collect deployed evidence
+
+The current reference has 50 checks, covering a scheduled recurring native RBAC review, authorized named reads, a scoped DRA authorization matrix, and an offline review of unbound manifest definitions. The offline check flags the exact wildcard and authorization-sensitive rule patterns and confirms reconciling the sample preserves the required named rule. Its synthetic definitions remain local case inputs.
+
+1. Inventory all governed clusters, namespaces, Role and ClusterRole objects, and RoleBindings and ClusterRoleBindings. Record object identities and scope, rule versions, referenced roles, subjects, group authority and ownership. Include system and operator namespaces and the documented customer boundary of managed clusters.
+2. Compare candidate findings from declarative and live inventory to actual API authorization decisions. Resolve group membership and aggregation, and evaluate the effective authorizer chain where applicable. Use approved read-only checks and never activate disallowed grants to prove a finding.
+3. Assign a reviewer and owner for changes, approve minimal remediation and rerun the same authorization matrix. Verify the required paths still work and preserve exact before and after decisions, deadlines, approvals and expiring exceptions.
+4. Check scheduled runs and material role, cluster and identity changes over time. Include actual scheduler and driver writers in each DRA deployment, exact version-specific status, binding and driver operations, and driver identity and naming constraints.
+
+- [Kubernetes RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
+- [Kubernetes SubjectAccessReview](https://v1-36.docs.kubernetes.io/docs/reference/kubernetes-api/authorization-resources/subject-access-review-v1/)

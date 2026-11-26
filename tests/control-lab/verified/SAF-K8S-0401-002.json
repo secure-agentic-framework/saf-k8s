@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0401-002",
-  "catalog_revision": "56e703821e335e42eed7bc8ac1729af7a0faf0d8",
-  "catalog_sha256": "753894c1a84ad8bdfc64620a78e2d8508f564c41dcc11e336958125f42dd024b",
+  "catalog_revision": "7fb949b1cbcce8104e21d9e71b5d905740152a6a",
+  "catalog_sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6070733308e304589b4570dd25316bca0dc37cfabc9d7f9d6a16c46e45c83c9f",
   "scope": "Replays the synthetic ConfigMap permission audit and a scheduled self-review. A second isolated namespace tests v1.36.1 SubjectAccessReview decisions for ordinary ResourceClaim status plus the DRA binding and driver permissions. The test uses fixed synthetic principals, driver names and node-aware verbs. Production role inventory, native status request construction, node association, actual driver behavior and allocation remain separate.",
-  "cluster": "saf-lab-ad965c7ff40e",
+  "cluster": "saf-lab-f7cf8c5a8e55",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -38,6 +38,48 @@
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
+    {
+      "phase": "green",
+      "claim": "An offline inventory flags exactly two unbound rule definitions and preserves the required named read",
+      "matched": true,
+      "observed": {
+        "matched_candidates": [
+          {
+            "object_kind": "ClusterRole",
+            "object_name": "fixture-sensitive-rule-candidate",
+            "namespace": null,
+            "rule_index": 0,
+            "categories": [
+              "authorization-sensitive-verbs"
+            ],
+            "sensitive_verbs": [
+              "bind",
+              "escalate",
+              "impersonate"
+            ],
+            "disposition": "manifest_candidate_only",
+            "effective_authorization": "not_evaluated",
+            "subject_bindings": "not_present_in_fixture"
+          },
+          {
+            "object_kind": "Role",
+            "object_name": "fixture-wildcard-candidate",
+            "namespace": "fixture-audit",
+            "rule_index": 0,
+            "categories": [
+              "wildcard-verbs"
+            ],
+            "sensitive_verbs": [],
+            "disposition": "manifest_candidate_only",
+            "effective_authorization": "not_evaluated",
+            "subject_bindings": "not_present_in_fixture"
+          }
+        ],
+        "only_required_definition_retained": true,
+        "fixture_has_no_bindings": true,
+        "no_candidate_rules_after_reconciliation": true
+      }
+    },
     {
       "phase": "red",
       "claim": "The declared narrow Role and extra named-read Role combine additively; the audit detects the unnecessary read",

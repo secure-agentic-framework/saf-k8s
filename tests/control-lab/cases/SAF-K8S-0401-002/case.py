@@ -163,7 +163,32 @@ def wait_for_remediated_decisions(lab, timeout=10):
         time.sleep(0.2)
 
 
+def check_unapplied_rule_inventory(lab):
+    fixture = json.loads((HERE / "manifest_inventory_fixture.json").read_text())
+    spec = importlib.util.spec_from_file_location("manifest_inventory", HERE / "manifest_inventory.py")
+    inventory = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(inventory)
+    result = inventory.evaluate(fixture)
+    observed = result["baseline"]["findings"]
+    expected = [
+        ("fixture-sensitive-rule-candidate", ["authorization-sensitive-verbs"]),
+        ("fixture-wildcard-candidate", ["wildcard-verbs"]),
+    ]
+    reconciled = result["reconciled"]
+    inert = all(row["kind"] in ("Role", "ClusterRole") and not row.get("subjects")
+                for row in fixture["objects"])
+    exact = [(row["object_name"], row["categories"]) for row in observed] == expected
+    exact = exact and observed[0]["sensitive_verbs"] == ["bind", "escalate", "impersonate"]
+    retained = [row["name"] for row in reconciled["objects"]] == ["fixture-required-read"]
+    isolated = all(row["effective_authorization"] == "not_evaluated" for row in observed)
+    lab.check("green", "An offline inventory flags exactly two unbound rule definitions and preserves the required named read",
+              inert and exact and retained and isolated and not reconciled["findings"],
+              {"matched_candidates": observed, "only_required_definition_retained": retained,
+               "fixture_has_no_bindings": inert, "no_candidate_rules_after_reconciliation": not reconciled["findings"]})
+
+
 def run(lab):
+    check_unapplied_rule_inventory(lab)
     # The fresh cluster is isolated; every object in this manifest is case-owned.
     lab.kubectl("create", "namespace", NAMESPACE)
     lab.kubectl("create", "namespace", REVIEW_NAMESPACE)
