@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1005-008",
-  "catalog_revision": "4915ee26288cfb7d7d0d8da044042e9618653246",
-  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
+  "catalog_revision": "21a37bee11a2c8253acb514bd2f641d1c782a903",
+  "catalog_sha256": "e21df5ef6d7be8d3be548d48d3650f2dfc630a3e395f036b3e3eb0533fc68fe4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "4b0332e246a7260e1234803efd1e1e7d6621d0bf5952287fe31552dbfb9334e8",
+  "control_sha256": "df91f4d942b2129670a7e0fe37e0c91a440ffb569cd39888e97b2add07ad3613",
   "scope": "Disposable Kind v1.36.1 and one digest-pinned Python mock responder. The case submits only checked-in synthetic alert envelopes, checks four defensive playbook records, and removes or restores only explicitly named case-owned ConfigMaps and one mock Service in saf-test. No real AI workload, model, GPU, DCGM/driver telemetry, inference endpoint, attack input, or external containment target is used. This tests a local readiness/exercise gate, not production IR capability.",
-  "cluster": "saf-lab-61333c18a4f8",
+  "cluster": "saf-lab-196f9efa13fc",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

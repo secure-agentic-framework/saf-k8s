@@ -3345,7 +3345,7 @@
     "SAF-K8S-1005-008": {
       "catalog_status": "draft",
       "domain": "D10",
-      "sha256": "4b0332e246a7260e1234803efd1e1e7d6621d0bf5952287fe31552dbfb9334e8",
+      "sha256": "df91f4d942b2129670a7e0fe37e0c91a440ffb569cd39888e97b2add07ad3613",
       "title": "AI-specific incident response playbooks for Kubernetes"
     },
     "SAF-K8S-1005-014": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "d2b1e8ac0cf92bb8cedb2312459cd853a5c33496",
-  "sha256": "80c7da0fd4f41cb7830cb16c47d2d08461aee78c45806ed496151b90cef2011d",
+  "revision": "f8c34dce043475e8cf11f23a7ca6250e5698ee8f",
+  "sha256": "e21df5ef6d7be8d3be548d48d3650f2dfc630a3e395f036b3e3eb0533fc68fe4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
