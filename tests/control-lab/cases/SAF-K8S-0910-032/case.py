@@ -12,11 +12,14 @@ NS = "saf-test"
 COLLECTOR = "fixture-telemetry-collector"
 SOURCE = "fixture-telemetry-source"
 OBSERVER = "fixture-telemetry-observer"
+UNAPPROVED_SOURCE = "fixture-telemetry-unapproved"
 CODE = "fixture-monitor-code"
 TRUST = "fixture-monitor-trust"
 SERVER_NAME = "fixture-monitor.saf.test"
 SOURCE_URI = "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-source"
 OBSERVER_URI = "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-observer"
+UNAPPROVED_SOURCE_URI = "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-unapproved"
+UNAPPROVED_SERVER_NAME = "unapproved-destination.saf.test"
 WINDOW_SECONDS = 20
 RECORD_THRESHOLD = 3
 BYTE_THRESHOLD = 1024
@@ -55,7 +58,8 @@ def pki(lab, root):
     for name, purpose, identity, dns in (
             (COLLECTOR, "serverAuth", None, SERVER_NAME),
             (SOURCE, "clientAuth", SOURCE_URI, None),
-            (OBSERVER, "clientAuth", OBSERVER_URI, None)):
+            (OBSERVER, "clientAuth", OBSERVER_URI, None),
+            (UNAPPROVED_SOURCE, "clientAuth", UNAPPROVED_SOURCE_URI, None)):
         key, cert, conf = (root / f"{name}.{suffix}" for suffix in ("key", "crt", "ext"))
         if identity:
             conf.write_text(uri_extension(identity, purpose))
@@ -107,7 +111,11 @@ def report(lab, name, address, port, state, ids):
 
 
 def send(lab, address, port, ids):
-    result = lab.kubectl("exec", SOURCE, "--", "python", "/code/monitor_fixture.py", "send",
+    return send_from(lab, SOURCE, address, port, ids)
+
+
+def send_from(lab, client, address, port, ids):
+    result = lab.kubectl("exec", client, "--", "python", "/code/monitor_fixture.py", "send",
                          address, str(port), SERVER_NAME, *ids, timeout=15)
     return json.loads(result.stdout)
 
@@ -145,7 +153,7 @@ def run(lab):
             lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {
                 "name": TRUST, "namespace": NS}, "immutable": True,
                 "data": {"ca.crt": ca.read_text()}})
-            for name in (SOURCE, OBSERVER):
+            for name in (SOURCE, OBSERVER, UNAPPROVED_SOURCE):
                 lab.kubectl("create", "secret", "tls", name,
                             "--cert=" + str(root / (name + ".crt")),
                             "--key=" + str(root / (name + ".key")), "-n", NS, "-o", "name")
@@ -156,7 +164,7 @@ def run(lab):
 
             peer("wait", "--for=condition=Ready", "pod/" + COLLECTOR, "-n", NS,
                  "--timeout=80s", timeout=90)
-            for name in (SOURCE, OBSERVER):
+            for name in (SOURCE, OBSERVER, UNAPPROVED_SOURCE):
                 ready(lab, name)
 
             def await_route():
@@ -200,6 +208,55 @@ def run(lab):
             lab.check("positive", "The monitored route still accepts ordinary traffic without an alert",
                       all(ordinary["checks"].values()), ordinary)
 
+            # Start from a fresh collector state. An unapproved source URI signed by
+            # the same disposable CA and an approved source using the wrong expected
+            # destination name must both fail closed before any report record exists.
+            rotate_collector()
+            refused = send_from(lab, UNAPPROVED_SOURCE, address, port,
+                                ["synthetic-telemetry-unapproved-001"])
+            destination = lab.kubectl(
+                "exec", SOURCE, "--", "python", "/code/monitor_fixture.py",
+                "destination-probe", address, str(port), SERVER_NAME, UNAPPROVED_SERVER_NAME,
+                timeout=12)
+            destination = json.loads(destination.stdout)
+            empty_after_refusals = report(lab, OBSERVER, address, port, "quiet", [])
+
+            # Two individually bounded inert records exceed only the byte threshold;
+            # the record-count threshold is not crossed. IDs remain synthetic and
+            # the transmitted metric fields contain no workload or user data.
+            byte_ids = ["synthetic-telemetry-byte-" + ("a" * 520) + suffix
+                        for suffix in ("-001", "-002")]
+            byte_batch = witness(byte_ids, "alert")
+            byte_records = byte_batch["report"]["records"]
+            byte_only = (byte_batch["report"]["record_count"] == 2
+                         and byte_batch["report"]["record_count"] <= RECORD_THRESHOLD
+                         and byte_batch["report"]["observed_bytes"] > BYTE_THRESHOLD
+                         and all(0 < row["body_bytes"] <= 1024 for row in byte_records)
+                         and len(byte_batch["report"]["events"]) == 1
+                         and byte_batch["report"]["events"][0].get("record_count") == 2
+                         and byte_batch["report"]["events"][0].get("observed_bytes")
+                             == byte_batch["report"]["observed_bytes"])
+            source_refused = (len(refused.get("sent", [])) == 1
+                              and refused["sent"][0].get("status") == 403
+                              and refused["sent"][0].get("decision") == "source-refused")
+            destination_refused = (destination.get("configured_destination") == SERVER_NAME
+                                   and destination.get("destination_identity_rejected") is True
+                                   and destination.get("classification") == "certificate_identity_mismatch")
+            no_unauthorized_record = (all(empty_after_refusals["checks"].values())
+                                      and empty_after_refusals["report"]["records"] == []
+                                      and empty_after_refusals["report"]["events"] == [])
+            lab.check("positive",
+                      "The configured source and destination are authenticated, refusals persist no record, and byte volume alerts independently",
+                      source_refused and destination_refused and no_unauthorized_record
+                      and all(byte_batch["checks"].values()) and byte_only,
+                      {"configured_source_uri": SOURCE_URI,
+                       "unapproved_same_ca_source_denied": source_refused,
+                       "configured_destination_sni": SERVER_NAME,
+                       "unapproved_destination_identity_rejected": destination_refused,
+                       "unauthorized_attempts_left_no_observed_records": no_unauthorized_record,
+                       "byte_threshold_exercised_without_count_threshold": byte_only,
+                       "byte_threshold_report": byte_batch})
+
     (lab.evidence / "cross-cluster-telemetry-monitoring.json").write_text(json.dumps({
         "case": "SAF-K8S-0910-032",
         "route": {"kind": "owned-private-bridge-nodeport", "server_name": SERVER_NAME,
@@ -210,4 +267,7 @@ def run(lab):
         "baseline": baseline,
         "alerting": burst,
         "ordinary": ordinary,
+        "source_destination_and_byte_threshold": {"unapproved_source": refused,
+            "unapproved_destination": destination, "empty_after_refusals": empty_after_refusals,
+            "byte_threshold": byte_batch},
     }, sort_keys=True, indent=2) + "\n")

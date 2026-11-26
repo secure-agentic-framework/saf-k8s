@@ -11,6 +11,7 @@ import time
 
 SOURCE_URI = "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-source"
 OBSERVER_URI = "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-observer"
+UNAPPROVED_SOURCE_URI = "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-unapproved"
 WINDOW_SECONDS = 20
 MAX_RECORDS = 16
 MAX_BODY_BYTES = 1024
@@ -172,6 +173,20 @@ def send(host, port, server_name, record_ids):
     print(json.dumps({"sent": results}, sort_keys=True))
 
 
+
+def probe_destination(host, port, expected_server_name, unapproved_server_name):
+    """Return only a classification; suppress certificate/connection details."""
+    record = {"id": "synthetic-telemetry-destination-probe", "metric": 7, "synthetic": True}
+    try:
+        status, _ = call(host, port, unapproved_server_name, "POST", "/telemetry", record)
+        result = {"destination_identity_rejected": False, "unexpected_http_status": status}
+    except ssl.SSLCertVerificationError:
+        result = {"destination_identity_rejected": True, "classification": "certificate_identity_mismatch"}
+    except (ConnectionRefusedError, TimeoutError, socket.timeout):
+        result = {"destination_identity_rejected": False, "classification": "transport_unavailable"}
+    print(json.dumps({"configured_destination": expected_server_name, **result}, sort_keys=True))
+
+
 def observe(host, port, server_name, expected_state, expected_ids):
     status, report = call(host, port, server_name, "GET", "/fixture/report")
     expected = []
@@ -216,6 +231,10 @@ if __name__ == "__main__":
             send(host, int(port), server_name, rest)
         elif operation == "observe":
             observe(host, int(port), server_name, rest[0], rest[1:])
+        elif operation == "destination-probe":
+            if len(rest) != 1:
+                raise SystemExit("destination-probe requires one unapproved server name")
+            probe_destination(host, int(port), server_name, rest[0])
         elif operation == "health":
             try:
                 status, _ = call(host, int(port), server_name, "GET", "/fixture/report")

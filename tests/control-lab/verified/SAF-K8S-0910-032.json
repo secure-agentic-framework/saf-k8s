@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0910-032",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "4a8675ed472a1b442aae08a8ba8b76315ebd3380",
+  "catalog_sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e8b45b8e52378b8ca7558cdfd355939481bc840edf54709905435bc019e6196a",
   "scope": "The supervisor-owned source Kind cluster sends only bounded synthetic telemetry over the same private NodePort route to a separately owned peer Kind collector. Exact mTLS URI identity attributes the source; the collector measures observed JSON bytes and unique fixture record IDs. A separate mTLS observer reads the collector report and correlates each observed digest and size to the expected records and the generated alert. This is deterministic fixture evidence, not production network coverage.",
-  "cluster": "saf-lab-7b27bc9ec84d",
+  "cluster": "saf-lab-98e237c0007c",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -179,6 +179,62 @@
           ],
           "window_expired": false,
           "window_seconds": 20
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The configured source and destination are authenticated, refusals persist no record, and byte volume alerts independently",
+      "matched": true,
+      "observed": {
+        "configured_source_uri": "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-source",
+        "unapproved_same_ca_source_denied": true,
+        "configured_destination_sni": "fixture-monitor.saf.test",
+        "unapproved_destination_identity_rejected": true,
+        "unauthorized_attempts_left_no_observed_records": true,
+        "byte_threshold_exercised_without_count_threshold": true,
+        "byte_threshold_report": {
+          "checks": {
+            "alert_state_matches_phase": true,
+            "bounded_window_has_not_expired": true,
+            "collector_report_received": true,
+            "measured_bytes_match_observed_payload_bytes": true,
+            "measured_count_matches_observed_identifiable_records": true,
+            "records_match_expected_source_and_observed_content": true
+          },
+          "report": {
+            "events": [
+              {
+                "event": "telemetry-volume-threshold",
+                "observed_bytes": 1172,
+                "record_count": 2,
+                "source": "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-source",
+                "thresholds": {
+                  "bytes_gt": 1024,
+                  "records_gt": 3
+                },
+                "window_seconds": 20
+              }
+            ],
+            "observed_bytes": 1172,
+            "record_count": 2,
+            "records": [
+              {
+                "body_bytes": 586,
+                "body_sha256": "e5c33f904a67d4accefeeb372b8320e6ca3d60d3845fc7827b39743b7751a551",
+                "record_id": "synthetic-telemetry-byte-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-001",
+                "source": "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-source"
+              },
+              {
+                "body_bytes": 586,
+                "body_sha256": "bb17c984be972f838dba7696d8134d552c2840a0feb7af7fd90cbaa67f2dc809",
+                "record_id": "synthetic-telemetry-byte-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-002",
+                "source": "spiffe://saf.test/ns/saf-test/sa/fixture-telemetry-source"
+              }
+            ],
+            "window_expired": false,
+            "window_seconds": 20
+          }
         }
       }
     }
