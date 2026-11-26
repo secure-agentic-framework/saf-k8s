@@ -11,10 +11,12 @@ SCOPE = (
     "non-operational incident records and a defensive classification/traceability/ownership worksheet. "
     "The Job independently validates a deliberately incomplete/misclassified baseline and a complete "
     "candidate worksheet, then checks a permitted synthetic positive record. Raw JSON and stable "
-    "summary evidence are captured. CTA-2114 normative taxonomy text is not publicly accessible in "
-    "the verified source; the control's asserted class labels are tracked as unverified, with NIST "
-    "AI 100-2e2025 shown separately as comparator. This does not establish production coverage, "
-    "incident attribution, or CTA conformance."
+    "summary evidence are captured. The nine control.* labels and their group boundaries in the "
+    "fixture are provisional SAF-K8S examples pending verification against an authorized CTA-2114 "
+    "normative copy; the test does not validate CTA class membership, definitions, or completeness. "
+    "NIST AI 100-2e2025 is shown only as a separate comparator. The case verifies local worksheet "
+    "traceability behavior and does not establish production coverage, incident attribution, or CTA "
+    "conformance."
 )
 
 def _wait(lab, name):
