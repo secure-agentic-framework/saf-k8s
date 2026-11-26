@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0602-001",
-  "catalog_revision": "83eb14670db6a4f028833348c0c2dc8c1646e7c3",
-  "catalog_sha256": "3c16fb356a0d2bec646b189b9595506f0f25d3a3392e63607b984d19fdc9cd41",
+  "catalog_revision": "5baaadd565f2b475544b0ff22d3d9faddb30a7d1",
+  "catalog_sha256": "e21df5ef6d7be8d3be548d48d3650f2dfc630a3e395f036b3e3eb0533fc68fe4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "a04bb85dfdaee2b6a48f14ac0f1400666289fc5691df686a106f924062b4ba03",
-  "scope": "Kind v1.36.1 with a cluster-local Kubernetes-issued OIDC service account token, private Fulcio, certificate transparency, Rekor v2, timestamp and TUF services, and a test-owned TLS registry. Pinned Cosign verifies the exact OCI image digest and required transparency and time evidence before a release creates the fixture Pod. Deployed identity policy, runtime admission and SLSA provenance require separate evidence.",
-  "cluster": "saf-lab-52df2c826e63",
+  "scope": "Kind v1.36.1 with a cluster-local Kubernetes-issued OIDC service account token, private Fulcio, certificate transparency, Rekor v2, timestamp and TUF services, and a test-owned TLS registry. Pinned Cosign verifies the exact OCI image digest and required transparency and time evidence before a release creates the fixture Pod. Native admission consumes the verified image reference from an immutable fixture approval. Deployed identity policy, verifier integration, admission coverage and provenance require separate evidence.",
+  "cluster": "saf-lab-4bdf92f2fc1d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -78,6 +78,53 @@
       "matched": true,
       "observed": {
         "verified_using_local_private_root": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native VAP denies the Pod while the approval parameter is absent",
+      "matched": true,
+      "observed": {
+        "request_rejected": true,
+        "parameter_object_present": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Scoped fixture review controller creates the exact immutable digest record",
+      "matched": true,
+      "observed": {
+        "exact_digest_record": true,
+        "fixture_controller_request_succeeded": true,
+        "wrong_author_rejected_by_policy": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native VAP denies a digest different from the pinned approval parameter",
+      "matched": true,
+      "observed": {
+        "different_digest_rejected": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native VAP accepts the exact locally verified digest",
+      "matched": true,
+      "observed": {
+        "exact_digest_admitted": true,
+        "server_dry_run": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Unprivileged launcher cannot create, update, delete, or alter approval",
+      "matched": true,
+      "observed": {
+        "create_authorized": false,
+        "update_authorized": false,
+        "delete_authorized": false,
+        "patch_rejected": true
       }
     },
     {

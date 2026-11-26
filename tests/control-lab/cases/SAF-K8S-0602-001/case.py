@@ -24,7 +24,8 @@ SCOPE = (
     "private Fulcio, certificate transparency, Rekor v2, timestamp and TUF services, and "
     "a test-owned TLS registry. Pinned Cosign verifies the exact OCI image digest and "
     "required transparency and time evidence before a release creates the fixture Pod. "
-    "Deployed identity policy, runtime admission and SLSA provenance require separate evidence."
+    "Native admission consumes the verified image reference from an immutable fixture approval. "
+    "Deployed identity policy, verifier integration, admission coverage and provenance require separate evidence."
 )
 
 
@@ -205,6 +206,10 @@ def exercise(lab, registry, root):
     verified = code == 0
     lab.check("positive", "Cosign verifies the certificate identity, private log proof and digest",
               verified, {"verified_using_local_private_root": verified})
+    admission = load_module("saf_keyless_admission", HERE / "admission_addendum.py")
+    admission.run(lab, ref=ref, verification_result={
+        "ref": ref, "identity": EXPECTED_IDENTITY, "issuer": ISSUER, "cosign_exit_code": code, **proofs,
+    })
     run_verified_image(registry, ref)
     (lab.evidence / "private-keyless-observations.json").write_text(json.dumps({
         **proofs, "oidc_issuer": ISSUER, "certificate_identity_policy": EXPECTED_IDENTITY,
