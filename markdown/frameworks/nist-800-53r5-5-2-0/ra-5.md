@@ -33,10 +33,10 @@ Vulnerability scanning of agentic AI components, dependencies, and models is ess
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0905-029 - CUDA and GPU accelerator dependency vulnerability management](../../controls/SAF-K8S-0905-029.md)
 

@@ -14899,19 +14899,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: CM-10(1)
-  framework_requirement_title: Open-source Software
-  framework_mapping_notes: ML dependency assessment informs CM-10(1) where its findings govern adoption or exception decisions under organization-defined restrictions on open-source use.
-  control_id: SAF-K8S-0905-028
-  relation_type: supports
-  strength_level: weak
-  applicability: conditional
-  applicability_condition: The organization uses these assessment findings to implement its defined restrictions on open-source software use.
-  strength_reason_code: implementation-specific
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: CM-11
   framework_requirement_title: User-installed Software
   framework_mapping_notes: 'Controlling user-installed agent plugins/tools
@@ -24130,16 +24117,13 @@
   framework_version: 5.2.0
   framework_requirement_id: RA-5
   framework_requirement_title: Vulnerability Monitoring and Scanning
-  framework_mapping_notes: 'Vulnerability scanning of agentic AI components, dependencies, and models is essential
-
-
-    6.1 - Container image vulnerability scanning (CI/CD, registry, runtime); 6.4 - Vulnerability intelligence'
+  framework_mapping_notes: The portable SCA reference compares the affected dependency metadata with a fixed advisory and retains a held, corrected and review-needed disposition. Verify actual scanner scope, current authoritative feeds and follow-up dates.
   control_id: SAF-K8S-0905-028
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: For a governed vulnerability monitoring program with an approved current advisory source, accurate dependency inventory, reviewed matching, and response tracking.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -42744,12 +42728,12 @@
   framework_version: '1.1'
   framework_requirement_id: RV.1.1
   framework_requirement_title: Gather information from software acquirers, users, and public sources on potential vulnerabilities in the software and third-party components, and investigate all credible reports.
-  framework_mapping_notes: Software composition analysis of ML dependencies supports RV.1.1 by matching component inventory to credible vulnerability information and routing findings for investigation. Maintain the broader intake for reports from acquirers, users, and public sources.
+  framework_mapping_notes: Frozen advisory record parsing supplies a narrow reproducible comparison. Verify the actual intake sources, responsibilities and ongoing updates with the adopter.
   control_id: SAF-K8S-0905-028
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
+  applicability: conditional
+  applicability_condition: For a vulnerability intake process with approved advisory sources, current inventory and retained reporting and assessment responsibilities.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
@@ -42825,13 +42809,13 @@
   framework_version: '1.1'
   framework_requirement_id: RV.2.1
   framework_requirement_title: Analyze each vulnerability to gather sufficient information about risk to plan its remediation or other risk response.
-  framework_mapping_notes: SAF-K8S includes vulnerability prioritization for AI workloads that accounts for exploitability context, blast radius in the cluster, and AI-specific impact factors.
+  framework_mapping_notes: The test observes a promotion hold until a fixed dependency inventory has changed. Verify actual affected product paths, owner review and remediation or approved compensating action.
   control_id: SAF-K8S-0905-028
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: For an approved remediation workflow that connects affected installed dependencies, triage and completed or compensating action.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
