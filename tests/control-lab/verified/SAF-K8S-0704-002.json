@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0704-002",
-  "catalog_revision": "5cc3a14a144d332cbd78cef17a221234e0458fc9",
-  "catalog_sha256": "394514b767cc051199159ef49a948fd07fd47f80dde76cc3d73a929b44068b66",
+  "catalog_revision": "f0dabfb1de53b26cd21ae3fd0267f75f170e08d0",
+  "catalog_sha256": "904d72a72ad1fecd0846782c878be4ca9fc97e55f047332c98126b06b9704d13",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "0b29d9c9512aaf973429772eadb902e31f21daff87a7e1632a0d96caaef40f34",
+  "control_sha256": "df9bb4b902607d5ee0b01f65f27aee797b4205ed8aea2fb6e03eb7d42ca7d99c",
   "scope": "Owned TCP marker paths and Kubernetes API authorization on Kind. Cloud configuration requires provider evidence.",
-  "cluster": "saf-lab-f710d83384cd",
+  "cluster": "saf-lab-b36052de1446",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

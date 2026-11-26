@@ -2103,8 +2103,8 @@
     "SAF-K8S-0704-002": {
       "catalog_status": "draft",
       "domain": "D07",
-      "sha256": "0b29d9c9512aaf973429772eadb902e31f21daff87a7e1632a0d96caaef40f34",
-      "title": "VPC and security group integration with Kubernetes network policies"
+      "sha256": "df9bb4b902607d5ee0b01f65f27aee797b4205ed8aea2fb6e03eb7d42ca7d99c",
+      "title": "Cloud network, Kubernetes API endpoint and Pod traffic boundaries"
     },
     "SAF-K8S-0704-004": {
       "catalog_status": "draft",
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "d79e7d1b800e86df82ab6c6e66f7d18965cab19f",
-  "sha256": "9e06b319942c6734af90d7c5a8a864afa453f52032df740d201e5484c1b801c9",
+  "revision": "b2e88712080345129bb9aa098395dcfaff76b054",
+  "sha256": "904d72a72ad1fecd0846782c878be4ca9fc97e55f047332c98126b06b9704d13",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
