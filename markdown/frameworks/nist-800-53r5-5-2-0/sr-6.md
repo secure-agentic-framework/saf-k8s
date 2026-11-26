@@ -29,15 +29,6 @@ Supplier assessments for AI model providers and tool vendors validate security p
 - Applicability: conditional
 - Strength Reason Code: partial-control-coverage
 
-### [SAF-K8S-0604-008 - AI workload vulnerability exposure classification](../../controls/SAF-K8S-0604-008.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0905-053 - Approved external model source periodic review and allowlist update governance](../../controls/SAF-K8S-0905-053.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines

@@ -20,15 +20,6 @@ Vulnerability scanning of agentic AI components, dependencies, and models is ess
 - Applicability: required
 - Strength Reason Code: exact-text-match
 
-### [SAF-K8S-0604-008 - AI workload vulnerability exposure classification](../../controls/SAF-K8S-0604-008.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0905-028 - ML framework and Python dependency vulnerability management](../../controls/SAF-K8S-0905-028.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines

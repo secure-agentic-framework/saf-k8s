@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-OCTAVE risk assessment prioritizes treatment by business impact and organizational risk tolerance. Vulnerability prioritization for AI workloads provides risk-ranked remediation guidance.
+This four-check fixture supplies limited context for a separate AI risk-treatment decision: it observes Job/Deployment ownership and node/runtime-image identities, resolves fictional component inventory matches and conflicts, and verifies a private inference service path. The paired run does not perform or evidence prioritization. Use the relation only when those facts are incorporated into the organization’s documented AI risk assessment and treatment process.
 
 ## SAF-K8S Controls
 
@@ -14,9 +14,9 @@ OCTAVE risk assessment prioritizes treatment by business impact and organization
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.4
 - Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: depends-on-adjacent-control
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1003-002 - OCTAVE risk-based threat assessment for Kubernetes AI environments](../../controls/SAF-K8S-1003-002.md)
 

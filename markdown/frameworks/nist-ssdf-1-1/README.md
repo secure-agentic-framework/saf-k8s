@@ -2,7 +2,7 @@
 
 - Framework Code: NIST-SSDF
 - Version: 1.1
-- Total Reverse Mappings: 54
+- Total Reverse Mappings: 51
 - Distinct Requirements Mapped: 19
 
 ## Requirements

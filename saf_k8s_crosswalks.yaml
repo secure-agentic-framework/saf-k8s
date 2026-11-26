@@ -3048,13 +3048,13 @@
   framework_version: '1.0'
   framework_requirement_id: MANAGE 1.2
   framework_requirement_title: Treatment of documented AI risks is prioritized based on impact, likelihood, and available resources or methods.
-  framework_mapping_notes: OCTAVE risk assessment prioritizes treatment by business impact and organizational risk tolerance. Vulnerability prioritization for AI workloads provides risk-ranked remediation guidance.
+  framework_mapping_notes: 'This four-check fixture supplies limited context for a separate AI risk-treatment decision: it observes Job/Deployment ownership and node/runtime-image identities, resolves fictional component inventory matches and conflicts, and verifies a private inference service path. The paired run does not perform or evidence prioritization. Use the relation only when those facts are incorporated into the organization’s documented AI risk assessment and treatment process.'
   control_id: SAF-K8S-0604-008
   relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: depends-on-adjacent-control
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Use only where an organization separately documents and operates a risk-treatment prioritization process that consumes current, verified workload purpose, component locus, and measured access-path evidence. This fixture does not assess impact or likelihood, set risk tolerance, allocate resources, or select treatment.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -4539,22 +4539,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AC-16(5)
-  framework_requirement_title: Attribute Displays on Objects to Be Output
-  framework_mapping_notes: 'Displaying classification on agent outputs
-
-
-    9.5 - Model cards display model attributes (lineage, sensitivity, intended use); 6.4 - SBOM/ML-BOM metadata surfaces security attributes on output artifacts'
-  control_id: SAF-K8S-0604-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AC-16(6)
   framework_requirement_title: Maintenance of Attribute Association
   framework_mapping_notes: 'Persistent attribute association across agent handoffs
@@ -5935,22 +5919,6 @@
   applicability: conditional
   applicability_condition: The effective access authorization policy requires the selected approved intake evidence and the governed admission point checks the exact artifact before allowing access or use.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-24
-  framework_requirement_title: Access Control Decisions
-  framework_mapping_notes: 'Policy decision points for agent authorization
-
-
-    4.1 - Design and enforce RBAC (access control decisions); 6.4 - Admission control (policy-based access decisions)'
-  control_id: SAF-K8S-0604-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -7757,22 +7725,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(24)
-  framework_requirement_title: Internal Normalized Format
-  framework_mapping_notes: 'Normalizing agent data formats to prevent evasion
-
-
-    9.2 - Request format enforcement for inference inputs (normalization); 6.4 - SBOM standardized formats (SPDX, CycloneDX) enforce normalized representation'
-  control_id: SAF-K8S-0604-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -17224,22 +17176,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: IR-6(3)
-  framework_requirement_title: Supply Chain Coordination
-  framework_mapping_notes: 'Reporting agent supply chain incidents to vendors
-
-
-    10.5 - IR (supply chain incident coordination); 6.4 - Vulnerability intelligence sharing'
-  control_id: SAF-K8S-0604-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: IR-8
   framework_requirement_title: Incident Response Plan
   framework_mapping_notes: This control describes a Kubernetes incident-response lifecycle and its reference exercise may support the operational procedures in an organization's IR-8 plan. The 19-check portable exercise uses synthetic roles, incident records, an immutable evidence snapshot, one namespace-scoped mock Deployment containment/recovery flow, and independent review. It does not establish a complete organization-specific plan, plan approval/distribution, incident reporting definitions, metrics/resources, external information sharing, or protection from unauthorized change.
@@ -18887,22 +18823,6 @@
   framework_version: 5.2.0
   framework_requirement_id: RA-5
   framework_requirement_title: Vulnerability Monitoring and Scanning
-  framework_mapping_notes: 'Vulnerability scanning of agentic AI components, dependencies, and models is essential
-
-
-    6.1 - Container image vulnerability scanning (CI/CD, registry, runtime); 6.4 - Vulnerability intelligence'
-  control_id: SAF-K8S-0604-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: RA-5
-  framework_requirement_title: Vulnerability Monitoring and Scanning
   framework_mapping_notes: The portable SCA reference compares the affected dependency metadata with a fixed advisory and retains a held, corrected and review-needed disposition. Verify actual scanner scope, current authoritative feeds and follow-up dates.
   control_id: SAF-K8S-0905-028
   relation_type: supports
@@ -18956,22 +18876,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: RA-5(10)
-  framework_requirement_title: Correlate Scanning Information
-  framework_mapping_notes: 'Correlating vulnerability scans across agent components reveals systemic weaknesses
-
-
-    6.4 - VEX (correlating vulnerability scans with exploitability information to reduce false positives)'
-  control_id: SAF-K8S-0604-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: RA-5(6)
   framework_requirement_title: Automated Trend Analyses
   framework_mapping_notes: 'Automated trend analysis of agent vulnerabilities identifies systemic security issues
@@ -18984,22 +18888,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: RA-5(6)
-  framework_requirement_title: Automated Trend Analyses
-  framework_mapping_notes: 'Automated trend analysis of agent vulnerabilities identifies systemic security issues
-
-
-    6.4 - Vulnerability prioritization (automated trend analysis for AI workload CVEs, GPU driver CVEs)'
-  control_id: SAF-K8S-0604-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -19615,22 +19503,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-15(7)
-  framework_requirement_title: Automated Vulnerability Analysis
-  framework_mapping_notes: 'Automated vulnerability analysis of agent code and dependencies enables rapid detection
-
-
-    6.1 - Automated vulnerability scanning (CI/CD, registry-level, runtime); 6.4 - VEX for automated analysis'
-  control_id: SAF-K8S-0604-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -31087,22 +30959,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-5(1)
-  framework_requirement_title: Automated Alerts and Advisories
-  framework_mapping_notes: 'Automated security advisory distribution ensures timely awareness of agent vulnerabilities
-
-
-    1.4 - CVE response (automated security announcement monitoring); 6.4 - Vulnerability intelligence'
-  control_id: SAF-K8S-0604-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-6
   framework_requirement_title: Security and Privacy Function Verification
   framework_mapping_notes: 'Verification of agent security functions ensures controls operate as intended
@@ -32313,22 +32169,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SR-3(1)
-  framework_requirement_title: Diverse Supply Base
-  framework_mapping_notes: 'Diverse supply base for AI models and tools prevents single-vendor dependency risk
-
-
-    9.5 - ML dependency vulnerability management (diversifying ML framework dependencies); 6.4 - Dependency tracking'
-  control_id: SAF-K8S-0604-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SR-3(2)
   framework_requirement_title: Limitation of Harm
   framework_mapping_notes: 'The fixture demonstrates one technical safeguard for a development tool: changed bytes are refused before execution, while the approved fixture digest runs. This may contribute to a documented supply-chain harm-limitation control only when the expected digest comes from an independently trusted source. It is not evidence of a complete SCRM process or AI-specific supply-chain governance.'
@@ -32354,22 +32194,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-3(3)
-  framework_requirement_title: Sub-tier Flow Down
-  framework_mapping_notes: 'Sub-tier flow-down of security requirements to AI model and tool sub-suppliers
-
-
-    6.4 - SBOM/dependency tracking (sub-tier dependency visibility); 6.6 - Helm chart dependency pinning'
-  control_id: SAF-K8S-0604-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -32645,22 +32469,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-4(4)
-  framework_requirement_title: Supply Chain Integrity -- Pedigree
-  framework_mapping_notes: 'Supply chain pedigree for AI models documents complete chain of custody
-
-
-    9.5 - ML-BOM (training data lineage, framework versions, training infrastructure identity); 6.4 - ML-BOM generation'
-  control_id: SAF-K8S-0604-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -32953,22 +32761,6 @@
   framework_version: 5.2.0
   framework_requirement_id: SR-6
   framework_requirement_title: Supplier Assessments and Reviews
-  framework_mapping_notes: 'Supplier assessments for AI model providers and tool vendors validate security practices
-
-
-    6.4 - VEX (vendor vulnerability communication); 9.5 - ML dependency vulnerability management (supplier review)'
-  control_id: SAF-K8S-0604-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-6
-  framework_requirement_title: Supplier Assessments and Reviews
   framework_mapping_notes: A periodic review of an approved external model-source allowlist can contribute to SR-6 when the source publisher is a supplier and the review evaluates relevant supplier/supply-chain risks. The four-check fixture models a keep, rename, revoke and stale decision, records the decision, reruns idempotently, and restricts the scheduled identity from changing its approval input. It does not assess supplier security processes, ownership/control, subordinate suppliers, or the actual source.
   control_id: SAF-K8S-0905-053
   relation_type: supports
@@ -33005,22 +32797,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-8
-  framework_requirement_title: Notification Agreements
-  framework_mapping_notes: 'Notification agreements with AI suppliers ensure timely disclosure of security issues
-
-
-    1.4 - CVE response (monitoring security announcements from vendors); 6.4 - Vulnerability intelligence'
-  control_id: SAF-K8S-0604-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -33629,32 +33405,6 @@
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
   framework_version: '1.1'
-  framework_requirement_id: PW.4.1
-  framework_requirement_title: Acquire and maintain well-secured software components from commercial, open-source, and other third-party developers.
-  framework_mapping_notes: 'SAF-K8S enforces vetting of third-party components at admission: image vulnerability scanning, signature verification, public model quarantine workflows, and approved source allowlists.'
-  control_id: SAF-K8S-0604-008
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SSDF 1.1
-  framework_code: NIST-SSDF
-  framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
-  framework_version: '1.1'
-  framework_requirement_id: PW.4.4
-  framework_requirement_title: Verify that acquired third-party software components comply with requirements throughout their life cycles.
-  framework_mapping_notes: SAF-K8S requires continuous vulnerability scanning, dependency tracking, and ML dependency vulnerability management throughout the lifecycle of deployed components.
-  control_id: SAF-K8S-0604-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SSDF 1.1
-  framework_code: NIST-SSDF
-  framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
-  framework_version: '1.1'
   framework_requirement_id: PW.4.4
   framework_requirement_title: Verify that acquired third-party software components comply with requirements throughout their life cycles.
   framework_mapping_notes: SAF-K8S requires continuous vulnerability scanning, dependency tracking, and ML dependency vulnerability management throughout the lifecycle of deployed components.
@@ -33768,19 +33518,6 @@
   applicability: conditional
   applicability_condition: The governed intake treats approved-source VEX as one source in its ongoing vulnerability investigation and retains original finding, evidence and review decision.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SSDF 1.1
-  framework_code: NIST-SSDF
-  framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
-  framework_version: '1.1'
-  framework_requirement_id: RV.1.1
-  framework_requirement_title: Gather information from software acquirers, users, and public sources on potential vulnerabilities in the software and third-party components, and investigate all credible reports.
-  framework_mapping_notes: SAF-K8S requires continuous vulnerability monitoring for container images, ML dependencies, GPU drivers, and Kubernetes components. VEX publication and threat intelligence integration formalize vulnerability information gathering.
-  control_id: SAF-K8S-0604-008
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
