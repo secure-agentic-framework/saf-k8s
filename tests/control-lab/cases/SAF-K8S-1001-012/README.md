@@ -41,3 +41,22 @@ change event as a candidate modification signal until this evidence connects
 it to the active audit configuration and audit results.
 
 - [Kubernetes v1.36 auditing and audit policy](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/)
+
+## Authenticated local alert-delivery comparison
+
+The additive sixteenth check starts a case-owned HTTPS receiver with a per-run
+short-lived certificate and fixture-only Basic credentials. A tokenless,
+case-owned sender evaluates the same bounded inference-rate predicate against
+one fixed synthetic positive and one below-threshold benign comparator. It
+sends only the positive alert over TLS with CA and DNS-name verification. A
+separate tokenless observer reads the receiver's stored records and requires
+the exact positive alert to be present while the benign comparator is absent.
+Evidence records only statuses, booleans, IDs and record counts; key and
+credential values are not logged, and no external destination is contacted.
+
+This demonstrates one local detector-to-receiver path and exact negative
+suppression. It does not demonstrate SIEM integration, production identity,
+real inference/GPU telemetry, actual anomaly detection effectiveness, durable
+retention, or human response. Adoption still requires an approved replay with
+the deployed source, rule version, thresholds, forwarding identity, receiver,
+ingestion health and analyst disposition.

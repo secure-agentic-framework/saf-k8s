@@ -1,5 +1,6 @@
 """Read-only telemetry and synthetic rule checks for SAF-K8S-1001-012."""
 import json
+import importlib.util
 from pathlib import Path
 import time
 
@@ -253,6 +254,14 @@ def run(lab):
     actual["independent_source_correlation"] = independent_result
     actual["independent_comparator"] = comparator
 
+    delivery_path = HERE / "alert_delivery.py"
+    delivery_spec = importlib.util.spec_from_file_location("saf_1001_012_alert_delivery", delivery_path)
+    if delivery_spec is None or delivery_spec.loader is None:
+        lab.block("Could not load the isolated alert-delivery supplement")
+    delivery_module = importlib.util.module_from_spec(delivery_spec)
+    delivery_spec.loader.exec_module(delivery_module)
+    alert_delivery = delivery_module.run(lab)
+
     evidence = {
         "control_id": CONTROL_ID, "scope": SCOPE,
         "fixture_id": fixture["fixture_id"], "fixture_window": fixture["time_window"],
@@ -260,6 +269,8 @@ def run(lab):
         "secrets_included": False, "external_targets_contacted": False,
         "siem_connected": False, "live_attack_coverage": False,
         "gpu_metrics_observed": False, "inferenceservice_crd_installed": False,
+        "alert_delivery": alert_delivery,
+        "external_alerts_sent": False, "siem_connected": False,
     }
     (lab.evidence / "detection-validation.raw.json").write_text(
         json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8",

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-012",
-  "catalog_revision": "ff7f361223e5e1a62f6fb68f166d52cc11b3f213",
+  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
   "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "877844a92557858d5437258cbb76a6178c21a2602d3596bee07d6372fb545dbe",
   "scope": "One disposable single-node Kind Kubernetes v1.36.1 cluster. Reads metadata for two exact case-owned tokenless mock Pods, their case-owned ConfigMap, assigned Node, fixed JSON log lines, and namespaced Kubernetes Events. Exercises six explicitly specified decisions on static synthetic audit-shaped records and fabricated benign counters. No SIEM is connected, no AI/GPU runtime exists, no KServe/API extension is installed, and no live attack or external traffic is used. This validates deterministic rule logic and a bounded local Pod/log/Event UID join only; no independent monitoring product or deployed SIEM is connected.",
-  "cluster": "saf-lab-626291d5a51b",
+  "cluster": "saf-lab-a84183d87007",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -196,6 +196,35 @@
         "comparator_events_correlated_to_comparator_only": true,
         "comparator_events_excluded_from_primary": true,
         "uids_distinct": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A bounded synthetic positive is delivered over verified TLS and the receiver independently stores only that exact alert",
+      "matched": true,
+      "observed": {
+        "decision": {
+          "benign_suppressed": true,
+          "credential_or_event_body_emitted": false,
+          "decision_count": 2,
+          "delivery_count": 1,
+          "delivery_statuses": [
+            201
+          ],
+          "positive_triggered": true
+        },
+        "independent_receiver_readback": {
+          "alert_body_emitted": false,
+          "benign_comparator_withheld": true,
+          "exact_positive_present": true,
+          "positive_id_present": true,
+          "read_status": 200,
+          "record_count": 1
+        },
+        "tls_peer_verification": true,
+        "credentials_or_raw_event_values_emitted": false,
+        "external_targets_contacted": false,
+        "siem_connected": false
       }
     }
   ]
