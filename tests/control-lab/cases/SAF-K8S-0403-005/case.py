@@ -1,8 +1,10 @@
 """Extend the existing kubectl Secret diff check with synthetic pipeline sinks."""
 import base64
+import hashlib
 import json
 import subprocess
 import runpy
+import tempfile
 from pathlib import Path
 from time import monotonic, sleep
 
@@ -16,7 +18,10 @@ SCOPE = (
     "metadata JSON records to a PVC and prints a training-log JSON record. Output "
     "values are inspected only in memory and are never written to lab evidence or "
     "command logs. An independent read-only Pod observes records after the Jobs complete. "
-    "An invalid policy Job stops before creating sinks. Exercises a pinned scanner and digest-gated promotion for files and OCI archives. Deployed products and additional binary formats require separate evidence."
+    "An invalid policy Job stops before creating sinks. A scoped read-only Secret mount supplies "
+    "the inert input to one Job while the unmounted comparison emits no outputs. A pinned scanner "
+    "and digest-gated promotion cover files and OCI archives. Real deployment formats and authorities "
+    "require separate evidence."
 )
 FIELD_MANAGER = "saf-lab-diff"
 DIFF_NAME = "synthetic-diff-record"
@@ -26,15 +31,23 @@ PVC = "saf-0403-output"
 IMAGE = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 SINKS = ("artifact", "checkpoint", "pipeline-metadata")
 REDACTED = "[REDACTED]"
+INPUT_SECRET = "saf-0403-workload-input"
 
 # The complete marker is assembled in the workload, rather than embedded in a
 # manifest/command that the harness's normal command logger would retain.
-WORKLOAD = r'''import json, os, pathlib
+WORKLOAD = r'''import hashlib, json, os, pathlib
 marker = "-".join(("PUBLIC", "SYNTHETIC", "OUTPUT", "MARKER"))
 policy = os.environ["OUTPUT_POLICY"]
 run_id = os.environ["RUN_ID"]
 if policy not in ("disabled", "redact"):
     raise SystemExit("unknown fixture output policy")
+if "EXPECTED_FIXTURE_INPUT" in os.environ:
+    try:
+        marker = pathlib.Path("/private-input/marker").read_text()
+    except FileNotFoundError:
+        raise SystemExit("required fixture input is unavailable")
+    if hashlib.sha256(marker.encode()).hexdigest() != os.environ["EXPECTED_FIXTURE_INPUT"]:
+        raise SystemExit("scoped fixture input did not match")
 value = "[REDACTED]" if policy == "redact" else marker
 root = pathlib.Path("/out") / run_id
 root.mkdir(parents=True, exist_ok=True)
@@ -207,6 +220,61 @@ def _pipeline_observations(lab):
               {"invalid_policy_refused": refused, "output_directory_absent": directory_absent})
 
 
+def scoped_input_delivery(lab):
+    marker = "-".join(("INERT", "SAF", "0403", "005", "INPUT"))
+    expected = hashlib.sha256(marker.encode()).hexdigest()
+    with tempfile.TemporaryDirectory(dir=lab.kubeconfig.parent) as work:
+        path = Path(work) / "marker"
+        path.write_text(marker)
+        path.chmod(0o600)
+        lab.kubectl("create", "secret", "generic", INPUT_SECRET,
+                    "--from-file=marker=" + str(path), "-o", "name")
+
+    for run_id in ("scoped-input", "missing-input"):
+        workload = _job(run_id, "redact")
+        spec = workload["spec"]["template"]["spec"]
+        unit = spec["containers"][0]
+        unit["env"].append({"name": "EXPECTED_FIXTURE_INPUT", "value": expected})
+        if run_id == "scoped-input":
+            spec["volumes"].append({"name": "input",
+                                    "secret": {"secretName": INPUT_SECRET, "defaultMode": 0o440}})
+            unit["volumeMounts"].append({"name": "input", "mountPath": "/private-input", "readOnly": True})
+        lab.create(workload)
+    _wait_job(lab, "scoped-input", "Complete")
+    _wait_job(lab, "missing-input", "Failed")
+    log, outputs = _outputs(lab, "scoped-input")
+    env, prefix = _private_prefix(lab)
+    missing_log = _private(prefix + ["logs", "job/saf-0403-missing-input"], env=env)
+    missing_path = _private(prefix + ["exec", OBSERVATION_POD, "--", "python", "-c",
+                                      "from pathlib import Path; print(Path('/out/missing-input').exists())"],
+                            env=env)
+    mounts = {}
+    for job_name in ("saf-0403-scoped-input", "saf-0403-missing-input"):
+        pods = json.loads(lab.kubectl("get", "pods", "-l", f"job-name={job_name}", "-o", "json").stdout)["items"]
+        if len(pods) != 1:
+            lab.block("The scoped input Job did not create exactly one owned Pod")
+        mounts[job_name] = pods[0]["spec"]["volumes"]
+    observer = json.loads(lab.kubectl("get", "pod", OBSERVATION_POD, "-o", "json").stdout)
+    mounted = lambda volumes: any(volume.get("secret", {}).get("secretName") == INPUT_SECRET
+                                  for volume in volumes)
+    rows = [log, *(outputs[kind] for kind in SINKS)]
+    observed = {
+        "only_scoped_job_has_secret_mount": mounted(mounts["saf-0403-scoped-input"])
+        and not mounted(mounts["saf-0403-missing-input"])
+        and not mounted(observer["spec"]["volumes"]),
+        "unmounted_job_failed_without_output": missing_log.returncode == 0
+        and missing_log.stdout.strip() == "required fixture input is unavailable"
+        and missing_path.returncode == 0 and missing_path.stdout.strip() == "False",
+        "checked_input_produces_only_redacted_output": all(
+            row.get("sample") == REDACTED and row.get("run_id") == "scoped-input"
+            and marker not in json.dumps(row) for row in rows),
+        "exact_raw_marker_absent_from_command_transcript": marker not in
+        (lab.evidence / "commands.log").read_text(),
+    }
+    lab.check("positive", "Only the scoped mounted Job receives the inert input and all observed sinks redact it",
+              all(observed.values()), observed)
+
+
 def run(lab):
     # Published kubectl diff observations retained verbatim in behavior.
     env = dict(lab.env)
@@ -264,4 +332,5 @@ def run(lab):
               after.returncode == 0 and before.stdout == after.stdout,
               {"same_revision": before.stdout == after.stdout})
     _pipeline_observations(lab)
+    scoped_input_delivery(lab)
     runpy.run_path(str(Path(__file__).with_name("artifact_promotion.py")))["run"](lab)
