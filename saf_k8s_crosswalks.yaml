@@ -26974,13 +26974,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-24
   framework_requirement_title: Fail in Known State
-  framework_mapping_notes: An automated halt supports SC-24 when the organization designates the halt as the known state for the relevant failure and defines which system state information to preserve.
+  framework_mapping_notes: Where the organization designates the automated halt as the known state for an in-scope failure and defines system-state information to preserve, this circuit-breaker contributes the halt action. It does not itself determine the organization's known-state assignment or preserved information.
   control_id: SAF-K8S-0905-036
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  applicability: conditional
+  applicability_condition: The organization designates the automated halt as the known state for an in-scope failure and defines the system-state information to preserve.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -34394,16 +34394,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-4
   framework_requirement_title: System Monitoring
-  framework_mapping_notes: 'System monitoring of agent behavior, resource usage, and communications detects anomalies
-
-
-    10.1 - Logging and Audit (comprehensive system monitoring); 2.4 - Runtime security tools'
+  framework_mapping_notes: Where an independently implemented SI-4 monitoring function detects an in-scope condition and routes it to this circuit-breaker, the circuit-breaker contributes a bounded automated response. This control and its synthetic metric fixture do not implement system monitoring, detection, anomaly analysis, or monitoring-information distribution.
   control_id: SAF-K8S-0905-036
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: A separately implemented SI-4 monitoring function detects an in-scope condition and routes it to this circuit-breaker for response.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
