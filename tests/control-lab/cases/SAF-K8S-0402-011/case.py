@@ -15,6 +15,7 @@ BINDING = "saf-0402-011-static-cross-environment-secret-binding"
 PROFILE_LABEL = "saf.example/environment-profile"
 CLASS_LABEL = "saf.example/credential-scope"
 STATIC_TYPE = "saf.example/static-credential"
+CASE_LABEL = "saf.example/case-fixture"
 
 PROFILES = {
     "training-local": "training-local",
@@ -35,7 +36,8 @@ SCOPE = (
     "A data-free local training Secret is permitted. Type, labels, and namespace profiles "
     "are explicit policy inputs, not proof of credential contents or provenance. This local "
     "case does not inventory other clusters or clouds, establish production label governance, "
-    "or validate federation, issuance, or revocation."
+    "or validate federation, issuance, or revocation. The fixture independently inventories "
+    "declared case-owned records and compares their authorized removal with preserved local ones."
 )
 
 
@@ -71,6 +73,7 @@ def declared_static_fixture(name, profile):
         secret_type=STATIC_TYPE,
         labels={
             CLASS_LABEL: "cross-environment",
+            CASE_LABEL: "SAF-K8S-0402-011",
             "saf.example/source-profile": "training-local",
             "saf.example/target-profile": profile,
         },
@@ -111,6 +114,8 @@ def policy_denial(result):
 
 
 def run(lab):
+    seed_records = {}
+    local_seeds = {}
     kind_output = lab.command("kind", "version").stdout.strip()
     kind_pinned = kind_output.startswith(f"kind {KIND_VERSION} ")
     lab.check(
@@ -157,6 +162,8 @@ def run(lab):
             payload=json.dumps(declared_static_fixture(name, namespace)),
             allow_failure=True,
         )
+        if result.returncode == 0:
+            seed_records[(namespace, name)] = secret_metadata(lab, namespace, name)
         lab.check(
             "red",
             f"Declared cross-environment static Secret is accepted in {namespace} before policy",
@@ -172,6 +179,8 @@ def run(lab):
     changed = kube(lab, TARGET_PROFILES[0], "replace", "-f", "-", "-o", "name",
                    payload=json.dumps(red_update))
     _, stored_scope = secret_public_state(lab, TARGET_PROFILES[0], "red-local-update", CLASS_LABEL)
+    seed_records[(TARGET_PROFILES[0], "red-local-update")] = secret_metadata(
+        lab, TARGET_PROFILES[0], "red-local-update")
     lab.check("red", "The same label transition is accepted before policy",
               changed.returncode == 0 and stored_scope == "cross-environment",
               {"pre_policy_update_accepted": changed.returncode == 0})
@@ -189,6 +198,8 @@ def run(lab):
             "name",
             payload=json.dumps(secret(name, secret_type=STATIC_TYPE)),
         )
+        if result.returncode == 0:
+            local_seeds[(namespace, name)] = secret_metadata(lab, namespace, name)
         lab.check(
             "positive",
             f"Data-free local Secret fixture is seeded in {namespace}",
@@ -346,4 +357,118 @@ def run(lab):
         "Unrelated data-free local training Secret remains permitted",
         local_allowed,
         {"local_secret_created_and_read_back": local_allowed},
+    )
+
+
+    run_inventory_supplement(lab, seed_records, local_seeds)
+
+
+METADATA_KEYS = ("name", "uid", "type", "scope", "case_marker", "source_profile", "target_profile")
+METADATA_COLUMNS = "|".join([
+    "{{.metadata.name}}", "{{.metadata.uid}}", "{{.type}}",
+    *('{{with .metadata.labels}}{{with index . "' + label + '"}}{{.}}{{end}}{{end}}' for label in
+      (CLASS_LABEL, CASE_LABEL, "saf.example/source-profile", "saf.example/target-profile")),
+])
+
+
+def parse_metadata(lab, line):
+    fields = line.split("|")
+    if len(fields) != len(METADATA_KEYS):
+        lab.block("Secret inventory rendered an unexpected metadata shape")
+    return dict(zip(METADATA_KEYS, fields))
+
+
+def secret_metadata(lab, namespace, name):
+    output = kube(lab, namespace, "get", "secret", name,
+                  "-o", "go-template=" + METADATA_COLUMNS).stdout.strip()
+    return parse_metadata(lab, output)
+
+
+def metadata_inventory(lab):
+    template = "go-template={{range .items}}" + METADATA_COLUMNS + r'{{"\n"}}{{end}}'
+    found = []
+    for namespace in PROFILES:
+        result = kube(lab, namespace, "get", "secrets", "-o", template)
+        for line in result.stdout.splitlines():
+            row = parse_metadata(lab, line)
+            if row["type"] == STATIC_TYPE and row["scope"] == "cross-environment":
+                found.append({"namespace": namespace, **row})
+    return found
+
+
+def run_inventory_supplement(lab, seed_records, local_seeds):
+    expected_keys = {
+        ("inference-east", "red-static-east"),
+        ("inference-west", "red-static-west"),
+        ("inference-east", "red-local-update"),
+    }
+    seeded_exact = set(seed_records) == expected_keys
+    scanned = metadata_inventory(lab)
+    by_key = {(row["namespace"], row["name"]): row for row in scanned}
+    visible = (
+        seeded_exact and set(by_key) == expected_keys
+        and all(by_key[key]["uid"] == seed_records[key]["uid"]
+                and by_key[key]["case_marker"] == "SAF-K8S-0402-011"
+                and by_key[key]["source_profile"] == "training-local"
+                and by_key[key]["target_profile"] == key[0]
+                for key in expected_keys)
+    )
+    lab.check(
+        "positive", "Metadata-only inventory still sees all three pre-policy fixture records after admission is active",
+        visible,
+        {"case_owned_namespaces_scanned": len(PROFILES),
+         "seeded_records_visible": visible,
+         "declared_static_records_found": len(scanned),
+         "record_names": sorted(row["name"] for row in scanned),
+         "data_fields_rendered": False},
+    )
+
+    # Delete only records whose namespace/name/UID and explicit case marker
+    # still match the provenance captured before the policy was installed.
+    provenance_valid = seeded_exact
+    if provenance_valid:
+        for key in sorted(expected_keys):
+            current = secret_metadata(lab, key[0], key[1])
+            seeded = seed_records[key]
+            provenance_valid = provenance_valid and (
+                current["uid"] == seeded["uid"]
+                and current["case_marker"] == "SAF-K8S-0402-011"
+                and current["type"] == STATIC_TYPE
+                and current["scope"] == "cross-environment"
+                and current["source_profile"] == "training-local"
+                and current["target_profile"] == key[0]
+            )
+    if not provenance_valid:
+        lab.block("Refusing fixture cleanup because exact metadata provenance changed")
+    deleted = True
+    for namespace, name in sorted(expected_keys):
+        result = kube(lab, namespace, "delete", "secret", name,
+                      "--wait=true", "--timeout=20s", allow_failure=True)
+        deleted = deleted and result.returncode == 0
+    lab.check(
+        "positive", "Cleanup deletes only the three exact case-provenance records",
+        deleted,
+        {"owned_records_deleted": deleted, "deleted_record_count": len(expected_keys),
+         "exact_names": sorted(name for _, name in expected_keys)},
+    )
+
+    remaining = metadata_inventory(lab)
+    local_fixtures = []
+    for key, seeded in local_seeds.items():
+        current = secret_metadata(lab, key[0], key[1])
+        local_fixtures.append(current["uid"] == seeded["uid"]
+                              and current["type"] == "saf.example/static-credential"
+                              and current["scope"] == "")
+    training = secret_metadata(lab, "training-local", "positive-local-training-secret")
+    training_type, training_profile = secret_public_state(
+        lab, "training-local", "positive-local-training-secret", "saf.example/environment")
+    local_fixtures.append(training_type == "Opaque" and training_profile == "training-local"
+                          and training["case_marker"] == "")
+    clear_with_permitted = not remaining and all(local_fixtures)
+    lab.check(
+        "positive", "Inventory is clear while approved local fixtures remain present",
+        clear_with_permitted,
+        {"prohibited_metadata_records_remaining": len(remaining),
+         "approved_local_fixtures_present": all(local_fixtures),
+         "data_fields_rendered": False},
     )

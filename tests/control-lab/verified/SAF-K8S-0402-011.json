@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0402-011",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "9269dad103762eacb2afc81547066aa10c5a7f35",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "4e6db540cc9ade6e126d5823b28805dc2b752a84f2d0184976c7831108583afe",
-  "scope": "Fresh local Kind cluster on Kubernetes v1.36.1, using the digest-pinned official kindest/node image and Kind CLI v0.32.0. Three case-owned namespaces receive administrator-set profile labels: training-local, inference-east, and inference-west. A native ValidatingAdmissionPolicy rejects Secret CREATE and UPDATE requests in those namespaces when the Secret declares type saf.example/static-credential and label saf.example/credential-scope=cross-environment. Red probes show the same declared fixtures accepted before policy installation. Green probes show create denial with no object persistence and update denial with the original local Secret state preserved. A data-free local training Secret is permitted. Type, labels, and namespace profiles are explicit policy inputs, not proof of credential contents or provenance. This local case does not inventory other clusters or clouds, establish production label governance, or validate federation, issuance, or revocation.",
-  "cluster": "saf-lab-8103747505fb",
+  "scope": "Fresh local Kind cluster on Kubernetes v1.36.1, using the digest-pinned official kindest/node image and Kind CLI v0.32.0. Three case-owned namespaces receive administrator-set profile labels: training-local, inference-east, and inference-west. A native ValidatingAdmissionPolicy rejects Secret CREATE and UPDATE requests in those namespaces when the Secret declares type saf.example/static-credential and label saf.example/credential-scope=cross-environment. Red probes show the same declared fixtures accepted before policy installation. Green probes show create denial with no object persistence and update denial with the original local Secret state preserved. A data-free local training Secret is permitted. Type, labels, and namespace profiles are explicit policy inputs, not proof of credential contents or provenance. This local case does not inventory other clusters or clouds, establish production label governance, or validate federation, issuance, or revocation. The fixture independently inventories declared case-owned records and compares their authorized removal with preserved local ones.",
+  "cluster": "saf-lab-c47c3bb64138",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -160,6 +160,46 @@
       "matched": true,
       "observed": {
         "local_secret_created_and_read_back": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Metadata-only inventory still sees all three pre-policy fixture records after admission is active",
+      "matched": true,
+      "observed": {
+        "case_owned_namespaces_scanned": 3,
+        "seeded_records_visible": true,
+        "declared_static_records_found": 3,
+        "record_names": [
+          "red-local-update",
+          "red-static-east",
+          "red-static-west"
+        ],
+        "data_fields_rendered": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Cleanup deletes only the three exact case-provenance records",
+      "matched": true,
+      "observed": {
+        "owned_records_deleted": true,
+        "deleted_record_count": 3,
+        "exact_names": [
+          "red-local-update",
+          "red-static-east",
+          "red-static-west"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Inventory is clear while approved local fixtures remain present",
+      "matched": true,
+      "observed": {
+        "prohibited_metadata_records_remaining": 0,
+        "approved_local_fixtures_present": true,
+        "data_fields_rendered": false
       }
     }
   ]
