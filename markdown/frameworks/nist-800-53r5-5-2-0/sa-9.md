@@ -24,7 +24,7 @@ Agents rely heavily on external services (APIs, models, tools) requiring securit
 
 - Domain: D07 - Storage, Multi-tenancy, and Resource Governance
 - Knowledge Area: 7.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

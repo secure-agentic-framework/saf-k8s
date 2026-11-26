@@ -33,5 +33,5 @@ SBOM and ML-BOM generation documents third-party dependencies. CNCF lifecycle se
 - Knowledge Area: 7.4
 - Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

@@ -23,9 +23,9 @@ Dependency tracking with SLSA build provenance monitors third-party component ri
 - Domain: D07 - Storage, Multi-tenancy, and Resource Governance
 - Knowledge Area: 7.4
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0905-052 - Approved external model source allowlist definition and maintenance](../../controls/SAF-K8S-0905-052.md)
 
