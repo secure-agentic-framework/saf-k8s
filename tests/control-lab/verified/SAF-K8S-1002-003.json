@@ -4,8 +4,8 @@
   "catalog_sha256": "63ca25b48ffb8f35202c5c4db9c599eb98e12d31aa18f4d0d69d91a9e3ec5423",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "19cbcfc550d34ef187e6e18bdada8dbfd56da69a016f646657c8c796630a2a4d",
-  "scope": "A disposable Kubernetes v1.36.1 Kind cluster reconciles native Prometheus Operator Prometheus, ServiceMonitor, and PodMonitor resources. Namespace-scoped discovery RBAC and selector labels limit scraping to two safe synthetic CPU workloads. Prometheus API queries prove no samples before monitor enrollment and exact per-workload stage, measured latency, and quality markers after enrollment. A supplementary check runs the checksum-pinned llama.cpp b9519 CPU server with a tiny pinned model, enables its native Prometheus exporter, and compares a fixed four-token completion with the observed increase in its generation-token counter. This demonstrates one real CPU inference producer-to-Prometheus path in this disposable cluster; it does not prove GPU/DCGM telemetry, native training instrumentation, production attribution, or durable monitoring.",
-  "cluster": "saf-lab-b86f192a9353",
+  "scope": "A disposable Kubernetes v1.36.1 Kind cluster reconciles native Prometheus Operator Prometheus, ServiceMonitor, and PodMonitor resources. Namespace-scoped discovery RBAC and selector labels limit scraping to two safe synthetic CPU workloads. Prometheus API queries prove no samples before monitor enrollment and exact per-workload stage, measured latency, and quality markers after enrollment. A supplementary check runs the checksum-pinned llama.cpp b9519 CPU server with a tiny pinned model, enables its native Prometheus exporter, and compares a fixed four-token completion with the observed increase in its generation-token counter. The case then observes target retirement and the absence of synthetic series under a 30-second lookback after each monitor removal. The native llama.cpp target remains healthy. GPU/DCGM telemetry, native training signals, production attribution, default query lookback, and durable retention have separate evidence requirements.",
+  "cluster": "saf-lab-d99460927fe6",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -95,6 +95,32 @@
         "completion_tokens": 4,
         "llama_release": "b9519",
         "gpu_layers": 0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Removing the training monitor retires its target and 30s-lookback series while inference and native llama remain available",
+      "matched": true,
+      "observed": {
+        "monitor_api_object_absent": true,
+        "expected_active_pool_set_matches": true,
+        "removed_instant_series_absent": true,
+        "retained_series_state_matches": true,
+        "native_llama_target_survives": true,
+        "synthetic_query_lookback": "30s"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Removing the inference monitor retires its target and 30s-lookback series while native llama remains available",
+      "matched": true,
+      "observed": {
+        "monitor_api_object_absent": true,
+        "expected_active_pool_set_matches": true,
+        "removed_instant_series_absent": true,
+        "retained_series_state_matches": true,
+        "native_llama_target_survives": true,
+        "synthetic_query_lookback": "30s"
       }
     }
   ]

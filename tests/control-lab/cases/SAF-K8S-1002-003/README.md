@@ -30,3 +30,23 @@ For adoption, record the actual vendor, hardware, driver, exporter version and m
 The native counter proof requires a fresh zero-valued scrape and a later scrape
 from the same labeled series, with the two actual sample timestamps and values
 retained in raw evidence. The new monitor has a separate bounded convergence wait.
+
+## Monitor removal and bounded query freshness
+
+The case removes the training ServiceMonitor and inference PodMonitor in order.
+Before each deletion it confirms that the expected targets and samples are
+visible. After each deletion it requires the removed pool to disappear and
+its synthetic series to be absent under an explicit 30-second per-query
+lookback. The remaining inference signals are available after the first
+removal, and the independently monitored llama.cpp counter remains at four
+through both removals.
+
+Each removal has a 240-second convergence window. The receipt retains the
+actual target status, short-lookback query, a default-lookback comparison,
+five-minute range data, and bounded reload diagnostics. This demonstrates
+retirement for the selected active target and query window. Default-lookback
+expiry, stored history deletion, and deployed retention have separate evidence
+requirements.
+
+- [Prometheus v3.5.0 query request options](https://github.com/prometheus/prometheus/blob/v3.5.0/web/api/v1/api.go)
+- [Prometheus v3.5.0 staleness](https://github.com/prometheus/prometheus/blob/v3.5.0/docs/querying/basics.md#staleness)

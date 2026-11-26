@@ -21,9 +21,10 @@ SCOPE = (
     "latency, and quality markers after enrollment. A supplementary check runs the "
     "checksum-pinned llama.cpp b9519 CPU server with a tiny pinned model, enables its native "
     "Prometheus exporter, and compares a fixed four-token completion with the observed "
-    "increase in its generation-token counter. This demonstrates one real CPU inference "
-    "producer-to-Prometheus path in this disposable cluster; it does not prove GPU/DCGM "
-    "telemetry, native training instrumentation, production attribution, or durable monitoring."
+    "increase in its generation-token counter. The case then observes target retirement and "
+    "the absence of synthetic series under a 30-second lookback after each monitor removal. "
+    "The native llama.cpp target remains healthy. GPU/DCGM telemetry, native training signals, "
+    "production attribution, default query lookback, and durable retention have separate evidence requirements."
 )
 
 BUNDLE = "https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.85.0/bundle.yaml"
@@ -283,3 +284,11 @@ def run(lab):
     supplement = module_from_spec(supplement_spec)
     supplement_spec.loader.exec_module(supplement)
     supplement.run(lab)
+
+    # Keep the published native producer check unchanged, then exercise removal
+    # of each owned synthetic monitor while its independent target stays healthy.
+    retirement_path = Path(__file__).resolve().parent / "telemetry_retirement.py"
+    retirement_spec = spec_from_file_location("saf_1002_003_telemetry_retirement", retirement_path)
+    retirement = module_from_spec(retirement_spec)
+    retirement_spec.loader.exec_module(retirement)
+    retirement.run(lab)
