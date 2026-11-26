@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0704-017",
-  "catalog_revision": "f1dc7ac59b32578340d7f56894d09ab7d5dfe290",
-  "catalog_sha256": "784059a92b43e8cae92510eaf3459647f5dfb48bb5c2e6ecfe938933b0c37a6e",
+  "catalog_revision": "302c910b204bc0838d8a8d8c3e0be8604be32411",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "1d7a2d6d3ad121fb2ec90341854cc69234907a0a6090a7dec535891007a2e684",
-  "scope": "Live authorization reviews of one synthetic identity under two additive namespaced RBAC grants.",
-  "cluster": "saf-lab-2e2b82e56126",
+  "scope": "Live authorization reviews and actual owned ConfigMap reads for a synthetic identity with two additive namespaced RBAC grants before and after remediation. The held API permissions are separate from actual cloud identity authentication.",
+  "cluster": "saf-lab-28a60bcf3d17",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -68,6 +68,15 @@
       "matched": true,
       "observed": {
         "approved_marker_read_succeeded": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An actual request to the extra marker changes from allowed to forbidden after cleanup",
+      "matched": true,
+      "observed": {
+        "extra_marker_before": "allowed",
+        "extra_marker_after": "forbidden"
       }
     }
   ]
