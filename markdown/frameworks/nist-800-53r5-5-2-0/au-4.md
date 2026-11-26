@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Capacity planning for agent telemetry/logs
-
-10.1 - Cluster-level logging architecture (log retention policies, audit log storage capacity planning)
+The case measures raw audit bytes for five repeated polls under two policy levels and reports rotation flags. This is a bounded sizing input only; it does not demonstrate required capacity, retention duration, peak rate, or capacity margin.
 
 ## SAF-K8S Controls
 
@@ -16,9 +14,9 @@ Capacity planning for agent telemetry/logs
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1001-008 - Permitted responses to audit findings](../../controls/SAF-K8S-1001-008.md)
 

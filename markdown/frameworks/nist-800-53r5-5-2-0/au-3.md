@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-What to capture in agent audit logs
-
-10.1 - Audit policy (Metadata, Request, RequestResponse levels -- audit record content requirements)
+The reference inspects selected RequestResponse and Metadata audit records, including a synthetic role binding request/response and denied status. It does not establish required content for all event classes or deployed audit record completeness.
 
 ## SAF-K8S Controls
 
@@ -15,10 +13,10 @@ What to capture in agent audit logs
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1001-007 - Supplemental application-level telemetry for AI workload events](../../controls/SAF-K8S-1001-007.md)
 

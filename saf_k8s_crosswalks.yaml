@@ -1501,13 +1501,13 @@
   framework_requirement_id: Article-12.1
   legacy_requirement_id: Annex-IV:IV(9)(a)
   framework_requirement_title: Record-keeping
-  framework_mapping_notes: "High-risk AI systems shall technically allow for the automatic recording of events (logs) over the lifetime of the system.\n\nSAF-K8S audit logging controls (D10) provide comprehensive logging infrastructure including Kubernetes audit logs, workload logs, GPU utilization logs, and AI pipeline execution logs with structured formats."
+  framework_mapping_notes: Only as a contribution to automatic recording of selected API events. The paired fixture compares a finite synthetic operation set and delivers five case-owned metadata events through a webhook retry path. It does not demonstrate a high-risk system, event coverage for the AI system, capture over its lifetime, or application/GPU logs.
   control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The relationship is limited to selected Kubernetes API records from an in-scope high-risk AI system when the deployed policy automatically records those events for the required system lifetime; this finite fixture does not cover application/runtime events or lifetime completeness.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -5297,22 +5297,6 @@
 
 
     10.1 - Logging and Audit (monitoring remote API access); 5.5 - API server audit log analysis for remote access'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-17(1)
-  framework_requirement_title: Monitoring and Control
-  framework_mapping_notes: 'Monitoring remote agent connections
-
-
-    10.1 - Logging and Audit (monitoring remote API access); 5.5 - API server audit log analysis for remote access'
   control_id: SAF-K8S-1001-008
   relation_type: supports
   strength_level: strong
@@ -5774,22 +5758,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: framework-language-interpretation
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-2(4)
-  framework_requirement_title: Automated Audit Actions
-  framework_mapping_notes: 'Auditing agent account activity
-
-
-    10.1 - Logging and Audit (audit logging for AI-relevant events)'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -6654,22 +6622,6 @@
 
 
     10.1 - Logging and Audit (audit logging for access control override events)'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-3(10)
-  framework_requirement_title: Audited Override of Access Control Mechanisms
-  framework_mapping_notes: 'Logging when agent access controls are overridden
-
-
-    10.1 - Logging and Audit (audit logging for access control override events)'
   control_id: SAF-K8S-1001-008
   relation_type: direct
   strength_level: strong
@@ -7031,22 +6983,6 @@
     4.1 - Design and enforce RBAC (discretionary access through role bindings and namespace-scoped permissions)'
   control_id: SAF-K8S-0401-004
   relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-3(5)
-  framework_requirement_title: Security-relevant Information
-  framework_mapping_notes: 'Protecting security-relevant data from agent access
-
-
-    10.1 - Logging and Audit (protecting security-relevant audit data and configuration)'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -8470,22 +8406,6 @@
 
 
     10.1 - Logging and Audit (audit logging for policy filter actions and decisions)'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(26)
-  framework_requirement_title: Audit Filtering Actions
-  framework_mapping_notes: 'Auditing what agent content filters do
-
-
-    10.1 - Logging and Audit (audit logging for policy filter actions and decisions)'
   control_id: SAF-K8S-1001-008
   relation_type: direct
   strength_level: strong
@@ -9693,22 +9613,6 @@
 
 
     10.1 - Logging and Audit (audit logging for privileged operations on AI-relevant resources)'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-6(9)
-  framework_requirement_title: Log Use of Privileged Functions
-  framework_mapping_notes: 'Logging privileged agent operations
-
-
-    10.1 - Logging and Audit (audit logging for privileged operations on AI-relevant resources)'
   control_id: SAF-K8S-1001-008
   relation_type: direct
   strength_level: strong
@@ -9773,22 +9677,6 @@
 
     9.4 - Notebook and experimentation environment login banners and acceptable use notifications; 10.6 - Compliance governance'
   control_id: SAF-K8S-1006-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-9(3)
-  framework_requirement_title: Notification of Account Changes
-  framework_mapping_notes: 'Alerting on agent account modifications
-
-
-    4.5 - Privilege escalation detection (monitoring RBAC changes, notification of account modifications); 10.1 - Audit logging'
-  control_id: SAF-K8S-1001-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -9968,22 +9856,6 @@
   applicability: conditional
   applicability_condition: The actual required literacy training covers recognizing and reporting social engineering
     for the designated population
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AT-2(4)
-  framework_requirement_title: Suspicious Communications and Anomalous System Behavior
-  framework_mapping_notes: 'Recognizing anomalous agent behaviors
-
-
-    2.4 - Runtime threat detection (anomalous system behavior); 10.1 - Alert design for AI-specific failure modes'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -10203,22 +10075,6 @@
 
 
     10.1 - Logging and Audit (audit policy and procedures as foundational requirement)'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-1
-  framework_requirement_title: Policy and Procedures
-  framework_mapping_notes: 'Audit policy for agentic systems
-
-
-    10.1 - Logging and Audit (audit policy and procedures as foundational requirement)'
   control_id: SAF-K8S-1001-008
   relation_type: supports
   strength_level: strong
@@ -10386,22 +10242,6 @@
 
 
     10.1 - Log retention policies; 10.6 - Compliance governance (audit record retention requirements)'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-11
-  framework_requirement_title: Audit Record Retention
-  framework_mapping_notes: 'Agent audit log retention periods
-
-
-    10.1 - Log retention policies; 10.6 - Compliance governance (audit record retention requirements)'
   control_id: SAF-K8S-1001-008
   relation_type: direct
   strength_level: strong
@@ -10454,22 +10294,6 @@
   applicability: "conditional"
   applicability_condition: "The repository retains actual in-scope audit records for the defined duration and supports authorized retrieval."
   strength_reason_code: "partial-control-coverage"
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-11(1)
-  framework_requirement_title: Long-term Retrieval Capability
-  framework_mapping_notes: 'Long-term agent audit retrieval
-
-
-    10.1 - Centralized logging (long-term audit log storage and retrieval capability for compliance)'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -10534,16 +10358,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-12
   framework_requirement_title: Audit Record Generation
-  framework_mapping_notes: 'Generating audit records for agent actions
-
-
-    10.1 - K8s audit policy configuration (audit record generation at all stages)'
+  framework_mapping_notes: The comparison observes audit record generation for seven case-owned operations in two policy profiles, and a separate receiver sees five exact Audit-ID events. It does not establish generation for every organization-defined system component or AI event source.
   control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only for the selected Kubernetes API operations and policy rules covered by the deployed configuration; this finite case is not system-wide generation evidence.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -10623,16 +10444,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-12(2)
   framework_requirement_title: Standardized Formats
-  framework_mapping_notes: 'Standard formats for agent audit logs
-
-
-    10.1 - Audit logging (standardized K8s audit log format, structured logging)'
+  framework_mapping_notes: The case parses the selected Kubernetes JSON audit lines and receiver records. It does not validate a cross-system standard schema or every downstream consumer.
   control_id: SAF-K8S-1001-004
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only where selected deployed audit events are emitted in the Kubernetes JSON audit format and the consuming pipeline accepts that format; this fixture does not establish organization-wide schema interoperability.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -10644,22 +10462,6 @@
 
     10.1 - Audit logging (standardized K8s audit log format, structured logging)'
   control_id: SAF-K8S-1001-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-12(3)
-  framework_requirement_title: Changes by Authorized Individuals
-  framework_mapping_notes: 'Controlling who can modify agent audit config
-
-
-    10.1 - Audit logging (tracking authorized configuration changes to audit settings)'
-  control_id: SAF-K8S-1001-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -10695,22 +10497,6 @@
   applicability: conditional
   applicability_condition: An in-scope application records the required query parameters for datasets containing personal
     information
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-12(4)
-  framework_requirement_title: Query Parameter Audits of Personally Identifiable Information
-  framework_mapping_notes: 'Auditing agent PII queries
-
-
-    9.7 - Privacy controls (auditing queries accessing PII in training data); 10.1 - PII redaction in logs'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -10841,39 +10627,7 @@
 
 
     9.4 - Notebook environment session management (session audit); 10.1 - Audit logging (session-level audit trails)'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-14
-  framework_requirement_title: Session Audit
-  framework_mapping_notes: 'Auditing full agent sessions/conversations
-
-
-    9.4 - Notebook environment session management (session audit); 10.1 - Audit logging (session-level audit trails)'
   control_id: SAF-K8S-1001-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-14(1)
-  framework_requirement_title: System Start-up
-  framework_mapping_notes: 'Auditing agent system initialization
-
-
-    10.1 - Audit logging (capturing system and container/pod start-up events)'
-  control_id: SAF-K8S-1001-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -10921,39 +10675,7 @@
 
 
     10.1 - SIEM integration (sharing audit information with security operations and external systems)'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-16(2)
-  framework_requirement_title: Sharing of Audit Information
-  framework_mapping_notes: 'Sharing agent audit data across organizations
-
-
-    10.1 - SIEM integration (sharing audit information with security operations and external systems)'
   control_id: SAF-K8S-1001-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-16(3)
-  framework_requirement_title: Disassociability
-  framework_mapping_notes: 'De-identifying agent audit data for privacy
-
-
-    9.7 - Privacy controls (PII anonymization/disassociability in shared audit logs); 10.1 - PII redaction'
-  control_id: SAF-K8S-1001-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -10981,16 +10703,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-2
   framework_requirement_title: Event Logging
-  framework_mapping_notes: 'Defining auditable agent events
-
-
-    10.1 - K8s audit policy configuration (audit levels, stage filtering, AI-relevant event logging)'
+  framework_mapping_notes: The fixture demonstrates policy selection and recording of seven specified API operations under broad and selective policies. It does not define the organization-wide auditable-event catalog or establish coverage of other AI application, runtime, cloud, or provider events.
   control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only for organization-defined Kubernetes API event types and resources that the deployed audit policy selects; the reference covers five ConfigMap list polls, one RoleBinding create, and one denied ConfigMap create.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -11026,16 +10745,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-3
   framework_requirement_title: Content of Audit Records
-  framework_mapping_notes: 'What to capture in agent audit logs
-
-
-    10.1 - Audit policy (Metadata, Request, RequestResponse levels -- audit record content requirements)'
+  framework_mapping_notes: The reference inspects selected RequestResponse and Metadata audit records, including a synthetic role binding request/response and denied status. It does not establish required content for all event classes or deployed audit record completeness.
   control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only for selected records whose deployed policy preserves the organization-required actor, time, source, action, and outcome fields; the fixture checks bounded fields for one synthetic RoleBinding and a denied write.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -11087,22 +10803,6 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-3(3)
   framework_requirement_title: Limit Personally Identifiable Information Elements
-  framework_mapping_notes: 'Minimizing PII in agent audit logs
-
-
-    10.1 - Centralized logging (PII redaction in inference request/response logs)'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-3(3)
-  framework_requirement_title: Limit Personally Identifiable Information Elements
   framework_mapping_notes: The fixture excludes a synthetic prompt and proves fixed-field allowlisting. It contains no PII and does not exercise PII identification or minimization policy.
   control_id: SAF-K8S-1001-007
   relation_type: supports
@@ -11132,16 +10832,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-4
   framework_requirement_title: Audit Log Storage Capacity
-  framework_mapping_notes: 'Capacity planning for agent telemetry/logs
-
-
-    10.1 - Cluster-level logging architecture (log retention policies, audit log storage capacity planning)'
+  framework_mapping_notes: The case measures raw audit bytes for five repeated polls under two policy levels and reports rotation flags. This is a bounded sizing input only; it does not demonstrate required capacity, retention duration, peak rate, or capacity margin.
   control_id: SAF-K8S-1001-004
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only as a finite measured event-byte comparison used as one input to actual sustained-rate, retention, and storage-capacity sizing; the reference does not establish adequate storage capacity.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -11153,22 +10850,6 @@
 
     10.1 - Cluster-level logging architecture (log retention policies, audit log storage capacity planning)'
   control_id: SAF-K8S-1001-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-4(1)
-  framework_requirement_title: Transfer to Alternate Storage
-  framework_mapping_notes: 'Offloading agent logs to long-term storage
-
-
-    10.1 - Centralized log aggregation (SIEM integration, forwarding to alternate storage backends)'
-  control_id: SAF-K8S-1001-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -11209,16 +10890,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-5
   framework_requirement_title: Response to Audit Logging Process Failures
-  framework_mapping_notes: 'Handling agent logging failures
-
-
-    10.1 - Logging architecture explicitly covers handling audit logging process failures and backend availability'
+  framework_mapping_notes: The webhook fixture observes one transient 503, one retry of the same audit event, delivery counts, and native counter deltas. It does not alert personnel or test a production failure-response process.
   control_id: SAF-K8S-1001-004
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only where deployed audit webhook retry/error signals are monitored and connected to the organization-defined alert and response process; the reference models one HTTP 503 and successful retry but no alert or personnel action.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -11230,22 +10908,6 @@
 
     10.1 - Logging architecture explicitly covers handling audit logging process failures and backend availability'
   control_id: SAF-K8S-1001-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-5(1)
-  framework_requirement_title: Storage Capacity Warning
-  framework_mapping_notes: 'Alerts when agent log storage is near capacity
-
-
-    10.1 - Log retention policies explicitly cover audit storage capacity monitoring and alerting'
-  control_id: SAF-K8S-1001-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -11292,22 +10954,6 @@
 
     10.2 - Alert design for AI-specific failure modes (real-time alerting); 2.4 - Runtime threat detection alerts'
   control_id: SAF-K8S-1002-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-5(3)
-  framework_requirement_title: Configurable Traffic Volume Thresholds
-  framework_mapping_notes: 'Thresholds for agent audit traffic volume
-
-
-    10.1 - Configurable audit traffic volume thresholds for high-throughput AI workloads explicitly covers traffic volume threshold configuration'
-  control_id: SAF-K8S-1001-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -11388,22 +11034,6 @@
 
     9.3 - Circuit breakers halt inference on failure; 6.5 - Admission webhook Fail mode policy stops API mutations when audit/validation cannot proceed'
   control_id: SAF-K8S-0903-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-5(5)
-  framework_requirement_title: Alternate Audit Logging Capability
-  framework_mapping_notes: 'Fallback logging for agent systems
-
-
-    10.1 - SIEM integration (multiple logging backends for redundancy and alternate capability)'
-  control_id: SAF-K8S-1001-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -11506,22 +11136,6 @@
 
 
     10.1 - SIEM integration (audit record review, analysis, correlation rule development)'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-6
-  framework_requirement_title: Audit Record Review, Analysis, and Reporting
-  framework_mapping_notes: 'Reviewing agent audit trails
-
-
-    10.1 - SIEM integration (audit record review, analysis, correlation rule development)'
   control_id: SAF-K8S-1001-008
   relation_type: direct
   strength_level: strong
@@ -11542,22 +11156,6 @@
   applicability: conditional
   applicability_condition: The analyzed Kubernetes audit events are integrated into the approved audit review and reporting
     workflow
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-6(1)
-  framework_requirement_title: Automated Process Integration
-  framework_mapping_notes: 'Automated agent log analysis integration
-
-
-    10.1 - SIEM integration (automated forwarding and correlation); 2.4 - Runtime detection automation'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -11601,40 +11199,8 @@
 
 
     10.1 - Centralized logging for AI workloads (central log aggregation, review, and analysis)'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-6(4)
-  framework_requirement_title: Central Review and Analysis
-  framework_mapping_notes: 'Centralized agent audit review
-
-
-    10.1 - Centralized logging for AI workloads (central log aggregation, review, and analysis)'
   control_id: SAF-K8S-1001-008
   relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-6(5)
-  framework_requirement_title: Integrated Analysis of Audit Records
-  framework_mapping_notes: 'Integrated analysis of agent behavior logs
-
-
-    10.1 - SIEM integration (integrated analysis across K8s audit, cloud, and AI workload logs)'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -11665,40 +11231,8 @@
 
 
     10.1 - Defining permitted responses to audit findings covers permitted actions in response to audit review results'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-6(7)
-  framework_requirement_title: Permitted Actions
-  framework_mapping_notes: 'Defining permitted responses to agent audit findings
-
-
-    10.1 - Defining permitted responses to audit findings covers permitted actions in response to audit review results'
   control_id: SAF-K8S-1001-008
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-6(8)
-  framework_requirement_title: Full Text Analysis of Privileged Commands
-  framework_mapping_notes: 'Analyzing privileged agent commands in logs
-
-
-    10.1 - Audit policy RequestResponse level (full text capture of privileged commands)'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -11774,39 +11308,7 @@
 
 
     10.1 - Centralized logging (log aggregation, filtering, audit record reduction, compliance reporting)'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-7
-  framework_requirement_title: Audit Record Reduction and Report Generation
-  framework_mapping_notes: 'Reducing/summarizing agent audit data
-
-
-    10.1 - Centralized logging (log aggregation, filtering, audit record reduction, compliance reporting)'
   control_id: SAF-K8S-1001-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-7(1)
-  framework_requirement_title: Automatic Processing
-  framework_mapping_notes: 'Automated agent log processing
-
-
-    10.1 - SIEM integration (automated correlation rules, automated report generation)'
-  control_id: SAF-K8S-1001-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -11864,40 +11366,8 @@
 
 
     2.3 - Host OS and Kernel Hardening (node time synchronization with authoritative time sources, drift monitoring, and timestamp integrity); 10.1 - Audit logging (timestamps in audit records for forensic accuracy and event correlation)'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-8
-  framework_requirement_title: Time Stamps
-  framework_mapping_notes: 'Accurate timestamps for agent action correlation
-
-
-    2.3 - Host OS and Kernel Hardening (node time synchronization with authoritative time sources, drift monitoring, and timestamp integrity); 10.1 - Audit logging (timestamps in audit records for forensic accuracy and event correlation)'
   control_id: SAF-K8S-1001-008
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-9
-  framework_requirement_title: Protection of Audit Information
-  framework_mapping_notes: 'Protecting agent audit logs from tampering
-
-
-    10.1 - Log integrity (protecting audit logs from tampering or unauthorized access)'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -11928,39 +11398,7 @@
 
 
     10.1 - Centralized log aggregation (storing audit logs on separate systems from monitored workloads)'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-9(2)
-  framework_requirement_title: Store on Separate Physical Systems or Components
-  framework_mapping_notes: 'Separating agent logs from agent runtime (logical or physical)
-
-
-    10.1 - Centralized log aggregation (storing audit logs on separate systems from monitored workloads)'
   control_id: SAF-K8S-1001-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-9(3)
-  framework_requirement_title: Cryptographic Protection
-  framework_mapping_notes: 'Cryptographic integrity of agent audit logs
-
-
-    10.1 - Log integrity (cryptographic protection of audit records)'
-  control_id: SAF-K8S-1001-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -12009,39 +11447,7 @@
 
 
     10.1 - Dual authorization requirements for audit log deletion or modification explicitly covers dual authorization for log integrity'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-9(5)
-  framework_requirement_title: Dual Authorization
-  framework_mapping_notes: 'Dual authorization for agent log deletion
-
-
-    10.1 - Dual authorization requirements for audit log deletion or modification explicitly covers dual authorization for log integrity'
   control_id: SAF-K8S-1001-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-9(6)
-  framework_requirement_title: Read-only Access
-  framework_mapping_notes: 'Read-only access to agent audit logs
-
-
-    10.1 - Log integrity (read-only access to audit records for analysis)'
-  control_id: SAF-K8S-1001-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -13745,22 +13151,6 @@
   applicability: conditional
   applicability_condition: 'Only for the Kubernetes policy-promotion access path represented here: one editor ServiceAccount is denied creation of the fixture admission policy and one promoter ServiceAccount applies the approved objects. The local Git hook gates the exact approved tree but does not test authenticated Git-user restrictions, organization approval identities, dual authorization, or access restrictions across production change paths.'
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-5(1)
-  framework_requirement_title: Automated Access Enforcement and Audit Records
-  framework_mapping_notes: 'Automated enforcement of agent change access
-
-
-    6.6 - GitOps (automated access enforcement); 10.1 - Audit logging for configuration changes'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -18102,22 +17492,6 @@
 
 
     10.1 - SIEM integration (SOC operations for K8s AI infrastructure monitoring)'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-4(14)
-  framework_requirement_title: Security Operations Center
-  framework_mapping_notes: 'SOC monitoring for agent systems
-
-
-    10.1 - SIEM integration (SOC operations for K8s AI infrastructure monitoring)'
   control_id: SAF-K8S-1001-008
   relation_type: supports
   strength_level: strong
@@ -18322,22 +17696,6 @@
 
 
     10.1 - Logging and Audit (continuous incident monitoring for K8s AI clusters)'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-5
-  framework_requirement_title: Incident Monitoring
-  framework_mapping_notes: 'Monitoring agent incidents across the ecosystem
-
-
-    10.1 - Logging and Audit (continuous incident monitoring for K8s AI clusters)'
   control_id: SAF-K8S-1001-008
   relation_type: direct
   strength_level: strong
@@ -18370,22 +17728,6 @@
 
 
     10.1 - SIEM integration (automated incident tracking, data collection, and analysis)'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-5(1)
-  framework_requirement_title: Automated Tracking, Data Collection, and Analysis
-  framework_mapping_notes: 'Automated agent incident tracking and analysis
-
-
-    10.1 - SIEM integration (automated incident tracking, data collection, and analysis)'
   control_id: SAF-K8S-1001-008
   relation_type: supports
   strength_level: strong
@@ -18408,22 +17750,6 @@
   applicability: conditional
   applicability_condition: Only where detected records automatically feed incident tracking, collection, and analysis mechanisms; static rule-fixture decisions alone do not prove those mechanisms.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-6(1)
-  framework_requirement_title: Automated Reporting
-  framework_mapping_notes: 'Automated agent incident reporting
-
-
-    10.1 - SIEM integration (automated incident report generation and forwarding)'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -19203,22 +18529,6 @@
   control_id: SAF-K8S-1006-005
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-21
-  framework_requirement_title: Accounting of Disclosures
-  framework_mapping_notes: 'Accounting of data disclosures by agentic AI systems is important for privacy compliance
-
-
-    9.7 - Data access audit trails; 10.1 - Audit logging (accounting of data disclosures)'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
   applicability: required
   applicability_condition: null
   strength_reason_code: null
@@ -20310,22 +19620,6 @@
 
 
     10.1 - Audit logging (reviewing historic audit logs for vulnerability and incident correlation)'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: RA-5(8)
-  framework_requirement_title: Review Historic Audit Logs
-  framework_mapping_notes: 'Historic audit log review can reveal past exploitation of agentic AI vulnerabilities
-
-
-    10.1 - Audit logging (reviewing historic audit logs for vulnerability and incident correlation)'
   control_id: SAF-K8S-1001-008
   relation_type: supports
   strength_level: strong
@@ -20821,22 +20115,6 @@
   applicability: conditional
   applicability_condition: Training data is used in a governed development process that verifies the applicable minimization
     requirement
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-15(13)
-  framework_requirement_title: Logging Syntax
-  framework_mapping_notes: 'Standardized logging syntax for agent systems enables consistent security monitoring and analysis
-
-
-    10.1 - Audit logging (standardized logging syntax and structured format for K8s AI workloads)'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -22692,22 +21970,6 @@
 
 
     2.4 - Runtime threat detection (continuous protection through monitoring); 10.1 - Continuous monitoring'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(19)
-  framework_requirement_title: Continuous Protection
-  framework_mapping_notes: 'Continuous protection ensures agent security controls remain active throughout execution
-
-
-    2.4 - Runtime threat detection (continuous protection through monitoring); 10.1 - Continuous monitoring'
   control_id: SAF-K8S-1001-008
   relation_type: direct
   strength_level: strong
@@ -22851,22 +22113,6 @@
   applicability: "conditional"
   applicability_condition: "The implemented exception workflow preserves accountable and traceable decisions."
   strength_reason_code: "partial-control-coverage"
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(22)
-  framework_requirement_title: Accountability and Traceability
-  framework_mapping_notes: 'Accountability and traceability of agent actions is essential for audit and forensics
-
-
-    10.1 - Audit logging (accountability); 8.5 - GPU allocation audit trails (traceability for workload identity)'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -26508,39 +25754,7 @@
 
 
     8.5 - GPU telemetry (DCGM exporter, NVML metrics as sensor data); 10.1 - Monitoring and metrics'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-42
-  framework_requirement_title: Sensor Capability and Data
-  framework_mapping_notes: 'Sensor data handling by agents (cameras, microphones in IoT contexts) requires privacy controls
-
-
-    8.5 - GPU telemetry (DCGM exporter, NVML metrics as sensor data); 10.1 - Monitoring and metrics'
   control_id: SAF-K8S-1001-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-42(1)
-  framework_requirement_title: Reporting to Authorized Individuals or Roles
-  framework_mapping_notes: 'Reporting agent sensor data collection to authorized individuals ensures transparency
-
-
-    10.1 - SIEM integration (reporting security events to authorized personnel); 8.5 - GPU allocation audit trails'
-  control_id: SAF-K8S-1001-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -26572,40 +25786,8 @@
 
 
     8.5 - GPU telemetry collection (authorized use of monitoring capabilities); 10.1 - Metrics endpoint authentication'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-42(2)
-  framework_requirement_title: Authorized Use
-  framework_mapping_notes: 'Authorized use controls for agent sensor data restrict collection to approved purposes
-
-
-    8.5 - GPU telemetry collection (authorized use of monitoring capabilities); 10.1 - Metrics endpoint authentication'
   control_id: SAF-K8S-1001-008
   relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-42(5)
-  framework_requirement_title: Collection Minimization
-  framework_mapping_notes: 'Minimizing agent data collection reduces privacy risk and attack surface
-
-
-    9.7 - Privacy controls for training data (PII handling, data minimization); 10.1 - Sensitive metric redaction'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -26665,22 +25847,6 @@
 
 
     2.3 - Host OS and Kernel Hardening (node time synchronization and drift monitoring); 10.1 - Logging and Audit (time synchronization for log correlation); 10.5 - Forensic evidence (timestamp integrity)'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-45
-  framework_requirement_title: System Time Synchronization
-  framework_mapping_notes: 'Time synchronization for agent systems ensures accurate audit logs and event correlation
-
-
-    2.3 - Host OS and Kernel Hardening (node time synchronization and drift monitoring); 10.1 - Logging and Audit (time synchronization for log correlation); 10.5 - Forensic evidence (timestamp integrity)'
   control_id: SAF-K8S-1001-008
   relation_type: direct
   strength_level: strong
@@ -26695,22 +25861,6 @@
   framework_requirement_title: Synchronization with Authoritative Time Source
   framework_mapping_notes: Compare node clocks with the approved authoritative reference at the profile-defined frequency and synchronize when the approved time difference is exceeded.
   control_id: SAF-K8S-0203-016
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-45(1)
-  framework_requirement_title: Synchronization with Authoritative Time Source
-  framework_mapping_notes: 'Authoritative time source synchronization prevents log manipulation in agent audit trails
-
-
-    2.3 - Host OS and Kernel Hardening (authoritative time source configuration for Kubernetes nodes); 10.1 - Centralized logging (authoritative time source for log aggregation and correlation)'
-  control_id: SAF-K8S-1001-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -26747,22 +25897,6 @@
   strength_level: strong
   applicability: conditional
   applicability_condition: Selected profile requires SC-45(2) regional fallback
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-45(2)
-  framework_requirement_title: Secondary Authoritative Time Source
-  framework_mapping_notes: 'Redundant time sources ensure agent audit accuracy even during primary source failure
-
-
-    2.3 - Host OS and Kernel Hardening (redundant or resilient time source configuration for Kubernetes nodes); 10.1 - Logging architecture (redundant time sources for audit reliability)'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -26851,39 +25985,7 @@
 
 
     2.4 - Runtime security tools (relocating/redeploying detection sensors); 10.1 - Monitoring architecture'
-  control_id: SAF-K8S-1001-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-48
-  framework_requirement_title: Sensor Relocation
-  framework_mapping_notes: 'Relocating monitoring sensors for agent systems adapts detection to evolving threats
-
-
-    2.4 - Runtime security tools (relocating/redeploying detection sensors); 10.1 - Monitoring architecture'
   control_id: SAF-K8S-1001-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-48(1)
-  framework_requirement_title: Dynamic Relocation of Sensors or Monitoring Capabilities
-  framework_mapping_notes: 'Dynamic sensor relocation for agent monitoring prevents adversary evasion
-
-
-    2.4 - Runtime security tools (dynamic redeployment of Falco/Tetragon sensors); 10.1 - Monitoring architecture'
-  control_id: SAF-K8S-1001-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -29563,22 +28665,6 @@
 
 
     10.1 - Log retention policies; 9.5 - Artifact lifecycle management (retention); 9.7 - Data access audit trails'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-12
-  framework_requirement_title: Information Management and Retention
-  framework_mapping_notes: 'Information retention policies for agent logs, context, and generated data govern lifecycle
-
-
-    10.1 - Log retention policies; 9.5 - Artifact lifecycle management (retention); 9.7 - Data access audit trails'
   control_id: SAF-K8S-1001-008
   relation_type: direct
   strength_level: strong
@@ -29615,22 +28701,6 @@
   applicability: conditional
   applicability_condition: The covered data workflows verify that only approved personal-information elements are collected
     and retained
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-12(1)
-  framework_requirement_title: Limit Personally Identifiable Information Elements
-  framework_mapping_notes: 'Limiting PII in agent data stores reduces privacy risk and breach impact
-
-
-    9.7 - Privacy controls for training data (PII handling); 10.1 - Inference request/response logs with PII redaction'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -30627,22 +29697,6 @@
 
 
     9.6 - Data poisoning detection (automated drift detection, outlier analysis); 10.1 - Centralized logging (automated PII redaction)'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-18(1)
-  framework_requirement_title: Automation Support
-  framework_mapping_notes: 'Automated PII quality checks in agent data pipelines maintain data accuracy at scale
-
-
-    9.6 - Data poisoning detection (automated drift detection, outlier analysis); 10.1 - Centralized logging (automated PII redaction)'
   control_id: SAF-K8S-1001-008
   relation_type: direct
   strength_level: strong
@@ -30711,22 +29765,6 @@
   applicability: conditional
   applicability_condition: A separately evaluated de-identification technique is selected and applied to the covered
     data
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-19
-  framework_requirement_title: De-identification
-  framework_mapping_notes: 'De-identification of data processed by agents protects privacy in analytics and logging
-
-
-    9.7 - Privacy controls for training data (anonymization); 10.1 - Inference logs with PII redaction'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -30838,22 +29876,6 @@
   applicability: conditional
   applicability_condition: The deployed workflow verifies removal, masking, encryption, hashing or replacement of identified
     direct identifiers in the covered dataset
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-19(4)
-  framework_requirement_title: Removal, Masking, Encryption, Hashing, or Replacement of Direct Identifiers
-  framework_mapping_notes: 'Removal, masking, or encryption of direct identifiers in agent data protects privacy
-
-
-    9.7 - Privacy controls (PII handling -- anonymization techniques); 10.1 - Sensitive metric redaction'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -31861,16 +30883,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-4
   framework_requirement_title: System Monitoring
-  framework_mapping_notes: 'System monitoring of agent behavior, resource usage, and communications detects anomalies
-
-
-    10.1 - Logging and Audit (comprehensive system monitoring); 2.4 - Runtime security tools'
+  framework_mapping_notes: The v1.36.1 fixture verifies selected audit metrics are exposed and that five delivered fixture events produce the expected counter delta. It does not establish a production scraper, sustained health monitoring, loss/backpressure alerting, or response.
   control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only where the deployed monitor scrapes and acts on the demonstrated audit event/rejection or webhook health signals; the fixture checks one metric family/counter delta and does not establish continuous monitoring or alerts.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -31882,22 +30901,6 @@
 
     10.1 - Logging and Audit (comprehensive system monitoring); 2.4 - Runtime security tools'
   control_id: SAF-K8S-1001-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(1)
-  framework_requirement_title: System-wide Intrusion Detection System
-  framework_mapping_notes: 'IDS coverage across agent infrastructure detects intrusions and lateral movement
-
-
-    2.4 - Runtime security tools (Falco, Tetragon as intrusion detection); 10.1 - SIEM integration'
-  control_id: SAF-K8S-1001-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -31962,22 +30965,6 @@
 
     5.1 - East-west traffic monitoring for anomalous AI workload communication; 9.8 - Query pattern analysis'
   control_id: SAF-K8S-0501-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(12)
-  framework_requirement_title: Automated Organization-generated Alerts
-  framework_mapping_notes: 'Automated alert generation for agent security events reduces detection latency
-
-
-    10.1 - SIEM integration (automated alert generation); 10.2 - Alert design for AI failure modes'
-  control_id: SAF-K8S-1001-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -32076,22 +31063,6 @@
   applicability: conditional
   applicability_condition: The monitored system analyzes common traffic and event patterns and uses their profiles to
     tune monitoring
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(16)
-  framework_requirement_title: Correlate Monitoring Information
-  framework_mapping_notes: 'Correlating monitoring data across agent components reveals coordinated attacks
-
-
-    10.1 - SIEM integration (correlation rule development); 10.2 - Distributed tracing for ML pipelines'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -33677,22 +32648,6 @@
   applicability: conditional
   applicability_condition: Only as a conditional contribution for the selected artifacts and signature-verification behavior; requires independently governed signer identity/trust, credential custody and lifecycle, and retained verification records as specified in the replacement note.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-7(8)
-  framework_requirement_title: Auditing Capability for Significant Events
-  framework_mapping_notes: 'Audit capability for significant agent integrity events supports forensic investigation
-
-
-    10.1 - Kubernetes audit policy (auditing significant events); 8.5 - GPU allocation audit trails'
-  control_id: SAF-K8S-1001-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5

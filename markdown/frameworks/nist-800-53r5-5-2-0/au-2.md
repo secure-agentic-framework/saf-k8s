@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Defining auditable agent events
-
-10.1 - K8s audit policy configuration (audit levels, stage filtering, AI-relevant event logging)
+The fixture demonstrates policy selection and recording of seven specified API operations under broad and selective policies. It does not define the organization-wide auditable-event catalog or establish coverage of other AI application, runtime, cloud, or provider events.
 
 ## SAF-K8S Controls
 
@@ -15,10 +13,10 @@ Defining auditable agent events
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1001-007 - Supplemental application-level telemetry for AI workload events](../../controls/SAF-K8S-1001-007.md)
 

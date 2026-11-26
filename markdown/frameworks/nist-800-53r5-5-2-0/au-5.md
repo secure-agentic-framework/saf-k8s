@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Handling agent logging failures
-
-10.1 - Logging architecture explicitly covers handling audit logging process failures and backend availability
+The webhook fixture observes one transient 503, one retry of the same audit event, delivery counts, and native counter deltas. It does not alert personnel or test a production failure-response process.
 
 ## SAF-K8S Controls
 
@@ -16,9 +14,9 @@ Handling agent logging failures
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1001-008 - Permitted responses to audit findings](../../controls/SAF-K8S-1001-008.md)
 
