@@ -11,3 +11,5 @@ The approved pinned inert Pod runs and carries the exact reviewed report.
 The declared GPU and native packages are fixture metadata. Actual image
 composition, hardware qualification and provenance verification remain
 deployment evidence.
+
+For each released inference image, bind the deployed digest to an independently verified layer or SBOM inventory and to the authenticated build and release decision. Identify the required runtime dependencies, including accelerator libraries when applicable. Verify that compilers, package managers and debugging tools are absent, and validate actual driver and hardware compatibility on the deployed target.
