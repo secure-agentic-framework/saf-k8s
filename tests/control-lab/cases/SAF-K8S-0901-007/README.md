@@ -83,3 +83,13 @@ vulnerability triage, approved upgrades and rollback in the adopted cycle.
 [KubeRay 1.8.0 release](https://github.com/ray-project/kuberay/releases/tag/v1.8.0) ·
 [Official chart index](https://ray-project.github.io/kuberay-helm/index.yaml) ·
 [Official namespace-scoped Helm RBAC guide](https://docs.ray.io/en/master/kuberay/user-guides/helm-chart-rbac.html).
+
+## Crosswalk evidence
+
+The current crosswalk retains five scoped conditional contributions. Review
+the deployed authorization and least-privilege decisions, the actual identity
+lifecycle, the attack-surface review and the inventory of security-relevant
+components. The namespaced controller fixture provides the selected observed
+permissions and identity evidence.
+
+[NIST SP 800-53](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final).
