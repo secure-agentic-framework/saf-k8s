@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0505-002",
-  "catalog_revision": "7e7b463c49aefba0c8641919e0ab030a9a48ca0b",
-  "catalog_sha256": "6a0fac460ca17335f8678039750a9d383e07a25de2e9203167cc3e6125ed961f",
+  "catalog_revision": "a41b371486ca329d2ca7bb8e46d0a8a0ac249ae9",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e25106f85d3b9744d569df177ace1b4d98296a175b4072d5d801f1f8211e4593",
   "scope": "Fresh Kubernetes v1.36.1 Kind cluster; Service CREATE and UPDATE admission for NodePort, LoadBalancer, and reserved documentation-only ExternalIPs, with exact synthetic owner-namespace exception and genuine projected identities. The built-in admission plugin is verified on a separate disposable node. All exposure-shaped requests are server-side dry-runs. Only selector-less ClusterIP Services are persisted; real network exposure and production registry behavior are outside this fixture.",
-  "cluster": "saf-lab-0dd997d5c9eb",
+  "cluster": "saf-lab-f29bfaa43fd1",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

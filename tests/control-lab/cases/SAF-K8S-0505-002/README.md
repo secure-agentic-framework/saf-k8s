@@ -47,3 +47,11 @@ rejection of new ExternalIPs on CREATE and UPDATE, and acceptance of an ordinary
 ClusterIP Service. The versioned upstream reference documents that existing IP
 values may remain or be removed. The custom policy exercises NodePort and
 LoadBalancer restrictions and the synthetic approval path separately.
+
+## Adopter verification
+
+Verify the actual Service admission scope for creation and updates, including scoped approval identity and expiration. Use owned, otherwise inert Services to compare permitted and refused declarations. On an authorized provider test path, observe whether reconciliation occurs after an allowed request, verify the actual externally reachable endpoint set, and correlate decisions with sanitized API records. Record each exception, owner, applicable interval and effective network exposure.
+
+Inventory existing `spec.externalIPs` usage and move it to supported paths. Where the native plugin is in use, verify the effective flag and compare newly added values, unchanged existing values and removal of existing values. The pinned fixture exercises rejection of new values and ordinary ClusterIP use. The legacy update and removal comparison is tracked separately.
+
+[Kubernetes v1.36 admission controller reference](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#denyserviceexternalips) · [Kubernetes Service API](https://kubernetes.io/docs/reference/kubernetes-api/core/service-v1/)
