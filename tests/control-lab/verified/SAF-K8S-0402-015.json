@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0402-015",
-  "catalog_revision": "769b7454c4c2e06d431ea7d64366a509ddca447c",
-  "catalog_sha256": "495566b569ff3698401b2a8242ae2ee7fbe7f4b4ff971e93899cad7727b969c5",
+  "catalog_revision": "eb20db0ee5548718a069c3b2d70a657802455c6a",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "1ae388b84ef9d7e1f1ccd6023431ae7241e22d00f6e88002a9e64a8a0ff3d5d3",
   "scope": "Kubernetes v1.36.1 server-side dry runs of an empty synthetic legacy Secret and an inert Opaque Secret, with a namespace-scoped admission policy. The case also verifies the native tracking ConfigMap and a type-based inventory query. Credential issuance, actual token use and removal, migration and production scope remain separate.",
-  "cluster": "saf-lab-f9b1ac9bd016",
+  "cluster": "saf-lab-8ea58e18bfbe",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
