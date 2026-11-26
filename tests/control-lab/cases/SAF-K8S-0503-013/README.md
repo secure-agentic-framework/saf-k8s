@@ -1,11 +1,20 @@
-# SAF-K8S-0503-013 WAF request filtering
+# Verify a web application firewall on its Gateway route
 
-```sh
-python3 tests/control-lab/lab.py test SAF-K8S-0503-013 --docker-context desktop-linux
-```
+Run `python3 tests/control-lab/lab.py test SAF-K8S-0503-013 --docker-context desktop-linux`
+from the framework checkout. The pinned Envoy Gateway programs one owned
+HTTPRoute to the existing ModSecurity/OWASP CRS Service. The case verifies the
+actual route/backend and controller and proxy pins. All three marker checks
+traverse the proxy's ClusterIP through its dynamically allocated loopback
+forward. The harmless marker passes in the control arm, produces the exact
+WAF denial with no backend dispatch after activation, and the permitted
+marker still reaches the backend.
 
-The test runs a pinned ModSecurity and OWASP CRS reverse proxy in front of a case-owned HTTP backend. It sends one fixed harmless header value before and after loading a custom rule. The test checks the exact HTTP 403, rule ID in proxy telemetry, unchanged backend arrivals for the denied request, and a successful independent permitted request. The proxy and backend use ClusterIP Services, and the runner accesses only the proxy through dynamic local port forwards.
+For adoption, inventory actual endpoints, route and TLS boundaries, WAF
+attachment and effective managed or custom rules. Use a harmless owned canary
+and independently verify WAF and backend observations. Record enforced source
+and destination restrictions, authorized exceptions, event delivery, retention
+and responder ownership. Where applying SI-10(6), verify that the adopted
+rules inspect the relevant organization-defined inputs and injection classes.
 
-The fixture verifies custom-rule enforcement on the owned proxy path. Production WAF attachment, configured and updated managed rules, protocol and inspection coverage, exceptions and alert routing need evidence from the deployed ingress.
-
-[OWASP CRS documentation](https://coreruleset.org/docs/1-getting-started/1-1-crs-installation/) and [CRS container configuration](https://github.com/coreruleset/modsecurity-crs-docker).
+- [NIST SP 800-53 Rev. 5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)
+- [Envoy Gateway v1.10.0 release](https://github.com/envoyproxy/gateway/releases/tag/v1.10.0)

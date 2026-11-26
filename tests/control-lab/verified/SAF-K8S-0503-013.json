@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0503-013",
-  "catalog_revision": "91d6b46adcd71399f70cc48ce39f672aa95579ce",
-  "catalog_sha256": "16c7bd640f0a38249ed34de92c3b42081d5230837fed31da29ab446efccf9d54",
+  "catalog_revision": "45ccda6ced2324488716632e55a7c3299258f0d5",
+  "catalog_sha256": "c11e20f1ec20d984db838c86fdb56b8f5655671774a59cb9d1cbc01f9889c3df",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "bcc2400d44997de9c917f24b668fa4bb5f80bcb0cc3803a2bac6fcfd23519898",
-  "scope": "A local Kubernetes v1.36.1 Kind cluster routes owned HTTP traffic through the pinned ModSecurity and OWASP Core Rule Set reverse proxy. The same harmless test header reaches the owned backend before the canary is installed and is denied after the rule is loaded. The test checks the specific audit rule ID and continued access for independent permitted traffic. Deployed ingress attachment, inspection coverage and managed rules need separate evidence.",
-  "cluster": "saf-lab-96fd50fec119",
+  "scope": "A local Kubernetes v1.36.1 Kind cluster routes owned HTTP traffic through pinned Envoy Gateway, then the pinned ModSecurity and OWASP Core Rule Set reverse proxy. The same harmless test header reaches the owned backend before the canary is installed and is denied after the rule is loaded. The test checks the specific audit rule ID and continued access for independent permitted traffic. Deployed ingress attachment, inspection coverage and managed rules need separate evidence.",
+  "cluster": "saf-lab-dd42c4648e49",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -38,6 +38,19 @@
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
+    {
+      "phase": "positive",
+      "claim": "The owned Gateway route resolves only to the pinned case WAF",
+      "matched": true,
+      "observed": {
+        "route_backend_is_owned_waf": true,
+        "route_accepted_and_resolved": true,
+        "gateway_service_cluster_ip": true,
+        "gateway_controller_image_pinned": true,
+        "shutdown_manager_image_pinned": true,
+        "envoy_proxy_image_pinned": true
+      }
+    },
     {
       "phase": "red",
       "claim": "The exact canary marker reaches the owned backend before activation",
