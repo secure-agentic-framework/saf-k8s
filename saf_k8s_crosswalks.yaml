@@ -11503,22 +11503,6 @@
 
 
     7.1 - Secure persistent storage (PV access modes: ReadOnlyMany); 9.2 - Read-only model mounts for inference servers'
-  control_id: SAF-K8S-0701-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(22)
-  framework_requirement_title: Access Only
-  framework_mapping_notes: 'Restricting agents to access-only (no copy/transfer)
-
-
-    7.1 - Secure persistent storage (PV access modes: ReadOnlyMany); 9.2 - Read-only model mounts for inference servers'
   control_id: SAF-K8S-0701-007
   relation_type: direct
   strength_level: strong
@@ -24017,22 +24001,6 @@
 
 
     1.2 - Access-controlled backup storage (separate storage for critical backups); 7.1 - PV reclaim policy'
-  control_id: SAF-K8S-0701-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-9(3)
-  framework_requirement_title: Separate Storage for Critical Information
-  framework_mapping_notes: 'Separating critical agent data backups
-
-
-    1.2 - Access-controlled backup storage (separate storage for critical backups); 7.1 - PV reclaim policy'
   control_id: SAF-K8S-0701-007
   relation_type: supports
   strength_level: strong
@@ -24237,16 +24205,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CP-9(7)
   framework_requirement_title: Dual Authorization for Deletion or Destruction
-  framework_mapping_notes: 'Dual auth for agent backup deletion
-
-
-    7.1 - Dual authorization requirements for destruction of training data backups and model checkpoint archives; 10.7 - Decommissioning approval'
+  framework_mapping_notes: For retained AI volumes that the organization designates as backup information, this control contributes an API-level two-approval gate before an authorized executor may delete the specifically approved PersistentVolume record. The five-check portable fixture demonstrates distinct synthetic reviewer identities, refusal of one reviewer to cast the other reviewer's vote, refusal of duplicate same-reviewer approval as a second vote, and deletion of the exact synthetic PV record after both approvals. It does not demonstrate provider-side destruction or sanitization of the underlying media, approval of every deletion channel, or human identity proofing.
   control_id: SAF-K8S-0701-006
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only when the retained training-data volume or checkpoint archive is designated as organization-defined system backup information and every in-scope deletion path is governed by the approved dual-authorization mechanism. The portable evidence is an API admission check for one synthetic PV record; verify actual backend destruction, alternate administrative paths, reviewer qualification, and audit records in the adopting environment.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -24407,22 +24372,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-9(8)
-  framework_requirement_title: Cryptographic Protection
-  framework_mapping_notes: 'Encrypting agent backups
-
-
-    7.1 - Encryption at rest for PVs; 1.2 - etcd encryption; 4.3 - Secrets encryption at rest'
-  control_id: SAF-K8S-0701-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -39173,22 +39122,6 @@
 
 
     1.2 - etcd encryption at rest; 7.1 - PV encryption; 4.3 - Secrets encryption at rest (KMS providers)'
-  control_id: SAF-K8S-0701-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-28
-  framework_requirement_title: Protection of Information at Rest
-  framework_mapping_notes: 'Protecting agent data at rest (models, context, memory, credentials) prevents unauthorized access
-
-
-    1.2 - etcd encryption at rest; 7.1 - PV encryption; 4.3 - Secrets encryption at rest (KMS providers)'
   control_id: SAF-K8S-0701-007
   relation_type: direct
   strength_level: strong
@@ -39273,22 +39206,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-28(1)
-  framework_requirement_title: Cryptographic Protection
-  framework_mapping_notes: 'Encryption of agent data at rest protects sensitive information stored by agent systems
-
-
-    1.2 - etcd KMS encryption; 7.1 - dm-crypt/LUKS volume encryption; 8.4 - Sealed storage in TEEs'
-  control_id: SAF-K8S-0701-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -40655,22 +40572,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-36
-  framework_requirement_title: Distributed Processing and Storage
-  framework_mapping_notes: 'Distributed agent processing across locations provides resilience and redundancy
-
-
-    9.1 - Distributed training (multi-node GPU processing); 7.1 - Distributed persistent volume storage'
-  control_id: SAF-K8S-0701-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -49367,22 +49268,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-23
-  framework_requirement_title: Information Fragmentation
-  framework_mapping_notes: 'Fragmenting sensitive data across agent systems prevents single-point data compromise
-
-
-    9.1 - Distributed training (fragmenting data across workers); 7.1 - Distributed persistent volume storage'
-  control_id: SAF-K8S-0701-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
