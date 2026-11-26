@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-018",
-  "catalog_revision": "2fd2c6d8954155c28ed270cf691b3ef7514ffb54",
-  "catalog_sha256": "05cdf2f89b9024a4ca7f878a76c1b6640b47da98db46638b0a4ff22ead91e3f0",
+  "catalog_revision": "9ff30e5e569e8e102440e022dda3d44cb99e72f2",
+  "catalog_sha256": "80c7da0fd4f41cb7830cb16c47d2d08461aee78c45806ed496151b90cef2011d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "7f0504ea90320730c842e226800b0dbc78c08198d8b88d03389b8c975569e1b6",
   "scope": "One CI-style artifact handoff between Kubernetes build and evidence Jobs and a local receiver.",
-  "cluster": "saf-lab-56281ec608f3",
+  "cluster": "saf-lab-44fea99f02f6",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -81,6 +81,18 @@
       "observed": {
         "approved_marker_stored": true,
         "subject": "sha256:efe10cb0918513afe63f2cf7ea58713bdf45259712e2bbfab78a2c42a4aedabc"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A distinct Kubernetes receiving identity verifies the signed handoff before publishing, and denies an expected-subject mismatch",
+      "matched": true,
+      "observed": {
+        "approved_receiver_release": true,
+        "wrong_subject_denied": true,
+        "receiver_artifact_and_evidence_writes_denied": true,
+        "receiver_identity": "system:serviceaccount:saf-test:handoff-receiver",
+        "subject_sha256": "sha256:efe10cb0918513afe63f2cf7ea58713bdf45259712e2bbfab78a2c42a4aedabc"
       }
     }
   ]

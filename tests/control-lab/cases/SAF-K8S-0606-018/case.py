@@ -124,5 +124,15 @@ def run(lab):
                   accepted and released["data"]["marker"] == MARKER,
                   {"approved_marker_stored": released["data"]["marker"] == MARKER, "subject": observer["subject_digest"]})
         fingerprint = hashlib.sha256(public.read_bytes()).hexdigest()
+        receiver_public = public.read_bytes()
+    import importlib.util
+    receiver_path = Path(__file__).with_name("receiver_supplement.py")
+    receiver_spec = importlib.util.spec_from_file_location("saf_0606_018_receiver_supplement", receiver_path)
+    if receiver_spec is None or receiver_spec.loader is None:
+        raise RuntimeError("Native receiver supplement unavailable")
+    receiver_module = importlib.util.module_from_spec(receiver_spec)
+    receiver_spec.loader.exec_module(receiver_module)
+    receiver_digest = "sha256:" + hashlib.sha256(MARKER.encode()).hexdigest()
+    receiver_module.run_receiver(lab, receiver_public, receiver_digest)
     (lab.evidence / "handoff-observations.json").write_text(json.dumps({"builder": builder, "observer": observer,
         "public_key_sha256": fingerprint, "rejected": rejected, "approved_marker_stored": accepted}, indent=2) + "\n")
