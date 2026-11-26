@@ -8766,12 +8766,12 @@
   knowledge_area: '9.5'
   control_seq: '015'
   control_title: AI system control profile enforcement
-  control_statement: 'Organizations must apply the control profile corresponding to each AI system lifecycle classification: train-verify-lock systems require file integrity monitoring and deployment-time signature verification, and continuous learning systems require update authorization workflows and drift monitoring, all enforced through Kubernetes admission control and runtime policy.'
+  control_statement: Apply the approved lifecycle profile to each governed AI workload. Verify the exact deployment signature and integrity-monitoring configuration for a train-verify-lock profile. Require authorized update workflows and observed drift monitoring for continuous-learning profiles. Verify the applicable admission, update and runtime paths.
   objective: Ensure security controls are calibrated to each AI system lifecycle classification, with static systems receiving integrity-focused controls and continuously learning systems receiving update authorization and drift monitoring requirements on Kubernetes.
   rationale: 'Applying the wrong control profile leaves critical risks unaddressed: train-verify-lock systems without integrity verification lack tamper detection, while continuous learning systems without update authorization lack governance over model evolution. Classification from SAF-K8S-0905-001 is prerequisite to this enforcement step.'
   scope: Applies to all AI systems after lifecycle classification (SAF-K8S-0905-001). Covers the runtime enforcement of the control profile appropriate to each classification. Excludes the classification decision itself.
-  primary_enforcement_point: Kubernetes admission control validating that each AI workload pod carries the required controls matching its lifecycle classification label.
-  implementation_surface: File integrity monitoring for train-verify-lock models, model update authorization workflows for continuous-learning systems, drift monitoring dashboards, deployment admission webhooks enforcing classification-matched control profiles, and periodic control profile review processes.
+  primary_enforcement_point: Governed workload admission and deployment verification, applicable update authorization, and independent runtime integrity and drift monitoring.
+  implementation_surface: Verify trusted classification and profile admission, exact signed artifact identity at deployment, actual runtime monitor coverage and response, and authenticated continuous-learning update authority. Bind the authorized update to the actual artifact and audit record.
   owner_primary: ML Platform Engineering
   owner_supporting: Security Engineering; ML Engineering; Governance
   baseline_or_ai_specific: ai-specific

@@ -18,15 +18,6 @@ AI system classification enforces risk-proportionate controls. Model promotion g
 - Applicability: required
 - Strength Reason Code: framework-language-interpretation
 
-### [SAF-K8S-0905-015 - AI system control profile enforcement](../../controls/SAF-K8S-0905-015.md)
-
-- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
-- Knowledge Area: 9.5
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0905-045 - Sandboxed external model behavioral vetting and disposition review](../../controls/SAF-K8S-0905-045.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines

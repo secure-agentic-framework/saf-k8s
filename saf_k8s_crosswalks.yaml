@@ -305,15 +305,12 @@
   framework_version: 2024/1689
   framework_requirement_id: Annex-IV.2.f
   framework_requirement_title: Technical documentation referred to in Article 11(1)
-  framework_mapping_notes: |-
-    where applicable, a detailed description of pre-determined changes to the AI system and its performance, together with all the relevant information related to the technical solutions adopted to ensure continuous compliance of the AI system with the relevant requirements set out in Chapter III, Section 2;
-
-    Its statement directly addresses pre-determined changes and continuous compliance: continuous-learning systems get update authorization workflows and drift monitoring, while train-verify-lock systems get integrity monitoring and deployment-time signature verification, all enforced via admission control and runtime policy. This is exactly the kind of 'technical solution adopted to ensure continuous compliance' for systems with anticipated changes, though documenting it across all Chapter III Section 2 requirements remains organizational.
+  framework_mapping_notes: The observed lifecycle-specific signature verification, update authorization and monitoring can provide specific implementation evidence for applicable cybersecurity documentation. Verify documentation and selected deployment controls independently.
   control_id: SAF-K8S-0905-015
-  relation_type: partial
+  relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition:
+  applicability: conditional
+  applicability_condition: For in-scope high-risk AI systems when applicable documentation describes the actual implemented cybersecurity measures.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
@@ -3544,19 +3541,6 @@
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
   framework_version: '1.0'
-  framework_requirement_id: GOVERN 3.2
-  framework_requirement_title: Policies and procedures are in place to define and differentiate roles and responsibilities for human-AI configurations and oversight of AI systems.
-  framework_mapping_notes: AI system classification assigns control profiles based on risk tier, implicitly defining human oversight requirements. Model promotion gates enforce approval workflows requiring human review before deployment.
-  control_id: SAF-K8S-0905-015
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST AI RMF 1.0
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
   framework_requirement_id: GOVERN 4.1
   framework_requirement_title: Organizational policies and practices are in place to foster a critical thinking and safety-first mindset in the design, development, deployment, and uses of AI systems to minimize potential negative impacts.
   framework_mapping_notes: AI system classification enforces risk-proportionate controls. Model promotion gates require validation before deployment, embedding a safety-first workflow in the AI lifecycle.
@@ -3566,19 +3550,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: framework-language-interpretation
-- mapping_set_name: SAF-K8S to NIST AI RMF 1.0
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
-  framework_requirement_id: GOVERN 4.1
-  framework_requirement_title: Organizational policies and practices are in place to foster a critical thinking and safety-first mindset in the design, development, deployment, and uses of AI systems to minimize potential negative impacts.
-  framework_mapping_notes: AI system classification enforces risk-proportionate controls. Model promotion gates require validation before deployment, embedding a safety-first workflow in the AI lifecycle.
-  control_id: SAF-K8S-0905-015
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -3709,19 +3680,6 @@
   applicability: conditional
   applicability_condition: Only for an organization voluntarily using NIST AI RMF 1.0 where this gate is one technical proceed/stop mechanism. The organization remains responsible for intended-purpose, objective, risk, and TEVV determinations.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST AI RMF 1.0
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
-  framework_requirement_id: MANAGE 1.1
-  framework_requirement_title: A determination is made as to whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed.
-  framework_mapping_notes: AI system classification defines expected control profiles. Model promotion gates enforce go/no-go decisions before production deployment based on validation criteria.
-  control_id: SAF-K8S-0905-015
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -4051,19 +4009,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: framework-language-interpretation
-- mapping_set_name: SAF-K8S to NIST AI RMF 1.0
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
-  framework_requirement_id: MAP 2.1
-  framework_requirement_title: The specific tasks and methods used to implement the tasks that the AI system will support are defined (e.g., classifiers, generative models, recommenders).
-  framework_mapping_notes: AI system classification requires documenting system type (training, serving, pipeline) and assigning appropriate control profiles. Label standards classify workloads by type.
-  control_id: SAF-K8S-0905-015
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -31899,22 +31844,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SC-43
-  framework_requirement_title: Usage Restrictions
-  framework_mapping_notes: 'Usage restrictions on agent system components enforce organizational security policy
-
-
-    9.5 - Model registry access controls (usage restrictions on AI components); 6.5 - Admission control (usage restrictions enforcement)'
-  control_id: SAF-K8S-0905-015
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SC-45
   framework_requirement_title: System Time Synchronization
   framework_mapping_notes: Governed nodes synchronize clocks, measure health and trigger the approved response when the profile is unmet.
@@ -43241,4 +43170,17 @@
   strength_level: moderate
   applicability: conditional
   applicability_condition: For adopted APF control-plane request priority levels whose allocated concurrency protects availability of named management functions.
+  strength_reason_code: partial-control-coverage
+- mapping_set_name: SAF-K8S to NIST SP 800-53r5
+  framework_code: NIST-800-53R5
+  framework_name: NIST SP 800-53 Revision 5
+  framework_version: 5.2.0
+  framework_requirement_id: SI-7
+  framework_requirement_title: Software, Firmware, and Information Integrity
+  framework_mapping_notes: The reference exercises signed deployment identity for an inert artifact and scoped authorized change and runtime integrity signaling. Retain actual trust, artifact, monitoring and response evidence.
+  control_id: SAF-K8S-0905-015
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: For designated model software or information artifacts with independently governed expected integrity and an applicable implemented detection and response policy.
   strength_reason_code: partial-control-coverage

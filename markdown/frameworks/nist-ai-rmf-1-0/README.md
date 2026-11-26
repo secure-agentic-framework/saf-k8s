@@ -2,7 +2,7 @@
 
 - Framework Code: NIST-AI-RMF
 - Version: 1.0
-- Total Reverse Mappings: 103
+- Total Reverse Mappings: 99
 - Distinct Requirements Mapped: 46
 
 ## Requirements
