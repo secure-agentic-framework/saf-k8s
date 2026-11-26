@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-039",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "148a90b2889c6ed94235042322f01f0e858970dc",
+  "catalog_sha256": "99dfcf4e7690631de3a5a538c5e0434405de93779ba25e0e5ce0cff09d9d7f38",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d786230cd985fa5e8248489738317756017445bea3cadffa5cef906f4936a0f4",
   "scope": "One disposable Kind cluster runs pinned Zot 2.1.23, a PVC-backed registry with a fixed inert OCI artifact. An approved fixture inventory identifies a standing read grant to remove. The same credential reads before review and receives an authorization denial after a registry restart. An independent reader still obtains the same digest. Organizational periodic review, identity lifecycle, every repository and other registry products require deployed evidence. The approved inventory and entitlement age are synthetic.",
-  "cluster": "saf-lab-4c4b06d29fd5",
+  "cluster": "saf-lab-6a2fea8199cb",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
