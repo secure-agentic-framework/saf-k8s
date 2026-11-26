@@ -62,7 +62,7 @@ SYNTHETIC_MINIMUM_PROFILE = {
         "pod-to-pod encryption mode and cryptographic configuration",
         "FQDN filtering semantics and DNS failure behavior",
         "L7 policy coverage and protocol parsing",
-        "performance under security-enabled configuration",
+        "representative production performance under security-enabled configuration",
         "flow export beyond the named local observer interface, retention, and operational metrics",
         "managed-service feature gaps and compensating controls",
     ],
@@ -76,7 +76,7 @@ SCOPE = (
     "profile also requires scoped structured flow evidence through its named Hubble "
     "JSON observer interface. Bundled kindnet's lack of this specific integration "
     "does not imply it lacks NetworkPolicy enforcement or all telemetry. The profile "
-    "also requires pinned artifact evidence. Encryption, FQDN/L7 policy, performance, "
+    "also requires pinned artifact evidence and records bounded local marker timings; the timings include kubectl exec routing. Encryption, FQDN/L7 policy, representative production performance, "
     "production selection, "
     "managed-provider gaps, and compensating controls are not evaluated. No workload "
     "fixture requests an external destination."
@@ -373,7 +373,27 @@ def _kindnet_probe(lab, phase, segment, address):
     return {"matched": matched, "observation": observation}
 
 
-def _probe_candidate(lab, probe):
+def _sample_local_marker(lab, candidate, address):
+    samples = []
+    expected = MARKERS["pipeline"]
+    for _ in range(5):
+        start = time.perf_counter_ns()
+        matched, observation = _request(lab, address, expected)
+        samples.append({"duration_ns": time.perf_counter_ns() - start,
+                        "fixed_marker_received": matched, "observation": observation})
+    complete = len(samples) == 5 and all(item["fixed_marker_received"] for item in samples)
+    positive_timings = all(item["duration_ns"] > 0 for item in samples)
+    lab.check(
+        "positive", f"{candidate} completes the bounded policy-enabled marker timing sample",
+        complete and positive_timings,
+        {"fixed_markers_received": complete, "positive_timing_samples": positive_timings,
+         "expected_samples": 5},
+    )
+    return {"measurement": "host monotonic clock around each kubectl exec and owned HTTP request",
+            "environment": "local Kind and Docker", "samples": samples}
+
+
+def _probe_candidate(lab, probe, candidate):
     addresses = _deploy_markers(lab)
     observations = {}
     for phase, segment in (("red", "inference"), ("red", "pipeline"),
@@ -381,7 +401,8 @@ def _probe_candidate(lab, probe):
         if phase == "green":
             _install_policy(lab)
         observations[f"{phase}:{segment}"] = probe(lab, phase, segment, addresses[segment])
-    return observations
+    timing = _sample_local_marker(lab, candidate, addresses["pipeline"])
+    return observations, timing
 
 
 def _kindnet_candidate(lab):
@@ -408,7 +429,7 @@ def _kindnet_candidate(lab):
                   desired > 0 and all(value == desired for value in counts.values())
                   and bool(images) and not observer_available,
                   {"daemonsets": installed, "kindnet_counts": counts, "kindnet_images": images})
-        observations = _probe_candidate(peer, _kindnet_probe)
+        observations, timing = _probe_candidate(peer, _kindnet_probe, "Bundled kindnet")
     finally:
         deletion = lab.command("kind", "delete", "cluster", "--name", peer.cluster,
                                "--kubeconfig", str(peer.kubeconfig), timeout=90, allow_failure=True)
@@ -422,6 +443,7 @@ def _kindnet_candidate(lab):
         "node_image": NODE_IMAGE,
         "kindnet_images": images,
         "marker_probes": observations,
+        "timing_sample": timing,
         "policy_checks_passed": all(record["matched"] for record in observations.values()),
         "named_observer_available": observer_available,
     }
@@ -434,10 +456,11 @@ def run(lab):
     _verify_version(lab)
     kindnet = _kindnet_candidate(lab)
     cilium_install = _install_cilium(lab)
-    cilium_flows = _probe_candidate(lab, _observe)
+    cilium_flows, timing = _probe_candidate(lab, _observe, "Pinned Cilium")
     cilium = {
         "node_image": NODE_IMAGE,
         "agent_image": CILIUM_IMAGE,
+        "timing_sample": timing,
         "chart_sha256": CHART_HASH,
         "policy_checks_passed": all(record["check_passed"] for record in cilium_flows.values()),
         "named_observer_available": cilium_install["observer_healthy"] and

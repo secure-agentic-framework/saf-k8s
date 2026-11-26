@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0502-001",
-  "catalog_revision": "1cafd2144238a4f7573ffad61e2beb87ec82f376",
-  "catalog_sha256": "20ca22daf42e12ce0f71b976106bbb2dfddf56391fa6f121392f25627cfe297a",
+  "catalog_revision": "e79ef78ecef279a0212f866814ee30e0996a9063",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "c2ebb6c3053c0b59fcac5e6c47bef5af801c00da53afb30eaae8fe96cae8584e",
-  "scope": "One harness-owned local Kind v0.32.0 / Kubernetes v1.36.1 cluster runs pinned Cilium 1.20.5 with embedded Hubble; one case-owned local Kind cluster runs the kindnet bundled in the same digest-pinned node image. Fixed-marker IPv4 TCP/18080 requests use only case-owned pods and namespaces. Both candidates receive actual baseline, denied, and explicitly permitted fixed-marker probes. The synthetic profile also requires scoped structured flow evidence through its named Hubble JSON observer interface. Bundled kindnet's lack of this specific integration does not imply it lacks NetworkPolicy enforcement or all telemetry. The profile also requires pinned artifact evidence. Encryption, FQDN/L7 policy, performance, production selection, managed-provider gaps, and compensating controls are not evaluated. No workload fixture requests an external destination.",
-  "cluster": "saf-lab-d19c2dcecae2",
+  "scope": "One harness-owned local Kind v0.32.0 / Kubernetes v1.36.1 cluster runs pinned Cilium 1.20.5 with embedded Hubble; one case-owned local Kind cluster runs the kindnet bundled in the same digest-pinned node image. Fixed-marker IPv4 TCP/18080 requests use only case-owned pods and namespaces. Both candidates receive actual baseline, denied, and explicitly permitted fixed-marker probes. The synthetic profile also requires scoped structured flow evidence through its named Hubble JSON observer interface. Bundled kindnet's lack of this specific integration does not imply it lacks NetworkPolicy enforcement or all telemetry. The profile also requires pinned artifact evidence and records bounded local marker timings; the timings include kubectl exec routing. Encryption, FQDN/L7 policy, representative production performance, production selection, managed-provider gaps, and compensating controls are not evaluated. No workload fixture requests an external destination.",
+  "cluster": "saf-lab-a145ab250efe",
   "kind_ready_wait": "0s",
   "kubernetes": {
     "clientVersion": {
@@ -97,6 +97,16 @@
     },
     {
       "phase": "positive",
+      "claim": "Bundled kindnet completes the bounded policy-enabled marker timing sample",
+      "matched": true,
+      "observed": {
+        "fixed_markers_received": true,
+        "positive_timing_samples": true,
+        "expected_samples": 5
+      }
+    },
+    {
+      "phase": "positive",
       "claim": "Owned kindnet peer was deleted and is absent from the cluster inventory",
       "matched": true,
       "observed": {
@@ -177,6 +187,16 @@
         "matching_hubble_events": true,
         "identity_fields_verified": true,
         "application_observation": "fixed-marker-received"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Pinned Cilium completes the bounded policy-enabled marker timing sample",
+      "matched": true,
+      "observed": {
+        "fixed_markers_received": true,
+        "positive_timing_samples": true,
+        "expected_samples": 5
       }
     },
     {
