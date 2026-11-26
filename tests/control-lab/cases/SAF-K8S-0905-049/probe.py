@@ -19,8 +19,8 @@ def digest(data):
     return "sha256:" + hashlib.sha256(data).hexdigest()
 
 
-def request(method, url, body=None, content_type=None):
-    userpass = "fixture-publisher:" + Path("/auth/password").read_text().strip()
+def request(method, url, body=None, content_type=None, actor="fixture-publisher"):
+    userpass = actor + ":" + Path("/auth/" + actor + "-password").read_text().strip()
     auth = base64.b64encode(userpass.encode()).decode()
     headers = {"Accept": MANIFEST_TYPE, "Authorization": "Basic " + auth}
     if content_type:
@@ -35,12 +35,12 @@ def request(method, url, body=None, content_type=None):
         raise RuntimeError("registry API request failed") from None
 
 
-def create_artifact(base, label):
+def create_artifact(base, label, actor="fixture-publisher"):
     # OCI empty config plus a fixed artifactType and title annotation keeps the two
     # manifest digests distinct without carrying executable or model payload bytes.
     config = b"{}"
     config_digest = digest(config)
-    status, headers, _ = request("POST", f"{base}/v2/{REPOSITORY}/blobs/uploads/", b"")
+    status, headers, _ = request("POST", f"{base}/v2/{REPOSITORY}/blobs/uploads/", b"", actor=actor)
     if status != 202 or "Location" not in headers:
         raise RuntimeError("registry rejected OCI blob upload start")
     upload_url = urljoin(base, headers["Location"])
@@ -49,7 +49,7 @@ def create_artifact(base, label):
     else:
         upload_url += "?"
     status, _, _ = request("PUT", upload_url + "digest=" + config_digest, config,
-                          "application/octet-stream")
+                          "application/octet-stream", actor=actor)
     if status != 201:
         raise RuntimeError("registry rejected OCI config blob")
 
@@ -65,15 +65,15 @@ def create_artifact(base, label):
     return manifest, digest(manifest)
 
 
-def push(base, tag, artifact):
+def push(base, tag, artifact, actor="fixture-publisher"):
     manifest, manifest_digest = artifact
     status, _, _ = request("PUT", f"{base}/v2/{REPOSITORY}/manifests/{tag}", manifest,
-                          MANIFEST_TYPE)
+                          MANIFEST_TYPE, actor=actor)
     return status, manifest_digest
 
 
-def read_digest(base, reference):
-    status, headers, body = request("GET", f"{base}/v2/{REPOSITORY}/manifests/{reference}")
+def read_digest(base, reference, actor="fixture-publisher"):
+    status, headers, body = request("GET", f"{base}/v2/{REPOSITORY}/manifests/{reference}", actor=actor)
     if status != 200:
         return status, None
     found = digest(body)
@@ -166,11 +166,38 @@ def locked_case(base):
     }
 
 
+def admin_denied_case(base):
+    before_status, before_digest = read_digest(base, TAG, actor="fixture-override")
+    artifact_b = create_artifact(base, "fixture-admin-attempt", actor="fixture-override")
+    overwrite_status, _ = push(base, TAG, artifact_b, actor="fixture-override")
+    after_status, after_digest = read_digest(base, TAG, actor="fixture-override")
+    return {"ok": before_status == 200 and after_status == 200,
+            "before_status": before_status, "before_digest": before_digest,
+            "overwrite_status": overwrite_status,
+            "after_status": after_status, "after_digest": after_digest}
+
+
+def admin_override_case(base):
+    artifact_a = create_artifact(base, "fixture-admin-a", actor="fixture-override")
+    initial_status, _ = push(base, TAG, artifact_a, actor="fixture-override")
+    before_status, before_digest = read_digest(base, TAG, actor="fixture-override")
+    artifact_b = create_artifact(base, "fixture-admin-b", actor="fixture-override")
+    overwrite_status, _ = push(base, TAG, artifact_b, actor="fixture-override")
+    after_status, after_digest = read_digest(base, TAG, actor="fixture-override")
+    return {"ok": before_status == 200 and after_status == 200,
+            "initial_status": initial_status, "before_status": before_status,
+            "before_digest": before_digest, "overwrite_status": overwrite_status,
+            "overwrite_digest": after_digest, "after_status": after_status,
+            "after_digest": after_digest, "artifact_b_digest": artifact_b[1]}
+
+
 def main():
-    if len(sys.argv) != 3 or sys.argv[2] not in ("open", "locked"):
+    if len(sys.argv) != 3 or sys.argv[2] not in ("open", "locked", "admin-denied", "admin-override"):
         raise RuntimeError("invalid probe invocation")
-    result = (open_case(sys.argv[1]) if sys.argv[2] == "open"
-              else locked_case(sys.argv[1]))
+    cases = {"open": open_case, "locked": locked_case,
+             "admin-denied": admin_denied_case,
+             "admin-override": admin_override_case}
+    result = cases[sys.argv[2]](sys.argv[1])
     print(json.dumps(result, sort_keys=True))
 
 

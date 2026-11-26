@@ -2751,7 +2751,7 @@
     "SAF-K8S-0905-049": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "e409dce07e676c29ccd25040adbfd28f26eb968f7028e33b4a87c6afde98e0e6",
+      "sha256": "602bd9f2a969a1170ffde05518fc903fe77f6be586b42fe83c37360f23db85ff",
       "title": "OCI model registry tag immutability and overwrite prevention"
     },
     "SAF-K8S-0905-050": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "3d5ab8fc9472f43adad5566f99495f22bd6cd45b",
-  "sha256": "99dfcf4e7690631de3a5a538c5e0434405de93779ba25e0e5ce0cff09d9d7f38",
+  "revision": "0c0eace495bafbf03967cc925d8998a801475a99",
+  "sha256": "e670092688043f3873e5b141c9c9e45fa91bab5ff9c7a9419e33be9fd2978ef8",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

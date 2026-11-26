@@ -8,12 +8,13 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 SCOPE = (
     "A single kind cluster runs isolated Zot v2.1.23 registries for one exact repo and "
-    "authenticated case-owned OCI Distribution API client. The open policy allows read/create/update/delete; "
-    "the guarded policy allows read/create only. Two fixed inert OCI manifests exercise initial "
-    "tag creation, same-tag overwrite, digest readback, and manifest deletion/recreation. "
-    "The case checks the native audit file and filtered HTTP access events for these operations. "
-    "Cloud-vendor controls, durable audit forwarding, administrator controls, "
-    "sync/retention behavior, or protections against registry storage administrators."
+    "authenticated case-owned OCI Distribution API actors. An open policy allows read/create/update/delete; "
+    "a guarded policy allows read/create only; a third registry adds a deliberately explicit adminPolicy "
+    "override for one synthetic actor. Fixed inert OCI manifests exercise initial tag creation, same-tag "
+    "overwrite, digest readback, manifest deletion/recreation, and the documented adminPolicy boundary. "
+    "The case checks native audit and filtered HTTP access events for selected operations. It does not "
+    "establish deployed identity governance, durable audit forwarding, sync/retention behavior, or protection "
+    "against storage administrators and registry-internal processes."
 )
 
 ZOT_IMAGE = "ghcr.io/project-zot/zot:v2.1.23@sha256:9d3de83ac2099e6f4843045b4c9b65b7e8baf40f92d28f54906dee9d4d390fd7"
@@ -24,7 +25,15 @@ AUDIT_FILE = "/audit/events.jsonl"
 BUSYBOX = "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
 
 
-def _config(actions):
+def _config(actions, *, admin_override=False):
+    access_control = {
+        "repositories": {REPO: {"defaultPolicy": actions}}
+    }
+    if admin_override:
+        access_control["adminPolicy"] = {
+            "users": ["fixture-override"],
+            "actions": ["read", "create", "update", "delete"],
+        }
     return json.dumps({
         "distSpecVersion": "1.1.0",
         "storage": {"rootDirectory": "/var/lib/registry"},
@@ -33,9 +42,7 @@ def _config(actions):
             "address": "0.0.0.0",
             "port": str(PORT),
             "auth": {"htpasswd": {"path": "/auth/htpasswd"}},
-            "accessControl": {
-                "repositories": {REPO: {"defaultPolicy": actions}}
-            },
+            "accessControl": access_control,
         },
     }, separators=(",", ":"))
 
@@ -44,13 +51,13 @@ def _resource(lab, obj):
     lab.kubectl("create", "-f", "-", payload=json.dumps(obj))
 
 
-def _registry(name, actions):
+def _registry(name, actions, *, admin_override=False):
     config_name = f"{name}-config"
     return [
         {
             "apiVersion": "v1", "kind": "ConfigMap",
             "metadata": {"name": config_name},
-            "data": {"config.json": _config(actions)},
+            "data": {"config.json": _config(actions, admin_override=admin_override)},
         },
         {
             "apiVersion": "apps/v1", "kind": "Deployment",
@@ -167,17 +174,25 @@ def _registry_evidence(lab, protected_digest):
 def _fixture_identity(lab):
     auth = lab.kubeconfig.parent / "registry-auth"
     auth.mkdir(mode=0o700)
-    password = secrets.token_urlsafe(24)
-    result = subprocess.run(("htpasswd", "-Bni", "fixture-publisher"), input=password+"\n",
-                            text=True, capture_output=True, timeout=15, env=lab.env)
-    if result.returncode or not result.stdout.startswith("fixture-publisher:"):
-        lab.block("Could not prepare the disposable registry identity")
-    for name, value in (("htpasswd", result.stdout), ("password", password)):
+    entries = []
+    for username in ("fixture-publisher", "fixture-override"):
+        password = secrets.token_urlsafe(24)
+        result = subprocess.run(("htpasswd", "-Bni", username), input=password+"\n",
+                                text=True, capture_output=True, timeout=15, env=lab.env)
+        if result.returncode or not result.stdout.startswith(username + ":"):
+            lab.block("Could not prepare the disposable registry identity")
+        entries.append(result.stdout)
+        name = username + "-password"
         path = auth / name
         path.touch(mode=0o600, exist_ok=False)
-        path.write_text(value)
+        path.write_text(password)
+    htpasswd = auth / "htpasswd"
+    htpasswd.touch(mode=0o600, exist_ok=False)
+    htpasswd.write_text("".join(entries))
     lab.kubectl("create", "secret", "generic", "saf-zot-fixture-auth",
-                f"--from-file=htpasswd={auth/'htpasswd'}", f"--from-file=password={auth/'password'}")
+                f"--from-file=htpasswd={htpasswd}",
+                f"--from-file=fixture-publisher-password={auth/'fixture-publisher-password'}",
+                f"--from-file=fixture-override-password={auth/'fixture-override-password'}")
 
 
 def run(lab):
@@ -185,6 +200,8 @@ def run(lab):
     for resource in _registry("zot-open", ["read", "create", "update", "delete"]):
         _resource(lab, resource)
     for resource in _registry("zot-locked", ["read", "create"]):
+        _resource(lab, resource)
+    for resource in _registry("zot-admin-override", ["read", "create"], admin_override=True):
         _resource(lab, resource)
 
     client = {
@@ -212,7 +229,10 @@ def run(lab):
                                          {"name": "auth", "mountPath": "/auth", "readOnly": True}],
                     }],
                     "volumes": [{"name": "probe", "configMap": {"name": "oci-probe"}},
-                                {"name": "auth", "secret": {"secretName": "saf-zot-fixture-auth", "items": [{"key": "password", "path": "password"}]}}],
+                                {"name": "auth", "secret": {"secretName": "saf-zot-fixture-auth", "items": [
+                                    {"key": "fixture-publisher-password", "path": "fixture-publisher-password"},
+                                    {"key": "fixture-override-password", "path": "fixture-override-password"},
+                                ]}}],
                 },
             },
         },
@@ -220,6 +240,7 @@ def run(lab):
 
     _wait_ready(lab, "zot-open")
     _wait_ready(lab, "zot-locked")
+    _wait_ready(lab, "zot-admin-override")
     _wait_ready(lab, "oci-probe")
 
     open_result = _probe(lab, "zot-open", "open")
@@ -260,3 +281,46 @@ def run(lab):
         json.dumps({"open": open_result, "locked": locked_result}, indent=2, sort_keys=True) + "\n")
 
     _registry_evidence(lab, locked_result["artifact_a_digest"])
+    admin_result = _probe(lab, "zot-locked", "admin-denied")
+    override_result = _probe(lab, "zot-admin-override", "admin-override")
+    tag_path = f"/v2/{REPO}/manifests/reviewed-v1"
+    admin_access_identity = any(
+        (event.get("subject") or event.get("username")) == "fixture-override"
+        and event.get("method") == "PUT" and event.get("path") == tag_path
+        and event.get("statusCode") == 201
+        for event in _filtered_logs(lab, "logs", "deployment/zot-admin-override", "-c", "zot")
+        if event.get("message") == "HTTP API")
+    admin_audit_identity = any(
+        event.get("message") == "HTTP API Audit"
+        and (event.get("subject") or event.get("username")) == "fixture-override"
+        and event.get("action") == "PUT" and event.get("object") == tag_path
+        and event.get("status") == 201
+        for event in _filtered_logs(
+            lab, "exec", "deployment/zot-admin-override", "-c", "audit-reader",
+            "--", "cat", AUDIT_FILE))
+    admin_boundary = (
+        admin_result.get("overwrite_status") == 403
+        and admin_result.get("after_digest") == locked_result["artifact_a_digest"]
+        and override_result.get("initial_status") == 201
+        and override_result.get("overwrite_status") == 201
+        and override_result.get("before_status") == 200
+        and override_result.get("after_digest") == override_result.get("artifact_b_digest")
+        and admin_access_identity and admin_audit_identity)
+    lab.check(
+        "green",
+        "The protected repository denies the override identity unless Zot adminPolicy explicitly grants mutation; an explicit override is visible in actor logs",
+        admin_boundary,
+        {"override_identity_denied_without_admin_policy":
+         admin_result.get("overwrite_status") == 403
+         and admin_result.get("after_digest") == locked_result["artifact_a_digest"],
+         "explicit_admin_policy_allows_override":
+         override_result.get("overwrite_status") == 201
+         and override_result.get("after_digest") == override_result.get("artifact_b_digest"),
+         "access_event_names_override_actor": admin_access_identity,
+         "native_audit_names_override_actor": admin_audit_identity})
+    (lab.evidence / "zot-admin-boundary.json").write_text(json.dumps({
+        "strict_policy_denies_override_identity": admin_result.get("overwrite_status") == 403,
+        "explicit_admin_policy_allows_override": override_result.get("overwrite_status") == 201,
+        "access_event_names_override_actor": admin_access_identity,
+        "native_audit_names_override_actor": admin_audit_identity,
+    }, indent=2, sort_keys=True) + "\n")

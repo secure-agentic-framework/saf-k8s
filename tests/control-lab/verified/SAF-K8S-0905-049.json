@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-049",
-  "catalog_revision": "57297d75ec0b8018444ed6a7ad5abadb6acfa1a1",
-  "catalog_sha256": "119723d33fc0fa432e9da9a56f9490f9f2b56cdeff77405a834a5690eb876c82",
+  "catalog_revision": "bb81112644ede36e28f33196fd0860d0024a2eee",
+  "catalog_sha256": "e670092688043f3873e5b141c9c9e45fa91bab5ff9c7a9419e33be9fd2978ef8",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "e409dce07e676c29ccd25040adbfd28f26eb968f7028e33b4a87c6afde98e0e6",
-  "scope": "A single kind cluster runs isolated Zot v2.1.23 registries for one exact repo and authenticated case-owned OCI Distribution API client. The open policy allows read/create/update/delete; the guarded policy allows read/create only. Two fixed inert OCI manifests exercise initial tag creation, same-tag overwrite, digest readback, and manifest deletion/recreation. The case checks the native audit file and filtered HTTP access events for these operations. Cloud-vendor controls, durable audit forwarding, administrator controls, sync/retention behavior, or protections against registry storage administrators.",
-  "cluster": "saf-lab-c236ce3fc804",
+  "control_sha256": "602bd9f2a969a1170ffde05518fc903fe77f6be586b42fe83c37360f23db85ff",
+  "scope": "A single kind cluster runs isolated Zot v2.1.23 registries for one exact repo and authenticated case-owned OCI Distribution API actors. An open policy allows read/create/update/delete; a guarded policy allows read/create only; a third registry adds a deliberately explicit adminPolicy override for one synthetic actor. Fixed inert OCI manifests exercise initial tag creation, same-tag overwrite, digest readback, manifest deletion/recreation, and the documented adminPolicy boundary. The case checks native audit and filtered HTTP access events for selected operations. It does not establish deployed identity governance, durable audit forwarding, sync/retention behavior, or protection against storage administrators and registry-internal processes.",
+  "cluster": "saf-lab-34f95ba7f49f",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -113,6 +113,17 @@
           "DELETE",
           "PUT"
         ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The protected repository denies the override identity unless Zot adminPolicy explicitly grants mutation; an explicit override is visible in actor logs",
+      "matched": true,
+      "observed": {
+        "override_identity_denied_without_admin_policy": true,
+        "explicit_admin_policy_allows_override": true,
+        "access_event_names_override_actor": true,
+        "native_audit_names_override_actor": true
       }
     }
   ]
