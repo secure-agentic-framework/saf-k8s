@@ -1,12 +1,14 @@
 """Fixture-only bounded parser and policy observations; no executable model input."""
 import hashlib
-import hashlib
 import json
 import struct
 
 MAX_FILE = 2048
 MAX_HEADER = 512
 LEGACY_INERT = b"SAF-LEGACY-INERT-V1\x00fixed-bytes-only"
+# Ordinary declarative data only; never interpreted as executable serialization.
+DECLARATIVE_JSON = b'{"schema":"saf-safe-data-v1","weights":[1.25,-2.5]}'
+OTHER_DECLARATIVE_JSON = b'{"schema":"saf-safe-data-v1","weights":[0.0,0.5]}'
 
 
 class FixtureError(Exception):
@@ -56,6 +58,26 @@ def safe_load_narrow(data, counters):
     return list(struct.unpack("<2f", payload))
 
 
+def _json_admit_then_load(declared_format, data, approved_digests):
+    """Bind a harmless JSON data parse to the exact format+digest admission decision."""
+    counters = {"deny_count": 0, "loader_calls": 0, "values_read": 0}
+    digest = hashlib.sha256(data).hexdigest()
+    admitted = declared_format == "json-data" and digest in approved_digests
+    if not admitted:
+        counters["deny_count"] = 1
+        return {"declared_format": declared_format, "sha256": digest,
+                "admitted": False, "loader_sha256": None,
+                "status": "DENY_BEFORE_LOADER", "counters": counters}
+    counters["loader_calls"] = 1
+    # This is the real Python standard-library declarative JSON data parser.
+    value = json.loads(data.decode("utf-8"))
+    counters["values_read"] = len(value["weights"])
+    return {"declared_format": declared_format, "sha256": digest,
+            "admitted": True, "loader_sha256": hashlib.sha256(data).hexdigest(),
+            "status": "JSON_DATA_LOADED", "values": value["weights"],
+            "counters": counters}
+
+
 def try_load(declared_format, data, approved_formats):
     counters = {"deny_count": 0, "stub_calls": 0, "loader_calls": 0, "values_read": 0}
     observed = {"declared_format": declared_format, "sha256": hashlib.sha256(data).hexdigest(),
@@ -80,5 +102,14 @@ if __name__ == "__main__":
         "restricted": try_load("legacy-inert", LEGACY_INERT, approved),
         "approved": try_load("safetensors", safetensors_fixture(), approved),
         "mislabeled": try_load("safetensors", LEGACY_INERT, approved),
+    }
+    approved_json_digest = hashlib.sha256(DECLARATIVE_JSON).hexdigest()
+    result["declarative_json"] = {
+        "approved": _json_admit_then_load("json-data", DECLARATIVE_JSON,
+                                           {approved_json_digest}),
+        "wrong_format": _json_admit_then_load("legacy-inert", DECLARATIVE_JSON,
+                                               {approved_json_digest}),
+        "unapproved_digest": _json_admit_then_load("json-data", OTHER_DECLARATIVE_JSON,
+                                                    {approved_json_digest}),
     }
     print(json.dumps(result, sort_keys=True))

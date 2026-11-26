@@ -13,7 +13,8 @@ SCOPE = (
     "All inputs are constants: fixed inert legacy bytes and a tiny F32[2] SafeTensors-shaped "
     "payload. Red records a permissive decision reaching only a counted stub; green denies the "
     "same bytes before loader invocation; positive checks approved-format values and rejection "
-    "of mislabeled inert bytes before value access. This does not test a production model loader, "
+    "of mislabeled inert bytes before value access. A standard JSON parser separately consumes "
+    "only an exact allowlisted declarative input. This does not test a production model loader, "
     "PyTorch, hostile payload behavior, general SafeTensors compatibility, or 0905-033 structure/metadata checks."
 )
 
@@ -80,6 +81,31 @@ def check_observations(lab, observations):
               and approved["sha256"] != legacy["sha256"] and approved["values"] == [1.25, -2.5]
               and approved["counters"] == {**counters, "loader_calls": 1, "values_read": 2},
               approved)
+
+    ordinary = observations["declarative_json"]
+    good = ordinary["approved"]
+    approved_digest = "50e0d5c3ffb448eb7435ed99a8cb6118438fc2765248b459d313e493ed5a5473"
+    unapproved_digest = "d7f330b264a1c639e2b008011b7956c737b9b3271ecee68f48d73336760e5a53"
+    lab.check("positive", "Exact allowlisted JSON data digest is admitted and parsed by the standard declarative loader",
+              good == {"declared_format": "json-data", "sha256": approved_digest,
+                       "admitted": True, "loader_sha256": approved_digest,
+                       "status": "JSON_DATA_LOADED", "values": [1.25, -2.5],
+                       "counters": {"deny_count": 0, "loader_calls": 1, "values_read": 2}},
+              good)
+    wrong_format = ordinary["wrong_format"]
+    lab.check("green", "A wrong format label is denied before the JSON data loader",
+              wrong_format["sha256"] == approved_digest and wrong_format["declared_format"] == "legacy-inert"
+              and wrong_format["admitted"] is False and wrong_format["loader_sha256"] is None
+              and wrong_format["status"] == "DENY_BEFORE_LOADER"
+              and wrong_format["counters"] == {"deny_count": 1, "loader_calls": 0, "values_read": 0},
+              wrong_format)
+    wrong_digest = ordinary["unapproved_digest"]
+    lab.check("green", "An unapproved JSON digest is denied before the JSON data loader",
+              wrong_digest["sha256"] == unapproved_digest and wrong_digest["declared_format"] == "json-data"
+              and wrong_digest["admitted"] is False and wrong_digest["loader_sha256"] is None
+              and wrong_digest["status"] == "DENY_BEFORE_LOADER"
+              and wrong_digest["counters"] == {"deny_count": 1, "loader_calls": 0, "values_read": 0},
+              wrong_digest)
 
     mislabeled = observations["mislabeled"]
     lab.check("green", "Mislabeling the same inert bytes does not cause the approved parser to consume model values",

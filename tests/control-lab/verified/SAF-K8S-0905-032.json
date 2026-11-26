@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-032",
-  "catalog_revision": "6ddb3e164586a225c981db44dcebf3648fbc0fdf",
-  "catalog_sha256": "a868b4ea141c0e3de49227b6eeabffa4a2330712afd28048221b89ce9b63aa55",
+  "catalog_revision": "097285993fe4ea61d79d81bc542a78566631ec53",
+  "catalog_sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e079804a923925143376bf4b20ff3500c1b673a174faa40cb59bad46a8df54d5",
-  "scope": "Runs one fixture-owned Kubernetes Job in the precreated saf-test namespace. All inputs are constants: fixed inert legacy bytes and a tiny F32[2] SafeTensors-shaped payload. Red records a permissive decision reaching only a counted stub; green denies the same bytes before loader invocation; positive checks approved-format values and rejection of mislabeled inert bytes before value access. This does not test a production model loader, PyTorch, hostile payload behavior, general SafeTensors compatibility, or 0905-033 structure/metadata checks.",
-  "cluster": "saf-lab-0c299ee7612d",
+  "scope": "Runs one fixture-owned Kubernetes Job in the precreated saf-test namespace. All inputs are constants: fixed inert legacy bytes and a tiny F32[2] SafeTensors-shaped payload. Red records a permissive decision reaching only a counted stub; green denies the same bytes before loader invocation; positive checks approved-format values and rejection of mislabeled inert bytes before value access. A standard JSON parser separately consumes only an exact allowlisted declarative input. This does not test a production model loader, PyTorch, hostile payload behavior, general SafeTensors compatibility, or 0905-033 structure/metadata checks.",
+  "cluster": "saf-lab-fdc70e83eb0f",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -88,6 +88,61 @@
           1.25,
           -2.5
         ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Exact allowlisted JSON data digest is admitted and parsed by the standard declarative loader",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "counters": {
+          "deny_count": 0,
+          "loader_calls": 1,
+          "values_read": 2
+        },
+        "declared_format": "json-data",
+        "loader_sha256": "50e0d5c3ffb448eb7435ed99a8cb6118438fc2765248b459d313e493ed5a5473",
+        "sha256": "50e0d5c3ffb448eb7435ed99a8cb6118438fc2765248b459d313e493ed5a5473",
+        "status": "JSON_DATA_LOADED",
+        "values": [
+          1.25,
+          -2.5
+        ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A wrong format label is denied before the JSON data loader",
+      "matched": true,
+      "observed": {
+        "admitted": false,
+        "counters": {
+          "deny_count": 1,
+          "loader_calls": 0,
+          "values_read": 0
+        },
+        "declared_format": "legacy-inert",
+        "loader_sha256": null,
+        "sha256": "50e0d5c3ffb448eb7435ed99a8cb6118438fc2765248b459d313e493ed5a5473",
+        "status": "DENY_BEFORE_LOADER"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An unapproved JSON digest is denied before the JSON data loader",
+      "matched": true,
+      "observed": {
+        "admitted": false,
+        "counters": {
+          "deny_count": 1,
+          "loader_calls": 0,
+          "values_read": 0
+        },
+        "declared_format": "json-data",
+        "loader_sha256": null,
+        "sha256": "d7f330b264a1c639e2b008011b7956c737b9b3271ecee68f48d73336760e5a53",
+        "status": "DENY_BEFORE_LOADER"
       }
     },
     {

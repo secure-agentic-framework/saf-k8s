@@ -1,10 +1,15 @@
-# SAF-K8S-0905-032 — Enforce a model format allowlist before loading
+# SAF-K8S-0905-032 — Gate model format allowlists before loading
 
-    python3 lab.py test SAF-K8S-0905-032 --docker-context desktop-linux
+Run `python3 tests/control-lab/lab.py test SAF-K8S-0905-032 --docker-context desktop-linux` from the framework checkout.
 
-One restricted Job compares an inert legacy representation with the format gate permissive and enforced. Both paths record the same input digest. The permissive path reaches a counted stub. The enforced gate denies that representation before any loader call. The same gate sends a small approved SafeTensors representation to a bounded loader and returns two expected values. The loader rejects the same legacy bytes when they are merely declared as SafeTensors.
+A restricted Job runs seven checks. An inert legacy input reaches only a counted stub under permissive policy and is blocked before loading under the allowlist. A narrow fixture parser accepts known SafeTensors-framed values and reads zero values from the mislabeled inert input. A separate path uses the standard Python JSON loader. The exact approved digest and format reach the parser and return the expected weights. A wrong format label and other benign bytes with an unapproved digest each produce zero logical loader calls.
 
-The legacy fixture contains only inert bytes. The approved loader covers a deliberately small SafeTensors subset. Production parser and framework configurations, larger models, resource limits, full metadata validation, and all loading paths require separate evidence.
+## Verify an adopted model loader
 
-- [SafeTensors format](https://github.com/safetensors/safetensors#format)
-- [PyTorch serialization guidance](https://docs.pytorch.org/docs/2.15/notes/serialization.html)
+1. Inventory serving, training, fine-tuning, conversion and other model-loading entry points, including supported versions, dispatch configuration, file or object-store sources and any fallback. Identify where decision policy is enforced and who can alter it.
+2. Approve each actual format, loader version and safety configuration. Compare the digest or other immutable identity of the admitted bytes to the bytes observed at the loader. Verify source and signed policy metadata through an independently controlled trust path.
+3. Run approved harmless data through every in-scope entry point. Also run controlled cases with a disallowed format label, an unapproved digest and mismatched format and content. Record the denial and verify that the unsafe or alternate loader was never invoked, using instrumentation or trustworthy events. Review quarantine, exceptions and any independently authorized execution behavior.
+4. Record effective production library settings and version-specific constraints for adopted model formats. Preserve fixture names, approved digests and detector outcomes without sharing model data.
+
+- [SafeTensors format](https://github.com/huggingface/safetensors#format)
+- [Python JSON decoder](https://docs.python.org/3.13/library/json.html)
