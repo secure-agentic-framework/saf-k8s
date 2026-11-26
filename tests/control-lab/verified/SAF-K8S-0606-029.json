@@ -4,8 +4,8 @@
   "catalog_sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6916f9e9d11135b125473a4bba78e9ca49fb2043d935089d772f5b5e71d40e1d",
-  "scope": "One disposable kind cluster and saf-test namespace; Argo CD v3.6.1 renders two valid Helm v2 charts (1.0.0 and 1.1.0) from a case-owned, read-only Git source. The case observes the tagged Argo CD controller, resolved Git commit, Deployment, and Ready Pod, then compares those observations with independent immutable release records containing chart version, Git chart-tree identity, runtime image digest, cluster, and namespace. The fixture covers source Helm charts rendered by Argo CD.",
-  "cluster": "saf-lab-448a40048b1d",
+  "scope": "One disposable kind cluster and saf-test namespace; Argo CD v3.6.1 renders two valid Helm v2 charts (1.0.0 and 1.1.0) from a case-owned, read-only Git source. The case observes the tagged Argo CD controller, resolved Git commit, Deployment, and Ready Pod, then verifies a narrowly authorized PostSync Job writes immutable records containing chart version, Git chart-tree identity, runtime image digest, cluster, and namespace. A three-revision fixture preserves the no-hook baseline.",
+  "cluster": "saf-lab-8240ad0a6983",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -60,7 +60,7 @@
       "matched": true,
       "observed": {
         "application_sync": "Synced",
-        "application_revision": "e8271da2b1f9f792b9e9cd7d6ca45a833141f3b5",
+        "application_revision": "e61d3f44c1f3e8f025dafe435dfbfe8e0c9aec09",
         "chart_label": "release-fixture-1.0.0",
         "app_version_label": "1.0.0",
         "package_version_env": "1.0.0",
@@ -81,7 +81,7 @@
       "observed": {
         "deployed": {
           "application_sync": "Synced",
-          "application_revision": "e8271da2b1f9f792b9e9cd7d6ca45a833141f3b5",
+          "application_revision": "e61d3f44c1f3e8f025dafe435dfbfe8e0c9aec09",
           "chart_label": "release-fixture-1.0.0",
           "app_version_label": "1.0.0",
           "package_version_env": "1.0.0",
@@ -100,13 +100,14 @@
     },
     {
       "phase": "positive",
-      "claim": "The retained 1.0.0 record binds package version, chart tree, and environment",
+      "claim": "The 1.0.0 PostSync hook retains the exact package and chart identity",
       "matched": true,
       "observed": {
+        "hook_succeeded": true,
         "record": {
           "artifact": {
-            "git_commit": "e8271da2b1f9f792b9e9cd7d6ca45a833141f3b5",
-            "git_tree_oid": "10f4bf4bb65e6c0f3a134983ae20695da0d0008e",
+            "git_commit": "e7b6949ffaea0ca30c090ed49c47d3486da50ac5",
+            "git_tree_oid": "6d2d658d3541d936b8135c44cb446c26aadfe26b",
             "identity_type": "git-chart-tree-object",
             "path": "chart",
             "repository": "http://saf-package-git.saf-test.svc.cluster.local:8080/repo.git"
@@ -124,32 +125,17 @@
             "runtime_digest": "sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
             "version": "1.0.0"
           }
-        },
-        "deployed": {
-          "application_sync": "Synced",
-          "application_revision": "e8271da2b1f9f792b9e9cd7d6ca45a833141f3b5",
-          "chart_label": "release-fixture-1.0.0",
-          "app_version_label": "1.0.0",
-          "package_version_env": "1.0.0",
-          "available_replicas": 1,
-          "ready_pods": [
-            {
-              "version": "1.0.0",
-              "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
-              "runtime_digest": "sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
-            }
-          ]
         }
       }
     },
     {
       "phase": "red",
-      "claim": "After promotion, the old release record does not identify deployed chart 1.1.0",
+      "claim": "The retained 1.0.0 record remains distinct from the deployed 1.1.0 release",
       "matched": true,
       "observed": {
         "deployed": {
           "application_sync": "Synced",
-          "application_revision": "a726f13f7554c304562a00cae33c42da82a228d6",
+          "application_revision": "5a28f40a9eb19dd823d04f7a78f0ea391ae964d5",
           "chart_label": "release-fixture-1.1.0",
           "app_version_label": "1.1.0",
           "package_version_env": "1.1.0",
@@ -163,7 +149,7 @@
           ]
         },
         "old_record_present": true,
-        "new_record": null
+        "new_record_present": true
       }
     },
     {
@@ -174,8 +160,8 @@
         "records": [
           {
             "artifact": {
-              "git_commit": "e8271da2b1f9f792b9e9cd7d6ca45a833141f3b5",
-              "git_tree_oid": "10f4bf4bb65e6c0f3a134983ae20695da0d0008e",
+              "git_commit": "e7b6949ffaea0ca30c090ed49c47d3486da50ac5",
+              "git_tree_oid": "6d2d658d3541d936b8135c44cb446c26aadfe26b",
               "identity_type": "git-chart-tree-object",
               "path": "chart",
               "repository": "http://saf-package-git.saf-test.svc.cluster.local:8080/repo.git"
@@ -196,8 +182,8 @@
           },
           {
             "artifact": {
-              "git_commit": "a726f13f7554c304562a00cae33c42da82a228d6",
-              "git_tree_oid": "52d6534e2910e9f1912878ea3be595cb7963796f",
+              "git_commit": "5a28f40a9eb19dd823d04f7a78f0ea391ae964d5",
+              "git_tree_oid": "7582a5e5eb285e4fb75ad85ea9669b73a1d60130",
               "identity_type": "git-chart-tree-object",
               "path": "chart",
               "repository": "http://saf-package-git.saf-test.svc.cluster.local:8080/repo.git"
@@ -219,7 +205,7 @@
         ],
         "deployed": {
           "application_sync": "Synced",
-          "application_revision": "a726f13f7554c304562a00cae33c42da82a228d6",
+          "application_revision": "5a28f40a9eb19dd823d04f7a78f0ea391ae964d5",
           "chart_label": "release-fixture-1.1.0",
           "app_version_label": "1.1.0",
           "package_version_env": "1.1.0",
@@ -232,6 +218,23 @@
             }
           ]
         }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both successful Argo PostSync hooks wrote immutable records under the scoped writer identity",
+      "matched": true,
+      "observed": {
+        "hook_jobs_succeeded": [
+          true,
+          true
+        ],
+        "service_account_scoped": true,
+        "records_match": [
+          true,
+          true
+        ],
+        "admission_policy_bound": true
       }
     },
     {

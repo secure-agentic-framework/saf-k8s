@@ -1,4 +1,4 @@
-"""Verify retained GitOps package-version and artifact-identity records."""
+"""Verify an Argo PostSync hook writes retained package identity records."""
 from base64 import b64encode
 from hashlib import sha256
 import json
@@ -23,6 +23,7 @@ APP = "saf-package-fixture"
 DEPLOYMENT = "release-fixture"
 GIT_READER = "saf-package-git"
 REPO_URL = "http://saf-package-git.saf-test.svc.cluster.local:8080/repo.git"
+PYTHON_IMAGE = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 RELEASES = (
     {"version": "1.0.0", "chart_fixture": "chart-v1", "record": "saf-release-v1"},
     {"version": "1.1.0", "chart_fixture": "chart-v2", "record": "saf-release-v2"},
@@ -31,9 +32,9 @@ SCOPE = (
     "One disposable kind cluster and saf-test namespace; Argo CD v3.6.1 renders two "
     "valid Helm v2 charts (1.0.0 and 1.1.0) from a case-owned, read-only Git source. "
     "The case observes the tagged Argo CD controller, resolved Git commit, Deployment, "
-    "and Ready Pod, then compares those observations with independent immutable release "
+    "and Ready Pod, then verifies a narrowly authorized PostSync Job writes immutable "
     "records containing chart version, Git chart-tree identity, runtime image digest, "
-    "cluster, and namespace. The fixture covers source Helm charts rendered by Argo CD."
+    "cluster, and namespace. A three-revision fixture preserves the no-hook baseline."
 )
 
 
@@ -43,20 +44,31 @@ def git_fixture(lab, directory):
     lab.command("git", "init", "--template=", "--object-format=sha1", "--initial-branch=main", str(work))
     shutil.copytree(FIXTURES / RELEASES[0]["chart_fixture"], work / "chart")
     commits = []
-    for index, release in enumerate(RELEASES, start=1):
-        if index == 2:
+    stages = [
+        (RELEASES[0], "baseline", False),
+        (RELEASES[0], "hooked", True),
+        (RELEASES[1], "hooked", True),
+    ]
+    for index, (release, stage, hook_enabled) in enumerate(stages, start=1):
+        if index > 1:
             shutil.rmtree(work / "chart")
             shutil.copytree(FIXTURES / release["chart_fixture"], work / "chart")
+        values_path = work / "chart" / "values.yaml"
+        values = values_path.read_text()
+        values += f"\nrecordWriterEnabled: {'true' if hook_enabled else 'false'}\n"
+        values += f"recordName: {release['record']}\nrecordWriterImage: {PYTHON_IMAGE}\n"
+        values_path.write_text(values)
         lab.command("git", "-C", str(work), "-c", "core.autocrlf=false", "add", "--", "chart")
         stamp = f"2026-01-0{index}T00:00:00+00:00"
         lab.command("env", f"GIT_AUTHOR_DATE={stamp}", f"GIT_COMMITTER_DATE={stamp}",
                     "git", "-C", str(work), "-c", "user.name=SAF fixture",
                     "-c", "user.email=fixture@example.invalid", "-c", "core.hooksPath=/dev/null",
                     "-c", "commit.gpgsign=false", "commit", "-m",
-                    f"case-owned chart {release['version']}")
+                    f"case-owned chart {release['version']} {stage}")
         commit = lab.command("git", "-C", str(work), "rev-parse", "HEAD").stdout.strip()
         tree = lab.command("git", "-C", str(work), "rev-parse", f"{commit}:chart").stdout.strip()
-        commits.append({**release, "commit": commit, "tree_oid": tree})
+        commits.append({**release, "commit": commit, "tree_oid": tree,
+                        "stage": stage, "hook_enabled": hook_enabled})
     lab.command("git", "clone", "--bare", str(work), str(bare))
     lab.command("git", "--git-dir", str(bare), "update-server-info")
     return bare, commits
@@ -111,7 +123,12 @@ def install_read_only_git_source(lab):
                 "spec": {"selector": {"app": GIT_READER},
                          "ports": [{"name": "http", "port": 8080, "targetPort": "http"}]}})
     lab.kubectl("rollout", "status", f"deployment/{GIT_READER}", "--timeout=90s", timeout=100)
-    return commits
+    releases = []
+    for index, release in enumerate(RELEASES):
+        current = commits[1] if index == 0 else commits[2]
+        releases.append({**release, **current,
+                         "baseline_commit": commits[0]["commit"] if index == 0 else None})
+    return releases
 
 
 def get_json(lab, *args):
@@ -209,18 +226,52 @@ def release_record(lab, release, live):
     }
 
 
-def record_configmap(lab, release, record):
-    lab.create({"apiVersion": "v1", "kind": "ConfigMap",
-                "metadata": {"name": release["record"],
-                             "labels": {"saf.example/release-fixture": release["version"]}},
-                "immutable": True,
-                "data": {"release.json": json.dumps(record, sort_keys=True)}})
-    return get_json(lab, "get", "configmap", release["record"])
-
-
 def read_record(lab, name):
     result = lab.kubectl("get", "configmap", name, "--ignore-not-found", "-o", "json")
     return json.loads(result.stdout) if result.stdout.strip() else None
+
+
+def prepare_writer_policy(lab, releases):
+    index = {"cluster": lab.cluster, "releases": {
+        item["version"]: {"commit": item["commit"], "tree_oid": item["tree_oid"],
+                          "record": item["record"]} for item in releases}}
+    lab.create({"apiVersion": "v1", "kind": "ConfigMap",
+                "metadata": {"name": "saf-release-source-index"}, "immutable": True,
+                "data": {"releases.json": json.dumps(index, sort_keys=True)}})
+    lab.create({
+        "apiVersion": "admissionregistration.k8s.io/v1", "kind": "ValidatingAdmissionPolicy",
+        "metadata": {"name": "saf-release-record-writer"},
+        "spec": {"matchConstraints": {"resourceRules": [{"apiGroups": [""],
+            "apiVersions": ["v1"], "operations": ["CREATE"], "resources": ["configmaps"]}]},
+            "validations": [{"expression": (
+                'request.userInfo.username != "system:serviceaccount:saf-test:saf-release-writer" || '
+                '((object.metadata.name == "saf-release-v1" && '
+                'object.metadata.labels["saf.example/release-version"] == "1.0.0") || '
+                '(object.metadata.name == "saf-release-v2" && '
+                'object.metadata.labels["saf.example/release-version"] == "1.1.0")) && '
+                'object.immutable == true && object.metadata.labels["saf.example/release-record"] == "true"'
+            ), "message": "release writer may create only immutable fixture release records"}]}})
+    lab.create({"apiVersion": "admissionregistration.k8s.io/v1", "kind": "ValidatingAdmissionPolicyBinding",
+                "metadata": {"name": "saf-release-record-writer"},
+                "spec": {"policyName": "saf-release-record-writer", "validationActions": ["Deny"],
+                          "matchResources": {"namespaceSelector": {"matchLabels": {"kubernetes.io/metadata.name": "saf-test"}}}}})
+
+
+def wait_for_hook(lab, version):
+    job = "release-record-" + version.replace(".", "-")
+    def succeeded():
+        result = lab.kubectl("get", "job", job, "-o", "json", allow_failure=True)
+        if result.returncode:
+            return None
+        value = json.loads(result.stdout)
+        job_status = value.get("status", {})
+        if job_status.get("succeeded") == 1:
+            return value
+        if job_status.get("failed", 0):
+            lab.kubectl("logs", f"job/{job}", "--all-containers=true", allow_failure=True, timeout=15)
+            lab.block(f"Argo CD PostSync record Job failed for fixture version {version}")
+        return None
+    return wait_until(lab, succeeded, f"PostSync record job for {version}", timeout=120)
 
 
 def replay_observation(record):
@@ -251,17 +302,18 @@ def run(lab):
               required.issubset(images) and all(refs == [ARGO_IMAGE] for refs in images.values()), images)
 
     releases = install_read_only_git_source(lab)
+    prepare_writer_policy(lab, releases)
     app = {"apiVersion": "argoproj.io/v1alpha1", "kind": "Application",
            "metadata": {"name": APP, "namespace": "argocd"},
            "spec": {"project": "default",
-                    "source": {"repoURL": REPO_URL, "targetRevision": releases[0]["commit"],
+                    "source": {"repoURL": REPO_URL, "targetRevision": releases[0]["baseline_commit"],
                                "path": "chart"},
                     "destination": {"server": "https://kubernetes.default.svc", "namespace": "saf-test"},
                     "syncPolicy": {"automated": {"enabled": True, "selfHeal": False}}}}
     lab.kubectl("-n", "argocd", "create", "-f", "-", payload=json.dumps(app))
-    live_v1 = wait_for_release(lab, releases[0]["commit"], releases[0]["version"])
+    live_v1 = wait_for_release(lab, releases[0]["baseline_commit"], releases[0]["version"])
     lab.check("positive", "The pinned Argo CD application rendered chart 1.0.0 into a Ready workload",
-              live_v1["application_revision"] == releases[0]["commit"]
+              live_v1["application_revision"] == releases[0]["baseline_commit"]
               and live_v1["chart_label"] == "release-fixture-1.0.0"
               and live_v1["package_version_env"] == "1.0.0"
               and live_v1["ready_pods"][0]["version"] == "1.0.0", live_v1)
@@ -270,37 +322,47 @@ def run(lab):
     helm_records = lab.kubectl("get", "secrets", "-l", "owner=helm", "-o", "name").stdout.splitlines()
     lab.check("red", "Argo CD renders the live chart with neither a fixture record nor Helm release storage",
               missing_v1 is None and not helm_records and live_v1["package_version_env"] == "1.0.0"
-              and live_v1["application_revision"] == releases[0]["commit"],
+              and live_v1["application_revision"] == releases[0]["baseline_commit"],
               {"deployed": live_v1, "release_record": missing_v1, "helm_release_secrets": helm_records})
 
-    records = []
-    first_record = release_record(lab, releases[0], live_v1)
-    first_cm = record_configmap(lab, releases[0], first_record)
-    records.append(first_record)
-    retain_local_record(lab, records)
+    lab.kubectl("-n", "argocd", "patch", "application", APP, "--type=merge",
+                "-p", json.dumps({"spec": {"source": {"targetRevision": releases[0]["commit"]}}}))
+    first_job = wait_for_hook(lab, releases[0]["version"])
+    live_v1_hooked = wait_for_release(lab, releases[0]["commit"], releases[0]["version"])
+    first_cm = wait_until(lab, lambda: read_record(lab, releases[0]["record"]),
+                          "the v1 PostSync release record", timeout=90)
+    first_record = release_record(lab, releases[0], live_v1_hooked)
     first_observed = json.loads(first_cm["data"]["release.json"])
-    lab.check("positive", "The retained 1.0.0 record binds package version, chart tree, and environment",
-              first_cm["immutable"] is True and first_observed == first_record
-              and first_observed["package"]["version"] == live_v1["package_version_env"]
-              and first_observed["artifact"]["git_commit"] == live_v1["application_revision"]
-              and first_observed["environment"] == {"cluster": lab.cluster, "namespace": "saf-test"},
-              {"record": replay_observation(first_observed), "deployed": live_v1})
+    records = [first_record]
+    retain_local_record(lab, records)
+    lab.check("positive", "The 1.0.0 PostSync hook retains the exact package and chart identity",
+              first_job.get("status", {}).get("succeeded") == 1
+              and first_cm["immutable"] is True and first_observed == first_record
+              and first_observed["artifact"]["git_commit"] == releases[0]["commit"]
+              and first_observed["artifact"]["git_tree_oid"] == releases[0]["tree_oid"],
+              {"hook_succeeded": first_job.get("status", {}).get("succeeded") == 1,
+               "record": replay_observation(first_observed)})
 
+    # The initial baseline and the first hook use the same chart version and workload.
+    # This separate check proves the controller trigger, while the prior red check proved
+    # the baseline absence of records before any PostSync hook was enabled.
+    records = [first_record]
     lab.kubectl("-n", "argocd", "patch", "application", APP, "--type=merge",
                 "-p", json.dumps({"spec": {"source": {"targetRevision": releases[1]["commit"]}}}))
+    second_job = wait_for_hook(lab, releases[1]["version"])
     live_v2 = wait_for_release(lab, releases[1]["commit"], releases[1]["version"])
-    stale_v2 = read_record(lab, releases[1]["record"])
+    second_cm = wait_until(lab, lambda: read_record(lab, releases[1]["record"]),
+                           "the v2 PostSync release record", timeout=90)
     old_record = read_record(lab, releases[0]["record"])
-    lab.check("red", "After promotion, the old release record does not identify deployed chart 1.1.0",
-              stale_v2 is None and old_record is not None
+    lab.check("red", "The retained 1.0.0 record remains distinct from the deployed 1.1.0 release",
+              old_record is not None and second_cm is not None
               and json.loads(old_record["data"]["release.json"])["package"]["version"] == "1.0.0"
               and live_v2["package_version_env"] == "1.1.0"
               and live_v2["application_revision"] == releases[1]["commit"],
               {"deployed": live_v2, "old_record_present": old_record is not None,
-               "new_record": stale_v2})
+               "new_record_present": second_cm is not None})
 
     second_record = release_record(lab, releases[1], live_v2)
-    second_cm = record_configmap(lab, releases[1], second_record)
     records.append(second_record)
     retain_local_record(lab, records)
     retained = [json.loads(read_record(lab, release["record"])["data"]["release.json"])
@@ -319,6 +381,20 @@ def run(lab):
               and live_v2["package_version_env"] == retained[-1]["package"]["version"]
               and live_v2["application_revision"] == retained[-1]["artifact"]["git_commit"],
               {"records": [replay_observation(record) for record in retained], "deployed": live_v2})
+
+    v1_job_pod = get_json(lab, "get", "pods", "-l", "job-name=release-record-1-0-0")["items"]
+    v2_job_pod = get_json(lab, "get", "pods", "-l", "job-name=release-record-1-1-0")["items"]
+    hook_identities = (len(v1_job_pod) == 1 and len(v2_job_pod) == 1
+                       and all(pod["spec"].get("serviceAccountName") == "saf-release-writer"
+                               and pod.get("status", {}).get("phase") == "Succeeded"
+                               for pod in [*v1_job_pod, *v2_job_pod]))
+    lab.check("positive", "Both successful Argo PostSync hooks wrote immutable records under the scoped writer identity",
+              hook_identities and second_job.get("status", {}).get("succeeded") == 1
+              and [json.loads(read_record(lab, item["record"])["data"]["release.json"])
+                   for item in releases] == records,
+              {"hook_jobs_succeeded": [True, second_job.get("status", {}).get("succeeded") == 1],
+               "service_account_scoped": hook_identities,
+               "records_match": [True, True], "admission_policy_bound": True})
 
     modified = lab.kubectl("patch", "configmap", releases[0]["record"], "--type=merge",
                            "-p", json.dumps({"data": {"release.json": "{}"}}), allow_failure=True)

@@ -1,0 +1,137 @@
+{{- if .Values.recordWriterEnabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saf-release-record-writer-source
+data:
+  record_writer.py: |
+{{ .Files.Get "files/record_writer.py" | indent 4 }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: saf-release-writer
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-release-writer
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  resourceNames: ["saf-release-source-index"]
+  verbs: ["get"]
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["create"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  resourceNames: ["release-fixture"]
+  verbs: ["get"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-release-writer
+subjects:
+- kind: ServiceAccount
+  name: saf-release-writer
+  namespace: saf-test
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-release-writer
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: saf-release-writer-application-read
+  namespace: argocd
+rules:
+- apiGroups: ["argoproj.io"]
+  resources: ["applications"]
+  resourceNames: ["saf-package-fixture"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: saf-release-writer-application-read
+  namespace: argocd
+subjects:
+- kind: ServiceAccount
+  name: saf-release-writer
+  namespace: saf-test
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: saf-release-writer-application-read
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: release-record-{{ .Chart.Version | replace "." "-" }}
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 90
+  template:
+    metadata:
+      labels:
+        saf.example/hook: release-record
+    spec:
+      restartPolicy: Never
+      serviceAccountName: saf-release-writer
+      automountServiceAccountToken: true
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: record
+        image: {{ .Values.recordWriterImage | quote }}
+        imagePullPolicy: IfNotPresent
+        command: ["python", "/fixture/record_writer.py"]
+        env:
+        - name: SOURCE_INDEX
+          value: saf-release-source-index
+        - name: APP_NAME
+          value: saf-package-fixture
+        - name: APP_NAMESPACE
+          value: saf-test
+        - name: DEPLOYMENT_NAME
+          value: release-fixture
+        - name: PACKAGE_VERSION
+          value: {{ .Chart.Version | quote }}
+        - name: RELEASE_RECORD
+          value: {{ .Values.recordName | quote }}
+        - name: SOURCE_REPOSITORY
+          value: http://saf-package-git.saf-test.svc.cluster.local:8080/repo.git
+        volumeMounts:
+        - name: script
+          mountPath: /fixture
+          readOnly: true
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 96Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+      volumes:
+      - name: script
+        configMap:
+          name: saf-release-record-writer-source
+{{- end }}
