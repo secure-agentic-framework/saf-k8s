@@ -13,3 +13,15 @@ Start a review with `template.json`. Fill the component trust boundaries and evi
 The current case uses synthetic reviewers and approvals. Production evidence must cover deployment inventory, evidence authenticity, reviewer authority, mitigation decisions and the architecture change process.
 
 [Kubernetes Jobs](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/job/) · [Microsoft STRIDE threat categories](https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats)
+
+## Crosswalk evidence
+
+The scoped source retains 16 conditional relationships. An adopted STRIDE
+assessment can contribute its Kubernetes infrastructure findings to applicable
+risk management, evaluation, architecture, development and documentation outcomes.
+Collect the actual organizational judgments, asset or component evidence, owner
+approvals and reviewed mitigations or treatments for the applicable obligations.
+[EU AI Act](https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng) ·
+[NIST AI RMF](https://airc.nist.gov/airmf-resources/airmf/5-sec-core/) ·
+[NIST SP 800-53](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) ·
+[NIST SSDF](https://csrc.nist.gov/pubs/sp/800/218/final).
