@@ -17,3 +17,17 @@ coverage need separate evidence.
 
 - [Kubernetes v1.36 Validating Admission Policy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
 - [Kubernetes v1.36 Node status](https://v1-36.docs.kubernetes.io/docs/reference/node/node-status/)
+
+## Rechecking a later placement
+
+An independent reviewer approves a separate later candidate against a fresh
+observation of the same live member and admission policy. The gate initially
+finds the candidate eligible. Adding the Audit action to the owned binding
+changes its hash while retaining the Deny action. Native server dry-run
+confirms that the workload rule still denies the fixed invalid comparator.
+The exact previously eligible candidate is then blocked for live policy
+identity drift, and the earlier approved workload remains Available.
+
+For adoption, verify authorized source and evidence producers, current
+posture and supported versions, applicable accelerator and driver inventory,
+time and exception policy, and every effective placement path.

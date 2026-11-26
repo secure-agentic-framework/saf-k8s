@@ -20,6 +20,7 @@ EVIDENCE = "saf018-posture-evidence"
 APPROVAL = "saf018-posture-approval"
 BASELINE = "saf018-unchecked-baseline"
 CANDIDATE = "saf018-reviewed-candidate"
+REEVALUATION_CANDIDATE = "saf018-policy-drift-candidate"
 DENIAL = "SAF-K8S-0910-018: unsafe synthetic workload rejected"
 SCOPE = (
     "Two separately owned Kind API servers; one harmless BusyBox Deployment; server-side "
@@ -241,7 +242,7 @@ def approval_record(candidate_hash, member_uid):
             "approval_ref": "fixture-review-018-001"}
 
 
-def check_eligibility(target, candidate_hash, member_uid, policy_id, now=None):
+def check_eligibility(target, candidate_hash, member_uid, policy_id, now=None, *, candidate_name=CANDIDATE):
     now = int(time.time()) if now is None else int(now)
     if not ready_nodes(target):
         return False, "member-not-ready"
@@ -268,7 +269,7 @@ def check_eligibility(target, candidate_hash, member_uid, policy_id, now=None):
         "api_endpoint": endpoint(target),
         "candidate_sha256": candidate_hash,
         "candidate_namespace": NS_WORK,
-        "candidate_name": CANDIDATE,
+        "candidate_name": candidate_name,
         "policy": policy_id, "nodes_ready": True,
         "safe_admission": {"decision": "accepted", "signal": "server-dry-run-created"},
         "unsafe_probe": {"decision": "denied-by-policy", "signal": DENIAL},
@@ -292,7 +293,8 @@ def check_eligibility(target, candidate_hash, member_uid, policy_id, now=None):
 def place_if_eligible(target, workload, candidate_hash, member_uid, policy_id):
     if digest(workload) != candidate_hash:
         return {"decision": "blocked", "reason": "workload-digest-mismatch", "created": False}
-    ok, reason = check_eligibility(target, candidate_hash, member_uid, policy_id)
+    ok, reason = check_eligibility(target, candidate_hash, member_uid, policy_id,
+                                   candidate_name=workload["metadata"]["name"])
     if not ok:
         return {"decision": "blocked", "reason": reason, "created": False}
     try:
@@ -500,6 +502,81 @@ def run(lab):
                   all(positive.values()), {"member": healthy.name, "placement": placement,
                                            "checks": positive})
 
+        next_obj = candidate(REEVALUATION_CANDIDATE)
+        next_hash = digest(next_obj)
+        next_receipt = {
+            **canonical_receipt, "candidate_name": REEVALUATION_CANDIDATE,
+            "candidate_sha256": next_hash, "observed_at_epoch": int(time.time()),
+            "safe_admission": admission_result(healthy, next_obj),
+            "unsafe_probe": admission_result(healthy, unsafe_probe(next_obj)),
+            "nodes_ready": ready_nodes(healthy),
+        }
+        next_receipt.pop("receipt_sha256")
+        next_receipt["receipt_sha256"] = digest(next_receipt)
+        write_claim(healthy, EVIDENCE, next_receipt, OBSERVER)
+        next_approval = approval_record(next_hash, healthy_uid)
+        next_approval["evidence_sha256"] = next_receipt["receipt_sha256"]
+        write_claim(healthy, APPROVAL, next_approval, APPROVER)
+        eligible_before_drift = check_eligibility(
+            healthy, next_hash, healthy_uid, healthy_policy,
+            candidate_name=REEVALUATION_CANDIDATE)
+
+        # Re-evaluate a later, distinct candidate against the live policy binding.
+        # Keep Deny active; the metadata change represents a changed target posture
+        # identity, not a weakened admission policy or an existing-workload action.
+        original_binding = healthy.json(
+            "get", "validatingadmissionpolicybinding", POLICY, "-o", "json")
+        healthy.call(
+            "patch", "validatingadmissionpolicybinding", POLICY,
+            "--type=merge",
+            "-p", json.dumps({"spec": {"validationActions": ["Deny", "Audit"]}}))
+        changed_binding = healthy.json(
+            "get", "validatingadmissionpolicybinding", POLICY, "-o", "json")
+        changed_policy_id = {
+            "name": POLICY,
+            "uid": healthy.json("get", "validatingadmissionpolicy", POLICY,
+                                "-o", "json").get("metadata", {}).get("uid"),
+            "spec_sha256": digest(healthy.json(
+                "get", "validatingadmissionpolicy", POLICY, "-o", "json").get("spec", {})),
+            "binding_uid": changed_binding.get("metadata", {}).get("uid"),
+            "binding_spec_sha256": digest(changed_binding.get("spec", {})),
+            "failure_policy": "Fail",
+        }
+        post_change_unsafe = admission_result(healthy, unsafe_probe(next_obj))
+        reevaluation_placement = place_if_eligible(
+            healthy, next_obj, next_hash, healthy_uid, healthy_policy)
+        prior_workload_remains = (
+            object_exists(healthy, CANDIDATE)
+            and healthy.kube("-n", NS_WORK, "wait", "--for=condition=Available",
+                             f"deployment/{CANDIDATE}", "--timeout=10s",
+                             timeout=15).returncode == 0)
+        reevaluation = {
+            "exact_later_candidate_was_eligible_before_drift":
+                eligible_before_drift == (True, "eligible"),
+            "binding_changed": (
+                changed_policy_id["binding_uid"] == original_binding.get("metadata", {}).get("uid")
+                and changed_policy_id["binding_spec_sha256"]
+                != digest(original_binding.get("spec", {}))
+                and changed_binding.get("spec", {}).get("validationActions") == ["Deny", "Audit"]),
+            "deny_action_preserved": "Deny" in changed_binding.get("spec", {}).get("validationActions", []),
+            "native_policy_still_denies_unsafe_candidate": (
+                post_change_unsafe.get("decision") == "denied-by-policy"
+                and post_change_unsafe.get("signal") == DENIAL),
+            "second_candidate_blocked_for_live_policy_drift": (
+                reevaluation_placement.get("decision") == "blocked"
+                and reevaluation_placement.get("reason") == "live-policy-identity-mismatch"),
+            "second_candidate_absent": not object_exists(healthy, REEVALUATION_CANDIDATE),
+            "previous_approved_workload_remains_available": prior_workload_remains,
+        }
+        lab.check("reevaluation", "Live policy identity drift blocks a later placement while preserving the approved workload",
+                  all(reevaluation.values()), {
+                      "member": healthy.name,
+                      "candidate_sha256": next_hash,
+                      "unsafe_server_dry_run": post_change_unsafe,
+                      "placement": reevaluation_placement,
+                      "checks": reevaluation,
+                  })
+
         normalized = {
             "control": "SAF-K8S-0910-018", "schema": "posture-placement-v1",
             "scope": SCOPE, "members": identities, "candidate_sha256": candidate_hash,
@@ -509,12 +586,14 @@ def run(lab):
                                     "receipt_sha256": r["receipt_sha256"]}
                             for name, r in observed.items()},
             "fail_closed": failures, "approved_placement": positive,
+            "post_placement_reevaluation": reevaluation,
             "exact_receipts": observed, "exact_approval": readback,
             "freshness_bound_seconds": MAX_AGE_SECONDS,
         }
         (lab.evidence / "posture-placement-normalized.json").write_text(json.dumps({
             "candidate_sha256": candidate_hash, "baseline": red, "posture": green,
             "fail_closed": failures, "approved_placement": positive,
+            "post_placement_reevaluation": reevaluation,
         }, indent=2, sort_keys=True) + "\n")
         (lab.evidence / "saf-k8s-0910-018-posture-placement.json").write_text(
             json.dumps(normalized, sort_keys=True, indent=2) + "\n")
