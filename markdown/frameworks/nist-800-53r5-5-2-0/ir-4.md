@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Core incident handling for agent security events
-
-10.5 - IR lifecycle (detection, analysis, containment, eradication, recovery for K8s AI environments)
+The fixture contributes to the containment portion of IR-4: a scoped responder captures synthetic workload state and application logs before halting one workload, and an investigator verifies the retained record after Pod removal. The added server-side dry-run confirms Kubernetes rejects a change to the immutable fixture record and that its digest and bytes remain unchanged. The case does not establish an end-to-end incident handling capability, the organization's incident response plan, cross-organization consistency, production response objectives, or recovery.
 
 ## SAF-K8S Controls
 
@@ -15,10 +13,10 @@ Core incident handling for agent security events
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: partial
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0910-019 - Compromised-cluster federation isolation and re-admission governance](../../controls/SAF-K8S-0910-019.md)
 

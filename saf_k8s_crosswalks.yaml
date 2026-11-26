@@ -12509,22 +12509,6 @@
 
 
     10.1 - Log integrity (protecting audit logs from tampering or unauthorized access)'
-  control_id: SAF-K8S-0905-037
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-9
-  framework_requirement_title: Protection of Audit Information
-  framework_mapping_notes: 'Protecting agent audit logs from tampering
-
-
-    10.1 - Log integrity (protecting audit logs from tampering or unauthorized access)'
   control_id: SAF-K8S-1001-004
   relation_type: direct
   strength_level: strong
@@ -19667,16 +19651,13 @@
   framework_version: 5.2.0
   framework_requirement_id: IR-4
   framework_requirement_title: Incident Handling
-  framework_mapping_notes: 'Core incident handling for agent security events
-
-
-    10.5 - IR lifecycle (detection, analysis, containment, eradication, recovery for K8s AI environments)'
+  framework_mapping_notes: 'The fixture contributes to the containment portion of IR-4: a scoped responder captures synthetic workload state and application logs before halting one workload, and an investigator verifies the retained record after Pod removal. The added server-side dry-run confirms Kubernetes rejects a change to the immutable fixture record and that its digest and bytes remain unchanged. The case does not establish an end-to-end incident handling capability, the organization''s incident response plan, cross-organization consistency, production response objectives, or recovery.'
   control_id: SAF-K8S-0905-037
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only where the organization's incident response plan designates the scoped Kubernetes AI workload halt and evidence capture as part of incident containment. This case does not establish preparation, detection or analysis, eradication, recovery, contingency coordination, lessons learned, or predictable performance across the organization.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
