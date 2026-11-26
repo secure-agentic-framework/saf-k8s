@@ -1,5 +1,6 @@
 """Compare the host UID mapping for vanilla and Pod user-namespace workloads."""
 import json
+import sys
 import re
 from pathlib import Path
 import time
@@ -7,6 +8,7 @@ import time
 from fixtures import BUSYBOX_IMAGE, pod
 
 SCOPE = (
+    "The accompanying versioned preflight checks fixed synthetic observations against reviewed target range rules. "
     "One disposable Kind Kubernetes v1.36.1 cluster using its pinned node image and containerd CRI. "
     "Compares the kernel UID and GID mappings in default and explicit hostUsers:false Pods and observes "
     "server-side admission under a scoped opt-in policy. Corroborates the exact fixture processes in the node "
@@ -174,3 +176,25 @@ def run(lab):
         "node_version": info.get("kubeletVersion"),
         "node_rootless_signal": {"present": field_present, "value": info.get(NODE_SIGNAL)},
     }, indent=2) + "\n")
+
+    script = Path(__file__).with_name("preflight") / "preflight.py"
+    result = lab.command(sys.executable, "-B", str(script), "--self-test",
+                         timeout=15, allow_failure=True)
+    (lab.evidence / "userns-preflight.raw.log").write_text(result.stdout + result.stderr)
+    try:
+        observations = [json.loads(line) for line in result.stdout.splitlines()]
+    except json.JSONDecodeError as error:
+        lab.block(f"The versioned user namespace preflight did not return JSON: {error}")
+    by_fixture = {item["fixture"]: item["actual"] for item in observations}
+    expected = {
+        "invalid-maxuid-range-holds.json": "HOLD",
+        "unknown-configuration-holds.json": "HOLD",
+        "not-applicable-no-userns.json": "NOT_APPLICABLE",
+        "valid-getsubids-range.json": "ELIGIBLE_FOR_SEPARATE_CHANGE_APPROVAL",
+    }
+    evidence = {"fixture_count": len(observations), "reviewed_decisions": by_fixture,
+                "all_fixture_decisions_match": all(item["self_test"] == "PASS" for item in observations)}
+    lab.check("green", "The versioned user namespace preflight separates compatible, unknown and invalid inert records",
+              result.returncode == 0 and len(observations) == len(by_fixture) == 18
+              and all(by_fixture.get(key) == decision for key, decision in expected.items())
+              and evidence["all_fixture_decisions_match"], evidence)

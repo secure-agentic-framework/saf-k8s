@@ -1,0 +1,7 @@
+{
+  "observation_mode": "synthetic_fixture",
+  "source_kubelet_version": "v1.37.2",
+  "target_kubelet_version": "v1.37.3",
+  "userns_in_use": false,
+  "expected_decision": "NOT_APPLICABLE"
+}

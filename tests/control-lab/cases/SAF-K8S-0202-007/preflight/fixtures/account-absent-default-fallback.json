@@ -1,0 +1,45 @@
+{
+  "observation_mode": "synthetic_fixture",
+  "source_kubelet_version": "v1.37.2",
+  "target_kubelet_version": "v1.37.3",
+  "userns_in_use": true,
+  "kubelet_account_present": false,
+  "getsubids_present": false,
+  "range_source": "target_default_fallback",
+  "helper_provenance": null,
+  "getsubids_uid_output": null,
+  "getsubids_gid_output": null,
+  "target_fallback_confirmed": true,
+  "ids_per_pod": 65536,
+  "max_pods": 110,
+  "persisted_mapping_inventory": {
+    "complete_read_only_inventory": true,
+    "pods": [
+      {
+        "uid": "synthetic-pod-a",
+        "userns": {
+          "uidMappings": [
+            {
+              "hostId": 65536,
+              "containerId": 0,
+              "length": 65536
+            }
+          ],
+          "gidMappings": [
+            {
+              "hostId": 65536,
+              "containerId": 0,
+              "length": 65536
+            }
+          ]
+        }
+      },
+      {
+        "uid": "synthetic-pod-b"
+      }
+    ]
+  },
+  "failed_create_pod_sandbox_event": false,
+  "fallback_reason": "account_absent",
+  "expected_decision": "ELIGIBLE_FOR_SEPARATE_CHANGE_APPROVAL"
+}

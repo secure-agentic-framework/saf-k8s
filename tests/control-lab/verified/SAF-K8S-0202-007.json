@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0202-007",
-  "catalog_revision": "6f2e21e521904a0fcee72aa15757102b1dc622a8",
-  "catalog_sha256": "28e2e795c3d0eee859ba13f7c7c1e62c33d93955ba867c40a0060d1dfd1984cb",
+  "catalog_revision": "4860e5f845c312ffc2e6e5010d83ad30e6a271b0",
+  "catalog_sha256": "d74adace95469852921fa48b0e1183d3bc7378cbdb14fb4b9d3f22b65a13d664",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "3fe215eadb2d4cb0aa9a1468eedd654004167521d5126b3640782979e70a57aa",
-  "scope": "One disposable Kind Kubernetes v1.36.1 cluster using its pinned node image and containerd CRI. Compares the kernel UID and GID mappings in default and explicit hostUsers:false Pods and observes server-side admission under a scoped opt-in policy. Corroborates the exact fixture processes in the node Linux user namespace context and checks the separate optional rootless node signal. Runtime observations apply to these workloads on this fixture. Production fleet support, exception governance, and rootless node operation require independent evidence.",
-  "cluster": "saf-lab-83c2f24d2417",
+  "control_sha256": "b2e3516e3180ebc44f9fd61636abcf69ae0fe7ef9da639591d15dfe611ac6868",
+  "scope": "The accompanying versioned preflight checks fixed synthetic observations against reviewed target range rules. One disposable Kind Kubernetes v1.36.1 cluster using its pinned node image and containerd CRI. Compares the kernel UID and GID mappings in default and explicit hostUsers:false Pods and observes server-side admission under a scoped opt-in policy. Corroborates the exact fixture processes in the node Linux user namespace context and checks the separate optional rootless node signal. Runtime observations apply to these workloads on this fixture. Production fleet support, exception governance, and rootless node operation require independent evidence.",
+  "cluster": "saf-lab-f239b7a1d5de",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -133,6 +133,35 @@
       "claim": "Benign BusyBox command works as workload UID and GID zero in userns",
       "matched": true,
       "observed": "busybox-ok"
+    },
+    {
+      "phase": "green",
+      "claim": "The versioned user namespace preflight separates compatible, unknown and invalid inert records",
+      "matched": true,
+      "observed": {
+        "fixture_count": 18,
+        "reviewed_decisions": {
+          "account-absent-default-fallback.json": "ELIGIBLE_FOR_SEPARATE_CHANGE_APPROVAL",
+          "below-maxpods-capacity-holds.json": "HOLD",
+          "failed-sandbox-event-holds.json": "HOLD",
+          "invalid-maxuid-range-holds.json": "HOLD",
+          "maps-zero-holds.json": "HOLD",
+          "misaligned-start-holds.json": "HOLD",
+          "multiple-helper-lines-hold.json": "HOLD",
+          "non-unit-idsperpod-holds.json": "HOLD",
+          "nonmultiple-length-holds.json": "HOLD",
+          "not-applicable-no-userns.json": "NOT_APPLICABLE",
+          "persisted-old-range-holds.json": "HOLD",
+          "persisted-uid-gid-diverge-holds.json": "HOLD",
+          "uid-gid-output-mismatch-holds.json": "HOLD",
+          "unknown-configuration-holds.json": "HOLD",
+          "unknown-helper-or-inventory-holds.json": "HOLD",
+          "unsupported-target-holds.json": "HOLD",
+          "valid-getsubids-range.json": "ELIGIBLE_FOR_SEPARATE_CHANGE_APPROVAL",
+          "verified-default-fallback.json": "ELIGIBLE_FOR_SEPARATE_CHANGE_APPROVAL"
+        },
+        "all_fixture_decisions_match": true
+      }
     }
   ]
 }

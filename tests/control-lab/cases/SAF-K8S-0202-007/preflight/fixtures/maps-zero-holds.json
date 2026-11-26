@@ -1,0 +1,49 @@
+{
+  "observation_mode": "synthetic_fixture",
+  "source_kubelet_version": "v1.37.2",
+  "target_kubelet_version": "v1.37.3",
+  "userns_in_use": true,
+  "kubelet_account_present": true,
+  "getsubids_present": true,
+  "range_source": "getsubids",
+  "helper_provenance": {
+    "resolved_path": "/synthetic/sbin/getsubids",
+    "package_or_build": "fixture-build-sha256:inert",
+    "uid_command": "getsubids kubelet",
+    "gid_command": "getsubids -g kubelet"
+  },
+  "getsubids_uid_output": "0: kubelet 0 4294967295\n",
+  "getsubids_gid_output": "0: kubelet 0 4294967295\n",
+  "target_fallback_confirmed": false,
+  "ids_per_pod": 65536,
+  "max_pods": 110,
+  "persisted_mapping_inventory": {
+    "complete_read_only_inventory": true,
+    "pods": [
+      {
+        "uid": "synthetic-pod-a",
+        "userns": {
+          "uidMappings": [
+            {
+              "hostId": 65536,
+              "containerId": 0,
+              "length": 65536
+            }
+          ],
+          "gidMappings": [
+            {
+              "hostId": 65536,
+              "containerId": 0,
+              "length": 65536
+            }
+          ]
+        }
+      },
+      {
+        "uid": "synthetic-pod-b"
+      }
+    ]
+  },
+  "failed_create_pod_sandbox_event": false,
+  "expected_decision": "HOLD"
+}

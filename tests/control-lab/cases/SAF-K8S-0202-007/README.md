@@ -71,3 +71,17 @@ covers rootless node components and workload placement where applicable.
    image, runtime, policy scope, or workload volume profile changes.
 
 - [Linux user namespace mapping semantics](https://man7.org/linux/man-pages/man7/user_namespaces.7.html)
+
+## Upgrade preflight
+
+For supported Linux pools using Pod user namespaces, record the planned
+target kubelet release, effective subordinate UID/GID configuration and
+allocation size, helper behavior, and the compatibility of existing Pod
+mappings. Use approved read-only observations from the affected node pools.
+Unknown and invalid configurations hold the change for review.
+
+The accompanying preflight script separates expected outcomes using inert
+JSON records. It supplements the live Pod user namespace test and performs
+no host or Pod changes. Run its fixed checks from the case directory with
+`python3 preflight/preflight.py --self-test`. The case receipt identifies
+the live Kubernetes version and the scope of the fixture.

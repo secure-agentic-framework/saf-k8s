@@ -429,7 +429,7 @@
     "SAF-K8S-0202-007": {
       "catalog_status": "draft",
       "domain": "D02",
-      "sha256": "3fe215eadb2d4cb0aa9a1468eedd654004167521d5126b3640782979e70a57aa",
+      "sha256": "b2e3516e3180ebc44f9fd61636abcf69ae0fe7ef9da639591d15dfe611ac6868",
       "title": "Pod user namespace isolation"
     },
     "SAF-K8S-0202-008": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "5193aec36ae2376099b5cee029c39ce6a82539b5",
-  "sha256": "3f6d0b09957f7ae05620954a6210b52df977b8cbc7dcdd43769137d72662c8bb",
+  "revision": "ccad1973f2eb87c61c9386c39bd2976dbfa371ab",
+  "sha256": "d74adace95469852921fa48b0e1183d3bc7378cbdb14fb4b9d3f22b65a13d664",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
