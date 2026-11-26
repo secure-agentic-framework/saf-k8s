@@ -8307,22 +8307,6 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-3(2)
   framework_requirement_title: Dual Authorization
-  framework_mapping_notes: 'Requiring human+agent or multi-agent approval for critical actions
-
-
-    9.5 - Model promotion gates (approval workflows for production deployment); 10.7 - Change management approval workflows for model deployments'
-  control_id: SAF-K8S-0905-025
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-3(2)
-  framework_requirement_title: Dual Authorization
   framework_mapping_notes: The deployed workflow enforces independently authorized approval for controlled federation
     re-entry.
   control_id: SAF-K8S-0910-019
@@ -10732,16 +10716,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-5
   framework_requirement_title: Separation of Duties
-  framework_mapping_notes: 'Separating agent roles (executor vs. approver)
-
-
-    4.1 - Design and enforce RBAC (separation of duties between ML engineers, platform engineers, security teams)'
+  framework_mapping_notes: The Kubernetes reference observes refusal of a developer's self-approval and acceptance of the fixed independent approver. Verify actual human and service identities, authoritative role ownership, scope and any separate quorum requirement.
   control_id: SAF-K8S-0905-025
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Where the adopter documents duties and keeps effective developer and independent promotion approval authorities separate for each governed path.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
