@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 1918
-- Distinct Requirements Mapped: 616
+- Total Reverse Mappings: 1908
+- Distinct Requirements Mapped: 614
 
 ## Requirements
 
@@ -29,7 +29,6 @@
 - [AC-17(2) - Protection of Confidentiality and Integrity Using Encryption](ac-17-2.md)
 - [AC-17(3) - Managed Access Control Points](ac-17-3.md)
 - [AC-17(4) - Privileged Commands and Access](ac-17-4.md)
-- [AC-17(6) - Protection of Mechanism Information](ac-17-6.md)
 - [AC-2 - Account Management](ac-2.md)
 - [AC-2(1) - Automated System Account Management](ac-2-1.md)
 - [AC-2(11) - Usage Conditions](ac-2-11.md)
@@ -278,7 +277,6 @@
 - [IA-5(13) - Expiration of Cached Authenticators](ia-5-13.md)
 - [IA-5(14) - Managing Content of PKI Trust Stores](ia-5-14.md)
 - [IA-5(2) - Public Key-based Authentication](ia-5-2.md)
-- [IA-5(5) - Change Authenticators Prior to Delivery](ia-5-5.md)
 - [IA-5(6) - Protection of Authenticators](ia-5-6.md)
 - [IA-5(7) - No Embedded Unencrypted Static Authenticators](ia-5-7.md)
 - [IA-5(8) - Multiple System Accounts](ia-5-8.md)

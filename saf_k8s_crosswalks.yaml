@@ -4988,22 +4988,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AC-17(6)
-  framework_requirement_title: Protection of Mechanism Information
-  framework_mapping_notes: 'Protecting agent access mechanism details
-
-
-    4.3 - Manage secrets securely (protecting authentication mechanism data, credentials, access tokens)'
-  control_id: SAF-K8S-0403-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AC-2
   framework_requirement_title: Account Management
   framework_mapping_notes: This control supports the inactivity, monitoring and retirement portions of account management. Verify the remaining organization-defined account lifecycle requirements separately.
@@ -6985,16 +6969,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-4(15)
   framework_requirement_title: Detection of Unsanctioned Information
-  framework_mapping_notes: 'Detecting unauthorized data in agent flows (DLP)
-
-
-    9.2 - Harden inference (response filtering to prevent PII/sensitive data leakage); 4.3 - Secret leak detection and prevention'
+  framework_mapping_notes: A digest-bound scanner and promotion gate can support an approved cross-domain information-transfer inspection when the actual endpoints are the governed domains and the inspected patterns and policy are in scope.
   control_id: SAF-K8S-0403-005
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopted scanner and release enforcement inspect the actual transfer across organization-defined security domains and prevent prohibited information from crossing.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -9982,22 +9963,6 @@
 
     9.7 - Privacy controls (auditing queries accessing PII in training data); 10.1 - PII redaction in logs'
   control_id: SAF-K8S-1001-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-13
-  framework_requirement_title: Monitoring for Information Disclosure
-  framework_mapping_notes: 'Detecting agent data leakage
-
-
-    9.8 - Prevent model abuse (monitoring for information disclosure via model endpoints); 4.3 - Secret leak detection'
-  control_id: SAF-K8S-0403-005
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -14984,22 +14949,6 @@
 
 
     7.1 - Encryption at rest for PVs; 1.2 - etcd encryption; 4.3 - Secrets encryption at rest'
-  control_id: SAF-K8S-0403-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-9(8)
-  framework_requirement_title: Cryptographic Protection
-  framework_mapping_notes: 'Encrypting agent backups
-
-
-    7.1 - Encryption at rest for PVs; 1.2 - etcd encryption; 4.3 - Secrets encryption at rest'
   control_id: SAF-K8S-0701-001
   relation_type: direct
   strength_level: strong
@@ -15340,22 +15289,6 @@
   applicability: conditional
   applicability_condition: A covered assertion or access token implementation verifies each required issuance, renewal,
     expiry, revocation and audience behavior
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-13(3)
-  framework_requirement_title: Token Management
-  framework_mapping_notes: 'Agent token lifecycle management
-
-
-    4.2 - Projected service account tokens (token lifecycle management); 4.3 - Secret rotation and expiration'
-  control_id: SAF-K8S-0403-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -16069,15 +16002,13 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-5
   framework_requirement_title: Authenticator Management
-  framework_mapping_notes: SAF-K8S-0403-005 supports protection from disclosure in governed AI pipelines. SAF-K8S-0403-004
-    covers related authenticator rotation, effective expiry and revocation.
+  framework_mapping_notes: Scoped workload delivery, protected output handling and verified promotion can support protection of authenticators used by the adopted pipeline. Separately verify issuance, custody, revocation, and other relevant lifecycle procedures.
   control_id: SAF-K8S-0403-005
   relation_type: supports
-  strength_level: moderate
+  strength_level: weak
   applicability: conditional
-  applicability_condition: The applicable deployed pipeline controls verify protection of designated authenticators from
-    disclosure.
-  strength_reason_code: null
+  applicability_condition: The adopter uses separately approved authenticator delivery, output filtering and artifact scanning as applicable measures in its managed authenticator lifecycle.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -16189,22 +16120,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: IA-5(13)
-  framework_requirement_title: Expiration of Cached Authenticators
-  framework_mapping_notes: 'Expiring cached agent tokens
-
-
-    4.2 - Projected tokens (time-bound expiration of cached authenticators); 4.3 - Secret rotation policies'
-  control_id: SAF-K8S-0403-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: IA-5(14)
   framework_requirement_title: Managing Content of PKI Trust Stores
   framework_mapping_notes: The organization governs approved API extension trust anchors and independently verifies distribution
@@ -16236,22 +16151,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: IA-5(5)
-  framework_requirement_title: Change Authenticators Prior to Delivery
-  framework_mapping_notes: 'Changing default agent credentials
-
-
-    4.3 - Manage secrets (rotating default credentials before deployment)'
-  control_id: SAF-K8S-0403-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: IA-5(6)
   framework_requirement_title: Protection of Authenticators
   framework_mapping_notes: The approved store, transport, Kubernetes copies and mounts demonstrably protect the selected
@@ -16269,16 +16168,13 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-5(6)
   framework_requirement_title: Protection of Authenticators
-  framework_mapping_notes: 'Protecting agent secrets/tokens
-
-
-    4.3 - Manage secrets (secret injection patterns, encryption at rest); 6.6 - CI credential isolation'
+  framework_mapping_notes: The fixture demonstrates workload-scoped Secret input, structured redaction, client diff masking and a separately enforced artifact release decision. Verify deployed protection and coverage for each governed authenticator.
   control_id: SAF-K8S-0403-005
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopted delivery and output protections handle actual authenticators in accordance with the security category required for the information they access.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -16313,16 +16209,13 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-5(7)
   framework_requirement_title: No Embedded Unencrypted Static Authenticators
-  framework_mapping_notes: 'No hardcoded agent credentials
-
-
-    4.3 - Prevention of secret leakage through training logs, model artifacts, and pipeline metadata'
+  framework_mapping_notes: The pinned scanner rejects the flagged fixture file and OCI image, and clean release is bound to the scanned digest. Verify adopted rule coverage, actual application and storage formats, and signals for missed contexts.
   control_id: SAF-K8S-0403-005
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopter checks each in-scope application and static-storage path for embedded unencrypted static authenticators, with effective denial or removal.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -17148,22 +17041,6 @@
   applicability: conditional
   applicability_condition: The exercised credential revocation process is an approved part of the actual information-spillage
     response procedure
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-9
-  framework_requirement_title: Information Spillage Response
-  framework_mapping_notes: 'Responding when agents leak sensitive data
-
-
-    4.3 - Secret leakage prevention; 9.7 - PII handling (information spillage response for AI training data)'
-  control_id: SAF-K8S-0403-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -21987,22 +21864,6 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-9(6)
   framework_requirement_title: Organization-controlled Cryptographic Keys
-  framework_mapping_notes: 'Organization-controlled keys for agent communications and data encryption ensure sovereignty
-
-
-    4.3 - Manage secrets (KMS providers -- org-controlled encryption keys for secrets and persistent volumes)'
-  control_id: SAF-K8S-0403-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-9(6)
-  framework_requirement_title: Organization-controlled Cryptographic Keys
   framework_mapping_notes: The selected external storage service demonstrably preserves exclusive organizational key
     control for its covered data.
   control_id: SAF-K8S-0403-017
@@ -23030,22 +22891,6 @@
 
 
     1.2 - etcd encryption at rest; 7.1 - PV encryption; 4.3 - Secrets encryption at rest (KMS providers)'
-  control_id: SAF-K8S-0403-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-28
-  framework_requirement_title: Protection of Information at Rest
-  framework_mapping_notes: 'Protecting agent data at rest (models, context, memory, credentials) prevents unauthorized access
-
-
-    1.2 - etcd encryption at rest; 7.1 - PV encryption; 4.3 - Secrets encryption at rest (KMS providers)'
   control_id: SAF-K8S-0701-001
   relation_type: direct
   strength_level: strong
@@ -23299,22 +23144,6 @@
 
     1.2 - Encrypted etcd backups (offline storage); 9.1 - Checkpoint offline storage security'
   control_id: SAF-K8S-0901-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-28(3)
-  framework_requirement_title: Cryptographic Keys
-  framework_mapping_notes: 'Protecting cryptographic keys used by agent systems prevents compromise of encrypted data
-
-
-    4.3 - KMS providers (protecting cryptographic keys at rest); 8.4 - TEE key management and sealed storage'
-  control_id: SAF-K8S-0403-005
   relation_type: direct
   strength_level: strong
   applicability: required

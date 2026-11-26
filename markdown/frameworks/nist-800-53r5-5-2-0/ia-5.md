@@ -32,9 +32,9 @@ Governed external authenticator storage, distribution and scoped recipient ident
 - Domain: D04 - Identity, Access, and Secrets Management
 - Knowledge Area: 4.3
 - Relation Type: supports
-- Strength: moderate
+- Strength: weak
 - Applicability: conditional
-- Strength Reason Code: n/a
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0403-006 - Per-workload credential scoping for AI jobs](../../controls/SAF-K8S-0403-006.md)
 
