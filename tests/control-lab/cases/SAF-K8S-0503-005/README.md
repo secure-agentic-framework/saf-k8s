@@ -13,3 +13,19 @@ The second observer reads real CoreDNS logs for eight inert questions in the fix
 For adoption, inventory actual DNS paths, including node-local and managed resolvers and permitted alternate resolvers. Verify scoped, privacy-reviewed logs through the approved destination. Link queries to their observed source where the network and collector preserve it. Tune time-window and source-aware rules against the environment's expected names and types, and verify the alert route, recipient, retention, and performance. The fixture exercises detection based on selected log fields. DNS enforcement and protected routes have separate acceptance checks.
 
 [CoreDNS log plugin](https://coredns.io/plugins/log/) · [Kubernetes v1.36 DNS debugging](https://v1-36.docs.kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/)
+
+## Read CoreDNS logs through the API
+
+After the original detection checks, a separate Job runs as a named
+ServiceAccount with a short-lived projected token. Its Role grants metadata
+access to two named fixture Pods and log access to the single CoreDNS Pod.
+The Job verifies the same CoreDNS UID before and after the API read. It
+validates all ten fixture records and receives HTTP 403 from the other
+owned Pod's log endpoint. The two provisioned names return NOERROR. The
+eight intentionally absent names return NXDOMAIN. The evidence contains
+only counts, status codes and the check outcomes.
+
+For a deployed collector, verify effective credentials, source scope,
+renewal, performance and failure detection. Preserve actual forwarding,
+processing and receipt at the approved analysis destination. Protect query
+data and verify alert delivery with approved benign control records.

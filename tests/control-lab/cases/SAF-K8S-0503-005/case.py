@@ -9,8 +9,10 @@ from fixtures import container, pod, ready
 SCOPE = (
     "A dedicated CoreDNS instance in local Kubernetes v1.36.1 serves a closed fixture zone. "
     "A fixed harmless canary resolves before logging, and two owned A queries resolve afterward. "
-    "Structured CoreDNS log rows are delivered to a separate scoped observer Job, which emits one "
-    "known allowlisted test alert. Production collection, analytic coverage and protective "
+    "The nine-check fixture copies observed rows into a ConfigMap for its static observer Job. "
+    "An additive named ServiceAccount collector separately reads the exact owned CoreDNS Pod log "
+    "through the Kubernetes API, checks exact benign rows and a refused unrelated Pod log path, "
+    "and emits sanitized predicates only. Production collection, analytic coverage and protective "
     "enforcement need separate evidence."
 )
 PYTHON_IMAGE = (
@@ -226,3 +228,40 @@ def run(lab):
     extension = importlib.util.module_from_spec(extension_spec)
     extension_spec.loader.exec_module(extension)
     extension.run_anomaly_extension(lab, enabled["status"]["podIP"], lambda: _logs(lab, pod_name))
+
+    collector_spec = importlib.util.spec_from_file_location("dns_api_log_collector", HERE / "api-log-collector.py")
+    collector_module = importlib.util.module_from_spec(collector_spec)
+    collector_spec.loader.exec_module(collector_module)
+    collected = collector_module.run_api_log_collector(lab, enabled, extension)
+    lab.check(
+        "positive",
+        "The named collector ServiceAccount has only exact Pod metadata access and CoreDNS Pod log access",
+        collected.get("exact_named_rbac_policy") is True
+        and collected.get("named_service_account") is True,
+        {"exact_named_rbac_policy": collected.get("exact_named_rbac_policy") is True,
+         "named_service_account": collected.get("named_service_account"),
+         "metadata_pod_names_count": 2, "pod_log_resource_names_count": 1},
+    )
+    lab.check(
+        "positive",
+        "The API-reading collector validates the exact ten benign fixture rows from the owned CoreDNS Pod",
+        collected.get("collector_completed") is True
+        and collected.get("named_target_identity_valid") is True
+        and collected.get("target_identity_stable_during_read") is True
+        and collected.get("target_log_api_status_200") is True
+        and collected.get("exact_case_fixture_rows") is True
+        and collected.get("observed_fixture_row_count") == 10,
+        {"target_identity_valid": collected.get("named_target_identity_valid") is True,
+         "target_identity_stable": collected.get("target_identity_stable_during_read") is True,
+         "api_read_succeeded": collected.get("target_log_api_status_200") is True,
+         "exact_fixture_rows": collected.get("exact_case_fixture_rows") is True,
+         "fixture_row_count": collected.get("observed_fixture_row_count")},
+    )
+    lab.check(
+        "green",
+        "The same ServiceAccount is refused access to the unrelated owned DNS client Pod logs",
+        collected.get("collector_completed") is True
+        and collected.get("unrelated_owned_pod_log_status_403") is True,
+        {"unrelated_log_read_refused": collected.get("unrelated_owned_pod_log_status_403") is True,
+         "http_status": collected.get("unrelated_status_class")},
+    )

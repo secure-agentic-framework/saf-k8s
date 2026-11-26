@@ -4,8 +4,8 @@
   "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b37638ff5168a2ea39c4c99f97721839300728a8ccd4bc0d8a64b6a393d71fb4",
-  "scope": "A dedicated CoreDNS instance in local Kubernetes v1.36.1 serves a closed fixture zone. A fixed harmless canary resolves before logging, and two owned A queries resolve afterward. Structured CoreDNS log rows are delivered to a separate scoped observer Job, which emits one known allowlisted test alert. Production collection, analytic coverage and protective enforcement need separate evidence.",
-  "cluster": "saf-lab-a514b815775e",
+  "scope": "A dedicated CoreDNS instance in local Kubernetes v1.36.1 serves a closed fixture zone. A fixed harmless canary resolves before logging, and two owned A queries resolve afterward. The nine-check fixture copies observed rows into a ConfigMap for its static observer Job. An additive named ServiceAccount collector separately reads the exact owned CoreDNS Pod log through the Kubernetes API, checks exact benign rows and a refused unrelated Pod log path, and emits sanitized predicates only. Production collection, analytic coverage and protective enforcement need separate evidence.",
+  "cluster": "saf-lab-038bd2af1324",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -189,6 +189,38 @@
           }
         ],
         "scope": "synthetic closed .fixture.test queries only"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The named collector ServiceAccount has only exact Pod metadata access and CoreDNS Pod log access",
+      "matched": true,
+      "observed": {
+        "exact_named_rbac_policy": true,
+        "named_service_account": true,
+        "metadata_pod_names_count": 2,
+        "pod_log_resource_names_count": 1
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The API-reading collector validates the exact ten benign fixture rows from the owned CoreDNS Pod",
+      "matched": true,
+      "observed": {
+        "target_identity_valid": true,
+        "target_identity_stable": true,
+        "api_read_succeeded": true,
+        "exact_fixture_rows": true,
+        "fixture_row_count": 10
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same ServiceAccount is refused access to the unrelated owned DNS client Pod logs",
+      "matched": true,
+      "observed": {
+        "unrelated_log_read_refused": true,
+        "http_status": 403
       }
     }
   ]
