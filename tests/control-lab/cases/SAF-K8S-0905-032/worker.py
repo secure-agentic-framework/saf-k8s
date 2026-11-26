@@ -1,7 +1,13 @@
 """Fixture-only bounded parser and policy observations; no executable model input."""
 import hashlib
+import importlib.metadata
 import json
+import os
+import platform
 import struct
+import sys
+from pathlib import Path
+from zipfile import ZipFile
 
 MAX_FILE = 2048
 MAX_HEADER = 512
@@ -15,14 +21,14 @@ class FixtureError(Exception):
     pass
 
 
-def safetensors_fixture():
+def safetensors_fixture(values=(1.25, -2.5)):
     """Pack one known F32[2] tensor using the documented safetensors framing."""
     header = json.dumps(
         {"weight": {"dtype": "F32", "shape": [2], "data_offsets": [0, 8]}},
         separators=(",", ":"),
     ).encode("utf-8")
     header += b" " * ((-len(header)) % 8)
-    return struct.pack("<Q", len(header)) + header + struct.pack("<2f", 1.25, -2.5)
+    return struct.pack("<Q", len(header)) + header + struct.pack("<2f", *values)
 
 
 def policy_decision(format_name, allowlist, counters):
@@ -62,7 +68,7 @@ def _json_admit_then_load(declared_format, data, approved_digests):
     """Bind a harmless JSON data parse to the exact format+digest admission decision."""
     counters = {"deny_count": 0, "loader_calls": 0, "values_read": 0}
     digest = hashlib.sha256(data).hexdigest()
-    admitted = declared_format == "json-data" and digest in approved_digests
+    admitted, _ = _format_digest_gate(declared_format, data, {"json-data": approved_digests})
     if not admitted:
         counters["deny_count"] = 1
         return {"declared_format": declared_format, "sha256": digest,
@@ -76,6 +82,67 @@ def _json_admit_then_load(declared_format, data, approved_digests):
             "admitted": True, "loader_sha256": hashlib.sha256(data).hexdigest(),
             "status": "JSON_DATA_LOADED", "values": value["weights"],
             "counters": counters}
+
+
+def _format_digest_gate(declared_format, data, approved):
+    """Shared exact-format and exact-digest activation gate before any parser call."""
+    digest = hashlib.sha256(data).hexdigest()
+    return digest in approved.get(declared_format, set()), digest
+
+
+def native_safetensors_witness():
+    """Run the pinned upstream parser only after the shared format/digest gate."""
+    wheel_path = Path("/wheel/safetensors.whl")
+    wheel_digest = hashlib.sha256(wheel_path.read_bytes()).hexdigest()
+    expected_wheel_digest = os.environ["SAF_EXPECTED_WHEEL_SHA256"]
+    expected_machine = os.environ["SAF_EXPECTED_MACHINE"]
+    machine = platform.machine()
+    if wheel_digest != expected_wheel_digest or machine != expected_machine:
+        raise RuntimeError("locked package or runtime architecture mismatch")
+
+    site = Path("/runtime/site")
+    site.mkdir(parents=True, exist_ok=True)
+    with ZipFile(wheel_path) as package:
+        package.extractall(site)
+    sys.path.insert(0, str(site))
+    deserialize = None
+
+    approved_data = safetensors_fixture()
+    different_data = safetensors_fixture(values=(0.0, 0.5))
+    approved = {"safetensors": {hashlib.sha256(approved_data).hexdigest()}}
+    native_calls = 0
+    outcomes = {}
+
+    for name, declared, data in (
+        ("approved", "safetensors", approved_data),
+        ("wrong_format", "legacy-inert", approved_data),
+        ("unapproved_digest", "safetensors", different_data),
+        ("mislabeled_inert", "safetensors", LEGACY_INERT),
+    ):
+        calls_before = native_calls
+        admitted, digest = _format_digest_gate(declared, data, approved)
+        if not admitted:
+            outcomes[name] = {"declared_format": declared, "sha256": digest,
+                              "status": "DENY_BEFORE_NATIVE", "native_calls": native_calls,
+                              "native_call_delta": native_calls - calls_before}
+            continue
+
+        if deserialize is None:
+            from safetensors import deserialize as native_deserialize
+            deserialize = native_deserialize
+        native_calls += 1
+        tensor = dict(deserialize(data))["weight"]
+        # Upstream 0.8.0 deserialize returns a mapping of tensor metadata and bytes.
+        values = list(struct.unpack("<2f", tensor["data"]))
+        outcomes[name] = {"declared_format": declared, "sha256": digest,
+                          "status": "NATIVE_LOADED", "native_calls": native_calls,
+                          "native_call_delta": native_calls - calls_before,
+                          "tensor_name": "weight", "dtype": tensor["dtype"],
+                          "shape": list(tensor["shape"]), "values": values}
+
+    return {"library": importlib.metadata.version("safetensors"),
+            "machine": machine, "wheel_sha256": wheel_digest,
+            "expected_machine": expected_machine, "outcomes": outcomes}
 
 
 def try_load(declared_format, data, approved_formats):
@@ -112,4 +179,5 @@ if __name__ == "__main__":
         "unapproved_digest": _json_admit_then_load("json-data", OTHER_DECLARATIVE_JSON,
                                                     {approved_json_digest}),
     }
+    result["native_safetensors"] = native_safetensors_witness()
     print(json.dumps(result, sort_keys=True))

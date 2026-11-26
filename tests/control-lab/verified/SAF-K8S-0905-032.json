@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-032",
-  "catalog_revision": "097285993fe4ea61d79d81bc542a78566631ec53",
-  "catalog_sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
+  "catalog_revision": "235c61df1efd30e1ae349c374acca2553bfba87a",
+  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e079804a923925143376bf4b20ff3500c1b673a174faa40cb59bad46a8df54d5",
-  "scope": "Runs one fixture-owned Kubernetes Job in the precreated saf-test namespace. All inputs are constants: fixed inert legacy bytes and a tiny F32[2] SafeTensors-shaped payload. Red records a permissive decision reaching only a counted stub; green denies the same bytes before loader invocation; positive checks approved-format values and rejection of mislabeled inert bytes before value access. A standard JSON parser separately consumes only an exact allowlisted declarative input. This does not test a production model loader, PyTorch, hostile payload behavior, general SafeTensors compatibility, or 0905-033 structure/metadata checks.",
-  "cluster": "saf-lab-fdc70e83eb0f",
+  "scope": "Runs one fixture-owned Kubernetes Job in the precreated saf-test namespace. Inputs are fixed inert bytes and a tiny F32[2] SafeTensors vector. Red records a permissive decision reaching only a counted stub; green denies those bytes before loader invocation; the original narrow fixture and JSON checks remain. An additional path verifies the official digest-pinned upstream safetensors 0.8.0 parser reads only the exact approved digest and that wrong-format, unapproved-digest, and mislabeled inert candidates cause zero parser calls. The worker is tokenless, has read-only code/package mounts, and extracts only to a bounded memory-backed volume. This does not test production model loading, PyTorch, GPU, hostile payloads, general format compatibility, other architectures, or 0905-033 structure/metadata checks.",
+  "cluster": "saf-lab-adfb654b0a24",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -159,6 +159,56 @@
         "declared_format": "safetensors",
         "sha256": "2bb25e3edbca0ff0324ce97c301941c26ce3c739ba196d8def6ff914bf97a118",
         "status": "REJECTED_BEFORE_VALUES"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Pinned upstream SafeTensors parses the independently digest-bound inert vector; denied paths make no parser calls",
+      "matched": true,
+      "observed": {
+        "expected_machine": "aarch64",
+        "library": "0.8.0",
+        "machine": "aarch64",
+        "outcomes": {
+          "approved": {
+            "declared_format": "safetensors",
+            "dtype": "F32",
+            "native_call_delta": 1,
+            "native_calls": 1,
+            "sha256": "1fa6bcfde3b5c5b07623e9b282bc92f89dc8ae9e2ebfd9d2097b1d6e1aa76548",
+            "shape": [
+              2
+            ],
+            "status": "NATIVE_LOADED",
+            "tensor_name": "weight",
+            "values": [
+              1.25,
+              -2.5
+            ]
+          },
+          "mislabeled_inert": {
+            "declared_format": "safetensors",
+            "native_call_delta": 0,
+            "native_calls": 1,
+            "sha256": "2bb25e3edbca0ff0324ce97c301941c26ce3c739ba196d8def6ff914bf97a118",
+            "status": "DENY_BEFORE_NATIVE"
+          },
+          "unapproved_digest": {
+            "declared_format": "safetensors",
+            "native_call_delta": 0,
+            "native_calls": 1,
+            "sha256": "78bba6ae0a4042d2fe953209953a47717b2d9140816a98276731cc42f2879d3a",
+            "status": "DENY_BEFORE_NATIVE"
+          },
+          "wrong_format": {
+            "declared_format": "legacy-inert",
+            "native_call_delta": 0,
+            "native_calls": 1,
+            "sha256": "1fa6bcfde3b5c5b07623e9b282bc92f89dc8ae9e2ebfd9d2097b1d6e1aa76548",
+            "status": "DENY_BEFORE_NATIVE"
+          }
+        },
+        "wheel_sha256": "87eec7ffed2b809f05a398a8becb7d013f19f7837cd15d9748580d6cf30dbaf4"
       }
     }
   ]
