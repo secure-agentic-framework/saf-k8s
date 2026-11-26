@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 from dataset_fixture import CHUNK_SIZE, verify
+from manifest_auth import read_verified_manifest
 
 
 def consume(root, manifest):
@@ -23,8 +24,10 @@ def consume(root, manifest):
 
 def run(root, manifest_path):
     root = Path(root)
-    manifest = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
-    decision = verify(root, manifest)
+    manifest = read_verified_manifest(Path(manifest_path))
+    decision = verify(root, manifest) if manifest is not None else {
+        "accepted": False, "reason": "manifest_untrusted"
+    }
     if not decision["accepted"]:
         print(json.dumps({
             "decision": "denied",

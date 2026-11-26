@@ -5,6 +5,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 SIBLING = HERE.parent / "SAF-K8S-0908-001" / "case.py"
+CRYPTO = HERE.parent / "SAF-K8S-0906-006" / "signature_crypto_base.py"
 NS = "saf-test"
 APP = "dataset-integrity-fixture"
 PVC = "dataset-integrity-data"
@@ -17,9 +18,10 @@ SCOPE = (
     "manifest, denies deterministic changed or missing content, and accepts the explicitly "
     "named approved synthetic dataset. Separate read-only consumer Jobs then stream the approved "
     "fixture only after the same verification gate and record zero consumption for a changed "
-    "copy. A guarded file-level restore from a separate local PVC revalidates the commitment before "
-    "the read-only consumer resumes on a distinct replacement volume. Hashing uses at most two "
-    "workers. The reference uses one disposable cluster, one synthetic dataset, and a fixture-pinned manifest."
+    "copy. A distinct fixture authority signs the approved manifest with an ephemeral OpenSSL Ed25519 "
+    "key. An unmatched signature prevents any input consumption. A guarded restore revalidates the "
+    "signed commitment before a reader resumes on a distinct PVC. The reference uses one disposable "
+    "cluster and one synthetic dataset."
 )
 
 
@@ -52,11 +54,15 @@ def _create(lab, kind, name, api="v1", **fields):
 def run(lab):
     """Create one bounded PVC consumer and record deterministic lab assertions."""
     image = load_runtime(lab)
+    if not CRYPTO.is_file():
+        lab.block("Required adjacent SAF-K8S-0906-006 signature helper is unavailable")
     _create(lab, "ConfigMap", CODE, immutable=True,
             data={
                 "dataset_fixture.py": (HERE / "dataset_fixture.py").read_text(encoding="utf-8"),
                 "training_consumer.py": (HERE / "training_consumer.py").read_text(encoding="utf-8"),
                 "restore_dataset.py": (HERE / "restore_dataset.py").read_text(encoding="utf-8"),
+                "manifest_auth.py": (HERE / "manifest_auth.py").read_text(encoding="utf-8"),
+                "signature_crypto_base.py": CRYPTO.read_text(encoding="utf-8"),
             })
     _create(lab, "ConfigMap", MANIFEST, immutable=True,
             data={"manifest.json": (HERE / "manifest.json").read_text(encoding="utf-8")})
@@ -130,7 +136,10 @@ def run(lab):
     # immutable manifest using read-only mounts. It performs a separate complete
     # verification before its actual bounded input-streaming phase.
     consumer_case = _load_module("saf_k8s_0906_002_consumer_case", HERE / "consumer_case.py")
+    signature_case = _load_module("saf_k8s_0906_002_signature_case", HERE / "signature_case.py")
+    signature_case.prepare(lab, image, consumer_case)
     consumer_case.run(lab, image)
+    signature_case.check(lab, image, consumer_case)
 
     recovery_case = _load_module("saf_k8s_0906_002_recovery_case", HERE / "recovery_case.py")
     recovery_case.run(lab, image, consumer_case)

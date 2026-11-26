@@ -5,8 +5,11 @@ import shutil
 import sys
 
 from dataset_fixture import verify
+from manifest_auth import read_verified_manifest
 
-MANIFEST = json.loads(Path("/manifest/manifest.json").read_text())
+MANIFEST = read_verified_manifest(Path("/manifest/manifest.json"))
+if MANIFEST is None:
+    raise SystemExit("Dataset recovery requires a trusted manifest signature")
 DATASET = Path("/data/recovered")
 BACKUP = Path("/backup/approved")
 

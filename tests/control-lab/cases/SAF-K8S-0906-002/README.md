@@ -27,3 +27,19 @@ approved bytes. A fresh consumer Job revalidates that replacement copy before
 reading the four exact approved segments. All three volumes belong to the same
 disposable cluster. For a deployment, exercise the adopted backup provider,
 its storage failure domains, and the measured recovery objectives.
+
+
+## Manifest authority
+
+A separate restricted publisher Job signs the exact approved manifest bytes
+with an ephemeral Ed25519 key. The private key exists in the signing process.
+The lab enrolls the public key in an independent immutable ConfigMap. The
+consumer and restore Jobs verify the detached signature before opening the
+dataset. The independent consumer sees zero bytes when given a signature
+from another ephemeral key for the same approved manifest. This case reuses
+the pinned OpenSSL helper from SAF-K8S-0906-006.
+
+For the adopter procedure, confirm the enrolled publisher's authority,
+protected configuration, version binding, key rotation and revocation. Match
+the adopted trainer's actual consumption to the exact verified immutable
+store/version and exercise its recovery failure domains.

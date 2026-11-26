@@ -8,13 +8,14 @@ NS = "saf-test"
 PVC = "dataset-integrity-data"
 MANIFEST = "dataset-integrity-manifest"
 CODE = "dataset-integrity-code"
+TRUST = "dataset-manifest-trust"
 CONSUMER_NAMES = {
     "approved": "dataset-consumer-approved",
     "altered": "dataset-consumer-altered",
 }
 
 
-def _job(name, input_dir, image, claim=PVC):
+def _job(name, input_dir, image, claim=PVC, trust=TRUST):
     return {
         "apiVersion": "batch/v1",
         "kind": "Job",
@@ -46,6 +47,7 @@ def _job(name, input_dir, image, claim=PVC):
                             {"name": "code", "mountPath": "/fixture", "readOnly": True},
                             {"name": "manifest", "mountPath": "/manifest", "readOnly": True},
                             {"name": "dataset", "mountPath": "/data", "readOnly": True},
+                            {"name": "trust", "mountPath": "/trust", "readOnly": True},
                         ],
                         "resources": {
                             "requests": {"cpu": "10m", "memory": "32Mi"},
@@ -63,6 +65,8 @@ def _job(name, input_dir, image, claim=PVC):
                             "items": [
                                 {"key": "dataset_fixture.py", "path": "dataset_fixture.py"},
                                 {"key": "training_consumer.py", "path": "training_consumer.py"},
+                                {"key": "manifest_auth.py", "path": "manifest_auth.py"},
+                                {"key": "signature_crypto_base.py", "path": "signature_crypto_base.py"},
                             ],
                         }},
                         {"name": "manifest", "configMap": {
@@ -70,6 +74,7 @@ def _job(name, input_dir, image, claim=PVC):
                             "items": [{"key": "manifest.json", "path": "manifest.json"}],
                         }},
                         {"name": "dataset", "persistentVolumeClaim": {"claimName": claim}},
+                        {"name": "trust", "configMap": {"name": trust}},
                     ],
                 },
             },
@@ -77,8 +82,8 @@ def _job(name, input_dir, image, claim=PVC):
     }
 
 
-def _run_consumer(lab, name, input_dir, image, claim=PVC):
-    return _observe_job(lab, name, _job(name, input_dir, image, claim))
+def _run_consumer(lab, name, input_dir, image, claim=PVC, trust=TRUST):
+    return _observe_job(lab, name, _job(name, input_dir, image, claim, trust))
 
 
 def _observe_job(lab, name, job):
