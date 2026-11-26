@@ -4,8 +4,8 @@
   "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "f85b269e4db761a9f1fef109aa59bef37489a131b3fcb623f6ef7ead75ee6c1c",
-  "scope": "A single-node local Kind v0.32.0 and Kubernetes v1.36.1 cluster. The API server allocates addresses in deliberately small IPv4 ServiceCIDRs. The case reads native ServiceCIDR/IPAddress allocations, reports a synthetic two-address low-spare threshold, and creates case-owned events.events.k8s.io/v1 Warning/Normal records from the test harness. A second ServiceCIDR adds capacity, and both ClusterIP Services serve the same owned marker through cluster DNS. Node PodCIDR containment is inspected. The event producer is modeled, not a deployed monitoring controller. CNI Pod IPAM sizing, node pool exhaustion, dual-stack, production telemetry, and alert routing require separate evidence.",
-  "cluster": "saf-lab-c6a282f24606",
+  "scope": "A single-node local Kind v0.32.0 and Kubernetes v1.36.1 cluster. The API server allocates addresses in deliberately small IPv4 ServiceCIDRs. The case reads native ServiceCIDR/IPAddress allocations, reports a synthetic two-address low-spare threshold, and creates case-owned events.events.k8s.io/v1 Warning/Normal records from the test harness. A second ServiceCIDR adds capacity, and both ClusterIP Services serve the same owned marker through cluster DNS. A dedicated IPv4 kindnet host-local /28 Pod range is filled with small owned Pods until one native sandbox event confirms IPAM exhaustion; freeing one holder restores one sentinel Pod. Node-prefix exhaustion is not tested. The Service capacity event producer is modeled, not a deployed monitoring controller. Pod alerting, production telemetry, and alert routing require separate evidence.",
+  "cluster": "saf-lab-455be4d49461",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -120,6 +120,55 @@
       "observed": {
         "original_service_route": true,
         "expanded_service_route": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Actual host-local /28 range and kubelet Pod headroom are bounded",
+      "matched": true,
+      "observed": {
+        "allocator": "kindnet-host-local",
+        "podcidr_exact": true,
+        "host_local_addresses": 13,
+        "free_before_test": 8,
+        "kubelet_capacity_exceeds_exhaustion_attempt": true,
+        "case_owned_attempt_cap_respected": true,
+        "existing_case_pods_match_leases": true,
+        "existing_case_pods_use_owned_node": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Native kubelet event confirms the owned Pod IPAM pool is exhausted",
+      "matched": true,
+      "observed": {
+        "all_host_local_addresses_leased": true,
+        "failed_pod_scheduled_to_owned_node": true,
+        "failed_pod_has_no_ip": true,
+        "native_warning_reason": "FailedCreatePodSandBox",
+        "event_regarding_uid_matches_exact_probe": true,
+        "sanitized_error_class": "host-local-no-addresses"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Deleting one holder restores one in-range sentinel Pod and marker service",
+      "matched": true,
+      "observed": {
+        "one_holder_lease_released": true,
+        "sentinel_reused_released_in_range_address": true,
+        "sentinel_service_uses_expanded_service_pool": true,
+        "sentinel_returns_case_marker": true,
+        "original_marker_service_still_works": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Owned Pod IPAM cleanup restores baseline leases and marker connectivity",
+      "matched": true,
+      "observed": {
+        "owned_host_local_leases_returned_to_baseline": true,
+        "case_marker_service_still_works": true
       }
     }
   ]
