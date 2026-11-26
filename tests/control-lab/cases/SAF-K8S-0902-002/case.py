@@ -28,15 +28,11 @@ SERVE_POD = "verified-mock-serving"
 OBSERVER_POD = "independent-readback"
 WRONG_DIGEST = "f" * 64
 SCOPE = (
-    "One disposable Kind Kubernetes v1.36.1 cluster. A ConfigMap contains one public, inert "
-    "synthetic marker, not a model. A digest-pinned BusyBox init container checks those exact "
-    "bytes before a digest-pinned Python mock serving container may start. The failed case "
-    "uses a fixed nonmatching digest and restartPolicy Never; the authorized case uses the "
-    "fixture's fixed matching digest, reads and serves the marker, observes a read-only mount, "
-    "and records a denied write. A separate Pod reads and hashes the mounted bytes afterward. "
-    "No real artifacts, endpoints, registries, feeds, credentials, or secrets are used. This "
-    "does not verify signatures, registry acquisition, model cache behavior, runtime replacement "
-    "under concurrency, production inference behavior, or file integrity monitoring/alerting."
+    "One disposable Kind v1.36.1 cluster. Startup compares a fixed inert marker with approved "
+    "and incorrect digests. An independent Pod verifies the read-only consumer's mounted bytes. "
+    "A separate case-owned PVC comparison observes an already-running read-only monitor detect "
+    "the exact fixture marker change made by a scoped writer. Deployed signer, cache, storage "
+    "and response guarantees have separate verification."
 )
 
 
@@ -269,3 +265,168 @@ def run(lab):
         "checks": lab.checks,
         "monitoring_tested": False,
     })
+    _run_fim_monitor(lab)
+
+
+# Additive scratch file-integrity monitoring exercise, separate from original ConfigMap tests.
+FIM_PVC = "fim-synthetic-model"
+FIM_WRITER_SA = "fim-fixture-writer"
+FIM_SEED_POD = "fim-seed-writer"
+FIM_CHANGE_POD = "fim-change-writer"
+FIM_MONITOR_POD = "fim-readonly-consumer"
+FIM_CONFIG = "fim-integrity-monitor"
+FIM_BASELINE = b"SAF-0902-002-FIM-BASELINE\n"
+FIM_CHANGED = b"SAF-0902-002-FIM-UPDATED\n"
+FIM_MONITOR = 'import errno, hashlib, json, pathlib, time, os\npath = pathlib.Path("/model/marker.txt")\nexpected = os.environ["EXPECTED_SHA256"]\nactual = hashlib.sha256(path.read_bytes()).hexdigest()\ntry:\n    with path.open("ab"):\n        pass\n    write_errno = None\nexcept OSError as err:\n    write_errno = err.errno\nprint(json.dumps({"event": "monitor_baseline", "expected_sha256": expected, "observed_sha256": actual,\n                  "write_denied": write_errno == errno.EROFS, "write_errno": write_errno}), flush=True)\nif actual != expected:\n    raise SystemExit(2)\ndeadline = time.monotonic() + 90\nwhile time.monotonic() < deadline:\n    observed = hashlib.sha256(path.read_bytes()).hexdigest()\n    if observed != expected:\n        print(json.dumps({"event": "integrity_discrepancy", "expected_sha256": expected,\n                          "observed_sha256": observed}), flush=True)\n        break\n    time.sleep(0.2)\nelse:\n    raise SystemExit(3)\n'
+FIM_WRITE = 'import hashlib, json, os, pathlib\npayload = os.environ["FIXTURE_MARKER"].encode("ascii")\npath = pathlib.Path("/model/marker.txt")\npending = path.with_name(".marker-next")\npending.write_bytes(payload)\npending.replace(path)\nprint(json.dumps({"event": "fixture_write", "sha256": hashlib.sha256(payload).hexdigest()}))\n'
+
+
+def _fim_pod(name, *, writer=False, marker=None):
+    if writer:
+        container = {"name": "fixture-writer", "image": PYTHON_IMAGE, "imagePullPolicy": "IfNotPresent",
+                     "command": ["python", "-c", FIM_WRITE],
+                     "env": [{"name": "FIXTURE_MARKER", "value": marker.decode("ascii")}],
+                     "securityContext": {"allowPrivilegeEscalation": False, "readOnlyRootFilesystem": True,
+                                         "capabilities": {"drop": ["ALL"]}},
+                     "resources": {"requests": {"cpu": "5m", "memory": "8Mi"},
+                                   "limits": {"cpu": "50m", "memory": "32Mi"}},
+                     "volumeMounts": [{"name": "model", "mountPath": "/model", "readOnly": False}]}
+    else:
+        container = {"name": "integrity-monitor", "image": PYTHON_IMAGE, "imagePullPolicy": "IfNotPresent",
+                     "command": ["python", "-B", "/monitor/monitor.py"],
+                     "env": [{"name": "EXPECTED_SHA256", "value": _digest(FIM_BASELINE)}],
+                     "securityContext": {"allowPrivilegeEscalation": False, "readOnlyRootFilesystem": True,
+                                         "capabilities": {"drop": ["ALL"]}},
+                     "resources": {"requests": {"cpu": "5m", "memory": "8Mi"},
+                                   "limits": {"cpu": "50m", "memory": "32Mi"}},
+                     "volumeMounts": [{"name": "model", "mountPath": "/model", "readOnly": True},
+                                      {"name": "monitor", "mountPath": "/monitor", "readOnly": True}]}
+    return {"apiVersion": "v1", "kind": "Pod",
+            "metadata": {"name": name, "namespace": NAMESPACE, "labels": _labels()},
+            "spec": {"restartPolicy": "Never", "serviceAccountName": FIM_WRITER_SA if writer else "default",
+                     "automountServiceAccountToken": False, "terminationGracePeriodSeconds": 1,
+                     "securityContext": {"runAsNonRoot": True, "runAsUser": 65534, "fsGroup": 65534,
+                                         "seccompProfile": {"type": "RuntimeDefault"}},
+                     "containers": [container],
+                     "volumes": [{"name": "model", "persistentVolumeClaim": {"claimName": FIM_PVC}}] +
+                                ([] if writer else [{"name": "monitor", "configMap": {"name": FIM_CONFIG, "defaultMode": 292}}])}}
+
+
+def _fim_wait_logs(lab, pod_name, match, timeout=60):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        result = lab.kubectl("-n", NAMESPACE, "logs", pod_name, allow_failure=True)
+        for line in result.stdout.splitlines():
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if record.get("event") == match:
+                return result.stdout, record
+        time.sleep(1)
+    lab.block(f"The owned fixture did not emit {match}")
+
+
+def _fim_wait_succeeded(lab, name, timeout=90):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        result = lab.kubectl("-n", NAMESPACE, "get", "pod", name,
+                             "-o", "jsonpath={.status.phase}", allow_failure=True)
+        if result.stdout.strip() == "Succeeded":
+            return
+        time.sleep(1)
+    lab.block(f"Fixture writer Pod {name} did not complete")
+
+
+def _fim_write_pod(lab, name, marker):
+    pod = _fim_pod(name, writer=True, marker=marker)
+    lab.kubectl("-n", NAMESPACE, "create", "-f", "-", payload=json.dumps(pod))
+    _fim_wait_succeeded(lab, name)
+    record = json.loads(lab.kubectl("-n", NAMESPACE, "logs", name).stdout.strip())
+    actual = json.loads(lab.kubectl("-n", NAMESPACE, "get", "pod", name, "-o", "json").stdout)
+    return actual, record
+
+
+def _run_fim_monitor(lab):
+    def create(resource):
+        return lab.kubectl("-n", NAMESPACE, "create", "-f", "-", payload=json.dumps(resource))
+
+    provisioner = lab.kubectl("get", "storageclass", "standard", "-o", "jsonpath={.provisioner}").stdout.strip()
+    if provisioner != "rancher.io/local-path":
+        lab.block("The integrity monitor supplement requires the owned Kind local-path provisioner")
+    create({"apiVersion": "v1", "kind": "ServiceAccount", "metadata": {"name": FIM_WRITER_SA, "namespace": NAMESPACE},
+                "automountServiceAccountToken": False})
+    create({"apiVersion": "v1", "kind": "PersistentVolumeClaim", "metadata": {"name": FIM_PVC, "namespace": NAMESPACE,
+                "labels": _labels()}, "spec": {"storageClassName": "standard", "accessModes": ["ReadWriteOnce"],
+                "resources": {"requests": {"storage": "16Mi"}}}})
+    seed = _fim_pod(FIM_SEED_POD, writer=True, marker=FIM_BASELINE)
+    seed["spec"]["containers"][0]["command"] = ["python", "-c", "import time; time.sleep(90)"]
+    lab.kubectl("-n", NAMESPACE, "create", "-f", "-", payload=json.dumps(seed))
+    deadline = time.monotonic() + 80
+    claim = None
+    while time.monotonic() < deadline:
+        result = lab.kubectl("-n", NAMESPACE, "get", "pvc", FIM_PVC, "-o", "json", allow_failure=True)
+        if result.returncode == 0:
+            claim = json.loads(result.stdout)
+            if claim.get("status", {}).get("phase") == "Bound":
+                break
+        time.sleep(1)
+    if not claim or claim.get("status", {}).get("phase") != "Bound":
+        lab.block("The owned local-path PVC did not bind")
+    pv_name = claim["spec"]["volumeName"]
+    pv = json.loads(lab.kubectl("get", "pv", pv_name, "-o", "json").stdout)
+    claim_ref = pv["spec"].get("claimRef", {})
+    expected_path = f"/var/local-path-provisioner/{pv_name}_{NAMESPACE}_{FIM_PVC}"
+    if (claim_ref.get("uid") != claim["metadata"]["uid"]
+            or claim_ref.get("namespace") != NAMESPACE or claim_ref.get("name") != FIM_PVC
+            or pv["spec"].get("hostPath", {}).get("path") != expected_path):
+        lab.block("The bound local volume does not identify the exact owned fixture claim and path")
+    lab.kubectl("-n", NAMESPACE, "wait", "--for=condition=Ready", f"pod/{FIM_SEED_POD}",
+                "--timeout=40s", timeout=50)
+    seed_actual = json.loads(lab.kubectl("-n", NAMESPACE, "get", "pod", FIM_SEED_POD, "-o", "json").stdout)
+    if seed_actual["spec"]["nodeName"] != f"{lab.cluster}-control-plane":
+        lab.block("The seed fixture was not placed on the exact owned Kind node")
+    seed_receipt = json.loads(lab.kubectl("-n", NAMESPACE, "exec", FIM_SEED_POD, "-c",
+                                         "fixture-writer", "--", "python", "-c", FIM_WRITE).stdout)
+    lab.kubectl("-n", NAMESPACE, "delete", "pod", FIM_SEED_POD, "--wait=true",
+                "--timeout=20s", timeout=25)
+    baseline_digest = _digest(FIM_BASELINE)
+    if seed_receipt.get("sha256") != baseline_digest:
+        lab.block("Seed writer did not record the fixed baseline digest")
+    create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": FIM_CONFIG, "namespace": NAMESPACE,
+                "labels": _labels()}, "immutable": True, "data": {"monitor.py": FIM_MONITOR}})
+    monitor_pod = _fim_pod(FIM_MONITOR_POD)
+    lab.kubectl("-n", NAMESPACE, "create", "-f", "-", payload=json.dumps(monitor_pod))
+    _, baseline_record = _fim_wait_logs(lab, FIM_MONITOR_POD, "monitor_baseline")
+    monitor_pod = json.loads(lab.kubectl("-n", NAMESPACE, "get", "pod", FIM_MONITOR_POD, "-o", "json").stdout)
+    baseline_match = (baseline_record.get("expected_sha256") == baseline_digest
+                      and baseline_record.get("observed_sha256") == baseline_digest
+                      and baseline_record.get("write_denied") is True
+                      and baseline_record.get("write_errno") == 30
+                      and monitor_pod["spec"]["containers"][0]["volumeMounts"][0]["readOnly"] is True
+                      and monitor_pod["spec"]["containers"][0]["securityContext"]["readOnlyRootFilesystem"] is True)
+    lab.check("positive", "The hardened read-only consumer records the fixed PVC baseline digest",
+              baseline_match, {"pvc_bound": True, "provisioner": provisioner, "read_only_mount": True,
+                               "read_only_rootfs": True, "baseline_digest_match": baseline_match})
+    changed_digest = _digest(FIM_CHANGED)
+    change_pod, change_receipt = _fim_write_pod(lab, FIM_CHANGE_POD, FIM_CHANGED)
+    monitor_logs, discrepancy = _fim_wait_logs(lab, FIM_MONITOR_POD, "integrity_discrepancy")
+    actual_change = (change_receipt.get("sha256") == changed_digest
+                     and discrepancy.get("expected_sha256") == baseline_digest
+                     and discrepancy.get("observed_sha256") == changed_digest
+                     and change_pod["spec"]["serviceAccountName"] == FIM_WRITER_SA
+                     and change_pod["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] == FIM_PVC
+                     and change_pod["spec"]["containers"][0]["volumeMounts"][0]["mountPath"] == "/model"
+                     and change_pod["spec"]["containers"][0]["volumeMounts"][0].get("readOnly", False) is False
+                     and FIM_BASELINE.decode("ascii") not in monitor_logs
+                     and FIM_CHANGED.decode("ascii") not in monitor_logs)
+    lab.check("green", "An approved fixture writer changes only its owned marker and the monitor emits a digest-only discrepancy",
+              actual_change, {"writer_service_account": FIM_WRITER_SA, "pvc": FIM_PVC,
+                             "baseline_sha256": baseline_digest, "observed_sha256": changed_digest,
+                             "discrepancy_detected": actual_change, "record_contains_marker_bytes": False})
+    state = {"scope": "synthetic local-path PVC and two fixed inert marker values only",
+             "provisioner": provisioner, "pvc_bound": True, "writer_service_account": FIM_WRITER_SA,
+             "pvc": FIM_PVC, "baseline_sha256": baseline_digest, "changed_sha256": changed_digest,
+             "read_only_consumer_mount": True, "read_only_consumer_rootfs": True,
+             "monitor_records_only_hashes": True, "discrepancy": discrepancy}
+    _save(lab, "model-integrity-monitor.raw.json", state)

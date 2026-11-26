@@ -2433,7 +2433,7 @@
     "SAF-K8S-0902-002": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "16a41a19f7d296415f7082bf487eca1d5850f50297eab758c941ef88b0fb3423",
+      "sha256": "ef870b10f8b11b159b9276a4ddb4014593c408b64a6916d747fc04ecc93f9f5f",
       "title": "Model loading integrity verification"
     },
     "SAF-K8S-0902-003": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "360b30f8d4c91b0f7226058d8948aa62ea48f675",
-  "sha256": "904d72a72ad1fecd0846782c878be4ca9fc97e55f047332c98126b06b9704d13",
+  "revision": "f87be2c2779243aa6326d05fe12a2d189d05e121",
+  "sha256": "8f78b66ce89e60cb09a574a9cc9728937daa6fabc61ddf7214e1f6a6934a1c3d",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

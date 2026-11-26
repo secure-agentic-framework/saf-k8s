@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-0902-002",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "0d4c8213157d63abfbe182eeb0deec4309a6b0dd",
+  "catalog_sha256": "8f78b66ce89e60cb09a574a9cc9728937daa6fabc61ddf7214e1f6a6934a1c3d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "16a41a19f7d296415f7082bf487eca1d5850f50297eab758c941ef88b0fb3423",
-  "scope": "One disposable Kind Kubernetes v1.36.1 cluster. A ConfigMap contains one public, inert synthetic marker, not a model. A digest-pinned BusyBox init container checks those exact bytes before a digest-pinned Python mock serving container may start. The failed case uses a fixed nonmatching digest and restartPolicy Never; the authorized case uses the fixture's fixed matching digest, reads and serves the marker, observes a read-only mount, and records a denied write. A separate Pod reads and hashes the mounted bytes afterward. No real artifacts, endpoints, registries, feeds, credentials, or secrets are used. This does not verify signatures, registry acquisition, model cache behavior, runtime replacement under concurrency, production inference behavior, or file integrity monitoring/alerting.",
-  "review_timing": {
-    "queued_at": "2026-11-22T20:27:12.142620+00:00",
-    "cluster_ready_at": "2026-11-22T20:27:57.725771+00:00",
-    "approval_at": "2026-11-22T20:28:25.409144+00:00",
-    "case_loaded_at": "2026-11-22T20:28:25.506460+00:00"
-  },
-  "cluster": "saf-lab-501ae8387a05",
+  "control_sha256": "ef870b10f8b11b159b9276a4ddb4014593c408b64a6916d747fc04ecc93f9f5f",
+  "scope": "One disposable Kind v1.36.1 cluster. Startup compares a fixed inert marker with approved and incorrect digests. An independent Pod verifies the read-only consumer's mounted bytes. A separate case-owned PVC comparison observes an already-running read-only monitor detect the exact fixture marker change made by a scoped writer. Deployed signer, cache, storage and response guarantees have separate verification.",
+  "cluster": "saf-lab-6a4cac1bf7bf",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "35a0eb7976842ca5d8b6822dcaba1b4de8fb37f67fd899479c3010547ef4b185",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
@@ -99,6 +92,31 @@
         "event": "independent_readback",
         "marker": "SAF-SYNTHETIC-MODEL-MARKER-0902-002\n",
         "sha256": "4f2a42858eaa3fab9657a4a0f55040f0923176814a80bd919240a51d332e9cda"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The hardened read-only consumer records the fixed PVC baseline digest",
+      "matched": true,
+      "observed": {
+        "pvc_bound": true,
+        "provisioner": "rancher.io/local-path",
+        "read_only_mount": true,
+        "read_only_rootfs": true,
+        "baseline_digest_match": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An approved fixture writer changes only its owned marker and the monitor emits a digest-only discrepancy",
+      "matched": true,
+      "observed": {
+        "writer_service_account": "fim-fixture-writer",
+        "pvc": "fim-synthetic-model",
+        "baseline_sha256": "5f9d979b77b7f096538e7b8f734c1d5ebb812a028cd577b72e5737d78427f2b3",
+        "observed_sha256": "e84cc5af21d632bcecd3a89c88ceb4937ef362b06fe35d5861b2e8fb231d8523",
+        "discrepancy_detected": true,
+        "record_contains_marker_bytes": false
       }
     }
   ]

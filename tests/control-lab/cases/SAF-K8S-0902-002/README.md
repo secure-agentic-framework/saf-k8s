@@ -1,25 +1,41 @@
-# SAF-K8S-0902-002 — Model loading integrity verification
+# SAF-K8S-0902-002 — Model startup and runtime integrity
 
-This draft case targets a fresh disposable Kind Kubernetes v1.36.1 cluster. The case runner supplies the digest-pinned Kind node image. The only artifact is an immutable ConfigMap containing one public synthetic marker string; the mock serving process is a local fixture and exposes no Service or external endpoint.
+Run from the framework checkout.
 
-The reviewed local control snapshot is `control.md`, SHA-256 `a3c7167a99d5f62c60d44cd40b40b4e1630f212ad5177bfd366899b83db40196`.
+```sh
+python3 tests/control-lab/lab.py test SAF-K8S-0902-002 --docker-context desktop-linux
+```
 
-The case creates two digest-pinned Pods around the same bytes:
+From the lab checkout, invoke `python3 lab.py` with the same arguments.
+A mismatched startup digest prevents the serving process from starting.
+The approved digest starts it, and Kubernetes shows the serving mount
+is read-only. An independent reader verifies the expected bytes.
 
-- **Red:** the BusyBox init container receives a fixed, deliberately nonmatching SHA-256 digest. The check requires its exact `DIGEST_MISMATCH` record and exit code 42, a Failed Pod, an app container still waiting with zero restarts, and no serving-container start.
-- **Green:** the init container receives the fixture’s fixed matching SHA-256. It reports `DIGEST_VERIFIED`; the Python mock becomes Ready and logs the marker it read at startup.
-- **Positive:** API-observed `volumeMount.readOnly`, the mock’s `/proc/self/mountinfo` read-only observation, and a write attempt failing with Linux `EROFS` (errno 30) are checked. A different Pod then reads and hashes the ConfigMap bytes independently; its marker and digest must still match the fixture. The mock has an in-Pod HTTP readiness endpoint so Kubernetes can report serving readiness; no Service or external endpoint is created or contacted.
+A separate read-only consumer observes the expected file on an owned
+PVC. The mounted consumer cannot open the file for writing. Once a
+separate approved fixture writer makes an atomic change to the one
+inert marker, the already-running monitor reports the expected and
+observed digests. The case uses a disposable local-path volume and a
+fixed synthetic artifact.
 
-Raw evidence is written to `model-integrity.raw.json`. It contains only the synthetic marker, digest, container status/log observations, readiness conditions, independent readback, and assertions. No credentials, Secret data, private keys, live model artifacts, feed data, or endpoint traffic are collected.
+## Verify the adopted serving path
 
-The control also calls for file integrity monitoring. This case does not claim monitoring coverage: one post-write independent readback is a point-in-time integrity observation, not continuous detection or alert delivery. Runtime replacement during inference, model cache integrity, registry/signature verification, production artifact acquisition, inference correctness, workload-specific startup controls, and monitoring/alert response remain separate scope.
+1. Inventory actual model versions, artifact and cache endpoints,
+   the independent authority for approved digests or trusted signing
+   identities, and the governed path from retrieval to runtime.
+2. Compare an approved artifact and an approved test mismatch at
+   startup. Independently verify that only the approved bytes are
+   served. Repeat across each applicable startup, reload, replica and
+   cache refresh path.
+3. Verify effective serving mounts and actual writer identities.
+   Compare a failed serving-side write with a separately authorized
+   isolated change. Observe runtime detection of the exact governed
+   file and delivery to the actual monitoring and response path.
+4. Compare the adopted response, including alerting, serving withdrawal
+   or approved recovery where required. Retain source digest or
+   signature, effective identity, decision evidence and restored
+   artifact identity.
 
-Sources:
-
-- [Kubernetes v1.36 init containers](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/pods/init-containers/) — init containers must complete successfully before application containers start; failed init state is exposed in Pod status.
-- [Kubernetes v1.36 volumes](https://v1-36.docs.kubernetes.io/docs/concepts/storage/volumes/) — a container volume mount can be made read-only with `volumeMounts[].readOnly`.
-- [Kubernetes v1.36 probes](https://v1-36.docs.kubernetes.io/docs/concepts/configuration/liveness-readiness-startup-probes/) — readiness probes report when a container is ready to serve.
-- [Docker Official Images Python metadata](https://github.com/docker-library/official-images/blob/master/library/python) and [BusyBox metadata](https://github.com/docker-library/official-images/blob/master/library/busybox) — image repositories and tags; this case additionally pins the exact image digests.
-- [Kind node images](https://kind.sigs.k8s.io/docs/user/quick-start/#creating-a-cluster) — Kind documents the node image used to provision the Kubernetes version.
-
-The control statement says “cryptographic signatures or digest checks.” This fixture tests only a local SHA-256 digest comparison before mock startup. It does not prove signer identity or artifact provenance. The rationale’s backdoored model scenario, model cache, real inference behavior, and continuous file integrity monitoring are not reproduced.
+[Kubernetes volumes](https://v1-36.docs.kubernetes.io/docs/concepts/storage/volumes/),
+[Kubernetes persistent volumes](https://v1-36.docs.kubernetes.io/docs/concepts/storage/persistent-volumes/),
+and [NIST SP 800-53 Rev. 5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final).
