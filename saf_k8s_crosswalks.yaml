@@ -10489,16 +10489,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-4
   framework_requirement_title: Information Flow Enforcement
-  framework_mapping_notes: 'Core to agent data flow control between trust boundaries
-
-
-    5.1 - Implement network policies (default deny, namespace isolation, egress controls for information flow enforcement)'
+  framework_mapping_notes: 'The case directly exercises Cilium policy enforcement for a limited set of synthetic flows: HTTP method filtering, exact-name FQDN egress, and clusterwide namespace selection/deny precedence. This supports the information-flow enforcement mechanism, but does not assess all system flows, policy governance, or production deployment.'
   control_id: SAF-K8S-0501-004
   relation_type: supports
-  strength_level: strong
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: null
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -11320,22 +11317,6 @@
 
 
     7.2 - Implement namespace isolation and multi-tenancy (namespace as security boundary, processing domains); 5.1 - AI workload network segmentation'
-  control_id: SAF-K8S-0501-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(2)
-  framework_requirement_title: Processing Domains
-  framework_mapping_notes: 'Separating agent processing domains/sandboxes
-
-
-    7.2 - Implement namespace isolation and multi-tenancy (namespace as security boundary, processing domains); 5.1 - AI workload network segmentation'
   control_id: SAF-K8S-0501-006
   relation_type: supports
   strength_level: strong
@@ -11601,16 +11582,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-4(21)
   framework_requirement_title: Physical or Logical Separation of Information Flows
-  framework_mapping_notes: 'Logical separation of agent data channels
-
-
-    5.1 - AI workload network segmentation (isolation between training, inference, pipeline, notebook workloads); 7.2 - Namespace isolation'
+  framework_mapping_notes: A CiliumClusterwideNetworkPolicy selects two owned namespaces, overrides their targeted allows for one owned destination, and leaves a third namespace unaffected. This is a bounded logical-flow separation example; it does not prove separation across all system security domains or production network paths.
   control_id: SAF-K8S-0501-004
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: null
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -12687,22 +12665,6 @@
 
     5.1 - Implement network policies (dynamic egress controls); 5.4 - Service mesh authorization policies for dynamic flow control'
   control_id: SAF-K8S-0501-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(3)
-  framework_requirement_title: Dynamic Information Flow Control
-  framework_mapping_notes: 'Dynamic flow control as agent context changes
-
-
-    5.1 - Implement network policies (dynamic egress controls); 5.4 - Service mesh authorization policies for dynamic flow control'
-  control_id: SAF-K8S-0501-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -18299,22 +18261,6 @@
 
 
     5.1 - Implement network policies (controlling information exchange between namespaces and workloads)'
-  control_id: SAF-K8S-0501-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CA-3
-  framework_requirement_title: Information Exchange
-  framework_mapping_notes: 'Managing agent information exchange agreements
-
-
-    5.1 - Implement network policies (controlling information exchange between namespaces and workloads)'
   control_id: SAF-K8S-0501-006
   relation_type: supports
   strength_level: strong
@@ -19039,16 +18985,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CA-9
   framework_requirement_title: Internal System Connections
-  framework_mapping_notes: 'Managing internal agent-to-system connections
-
-
-    5.1 - Implement network policies (controlling internal system connections between pods and services)'
+  framework_mapping_notes: Owned namespace-scoped Cilium policies and one clusterwide policy control selected internal Pod communications; observed permitted and denied requests verify this narrow enforcement path. The case does not document or approve the organization's complete internal-connection inventory or connection agreements.
   control_id: SAF-K8S-0501-004
   relation_type: supports
-  strength_level: strong
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: null
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -36020,22 +35963,6 @@
 
 
     5.1 - Network policies (documenting functions, ports, protocols in use by AI workloads)'
-  control_id: SAF-K8S-0501-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-4(9)
-  framework_requirement_title: Functions, Ports, Protocols, and Services in Use
-  framework_mapping_notes: 'Documenting agent system network interfaces and protocols is essential for security
-
-
-    5.1 - Network policies (documenting functions, ports, protocols in use by AI workloads)'
   control_id: SAF-K8S-0501-006
   relation_type: direct
   strength_level: strong
@@ -38541,22 +38468,6 @@
 
 
     5.1 - Network policies (identifying and documenting external service functions, ports, protocols)'
-  control_id: SAF-K8S-0501-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-9(2)
-  framework_requirement_title: Identification of Functions, Ports, Protocols, and Services
-  framework_mapping_notes: 'Documenting external service interfaces used by agents enables security monitoring
-
-
-    5.1 - Network policies (identifying and documenting external service functions, ports, protocols)'
   control_id: SAF-K8S-0501-006
   relation_type: direct
   strength_level: strong
@@ -38925,22 +38836,6 @@
 
     5.1 - Network security policy; 10.6 - Enforce compliance (system and communications protection policy)'
   control_id: SAF-K8S-0501-003
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-1
-  framework_requirement_title: Policy and Procedures
-  framework_mapping_notes: 'System and communications protection policy governs agent network security and isolation
-
-
-    5.1 - Network security policy; 10.6 - Enforce compliance (system and communications protection policy)'
-  control_id: SAF-K8S-0501-004
   relation_type: supports
   strength_level: moderate
   applicability: required
@@ -40028,22 +39923,6 @@
 
     5.1 - Egress controls (preventing unauthorized downloads); 6.5 - Admission control (blocking unauthorized execution)'
   control_id: SAF-K8S-0501-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-18(3)
-  framework_requirement_title: Prevent Downloading and Execution
-  framework_mapping_notes: 'Preventing unauthorized downloads of agent extensions blocks malicious tool installation
-
-
-    5.1 - Egress controls (preventing unauthorized downloads); 6.5 - Admission control (blocking unauthorized execution)'
-  control_id: SAF-K8S-0501-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -41541,22 +41420,6 @@
 
     5.1 - Network policies (access and flow control functions); 6.5 - Admission control (access control enforcement)'
   control_id: SAF-K8S-0501-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-3(2)
-  framework_requirement_title: Access and Flow Control Functions
-  framework_mapping_notes: 'Access and flow control isolation ensures agent authorization mechanisms cannot be bypassed
-
-
-    5.1 - Network policies (access and flow control functions); 6.5 - Admission control (access control enforcement)'
-  control_id: SAF-K8S-0501-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -44499,22 +44362,6 @@
 
 
     5.1 - Egress controls (restricting outbound to prevent attacking other systems); 7.2 - Namespace isolation'
-  control_id: SAF-K8S-0501-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-5(1)
-  framework_requirement_title: Restrict Ability to Attack Other Systems
-  framework_mapping_notes: 'Preventing compromised agents from being used to attack other systems limits lateral movement
-
-
-    5.1 - Egress controls (restricting outbound to prevent attacking other systems); 7.2 - Namespace isolation'
   control_id: SAF-K8S-0501-006
   relation_type: direct
   strength_level: strong
@@ -45089,16 +44936,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-7
   framework_requirement_title: Boundary Protection
-  framework_mapping_notes: 'Network boundary protection isolates agent systems and controls data flows
-
-
-    5.1 - Implement network policies (default deny, boundary protection for pods and namespaces)'
+  framework_mapping_notes: The case verifies selected Cilium controls on internal Pod communication, including L7 ingress, FQDN egress and a clusterwide namespace boundary. It does not test external boundary devices, all key internal boundaries, or production routing.
   control_id: SAF-K8S-0501-004
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: null
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -45205,22 +45049,6 @@
 
 
     5.1 - East-west traffic monitoring for anomalous patterns; 5.3 - DNS exfiltration prevention'
-  control_id: SAF-K8S-0501-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(10)
-  framework_requirement_title: Prevent Exfiltration
-  framework_mapping_notes: 'Preventing data exfiltration through agent communications channels is critical
-
-
-    5.1 - East-west traffic monitoring for anomalous patterns; 5.3 - DNS exfiltration prevention'
   control_id: SAF-K8S-0501-006
   relation_type: direct
   strength_level: strong
@@ -45297,16 +45125,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-7(11)
   framework_requirement_title: Restrict Incoming Communications Traffic
-  framework_mapping_notes: 'Restricting inbound traffic to agent systems limits exposure to external attacks
-
-
-    5.1 - Default deny ingress; 5.3 - Ingress controller WAF integration, request filtering'
+  framework_mapping_notes: The owned Cilium ingress policy permits GET /safe and returns HTTP 403 for POST /safe from the selected client. This demonstrates one application-layer inbound restriction; it does not enumerate or validate all incoming sources, services, or production ingress paths.
   control_id: SAF-K8S-0501-004
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: null
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -45763,22 +45588,6 @@
 
 
     5.1 - Network policies (blocking communication from unauthorized pods); 2.5 - Node-level firewall'
-  control_id: SAF-K8S-0501-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(19)
-  framework_requirement_title: Block Communication from Non-organizationally Configured Hosts
-  framework_mapping_notes: 'Blocking unauthorized hosts from communicating with agents prevents rogue connections
-
-
-    5.1 - Network policies (blocking communication from unauthorized pods); 2.5 - Node-level firewall'
   control_id: SAF-K8S-0501-006
   relation_type: direct
   strength_level: strong
@@ -45937,22 +45746,6 @@
 
     5.1 - AI workload network segmentation (separate subnets for training, inference, pipeline workloads)'
   control_id: SAF-K8S-0501-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(22)
-  framework_requirement_title: Separate Subnets for Connecting to Different Security Domains
-  framework_mapping_notes: 'Separate subnets for agent communication across trust domains enforce segmentation
-
-
-    5.1 - AI workload network segmentation (separate subnets for training, inference, pipeline workloads)'
-  control_id: SAF-K8S-0501-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -46208,22 +46001,6 @@
 
 
     5.1 - AI workload network segmentation (separate subnets to isolate training, inference, pipeline functions)'
-  control_id: SAF-K8S-0501-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(29)
-  framework_requirement_title: Separate Subnets to Isolate Functions
-  framework_mapping_notes: 'Function isolation via network segmentation separates agent processing tiers
-
-
-    5.1 - AI workload network segmentation (separate subnets to isolate training, inference, pipeline functions)'
   control_id: SAF-K8S-0501-006
   relation_type: direct
   strength_level: strong
@@ -46444,16 +46221,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-7(5)
   framework_requirement_title: Deny by Default -- Allow by Exception
-  framework_mapping_notes: 'Deny-by-default network policy for agent communications enforces least privilege
-
-
-    5.1 - Default deny ingress and egress policies as namespace security baselines (deny by default)'
+  framework_mapping_notes: 'For the selected synthetic endpoints, the case observes explicit allowed requests and denied alternatives: GET versus POST, approved versus alternate FQDN, selected namespaces versus an unaffected namespace. This supports a bounded allow/deny policy mechanism, not a comprehensive organization-wide deny-by-default baseline.'
   control_id: SAF-K8S-0501-004
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: null
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -46609,22 +46383,6 @@
 
     5.1 - Egress controls (restricting threatening outbound traffic, DNS-based egress policies)'
   control_id: SAF-K8S-0501-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(9)
-  framework_requirement_title: Restrict Threatening Outgoing Communications Traffic
-  framework_mapping_notes: 'Restricting outbound agent traffic prevents data exfiltration and command-and-control
-
-
-    5.1 - Egress controls (restricting threatening outbound traffic, DNS-based egress policies)'
-  control_id: SAF-K8S-0501-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -52286,22 +52044,6 @@
 
 
     5.1 - East-west traffic monitoring for anomalous AI workload communication; 9.8 - Query pattern analysis'
-  control_id: SAF-K8S-0501-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(11)
-  framework_requirement_title: Analyze Communications Traffic Anomalies
-  framework_mapping_notes: 'Traffic anomaly analysis for agent communications identifies unusual patterns and attacks
-
-
-    5.1 - East-west traffic monitoring for anomalous AI workload communication; 9.8 - Query pattern analysis'
   control_id: SAF-K8S-0501-006
   relation_type: direct
   strength_level: strong
@@ -52447,22 +52189,6 @@
 
     9.8 - Query pattern analysis (analyzing inference traffic patterns); 5.1 - AI workload network segmentation'
   control_id: SAF-K8S-0501-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(13)
-  framework_requirement_title: Analyze Traffic and Event Patterns
-  framework_mapping_notes: 'Analyzing agent traffic and event patterns identifies sophisticated multi-stage attacks
-
-
-    9.8 - Query pattern analysis (analyzing inference traffic patterns); 5.1 - AI workload network segmentation'
-  control_id: SAF-K8S-0501-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -52903,22 +52629,6 @@
 
 
     5.1 - Default deny network policies (detecting unauthorized services); 5.5 - Service exposure protection'
-  control_id: SAF-K8S-0501-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(22)
-  framework_requirement_title: Unauthorized Network Services
-  framework_mapping_notes: 'Detecting unauthorized network services from agent systems identifies compromise
-
-
-    5.1 - Default deny network policies (detecting unauthorized services); 5.5 - Service exposure protection'
   control_id: SAF-K8S-0501-006
   relation_type: direct
   strength_level: strong
@@ -53123,22 +52833,6 @@
 
 
     5.2 - CNI plugin selection (optimizing network analysis); 5.1 - AI workload network segmentation'
-  control_id: SAF-K8S-0501-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(25)
-  framework_requirement_title: Optimize Network Traffic Analysis
-  framework_mapping_notes: 'Optimized traffic analysis for agent networks improves detection of subtle attacks
-
-
-    5.2 - CNI plugin selection (optimizing network analysis); 5.1 - AI workload network segmentation'
   control_id: SAF-K8S-0501-006
   relation_type: supports
   strength_level: strong
@@ -53268,22 +52962,6 @@
 
     5.1 - Network policies (monitoring inbound/outbound traffic); 5.3 - Ingress/egress hardening'
   control_id: SAF-K8S-0501-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(4)
-  framework_requirement_title: Inbound and Outbound Communications Traffic
-  framework_mapping_notes: 'Monitoring inbound and outbound agent communications detects data exfiltration and C2 traffic
-
-
-    5.1 - Network policies (monitoring inbound/outbound traffic); 5.3 - Ingress/egress hardening'
-  control_id: SAF-K8S-0501-004
   relation_type: direct
   strength_level: strong
   applicability: required
