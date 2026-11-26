@@ -5,7 +5,7 @@
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "fea99dea4335fa6e8df6b5afbb33ae73a648d4ecc378ebe70a5785427e7f7f4d",
   "scope": "Disposable TLS Zot and Distribution registries illustrate OCI referrers discovery and a real 404-triggered referrers-tag fallback. In-cluster consumers verify manifest, subject, blob and approved attachment identity. Zot exercises test publisher and reader permissions. The Zot fixture also scopes two explicit principals to adjacent repositories and checks the same inert manifest digest in both. Production identity, retention, audit, pagination and provider-specific discovery require separate evidence.",
-  "cluster": "saf-lab-e9b9e5cf0c4a",
+  "cluster": "saf-lab-395db91f0643",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -133,6 +133,26 @@
           "reader",
           "adjacent-publisher"
         ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Zot binds SBOM referrers to the exact OCI index or child manifest subject",
+      "matched": true,
+      "observed": {
+        "index_referrer_exact": true,
+        "arm64_child_referrer_exact": true,
+        "amd64_child_unattached": true,
+        "index_child_digests_distinct": true,
+        "index_and_child_artifacts_distinct": true,
+        "subject_manifest_and_blob_bytes_verified": true,
+        "index_artifact_rejected_for_arm64_child": true,
+        "arm64_child_artifact_rejected_for_index": true,
+        "cross_subject_refusal_reasons": [
+          "subject-mismatch",
+          "subject-mismatch"
+        ],
+        "test_scope": "inert OCI descriptors; no platform child executed"
       }
     },
     {

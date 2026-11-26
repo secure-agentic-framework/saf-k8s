@@ -72,8 +72,11 @@ def verify(fetch, repository, subject, candidate, approved):
     link = manifest.get("subject", {})
     if link.get("digest") != subject:
         raise VerificationError("subject-mismatch")
-    status, image = fetch(f"{base}/manifests/{subject}", MANIFEST)
-    if status != 200 or not valid_bytes(image, link) or link.get("mediaType") != MANIFEST:
+    subject_media_type = link.get("mediaType")
+    if subject_media_type not in {MANIFEST, INDEX}:
+        raise VerificationError("subject-bytes-mismatch")
+    status, image = fetch(f"{base}/manifests/{subject}", subject_media_type)
+    if status != 200 or not valid_bytes(image, link):
         raise VerificationError("subject-bytes-mismatch")
     if manifest.get("artifactType") != SBOM or len(manifest.get("layers", [])) != 1:
         raise VerificationError("unexpected-artifact-type")

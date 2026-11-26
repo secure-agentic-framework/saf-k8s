@@ -34,3 +34,7 @@ HTTP status and body hash, with role names and without generated credentials.
 The test covers per-repository authorization in the pinned disposable Zot
 registry. Deployment identity, registry access, retention, paging and producer
 trust require separate verification.
+
+## OCI index and child subject scope
+
+The additive Zot API check publishes inert OCI index and child descriptors, attaches distinct SBOMs to the index and arm64 child, and requires the existing consumer verifier to reject either attachment when presented for the other subject (`subject-mismatch`). Child images are not executed. This proves subject binding for this disposable fixture; deployment coverage and platform execution remain separate. The bounded run command is the case runner's existing `python3 lab.py test SAF-K8S-0604-003 --docker-context desktop-linux` entrypoint from the control-lab root; this staged copy has not been run.

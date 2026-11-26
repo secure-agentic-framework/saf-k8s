@@ -9,6 +9,7 @@ import secrets
 import ssl
 import subprocess
 import time
+from urllib.parse import parse_qsl, urlencode, urlsplit
 
 from fixtures import BUSYBOX_IMAGE
 
@@ -385,6 +386,160 @@ def exercise_adjacent_repository_scope(lab, registry, port, target_digest):
     )
 
 
+def publish_inert_index(registry, port):
+    """Publish a deterministic, non-executed two-platform OCI index to owned Zot."""
+    def upload_blob(raw):
+        wanted = consumer.digest(raw)
+        auth = authorization(registry, "publisher")
+        context = ssl.create_default_context(cafile=registry.registry_ca)
+        connection = HTTPSConnection("127.0.0.1", port, timeout=10, context=context)
+        try:
+            connection.request("POST", f"/v2/{REPOSITORY}/blobs/uploads/", body=b"",
+                               headers={"Authorization": auth})
+            started = connection.getresponse()
+            started.read(consumer.LIMIT)
+            location = started.getheader("Location", "")
+            if started.status != 202 or not location:
+                registry.lab.block("Zot did not start the synthetic index config upload")
+        finally:
+            connection.close()
+        parsed = urlsplit(location)
+        upload_path = parsed.path
+        expected_prefix = f"/v2/{REPOSITORY}/blobs/uploads/"
+        if not upload_path.startswith(expected_prefix):
+            registry.lab.block("Zot config upload location escaped the fixture repository")
+        query = parse_qsl(parsed.query, keep_blank_values=True)
+        query.append(("digest", wanted))
+        upload_target = upload_path + "?" + urlencode(query)
+        connection = HTTPSConnection("127.0.0.1", port, timeout=10, context=context)
+        try:
+            connection.request("PUT", upload_target, body=raw, headers={
+                "Authorization": auth, "Content-Type": "application/octet-stream"})
+            finished = connection.getresponse()
+            finished.read(consumer.LIMIT)
+            returned = finished.getheader("Docker-Content-Digest")
+            if finished.status != 201 or returned != wanted:
+                registry.lab.block("Zot config upload did not preserve its exact digest")
+        finally:
+            connection.close()
+        return {"mediaType": "application/vnd.oci.image.config.v1+json",
+                "digest": wanted, "size": len(raw)}
+
+    children = []
+    for architecture in ("arm64", "amd64"):
+        config = {"architecture": architecture, "os": "linux",
+                  "rootfs": {"type": "layers", "diff_ids": []}}
+        config_raw = json_bytes(config)
+        config_descriptor = upload_blob(config_raw)
+        manifest = {"schemaVersion": 2, "mediaType": consumer.MANIFEST,
+                    "config": config_descriptor, "layers": []}
+        manifest_raw = json_bytes(manifest)
+        child_digest = consumer.digest(manifest_raw)
+        status, _, remote_digest = request(
+            registry, port, "PUT", f"/v2/{REPOSITORY}/manifests/{child_digest}",
+            "publisher", consumer.MANIFEST, manifest_raw)
+        if status != 201 or remote_digest != child_digest:
+            registry.lab.block("Zot did not preserve a synthetic platform child manifest")
+        children.append({"mediaType": consumer.MANIFEST, "digest": child_digest,
+                         "size": len(manifest_raw),
+                         "platform": {"architecture": architecture, "os": "linux"}})
+
+    index = {"schemaVersion": 2, "mediaType": consumer.INDEX, "manifests": children}
+    index_raw = json_bytes(index)
+    index_digest = consumer.digest(index_raw)
+    status, _, remote_digest = request(
+        registry, port, "PUT", f"/v2/{REPOSITORY}/manifests/{index_digest}",
+        "publisher", consumer.INDEX, index_raw)
+    if status != 201 or remote_digest != index_digest:
+        registry.lab.block("Zot did not preserve the synthetic OCI index digest")
+    return index_digest, children
+
+
+def exercise_index_child_subjects(lab, registry, port):
+    """Prove OCI referrers bind separately to an index and one child digest."""
+    work = registry.work / "release"
+    index_digest, children = publish_inert_index(registry, port)
+    by_arch = {entry["platform"]["architecture"]: entry["digest"] for entry in children}
+    arm64_digest, amd64_digest = by_arch["arm64"], by_arch["amd64"]
+    if len({index_digest, arm64_digest, amd64_digest}) != 3:
+        lab.block("Synthetic OCI index and child identities are not distinct")
+    index_artifact = attach(registry, work, index_digest, "fixture-index-subject")
+    child_artifact = attach(registry, work, arm64_digest, "fixture-child-arm64-subject")
+
+    def fetch(path, media):
+        return request(registry, port, "GET", path, "reader", media)[:2]
+
+    index_mode, index_candidates = consumer.inventory_descriptors(fetch, REPOSITORY, index_digest)
+    child_mode, child_candidates = consumer.inventory_descriptors(fetch, REPOSITORY, arm64_digest)
+    amd64_mode, amd64_candidates = consumer.inventory_descriptors(fetch, REPOSITORY, amd64_digest)
+    def exact_candidate(candidates, digest, subject_label):
+        selected = [row for row in candidates if row.get("digest") == digest]
+        if len(selected) != 1:
+            lab.block(f"Expected exactly one {subject_label} SBOM descriptor for {digest}; found {len(selected)}")
+        return selected[0]
+
+    index_descriptor = exact_candidate(index_candidates, index_artifact, "index-subject")
+    child_descriptor = exact_candidate(child_candidates, child_artifact, "arm64-child-subject")
+    index_names = consumer.verify(fetch, REPOSITORY, index_digest, index_descriptor, index_artifact)
+    child_names = consumer.verify(fetch, REPOSITORY, arm64_digest, child_descriptor, child_artifact)
+
+    def mismatch_reason(subject, candidate, approved):
+        try:
+            consumer.verify(fetch, REPOSITORY, subject, candidate, approved)
+        except consumer.VerificationError as error:
+            return str(error)
+        return "unexpected-acceptance"
+
+    index_for_child_reason = mismatch_reason(arm64_digest, index_descriptor, index_artifact)
+    child_for_index_reason = mismatch_reason(index_digest, child_descriptor, child_artifact)
+    matched = (index_mode == child_mode == amd64_mode == "api"
+               and [x["digest"] for x in index_candidates] == [index_artifact]
+               and [x["digest"] for x in child_candidates] == [child_artifact]
+               and amd64_candidates == []
+               and index_artifact != child_artifact
+               and index_names == ["fixture-index-subject"]
+               and child_names == ["fixture-child-arm64-subject"]
+               and index_for_child_reason == "subject-mismatch"
+               and child_for_index_reason == "subject-mismatch")
+    raw = {
+        "fixture_id": "SAF-K8S-0604-003-index-child-subject-v2",
+        "executed_child_images": False,
+        "index": {"digest": index_digest, "media_type": consumer.INDEX,
+                  "platform_child_count": len(children), "children": children,
+                  "referrer_count": len(index_candidates),
+                  "referrer_digests": [x["digest"] for x in index_candidates],
+                  "verified_component_names": index_names},
+        "arm64_child": {"digest": arm64_digest, "referrer_count": len(child_candidates),
+                        "referrer_digests": [x["digest"] for x in child_candidates],
+                        "verified_component_names": child_names},
+        "amd64_child": {"digest": amd64_digest, "referrer_count": len(amd64_candidates),
+                        "referrer_digests": [x["digest"] for x in amd64_candidates]},
+        "index_artifact_digest": index_artifact,
+        "arm64_child_artifact_digest": child_artifact,
+        "index_child_artifacts_distinct": index_artifact != child_artifact,
+        "cross_subject_refusal": {
+            "index_artifact_presented_for_arm64_child_reason": index_for_child_reason,
+            "arm64_child_artifact_presented_for_index_reason": child_for_index_reason,
+        },
+    }
+    (lab.evidence / "index-child-sbom-subjects.json").write_text(
+        json.dumps(raw, indent=2, sort_keys=True) + "\n")
+    lab.check(
+        "positive", "Zot binds SBOM referrers to the exact OCI index or child manifest subject",
+        matched,
+        {"index_referrer_exact": [x["digest"] for x in index_candidates] == [index_artifact],
+         "arm64_child_referrer_exact": [x["digest"] for x in child_candidates] == [child_artifact],
+         "amd64_child_unattached": amd64_candidates == [],
+         "index_child_digests_distinct": len({index_digest, arm64_digest, amd64_digest}) == 3,
+         "index_and_child_artifacts_distinct": index_artifact != child_artifact,
+         "subject_manifest_and_blob_bytes_verified": bool(index_names and child_names),
+         "index_artifact_rejected_for_arm64_child": index_for_child_reason == "subject-mismatch",
+         "arm64_child_artifact_rejected_for_index": child_for_index_reason == "subject-mismatch",
+         "cross_subject_refusal_reasons": [index_for_child_reason, child_for_index_reason],
+         "test_scope": "inert OCI descriptors; no platform child executed"},
+    )
+
+
 def run(lab):
     registry_module = load_module("oci_registry_fixture", HERE.parent / "SAF-K8S-0605-002" / "image_admission.py")
     reports = {}
@@ -395,6 +550,7 @@ def run(lab):
                 try:
                     exercise_adjacent_repository_scope(
                         lab, registry, port, reports[mode]["selected_image_manifest_digest"])
+                    exercise_index_child_subjects(lab, registry, port)
                 finally:
                     (registry.work / "release" / "image.tar").unlink(missing_ok=True)
     (lab.evidence / "oci-inventory-discovery.json").write_text(json.dumps(reports, indent=2, sort_keys=True) + "\n")
