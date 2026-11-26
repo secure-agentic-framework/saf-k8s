@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-007",
-  "catalog_revision": "8ead917ed0df15582e04db6eb4c90ab397927fe1",
-  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
+  "catalog_revision": "a0a475a9b301089b0a8c957fbfbada4f6cc4f779",
+  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "fae14622a867ccba17728cfb10cd5188ab094099f8868c7492272538453e405e",
-  "scope": "Kubernetes Metadata audit versus scoped telemetry for synthetic HTTP workloads in two pods on one local kind node, plus one isolated pinned-Istio synthetic access-log request. The case uses fictional model information, an inert prompt marker, and a pod-local collector. It does not establish GPU process accounting, production mesh rollout, forwarding, alerting, or retention.",
-  "cluster": "saf-lab-56beca49f763",
+  "scope": "Kubernetes Metadata audit versus scoped telemetry for synthetic HTTP workloads in two pods on one local kind node, plus one isolated pinned-Istio synthetic access-log request. The case uses fictional model information, an inert prompt marker, and a pod-local collector. A separate harmless JSON artifact read is bound to a projected workload identity and an independent API receipt. It does not establish a real model loader, GPU process accounting, production mesh rollout, forwarding, alerting, or retention. One additional Pod reads only a fictional metadata JSON descriptor and independently patches a named case receipt with a minimized event bound to its projected ServiceAccount identity; no real model or GPU is used.",
+  "cluster": "saf-lab-03bed174cf20",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -126,6 +126,24 @@
         "byte_count_fields_numeric": true,
         "case_header_matches": true,
         "synthetic_body_marker_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An inert artifact read by the exact workload Pod produces a scoped identity-bound event independently persisted in Kubernetes",
+      "matched": true,
+      "observed": {
+        "fixture_artifact_sha256": "6034fee8eb146aceba322f320c0a8dd34068bac9993ce7d24f4cfc593548a9a3",
+        "pod_uid_matches_create": true,
+        "pod_phase_succeeded": true,
+        "service_account_matches": true,
+        "artifact_readback_digest_matches": true,
+        "process_event_matches_independent_receipt": true,
+        "receipt_resource_uid_stable": true,
+        "role_binding_is_narrow": true,
+        "api_audit_proves_exact_sa_patch": true,
+        "receipt_was_pending_before_load": true,
+        "token_or_secret_emitted": false
       }
     }
   ]

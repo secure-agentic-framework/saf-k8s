@@ -1,6 +1,7 @@
 """Compare a live synthetic workload with the kind API server's audit stream."""
 
 import json
+import hashlib
 from pathlib import Path
 import re
 import subprocess
@@ -15,11 +16,19 @@ FIXTURE_NAME = "telemetry-fixture"
 AUDIT_ORACLE = "telemetry-api-oracle"
 AUDIT_DIR = "/var/log/kubernetes/audit"
 AUDIT_PATH = f"{AUDIT_DIR}/audit.log"
+MODEL_LOAD_NAMESPACE = "saf-model-load"
+MODEL_LOAD_POD = "fixture-model-loader"
+MODEL_ARTIFACT = "model-artifact-fixture"
+MODEL_LOAD_RECEIPT = "model-load-receipt"
+MODEL_LOAD_SA = "model-loader"
+MODEL_LOAD_CODE = "model-load-code"
 SCOPE = (
     "Kubernetes Metadata audit versus scoped telemetry for synthetic HTTP workloads in two pods "
     "on one local kind node, plus one isolated pinned-Istio synthetic access-log request. The case "
-    "uses fictional model information, an inert prompt marker, and a pod-local collector. It does "
-    "not establish GPU process accounting, production mesh rollout, forwarding, alerting, or retention."
+    "uses fictional model information, an inert prompt marker, and a pod-local collector. A separate "
+    "harmless JSON artifact read is bound to a projected workload identity and an independent API receipt. "
+    "It does not establish a real model loader, GPU process accounting, production mesh rollout, forwarding, "
+    "alerting, or retention."
 )
 
 
@@ -128,6 +137,7 @@ def _run_local_telemetry(lab):
         "create", "configmap", FIXTURE_NAME,
         f"--from-file={CASE_DIR / 'synthetic_services.py'}",
         f"--from-file={CASE_DIR / 'workload.py'}",
+        f"--from-file={CASE_DIR / 'model_artifact_load.py'}",
     )
     red_id, red = run_workload(lab, "red")
     green_id, green = run_workload(lab, "green")
@@ -343,3 +353,192 @@ def _run_mesh_access_log(lab):
 def run(lab):
     _run_local_telemetry(lab)
     _run_mesh_access_log(lab)
+    _run_model_artifact_load(lab)
+
+
+def _run_model_artifact_load(lab):
+    """Read/hash a harmless artifact in a workload Pod and read back its API receipt."""
+    lab.kubectl("create", "namespace", MODEL_LOAD_NAMESPACE)
+    lab.kubectl("-n", MODEL_LOAD_NAMESPACE, "create", "configmap", MODEL_LOAD_CODE,
+                f"--from-file={CASE_DIR / 'model_artifact_load.py'}")
+    artifact = {"model": "fictional-model-alpha", "version": "0.0.0-fixture",
+                "format": "metadata-only-json-marker", "fixture_only": True}
+    artifact_bytes = (json.dumps(artifact, sort_keys=True, separators=(",", ":")) + "\n").encode()
+    artifact_digest = hashlib.sha256(artifact_bytes).hexdigest()
+    lab.kubectl("-n", MODEL_LOAD_NAMESPACE, "create", "-f", "-", payload=json.dumps({
+        "apiVersion": "v1", "kind": "ConfigMap",
+        "metadata": {"name": MODEL_ARTIFACT, "namespace": MODEL_LOAD_NAMESPACE},
+        "immutable": True, "data": {"artifact.json": artifact_bytes.decode()},
+    }))
+    lab.kubectl("-n", MODEL_LOAD_NAMESPACE, "create", "-f", "-", payload=json.dumps({
+        "apiVersion": "v1", "kind": "ConfigMap",
+        "metadata": {"name": MODEL_LOAD_RECEIPT, "namespace": MODEL_LOAD_NAMESPACE},
+        "data": {"event.json": "pending"},
+    }))
+    lab.kubectl("create", "serviceaccount", MODEL_LOAD_SA, "-n", MODEL_LOAD_NAMESPACE)
+    role_name = "model-load-receipt-writer"
+    role = {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role",
+            "metadata": {"name": role_name, "namespace": MODEL_LOAD_NAMESPACE},
+            "rules": [{"apiGroups": [""], "resources": ["configmaps"],
+                       "resourceNames": [MODEL_LOAD_RECEIPT], "verbs": ["patch"]}]}
+    lab.kubectl("-n", MODEL_LOAD_NAMESPACE, "create", "-f", "-", payload=json.dumps(role))
+    binding = {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding",
+               "metadata": {"name": role_name, "namespace": MODEL_LOAD_NAMESPACE},
+               "subjects": [{"kind": "ServiceAccount", "name": MODEL_LOAD_SA,
+                             "namespace": MODEL_LOAD_NAMESPACE}],
+               "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "Role",
+                           "name": role_name}}
+    lab.kubectl("-n", MODEL_LOAD_NAMESPACE, "create", "-f", "-", payload=json.dumps(binding))
+    before = json.loads(lab.kubectl("-n", MODEL_LOAD_NAMESPACE, "get", "configmap",
+                                    MODEL_LOAD_RECEIPT, "-o", "json").stdout)
+    if before.get("data", {}).get("event.json") != "pending":
+        lab.block("Independent model-load receipt did not start in the pending state")
+    receipt_uid_before = before.get("metadata", {}).get("uid")
+
+    pod = {
+        "apiVersion": "v1", "kind": "Pod",
+        "metadata": {"name": MODEL_LOAD_POD, "namespace": MODEL_LOAD_NAMESPACE,
+                     "labels": {"saf-lab.example/control": "SAF-K8S-1001-007",
+                                "saf-lab.example/fixture": "true"}},
+        "spec": {"restartPolicy": "Never", "serviceAccountName": MODEL_LOAD_SA,
+                 "automountServiceAccountToken": True,
+                 "securityContext": {"runAsNonRoot": True, "runAsUser": 10001,
+                                     "seccompProfile": {"type": "RuntimeDefault"}},
+                 "containers": [{"name": "loader", "image": WORKLOAD_IMAGE,
+                                 "imagePullPolicy": "IfNotPresent",
+                                 "command": ["python", "-B", "/fixture/model_artifact_load.py"],
+                                 "env": [
+                                     {"name": "POD_NAME", "valueFrom": {"fieldRef": {"fieldPath": "metadata.name"}}},
+                                     {"name": "POD_NAMESPACE", "valueFrom": {"fieldRef": {"fieldPath": "metadata.namespace"}}},
+                                     {"name": "POD_UID", "valueFrom": {"fieldRef": {"fieldPath": "metadata.uid"}}},
+                                     {"name": "POD_SERVICE_ACCOUNT", "valueFrom": {"fieldRef": {"fieldPath": "spec.serviceAccountName"}}},
+                                 ],
+                                 "securityContext": {"allowPrivilegeEscalation": False,
+                                                     "readOnlyRootFilesystem": True,
+                                                     "capabilities": {"drop": ["ALL"]}},
+                                 "resources": {"requests": {"cpu": "10m", "memory": "24Mi"},
+                                               "limits": {"cpu": "100m", "memory": "64Mi"}},
+                                 "volumeMounts": [
+                                     {"name": "code", "mountPath": "/fixture", "readOnly": True},
+                                     {"name": "artifact", "mountPath": "/model", "readOnly": True},
+                                 ]}],
+                 "volumes": [
+                     {"name": "code", "configMap": {"name": MODEL_LOAD_CODE}},
+                     {"name": "artifact", "configMap": {"name": MODEL_ARTIFACT}},
+                 ]},
+    }
+    lab.kubectl("-n", MODEL_LOAD_NAMESPACE, "create", "-f", "-", payload=json.dumps(pod))
+    created = json.loads(lab.kubectl("-n", MODEL_LOAD_NAMESPACE, "get", "pod", MODEL_LOAD_POD,
+                                    "-o", "json").stdout)
+    lab.kubectl("-n", MODEL_LOAD_NAMESPACE, "wait", "--for=jsonpath={.status.phase}=Succeeded",
+                f"pod/{MODEL_LOAD_POD}", "--timeout=90s", timeout=100)
+    observed_pod = json.loads(lab.kubectl("-n", MODEL_LOAD_NAMESPACE, "get", "pod", MODEL_LOAD_POD,
+                                         "-o", "json").stdout)
+    process = json.loads(lab.kubectl("-n", MODEL_LOAD_NAMESPACE, "logs", MODEL_LOAD_POD,
+                                    "-c", "loader").stdout)
+    receipt = json.loads(lab.kubectl("-n", MODEL_LOAD_NAMESPACE, "get", "configmap",
+                                    MODEL_LOAD_RECEIPT, "-o", "json").stdout)
+    event = json.loads(receipt.get("data", {}).get("event.json", "{}"))
+    artifact_readback = json.loads(lab.kubectl("-n", MODEL_LOAD_NAMESPACE, "get", "configmap",
+                                              MODEL_ARTIFACT, "-o", "json").stdout)
+    role_readback = json.loads(lab.kubectl("-n", MODEL_LOAD_NAMESPACE, "get", "role", role_name,
+                                          "-o", "json").stdout)
+    binding_readback = json.loads(lab.kubectl("-n", MODEL_LOAD_NAMESPACE, "get", "rolebinding",
+                                             role_name, "-o", "json").stdout)
+    actual_uid = observed_pod.get("metadata", {}).get("uid")
+    actual_sa = observed_pod.get("spec", {}).get("serviceAccountName")
+    stored_artifact = artifact_readback.get("data", {}).get("artifact.json", "").encode()
+    matching_audit = []
+    for line in read_audit(lab).splitlines():
+        try:
+            audit_event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        ref = audit_event.get("objectRef") or {}
+        if (audit_event.get("stage") == "ResponseComplete"
+                and audit_event.get("verb") == "patch"
+                and ref.get("resource") == "configmaps"
+                and ref.get("namespace") == MODEL_LOAD_NAMESPACE
+                and ref.get("name") == MODEL_LOAD_RECEIPT):
+            matching_audit.append({
+                "audit_id": audit_event.get("auditID"),
+                "stage": audit_event.get("stage"),
+                "level": audit_event.get("level"),
+                "username": (audit_event.get("user") or {}).get("username"),
+                "verb": audit_event.get("verb"),
+                "namespace": ref.get("namespace"),
+                "resource": ref.get("resource"),
+                "name": ref.get("name"),
+                "response_code": (audit_event.get("responseStatus") or {}).get("code"),
+                "request_body_absent": "requestObject" not in audit_event,
+                "response_body_absent": "responseObject" not in audit_event,
+            })
+    audit_identity_ok = (len(matching_audit) == 1
+                         and matching_audit[0].get("username")
+                         == f"system:serviceaccount:{MODEL_LOAD_NAMESPACE}:{MODEL_LOAD_SA}"
+                         and matching_audit[0].get("response_code") == 200
+                         and matching_audit[0].get("level") == "Metadata"
+                         and matching_audit[0].get("request_body_absent")
+                         and matching_audit[0].get("response_body_absent"))
+    event_matches = (
+        event.get("event_type") == "model_artifact_loaded"
+        and event.get("model") == artifact["model"]
+        and event.get("version") == artifact["version"]
+        and event.get("artifact_name") == "artifact.json"
+        and event.get("artifact_sha256") == artifact_digest
+        and event.get("namespace") == MODEL_LOAD_NAMESPACE
+        and event.get("pod_name") == MODEL_LOAD_POD
+        and event.get("pod_uid") == actual_uid
+        and event.get("service_account") == f"system:serviceaccount:{MODEL_LOAD_NAMESPACE}:{MODEL_LOAD_SA}"
+    )
+    process_matches = (
+        process.get("event_id") == event.get("event_id")
+        and process.get("artifact_sha256") == artifact_digest
+        and process.get("pod_uid") == actual_uid
+        and process.get("receipt_patched") is True
+    )
+    role_matches = (role_readback.get("rules") == role["rules"]
+                    and binding_readback.get("subjects") == binding["subjects"]
+                    and binding_readback.get("roleRef") == binding["roleRef"])
+    success = (
+        created.get("metadata", {}).get("uid") == actual_uid
+        and observed_pod.get("status", {}).get("phase") == "Succeeded"
+        and actual_sa == MODEL_LOAD_SA
+        and receipt.get("metadata", {}).get("uid") == receipt_uid_before
+        and audit_identity_ok
+        and hashlib.sha256(stored_artifact).hexdigest() == artifact_digest
+        and event_matches and process_matches and role_matches
+        and before.get("data", {}).get("event.json") == "pending"
+    )
+    evidence = {
+        "event_id": event.get("event_id"),
+        "event": event,
+        "artifact_sha256": artifact_digest,
+        "artifact_configmap_uid": artifact_readback.get("metadata", {}).get("uid"),
+        "receipt_configmap_uid_before": receipt_uid_before,
+        "receipt_configmap_uid_after": receipt.get("metadata", {}).get("uid"),
+        "api_audit_patch_receipt": matching_audit,
+        "process_log": process,
+        "pod_uid": actual_uid,
+        "service_account": actual_sa,
+        "receipt_previously_pending": before.get("data", {}).get("event.json") == "pending",
+        "token_or_secret_emitted": False,
+    }
+    (lab.evidence / "model-load-attribution.json").write_text(
+        json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    lab.check("positive", "An inert artifact read by the exact workload Pod produces a scoped identity-bound event independently persisted in Kubernetes",
+              success,
+              {"fixture_artifact_sha256": artifact_digest,
+               "pod_uid_matches_create": created.get("metadata", {}).get("uid") == actual_uid,
+               "pod_phase_succeeded": observed_pod.get("status", {}).get("phase") == "Succeeded",
+               "service_account_matches": actual_sa == MODEL_LOAD_SA,
+               "artifact_readback_digest_matches": hashlib.sha256(stored_artifact).hexdigest() == artifact_digest,
+               "process_event_matches_independent_receipt": process_matches and event_matches,
+               "receipt_resource_uid_stable": receipt.get("metadata", {}).get("uid") == receipt_uid_before,
+               "role_binding_is_narrow": role_matches,
+               "api_audit_proves_exact_sa_patch": audit_identity_ok,
+               "receipt_was_pending_before_load": before.get("data", {}).get("event.json") == "pending",
+               "token_or_secret_emitted": False})
+
+
+SCOPE += " One additional Pod reads only a fictional metadata JSON descriptor and independently patches a named case receipt with a minimized event bound to its projected ServiceAccount identity; no real model or GPU is used."

@@ -42,3 +42,26 @@ predicates used for the comparison.
 
 [Istio access logging](https://istio.io/latest/docs/tasks/observability/logs/access-log/)
 and [Envoy v1.32 access log fields](https://www.envoyproxy.io/docs/envoy/v1.32.0/configuration/observability/access_log/usage).
+The model-load check uses Kubernetes v1.36's [Downward API](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/pods/downward-api/), [ServiceAccount projected credentials](https://v1-36.docs.kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/), [RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/), and [audit logging](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/) to bind an inert artifact receipt to the actual case Pod identity.
+
+## Inert model-artifact load attribution reference
+
+The ten-check case includes one separately observed model-load event. A
+case-owned Pod opens a small fictional JSON model descriptor mounted from an
+immutable ConfigMap, calculates its digest, and writes a minimized
+`model_artifact_loaded` event through the Kubernetes API using its projected
+ServiceAccount token. The Role permits `patch` only
+to one named receipt ConfigMap. An independent harness read checks the persisted
+event against the created Pod UID, namespace, exact ServiceAccount, artifact
+digest and the process log; the receipt's Kubernetes object UID must remain
+stable. A scoped native API audit record independently identifies the exact
+ServiceAccount that patched the receipt, at Metadata level without request or
+response bodies. Tokens and credentials are never printed or included in evidence.
+
+Four layers of evidence link the fixture file, process log, API receipt and
+API audit identity. Actual serving-framework loader behavior, production
+models, GPU activity, downstream delivery and retention require adopter evidence.
+For adopters, capture the real loader event and artifact identity, bind it to
+the workload's authenticated identity, and reconcile source and collector
+receipts. Treat GPU process and provider telemetry separately and validate it
+against supported device/runtime sources.
