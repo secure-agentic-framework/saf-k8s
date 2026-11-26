@@ -28,7 +28,9 @@ SCOPE = (
     "gets only ResourceQuota create permission. A pinned Kueue v0.17.7 controller "
     "also compares held and admitted two-Pod batches against a local queue's nominal CPU quota "
     "and checks queue-admin authorization. Its readiness timeout also releases a reserved batch "
-    "when one of two workers remains unready. Volcano and production fairness, priority, preemption and "
+    "when one of two workers remains unready. A separate native policy limits one tenant namespace "
+    "to a named Kueue workload priority and excludes Pod PriorityClass input. Volcano and production "
+    "fairness, priority ordering, preemption and "
     "accelerator quotas require separate evidence."
 )
 

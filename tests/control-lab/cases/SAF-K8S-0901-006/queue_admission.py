@@ -57,6 +57,20 @@ def _condition(workload: dict[str, Any], kind: str) -> dict[str, Any] | None:
                  if c.get("type") == kind), None)
 
 
+def _wait_policy_typecheck(lab: Any, name: str, seconds: int = 30) -> None:
+    """Wait for the API server's current-generation policy type check, not just POST success."""
+    deadline = time.monotonic() + seconds
+    while time.monotonic() < deadline:
+        policy = _json(lab, "get", "validatingadmissionpolicy", name)
+        metadata = policy.get("metadata", {})
+        status = policy.get("status", {})
+        if (metadata.get("generation") == status.get("observedGeneration")
+                and "typeChecking" in status):
+            return
+        time.sleep(0.5)
+    lab.block("Native priority policy type checking did not complete in time")
+
+
 def _owned_workload(lab: Any, namespace: str, job: dict[str, Any]):
     workloads = _json(lab, "get", "workloads.kueue.x-k8s.io", "-n", namespace)
     job_uid = job.get("metadata", {}).get("uid")
@@ -306,6 +320,8 @@ def run(lab):
         "all_pods_ready": all_ready,
     }
     evidence["readiness_timeout"] = verify_readiness_timeout(lab, namespace, image)
+    evidence["priority_authorization"] = verify_priority_authorization(
+        lab, namespace, cluster_queue, image, suffix)
     (lab.evidence / "kueue-admission.json").write_text(json.dumps(evidence, indent=2) + "\n")
 
 def verify_readiness_timeout(lab, namespace, image):
@@ -366,3 +382,190 @@ def verify_readiness_timeout(lab, namespace, image):
               {"reason": after["evicted"]["reason"], "remaining_owned_pods": after["remaining_pods"],
                "quota_released": after["quota_reserved"]["status"] == "False", "job_suspended": True})
     return {"before": before, "after": after}
+
+
+def verify_priority_authorization(lab, namespace, cluster_queue, image, suffix):
+    """Bind Kueue workload priority names at Job admission, then inspect the real Workload."""
+    tenant = "priority-tenant"
+    tenant_identity = f"system:serviceaccount:{namespace}:{tenant}"
+    normal_class = "tenant-normal"
+    elevated_class = "platform-high"
+    priority_label = "kueue.x-k8s.io/priority-class"
+    policy_name = "saf-0901-006-priority-policy"
+    binding_name = policy_name + "-binding"
+    message = "tenant job must use the approved Kueue priority and no Pod PriorityClass"
+
+    for name, value in ((normal_class, 10), (elevated_class, 1000)):
+        _apply(lab, {"apiVersion": "kueue.x-k8s.io/v1beta2", "kind": "WorkloadPriorityClass",
+                     "metadata": {"name": name, "labels": {"saf-k8s.io/fixture": suffix}},
+                     "value": value, "description": "Fixed synthetic priority authorization fixture"})
+    _apply(lab, {"apiVersion": "scheduling.k8s.io/v1", "kind": "PriorityClass",
+                 "metadata": {"name": "saf-0901-006-pod-high",
+                              "labels": {"saf-k8s.io/fixture": suffix}},
+                 "value": 500, "globalDefault": False, "preemptionPolicy": "Never",
+                 "description": "Fixed synthetic Pod PriorityClass comparator"})
+
+    _apply(lab, {"apiVersion": "v1", "kind": "ServiceAccount",
+                 "metadata": {"name": tenant, "namespace": namespace,
+                              "labels": {"saf-k8s.io/fixture": suffix}},
+                 "automountServiceAccountToken": True})
+    _apply(lab, {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role",
+                 "metadata": {"name": "priority-tenant-jobs", "namespace": namespace},
+                 "rules": [{"apiGroups": ["batch"], "resources": ["jobs"],
+                            "verbs": ["create", "get", "patch", "update"]}]})
+    _apply(lab, {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding",
+                 "metadata": {"name": "priority-tenant-jobs", "namespace": namespace},
+                 "subjects": [{"kind": "ServiceAccount", "name": tenant,
+                               "namespace": namespace}],
+                 "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "Role",
+                             "name": "priority-tenant-jobs"}})
+
+    tenant_create = _kubectl(lab, "auth", "can-i", "create", "jobs.batch", "-n", namespace,
+                             "--as", tenant_identity, check=False).strip()
+    tenant_priorityclass_create = _kubectl(
+        lab, "auth", "can-i", "create", "workloadpriorityclasses.kueue.x-k8s.io",
+        "--as", tenant_identity, check=False).strip()
+
+    elevated = _job(namespace, "unauthorized-priority-dry-run", image, "10m")
+    elevated["metadata"]["labels"][priority_label] = elevated_class
+    before_high = _job_create_request(lab, namespace, tenant_identity, elevated, dry_run=True)
+    pod_priority = _job(namespace, "pod-priority-dry-run", image, "10m")
+    pod_priority["spec"]["template"]["spec"]["priorityClassName"] = "saf-0901-006-pod-high"
+    before_pod_priority = _job_create_request(lab, namespace, tenant_identity, pod_priority, dry_run=True)
+    missing_priority = _job(namespace, "missing-priority-dry-run", image, "10m")
+    before_missing = _job_create_request(lab, namespace, tenant_identity, missing_priority, dry_run=True)
+    if (before_high["returncode"] != 0 or before_pod_priority["returncode"] != 0
+            or before_missing["returncode"] != 0):
+        lab.block("The harmless baseline priority proposals did not reach ordinary API admission")
+
+    policy = {
+        "apiVersion": "admissionregistration.k8s.io/v1", "kind": "ValidatingAdmissionPolicy",
+        "metadata": {"name": policy_name, "labels": {"saf-k8s.io/fixture": suffix}},
+        "spec": {
+            "failurePolicy": "Fail",
+            "matchConstraints": {"resourceRules": [{"apiGroups": ["batch"], "apiVersions": ["v1"],
+                                                       "operations": ["CREATE", "UPDATE"],
+                                                       "resources": ["jobs"], "scope": "Namespaced"}]},
+            "validations": [{"expression":
+                f"'{priority_label}' in object.metadata.labels && "
+                f"object.metadata.labels['{priority_label}'] == '{normal_class}' && "
+                "(!has(object.spec.template.spec.priorityClassName) || "
+                "object.spec.template.spec.priorityClassName == '')",
+                "message": message, "reason": "Forbidden"}],
+        },
+    }
+    _apply(lab, policy)
+    _apply(lab, {"apiVersion": "admissionregistration.k8s.io/v1", "kind": "ValidatingAdmissionPolicyBinding",
+                 "metadata": {"name": binding_name, "labels": {"saf-k8s.io/fixture": suffix}},
+                 "spec": {"policyName": policy_name, "validationActions": ["Deny"],
+                          "matchResources": {"namespaceSelector": {"matchLabels":
+                              {"saf-k8s.io/queue-admission": suffix}}}}})
+
+    # Policy and binding objects can be accepted before their admission cache is
+    # ready. First wait for type checking, then poll only this exact harmless
+    # rejected proposal until the native Deny action is observable.
+    _wait_policy_typecheck(lab, policy_name)
+    deadline = time.monotonic() + 30
+    while time.monotonic() < deadline:
+        high_denied = _job_create_request(lab, namespace, tenant_identity, elevated, dry_run=True)
+        if high_denied["returncode"] != 0:
+            if message not in high_denied["message"]:
+                lab.block("Elevated-priority dry run failed for an unexpected reason (details suppressed)")
+            break
+        time.sleep(0.5)
+    else:
+        lab.block("The native priority policy did not deny the fixed elevated-priority dry run")
+
+    pod_priority_denied = _job_create_request(lab, namespace, tenant_identity, pod_priority, dry_run=True)
+    missing_denied = _job_create_request(lab, namespace, tenant_identity, missing_priority, dry_run=True)
+    normal = _job(namespace, "authorized-priority-two-pod", image, "10m")
+    normal["metadata"]["labels"][priority_label] = normal_class
+    normal_result = _job_create_request(lab, namespace, tenant_identity, normal, dry_run=True)
+    if (pod_priority_denied["returncode"] == 0 or message not in pod_priority_denied["message"]
+            or missing_denied["returncode"] == 0 or message not in missing_denied["message"]
+            or normal_result["returncode"] != 0):
+        lab.block("Native priority admission did not enforce the approved named class")
+
+    normal["metadata"]["name"] = "authorized-priority-two-pod"
+    normal["metadata"]["labels"]["app"] = normal["metadata"]["name"]
+    worker = normal["spec"]["template"]["spec"]["containers"][0]
+    worker["command"][-1] = "sleep 2; " + worker["command"][-1]
+    _kubectl(lab, "--as", tenant_identity, "create", "-f", "-", input=json.dumps(normal))
+    expected_priority_ref = {"group": "kueue.x-k8s.io",
+                             "kind": "WorkloadPriorityClass",
+                             "name": normal_class}
+    job = _wait(lab, lambda: _json(lab, "get", "job", normal["metadata"]["name"], "-n", namespace),
+                "authorized tenant Job creation")
+    workload = _wait(lab, lambda: (
+        current if (current := _owned_workload(lab, namespace, job))
+        and current.get("spec", {}).get("priorityClassRef") == expected_priority_ref
+        and current.get("spec", {}).get("priority") == 10
+        else None
+    ), "Kueue Workload with the approved named priority")
+    complete = _wait(lab, lambda: (
+        current if (current := _json(lab, "get", "job", normal["metadata"]["name"], "-n", namespace))
+        and any(condition.get("type") == "Complete" and condition.get("status") == "True"
+                for condition in current.get("status", {}).get("conditions", [])) else None
+    ), "approved low-resource priority Job completion")
+
+    patch_result = lab.command(
+        "kubectl", "--kubeconfig", str(lab.kubeconfig), "--context", f"kind-{lab.cluster}",
+        "--namespace", namespace, f"--request-timeout=25s", "--as", tenant_identity,
+        "patch", "job", normal["metadata"]["name"], "--type=merge", "--dry-run=server", "-o", "json",
+        "--patch", json.dumps({"metadata": {"labels": {priority_label: elevated_class}}}),
+        timeout=30, allow_failure=True)
+    updated_high_denied = patch_result.returncode != 0 and message in patch_result.stderr
+    pod_items = _json(lab, "get", "pods", "-n", namespace,
+                      "-l", f"app={normal['metadata']['name']}").get("items", [])
+    workload_spec = workload.get("spec", {})
+    observed_ref = {"queue_name": workload_spec.get("queueName"),
+                    "priority_class_ref": workload_spec.get("priorityClassRef"),
+                    "priority": workload_spec.get("priority")}
+    expected_ref = {"queue_name": "tenant-queue",
+                    "priority_class_ref": expected_priority_ref, "priority": 10}
+    no_pod_priority = not job.get("spec", {}).get("template", {}).get("spec", {}).get("priorityClassName")
+    captured = (observed_ref == expected_ref and no_pod_priority
+                and bool(complete) and len(pod_items) == 2
+                and all(item.get("status", {}).get("phase") == "Succeeded" for item in pod_items))
+    matched = (tenant_create == "yes" and tenant_priorityclass_create == "no"
+               and before_high["returncode"] == 0 and before_pod_priority["returncode"] == 0
+               and before_missing["returncode"] == 0
+               and high_denied["returncode"] != 0 and pod_priority_denied["returncode"] != 0
+               and missing_denied["returncode"] != 0
+               and normal_result["returncode"] == 0 and updated_high_denied and captured)
+    lab.check("positive", "Tenant Jobs can use only the approved Kueue workload priority; higher Kueue and Pod priority fields are denied and the real Workload records the approved value",
+              matched,
+              {"tenant_can_create_jobs": tenant_create == "yes",
+               "tenant_cannot_create_priority_classes": tenant_priorityclass_create == "no",
+               "baseline_high_workload_priority_admitted": before_high["returncode"] == 0,
+               "baseline_pod_priority_admitted": before_pod_priority["returncode"] == 0,
+               "baseline_missing_class_admitted": before_missing["returncode"] == 0,
+               "high_workload_priority_denied": high_denied["returncode"] != 0 and message in high_denied["message"],
+               "pod_priority_denied": pod_priority_denied["returncode"] != 0 and message in pod_priority_denied["message"],
+               "missing_class_denied": missing_denied["returncode"] != 0 and message in missing_denied["message"],
+               "approved_normal_class_admitted": normal_result["returncode"] == 0,
+               "update_to_high_class_denied": updated_high_denied,
+               "observed_real_workload": observed_ref,
+               "two_mock_workers_succeeded": len(pod_items) == 2 and all(
+                   item.get("status", {}).get("phase") == "Succeeded" for item in pod_items),
+               "no_pod_priority_class_on_approved_job": no_pod_priority})
+    return {"baseline_high_priority_dry_run": before_high["returncode"] == 0,
+            "baseline_pod_priority_dry_run": before_pod_priority["returncode"] == 0,
+            "baseline_missing_class_dry_run": before_missing["returncode"] == 0,
+            "high_workload_priority_denied": high_denied["returncode"] != 0,
+            "pod_priority_denied": pod_priority_denied["returncode"] != 0,
+            "missing_class_denied": missing_denied["returncode"] != 0,
+            "approved_class": observed_ref,
+            "job_complete": bool(complete), "success_pod_count": len(pod_items),
+            "update_to_high_class_denied": updated_high_denied}
+
+
+def _job_create_request(lab, namespace, identity, job, dry_run=False):
+    args = ["kubectl", "--kubeconfig", str(lab.kubeconfig), "--context", f"kind-{lab.cluster}",
+            "--namespace", namespace, "--request-timeout=25s", "--as", identity,
+            "create", "-f", "-", "-o", "json"]
+    if dry_run:
+        args.append("--dry-run=server")
+    response = lab.command(*args, payload=json.dumps(job), timeout=30, allow_failure=True)
+    return {"returncode": response.returncode,
+            "message": response.stderr if response.returncode else ""}

@@ -38,53 +38,19 @@ the bounded platform identity can create one in server-side dry-run. It does
 not prove that all other cluster principals are restricted or that production
 quota objects cannot be changed or removed.
 
-## Kueue and Volcano source review
+## Kueue and Volcano scope
 
-The control statement groups Kueue and Volcano, but their queue models are
-different and neither is installed in this minimal case.
+The fixture installs pinned Kueue v0.17.7 and exercises its Job integration.
+The namespaced `LocalQueue` selects a cluster-scoped `ClusterQueue`, which
+provides quota and governs scheduling policy. The fixture selects one tenant,
+one LocalQueue, and finite CPU-only Jobs. Volcano uses its own Queue and
+PodGroup model. Verify the scheduler actions and plugins for any adopted
+Volcano deployment, including capacity, deserved, and guarantee semantics.
 
-- Kueue v0.20.7 documents support for Kubernetes 1.34 and newer, including
-  this cluster version. It is still a cluster-scoped controller installation
-  with CRDs and a webhook, beyond the single-cluster native quota/RBAC slice.
-  This starter case avoids adding a second controller lifecycle and image
-  supply chain before the quota and tenant boundary have their own reviewable
-  evidence. Consequently Kueue runtime coverage is explicitly pending; the
-  case makes no claim that native ResourceQuota is a substitute for Kueue.
-- Kueue documents `ClusterQueue` as a cluster-scoped resource pool that
-  establishes quota and fair-sharing policy. A namespaced `LocalQueue` points
-  to one `ClusterQueue`; users submit supported Jobs through that queue, and
-  Kueue reserves quota as part of workload admission. Workload priority affects
-  admission order, and preemption behavior depends on the configured policy.
-  Thus a `LocalQueue` alone is not an independent tenant quota, and Kueue does
-  not imply priority restrictions or preemption safeguards without reviewed
-  configuration and RBAC. Kueue's documented default is all-or-nothing
-  admission unless Partial Admission is explicitly enabled. This case does not
-  exercise those APIs, Job integrations, admission gates, fair sharing,
-  borrowing, or preemption.
-- Volcano documents `Queue` as a collection of PodGroups and a basis for
-  resource division. Its `capability`, `deserved`, and `guarantee` fields have
-  different meanings; `deserved` depends on the capacity plugin. Gang
-  scheduling and queue behavior also depend on Volcano controller/scheduler
-  configuration and enabled actions/plugins. A Volcano Queue is not equivalent
-  to a Kueue ClusterQueue or a Kubernetes ResourceQuota. This case installs no
-  Volcano CRDs or controller and tests none of those runtime semantics.
-
-## Coverage and unresolved claims
-
-**Observed by this case after supervisor execution:** one namespace quota's
-effect on API admission for CPU and memory requests; one allowed low-resource
-mock Pod; denial of tenant ResourceQuota creation; and a scoped positive
-platform authorization check. The committed source is a test design until the
-supervisor executes and reviews the raw evidence from both runs.
-
-**Not covered / pending:** Kueue and Volcano installation/version compatibility
-and runtime behavior; GPU or other extended-resource quotas; distributed
-training Jobs or all-or-nothing gang scheduling; queue depth or fair-share
-policy; priority-class assignment/admission; scheduler preemption, reclamation,
-starvation, or deadlock behavior; controller and CRD RBAC; cross-namespace
-isolation; quota update/delete protection; workload limits/defaults; real
-identity-provider mapping; and managed-cluster behavior. No starvation or
-abuse scenario is simulated.
+For adoption, verify actual GPU or other extended-resource allocation,
+queue administration, approved workload priorities, ordering and fair sharing
+under representative demand, preemption configuration, protected recovery,
+and managed-cluster behavior.
 
 ## Primary sources
 
@@ -120,3 +86,15 @@ PodsReadyTimeout, the Job is suspended, its Pods are removed, and its quota is
 released. These observations cover Kueue's timeout-based mechanism in the lab.
 
 - [Kueue v0.17 all-Pod readiness](https://kueue.sigs.k8s.io/v0.17/docs/tasks/manage/setup_wait_for_pods_ready/)
+
+## Named workload priority
+
+The case creates two low-risk fixture `WorkloadPriorityClass` objects.
+Before activation, a fixed tenant identity can server-dry-run proposals for the
+elevated class, a missing Kueue class, and a separate Pod `PriorityClass`.
+After activation, the same requests and a proposed elevated update are
+refused. The approved tenant Job is created with `tenant-normal` (10).
+Independent Kueue Workload reads verify `spec.priorityClassRef` group, kind,
+and name, the numeric `spec.priority`, and the exact LocalQueue. Both
+approved low-CPU workers complete. The scope is this named tenant policy,
+bounded quota and readiness handling. [Kueue v0.17 API reference](https://kueue.sigs.k8s.io/v0.17/docs/reference/kueue.v1beta2/).

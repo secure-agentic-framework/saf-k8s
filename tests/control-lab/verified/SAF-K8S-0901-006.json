@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0901-006",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
+  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "0b1d02acd0d623612be51764643d1d762fb5a4c57b2c257968cde0799925db4d",
-  "scope": "One fresh Kubernetes v1.36.1 kind cluster. The case compares admission of one synthetic 600m CPU / 128Mi Pod request before and after an ordinary 500m CPU / 256Mi memory namespace ResourceQuota, verifies a low-request Pod remains admissible, and checks projected ServiceAccount authorization for creating Pods and ResourceQuota objects. A synthetic platform identity gets only ResourceQuota create permission. A pinned Kueue v0.17.7 controller also compares held and admitted two-Pod batches against a local queue's nominal CPU quota and checks queue-admin authorization. Its readiness timeout also releases a reserved batch when one of two workers remains unready. Volcano and production fairness, priority, preemption and accelerator quotas require separate evidence.",
-  "cluster": "saf-lab-0fb3d4283983",
+  "scope": "One fresh Kubernetes v1.36.1 kind cluster. The case compares admission of one synthetic 600m CPU / 128Mi Pod request before and after an ordinary 500m CPU / 256Mi memory namespace ResourceQuota, verifies a low-request Pod remains admissible, and checks projected ServiceAccount authorization for creating Pods and ResourceQuota objects. A synthetic platform identity gets only ResourceQuota create permission. A pinned Kueue v0.17.7 controller also compares held and admitted two-Pod batches against a local queue's nominal CPU quota and checks queue-admin authorization. Its readiness timeout also releases a reserved batch when one of two workers remains unready. A separate native policy limits one tenant namespace to a named Kueue workload priority and excludes Pod PriorityClass input. Volcano and production fairness, priority ordering, preemption and accelerator quotas require separate evidence.",
+  "cluster": "saf-lab-c076de48b635",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -186,6 +186,34 @@
         "remaining_owned_pods": 0,
         "quota_released": true,
         "job_suspended": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Tenant Jobs can use only the approved Kueue workload priority; higher Kueue and Pod priority fields are denied and the real Workload records the approved value",
+      "matched": true,
+      "observed": {
+        "tenant_can_create_jobs": true,
+        "tenant_cannot_create_priority_classes": true,
+        "baseline_high_workload_priority_admitted": true,
+        "baseline_pod_priority_admitted": true,
+        "baseline_missing_class_admitted": true,
+        "high_workload_priority_denied": true,
+        "pod_priority_denied": true,
+        "missing_class_denied": true,
+        "approved_normal_class_admitted": true,
+        "update_to_high_class_denied": true,
+        "observed_real_workload": {
+          "queue_name": "tenant-queue",
+          "priority_class_ref": {
+            "group": "kueue.x-k8s.io",
+            "kind": "WorkloadPriorityClass",
+            "name": "tenant-normal"
+          },
+          "priority": 10
+        },
+        "two_mock_workers_succeeded": true,
+        "no_pod_priority_class_on_approved_job": true
       }
     }
   ]
