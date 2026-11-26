@@ -17,9 +17,9 @@ to retain exactly one event with that ID, resource, namespace, name, verb, stage
 level, and successful response code. Duplicate IDs, missing IDs, extra selected
 fixture events, or bodies in the metadata event fail the case.
 
-Before the first measured create, the receiver is armed to answer its next
-webhook POST once with HTTP 503 without retaining that request body; it accepts
-the subsequent retry normally. The case records the receiver's status and
+Before the measured creates, the receiver is armed to delay and answer the
+webhook POST containing the exact selected event once with HTTP 503. It stores
+that event only after accepting the retry. The case records the receiver's status and
 Audit-IDs for both attempts. It requires one 503 attempt and a later successful
 attempt carrying the exact expected event. Delivery and selected metrics have
 bounded waits. If retries do not recover, the case stops with a failure rather
@@ -40,6 +40,13 @@ along with the native counter samples and exact recovered delivery. The case
 records the counter delta without asserting that a transient attempt failure is
 a terminal audit error. In batch mode, API requests may complete before webhook
 delivery; the case's exact-delivery wait checks the backend separately.
+
+The scratch supplement makes one selected ConfigMap event (`saf10010041-01`)
+wait 200 ms in the receiver before each response. It records receiver arrival
+and response timestamps and checks that the same event's `requestReceivedTimestamp`
+binds to a successful retry, that the receiver hold is bounded, and that the
+exact event is persisted once. This is a low-volume delay observation, not a
+buffer-saturation, event-loss-under-load, or backpressure capacity test.
 
 ## Scope limits
 

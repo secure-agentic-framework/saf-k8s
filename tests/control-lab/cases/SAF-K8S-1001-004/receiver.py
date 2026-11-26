@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import ssl
 from threading import Lock
+import time
 from urllib.parse import urlsplit
 
 
@@ -13,8 +14,10 @@ DATA = Path("/data")
 EVENTS = DATA / "events.jsonl"
 ATTEMPTS = DATA / "attempts.jsonl"
 LOCK = Lock()
-FAIL_NEXT = False
+FAIL_DELAYED_FIXTURE = False
 MAX_BODY = 262144
+DELAYED_FIXTURE_NAME = "saf10010041-01"
+FIXTURE_ACK_DELAY_SECONDS = 0.2
 
 
 def append(path, value):
@@ -57,10 +60,12 @@ class Handler(BaseHTTPRequestHandler):
         self.respond(200, body)
 
     def do_POST(self):
-        global FAIL_NEXT
+        global FAIL_DELAYED_FIXTURE
+        received_at_unix_ns = time.time_ns()
         path = urlsplit(self.path).path
         if path == "/__case/fail-next":
-            FAIL_NEXT = True
+            with LOCK:
+                FAIL_DELAYED_FIXTURE = True
             self.respond(200, b"armed")
             return
         if path != "/":
@@ -92,15 +97,28 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         ids = [event["auditID"] for event in events]
-        if FAIL_NEXT:
-            FAIL_NEXT = False
-            append(ATTEMPTS, {"status": 503, "audit_ids": ids})
+        delay_applied = any((event.get("objectRef") or {}).get("name") == DELAYED_FIXTURE_NAME
+                            for event in events)
+        if delay_applied:
+            time.sleep(FIXTURE_ACK_DELAY_SECONDS)
+        with LOCK:
+            fail_this_batch = FAIL_DELAYED_FIXTURE and delay_applied
+            if fail_this_batch:
+                FAIL_DELAYED_FIXTURE = False
+        if fail_this_batch:
+            append(ATTEMPTS, {"status": 503, "audit_ids": ids,
+                              "received_at_unix_ns": received_at_unix_ns,
+                              "response_at_unix_ns": time.time_ns(),
+                              "controlled_delay_applied": delay_applied})
             self.respond(503)
             return
 
         for event in events:
             append(EVENTS, event)
-        append(ATTEMPTS, {"status": 200, "audit_ids": ids})
+        append(ATTEMPTS, {"status": 200, "audit_ids": ids,
+                          "received_at_unix_ns": received_at_unix_ns,
+                          "response_at_unix_ns": time.time_ns(),
+                          "controlled_delay_applied": delay_applied})
         self.respond(200)
 
 

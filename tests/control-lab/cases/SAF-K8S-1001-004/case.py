@@ -21,7 +21,7 @@ GROUP = f"system:serviceaccounts:{NAMESPACE}"
 READ_IMAGE = ("docker.io/library/python:3.13-slim@sha256:"
               "e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90")
 IDENTITY_READS = ("audit-poll-a", "audit-poll-b")
-READ_SCRIPT = """import json, pathlib, ssl, sys, urllib.request
+READ_SCRIPT = """import json, pathlib, socket, ssl, sys, time, urllib.error, urllib.request
 root = pathlib.Path('/var/run/secrets/kubernetes.io/serviceaccount')
 context = ssl.create_default_context(cafile=str(root / 'ca.crt'))
 token = (root / 'token').read_text().strip()
@@ -30,10 +30,19 @@ for name in sys.argv[1:]:
         f'https://kubernetes.default.svc/api/v1/namespaces/saf-test/configmaps/{name}',
         headers={'Authorization': 'Bearer ' + token},
     )
-    with urllib.request.urlopen(request, timeout=8, context=context) as reply:
-        actual = json.load(reply)
-        print(json.dumps({'name': name, 'status': reply.status,
-                          'fixture_matches': actual['data']['fixture'] == 'owned-synthetic-value'}))
+    deadline = time.monotonic() + 18
+    while True:
+        try:
+            with urllib.request.urlopen(request, timeout=8, context=context) as reply:
+                actual = json.load(reply)
+                print(json.dumps({'name': name, 'status': reply.status,
+                                  'fixture_matches': actual['data']['fixture'] == 'owned-synthetic-value'}))
+                break
+        except urllib.error.URLError as error:
+            transient_dns = isinstance(error.reason, socket.gaierror) and error.reason.errno == socket.EAI_AGAIN
+            if not transient_dns or time.monotonic() >= deadline:
+                raise
+            time.sleep(0.5)
 """
 SCOPE = (
     "Two fresh, single-control-plane Kind Kubernetes v1.36.1 clusters. Both receive the same "
@@ -320,6 +329,8 @@ def run(lab):
         if green_version != "v1.36.1":
             lab.block(f"Expected Kubernetes v1.36.1 for selective audit, got {green_version}")
         lab.command(*kube, "create", "namespace", NAMESPACE)
+        lab.command(*kube, "-n", "kube-system", "rollout", "status", "deployment/coredns",
+                    "--timeout=80s", timeout=90)
         # Use the cluster's real name for every kubectl context after creation.
         original_cluster = lab.cluster
         lab.cluster = green_name

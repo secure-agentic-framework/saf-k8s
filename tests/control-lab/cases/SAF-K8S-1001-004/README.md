@@ -95,3 +95,9 @@ webhook. Five measured synthetic events must each arrive once under their observ
 Audit-ID. The receiver returns one HTTP 503 before storing a scoped event, then
 accepts its retry. Evidence includes the effective batching and throttle settings
 and the observed native counter values. See [webhook fixture details](webhook-audit.md).
+
+The fifteenth check records bounded delivery delay in the webhook cluster. The receiver holds the response for
+one exact synthetic ConfigMap event for 200 ms, records arrival/response time,
+and the case checks source `requestReceivedTimestamp` to successful acknowledgement,
+the same Audit-ID through the retry, and exactly-once storage. Verify receiver
+saturation, backend capacity and delay against the actual deployment targets.

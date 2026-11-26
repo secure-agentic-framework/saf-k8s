@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-004",
-  "catalog_revision": "85a971aab1ba867ca9cc5061558e35057aafc1f8",
-  "catalog_sha256": "a58dfda188f07f0f1fc46d3625052bfa136a74c407f47784ebe6a650f58583f3",
+  "catalog_revision": "be51e36d445e3477ca7c4fbb30df96c0ea5716e9",
+  "catalog_sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "ef6cb448b5bb3ceffff834f639b4dcc3732ef62a0d45c7659957482629f5bdc9",
   "scope": "Two fresh, single-control-plane Kind Kubernetes v1.36.1 clusters. Both receive the same seven measured API operations: five small ConfigMap LIST polls, one synthetic RoleBinding create, and one denied synthetic ConfigMap create. Red uses RequestResponse for both fixture resource types. Green omits RequestReceived, records ConfigMap LIST polls at Metadata, and retains both security-relevant writes at RequestResponse. Matching raw lines and file byte counts are saved. This finite fixture does not model sustained workload, production capacity, drops, backpressure, real AI traffic, or cluster-wide coverage. A separate Kind v1.36.1 cluster verifies TLS webhook delivery, one transient retry and native audit counters.",
-  "cluster": "saf-lab-a6858d0005db",
+  "cluster": "saf-lab-185e088280a2",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -195,6 +195,19 @@
         "fixture_names_match": true,
         "no_extra_fixture_events": true,
         "metadata_only": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "One exact synthetic Audit-ID survives an injected receiver delay and retry within the local observation bound",
+      "matched": true,
+      "observed": {
+        "configmap_name": "saf10010041-01",
+        "audit_id_matches_requested_operation": true,
+        "request_timestamp_present": true,
+        "same_event_received_503_then_200": true,
+        "delayed_retry_delivery_exactly_once": true,
+        "local_timing_bounds_met": true
       }
     },
     {

@@ -1,6 +1,7 @@
 """Bounded Kubernetes audit webhook delivery and native metric fixture."""
 
 import base64
+from datetime import datetime
 import json
 from pathlib import Path
 import re
@@ -38,7 +39,8 @@ SCOPE = (
     "One fresh single-node Kind Kubernetes v1.36.1 cluster. Exactly five measured, "
     "inert ConfigMap creates in saf-test are selected by the audit policy. A case-owned "
     "TLS receiver gets an injected one-request HTTP 503, then recovers on retry. The case "
-    "matches every returned Audit-Id to exactly one retained ResponseComplete Metadata "
+    "delays one exact fixture event's receiver acknowledgement by 200ms, and matches every returned Audit-Id "
+    "to exactly one retained ResponseComplete Metadata "
     "event and records native API-server audit metric samples. No host ports, external "
     "audit destinations, throughput measurement, or production capacity conclusion."
 )
@@ -417,6 +419,62 @@ def run(lab):
               fault_ok, {"same_event_receives_successful_retry": bool(fault_ok)})
     lab.check("positive", "All five exact synthetic Audit-IDs arrive once as scoped metadata events",
               exact_ok, exact_result)
+
+    delayed_name = f"{FIXTURE_PREFIX}-01"
+    delayed_audit_id = expected[delayed_name]
+    delayed_event = next((event for event in final["events"]
+                          if event.get("auditID") == delayed_audit_id), None)
+    delayed_attempts = [attempt for attempt in attempts
+                        if attempt.get("audit_ids") == [delayed_audit_id]]
+    delayed_failure = next((attempt for attempt in delayed_attempts
+                            if attempt.get("status") == 503), None)
+    delayed_success = next((attempt for attempt in delayed_attempts
+                            if attempt.get("status") == 200), None)
+    source_timestamp = (delayed_event or {}).get("requestReceivedTimestamp")
+    try:
+        source_epoch_ns = int(datetime.fromisoformat(
+            source_timestamp.replace("Z", "+00:00")).timestamp() * 1_000_000_000)
+    except (AttributeError, ValueError, OverflowError):
+        source_epoch_ns = None
+    receiver_hold_ms = (
+        (delayed_success["response_at_unix_ns"] - delayed_success["received_at_unix_ns"]) / 1_000_000
+        if delayed_success else None
+    )
+    source_to_ack_ms = (
+        (delayed_success["response_at_unix_ns"] - source_epoch_ns) / 1_000_000
+        if delayed_success and source_epoch_ns is not None else None
+    )
+    delay_observation = {
+        "configmap_name": delayed_name,
+        "audit_id_matches_requested_operation": bool(delayed_event)
+        and (delayed_event.get("objectRef") or {}).get("name") == delayed_name,
+        "request_timestamp_present": source_epoch_ns is not None,
+        "same_event_received_503_then_200": (
+            delayed_failure is not None and delayed_success is not None
+            and delayed_failure.get("controlled_delay_applied") is True
+            and delayed_success.get("controlled_delay_applied") is True
+            and delayed_failure["response_at_unix_ns"] <= delayed_success["received_at_unix_ns"]),
+        "receiver_controlled_delay_ms": receiver_hold_ms,
+        "source_request_to_receiver_ack_ms": source_to_ack_ms,
+        "delayed_retry_delivery_exactly_once": sum(
+            event.get("auditID") == delayed_audit_id for event in final["events"]) == 1,
+    }
+    delay_ok = (
+        delay_observation["audit_id_matches_requested_operation"]
+        and delay_observation["request_timestamp_present"]
+        and delay_observation["same_event_received_503_then_200"]
+        and receiver_hold_ms is not None and 150 <= receiver_hold_ms <= 2000
+        and source_to_ack_ms is not None and 0 <= source_to_ack_ms <= 5000
+        and delay_observation["delayed_retry_delivery_exactly_once"]
+    )
+    (lab.evidence / "bounded-delivery-delay.json").write_text(
+        json.dumps(delay_observation, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    stable = {key: value for key, value in delay_observation.items()
+              if key not in {"receiver_controlled_delay_ms", "source_request_to_receiver_ack_ms"}}
+    stable["local_timing_bounds_met"] = (receiver_hold_ms is not None and 150 <= receiver_hold_ms <= 2000
+                                         and source_to_ack_ms is not None and 0 <= source_to_ack_ms <= 5000)
+    lab.check("positive", "One exact synthetic Audit-ID survives an injected receiver delay and retry within the local observation bound",
+              delay_ok, stable)
 
     metrics_after = capture_metrics(lab, "after")
     event_before = metric_counter(metrics_before, "apiserver_audit_event_total")
