@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0102-019",
-  "catalog_revision": "5b106d48d65c8d20f9f90a785afbabda6e142328",
-  "catalog_sha256": "7d8cd831d56da43bc19a25cb64a6ea3195739c9eca60cff1ae8fc26b51c22e8c",
+  "catalog_revision": "fc1578d517267b890a723f569f04737810d6495a",
+  "catalog_sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "4b79df314eca542a372da8108acf2b0c42e80c690e94ea965fa41c59a82853c4",
-  "scope": "Real Kind Pod networking for two modeled etcd listener classes using only public marker endpoints.",
-  "cluster": "saf-lab-b4b069b781c6",
+  "scope": "Four owned Kind v1.36.1 nodes (three kubeadm control planes and one worker). Preserves the published inert Pod listener checks, then inventories actual local etcd client and node-bound peer listeners. A dedicated IPv4 iptables chain inside each owned control-plane node container denies worker and workload TCP connects to actual node-bound etcd ports while preserving local API clients and exact etcd peer addresses. Real fixture etcd client/peer TLS and API readiness are positive comparators. No host firewall, external endpoint, key output, or production system.",
+  "cluster": "saf-lab-e168a4b71256",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -43,28 +43,67 @@
       "claim": "Both inert listeners are reachable from the ordinary Pod before ingress policy",
       "matched": true,
       "observed": {
-        "client": "client-marker",
-        "peer": "peer-marker"
+        "client": "open",
+        "peer": "open"
       }
     },
     {
       "phase": "green",
-      "claim": "Workload ingress and unintended cross-class paths are denied",
+      "claim": "Workload ingress and unintended cross-class marker paths are denied",
       "matched": true,
       "observed": {
-        "ordinary_client": "timed-out",
-        "ordinary_peer": "timed-out",
-        "client_on_peer": "timed-out",
-        "peer_on_client": "timed-out"
+        "ordinary_client": "closed",
+        "ordinary_peer": "closed",
+        "client_on_peer": "closed",
+        "peer_on_client": "closed"
       }
     },
     {
       "phase": "positive",
-      "claim": "The approved client and member each retain their intended connectivity",
+      "claim": "The approved marker client and member retain their intended connectivity",
       "matched": true,
       "observed": {
-        "client": "client-marker",
-        "peer": "peer-marker"
+        "approved_paths_reachable": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Actual kubeadm client and peer binds map to three ready owned members",
+      "matched": true,
+      "observed": {
+        "owned_control_plane_members": 3,
+        "node_bound_peer_listeners_observed": 3,
+        "loopback_client_paths_preserved": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Worker and ordinary Pod reach each real node-bound peer listener before the host guard",
+      "matched": true,
+      "observed": {
+        "worker_and_workload_baseline_reachable_for_all_members": true,
+        "members_observed": 3
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Owned node input guards block worker and workload connects to actual etcd host peers",
+      "matched": true,
+      "observed": {
+        "worker_and_workload_denied_on_all_three_members": true,
+        "owned_drop_counters_confirmed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Real peer TLS, local etcd clients, membership, API readiness and marker storage remain healthy",
+      "matched": true,
+      "observed": {
+        "all_six_directed_member_peer_tls_pairs_verified": true,
+        "local_healthcheck_client_paths": true,
+        "member_identity_unchanged": true,
+        "api_ready_and_marker_readback": true,
+        "three_member_quorum_restored_after_each_guard": true
       }
     }
   ]
