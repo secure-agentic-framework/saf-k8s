@@ -1863,7 +1863,7 @@
     "SAF-K8S-0701-007": {
       "catalog_status": "draft",
       "domain": "D07",
-      "sha256": "93ccad72c17f853ed30c321b50919c792c48d22378af8ae69ecbcc1523bcd78d",
+      "sha256": "1ca27566f43bc5b322650341973dc942834b82e13f8a31921f70ffcb8923168a",
       "title": "High-performance AI storage backend hardening"
     },
     "SAF-K8S-0701-008": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "4b8461411137ffba71bca4b996e09b2ffc46792b",
-  "sha256": "015d61b2fcea3d0ff68d32e1ac467d9b1277b9037754d2c072f6d7d7848d7a6e",
+  "revision": "7faef5b533609e4f0f65b124223ed419d5137183",
+  "sha256": "6e7ec0fd6ea4992497c1acc4efb6ebcc9c90161e9770ffde617fd21af136215b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

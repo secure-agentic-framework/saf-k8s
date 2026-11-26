@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0701-007",
-  "catalog_revision": "d4328fde2e235c4d4a65baf2e08f7e45cfb81217",
-  "catalog_sha256": "e8d024860997c85e65dcb4d9a1c10c9e716416ecfea1f4d4479987609b4092f0",
+  "catalog_revision": "bebedc19d5bf3783f09f48d59097f83d2b423a98",
+  "catalog_sha256": "6e7ec0fd6ea4992497c1acc4efb6ebcc9c90161e9770ffde617fd21af136215b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "93ccad72c17f853ed30c321b50919c792c48d22378af8ae69ecbcc1523bcd78d",
-  "scope": "Kubernetes v1.36.1 Pod Security Admission in the runner's isolated saf-test namespace. Checks strict admission of synthetic privileged and hostPath declarations by dry-run only, and a real allowed nonroot reader on the bundled local-path provisioner. Dedicated privileged storage drivers, provider hardening, risk review and real datasets require their own evidence.",
-  "cluster": "saf-lab-0617aba26b35",
+  "control_sha256": "1ca27566f43bc5b322650341973dc942834b82e13f8a31921f70ffcb8923168a",
+  "scope": "Disposable two-node Kind v1.36.1. Server dry-run compares restrictive Pod Security admission of exact privilege and hostPath declarations. A nonroot Pod proves real read-only PVC access. Two bounded ordinary Pods compare scheduling on the exact owned tainted worker. Applicable storage driver host privileges and authorization for scheduling exemptions require separate evidence.",
+  "cluster": "saf-lab-325a5cd0f3a5",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -84,6 +84,28 @@
         "claim_bound": true,
         "read_only_mount": true,
         "marker_matches": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Case-approved restricted storage Pod runs on the exact isolated worker",
+      "matched": true,
+      "observed": {
+        "phase": "Succeeded",
+        "node_matches_isolated_worker": true,
+        "nonprivileged": true,
+        "image_pinned": true
+      }
+    },
+    {
+      "phase": "negative",
+      "claim": "Tenant Pod without the storage toleration is unschedulable on the isolated worker",
+      "matched": true,
+      "observed": {
+        "node_assigned": false,
+        "reason": "Unschedulable",
+        "scheduler_reports_untolerated_taint": true,
+        "exact_worker_taint_and_tenant_selector_verified": true
       }
     }
   ]
