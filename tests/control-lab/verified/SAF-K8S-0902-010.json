@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-0902-010",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
+  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d7401333ab41cf90b9a7495bfe000b5e54da079296daa31b180276eed56d926c",
-  "scope": "One disposable Kind cluster runs one case-owned Python Pod behind a ClusterIP Service. The Pod contains a deterministic HTTP fixture and a local recording sink, with no model, external network call, classifier, or production component. Policy off accepts one fixed benign request with an extra metadata field and demonstrates that the field is ignored as data. Policy on permits only a public user role and content, constructs fixed trusted system/developer roles internally, rejects unknown roles and public developer/system fields, and proves rejected requests do not reach the recording sink. This is structured application-boundary evidence only; it does not test prompt classification, model behavior, prompt-injection detection/generalization, or production serving and gateway configuration.",
-  "review_timing": {
-    "queued_at": "2026-11-22T21:50:01.033079+00:00",
-    "cluster_ready_at": "2026-11-22T21:50:55.700650+00:00",
-    "approval_at": "2026-11-22T21:51:58.213297+00:00",
-    "case_loaded_at": "2026-11-22T21:51:58.352289+00:00"
-  },
-  "cluster": "saf-lab-62564340a741",
+  "scope": "One disposable Kind cluster runs one case-owned Python Pod behind a ClusterIP Service. The Pod contains a deterministic HTTP fixture and a local recording sink, with no model, external network call, classifier, or production component. Policy off accepts one fixed benign request with an extra metadata field and demonstrates that the field is ignored as data. Policy on permits only a public user role and content, constructs fixed trusted system/developer roles internally, rejects unknown roles and public developer/system fields, and proves rejected requests do not reach the recording sink. This is structured application-boundary evidence only; it does not test prompt classification, model behavior, prompt-injection detection/generalization, or production serving and gateway configuration. An additive stage validates a projected client ServiceAccount token with Kubernetes TokenReview over SAN-verified internal TLS, derives the fixed user role from the verified principal, and refuses a conflicting role before the same local dispatcher.",
+  "cluster": "saf-lab-24a005df21a9",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "e6a980393bd1d0734e45bdc33e32e29148a58de8624cd54074fb8e11860e33d5",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
@@ -162,6 +155,27 @@
         },
         "image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90",
         "ready": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The fixed user role is derived from a TokenReview-verified projected ServiceAccount identity; unauthenticated and conflicting role requests stop before dispatch",
+      "matched": true,
+      "observed": {
+        "projected_serviceaccount_token_observed": true,
+        "reviewer_can_create_tokenreviews": true,
+        "reviewer_cannot_read_secrets": true,
+        "unauthenticated_refused_before_dispatch": true,
+        "conflicting_developer_role_refused_before_dispatch": true,
+        "verified_role_source": "projected-serviceaccount-tokenreview",
+        "approved_identity_binding": "approved-inference-user-serviceaccount",
+        "effective_role": "user",
+        "permitted_request_dispatches_once": true,
+        "trusted_role_order": [
+          "system",
+          "developer",
+          "user"
+        ]
       }
     }
   ]

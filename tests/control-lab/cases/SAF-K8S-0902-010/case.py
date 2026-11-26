@@ -1,6 +1,10 @@
 """Probe structured role-boundary handling in a disposable Kind workload."""
 import json
+import base64
+import os
 from pathlib import Path
+import subprocess
+import tempfile
 import time
 
 HERE = Path(__file__).resolve().parent
@@ -19,7 +23,10 @@ SCOPE = (
     "system/developer roles internally, rejects unknown roles and public developer/system "
     "fields, and proves rejected requests do not reach the recording sink. This is structured "
     "application-boundary evidence only; it does not test prompt classification, model behavior, "
-    "prompt-injection detection/generalization, or production serving and gateway configuration."
+    "prompt-injection detection/generalization, or production serving and gateway configuration. "
+    "An additive stage validates a projected client ServiceAccount token with Kubernetes TokenReview "
+    "over SAN-verified internal TLS, derives the fixed user role from the verified principal, and "
+    "refuses a conflicting role before the same local dispatcher."
 )
 
 
@@ -42,7 +49,7 @@ def _ready_pod(lab, expected_mode):
     lab.block("Role-boundary fixture did not become Ready in the requested policy mode")
 
 
-def _deploy(lab, mode):
+def _deploy(lab, mode, service_account=None, automount_token=False):
     lab.kubectl("delete", "deployment", APP, "--ignore-not-found=true", "--cascade=foreground", "--wait=true",
                 timeout=35)
     labels = {"app": APP, "fixture": "true"}
@@ -56,20 +63,30 @@ def _deploy(lab, mode):
                              "capabilities": {"drop": ["ALL"]}},
         "resources": {"requests": {"cpu": "10m", "memory": "24Mi"},
                       "limits": {"cpu": "200m", "memory": "96Mi"}},
-        "readinessProbe": {"httpGet": {"path": "/health", "port": "http"},
+        "readinessProbe": {"httpGet": {"path": "/health", "port": "http",
+                                         "scheme": "HTTPS" if mode == "role-source" else "HTTP"},
                            "periodSeconds": 1, "failureThreshold": 20},
     }
+    pod_spec = {
+        "automountServiceAccountToken": automount_token,
+        "terminationGracePeriodSeconds": 1,
+        "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
+                            "runAsGroup": 65534, "fsGroup": 65534,
+                            "seccompProfile": {"type": "RuntimeDefault"}},
+        "volumes": [{"name": "code", "configMap": {"name": APP + "-code"}}],
+        "containers": [container],
+    }
+    if mode == "role-source":
+        pod_spec["volumes"].append({"name": "tls", "secret": {"secretName": APP + "-tls",
+                                                                      "defaultMode": 0o440}})
+        container["volumeMounts"].append({"name": "tls", "mountPath": "/fixture-tls", "readOnly": True})
+    if service_account:
+        pod_spec["serviceAccountName"] = service_account
     lab.create({"apiVersion": "apps/v1", "kind": "Deployment",
                 "metadata": {"name": APP, "labels": labels},
                 "spec": {"replicas": 1, "strategy": {"type": "Recreate"},
                          "selector": {"matchLabels": labels},
-                         "template": {"metadata": {"labels": labels}, "spec": {
-                             "automountServiceAccountToken": False, "terminationGracePeriodSeconds": 1,
-                             "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
-                                                 "seccompProfile": {"type": "RuntimeDefault"}},
-                             "volumes": [{"name": "code", "configMap": {
-                                 "name": APP + "-code"}}],
-                             "containers": [container]}}}})
+                         "template": {"metadata": {"labels": labels}, "spec": pod_spec}}})
     lab.kubectl("rollout", "status", "deployment/" + APP, "--timeout=75s", timeout=85)
     pod = _ready_pod(lab, mode)
     _assert_service_targets(lab, pod)
@@ -104,9 +121,10 @@ def _observe(lab, mode):
 
 def run(lab):
     source = (HERE / "server.py").read_text(encoding="utf-8")
+    probe = (HERE / "probe.py").read_text(encoding="utf-8")
     config = lab.create({"apiVersion": "v1", "kind": "ConfigMap",
                          "metadata": {"name": APP + "-code"}, "immutable": True,
-                         "data": {"server.py": source}})
+                         "data": {"server.py": source, "probe.py": probe}})
     if config.get("data", {}).get("server.py") != source or config.get("immutable") is not True:
         lab.block("Kubernetes did not retain the exact immutable fixture source")
     lab.create({"apiVersion": "v1", "kind": "Service", "metadata": {"name": APP},
@@ -172,3 +190,134 @@ def run(lab):
                 "observation_boundary": "local deterministic recording sink; no model or classifier"}
     (lab.evidence / "role-boundary-observations.json").write_text(
         json.dumps(evidence, indent=2, sort_keys=True) + "\n")
+
+    _identity_role_source_witness(lab)
+
+
+def _identity_role_source_witness(lab):
+    server_sa = APP + "-reviewer"
+    client_sa = "inference-user"
+    lab.create({"apiVersion": "v1", "kind": "ServiceAccount",
+                "metadata": {"name": server_sa, "labels": {"fixture": "true"}},
+                "automountServiceAccountToken": True})
+    _create_fixture_tls_secret(lab)
+    lab.create({"apiVersion": "v1", "kind": "ServiceAccount",
+                "metadata": {"name": client_sa, "labels": {"fixture": "true"}},
+                "automountServiceAccountToken": True})
+    role_name = APP + "-tokenreview"
+    lab.create({"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "ClusterRole",
+                "metadata": {"name": role_name, "labels": {"fixture": "true"}},
+                "rules": [{"apiGroups": ["authentication.k8s.io"],
+                           "resources": ["tokenreviews"], "verbs": ["create"]}]})
+    lab.create({"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "ClusterRoleBinding",
+                "metadata": {"name": role_name, "labels": {"fixture": "true"}},
+                "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "ClusterRole",
+                            "name": role_name},
+                "subjects": [{"kind": "ServiceAccount", "name": server_sa,
+                              "namespace": "saf-test"}]})
+
+    allowed = lab.kubectl("auth", "can-i", "create", "tokenreviews.authentication.k8s.io",
+                          "--as=system:serviceaccount:saf-test:" + server_sa).stdout.strip()
+    unrelated = lab.kubectl("auth", "can-i", "get", "secrets",
+                            "--as=system:serviceaccount:saf-test:" + server_sa, allow_failure=True).stdout.strip()
+    if allowed != "yes" or unrelated != "no":
+        lab.block("The case reviewer identity did not have only the intended TokenReview permission")
+
+    _deploy(lab, "role-source", service_account=server_sa, automount_token=True)
+    client = {"apiVersion": "v1", "kind": "Pod",
+              "metadata": {"name": APP + "-identity-client",
+                           "labels": {"app": APP + "-identity-client", "fixture": "true"}},
+              "spec": {"serviceAccountName": client_sa, "automountServiceAccountToken": True,
+                       "restartPolicy": "Never", "terminationGracePeriodSeconds": 1,
+                       "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
+                                           "seccompProfile": {"type": "RuntimeDefault"}},
+                       "volumes": [{"name": "code", "configMap": {"name": APP + "-code"}},
+                                   {"name": "tls-trust", "secret": {"secretName": APP + "-tls",
+                                                                        "items": [{"key": "tls.crt", "path": "tls.crt"}]}}],
+                       "containers": [{"name": "client", "image": IMAGE, "imagePullPolicy": "IfNotPresent",
+                                       "command": ["python", "-B", "-c", "import time; time.sleep(240)"],
+                                       "volumeMounts": [{"name": "code", "mountPath": "/fixture", "readOnly": True},
+                                                        {"name": "tls-trust", "mountPath": "/fixture-trust", "readOnly": True}],
+                                       "resources": {"requests": {"cpu": "10m", "memory": "24Mi"},
+                                                     "limits": {"cpu": "100m", "memory": "64Mi"}}}]}}
+    lab.create(client)
+    lab.kubectl("wait", "--for=condition=Ready", "pod", APP + "-identity-client",
+                "--timeout=45s", timeout=50)
+    client_pod = json.loads(lab.kubectl("get", "pod", APP + "-identity-client", "-o", "json").stdout)
+    projected = (client_pod.get("spec", {}).get("serviceAccountName") == client_sa
+                 and client_pod.get("spec", {}).get("automountServiceAccountToken") is True
+                 and any(any("serviceAccountToken" in item for item in volume.get("projected", {}).get("sources", []))
+                         for volume in client_pod.get("spec", {}).get("volumes", [])))
+    if not projected:
+        lab.block("Client Pod did not receive its native projected ServiceAccount token")
+
+    raw = lab.kubectl("exec", APP + "-identity-client", "--", "python", "-B",
+                      "/fixture/probe.py", "role-source", timeout=25).stdout
+    try:
+        observed = json.loads(raw)
+    except json.JSONDecodeError:
+        lab.block("Authenticated role-source witness returned no stable JSON")
+    state_ok = (observed.get("baseline_dispatch_count") == 0
+                and observed.get("unauthenticated_status") == 401
+                and observed.get("unauthenticated_reason") == "identity_unverified"
+                and observed.get("dispatch_count_after_unauthenticated") == 0
+                and observed.get("conflict_status") == 403
+                and observed.get("conflict_reason") == "role_source_conflict"
+                and observed.get("dispatch_count_after_conflict") == 0
+                and observed.get("positive_status") == 200
+                and observed.get("identity_authenticated") is True
+                and observed.get("identity_role") == "user"
+                and observed.get("identity_binding") == "approved-inference-user-serviceaccount"
+                and observed.get("identity_source") == "projected-serviceaccount-tokenreview"
+                and observed.get("answer") == "4"
+                and observed.get("dispatch_count_after_positive") == 1
+                and observed.get("last_roles") == ["system", "developer", "user"])
+    lab.check("positive", "The fixed user role is derived from a TokenReview-verified projected ServiceAccount identity; unauthenticated and conflicting role requests stop before dispatch",
+              projected and allowed == "yes" and unrelated == "no" and state_ok,
+              {"projected_serviceaccount_token_observed": projected,
+               "reviewer_can_create_tokenreviews": allowed == "yes",
+               "reviewer_cannot_read_secrets": unrelated == "no",
+               "unauthenticated_refused_before_dispatch": observed.get("unauthenticated_status") == 401
+                   and observed.get("dispatch_count_after_unauthenticated") == 0,
+               "conflicting_developer_role_refused_before_dispatch": observed.get("conflict_status") == 403
+                   and observed.get("conflict_reason") == "role_source_conflict"
+                   and observed.get("dispatch_count_after_conflict") == 0,
+               "verified_role_source": observed.get("identity_source"),
+               "approved_identity_binding": observed.get("identity_binding"),
+               "effective_role": observed.get("identity_role"),
+               "permitted_request_dispatches_once": observed.get("positive_status") == 200
+                   and observed.get("dispatch_count_after_positive") == 1,
+               "trusted_role_order": observed.get("last_roles")})
+    (lab.evidence / "authenticated-role-source.json").write_text(
+        json.dumps(lab.checks[-1], indent=2, sort_keys=True) + "\n")
+
+
+def _create_fixture_tls_secret(lab):
+    """Create a short-lived SAN-correct endpoint cert without logging its key."""
+    name = APP + "-tls"
+    with tempfile.TemporaryDirectory(prefix="saf-role-tls-") as directory:
+        os.chmod(directory, 0o700)
+        root = Path(directory)
+        key_path, cert_path = root / "tls.key", root / "tls.crt"
+        generated = subprocess.run(
+            ["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes",
+             "-keyout", str(key_path), "-out", str(cert_path), "-days", "1",
+             "-subj", "/CN=saf-role-boundary",
+             "-addext", "subjectAltName=DNS:saf-role-boundary"],
+            capture_output=True, text=True, timeout=25, check=False,
+        )
+        if generated.returncode or not cert_path.is_file() or not key_path.is_file():
+            lab.block("The bounded local fixture certificate could not be generated")
+        key_path.chmod(0o600)
+        cert_path.chmod(0o600)
+        manifest_path = root / "secret.json"
+        manifest = {"apiVersion": "v1", "kind": "Secret",
+                    "metadata": {"name": name, "labels": {"fixture": "true"}},
+                    "type": "kubernetes.io/tls",
+                    "data": {"tls.crt": base64.b64encode(cert_path.read_bytes()).decode("ascii"),
+                             "tls.key": base64.b64encode(key_path.read_bytes()).decode("ascii")}}
+        descriptor = os.open(manifest_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(descriptor, "w", encoding="utf-8") as output:
+            json.dump(manifest, output)
+        lab.kubectl("create", "-f", str(manifest_path), "-o", "name")
+        manifest_path.unlink()

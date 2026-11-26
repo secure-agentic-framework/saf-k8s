@@ -35,3 +35,40 @@ fixture. It does not test content classification, detection accuracy, model exec
 production middleware, API gateway policy, upgrade lifecycle, or generalization to arbitrary
 content. Kubernetes supplies the Pod and Service runtime, while the application code owns
 request interpretation.
+
+## Additive authenticated role-source witness
+
+This scratch delta preserves the three results above and adds one grouped result. A
+case-owned client Pod receives a normal projected ServiceAccount token. The inference
+fixture sends that token to the same disposable cluster's Kubernetes API using the
+TokenReview v1 endpoint over TLS with the mounted API CA. Its narrowly bound reviewer
+ServiceAccount may create TokenReviews and cannot read Secrets. The fixture accepts only
+the exact `saf-test/inference-user` ServiceAccount principal as the fixed `user` role.
+
+The test calls the ClusterIP endpoint over HTTPS using a short-lived self-signed endpoint
+certificate whose SAN is `saf-role-boundary`; the client trusts that exact certificate and
+verifies the hostname. The private key is generated in a mode-0700 temporary directory,
+written to a mode-0600 Secret manifest, passed to `kubectl` by file path, and never put in
+command output or evidence. OpenSSL is a host prerequisite. The mock dispatcher still
+returns only the fixed answer `4` and records only trusted fixed roles and benign content.
+
+The grouped result requires: the API actually contains a projected client token volume;
+the unauthenticated request returns 401 with dispatch count unchanged; the authenticated
+request that claims harmless `developer` role returns 403 with dispatch count unchanged;
+the positive request omits any client role and is accepted once using the internally mapped
+`user` role; and the resulting trusted message roles are
+`system`, `developer`, `user`. Evidence contains only statuses, fixed reason labels,
+booleans, the effective fixture role and sink predicates. It contains no bearer token,
+TLS private key, raw TokenReview object, or credential response.
+
+This shows one native ServiceAccount-to-role binding through TokenReview in the owned
+Kind fixture. It is not prompt-injection detection, classifier accuracy, model behavior,
+production identity governance, gateway enforcement, or evidence of an adopted deployment.
+The control's broader classifier and deployed serving claims remain outside this reference.
+
+Primary references:
+
+- [Kubernetes v1.36 authentication](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/authentication/): ServiceAccount tokens authenticate as `system:serviceaccount:<namespace>:<name>`.
+- [Kubernetes TokenReview API](https://kubernetes.io/docs/reference/kubernetes-api/definitions/token-review-v1-authentication/): TokenReview authenticates a presented token and can constrain accepted audiences.
+- [Kubernetes ServiceAccount guidance](https://kubernetes.io/docs/concepts/security/service-accounts/): projected tokens are bound and rotated; TokenReview is recommended for validating them.
+- [JupyterHub 5.5.5 RBAC scopes](https://jupyterhub.readthedocs.io/en/5.5.5/rbac/scopes.html): default `self` scope is limited to the user's own resources.
