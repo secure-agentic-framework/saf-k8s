@@ -5,7 +5,7 @@
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "050633de1e56700ff57feadc9a46024367a9b868901b7a7ebae693398f40a8c9",
   "scope": "A disposable Kind node with pinned Tetragon, namespace-scoped JSON export and a non-enforcing filename observation rule. Only the fixture runner and its public harmless markers are observed. Operator audit integration, network and credential coverage, event loss and downstream alert delivery require separate evidence.",
-  "cluster": "saf-lab-cce6b6e59969",
+  "cluster": "saf-lab-554979136e73",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -74,6 +74,22 @@
         "tcp_event_attributed_to_fixture_pod": true,
         "fixed_owned_listener_port_observed": true,
         "exact_http_marker_response_verified": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The case receiver authenticates and accepts only the selected owned marker event",
+      "matched": true,
+      "observed": {
+        "bad_auth_rejected": true,
+        "selected_event_accepted": true,
+        "unselected_marker_rejected": true,
+        "changed_path_rejected": true,
+        "readback_only_selected_event": true,
+        "unauthenticated_readback_rejected": true,
+        "exact_event_digest_read_back": true,
+        "derived_alert_observed": true,
+        "receiver_scope": "loopback-only ephemeral fixture; forwarding is case-runner modeled"
       }
     }
   ]

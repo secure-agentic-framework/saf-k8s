@@ -1,10 +1,15 @@
 """Observe the owned runner's harmless command and public marker access."""
 from hashlib import sha256
+import hmac
+from http.client import HTTPConnection
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import secrets
+import threading
 import json
 from pathlib import Path
 import time
 
-from fixtures import BUSYBOX_IMAGE, container
+from fixtures import container
 
 HERE = Path(__file__).resolve().parent
 CHART = "https://helm.cilium.io/tetragon-1.8.0.tgz"
@@ -208,6 +213,117 @@ def network_request(lab, namespace, service_ip):
         lab.block("The owned in-cluster HTTP marker response was not exact")
 
 
+def receiver_delivery(lab, accepted_record, unrelated_record, namespace):
+    """Relay exact captured event bytes to an authenticated local fixture receiver."""
+    token = secrets.token_urlsafe(32)
+    alert_id = "SAF-BUILD-OWNED-MARKER-READ"
+    accepted = []
+
+    class Handler(BaseHTTPRequestHandler):
+        def log_message(self, _format, *args):
+            # Never emit request headers or bearer material to stdout/stderr.
+            return
+
+        def _reply(self, status, obj):
+            body = json.dumps(obj, sort_keys=True, separators=(",", ":")).encode()
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def do_POST(self):
+            if not hmac.compare_digest(self.headers.get("Authorization", "").encode(), ("Bearer " + token).encode()):
+                return self._reply(401, {"accepted": False})
+            if self.path != "/events":
+                return self._reply(404, {"accepted": False})
+            try:
+                size = int(self.headers.get("Content-Length", "0"))
+                if not 0 < size <= 262144:
+                    return self._reply(413, {"accepted": False})
+                payload = json.loads(self.rfile.read(size))
+                record = payload["record"]
+                pod = record.get("process", {}).get("pod", {})
+                args = record.get("args", [])
+                path_match = any(arg.get("file_arg", {}).get("path") == MARKER
+                                 for arg in args if isinstance(arg, dict))
+                valid = (payload.get("event_type") == "process_kprobe"
+                         and record.get("function_name") == "security_file_permission"
+                         and record.get("policy_name") == POLICY
+                         and pod.get("namespace") == namespace and pod.get("name") == POD
+                         and path_match)
+                if not valid:
+                    return self._reply(422, {"accepted": False})
+                raw_digest = sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+                accepted.append({"alert_id": alert_id, "event_type": payload["event_type"], "policy": POLICY,
+                                 "namespace": namespace, "pod": POD, "marker_match": True,
+                                 "event_sha256": raw_digest})
+                return self._reply(202, {"accepted": True})
+            except (ValueError, KeyError, TypeError, json.JSONDecodeError):
+                return self._reply(400, {"accepted": False})
+
+        def do_GET(self):
+            if not hmac.compare_digest(self.headers.get("Authorization", "").encode(), ("Bearer " + token).encode()):
+                return self._reply(401, {"accepted": False})
+            if self.path != "/state":
+                return self._reply(404, {"accepted": False})
+            return self._reply(200, {"accepted_count": len(accepted), "events": list(accepted)})
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    server.daemon_threads = True
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    def call(method, route, auth, payload=None):
+        connection = HTTPConnection("127.0.0.1", server.server_address[1], timeout=4)
+        body = json.dumps(payload, sort_keys=True, separators=(",", ":")) if payload is not None else None
+        headers = {"Authorization": "Bearer " + auth,
+                   "Content-Type": "application/json"}
+        try:
+            connection.request(method, route, body=body, headers=headers)
+            response = connection.getresponse()
+            return response.status, json.loads(response.read(16384))
+        finally:
+            connection.close()
+
+    try:
+        approved_payload = {"event_type": "process_kprobe", "record": accepted_record}
+        denied_payload = {"event_type": "process_exec", "record": unrelated_record}
+        altered = json.loads(json.dumps(approved_payload))
+        for arg in altered["record"]["args"]:
+            if arg.get("file_arg", {}).get("path") == MARKER:
+                arg["file_arg"]["path"] = MARKER + ".different"
+        bad_auth_status, bad_auth_body = call("POST", "/events", "wrong-fixture-token", approved_payload)
+        accept_status, accept_body = call("POST", "/events", token, approved_payload)
+        unrelated_status, unrelated_body = call("POST", "/events", token, denied_payload)
+        wrong_path_status, _ = call("POST", "/events", token, altered)
+        state_status, state = call("GET", "/state", token)
+        denied_read_status, _ = call("GET", "/state", "wrong-fixture-token")
+        expected_digest = sha256(json.dumps(approved_payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        event = (state.get("events", [{}])[0] if state.get("events") else {})
+        matched = (bad_auth_status == 401 and bad_auth_body.get("accepted") is False
+                   and accept_status == 202 and accept_body.get("accepted") is True
+                   and unrelated_status == 422 and unrelated_body.get("accepted") is False
+                   and wrong_path_status == 422
+                   and state_status == 200 and state.get("accepted_count") == 1
+                   and len(state.get("events", [])) == 1 and event.get("event_sha256") == expected_digest
+                   and event.get("marker_match") is True and event.get("alert_id") == alert_id
+                   and denied_read_status == 401)
+        lab.check("green", "The case receiver authenticates and accepts only the selected owned marker event",
+                  matched, {"bad_auth_rejected": bad_auth_status == 401,
+                            "selected_event_accepted": accept_status == 202,
+                            "unselected_marker_rejected": unrelated_status == 422,
+                            "changed_path_rejected": wrong_path_status == 422,
+                            "readback_only_selected_event": state.get("accepted_count") == 1,
+                            "unauthenticated_readback_rejected": denied_read_status == 401,
+                            "exact_event_digest_read_back": event.get("event_sha256") == expected_digest,
+                            "derived_alert_observed": event.get("alert_id") == alert_id,
+                            "receiver_scope": "loopback-only ephemeral fixture; forwarding is case-runner modeled"})
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=3)
+
+
 def run(lab):
     namespace = "saf-observed-" + lab.cluster[-9:]
     lab.kubectl("create", "namespace", namespace)
@@ -261,3 +377,8 @@ def run(lab):
         "chart_sha256": CHART_HASH, "before_exec_ids": sorted(old), "matched_exec_ids": sorted(current),
         "observations": observed,
     }, indent=2, sort_keys=True) + "\n")
+    # The receiver gets the exact Tetragon record selected above and the real
+    # process-only comparator event; it does not synthesize either source event.
+    receiver_delivery(lab, observed[0], next((record for kind, record in compared
+                       if kind == "process_exec" and record.get("process", {}).get("arguments") == f"cat {OTHER}"), {}),
+                      namespace)

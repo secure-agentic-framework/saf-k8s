@@ -15,3 +15,5 @@ workload attribution, policy state and approved event sources. Confirm
 separate CI and API audit records, the actual collector and alert route,
 latency and loss limits, redaction and evidence retention. This fixture
 covers the local sensor and its event output for the selected cases.
+
+The test runner also relays the exact observed marker event to an ephemeral authenticated receiver bound to loopback. Independent readback retains exactly one event digest. The receiver refuses the other marker's process event, a modified-path comparison and wrong credentials. This witness uses a fixture-local relay. Verify the adopted Tetragon export, other audit sources, alert routing and operating objectives on their effective paths.
