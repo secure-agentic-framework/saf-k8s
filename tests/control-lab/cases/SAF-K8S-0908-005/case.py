@@ -128,3 +128,13 @@ def run(lab):
     }
     (lab.evidence / "model-marker-detection.json").write_text(
         json.dumps(evidence, sort_keys=True, indent=2) + "\n")
+
+    # Separate authenticated identity and delivery checks preserve the original
+    # fixture path while proving that alert attribution does not trust request data.
+    auth_path = HERE / "authenticated_telemetry.py"
+    auth_spec = importlib.util.spec_from_file_location("saf_0908_005_authenticated_telemetry", auth_path)
+    if auth_spec is None or auth_spec.loader is None:
+        lab.block("Could not load the isolated authenticated telemetry supplement")
+    auth_module = importlib.util.module_from_spec(auth_spec)
+    auth_spec.loader.exec_module(auth_module)
+    auth_module.run(lab, image)

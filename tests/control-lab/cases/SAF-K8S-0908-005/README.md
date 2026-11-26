@@ -43,3 +43,20 @@ Run this through the SAF Kind runner that supplies the `lab` object and invokes 
 ## Logs and outputs
 
 HTTP access logging is disabled. The receiver writes only the alert envelope. Probe output includes only HTTP status and the small synthetic response. The runner evidence includes check booleans and the alert envelope, not input features. The fixture makes no claim about production log retention, access controls, transport encryption, identity provenance, receiver durability, or operational alert acknowledgment.
+
+
+## Authenticated serving and delivery
+
+The authenticated run uses projected Kubernetes ServiceAccount tokens for two
+separate audiences. The model records the principal returned by the native
+TokenReview API and attributes the alert to the fixed served model. It rejects
+requests with missing identity or an unapproved caller. The independent
+HTTPS receiver separately verifies the alert sender. It refuses the caller's
+token with either a mismatched audience or an unapproved sender identity. Only
+the authorized synthetic marker creates an alert, and the routine request
+succeeds without creating another. Evidence records only fixed identifiers
+and outcomes.
+
+For the adopted system, verify each serving identity and route, exact model
+and request attribution, statistical detector quality, and reliable restricted
+alert delivery, acknowledgment, retention, and actual downstream review.

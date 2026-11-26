@@ -5,7 +5,7 @@
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "8d11189367ac014b62f98c235a45a650617c39024c7befa593ef06014e34db16",
   "scope": "Case-owned synthetic requests exercise an actual configured marker event and its delivery to a separate HTTP receiver in Kind. Sanitized fields correlate the fixture request, claimed principal and model. A routine request still succeeds without an alert. Actual identity binding and external monitoring require site evidence.",
-  "cluster": "saf-lab-d6f87777af68",
+  "cluster": "saf-lab-30bff18b57d9",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -66,6 +66,32 @@
       "observed": {
         "normal_tolerated_record_returns_success": true,
         "normal_record_does_not_create_an_additional_alert": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Projected caller identity, not its request claim, governs the alert principal",
+      "matched": true,
+      "observed": {
+        "missing_identity_denied": true,
+        "valid_but_unapproved_identity_denied": true,
+        "denials_emit_no_alert": true,
+        "approved_identity_alerts": true,
+        "alert_principal_is_verified_service_account": true,
+        "forged_request_principal_not_used": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Receiver accepts only the authorized source identity and keeps ordinary traffic quiet",
+      "matched": true,
+      "observed": {
+        "wrong_audience_source_denied": true,
+        "valid_unapproved_source_denied": true,
+        "routine_request_succeeds": true,
+        "exactly_one_authenticated_alert_after_comparators": true,
+        "alert_has_no_feature_or_claimed_principal_fields": true,
+        "projected_tokens_excluded_from_observations": true
       }
     }
   ]
