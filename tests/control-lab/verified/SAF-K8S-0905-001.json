@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-001",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "e8cb72dbd0c3bf662f3404b8f9be86ff7dcff9a4",
+  "catalog_sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "a60f5e83b4c5c67a4eb5320f7a86fb6aeb1832d2ec5501275b83ebedbff4ce82",
-  "scope": "Kubernetes v1.36.1 native ValidatingAdmissionPolicy CREATE and UPDATE checks for Deployments in the runner's saf-test namespace. A case-owned cluster-scoped classification.saf-lab.example/v1 AISystemClassificationRegistry named saf-0905-001-classification-registry-v1 is the policy parameter and maps two synthetic system IDs to the standard lifecycle classifications and profile IDs. Admission compares the workload's classification label and explicit registry, system, and profile annotations with that stored record. One fixed incomplete AI Deployment is stored and dry-run admitted before policy, then the identical request is denied after policy; matching train-verify-lock and continuous-learning Deployments and an unscoped benign Deployment are stored. Human classification quality, real registry authority and change control, organization-wide policy enrollment, and efficacy of the assigned profiles are outside this fixture.",
-  "cluster": "saf-lab-ac5ad610c04f",
+  "scope": "Kubernetes v1.36.1 native ValidatingAdmissionPolicy CREATE and UPDATE checks for Deployments in a dedicated case-labeled namespace. A case-owned cluster-scoped classification.saf-lab.example/v1 AISystemClassificationRegistry named saf-0905-001-classification-registry-v1 is the policy parameter and maps two synthetic system IDs to the standard lifecycle classifications and profile IDs. Admission compares the workload's classification label and explicit registry, system, and profile annotations with that stored record. One fixed incomplete AI Deployment is stored and dry-run admitted before policy, then the identical request is denied after policy; a registered system declaration without the AI marker is denied because every Deployment in the selected namespace is validated; matching train-verify-lock and continuous-learning Deployments and an unscoped benign Deployment in a separate namespace are stored. Human classification quality, real registry authority and change control, organization-wide policy enrollment, and efficacy of the assigned profiles are outside this fixture.",
+  "cluster": "saf-lab-5671dbc85476",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -98,6 +98,16 @@
           "denied_by_policy": true,
           "stderr": "Error from server (Forbidden): error when creating \"STDIN\": deployments.apps \"saf-0905-001-wrong-registry\" is forbidden: ValidatingAdmissionPolicy 'saf-0905-001-registry-classification' with binding 'saf-0905-001-registry-classification' denied request: AI deployment classification and profile must match the named registry record"
         }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A registered system declaration without the AI marker is denied",
+      "matched": true,
+      "observed": {
+        "denied_by_policy": true,
+        "stderr": "Error from server (Forbidden): error when creating \"STDIN\": deployments.apps \"saf-0905-001-registered-without-ai-marker\" is forbidden: ValidatingAdmissionPolicy 'saf-0905-001-registry-classification' with binding 'saf-0905-001-registry-classification' denied request: AI deployment classification and profile must match the named registry record",
+        "server_side_dry_run": true
       }
     },
     {

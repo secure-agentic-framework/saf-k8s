@@ -10,6 +10,7 @@ from fixtures import container
 HERE = Path(__file__).resolve().parent
 REGISTRY_FIXTURE = HERE / "fixtures.json"
 NAMESPACE = "saf-test"
+BENIGN_NAMESPACE = "saf-0905-001-benign"
 REGISTRY_NAME = "saf-0905-001-classification-registry-v1"
 POLICY = "saf-0905-001-registry-classification"
 BINDING = POLICY
@@ -27,14 +28,16 @@ REGISTRY_FIXTURE_DATA = json.loads(REGISTRY_FIXTURE.read_text(encoding="utf-8"))
 RECORDS = REGISTRY_FIXTURE_DATA["systems"]
 SCOPE = (
     "Kubernetes v1.36.1 native ValidatingAdmissionPolicy CREATE and UPDATE checks for Deployments in "
-    "the runner's saf-test namespace. A case-owned cluster-scoped "
+        "a dedicated case-labeled namespace. A case-owned cluster-scoped "
     "classification.saf-lab.example/v1 AISystemClassificationRegistry named "
     f"{REGISTRY_NAME} is the policy parameter and maps two synthetic system IDs to the "
     "standard lifecycle classifications and profile IDs. Admission compares the workload's "
     "classification label and explicit registry, system, and profile annotations with that "
     "stored record. One fixed incomplete AI Deployment is stored and dry-run admitted before "
-    "policy, then the identical request is denied after policy; matching train-verify-lock and "
-    "continuous-learning Deployments and an unscoped benign Deployment are stored. Human "
+        "policy, then the identical request is denied after policy; a registered system declaration "
+        "without the AI marker is denied because every Deployment in the selected namespace is "
+        "validated; matching train-verify-lock and continuous-learning Deployments and an unscoped "
+        "benign Deployment in a separate namespace are stored. Human "
     "classification quality, real registry authority and change control, organization-wide "
     "policy enrollment, and efficacy of the assigned profiles are outside this fixture."
 )
@@ -90,7 +93,7 @@ def registry_object():
 
 
 def deployment(name, *, system_id=None, classification=None, profile=None,
-               registry=REGISTRY_NAME, ai=True):
+               registry=REGISTRY_NAME, ai=True, namespace=NAMESPACE):
     labels = {"app.kubernetes.io/name": name}
     annotations = {}
     if ai:
@@ -104,7 +107,7 @@ def deployment(name, *, system_id=None, classification=None, profile=None,
                 annotations[key] = value
     return {
         "apiVersion": "apps/v1", "kind": "Deployment",
-        "metadata": {"name": name, "namespace": NAMESPACE,
+        "metadata": {"name": name, "namespace": namespace,
                      "labels": labels, "annotations": annotations},
         "spec": {
             "replicas": 0,
@@ -147,10 +150,9 @@ def policy_object():
                 "apiGroups": ["apps"], "apiVersions": ["v1"],
                 "operations": ["CREATE", "UPDATE"], "resources": ["deployments"],
             }]},
-            "matchConditions": [{"name": "marked-ai-deployment",
-                                  "expression": (f'has(object.metadata.labels) && '
-                                                 f'"{AI_MARKER}" in object.metadata.labels && '
-                                                 f'object.metadata.labels["{AI_MARKER}"] == "true"')}],
+            # The binding selects the dedicated classification namespace. Do
+            # not add a marker-based matchCondition: that would let a Deployment
+            # in scope bypass validation by omitting its AI marker.
             "validations": [{"expression": expression, "message": DENIAL,
                              "reason": "Forbidden"}],
         },
@@ -172,7 +174,7 @@ def binding_object():
 
 
 def submit(lab, item, *, dry_run=False):
-    args = ["create", "-f", "-", "-n", NAMESPACE]
+    args = ["create", "-f", "-", "-n", item["metadata"]["namespace"]]
     if dry_run:
         args.append("--dry-run=server")
     return lab.kubectl(*args, "-o", "json", payload=json.dumps(item),
@@ -220,6 +222,7 @@ def run(lab):
                 "classification": "continuous-learning", "profile": "update-governed"}):
         lab.block("The case-owned registry fixture does not match the reviewed two-profile matrix")
     lab.kubectl("label", "namespace", NAMESPACE, "saf-lab.example/classification-verified=true")
+    lab.kubectl("create", "namespace", BENIGN_NAMESPACE)
     lab.create(registry_crd())
     lab.kubectl("wait", "--for=condition=Established",
                 f"customresourcedefinition/{PLURAL}.{GROUP}", "--timeout=30s")
@@ -288,6 +291,23 @@ def run(lab):
     lab.check("green", "Unknown, mismatched and invalid registry evidence is denied by policy",
               all_mismatches_denied, mismatch_results)
 
+    # A registered synthetic system declaration is sufficient to select the
+    # request even when its AI marker is omitted. The policy must reject the
+    # omission instead of treating the request as outside its match conditions.
+    unmarked_registered = deployment(
+        "saf-0905-001-registered-without-ai-marker",
+        system_id="train-locked-synthetic",
+        classification="train-verify-lock",
+        profile="integrity-locked")
+    unmarked_registered["metadata"]["labels"].pop(AI_MARKER, None)
+    unmarked_registered["spec"]["template"]["metadata"]["labels"].pop(AI_MARKER, None)
+    unmarked_result = submit(lab, unmarked_registered, dry_run=True)
+    lab.check("green", "A registered system declaration without the AI marker is denied",
+              denial_matches(unmarked_result),
+              {"denied_by_policy": denial_matches(unmarked_result),
+               "stderr": unmarked_result.stderr.strip(),
+               "server_side_dry_run": True})
+
     accepted = {}
     for system_id, values in RECORDS.items():
         name = "saf-0905-001-" + system_id.removesuffix("-synthetic")
@@ -299,9 +319,11 @@ def run(lab):
                                and stored["metadata"]["labels"].get(CLASS_LABEL) == values["classification"]
                                and stored["metadata"]["annotations"].get(PROFILE_ANNOTATION) == values["profile"]
                                and stored["metadata"]["annotations"].get(REGISTRY_ANNOTATION) == REGISTRY_NAME)
-    benign = deployment("saf-0905-001-benign-unscoped", ai=False)
+    benign = deployment("saf-0905-001-benign-unscoped", ai=False,
+                        namespace=BENIGN_NAMESPACE)
     benign_result = submit(lab, benign)
-    benign_stored = lab.kubectl("get", "deployment", benign["metadata"]["name"], "-o", "json")
+    benign_stored = lab.kubectl("get", "deployment", benign["metadata"]["name"],
+                                "-n", BENIGN_NAMESPACE, "-o", "json")
     benign_ok = (benign_result.returncode == 0
                  and AI_MARKER not in json.loads(benign_stored.stdout)["metadata"].get("labels", {}))
     lab.check("positive", "Both registry-matched profiles and an unscoped benign Deployment are API-stored",

@@ -1,17 +1,14 @@
-# SAF-K8S-0905-001
+# SAF-K8S-0905-001 — Require registry classification in governed namespaces
 
-Run `python3 lab.py test SAF-K8S-0905-001` from the control lab directory.
-A Kubernetes-native policy matches marked AI Deployments in the case
-namespace against a named, stored classification registry. The registry
-assigns profiles to both train-verify-lock and continuous-learning systems.
-The policy checks the `ai.kais.io/update-model` labels and the registry,
-system and profile declarations.
+Run `python3 tests/control-lab/lab.py test SAF-K8S-0905-001 --docker-context desktop-linux` from the framework checkout.
 
-The same incomplete Deployment update is admitted before activation and
-denied afterward. The test also checks unknown and mismatched evidence,
-then persists both matched profiles and an unscoped comparator. The case
-uses inert zero-replica Deployments. Deployed registry authority, human
-classification decisions and rollout coverage require separate evidence.
+Six grouped checks use native ValidatingAdmissionPolicy, a synthetic registry and zero-replica Deployments. The binding follows a case-selected namespace label and checks every Deployment in scope. The tests compare acceptance before the policy, exact rejections for incomplete or mismatched assignments, refusal when a declared registered system lacks the required marker, and allowed Deployments for the two approved profile assignments. A benign Deployment remains allowed in the separate unselected namespace.
 
-[Kubernetes v1.36 Validating Admission Policy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/) ·
-[Kubernetes v1.36 CustomResourceDefinitions](https://v1-36.docs.kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/)
+## Verify an adopted scope and registry
+
+1. Reconcile the AI system inventory against all Kubernetes environments, namespaces, workload APIs and controller paths that can deploy governed systems. Protect the namespace classification and policy binding with appropriate authorization. Compare actual enrollment with the registry, and document coverage and exceptions.
+2. Define who owns, approves, updates and reviews classification and registry records. Confirm an independent source of the actual system identity, effective assignment and schema, and retained approval history.
+3. Use approved requests to check exact assignment, absent or invalid declarations, wrong registry version, and API updates for each actual governed workload kind and path. Verify the effective classification selects the intended profile. Check authorized exceptions and unselected workloads separately.
+4. Review actual profile enforcement with the applicable implementation control, including SAF-K8S-0905-015.
+
+- [Kubernetes ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
