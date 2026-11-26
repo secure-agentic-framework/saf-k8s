@@ -8052,22 +8052,6 @@
 
 
     6.5 - Admission controllers make automated policy decisions on API requests; 9.5 - Model promotion gates automate security scan pass/fail decisions before production deployment'
-  control_id: SAF-K8S-0605-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-21(1)
-  framework_requirement_title: Automated Decision Support
-  framework_mapping_notes: 'Automated controls for agent information sharing decisions
-
-
-    6.5 - Admission controllers make automated policy decisions on API requests; 9.5 - Model promotion gates automate security scan pass/fail decisions before production deployment'
   control_id: SAF-K8S-0605-003
   relation_type: supports
   strength_level: strong
@@ -8770,22 +8754,6 @@
 
 
     6.5 - Admission controllers (reference monitor for all API requests); 3.3 - Mandatory access controls (seccomp, AppArmor as enforcement)'
-  control_id: SAF-K8S-0605-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-25
-  framework_requirement_title: Reference Monitor
-  framework_mapping_notes: 'Foundational -- tamperproof policy enforcement for agent actions
-
-
-    6.5 - Admission controllers (reference monitor for all API requests); 3.3 - Mandatory access controls (seccomp, AppArmor as enforcement)'
   control_id: SAF-K8S-0605-003
   relation_type: supports
   strength_level: strong
@@ -9040,22 +9008,6 @@
 
     6.5 - Configure admission control (application-level access enforcement); 4.1 - RBAC for custom resources and AI operators CRDs'
   control_id: SAF-K8S-0605-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-3(12)
-  framework_requirement_title: Assert and Enforce Application Access
-  framework_mapping_notes: 'Application-level agent access enforcement
-
-
-    6.5 - Configure admission control (application-level access enforcement); 4.1 - RBAC for custom resources and AI operators CRDs'
-  control_id: SAF-K8S-0605-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -9938,22 +9890,6 @@
 
 
     6.5 - Configure admission control (webhook failure policies: Fail vs Ignore, enable/disable controls); 10.6 - Policy-as-code for compliance'
-  control_id: SAF-K8S-0605-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(10)
-  framework_requirement_title: Enable and Disable Security or Privacy Policy Filters
-  framework_mapping_notes: 'Managing guardrail activation on agent systems
-
-
-    6.5 - Configure admission control (webhook failure policies: Fail vs Ignore, enable/disable controls); 10.6 - Policy-as-code for compliance'
   control_id: SAF-K8S-0605-003
   relation_type: supports
   strength_level: strong
@@ -10019,22 +9955,6 @@
 
     6.5 - Configure admission control (OPA/Gatekeeper constraint templates, Kyverno policies configuration)'
   control_id: SAF-K8S-0605-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(11)
-  framework_requirement_title: Configuration of Security or Privacy Policy Filters
-  framework_mapping_notes: 'Configuring agent guardrail/filter policies
-
-
-    6.5 - Configure admission control (OPA/Gatekeeper constraint templates, Kyverno policies configuration)'
-  control_id: SAF-K8S-0605-002
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -10146,22 +10066,6 @@
 
 
     6.5 - Configure admission control (decomposing requests into policy-relevant subcomponents for evaluation)'
-  control_id: SAF-K8S-0605-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(13)
-  framework_requirement_title: Decomposition into Policy-relevant Subcomponents
-  framework_mapping_notes: 'Breaking agent data flows into auditable subcomponents
-
-
-    6.5 - Configure admission control (decomposing requests into policy-relevant subcomponents for evaluation)'
   control_id: SAF-K8S-0605-003
   relation_type: supports
   strength_level: strong
@@ -10195,22 +10099,6 @@
 
     6.5 - Configure admission control (constraint templates, policy enforcement constraints for information flow)'
   control_id: SAF-K8S-0605-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(14)
-  framework_requirement_title: Security or Privacy Policy Filter Constraints
-  framework_mapping_notes: 'Constraints on agent content filtering policies
-
-
-    6.5 - Configure admission control (constraint templates, policy enforcement constraints for information flow)'
-  control_id: SAF-K8S-0605-002
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -11553,22 +11441,6 @@
 
 
     6.5 - Configure admission control (defense-in-depth with multiple admission controllers: OPA/Gatekeeper, Kyverno, PSA)'
-  control_id: SAF-K8S-0605-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(27)
-  framework_requirement_title: Redundant/Independent Filtering Mechanisms
-  framework_mapping_notes: 'Layered guardrails for defense in depth
-
-
-    6.5 - Configure admission control (defense-in-depth with multiple admission controllers: OPA/Gatekeeper, Kyverno, PSA)'
   control_id: SAF-K8S-0605-003
   relation_type: supports
   strength_level: strong
@@ -11602,22 +11474,6 @@
 
     6.5 - Configure admission control (admission controller chain); 9.4 - Pipeline step isolation (linear pipeline stages)'
   control_id: SAF-K8S-0605-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(28)
-  framework_requirement_title: Linear Filter Pipelines
-  framework_mapping_notes: 'Ordered agent content filtering pipelines
-
-
-    6.5 - Configure admission control (admission controller chain); 9.4 - Pipeline step isolation (linear pipeline stages)'
-  control_id: SAF-K8S-0605-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -11825,22 +11681,6 @@
 
 
     6.5 - Multiple independent admission webhook backends (OPA/Gatekeeper, Kyverno, Kubewarden) as separate processes; 9.4 - Pipeline execution isolation across stages provides multi-process filtering'
-  control_id: SAF-K8S-0605-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(30)
-  framework_requirement_title: Filter Mechanisms Using Multiple Processes
-  framework_mapping_notes: 'Multi-process agent filtering for isolation
-
-
-    6.5 - Multiple independent admission webhook backends (OPA/Gatekeeper, Kyverno, Kubewarden) as separate processes; 9.4 - Pipeline execution isolation across stages provides multi-process filtering'
   control_id: SAF-K8S-0605-003
   relation_type: supports
   strength_level: strong
@@ -11906,22 +11746,6 @@
 
     6.5 - Admission webhook security (failure policies: Fail vs Ignore for failed content prevention)'
   control_id: SAF-K8S-0605-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(31)
-  framework_requirement_title: Failed Content Transfer Prevention
-  framework_mapping_notes: 'Blocking agent output when filtering fails
-
-
-    6.5 - Admission webhook security (failure policies: Fail vs Ignore for failed content prevention)'
-  control_id: SAF-K8S-0605-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -12178,22 +12002,6 @@
 
     6.5 - Configure admission control (validation and mutation policies); 9.2 - Response filtering and output controls for inference'
   control_id: SAF-K8S-0605-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(8)
-  framework_requirement_title: Security and Privacy Policy Filters
-  framework_mapping_notes: 'Content filters on agent I/O (guardrails)
-
-
-    6.5 - Configure admission control (validation and mutation policies); 9.2 - Response filtering and output controls for inference'
-  control_id: SAF-K8S-0605-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -15814,22 +15622,6 @@
 
 
     9.3 - Circuit breakers halt inference on failure; 6.5 - Admission webhook Fail mode policy stops API mutations when audit/validation cannot proceed'
-  control_id: SAF-K8S-0605-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-5(4)
-  framework_requirement_title: Shutdown on Failure
-  framework_mapping_notes: 'Halting agent operations when auditing fails
-
-
-    9.3 - Circuit breakers halt inference on failure; 6.5 - Admission webhook Fail mode policy stops API mutations when audit/validation cannot proceed'
   control_id: SAF-K8S-0605-003
   relation_type: supports
   strength_level: strong
@@ -17802,22 +17594,6 @@
 
 
     6.5 - Configure admission control (compliance checks at deployment time); 10.6 - Policy-as-code compliance'
-  control_id: SAF-K8S-0605-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CA-9(1)
-  framework_requirement_title: Compliance Checks
-  framework_mapping_notes: 'Compliance checks on agent internal connections
-
-
-    6.5 - Configure admission control (compliance checks at deployment time); 10.6 - Policy-as-code compliance'
   control_id: SAF-K8S-0605-003
   relation_type: supports
   strength_level: strong
@@ -18243,16 +18019,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-11(3)
   framework_requirement_title: Automated Enforcement and Monitoring
-  framework_mapping_notes: 'Automated enforcement of agent software policies
-
-
-    6.5 - Admission control (automated enforcement of software installation policies); 2.4 - Drift detection'
+  framework_mapping_notes: The admission policy can enforce selected software authorization requirements when an image-bearing Pod is proposed. Reconcile admitted and running software through the independent monitoring process.
   control_id: SAF-K8S-0605-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The deployed software authorization baseline applies to the selected workload image installation path and separately monitors actual installed workloads.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -19294,22 +19067,6 @@
 
     6.5 - Admission control (preventing unauthorized config changes); 6.6 - No manual kubectl apply'
   control_id: SAF-K8S-0605-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-3(8)
-  framework_requirement_title: Prevent or Restrict Configuration Changes
-  framework_mapping_notes: 'Restricting unauthorized agent config changes
-
-
-    6.5 - Admission control (preventing unauthorized config changes); 6.6 - No manual kubectl apply'
-  control_id: SAF-K8S-0605-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -20463,22 +20220,6 @@
 
 
     6.5 - Admission control (rejecting unsigned/unapproved images); 6.2 - Image signature verification (deny-by-exception)'
-  control_id: SAF-K8S-0605-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-7(4)
-  framework_requirement_title: Unauthorized Software -- Deny-by-exception
-  framework_mapping_notes: 'Deny-by-default for agent tools/plugins
-
-
-    6.5 - Admission control (rejecting unsigned/unapproved images); 6.2 - Image signature verification (deny-by-exception)'
   control_id: SAF-K8S-0605-003
   relation_type: direct
   strength_level: strong
@@ -20536,16 +20277,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-7(5)
   framework_requirement_title: Authorized Software -- Allow-by-exception
-  framework_mapping_notes: 'Allowlisting agent tools/plugins
-
-
-    6.5 - Admission control (allow-listing approved images); 6.1 - Approved base image registries'
+  framework_mapping_notes: The reference permits the selected image with the approved signer and attestation and refuses the otherwise excluded alternatives. Verify authorized component inventory and trust and exception lifecycle separately.
   control_id: SAF-K8S-0605-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The applicable allow-by-exception policy designates the trusted signer and required evidence as software authorization predicates for the governed images.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -20885,22 +20623,6 @@
 
     2.4 - Drift detection (unauthorized components); 6.5 - Admission control (detecting unauthorized pods)'
   control_id: SAF-K8S-0605-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-8(3)
-  framework_requirement_title: Automated Unauthorized Component Detection
-  framework_mapping_notes: 'Detecting unauthorized agent tools/plugins
-
-
-    2.4 - Drift detection (unauthorized components); 6.5 - Admission control (detecting unauthorized pods)'
-  control_id: SAF-K8S-0605-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -21388,22 +21110,6 @@
 
     9.3 - Circuit breakers and graceful degradation (safe mode); 6.5 - Admission webhook Fail mode'
   control_id: SAF-K8S-0605-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-12
-  framework_requirement_title: Safe Mode
-  framework_mapping_notes: 'Agent safe/degraded mode operation
-
-
-    9.3 - Circuit breakers and graceful degradation (safe mode); 6.5 - Admission webhook Fail mode'
-  control_id: SAF-K8S-0605-002
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -31461,22 +31167,6 @@
 
 
     6.5 - Admission control (formal policy models via OPA/Gatekeeper constraint templates)'
-  control_id: SAF-K8S-0605-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-17(1)
-  framework_requirement_title: Formal Policy Model
-  framework_mapping_notes: 'Formal security policy models define access control rules for agent-tool interactions
-
-
-    6.5 - Admission control (formal policy models via OPA/Gatekeeper constraint templates)'
   control_id: SAF-K8S-0605-003
   relation_type: direct
   strength_level: strong
@@ -33337,22 +33027,6 @@
 
 
     6.5 - Admission control (predicate-based permission decisions via OPA/Gatekeeper, Kyverno)'
-  control_id: SAF-K8S-0605-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(15)
-  framework_requirement_title: Predicate Permission
-  framework_mapping_notes: 'Predicate permissions enable conditional agent access based on context and state
-
-
-    6.5 - Admission control (predicate-based permission decisions via OPA/Gatekeeper, Kyverno)'
   control_id: SAF-K8S-0605-003
   relation_type: direct
   strength_level: strong
@@ -34114,22 +33788,6 @@
 
 
     9.3 - Circuit breakers, graceful degradation (secure failure); 6.5 - Webhook Fail mode (fail secure)'
-  control_id: SAF-K8S-0605-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(24)
-  framework_requirement_title: Secure Failure and Recovery
-  framework_mapping_notes: 'Agents must fail securely, revoking permissions and preserving audit state on error
-
-
-    9.3 - Circuit breakers, graceful degradation (secure failure); 6.5 - Webhook Fail mode (fail secure)'
   control_id: SAF-K8S-0605-003
   relation_type: direct
   strength_level: strong
@@ -34734,22 +34392,6 @@
 
     6.5 - Admission controllers (efficiently mediating all API requests as reference monitors)'
   control_id: SAF-K8S-0605-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(5)
-  framework_requirement_title: Efficiently Mediated Access
-  framework_mapping_notes: 'Access mediation ensures all agent tool and resource access passes through authorization checks
-
-
-    6.5 - Admission controllers (efficiently mediating all API requests as reference monitors)'
-  control_id: SAF-K8S-0605-002
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -36221,22 +35863,6 @@
 
 
     2.4 - Drift detection (identifying unacceptable code execution); 6.5 - Admission control (corrective actions)'
-  control_id: SAF-K8S-0605-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-18(1)
-  framework_requirement_title: Identify Unacceptable Code and Take Corrective Actions
-  framework_mapping_notes: 'Detecting unacceptable agent plugin or tool code prevents execution of malicious extensions
-
-
-    2.4 - Drift detection (identifying unacceptable code execution); 6.5 - Admission control (corrective actions)'
   control_id: SAF-K8S-0605-003
   relation_type: supports
   strength_level: strong
@@ -36397,22 +36023,6 @@
 
 
     5.1 - Egress controls (preventing unauthorized downloads); 6.5 - Admission control (blocking unauthorized execution)'
-  control_id: SAF-K8S-0605-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-18(3)
-  framework_requirement_title: Prevent Downloading and Execution
-  framework_mapping_notes: 'Preventing unauthorized downloads of agent extensions blocks malicious tool installation
-
-
-    5.1 - Egress controls (preventing unauthorized downloads); 6.5 - Admission control (blocking unauthorized execution)'
   control_id: SAF-K8S-0605-003
   relation_type: direct
   strength_level: strong
@@ -36478,22 +36088,6 @@
 
     3.2 - Security contexts (no-new-privileges flag); 6.5 - Admission policies preventing automatic execution'
   control_id: SAF-K8S-0605-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-18(4)
-  framework_requirement_title: Prevent Automatic Execution
-  framework_mapping_notes: 'Preventing automatic execution of agent extensions without validation blocks code injection
-
-
-    3.2 - Security contexts (no-new-privileges flag); 6.5 - Admission policies preventing automatic execution'
-  control_id: SAF-K8S-0605-002
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -37706,22 +37300,6 @@
 
     5.1 - Network policies (access and flow control functions); 6.5 - Admission control (access control enforcement)'
   control_id: SAF-K8S-0605-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-3(2)
-  framework_requirement_title: Access and Flow Control Functions
-  framework_mapping_notes: 'Access and flow control isolation ensures agent authorization mechanisms cannot be bypassed
-
-
-    5.1 - Network policies (access and flow control functions); 6.5 - Admission control (access control enforcement)'
-  control_id: SAF-K8S-0605-002
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -39614,22 +39192,6 @@
 
 
     9.5 - Model registry access controls (usage restrictions on AI components); 6.5 - Admission control (usage restrictions enforcement)'
-  control_id: SAF-K8S-0605-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-43
-  framework_requirement_title: Usage Restrictions
-  framework_mapping_notes: 'Usage restrictions on agent system components enforce organizational security policy
-
-
-    9.5 - Model registry access controls (usage restrictions on AI components); 6.5 - Admission control (usage restrictions enforcement)'
   control_id: SAF-K8S-0605-003
   relation_type: supports
   strength_level: strong
@@ -40637,22 +40199,6 @@
 
 
     3.3 - Mandatory access controls (software-enforced separation via seccomp/AppArmor/SELinux); 6.5 - Admission control'
-  control_id: SAF-K8S-0605-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-50
-  framework_requirement_title: Software-enforced Separation and Policy Enforcement
-  framework_mapping_notes: 'Software-enforced separation for agent processes enforces security policy boundaries
-
-
-    3.3 - Mandatory access controls (software-enforced separation via seccomp/AppArmor/SELinux); 6.5 - Admission control'
   control_id: SAF-K8S-0605-003
   relation_type: direct
   strength_level: strong
@@ -41261,22 +40807,6 @@
 
     6.5 - Admission webhook failure policies (Fail mode for fail-secure); 9.3 - Circuit breakers'
   control_id: SAF-K8S-0605-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(18)
-  framework_requirement_title: Fail Secure
-  framework_mapping_notes: 'Agent boundary protection must fail secure, blocking traffic on component failure
-
-
-    6.5 - Admission webhook failure policies (Fail mode for fail-secure); 9.3 - Circuit breakers'
-  control_id: SAF-K8S-0605-002
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -43040,22 +42570,6 @@
 
     9.2 - Inference request format enforcement (predictable input processing); 6.5 - Admission control (predictable policy behavior)'
   control_id: SAF-K8S-0605-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-10(3)
-  framework_requirement_title: Predictable Behavior
-  framework_mapping_notes: 'Predictable agent behavior on invalid input prevents exploitation of error handling paths
-
-
-    9.2 - Inference request format enforcement (predictable input processing); 6.5 - Admission control (predictable policy behavior)'
-  control_id: SAF-K8S-0605-002
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -44987,22 +44501,6 @@
 
     9.3 - Inference overload handling (graceful degradation, circuit breakers); 6.5 - Admission webhook failure policies (Fail vs. Ignore)'
   control_id: SAF-K8S-0605-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-17
-  framework_requirement_title: Fail-safe Procedures
-  framework_mapping_notes: 'Fail-safe procedures for agent systems ensure secure shutdown and data preservation
-
-
-    9.3 - Inference overload handling (graceful degradation, circuit breakers); 6.5 - Admission webhook failure policies (Fail vs. Ignore)'
-  control_id: SAF-K8S-0605-002
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -49675,22 +49173,6 @@
 
 
     6.5 - Admission control (centrally managed policy enforcement); 6.2 - Sigstore (centralized signing infrastructure)'
-  control_id: SAF-K8S-0605-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-7(3)
-  framework_requirement_title: Centrally Managed Integrity Tools
-  framework_mapping_notes: 'Centrally managed integrity tools provide consistent protection across agent deployments
-
-
-    6.5 - Admission control (centrally managed policy enforcement); 6.2 - Sigstore (centralized signing infrastructure)'
   control_id: SAF-K8S-0605-003
   relation_type: direct
   strength_level: strong
@@ -53630,13 +53112,13 @@
   framework_version: '1.1'
   framework_requirement_id: PW.9.2
   framework_requirement_title: Implement the default settings (or groups of default settings) and document each setting for software administrators.
-  framework_mapping_notes: SAF-K8S enforces default settings through admission control policies, PSA enforcement, and policy-as-code engines that reject non-compliant configurations.
+  framework_mapping_notes: The MutatingPolicy applies three selected workload defaults. Verify applicable configuration scope and administrator documentation independently.
   control_id: SAF-K8S-0605-002
-  relation_type: direct
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The applicable secure defaults include the demonstrated Pod fields and the adopter documents all affected settings for administrators.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
