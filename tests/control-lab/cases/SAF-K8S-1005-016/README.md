@@ -6,12 +6,9 @@ This control governs documented post-incident AI model retraining, rollback, qua
 
 The corrected crosswalk removes the NIST SSDF 1.1 RV.2.2 association. RV.2.2 is “Plan and implement risk responses for vulnerabilities.” NIST's examples concern making a risk-based choice to remediate or otherwise address each vulnerability, planning temporary mitigation until permanent remediation exists, and issuing security advisories. The current control does not identify or respond to a software vulnerability. Its portable case validates a synthetic recovery decision record and does not perform rollback, retraining, quarantine, or vulnerability remediation. Retain the control and its portable evidence under its own AI recovery-governance claim; do not use it as proof of SSDF vulnerability response. Map vulnerability-specific response only to a control whose actual scope covers that activity.
 
-## Existing paired portable evidence
+## Paired portable evidence
 
-Lab receipt: `saf-k8s-control-lab/evidence/SAF-K8S-1005-016/20261122T175003Z-1fc0b628/result.json`.
-Framework receipt: `saf-k8s-framework/tests/control-lab/evidence/SAF-K8S-1005-016/20261122T175003Z-6f452dfe/result.json`.
-
-Both passed 16 checks on Kubernetes v1.36.1 with catalog revision `133a8698a45e2b335b51728bf4c62f7bda98d15f` and row/control digest `7ce0cbfb8a5b088e9edb6df6ffb63b88e695d95a2d9e430b4af8bfad89554419`; they used distinct disposable Kind clusters and report cleanup `deleted`. Checks cover immutable readback of seven synthetic decision/evidence ConfigMaps; a bypass accepting the same ownerless record; enforced rejection of missing/untrusted owner, failed integrity, missing reason, untrusted evidence reference, mismatched rollback target, and improperly owned unresolved evidence; node version; and one accepted fixture-only conditional decision retaining its explicit unresolved item. All records contain inert examples. Fixture hashes establish byte consistency for those local files, not trustworthy production evidence or tamper resistance against a cluster administrator.
+The [published receipt](../../verified/SAF-K8S-1005-016.json) records 21 matching checks on separate Kubernetes v1.36.1 Kind clusters, both deleted. The catalog revision is `7c3baea51daeee549889a02037bae9ddd1dccf68` and the control-row digest is `7ce0cbfb8a5b088e9edb6df6ffb63b88e695d95a2d9e430b4af8bfad89554419`. Lab run `20261126T021719Z-b6be2dc4` and independent framework run `20261126T021956Z-d448840a` each demonstrate the same refusal-before-change and exact approved inert Deployment rollback.
 
 ## Reproduce the portable fixture
 
