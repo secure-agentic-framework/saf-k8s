@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "0a75f5550a0235a0ec132937449e8d7892e2631c",
+  "revision": "deb087e31a0d4722cf7ea24b9e19a2efcafafab5",
   "sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
