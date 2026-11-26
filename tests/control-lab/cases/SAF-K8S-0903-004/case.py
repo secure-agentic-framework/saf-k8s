@@ -1,4 +1,5 @@
-"""Observe exact token policy and fake-model accounting in a disposable Kind Pod."""
+"""Observe synthetic generation budgets and a real BPE-backed HTTP stream in Kind."""
+import importlib.util
 import json
 from pathlib import Path
 
@@ -7,12 +8,12 @@ POD = "saf-token-accounting"
 IMAGE = ("docker.io/library/python:3.13-slim@sha256:"
          "e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90")
 SCOPE = (
-    "One owned Kubernetes v1.36.1 Pod runs a deterministic synthetic generation fixture. "
-    "The real process counts whitespace-separated fixture tokens and enforces input, "
-    "per-request output, per-session output, and logical-time generation-rate limits. "
-    "Backend counters are inspected after each request. Real model tokenizer/template, "
-    "streaming and concurrent identity enforcement, real KV cache or GPU memory, and "
-    "production settings require separate evidence."
+    "Disposable Kubernetes v1.36.1 Pods run deterministic synthetic generation fixtures. "
+    "The original process enforces whitespace-token input, request and session output limits "
+    "and a logical-time rate limit. A separate Kubernetes Service and client exercise real "
+    "cl100k_base BPE accounting after prompt expansion and bounded HTTP token streaming. "
+    "Deployed model templates and tokenizers, authenticated tenancy and concurrency, real "
+    "model and KV-cache behavior, and GPU memory remain separate adoption evidence."
 )
 
 
@@ -122,3 +123,32 @@ def run(lab):
               ordinary["response"] == response(True, "complete", 2, 3)
               and ordinary["backend"] == backend(1, 2, 3)
               and ordinary["session_output"] == 3, ordinary)
+
+    spec = importlib.util.spec_from_file_location("stream_case", HERE / "stream_case.py")
+    stream = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(stream)
+    report, provenance = stream.run(lab)
+    (lab.evidence / "tokenizer-stream.raw.json").write_text(
+        json.dumps({"reference": provenance, "report": report}, indent=2) + "\n")
+
+    stream_checks = {
+        "reference_bpe_counts": ("green", "Pinned BPE counts include prompt expansion and differ from whitespace counts"),
+        "reference_output_oracle": ("positive", "Pinned BPE vocabulary produces the reviewed token ID vector"),
+        "ready_and_caps": ("positive", "The BPE worker serves through the Kubernetes Service with exact fixture caps"),
+        "bounded_real_http_stream": ("positive", "The ordinary HTTP stream emits two exact token chunks and completes"),
+        "expanded_prompt_rejected_before_dispatch": ("green", "The expanded prompt above the BPE cap is refused before dispatch"),
+        "output_cap_counts_emitted_tokens": ("green", "The HTTP stream stops at four emitted tokens for a request of five"),
+        "independent_backend_counters": ("green", "Backend counters reflect only accepted requests and emitted tokens"),
+        "bounded_http_request_count": ("positive", "The client performs exactly five bounded fixture requests"),
+    }
+    checks = report.get("checks", [])
+    if report.get("check_count") != len(stream_checks) or [
+            check.get("name") for check in checks] != list(stream_checks):
+        lab.block("The streaming client did not return the exact reviewed check set")
+    for check in checks:
+        name = check["name"]
+        phase, claim = stream_checks[name]
+        detail = check["detail"]
+        if name == "reference_bpe_counts":
+            detail = {"reference": provenance, "counts": detail}
+        lab.check(phase, claim, check["passed"] is True, detail)

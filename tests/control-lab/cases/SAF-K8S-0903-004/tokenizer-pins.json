@@ -1,0 +1,19 @@
+{
+  "wheels": {
+    "arm64": {
+      "name": "tiktoken-0.12.0-cp313-cp313-manylinux_2_28_aarch64.whl",
+      "url": "https://files.pythonhosted.org/packages/a0/70/5163fe5359b943f8db9946b62f19be2305de8c3d78a16f629d4165e2f40e/tiktoken-0.12.0-cp313-cp313-manylinux_2_28_aarch64.whl",
+      "sha256": "01d99484dc93b129cd0964f9d34eee953f2737301f18b3c7257bf368d7615baa"
+    },
+    "amd64": {
+      "name": "tiktoken-0.12.0-cp313-cp313-manylinux_2_28_x86_64.whl",
+      "url": "https://files.pythonhosted.org/packages/0c/da/c028aa0babf77315e1cef357d4d768800c5f8a6de04d0eac0f377cb619fa/tiktoken-0.12.0-cp313-cp313-manylinux_2_28_x86_64.whl",
+      "sha256": "4a1a4fcd021f022bfc81904a911d3df0f6543b9e7627b51411da75ff2fe7a1be"
+    }
+  },
+  "vocabulary": {
+    "name": "cl100k_base.tiktoken",
+    "url": "https://openaipublic.blob.core.windows.net/encodings/cl100k_base.tiktoken",
+    "sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7"
+  }
+}

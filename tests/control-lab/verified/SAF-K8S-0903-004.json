@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0903-004",
-  "catalog_revision": "63afaa7867472dc5b48bed7292495f1c382e03fe",
-  "catalog_sha256": "a868b4ea141c0e3de49227b6eeabffa4a2330712afd28048221b89ce9b63aa55",
+  "catalog_revision": "9ff57158cade9ac81e50c55ad8dd8e6166f9b6f8",
+  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "1116d92cb8887aa2ae81c1ca08c9d8caec68038295f640eeedc9efcb4896f045",
-  "scope": "One owned Kubernetes v1.36.1 Pod runs a deterministic synthetic generation fixture. The real process counts whitespace-separated fixture tokens and enforces input, per-request output, per-session output, and logical-time generation-rate limits. Backend counters are inspected after each request. Real model tokenizer/template, streaming and concurrent identity enforcement, real KV cache or GPU memory, and production settings require separate evidence.",
-  "cluster": "saf-lab-a5189277a444",
+  "scope": "Disposable Kubernetes v1.36.1 Pods run deterministic synthetic generation fixtures. The original process enforces whitespace-token input, request and session output limits and a logical-time rate limit. A separate Kubernetes Service and client exercise real cl100k_base BPE accounting after prompt expansion and bounded HTTP token streaming. Deployed model templates and tokenizers, authenticated tenancy and concurrency, real model and KV-cache behavior, and GPU memory remain separate adoption evidence.",
+  "cluster": "saf-lab-dfc02ff26bf0",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -252,6 +252,201 @@
           "text": "tok tok tok"
         },
         "session_output": 3
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Pinned BPE counts include prompt expansion and differ from whitespace counts",
+      "matched": true,
+      "observed": {
+        "reference": {
+          "case_node_architecture": "arm64",
+          "wheel_sha256": "01d99484dc93b129cd0964f9d34eee953f2737301f18b3c7257bf368d7615baa",
+          "vocabulary_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+          "tokenizer_version": "0.12.0"
+        },
+        "counts": {
+          "input_cap": 32,
+          "ordinary_prompt_bpe": 15,
+          "ordinary_prompt_ids": [
+            9370,
+            5730,
+            553,
+            420,
+            586,
+            5296,
+            25,
+            578,
+            586,
+            4984,
+            5296,
+            16964,
+            14348,
+            13709,
+            13
+          ],
+          "ordinary_prompt_whitespace": 11,
+          "oversized_prompt_bpe": 135,
+          "oversized_prompt_whitespace": 116,
+          "raw_body_bpe": 8,
+          "raw_body_ids": [
+            791,
+            586,
+            4984,
+            5296,
+            16964,
+            14348,
+            13709,
+            13
+          ],
+          "raw_body_whitespace": 7
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Pinned BPE vocabulary produces the reviewed token ID vector",
+      "matched": true,
+      "observed": {
+        "known_output_token_ids": [
+          606,
+          1403,
+          2380,
+          3116,
+          4330,
+          4848,
+          8254,
+          8223
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The BPE worker serves through the Kubernetes Service with exact fixture caps",
+      "matched": true,
+      "observed": {
+        "max_input_tokens": 32,
+        "max_post_requests": 8,
+        "max_request_output_tokens": 4,
+        "max_total_generated_tokens": 6,
+        "service": "saf-0903-004-stream-fixture",
+        "status": "ready",
+        "tokenizer": "cl100k_base"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The ordinary HTTP stream emits two exact token chunks and completes",
+      "matched": true,
+      "observed": {
+        "chunks": 3,
+        "records": [
+          {
+            "event": "token",
+            "generated_total": 1,
+            "index": 1,
+            "token_id": 606
+          },
+          {
+            "event": "token",
+            "generated_total": 2,
+            "index": 2,
+            "token_id": 1403
+          },
+          {
+            "accepted": true,
+            "backend_dispatched": true,
+            "event": "done",
+            "generated_total": 2,
+            "input_tokens": 15,
+            "output_cap": 4,
+            "output_tokens": 2,
+            "prompt_id": "ordinary",
+            "reason": "complete",
+            "requested_output_tokens": 2
+          }
+        ],
+        "status": 200
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The expanded prompt above the BPE cap is refused before dispatch",
+      "matched": true,
+      "observed": {
+        "accepted": false,
+        "backend_dispatched": false,
+        "input_cap": 32,
+        "input_tokens": 135,
+        "prompt_id": "oversized",
+        "reason": "input_limit"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The HTTP stream stops at four emitted tokens for a request of five",
+      "matched": true,
+      "observed": {
+        "chunks": 5,
+        "records": [
+          {
+            "event": "token",
+            "generated_total": 3,
+            "index": 1,
+            "token_id": 2380
+          },
+          {
+            "event": "token",
+            "generated_total": 4,
+            "index": 2,
+            "token_id": 3116
+          },
+          {
+            "event": "token",
+            "generated_total": 5,
+            "index": 3,
+            "token_id": 4330
+          },
+          {
+            "event": "token",
+            "generated_total": 6,
+            "index": 4,
+            "token_id": 4848
+          },
+          {
+            "accepted": true,
+            "backend_dispatched": true,
+            "event": "done",
+            "generated_total": 6,
+            "input_tokens": 15,
+            "output_cap": 4,
+            "output_tokens": 4,
+            "prompt_id": "ordinary",
+            "reason": "request_cap",
+            "requested_output_tokens": 5
+          }
+        ],
+        "status": 200
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Backend counters reflect only accepted requests and emitted tokens",
+      "matched": true,
+      "observed": {
+        "backend_prompt_tokens": 30,
+        "backend_requests": 2,
+        "generated_tokens": 6,
+        "received_posts": 3
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The client performs exactly five bounded fixture requests",
+      "matched": true,
+      "observed": {
+        "limit": 10,
+        "requests": 5
       }
     }
   ]
