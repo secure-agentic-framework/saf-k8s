@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1003-002",
-  "catalog_revision": "4671fce8b0d42f31434a46ab2bb3ed8b174b0f38",
-  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
+  "catalog_revision": "0b76a2f7f008c5e34fbb96133863b056804c0fc6",
+  "catalog_sha256": "a69ceaa73a25f9d6241252111dbdfd5f31b431579d243c58c7df656c2ac5d450",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d1428699ad58e30a60a8161ec17d64cc03f788c49304c790fc2335423d0353af",
   "scope": "Kubernetes v1.36.1 Kind runs independent native review Jobs over synthetic OCTAVE worksheets. The gate checks Phase 1 asset/impact/threat profiles, Phase 2 supporting infrastructure and vulnerability evidence, and Phase 3 tolerance-linked treatment and review cadence. It proves record completeness and stable decisions only; organizational risk scoring, stakeholder judgment, evidence truth, implementation, and actual risk reduction require separate evidence.",
-  "cluster": "saf-lab-aaf52794ca2a",
+  "cluster": "saf-lab-0f16aa6d225f",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
