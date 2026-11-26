@@ -6706,12 +6706,12 @@
   knowledge_area: '7.3'
   control_seq: '005'
   control_title: AI workload resource exhaustion guardrails
-  control_statement: Organizations must implement resource exhaustion guardrails for AI workloads including bounded queue management with backpressure handling, job-level memory ceilings, training data size limits, and per-job time caps to prevent resource exhaustion from cascading into service failures.
-  objective: Ensure that AI infrastructure degrades gracefully under resource pressure through enforced resource boundaries at the job, queue, and namespace level.
-  rationale: 'AI workloads are uniquely susceptible to resource exhaustion: a single training job can consume all available memory, an unbounded job queue can overwhelm the scheduler, and a training data pipeline with no size limits can fill all available storage. Bounded queues and backpressure handling prevent queue-based denial of service.'
-  scope: Applies to all Kubernetes clusters hosting AI workloads. Covers job queue management (Kueue, Volcano), per-job resource limits, training data size limits, and time caps.
-  primary_enforcement_point: Job queue configuration with bounded queue depths and backpressure policies, and per-job resource limit enforcement.
-  implementation_surface: Kubernetes Job spec.activeDeadlineSeconds for training job time caps, LimitRange memory ceilings, admission policies validating PVC size against namespace allowances, and Kueue/Volcano bounded queue depth configuration with backpressure handling (retry-after signaling).
+  control_statement: Enforce workload-specific resource and active-runtime bounds, controlled job admission and queue backpressure, and approved training data ingress limits. Where needed, limit aggregate declared requests by namespace. Verify each boundary and the defined recovery objective in the applicable system.
+  objective: Bound declared resource requests and active job execution, regulate queued work and ingest, and recover within the approved service objectives.
+  rationale: Unbounded queued jobs, resource requests, oversized inputs and jobs without deadlines can consume shared capacity. Kubernetes can limit declared resources and requested storage. The queue and data-ingest components govern their own admission, backpressure and byte limits. Verify each component's behavior and the combined service recovery.
+  scope: Applies to Kubernetes clusters hosting AI workloads. Cover per-job resource and active-lifetime limits, applicable namespace quotas, actual job or application queue admission and backpressure, and approved byte or object limits at training data ingest. Include documented service and recovery objectives.
+  primary_enforcement_point: Kubernetes admission and Job controller, the adopted workload admission or application queue controller, and the actual training data ingest component.
+  implementation_surface: Use Job activeDeadlineSeconds for active execution bounds, LimitRange for per-container defaults and ceilings, and ResourceQuota for aggregate declared-resource or requested-storage limits. Apply byte and object limits at the actual ingest path before persistence or queue admission. Verify scheduler Workload status where applicable, actual queue backpressure, allowed and rejected inputs, and measured recovery.
   owner_primary: Platform Engineering
   owner_supporting: SRE; AI/ML Engineering
   baseline_or_ai_specific: ai-specific

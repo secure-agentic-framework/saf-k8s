@@ -22,10 +22,10 @@ Namespace quotas allocate or cap declared requests, and PriorityClasses express 
 
 - Domain: D07 - Storage, Multi-tenancy, and Resource Governance
 - Knowledge Area: 7.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0703-007 - Fair-share GPU queue management for multi-tenant clusters](../../controls/SAF-K8S-0703-007.md)
 
