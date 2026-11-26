@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0402-002",
-  "catalog_revision": "1c6a4fd046794883c99475122e9c111e0d02745d",
-  "catalog_sha256": "31490639f973d1f95ee1465812ef6775f786dc53b54c2e4adc2fb8807bb12799",
+  "catalog_revision": "adff7c5c67aba020781d620ee7aa8b8dec637e70",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "c574a5222762f11530f98107361c9708fb28bcac0126e2ff123be62b65d37c53",
   "scope": "Kubernetes v1.36.1 in the runner-owned fresh kind cluster. Four genuine, case-owned ServiceAccounts receive manually provisioned legacy token Secrets. A case-local Metadata audit policy covers the entire fixture namespace from cluster startup. One identity is eligible only when the explicit approval fixture selects it and no audit event for its principal exists from its credential creation time to selection. A separate credential proves direct API-read authorization before and denial after its Secret is deleted. Another credential is invalidated without deleting the Secret. An unaffected identity retains access. The fixture does not establish production inactivity windows, history before this cluster, external identity revocation, managed cluster audit coverage, or year-scale cleanup timing. Credentials are held in memory and omitted from command transcripts and results; no impersonation is used.",
-  "cluster": "saf-lab-3d3072069774",
+  "cluster": "saf-lab-4def158a0d86",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

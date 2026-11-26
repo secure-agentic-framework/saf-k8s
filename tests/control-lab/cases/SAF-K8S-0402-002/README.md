@@ -33,3 +33,9 @@ evidence.
 
 [Kubernetes v1.36 ServiceAccount administration](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/) ·
 [Kubernetes v1.36 audit guide](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/)
+
+## Adopter verification
+
+Define the in-scope namespaces, identity authorities, inactivity and retirement windows, approved exceptions and owners. Verify that collected audit records cover the complete window before treating absence of observed activity as inactivity. Select an owned identity, keep its scoped authorized comparison, and document the approval. Run the effective disablement or retirement workflow and confirm API refusal and removal of the selected grants. Independently verify revocation at each external service for the credentials it accepts. Record the before/after decision, observed request outcomes and retained audit references without keeping token bytes.
+
+For installations that rely on automatic legacy-token cleanup, confirm Kubernetes release behavior, tracked legacy Secret inventory and the approved configured cadence. The local case observes the effect of the invalidation marker and Secret removal. It uses a bounded history and case approval for the retirement decision.
