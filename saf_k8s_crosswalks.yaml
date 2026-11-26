@@ -48386,16 +48386,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-4
   framework_requirement_title: System Monitoring
-  framework_mapping_notes: 'System monitoring of agent behavior, resource usage, and communications detects anomalies
-
-
-    10.1 - Logging and Audit (comprehensive system monitoring); 2.4 - Runtime security tools'
+  framework_mapping_notes: The case compares exact fixture HTTP error and latency thresholds, records scoped analysis, and observes return to the stable route. Establish actual monitored coverage, indicators, reporting and other security-monitoring obligations separately.
   control_id: SAF-K8S-0905-035
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only where the adopting organization explicitly uses the verified serving health signals as selected indicators in its deployed monitoring program.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
