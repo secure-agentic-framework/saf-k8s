@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-045",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "9a93524ca4989877f72e53079518edd7c77812d8",
+  "catalog_sha256": "80c7da0fd4f41cb7830cb16c47d2d08461aee78c45806ed496151b90cef2011d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d7744b79a02f9e4eb89a31c789f908c9caf212dbea2c71a91108e6898827e352",
   "scope": "Runs two bounded Jobs in the precreated saf-test namespace on the runner's digest-pinned default Kind cluster. An evaluator processes only a mounted, immutable JSON fixture with one allowlisted operation and no model artifact, network client, or Kubernetes credential. A separate reviewer ServiceAccount reads the immutable evaluation, writes an exact approved/rejected disposition to a precreated ConfigMap, and creates one synthetic Warning Event for the rejected toy record. Assertions cover the ungated unsafe counterfactual, exact rejection and event, exact safe approval, Pod hardening, and RBAC separation. This does not execute or behaviorally vet a real model; validate sandbox escape resistance, network policy enforcement, real model quality, data coverage, human reviewer identity, escalation, signature verification, or production promotion/audit workflows.",
-  "cluster": "saf-lab-dfbf809d5603",
+  "cluster": "saf-lab-976f0ecdc0b8",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -56,7 +56,7 @@
         "disposition": {
           "candidate_id": "toy-reject-v1",
           "disposition": "rejected",
-          "evaluation_sha256": "f150c54ec4bf61f53255468966dab1401bf7d22333fbf310835fb09664d8e735",
+          "evaluation_sha256": "33b784268781c45bf252252e31b87d7b18a8160a7970a32546d7d1c8f4ba80ff",
           "reason": "behavioral_policy_violation",
           "reviewer": "independent-model-reviewer"
         },
@@ -126,11 +126,24 @@
         "clean_disposition": {
           "candidate_id": "toy-clean-v1",
           "disposition": "approved",
-          "evaluation_sha256": "f150c54ec4bf61f53255468966dab1401bf7d22333fbf310835fb09664d8e735",
+          "evaluation_sha256": "33b784268781c45bf252252e31b87d7b18a8160a7970a32546d7d1c8f4ba80ff",
           "reason": "behavioral_checks_passed",
           "reviewer": "independent-model-reviewer"
         },
-        "evaluation_sha256": "f150c54ec4bf61f53255468966dab1401bf7d22333fbf310835fb09664d8e735"
+        "evaluation_sha256": "33b784268781c45bf252252e31b87d7b18a8160a7970a32546d7d1c8f4ba80ff"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The evaluator computes the two fixed benign marker outcomes instead of reading prefilled observations",
+      "matched": true,
+      "observed": {
+        "marker_count": 2,
+        "input_digests_match": true,
+        "outputs": [
+          "safe",
+          "unsafe"
+        ]
       }
     }
   ]

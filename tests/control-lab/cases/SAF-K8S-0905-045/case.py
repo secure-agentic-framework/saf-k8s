@@ -1,5 +1,6 @@
 """SAF-K8S-0905-045: inert JSON behavioral vetting and disposition witness."""
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import time
@@ -30,11 +31,10 @@ FIXTURE = {
     "permitted_operations": ["classify_text"],
     "records": [
         {"candidate_id": "toy-clean-v1", "operation": "classify_text",
-         "input": {"text": "fixture benign sample"}, "expected_label": "safe",
-         "observed_label": "safe"},
+         "input": {"text": "fixture benign sample"}, "expected_label": "safe"},
         {"candidate_id": "toy-reject-v1", "operation": "classify_text",
          "input": {"text": "fixture synthetic rejection sample"},
-         "expected_label": "safe", "observed_label": "unsafe"},
+         "expected_label": "safe"},
     ],
 }
 
@@ -310,3 +310,17 @@ def run(lab):
                                 "decisions": [expected_clean, expected_unsafe]},
               {"clean_result": clean, "clean_disposition": expected_clean,
                "evaluation_sha256": evaluation["evaluation_sha256"]})
+    marker_outputs = {"fixture benign sample": "safe",
+                      "fixture synthetic rejection sample": "unsafe"}
+    expected_trace = [{"candidate_id": row["candidate_id"],
+                       "input_sha256": hashlib.sha256(row["input"]["text"].encode()).hexdigest(),
+                       "output_label": marker_outputs[row["input"]["text"]]}
+                      for row in FIXTURE["records"]]
+    lab.check("positive", "The evaluator computes the two fixed benign marker outcomes instead of reading prefilled observations",
+              all("observed_label" not in row for row in FIXTURE["records"])
+              and evaluation.get("behavior_trace") == expected_trace
+              and [row.get("observed_label") for row in evaluation["records"]]
+                  == [marker_outputs[row["input"]["text"]] for row in FIXTURE["records"]],
+              {"marker_count": len(expected_trace),
+               "input_digests_match": evaluation.get("behavior_trace") == expected_trace,
+               "outputs": [row.get("observed_label") for row in evaluation["records"]]})

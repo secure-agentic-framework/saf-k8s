@@ -44,7 +44,8 @@ if len(evaluation.get("records", [])) != 2 or [
         item.get("candidate_id") for item in evaluation["records"]
 ] != ["toy-clean-v1", "toy-reject-v1"]:
     raise SystemExit("evaluation is outside the bounded candidate set")
-canonical = json.dumps({"evaluator": evaluation["evaluator"], "records": evaluation["records"]},
+canonical = json.dumps({"evaluator": evaluation["evaluator"], "records": evaluation["records"],
+                        "behavior_trace": evaluation["behavior_trace"]},
                        sort_keys=True, separators=(",", ":")).encode()
 digest = hashlib.sha256(canonical).hexdigest()
 if digest != evaluation.get("evaluation_sha256"):

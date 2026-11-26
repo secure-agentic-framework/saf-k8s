@@ -1,14 +1,17 @@
-# SAF-K8S-0905-045 sandboxed behavioral vetting and disposition
+# Verify a digest-bound behavioral evaluation and review
 
-`python3 tests/control-lab/lab.py test SAF-K8S-0905-045 --docker-context desktop-linux`
+```sh
+python3 tests/control-lab/lab.py test SAF-K8S-0905-045 --docker-context desktop-linux
+```
 
-The unchecked path records an inert candidate’s approval before vetting.
-A bounded, read-only, tokenless evaluator Job then processes fixed JSON
-in a restricted Pod. The owned cluster records evaluator ingress and
-egress policy. A separate reviewer Job reads the sealed evaluation,
-retains exact approved and rejected dispositions, and emits a Kubernetes
-Warning event tied to the evaluator Job. Scoped RBAC limits both identities.
+A Kubernetes Job computes the expected behavior of two fixed benign text
+markers. The evaluation trace records the candidate identity, input digest
+and observed marker output. The reviewer recalculates the trace digest and
+uses its own Kubernetes permissions to record the decision. The case
+compares the unsafe marker rejected with a warning and the approved safe
+marker. Kubernetes authorization checks verify the identities' permissions.
 
-This fixture uses deterministic toy evaluation cases. Real model artifacts,
-sandbox assurance, reviewer identity, escalation, functional evaluation
-coverage, and production promotion controls require separate evidence.
+For an actual model release, use approved inputs and an explicit rubric tied
+to a pinned model artifact. Verify the runtime and sandbox boundaries,
+evaluation coverage, human reviewer authority, evidence retention, and every
+promotion path. The case executes a deterministic toy evaluator.
