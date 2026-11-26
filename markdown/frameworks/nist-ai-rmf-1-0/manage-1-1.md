@@ -32,9 +32,9 @@ The fixture makes a mechanical allow/deny decision for a Deployment whose declar
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.6
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0910-018 - Security-aware target-cluster posture verification before multi-cluster placement](../../controls/SAF-K8S-0910-018.md)
 

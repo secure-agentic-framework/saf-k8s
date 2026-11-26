@@ -35007,16 +35007,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-7(12)
   framework_requirement_title: Integrity Verification
-  framework_mapping_notes: 'Integrity verification of agent components validates authenticity before execution
-
-
-    9.5 - Model origin verification at deploy time; 6.2 - Image signature verification; 9.6 - Data integrity at scale'
+  framework_mapping_notes: The receiving-stage workload verifies the approved evidence signer and recomputes the reviewed subject digest before release. Validate the actual pre-execution boundary for organization-defined software within NIST SP 800-53 Release 5.2.0.
   control_id: SAF-K8S-0606-018
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only when the exact artifact is organization-defined software and the deployed receiving stage enforces integrity verification of those bytes prior to execution.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -36011,16 +36008,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SR-4
   framework_requirement_title: Provenance
-  framework_mapping_notes: 'Provenance tracking for AI models, training data, and agent tools verifies origin and integrity
-
-
-    6.3 - SLSA provenance, in-toto attestations; 9.5 - Model signing and provenance; 6.6 - Build attestation per NIST SP 800-204D'
+  framework_mapping_notes: The control contributes one handoff record linking the authenticated producer/observer identity, artifact digest, signed evidence and receiving decision. It does not establish end-to-end provenance for AI models, training data, tools, dependencies, or all lifecycle stages. NIST SP 800-53 Rev. 5 SR-4 concerns documenting, monitoring and maintaining provenance of systems and system components; retain this conditional contribution only where this handoff is incorporated into that provenance record.
   control_id: SAF-K8S-0606-018
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization uses the verified handoff record to document, monitor, or maintain provenance for the specific system component or artifact being transferred; provenance for other components and lifecycle stages is separately established.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -36905,13 +36899,13 @@
   framework_version: '1.0'
   framework_requirement_id: MANAGE 1.1
   framework_requirement_title: A determination is made as to whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed.
-  framework_mapping_notes: AI system classification defines expected control profiles. Model promotion gates enforce go/no-go decisions before production deployment based on validation criteria.
+  framework_mapping_notes: The control provides a narrow authenticated-artifact and evidence verification result that may inform an AI deployment decision. It does not evaluate intended purpose, objectives, benefits and risks, performance, or whether an AI system should proceed. NIST AI RMF 1.0 MANAGE 1.1 requires that broader determination; this control can only support it when its handoff decision is incorporated into that process.
   control_id: SAF-K8S-0606-018
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The receiving-stage integrity decision is one documented input to the organization's separate determination of whether an AI system meets its intended purpose and objectives and whether development or deployment should proceed.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -36996,13 +36990,13 @@
   framework_version: '1.1'
   framework_requirement_id: PS.2.1
   framework_requirement_title: Make software integrity verification information available to software acquirers.
-  framework_mapping_notes: SAF-K8S requires image signing (cosign/Sigstore, Notary v2), SLSA provenance, and transparency logging to provide integrity verification for container images, ML models, and deployment artifacts.
+  framework_mapping_notes: This control demonstrates one receiver using a signed evidence statement and exact artifact digest before accepting a handoff. It does not require particular signing products, transparency logging, or make verification information available to all software acquirers. NIST SP 800-218 SSDF PS.2.1 is applicable only where the verified receiver is an acquirer and this process makes its verification information available to that acquirer.
   control_id: SAF-K8S-0606-018
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The receiving stage is acting as the software acquirer for the artifact and is provided the integrity-verification information needed to verify it before use; other acquirers and release channels are assessed separately.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
