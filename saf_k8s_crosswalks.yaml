@@ -5062,22 +5062,6 @@
 
 
     4.2 - Secure service accounts and workload identity (account management and lifecycle)'
-  control_id: SAF-K8S-0910-025
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-2
-  framework_requirement_title: Account Management
-  framework_mapping_notes: 'Agent/service account lifecycle management
-
-
-    4.2 - Secure service accounts and workload identity (account management and lifecycle)'
   control_id: SAF-K8S-0910-031
   relation_type: supports
   strength_level: strong
@@ -6610,16 +6594,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-3(7)
   framework_requirement_title: Role-based Access Control
-  framework_mapping_notes: 'RBAC for agent roles and permissions
-
-
-    4.1 - Design and enforce RBAC (RBAC primitives: Roles, ClusterRoles, RoleBindings, ClusterRoleBindings)'
+  framework_mapping_notes: Distinct Kubernetes roles guard approval selection, membership repair and observation. A governed transfer decision follows an independently observed, scoped endpoint policy. Verify role coverage and effective access across the adopter's actual replication paths.
   control_id: SAF-K8S-0910-025
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only where the adopted registry federation implements distinct approval-authority, membership-repair, and observer roles, and verifies the effective permissions and resulting endpoint decisions for every covered replication path. The portable fixture demonstrates this separation for its case-owned ConfigMaps and fixed Distribution endpoints; it does not establish organization-wide role policy or all registry paths.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -8593,16 +8574,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-6
   framework_requirement_title: Least Privilege
-  framework_mapping_notes: 'Foundational -- agents must operate with minimum necessary permissions
-
-
-    4.1 - Design and enforce RBAC (least-privilege access design); 4.2 - Default SA restrictions, disabling auto-mount of tokens; 1.4 - Control plane configuration file permissions (least-privilege file ownership and modes)'
+  framework_mapping_notes: The approved revision selector has a narrow write grant. Membership reconciliation and read-only observation use separate limited identities. Verify effective rights for actual approval, registry operations, scheduled repair and all adopted replication paths.
   control_id: SAF-K8S-0910-025
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only for the tested federation identities and exact approval-pointer, membership, and observation operations. Adoption must verify their effective grants and denied alternatives across the actual endpoint inventory and every replicator. This case does not establish platform-wide least privilege.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -10498,22 +10476,6 @@
   applicability: conditional
   applicability_condition: The authorized workflow defines review frequency, activity criteria and reporting roles and demonstrates review, analysis, reporting and risk-based adjustment.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-6
-  framework_requirement_title: Audit Record Review, Analysis, and Reporting
-  framework_mapping_notes: 'Reviewing agent audit trails
-
-
-    10.1 - SIEM integration (audit record review, analysis, correlation rule development)'
-  control_id: SAF-K8S-0910-025
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
