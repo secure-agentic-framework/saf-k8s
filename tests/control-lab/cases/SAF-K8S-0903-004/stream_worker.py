@@ -2,6 +2,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import threading
+import argparse
 from urllib.parse import urlsplit
 
 from encoding_fixture import load_encoding
@@ -15,6 +16,7 @@ MAX_INPUT_TOKENS = 32
 MAX_REQUEST_OUTPUT_TOKENS = 4
 MAX_TOTAL_GENERATED_TOKENS = 6
 MAX_POST_REQUESTS = 8
+INPUT_LIMIT_ENABLED = True
 
 # Request bodies contain only an identifier and a small output count. Prompt
 # text is selected here and expanded through the fixed template.
@@ -97,7 +99,8 @@ class Handler(BaseHTTPRequestHandler):
                 "service": "saf-0903-004-stream-fixture",
                 "status": "ready",
                 "tokenizer": MODEL,
-                "max_input_tokens": MAX_INPUT_TOKENS,
+                "max_input_tokens": MAX_INPUT_TOKENS if INPUT_LIMIT_ENABLED else None,
+                **({} if INPUT_LIMIT_ENABLED else {"input_limit_enabled": False}),
                 "max_request_output_tokens": MAX_REQUEST_OUTPUT_TOKENS,
                 "max_total_generated_tokens": MAX_TOTAL_GENERATED_TOKENS,
                 "max_post_requests": MAX_POST_REQUESTS,
@@ -141,7 +144,7 @@ class Handler(BaseHTTPRequestHandler):
         prompt_id = request["prompt_id"]
         expanded_prompt = PROMPT_TEMPLATE.format(body=PROMPTS[prompt_id])
         input_tokens = len(STATE.encoding.encode_ordinary(expanded_prompt))
-        if input_tokens > MAX_INPUT_TOKENS:
+        if INPUT_LIMIT_ENABLED and input_tokens > MAX_INPUT_TOKENS:
             self.send_json(413, {
                 "accepted": False,
                 "reason": "input_limit",
@@ -193,6 +196,7 @@ class Handler(BaseHTTPRequestHandler):
             "reason": reason,
             "prompt_id": prompt_id,
             "input_tokens": input_tokens,
+            **({} if INPUT_LIMIT_ENABLED else {"input_limit_enabled": False}),
             "requested_output_tokens": request["requested_output_tokens"],
             "output_cap": MAX_REQUEST_OUTPUT_TOKENS,
             "output_tokens": output_count,
@@ -211,4 +215,8 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input-limit-disabled", action="store_true")
+    args = parser.parse_args()
+    INPUT_LIMIT_ENABLED = not args.input_limit_disabled
     HTTPServer((HOST, PORT), Handler).serve_forever()

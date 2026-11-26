@@ -20,3 +20,10 @@ The [FlashAttention paper](https://arxiv.org/abs/2205.14135) explains exact tile
 The streaming check first waits for an EndpointSlice that identifies the exact
 Ready Pod and the expected port. A bounded TCP readiness check from the client
 Pod allows the Service route to converge before the five HTTP requests begin.
+
+The request-guard comparison starts a second case-owned Service and Pod with
+the same worker, tokenizer, prompts and output limits. Only the fixture input
+limit is disabled in that Pod. The identical expanded prompt is refused before
+dispatch by the guarded Service and dispatched by the comparator. The comparison
+client accepts only the fixture Service name and uses four bounded HTTP
+exchanges with fixed inputs. Separate backend counters confirm the difference.

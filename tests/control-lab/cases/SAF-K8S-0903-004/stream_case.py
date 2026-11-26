@@ -7,6 +7,7 @@ import time
 
 HERE = Path(__file__).resolve().parent
 FIXTURE = 'saf-bpe-stream'
+GUARD_OFF = 'saf-bpe-stream-input-limit-off'
 CLIENT = 'saf-bpe-stream-client'
 TCP_PORT = 8080
 
@@ -44,13 +45,13 @@ def pod(name, image, command, readiness=None):
     }
 
 
-def wait_for_service(lab):
-    server = json.loads(lab.kubectl('get', 'pod', FIXTURE, '-o', 'json').stdout)
+def wait_for_service(lab, fixture=FIXTURE):
+    server = json.loads(lab.kubectl('get', 'pod', fixture, '-o', 'json').stdout)
     pod_uid = server['metadata']['uid']
     deadline = time.monotonic() + 20
     while time.monotonic() < deadline:
         slices = json.loads(lab.kubectl(
-            'get', 'endpointslices', '-l', 'kubernetes.io/service-name=' + FIXTURE,
+            'get', 'endpointslices', '-l', 'kubernetes.io/service-name=' + fixture,
             '-o', 'json', timeout=10,
         ).stdout)['items']
         if any(
@@ -83,24 +84,30 @@ while time.monotonic() < deadline:
 sys.exit('The tokenizer Service did not accept a TCP connection')
 """
     result = lab.kubectl('exec', 'pod/' + CLIENT, '--', 'python', '-B', '-c', route_probe,
-                         FIXTURE, str(TCP_PORT), timeout=20, allow_failure=True)
+                         fixture, str(TCP_PORT), timeout=20, allow_failure=True)
     if result.returncode:
         lab.block('The expected tokenizer Service route did not converge before the check')
 
 
 def run(lab):
     image, provenance = tokenizer_image(lab)
-    scripts = {file: (HERE / file).read_text() for file in ('stream_worker.py', 'stream_client.py')}
+    scripts = {file: (HERE / file).read_text() for file in ('stream_worker.py', 'stream_client.py', 'stream_guard_off_client.py')}
     lab.create({'apiVersion': 'v1', 'kind': 'ConfigMap', 'metadata': {'name': FIXTURE},
                 'immutable': True, 'data': scripts})
     lab.create({'apiVersion': 'v1', 'kind': 'Service', 'metadata': {'name': FIXTURE},
                 'spec': {'selector': {'fixture': FIXTURE},
                          'ports': [{'name': 'http', 'port': TCP_PORT, 'targetPort': 'http'}]}})
     lab.create(pod(FIXTURE, image, ['/fixture/stream_worker.py'], readiness='/health'))
+    lab.create({'apiVersion': 'v1', 'kind': 'Service', 'metadata': {'name': GUARD_OFF},
+                'spec': {'selector': {'fixture': GUARD_OFF},
+                         'ports': [{'name': 'http', 'port': TCP_PORT, 'targetPort': 'http'}]}})
+    lab.create(pod(GUARD_OFF, image,
+                   ['/fixture/stream_worker.py', '--input-limit-disabled'], readiness='/health'))
     lab.create(pod(CLIENT, image, ['-c', 'import time; time.sleep(150)']))
-    lab.kubectl('wait', '--for=condition=Ready', 'pod/' + FIXTURE, 'pod/' + CLIENT,
-                '--timeout=45s', timeout=55)
+    lab.kubectl('wait', '--for=condition=Ready', 'pod/' + FIXTURE, 'pod/' + GUARD_OFF,
+                'pod/' + CLIENT, '--timeout=45s', timeout=55)
     wait_for_service(lab)
+    wait_for_service(lab, GUARD_OFF)
     result = lab.kubectl('exec', 'pod/' + CLIENT, '--', 'python', '-B',
                          '/fixture/stream_client.py', '--host', FIXTURE, timeout=28,
                          allow_failure=True)
@@ -112,4 +119,16 @@ def run(lab):
         observations = json.loads(result.stdout)
     except json.JSONDecodeError as error:
         lab.block(f'The streaming fixture returned invalid observations: {error}')
+    comparator = lab.kubectl('exec', 'pod/' + CLIENT, '--', 'python', '-B',
+                             '/fixture/stream_guard_off_client.py', '--host', GUARD_OFF,
+                             timeout=20, allow_failure=True)
+    (lab.evidence / 'tokenizer-stream-guard-off.raw.log').write_text(
+        comparator.stdout + comparator.stderr)
+    if comparator.returncode:
+        lab.check('green', 'The same fixed BPE prompt is accepted only when the input guard is disabled',
+                  False, {'client_exit': comparator.returncode})
+    try:
+        observations['input_limit_off_comparison'] = json.loads(comparator.stdout)
+    except json.JSONDecodeError as error:
+        lab.block(f'The guard-off comparator returned invalid observations: {error}')
     return observations, provenance

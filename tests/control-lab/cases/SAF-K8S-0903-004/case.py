@@ -8,6 +8,7 @@ POD = "saf-token-accounting"
 IMAGE = ("docker.io/library/python:3.13-slim@sha256:"
          "e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90")
 SCOPE = (
+    "A second Pod uses the exact same executable and prompts with only the input guard disabled. "
     "Disposable Kubernetes v1.36.1 Pods run deterministic synthetic generation fixtures. "
     "The original in-process fixture has on/off branches for whitespace-token input and fake "
     "output, with fixed synthetic session IDs and a logical clock. The separate BPE HTTP "
@@ -156,3 +157,18 @@ def run(lab):
         if name == "reference_bpe_counts":
             detail = {"reference": provenance, "counts": detail}
         lab.check(phase, claim, check["passed"] is True, detail)
+
+    comparison = report.get("input_limit_off_comparison", {})
+    comparison_checks = comparison.get("checks", [])
+    expected_comparison = {
+        "same_prompt_guard_switch_accepts":
+            "The identical oversized prompt is dispatched only with the fixture input guard disabled",
+        "guard_off_finite_output_and_counters":
+            "The comparison remains within the same finite output and request caps",
+    }
+    if comparison.get("check_count") != len(expected_comparison) or [
+            check.get("name") for check in comparison_checks] != list(expected_comparison):
+        lab.block("The guard-off comparator did not return the exact reviewed check set")
+    for check in comparison_checks:
+        lab.check("positive", expected_comparison[check["name"]],
+                  check.get("passed") is True, check.get("detail"))

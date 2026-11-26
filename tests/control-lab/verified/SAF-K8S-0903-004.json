@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0903-004",
-  "catalog_revision": "6b25d166dff807e3594a9232ffc31ebb605dce37",
-  "catalog_sha256": "a69ceaa73a25f9d6241252111dbdfd5f31b431579d243c58c7df656c2ac5d450",
+  "catalog_revision": "928c0e91424271ef8fcddc20f6d28548cf81351d",
+  "catalog_sha256": "3f6d0b09957f7ae05620954a6210b52df977b8cbc7dcdd43769137d72662c8bb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "8ab52426324ece7773d94406977a8d84ffcc1b89c2128202c0d70e6068b0fb6b",
-  "scope": "Disposable Kubernetes v1.36.1 Pods run deterministic synthetic generation fixtures. The original in-process fixture has on/off branches for whitespace-token input and fake output, with fixed synthetic session IDs and a logical clock. The separate BPE HTTP service exercises only its guarded path: fixed template-expanded cl100k_base prompts, synthetic token IDs, and five sequential client requests. Pod CPU/memory requests and limits are declared, but effective cgroup values, usage, and pressure are not measured. The HTTP fixture has no authenticated caller/session identity or concurrent generation. Neither fixture runs a real model or serving framework, configures a real KV cache, or measures GPU memory. Production route coverage, identity binding, concurrency, cache and device budgets, cgroup behavior, and monitoring require separate adopter evidence.",
-  "cluster": "saf-lab-b3dbdb1e26cb",
+  "scope": "A second Pod uses the exact same executable and prompts with only the input guard disabled. Disposable Kubernetes v1.36.1 Pods run deterministic synthetic generation fixtures. The original in-process fixture has on/off branches for whitespace-token input and fake output, with fixed synthetic session IDs and a logical clock. The separate BPE HTTP service exercises only its guarded path: fixed template-expanded cl100k_base prompts, synthetic token IDs, and five sequential client requests. Pod CPU/memory requests and limits are declared, but effective cgroup values, usage, and pressure are not measured. The HTTP fixture has no authenticated caller/session identity or concurrent generation. Neither fixture runs a real model or serving framework, configures a real KV cache, or measures GPU memory. Production route coverage, identity binding, concurrency, cache and device budgets, cgroup behavior, and monitoring require separate adopter evidence.",
+  "cluster": "saf-lab-bef9dc450f6c",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -447,6 +447,34 @@
       "observed": {
         "limit": 10,
         "requests": 5
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The identical oversized prompt is dispatched only with the fixture input guard disabled",
+      "matched": true,
+      "observed": {
+        "input_limit_enabled": false,
+        "input_tokens_each": 135,
+        "requests": 2
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The comparison remains within the same finite output and request caps",
+      "matched": true,
+      "observed": {
+        "http_requests": 4,
+        "metrics": {
+          "backend_prompt_tokens": 270,
+          "backend_requests": 2,
+          "generated_tokens": 2,
+          "received_posts": 2
+        },
+        "token_ids": [
+          606,
+          1403
+        ]
       }
     }
   ]
