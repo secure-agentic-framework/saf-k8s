@@ -19572,22 +19572,6 @@
 
 
     6.2 - Image signing (Sigstore/cosign signed components); 9.4 - Model signing and provenance verification'
-  control_id: SAF-K8S-0606-021
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-14
-  framework_requirement_title: Signed Components
-  framework_mapping_notes: 'Cryptographic signing of agent components/models
-
-
-    6.2 - Image signing (Sigstore/cosign signed components); 9.4 - Model signing and provenance verification'
   control_id: SAF-K8S-0904-001
   relation_type: direct
   strength_level: strong
@@ -39450,11 +39434,11 @@
 
     6.2 - Sigstore (cryptographic binding of signatures to artifacts); 9.5 - Model signing cryptographic binding'
   control_id: SAF-K8S-0606-021
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only if the signed manifest carries security/privacy attributes and the signature covers the exact transmitted artifact containing them; a signature over a manifest binds its bytes and signer but does not by itself bind external attributes.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -58071,11 +58055,11 @@
   framework_requirement_title: Make software integrity verification information available to software acquirers.
   framework_mapping_notes: SAF-K8S requires image signing (cosign/Sigstore, Notary v2), SLSA provenance, and transparency logging to provide integrity verification for container images, ML models, and deployment artifacts.
   control_id: SAF-K8S-0606-021
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only where the signed manifest and the verification material (signature, trusted signer information and validation method) are made available to the software consumer/acquirer; the scoped case verifies a promotion artifact but does not prove external distribution or consumer access.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
