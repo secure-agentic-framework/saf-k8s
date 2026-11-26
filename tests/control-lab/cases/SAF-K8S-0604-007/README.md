@@ -1,15 +1,13 @@
-# Verify a supplier intake release
+# Verify supplier-intake evidence for an approved artifact
+
+Run from the framework repository.
 
 ```sh
-python3 lab.py test SAF-K8S-0604-007 --docker-context desktop-linux
+python3 tests/control-lab/lab.py test SAF-K8S-0604-007 --docker-context desktop-linux
 ```
 
-The fictional procurement and technical reviewers sign distinct records tied
-to the selected image and the active requirements. Kubernetes denies Pod
-creation without an approved parameter and rejects a mismatched release or
-review. The deploying identity cannot update the approval parameter, and the
-matching fixture runs.
+The reference uses fictional supplier and approval records with a live Kubernetes admission boundary. The case verifies the scoped exact image and associated inventory, compares approved and refused declarations and exercises protection of approval parameters. This demonstrates technical enforcement for selected artifacts using case-owned metadata.
 
-The example verifies the synthetic review records. Real supplier communication,
-contract compliance, image-signature and SBOM verification systems, and license
-review require their own evidence.
+For adoption, identify applicable suppliers, reusable software and authorized acquisition pathways. Version the baseline criteria, communicate the applicable requirements through the approved vendor channel and retain the actual acknowledgement and reviewer decision. Evaluate risk-appropriate disclosure, support, update, licensing, integrity and component evidence. Bind the approval to the exact artifact, version and digest, plus the reviewer, scope, expiry and policy. Restrict approval writers independently. Compare approved and mismatched examples at the actual admission path and retain the exact decision and applicable exception. Recheck approval when supplier, requirements or artifact change.
+
+[NIST SP 800-218 SSDF 1.1](https://csrc.nist.gov/pubs/sp/800/218/final)

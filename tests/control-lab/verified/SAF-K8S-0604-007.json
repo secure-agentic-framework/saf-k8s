@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0604-007",
-  "catalog_revision": "b729c00995bdc68080f0cc4208addfd5d9f6fcd0",
-  "catalog_sha256": "ca67b65c05a559cca6f50bec8739178ec488163ddeef64d4b9f3ec637611945b",
+  "catalog_revision": "5109958b566a7e4003e38dcaafe540b4f7d1787a",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "4c735628e3a57d228255f35f20a0c0d89442a893e30a4754df6e35e18a9cc7b0",
   "scope": "One fictional supplier, two independently signed review records, and an exact image reference enforced on Pod creation. Kubernetes blocks absent or different records and prevents a fixture deployer from changing the approved parameter. Real communication, contract commitments, signature or SBOM systems, and coverage require independent evidence.",
-  "cluster": "saf-lab-6878b21cc925",
+  "cluster": "saf-lab-42736b4ad782",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
