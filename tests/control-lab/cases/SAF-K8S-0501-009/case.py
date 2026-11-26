@@ -2,6 +2,7 @@
 import json
 import time
 from ipaddress import IPv4Address
+import re
 
 
 NAMESPACES = {
@@ -27,9 +28,24 @@ ENDPOINTS = {
 CLIENT_NAMESPACES = {item["pod"]: NAMESPACES[domain] for domain, item in CLIENTS.items()}
 SHARED = {"pod": "shared-path-listener", "model": "saf-0501-009-shared-model-path",
           "training": "saf-0501-009-shared-training-path"}
+PYTHON_IMAGE = (
+    "docker.io/library/python:3.13-slim@sha256:"
+    "e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
+)
+ROUTE_BACKENDS = {
+    "model": {"pod": "route-model-backend", "marker": "saf-0501-009-authorized-model-route"},
+    "training": {"pod": "route-training-backend", "marker": "saf-0501-009-authorized-training-route"},
+}
+ROUTE_GATE = {"pod": "route-authorization-gateway"}
+ROUTE_IDENTITIES = {
+    "model": "Bearer fixture-model-route-reader",
+    "training": "Bearer fixture-training-route-reader",
+    "audit": "Bearer fixture-route-audit-reader",
+}
 SCOPE = (
     "One disposable kind v0.32.0 cluster using its bundled kindnet and Kubernetes v1.36.1; "
-    "three case-owned namespaces with two non-root BusyBox clients and three inert HTTP Pods. "
+    "three case-owned namespaces with two non-root BusyBox clients, three original inert HTTP "
+    "Pods, two separate inert route backends and one route-gate Pod. "
     "The case proves the four model/training client-to-model-mirror/training-store TCP/8080 "
     "marker paths before policy; then applies pod-selected egress NetworkPolicies and proves "
     "model-client->model-mirror and training-client->training-store remain useful while the "
@@ -37,7 +53,9 @@ SCOPE = (
     "HTTP paths; a permitted model-client-to-listener network path can fetch both markers, "
     "demonstrating that native NetworkPolicy does not distinguish URI paths. No Services, "
     "DNS, external targets, IPv6, production CNI, external model/data sources, artifact "
-    "integrity, TLS, application authorization, or production routing are evaluated. A denied "
+    "integrity or TLS are evaluated. An additive route-gate fixture demonstrates an explicit "
+    "synthetic application identity-to-path allow matrix over a second shared listener; this "
+    "is not cryptographic workload authentication or production routing. A denied "
     "probe is attributed only to this controlled scenario after healthy endpoints and a "
     "successful no-policy baseline; NetworkPolicy exposes no per-packet drop reason."
 )
@@ -88,6 +106,121 @@ def _http_endpoint(name, role, domain, paths):
     ])
 
 
+def _route_backend_script():
+    return r'''import json, sys
+from http.server import BaseHTTPRequestHandler, HTTPServer
+marker = sys.argv[1]
+hits = 0
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        global hits
+        if self.path == "/marker":
+            hits += 1
+            body = marker.encode()
+            status = 200
+        elif self.path == "/__count":
+            body = json.dumps({"marker_hits": hits}).encode()
+            status = 200
+        else:
+            body = b"not-found"
+            status = 404
+        self.send_response(status)
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Connection", "close")
+        self.end_headers()
+        self.wfile.write(body)
+    def log_message(self, *_args):
+        pass
+HTTPServer(("0.0.0.0", 8081), Handler).serve_forever()
+'''
+
+
+def _route_backend(name, marker):
+    return {
+        "apiVersion": "v1", "kind": "Pod",
+        "metadata": {"name": name, "namespace": NAMESPACES["shared"],
+                     "labels": {LABEL_ROLE: "route-backend", LABEL_DOMAIN: "shared"}},
+        "spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,
+                 "terminationGracePeriodSeconds": 1,
+                 "containers": [{
+                     "name": name, "image": PYTHON_IMAGE,
+                     "command": ["python", "-u", "-c", _route_backend_script(), marker],
+                     "resources": {"requests": {"cpu": "5m", "memory": "16Mi"},
+                                   "limits": {"cpu": "100m", "memory": "48Mi"}},
+                     "securityContext": {"allowPrivilegeEscalation": False,
+                                          "capabilities": {"drop": ["ALL"]},
+                                          "runAsNonRoot": True, "runAsUser": 65534,
+                                          "seccompProfile": {"type": "RuntimeDefault"}},
+                 }]},
+    }
+
+
+def _route_gate_script():
+    return r'''import json, sys
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib.request import build_opener, ProxyHandler
+model_ip, training_ip, model_token, training_token, audit_token = sys.argv[1:]
+upstreams = {"model": "http://" + model_ip + ":8081",
+             "training": "http://" + training_ip + ":8081"}
+principals = {model_token: "model-reader", training_token: "training-reader"}
+allowed = {"model-reader": {"model"}, "training-reader": {"training"}}
+opener = build_opener(ProxyHandler({}))
+def fetch(url):
+    with opener.open(url, timeout=3) as response:
+        return response.read()
+class Handler(BaseHTTPRequestHandler):
+    def respond(self, status, body, content_type="text/plain"):
+        self.send_response(status)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Connection", "close")
+        self.end_headers()
+        self.wfile.write(body)
+    def do_GET(self):
+        token = self.headers.get("Authorization", "")
+        if self.path == "/__fixture_counts":
+            if token != audit_token:
+                self.respond(403, b"forbidden")
+                return
+            counts = {}
+            for route, base in upstreams.items():
+                counts[route] = json.loads(fetch(base + "/__count"))["marker_hits"]
+            self.respond(200, json.dumps(counts, sort_keys=True).encode(), "application/json")
+            return
+        route = self.path.split("?", 1)[0].strip("/")
+        principal = principals.get(token)
+        if principal is None or route not in allowed.get(principal, set()):
+            self.respond(403, b"forbidden")
+            return
+        self.respond(200, fetch(upstreams[route] + "/marker"))
+    def log_message(self, *_args):
+        pass
+HTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
+'''
+
+
+def _route_gate(model_ip, training_ip):
+    return {
+        "apiVersion": "v1", "kind": "Pod",
+        "metadata": {"name": ROUTE_GATE["pod"], "namespace": NAMESPACES["shared"],
+                     "labels": {LABEL_ROLE: "route-gate", LABEL_DOMAIN: "shared"}},
+        "spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,
+                 "terminationGracePeriodSeconds": 1,
+                 "containers": [{
+                     "name": ROUTE_GATE["pod"], "image": PYTHON_IMAGE,
+                     "command": ["python", "-u", "-c", _route_gate_script(),
+                                 model_ip, training_ip, ROUTE_IDENTITIES["model"],
+                                 ROUTE_IDENTITIES["training"], ROUTE_IDENTITIES["audit"]],
+                     "resources": {"requests": {"cpu": "5m", "memory": "16Mi"},
+                                   "limits": {"cpu": "100m", "memory": "48Mi"}},
+                     "securityContext": {"allowPrivilegeEscalation": False,
+                                          "capabilities": {"drop": ["ALL"]},
+                                          "runAsNonRoot": True, "runAsUser": 65534,
+                                          "seccompProfile": {"type": "RuntimeDefault"}},
+                 }]},
+    }
+
+
 def _create(lab, resource):
     lab.kubectl("-n", resource["metadata"]["namespace"], "create", "-f", "-",
                 payload=json.dumps(resource))
@@ -124,6 +257,36 @@ def _request(lab, client, address, path, expected_marker=None):
     if "timed out" in combined or "timeout" in combined:
         return {"outcome": "timeout"}
     raise ProbeAmbiguous(f"{client} GET /{path} failed without a timeout")
+
+
+def _route_http_request(lab, client, address, path, credential):
+    request = (f"GET /{path} HTTP/1.1\r\nHost: fixture\r\n"
+               f"Authorization: {credential}\r\nConnection: close\r\n\r\n")
+    result = lab.kubectl(
+        "-n", CLIENT_NAMESPACES[client], "exec", f"pod/{client}", "--", "sh", "-ec",
+        'printf "%s" "$1" | nc -w 5 "$2" "$3"', "route-request", request,
+        address, str(PORT), allow_failure=True, timeout=15,
+    )
+    raw = result.stdout.replace("\r\n", "\n")
+    first = raw.splitlines()[0] if raw.splitlines() else ""
+    match = re.match(r"HTTP/1\.[01] ([0-9]{3})", first)
+    if result.returncode != 0 or not match:
+        lab.block(f"Fixture route request from {client} did not return an HTTP status")
+    body = raw.split("\n\n", 1)[1] if "\n\n" in raw else ""
+    return int(match.group(1)), body.strip()
+
+
+def _route_backend_counts(lab, client, gateway_ip):
+    status, body = _route_http_request(
+        lab, client, gateway_ip, "__fixture_counts", ROUTE_IDENTITIES["audit"])
+    if status != 200:
+        lab.block("Fixture audit identity could not read backend counters")
+    try:
+        data = json.loads(body)
+        counts = {"model": int(data["model"]), "training": int(data["training"])}
+    except (TypeError, ValueError, KeyError, json.JSONDecodeError):
+        lab.block("Fixture audit response did not contain both backend counters")
+    return counts
 
 
 def _repeat(lab, client, address, path, expected_marker=None, *, denied=False):
@@ -210,6 +373,8 @@ def run(lab):
                        {"index.html": ENDPOINTS["training"]["marker"]}),
         _http_endpoint(SHARED["pod"], "shared", "shared",
                        {"model": SHARED["model"], "training": SHARED["training"]}),
+        _route_backend(ROUTE_BACKENDS["model"]["pod"], ROUTE_BACKENDS["model"]["marker"]),
+        _route_backend(ROUTE_BACKENDS["training"]["pod"], ROUTE_BACKENDS["training"]["marker"]),
     ]
     addresses = {}
     for resource in resources:
@@ -217,6 +382,12 @@ def run(lab):
     for resource in resources:
         pod = resource["metadata"]
         addresses[pod["name"]] = _wait_ready(lab, pod["namespace"], pod["name"])
+
+    route_gate = _route_gate(addresses[ROUTE_BACKENDS["model"]["pod"]],
+                             addresses[ROUTE_BACKENDS["training"]["pod"]])
+    _create(lab, route_gate)
+    addresses[ROUTE_GATE["pod"]] = _wait_ready(
+        lab, route_gate["metadata"]["namespace"], ROUTE_GATE["pod"])
 
     model_client, training_client = CLIENTS["model"]["pod"], CLIENTS["training"]["pod"]
     model_endpoint, training_endpoint = ENDPOINTS["model"], ENDPOINTS["training"]
@@ -233,8 +404,9 @@ def run(lab):
 
     # Both model endpoints are distinct peer Pods but share the same permitted TCP port.
     model = _policy("allow-model-to-model-and-shared", "model",
-                    [("endpoint", "model"), ("shared", "shared")])
-    training = _policy("allow-training-to-training", "training", [("endpoint", "training")])
+                    [("endpoint", "model"), ("shared", "shared"), ("route-gate", "shared")])
+    training = _policy("allow-training-to-training", "training",
+                       [("endpoint", "training"), ("route-gate", "shared")])
     for policy in (model, training):
         _create(lab, policy)
         _verify_policy(lab, policy)
@@ -277,3 +449,84 @@ def run(lab):
               {"destination_pod": SHARED["pod"], "destination_port": PORT,
                "policy_names": policies, "both_paths_returned_markers": True,
                "boundary": "application-layer route controls or separate network identities are needed"})
+
+    # The route gate shares one listener but applies an explicit fixture identity
+    # to path policy. Its two upstreams keep independent hit counters, so a 403
+    # can be checked for non-delivery to the denied endpoint.
+    gateway_ip = addresses[ROUTE_GATE["pod"]]
+    model_identity, training_identity = CLIENTS["model"]["pod"], CLIENTS["training"]["pod"]
+    counts_before = _route_backend_counts(lab, model_identity, gateway_ip)
+
+    status, body = _route_http_request(
+        lab, model_identity, gateway_ip, "model", ROUTE_IDENTITIES["model"])
+    counts_after_model = _route_backend_counts(lab, model_identity, gateway_ip)
+    model_allowed = (
+        status == 200
+        and body == ROUTE_BACKENDS["model"]["marker"]
+        and counts_after_model == {"model": counts_before["model"] + 1,
+                                   "training": counts_before["training"]}
+    )
+    lab.check("positive", "Model fixture identity reaches only the authorized model route",
+              model_allowed,
+              {"identity": "model-route-reader", "route": "/model", "http_status": status,
+               "marker_matches": body == ROUTE_BACKENDS["model"]["marker"],
+               "model_backend_delta": counts_after_model["model"] - counts_before["model"],
+               "training_backend_delta": counts_after_model["training"] - counts_before["training"]})
+
+    status, body = _route_http_request(
+        lab, model_identity, gateway_ip, "training", ROUTE_IDENTITIES["model"])
+    counts_after_model_denial = _route_backend_counts(lab, model_identity, gateway_ip)
+    model_excluded = (
+        status == 403 and body == "forbidden"
+        and counts_after_model_denial == counts_after_model
+    )
+    lab.check("green", "Model fixture identity is denied the training route before its backend",
+              model_excluded,
+              {"identity": "model-route-reader", "route": "/training", "http_status": status,
+               "forbidden_body": body == "forbidden",
+               "model_backend_unchanged": counts_after_model_denial["model"] == counts_after_model["model"],
+               "training_backend_unchanged": counts_after_model_denial["training"] == counts_after_model["training"]})
+
+    status, body = _route_http_request(
+        lab, training_identity, gateway_ip, "training", ROUTE_IDENTITIES["training"])
+    counts_after_training = _route_backend_counts(lab, model_identity, gateway_ip)
+    training_allowed = (
+        status == 200
+        and body == ROUTE_BACKENDS["training"]["marker"]
+        and counts_after_training == {"model": counts_after_model_denial["model"],
+                                      "training": counts_after_model_denial["training"] + 1}
+    )
+    lab.check("positive", "Training fixture identity reaches only the authorized training route",
+              training_allowed,
+              {"identity": "training-route-reader", "route": "/training", "http_status": status,
+               "marker_matches": body == ROUTE_BACKENDS["training"]["marker"],
+               "model_backend_delta": counts_after_training["model"] - counts_after_model_denial["model"],
+               "training_backend_delta": counts_after_training["training"] - counts_after_model_denial["training"]})
+
+    status, body = _route_http_request(
+        lab, training_identity, gateway_ip, "model", ROUTE_IDENTITIES["training"])
+    counts_after_training_denial = _route_backend_counts(lab, model_identity, gateway_ip)
+    training_excluded = (
+        status == 403 and body == "forbidden"
+        and counts_after_training_denial == counts_after_training
+    )
+    lab.check("green", "Training fixture identity is denied the model route before its backend",
+              training_excluded,
+              {"identity": "training-route-reader", "route": "/model", "http_status": status,
+               "forbidden_body": body == "forbidden",
+               "model_backend_unchanged": counts_after_training_denial["model"] == counts_after_training["model"],
+               "training_backend_unchanged": counts_after_training_denial["training"] == counts_after_training["training"]})
+
+    final_counts = _route_backend_counts(lab, model_identity, gateway_ip)
+    independent_counts = (
+        counts_after_training_denial == {"model": counts_before["model"] + 1,
+                                         "training": counts_before["training"] + 1}
+        and final_counts == counts_after_training_denial
+    )
+    lab.check("positive", "Independent inert backend counters show only approved routes were delivered",
+              independent_counts,
+              {"model_marker": ROUTE_BACKENDS["model"]["marker"],
+               "training_marker": ROUTE_BACKENDS["training"]["marker"],
+               "model_backend_delta": final_counts["model"] - counts_before["model"],
+               "training_backend_delta": final_counts["training"] - counts_before["training"],
+               "denied_calls_added_no_backend_hits": True})

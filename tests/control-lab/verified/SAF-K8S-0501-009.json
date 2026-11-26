@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0501-009",
-  "catalog_revision": "f3e9b06f150b13a9f4efafafda64d5888135b178",
-  "catalog_sha256": "7f7046ebc01a38b5aa686c0b793b8c82b20bcf22ff3228726c8840fdd123525d",
+  "catalog_revision": "3da28930ac560b759be149a990e955772b636316",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "dfdb0e72c806a5a10f2a9b3acb18fbfd44273722e838aecefe92eb28e9e69477",
-  "scope": "One disposable kind v0.32.0 cluster using its bundled kindnet and Kubernetes v1.36.1; three case-owned namespaces with two non-root BusyBox clients and three inert HTTP Pods. The case proves the four model/training client-to-model-mirror/training-store TCP/8080 marker paths before policy; then applies pod-selected egress NetworkPolicies and proves model-client->model-mirror and training-client->training-store remain useful while the two cross-domain paths time out. A third listener serves separate /model and /training HTTP paths; a permitted model-client-to-listener network path can fetch both markers, demonstrating that native NetworkPolicy does not distinguish URI paths. No Services, DNS, external targets, IPv6, production CNI, external model/data sources, artifact integrity, TLS, application authorization, or production routing are evaluated. A denied probe is attributed only to this controlled scenario after healthy endpoints and a successful no-policy baseline; NetworkPolicy exposes no per-packet drop reason.",
-  "cluster": "saf-lab-5ad214c59152",
+  "scope": "One disposable kind v0.32.0 cluster using its bundled kindnet and Kubernetes v1.36.1; three case-owned namespaces with two non-root BusyBox clients, three original inert HTTP Pods, two separate inert route backends and one route-gate Pod. The case proves the four model/training client-to-model-mirror/training-store TCP/8080 marker paths before policy; then applies pod-selected egress NetworkPolicies and proves model-client->model-mirror and training-client->training-store remain useful while the two cross-domain paths time out. A third listener serves separate /model and /training HTTP paths; a permitted model-client-to-listener network path can fetch both markers, demonstrating that native NetworkPolicy does not distinguish URI paths. No Services, DNS, external targets, IPv6, production CNI, external model/data sources, artifact integrity or TLS are evaluated. An additive route-gate fixture demonstrates an explicit synthetic application identity-to-path allow matrix over a second shared listener; this is not cryptographic workload authentication or production routing. A denied probe is attributed only to this controlled scenario after healthy endpoints and a successful no-policy baseline; NetworkPolicy exposes no per-packet drop reason.",
+  "cluster": "saf-lab-10678c57b4a9",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -318,6 +318,70 @@
         ],
         "both_paths_returned_markers": true,
         "boundary": "application-layer route controls or separate network identities are needed"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Model fixture identity reaches only the authorized model route",
+      "matched": true,
+      "observed": {
+        "identity": "model-route-reader",
+        "route": "/model",
+        "http_status": 200,
+        "marker_matches": true,
+        "model_backend_delta": 1,
+        "training_backend_delta": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Model fixture identity is denied the training route before its backend",
+      "matched": true,
+      "observed": {
+        "identity": "model-route-reader",
+        "route": "/training",
+        "http_status": 403,
+        "forbidden_body": true,
+        "model_backend_unchanged": true,
+        "training_backend_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Training fixture identity reaches only the authorized training route",
+      "matched": true,
+      "observed": {
+        "identity": "training-route-reader",
+        "route": "/training",
+        "http_status": 200,
+        "marker_matches": true,
+        "model_backend_delta": 0,
+        "training_backend_delta": 1
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Training fixture identity is denied the model route before its backend",
+      "matched": true,
+      "observed": {
+        "identity": "training-route-reader",
+        "route": "/model",
+        "http_status": 403,
+        "forbidden_body": true,
+        "model_backend_unchanged": true,
+        "training_backend_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Independent inert backend counters show only approved routes were delivered",
+      "matched": true,
+      "observed": {
+        "model_marker": "saf-0501-009-authorized-model-route",
+        "training_marker": "saf-0501-009-authorized-training-route",
+        "model_backend_delta": 1,
+        "training_backend_delta": 1,
+        "denied_calls_added_no_backend_hits": true
       }
     }
   ]

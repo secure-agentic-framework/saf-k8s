@@ -1,17 +1,13 @@
-# SAF-K8S-0501-009 — Model download path isolation from training data paths
+# Separate model retrieval from training-data access
 
-From the framework repository, run:
+Run from the framework repository.
 
 ```sh
 python3 tests/control-lab/lab.py test SAF-K8S-0501-009 --docker-context desktop-linux
 ```
 
-The runner creates a fresh Kind v0.32.0 and Kubernetes v1.36.1 cluster with its bundled kindnet. Two synthetic HTTP clients test the intended and crossed connections to separate model-mirror and training-data endpoints. The model, training, and shared-listener workloads occupy three case-owned namespaces. These connections carry fixture markers over TCP/8080.
+A disposable Kubernetes cluster compares model and training paths before and after applying scoped NetworkPolicies. The transport policy restricts selected source, destination and port combinations. When two routes share an allowed listener, the routes need their own authorization. The separate fixture gateway permits each owned test identity only on its assigned route. The two backend counters confirm that denied requests never reached either backend. The route credentials are synthetic and local to the case.
 
-- **Red.** Both clients can reach both endpoints and see the correct marker before egress policies exist.
-- **Green.** The model client times out for the training endpoint and the training client times out for the model endpoint. Check that policies contain the exact source selectors, namespace and destination Pod selectors, and port. Every green connection must have worked with the same client and server before policy.
-- **Permitted.** Each client still reaches its own endpoint. The model client can also retrieve both paths served by one allowed listener on the same IP and port. HTTP path controls require an application-aware enforcement point or separate network identities.
+For adoption, inventory every client and destination identity, including registries, mirrors, training stores, proxies and shared ports. Confirm that the selected CNI implements the required policy. Use owned approved and excluded comparisons at the network and route boundaries and confirm backend observations. Record the effective identity or token authority, route configuration and exception scope. Independently verify the exact retrieved model or image against approved provenance and expected immutable content before promotion or consumption. Retain the decision, authoritative signer or trust policy, and digest with the route evidence.
 
-For deployment evidence, inspect actual registry, mirror and dataset routing, CNI behavior, other in-use address families and protocols, artifact approval, and any policy on shared HTTP endpoints.
-
-[Kubernetes v1.36 NetworkPolicy](https://v1-36.docs.kubernetes.io/docs/concepts/services-networking/network-policies/)
+[Companion signed build and promotion chain](https://github.com/secure-agentic-framework/saf-k8s/blob/52c2abe5df25415ff10e4393f5b1a41a7bbcd9dc/tests/control-lab/verified/SAF-K8S-0603-013.json)
