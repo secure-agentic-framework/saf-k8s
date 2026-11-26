@@ -290,7 +290,7 @@
   framework_mapping_notes: 'where applicable, a detailed description of pre-determined changes to the AI system and its performance, together with all the relevant information related to the technical solutions adopted to ensure continuous compliance of the AI system with the relevant requirements set out in Chapter III, Section 2;
 
 
-    Audit policies that capture training/pipeline workflow changes, model serving object changes, and checkpoint/snapshot operations provide the evidentiary record that changes occurred and that compliance is maintained over time; this supports demonstrating continuous compliance but does not itself implement the change-control solution.'
+    The policy can contribute auditable evidence that a covered Kubernetes API change occurred. Where relevant, bind that event to the provider''s documented predetermined change and separately substantiate the technical measures and their effect on continued compliance.'
   control_id: SAF-K8S-1001-016
   relation_type: partial
   strength_level: weak
@@ -504,7 +504,7 @@
   framework_mapping_notes: 'A description of relevant changes made by the provider to the system through its lifecycle;
 
 
-    SAF-K8S GitOps and supply chain controls (D6) track infrastructure-level changes via version control, container image tagging, deployment history, and audit logs. However, lifecycle changes also include application-layer changes (model architecture, training data, hyperparameters) that may not be captured by platform controls alone.'
+    Exact events for selected API changes can substantiate part of the applicable provider''s lifecycle change description. Relate the API event to the identified system and revision, and collect application, model, data and training changes from the authorities responsible for them.'
   control_id: SAF-K8S-1001-016
   relation_type: partial
   strength_level: weak
@@ -3564,7 +3564,7 @@
   framework_version: '1.0'
   framework_requirement_id: MEASURE 2.4
   framework_requirement_title: The functionality and behavior of the AI system and its components - as identified in the MAP function - are monitored when in production.
-  framework_mapping_notes: 'SAF-K8S mandates comprehensive production monitoring: audit policies capture AI-relevant CRD operations, SIEM integration detects AI-specific attack patterns, metrics endpoints monitor model performance, and distributed tracing tracks pipeline execution.'
+  framework_mapping_notes: The selected Kubernetes resource and workflow change events provide one production component signal when used in the adopted monitoring process. Monitoring the AI system's functionality and behavior requires separately selected measurements and evidence.
   control_id: SAF-K8S-1001-016
   relation_type: supports
   strength_level: weak

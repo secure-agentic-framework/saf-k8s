@@ -7,7 +7,7 @@
 
 A description of relevant changes made by the provider to the system through its lifecycle;
 
-SAF-K8S GitOps and supply chain controls (D6) track infrastructure-level changes via version control, container image tagging, deployment history, and audit logs. However, lifecycle changes also include application-layer changes (model architecture, training data, hyperparameters) that may not be captured by platform controls alone.
+Exact events for selected API changes can substantiate part of the applicable provider's lifecycle change description. Relate the API event to the identified system and revision, and collect application, model, data and training changes from the authorities responsible for them.
 
 ## SAF-K8S Controls
 
