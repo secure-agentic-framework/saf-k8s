@@ -15,6 +15,12 @@ before the memory quota and are refused after activation. A smaller Pod
 still passes. The original finite Job observes its configured resource
 declaration and reaches DeadlineExceeded. A separate queue model
 compares bounded inputs, backpressure and retry after capacity returns.
+A separate in-cluster HTTP service with one case-owned file returns 202
+for four inert bytes and 413 for five. The client independently
+reads the service state, and an exact file-size and SHA-256 observation
+confirms the rejected input left the accepted record intact. The
+separate [Kueue recovery case](../SAF-K8S-0703-015/README.md)
+demonstrates actual queued Job admission and recovery.
 
 ## Verify the actual guardrails and recovery
 

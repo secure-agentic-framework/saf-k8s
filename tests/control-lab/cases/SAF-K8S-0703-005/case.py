@@ -14,8 +14,9 @@ HERE = Path(__file__).parent
 SCOPE = (
     "Kubernetes v1.36.1 LimitRange and ResourceQuota admission, an owned Job's declared "
     "memory and Job-controller deadline, synthetic queue and input bounds, and an "
-    "aggregate declared-memory ResourceQuota comparison. Production queue integration, "
-    "dataset size, runtime memory and availability requirements require separate deployed evidence."
+    "aggregate declared-memory ResourceQuota comparison, plus one local HTTP ingest example "
+    "for a single emptyDir fixture record. Production queue integration, dataset size, runtime "
+    "memory and availability requirements require separate deployed evidence."
 )
 
 
@@ -162,6 +163,121 @@ def memory_quota_checks(lab):
     )
 
 
+def live_ingest_boundary(lab):
+    """Check HTTP status separately from independent emptyDir file readback."""
+    import hashlib
+
+    name = "saf-0703-005-ingest"
+    client_name = name + "-client"
+    image = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
+    pod_security = {"runAsNonRoot": True, "runAsUser": 65534, "runAsGroup": 65534, "fsGroup": 65534,
+                    "seccompProfile": {"type": "RuntimeDefault"}}
+    server = {"apiVersion": "v1", "kind": "Pod", "metadata": {"name": name, "labels": {"app": name}},
+              "spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,
+                       "terminationGracePeriodSeconds": 1, "securityContext": pod_security,
+                       "volumes": [{"name": "fixture", "configMap": {"name": name}},
+                                   {"name": "record", "emptyDir": {}}],
+                       "containers": [{"name": "api", "image": image,
+                         "command": ["python", "-B", "/fixture/ingest_api.py"],
+                         "ports": [{"containerPort": 8081, "name": "http"}],
+                         "readinessProbe": {"httpGet": {"path": "/healthz", "port": "http"},
+                                            "periodSeconds": 1, "timeoutSeconds": 1},
+                         "resources": {"requests": {"cpu": "5m", "memory": "16Mi"},
+                                       "limits": {"cpu": "100m", "memory": "32Mi"}},
+                         "securityContext": {"allowPrivilegeEscalation": False, "readOnlyRootFilesystem": True,
+                                             "capabilities": {"drop": ["ALL"]}},
+                         "volumeMounts": [{"name": "fixture", "mountPath": "/fixture", "readOnly": True},
+                                          {"name": "record", "mountPath": "/data"}]}]}}
+    client = {"apiVersion": "batch/v1", "kind": "Job", "metadata": {"name": client_name},
+              "spec": {"backoffLimit": 0, "activeDeadlineSeconds": 25,
+                       "template": {"spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,
+                         "securityContext": pod_security,
+                         "volumes": [{"name": "fixture", "configMap": {"name": name}}],
+                         "containers": [{"name": "client", "image": image,
+                           "command": ["python", "-B", "/fixture/ingest_client.py"],
+                           "resources": {"requests": {"cpu": "5m", "memory": "16Mi"},
+                                         "limits": {"cpu": "100m", "memory": "32Mi"}},
+                           "securityContext": {"allowPrivilegeEscalation": False, "readOnlyRootFilesystem": True,
+                                               "capabilities": {"drop": ["ALL"]}},
+                           "volumeMounts": [{"name": "fixture", "mountPath": "/fixture", "readOnly": True}]}]}}}}
+
+    def local_file_digest_size():
+        # Execute an exact read-only Python command in the API Pod. It returns
+        # only the record file's size and digest; the file bytes are not printed.
+        script = ("import hashlib,json,pathlib; p=pathlib.Path('/data/record'); "
+                  "b=p.read_bytes(); print(json.dumps({'size_bytes':len(b),"
+                  "'sha256':hashlib.sha256(b).hexdigest()},sort_keys=True))")
+        result = lab.kubectl("exec", name, "-c", "api", "--", "python", "-B", "-c", script)
+        return json.loads(result.stdout)
+
+    def cleanup_fixture():
+        commands = [
+            ("delete", "job", client_name, "--ignore-not-found=true", "--wait=true"),
+            ("delete", "service", name, "--ignore-not-found=true", "--wait=true"),
+            ("delete", "pod", name, "--ignore-not-found=true", "--wait=true"),
+            ("delete", "configmap", name, "--ignore-not-found=true", "--wait=true"),
+        ]
+        failures = []
+        for command in commands:
+            try:
+                result = lab.kubectl(*command, timeout=20, allow_failure=True)
+                if result.returncode != 0:
+                    failures.append(command[1])
+            except Exception:
+                failures.append(command[1])
+        if failures:
+            lab.block("Case-owned ingest fixture cleanup failed for " + ", ".join(failures))
+
+    try:
+        lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": name},
+                    "data": {"ingest_api.py": (HERE / "ingest_api.py").read_text(),
+                             "ingest_client.py": (HERE / "ingest_client.py").read_text()}})
+        lab.create(server)
+        lab.kubectl("wait", "--for=condition=Ready", f"pod/{name}", "--timeout=30s", timeout=35)
+        lab.create({"apiVersion": "v1", "kind": "Service", "metadata": {"name": name},
+                    "spec": {"type": "ClusterIP", "selector": {"app": name},
+                             "ports": [{"name": "http", "port": 8081, "targetPort": "http"}]}})
+        before_file = local_file_digest_size()
+        lab.create(client)
+        lab.kubectl("wait", "--for=condition=Complete", f"job/{client_name}", "--timeout=35s", timeout=40)
+        observed = json.loads(lab.kubectl("logs", f"job/{client_name}").stdout)
+        after_file = local_file_digest_size()
+    except Exception:
+        # Best-effort cleanup must not replace the originating setup or API
+        # failure with a secondary deletion error.
+        try:
+            cleanup_fixture()
+        except Exception:
+            pass
+        raise
+    cleanup_fixture()
+
+    initial_digest = hashlib.sha256(b"INIT").hexdigest()
+    accepted_digest = hashlib.sha256(b"TEST").hexdigest()
+    expected_client = {"single_record_id": "fixture-one", "initial_read_verified": True,
+                       "accepted_http_status": 202, "accepted_input_bytes": 4,
+                       "accepted_readback_verified": True,
+                       "accepted_readback_sha256": accepted_digest,
+                       "rejected_http_status": 413, "rejected_input_bytes": 5,
+                       "rejected_readback_unchanged": True,
+                       "rejected_readback_sha256": accepted_digest}
+    file_transition = (before_file == {"size_bytes": 4, "sha256": initial_digest}
+                       and after_file == {"size_bytes": 4, "sha256": accepted_digest})
+    lab.check("positive", "HTTP accepts four inert bytes, rejects five, and an independent file digest confirms only the accepted write",
+              observed == expected_client and file_transition,
+              {"single_record_id": observed.get("single_record_id"),
+               "accepted_http_status": observed.get("accepted_http_status"),
+               "accepted_input_bytes": observed.get("accepted_input_bytes"),
+               "rejected_http_status": observed.get("rejected_http_status"),
+               "rejected_input_bytes": observed.get("rejected_input_bytes"),
+               "http_readback_unchanged_after_reject": observed.get("rejected_readback_unchanged"),
+               "independent_before_file_size_bytes": before_file.get("size_bytes"),
+               "independent_before_file_sha256": before_file.get("sha256"),
+               "independent_after_file_size_bytes": after_file.get("size_bytes"),
+               "independent_after_file_sha256": after_file.get("sha256"),
+               "independent_file_transition_matched": file_transition})
+
+
 def run(lab):
     oversized_memory = pod("saf-0703-005-memory-over")
     baseline_memory = server_dry_run(lab, oversized_memory)
@@ -279,4 +395,5 @@ def run(lab):
               failed.get("reason") == "DeadlineExceeded" and job["spec"]["activeDeadlineSeconds"] == 20,
               {"reason": failed.get("reason"), "active_deadline_seconds": job["spec"]["activeDeadlineSeconds"]})
 
+    live_ingest_boundary(lab)
     memory_quota_checks(lab)
