@@ -4,8 +4,8 @@
   "catalog_sha256": "e21df5ef6d7be8d3be548d48d3650f2dfc630a3e395f036b3e3eb0533fc68fe4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "050633de1e56700ff57feadc9a46024367a9b868901b7a7ebae693398f40a8c9",
-  "scope": "A disposable Kind node with pinned Tetragon, namespace-scoped JSON export and a non-enforcing filename observation rule. Only the fixture runner and its public harmless markers are observed. Operator audit integration, network and credential coverage, event loss and downstream alert delivery require separate evidence.",
-  "cluster": "saf-lab-554979136e73",
+  "scope": "A disposable Kind node with pinned Tetragon, namespace-scoped JSON export and a non-enforcing filename observation rule. Only the fixture runner and its public harmless markers are observed. Operator audit integration, network and credential coverage, event loss and downstream alert delivery require separate evidence. A bounded case-owned exporter reads one exact Tetragon Pod log and submits the selected event over fixture mTLS to an API-backed receipt in the same disposable cluster.",
+  "cluster": "saf-lab-c06389895b26",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -90,6 +90,25 @@
         "exact_event_digest_read_back": true,
         "derived_alert_observed": true,
         "receiver_scope": "loopback-only ephemeral fixture; forwarding is case-runner modeled"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A case-owned workload exports the selected Tetragon event over mTLS and the independent API read returns its immutable receipt",
+      "matched": true,
+      "observed": {
+        "named_agent_source_read": true,
+        "unauthorized_log_source_denied": true,
+        "one_correlated_event_exported": true,
+        "no_client_certificate_refused": true,
+        "receiver_service_name_verified": true,
+        "mTLS_delivery_succeeded": true,
+        "receiver_api_writer_identity_scoped": true,
+        "exporter_job_succeeded_as_scoped_identity": true,
+        "receipt_is_immutable": true,
+        "receipt_writer_label_present": true,
+        "receipt_digest_matches_export": true,
+        "receipt_is_exact_selected_event": true
       }
     }
   ]

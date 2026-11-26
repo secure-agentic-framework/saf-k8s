@@ -7,6 +7,7 @@ import secrets
 import threading
 import json
 from pathlib import Path
+import re
 import time
 
 from fixtures import container
@@ -26,13 +27,16 @@ NETWORK_POLICY = "saf-owned-network-connect"
 NETWORK_POD = "saf-owned-http-marker"
 NETWORK_SERVICE = "saf-owned-http-marker"
 NETWORK_PORT = 18080
+PYTHON_IMAGE = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 MARKER = "/tmp/saf-fixture-public.txt"
 OTHER = "/tmp/saf-fixture-control.txt"
 SCOPE = (
     "A disposable Kind node with pinned Tetragon, namespace-scoped JSON export and a "
     "non-enforcing filename observation rule. Only the fixture runner and its public "
     "harmless markers are observed. Operator audit integration, network and credential "
-    "coverage, event loss and downstream alert delivery require separate evidence."
+    "coverage, event loss and downstream alert delivery require separate evidence. A bounded "
+    "case-owned exporter reads one exact Tetragon Pod log and submits the selected event over "
+    "fixture mTLS to an API-backed receipt in the same disposable cluster."
 )
 
 
@@ -324,6 +328,229 @@ def receiver_delivery(lab, accepted_record, unrelated_record, namespace):
         thread.join(timeout=3)
 
 
+def read_json(lab, *args):
+    return json.loads(lab.kubectl(*args, "-o", "json").stdout)
+
+
+def tetragon_pod(lab):
+    pods = read_json(lab, "-n", AGENT_NS, "get", "pods")["items"]
+    eligible = []
+    for pod in pods:
+        meta = pod.get("metadata", {})
+        labels = meta.get("labels", {})
+        owners = meta.get("ownerReferences", [])
+        agent = (labels.get("app.kubernetes.io/name") == "tetragon"
+                 or any(owner.get("kind") == "DaemonSet" and owner.get("name") == "tetragon"
+                        for owner in owners))
+        status = pod.get("status", {})
+        ready = (status.get("phase") == "Running" and any(
+            condition.get("type") == "Ready" and condition.get("status") == "True"
+            for condition in status.get("conditions", [])))
+        names = {container.get("name") for container in pod.get("spec", {}).get("containers", [])}
+        if agent and ready and "export-stdout" in names:
+            eligible.append(pod)
+    if len(eligible) != 1:
+        lab.block("Expected exactly one Ready Tetragon JSON exporter Pod on the disposable node")
+    other_ready = [pod for pod in pods if pod["metadata"]["name"] != eligible[0]["metadata"]["name"]
+                   and pod.get("status", {}).get("phase") == "Running"
+                   and any(condition.get("type") == "Ready" and condition.get("status") == "True"
+                           for condition in pod.get("status", {}).get("conditions", []))]
+    if not other_ready:
+        lab.block("Expected a second Ready case-owned Tetragon namespace Pod for the denied log comparator")
+    return eligible[0], other_ready[0]
+
+
+def issue_transport_material(lab, namespace):
+    root = lab.kubeconfig.parent
+    ca_key, ca_cert = root / "export-ca.key", root / "export-ca.crt"
+    server_key, server_csr, server_cert = root / "receiver.key", root / "receiver.csr", root / "receiver.crt"
+    client_key, client_csr, client_cert = root / "client.key", root / "client.csr", root / "client.crt"
+    server_ext, client_ext = root / "server.ext", root / "client.ext"
+    server_dns = f"saf-event-receiver.{namespace}.svc.cluster.local"
+    lab.command("openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "1",
+                "-subj", "/CN=saf-0606-007-fixture-ca", "-keyout", str(ca_key), "-out", str(ca_cert),
+                "-addext", "basicConstraints=critical,CA:TRUE",
+                "-addext", "keyUsage=critical,keyCertSign,cRLSign",
+                "-addext", "subjectKeyIdentifier=hash", timeout=45)
+    lab.command("openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-subj",
+                f"/CN={server_dns}", "-keyout", str(server_key), "-out", str(server_csr), timeout=45)
+    server_ext.write_text(
+        "basicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\n"
+        "extendedKeyUsage=serverAuth\nsubjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid:always\n"
+        f"subjectAltName=DNS:saf-event-receiver.{namespace}.svc,DNS:{server_dns}\n")
+    lab.command("openssl", "x509", "-req", "-in", str(server_csr), "-CA", str(ca_cert),
+                "-CAkey", str(ca_key), "-CAcreateserial", "-out", str(server_cert), "-days", "1",
+                "-sha256", "-extfile", str(server_ext), timeout=45)
+    lab.command("openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-subj",
+                "/CN=saf-event-exporter", "-keyout", str(client_key), "-out", str(client_csr), timeout=45)
+    client_ext.write_text(
+        "basicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\n"
+        "extendedKeyUsage=clientAuth\nsubjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid:always\n"
+        "subjectAltName=URI:spiffe://saf.example/0606-007/exporter\n")
+    lab.command("openssl", "x509", "-req", "-in", str(client_csr), "-CA", str(ca_cert),
+                "-CAkey", str(ca_key), "-CAcreateserial", "-out", str(client_cert), "-days", "1",
+                "-sha256", "-extfile", str(client_ext), timeout=45)
+    for path in (ca_key, server_key, client_key):
+        path.chmod(0o600)
+    lab.kubectl("-n", namespace, "create", "secret", "generic", "saf-event-receiver-tls",
+                f"--from-file=tls.crt={server_cert}", f"--from-file=tls.key={server_key}",
+                f"--from-file=ca.crt={ca_cert}", "-o", "name")
+    lab.kubectl("-n", namespace, "create", "secret", "generic", "saf-event-exporter-tls",
+                f"--from-file=tls.crt={client_cert}", f"--from-file=tls.key={client_key}",
+                f"--from-file=ca.crt={ca_cert}", "-o", "name")
+def workload_event_export(lab, namespace, expected_event_digest):
+    agent, other = tetragon_pod(lab)
+    agent_name = agent["metadata"]["name"]
+    other_name = other["metadata"]["name"]
+    exporter_sa, receiver_sa = "saf-event-exporter", "saf-event-receiver"
+    issue_transport_material(lab, namespace)
+    for name in (exporter_sa, receiver_sa):
+        scoped(lab, namespace, {"apiVersion": "v1", "kind": "ServiceAccount",
+                    "metadata": {"name": name, "namespace": namespace},
+                    "automountServiceAccountToken": True})
+    scoped(lab, AGENT_NS, {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role",
+                "metadata": {"name": "saf-export-selected-tetragon-log", "namespace": AGENT_NS},
+                "rules": [{"apiGroups": [""], "resources": ["pods/log"],
+                           "resourceNames": [agent_name], "verbs": ["get"]}]})
+    scoped(lab, AGENT_NS, {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding",
+                "metadata": {"name": "saf-export-selected-tetragon-log", "namespace": AGENT_NS},
+                "subjects": [{"kind": "ServiceAccount", "name": exporter_sa, "namespace": namespace}],
+                "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "Role",
+                            "name": "saf-export-selected-tetragon-log"}})
+    scoped(lab, namespace, {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role",
+                "metadata": {"name": "saf-write-event-receipt", "namespace": namespace},
+                "rules": [{"apiGroups": [""], "resources": ["configmaps"], "verbs": ["create"]}]})
+    scoped(lab, namespace, {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding",
+                "metadata": {"name": "saf-write-event-receipt", "namespace": namespace},
+                "subjects": [{"kind": "ServiceAccount", "name": receiver_sa, "namespace": namespace}],
+                "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "Role",
+                            "name": "saf-write-event-receipt"}})
+    receiver_user = f"system:serviceaccount:{namespace}:{receiver_sa}"
+    policy_expr = (
+        f'request.userInfo.username != "{receiver_user}" || '
+        '(object.metadata.name == "saf-tetragon-event-receipt" && object.immutable == true && '
+        'object.metadata.labels["saf.example/tetragon-receipt"] == "true" && '
+        'object.data["receipt.json"] != "")'
+    )
+    lab.create({"apiVersion": "admissionregistration.k8s.io/v1", "kind": "ValidatingAdmissionPolicy",
+                "metadata": {"name": "saf-tetragon-receipt-writer"},
+                "spec": {"matchConstraints": {"resourceRules": [{"apiGroups": [""],
+                    "apiVersions": ["v1"], "operations": ["CREATE"], "resources": ["configmaps"]}]},
+                    "validations": [{"expression": policy_expr,
+                        "message": "receiver may create only the immutable fixture event receipt"}]}})
+    lab.create({"apiVersion": "admissionregistration.k8s.io/v1", "kind": "ValidatingAdmissionPolicyBinding",
+                "metadata": {"name": "saf-tetragon-receipt-writer"},
+                "spec": {"policyName": "saf-tetragon-receipt-writer", "validationActions": ["Deny"],
+                          "matchResources": {"namespaceSelector": {"matchLabels": {
+                              "kubernetes.io/metadata.name": namespace}}}}})
+    for name, script in (("saf-event-receiver-code", "receiver.py"),
+                         ("saf-event-exporter-code", "exporter.py")):
+        scoped(lab, namespace, {"apiVersion": "v1", "kind": "ConfigMap",
+                    "metadata": {"name": name, "namespace": namespace}, "immutable": True,
+                    "data": {script: (HERE / script).read_text(encoding="utf-8")}})
+    pod_security = {"runAsNonRoot": True, "runAsUser": 10001, "runAsGroup": 10001,
+                    "fsGroup": 10001, "seccompProfile": {"type": "RuntimeDefault"}}
+    container_security = {"allowPrivilegeEscalation": False, "readOnlyRootFilesystem": True,
+                          "capabilities": {"drop": ["ALL"]}}
+    scoped(lab, namespace, {"apiVersion": "v1", "kind": "Pod",
+        "metadata": {"name": "saf-event-receiver", "namespace": namespace,
+                     "labels": {"app": "saf-event-receiver"}},
+        "spec": {"restartPolicy": "Never", "serviceAccountName": receiver_sa,
+            "securityContext": pod_security,
+            "containers": [{"name": "receiver", "image": PYTHON_IMAGE, "imagePullPolicy": "IfNotPresent",
+                "command": ["python", "/fixture/receiver.py"],
+                "env": [{"name": "FIXTURE_NAMESPACE", "value": namespace},
+                        {"name": "FIXTURE_POD", "value": POD}, {"name": "FIXTURE_POLICY", "value": POLICY},
+                        {"name": "FIXTURE_PATH", "value": MARKER}],
+                "ports": [{"name": "https", "containerPort": 8443}],
+                "volumeMounts": [{"name": "code", "mountPath": "/fixture", "readOnly": True},
+                                 {"name": "tls", "mountPath": "/tls", "readOnly": True}],
+                "readinessProbe": {"tcpSocket": {"port": "https"}, "periodSeconds": 2,
+                                    "failureThreshold": 15},
+                "resources": {"requests": {"cpu": "10m", "memory": "32Mi"},
+                              "limits": {"cpu": "100m", "memory": "96Mi"}},
+                "securityContext": container_security}],
+            "volumes": [{"name": "code", "configMap": {"name": "saf-event-receiver-code"}},
+                        {"name": "tls", "secret": {"secretName": "saf-event-receiver-tls",
+                                                       "defaultMode": 288}}]}})
+    lab.kubectl("-n", namespace, "wait", "--for=condition=Ready", "pod/saf-event-receiver",
+                "--timeout=30s", timeout=40)
+    scoped(lab, namespace, {"apiVersion": "v1", "kind": "Service",
+                "metadata": {"name": "saf-event-receiver", "namespace": namespace},
+                "spec": {"type": "ClusterIP", "selector": {"app": "saf-event-receiver"},
+                         "ports": [{"name": "https", "port": 8443, "targetPort": "https",
+                                    "protocol": "TCP"}]}})
+
+    job = {"apiVersion": "batch/v1", "kind": "Job",
+        "metadata": {"name": "saf-event-exporter", "namespace": namespace},
+        "spec": {"backoffLimit": 0, "activeDeadlineSeconds": 60,
+            "template": {"metadata": {"labels": {"app": "saf-event-exporter"}},
+                "spec": {"restartPolicy": "Never", "serviceAccountName": exporter_sa,
+                    "securityContext": pod_security,
+                    "containers": [{"name": "exporter", "image": PYTHON_IMAGE,
+                        "imagePullPolicy": "IfNotPresent", "command": ["python", "/fixture/exporter.py"],
+                        "env": [{"name": "AGENT_NAMESPACE", "value": AGENT_NS},
+                                {"name": "AGENT_POD", "value": agent_name},
+                                {"name": "OTHER_AGENT_POD", "value": other_name},
+                                {"name": "FIXTURE_NAMESPACE", "value": namespace},
+                                {"name": "FIXTURE_POD", "value": POD},
+                                {"name": "FIXTURE_POLICY", "value": POLICY},
+                                {"name": "FIXTURE_PATH", "value": MARKER},
+                                {"name": "EXPECTED_EVENT_DIGEST", "value": expected_event_digest},
+                                {"name": "RECEIVER_URL", "value": f"https://saf-event-receiver.{namespace}.svc.cluster.local:8443"}],
+                        "volumeMounts": [{"name": "code", "mountPath": "/fixture", "readOnly": True},
+                                         {"name": "tls", "mountPath": "/tls", "readOnly": True}],
+                        "resources": {"requests": {"cpu": "10m", "memory": "32Mi"},
+                                      "limits": {"cpu": "100m", "memory": "96Mi"}},
+                        "securityContext": container_security}],
+                    "volumes": [{"name": "code", "configMap": {"name": "saf-event-exporter-code"}},
+                                {"name": "tls", "secret": {"secretName": "saf-event-exporter-tls",
+                                                               "defaultMode": 288}}]}}}}
+    scoped(lab, namespace, job)
+    completed = lab.kubectl("-n", namespace, "wait", "--for=condition=complete", "job/saf-event-exporter",
+                             "--timeout=60s", timeout=70, allow_failure=True)
+    if completed.returncode:
+        lab.kubectl("-n", namespace, "logs", "job/saf-event-exporter", allow_failure=True)
+        lab.block("The exact authenticated Tetragon exporter Job did not succeed")
+    job_pod = read_json(lab, "-n", namespace, "get", "pods", "-l", "job-name=saf-event-exporter")["items"]
+    logs = lab.kubectl("-n", namespace, "logs", "job/saf-event-exporter").stdout.strip().splitlines()
+    result = json.loads(logs[-1]) if logs else {}
+    cm = read_json(lab, "-n", namespace, "get", "configmap", "saf-tetragon-event-receipt")
+    receipt = json.loads(cm.get("data", {}).get("receipt.json", "{}"))
+    receiver_pod = read_json(lab, "-n", namespace, "get", "pod", "saf-event-receiver")
+    process_ok = (len(job_pod) == 1
+                  and job_pod[0].get("spec", {}).get("serviceAccountName") == exporter_sa
+                  and job_pod[0].get("status", {}).get("phase") == "Succeeded")
+    observed = {
+        "named_agent_source_read": result.get("source_read") is True,
+        "unauthorized_log_source_denied": result.get("other_source_denied") is True,
+        "one_correlated_event_exported": result.get("exactly_one_event") is True,
+        "no_client_certificate_refused": result.get("client_certificate_required") is True,
+        "receiver_service_name_verified": result.get("server_name_verified") is True,
+        "mTLS_delivery_succeeded": result.get("authenticated_delivery") is True,
+        "receiver_api_writer_identity_scoped": (
+            receiver_pod.get("spec", {}).get("serviceAccountName") == receiver_sa),
+        "exporter_job_succeeded_as_scoped_identity": process_ok,
+        "receipt_is_immutable": cm.get("immutable") is True,
+        "receipt_writer_label_present": (
+            cm.get("metadata", {}).get("labels", {}).get("saf.example/source") == "case-owned-exporter"),
+        "receipt_digest_matches_export": (
+            bool(re.fullmatch(r"[0-9a-f]{64}", receipt.get("event_sha256", "")))
+            and receipt.get("event_sha256") == result.get("event_sha256") == expected_event_digest),
+        "receipt_is_exact_selected_event": (
+            receipt.get("accepted") is True
+            and receipt.get("event_type") == "process_kprobe"
+            and receipt.get("policy_match") is True
+            and receipt.get("path_match") is True
+            and receipt.get("fixture_process_correlated") is True
+            and receipt.get("fixture_pod_match") is True
+            and receipt.get("authenticated_client") is True
+            and receipt.get("client_identity") == "fixture-exporter"),
+    }
+    lab.check("green", "A case-owned workload exports the selected Tetragon event over mTLS and the independent API read returns its immutable receipt",
+              all(observed.values()), observed)
+
+
 def run(lab):
     namespace = "saf-observed-" + lab.cluster[-9:]
     lab.kubectl("create", "namespace", namespace)
@@ -382,3 +609,5 @@ def run(lab):
     receiver_delivery(lab, observed[0], next((record for kind, record in compared
                        if kind == "process_exec" and record.get("process", {}).get("arguments") == f"cat {OTHER}"), {}),
                       namespace)
+    event_bytes = json.dumps(observed[0], sort_keys=True, separators=(",", ":")).encode()
+    workload_event_export(lab, namespace, sha256(event_bytes).hexdigest())
