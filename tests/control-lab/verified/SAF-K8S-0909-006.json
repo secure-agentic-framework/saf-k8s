@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0909-006",
-  "catalog_revision": "b52080a2f269c747c9e269e10ddb8e3a88fe02d8",
-  "catalog_sha256": "a99449eff779078174574b1a634fe89a77a5d7c065c5ba26c22174f05edb54e4",
+  "catalog_revision": "d5c16b88f7738cf51d1fdd125b8b79b675b3c3d9",
+  "catalog_sha256": "e21df5ef6d7be8d3be548d48d3650f2dfc630a3e395f036b3e3eb0533fc68fe4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "5487b62ecd7e7c3558d508cd31452ff835470db576ec8dc9a315a1ac9ac2405d",
-  "scope": "A temporary Kind pod stores an owned synthetic vector index in SQLite on a PVC. The case creates a versioned approved snapshot and a benign altered snapshot, observes an unsafe activation fail the known-vector query, then verifies activation blocking against separately mounted approved metadata while preserving the live index. The snapshot persists across Pod replacement. It performs an approved-source rebuild and known-query check, then unlinks one named retired fixture generation.",
-  "cluster": "saf-lab-2a4a4cc81d60",
+  "scope": "A temporary Kind pod stores an owned synthetic vector index in SQLite on a PVC. The case creates a versioned approved snapshot and a benign altered snapshot, observes an unsafe activation fail the known-vector query, then verifies activation blocking against separately mounted approved metadata while preserving the live index. The snapshot persists across Pod replacement. It performs an approved-source rebuild and known-query check, unlinks one named retired fixture generation, then restores the approved snapshot after replacing the primary PVC from a second case-owned PVC in the same cluster.",
+  "cluster": "saf-lab-e29f562e54f0",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -141,6 +141,62 @@
           "active_query": "doc-cedar",
           "fixture_generation_absent_after_unlink": true,
           "fixture_generation_existed": true
+        }
+      }
+    },
+    {
+      "phase": "recovery",
+      "claim": "Approved vector snapshot restores from a retained PVC after primary PVC replacement",
+      "matched": true,
+      "observed": {
+        "primary_claim_replaced": true,
+        "primary_volume_replaced": true,
+        "backup_claim_preserved": true,
+        "backup_before": {
+          "approved_checks": {
+            "all_vector_rows_use_approved_model": true,
+            "approved_corpus_digest": true,
+            "approved_document_count": true,
+            "approved_documents_match": true,
+            "approved_generation": true,
+            "approved_model_version": true,
+            "sqlite_integrity_ok": true
+          },
+          "backup_bytes": 20480,
+          "backup_sha256": "ab8de01c696a33e43a92001731c7d8e2e4b6fa114e06044e165b3d541d020359",
+          "known_query": "doc-cedar"
+        },
+        "backup_after": {
+          "approved_checks": {
+            "all_vector_rows_use_approved_model": true,
+            "approved_corpus_digest": true,
+            "approved_document_count": true,
+            "approved_documents_match": true,
+            "approved_generation": true,
+            "approved_model_version": true,
+            "sqlite_integrity_ok": true
+          },
+          "backup_bytes": 20480,
+          "backup_present": true,
+          "backup_sha256": "ab8de01c696a33e43a92001731c7d8e2e4b6fa114e06044e165b3d541d020359",
+          "known_query": "doc-cedar"
+        },
+        "recovery": {
+          "approved_checks": {
+            "all_vector_rows_use_approved_model": true,
+            "approved_corpus_digest": true,
+            "approved_document_count": true,
+            "approved_documents_match": true,
+            "approved_generation": true,
+            "approved_model_version": true,
+            "sqlite_integrity_ok": true
+          },
+          "restore_performed": true,
+          "restored_digest_matches": true,
+          "restored_query": "doc-cedar",
+          "restored_size_matches": true,
+          "source_digest_matches": true,
+          "source_size_matches": true
         }
       }
     }

@@ -8,11 +8,13 @@ import sqlite3
 import sys
 
 ROOT = Path("/data/index-fixture")
+BACKUP_ROOT = Path("/backup/vector-index-fixture")
 ACTIVE = ROOT / "active.sqlite3"
 APPROVED = ROOT / "snapshot-v1-approved.sqlite3"
 ALTERED = ROOT / "snapshot-v2-benign-altered.sqlite3"
 RETIRED = ROOT / "generation-retired.sqlite3"
 STAGED = ROOT / "activation-stage.sqlite3"
+BACKUP_APPROVED = BACKUP_ROOT / "snapshot-v1-approved.sqlite3"
 APPROVAL = Path("/approval/approved.json")
 MODEL = "synthetic-hash-embed-v1"
 APPROVED_DOCS = [
@@ -218,6 +220,64 @@ def run(command):
         return {"fixture_generation_existed": before, "fixture_generation_absent_after_unlink": not RETIRED.exists(),
                 "active_generation_preserved": metadata(ACTIVE)[0]["generation"] == "v1-approved",
                 "active_query": top_id(ACTIVE, QUERY)}
+    if command == "export-approved-to-backup":
+        checks = approved_check(APPROVED)
+        query = top_id(APPROVED, QUERY)
+        if not all(checks.values()) or query != "doc-cedar":
+            raise RuntimeError("approved source snapshot failed fixture checks")
+        BACKUP_ROOT.mkdir(parents=True, exist_ok=True)
+        snapshot(APPROVED, BACKUP_APPROVED)
+        return {"backup_sha256": file_sha(BACKUP_APPROVED),
+                "backup_bytes": BACKUP_APPROVED.stat().st_size,
+                "approved_checks": checks, "known_query": query}
+    if command == "inspect-backup":
+        exists = BACKUP_APPROVED.is_file()
+        return {"backup_present": exists,
+                "backup_sha256": file_sha(BACKUP_APPROVED) if exists else None,
+                "backup_bytes": BACKUP_APPROVED.stat().st_size if exists else 0,
+                "approved_checks": approved_check(BACKUP_APPROVED) if exists else {},
+                "known_query": top_id(BACKUP_APPROVED, QUERY) if exists else None}
+    if command == "restore-approved-from-backup":
+        expected_digest, expected_bytes = sys.argv[2], int(sys.argv[3])
+        source_digest = file_sha(BACKUP_APPROVED) if BACKUP_APPROVED.is_file() else None
+        source_bytes = BACKUP_APPROVED.stat().st_size if BACKUP_APPROVED.is_file() else 0
+        source_checks = approved_check(BACKUP_APPROVED) if BACKUP_APPROVED.is_file() else {}
+        source_query = top_id(BACKUP_APPROVED, QUERY) if BACKUP_APPROVED.is_file() else None
+        source_digest_matches = source_digest == expected_digest
+        source_size_matches = source_bytes == expected_bytes
+        if not (source_digest_matches and source_size_matches and all(source_checks.values())
+                and source_query == "doc-cedar"):
+            return {"restore_performed": False,
+                    "source_digest_matches": source_digest_matches,
+                    "source_size_matches": source_size_matches,
+                    "approved_checks": source_checks,
+                    "restored_digest_matches": False,
+                    "restored_size_matches": False,
+                    "restored_query": None}
+        ROOT.mkdir(parents=True, exist_ok=True)
+        snapshot(BACKUP_APPROVED, STAGED)
+        staged_digest_matches = file_sha(STAGED) == expected_digest
+        staged_size_matches = STAGED.stat().st_size == expected_bytes
+        checks = approved_check(STAGED)
+        query = top_id(STAGED, QUERY)
+        if not (staged_digest_matches and staged_size_matches and all(checks.values())
+                and query == "doc-cedar"):
+            STAGED.unlink(missing_ok=True)
+            return {"restore_performed": False,
+                    "source_digest_matches": source_digest_matches,
+                    "source_size_matches": source_size_matches,
+                    "approved_checks": checks,
+                    "restored_digest_matches": staged_digest_matches,
+                    "restored_size_matches": staged_size_matches,
+                    "restored_query": query}
+        os.replace(STAGED, ACTIVE)
+        return {"restore_performed": True,
+                "source_digest_matches": source_digest_matches,
+                "source_size_matches": source_size_matches,
+                "approved_checks": approved_check(ACTIVE),
+                "restored_digest_matches": file_sha(ACTIVE) == expected_digest,
+                "restored_size_matches": ACTIVE.stat().st_size == expected_bytes,
+                "restored_query": top_id(ACTIVE, QUERY)}
     raise ValueError("unknown fixture operation")
 
 

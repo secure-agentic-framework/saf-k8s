@@ -1,9 +1,19 @@
-# SAF-K8S-0909-006
+# Verify approved index recovery from a retained Kubernetes volume
 
-Run `python3 tests/control-lab/lab.py test SAF-K8S-0909-006` from the SAF-K8S repository root using a local Kind cluster and dynamic persistent volume provisioning.
+    python3 tests/control-lab/lab.py test SAF-K8S-0909-006 --docker-context desktop-linux
 
-The case snapshots a SQLite vector table and verifies that the snapshot and known retrieval survive replacement of its Pod. The ungoverned baseline activates a structurally valid alternate index whose known query returns the wrong result. The governed path restores the approved snapshot, checks the staged index against a separate immutable approval record and a known retrieval, and leaves the active database unchanged when the candidate fails. It rebuilds the index from the approved fixture records and removes a closed, named fixture generation without affecting the active query.
+The case stores inert vectors in SQLite. It compares behavior with and
+without an approved snapshot check, runs a fixed reference query, and
+rebuilds and retires one fixture generation.
 
-The fixture uses cosine lookup against a small synthetic vector table and one local volume. Independently verify the deployed index and migration compatibility, recovery objectives, copies and retention, and approved storage sanitization.
+The approved snapshot is copied to a second fixture PVC. The test deletes
+the workload and replaces its primary claim, requiring both a new claim UID
+and a different bound volume. The backup claim keeps its identity and exact
+snapshot digest. The replacement workload restores that copy and observes
+the approved digest, SQLite integrity and the expected query result.
 
-[SQLite Backup API](https://www.sqlite.org/backup.html) · [NIST SP 800-88 Rev. 2](https://csrc.nist.gov/pubs/sp/800/88/r2/final)
+For a deployment, record the actual engine, backed-up state and compatibility,
+concurrent write behavior, independent storage failure domains, backup
+retention or immutability, and measured recovery time and data loss. Verify
+the governed retirement and sanitization requirements on the actual storage.
+Both case volumes use the same disposable Kubernetes cluster.
