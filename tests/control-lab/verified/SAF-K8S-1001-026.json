@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-026",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "aa89a1b8524ce93161b119273785bbd5bbd340f3",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e42ea6c51f0aa37dc5b2dfb097089245318d84afc97d225c9752eec9d85be35f",
   "scope": "One digest-pinned kind Kubernetes v1.36.1 cluster, namespace saf-test, and narrowly scoped ConfigMap metadata events. The API server's native audit webhook sends actual audit.k8s.io/v1 EventList batches over TLS to a case-owned receiver whose CA is pinned in the webhook kubeconfig. A unique inert ConfigMap create is matched to its exact ResponseComplete auditID at the receiver. The case compares emptyDir loss with a case-owned PVC, deletes and recreates the PVC-backed receiver Pod, checks prior exact IDs, and confirms a new post-restart event. It does not establish production SIEM, audit.log, managed-exporter, tamper resistance, long-term retention, or failure-domain durability.",
-  "cluster": "saf-lab-4f1613126be0",
+  "cluster": "saf-lab-9ff51feb3bd6",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
