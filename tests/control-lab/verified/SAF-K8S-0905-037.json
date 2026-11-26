@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-037",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "a8f0ac4eafcac0e5bf4c3965058ac32bdd5fa6ae",
+  "catalog_sha256": "99dfcf4e7690631de3a5a538c5e0434405de93779ba25e0e5ce0cff09d9d7f38",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "bcee3b233b1e23feef9509d81a7bd1a34461a62e1657aef36c7c43246ef2b489",
   "scope": "A fresh Kubernetes v1.36.1 Kind cluster runs two case-owned lightweight Deployments. A narrow role permits a named responder to read the intended Pod and logs and to scale only the designated Deployment. The responder retains hash-bound evidence in an immutable ConfigMap in a dedicated namespace before initiating the halt. An authorized investigator verifies it after the target Pod is removed. The measured bound is a lab fixture requirement. Real on-call response, incident evidence systems and long-term retention remain open.",
-  "review_timing": {
-    "queued_at": "2026-11-23T01:38:01.417459+00:00",
-    "cluster_ready_at": "2026-11-23T01:38:44.120275+00:00",
-    "approval_at": "2026-11-23T01:39:50.031376+00:00",
-    "case_loaded_at": "2026-11-23T01:39:50.235451+00:00"
-  },
-  "cluster": "saf-lab-0db43ccffdf7",
+  "cluster": "saf-lab-946fbf80d3eb",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "84184906591d600c23a3904fd5df4ea00cc3a6b3f851e8826dda954985b23ed9",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
@@ -60,6 +53,19 @@
       "matched": true,
       "observed": {
         "forbidden": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The API rejects a server-side dry-run change to immutable evidence and stored evidence remains exact",
+      "matched": true,
+      "observed": {
+        "dry_run_only": true,
+        "rejected_for_immutable_field": true,
+        "stored_digest_unchanged": true,
+        "stored_evidence_unchanged": true,
+        "digest_reverified": true,
+        "immutable": true
       }
     },
     {

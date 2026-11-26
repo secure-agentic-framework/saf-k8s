@@ -1,11 +1,15 @@
-# SAF-K8S-0905-037 — Invoke a manual halt and retain evidence
+# SAF-K8S-0905-037 — Invoke a governed manual halt and preserve evidence
 
-    python3 tests/control-lab/lab.py test SAF-K8S-0905-037 --docker-context desktop-linux
+Run `python3 tests/control-lab/lab.py test SAF-K8S-0905-037 --docker-context desktop-linux` from the framework checkout.
 
-The fixture starts two inert Deployments. An ordinary identity receives an API denial for the same scale request the authorized responder later invokes. Before the halt, the responder records the target's actual template, state and synthetic logs in an immutable ConfigMap. A distinct investigator reads and verifies the record after the target Pod is removed. The unrelated Deployment remains active.
+Five checks use two owned Deployments and restricted fixture identities. Native authorization denies the ordinary identity and limits the responder to the named target. After recording the target's synthetic workload evidence, the authorized responder invokes the halt and observes target Pod removal within the declared 45-second fixture budget. A separate investigator verifies the pre-halt evidence digest and the unrelated workload stays active. A native server-side dry-run change to the immutable evidence object is refused. An independent read confirms identical stored bytes and digest after the attempted change.
 
-The runner measures the interval from case invocation through evidence capture to observed halt against a declared 45-second fixture budget. Production timeliness, responder governance, forensic scope and long-term storage require deployed evidence.
+## Verify an adopted incident halt
 
-- [Kubernetes 1.36 Deployment](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/deployment/)
-- [Kubernetes 1.36 RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
-- [Kubernetes 1.36 ConfigMaps](https://v1-36.docs.kubernetes.io/docs/concepts/configuration/configmap/)
+1. Identify authoritative responders, alternate approvers and investigators. Verify permissions for each actual target and lifecycle operation, including training, inference and pipeline controllers.
+2. Define approved response-time start and completion events, actual service targets, identity and runbook versions. Exercise controlled halt, retained independent functions, timeliness and approved recovery or restart.
+3. Define the minimal pre-halt evidence, binding to workload and event, integrity verification, protected collection and transfer, custody and retention. Verify investigator access and readback after the actual halt, and verify authorized recovery of protected records.
+4. Record effective coverage, relevant alert and owner, permissions and any exceptions for each controller path. Test authorized change or removal of evidence according to the adopted policy.
+
+- [Kubernetes RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
+- [Kubernetes ConfigMaps](https://v1-36.docs.kubernetes.io/docs/concepts/configuration/configmap/)

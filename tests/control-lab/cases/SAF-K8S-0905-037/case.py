@@ -144,6 +144,35 @@ def run(lab):
     start = time.monotonic()
     stamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     raw, checksum = _record(lab, name, stamp)
+
+    # Ask the apiserver to evaluate an attempted change to one harmless
+    # synthetic evidence field, but never persist that change. Use the case
+    # runner's administrative identity so the failure must be the native
+    # immutable-field decision rather than an RBAC denial. Keep record bytes
+    # and candidate values out of retained check details.
+    alternate_digest = "f" * 64 if checksum != "f" * 64 else "0" * 64
+    immutable_attempt = lab.kubectl(
+        "-n", VAULT, "patch", "configmap/" + RECORD, "--type=merge",
+        "-p", json.dumps({"data": {"sha256": alternate_digest}}),
+        "--dry-run=server", allow_failure=True)
+    unchanged = _json(lab, "-n", VAULT, "get", "configmap/" + RECORD)
+    immutable_rejection = (immutable_attempt.returncode != 0
+                           and "immutable" in immutable_attempt.stderr.lower())
+    exact_unchanged = (unchanged.get("immutable") is True
+                       and unchanged.get("data", {}).get("sha256") == checksum
+                       and unchanged.get("data", {}).get("evidence.json") == raw
+                       and sha256(unchanged["data"]["evidence.json"].encode()).hexdigest() == checksum)
+    lab.check(
+        "green",
+        "The API rejects a server-side dry-run change to immutable evidence and stored evidence remains exact",
+        immutable_rejection and exact_unchanged,
+        {"dry_run_only": True, "rejected_for_immutable_field": immutable_rejection,
+         "stored_digest_unchanged": unchanged.get("data", {}).get("sha256") == checksum,
+         "stored_evidence_unchanged": unchanged.get("data", {}).get("evidence.json") == raw,
+         "digest_reverified": (sha256(unchanged.get("data", {}).get("evidence.json", "").encode()).hexdigest()
+                               == checksum),
+         "immutable": unchanged.get("immutable") is True})
+
     _halt(lab, WORKLOAD, OPERATOR)
     halted = _await_halt(lab, start + MAX_SECONDS)
     elapsed = time.monotonic() - start
