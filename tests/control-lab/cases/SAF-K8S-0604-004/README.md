@@ -1,16 +1,13 @@
-# Verify OpenVEX intake on fictional advisories
+# Verify VEX assessments at intake
+
+Run from the framework repository.
 
 ```sh
-python3 lab.py test SAF-K8S-0604-004 --docker-context desktop-linux
+python3 tests/control-lab/lab.py test SAF-K8S-0604-004 --docker-context desktop-linux
 ```
 
-The pinned OpenVEX CLI produces examples for the four supported status labels
-and rejects the catalog's mixed spelling. A Kind Pod verifies signed OpenVEX
-records for synthetic release digests and component versions and records every
-decision beside the original fictional finding. Only one corroborated
-`not_affected` fixture statement lowers priority. Invalid or absent evidence
-keeps the corresponding findings active.
+The pinned OpenVEX reference checks an approved source, exact release and component, revision and evidence. Missing, altered, mismatched or unsupported assessments leave fictional findings active. One authenticated and corroborated assessment changes the selected finding's priority while retaining the original record. The reference uses inert artifacts and fictional finding identifiers.
 
-The fixture uses OpenSSL and two pinned container tools. Actual vulnerability
-assessment, scanner integration, vendor sources and deployed approval and
-retention workflows require separate evidence.
+For adoption, inventory the actual formats, versions, intake clients, allowed issuers and trust configuration. Verify issuer identity and rotation, revision and freshness, exact release and component scope and applicable advisory. Bind assessments to actual scanner or product findings. Test an approved and corroborated status, invalid or conflicting evidence, and a resolved assertion against the actual release. Keep uncertain findings active and preserve the original results plus reviewed disposition. Record the exact document, evidence source, reviewer authority, policy version, priority decision and retention term.
+
+[OpenVEX v0.2.0 specification](https://github.com/openvex/spec/blob/v0.2.0/OPENVEX-SPEC.md) · [NIST SSDF 1.1](https://csrc.nist.gov/pubs/sp/800/218/final)

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0604-004",
-  "catalog_revision": "9786a9d84f213c4c66c7351a50045e46481901e1",
-  "catalog_sha256": "78d75952bbab784c424a7a0f999dad3ff3f8026210525a0e1fb86640f0474dde",
+  "catalog_revision": "0fddc7798cf8b35c9152cf57b1da4bba739a8383",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "32612009ac8492a95aeb1b81ac5357dc2dd62192c1e5a667ccf465b10f53eff1",
   "scope": "Pinned vexctl checks OpenVEX vocabulary on fictional identifiers. A disposable Kind Pod enforces an explicit signed-document and exact released-artifact matching policy over synthetic findings. No vulnerability scanner or real advisory is used. Production evidence and version-specific scanner integration require separate verification.",
-  "cluster": "saf-lab-18f14e7cf2e4",
+  "cluster": "saf-lab-60c9d3fe7952",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
