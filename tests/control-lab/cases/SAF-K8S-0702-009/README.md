@@ -21,3 +21,9 @@ deletes the isolated cluster and all test objects.
 
 - [Kubernetes v1.36 ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
 - [Kubernetes v1.36 Jobs and mutable scheduling directives](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/job/#mutable-scheduling-directives)
+
+## Controller scope and adopter evidence
+
+The independent runs cover the four configured resource kinds. With the policy active, the selected namespace admits the approved Job and StatefulSet templates, and the unselected namespace admits unlabeled Job, Deployment, and StatefulSet templates. These comparisons are server-side dry runs. The existing Deployment positive case independently observes a Ready Pod with the approved labels.
+
+In adoption, use the effective classification keys and values from SAF-K8S-0702-005. Record how namespaces are selected and who may change their labels. Verify permitted and denied CREATE and UPDATE decisions for each covered kind in selected namespaces and demonstrate non-enrolled behavior. Test separately where parent metadata is required by the selected schema. Record treatment of existing objects, workload paths and authorized exceptions before applying the policy to the intended scope.

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0702-009",
-  "catalog_revision": "3e55e75211d64e0b66762ad2930127f06d59fa0f",
-  "catalog_sha256": "aefc685b3b821305b42ce28f3c1614edc0bed7ccef3e0ffa1004fa9e0cfc902c",
+  "catalog_revision": "350b247983bedc35eb98b75ea6cd360be50326a1",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "688e3eff7e674662fb6e50487c571f5ce9c9888d3aa16ddb8669db1b861e231f",
-  "scope": "Native Kubernetes ValidatingAdmissionPolicy CREATE and UPDATE enforcement of the SAF-K8S-0702-005 AI classification labels on Pods and Job, Deployment, and StatefulSet templates in one synthetic namespace. Includes absent and ungoverned values, exact denials, namespace separation and an admitted Deployment rollout. Namespace enrollment governance, exceptions, CronJobs, DaemonSets, existing objects, and production policy rollout are separate.",
-  "cluster": "saf-lab-7e61d2d85f6e",
+  "scope": "Native Kubernetes ValidatingAdmissionPolicy CREATE and UPDATE enforcement of the SAF-K8S-0702-005 AI classification labels on Pods and Job, Deployment, and StatefulSet templates in one synthetic namespace. Includes absent and ungoverned values, exact denials, selected and unselected namespace probes for the named kinds, valid admitted CREATEs, namespace separation and an admitted Deployment rollout. Namespace enrollment governance, exceptions, CronJobs, DaemonSets, existing-object migration, and production policy rollout are separate.",
+  "cluster": "saf-lab-a5926b90b331",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -237,11 +237,50 @@
     },
     {
       "phase": "positive",
+      "claim": "Governed Job and StatefulSet templates pass active-policy CREATE dry-runs",
+      "matched": true,
+      "observed": [
+        {
+          "kind": "Job",
+          "accepted": true,
+          "detail": ""
+        },
+        {
+          "kind": "StatefulSet",
+          "accepted": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "phase": "positive",
       "claim": "An unlabeled fixture in the unselected namespace remains admissible",
       "matched": true,
       "observed": {
         "outside_scope_admitted": true
       }
+    },
+    {
+      "phase": "positive",
+      "claim": "Unlabeled controller templates remain admissible in the unselected namespace",
+      "matched": true,
+      "observed": [
+        {
+          "kind": "Job",
+          "outside_scope_admitted": true,
+          "detail": ""
+        },
+        {
+          "kind": "Deployment",
+          "outside_scope_admitted": true,
+          "detail": ""
+        },
+        {
+          "kind": "StatefulSet",
+          "outside_scope_admitted": true,
+          "detail": ""
+        }
+      ]
     },
     {
       "phase": "positive",

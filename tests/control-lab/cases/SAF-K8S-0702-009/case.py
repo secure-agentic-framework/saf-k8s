@@ -19,8 +19,10 @@ SCOPE = (
     "Native Kubernetes ValidatingAdmissionPolicy CREATE and UPDATE enforcement of the "
     "SAF-K8S-0702-005 AI classification labels on Pods and Job, Deployment, and StatefulSet "
     "templates in one synthetic namespace. Includes absent and ungoverned values, exact "
-    "denials, namespace separation and an admitted Deployment rollout. Namespace enrollment governance, exceptions, "
-    "CronJobs, DaemonSets, existing objects, and production policy rollout are separate."
+    "denials, selected and unselected namespace probes for the named kinds, valid admitted "
+    "CREATEs, namespace separation and an admitted Deployment rollout. Namespace enrollment "
+    "governance, exceptions, CronJobs, DaemonSets, existing-object migration, and production "
+    "policy rollout are separate."
 )
 
 
@@ -176,12 +178,38 @@ def run(lab):
          else positive_deployment.stderr.strip()},
     )
 
+    positive_controller_templates = [
+        (kind, server_create(lab, template_resource(kind, f"permitted-{kind.lower()}")))
+        for kind in ("Job", "StatefulSet")
+    ]
+    lab.check(
+        "positive", "Governed Job and StatefulSet templates pass active-policy CREATE dry-runs",
+        all(result.returncode == 0 for _, result in positive_controller_templates),
+        [{"kind": kind, "accepted": result.returncode == 0,
+          "detail": result.stderr.strip()}
+         for kind, result in positive_controller_templates],
+    )
+
 
     outside_scope = pod_resource("outside-scope", "missing")
     outside_scope["metadata"]["namespace"] = "saf-test"
     excluded = server_create(lab, outside_scope, "saf-test")
     lab.check("positive", "An unlabeled fixture in the unselected namespace remains admissible",
               excluded.returncode == 0, {"outside_scope_admitted": excluded.returncode == 0})
+
+    unselected_controller_probes = []
+    for kind in ("Job", "Deployment", "StatefulSet"):
+        resource = template_resource(kind, f"outside-{kind.lower()}", "missing")
+        resource["metadata"]["namespace"] = "saf-test"
+        result = server_create(lab, resource, "saf-test")
+        unselected_controller_probes.append((kind, result))
+    lab.check(
+        "positive", "Unlabeled controller templates remain admissible in the unselected namespace",
+        all(result.returncode == 0 for _, result in unselected_controller_probes),
+        [{"kind": kind, "outside_scope_admitted": result.returncode == 0,
+          "detail": result.stderr.strip()}
+         for kind, result in unselected_controller_probes],
+    )
 
     live = template_resource("Deployment", "permitted-live")
     live["spec"]["replicas"] = 1
