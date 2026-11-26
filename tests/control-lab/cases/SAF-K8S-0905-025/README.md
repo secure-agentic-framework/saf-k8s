@@ -1,22 +1,36 @@
-# SAF-K8S-0905-025 — Model promotion separation of duties
+# SAF-K8S-0905-025 — Independent approval of model promotion
 
-Run from the SAF-K8S control-lab checkout with Kubernetes v1.36.1:
+Run from the framework checkout.
 
 ```sh
-python3 lab.py test SAF-K8S-0905-025 --docker-context desktop-linux
+python3 tests/control-lab/lab.py test SAF-K8S-0905-025 --docker-context desktop-linux
 ```
 
-The case uses Kubernetes `ValidatingAdmissionPolicy` to protect one inert
-ConfigMap release record. It first proves the case developer's authenticated
-self-approval persists without policy, resets the same release to pending,
-then checks that policy denies the same request and allows a distinct
-authenticated reviewer to persist the same fixed release decision. Short-lived
-ServiceAccount bearer tokens are used only in temporary mode-0600 kubeconfigs;
-the runner's temporary directory removes them after the run. Token bytes are
-not written to evidence or command logs.
+From the lab checkout, invoke `python3 lab.py` with the same arguments.
+An authenticated fixture developer persists the fixed release approval
+before policy activation. After resetting the release and enabling
+native admission, the same developer request is refused and produces
+no change. An independently authenticated reviewer persists approval
+of the same release. The fixture's short-lived ServiceAccount
+credentials remain in its temporary workspace.
 
-This is Kubernetes admission evidence for a synthetic approval record. It does
-not demonstrate a production model registry or promotion controller, human
-identity federation, reviewer quorum, tenant separation, audit retention, or
-artifact execution. `review.json` records the catalog discrepancy and those
-boundaries. No live case execution has been performed in this scratch review.
+## Verify the adopted promotion workflow
+
+1. Inventory the actual promotion paths, model and release identifiers,
+   developer and reviewer role ownership, identity provider, approved
+   tenant scopes, and any quorum rule.
+2. In an owned staging workflow, compare the same release submitted for
+   developer self-approval and independent approval. Verify actual
+   authenticated identities, effective role assignment, precise refusal
+   and approved execution. Verify each direct or controller-mediated
+   release path.
+3. Where a quorum is required, independently test the actual quorum
+   rule. Compare too few distinct eligible votes, duplicate votes and
+   the accepted number. Preserve the role inventory, decision record,
+   exact release identity and tenant boundary evidence.
+4. Repeat after a role, workflow, identity provider or policy change.
+   Retain decision and deployment review evidence with separate
+   authority to change the policy, assign roles and approve promotion.
+
+[Kubernetes ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
+and [NIST SP 800-53 Rev. 5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final).
