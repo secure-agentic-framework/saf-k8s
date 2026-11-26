@@ -45,6 +45,8 @@ def fetch(reference):
     actual = digest(raw)
     if meta.get("Docker-Content-Digest") != actual:
         raise RuntimeError("registry digest did not match retrieved manifest bytes")
+    if reference.startswith("sha256:") and reference != actual:
+        raise RuntimeError("retrieved manifest does not match the requested digest")
     manifest = json.loads(raw)
     desc, = manifest["layers"]
     _, payload = request(REPO + "/blobs/" + desc["digest"], 200)

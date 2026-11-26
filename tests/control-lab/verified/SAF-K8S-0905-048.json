@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-048",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "7c3ea55e06fbcf2e2f22f363ebc9c5181adfe1a8",
+  "catalog_sha256": "99dfcf4e7690631de3a5a538c5e0434405de93779ba25e0e5ce0cff09d9d7f38",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9cfc884fd61cdb5cb52e80dc826623d180ca144f09944b40467fff589261c6f3",
   "scope": "A pinned Distribution registry stores two harmless model versions in one disposable cluster. Native Kubernetes admission compares a Pod's model reference and release annotation with a named registry digest record. The same mutable tag is admitted before policy and rejected after activation. A correct digest passes admission and resolves to the original manifest and blob bytes even after the separate mutable tag is updated. This exercises server dry-run admission and a fixture registry consumer.",
-  "review_timing": {
-    "queued_at": "2026-11-23T00:23:12.036945+00:00",
-    "cluster_ready_at": "2026-11-23T00:23:42.965609+00:00",
-    "approval_at": "2026-11-23T00:28:26.528124+00:00",
-    "case_loaded_at": "2026-11-23T00:28:26.561744+00:00"
-  },
-  "cluster": "saf-lab-b46828af9c8e",
+  "cluster": "saf-lab-02060a14ae23",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "f5be047d70e96d053df7a8951b5646ee9a6f7aa8e8b2a682c127cc2f3fa71577",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
