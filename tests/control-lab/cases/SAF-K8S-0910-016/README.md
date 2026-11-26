@@ -20,3 +20,14 @@ The raw receipt records both API identifiers and the target Deployment UID.
 The normalized receipt retains outcomes and stable gateway observations.
 Deployed workload identity federation, credential rotation and revocation,
 routing, scheduling and fleet coverage require separate evidence.
+
+## Fixture evidence handling
+
+The lab logger records stdin payloads verbatim. The case writes the
+three fixture TLS Secret manifests to mode-0600 files inside the existing
+mode-0700 temporary directory, calls `kubectl create -f <file> -o name`, and
+unlinks each manifest immediately. It does not read the Secret back or include
+key/certificate material in its normalized evidence. The positive gateway
+event predicate also requires a nonempty authenticated TLS peer certificate
+and negotiated TLS 1.3, alongside the existing exact URI-to-placement event.
+The case retains three grouped checks.

@@ -1,6 +1,7 @@
 """Exercise federated orchestration identity and exact placement authorization."""
 import importlib.util
 import json
+import os
 import tempfile
 import time
 from pathlib import Path
@@ -75,6 +76,27 @@ def create(kube, obj):
     return kube("create", "-f", "-", payload=json.dumps(obj))
 
 
+def create_secret_file(kube, obj, directory):
+    """Create a fixture Secret without sending its private bytes to commands.log."""
+    descriptor, path = tempfile.mkstemp(prefix="saf-0910-016-secret-", suffix=".json",
+                                        dir=directory)
+    secret_path = Path(path)
+    try:
+        os.fchmod(descriptor, 0o600)
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            descriptor = -1
+            stream.write(json.dumps(obj))
+            stream.flush()
+            os.fsync(stream.fileno())
+        # The command logger records argv and command output, but never reads
+        # this file. -o name avoids Secret data in kubectl output.
+        kube("create", "-f", str(secret_path), "-o", "name")
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+        secret_path.unlink(missing_ok=True)
+
+
 def namespace_and_policy(peer):
     peer("label", "namespace", NS, "saf-fixture=0910-016", "--overwrite")
     create(peer, row("ServiceAccount", GATEWAY, automountServiceAccountToken=True))
@@ -106,13 +128,13 @@ def namespace_and_policy(peer):
                      }))
 
 
-def peer_workloads(lab, peer, image, code, credentials):
+def peer_workloads(lab, peer, image, code, credentials, secret_directory):
     create(peer, row("ConfigMap", CODE, immutable=True,
                      data={"orchestration_fixture.py": code.read_text()}))
-    create(peer, row("Secret", TLS, type="Opaque", stringData={
+    create_secret_file(peer, row("Secret", TLS, type="Opaque", stringData={
         "ca.crt": credentials["ca"].read_text(), "tls.crt": credentials["server_cert"].read_text(),
         "tls.key": credentials["server_key"].read_text(),
-    }))
+    }), secret_directory)
     nodeports = {}
     for name, mode in ((BASELINE_GATEWAY, "baseline"), (ENFORCED_GATEWAY, "enforced")):
         pod = row("Pod", name, metadata={"name": name, "namespace": NS, "labels": {"app": name}},
@@ -135,14 +157,14 @@ def peer_workloads(lab, peer, image, code, credentials):
     return nodeports
 
 
-def source_clients(lab, image, code, credentials):
+def source_clients(lab, image, code, credentials, secret_directory):
     create(lab.kubectl, row("ConfigMap", CODE, immutable=True,
                             data={"orchestration_fixture.py": code.read_text()}))
     for name, cert_key in ((APPROVED, "approved"), (ALTERNATE, "alternate")):
-        create(lab.kubectl, row("Secret", f"{name}-tls", type="Opaque", stringData={
+        create_secret_file(lab.kubectl, row("Secret", f"{name}-tls", type="Opaque", stringData={
             "ca.crt": credentials["ca"].read_text(), "tls.crt": credentials[f"{cert_key}_cert"].read_text(),
             "tls.key": credentials[f"{cert_key}_key"].read_text(),
-        }))
+        }), secret_directory)
         create(lab.kubectl, row("Pod", name, metadata={"name": name, "namespace": NS}, spec={
             "restartPolicy": "Always", "automountServiceAccountToken": False,
             "securityContext": {"fsGroup": 65534}, "containers": [container(
@@ -205,8 +227,8 @@ def run(lab):
         with tempfile.TemporaryDirectory(prefix="saf-0910-016-pki-") as temporary:
             credentials = certs(lab, Path(temporary))
             code = HERE / "orchestration_fixture.py"
-            ports = peer_workloads(lab, peer, image, code, credentials)
-            source_clients(lab, image, code, credentials)
+            ports = peer_workloads(lab, peer, image, code, credentials, Path(temporary))
+            source_clients(lab, image, code, credentials, Path(temporary))
             for name in (BASELINE_GATEWAY, ENFORCED_GATEWAY):
                 peer("wait", "--for=condition=Ready", f"pod/{name}", "--timeout=90s", timeout=100)
 
@@ -275,7 +297,9 @@ def run(lab):
                       for line in peer("logs", "pod/" + name).stdout.splitlines() if line.startswith("{")]
             expected_event = {"event": "orchestration", "mode": "enforced", "principal": ALLOWED_URI,
                               "decision": "created", "target_cluster": "peer", "namespace": NS,
-                              "name": WORKLOAD, "api_status": 201}
+                              "name": WORKLOAD, "api_status": 201,
+                              "peer_certificate_authenticated": True,
+                              "tls_version_is_1_3": True}
             positive = {
                 "approved_request_reached_target_api": approved == {"status": 201, "decision": "created",
                                                                       "principal": ALLOWED_URI},

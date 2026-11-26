@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0910-016",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "7007ee237ed349d96fde7ac4300cb415ccd39192",
+  "catalog_sha256": "f90c94c673d20660168dfaa86a14af064fc386b44cfe4af6b5263d264c1e59b3",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9cee42c1b40128e67899036732d5937ade1f75fab9ce8530e96f7a65d695d4e3",
   "scope": "Two distinct owned Kind APIs. A source-cluster orchestrator calls one private peer-cluster mTLS gateway. The gateway measures the certificate URI and gates one exact deployment placement; its separate Kubernetes service account is limited to Deployment CREATE in the target namespace, and target admission independently constrains the resource name and fixture labels. Baseline accepts a same-CA alternate URI; enforced mode refuses that identity and an alternate placement, then allows the approved request to persist on the peer API.",
-  "cluster": "saf-lab-e3633907c040",
+  "cluster": "saf-lab-d1fb37bd9c1c",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

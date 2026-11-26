@@ -100,7 +100,10 @@ class Handler(BaseHTTPRequestHandler):
             decision, reason = ("created", None) if status == 201 else ("target-api-refused", None)
         event = {"event": "orchestration", "mode": mode, "principal": who,
                  "decision": decision, "target_cluster": "peer", "namespace": NAMESPACE,
-                 "name": name if isinstance(name, str) else None, "api_status": status}
+                 "name": name if isinstance(name, str) else None, "api_status": status,
+                 "peer_certificate_authenticated": bool(
+                     self.connection.getpeercert(binary_form=True)),
+                 "tls_version_is_1_3": self.connection.version() == "TLSv1.3"}
         print(json.dumps(event, sort_keys=True), flush=True)
         payload = {"status": status, "decision": decision, "principal": who}
         if reason:
