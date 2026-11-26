@@ -1,9 +1,16 @@
 """Verify a documented local authorization path from a mapped fixture group."""
 
 import json
+import importlib.util
 import time
+from pathlib import Path
 
-SCOPE = "Synthetic external identity mapping and actual namespaced Kubernetes RBAC for owned markers."
+HERE = Path(__file__).resolve().parent
+OIDC_SPEC = importlib.util.spec_from_file_location("saf_0704_015_oidc_bridge", HERE / "oidc_bridge.py")
+oidc_bridge = importlib.util.module_from_spec(OIDC_SPEC)
+OIDC_SPEC.loader.exec_module(oidc_bridge)
+
+SCOPE = "Synthetic identity mapping and live Kubernetes RBAC plus a case-owned native OIDC JWT path for owned markers."
 NAMESPACE = "saf-test"
 ALLOWED = "entitlement-approved"
 COMPARISON = "entitlement-comparison"
@@ -68,3 +75,4 @@ def run(lab):
                     "before_binding": before, "approved_read": after == MARKER,
                     "comparison_object": comparison, "unrelated_identity": unrelated}
     (lab.evidence / "entitlement-observations.json").write_text(json.dumps(observations, indent=2) + "\n")
+    oidc_bridge.run_native_oidc_checks(lab, here=HERE)

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0704-015",
-  "catalog_revision": "df8499c7e43db0107b3bd154530be60ad274c36d",
-  "catalog_sha256": "77523c5f787b863994817882376088268ae5e91f329f8ec8103c5077a6b9e5d4",
+  "catalog_revision": "c3d57dc0cd9ac8223063a76a9a7018fb288355bf",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "ba458528bd1089151cb330c6f395958ade33e412cf1405dc878657ce96c57f91",
-  "scope": "Synthetic external identity mapping and actual namespaced Kubernetes RBAC for owned markers.",
-  "cluster": "saf-lab-2d2b5b554295",
+  "scope": "Synthetic identity mapping and live Kubernetes RBAC plus a case-owned native OIDC JWT path for owned markers.",
+  "cluster": "saf-lab-cf902e715cb6",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -63,6 +63,41 @@
       "observed": {
         "comparison_object": "forbidden",
         "unrelated_identity": "forbidden"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The signed fixture JWT is not authenticated before its issuer is configured",
+      "matched": true,
+      "observed": {
+        "unconfigured_jwt_rejected": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The native JWT authenticator maps the approved group to only its named RBAC read",
+      "matched": true,
+      "observed": {
+        "mapped_group_marker_allowed": true,
+        "unrelated_group_denied": true,
+        "wrong_audience_rejected": true,
+        "unlisted_object_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Removing the scoped RoleBinding revokes the authenticated OIDC read",
+      "matched": true,
+      "observed": {
+        "authenticated_group_without_binding_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The restored API is Ready and no longer authenticates the fixture issuer",
+      "matched": true,
+      "observed": {
+        "restored_fixture_jwt_rejected": true
       }
     }
   ]
