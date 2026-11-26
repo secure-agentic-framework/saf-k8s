@@ -138,6 +138,39 @@ def fixed_role_denial(role_arn):
            no_session_issued=credentials is None, error_class=error or "none")
 
 
+def workflow_read(stage):
+    """Read only the two fixed stage markers using this Pod's projected identity."""
+    if stage not in ("a", "b"):
+        raise SystemExit("unknown fixed workflow stage")
+    claims, audiences = token_claims()
+    expected_sub = f"system:serviceaccount:saf-test:stage-{stage}"
+    sts_status, credentials, error = assume_role(role(stage))
+    if credentials is None:
+        output("workflow-read", stage=stage, sts_status=sts_status,
+               identity_matches=False, own_read_allowed=False,
+               cross_read_denied=False, error_class=error or "none")
+        return
+    own_bucket = BUCKETS[stage]
+    other_stage = "b" if stage == "a" else "a"
+    own_key = MARKER_KEYS[stage]
+    cross_bucket = BUCKETS[other_stage]
+    cross_key = MARKER_KEYS[other_stage]
+    own_status, own_body = s3_request("GET", own_bucket, own_key, credentials)
+    expected_hash = hashlib.sha256(Path(f"/fixture/stage-{stage}-marker.txt").read_bytes()).hexdigest()
+    cross_status, _ = s3_request("GET", cross_bucket, cross_key, credentials)
+    expiry = claims.get("exp")
+    output("workflow-read", stage=stage, sts_status=sts_status,
+           identity_matches=(credentials.get("subject") == expected_sub
+                             and claims.get("sub") == expected_sub
+                             and AUDIENCE in audiences),
+           own_read_allowed=(own_status == 200),
+           own_marker_matches=(own_status == 200
+                               and hashlib.sha256(own_body).hexdigest() == expected_hash),
+           cross_read_denied=(cross_status == 403),
+           projected_expiry_window=(isinstance(expiry, int)
+                                    and 0 < expiry - int(time.time()) <= 660))
+
+
 def positive(stage, wait_for_expiry=False):
     claims, audiences = token_claims()
     expected_sub = f"system:serviceaccount:saf-test:stage-{stage}"
@@ -270,6 +303,10 @@ def main():
         positive("b")
     elif operation == "positive-expiry":
         positive("a", wait_for_expiry=True)
+    elif operation == "workflow-read-a":
+        workflow_read("a")
+    elif operation == "workflow-read-b":
+        workflow_read("b")
     elif operation == "deny-stage-b-role":
         fixed_role_denial(role("b"))
     elif operation == "deny-stage-a-role":

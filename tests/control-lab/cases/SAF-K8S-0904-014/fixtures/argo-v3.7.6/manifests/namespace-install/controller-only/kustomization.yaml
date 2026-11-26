@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: saf-test
+resources:
+  - ../../base/crds/minimal
+  - ../../base/workflow-controller
+  - ../workflow-controller-rbac
+images:
+  - name: quay.io/argoproj/workflow-controller
+    newName: quay.io/argoproj/workflow-controller
+    digest: sha256:48d3d1aaac21928c59e4afad62bd4112626dea003ddb7b808fa28382c593d63b
+patches:
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: workflow-controller
+    path: namespaced-overlay.yaml
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: workflow-controller
+    path: executor-image-patch.yaml

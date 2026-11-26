@@ -16,3 +16,27 @@ Fifteen checks verify stage-scoped operations on a pinned disposable SeaweedFS 4
 - [SeaweedFS 4.53 role trust context](https://github.com/seaweedfs/seaweedfs/blob/4.53/weed/iam/integration/iam_manager.go#L1924-L2003)
 
 A separate owned bucket holds one inert due marker and one nonmatching comparator. The case checks both exact objects before manually invoking one bounded SeaweedFS lifecycle worker pass. It observes removal of the due marker and retains the exact comparator digest. The manual pass demonstrates selected expiration behavior. Verify automatic scheduling, versions, replicas, retention exceptions and physical reclamation in the actual provider environment.
+
+## Workflow stage identity
+
+The pinned namespace-scoped Argo controller reconciles two serial Workflows.
+Each task Pod's owner UID and effective stage ServiceAccount must match the
+exact Workflow. The task uses an audience-scoped projected token to obtain
+temporary SeaweedFS credentials. It reads its own fixed marker and receives
+a 403 for the other stage marker. The separate executor ServiceAccount has
+only the named workflow result permissions used by this fixture.
+
+The pinned Argo version uses a Kubernetes executor token Secret for this
+fixture. The token stays inside the disposable cluster and presence checks
+emit only a Boolean. Verify the adopted executor model, live workflow and
+provider identities, credential lifecycle and classification-aligned
+retention with the applicable release and operational policy.
+
+[Argo workflow RBAC](https://argo-workflows.readthedocs.io/en/release-3.7/workflow-rbac/)
+
+The controller fixture is rendered from namespace-scoped Argo Workflows v3.7.6
+manifests with the server excluded and both images pinned. Verify the staged
+upstream inputs and render with `python3 fixtures/verify_argo_inputs.py` from
+the case directory.
+
+[Upstream release](https://github.com/argoproj/argo-workflows/tree/v3.7.6/manifests/namespace-install) · [Upstream license](fixtures/argo-v3.7.6/LICENSE)

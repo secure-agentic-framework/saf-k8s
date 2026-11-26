@@ -1,0 +1,26 @@
+{
+  "upstream": "https://github.com/argoproj/argo-workflows/tree/v3.7.6/manifests/namespace-install",
+  "release": "v3.7.6",
+  "controller_image": "quay.io/argoproj/workflow-controller:v3.7.6",
+  "controller_index_digest": "sha256:48d3d1aaac21928c59e4afad62bd4112626dea003ddb7b808fa28382c593d63b",
+  "controller_linux_amd64_digest": "sha256:58cd7d7cf1eab71b7f6c91384244af255cc6a8839a37f9a97c06c34594ca7722",
+  "controller_linux_arm64_digest": "sha256:6b99dd5cc5f74187ed3616bb3334385613cc9555407304709c74e0a72371b3ec",
+  "controller_index_raw_sha256": "48d3d1aaac21928c59e4afad62bd4112626dea003ddb7b808fa28382c593d63b",
+  "executor_image": "quay.io/argoproj/argoexec:v3.7.6",
+  "executor_index_digest": "sha256:a0be2f7650e76830730164806310b5a0841e107589e5b776c5334a69f101bf62",
+  "executor_linux_amd64_digest": "sha256:67a991033f142e4c8cacff5c428ce3fa0f2e3e608c41b7cc6a4f64fc48885af4",
+  "executor_linux_arm64_digest": "sha256:eb8de7b8be24c45e8b8dcffc5a02e10d95eaca5cfd061a51d43debbf717e23ff",
+  "executor_index_raw_sha256": "a0be2f7650e76830730164806310b5a0841e107589e5b776c5334a69f101bf62",
+  "controller_only_manifest_sha256": "2722e40b7083543dcd32abf2cc09dab106146f2bceb03e8fedbab336bdde0199",
+  "controller_only_manifest_path": "argo-controller-only.yaml",
+  "oci_index_evidence": {
+    "controller": "argo-oci-workflow-controller-v3.7.6.json",
+    "executor": "argo-oci-argoexec-v3.7.6.json",
+    "media_type": "application/vnd.docker.distribution.manifest.list.v2+json",
+    "verified_platforms": [
+      "linux/amd64",
+      "linux/arm64"
+    ],
+    "index_source": "Parent-provided exact official Quay raw OCI index response bytes; raw file SHA-256 equals index digest."
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "repository": "argoproj/argo-workflows",
+  "ref": "v3.7.6",
+  "files": {
+    "manifests/namespace-install/kustomization.yaml": "23010a2aca856e90bec41ec3a69d5b73cb9c9c96",
+    "manifests/base/crds/minimal/kustomization.yaml": "6a479e4de9e7b115d4960515f57fe6d0e25d4189",
+    "manifests/base/workflow-controller/kustomization.yaml": "a0192952c89010f8ff303e90706bc7d20e26e6d6",
+    "manifests/namespace-install/workflow-controller-rbac/kustomization.yaml": "f7b23b2b0bc55c50844a013a3f19efbb3fb8b8ca",
+    "manifests/base/workflow-controller/workflow-controller-deployment.yaml": "dd3526a6661f9957d6e10b10644723a96fc8e0f2",
+    "manifests/base/workflow-controller/workflow-controller-configmap.yaml": "d28f4edb3f288b1a5990a9643b9ee54682a1dc4f",
+    "manifests/base/workflow-controller/workflow-controller-sa.yaml": "f3d5885df98b66d1d591437f691b22fc0f75b23f",
+    "manifests/base/workflow-controller/workflow-controller-priorityclass.yaml": "23c12a1d2a5cdb6616ce00e66e9f09daff8b4f79",
+    "manifests/namespace-install/workflow-controller-rbac/workflow-controller-role.yaml": "4e8df30fa5f24b1b1ce318a7a7f436b0a028d8e7",
+    "manifests/namespace-install/workflow-controller-rbac/workflow-controller-rolebinding.yaml": "720de37c553cfc9611a2ae4652d0bf8d52400f1b",
+    "manifests/namespace-install/overlays/workflow-controller-deployment.yaml": "731d29761d0bb40695663b3eab684fa5e708ccc0",
+    "manifests/base/crds/minimal/argoproj.io_workflows.yaml": "7a5b598d5929bf9b9cf136d5489563d4814f8968",
+    "manifests/base/crds/minimal/argoproj.io_workflowtaskresults.yaml": "ebcdcb835feada52af484d61712bfb423c2f790b",
+    "manifests/base/crds/minimal/argoproj.io_workflowtemplates.yaml": "8165ec25b8ba2a470fe983a8f6a8da7f1c32d108",
+    "manifests/base/crds/minimal/argoproj.io_cronworkflows.yaml": "812cf1143484b7cca086694a724b8f0c4fad73cf",
+    "manifests/base/crds/minimal/argoproj.io_workflowtasksets.yaml": "22cf52b199a037a415db4d35221155571428508a",
+    "manifests/base/crds/minimal/argoproj.io_workflowartifactgctasks.yaml": "f97e9b37fb2ac3a1296266679e88e21d96854971",
+    "manifests/base/crds/minimal/argoproj.io_clusterworkflowtemplates.yaml": "889dfe2f508f5a018671d013361942c0b97e1e41",
+    "manifests/base/crds/minimal/argoproj.io_workfloweventbindings.yaml": "0cb90788267928ad3687b9b75dcefe945ea816df"
+  },
+  "notes": "GitHub API source blob SHA-1 values. The local controller-only Kustomize root is a candidate-specific render from the listed exact upstream files. Additional reference blob IDs record Argo executor-token behavior reviewed for this candidate.",
+  "reference_blob_ids": {
+    "workflow/controller/workflowpod.go": "b128e753626c5f4dc66aa15348fe222660a3dfd7",
+    "workflow/controller/operator.go": "7eaca5e78c8435f114f57feead8426a8f88f2de3",
+    "util/secrets/secret_name.go": "dc8730a405729591bbb1dbc20229444daf1a1e82",
+    "workflow/common/common.go": "03ca2db607d66c53b43c4d33a604b4f4951cdf2c",
+    "pkg/apis/workflow/v1alpha1/workflow_types.go": "1e9e27167475717c636385edbf7d002c55558ae6"
+  }
+}

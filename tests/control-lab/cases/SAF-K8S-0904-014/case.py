@@ -1,10 +1,12 @@
 """Stage-scoped artifact access and lifecycle configuration on SeaweedFS 4.53."""
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
 import tempfile
 import time
+from types import SimpleNamespace
 from urllib.parse import urlsplit
 
 HERE = Path(__file__).resolve().parent
@@ -39,8 +41,8 @@ SCOPE = (
     "stage-specific lifecycle config readback. An additive phase uses native Kubernetes TokenRequest "
     "projected ServiceAccount tokens with the disposable API server's discovered OIDC issuer/JWKS, "
     "SeaweedFS STS and synthetic bucket-scoped roles; its short configured-default STS credentials "
-    "are checked before and after actual elapsed expiry. No production controller/provider behavior "
-    "is claimed. The case does not establish production storage, encryption, or backing-byte reclamation."
+    "are checked before and after actual elapsed expiry. The pinned Argo controller creates two "
+    "separate stage Pods and the fixture observes their effective identities and owned marker access."
 )
 
 
@@ -771,3 +773,12 @@ def run(lab):
               expiry_probe.get("expired_denied") is True,
               {"after_expiry_status": expiry_probe.get("after_expiry_status"),
                "expired_denied": expiry_probe.get("expired_denied")})
+
+    workflow_path = HERE / "workflow_identity.py"
+    spec = importlib.util.spec_from_file_location("saf_stage_workflow_identity", workflow_path)
+    if spec is None or spec.loader is None:
+        lab.block("The scoped workflow identity helper is unavailable")
+    workflow = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(workflow)
+    workflow.run(lab, SimpleNamespace(NAMESPACE=NAMESPACE, FED_CONFIGMAP=FED_CONFIGMAP,
+                                      FED_AUDIENCE=FED_AUDIENCE, CLIENT_IMAGE=CLIENT_IMAGE))

@@ -1,0 +1,3 @@
+- op: add
+  path: /spec/template/spec/containers/0/args/-
+  value: --executor-image=quay.io/argoproj/argoexec@sha256:a0be2f7650e76830730164806310b5a0841e107589e5b776c5334a69f101bf62
