@@ -4,8 +4,8 @@
   "catalog_sha256": "2c64b528d6ce53bc55f7f00c9edd1c6ef7a62b9317cf385dfac62bb74ef83090",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "8f9599a94337887cfc4ce505b730692c4c58c2dbf5344dde1a22aa9c2cdf102a",
-  "scope": "An isolated Kind hub and actual second member cluster. A harmless operator suspension revokes new placement authorization on the member and drains the specific fixture workload. A distinct, scoped reviewer approves the exact member UID and suspension marker. The member stays denied until the approval is accepted, after which a new prepared fixture workload becomes ready.",
-  "cluster": "saf-lab-737e16e27d13",
+  "scope": "An isolated Kind hub and actual second member cluster. Kubernetes TokenReview attributes a fixed synthetic isolation signal to an exact fixture service account; a benign comparator remains placeable. A harmless operator suspension revokes new placement authorization on the member and drains the specific fixture workload. A distinct, scoped reviewer approves the exact member UID and suspension marker. The member stays denied until the approval is accepted, after which a new prepared fixture workload becomes ready.",
+  "cluster": "saf-lab-5faa5a69b489",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -38,6 +38,19 @@
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
+    {
+      "phase": "signal",
+      "claim": "Authenticated clear signal is a no-op; unapproved or wrong-member signals cannot change placement state",
+      "matched": true,
+      "observed": {
+        "trusted_source_clear_accepted": true,
+        "clear_left_hold_empty_and_comparator_ready": true,
+        "other_source_isolate_refused": true,
+        "wrong_member_isolate_refused": true,
+        "hold_and_approval_unchanged_after_refusals": true,
+        "token_material_recorded": false
+      }
+    },
     {
       "phase": "red",
       "claim": "An active member receives and runs the owned fixture workload",

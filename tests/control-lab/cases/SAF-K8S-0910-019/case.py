@@ -3,6 +3,7 @@ import importlib.util
 import json
 from pathlib import Path
 import re
+import subprocess
 import time
 from urllib.parse import urlsplit
 
@@ -18,10 +19,15 @@ SUSPENDED = "fixture-workload-suspended"
 RESTORED = "fixture-workload-restored"
 OPERATOR = "fixture-platform-operator"
 APPROVER = "fixture-security-reviewer"
+SIGNAL_SOURCE = "fixture-isolation-signal-source"
+SIGNAL_OTHER = "fixture-unapproved-signal-source"
+SIGNAL_AUDIENCE = "fixture-federation-isolation-signal"
 HOLD = "fixture-federation-hold"
 APPROVAL = "fixture-readmission-approval"
 SCOPE = (
-    "An isolated Kind hub and actual second member cluster. A harmless operator suspension revokes "
+    "An isolated Kind hub and actual second member cluster. Kubernetes TokenReview attributes a "
+    "fixed synthetic isolation signal to an exact fixture service account; a benign comparator "
+    "remains placeable. A harmless operator suspension revokes "
     "new placement authorization on the member and drains the specific fixture workload. A distinct, "
     "scoped reviewer approves the exact member UID and suspension marker. The member stays denied "
     "until the approval is accepted, after which a new prepared fixture workload becomes ready."
@@ -61,6 +67,50 @@ def disposition(lab, record, actor, value):
     return lab.kubectl("patch", "configmap", record, "--type=merge", "-p",
                         json.dumps({"data": {"claim.json": json.dumps(value)}}),
                         f"--as={identity(actor)}", allow_failure=True)
+
+
+
+def private_kubectl(lab, *args, payload=None):
+    """Run credential-bearing calls without retaining stdout/stderr in the lab transcript."""
+    command = ["kubectl", "--kubeconfig", str(lab.kubeconfig), "--context", f"kind-{lab.cluster}",
+               "--namespace", NS, "--request-timeout=12s", *args]
+    try:
+        result = subprocess.run(command, input=payload, text=True, capture_output=True,
+                                env=lab.env, timeout=20)
+    except (OSError, subprocess.TimeoutExpired):
+        lab.block("A private signal-identity API request did not complete")
+    if result.returncode:
+        lab.block("A private signal-identity API request failed")
+    return result.stdout
+
+
+def signal_token(lab, account):
+    body = {"apiVersion": "authentication.k8s.io/v1", "kind": "TokenRequest",
+            "spec": {"audiences": [SIGNAL_AUDIENCE], "expirationSeconds": 600}}
+    raw = private_kubectl(lab, "create", f"--raw=/api/v1/namespaces/{NS}/serviceaccounts/{account}/token",
+                          "-f", "-", payload=json.dumps(body))
+    return json.loads(raw)["status"]["token"]
+
+
+def review_signal_token(lab, token):
+    body = {"apiVersion": "authentication.k8s.io/v1", "kind": "TokenReview",
+            "spec": {"token": token, "audiences": [SIGNAL_AUDIENCE]}}
+    status = json.loads(private_kubectl(lab, "create", "--raw=/apis/authentication.k8s.io/v1/tokenreviews",
+                                        "-f", "-", payload=json.dumps(body))).get("status", {})
+    return (status.get("authenticated") is True,
+            status.get("user", {}).get("username"),
+            SIGNAL_AUDIENCE in status.get("audiences", []))
+
+
+def accept_signal(lab, token, signal, member_uid):
+    auth = review_signal_token(lab, token)
+    source = f"system:serviceaccount:{NS}:{SIGNAL_SOURCE}"
+    exact_shape = (set(signal) == {"signal_id", "member_uid", "decision", "ticket"}
+                   and signal.get("signal_id") == "fixture-signal-001"
+                   and signal.get("member_uid") == member_uid
+                   and signal.get("decision") in {"clear", "isolate"}
+                   and signal.get("ticket") == "fixture-event-001")
+    return auth[0] and auth[1] == source and auth[2] and exact_shape
 
 
 def query(lab, record):
@@ -124,8 +174,38 @@ def run(lab):
         common.binding(target, ROLE, ROLE, MEMBER)
         grant(lab, OPERATOR, HOLD)
         grant(lab, APPROVER, APPROVAL)
+        for source in (SIGNAL_SOURCE, SIGNAL_OTHER):
+            lab.create(row("ServiceAccount", source, automountServiceAccountToken=False))
         for record in (HOLD, APPROVAL):
             lab.create(row("ConfigMap", record, data={"claim.json": "{}"}))
+
+        # Signals are fixed harmless fixture metadata. The bearer stays in memory and is never
+        # passed through lab.command, printed, or included in an evidence file.
+        trusted_signal_token = signal_token(lab, SIGNAL_SOURCE)
+        other_signal_token = signal_token(lab, SIGNAL_OTHER)
+        clear = {"signal_id": "fixture-signal-001", "member_uid": uid,
+                 "decision": "clear", "ticket": "fixture-event-001"}
+        exact_clear = accept_signal(lab, trusted_signal_token, clear, uid)
+        clear_noop = exact_clear and query(lab, HOLD) == {} and place(target, "fixture-workload-clear") == "placed"
+        if clear_noop:
+            ready(lab, target, "fixture-workload-clear")
+            target.kubectl("delete", "deployment", "fixture-workload-clear", "--wait=true")
+        rejected_untrusted = not accept_signal(lab, other_signal_token,
+            {**clear, "decision": "isolate"}, uid)
+        wrong_member = not accept_signal(lab, trusted_signal_token,
+            {**clear, "member_uid": "fixture-other-member-uid", "decision": "isolate"}, uid)
+        unchanged = query(lab, HOLD) == {} and query(lab, APPROVAL) == {}
+        signal_observation = {"trusted_source_clear_accepted": exact_clear,
+                              "clear_left_hold_empty_and_comparator_ready": clear_noop,
+                              "other_source_isolate_refused": rejected_untrusted,
+                              "wrong_member_isolate_refused": wrong_member,
+                              "hold_and_approval_unchanged_after_refusals": unchanged,
+                              "token_material_recorded": False}
+        lab.check("signal", "Authenticated clear signal is a no-op; unapproved or wrong-member signals cannot change placement state",
+                  exact_clear and clear_noop and rejected_untrusted and wrong_member and unchanged,
+                  signal_observation)
+        # Later records remain in local scope only; do not retain token objects.
+        del trusted_signal_token, other_signal_token
 
         baseline = place(target, INITIAL)
         if baseline == "placed":
@@ -135,7 +215,14 @@ def run(lab):
                "initial_workload_is_running": original.strip() == "1"}
         lab.check("red", "An active member receives and runs the owned fixture workload", all(red.values()), red)
 
-        hold = {"member_uid": uid, "decision": "suspended", "ticket": "fixture-hold-001"}
+        hold = {"member_uid": uid, "decision": "suspended", "ticket": "fixture-event-001"}
+        isolation_signal = {"signal_id": "fixture-signal-001", "member_uid": uid,
+                            "decision": "isolate", "ticket": "fixture-event-001"}
+        signal_credential = signal_token(lab, SIGNAL_SOURCE)
+        signal_authorized = accept_signal(lab, signal_credential, isolation_signal, uid)
+        del signal_credential
+        if not signal_authorized:
+            lab.block("The exact fixture isolation signal lacked an authenticated approved source")
         requested = disposition(lab, HOLD, OPERATOR, hold)
         if requested.returncode or query(lab, HOLD) != hold:
             lab.block("The scoped operator could not persist the exact suspension")
@@ -168,5 +255,5 @@ def run(lab):
         lab.check("positive", "Separately approved readmission restores actual scoped placement",
                   all(positive.values()), positive)
     (lab.evidence / "federation-membership.json").write_text(json.dumps({
-        "baseline": red, "suspension": green, "readmission": positive,
+        "signal": signal_observation, "baseline": red, "suspension": green, "readmission": positive,
     }, sort_keys=True, indent=2) + "\n")
