@@ -8,7 +8,7 @@ import time
 import urllib.error
 import urllib.request
 
-from fixtures import BUSYBOX_IMAGE
+from fixtures import BUSYBOX_IMAGE, container, pod
 
 
 QUARANTINE = "saf-model-quarantine"
@@ -33,16 +33,18 @@ MODEL_METADATA_SHA256 = hashlib.sha256(
 
 SCOPE = (
     "A disposable Kubernetes v1.36.1 Kind cluster uses synthetic public-model metadata only; "
-    "no model bytes or scanner signatures are downloaded or created. The case applies a restricted "
-    "quarantine namespace and default-deny ingress/egress NetworkPolicy, then uses the built-in "
+    "no model bytes or scanner signatures are downloaded or created. Bundled kindnet is checked "
+    "ready. The case applies a restricted quarantine namespace and default-deny ingress/egress "
+    "NetworkPolicy, then proves its egress effect against two case-owned marker-only listeners "
+    "with one exact allow exception and an unaffected comparator. It then uses the built-in "
     "Pod Security Admission controller and a ValidatingAdmissionPolicy to reject nonconforming "
     "pods and release pods whose clean-scan decision or exact metadata digest does not match. "
     "A narrowly bound ServiceAccount creates the positive release pod through the Kubernetes API; "
     "a different ServiceAccount is denied. Synthetic offline scanner records exercise malware, "
     "unsafe-format, embedded-content, missing, and subject-mismatch decisions. This verifies the "
     "fixture policy, Kubernetes admission, API authorization, and exact metadata-digest readback. "
-    "It does not execute a scanner, inspect actual model content, prove NetworkPolicy packet drops "
-    "on Kind's default CNI, or prove production scanner coverage, source authenticity, model "
+    "It does not execute a scanner, inspect actual model content, prove a CNI other than this "
+    "pinned bundled kindnet fixture, or prove production scanner coverage, source authenticity, model "
     "behavioral safety, promotion workflow adoption, or durable audit storage."
 )
 
@@ -195,6 +197,179 @@ def create_in(lab, namespace, obj):
     result = lab.kubectl("-n", namespace, "create", "-f", "-", "-o", "json",
                          payload=json.dumps(obj, sort_keys=True))
     return json.loads(result.stdout)
+
+
+MARKER_NS = "saf-model-marker-fixture"
+CONTROL_NS = "saf-model-marker-control"
+APPROVED_MARKER = "saf-model-approved-marker-0905-044"
+DENIED_MARKER = "saf-model-unapproved-marker-0905-044"
+MARKER_PORT = 8080
+APPROVED_MARKER_POD = "approved-marker"
+DENIED_MARKER_POD = "unapproved-marker"
+MARKER_CONTROL_POD = "unaffected-client"
+EGRESS_EXCEPTION = "quarantine-approved-marker-only"
+
+
+def _marker_pod(name, marker=None, *, client=False, namespace):
+    if client:
+        c = container("probe", command=["sh", "-ec", "sleep 900"])
+    else:
+        body = APPROVED_MARKER if marker == "approved" else DENIED_MARKER
+        serve = (f"printf '%s' '{body}' >/tmp/marker.txt; "
+                 f"exec httpd -f -p {MARKER_PORT} -h /tmp")
+        c = container("marker", command=["sh", "-ec", serve],
+                      ports=[{"name": "http", "containerPort": MARKER_PORT}],
+                      readinessProbe={"tcpSocket": {"port": MARKER_PORT},
+                                      "periodSeconds": 1, "failureThreshold": 30})
+    obj = pod(name, [c], automountServiceAccountToken=False)
+    obj["metadata"]["namespace"] = namespace
+    obj["metadata"]["labels"] = {"saf.example/marker-role": "client" if client else marker}
+    return obj
+
+
+def _marker_reachable(lab, namespace, source_pod, target_ip, expected_marker):
+    result = lab.kubectl(
+        "-n", namespace, "exec", source_pod, "--", "wget", "-qT", "2", "-O-",
+        f"http://{target_ip}:{MARKER_PORT}/marker.txt", allow_failure=True, timeout=12)
+    if result.returncode == 0:
+        if result.stdout != expected_marker:
+            lab.block("Owned marker endpoint returned an unexpected response")
+        return True
+    if any(reason in result.stderr.lower()
+           for reason in ("timed out", "timeout", "operation timed out")):
+        return False
+    lab.block("Owned marker request failed outside the expected policy timeout")
+
+
+def _wait_marker(lab, namespace, source_pod, target_ip, expected_marker, should_reach):
+    deadline = time.monotonic() + 26
+    consecutive = 0
+    observed = None
+    while consecutive < 2 and time.monotonic() < deadline:
+        observed = _marker_reachable(lab, namespace, source_pod, target_ip,
+                                     expected_marker)
+        consecutive = consecutive + 1 if observed == should_reach else 0
+        if consecutive < 2:
+            time.sleep(0.25)
+    return consecutive == 2
+
+
+def _wait_case_pod(lab, namespace, name):
+    lab.kubectl("-n", namespace, "wait", "--for=condition=Ready", f"pod/{name}",
+                "--timeout=70s", timeout=80)
+    result = json.loads(lab.kubectl("-n", namespace, "get", f"pod/{name}",
+                                    "-o", "json").stdout)
+    ip = result.get("status", {}).get("podIP")
+    if not ip:
+        lab.block("Owned marker fixture Pod has no Pod IP")
+    return ip
+
+
+def _quarantine_packet_check(lab, default_deny_observed):
+    """Show existing quarantine default-deny with one narrow owned egress exception."""
+    lab.kubectl("-n", "kube-system", "rollout", "status", "daemonset/kindnet",
+                "--timeout=60s", timeout=70)
+    lab.create(_ns(MARKER_NS, "marker-fixture"))
+    lab.create(_ns(CONTROL_NS, "marker-control"))
+    created = []
+    cleanup_ok = True
+    values = {
+        "kindnet_ready": False,
+        "default_deny_policy_present": False,
+        "default_deny_blocks_both_markers": False,
+        "exception_policy_matches": False,
+        "approved_marker_allowed": False,
+        "unapproved_marker_blocked": False,
+        "unaffected_client_reaches_unapproved_marker": False,
+        "approved_marker_blocked_after_exception_removed": False,
+        "exception_removed": False,
+    }
+    try:
+        for name, role in ((APPROVED_MARKER_POD, "approved"),
+                           (DENIED_MARKER_POD, "unapproved")):
+            create_in(lab, MARKER_NS, _marker_pod(name, role, namespace=MARKER_NS))
+            created.append((MARKER_NS, name))
+        create_in(lab, CONTROL_NS, _marker_pod(
+            MARKER_CONTROL_POD, client=True, namespace=CONTROL_NS))
+        created.append((CONTROL_NS, MARKER_CONTROL_POD))
+        approved_ip = _wait_case_pod(lab, MARKER_NS, APPROVED_MARKER_POD)
+        denied_ip = _wait_case_pod(lab, MARKER_NS, DENIED_MARKER_POD)
+        _wait_case_pod(lab, CONTROL_NS, MARKER_CONTROL_POD)
+        _wait_case_pod(lab, QUARANTINE, "quarantined-model-candidate")
+
+        default_blocks = (
+            _wait_marker(lab, QUARANTINE, "quarantined-model-candidate", approved_ip,
+                         APPROVED_MARKER, False)
+            and _wait_marker(lab, QUARANTINE, "quarantined-model-candidate", denied_ip,
+                             DENIED_MARKER, False))
+        control_baseline = _wait_marker(
+            lab, CONTROL_NS, MARKER_CONTROL_POD, denied_ip, DENIED_MARKER, True)
+
+        exception = {
+            "apiVersion": "networking.k8s.io/v1", "kind": "NetworkPolicy",
+            "metadata": {"name": EGRESS_EXCEPTION, "namespace": QUARANTINE},
+            "spec": {
+                "podSelector": {"matchLabels": {SCAN_LABEL: "clean", AUTH_LABEL: "approved"}},
+                "policyTypes": ["Egress"],
+                "egress": [{
+                    "to": [{
+                        "namespaceSelector": {"matchLabels": {
+                            "kubernetes.io/metadata.name": MARKER_NS}},
+                        "podSelector": {"matchLabels": {"saf.example/marker-role": "approved"}},
+                    }],
+                    "ports": [{"protocol": "TCP", "port": MARKER_PORT}],
+                }],
+            },
+        }
+        create_in(lab, QUARANTINE, exception)
+        observed = json.loads(lab.kubectl(
+            "get", "networkpolicy", EGRESS_EXCEPTION, "-n", QUARANTINE, "-o", "json").stdout)
+        policy_matches = observed.get("spec") == exception["spec"]
+        approved_allowed = _wait_marker(
+            lab, QUARANTINE, "quarantined-model-candidate", approved_ip,
+            APPROVED_MARKER, True)
+        denied_stays_blocked = _wait_marker(
+            lab, QUARANTINE, "quarantined-model-candidate", denied_ip,
+            DENIED_MARKER, False)
+        unaffected_stays_allowed = _wait_marker(
+            lab, CONTROL_NS, MARKER_CONTROL_POD, denied_ip, DENIED_MARKER, True)
+
+        deleted = lab.kubectl("-n", QUARANTINE, "delete", "networkpolicy",
+                              EGRESS_EXCEPTION, "--wait=true", timeout=30,
+                              allow_failure=True)
+        cleanup_ok = deleted.returncode == 0
+        recovered_deny = _wait_marker(
+            lab, QUARANTINE, "quarantined-model-candidate", approved_ip,
+            APPROVED_MARKER, False)
+        values = {
+            "kindnet_ready": True,
+            "default_deny_policy_present": default_deny_observed,
+            "default_deny_blocks_both_markers": default_blocks,
+            "exception_policy_matches": policy_matches,
+            "approved_marker_allowed": approved_allowed,
+            "unapproved_marker_blocked": denied_stays_blocked,
+            "unaffected_client_reaches_unapproved_marker": control_baseline and unaffected_stays_allowed,
+            "approved_marker_blocked_after_exception_removed": recovered_deny,
+            "exception_removed": cleanup_ok,
+        }
+    finally:
+        result = lab.kubectl("-n", QUARANTINE, "delete", "networkpolicy", EGRESS_EXCEPTION,
+                             "--ignore-not-found=true", "--wait=true", allow_failure=True)
+        if result.returncode:
+            cleanup_ok = False
+        for namespace, name in created:
+            result = lab.kubectl("-n", namespace, "delete", "pod", name,
+                                 "--ignore-not-found=true", "--wait=true", allow_failure=True)
+            if result.returncode:
+                cleanup_ok = False
+        for namespace in (MARKER_NS, CONTROL_NS):
+            result = lab.kubectl("delete", "namespace", namespace,
+                                 "--ignore-not-found=true", "--wait=true",
+                                 allow_failure=True, timeout=40)
+            if result.returncode:
+                cleanup_ok = False
+    values["owned_fixture_cleanup_succeeded"] = cleanup_ok
+    return values
 
 
 def run(lab):
@@ -389,3 +564,20 @@ def run(lab):
               == MODEL_METADATA_SHA256,
               {"status": clean_status, "digest": clean_readback.get("metadata", {}).get(
                   "annotations", {}).get(APPROVED_DIGEST)})
+
+    default_deny_matches = (observed_policy.get("spec") == {
+        "podSelector": {}, "policyTypes": ["Ingress", "Egress"]})
+    network_evidence = _quarantine_packet_check(lab, default_deny_matches)
+    packet_drop_proven = all(network_evidence.values())
+    raw["quarantine_network_enforcement"] = network_evidence
+    normalized["isolation"]["network_policy_packet_drop_proven"] = packet_drop_proven
+    (lab.evidence / "raw-observations.json").write_text(
+        json.dumps(raw, indent=2, sort_keys=True) + "\n")
+    (lab.evidence / "normalized-evidence.json").write_text(
+        json.dumps(normalized, indent=2, sort_keys=True) + "\n")
+    lab.check("positive",
+              "Bundled kindnet enforces quarantine default-deny and the exact marker-only egress exception",
+              packet_drop_proven,
+              {"namespace": QUARANTINE, "approved_target": APPROVED_MARKER_POD,
+               "denied_target": DENIED_MARKER_POD, "port": MARKER_PORT,
+               "conditions": network_evidence})

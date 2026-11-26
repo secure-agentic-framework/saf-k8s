@@ -1,19 +1,24 @@
-# SAF-K8S-0905-044 public-model intake quarantine and release
+# Verify model quarantine and digest-bound release
 
-`python3 tests/control-lab/lab.py test SAF-K8S-0905-044 --docker-context desktop-linux`
+```sh
+python3 tests/control-lab/lab.py test SAF-K8S-0905-044 --docker-context desktop-linux
+```
 
-An owned Kind cluster accepts an unchecked metadata-only reference in the
-baseline. The quarantine namespace sets restricted Pod Security admission
-and records a default-deny NetworkPolicy. A server dry-run confirms
-restricted admission refuses a nonconforming Pod. A synthetic offline
-scanner decision rejects unsafe, missing or mismatched inputs.
+The case compares unchecked admission with a restricted quarantine namespace.
+It uses fixed synthetic scan results to check category completeness and subject
+digest matching. Native admission and RBAC reject a mismatched digest and an
+unauthorized release identity. An authorized release identity reads back the
+exact digest allowed by those checks.
 
-The release namespace requires the exact reviewed metadata SHA-256 in a Pod
-annotation and a clean decision. Native admission refuses a different
-digest in server dry-run. Kubernetes authorization refuses a distinct
-unapproved ServiceAccount. The authorized principal creates an inert release
-Pod that becomes Ready and carries the exact reviewed digest.
+The bundled kindnet CNI enforces default-deny egress from a quarantine Pod to
+two fixture HTTP endpoints. A temporary policy allows only one endpoint on
+TCP/8080. An independent Pod remains able to reach the other endpoint, and
+removing the exception restores denial. The policy presence assertion and the
+traffic observations are recorded separately.
 
-Actual malware scanners, model artifact bytes, network enforcement packets,
-trusted evidence issuance, and production release paths require separate
-validation. No model code or scanner payload runs.
+For a deployment, identify the CNI and test the quarantine paths with its
+actual selectors and exception rules. Retain the scanner identity, version,
+policy and authenticated result for the input digest. Verify who can approve
+release, how the scanner result is linked to that approval, and how both are
+retained for review. The HTTP endpoints in the reference case serve fixed
+markers, and the scan decisions are supplied by the fixture.
