@@ -9,12 +9,15 @@ HERE = Path(__file__).resolve().parent
 NODE_IMAGE = "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
 FIXTURES = json.loads((HERE / "fixtures.json").read_text(encoding="utf-8"))
 NAMESPACE = FIXTURES["namespace"]
+OTHER_NAMESPACE = NAMESPACE + "-outside"
 SCOPE = (
     "Two case-owned disposable kind Kubernetes v1.36.1 clusters: an intentionally incomplete "
     "red audit policy and a green policy with five explicit Request-level synthetic AI-family rules plus a "
     "Metadata catch-all. Exact ResponseComplete audit-file events are correlated to successful "
     "case-owned API creates, patches, fallback reads, and a harmless ConfigMap control. The "
-    "fixtures are invented CRDs, including a proxy GpuClaim; they are not real AI products, "
+    "green policy additionally captures actual update and delete verbs on these synthetic objects "
+    "and verifies a metadata-only same-resource create in a second owned namespace. "
+    "The fixtures are invented CRDs, including a proxy GpuClaim; they are not real AI products, "
     "GPU plugin APIs, or production audit policy. Request bodies are inert fixture markers, and "
     "fallback events contain only metadata. No response bodies are logged."
 )
@@ -33,7 +36,7 @@ def audit_policy(green: bool) -> dict:
             rules.append({
                 "level": "Request",
                 "namespaces": [NAMESPACE],
-                "verbs": ["create", "patch"],
+                "verbs": ["create", "update", "patch", "delete"],
                 "resources": [{"group": family["group"], "resources": resources}],
             })
         # A name-scoped exclusion checks first-match order without suppressing the other reads.
@@ -92,10 +95,11 @@ def _kind_config(temporary: Path, policy: Path, audit_dir: Path, label: str) -> 
     return config
 
 
-def _resource(group: str, version: str, kind: str, name: str, marker: str) -> dict:
+def _resource(group: str, version: str, kind: str, name: str, marker: str,
+              namespace: str = NAMESPACE) -> dict:
     return {
         "apiVersion": f"{group}/{version}", "kind": kind,
-        "metadata": {"name": name, "namespace": NAMESPACE},
+        "metadata": {"name": name, "namespace": namespace},
         "spec": {"fixtureMarker": marker},
     }
 
@@ -182,14 +186,14 @@ def _audit_records(lab, path: Path) -> list[dict]:
 
 
 def _matching(records: list[dict], *, name: str, resource: str, group: str, verb: str,
-              uri_marker="") -> list[dict]:
+              namespace: str = NAMESPACE, uri_marker="") -> list[dict]:
     return [e for e in records if e.get("stage") == "ResponseComplete"
             and e.get("verb") == verb
             and uri_marker in e.get("requestURI", "")
             and (e.get("objectRef") or {}).get("name") == name
             and (e.get("objectRef") or {}).get("resource") == resource
             and (e.get("objectRef") or {}).get("apiGroup", "") == group
-            and (e.get("objectRef") or {}).get("namespace") == NAMESPACE]
+            and (e.get("objectRef") or {}).get("namespace") == namespace]
 
 
 def _safe_event(event: dict) -> dict:
@@ -201,11 +205,12 @@ def _safe_event(event: dict) -> dict:
 
 
 def _await_exact(lab, audit_path: Path, *, name: str, resource: str, group: str, verb: str,
-                 uri_marker="") -> list[dict]:
+                 namespace: str = NAMESPACE, uri_marker="") -> list[dict]:
     deadline = time.monotonic() + 25
     while time.monotonic() < deadline:
         found = _matching(_audit_records(lab, audit_path), name=name,
-                          resource=resource, group=group, verb=verb, uri_marker=uri_marker)
+                          resource=resource, group=group, verb=verb,
+                          namespace=namespace, uri_marker=uri_marker)
         if found:
             return found
         time.sleep(0.5)
@@ -281,6 +286,9 @@ def run(lab) -> None:
     green_audit = temp / "green-audit" / "audit.log"
     _set_namespace(lab, green_cluster, green_kubeconfig)
     _wait_ready(lab, green_cluster, green_kubeconfig)
+    _kubectl(lab, green_cluster, green_kubeconfig, "create", "namespace", OTHER_NAMESPACE)
+    _kubectl(lab, green_cluster, green_kubeconfig, "wait",
+             f"--for=jsonpath={{.status.phase}}=Active", f"namespace/{OTHER_NAMESPACE}", "--timeout=20s")
 
     red, red_records = _run_red(lab, temp, red_cluster)
     red_ok = (red["control_record_count"] == 1 and red["control_response_code"] == 201
@@ -318,6 +326,60 @@ def run(lab) -> None:
             get_events = _await_exact(lab, green_audit, name=name, resource=plural,
                                       group=family["group"], verb="get", uri_marker="pretty=false")
             green_events.extend(_safe_event(x) for x in get_events)
+
+    # The existing fixture proves create/patch. Add one real update and delete for each
+    # exact synthetic AI resource so those separate API verbs are selected too.
+    verb_comparisons = []
+    for family in FAMILIES:
+        entries = [(family["plural"], family["name"])]
+        if "also" in family:
+            entries.append((family["also"]["plural"], family["also"]["name"]))
+        for plural, name in entries:
+            resource = f"{plural}.{family['group']}"
+            current = json.loads(_kubectl(
+                lab, green_cluster, green_kubeconfig, "get", resource, name,
+                "--namespace", NAMESPACE, "-o", "json").stdout)
+            current.setdefault("spec", {})["fixtureMarker"] = "updated-via-put"
+            _kubectl(lab, green_cluster, green_kubeconfig, "replace", "-f", "-", "-o", "json",
+                     payload=json.dumps(current))
+            update_events = _await_exact(lab, green_audit, name=name, resource=plural,
+                                         group=family["group"], verb="update")
+            _kubectl(lab, green_cluster, green_kubeconfig, "delete", resource, name,
+                     "--namespace", NAMESPACE, "--wait=true")
+            delete_events = _await_exact(lab, green_audit, name=name, resource=plural,
+                                         group=family["group"], verb="delete")
+            update_event = update_events[0] if len(update_events) == 1 else {}
+            delete_event = delete_events[0] if len(delete_events) == 1 else {}
+            update_marker = (update_event.get("requestObject") or {}).get("spec", {}).get("fixtureMarker")
+            update_ok = (len(update_events) == 1 and update_event.get("level") == "Request"
+                         and update_event.get("stage") == "ResponseComplete"
+                         and (update_event.get("responseStatus") or {}).get("code") == 200
+                         and update_marker == "updated-via-put"
+                         and "responseObject" not in update_event)
+            delete_ok = (len(delete_events) == 1 and delete_event.get("level") == "Request"
+                         and delete_event.get("stage") == "ResponseComplete"
+                         and (delete_event.get("responseStatus") or {}).get("code") == 200
+                         and "responseObject" not in delete_event)
+            verb_comparisons.append({"resource": plural, "group": family["group"],
+                                     "update_event_count": len(update_events), "update_request_marker": update_marker,
+                                     "update_matches": update_ok, "delete_event_count": len(delete_events),
+                                     "delete_matches": delete_ok})
+
+    # Same AI API group/resource/verb in a different namespace must fall through to Metadata.
+    outside_name = "fixture-model-outside-namespace"
+    _create(lab, green_cluster, green_kubeconfig,
+            _resource(FAMILIES[0]["group"], "v1alpha1", FAMILIES[0]["kind"], outside_name,
+                     "synthetic-sensitive-marker", namespace=OTHER_NAMESPACE))
+    outside_events = _await_exact(lab, green_audit, name=outside_name,
+                                  resource=FAMILIES[0]["plural"], group=FAMILIES[0]["group"],
+                                  verb="create", namespace=OTHER_NAMESPACE)
+    outside_event = outside_events[0] if len(outside_events) == 1 else {}
+    namespace_metadata = (len(outside_events) == 1 and outside_event.get("level") == "Metadata"
+                          and outside_event.get("stage") == "ResponseComplete"
+                          and (outside_event.get("responseStatus") or {}).get("code") == 201
+                          and (outside_event.get("objectRef") or {}).get("namespace") == OTHER_NAMESPACE
+                          and "requestObject" not in outside_event
+                          and "responseObject" not in outside_event)
 
     # The same write verb reaches only the fallback when either group or resource differs.
     for probe in FIXTURES["selector_probes"]:
@@ -385,3 +447,8 @@ def run(lab) -> None:
               all(row["matches"] for row in unlisted) and not negative_events,
               {"unlisted_operations": len(unlisted), "all_unlisted_operations_logged": all(row["matches"] for row in unlisted),
                "excluded_name_events": len(negative_events)})
+    lab.check("positive", "The explicit AI-family policy captures actual update and delete verbs for each named resource",
+              len(verb_comparisons) == 7 and all(row["update_matches"] and row["delete_matches"]
+                                                   for row in verb_comparisons) and namespace_metadata,
+              {"resource_count": len(verb_comparisons), "operations": verb_comparisons,
+               "outside_namespace_same_resource_metadata_only": namespace_metadata})

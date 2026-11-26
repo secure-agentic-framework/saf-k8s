@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-016",
-  "catalog_revision": "8890f2fd2f247fecacffaa7d3165d935386e4ab9",
-  "catalog_sha256": "872822531716b059a05f969b9bdb15559fa3dd850de26945615e595c3d8e018e",
+  "catalog_revision": "070aabc471377b321ac5ad2f141601ab74d7a6fc",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "4b26795b40e7b4cd9450c734b9f0fe943920510b3db8a248221d4921b2fb2139",
-  "scope": "Two case-owned disposable kind Kubernetes v1.36.1 clusters: an intentionally incomplete red audit policy and a green policy with five explicit Request-level synthetic AI-family rules plus a Metadata catch-all. Exact ResponseComplete audit-file events are correlated to successful case-owned API creates, patches, fallback reads, and a harmless ConfigMap control. The fixtures are invented CRDs, including a proxy GpuClaim; they are not real AI products, GPU plugin APIs, or production audit policy. Request bodies are inert fixture markers, and fallback events contain only metadata. No response bodies are logged.",
-  "cluster": "saf-lab-cd2167dae6f5",
+  "scope": "Two case-owned disposable kind Kubernetes v1.36.1 clusters: an intentionally incomplete red audit policy and a green policy with five explicit Request-level synthetic AI-family rules plus a Metadata catch-all. Exact ResponseComplete audit-file events are correlated to successful case-owned API creates, patches, fallback reads, and a harmless ConfigMap control. The green policy additionally captures actual update and delete verbs on these synthetic objects and verifies a metadata-only same-resource create in a second owned namespace. The fixtures are invented CRDs, including a proxy GpuClaim; they are not real AI products, GPU plugin APIs, or production audit policy. Request bodies are inert fixture markers, and fallback events contain only metadata. No response bodies are logged.",
+  "cluster": "saf-lab-22c35e9215fa",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -516,6 +516,80 @@
         "unlisted_operations": 10,
         "all_unlisted_operations_logged": true,
         "excluded_name_events": 0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The explicit AI-family policy captures actual update and delete verbs for each named resource",
+      "matched": true,
+      "observed": {
+        "resource_count": 7,
+        "operations": [
+          {
+            "resource": "modelrecords",
+            "group": "models.saf-fixture.invalid",
+            "update_event_count": 1,
+            "update_request_marker": "updated-via-put",
+            "update_matches": true,
+            "delete_event_count": 1,
+            "delete_matches": true
+          },
+          {
+            "resource": "trainingruns",
+            "group": "workflows.saf-fixture.invalid",
+            "update_event_count": 1,
+            "update_request_marker": "updated-via-put",
+            "update_matches": true,
+            "delete_event_count": 1,
+            "delete_matches": true
+          },
+          {
+            "resource": "pipelineruns",
+            "group": "workflows.saf-fixture.invalid",
+            "update_event_count": 1,
+            "update_request_marker": "updated-via-put",
+            "update_matches": true,
+            "delete_event_count": 1,
+            "delete_matches": true
+          },
+          {
+            "resource": "gpuclaims",
+            "group": "devices.saf-fixture.invalid",
+            "update_event_count": 1,
+            "update_request_marker": "updated-via-put",
+            "update_matches": true,
+            "delete_event_count": 1,
+            "delete_matches": true
+          },
+          {
+            "resource": "servingdeployments",
+            "group": "serving.saf-fixture.invalid",
+            "update_event_count": 1,
+            "update_request_marker": "updated-via-put",
+            "update_matches": true,
+            "delete_event_count": 1,
+            "delete_matches": true
+          },
+          {
+            "resource": "modelcheckpoints",
+            "group": "artifacts.saf-fixture.invalid",
+            "update_event_count": 1,
+            "update_request_marker": "updated-via-put",
+            "update_matches": true,
+            "delete_event_count": 1,
+            "delete_matches": true
+          },
+          {
+            "resource": "modelsnapshots",
+            "group": "artifacts.saf-fixture.invalid",
+            "update_event_count": 1,
+            "update_request_marker": "updated-via-put",
+            "update_matches": true,
+            "delete_event_count": 1,
+            "delete_matches": true
+          }
+        ],
+        "outside_namespace_same_resource_metadata_only": true
       }
     }
   ]
