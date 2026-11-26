@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0904-001",
-  "catalog_revision": "a0a475a9b301089b0a8c957fbfbada4f6cc4f779",
+  "catalog_revision": "35063f629c359345027464f5a3d38fce3b2420b6",
   "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "3986315f82c3440f01f1fd3f0795fef8a3dcda6643ebf652b056229037b1654c",
   "scope": "One Kind v1.36.1 cluster uses the upstream Argo Workflows v3.7.6 minimal namespaced WorkflowTemplate CRD. Kubernetes API authorization controls create and update access. The case verifies that the persisted narrow author template holds an exact approved fixture definition and submits its corresponding native Job. The Job is tokenless, non-root and uses a read-only Secret reference to a public inert marker. A pinned namespaced Argo controller also reconciles one Workflow referencing that exact persisted template. Other orchestrator releases, deployed policy, Secret encryption and external stores require separate evidence.",
-  "cluster": "saf-lab-31738f6af5a0",
+  "cluster": "saf-lab-efcfd55b443d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
