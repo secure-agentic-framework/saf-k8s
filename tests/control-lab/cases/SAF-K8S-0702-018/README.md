@@ -80,3 +80,13 @@ with kind; only this case's two namespaces and synthetic resources are created.
 - [kind v0.32.0 release](https://github.com/kubernetes-sigs/kind/releases/tag/v0.32.0): release-pinned Kubernetes 1.36.1 node image digest used by the lab runner.
 - [kind v0.24.0 release](https://github.com/kubernetes-sigs/kind/releases/tag/v0.24.0): documents out-of-the-box network policy support via `kube-network-policies`; kind v0.32.0 is the lab's pinned kind version.
 - [kind networking configuration](https://kind.sigs.k8s.io/docs/user/configuration/#networking): kind's default CNI and option to disable it. The case leaves default CNI enabled.
+
+## Adopter verification
+
+1. Record the actual tenant identity and namespace ownership, who may create/change namespaces, labels, RoleBindings and NetworkPolicies, and the approved threat model. Verify effective API permissions for representative identities and include namespace/name-scoped positive and negative authorization results.
+2. Inventory the deployed CNI/version and its NetworkPolicy implementation. Capture effective policies and selectors for both sides of each relevant path; verify approved and denied connections for the protocols, address families, ingress/egress, Services and node paths that the threat model includes.
+3. Document what namespace boundaries do and do not isolate. Cover `hostNetwork`, privileged workloads, node/kernel/administrator access, shared resources, DNS, storage and admission/identity controls where applicable; provide separate evidence for controls relied on in those paths.
+4. Preserve dated configuration exports, test identity and command/result records, CNI/provider version, policy coverage and exceptions. Have the accountable platform/security owners approve limitations and remediation; repeat after relevant CNI, Kubernetes, tenant-role or policy changes.
+5. Report the local 16-check result as portable mechanism evidence. Report deployed identity, CNI and path observations as adopter evidence. Do not state that the fixture validates the production cluster.
+
+The amended crosswalk retains scoped conditional AC-4(2) and SC-32 support when the actual boundary is documented and its effective isolation is verified.
