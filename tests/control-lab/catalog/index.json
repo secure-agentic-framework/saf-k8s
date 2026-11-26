@@ -813,7 +813,7 @@
     "SAF-K8S-0402-004": {
       "catalog_status": "draft",
       "domain": "D04",
-      "sha256": "2a42ea31a94fd07df74d336b9720384407bcdea42876e120000386d2c17139c9",
+      "sha256": "88b80ea00fc7bf91ecf715014ffdcda5d156e36dbcddef069b12ed6b163f94e6",
       "title": "Workload identity attribute integrity"
     },
     "SAF-K8S-0402-006": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "38d931dcbd80e2af7181c975988c0e7cd875cfe8",
-  "sha256": "4405c9978776100ed8ef8fc46713da985401a03e9d813cb2e5df3261133b0e6b",
+  "revision": "cbeeb7a20f219a23e417f156118ea466ee10dc1e",
+  "sha256": "ad76e583a56536df95369c3970b62fc18473961db4e68eb58f67b0c421dc41a5",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

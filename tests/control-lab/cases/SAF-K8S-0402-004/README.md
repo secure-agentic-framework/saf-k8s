@@ -1,21 +1,16 @@
-# SAF-K8S-0402-004 workload identity attribute integrity
+# Verify changes to authorization-relevant Kubernetes identity metadata
 
-Run `python3 tests/control-lab/lab.py test SAF-K8S-0402-004 --docker-context desktop-linux`
-from the framework root.
+    python3 tests/control-lab/lab.py test SAF-K8S-0402-004 --docker-context desktop-linux
 
-The case grants a synthetic registrar update permission on one ServiceAccount
-and one namespace. It proves the workload identity's RBAC denial, then
-enforces two approved synthetic metadata values from a typed registry.
-The policy scope uses the named namespace and ServiceAccount. An ordinary
-namespace metadata change leaves the ServiceAccount guard in effect.
-Unapproved updates and removal are denied. The approved value is persisted
-and read back. The API server's RequestResponse audit captures matching
-approval and denial entries for both targets and excludes Secret and token
-resources. No cloud credential or projected token is created.
+The case records an ungoverned metadata write, then checks the approved
+registry, scoped registrar RBAC and native admission policy. It observes
+approved and refused changes for one ServiceAccount annotation and one
+namespace label, verifies readback and the unaffected namespace, and checks
+the scoped audit records for the fixture updates.
 
-Deployed federation behavior, projected audiences, approval governance and
-audit retention remain separate verification work.
-
-- [Kubernetes RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
-- [Kubernetes ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
-- [Kubernetes auditing](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/)
+For a deployment, inventory the exact attributes and the consumers that
+trust them. Record enrolled registrars, admission scope, registry
+authorizations and observed writes. Verify the actual provider trust
+binding or policy selector and the resulting authorization separately.
+For projected-token audience issuance and verification, see
+SAF-K8S-0402-020.

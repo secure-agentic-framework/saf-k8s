@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0402-004",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "9cf79339a75546521d5d91cab4c7451dfeed69b4",
+  "catalog_sha256": "ad76e583a56536df95369c3970b62fc18473961db4e68eb58f67b0c421dc41a5",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "2a42ea31a94fd07df74d336b9720384407bcdea42876e120000386d2c17139c9",
+  "control_sha256": "88b80ea00fc7bf91ecf715014ffdcda5d156e36dbcddef069b12ed6b163f94e6",
   "scope": "Fresh local Kind Kubernetes v1.36.1 only. Uses synthetic case-owned ServiceAccounts, one synthetic namespace, a namespaced approval-registry CRD, narrowly scoped RBAC, and two ValidatingAdmissionPolicy bindings. Demonstrates baseline acceptance of unapproved metadata, RBAC denial for an ordinary workload identity, typed admission denial for an RBAC-authorized registrar with stored-value preservation, and approved metadata registration/readback. RequestResponse audit covers updates to the named synthetic ServiceAccount and namespace. Secret and token resources are excluded. Does not establish production policy coverage, cloud federation behavior, token audiences, or audit retention outside this disposable cluster.",
-  "cluster": "saf-lab-2098b4bc0ce5",
+  "cluster": "saf-lab-cf9a6b66f0b4",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
