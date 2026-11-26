@@ -25,9 +25,9 @@ Managing internal agent-to-system connections
 - Domain: D05 - Network Security and Communication
 - Knowledge Area: 5.1
 - Relation Type: supports
-- Strength: strong
+- Strength: moderate
 - Applicability: required
-- Strength Reason Code: n/a
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0501-004 - CNI-specific network policy extensions](../../controls/SAF-K8S-0501-004.md)
 
