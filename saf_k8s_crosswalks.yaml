@@ -6741,22 +6741,6 @@
 
 
     5.3 - Harden ingress (managed access control points); 5.5 - API server network access (managed endpoint access)'
-  control_id: SAF-K8S-0503-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-17(3)
-  framework_requirement_title: Managed Access Control Points
-  framework_mapping_notes: 'API gateways as managed access points for agents
-
-
-    5.3 - Harden ingress (managed access control points); 5.5 - API server network access (managed endpoint access)'
   control_id: SAF-K8S-0503-006
   relation_type: supports
   strength_level: strong
@@ -41477,16 +41461,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-7(11)
   framework_requirement_title: Restrict Incoming Communications Traffic
-  framework_mapping_notes: 'Restricting inbound traffic to agent systems limits exposure to external attacks
-
-
-    5.1 - Default deny ingress; 5.3 - Ingress controller WAF integration, request filtering'
+  framework_mapping_notes: The admitted external exception contributes approved inbound source policy. Confirm the effective load-balancer rule and compare reachability from owned allowed and excluded sources.
   control_id: SAF-K8S-0503-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The actual governed managed interface restricts effective inbound traffic to approved sources and the selected Service controller implements its admitted source range policy.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -42272,16 +42253,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-7(3)
   framework_requirement_title: Access Points
-  framework_mapping_notes: 'Limiting network access points to agent systems reduces attack surface
-
-
-    5.3 - Harden ingress (managed access points); 5.5 - Protect API server and service exposure (LoadBalancer, NodePort, ExternalIP restriction)'
+  framework_mapping_notes: An explicit internal default and controlled public exception support limiting the approved externally reachable access points. Verify the effective endpoint inventory separately.
   control_id: SAF-K8S-0503-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The approved set of managed external entry points includes this load-balancer path. Confirm the internal scheme and approved public exceptions in deployed inventory.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -42326,22 +42304,6 @@
     5.3 - Harden ingress (managed access points); 5.5 - Protect API server and service exposure (LoadBalancer, NodePort, ExternalIP restriction)'
   control_id: SAF-K8S-0505-005
   relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(4)
-  framework_requirement_title: External Telecommunications Services
-  framework_mapping_notes: 'External communication services used by agents must be secured at boundary points
-
-
-    5.3 - External traffic policy (LoadBalancer, NodePort, and ExternalIP restriction for external telecommunications)'
-  control_id: SAF-K8S-0503-004
-  relation_type: supports
   strength_level: strong
   applicability: required
   applicability_condition: null
