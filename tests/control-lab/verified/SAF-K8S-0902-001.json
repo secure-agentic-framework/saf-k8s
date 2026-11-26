@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0902-001",
-  "catalog_revision": "9ff57158cade9ac81e50c55ad8dd8e6166f9b6f8",
-  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
+  "catalog_revision": "78e37cddeb2b2ac05382d042a709ac4bd45076d1",
+  "catalog_sha256": "e38420f524fb15e73e8ffca4c9a87efd965bcdc648e8f97243d8c301bc7ed21d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "66dcc21b763407314fd815b3b6394669f30cccb885aada0445060a39dd257234",
   "scope": "One disposable Kind v1.36.1 cluster with a synthetic inference HTTP Pod and two owned HTTP sinks. An independent runtime probe verifies the effective nonroot identity, root filesystem and model mounts, exact synthetic model bytes, and permitted scratch writes. An egress allowlist keeps one Ready peer reachable and denies the other while an unselected peer still reaches it. A controlled setting change verifies the root filesystem write comparator. An additional restricted Pod demonstrates a kubelet liveness restart and verified recovery. Actual serving stacks, production dependencies, network boundaries and patch cadence require separate evidence.",
-  "cluster": "saf-lab-594b8b157a1e",
+  "cluster": "saf-lab-987ef278c4fc",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
