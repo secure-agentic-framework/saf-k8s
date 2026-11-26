@@ -20,16 +20,11 @@ IMAGE = (
 PORT = 8080
 SERVICE = f"{APP}-serving"
 SCOPE = (
-    "One disposable Kind v1.36.1 cluster runs one case-owned Python mock serving process "
-    "from a digest-pinned Docker Official Python image. The fixture maps one fixed public "
-    "content string to a synthetic prefix digest, maintains bounded in-memory cache and "
-    "accounting state and returns a fixed mock marker without per-request cache telemetry. Red demonstrates the unscoped "
-    "comparator; green demonstrates a tenant-scoped synthetic key; positive demonstrates "
-    "exact same-tenant/same-prefix reuse. Two ordinary requests occupy one active and one queued slot, "
-    "and an additional fixed request is refused by the fixture's depth cap. Raw observations omit content, salts, and credentials. "
-    "No LLM, model, GPU, inference framework, real prompt, secret, feed, target, or attack "
-    "is present. This does not establish vLLM/TGI/Triton behavior, KV-memory zeroing, "
-    "tenant isolation, production queue limits, or framework-level scheduling."
+    "One disposable Kind v1.36.1 cluster runs a digest-pinned synthetic Python cache and queue fixture and two separate CPU-only llama.cpp b9519 server Pods. "
+    "The mock compares an unscoped key with tenant-scoped keys, verifies same-tenant reuse, and tests one active request, one queued request, and the configured rejection and drain. "
+    "The real servers use the same digest-bound tiny Stories model and a fixed public prompt. "
+    "A tokenless client checks the model tokenizer, bounded one-token output, same-process prompt reuse, and zero reused tokens on the first request to a fresh server. "
+    "Deployed serving engines, tenant and concurrent-request isolation, cache zeroing, GPU behavior, and production scheduling or resource guarantees need separate evidence."
 )
 LABELS = {"saf-lab.example/control": CONTROL_ID,
           "saf-lab.example/fixture": "synthetic"}
