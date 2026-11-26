@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0906-007",
-  "catalog_revision": "7fb949b1cbcce8104e21d9e71b5d905740152a6a",
+  "catalog_revision": "e8cb72dbd0c3bf662f3404b8f9be86ff7dcff9a4",
   "catalog_sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "2ecaa80500a951af3cb610c5a7a3051ae8bdbe27f25c45709523a44e90dd5878",
-  "scope": "Two deterministic transformations of benign synthetic JSON run in local Kind. SHA-256 stage digests are locked in the fixture and immutable trust ConfigMap; a Kubernetes Validating Admission Policy gates persisted stage records. A separate Pod consumes the approved final artifact and emits its decision. This does not assess production data, pipeline identities, or external systems.",
-  "cluster": "saf-lab-ab8d2572678c",
+  "scope": "Two deterministic transformations of benign synthetic JSON run in local Kind. SHA-256 stage digests are locked in the fixture and immutable trust ConfigMap; a Kubernetes Validating Admission Policy gates persisted stage records. Two synthetic ServiceAccount Job identities create the records through the in-cluster API; a separate Pod consumes the approved final artifact. This does not assess production identities, external trust roots, data, or systems.",
+  "cluster": "saf-lab-6aae774bd9cf",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -53,12 +53,12 @@
       "matched": true,
       "observed": {
         "both_altered_stages_denied_even_with_approved_digest_labels": true,
-        "denied_transitions_created_no_configmaps": true,
+        "denied_transitions_leave_approved_configmaps_unchanged": true,
         "worker_stops_at_first_bad_stage_without_writes": true,
         "locked_stage_records_admitted": true,
         "checked_exact_approved_bytes_reach_stage_two": true,
         "approved_artifacts_published_only_after_admission": true,
-        "separate_downstream_consumer_accepts_expected_artifact": true
+        "separate_downstream_consumer_accepts_stage2_job_artifact": true
       }
     },
     {
@@ -66,8 +66,9 @@
       "claim": "Native admission rejects stale lineage/version and release readback matches admitted outputs",
       "matched": true,
       "observed": {
-        "stale_parent_denied_without_persistence": true,
-        "stale_version_denied_without_persistence": true,
+        "stage1_identity_created_exact_record_and_rejected_stale_parent": true,
+        "stage2_identity_read_parent_created_record_and_rejected_stale_version": true,
+        "alternate_identity_denied_without_persistence": true,
         "admitted_parent_and_version_match_actual_checked_output": true,
         "published_outputs_repeat_admitted_digests_and_consumer_reads_stage2": true
       }
