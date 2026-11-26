@@ -20,9 +20,11 @@ a scheduled Pod, an AppArmor startup error and absence of the workload marker.
 The QEMU guest has no network device and receives only the immutable ConfigMap
 fixture. It uses a separate kernel from the Kubernetes node. The test verifies
 guest enforcement, native scheduling, authorization for the fixture publisher
-and native startup rejection of an unavailable profile. Positive enforcement
-of the approved profile on a workload node still requires a compatible node
-with the actual profile loaded and bound to the workload.
+and native startup rejection of an unavailable profile. The separate
+[native K3s AppArmor test](native-k3s/README.md) uses the Kubernetes workload
+node's own AppArmor kernel and verifies the baseline and exact Localhost
+profile against harmless file reads. Its [paired receipt](native-k3s/native-apparmor.verified.json)
+records two distinct guest runs and a separate run through the portable launcher.
 
 For adoption, verify each eligible node's kernel and CRI support, loaded profile
 name and revision in enforce mode, and a harmless denial from a workload using
