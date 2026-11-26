@@ -8126,12 +8126,12 @@
   knowledge_area: '9.2'
   control_seq: '002'
   control_title: Model loading integrity verification
-  control_statement: Inference servers must verify model integrity at startup using cryptographic signatures or digest checks and must prevent runtime model replacement on loaded serving paths through read-only volume mounts and file integrity monitoring.
-  objective: Ensure that only verified, unmodified models are loaded for inference and that model artifacts cannot be tampered with after loading.
-  rationale: If model integrity is not verified at load time, an attacker who gains write access to model storage can replace a model with a backdoored version that the inference server will serve without detection. Without runtime protection, models can be replaced after initial verification.
+  control_statement: Verify model artifacts against an independently approved immutable digest or trusted signature before serving. Restrict serving-process writes where the workload permits and monitor the effective serving and cache paths against the governed baseline. Define the response to a detected mismatch.
+  objective: Load only model artifacts that match trusted expected identity, protect serving paths from unintended changes, and detect and respond to runtime discrepancies.
+  rationale: Startup verification compares the fetched bytes with a trusted reference. The effective read-only mount limits writes from the serving workload. Storage, cache and other authorized or administrative paths require their own write controls and runtime observation.
   scope: Applies to all model loading configurations on Kubernetes inference platforms. Covers model artifact verification at pod startup, model cache integrity, read-only volume mounts, and file integrity monitoring for model directories. Excludes endpoint access controls and model registry controls covered by KA 9.5.
-  primary_enforcement_point: Inference server startup configuration and init container model verification scripts.
-  implementation_surface: Init container model verification scripts using cosign or notation signature verification, OCI registry digest pinning for model pulls, read-only volume mount specifications, readOnlyRootFilesystem on inference containers, and file integrity monitoring for model directories.
+  primary_enforcement_point: Model initialization or startup verification, protected serving and cache mounts, and the deployed file integrity monitor and incident response path.
+  implementation_surface: Pin or verify the actual served artifact against an independently governed digest or trusted signature. Verify before startup and again after approved reload or cache change as applicable. Restrict serving mounts and other writer roles, monitor governed files, and handle discrepancies using the adopted response policy.
   owner_primary: ML Platform Engineering
   owner_supporting: Security Engineering; API Platform Engineering
   baseline_or_ai_specific: ai-specific
