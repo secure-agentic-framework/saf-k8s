@@ -1,6 +1,7 @@
 """Verify separate environment/process DSSE-style signatures inside disposable Jobs."""
 import base64
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 import re
@@ -9,6 +10,12 @@ import time
 
 
 HERE = Path(__file__).parent
+_POLICY_SPEC = importlib.util.spec_from_file_location(
+    "saf_0603_007_signer_policy", HERE / "signer_policy_supplement.py")
+if _POLICY_SPEC is None or _POLICY_SPEC.loader is None:
+    raise RuntimeError("The in-case signer-policy supplement is unavailable")
+_SIGNER_POLICY = importlib.util.module_from_spec(_POLICY_SPEC)
+_POLICY_SPEC.loader.exec_module(_SIGNER_POLICY)
 IMAGE = (
     "docker.io/alpine/openssl:3.3.2@sha256:"
     "5008e829163320a6e8166883c03e68189e8925ade68cde36584dc2a41cfa5248"
@@ -232,3 +239,5 @@ def run(lab):
             lab.check("positive", f"Independent compliant {category} claim verifies for its own build subject",
                       result == "complete" and "signature-and-expected-payload-verified" in log,
                       {"job": result, "expected_payload_verified": "signature-and-expected-payload-verified" in log})
+        _SIGNER_POLICY.run_signer_policy(
+            lab, claims, fixture, _pae, PAYLOAD_TYPE, NAMESPACE, IMAGE)

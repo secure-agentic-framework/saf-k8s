@@ -1,13 +1,13 @@
-# SAF-K8S-0603-007 — Build environment and process attestations
+# Verify build attestations against signer policy
+
+Run from the framework repository.
 
 ```sh
-python3 lab.py test SAF-K8S-0603-007 --docker-context desktop-linux
+python3 tests/control-lab/lab.py test SAF-K8S-0603-007 --docker-context desktop-linux
 ```
 
-NIST SP 800-204D §5.1.1 describes contemporaneous environment inventory, build and test tooling as process evidence, and signing through a trusted build component. It treats process collection as best effort. The corrected SAF control attributes the two categories and that qualification to NIST and states independent category signing as SAF policy. [NIST SP 800-204D, pp. 16–17](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-204D.pdf#page=25).
+Inert artifacts and case-generated test keys exercise signatures, exact subjects and payloads for the build environment and process. An immutable policy supplied to the consumer before the envelope pins the approved signer for each category, the predicate type, the exact subject and the expected payload hash. Both approved categories verify. A valid signature over the same environment payload from the process signer is refused by the environment policy. The receipt records decisions and booleans.
 
-The case provisions a fresh Kubernetes v1.36.1 Kind cluster. It defines two independent inert artifacts and constructs an environment and a process Statement v1 payload for each. The subjects carry the SHA-256 of the corresponding artifact bytes. The test signs each payload with a distinct ephemeral local RSA key and the DSSE pre-authentication encoding. Kubernetes Jobs using the digest-pinned OpenSSL image reconstruct the encoding and verify against the fixture public key and expected payload digest. Any private key stays in the host temporary directory. [in-toto Statement v1](https://github.com/in-toto/attestation/blob/main/spec/v1/statement.md), [DSSE protocol](https://github.com/dsse-lf/dsse/blob/master/protocol.md).
+For adoption, capture the platform and applicable build transformations during an actual build, bind both evidence categories to the released artifact digest, and verify separation from developer-controlled steps. Supply approved signer identities through an independently managed trust policy. Exercise a known approved build and compare a signer or digest mismatch at the actual promotion boundary. Record the policy version, approved producer, build and artifact identity, verification outcome and retention instructions. The portable case covers consumer policy with its own test keys. Trusted producer isolation, concurrent capture, key custody and the deployment decision remain follow-up scope.
 
-The first pair must verify. Flipping a signature byte must produce the exact verifier rejection marker. A valid signature made by the same trusted fixture signer over a different artifact must pass cryptographic verification and fail the pinned payload comparison. The independent artifact's two claims must then verify for its own subject. Cases use detached signatures and DSSE encoding. Envelope transport, real inventory and transformation capture, audited signer authority, key protection, and actual production consumers require separate evidence.
-
-Results are retained for the original and corrected catalog revisions, along with a separate framework replay. The results contain only deterministic fixture observations. All keys are ephemeral.
+[NIST SP 800-204D section 5.1.1](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-204D.pdf#page=25)

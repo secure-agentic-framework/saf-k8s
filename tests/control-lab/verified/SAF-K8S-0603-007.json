@@ -5,7 +5,7 @@
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "61aa06e22bf3ff24752dc5ad98ea2c3da841db9893153ec159d5551eafba0145",
   "scope": "One fresh local Kubernetes v1.36.1 Kind cluster. Two separate in-toto Statement JSON payloads model environment inventory and process/tool execution for the same inert synthetic artifact digest. Each payload is independently DSSE-pre-authenticated and signed with a distinct ephemeral local RSA key; Kubernetes Jobs verify the signatures, payload hashes and expected subject. Counterfactual Jobs reject a corrupted signature and a valid signature whose statement names the wrong subject. A second synthetic build subject has its own valid environment and process pair. This does not exercise or establish coverage of any production CI/CD system, builder identity, key custody, attestation generation, registry storage, or admission enforcement.",
-  "cluster": "saf-lab-53b5eeb2bae3",
+  "cluster": "saf-lab-1d71f0954a4e",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -115,6 +115,35 @@
       "observed": {
         "job": "complete",
         "expected_payload_verified": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Consumer policy accepts the approved environment signer, predicate, and subject digest",
+      "matched": true,
+      "observed": {
+        "state": "complete",
+        "policy_accepted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Consumer policy accepts the approved process signer, predicate, and subject digest",
+      "matched": true,
+      "observed": {
+        "state": "complete",
+        "policy_accepted": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Valid same-payload signature from a signer unapproved for the environment category is rejected by the separate consumer trust policy",
+      "matched": true,
+      "observed": {
+        "job": "failed",
+        "envelope_signature_validated_before_policy": true,
+        "policy_rejection": true,
+        "key_material_retained_in_receipt": false
       }
     }
   ]
