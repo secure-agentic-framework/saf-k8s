@@ -3099,7 +3099,7 @@
     "SAF-K8S-1001-004": {
       "catalog_status": "draft",
       "domain": "D10",
-      "sha256": "e6f48e3843a02039a1da7b1f81dad712cb825c9936053a485d564742b8add3d0",
+      "sha256": "ef6cb448b5bb3ceffff834f639b4dcc3732ef62a0d45c7659957482629f5bdc9",
       "title": "Audit volume management for AI workloads"
     },
     "SAF-K8S-1001-007": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c30a8de6f030e6e9c64322004bcb7d4c5e5431bc",
-  "sha256": "b4bc486cbaf4d7095c392838351d3abb12ca503c75b7e8244bc767f035f02d16",
+  "revision": "3f7f06c2dc58a890751349fd140ef643d232680c",
+  "sha256": "a58dfda188f07f0f1fc46d3625052bfa136a74c407f47784ebe6a650f58583f3",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -31,6 +31,8 @@ positive comparison for policy behavior, not a throughput or capacity experiment
 meaningful loss rate, API-server latency, backend service rate, buffer behavior, or alert
 threshold can be inferred from this run. It does not generate AI traffic.
 
+A separate check makes two authorized reads from an owned Pod using its projected ServiceAccount credential. The first audit rule lists a prefix ending in `*` under `users` with `level: None`. The following exact username rule records the first read at `Metadata`. The exact namespace ServiceAccount group separately selects the second read. Both reads succeed and emit exactly the selected Metadata event.
+
 ## Kubernetes v1.36.1 policy and backend syntax
 
 The policy uses apiVersion: audit.k8s.io/v1, kind: Policy, ordered rules, level,

@@ -14,6 +14,27 @@ AUDIT_FILE = f"{AUDIT_DIR}/audit.jsonl"
 LOW_OPS = 5
 HIGH_MARKER = "saf1001-004-rbac-high-fidelity"
 DENIED_MARKER = "saf1001-004-denied-write"
+IDENTITY_POD = "saf-audit-identity-reader"
+ACCOUNT = "audit-identity-reader"
+USERNAME = f"system:serviceaccount:{NAMESPACE}:{ACCOUNT}"
+GROUP = f"system:serviceaccounts:{NAMESPACE}"
+READ_IMAGE = ("docker.io/library/python:3.13-slim@sha256:"
+              "e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90")
+IDENTITY_READS = ("audit-poll-a", "audit-poll-b")
+READ_SCRIPT = """import json, pathlib, ssl, sys, urllib.request
+root = pathlib.Path('/var/run/secrets/kubernetes.io/serviceaccount')
+context = ssl.create_default_context(cafile=str(root / 'ca.crt'))
+token = (root / 'token').read_text().strip()
+for name in sys.argv[1:]:
+    request = urllib.request.Request(
+        f'https://kubernetes.default.svc/api/v1/namespaces/saf-test/configmaps/{name}',
+        headers={'Authorization': 'Bearer ' + token},
+    )
+    with urllib.request.urlopen(request, timeout=8, context=context) as reply:
+        actual = json.load(reply)
+        print(json.dumps({'name': name, 'status': reply.status,
+                          'fixture_matches': actual['data']['fixture'] == 'owned-synthetic-value'}))
+"""
 SCOPE = (
     "Two fresh, single-control-plane Kind Kubernetes v1.36.1 clusters. Both receive the same "
     "seven measured API operations: five small ConfigMap LIST polls, one synthetic RoleBinding "
@@ -23,6 +44,21 @@ SCOPE = (
     "saved. This finite fixture does not model sustained workload, production capacity, drops, "
     "backpressure, real AI traffic, or cluster-wide coverage."
 )
+
+
+def service_account_audit_rules():
+    rules = [
+        ("None", "users", f"system:serviceaccount:{NAMESPACE}:*", IDENTITY_READS[0]),
+        ("Metadata", "users", USERNAME, IDENTITY_READS[0]),
+        ("Metadata", "userGroups", GROUP, IDENTITY_READS[1]),
+    ]
+    return "".join(
+        f"  - level: {level}\n    {field}: [{json.dumps(value)}]\n"
+        f"    verbs: [get]\n    namespaces: [{NAMESPACE}]\n"
+        f"    resources:\n      - group: \"\"\n        resources: [configmaps]\n"
+        f"        resourceNames: [{name}]\n"
+        for level, field, value, name in rules
+    )
 
 
 def policy_text(phase):
@@ -44,6 +80,7 @@ def policy_text(phase):
     return (
         policy
         + "omitStages: [RequestReceived]\nrules:\n"
+        + service_account_audit_rules()
         + "  - level: Metadata\n"
         + "    verbs: [list]\n"
         + f"    namespaces: [{NAMESPACE}]\n"
@@ -171,6 +208,56 @@ def run_operations(lab, kubeconfig, audit_path, phase):
     return records
 
 
+def verify_service_account_audit(lab, kubeconfig, audit_path):
+    rules = [{"apiGroups": [""], "resources": ["configmaps"], "resourceNames": list(IDENTITY_READS),
+              "verbs": ["get"]}]
+    objects = [
+        {"apiVersion": "v1", "kind": "ServiceAccount", "metadata": {"name": ACCOUNT}},
+        {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role",
+         "metadata": {"name": ACCOUNT}, "rules": rules},
+        {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding",
+         "metadata": {"name": ACCOUNT}, "subjects": [{"kind": "ServiceAccount", "name": ACCOUNT,
+                                                            "namespace": NAMESPACE}],
+         "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "Role", "name": ACCOUNT}},
+        {"apiVersion": "v1", "kind": "Pod", "metadata": {"name": IDENTITY_POD}, "spec": {
+            "serviceAccountName": ACCOUNT, "automountServiceAccountToken": True, "restartPolicy": "Never",
+            "containers": [{"name": "reader", "image": READ_IMAGE,
+                            "command": ["python", "-c", "import time; time.sleep(300)"]}],
+        }},
+    ]
+    kubectl(lab, kubeconfig, "create", "-f", "-", payload=json.dumps(
+        {"apiVersion": "v1", "kind": "List", "items": objects}))
+    kubectl(lab, kubeconfig, "wait", "--for=condition=Ready", f"pod/{IDENTITY_POD}",
+            "--timeout=75s", timeout=85)
+    offset = audit_path.stat().st_size
+    reply = kubectl(lab, kubeconfig, "exec", IDENTITY_POD, "--", "python", "-c", READ_SCRIPT, *IDENTITY_READS)
+    readback = [json.loads(line) for line in reply.stdout.splitlines()]
+    expected = [{"name": name, "status": 200, "fixture_matches": True} for name in IDENTITY_READS]
+    audit = []
+    deadline = time.monotonic() + 8
+    while time.monotonic() < deadline:
+        audit = [event for event in map(json.loads, audit_path.read_bytes()[offset:].splitlines())
+                 if event.get("user", {}).get("username") == USERNAME
+                 and event.get("verb") == "get"
+                 and event.get("objectRef", {}).get("name") in IDENTITY_READS]
+        if len(audit) >= 2:
+            break
+        time.sleep(0.2)
+    expected_names = {event.get("objectRef", {}).get("name") for event in audit} == set(IDENTITY_READS)
+    audit_matches = len(audit) == 2 and expected_names and all(
+        event.get("stage") == "ResponseComplete" and event.get("level") == "Metadata"
+        and event.get("objectRef", {}).get("namespace") == NAMESPACE
+        and event.get("objectRef", {}).get("resource") == "configmaps"
+        and event.get("responseStatus", {}).get("code") == 200
+        and GROUP in event.get("user", {}).get("groups", [])
+        and "requestObject" not in event and "responseObject" not in event for event in audit
+    )
+    (lab.evidence / "service-account-audit-matching.json").write_text(json.dumps(audit, indent=2) + "\n")
+    lab.check("selector", "A prefix-star audit username does not match; exact user and group selectors do",
+              audit_matches and readback == expected, {"authenticated_reads_match": readback == expected,
+              "exact_metadata_records_match": audit_matches, "metadata_records": len(audit)})
+
+
 def has_marker(event, marker):
     query = parse_qs(urlsplit(event.get("requestURI", "")).query)
     return marker in query.get("fieldManager", [])
@@ -238,6 +325,7 @@ def run(lab):
         lab.cluster = green_name
         try:
             green = run_operations(lab, green_kubeconfig, green_dir / "audit.jsonl", "green")
+            verify_service_account_audit(lab, green_kubeconfig, green_dir / "audit.jsonl")
         finally:
             lab.cluster = original_cluster
 

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-004",
-  "catalog_revision": "9672d1ef113c4d79b983b4e31cd24cd611d32be9",
-  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
+  "catalog_revision": "85a971aab1ba867ca9cc5061558e35057aafc1f8",
+  "catalog_sha256": "a58dfda188f07f0f1fc46d3625052bfa136a74c407f47784ebe6a650f58583f3",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "e6f48e3843a02039a1da7b1f81dad712cb825c9936053a485d564742b8add3d0",
+  "control_sha256": "ef6cb448b5bb3ceffff834f639b4dcc3732ef62a0d45c7659957482629f5bdc9",
   "scope": "Two fresh, single-control-plane Kind Kubernetes v1.36.1 clusters. Both receive the same seven measured API operations: five small ConfigMap LIST polls, one synthetic RoleBinding create, and one denied synthetic ConfigMap create. Red uses RequestResponse for both fixture resource types. Green omits RequestReceived, records ConfigMap LIST polls at Metadata, and retains both security-relevant writes at RequestResponse. Matching raw lines and file byte counts are saved. This finite fixture does not model sustained workload, production capacity, drops, backpressure, real AI traffic, or cluster-wide coverage. A separate Kind v1.36.1 cluster verifies TLS webhook delivery, one transient retry and native audit counters.",
-  "cluster": "saf-lab-f38421c2fa91",
+  "cluster": "saf-lab-a6858d0005db",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -51,6 +51,16 @@
           "RequestResponse"
         ],
         "high_fidelity_binding": true
+      }
+    },
+    {
+      "phase": "selector",
+      "claim": "A prefix-star audit username does not match; exact user and group selectors do",
+      "matched": true,
+      "observed": {
+        "authenticated_reads_match": true,
+        "exact_metadata_records_match": true,
+        "metadata_records": 2
       }
     },
     {
