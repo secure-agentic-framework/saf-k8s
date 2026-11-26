@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0704-016",
-  "catalog_revision": "b395203f79638d9924016156f380ebb2e509ba47",
-  "catalog_sha256": "bbd86d9789bf576dfb286c0bbc253b717eaaddfe4283f2ccb6e29fded9b5374f",
+  "catalog_revision": "03197b5f34c07adf30de371cb78cb9f0dfb5587b",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "052f2eb05e3adc3eefaab6ab2b895a254de3d534275b522f03fae0688ebbbc78",
   "scope": "Actual Kubernetes RBAC drift detection, remediation, and post-change authorization for an owned fixture.",
-  "cluster": "saf-lab-158abc0132ee",
+  "cluster": "saf-lab-9ae0ca885c1a",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -67,6 +67,20 @@
         "unrelated_binding_unchanged": true,
         "unrelated_grant_allowed": true,
         "approved_subject_allowed_unrelated_object": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The reconciliation identity is limited to its approved target and policy",
+      "matched": true,
+      "observed": {
+        "authorized_remediation_persisted": true,
+        "unapproved_writer_denied": true,
+        "unrelated_binding_write_denied": true,
+        "policy_write_denied": true,
+        "unrelated_binding_unchanged": true,
+        "policy_unchanged": true,
+        "target_unchanged_after_denied_probe": true
       }
     }
   ]
