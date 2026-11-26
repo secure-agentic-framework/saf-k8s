@@ -1404,7 +1404,7 @@ This knowledge area focuses on: Federated learning cross-cluster coordination se
 
 ### Description
 
-This knowledge area focuses on: Audit volume management for AI workloads, Supplemental application-level telemetry for AI workload events, Permitted responses to audit findings, Kubernetes audit level and stage filtering for AI workloads, and SIEM correlation rules for AI-specific attack patterns. Additional controls in the table below extend this coverage.
+This knowledge area focuses on: Audit volume management for AI workloads, Supplemental application-level telemetry for AI workload events, Permitted responses to audit findings, Kubernetes audit level and stage filtering for AI workloads, and SIEM correlation rules for AI-workload anomaly indicators. Additional controls in the table below extend this coverage.
 
 ### Controls
 
@@ -1414,7 +1414,7 @@ This knowledge area focuses on: Audit volume management for AI workloads, Supple
 | [SAF-K8S-1001-007](markdown/controls/SAF-K8S-1001-007.md) | Supplemental application-level telemetry for AI workload events | Practitioner | ai-specific |
 | [SAF-K8S-1001-008](markdown/controls/SAF-K8S-1001-008.md) | Permitted responses to audit findings | Practitioner | baseline |
 | [SAF-K8S-1001-010](markdown/controls/SAF-K8S-1001-010.md) | Kubernetes audit level and stage filtering for AI workloads | Practitioner | ai-specific |
-| [SAF-K8S-1001-012](markdown/controls/SAF-K8S-1001-012.md) | SIEM correlation rules for AI-specific attack patterns | Practitioner | ai-specific |
+| [SAF-K8S-1001-012](markdown/controls/SAF-K8S-1001-012.md) | SIEM correlation rules for AI-workload anomaly indicators | Practitioner | ai-specific |
 | [SAF-K8S-1001-015](markdown/controls/SAF-K8S-1001-015.md) | PII redaction and sensitive payload minimization for inference logs | Practitioner | ai-specific |
 | [SAF-K8S-1001-016](markdown/controls/SAF-K8S-1001-016.md) | Audit policy coverage for AI-specific resource and workflow events | Practitioner | ai-specific |
 | [SAF-K8S-1001-017](markdown/controls/SAF-K8S-1001-017.md) | Audit capture of admission, authorization, and privileged API decisions for AI workloads | Practitioner | ai-specific |
