@@ -4,8 +4,8 @@
   "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "4f7cfaa4752b1b836b02f2aa683ecccbdbe21aa4035e74eec0d5e4d3d4cdfd5d",
-  "scope": "One isolated Kubernetes v1.36.1 API server with a blocking Metadata audit policy. Three exact-name, case-owned ConfigMap reads use the same scoped ServiceAccount via Kubernetes impersonation. The ordinary and role-denied reads produce completed metadata events. An explicitly omitted successful read produces no event. A local detector evaluates only the collected metadata and correlates one 403 with the effective identity and recorded source path. Forwarded addresses remain context. A single inert invalid bearer value is sent directly to this disposable API server and must produce a 401 audit event with no authenticated identity. Production collection, origin verification and alert delivery need separate evidence.",
-  "cluster": "saf-lab-28ce3698c9d5",
+  "scope": "One isolated Kubernetes v1.36.1 API server with a blocking Metadata audit policy. Three exact-name, case-owned ConfigMap reads use the same scoped ServiceAccount via Kubernetes impersonation. The ordinary and role-denied reads produce completed metadata events. An explicitly omitted successful read produces no event. A local detector evaluates only the collected metadata and correlates one 403 with the effective identity and recorded source path. Forwarded addresses remain context. A single inert invalid bearer value is sent directly to this disposable API server and must produce a 401 audit event with no authenticated identity. Production collection, origin verification and alert delivery need separate evidence. An additive bounded comparison reads one owned ConfigMap four times as one scoped case identity and once as a second identity. The detector counts only those actual ResponseComplete metadata events in one 60-second window; its synthetic threshold is three reads. This does not model reconnaissance, enumeration, exploitation, production traffic or a universal anomaly threshold.",
+  "cluster": "saf-lab-0c3072419f9d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -143,6 +143,43 @@
       "observed": {
         "finding_count": 1,
         "matched_exact_event": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The fixed approved read sequence produces five distinct scoped metadata events",
+      "matched": true,
+      "observed": {
+        "all_reads_permitted": true,
+        "repeat_actor_event_count": 4,
+        "benign_control_event_count": 1,
+        "distinct_audit_events": true,
+        "all_events_within_bounded_window": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The repeated-read detector has no finding while its threshold rule is absent",
+      "matched": true,
+      "observed": {
+        "finding_count": 0,
+        "repeat_actor_event_count": 4,
+        "benign_control_event_count": 1,
+        "events_within_bounded_window": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The bounded threshold flags only the repeated actor and leaves the benign control below threshold",
+      "matched": true,
+      "observed": {
+        "repeat_actor_event_count": 4,
+        "benign_control_event_count": 1,
+        "threshold": 3,
+        "window_seconds": 60,
+        "repeat_actor_fires": true,
+        "benign_control_fires": false,
+        "events_within_bounded_window": true
       }
     }
   ]
