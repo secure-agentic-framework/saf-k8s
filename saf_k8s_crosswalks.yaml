@@ -3128,14 +3128,14 @@
   framework_name: NIST AI Risk Management Framework
   framework_version: '1.0'
   framework_requirement_id: MAP 3.5
-  framework_requirement_title: Likelihood and magnitude of each identified risk based on expected use, past uses of similar systems, public incident reports, feedback from those external to the team that developed or deployed the AI system, or other data are assessed and documented.
-  framework_mapping_notes: OCTAVE risk assessment includes likelihood and impact scoring. Threat intelligence integration consumes external incident data and adversarial ML attack pattern libraries.
+  framework_requirement_title: Processes for human oversight are defined, assessed, and documented in accordance with organizational policies from the GOVERN function.
+  framework_mapping_notes: Taxonomy labels can inform one input to documented human oversight. The local pending-review state supplies a routing example. Meaningful application requires a governance process with assigned reviewers and documented decisions.
   control_id: SAF-K8S-1004-005
-  relation_type: supports
+  relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: compound-control-split-required
+  applicability: conditional
+  applicability_condition: The adopter defines, assesses, and documents human oversight under its GOVERN policies and uses the taxonomy classifications as inputs to that process, with assigned reviewers and documented review decisions.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -16946,13 +16946,13 @@
   framework_version: 5.2.0
   framework_requirement_id: RA-3(2)
   framework_requirement_title: Use of All-source Intelligence
-  framework_mapping_notes: "All-source threat intelligence informs risk assessment for agentic AI attack vectors\n\n10.4 - Threat intelligence integration (consuming K8s CVE feeds, runtime threat intel, NISTIR 8269)\n\nThe historical mapping text above cites the 2019 initial public draft NISTIR 8269. Use the final March 2025 NIST AI 100-2e2025 publication when citing the current adversarial ML taxonomy. The retained passage records the source mapping context."
+  framework_mapping_notes: The classification and pattern library can contribute threat information to risk analysis when populated with relevant documented intelligence. RA-3(2) requires the organization to use all-source intelligence in its risk assessment.
   control_id: SAF-K8S-1004-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization uses intelligence recorded in the maintained pattern library alongside other intelligence sources in a documented risk assessment.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5

@@ -35,7 +35,7 @@
 - [MAP 2.1 - The specific tasks and methods used to implement the tasks that the AI system will support are defined (e.g., classifiers, generative models, recommenders).](map-2-1.md)
 - [MAP 2.2 - Information about the AI system's knowledge limits and how system output may be utilized and overseen by humans is documented. Documentation also includes a description of the capabilities the system can and cannot support, its intended scope of operation, and conditions under which it would not be advisable to deploy the system.](map-2-2.md)
 - [MAP 3.2 - Potential harms to people, organizations, and ecosystems arising from the AI system's intended use - and if relevant, across the lifecycle - are understood, characterized, and documented.](map-3-2.md)
-- [MAP 3.5 - Likelihood and magnitude of each identified risk based on expected use, past uses of similar systems, public incident reports, feedback from those external to the team that developed or deployed the AI system, or other data are assessed and documented.](map-3-5.md)
+- [MAP 3.5 - Processes for human oversight are defined, assessed, and documented in accordance with organizational policies from the GOVERN function.](map-3-5.md)
 - [MAP 4.1 - Approaches for mapping AI technology and legal risks of its components - including the use of third-party data or software - are in place, followed, and documented, as are risks of infringement of a third-party's intellectual property or other rights.](map-4-1.md)
 - [MAP 4.2 - Internal risk controls for components of the AI system, including third-party AI technologies, are identified and documented.](map-4-2.md)
 - [MAP 5.1 - Document the likelihood and magnitude of identified beneficial and harmful impacts](map-5-1.md)

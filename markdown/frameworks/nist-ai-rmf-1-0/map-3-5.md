@@ -1,11 +1,11 @@
 # NIST AI Risk Management Framework 1.0 - MAP 3.5
 
 - Framework Code: NIST-AI-RMF
-- Requirement Title: Likelihood and magnitude of each identified risk based on expected use, past uses of similar systems, public incident reports, feedback from those external to the team that developed or deployed the AI system, or other data are assessed and documented.
+- Requirement Title: Processes for human oversight are defined, assessed, and documented in accordance with organizational policies from the GOVERN function.
 
 ## Mapping Notes
 
-OCTAVE risk assessment includes likelihood and impact scoring. Threat intelligence integration consumes external incident data and adversarial ML attack pattern libraries.
+Taxonomy labels can inform one input to documented human oversight. The local pending-review state supplies a routing example. Meaningful application requires a governance process with assigned reviewers and documented decisions.
 
 ## SAF-K8S Controls
 
@@ -13,7 +13,7 @@ OCTAVE risk assessment includes likelihood and impact scoring. Threat intelligen
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.4
-- Relation Type: supports
+- Relation Type: partial
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: compound-control-split-required
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
