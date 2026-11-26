@@ -2,8 +2,8 @@
 
 - Framework Code: EU-AI-ACT
 - Version: 2024/1689
-- Total Reverse Mappings: 165
-- Distinct Requirements Mapped: 70
+- Total Reverse Mappings: 161
+- Distinct Requirements Mapped: 69
 
 ## Requirements
 
@@ -26,7 +26,6 @@
 - [Annex-VII.3.1.c - Conformity based on an assessment of the quality management system and an assessment of the technical documentation](annex-vii-3-1-c.md)
 - [Annex-VII.3.1.d - Conformity based on an assessment of the quality management system and an assessment of the technical documentation](annex-vii-3-1-d.md)
 - [Annex-VII.3.2 - Conformity based on an assessment of the quality management system and an assessment of the technical documentation](annex-vii-3-2.md)
-- [Annex-VII.4.3 - Conformity based on an assessment of the quality management system and an assessment of the technical documentation](annex-vii-4-3.md)
 - [Annex-VII.5.3 - Conformity based on an assessment of the quality management system and an assessment of the technical documentation](annex-vii-5-3.md)
 - [Annex-VIII.A.4 - Information to be submitted upon the registration of high-risk AI systems in accordance with Article 49](annex-viii-a-4.md)
 - [Annex-XI.1.1 - Technical documentation referred to in Article 53(1), point (a) — technical documentation for providers of general-purpose AI models](annex-xi-1-1.md)

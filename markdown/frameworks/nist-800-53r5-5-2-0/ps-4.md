@@ -11,15 +11,6 @@ Personnel termination procedures must address revocation of agent system access 
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-1007-005 - Change management for production AI model deployments](../../controls/SAF-K8S-1007-005.md)
-
-- Domain: D10 - Observability, Incident Response, and Governance
-- Knowledge Area: 10.7
-- Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-1007-006 - Secure AI workload decommissioning](../../controls/SAF-K8S-1007-006.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance

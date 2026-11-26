@@ -51,5 +51,5 @@ SAF-K8S provides comprehensive post-deployment infrastructure: audit policies fo
 - Knowledge Area: 10.7
 - Relation Type: partial
 - Strength: moderate
-- Applicability: required
+- Applicability: conditional
 - Strength Reason Code: partial-control-coverage

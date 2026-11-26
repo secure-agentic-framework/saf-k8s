@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-AI-RMF
 - Version: 1.0
-- Total Reverse Mappings: 84
-- Distinct Requirements Mapped: 42
+- Total Reverse Mappings: 82
+- Distinct Requirements Mapped: 41
 
 ## Requirements
 
@@ -26,7 +26,6 @@
 - [MANAGE 1.4 - Negative residual risks (defined as the sum of all unmitigated risks) to both downstream acquirers of AI systems and end users are documented.](manage-1-4.md)
 - [MANAGE 2.2 - Mechanisms are in place and applied to sustain the value of deployed AI systems.](manage-2-2.md)
 - [MANAGE 2.3 - Procedures are followed to respond to and recover from a previously unknown risk when it is identified.](manage-2-3.md)
-- [MANAGE 2.4 - Mechanisms are in place and applied, and responsibilities are assigned and understood, to supersede, disengage, or deactivate AI systems that demonstrate performance or outcomes inconsistent with intended use.](manage-2-4.md)
 - [MANAGE 3.1 - AI risks and benefits from third-party resources are regularly monitored, and risk controls are applied and documented.](manage-3-1.md)
 - [MANAGE 4.1 - Post-deployment AI system monitoring plans are implemented, including mechanisms for capturing and evaluating input from users and other relevant AI actors, appeal and override, decommissioning, incident response, recovery, and change management.](manage-4-1.md)
 - [MANAGE 4.2 - Measurable activities for continual improvements are integrated into AI system updates and include regular engagement with interested parties, including relevant AI actors.](manage-4-2.md)

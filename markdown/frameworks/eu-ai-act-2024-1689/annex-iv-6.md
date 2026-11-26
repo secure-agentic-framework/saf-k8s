@@ -26,5 +26,5 @@ Exact events for selected API changes can substantiate part of the applicable pr
 - Knowledge Area: 10.7
 - Relation Type: partial
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
