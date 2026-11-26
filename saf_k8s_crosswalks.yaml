@@ -23749,16 +23749,13 @@
   framework_version: 5.2.0
   framework_requirement_id: RA-5
   framework_requirement_title: Vulnerability Monitoring and Scanning
-  framework_mapping_notes: 'Vulnerability scanning of agentic AI components, dependencies, and models is essential
-
-
-    6.1 - Container image vulnerability scanning (CI/CD, registry, runtime); 6.4 - Vulnerability intelligence'
+  framework_mapping_notes: The three-check case binds synthetic accelerator SBOM and native-host inventories to one observed Kubernetes workload, correlates a synthetic finding, and shows affected/updated disposition. RA-5 requires monitoring/scanning activity and triggering; the fixture only consumes synthetic inventories and a synthetic advisory match. Retain this mapping only when the stated deployed process supplies and uses actual applicable evidence; the fixture is not proof that it does.
   control_id: SAF-K8S-0905-029
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Actual accelerator component and, where applicable, host inventories are produced by the deployed vulnerability monitoring/scanning process at its required frequency and when potentially affecting vulnerabilities are identified or reported, and the results feed the triage workflow.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -42010,13 +42007,13 @@
   framework_version: '1.1'
   framework_requirement_id: RV.1.1
   framework_requirement_title: Gather information from software acquirers, users, and public sources on potential vulnerabilities in the software and third-party components, and investigate all credible reports.
-  framework_mapping_notes: SAF-K8S requires continuous vulnerability monitoring for container images, ML dependencies, GPU drivers, and Kubernetes components. VEX publication and threat intelligence integration formalize vulnerability information gathering.
+  framework_mapping_notes: The three-check case binds synthetic accelerator SBOM and native-host inventories to one observed Kubernetes workload, correlates a synthetic finding, and shows affected/updated disposition. The fixture uses a fixed synthetic advisory; it does not gather or investigate credible external reports. Retain this mapping only when the stated deployed process supplies and uses actual applicable evidence; the fixture is not proof that it does.
   control_id: SAF-K8S-0905-029
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Actual purchaser/consumer and public vulnerability information sources are ingested, and credible reports are investigated using the deployed accelerator inventory and triage process.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
@@ -42091,13 +42088,13 @@
   framework_version: '1.1'
   framework_requirement_id: RV.2.1
   framework_requirement_title: Analyze each vulnerability to gather sufficient information about risk to plan its remediation or other risk response.
-  framework_mapping_notes: SAF-K8S includes vulnerability prioritization for AI workloads that accounts for exploitability context, blast radius in the cluster, and AI-specific impact factors.
+  framework_mapping_notes: The three-check case binds synthetic accelerator SBOM and native-host inventories to one observed Kubernetes workload, correlates a synthetic finding, and shows affected/updated disposition. The fixture matches synthetic affected versions and tracks corrected inventory state; it does not record contextual risk analysis or risk-based response planning. Retain this mapping only when the stated deployed process supplies and uses actual applicable evidence; the fixture is not proof that it does.
   control_id: SAF-K8S-0905-029
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Actual findings receive documented risk analysis sufficient to plan remediation or another response, and the accelerator inventory/triage evidence is consumed by that process.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
