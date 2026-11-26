@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0404-003",
-  "catalog_revision": "d96c64fb292e4e82ab923403e2f46b0eb1c7421e",
-  "catalog_sha256": "c09541417907cc7248bdd4fb884d3f081daf444f4eb3271930a59b44ef557ec0",
+  "catalog_revision": "e708889e6c5149526b095c89371fdbb646ceb2ec",
+  "catalog_sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "56778e018331207a65c8ffb6779d8a1e720fd4c9902c6a24a7afb866f184012a",
   "scope": "Actual TLS 1.3 between owned Kubernetes Pods verifies a server name, server trust, and client certificate trust. An explicit service decision separate from the TLS handshake limits the verified client identity. Automatic issuance, service mesh, all production flows, revocation and authorization surfaces need separate evidence.",
-  "cluster": "saf-lab-689e2a9adbf1",
+  "cluster": "saf-lab-6f2c546c27dd",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -63,6 +63,17 @@
       "observed": {
         "approved_identity_completed_operation": true,
         "authenticated_neighbor_was_not_authorized": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The service accepts a replacement leaf under unchanged CA and URI identity",
+      "matched": true,
+      "observed": {
+        "prior_leaf_was_observed": true,
+        "replacement_leaf_was_observed": true,
+        "same_approved_service_identity": true,
+        "replacement_leaf_completed_tls_and_operation": true
       }
     }
   ]

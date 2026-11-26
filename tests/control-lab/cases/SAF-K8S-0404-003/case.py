@@ -35,7 +35,7 @@ def root_ca(lab, directory, name):
     return cert, key
 
 
-def issue(lab, directory, issuer, name, identity, purpose):
+def issue(lab, directory, issuer, name, identity, purpose, *, install_secret=True):
     key, csr, certificate, config = (directory / f"{name}.{suffix}" for suffix in ("key", "csr", "crt", "ext"))
     config.write_text("basicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature\n"
                       "subjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid,issuer\n"
@@ -45,7 +45,14 @@ def issue(lab, directory, issuer, name, identity, purpose):
     ca, ca_key = issuer
     lab.command("openssl", "x509", "-req", "-in", str(csr), "-CA", str(ca), "-CAkey", str(ca_key),
                 "-CAcreateserial", "-days", "1", "-extfile", str(config), "-out", str(certificate))
-    lab.kubectl("create", "secret", "tls", f"fixture-key-{name}", "--key=" + str(key),
+    if install_secret:
+        install_tls_secret(lab, name, key, certificate)
+    return key, certificate
+
+
+def install_tls_secret(lab, secret_name, key, certificate):
+    """Create a TLS Secret without printing or recording its key/certificate data."""
+    lab.kubectl("create", "secret", "tls", f"fixture-key-{secret_name}", "--key=" + str(key),
                 "--cert=" + str(certificate), "-o", "name")
 
 
@@ -105,7 +112,8 @@ def run(lab):
     ready(lab, APP)
     baseline = accepted(lab, "none")
     red = {"unidentified_client_reaches_server_only_operation": baseline == {
-        "tls": "TLSv1.3", "http": 200, "identity": [], "operation": True}}
+        "tls": "TLSv1.3", "http": 200, "identity": [], "operation": True,
+        "peer_certificate_cn": None}}
     lab.check("red", "Server-only TLS permits an unidentified fixture client to perform the public operation",
               all(red.values()), red)
 
@@ -131,12 +139,37 @@ def run(lab):
     neighbor = call(lab, HOST, "neighbor")
     positive = {
         "approved_identity_completed_operation": permitted == {
-            "tls": "TLSv1.3", "http": 200, "identity": ["spiffe://fixture.invalid/training"], "operation": True},
+            "tls": "TLSv1.3", "http": 200, "identity": ["spiffe://fixture.invalid/training"],
+            "operation": True, "peer_certificate_cn": "training"},
         "authenticated_neighbor_was_not_authorized": neighbor == {
-            "tls": "TLSv1.3", "http": 403, "identity": ["spiffe://fixture.invalid/neighbor"], "operation": False},
+            "tls": "TLSv1.3", "http": 403, "identity": ["spiffe://fixture.invalid/neighbor"],
+            "operation": False, "peer_certificate_cn": "neighbor"},
     }
     lab.check("positive", "An authenticated peer can still be denied by the separate operation policy",
               all(positive.values()), positive)
+
+    # Rotate only the authorized training client leaf under the same approved CA
+    # and exact URI SAN. Replace the Secret while its only consumer is stopped,
+    # then verify the live server observes the distinct replacement leaf.
+    rotated_key, rotated_cert = issue(
+        lab, directory, ca, "training-next", "URI:spiffe://fixture.invalid/training",
+        "clientAuth", install_secret=False)
+    lab.kubectl("delete", "pod", CLIENT, "--wait=true")
+    lab.kubectl("delete", "secret", "fixture-key-training", "--wait=true")
+    install_tls_secret(lab, "training", rotated_key, rotated_cert)
+    workload(lab, CLIENT, "", CREDENTIALS)
+    ready(lab, CLIENT)
+    rotated = accepted(lab, "training")
+    rotation = {
+        "prior_leaf_was_observed": permitted.get("peer_certificate_cn") == "training",
+        "replacement_leaf_was_observed": rotated.get("peer_certificate_cn") == "training-next",
+        "same_approved_service_identity": rotated.get("identity") == ["spiffe://fixture.invalid/training"],
+        "replacement_leaf_completed_tls_and_operation": rotated.get("tls") == "TLSv1.3"
+            and rotated.get("http") == 200 and rotated.get("operation") is True,
+    }
+    lab.check("positive", "The service accepts a replacement leaf under unchanged CA and URI identity",
+              all(rotation.values()), rotation)
     (lab.evidence / "mutual-tls-observations.json").write_text(json.dumps({
         "server_only": red, "transport_validation": green, "operation_authorization": positive,
+        "same_identity_leaf_rotation": rotation,
     }, indent=2) + "\n")

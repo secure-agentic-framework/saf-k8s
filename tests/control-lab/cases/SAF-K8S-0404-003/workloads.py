@@ -10,9 +10,12 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         certificate = self.connection.getpeercert()
         names = [value for kind, value in (certificate or {}).get("subjectAltName", ()) if kind == "URI"]
+        common_names = [value for rdn in (certificate or {}).get("subject", ())
+                        for key, value in rdn if key == "commonName"]
         allowed = self.server.mode == "server-only" or names == ["spiffe://fixture.invalid/training"]
         status = 200 if allowed else 403
-        payload = json.dumps({"fixture_operation": allowed, "certificate_identity": names}).encode()
+        payload = json.dumps({"fixture_operation": allowed, "certificate_identity": names,
+                              "peer_certificate_cn": common_names[0] if len(common_names) == 1 else None}).encode()
         self.send_response(status)
         self.send_header("Content-Length", str(len(payload)))
         self.end_headers()
@@ -63,7 +66,8 @@ def request(host, credential):
         response = client.getresponse()
         data = json.loads(response.read())
         value = {"tls": protocol, "http": response.status,
-                 "identity": data["certificate_identity"], "operation": data["fixture_operation"]}
+                 "identity": data["certificate_identity"], "operation": data["fixture_operation"],
+                 "peer_certificate_cn": data["peer_certificate_cn"]}
     except ssl.SSLCertVerificationError as error:
         value = {"error": "server-certificate-verification", "verify_code": error.verify_code}
     except ssl.SSLError as error:
