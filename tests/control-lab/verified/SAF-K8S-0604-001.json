@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0604-001",
-  "catalog_revision": "c979b9c61defb061cfc41526d959c571281172c4",
-  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
+  "catalog_revision": "5baaadd565f2b475544b0ff22d3d9faddb30a7d1",
+  "catalog_sha256": "e21df5ef6d7be8d3be548d48d3650f2dfc630a3e395f036b3e3eb0533fc68fe4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "72f4fbe4a05d6d17a1cece970943dd69645f542b78ee313556f56c6c063202de",
-  "scope": "A pinned scanner catalogs Python package metadata from two runnable OCI images. A release check binds the CycloneDX inventory to the assembled image digest and holds an image when a required transitive dependency is absent from the inventory. This fixture leaves production SBOM retention, native package coverage and AI artifact inventory for separate review.",
-  "cluster": "saf-lab-803d9e34cedf",
+  "scope": "A pinned scanner catalogs Python package metadata from two runnable OCI images. A release check binds the CycloneDX inventory to the assembled image digest and holds an image when a required transitive dependency is absent from the inventory. This fixture leaves additional native packages, deployed GPU and vendored dependencies, SBOM retention and AI artifact inventory for separate review. The approved image also reads its Debian libc6 metadata and reports its loaded glibc version for an independent package comparison.",
+  "cluster": "saf-lab-2184982f5a51",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -90,6 +90,17 @@
       "observed": {
         "ran_exact_digest": true,
         "transitive_module_executed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The running image's Debian packaging and active libc match its generated SBOM",
+      "matched": true,
+      "observed": {
+        "exact_manifest_runtime": true,
+        "package_version_matches": true,
+        "loaded_library_matches_package": true,
+        "libc6_version": "2.41-12+deb13u4"
       }
     },
     {

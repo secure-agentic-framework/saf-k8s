@@ -13,11 +13,30 @@ SYFT = ("ghcr.io/anchore/syft:v1.57.1@sha256:"
         "03215d0e98b661d0ecbc8575dbc14d65be1743b5de5df6410aecb7e80f95b060")
 PACKAGES = {"saf-fixture-root": "1.0", "saf-fixture-middle": "2.0", "saf-fixture-leaf": "3.0"}
 MARKER = "saf-sbom-root-middle-leaf"
+RUNTIME_PROBE = """
+import ctypes
+import json
+import runpy
+import subprocess
+
+runpy.run_module("saf_fixture_root", run_name="__main__")
+package_version = subprocess.check_output(
+    ["dpkg-query", "-W", "-f=${Version}", "libc6"], text=True, timeout=4
+).strip()
+glibc_version = ctypes.CDLL("libc.so.6").gnu_get_libc_version
+glibc_version.restype = ctypes.c_char_p
+print(json.dumps({
+    "libc6": package_version,
+    "loaded_glibc_version": glibc_version().decode("ascii"),
+}))
+"""
 SCOPE = (
     "A pinned scanner catalogs Python package metadata from two runnable OCI images. A release "
     "check binds the CycloneDX inventory to the assembled image digest and holds an image "
     "when a required transitive dependency is absent from the inventory. This fixture leaves "
-    "production SBOM retention, native package coverage and AI artifact inventory for separate review."
+    "additional native packages, deployed GPU and vendored dependencies, SBOM retention and "
+    "AI artifact inventory for separate review. The approved image also reads its Debian libc6 "
+    "metadata and reports its loaded glibc version for an independent package comparison."
 )
 
 
@@ -104,8 +123,20 @@ def scan(registry, root, subject):
     # Retain a companion scan receipt that binds the exact serialized BOM to Syft's image digest.
     bom_path = registry.lab.evidence / f"{root.name}.cdx.json"
     bom_path.write_text(json.dumps(bom, indent=2, sort_keys=True) + "\n")
+    debian_libc = {
+        row["version"] for row in scanned.get("artifacts", [])
+        if row.get("name") == "libc6" and row.get("type") == "deb" and row.get("version")
+    }
+    bom_libc = {
+        row["version"] for row in bom["components"]
+        if row.get("name") == "libc6" and row.get("purl", "").startswith("pkg:deb/")
+        and row.get("version")
+    }
+    declared_libc, = bom_libc if len(bom_libc) == 1 else (None,)
+    native_libc = declared_libc if debian_libc == bom_libc else None
     return {
         "manifest_digest": subject,
+        "native_libc6": native_libc,
         "bom_sha256": sha256(bom_path.read_bytes()).hexdigest(),
         "cyclonedx_subject_hash_present": digest_bound,
         "generator": SYFT,
@@ -114,7 +145,7 @@ def scan(registry, root, subject):
 
 
 def release(registry, root, inventory, observed):
-    if observed != PACKAGES:
+    if observed != PACKAGES or not inventory["native_libc6"]:
         return None
     raw = registry.lab.evidence / f"{root.name}.cdx.json"
     if sha256(raw.read_bytes()).hexdigest() != inventory["bom_sha256"]:
@@ -144,7 +175,7 @@ def release_tag_absent(registry, root):
     return result.returncode != 0 and ("manifest unknown" in diagnostic or "name unknown" in diagnostic)
 
 
-def run_approved(registry, image, digest):
+def run_approved(registry, image, digest, inventoried_libc):
     lab = registry.lab
     node = lab.cluster + "-control-plane"
     certs = f"/etc/containerd/certs.d/{registry.registry}"
@@ -157,14 +188,27 @@ def run_approved(registry, image, digest):
     name = "saf-0604-001-covered"
     lab.create({"apiVersion": "v1", "kind": "Pod", "metadata": {"name": name}, "spec": {
         "automountServiceAccountToken": False, "restartPolicy": "Never",
-        "containers": [{"name": "workload", "image": image, "imagePullPolicy": "Always"}],
+        "containers": [{"name": "workload", "image": image, "imagePullPolicy": "Always",
+                        "command": ["python", "-c", RUNTIME_PROBE]}],
     }})
     lab.kubectl("wait", "--for=jsonpath={.status.phase}=Succeeded", f"pod/{name}", "--timeout=85s", timeout=95)
     status = json.loads(lab.kubectl("get", "pod", name, "-o", "json").stdout)["status"]
     runtime = status["containerStatuses"][0]["imageID"].endswith(digest)
-    marker = lab.kubectl("logs", name).stdout.strip() == MARKER
+    lines = lab.kubectl("logs", name).stdout.splitlines()
+    marker = len(lines) == 2 and lines[0] == MARKER
     lab.check("positive", "Kind ran the exact inventoried manifest and exercised all fixture modules",
               runtime and marker, {"ran_exact_digest": runtime, "transitive_module_executed": marker})
+    if not marker:
+        lab.block("The selected image did not emit its expected runtime inventory")
+    observation = json.loads(lines[1])
+    installed = observation["libc6"]
+    active = observation["loaded_glibc_version"]
+    match = installed == inventoried_libc
+    uses_library = bool(active) and installed.split(":")[-1].startswith(active + "-")
+    lab.check("positive", "The running image's Debian packaging and active libc match its generated SBOM",
+              runtime and match and uses_library,
+              {"exact_manifest_runtime": runtime, "package_version_matches": match,
+               "loaded_library_matches_package": uses_library, "libc6_version": installed})
 
 
 def run(lab):
@@ -191,4 +235,6 @@ def run(lab):
         (lab.evidence / "inventory-subjects.json").write_text(json.dumps(
             {"held": absent, "approved": complete}, indent=2, sort_keys=True) + "\n")
         push_ref = release(registry, full_root, complete, observed)
-        run_approved(registry, push_ref, full_digest)
+        if push_ref is None:
+            lab.block("The exact image is missing a required CycloneDX native component")
+        run_approved(registry, push_ref, full_digest, complete["native_libc6"])
