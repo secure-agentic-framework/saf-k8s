@@ -2,8 +2,8 @@
 
 - Framework Code: EU-AI-ACT
 - Version: 2024/1689
-- Total Reverse Mappings: 213
-- Distinct Requirements Mapped: 83
+- Total Reverse Mappings: 208
+- Distinct Requirements Mapped: 78
 
 ## Requirements
 
@@ -48,11 +48,6 @@
 - [Article-12.2.a - Record-keeping](article-12-2-a.md)
 - [Article-12.2.b - Record-keeping](article-12-2-b.md)
 - [Article-12.2.c - Record-keeping](article-12-2-c.md)
-- [Article-12.3 - Record-keeping](article-12-3.md)
-- [Article-12.3.a - Record-keeping](article-12-3-a.md)
-- [Article-12.3.b - Record-keeping](article-12-3-b.md)
-- [Article-12.3.c - Record-keeping](article-12-3-c.md)
-- [Article-12.3.d - Record-keeping](article-12-3-d.md)
 - [Article-13.1 - Transparency and provision of information to deployers](article-13-1.md)
 - [Article-13.3.b.ii - Transparency and provision of information to deployers](article-13-3-b-ii.md)
 - [Article-13.3.b.vi - Transparency and provision of information to deployers](article-13-3-b-vi.md)

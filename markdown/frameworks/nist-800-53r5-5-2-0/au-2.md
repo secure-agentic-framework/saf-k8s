@@ -24,10 +24,10 @@ Defining auditable agent events
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1001-008 - Permitted responses to audit findings](../../controls/SAF-K8S-1001-008.md)
 

@@ -29,15 +29,6 @@ Protecting agent audit logs from tampering
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-1001-007 - Supplemental application-level telemetry for AI workload events](../../controls/SAF-K8S-1001-007.md)
-
-- Domain: D10 - Observability, Incident Response, and Governance
-- Knowledge Area: 10.1
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-1001-008 - Permitted responses to audit findings](../../controls/SAF-K8S-1001-008.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance

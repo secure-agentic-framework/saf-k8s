@@ -33,5 +33,5 @@ Scoped infrastructure audit records can contribute event evidence. Verify automa
 - Knowledge Area: 10.1
 - Relation Type: partial
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

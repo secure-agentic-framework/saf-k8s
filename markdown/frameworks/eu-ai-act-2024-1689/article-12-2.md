@@ -33,8 +33,8 @@ Persist attributable infrastructure events when they are relevant to an applicab
 - Knowledge Area: 10.1
 - Relation Type: partial
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1001-017 - Audit capture of admission, authorization, and privileged API decisions for AI workloads](../../controls/SAF-K8S-1001-017.md)
 
