@@ -8,7 +8,7 @@ From the framework checkout, use `python3 tests/control-lab/lab.py` with the sam
 
 The case verifies actual Collector output. Without the injected context, the training Job completes and starts its own trace. With the context, the Collector records the exact ingestion, training, registry, and inference parent IDs as one tree. A tagged synthetic error belongs to the intended inference span. A separate healthy workflow produces a complete, independent trace.
 
-Production orchestrators, InferenceService CRD annotation propagation, instrumentation coverage, sampling, retention, backend durability, and incident response require deployment evidence.
+For deployment, verify the actual orchestrators and InferenceService annotation handoffs, instrumentation coverage, sampling, retention, backend durability and use in incident response.
 
 [W3C Trace Context](https://www.w3.org/TR/trace-context/) · [OpenTelemetry Python propagation](https://opentelemetry.io/docs/languages/python/propagation/) · [OpenTelemetry Collector 0.136.0](https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/v0.136.0)
 
@@ -33,3 +33,5 @@ Job and KServe trace and an independent no-context predictor trace.
 - W3C Trace Context: https://www.w3.org/TR/trace-context/
 - OpenTelemetry Python propagation: https://opentelemetry.io/docs/languages/python/propagation/
 - OpenTelemetry Collector 0.136.0: https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/v0.136.0
+
+For an applicable high-risk AI system, identify which independently retained trace records support its intended-purpose traceability or post-market monitoring. Document the fields, relevant deployed paths, responsible provider and analysis procedure in the system-specific evidence. This fixture exercises trace transport and parentage.
