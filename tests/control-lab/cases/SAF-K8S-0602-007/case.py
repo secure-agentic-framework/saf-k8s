@@ -1,6 +1,10 @@
 """Check authorization and immutability for an inert approval record."""
 import json
+import hashlib
+import subprocess
+import sys
 import time
+from pathlib import Path
 
 NS = "saf-test"
 RECORD = "saf-0602-007-review"
@@ -122,3 +126,82 @@ def run(lab):
     pod_permission = lab.kubectl(f"--as={user(READER)}", "auth", "can-i", "create", "pods", allow_failure=True)
     lab.check("positive", "The inert record confers no Pod-create permission on the requester",
               pod_permission.stdout.strip() == "no", {"requester_can_create_pods": False})
+
+
+def run_expiry_reference(lab):
+    """Exercise a separate time-aware consumer with the persisted inert approval record."""
+    expected_record = {
+        "requestId": "saf-0602-007-synthetic-request",
+        "targetDigest": "sha256:" + "a" * 64,
+        "expiresAt": "2032-01-01T00:15:00Z",
+        "security": "approved",
+        "operations": "approved",
+    }
+    before_obj = json.loads(lab.kubectl(
+        "get", "configmap", RECORD, "-n", NS, "-o", "json").stdout)
+    record = before_obj.get("data", {})
+    if record != expected_record:
+        lab.block("The persisted approved record did not match the exact inert fixture")
+    request = {"requestId": record["requestId"], "targetDigest": record["targetDigest"]}
+    payloads = {
+        "current": {"record": record, "request": request,
+                    "evaluatedAt": "2032-01-01T00:14:59Z"},
+        "expired": {"record": record, "request": request,
+                    "evaluatedAt": "2032-01-01T00:15:00Z"},
+        "wrong_request": {"record": record,
+                           "request": {"requestId": "other-synthetic-request",
+                                       "targetDigest": record["targetDigest"]},
+                           "evaluatedAt": "2032-01-01T00:14:59Z"},
+    }
+    canonical = json.dumps(record, sort_keys=True, separators=(",", ":")).encode()
+    original_fingerprint = hashlib.sha256(canonical).hexdigest()
+    results = {}
+    consumer = Path(__file__).with_name("expiry_consumer.py")
+    for case, payload in payloads.items():
+        result = subprocess.run(
+            [sys.executable, str(consumer)], input=json.dumps(payload), text=True,
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=5, check=False)
+        if result.returncode != 0:
+            lab.block("The isolated expiry decision consumer did not return a verdict")
+        try:
+            results[case] = json.loads(result.stdout)
+        except (ValueError, TypeError):
+            lab.block("The isolated expiry decision consumer returned an invalid verdict")
+    after_obj = json.loads(lab.kubectl(
+        "get", "configmap", RECORD, "-n", NS, "-o", "json").stdout)
+    after_record = after_obj.get("data", {})
+    unchanged = (
+        hashlib.sha256(json.dumps(after_record, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        == original_fingerprint and after_record == record
+    )
+    current_allowed = results["current"] == {"permitted": True, "reason": "approved-unexpired"}
+    expired_denied = results["expired"] == {"permitted": False, "reason": "expired"}
+    wrong_request_denied = results["wrong_request"] == {
+        "permitted": False, "reason": "request-mismatch"}
+    passed = unchanged and current_allowed and expired_denied and wrong_request_denied
+    lab.check(
+        "positive",
+        "A separate bounded consumer allows the exact current approval and denies it at expiry",
+        passed,
+        {"fixture_record_unchanged": unchanged,
+         "exact_current_request_permitted": current_allowed,
+         "expired_request_denied": expired_denied,
+         "different_request_denied": wrong_request_denied,
+         "time_source": "fixed-fixture-input",
+         "enforcement_boundary": "application-reference-only"})
+    (lab.evidence / "expiry-reference-observations.json").write_text(json.dumps({
+        "fixture_record_unchanged": unchanged,
+        "exact_current_request_permitted": current_allowed,
+        "expired_request_denied": expired_denied,
+        "different_request_denied": wrong_request_denied,
+        "time_source": "fixed-fixture-input",
+        "enforcement_boundary": "application-reference-only",
+    }, sort_keys=True, indent=2) + "\n")
+
+
+_published_run = run
+
+
+def run(lab):
+    _published_run(lab)
+    run_expiry_reference(lab)
