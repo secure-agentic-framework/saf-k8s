@@ -55,3 +55,9 @@ Record the approved CNI version and effective configuration. Inventory standard 
 The revised catalog retains bounded supporting mappings for AC-4, AC-4(21), CA-9, SC-7, SC-7(5), and SC-7(11). Each applies at the tested information-flow, interface, or component boundary under its conditions. Record unverified paths and compensating measures in the adopter assessment.
 
 [Kubernetes v1.36 NetworkPolicy](https://v1-36.docs.kubernetes.io/docs/concepts/services-networking/network-policies/) · [Cilium v1.20 policy language](https://docs.cilium.io/en/v1.20/security/policy/language/)
+
+## Product and edition scope
+
+Record the required L7, DNS/FQDN or cluster-scoped policy behavior, then select a supported feature for each requirement. Verify product, edition, version, dataplane, managed restrictions, and actual rule precedence before applying it. The runnable reference demonstrates the stated Cilium cases. Calico Open Source documents cluster scope and ordered tiers, while Calico Enterprise documents additional domain and application-layer features with their own limits. Verify required compensating controls on the same paths.
+
+[Calico Open Source GlobalNetworkPolicy](https://docs.tigera.io/calico/latest/reference/resources/globalnetworkpolicy) · [Calico Enterprise domain-based policy](https://docs.tigera.io/calico-enterprise/latest/network-policy/domain-based-policy) · [Calico Enterprise application-layer policy](https://docs.tigera.io/calico-enterprise/latest/network-policy/application-layer-policies/alp) · [Cilium v1.20 deny policy](https://docs.cilium.io/en/v1.20/security/policy/deny/)
