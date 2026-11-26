@@ -36908,16 +36908,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SR-4(2)
   framework_requirement_title: Track and Trace
-  framework_mapping_notes: 'Track and trace of AI model and tool artifacts through the supply chain
-
-
-    9.6 - Training data provenance tracking (lineage from ingestion to training); 10.2 - Distributed tracing for ML pipelines'
+  framework_mapping_notes: The exact subject digest and attached ML-BOM remain linked during the observed storage and promotion paths. Inventory and verify actual designated scope.
   control_id: SAF-K8S-0905-043
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only when the organization designates the models or artifact components for lifecycle tracking and preserves independently readable identities and attachments across the governed stages.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -37127,16 +37124,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SR-4(4)
   framework_requirement_title: Supply Chain Integrity -- Pedigree
-  framework_mapping_notes: 'Supply chain pedigree for AI models documents complete chain of custody
-
-
-    9.5 - ML-BOM (training data lineage, framework versions, training infrastructure identity); 6.4 - ML-BOM generation'
+  framework_mapping_notes: Durable attachment makes the records available for pedigree analysis. Actual accuracy, completeness and performance of the analysis require their own evidence.
   control_id: SAF-K8S-0905-043
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only when retained ML-BOM records are actually used to validate composition and provenance for organization-designated critical or mission-essential models or components.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
