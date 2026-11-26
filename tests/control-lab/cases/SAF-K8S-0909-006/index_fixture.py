@@ -16,6 +16,8 @@ RETIRED = ROOT / "generation-retired.sqlite3"
 STAGED = ROOT / "activation-stage.sqlite3"
 BACKUP_APPROVED = BACKUP_ROOT / "snapshot-v1-approved.sqlite3"
 APPROVAL = Path("/approval/approved.json")
+MIGRATION_PLAN = Path("/migration/plan.json")
+MIGRATION_PLAN_SHA256 = "67a6b2276e5544aea0365fcd804e3b94b98ea0c0ce5af296044fcf9e93a80b42"
 MODEL = "synthetic-hash-embed-v1"
 APPROVED_DOCS = [
     {"id": "doc-cedar", "text": "cedar fixture token is amber", "vector": [1.0, 0.0, 0.0]},
@@ -28,6 +30,7 @@ ALTERED_DOCS = [
     {"id": "doc-birch", "text": "birch fixture token is green", "vector": [0.0, 0.0, 1.0]},
 ]
 QUERY = [1.0, 0.0, 0.0]
+MIGRATION_STAGE = ROOT / "migration-v2-stage.sqlite3"
 
 
 def canonical(value):
@@ -115,6 +118,116 @@ def top_id(path, query):
         return sorted(scored, key=lambda item: (-item[0], item[1]))[0][1] if scored else None
     finally:
         db.close()
+
+
+def top_id_for(path, query, model_version, dimension):
+    db = connect(path, read_only=True)
+    try:
+        rows = db.execute("SELECT id, model_version, vector_json FROM vectors ORDER BY id").fetchall()
+        scored = []
+        for row_id, version, raw in rows:
+            if version != model_version:
+                continue
+            vector = json.loads(raw)
+            if len(vector) != dimension or len(query) != dimension:
+                continue
+            norm = math.sqrt(sum(x*x for x in vector) * sum(x*x for x in query))
+            score = sum(a*b for a, b in zip(vector, query)) / norm if norm else -1.0
+            scored.append((score, row_id))
+        return sorted(scored, key=lambda item: (-item[0], item[1]))[0][1] if scored else None
+    finally:
+        db.close()
+
+
+def migration_plan():
+    raw = MIGRATION_PLAN.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != MIGRATION_PLAN_SHA256:
+        raise ValueError("migration_plan_digest_mismatch")
+    plan = json.loads(raw)
+    if plan.get("transformation") != "project_first_two_coordinates_v1":
+        raise ValueError("migration_transformation_not_approved")
+    return plan
+
+
+def migration_source_check(plan):
+    meta, docs = metadata(ACTIVE)
+    db = connect(ACTIVE, read_only=True)
+    try:
+        rows = db.execute("SELECT DISTINCT model_version FROM vectors ORDER BY model_version").fetchall()
+        dimensions = {len(json.loads(row[0])) for row in
+                      db.execute("SELECT vector_json FROM vectors").fetchall()}
+    finally:
+        db.close()
+    source = plan["source"]
+    return {
+        "model_matches": meta.get("model_version") == source["model_version"] and
+                         rows == [(source["model_version"],)],
+        "content_digest_matches": meta.get("corpus_sha256") == source["corpus_sha256"] == corpus_digest(docs),
+        "dimension_matches": dimensions == {source["dimension"]},
+    }, docs
+
+
+def transform_for_migration(docs, plan):
+    source_dim = plan["source"]["dimension"]
+    target_dim = plan["target"]["dimension"]
+    if source_dim != 3 or target_dim != 2:
+        raise ValueError("fixture_transform_dimension_mismatch")
+    transformed = []
+    for row in docs:
+        if len(row["vector"]) != source_dim:
+            raise ValueError("source_vector_dimension_mismatch")
+        transformed.append({"id": row["id"], "text": row["text"],
+                            "vector": row["vector"][:2]})
+    return transformed
+
+
+def build_migrated(path, docs, plan):
+    if path.exists():
+        path.unlink()
+    db = connect(path)
+    target = plan["target"]
+    try:
+        db.executescript("""
+            CREATE TABLE index_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+            CREATE TABLE vectors (
+                id TEXT PRIMARY KEY, text TEXT NOT NULL, model_version TEXT NOT NULL,
+                vector_json TEXT NOT NULL
+            );
+        """)
+        values = {"generation": target["generation"],
+                  "model_version": target["model_version"],
+                  "document_count": str(len(docs)),
+                  "corpus_sha256": corpus_digest(docs),
+                  "dimension": str(target["dimension"])}
+        with db:
+            db.executemany("INSERT INTO index_meta VALUES (?, ?)", sorted(values.items()))
+            db.executemany("INSERT INTO vectors VALUES (?, ?, ?, ?)",
+                           [(row["id"], row["text"], target["model_version"], canonical(row["vector"]))
+                            for row in docs])
+    finally:
+        db.close()
+
+
+def validate_migrated(path, plan):
+    target = plan["target"]
+    meta, docs = metadata(path)
+    db = connect(path, read_only=True)
+    try:
+        rows = db.execute("SELECT model_version, vector_json FROM vectors").fetchall()
+    finally:
+        db.close()
+    query = top_id_for(path, plan["known_query"], target["model_version"], target["dimension"])
+    return {
+        "sqlite_integrity_ok": integrity(path) == ["ok"],
+        "target_model_matches": meta.get("model_version") == target["model_version"] and
+                                {row[0] for row in rows} == {target["model_version"]},
+        "target_dimension_matches": meta.get("dimension") == str(target["dimension"]) and
+                                    all(len(json.loads(row[1])) == target["dimension"] for row in rows),
+        "target_document_count_matches": meta.get("document_count") == str(len(docs)) == "3",
+        "target_content_digest_matches": meta.get("corpus_sha256") == target["corpus_sha256"] == corpus_digest(docs),
+        "known_query_matches": query == plan["expected_top_id"],
+        "generation_matches": meta.get("generation") == target["generation"],
+    }, query
 
 
 def approved_check(path):
@@ -278,6 +391,63 @@ def run(command):
                 "restored_digest_matches": file_sha(ACTIVE) == expected_digest,
                 "restored_size_matches": ACTIVE.stat().st_size == expected_bytes,
                 "restored_query": top_id(ACTIVE, QUERY)}
+    if command == "migration-incompatible":
+        plan = migration_plan()
+        before_digest = file_sha(ACTIVE)
+        source_checks, _ = migration_source_check(plan)
+        requested = {"model_version": "synthetic-unapproved-embed-v9", "dimension": 4}
+        target = plan["target"]
+        after_digest = file_sha(ACTIVE)
+        return {"plan_digest_matches_pin": True,
+                "plan_source_model_and_digest_match": all(source_checks.values()),
+                "requested_incompatible_model_rejected": requested["model_version"] != target["model_version"],
+                "requested_incompatible_dimension_rejected": requested["dimension"] != target["dimension"],
+                "active_digest_before": before_digest,
+                "active_digest_after": after_digest,
+                "active_bytes_unchanged": before_digest == after_digest,
+                "migration_stage_absent": not MIGRATION_STAGE.exists()}
+    if command == "migration-approved":
+        plan = migration_plan()
+        before_digest = file_sha(ACTIVE)
+        source_checks, docs = migration_source_check(plan)
+        if not all(source_checks.values()):
+            return {"plan_digest_matches_pin": True, "source_checks": source_checks,
+                    "staged_validation_passed": False, "activation_performed": False,
+                    "active_bytes_unchanged": file_sha(ACTIVE) == before_digest}
+        transformed = transform_for_migration(docs, plan)
+        target = plan["target"]
+        derived_digest = corpus_digest(transformed)
+        if derived_digest != target["corpus_sha256"]:
+            return {"plan_digest_matches_pin": True, "source_checks": source_checks,
+                    "derived_target_digest_matches_plan": False,
+                    "staged_validation_passed": False, "activation_performed": False,
+                    "active_bytes_unchanged": file_sha(ACTIVE) == before_digest}
+        build_migrated(MIGRATION_STAGE, transformed, plan)
+        stage_digest_before_activation = file_sha(MIGRATION_STAGE)
+        stage_checks, stage_query = validate_migrated(MIGRATION_STAGE, plan)
+        stage_valid = all(stage_checks.values()) and stage_query == plan["expected_top_id"]
+        if not stage_valid:
+            MIGRATION_STAGE.unlink(missing_ok=True)
+            return {"plan_digest_matches_pin": True, "source_checks": source_checks,
+                    "derived_target_digest_matches_plan": True,
+                    "staged_validation_passed": False, "staged_checks": stage_checks,
+                    "staged_query": stage_query, "activation_performed": False,
+                    "active_bytes_unchanged": file_sha(ACTIVE) == before_digest}
+        os.replace(MIGRATION_STAGE, ACTIVE)
+        active_checks, active_query = validate_migrated(ACTIVE, plan)
+        return {"plan_digest_matches_pin": True,
+                "source_checks": source_checks,
+                "derived_target_digest_matches_plan": True,
+                "staged_validation_passed": True,
+                "staged_checks": stage_checks,
+                "staged_query_before_activation": stage_query,
+                "staged_and_active_digest_match": file_sha(ACTIVE) == stage_digest_before_activation,
+                "activation_performed": True,
+                "active_checks": active_checks,
+                "active_query_after_activation": active_query,
+                "active_model_version": metadata(ACTIVE)[0].get("model_version"),
+                "active_dimension": metadata(ACTIVE)[0].get("dimension"),
+                "active_bytes_changed_from_source": file_sha(ACTIVE) != before_digest}
     raise ValueError("unknown fixture operation")
 
 

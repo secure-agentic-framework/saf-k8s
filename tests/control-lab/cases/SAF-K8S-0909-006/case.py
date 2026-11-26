@@ -12,6 +12,7 @@ NAME = "fixture-vector-index"
 PVC = "fixture-vector-index-data"
 BACKUP_PVC = "fixture-vector-index-backup"
 APPROVAL = "fixture-vector-index-approval"
+MIGRATION_PLAN = "fixture-vector-index-migration-plan"
 CODE = "fixture-vector-index-code"
 APPROVED = {
     "generation": "v1-approved",
@@ -33,6 +34,8 @@ SCOPE = (
     "mounted approved metadata while preserving the live index. The snapshot persists across Pod replacement. "
     "It performs an approved-source rebuild and known-query check, unlinks one named retired fixture generation, "
     "then restores the approved snapshot after replacing the primary PVC from a second case-owned PVC in the same cluster."
+    " A fifth bounded check rejects an incompatible model/dimension request without changing the restored bytes, "
+    "then validates a separately pinned migration plan's staged SQLite output and known query before activation."
 )
 
 
@@ -58,6 +61,8 @@ def exec_fixture(lab, operation, *args):
 
 def run(lab):
     image = load_runtime(lab)
+    create(lab, "ConfigMap", MIGRATION_PLAN, immutable=True,
+           data={"plan.json": (HERE / "migration-plan.json").read_text()})
     create(lab, "ConfigMap", APPROVAL, immutable=True,
            data={"approved.json": json.dumps(APPROVED, sort_keys=True, separators=(",", ":"))})
     create(lab, "ConfigMap", CODE, immutable=True,
@@ -72,12 +77,14 @@ def run(lab):
                          command=["sleep", "3600"], volumeMounts=[
                              {"name": "code", "mountPath": "/fixture", "readOnly": True},
                              {"name": "approval", "mountPath": "/approval", "readOnly": True},
+                             {"name": "migration", "mountPath": "/migration", "readOnly": True},
                              {"name": "index", "mountPath": "/data"},
                              {"name": "backup", "mountPath": "/backup"},
                          ])
         request = pod(NAME, [unit], automountServiceAccountToken=False, volumes=[
             {"name": "code", "configMap": {"name": CODE}},
             {"name": "approval", "configMap": {"name": APPROVAL, "defaultMode": 0o444}},
+            {"name": "migration", "configMap": {"name": MIGRATION_PLAN, "defaultMode": 0o444}},
             {"name": "index", "persistentVolumeClaim": {"claimName": primary_pvc}},
             {"name": "backup", "persistentVolumeClaim": {"claimName": BACKUP_PVC}},
         ], securityContext={"fsGroup": 65534})
@@ -166,6 +173,38 @@ def run(lab):
                             "backup_before": backup_before, "backup_after": backup_after,
                             "recovery": recovery})
 
+    plan_immutable = lab.kubectl("get", "configmap", MIGRATION_PLAN,
+                                 "-o", "jsonpath={.immutable}").stdout.strip() == "true"
+    incompatible = exec_fixture(lab, "migration-incompatible")
+    migrated = exec_fixture(lab, "migration-approved")
+    migration_ok = (
+        plan_immutable
+        and incompatible["plan_digest_matches_pin"]
+        and incompatible["plan_source_model_and_digest_match"] is True
+        and incompatible["active_digest_before"] == backup_before["backup_sha256"]
+        and incompatible["requested_incompatible_model_rejected"]
+        and incompatible["requested_incompatible_dimension_rejected"]
+        and incompatible["active_bytes_unchanged"]
+        and incompatible["migration_stage_absent"]
+        and migrated["plan_digest_matches_pin"]
+        and all(migrated["source_checks"].values())
+        and migrated["derived_target_digest_matches_plan"]
+        and migrated["staged_validation_passed"]
+        and all(migrated["staged_checks"].values())
+        and migrated["staged_query_before_activation"] == "doc-cedar"
+        and migrated["staged_and_active_digest_match"]
+        and migrated["activation_performed"]
+        and all(migrated["active_checks"].values())
+        and migrated["active_query_after_activation"] == "doc-cedar"
+        and migrated["active_model_version"] == "synthetic-hash-embed-v2"
+        and migrated["active_dimension"] == "2"
+        and migrated["active_bytes_changed_from_source"]
+    )
+    lab.check("migration", "Incompatible migration is non-mutating and approved staged index validates before activation",
+              migration_ok, {"immutable_plan_observed": plan_immutable,
+                             "incompatible_request": incompatible,
+                             "approved_migration": migrated})
+
     (lab.evidence / "vector-index-lifecycle.json").write_text(json.dumps({
         "scope": "owned-benign-synthetic-sqlite-index",
         "approved_generation": APPROVED["generation"],
@@ -174,4 +213,6 @@ def run(lab):
         "positive": {"rebuild": rebuilt, "retirement": retired},
         "recovery": {"storage_identity": identity, "backup_before": backup_before,
                      "backup_after": backup_after, "restore": recovery},
+        "migration": {"immutable_plan_observed": plan_immutable,
+                      "incompatible_request": incompatible, "approved_migration": migrated},
     }, sort_keys=True, indent=2) + "\n")
