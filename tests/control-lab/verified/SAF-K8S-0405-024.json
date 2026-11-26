@@ -4,8 +4,8 @@
   "catalog_sha256": "0a58efdfe2710037988c60463441b0fb568e00d8d3d947dee87674e94e9775e9",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "4477cbe688f9d2c0a148889501c134d2bda807cd41ff90498a8204d58740450c",
-  "scope": "A real Kubernetes Job with named-object authority withdraws a fixture RoleBinding only after its recorded approval window. The original credential continues authenticating but loses the effective read. An independent approved reader retains access. This demonstrates automatic authorization withdrawal; issuer-side credential expiry and certificate validity have distinct enforcement.",
-  "cluster": "saf-lab-e56ae13920be",
+  "scope": "A real Kubernetes Job with named-object authority withdraws a fixture RoleBinding only after its recorded approval window. The original credential continues authenticating but loses the effective read. An independent approved reader retains access. This also verifies native invalidation of a token bound to an empty Secret that the same controller retires at the deadline. External issuers and certificates have distinct mechanisms.",
+  "cluster": "saf-lab-5e7bb9880c51",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -65,6 +65,17 @@
       "observed": {
         "separate_grant_still_effective": true,
         "ended_grant_remains_unavailable": true
+      }
+    },
+    {
+      "phase": "identity",
+      "claim": "The same deadline also retires the scoped native bound credential",
+      "matched": true,
+      "observed": {
+        "bound_reader_available_before_deadline": true,
+        "named_credential_anchor_deleted": true,
+        "same_bound_credential_rejected_by_api_authenticator": true,
+        "independent_credential_stays_authorized": true
       }
     }
   ]

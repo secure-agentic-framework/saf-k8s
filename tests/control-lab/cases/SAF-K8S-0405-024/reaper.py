@@ -1,4 +1,4 @@
-"""Retire one approved fixture grant after its recorded deadline."""
+"""Retire one approved fixture grant and credential anchor after its deadline."""
 import json
 from pathlib import Path
 import ssl
@@ -11,6 +11,7 @@ NS = "saf-test"
 ROOT = Path("/var/run/secrets/kubernetes.io/serviceaccount")
 SCHEDULE = f"/api/v1/namespaces/{NS}/configmaps/fixture-retirement-schedule"
 BINDING = f"/apis/rbac.authorization.k8s.io/v1/namespaces/{NS}/rolebindings/fixture-expiring-reader"
+ANCHOR = f"/api/v1/namespaces/{NS}/secrets/fixture-routine-credential-anchor"
 
 
 def run():
@@ -36,10 +37,12 @@ def run():
             deadline = int(approved)
             if time.time() >= deadline:
                 started = time.time()
-                status, _ = request(BINDING, "DELETE")
+                binding_status, _ = request(BINDING, "DELETE")
+                anchor_status, _ = request(ANCHOR, "DELETE")
                 print(json.dumps({"approved_deadline_reached": started >= deadline,
-                                  "scoped_binding_deleted": status == 200}))
-                return 0 if status == 200 else 1
+                                  "scoped_binding_deleted": binding_status == 200,
+                                  "credential_anchor_deleted": anchor_status == 200}))
+                return 0 if binding_status == anchor_status == 200 else 1
         time.sleep(.5)
     raise SystemExit("The fixture deadline was not reached within the allowed window")
 

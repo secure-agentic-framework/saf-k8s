@@ -1,4 +1,4 @@
-"""Observe automatic withdrawal of one effective temporary authorization."""
+"""Observe deadline-driven authorization withdrawal and credential retirement."""
 import importlib.util
 import json
 from pathlib import Path
@@ -17,8 +17,9 @@ SCOPE = (
     "A real Kubernetes Job with named-object authority withdraws a fixture RoleBinding "
     "only after its recorded approval window. The original credential continues authenticating "
     "but loses the effective read. An independent approved reader retains access. This "
-    "demonstrates automatic authorization withdrawal; issuer-side credential expiry "
-    "and certificate validity have distinct enforcement."
+    "also verifies native invalidation of a token bound to an empty Secret that the "
+    "same controller retires at the deadline. External issuers and certificates have "
+    "distinct mechanisms."
 )
 
 
@@ -41,6 +42,8 @@ def start(lab, fixture):
     fixture.put(lab, "Role", CONTROLLER, RBAC, rules=[
         {"apiGroups": [""], "resources": ["configmaps"], "verbs": ["get"], "resourceNames": [SCHEDULE]},
         {"apiGroups": [group], "resources": ["rolebindings"], "verbs": ["delete"], "resourceNames": [READER]},
+        {"apiGroups": [""], "resources": ["secrets"], "verbs": ["delete"],
+         "resourceNames": [fixture.REFERENCE]},
     ])
     fixture.put(lab, "RoleBinding", CONTROLLER, RBAC,
                 roleRef={"apiGroup": group, "kind": "Role", "name": CONTROLLER},
@@ -78,18 +81,24 @@ def run(lab):
     for account in (READER, SEPARATE):
         fixture.put(lab, "ServiceAccount", account, automountServiceAccountToken=False)
         fixture.approved(lab, account)
+    fixture.put(lab, "Secret", fixture.REFERENCE)
     expiring = fixture.identity(lab, READER, "expiration")
+    bound = fixture.identity(lab, READER, "bound-expiration", reference=True)
     separate = fixture.identity(lab, SEPARATE, "expiration-neighbor")
     baseline = {"elapsed_record_alone_leaves_effective_access": fixture.await_read(lab, expiring, "allowed") == "allowed",
                 "independent_approved_principal_also_has_access": fixture.read(lab, separate) == "allowed"}
     lab.check("red", "A deadline record alone does not remove effective authorization",
               all(baseline.values()), baseline)
 
+    if fixture.await_read(lab, bound, "allowed") != "allowed":
+        lab.block("Bound fixture identity did not have the approved read before activation")
+
     schedule(lab, "pending")
     start(lab, fixture)
     deadline = int(time.time()) + 12
     schedule(lab, deadline)
     before = fixture.read(lab, expiring) == "allowed" and time.time() < deadline
+    bound_before = fixture.read(lab, bound) == "allowed" and time.time() < deadline
     lab.kubectl("wait", "--for=condition=Complete", "job/"+CONTROLLER, "--timeout=45s", timeout=53)
     report = json.loads(lab.kubectl("logs", "job/"+CONTROLLER, "--all-containers=false").stdout)
     enforced = {"reader_available_before_approved_deadline": before,
@@ -102,6 +111,16 @@ def run(lab):
                 "ended_grant_remains_unavailable": fixture.read(lab, expiring) == "forbidden"}
     lab.check("positive", "Retiring the temporary grant preserves independent approved access",
               all(positive.values()), positive)
+    issuer = {
+        "bound_reader_available_before_deadline": bound_before,
+        "named_credential_anchor_deleted": report["credential_anchor_deleted"],
+        "same_bound_credential_rejected_by_api_authenticator": (
+            fixture.await_read(lab, bound, "unauthenticated") == "unauthenticated"
+        ),
+        "independent_credential_stays_authorized": fixture.read(lab, separate) == "allowed",
+    }
+    lab.check("identity", "The same deadline also retires the scoped native bound credential",
+              all(issuer.values()), issuer)
     (lab.evidence / "emergency-retirement-observations.json").write_text(json.dumps({
-        "baseline": baseline, "enforced": enforced, "preserved": positive,
+        "baseline": baseline, "enforced": enforced, "preserved": positive, "issuer": issuer,
     }, indent=2) + "\n")
