@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0501-004",
-  "catalog_revision": "cebd7ee630a25c40646155cefba526244539cb55",
-  "catalog_sha256": "43de94094630359221f83a05e4556881b2d53e76ac3923c7062b59a892f54314",
+  "catalog_revision": "3694cdc91a9c6ce6f67fdba1e6410f800deb07ad",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "0152c3f905267b688ec83e85ca70913617f27c02beeeab9255bd3e35dfad335d",
   "scope": "Cilium 1.20.5 on kind v0.32.0 / Kubernetes v1.36.1. The retained L7 ingress claim is IPv4 TCP/8080 between owned Pods with direct Pod-IP requests to /safe. Additional local claims cover toFQDNs against two synthetic .test names on an internal Docker bridge, plus CiliumClusterwideNetworkPolicy selection and deny precedence across two selected namespaces and one unaffected namespace. No public endpoint, production policy, other CNI, or provider integration is exercised.",
-  "cluster": "saf-lab-7f595d0fb334",
+  "cluster": "saf-lab-0f0a13dad2a4",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -80,6 +80,32 @@
           "status": 200,
           "body": "saf-0501-004-owned-harmless-response-6f83"
         }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native NetworkPolicy selects the approved owned client, blocks the other, and recovers after cleanup",
+      "matched": true,
+      "observed": {
+        "namespace": "saf-0501-004",
+        "policy": "native-selected-client-to-server",
+        "selected_client": "owned-http-client",
+        "unselected_client": "owned-http-unselected-client",
+        "destination": "owned-http-server",
+        "port": 8080,
+        "conditions": {
+          "selected_baseline_marker": true,
+          "unselected_baseline_marker": true,
+          "policy_shape_matches": true,
+          "selected_get_marker": true,
+          "selected_post_marker": true,
+          "unselected_get_blocked": true,
+          "unselected_get_recovers_after_policy_removal": true,
+          "owned_policy_cleanup_succeeded": true,
+          "owned_probe_cleanup_succeeded": true
+        },
+        "unselected_block_class": "TimeoutError",
+        "policy_shape": "exact expected selector/protocol/port matched"
       }
     },
     {

@@ -41,3 +41,9 @@ other Cilium versions.
 [Cilium 1.20 deny precedence](https://docs.cilium.io/en/v1.20/security/policy/deny/) ·
 [Cilium v1.20.5 release](https://github.com/cilium/cilium/releases/tag/v1.20.5) ·
 [Cilium CNI configuration](https://docs.cilium.io/en/v1.20/network/kubernetes/configuration/)
+
+## Kubernetes NetworkPolicy comparison
+
+With the pinned Cilium data plane running, the case applies a standard `networking.k8s.io/v1` ingress policy to the owned listener. Its selected client retains GET and POST on the approved TCP port. The unselected client reaches the listener before the policy, loses access after enforcement, and recovers after removal. The independent Cilium HTTP-method, DNS-name and cluster-wide policy checks then run on their own fixture paths.
+
+Verify the actual CNI and policy versions, label and namespace selectors, IP families, rule precedence, and coverage of each adopted ingress and egress path. Rehearse both authorized and denied cases on approved test workloads. Record provider limitations and equivalent compensating controls with their own tests and accountable owners.

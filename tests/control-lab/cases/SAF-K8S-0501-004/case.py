@@ -97,9 +97,10 @@ class Handler(BaseHTTPRequestHandler):
 HTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
 '''
 
-PROBE_CODE = r'''import json, sys
+PROBE_CODE = r'''import errno, json, sys
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
+import socket
 url, method = sys.argv[1], sys.argv[2]
 try:
     with urlopen(Request(url, method=method), timeout=4) as response:
@@ -109,7 +110,21 @@ except HTTPError as error:
     print(json.dumps({"status": error.code,
                       "body": error.read().decode("utf-8", "replace")}))
 except URLError as error:
-    print(json.dumps({"status": None, "error": str(error.reason)}))
+    reason = error.reason
+    code = getattr(reason, "errno", None)
+    if isinstance(reason, (TimeoutError, socket.timeout)) or code == errno.ETIMEDOUT:
+        kind = "TimeoutError"
+    elif code in {errno.EHOSTUNREACH, errno.ENETUNREACH}:
+        kind = "Unreachable"
+    else:
+        kind = "UnclassifiedNetworkError"
+    print(json.dumps({"status": None, "error": kind}))
+except OSError as error:
+    code = getattr(error, "errno", None)
+    kind = "TimeoutError" if code == errno.ETIMEDOUT else (
+        "Unreachable" if code in {errno.EHOSTUNREACH, errno.ENETUNREACH}
+        else "UnclassifiedNetworkError")
+    print(json.dumps({"status": None, "error": kind}))
 '''
 
 
@@ -204,9 +219,9 @@ def make_pod(name, labels, command, *, port=None, namespace=NAMESPACE,
     return resource
 
 
-def observe(lab, ip, method):
+def observe(lab, ip, method, client=CLIENT):
     result = lab.kubectl(
-        "-n", NAMESPACE, "exec", f"pod/{CLIENT}", "--", "python", "-c",
+        "-n", NAMESPACE, "exec", f"pod/{client}", "--", "python", "-c",
         PROBE_CODE, f"http://{ip}:{PORT}/safe", method, timeout=15,
     )
     try:
@@ -252,8 +267,101 @@ def run_dns_query(lab, name):
 
 def is_network_block(observed):
     return observed.get("status") is None and observed.get("error") in {
-        "TimeoutError", "ConnectionRefusedError", "Unreachable",
+        "TimeoutError", "Unreachable",
     }
+
+
+def observe_until(lab, client, ip, method, predicate, timeout=30):
+    deadline = time.monotonic() + timeout
+    observed = None
+    while time.monotonic() < deadline:
+        observed = observe(lab, ip, method, client)
+        if predicate(observed):
+            return observed
+        time.sleep(0.5)
+    return observed
+
+
+def run_native_networkpolicy_evidence(lab, server_ip):
+    """Compare standard NetworkPolicy enforcement on owned Pods, then cleanly recover."""
+    extra_client = "owned-http-unselected-client"
+    resource_name = "native-selected-client-to-server"
+    lab.kubectl("-n", NAMESPACE, "apply", "-f", "-", payload=json.dumps(make_pod(
+        extra_client, {"app": extra_client}, "import time; time.sleep(3600)")))
+    wait_pod(lab, extra_client)
+    policy = {
+        "apiVersion": "networking.k8s.io/v1", "kind": "NetworkPolicy",
+        "metadata": {"name": resource_name, "namespace": NAMESPACE},
+        "spec": {
+            "podSelector": {"matchLabels": {"app": SERVER}},
+            "policyTypes": ["Ingress"],
+            "ingress": [{
+                "from": [{"podSelector": {"matchLabels": {"app": CLIENT}}}],
+                "ports": [{"protocol": "TCP", "port": PORT}],
+            }],
+        },
+    }
+    cleanup_policy = False
+    cleanup_pod = False
+    selected_baseline = unselected_baseline = selected_get = selected_post = {}
+    unselected_denied = unselected_recovered = {}
+    policy_shape_matches = False
+    try:
+        selected_baseline = observe_until(
+            lab, CLIENT, server_ip, "GET",
+            lambda result: result.get("status") == 200 and result.get("body") == MARKER)
+        unselected_baseline = observe_until(
+            lab, extra_client, server_ip, "GET",
+            lambda result: result.get("status") == 200 and result.get("body") == MARKER)
+        lab.kubectl("-n", NAMESPACE, "apply", "-f", "-", payload=json.dumps(policy))
+        readback = json.loads(lab.kubectl(
+            "-n", NAMESPACE, "get", f"networkpolicy/{resource_name}", "-o", "json").stdout)
+        policy_shape_matches = (
+            readback.get("metadata", {}).get("name") == resource_name
+            and readback.get("metadata", {}).get("namespace") == NAMESPACE
+            and readback.get("spec") == policy["spec"]
+        )
+        selected_get = observe_until(
+            lab, CLIENT, server_ip, "GET",
+            lambda result: result.get("status") == 200 and result.get("body") == MARKER)
+        selected_post = observe_until(
+            lab, CLIENT, server_ip, "POST",
+            lambda result: result.get("status") == 200 and result.get("body") == MARKER)
+        unselected_denied = observe_until(
+            lab, extra_client, server_ip, "GET", is_network_block)
+
+        # Remove standard policy before the existing Cilium L7 policy is applied.
+        lab.kubectl("-n", NAMESPACE, "delete", f"networkpolicy/{resource_name}",
+                    "--wait=true", timeout=30)
+        unselected_recovered = observe_until(
+            lab, extra_client, server_ip, "GET",
+            lambda result: result.get("status") == 200 and result.get("body") == MARKER)
+    finally:
+        cleanup_policy = lab.kubectl(
+            "-n", NAMESPACE, "delete", f"networkpolicy/{resource_name}",
+            "--ignore-not-found=true", allow_failure=True).returncode == 0
+        cleanup_pod = lab.kubectl(
+            "-n", NAMESPACE, "delete", f"pod/{extra_client}",
+            "--ignore-not-found=true", "--wait=true", allow_failure=True).returncode == 0
+    conditions = {
+        "selected_baseline_marker": selected_baseline.get("status") == 200 and selected_baseline.get("body") == MARKER,
+        "unselected_baseline_marker": unselected_baseline.get("status") == 200 and unselected_baseline.get("body") == MARKER,
+        "policy_shape_matches": policy_shape_matches,
+        "selected_get_marker": selected_get.get("status") == 200 and selected_get.get("body") == MARKER,
+        "selected_post_marker": selected_post.get("status") == 200 and selected_post.get("body") == MARKER,
+        "unselected_get_blocked": is_network_block(unselected_denied),
+        "unselected_get_recovers_after_policy_removal": unselected_recovered.get("status") == 200 and unselected_recovered.get("body") == MARKER,
+        "owned_policy_cleanup_succeeded": cleanup_policy,
+        "owned_probe_cleanup_succeeded": cleanup_pod,
+    }
+    lab.check("positive", "Native NetworkPolicy selects the approved owned client, blocks the other, and recovers after cleanup",
+              all(conditions.values()),
+              {"namespace": NAMESPACE, "policy": resource_name,
+               "selected_client": CLIENT, "unselected_client": extra_client,
+               "destination": SERVER, "port": PORT,
+               "conditions": conditions,
+               "unselected_block_class": unselected_denied.get("error"),
+               "policy_shape": "exact expected selector/protocol/port matched" if policy_shape_matches else "mismatch"})
 
 
 OUTBOUND_HTTP_CODE = r'''import errno, json, sys
@@ -485,6 +593,8 @@ def run(lab):
            server_ip, "GET", 200, MARKER)
     expect(lab, "red", "Without Cilium policy, owned server returns its marker to POST",
            server_ip, "POST", 200, MARKER)
+
+    run_native_networkpolicy_evidence(lab, server_ip)
 
     lab.kubectl("-n", NAMESPACE, "apply", "-f",
                 str(Path(__file__).with_name("http-method-policy.yaml")))
