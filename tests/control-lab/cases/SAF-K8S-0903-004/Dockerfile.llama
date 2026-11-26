@@ -1,0 +1,10 @@
+ARG SERVER_IMAGE
+FROM ${SERVER_IMAGE}
+ARG SERVER_IMAGE
+USER 0
+LABEL org.opencontainers.image.source="https://github.com/ggml-org/llama.cpp" \
+      org.opencontainers.image.base.name="${SERVER_IMAGE}" \
+      saf-k8s.fixture.model.sha256="1240dfc1957df9f3550dd6c1d9e64b466fc2f452d8bc34bd4e45e1a1e2ca6055"
+RUN mkdir -p /models && chmod 0755 /models
+COPY --chown=65534:65534 --chmod=0444 stories15M_MOE-F16.gguf /models/stories15M_MOE-F16.gguf
+USER 65534:65534

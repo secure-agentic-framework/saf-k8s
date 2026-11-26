@@ -8,6 +8,7 @@ POD = "saf-token-accounting"
 IMAGE = ("docker.io/library/python:3.13-slim@sha256:"
          "e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90")
 SCOPE = (
+    "A pinned llama.cpp engine also loads a tiny CPU model and checks real tokenizer and completion counts. "
     "A second Pod uses the exact same executable and prompts with only the input guard disabled. "
     "Disposable Kubernetes v1.36.1 Pods run deterministic synthetic generation fixtures. "
     "The original in-process fixture has on/off branches for whitespace-token input and fake "
@@ -174,3 +175,9 @@ def run(lab):
     bounds = report["serving_cgroup_bounds"]
     lab.check("green", "The guarded serving container's observed CPU and memory bounds match its live Pod limits",
               bounds["matches"], bounds["observed"])
+
+    engine_path = HERE / "llama_runtime.py"
+    engine_spec = importlib.util.spec_from_file_location("llama_runtime", engine_path)
+    engine = importlib.util.module_from_spec(engine_spec)
+    engine_spec.loader.exec_module(engine)
+    engine.run(lab)

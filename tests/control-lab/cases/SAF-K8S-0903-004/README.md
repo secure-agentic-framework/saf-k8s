@@ -32,3 +32,18 @@ exchanges with fixed inputs. Separate backend counters confirm the difference.
 ## Additive serving-container cgroup observation
 
 A read-only probe runs inside the guarded serving Pod and reads the serving process's own cgroup membership and CPU/memory limit files. It reports the tightest finite CPU quota and memory ceiling visible through the cgroup hierarchy, then compares them with the guarded container's declared limits from the Pod specification. A missing bound, probe failure, or mismatch fails a green safeguard check; it does not change the existing 16 checks. The evidence is limited to observed container CPU and memory bounds. It does not measure CPU behavior under load, memory pressure or actual model allocation, GPU limits, or KV/cache limits.
+
+The CPU serving check adds the official llama.cpp b9519 server and a 73.5 MB
+upstream Stories test model. The runner selects the reviewed ARM64 or AMD64
+manifest, fetches the fixed model on the host, verifies its size and SHA-256,
+and builds the image without a network connection. The model directory is
+searchable and its model file is read-only for the nonroot server. A separate
+tokenless Pod checks native readiness, the single expected model alias, exact
+tokenizer IDs for a fixed prompt, and actual generated token counts. This test
+uses CPU inference and checks the stop reason at the four-token budget.
+
+See the [upstream llama.cpp server documentation](https://github.com/ggml-org/llama.cpp/blob/b9519/tools/server/README.md)
+and [pinned model revision](https://huggingface.co/ggml-org/stories15M_MOE/commit/b6dd737497465570b5f5e962dbc9d9454ed1e0eb).
+
+The disposable runner owns the fixture Pods and tears down their Kind cluster
+after evidence capture.

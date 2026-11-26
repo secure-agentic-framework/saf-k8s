@@ -4,8 +4,8 @@
   "catalog_sha256": "3f6d0b09957f7ae05620954a6210b52df977b8cbc7dcdd43769137d72662c8bb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "8ab52426324ece7773d94406977a8d84ffcc1b89c2128202c0d70e6068b0fb6b",
-  "scope": "A second Pod uses the exact same executable and prompts with only the input guard disabled. Disposable Kubernetes v1.36.1 Pods run deterministic synthetic generation fixtures. The original in-process fixture has on/off branches for whitespace-token input and fake output, with fixed synthetic session IDs and a logical clock. The BPE HTTP fixture uses fixed template-expanded cl100k_base prompts, synthetic tokens, a guarded path and a same-worker input-guard-off comparison. The guarded serving container's effective CPU quota and memory cgroup ceiling are observed and compared with declared limits. This is container-bound evidence only; no CPU load, GPU, or cache validation. The HTTP fixture has no authenticated caller/session identity or concurrent generation. Neither fixture runs a real model or serving framework, configures a real KV cache, or measures GPU memory. Production route coverage, identity binding, concurrency, cache and device budgets, cgroup behavior, and monitoring require separate adopter evidence.",
-  "cluster": "saf-lab-40e2dfa29d02",
+  "scope": "A pinned llama.cpp engine also loads a tiny CPU model and checks real tokenizer and completion counts. A second Pod uses the exact same executable and prompts with only the input guard disabled. Disposable Kubernetes v1.36.1 Pods run deterministic synthetic generation fixtures. The original in-process fixture has on/off branches for whitespace-token input and fake output, with fixed synthetic session IDs and a logical clock. The BPE HTTP fixture uses fixed template-expanded cl100k_base prompts, synthetic tokens, a guarded path and a same-worker input-guard-off comparison. The guarded serving container's effective CPU quota and memory cgroup ceiling are observed and compared with declared limits. This is container-bound evidence only; no CPU load, GPU, or cache validation. The HTTP fixture has no authenticated caller/session identity or concurrent generation. Neither fixture runs a real model or serving framework, configures a real KV cache, or measures GPU memory. Production route coverage, identity binding, concurrency, cache and device budgets, cgroup behavior, and monitoring require separate adopter evidence.",
+  "cluster": "saf-lab-a9f402ae6697",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -487,6 +487,33 @@
         "declared_memory": "192Mi",
         "observed_cpu_millicores": "400",
         "observed_memory_bytes": 201326592
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The b9519 /tokenize IDs agree with the completion prompt count",
+      "matched": true,
+      "observed": {
+        "prompt_counts": [
+          4,
+          5
+        ],
+        "completion_prompt_tokens_evaluated": 5,
+        "model_alias": "stories15m-moe",
+        "tokenizer_endpoint": "/tokenize",
+        "llama_release": "b9519"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The actual CPU model emits exactly four bounded token IDs",
+      "matched": true,
+      "observed": {
+        "completion_tokens": 4,
+        "limit": 4,
+        "stop_type": "limit",
+        "model": "stories15m-moe",
+        "gpu_layers": 0
       }
     }
   ]
