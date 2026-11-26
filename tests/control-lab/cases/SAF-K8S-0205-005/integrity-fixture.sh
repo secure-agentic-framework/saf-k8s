@@ -26,10 +26,22 @@ fi
 echo modified_object_rejected_before_load
 openssl dgst -sha256 -verify /trust/anchor.pem -signature marker.sig "$original" >/dev/null
 echo approved_object_verifies
+attachment=/fixture/attach_marker.o
+base64 -d /trust/attach.sig.b64 >attach_marker.sig
+attachment_digest=$(cat /trust/attach.sha256)
+case "$attachment_digest" in
+    *[!0-9a-f]*|'') echo 'invalid attachment digest syntax' >&2; exit 1 ;;
+esac
+test "${#attachment_digest}" -eq 64
+openssl dgst -sha256 -verify /trust/anchor.pem -signature attach_marker.sig "$attachment" >/dev/null
+observed_attachment_digest=$(sha256sum "$attachment" | cut -d' ' -f1)
+test "$observed_attachment_digest" = "$attachment_digest"
+echo approved_attachment_signature_verified
 
 kernel=$(find /boot -maxdepth 1 -name 'vmlinuz-*' -print)
 version=${kernel##*/vmlinuz-}
 grep -qx 'CONFIG_BPF_SYSCALL=y' "/boot/config-$version"
+grep -qx 'CONFIG_CGROUP_BPF=y' "/boot/config-$version"
 if gzip -t "$kernel" >/dev/null 2>&1; then gzip -dc "$kernel" >kernel.img; else cp "$kernel" kernel.img; fi
 mkdir -p fs/bin fs/dev fs/proc fs/sys
 cp "$(command -v busybox)" fs/bin/busybox
@@ -42,10 +54,14 @@ while IFS= read -r library; do
 done <libraries
 cp "$original" fs/marker.o
 cmp "$original" fs/marker.o
+cp "$attachment" fs/attach_marker.o
+cmp "$attachment" fs/attach_marker.o
 printf '%s  /marker.o\n' "$approved_digest" >fs/marker.sha256
+printf '%s  /attach_marker.o\n' "$attachment_digest" >fs/attach_marker.sha256
 printf 'SAF-APPROVED-DIGEST: %s\n' "$approved_digest"
 printf 'SAF-ALTERED-DIGEST: %s\n' "$(sha256sum changed.o | cut -d' ' -f1)"
 printf 'SAF-APPROVED-TRUST-ANCHOR: %s\n' "$(sha256sum /trust/anchor.pem | cut -d' ' -f1)"
+printf 'SAF-ATTACH-APPROVED-DIGEST: %s\n' "$attachment_digest"
 cat >fs/init <<'INIT'
 #!/bin/busybox sh
 set -eu
@@ -75,6 +91,54 @@ for attempt in 1 2 3 4 5 6 7 8; do
 done
 printf 'SAF-BPF-AFTER: %s\n' "$inventory"
 echo 'SAF-BPF-CLEANUP: pin removed'
+$b sha256sum -c /attach_marker.sha256
+attachment_digest=$($b cut -d ' ' -f1 /attach_marker.sha256)
+$b mount -t cgroup2 cgroup2 /sys/fs/cgroup
+$b mkdir /sys/fs/cgroup/saf-0205-005
+/bin/bpftool prog load /attach_marker.o /sys/fs/bpf/saf_sysctl \
+    type cgroup/sysctl pinmaps /sys/fs/bpf/saf-attach-maps
+attachment_type=$(/bin/bpftool -j prog show pinned /sys/fs/bpf/saf_sysctl)
+printf '%s' "$attachment_type" | $b tr -d '[:space:]' | $b grep -Fq '"type":"cgroup_sysctl"'
+printf 'SAF-BPF-ATTACH-PROGRAM: %s\n' "$attachment_type"
+map_path=/sys/fs/bpf/saf-attach-maps/sysctl_hits
+counter_value() {
+    observed=$(/bin/bpftool -j map lookup pinned "$map_path" key hex 00 00 00 00)
+    value=$(printf '%s' "$observed" | $b tr -d '[:space:]' \
+        | $b sed -n 's/.*"formatted":{"key":0,"value":\([0-9][0-9]*\)}.*/\1/p')
+    case "$value" in ''|*[!0-9]*) printf 'Fixture counter could not be decoded\n' >&2; return 1;; esac
+    printf '%s\n' "$value"
+}
+count_before=$(counter_value)
+test "$count_before" -eq 0
+/bin/bpftool cgroup attach /sys/fs/cgroup/saf-0205-005 cgroup_sysctl \
+    pinned /sys/fs/bpf/saf_sysctl
+attached=$(/bin/bpftool cgroup show /sys/fs/cgroup/saf-0205-005)
+printf '%s\n' "$attached" | $b grep -Fq 'sysctl'
+printf '%s\n' "$attached" | $b grep -Fq 'saf_sysctl'
+$b sh -c 'echo $$ > /sys/fs/cgroup/saf-0205-005/cgroup.procs; \
+    /bin/busybox grep -Fq "0::/saf-0205-005" /proc/self/cgroup; \
+    /bin/busybox cat /proc/sys/kernel/hostname >/dev/null'
+count_attached=$(counter_value)
+test "$count_attached" -gt 0
+/bin/bpftool cgroup detach /sys/fs/cgroup/saf-0205-005 cgroup_sysctl \
+    pinned /sys/fs/bpf/saf_sysctl
+detached=$(/bin/bpftool cgroup show /sys/fs/cgroup/saf-0205-005)
+if printf '%s\n' "$detached" | $b grep -Fq 'saf_sysctl'; then
+    echo 'The case-owned BPF attachment remained after detach' >&2
+    exit 1
+fi
+$b sh -c 'echo $$ > /sys/fs/cgroup/saf-0205-005/cgroup.procs; \
+    /bin/busybox grep -Fq "0::/saf-0205-005" /proc/self/cgroup; \
+    /bin/busybox cat /proc/sys/kernel/hostname >/dev/null'
+count_detached=$(counter_value)
+test "$count_detached" -eq "$count_attached"
+$b rm /sys/fs/bpf/saf_sysctl
+$b rm "$map_path"
+$b rmdir /sys/fs/bpf/saf-attach-maps
+$b rmdir /sys/fs/cgroup/saf-0205-005
+$b umount /sys/fs/cgroup
+printf 'SAF-BPF-ATTACHMENT: {"signature_verified":true,"approved_sha256":"%s","program_type":"cgroup_sysctl","cgroup_path":"/sys/fs/cgroup/saf-0205-005","attached_program_matches":true,"counter_before":%s,"counter_after_attached_read":%s,"detached_program_absent":true,"counter_after_detached_read":%s,"cgroup_removed":true}\n' \
+    "$attachment_digest" "$count_before" "$count_attached" "$count_detached"
 $b poweroff -f
 INIT
 chmod 0755 fs/init
@@ -86,7 +150,7 @@ if ! timeout 48s qemu-system-aarch64 -machine virt -accel tcg -cpu cortex-a57 -m
     tail -32 guest.log >&2
     exit 1
 fi
-for expected in 'SAF-BPF-LOAD: succeeded' '"type":"socket_filter"' '"name":"saf_marker"' 'SAF-BPF-CLEANUP: pin removed'; do
+for expected in 'SAF-BPF-LOAD: succeeded' '"type":"socket_filter"' '"name":"saf_marker"' 'SAF-BPF-CLEANUP: pin removed' 'SAF-BPF-ATTACHMENT: '; do
     grep -Fq "$expected" guest.log || { tail -32 guest.log >&2; exit 1; }
 done
 tr -d '\r' <guest.log | grep '^SAF-'

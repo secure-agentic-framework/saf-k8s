@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0205-005",
-  "catalog_revision": "21a37bee11a2c8253acb514bd2f641d1c782a903",
-  "catalog_sha256": "e21df5ef6d7be8d3be548d48d3650f2dfc630a3e395f036b3e3eb0533fc68fe4",
+  "catalog_revision": "235c61df1efd30e1ae349c374acca2553bfba87a",
+  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "84c5b2699575fda21d247ff07c53558d1ddf7f90a2bd365a3873938dc687776e",
-  "scope": "Verify Pod capability admission and isolated userspace signature validation and an unattached guest BPF program lifecycle.",
-  "cluster": "saf-lab-b8ca8c29ecd6",
+  "scope": "Verify capability admission, signed guest BPF identity, unattached load inventory, and a scoped guest attachment lifecycle.",
+  "cluster": "saf-lab-f32905c01f20",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -79,6 +79,21 @@
       "matched": true,
       "observed": {
         "identical_approved_bytes": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The separately signed guest program attaches to one owned cgroup, observes one benign sysctl read, then detaches",
+      "matched": true,
+      "observed": {
+        "approved_attachment_sha256": "4f47f7c3ca34f92ef4d885d26bfbd106f45ae3f07b4f8f61c6c0079f545bcce3",
+        "guest_scope_exact": true,
+        "attached_program_matches": true,
+        "zero_before_attach": true,
+        "hook_invoked_in_owned_cgroup": true,
+        "detached_program_absent": true,
+        "count_stable_after_detach": true,
+        "owned_cgroup_removed": true
       }
     },
     {

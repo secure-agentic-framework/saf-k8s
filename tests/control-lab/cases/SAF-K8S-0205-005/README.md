@@ -1,26 +1,43 @@
-# Verify admission restrictions and the lifecycle of a signed inert marker
+# Verify signed guest BPF load and attachment lifecycle
 
-    python3 tests/control-lab/lab.py test SAF-K8S-0205-005 --docker-context desktop-linux
+The case keeps its existing five checks: ordinary and init-container capability
+admission comparisons, the restricted denial and changed-byte signature
+comparison, the live non-root/zero-capability Job, approved marker digest
+verification, and the accepted unattached `socket_filter` load/inventory
+lifecycle. The added sixth grouped check signs a second harmless BPF object,
+loads it in the same disposable guest, attaches it only to the case-owned
+cgroup-v2 child `/sys/fs/cgroup/saf-0205-005`, and detaches it after one benign
+read of `/proc/sys/kernel/hostname` by a child placed in that cgroup. A
+one-entry map starts at zero, records a positive invocation count during the
+owned child probe, and keeps the same count when the probe repeats after detach.
+The raw receipt preserves each count. The script
+also checks the exact program type, attached name, and cleanup of its pin, map,
+and cgroup.
 
-The case compares ordinary and init-container capability requests before and
-after restricted admission. An unprivileged disposable Job reports its
-non-root UID and zero effective capabilities.
+The runner creates an ephemeral key outside Kubernetes and signs both exact
+objects extracted from the locally built fixture image. Kubernetes receives
+only the public key, detached signatures, and digests in a fixture-owned
+immutable ConfigMap; private key material is removed before the Job starts.
+Inside the guest the signed attachment object is verified before load. The
+original `marker.o` source and unattached `socket_filter` behavior are retained.
 
-The runner generates a temporary key outside Kubernetes, signs the exact
-fixed object from the locally built fixture image, and removes the private
-key before creating the Job. A read-only ConfigMap supplies the public
-key, detached signature and approved digest. The Job accepts the approved
-bytes and rejects a changed copy before booting the guest. The isolated guest
-rechecks the digest, observes one unattached program's inventory ID and tag,
-then removes that pin and confirms the inventory entry disappears.
+The guest is the pinned Debian ARM64 image with Linux 6.12.118, QEMU, and
+bpftool 7.5.0. The guest has no network device (`-nic none`). The new hook is
+used as a bounded observation fixture, not as a sysctl security policy. Linux
+documents `BPF_PROG_TYPE_CGROUP_SYSCTL` as a cgroup hook invoked for reads and
+writes and cautions against using it to restrict sysctl access:
+[Linux 6.12 cgroup sysctl BPF documentation](https://docs.kernel.org/6.12/bpf/prog_cgroup_sysctl.html).
+The command shape and `cgroup_sysctl` attachment type follow the pinned
+[bpftool v7.5.0 cgroup documentation](https://github.com/libbpf/bpftool/blob/v7.5.0/docs/bpftool-cgroup.rst).
 
-The guest uses the pinned Debian ARM64 Linux 6.12.118 and QEMU image build.
-The runner requires a local openssl executable with EC signing support.
+For deployment, separately inventory the actual kernel, loader, provider
+components, trust source, and policy boundary. Verify actual load authorization,
+approved signer enrollment/rotation, attached-program inventory, attributable
+load/attach/detach decisions, event delivery, monitor health, and retention in
+the adopted environment. This portable fixture demonstrates only a signed
+benign object lifecycle and one guest-local attachment event; it does not prove
+cluster-node BPF enforcement, provider monitoring completeness, refused-load
+telemetry, or production trust governance.
 
-For a deployment, inventory the actual kernel, loader, provider components
-and capabilities. Verify build provenance, approved digest and enrolled trust
-source, kernel authorization and applicable signed-program policy. Reconcile
-attributable load decisions, attach and detach events and continuing inventory.
-Set collection and retention requirements for the adopted versions and review
-kernel, trust, sensor or attachment changes. The portable case's program
-stays unattached inside the emulated guest.
+Run the parent lab command from the framework checkout. The runner creates
+and cleans up the owned Kubernetes cluster and the disconnected guest.
