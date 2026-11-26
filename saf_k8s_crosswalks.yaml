@@ -58,15 +58,12 @@
   framework_version: 2024/1689
   framework_requirement_id: Annex-IV.1.c
   framework_requirement_title: Technical documentation referred to in Article 11(1)
-  framework_mapping_notes: |-
-    the versions of relevant software or firmware, and any requirements related to version updates;
-
-    The control requires GitOps deployment processes to preserve release metadata and version identifiers for deployed packages so the exact builds/versions promoted to each environment are identifiable. This directly supplies the 'versions of relevant software' evidence the documentation must record.
+  framework_mapping_notes: The reference preserves records for two controlled Argo CD Helm source releases, including chart version, Git commit and source tree identity, deployed image digest and target namespace. These records support the relevant software-version portion of the Annex IV technical documentation when joined to the actual system inventory. Verify all applicable components and document version-update requirements separately.
   control_id: SAF-K8S-0606-029
   relation_type: partial
-  strength_level: strong
-  applicability: required
-  applicability_condition:
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The chart or workload software is relevant to the in-scope AI system and its released version is reconciled into applicable technical documentation.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT

@@ -32,8 +32,8 @@ Version and lifecycle records can inform the documented platform versions and up
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.6
 - Relation Type: partial
-- Strength: strong
-- Applicability: required
+- Strength: moderate
+- Applicability: conditional
 - Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0701-008 - Training data and model artifact version tracking for reproducibility](../../controls/SAF-K8S-0701-008.md)
