@@ -9,15 +9,6 @@ AI system classification enforces risk-proportionate controls. Model promotion g
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0905-001 - AI system lifecycle classification](../../controls/SAF-K8S-0905-001.md)
-
-- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
-- Knowledge Area: 9.5
-- Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
-
 ### [SAF-K8S-0905-045 - Sandboxed external model behavioral vetting and disposition review](../../controls/SAF-K8S-0905-045.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines

@@ -8666,12 +8666,12 @@
   knowledge_area: '9.5'
   control_seq: '001'
   control_title: AI system lifecycle classification
-  control_statement: Organizations must classify each AI system as either train-verify-lock (model fixed at deployment) or continuous learning (model updates post-deployment) and document the classification in the AI system registry using standardized labels before production deployment on Kubernetes.
+  control_statement: Classify each governed AI system as train-verify-lock or continuous learning and record the approved classification and exact profile in the system registry before production deployment. Reconcile the complete applicable system inventory to protected admission scope and verify that release paths require the approved registry assignment.
   objective: Ensure each AI system has a documented lifecycle classification that drives appropriate security control selection, with classification labels applied before production deployment to enable risk-calibrated enforcement.
   rationale: Train-verify-lock systems and continuous learning systems have fundamentally different risk profiles. Accurate classification is the prerequisite for applying the correct security controls. Without documented classification, there is no basis for choosing between integrity-focused controls for static models versus update governance controls for continuously learning models.
   scope: Applies to all AI systems deployed on Kubernetes before production deployment. Covers the classification decision and registry documentation. Excludes pre-deployment model development activities and the enforcement of the control profile itself (see SAF-K8S-0905-015).
   primary_enforcement_point: Model deployment admission control that validates system classification label and corresponding control profile assignment before allowing production deployment.
-  implementation_surface: AI system registry with classification labels (train-verify-lock, continuous-learning), Kubernetes pod labels (ai.kais.io/update-model), model deployment admission control validating classification labels, file integrity monitoring for train-verify-lock models, model update authorization workflows for continuous-learning systems, drift monitoring dashboards, and periodic classification review processes.
+  implementation_surface: Maintain an authorized versioned registry, independent system identity, classification and profile assignment. Protect the namespace, resource or release scope that selects governed deployments. Verify that effective admission requires registered assignments and refuses missing or mismatched declarations for every enrolled path. Reconcile new inventory and approved exceptions, and verify actual profile enforcement under SAF-K8S-0905-015.
   owner_primary: ML Platform Engineering
   owner_supporting: Security Engineering; ML Engineering; Governance
   baseline_or_ai_specific: ai-specific

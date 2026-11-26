@@ -29,15 +29,6 @@ Provenance tracking for AI models, training data, and agent tools verifies origi
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0905-001 - AI system lifecycle classification](../../controls/SAF-K8S-0905-001.md)
-
-- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
-- Knowledge Area: 9.5
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
-
 ### [SAF-K8S-0905-009 - Model provenance verification at deployment](../../controls/SAF-K8S-0905-009.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines

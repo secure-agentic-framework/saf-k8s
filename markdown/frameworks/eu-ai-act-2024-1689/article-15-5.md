@@ -72,15 +72,6 @@ Verified runtime signal coverage supports the monitoring portion of defined cybe
 - Applicability: required
 - Strength Reason Code: exact-text-match
 
-### [SAF-K8S-0905-001 - AI system lifecycle classification](../../controls/SAF-K8S-0905-001.md)
-
-- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
-- Knowledge Area: 9.5
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
-
 ### [SAF-K8S-0906-004 - Statistical drift, outlier, and input validation for training data poisoning detection](../../controls/SAF-K8S-0906-004.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines

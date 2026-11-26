@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-AI system classification defines expected control profiles. Model promotion gates enforce go/no-go decisions before production deployment based on validation criteria.
+The fixture makes a mechanical allow/deny decision for a Deployment whose declared lifecycle class and profile match a named synthetic registry record. It does not determine whether an AI system achieves intended purposes or objectives, nor whether deployment should proceed on that basis. Treat it only as one metadata prerequisite in a larger decision process.
 
 ## SAF-K8S Controls
 
@@ -13,10 +13,10 @@ AI system classification defines expected control profiles. Model promotion gate
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5
-- Relation Type: supports
+- Relation Type: partial
 - Strength: weak
-- Applicability: required
-- Strength Reason Code: compound-control-split-required
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0905-005 - Automated model promotion gates](../../controls/SAF-K8S-0905-005.md)
 

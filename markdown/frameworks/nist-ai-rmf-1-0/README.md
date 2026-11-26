@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-AI-RMF
 - Version: 1.0
-- Total Reverse Mappings: 99
-- Distinct Requirements Mapped: 46
+- Total Reverse Mappings: 93
+- Distinct Requirements Mapped: 45
 
 ## Requirements
 
@@ -33,7 +33,6 @@
 - [MANAGE 4.1 - Post-deployment AI system monitoring plans are implemented, including mechanisms for capturing and evaluating input from users and other relevant AI actors, appeal and override, decommissioning, incident response, recovery, and change management.](manage-4-1.md)
 - [MANAGE 4.2 - Measurable activities for continual improvements are integrated into AI system updates and include regular engagement with interested parties, including relevant AI actors.](manage-4-2.md)
 - [MANAGE 4.3 - Responses to the AI risks deemed high priority - as identified through the MAP function - are documented and monitored, and the risk management plan is updated as needed.](manage-4-3.md)
-- [MAP 1.1 - Intended purposes, potentially beneficial uses, context of use, and design goals of the AI system and its expected users are understood and documented. Assumptions and related limitations about these purposes, uses, context of use, and design goals are enumerated and documented.](map-1-1.md)
 - [MAP 1.5 - Organizational risk tolerances are determined and documented.](map-1-5.md)
 - [MAP 1.6 - System requirements (e.g., "the system shall respect the privacy of its users") are elicited from and understood by relevant AI actors. Design decisions take socio-technical implications into account to address AI risks.](map-1-6.md)
 - [MAP 2.1 - The specific tasks and methods used to implement the tasks that the AI system will support are defined (e.g., classifiers, generative models, recommenders).](map-2-1.md)
