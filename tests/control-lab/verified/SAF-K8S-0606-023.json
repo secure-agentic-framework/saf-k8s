@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-023",
-  "catalog_revision": "b18b0b5921b6642628bdac7e937389df73a01668",
-  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
+  "catalog_revision": "27082409295eeb71b29b8080ecbc9358a5ecec23",
+  "catalog_sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "be4b4a1ea2b23b06251712540cff29734e6050a004041ba78eaf028669abd653",
   "scope": "A disposable Kubernetes v1.36.1 kind cluster runs the official Checkov 3.3.16 image against case-owned inert Terraform files and an added CloudFormation fail/pass pair with a matching local hash-bound marker gate. The test observes one configured Checkov rule, real Job and process exit statuses, and separate marker gates for each format. It never initializes or applies infrastructure and has no cloud credentials. CloudFormation coverage is scanner behavior only, not gate enforcement; Pulumi, production CI protection, policy completeness, and production deployment blocking for each format require separate evidence.",
-  "cluster": "saf-lab-19aa334a64eb",
+  "cluster": "saf-lab-7d310e982615",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -157,6 +157,18 @@
         "clean_template_promoted": true,
         "marker_data_matches_cloudformation_sha256": true,
         "marker_kind": "ConfigMap"
+      }
+    },
+    {
+      "phase": "supplement",
+      "claim": "A clean scanner Job cannot authorize a changed artifact digest",
+      "matched": true,
+      "observed": {
+        "withheld": true,
+        "created": false,
+        "artifact_matches": false,
+        "job_matches": true,
+        "mismatched_marker_absent": true
       }
     }
   ]

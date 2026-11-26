@@ -234,8 +234,10 @@ def prepare_promoter(lab):
 
 def promote(lab, case_name, verdict, *, source_file="main.tf",
             digest_key="terraform_sha256", marker_name="iac-promotion-marker",
-            framework="terraform", check_id="CKV_AWS_20"):
+            framework="terraform", check_id="CKV_AWS_20", attempt=None):
     name = f"iac-{case_name}-promotion"
+    if attempt:
+        name += f"-{attempt}"
     input_name = f"iac-{case_name}-input"
     scan = f"iac-{case_name}-check"
     lab.create(configmap(name, {"promote.py": (HERE / "promotion_gate.py").read_text(),
@@ -312,3 +314,14 @@ def run(lab):
                "scanner_job": observed.get("data", {}).get("scanner_job") if observed else None})
 
     run_cloudformation_scan_pair(lab)
+
+
+    changed_report = {**green, "terraform_sha256": "0" * 64}
+    changed_marker = "iac-mismatch-promotion-marker"
+    result = promote(lab, "compliant", changed_report, marker_name=changed_marker,
+                     attempt="wrong-digest")
+    absent = marker(lab, changed_marker) is None
+    lab.check("supplement", "A clean scanner Job cannot authorize a changed artifact digest",
+              result == {"withheld": True, "created": False, "artifact_matches": False,
+                         "job_matches": True} and absent,
+              result | {"mismatched_marker_absent": absent})

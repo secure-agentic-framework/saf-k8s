@@ -29,6 +29,12 @@ paths for each configured format.
 
 The same pinned scanner and selected rule evaluate two inert CloudFormation templates. The native Jobs must verify the expected failing and passing exit status and resource report. A separate promotion Job checks the scanner Job identity and exact mounted template digest. The failing input leaves its marker absent, and the successful input produces an immutable marker for that exact template hash. The cases use the local Kubernetes API and deploy only fixture marker ConfigMaps.
 
+## Digest mismatch
+
+A separate promotion Job supplies a changed artifact digest while preserving
+the clean scan Job lookup and original mounted bytes. It withholds the
+release marker for that mismatched digest.
+
 ## Adopter verification
 
 Inventory the languages and repositories that the actual deployment workflow accepts. For each, record the scanner and rule revision, required severity gates, artifact identity, authorized exceptions and deployment identity. Verify a harmless failing change blocks the approved path, an approved passing change promotes the exact scanned bytes, and unrelated artifacts or bypass paths are refused. Record Pulumi separately when it is in scope, along with the actual CI workflow and approval requirements.
