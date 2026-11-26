@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-012",
-  "catalog_revision": "db670fe534b0fd55f1e1edf607da63c218160ecc",
-  "catalog_sha256": "b4bc486cbaf4d7095c392838351d3abb12ca503c75b7e8244bc767f035f02d16",
+  "catalog_revision": "be51e36d445e3477ca7c4fbb30df96c0ea5716e9",
+  "catalog_sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "dd81a93dbb12ba0176f9bb4b0ad204b0457cb04ec9b1d67ac33349c143c694ef",
-  "scope": "One disposable single-node Kind Kubernetes v1.36.1 cluster. Reads metadata for the exact case-owned tokenless mock Pod, its case-owned ConfigMap, the assigned Node, and namespaced Kubernetes Events; captures the mock Pod's single fixed JSON log line. Exercises six explicitly specified decisions on static synthetic audit-shaped records and fabricated benign counters. No SIEM is connected, no AI/GPU runtime exists, no KServe/API extension is installed, and no live attack or external traffic is used. This validates deterministic rule logic and a bounded Kubernetes metadata read path only.",
-  "cluster": "saf-lab-fd85da075bd9",
+  "scope": "One disposable single-node Kind Kubernetes v1.36.1 cluster. Reads metadata for two exact case-owned tokenless mock Pods, their case-owned ConfigMap, assigned Node, fixed JSON log lines, and namespaced Kubernetes Events. Exercises six explicitly specified decisions on static synthetic audit-shaped records and fabricated benign counters. No SIEM is connected, no AI/GPU runtime exists, no KServe/API extension is installed, and no live attack or external traffic is used. This validates deterministic rule logic and a bounded local Pod/log/Event UID join only; no independent monitoring product or deployed SIEM is connected.",
+  "cluster": "saf-lab-49d786ba20fe",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -182,6 +182,20 @@
         "out_of_scope_pod_excluded": true,
         "case_label_scoped": true,
         "fixture_label_scoped": true
+      }
+    },
+    {
+      "phase": "correlation",
+      "claim": "A second independently created owned Pod produces real near-miss Events that do not join to the primary workload UID",
+      "matched": true,
+      "observed": {
+        "rule": "two_owned_pod_event_uid_correlation",
+        "primary_workload_log_fixture_id": "SYNTH-SAF-K8S-1001-012-WORKLOAD-001",
+        "primary_events_correlated": true,
+        "comparator_workload_log_fixture_id": "SYNTH-SAF-K8S-1001-012-WORKLOAD-001",
+        "comparator_events_correlated_to_comparator_only": true,
+        "comparator_events_excluded_from_primary": true,
+        "uids_distinct": true
       }
     }
   ]

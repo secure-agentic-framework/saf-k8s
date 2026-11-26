@@ -16,6 +16,7 @@ PYTHON_IMAGE = (
     "e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 )
 POD = "saf-1001-012-mock"
+POD_COMPARATOR = "saf-1001-012-comparator"
 CONFIG = "saf-1001-012-fixture"
 CASE_LABEL = "saf-lab.example/control"
 FIXTURE_LABEL = "saf-lab.example/fixture"
@@ -28,12 +29,13 @@ RULES = (
     "audit_policy_configmap_changed",
 )
 SCOPE = (
-    "One disposable single-node Kind Kubernetes v1.36.1 cluster. Reads metadata for the exact case-owned "
-    "tokenless mock Pod, its case-owned ConfigMap, the assigned Node, and namespaced Kubernetes Events; "
-    "captures the mock Pod's single fixed JSON log line. Exercises six explicitly specified decisions on "
+    "One disposable single-node Kind Kubernetes v1.36.1 cluster. Reads metadata for two exact case-owned "
+    "tokenless mock Pods, their case-owned ConfigMap, assigned Node, fixed JSON log lines, and namespaced "
+    "Kubernetes Events. Exercises six explicitly specified decisions on "
     "static synthetic audit-shaped records and fabricated benign counters. No SIEM is connected, no AI/GPU "
     "runtime exists, no KServe/API extension is installed, and no live attack or external traffic is used. "
-    "This validates deterministic rule logic and a bounded Kubernetes metadata read path only."
+    "This validates deterministic rule logic and a bounded local Pod/log/Event UID join only; no independent "
+    "monitoring product or deployed SIEM is connected."
 )
 
 
@@ -45,10 +47,10 @@ def labels():
     return {CASE_LABEL: CONTROL_ID, FIXTURE_LABEL: "true"}
 
 
-def pod(config_name):
+def pod(config_name, name=POD):
     return {
         "apiVersion": "v1", "kind": "Pod",
-        "metadata": {"name": POD, "namespace": NAMESPACE, "labels": labels()},
+        "metadata": {"name": name, "namespace": NAMESPACE, "labels": labels()},
         "spec": {
             "restartPolicy": "Never", "automountServiceAccountToken": False,
             "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
@@ -98,23 +100,23 @@ def correlate_owned_pod_events(pod_signal, event_signals):
             if event.get("regarding_uid") == pod_signal.get("uid")]
 
 
-def collect_native(lab, created_uid, config_uid):
+def collect_native(lab, created_uid, config_uid, pod_name=POD):
     deadline = time.monotonic() + 100
     pod_data = None
     while time.monotonic() < deadline:
-        pod_data = json.loads(lab.kubectl("get", "pod", POD, "-o", "json").stdout)
+        pod_data = json.loads(lab.kubectl("get", "pod", pod_name, "-o", "json").stdout)
         phase = pod_data.get("status", {}).get("phase")
         if phase in {"Succeeded", "Failed"}:
             break
         time.sleep(1)
     else:
-        lab.block("Tokenless mock Pod did not reach a terminal phase")
+        lab.block("Tokenless case-owned Pod did not reach a terminal phase")
     status = pod_data.get("status", {})
     terminated = status.get("containerStatuses", [{}])[0].get("state", {}).get("terminated", {})
     if (pod_data.get("metadata", {}).get("uid") != created_uid or phase != "Succeeded"
             or terminated.get("exitCode") != 0):
-        lab.block("Mock Pod did not complete with the expected owned UID and zero exit code")
-    log = lab.kubectl("logs", POD, "-c", "mock-workload").stdout
+        lab.block("Case-owned Pod did not complete with the expected UID and zero exit code")
+    log = lab.kubectl("logs", pod_name, "-c", "mock-workload").stdout
     lines = [json.loads(line) for line in log.splitlines() if line.strip()]
     expected = {"event": "mock_workload_ready", "fixture_id": "SYNTH-SAF-K8S-1001-012-WORKLOAD-001",
                 "network_calls": 0, "secret_values": 0}
@@ -122,7 +124,7 @@ def collect_native(lab, created_uid, config_uid):
         lab.block("Mock workload log did not match its fixed benign fixture record")
 
     raw_events = json.loads(lab.kubectl(
-        "get", "events", "--field-selector", f"involvedObject.name={POD}", "-o", "json",
+        "get", "events", "--field-selector", f"involvedObject.name={pod_name}", "-o", "json",
     ).stdout).get("items", [])
     events = []
     for event in raw_events:
@@ -148,7 +150,7 @@ def collect_native(lab, created_uid, config_uid):
         lab.block("Allowlisted Node metadata was incomplete")
     return {
         "source": "Kubernetes API read-only get events/pod/node plus pod log subresource",
-        "pod": {"name": POD, "namespace": NAMESPACE, "uid": created_uid, "phase": phase,
+        "pod": {"name": pod_name, "namespace": NAMESPACE, "uid": created_uid, "phase": phase,
                 "labels": pod_data.get("metadata", {}).get("labels", {}),
                 "service_account_token_mounted": False, "image": PYTHON_IMAGE},
         "fixture_configmap": {"name": CONFIG, "uid": config_uid, "immutable": True},
@@ -200,13 +202,17 @@ def run(lab):
                "node_version": actual["node"]["kubelet_version"],
                "workload_log_fixture": actual["workload_log"]["fixture_id"]})
 
+    comparator_created = create(lab, pod(CONFIG, name=POD_COMPARATOR))
+    comparator = collect_native(lab, comparator_created["metadata"]["uid"],
+                                config["metadata"]["uid"], POD_COMPARATOR)
+
     pod_signal = actual["pod"]
+    observed_events = [*actual["events"], *comparator["events"]]
     unmatched_event = dict(actual["events"][0])
     unmatched_event["regarding_uid"] = "SYNTH-UNMATCHED-POD-UID"
     matched = correlate_owned_pod_events(pod_signal, [*actual["events"], unmatched_event])
     wrong_scope = {**pod_signal, "namespace": "outside-fixture"}
     excluded = correlate_owned_pod_events(wrong_scope, actual["events"])
-    correlation_ok = bool(matched) and matched == actual["events"] and not excluded
     correlation_result = {
         "rule": "owned_pod_event_uid_correlation",
         "pod_source": "Kubernetes Pod metadata read",
@@ -217,9 +223,35 @@ def run(lab):
         "case_label_scoped": pod_signal["labels"].get(CASE_LABEL) == CONTROL_ID,
         "fixture_label_scoped": pod_signal["labels"].get(FIXTURE_LABEL) == "true",
     }
+    correlation_ok = bool(matched) and matched == actual["events"] and not excluded
     lab.check("correlation", "The owned Pod and Event metadata join on UID; an unmatched UID does not correlate",
               correlation_ok, correlation_result)
     actual["local_metadata_correlation"] = correlation_result
+
+    comparator_matched = correlate_owned_pod_events(comparator["pod"], observed_events)
+    primary_matched = correlate_owned_pod_events(pod_signal, observed_events)
+    foreign_events = [event for event in primary_matched if event in comparator["events"]]
+    independent_result = {
+        "rule": "two_owned_pod_event_uid_correlation",
+        "primary_pod_uid": pod_signal["uid"],
+        "primary_workload_log_fixture_id": actual["workload_log"]["fixture_id"],
+        "primary_events_correlated": primary_matched == actual["events"],
+        "comparator_pod_uid": comparator["pod"]["uid"],
+        "comparator_workload_log_fixture_id": comparator["workload_log"]["fixture_id"],
+        "comparator_events_correlated_to_comparator_only": comparator_matched == comparator["events"],
+        "comparator_events_excluded_from_primary": not foreign_events,
+        "uids_distinct": pod_signal["uid"] != comparator["pod"]["uid"],
+    }
+    independent_ok = (independent_result["primary_events_correlated"]
+                      and independent_result["comparator_events_correlated_to_comparator_only"]
+                      and independent_result["comparator_events_excluded_from_primary"]
+                      and independent_result["uids_distinct"])
+    normalized = {key: value for key, value in independent_result.items()
+                  if key not in {"primary_pod_uid", "comparator_pod_uid"}}
+    lab.check("correlation", "A second independently created owned Pod produces real near-miss Events that do not join to the primary workload UID",
+              independent_ok, normalized)
+    actual["independent_source_correlation"] = independent_result
+    actual["independent_comparator"] = comparator
 
     evidence = {
         "control_id": CONTROL_ID, "scope": SCOPE,
