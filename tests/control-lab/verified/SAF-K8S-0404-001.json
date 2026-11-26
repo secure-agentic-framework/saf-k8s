@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0404-001",
-  "catalog_revision": "3285b3d8306c6e5f031b70a6af14112acd44ef14",
-  "catalog_sha256": "27e016121c761914fd4408db1d825835a64e31d07025642c389095d65dcdf4e1",
+  "catalog_revision": "9269dad103762eacb2afc81547066aa10c5a7f35",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "52a935c8648f79240f7187e2b7375e8a7cb63a06c7b36f4f0324020f8c952f8d",
-  "scope": "Real cert-manager controllers deploy from a reviewed version on fresh Kind. The case verifies missing issuer behavior, same-namespace CA-backed ECDSA issuance, the actual validation chain, the recorded renewal schedule, and key replacement following a Certificate spec update. ACME, other providers, client reload, custody and issuer-side revocation require separate operational evidence.",
-  "cluster": "saf-lab-d84acd823f08",
+  "scope": "Real cert-manager controllers deploy from a reviewed version on fresh Kind. The case verifies missing issuer behavior, same-namespace CA-backed ECDSA issuance, the actual validation chain, the recorded renewal schedule, and key replacement following a Certificate spec update. A separate live workload demonstrates scheduled renewal and mounted leaf reload using the same case CA. Alternate issuers and revocation require their own evidence.",
+  "cluster": "saf-lab-e64fe1dc0b8e",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -69,6 +69,50 @@
         "server_auth_eku": true,
         "same_trusted_issuer_with_replaced_key": true,
         "previous_leaf_still_verifies_at_original_identity": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Early and normal-cycle leaves are valid under the original fixture CA with distinct due times",
+      "matched": true,
+      "observed": {
+        "same_original_fixture_issuer": true,
+        "early_due_precedes_control": true,
+        "early_cycle_configured_renew_before": "58m30s",
+        "normal_cycle_configured_renew_before": "25m"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The live workload serves the initial mounted leaf over the approved trust",
+      "matched": true,
+      "observed": {
+        "healthy_marker": true,
+        "initial_leaf_active": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Cert-manager performs the due renewal with a fresh key before expiry and leaves the later control unchanged",
+      "matched": true,
+      "observed": {
+        "scheduled_revision_advanced": true,
+        "renewed_before_prior_expiry": true,
+        "leaf_and_key_replaced": true,
+        "certificate_spec_unchanged": true,
+        "normal_control_unchanged": true,
+        "original_trust_and_policy_valid": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The relying client observes the renewed leaf from the live workload and reads its marker",
+      "matched": true,
+      "observed": {
+        "renewed_leaf_active": true,
+        "marker_healthy": true,
+        "same_approved_trust": true,
+        "observation_bound_seconds": 150
       }
     }
   ]
