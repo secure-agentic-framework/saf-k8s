@@ -3315,7 +3315,7 @@
     "SAF-K8S-1004-002": {
       "catalog_status": "draft",
       "domain": "D10",
-      "sha256": "5a2d9c710fead43289eab97a7f60d3b06f0b9fe05cab19cbb9aaad7ce04f2835",
+      "sha256": "a7ff99d1f5e647243a7acdcd6183c8507e135ea4600c3d2c7e9e25548c7ea9bc",
       "title": "Software supply chain threat model per NIST SP 800-204D"
     },
     "SAF-K8S-1004-004": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "4b3e5ff5ad37bcba063c3b59044bf24632aeeb2e",
-  "sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
+  "revision": "3aa7bceb44f89c3fd3632cd2d4a7b8d2d0190d2d",
+  "sha256": "e38420f524fb15e73e8ffca4c9a87efd965bcdc648e8f97243d8c301bc7ed21d",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
