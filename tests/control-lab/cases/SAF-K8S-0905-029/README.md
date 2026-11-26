@@ -13,3 +13,10 @@ the Kubernetes API. Raw evidence includes the observed runtime and report IDs.
 
 Actual accelerator packages, advisory feeds, continuous remediation, deployment
 ownership and hardware coverage require separate validation.
+
+## Verify a deployed accelerator inventory
+
+1. Identify actual accelerator workloads and resolved image digests. Join installed CUDA and other libraries from the software inventory with separate host driver, device-plugin and toolkit evidence for the actual assigned node and accelerator type.
+2. Verify approved tools, scope, evidence sources, report freshness, and a recurring scan and intake trigger for each covered component. Confirm unmatched or incomplete identity and component coverage create review-needed findings.
+3. Trace a controlled recorded finding through source intake, version matching, risk review, ownership and due date. Record the decision, corrective or compensating action and approval. Reinspect the exact deployed node, workload and image after remediation and verify closure or expiry of the exception.
+4. Identify unmonitored accelerator classes, workload paths, host versions and upstream feeds. Retain coverage and timing evidence alongside the specific records and escalation responsibility.
