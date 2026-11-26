@@ -33,6 +33,7 @@ CLIENT = "marker-client"
 SERVICE = "marker"
 PORT = 18080
 MARKER = "saf-0502-004-baseline-marker"
+CNP_NAME = "saf-0502-004-approved-marker-flow"
 BUSYBOX_IMAGE = (
     "docker.io/library/busybox:1.37.0@sha256:"
     "a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
@@ -53,9 +54,12 @@ SCOPE = (
     "values, and the same marker request afterward. An additive lifecycle branch "
     "rolls Cilium agents after a valid monitor-aggregation setting change, then "
     "observes a failed operator workload image rollout and explicit Helm rollback "
-    "while keeping the agent datapath pinned. This does not test a new Cilium "
-    "version or failed agent datapath rollout, and does not assess a "
-    "production baseline, CVE status or patch timeliness, provider SLAs, RBAC "
+    "while keeping the agent datapath pinned. A case-owned namespaced "
+    "CiliumNetworkPolicy permits only ordinary marker-client ingress to the "
+    "marker-server TCP port, remains realized through the tested Helm lifecycle, "
+    "and is removed afterward. This does not test a new Cilium version or failed "
+    "agent datapath rollout, and does not assess production baseline, CVE status "
+    "or patch timeliness, provider SLAs, RBAC "
     "process, PSA configuration, or production-scale availability."
 )
 
@@ -137,6 +141,129 @@ def _prepare_workloads(lab):
     for name in (SERVER, CLIENT):
         _kubectl(lab, "-n", NAMESPACE, "wait", "--for=condition=Ready",
                  f"pod/{name}", "--timeout=90s", timeout=100)
+
+
+def _approved_marker_policy():
+    """A single ordinary client-to-server TCP flow, restricted to this fixture."""
+    return {
+        "apiVersion": "cilium.io/v2", "kind": "CiliumNetworkPolicy",
+        "metadata": {"name": CNP_NAME, "namespace": NAMESPACE,
+                     "labels": {"saf-lab.example/control": "SAF-K8S-0502-004",
+                                "saf-lab.example/fixture": "synthetic"}},
+        "spec": {
+            "description": "Allow only the case-owned marker client to its marker server TCP port.",
+            "endpointSelector": {"matchLabels": {"app": SERVER}},
+            "ingress": [{
+                "fromEndpoints": [{"matchLabels": {"app": CLIENT}}],
+                "toPorts": [{"ports": [{"port": str(PORT), "protocol": "TCP"}]}],
+            }],
+        },
+    }
+
+
+def _endpoint_observation(lab):
+    endpoint = _json(_kubectl(lab, "-n", NAMESPACE, "get", "ciliumendpoint", SERVER, "-o", "json"))
+    status = endpoint.get("status", {})
+    return {"endpoint_name": endpoint.get("metadata", {}).get("name"),
+            "endpoint_identity": status.get("identity", {}).get("id"),
+            "endpoint_state": status.get("state"),
+            "policy_status_present": "policy" in status}
+
+
+def _wait_endpoint_ready(lab, timeout=45):
+    deadline = time.monotonic() + timeout
+    latest = {}
+    while time.monotonic() < deadline:
+        latest = _endpoint_observation(lab)
+        if latest.get("endpoint_name") == SERVER and latest.get("endpoint_identity", 0) > 1 \
+                and latest.get("endpoint_state") == "ready":
+            return latest
+        time.sleep(0.5)
+    lab.block("The exact marker server CiliumEndpoint did not report ready with an assigned identity")
+
+
+def _effective_agent_policy_state(lab):
+    """Read only this owned endpoint from its pinned local Cilium agent."""
+    pod = _json(_kubectl(lab, "-n", NAMESPACE, "get", "pod", SERVER, "-o", "json"))
+    endpoint = _json(_kubectl(lab, "-n", NAMESPACE, "get", "ciliumendpoint", SERVER, "-o", "json"))
+    pod_uid = pod.get("metadata", {}).get("uid")
+    owner_refs = endpoint.get("metadata", {}).get("ownerReferences", [])
+    if not pod_uid or not any(ref.get("kind") == "Pod" and ref.get("uid") == pod_uid
+                              for ref in owner_refs):
+        lab.block("The marker-server CiliumEndpoint is not owned by the exact marker-server Pod")
+
+    endpoint_id = endpoint.get("status", {}).get("id")
+    if not isinstance(endpoint_id, int) or endpoint_id < 1:
+        lab.block("The owned marker-server CiliumEndpoint has no valid local Cilium endpoint ID")
+    node_name = pod.get("spec", {}).get("nodeName")
+    agents = _json(_kubectl(lab, "-n", "kube-system", "get", "pods", "-l", "k8s-app=cilium", "-o", "json"))
+    local_agents = []
+    for candidate in agents.get("items", []):
+        if candidate.get("spec", {}).get("nodeName") != node_name:
+            continue
+        containers = candidate.get("spec", {}).get("containers", [])
+        agent_images = [c.get("image") for c in containers if c.get("name") == "cilium-agent"]
+        conditions = candidate.get("status", {}).get("conditions", [])
+        ready = any(c.get("type") == "Ready" and c.get("status") == "True" for c in conditions)
+        if agent_images == [AGENT_IMAGE] and ready:
+            local_agents.append(candidate)
+    if len(local_agents) != 1:
+        lab.block("Could not identify exactly one ready, digest-pinned Cilium agent on the marker-server node")
+
+    agent_name = local_agents[0].get("metadata", {}).get("name")
+    raw = _kubectl(lab, "-n", "kube-system", "exec", f"pod/{agent_name}", "-c", "cilium-agent",
+                   "--", "cilium-dbg", "endpoint", "get", str(endpoint_id), "-o", "json")
+    models = json.loads(raw.stdout)
+    if not isinstance(models, list) or len(models) != 1 or not isinstance(models[0], dict):
+        lab.block("cilium-dbg endpoint get did not return exactly one endpoint model")
+    model = models[0]
+    status = model.get("status", {})
+    external = status.get("external-identifiers", {})
+    policy = status.get("policy", {})
+    realized = policy.get("realized", {})
+    ingress = realized.get("l4", {}).get("ingress", [])
+    owned_cnp = _json(_kubectl(lab, "-n", NAMESPACE, "get", "ciliumnetworkpolicy", CNP_NAME, "-o", "json"))
+    owned_cnp_uid = owned_cnp.get("metadata", {}).get("uid")
+    if not owned_cnp_uid:
+        lab.block("The case-owned Cilium policy has no API UID")
+    expected_labels = {
+        "k8s:io.cilium.k8s.policy.derived-from=CiliumNetworkPolicy",
+        f"k8s:io.cilium.k8s.policy.name={CNP_NAME}",
+        f"k8s:io.cilium.k8s.policy.namespace={NAMESPACE}",
+        f"k8s:io.cilium.k8s.policy.uid={owned_cnp_uid}",
+    }
+    owned_ingress_rule_count = 0
+    for rule in ingress if isinstance(ingress, list) else []:
+        for source_labels in rule.get("derived-from-rules", []):
+            if expected_labels.issubset(set(source_labels)):
+                specification = json.loads(rule["rule"])
+                if specification.get("port") == PORT and specification.get("protocol") == "TCP":
+                    owned_ingress_rule_count += 1
+                    break
+    observed = {
+        "agent_pod": agent_name,
+        "agent_image_pinned": True,
+        "endpoint_id": model.get("id"),
+        "endpoint_id_matches_ciliumendpoint": model.get("id") == endpoint_id,
+        "ciliumendpoint_pod_uid_binding_observed": True,
+        "captured_pod_uid": pod_uid,
+        "captured_policy_uid": owned_cnp_uid,
+        "endpoint_attachment_matches": bool(external.get("cni-attachment-id")) and
+            external.get("cni-attachment-id") == endpoint["status"].get("external-identifiers", {}).get("cni-attachment-id"),
+        "endpoint_pod_address_matches": bool(pod.get("status", {}).get("podIP")) and
+            any(pod["status"]["podIP"] in (address.get("ipv4"), address.get("ipv6"))
+                for address in status.get("networking", {}).get("addressing", [])),
+        "policy_enabled": realized.get("policy-enabled"),
+        "realized_ingress_rule_count": len(ingress) if isinstance(ingress, list) else 0,
+        "owned_policy_ingress_rule_count": owned_ingress_rule_count,
+    }
+    if not (observed["endpoint_id_matches_ciliumendpoint"]
+            and observed["endpoint_attachment_matches"]
+            and observed["endpoint_pod_address_matches"]
+            and observed["policy_enabled"] in {"ingress", "both"}
+            and observed["owned_policy_ingress_rule_count"] > 0):
+        lab.block("Pinned local Cilium agent did not report the owned CNP in the endpoint's realized ingress policy")
+    return observed
 
 
 def marker_observation(returncode, stdout, marker=MARKER):
@@ -507,6 +634,16 @@ def run(lab):
     lab.check("positive", "Baseline in-cluster marker service is reachable",
               baseline_ok, baseline_result)
 
+    # The baseline path becomes a Cilium-enforced allow rule. There is no deny
+    # request or policy-bypass comparison in this case.
+    approved_policy = _approved_marker_policy()
+    _create(lab, approved_policy)
+    policy_before_upgrade = _wait_endpoint_ready(lab)
+    effective_policy_before_upgrade = _effective_agent_policy_state(lab)
+    policy_marker_ok, policy_marker = _wait_for_marker(lab)
+    if not policy_marker_ok:
+        lab.block("The approved marker flow was not reachable with its Cilium allow policy active")
+
     # A negative threshold survives API defaulting and produces a typed
     # Kubernetes validation error for both otherwise identical upgrades.
     before_history, baseline_values = _revision_and_values(lab)
@@ -544,3 +681,59 @@ def run(lab):
     lab.check("green", "Post-rollback marker service remains reachable",
               green_ok, green_result)
     _run_rollout_recovery(lab, chart)
+    policy_after_rollback = _wait_endpoint_ready(lab)
+    effective_policy_after_rollback = _effective_agent_policy_state(lab)
+    stored_policy = _json(_kubectl(lab, "-n", NAMESPACE, "get", "ciliumnetworkpolicy", CNP_NAME, "-o", "json"))
+    removed = _kubectl(lab, "-n", NAMESPACE, "delete", "ciliumnetworkpolicy", CNP_NAME,
+                       "--wait=true", allow_failure=True)
+    absent_after_removal = _kubectl(lab, "-n", NAMESPACE, "get", "ciliumnetworkpolicy", CNP_NAME,
+                                    "-o", "name", allow_failure=True)
+    final_marker_ok, final_marker = _wait_for_marker(lab)
+    policy_lifecycle_ok = (
+        stored_policy.get("spec") == approved_policy["spec"]
+        and policy_before_upgrade.get("endpoint_identity", 0) > 1
+        and policy_after_rollback.get("endpoint_identity", 0) > 1
+        and policy_before_upgrade.get("endpoint_state") == "ready"
+        and policy_after_rollback.get("endpoint_state") == "ready"
+        and effective_policy_before_upgrade.get("owned_policy_ingress_rule_count", 0) > 0
+        and effective_policy_after_rollback.get("owned_policy_ingress_rule_count", 0) > 0
+        and policy_marker_ok and removed.returncode == 0
+        and absent_after_removal.returncode != 0 and final_marker_ok
+    )
+    lab.check("positive", "The pinned local Cilium agent reports the exact case-owned ingress rule as realized across Helm lifecycle changes",
+              policy_lifecycle_ok,
+              {"policy_spec_restored_exactly": stored_policy.get("spec") == approved_policy["spec"],
+               "endpoint_ready_before_upgrade": policy_before_upgrade.get("endpoint_state"),
+               "endpoint_ready_after_rollback": policy_after_rollback.get("endpoint_state"),
+               "endpoint_policy_status_present_before_and_after": (
+                   policy_before_upgrade.get("policy_status_present")
+                   and policy_after_rollback.get("policy_status_present")),
+               "agent_realized_exact_rule_before_upgrade": effective_policy_before_upgrade["owned_policy_ingress_rule_count"] > 0,
+               "agent_realized_exact_rule_after_rollback": effective_policy_after_rollback["owned_policy_ingress_rule_count"] > 0,
+               "managed_server_endpoint_identity_present_before_and_after": (
+                   policy_before_upgrade.get("endpoint_identity", 0) > 1
+                   and policy_after_rollback.get("endpoint_identity", 0) > 1),
+               "marker_before_upgrade": policy_marker,
+               "policy_removed_after_lifecycle": removed.returncode == 0 and absent_after_removal.returncode != 0,
+               "marker_after_policy_removal": final_marker})
+    (lab.evidence / "cilium-policy-lifecycle.json").write_text(json.dumps({
+        "control": "SAF-K8S-0502-004",
+        "scope": "One case-owned Cilium endpoint, realized TCP ingress rule and approved marker traffic across Helm lifecycle changes.",
+        "policy": approved_policy,
+        "endpoint_before_upgrade": policy_before_upgrade,
+        "endpoint_after_rollback": policy_after_rollback,
+        "agent_realized_policy_before_upgrade": effective_policy_before_upgrade,
+        "agent_realized_policy_after_rollback": effective_policy_after_rollback,
+        "policy_object_after_rollback": stored_policy,
+        "approved_marker_after_policy_install": policy_marker,
+        "approved_marker_after_helm_lifecycle": final_marker,
+        "policy_removed": removed.returncode == 0 and absent_after_removal.returncode != 0,
+        "endpoint_policy_status_present": (
+            policy_before_upgrade.get("policy_status_present")
+            or policy_after_rollback.get("policy_status_present")),
+        "effective_agent_policy_observed": (
+            effective_policy_before_upgrade.get("owned_policy_ingress_rule_count", 0) > 0
+            and effective_policy_after_rollback.get("owned_policy_ingress_rule_count", 0) > 0),
+        "denial_tested": False,
+        "check": policy_lifecycle_ok,
+    }, sort_keys=True, indent=2) + "\n")
