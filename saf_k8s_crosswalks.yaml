@@ -11833,16 +11833,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-10
   framework_requirement_title: Non-repudiation
-  framework_mapping_notes: 'Non-repudiation for agent actions
-
-
-    6.2 - Image signing (Sigstore/cosign for non-repudiation); 9.4 - Model signing and provenance'
+  framework_mapping_notes: The fixture creates detached signatures over selected synthetic artifacts and rejects altered bytes. This is a limited contribution to non-repudiation only when the adopter independently binds the signing key to an authorized pipeline, protects signing credentials, and retains attributable records.
   control_id: SAF-K8S-0905-046
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only as a conditional contribution for the selected artifacts and signature-verification behavior; requires independently governed signer identity/trust, credential custody and lifecycle, and retained verification records as specified in the replacement note.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -11989,16 +11986,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-10(2)
   framework_requirement_title: Validate Binding of Information Producer Identity
-  framework_mapping_notes: 'Verifying which agent produced data
-
-
-    6.2 - Image signing verification (validating producer identity binding); 9.5 - Model origin verification'
+  framework_mapping_notes: The fixture rejects a signature from a second key, but its accepted public key is supplied by the test orchestrator and its identity string is not authenticated. Applicability requires an independently governed key-to-authorized-pipeline binding and retained attribution.
   control_id: SAF-K8S-0905-046
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only as a conditional contribution for the selected artifacts and signature-verification behavior; requires independently governed signer identity/trust, credential custody and lifecycle, and retained verification records as specified in the replacement note.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -15310,22 +15304,6 @@
 
     6.2 - Image signing (Sigstore/cosign signed components); 9.4 - Model signing and provenance verification'
   control_id: SAF-K8S-0904-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-14
-  framework_requirement_title: Signed Components
-  framework_mapping_notes: 'Cryptographic signing of agent components/models
-
-
-    6.2 - Image signing (Sigstore/cosign signed components); 9.4 - Model signing and provenance verification'
-  control_id: SAF-K8S-0905-046
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -29023,16 +29001,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-16(3)
   framework_requirement_title: Cryptographic Binding
-  framework_mapping_notes: 'Cryptographic binding of security attributes to agent messages ensures authenticity
-
-
-    6.2 - Sigstore (cryptographic binding of signatures to artifacts); 9.5 - Model signing cryptographic binding'
+  framework_mapping_notes: The fixture signature statements bind selected artifact names, digests, and a claimed fixture identity. Applicability is limited to these attributes and requires independent verification of signer trust and identity.
   control_id: SAF-K8S-0905-046
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only as a conditional contribution for the selected artifacts and signature-verification behavior; requires independently governed signer identity/trust, credential custody and lifecycle, and retained verification records as specified in the replacement note.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -39203,16 +39178,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-7
   framework_requirement_title: Software, Firmware, and Information Integrity
-  framework_mapping_notes: 'Software and information integrity for agent systems prevents unauthorized modifications
-
-
-    6.2 - Image signing and verification (software integrity); 8.2 - GPU firmware integrity; 9.5 - Model signing and provenance; 1.4 - Control plane configuration file integrity verification'
+  framework_mapping_notes: The fixture verifies selected artifact bytes and rejects an appended model change under a selected public key. It does not establish organization-wide integrity controls, modification prevention, or a deploy-time execution gate.
   control_id: SAF-K8S-0905-046
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only as a conditional contribution for the selected artifacts and signature-verification behavior; requires independently governed signer identity/trust, credential custody and lifecycle, and retained verification records as specified in the replacement note.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -39429,22 +39401,6 @@
 
     9.5 - Model origin verification at deploy time; 6.2 - Image signature verification; 9.6 - Data integrity at scale'
   control_id: SAF-K8S-0905-012
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-7(12)
-  framework_requirement_title: Integrity Verification
-  framework_mapping_notes: 'Integrity verification of agent components validates authenticity before execution
-
-
-    9.5 - Model origin verification at deploy time; 6.2 - Image signature verification; 9.6 - Data integrity at scale'
-  control_id: SAF-K8S-0905-046
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -39865,16 +39821,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-7(6)
   framework_requirement_title: Cryptographic Protection
-  framework_mapping_notes: 'Cryptographic integrity protection for agent binaries and models prevents tampering
-
-
-    6.2 - Image signing with Sigstore/cosign (cryptographic integrity); 9.5 - Model signing; 6.3 - Cryptographic agility'
+  framework_mapping_notes: For selected synthetic artifacts, signatures detect changed bytes when verified against the selected public key. This does not prevent modification or establish production key protection and lifecycle.
   control_id: SAF-K8S-0905-046
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only as a conditional contribution for the selected artifacts and signature-verification behavior; requires independently governed signer identity/trust, credential custody and lifecycle, and retained verification records as specified in the replacement note.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -40135,16 +40088,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SR-11
   framework_requirement_title: Component Authenticity
-  framework_mapping_notes: 'Component authenticity verification ensures AI models and tools are genuine and untampered
-
-
-    6.2 - Image signing and verification (component authenticity); 9.5 - Model signing and provenance (model authenticity)'
+  framework_mapping_notes: Trusted signatures can contribute an authenticity signal for selected artifacts. Applicability requires an adopter anti-counterfeit policy, reporting procedure, and approved signer-trust policy; none are established by this fixture.
   control_id: SAF-K8S-0905-046
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only as a conditional contribution for the selected artifacts and signature-verification behavior; requires independently governed signer identity/trust, credential custody and lifecycle, and retained verification records as specified in the replacement note.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -41265,16 +41215,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SR-4(3)
   framework_requirement_title: Validate as Genuine and Not Altered
-  framework_mapping_notes: 'Validating AI components as genuine and unaltered prevents supply chain tampering
-
-
-    6.2 - Image signing verification (validate genuine and unaltered); 9.5 - Model integrity verification at deploy time'
+  framework_mapping_notes: The fixture verifies signatures on selected internally generated artifacts. Applicability is limited to those artifacts after the adopter establishes the authorized producer identity; supplier validation and external inputs are not tested.
   control_id: SAF-K8S-0905-046
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only as a conditional contribution for the selected artifacts and signature-verification behavior; requires independently governed signer identity/trust, credential custody and lifecycle, and retained verification records as specified in the replacement note.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -42552,13 +42499,13 @@
   framework_version: '1.1'
   framework_requirement_id: PS.2.1
   framework_requirement_title: Make software integrity verification information available to software acquirers.
-  framework_mapping_notes: SAF-K8S requires image signing (cosign/Sigstore, Notary v2), SLSA provenance, and transparency logging to provide integrity verification for container images, ML models, and deployment artifacts.
+  framework_mapping_notes: The fixture creates signatures and verification material for selected artifacts but does not make them available to software acquirers. Applicability requires the adopter to publish and retain trustworthy verification information with the artifact for its intended acquirers.
   control_id: SAF-K8S-0905-046
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only as a conditional contribution for the selected artifacts and signature-verification behavior; requires independently governed signer identity/trust, credential custody and lifecycle, and retained verification records as specified in the replacement note.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'

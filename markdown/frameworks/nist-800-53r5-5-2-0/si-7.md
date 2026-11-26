@@ -103,10 +103,10 @@ The actual deployment uses integrity checks and verifies the required response f
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0902-002 - Model loading integrity verification](../../controls/SAF-K8S-0902-002.md)
 
