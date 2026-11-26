@@ -1,0 +1,113 @@
+{
+  "catalog_revision": "6a85476345517e5c6679a5ad79b622b04daa659b",
+  "control_id": "SAF-K8S-0909-010",
+  "control_sha256": "6950d8439f938f85dc0f092d7f19360cf8f3f773b8daf2104f6c3ca09e02b566",
+  "fixture_sha256": {
+    "bootstrap.sh": "8d92f9d64dcc8271ca910798ab69057daaf651418d39c188e36b4f4ed68c324f",
+    "guest-fixture.sh": "65e4ec5f5616fb97776d9f99122f99482a4bda9e6d06e17d103e5a257549b972",
+    "guest-pv-probe.sh": "cb4cfbedfd46200ee431f5c42d1c67bf1fe6fe76ddb53d94dc2ab2d9c27a8061",
+    "guest-qdrant-pv-probe.sh": "ce2ebc923b02b75383e6b98d5162d3aed69c2d513fe6a4b42f30cba1cd0912d5",
+    "test-vm.yaml": "7069d871394496a49ce511fc81dba76c70909e4c4bdee06376819b9ec7088d00",
+    "transport_fixture.py": "91a059707ef33ea1a2320f88b2a1ae5ea85a3e16d0c2113cf6d5df8cd0c38c77"
+  },
+  "guest": {
+    "architecture": "linux/arm64",
+    "cleanup": "deleted",
+    "cpus": 3,
+    "host_mounts": false,
+    "memory_gib": 4,
+    "shared_between_sequential_arms": true
+  },
+  "kind_version": "v0.32.0",
+  "kubernetes": "v1.36.1",
+  "luks_version": 2,
+  "qdrant": {
+    "linux_arm64_digest": "sha256:3bbf3b2673892bc593c300c402462332dd9d06e42096dc48b48907ecff287c5a",
+    "version": "1.20.2"
+  },
+  "runs": [
+    {
+      "arm": "arm-a",
+      "clusters": [
+        "saf-crypt-8f12e64c8387",
+        "saf-qdrant-write-0816cd493148",
+        "saf-qdrant-reopen-56bac168de7a"
+      ],
+      "fixture_cleanup": "passed",
+      "reopen": {
+        "claim_and_pv_uid_match": true,
+        "kind_cluster_deleted": true,
+        "kind_node_mount_matches_luks_host_path": true,
+        "kubernetes_v1_36_1_verified": true,
+        "pinned_fixture_image_verified": true,
+        "pinned_qdrant_image_verified": true,
+        "post_reopen_exact_marker_read": true,
+        "qdrant_pod_recreation_exact_read": null,
+        "qdrant_tls_marker_write_read": null,
+        "static_pv_path_matches_guest_luks_mount": true
+      },
+      "summary": {
+        "both_clusters_deleted": true,
+        "both_node_mounts_match_luks_backing": true,
+        "fresh_kind_cluster_after_luks_reopen_exact_read": true,
+        "fresh_kind_cluster_write_and_pod_recreation": true
+      },
+      "write": {
+        "claim_and_pv_uid_match": true,
+        "kind_cluster_deleted": true,
+        "kind_node_mount_matches_luks_host_path": true,
+        "kubernetes_v1_36_1_verified": true,
+        "pinned_fixture_image_verified": true,
+        "pinned_qdrant_image_verified": true,
+        "post_reopen_exact_marker_read": null,
+        "qdrant_pod_recreation_exact_read": true,
+        "qdrant_tls_marker_write_read": true,
+        "static_pv_path_matches_guest_luks_mount": true
+      },
+      "wrong_key_denied": true
+    },
+    {
+      "arm": "arm-b",
+      "clusters": [
+        "saf-crypt-07a28823d8bd",
+        "saf-qdrant-write-3af7e4707591",
+        "saf-qdrant-reopen-42b525171093"
+      ],
+      "fixture_cleanup": "passed",
+      "reopen": {
+        "claim_and_pv_uid_match": true,
+        "kind_cluster_deleted": true,
+        "kind_node_mount_matches_luks_host_path": true,
+        "kubernetes_v1_36_1_verified": true,
+        "pinned_fixture_image_verified": true,
+        "pinned_qdrant_image_verified": true,
+        "post_reopen_exact_marker_read": true,
+        "qdrant_pod_recreation_exact_read": null,
+        "qdrant_tls_marker_write_read": null,
+        "static_pv_path_matches_guest_luks_mount": true
+      },
+      "summary": {
+        "both_clusters_deleted": true,
+        "both_node_mounts_match_luks_backing": true,
+        "fresh_kind_cluster_after_luks_reopen_exact_read": true,
+        "fresh_kind_cluster_write_and_pod_recreation": true
+      },
+      "write": {
+        "claim_and_pv_uid_match": true,
+        "kind_cluster_deleted": true,
+        "kind_node_mount_matches_luks_host_path": true,
+        "kubernetes_v1_36_1_verified": true,
+        "pinned_fixture_image_verified": true,
+        "pinned_qdrant_image_verified": true,
+        "post_reopen_exact_marker_read": null,
+        "qdrant_pod_recreation_exact_read": true,
+        "qdrant_tls_marker_write_read": true,
+        "static_pv_path_matches_guest_luks_mount": true
+      },
+      "wrong_key_denied": true
+    }
+  ],
+  "schema": 1,
+  "scope": "Exact active Qdrant PV mapping to a case-owned LUKS2 volume, TLS readback, and recovery after mapper reopen in independently created clusters.",
+  "status": "passed"
+}
