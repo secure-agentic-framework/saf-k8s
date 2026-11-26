@@ -1,10 +1,12 @@
 """Native admission enforcement for two administrator-assigned AI lifecycle profiles."""
 import hashlib
 import base64
+import importlib.util
 import json
 from pathlib import Path
 import subprocess
 import time
+from types import SimpleNamespace
 
 
 HERE = Path(__file__).parent
@@ -620,3 +622,8 @@ def run(lab):
     _post_start_watcher_boundary(lab)
     _release_identity_boundary(lab)
     _signed_marker_boundary(lab)
+    addendum_spec = importlib.util.spec_from_file_location(
+        "saf_0905_015_continuity_addendum", HERE / "continuity_addendum.py")
+    addendum = importlib.util.module_from_spec(addendum_spec)
+    addendum_spec.loader.exec_module(addendum)
+    addendum.run_continuous_update(lab, SimpleNamespace(**globals()))

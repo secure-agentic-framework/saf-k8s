@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-015",
-  "catalog_revision": "7b915928297515109576306cae4a9c87153fc0ec",
-  "catalog_sha256": "0c684a60a481d0f72cbdbdf6554f5c02f7d716f35b2c4db859aa99c54a378c4b",
+  "catalog_revision": "449e1b4480eaee3da48d14c238be346afd45c9a7",
+  "catalog_sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e527d3845a08d2e8755124322ed949fcd885e728ea2541dcc061d05e16d26388",
   "scope": "One fresh Kubernetes v1.36.1 kind cluster. Two administrator-labeled namespaces assign train-verify-lock and continuous-learning profiles. Kubernetes ValidatingAdmissionPolicies and namespace-selected bindings validate Deployment pod templates on CREATE and UPDATE. Matched missing-profile probes and permitted non-AI Deployments are independently checked in both namespaces. Each valid profile Deployment executes a fixed, inert Python fixture: the train-lock init container writes fixed bytes and a SHA-256 baseline consumed by an integrity monitor; the continuous-learning init container writes one fixed synthetic before/after pair and its drift monitor measures the difference. No model, external service, network service, host port, or real authorization system is used.",
-  "cluster": "saf-lab-40ca10712e05",
+  "cluster": "saf-lab-437db11b6a37",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -181,6 +181,26 @@
         "no_pod_created_or_image_pulled": true,
         "wrong_signature_denied": true,
         "image_digest_rebound_without_signature_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The authorized continuous-learning UPDATE rolls out and consumes the exact signed inert artifact",
+      "matched": true,
+      "observed": {
+        "baseline_model_version_observed": true,
+        "immutable_configmap_bytes_match_signed_fixture": true,
+        "authorized_but_bad_signature_denied_without_rollout": true,
+        "authorized_exact_signed_update_admitted": true,
+        "digest_qualified_immutable_source_bound": true,
+        "new_generation_and_pod_uid_observed": true,
+        "init_verified_exact_fixture_bytes": true,
+        "workload_reader_observed_exact_model_version": true,
+        "drift_monitor_matched_consumed_version": true,
+        "manifest_digest": "sha256:980f79ef01d474369ae9f4bbf5f4a45422ffe9190f873ce39f5563b9f7e54645",
+        "artifact_digest": "sha256:c5542197fe8ee8c1943c7db38a3881f36490c14ab1e050b7908b52781bc6b927",
+        "pod_payload_bytes_logged": false,
+        "credential_material_logged": false
       }
     }
   ]
