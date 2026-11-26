@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0701-006",
-  "catalog_revision": "1a50e9d852c1015e6aaf86f09b1b6a51029da8d8",
+  "catalog_revision": "302c910b204bc0838d8a8d8c3e0be8604be32411",
   "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e6bbb8c30c0d439ce0b7ac0ae1863b49205737ee7cadcd4533bb9e0f8a7b7309",
-  "scope": "A disposable Kubernetes v1.36.1 API server protects one synthetic, unbound Retain PV object. Separate real fixture ServiceAccounts record independent approvals on an exact-UID ledger. Native admission blocks the fixture executor's normal DELETE until both approvals exist. Actual backend destruction, sanitization, approval expiry, governance, and production integration require separate evidence.",
-  "cluster": "saf-lab-fbf5c4d7511c",
+  "scope": "A disposable Kubernetes v1.36.1 API server protects one synthetic unbound PV record and one case-owned local-path Retain PV/PVC with an inert marker. Separate fixture ServiceAccounts record independent approvals on exact-UID ledgers. Native admission gates PV deletion and the single fixed marker-removal Job until both approvals exist. Actual backend destruction, sanitization, approval expiry, governance, and production integration require separate evidence.",
+  "cluster": "saf-lab-fcb262426c54",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -83,6 +83,70 @@
         "second_vote_accepted": true,
         "executor_http_status": 200,
         "pv_record_removed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A case-owned Retain PV/PVC binds and contains one inert marker",
+      "matched": true,
+      "observed": {
+        "pv_pvc_uid_linked": true,
+        "marker_present": true,
+        "reclaim_policy": "Retain"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before the supplement gate, the exact wipe Job dry-run is admitted without changing data",
+      "matched": true,
+      "observed": {
+        "dry_run_admitted": true,
+        "marker_unchanged": true,
+        "no_job_created": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The exact marker-removal Job is denied with zero votes and leaves the bound marker intact",
+      "matched": true,
+      "observed": {
+        "job_denied": true,
+        "marker_unchanged": true,
+        "job_absent": true,
+        "ledger_pending": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "One distinct approval cannot launch the wipe Job or change its mounted data",
+      "matched": true,
+      "observed": {
+        "first_vote_accepted": true,
+        "job_still_denied": true,
+        "marker_unchanged": true,
+        "job_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Dual approval permits only the fixed marker unlink on the exact bound volume",
+      "matched": true,
+      "observed": {
+        "both_votes_recorded": true,
+        "job_completed_exact_marker_action": true,
+        "job_ran_on_exact_pv_node": true,
+        "independent_node_read_confirms_marker_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Approved owner cleanup removes the exact Job, PVC, and PV while the marker stays absent",
+      "matched": true,
+      "observed": {
+        "job_absent": true,
+        "pvc_absent": true,
+        "pv_absent": true,
+        "marker_absent_before_node_teardown": true
       }
     }
   ]

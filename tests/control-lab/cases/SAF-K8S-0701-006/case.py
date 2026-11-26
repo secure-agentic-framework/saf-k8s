@@ -1,9 +1,12 @@
 """Enforce exact-target dual approval for deletion of one synthetic PV record."""
 import json
 from pathlib import Path
+import sys
 import time
 
+sys.path.insert(0, str(Path(__file__).parent))
 from fixtures import pod, ready
+from bound_volume_supplement import run_supplement
 
 NS = "saf-test"
 TARGET = "synthetic-retained-archive"
@@ -13,9 +16,10 @@ RBAC = "rbac.authorization.k8s.io/v1"
 ADMISSION = "admissionregistration.k8s.io/v1"
 IMAGE = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 SCOPE = (
-    "A disposable Kubernetes v1.36.1 API server protects one synthetic, unbound Retain PV object. "
-    "Separate real fixture ServiceAccounts record independent approvals on an exact-UID ledger. "
-    "Native admission blocks the fixture executor's normal DELETE until both approvals exist. "
+    "A disposable Kubernetes v1.36.1 API server protects one synthetic unbound PV record and one "
+    "case-owned local-path Retain PV/PVC with an inert marker. Separate fixture ServiceAccounts "
+    "record independent approvals on exact-UID ledgers. Native admission gates PV deletion and the "
+    "single fixed marker-removal Job until both approvals exist. "
     "Actual backend destruction, sanitization, approval expiry, governance, and production "
     "integration require separate evidence."
 )
@@ -46,7 +50,8 @@ def storage_record(lab):
     }))
 
 
-def install_policy(lab, name, resource, group, op, expression, message, match, *, params=False):
+def install_policy(lab, name, resource, group, op, expression, message, match, *, params=False,
+                   param_name=APPROVAL):
     spec = {
         "failurePolicy": "Fail",
         "matchConstraints": {"resourceRules": [{
@@ -58,7 +63,7 @@ def install_policy(lab, name, resource, group, op, expression, message, match, *
     binding = {"policyName": name, "validationActions": ["Deny"]}
     if params:
         spec["paramKind"] = {"apiVersion": "v1", "kind": "ConfigMap"}
-        binding["paramRef"] = {"name": APPROVAL, "namespace": NS, "parameterNotFoundAction": "Deny"}
+        binding["paramRef"] = {"name": param_name, "namespace": NS, "parameterNotFoundAction": "Deny"}
     lab.create(object_spec(ADMISSION, "ValidatingAdmissionPolicy", name, spec=spec))
     lab.create(object_spec(ADMISSION, "ValidatingAdmissionPolicyBinding", name, spec=binding))
 
@@ -67,8 +72,8 @@ def user(actor):
     return f"system:serviceaccount:{NS}:{actor}"
 
 
-def probe(lab, actor, action):
-    result = lab.kubectl("exec", actor, "--", "python", "/fixture/probe.py", action)
+def probe(lab, actor, action, *args):
+    result = lab.kubectl("exec", actor, "--", "python", "/fixture/probe.py", action, *args)
     return json.loads(result.stdout)
 
 
@@ -171,3 +176,4 @@ def run(lab):
               {"approved_ledger_matches_uid": ledger.get("volumeUid") == target_uid,
                "second_vote_accepted": second["code"] == 200, "executor_http_status": result["code"],
                "pv_record_removed": not surviving})
+    run_supplement(lab)
