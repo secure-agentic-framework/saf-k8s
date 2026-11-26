@@ -1,5 +1,6 @@
 """Small, closed-zone CoreDNS logging and static observer integration case."""
 import json
+import importlib.util
 from pathlib import Path
 import time
 
@@ -221,3 +222,7 @@ def run(lab):
     lab.check("positive", "The separate observer Job receives both records and emits only the expected canary alert",
               alerts == {"observed_records": 2, "alerts": [ALERT]},
               alerts)
+    extension_spec = importlib.util.spec_from_file_location("dns_anomaly", HERE / "extension.py")
+    extension = importlib.util.module_from_spec(extension_spec)
+    extension_spec.loader.exec_module(extension)
+    extension.run_anomaly_extension(lab, enabled["status"]["podIP"], lambda: _logs(lab, pod_name))

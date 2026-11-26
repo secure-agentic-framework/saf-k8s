@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0503-005",
-  "catalog_revision": "25aba1355bf2454e1afdcdbd24cb81c2fcc4a7a6",
-  "catalog_sha256": "5cdae1ac8e840efcd1bbef91e3b059258a719f1105eb1a2d6060368490ee36e2",
+  "catalog_revision": "1560204cb02f806d9202d229be64e21d8c8b31ee",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b37638ff5168a2ea39c4c99f97721839300728a8ccd4bc0d8a64b6a393d71fb4",
   "scope": "A dedicated CoreDNS instance in local Kubernetes v1.36.1 serves a closed fixture zone. A fixed harmless canary resolves before logging, and two owned A queries resolve afterward. Structured CoreDNS log rows are delivered to a separate scoped observer Job, which emits one known allowlisted test alert. Production collection, analytic coverage and protective enforcement need separate evidence.",
-  "cluster": "saf-lab-aede8cb6e76f",
+  "cluster": "saf-lab-a514b815775e",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -96,6 +96,99 @@
             "qtype": "A"
           }
         ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Eight bounded local fixture DNS questions receive matching replies and exact CoreDNS log records",
+      "matched": true,
+      "observed": {
+        "probe_count": 8,
+        "responses_matched": 8,
+        "observed_fixture_rows": 8,
+        "query_types": [
+          "A",
+          "TXT"
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Bounded per-name volume counter alerts at three while the two-query control remains below threshold",
+      "matched": true,
+      "observed": {
+        "control_count": 2,
+        "burst_count": 3,
+        "volume_alert": {
+          "count": 3,
+          "qname": "volume-burst.fixture.test.",
+          "rule": "fixture-query-volume"
+        }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Long and high-entropy labels trigger separate bounded shape counters without cross-triggering",
+      "matched": true,
+      "observed": {
+        "long_label_length": 40,
+        "entropy_label_length": 20,
+        "shape_alerts": [
+          {
+            "entropy_bits": 4.222,
+            "qname": "q7m2x9k4w3p8r6t5u1c2.fixture.test.",
+            "rule": "fixture-high-entropy-label"
+          },
+          {
+            "label_length": 40,
+            "qname": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.fixture.test.",
+            "rule": "fixture-long-label"
+          }
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "TXT query is distinguished from ordinary A queries by the unusual-type rule",
+      "matched": true,
+      "observed": {
+        "txt_count": 1,
+        "type_alert": {
+          "qname": "qtype.fixture.test.",
+          "qtype": "TXT",
+          "rule": "fixture-unusual-qtype"
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Separate local observer receives the exact independently counted anomaly decisions",
+      "matched": true,
+      "observed": {
+        "observed_records": 8,
+        "alerts": [
+          {
+            "entropy_bits": 4.222,
+            "qname": "q7m2x9k4w3p8r6t5u1c2.fixture.test.",
+            "rule": "fixture-high-entropy-label"
+          },
+          {
+            "label_length": 40,
+            "qname": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.fixture.test.",
+            "rule": "fixture-long-label"
+          },
+          {
+            "count": 3,
+            "qname": "volume-burst.fixture.test.",
+            "rule": "fixture-query-volume"
+          },
+          {
+            "qname": "qtype.fixture.test.",
+            "qtype": "TXT",
+            "rule": "fixture-unusual-qtype"
+          }
+        ],
+        "scope": "synthetic closed .fixture.test queries only"
       }
     }
   ]

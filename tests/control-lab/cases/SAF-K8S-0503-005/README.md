@@ -1,11 +1,15 @@
-# SAF-K8S-0503-005 CoreDNS logging and detection canary
+# SAF-K8S-0503-005 — DNS query logging and scoped detection
+
+Run from the framework root.
 
 ```sh
 python3 tests/control-lab/lab.py test SAF-K8S-0503-005 --docker-context desktop-linux
 ```
 
-A dedicated CoreDNS instance serves two names in a closed fixture zone. The same fixed canary answers without a log record before logging and with an exact structured record after logging. A normal name also resolves and produces a structured record. The test delivers both real records to a separate observer Job, which reports exactly one synthetic alert. The fixture has no upstream resolver.
+The owned CoreDNS fixture first answers a canary query with logging disabled. With structured logging enabled, a fresh Pod answers the canary and ordinary queries. A separate Job reads the exact log rows and reports only the canary.
 
-These checks cover the live log and observer path for the fixed names. Production detector coverage, forwarding to the organization's analysis service, alert response, and DNS enforcement remain separate evidence requirements.
+The second observer reads real CoreDNS logs for eight inert questions in the fixture zone. It verifies the per-name batch count, label length, label entropy, and query type rules. The two-query comparison stays below the three-query fixture threshold. Separate labels exercise the length and entropy conditions, and a TXT query exercises the type condition. The receipt retains the full set of observed rule results. The batch uses one owned client and the authoritative fixture server.
 
-[CoreDNS query logging](https://coredns.io/plugins/log/) and [Kubernetes DNS debugging](https://v1-36.docs.kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/).
+For adoption, inventory actual DNS paths, including node-local and managed resolvers and permitted alternate resolvers. Verify scoped, privacy-reviewed logs through the approved destination. Link queries to their observed source where the network and collector preserve it. Tune time-window and source-aware rules against the environment's expected names and types, and verify the alert route, recipient, retention, and performance. The fixture exercises detection based on selected log fields. DNS enforcement and protected routes have separate acceptance checks.
+
+[CoreDNS log plugin](https://coredns.io/plugins/log/) · [Kubernetes v1.36 DNS debugging](https://v1-36.docs.kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/)
