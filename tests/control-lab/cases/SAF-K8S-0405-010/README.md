@@ -13,3 +13,15 @@ coverage, retention, external delivery and response timing to site review.
 
 - [Kubernetes impersonation auditing](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/user-impersonation/#auditing)
 - [Kubernetes auditing](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/)
+
+## Adopter verification
+
+For each API server or managed control plane, keep a scoped deployment verification plan.
+
+1. Inventory enabled impersonation authorities, groups/users/service accounts, allowed verbs and resources, and expected operator-to-impersonated-principal pairs. Exclude secrets and unrelated workloads from test requests.
+2. Confirm the effective audit policy captures the impersonation request and the selected metadata fields at the agreed stage. Verify audit backend delivery, event-loss indicators, access controls, retention and time synchronization.
+3. Use an approved test identity to read a harmless owned object through one expected impersonation pair, then a second authorized but unapproved synthetic pair. Verify the audit records identify both the authenticated caller and impersonated identity and include the operation/outcome, without recording object payloads.
+4. Confirm only the unapproved pair reaches the named review/SIEM queue, correlate it to the original audit event, and document delivery time and assigned responder. Repeat the approved pair to confirm it remains visible without creating a false positive.
+5. Retain sanitized query identifiers, matched field names, policy/configuration revision, event timestamps, delivery/acknowledgement and reviewer disposition. Record any gaps in managed audit services and covered paths.
+
+The guide complements the three-check local case: the case proves native audit production and local policy routing; the adopter exercise proves that the organization's actual API paths, protected retention and response target are wired.
