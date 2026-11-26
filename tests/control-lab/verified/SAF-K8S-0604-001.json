@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0604-001",
-  "catalog_revision": "5baaadd565f2b475544b0ff22d3d9faddb30a7d1",
-  "catalog_sha256": "e21df5ef6d7be8d3be548d48d3650f2dfc630a3e395f036b3e3eb0533fc68fe4",
+  "catalog_revision": "d1b8447a22de8db36ec31676b53c34496d4d3f59",
+  "catalog_sha256": "63ca25b48ffb8f35202c5c4db9c599eb98e12d31aa18f4d0d69d91a9e3ec5423",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "72f4fbe4a05d6d17a1cece970943dd69645f542b78ee313556f56c6c063202de",
-  "scope": "A pinned scanner catalogs Python package metadata from two runnable OCI images. A release check binds the CycloneDX inventory to the assembled image digest and holds an image when a required transitive dependency is absent from the inventory. This fixture leaves additional native packages, deployed GPU and vendored dependencies, SBOM retention and AI artifact inventory for separate review. The approved image also reads its Debian libc6 metadata and reports its loaded glibc version for an independent package comparison.",
-  "cluster": "saf-lab-2184982f5a51",
+  "scope": "A pinned scanner catalogs Python dependencies and Debian runtime packages from owned OCI images. A digest-bound release gate holds the controlled incomplete inventory, and an independent launch verifies the approved libc6 package and loaded glibc. A separate immutable image installs a digest-pinned psutil wheel and joins its RECORD, its loaded native ELF bytes and Syft's inventory to the exact OCI manifest run on disposable Kind. Deployed native and vendored dependencies, accelerators, provenance, SBOM retention, and AI artifact inventory require separate evidence.",
+  "cluster": "saf-lab-29abbd2e55ea",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -101,6 +101,19 @@
         "package_version_matches": true,
         "loaded_library_matches_package": true,
         "libc6_version": "2.41-12+deb13u4"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Pinned wheel RECORD and runtime ELF digest match Syft's exact file inventory",
+      "matched": true,
+      "observed": {
+        "runtime_exact_digest": true,
+        "Syft_reports_psutil_package": true,
+        "Syft_reports_native_ELF_and_digest": true,
+        "wheel_RECORD_to_native_hash_match": true,
+        "CycloneDX_reports_psutil": true,
+        "native_runtime_call_succeeded": true
       }
     },
     {

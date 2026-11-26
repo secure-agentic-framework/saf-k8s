@@ -31,12 +31,13 @@ print(json.dumps({
 }))
 """
 SCOPE = (
-    "A pinned scanner catalogs Python package metadata from two runnable OCI images. A release "
-    "check binds the CycloneDX inventory to the assembled image digest and holds an image "
-    "when a required transitive dependency is absent from the inventory. This fixture leaves "
-    "additional native packages, deployed GPU and vendored dependencies, SBOM retention and "
-    "AI artifact inventory for separate review. The approved image also reads its Debian libc6 "
-    "metadata and reports its loaded glibc version for an independent package comparison."
+    "A pinned scanner catalogs Python dependencies and Debian runtime packages from owned OCI "
+    "images. A digest-bound release gate holds the controlled incomplete inventory, and an "
+    "independent launch verifies the approved libc6 package and loaded glibc. A separate "
+    "immutable image installs a digest-pinned psutil wheel and joins its RECORD, its loaded "
+    "native ELF bytes and Syft's inventory to the exact OCI manifest run on disposable Kind. "
+    "Deployed native and vendored dependencies, accelerators, provenance, SBOM retention, and "
+    "AI artifact inventory require separate evidence."
 )
 
 
@@ -238,3 +239,13 @@ def run(lab):
         if push_ref is None:
             lab.block("The exact image is missing a required CycloneDX native component")
         run_approved(registry, push_ref, full_digest, complete["native_libc6"])
+
+        # Additive native-wheel witness; all six original assertions above remain intact.
+        wheel_spec = importlib.util.spec_from_file_location(
+            "saf_0604_001_wheel_elf_witness", HERE / "wheel_elf_witness.py"
+        )
+        if wheel_spec is None or wheel_spec.loader is None:
+            lab.block("Could not load the scratch wheel/native-ELF witness")
+        wheel_module = importlib.util.module_from_spec(wheel_spec)
+        wheel_spec.loader.exec_module(wheel_module)
+        wheel_module.run(registry)
