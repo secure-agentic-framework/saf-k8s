@@ -89,3 +89,12 @@ Namespace quotas allocate or cap declared requests, and PriorityClasses express 
 - Strength: moderate
 - Applicability: conditional
 - Strength Reason Code: partial-control-coverage
+
+### [SAF-K8S-0902-004 - Multi-model serving isolation and encryption](../../controls/SAF-K8S-0902-004.md)
+
+- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
+- Knowledge Area: 9.2
+- Relation Type: partial
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
