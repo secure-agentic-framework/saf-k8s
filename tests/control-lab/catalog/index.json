@@ -15,8 +15,8 @@
     "SAF-K8S-0101-007": {
       "catalog_status": "draft",
       "domain": "D01",
-      "sha256": "2187b3769368b00caad76883dce5420ce087fc39e888eef21726f2cec1ac6c69",
-      "title": "API server request rate limiting and API Priority and Fairness"
+      "sha256": "14bce1dd7c93934fae46539dc0f887524045371ebfe5d98835d1e6c49ae72a93",
+      "title": "API server request concurrency and API Priority and Fairness"
     },
     "SAF-K8S-0101-008": {
       "catalog_status": "draft",
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "f87be2c2779243aa6326d05fe12a2d189d05e121",
-  "sha256": "8f78b66ce89e60cb09a574a9cc9728937daa6fabc61ddf7214e1f6a6934a1c3d",
+  "revision": "e1e6607d45737832bcbf8eb8991bb7cbecabb852",
+  "sha256": "2603ead31a5e5877be28e9368d333c4c2343b49f4e9718b507c07fe67c3df1cc",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

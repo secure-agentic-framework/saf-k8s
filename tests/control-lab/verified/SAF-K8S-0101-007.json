@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0101-007",
-  "catalog_revision": "cf483a70cfcde4a4096c04c27dd54f6fc7a6a292",
-  "catalog_sha256": "479dd34cbc528dfa061f5555b19fc586c71385dcacd427f88979b910e0151d5e",
+  "catalog_revision": "3dbe7c80ff7a395ecb670d5ad66aba7c38bfa0d1",
+  "catalog_sha256": "2603ead31a5e5877be28e9368d333c4c2343b49f4e9718b507c07fe67c3df1cc",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "2187b3769368b00caad76883dce5420ce087fc39e888eef21726f2cec1ac6c69",
-  "scope": "A local Kubernetes v1.36.1 kind API server only. Use four ordinary GET /version requests and two named kube-scheduler Lease requests total, before and after a narrow FlowSchema. Capture only APF classification response headers and bounded response identity, plus passive seat and dispatch metrics. No synthetic contention or rejection is induced. This does not assess production or managed control planes, traffic under load, tenant fairness, or provider defaults. A bounded passive log observer reports naturally occurring kubelet Lease updates and the real scheduler named-Lease request classification; raw API-server logs are discarded.",
-  "cluster": "saf-lab-363678ae7f5a",
+  "control_sha256": "14bce1dd7c93934fae46539dc0f887524045371ebfe5d98835d1e6c49ae72a93",
+  "scope": "A local Kubernetes v1.36.1 kind API server only. Use four ordinary GET /version requests and two named kube-scheduler Lease requests in the original case, before and after a narrow FlowSchema. Capture only APF classification response headers and bounded response identity, plus passive seat and dispatch metrics. The scratch supplement adds at most two batches of four concurrent GETs to one case-owned inert ConfigMap. This does not assess production or managed control planes, traffic under representative load, tenant fairness, or provider defaults. A bounded passive log observer reports naturally occurring kubelet Lease updates and the real scheduler named-Lease request classification; raw API-server logs are discarded.",
+  "cluster": "saf-lab-4dc75e63c6f4",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -102,9 +102,9 @@
       "matched": true,
       "observed": {
         "queue_configuration_matches": true,
-        "nominal_seats": 27,
-        "dispatch_delta": 1,
-        "executed_wait_sample_delta": 1
+        "nominal_seat_limit_within_api_budget": true,
+        "dispatch_counter_incremented_once": true,
+        "executed_wait_sample_incremented_once": true
       }
     },
     {
@@ -145,6 +145,52 @@
         "flow_schema": "system-leader-election",
         "priority": "leader-election",
         "classification_matches": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The bounded APF reader has a small seat budget, exact GET scope, and projected nonroot identity",
+      "matched": true,
+      "observed": {
+        "seat_budget_in_range": true,
+        "reader_pod_profile_valid": true,
+        "role_binding_scope_exact": true,
+        "batch_cap": 4
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Four bounded named inert reads complete through the owned APF queue with positive measured wait",
+      "matched": true,
+      "observed": {
+        "projected_identity_available": true,
+        "trusted_tls_for_all_reads": true,
+        "all_reads_classified_to_owned_flow": true,
+        "all_reads_returned_exact_fixture": true,
+        "positive_executed_wait_count_and_sum": true,
+        "only_expected_http_statuses": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A bounded owned read batch receives an APF concurrency-limit rejection",
+      "matched": true,
+      "observed": {
+        "projected_identity_available": true,
+        "trusted_tls_for_all_reads": true,
+        "all_reads_classified_to_owned_flow": true,
+        "native_concurrency_rejection_observed": true,
+        "native_rejection_counter_increased": true,
+        "only_expected_http_statuses": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The bounded APF comparison restores and removes only its exact fixture objects",
+      "matched": true,
+      "observed": {
+        "fixture_objects_absent": true,
+        "owned_object_count": 7
       }
     }
   ]

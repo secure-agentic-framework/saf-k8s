@@ -1,76 +1,45 @@
 # SAF-K8S-0101-007 — API Priority and Fairness
 
+Run from the framework checkout.
+
 ```sh
-python3 lab.py test SAF-K8S-0101-007
+python3 tests/control-lab/lab.py test SAF-K8S-0101-007 --docker-context desktop-linux
 ```
 
-The disposable v1.36.1 API server serves the stable flow-control API. The
-test checks the two configured in-flight request flags on the live server.
-Kubernetes uses their sum as the APF concurrency budget and separate
-mutating and non-mutating limits when APF is disabled.
+From the lab checkout, invoke `python3 lab.py` with the same arguments.
+The owned v1.36.1 API server reports its two in-flight settings and
+apportions their sum among APF priorities. A narrow FlowSchema changes
+classification for the fixture identity. Native kubelet and scheduler
+Lease writes retain their expected critical priority classifications.
 
-Before a dedicated configuration is applied, an ordinary request from a
-synthetic service account uses the built-in workload-low priority. Applying
-a narrowly matched FlowSchema and Limited priority moves the same request
-to its dedicated priority. The ordinary administrator and scheduler lease
-requests keep their original classifications. The test resolves response
-headers to live object names and discards verbose client output.
+One nonroot fixture Pod uses its projected identity and verified
+Kubernetes TLS. The configured identity is limited to GET on one
+named ConfigMap. Each of the two comparison modes sends four fixed
+requests to that single object. TLS connects before the requests
+are synchronized, and the client performs no retries. The Queue
+comparison observes positive executed wait and successful responses.
+The Reject comparison observes a native HTTP 429 and an increase
+in the corresponding priority's concurrency-limit rejection metric.
+The test verifies removal of its seven fixture objects.
 
-The dedicated priority has a bounded Queue response. The case compares passive
-API server metrics before and after one ordinary request. The dedicated seat
-limit appears, the dispatch counter increments once, and the wait histogram
-gets one executed-request sample. A wait sample can represent immediate
-dispatch. This case verifies classification, configured capacity, and the
-monitoring signals with sequential requests.
+## Verify deployed flow isolation and capacity
 
-## Adopter evidence
+1. Identify API server replicas and versions, the responsible team or
+   managed service, relevant in-flight flags and effective APF defaults.
+   Collect supported provider configuration where applicable.
+2. Inventory governed critical and bulk flows, including Kubernetes
+   controllers, Lease writes, and node traffic. Verify actual subject,
+   request rule, unique priority, nominal shares and any borrowing,
+   lending or exempt behavior.
+3. Observe independent per-replica wait, queue depth, seat use and
+   rejection by priority and reason. Compare critical and bulk
+   traffic during representative expected workload conditions under
+   an approved capacity procedure. The local comparison covers one
+   controlled fixture priority and two four-request groups.
+4. Record changes, accountable approvers, supported rollback, expected
+   service thresholds, and repeated representative measurements.
+   Verify applicable long-running requests and provider limits separately.
 
-1. Pin the Kubernetes or managed service release, control-plane replicas,
-   applicable defaults and customer/provider responsibilities. Collect
-   `FlowSchema` and `PriorityLevelConfiguration` objects through an approved
-   read-only export, including APF conditions. Review their order, subject and
-   resource or URL matches, distinguishers, nominal shares, borrowing,
-   lending, and queue or reject settings. For self-managed servers, retain
-   both effective in-flight flags per API replica. Where the service owns
-   those settings, retain provider evidence and mark undisclosed values as
-   unverified.
-2. Identify approved critical flows for controller leader election, node
-   heartbeats, and other named controllers. Compare representative flow
-   observations with the expected matching schema and priority. Record
-   permitted product-specific configuration changes and their policy owner.
-3. Use the approved monitoring pipeline to retain per-replica APF nominal
-   limits, occupied seats, current queue depth, wait durations, and rejection
-   rates by schema, priority, and reason. Treat counters as deltas or rates and
-   account for restarts. During representative observed peaks, assess queue
-   wait and rejections for critical flows separately from bulk work. Record
-   the sampled workloads, time window and agreed targets. Evidence from an
-   idle interval leaves the peak-capacity result unverified.
-4. Review actual demand and isolate bulk priorities where necessary. Select
-   the flow distinguisher appropriate to the matching rules. Namespace
-   distinguishing applies to namespace-scoped resource requests. Rerun
-   the narrow fixture after a catalog or implementation change and retain
-   a reviewed policy record. Review any intentionally exempt or long-running
-   request classes separately.
-
-- [Kubernetes v1.36 API Priority and Fairness](https://v1-36.docs.kubernetes.io/docs/concepts/cluster-administration/flow-control/)
-- [Kubernetes v1.36 API server options](https://v1-36.docs.kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/)
-
-## Native critical flows
-
-The fixture API server logs APF classifications at verbosity 3. The case
-reads a bounded recent log tail and checks successful Lease writes for the
-disposable kubelet and scheduler. The kubelet's heartbeat uses the
-`system-node-high` schema and `node-high` priority. Scheduler leader
-election uses `system-leader-election` and `leader-election`. The observer
-retains the match result and expected classification in the receipt.
-Raw logs and request identities are held only in memory.
-
-These observations establish the priority of the sampled native writes.
-The adopter assessment still needs representative queueing, rejection,
-and isolation evidence for the deployment's critical and bulk flows.
-
-- [Kubernetes v1.36 APF debugging](https://v1-36.docs.kubernetes.io/docs/reference/debug-cluster/flow-control/)
-- [Kubernetes v1.36.1 APF classification fields](https://github.com/kubernetes/kubernetes/blob/v1.36.1/staging/src/k8s.io/apiserver/pkg/server/filters/priority-and-fairness.go)
-
-See the [APF rejection contract](upstream-rejection.md) for the pinned
-upstream HTTP 429 and metrics check.
+[Kubernetes API Priority and Fairness](https://v1-36.docs.kubernetes.io/docs/concepts/cluster-administration/flow-control/),
+[Kubernetes API server options](https://v1-36.docs.kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/),
+and [the APF rejection evidence reference](upstream-rejection.md).
