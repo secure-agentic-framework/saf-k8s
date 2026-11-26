@@ -32,7 +32,9 @@ SCOPE = (
     "is observed Ready and read through the Kubernetes API Service proxy before and after quota "
     "checks, and looks up the exact in-cluster Kubernetes Service via CoreDNS. A pinned Metrics Server "
     "provides fresh native PodMetrics samples around those probes, and read-only container logs are "
-    "checked for additional fixed health requests. This does not create pressure or simulate training. It does not demonstrate actual "
+    "checked for additional fixed health requests. A further 5m CPU / 8Mi memory Pod shares the namespace "
+    "within quota, serves through an independent case Service, and has fresh observed PodMetrics during coexistence. "
+    "This does not create pressure or simulate training. It does not demonstrate actual "
     "scheduler ordering under contention, protection of built-in control-plane components, "
         "CoreDNS resolution latency, production metrics or log pipelines, log forwarding lag, node/network "
     "capacity, or production service availability."
@@ -57,11 +59,11 @@ nodes:
     return _METRICS.configure_metrics_server_kind(lab, temporary, config)
 
 
-def _metrics_snapshot(lab):
-    """Read one exact PodMetrics object without retaining its raw quantities."""
-    identity_before = json.loads(lab.kubectl("get", "pod", HEALTH_POD, "-o", "json").stdout)
+def _metrics_snapshot(lab, pod_name=HEALTH_POD, expected_uid=None, *, retain_usage=False):
+    """Read one exact PodMetrics object; retain values only for the additive coexistence sample."""
+    identity_before = json.loads(lab.kubectl("get", "pod", pod_name, "-o", "json").stdout)
     uid_before = identity_before.get("metadata", {}).get("uid")
-    path = f"/apis/metrics.k8s.io/v1beta1/namespaces/{NAMESPACE}/pods/{HEALTH_POD}"
+    path = f"/apis/metrics.k8s.io/v1beta1/namespaces/{NAMESPACE}/pods/{pod_name}"
     result = subprocess.run(
         ["kubectl", "--kubeconfig", str(lab.kubeconfig), "--context", f"kind-{lab.cluster}",
          "get", "--raw", path], env=lab.env, text=True, capture_output=True, timeout=20,
@@ -72,18 +74,17 @@ def _metrics_snapshot(lab):
             metrics = json.loads(result.stdout)
         except json.JSONDecodeError:
             metrics = {}
-    identity_after = json.loads(lab.kubectl("get", "pod", HEALTH_POD, "-o", "json").stdout)
+    identity_after = json.loads(lab.kubectl("get", "pod", pod_name, "-o", "json").stdout)
     uid_after = identity_after.get("metadata", {}).get("uid")
     meta = metrics.get("metadata", {})
     exact = (metrics.get("apiVersion") == "metrics.k8s.io/v1beta1"
              and metrics.get("kind") == "PodMetrics"
-             and meta.get("name") == HEALTH_POD and meta.get("namespace") == NAMESPACE)
+             and meta.get("name") == pod_name and meta.get("namespace") == NAMESPACE)
     containers = metrics.get("containers", [])
-    usage_present = any(
-        item.get("name") == "mock-workload"
-        and all(key in item.get("usage", {}) for key in ("cpu", "memory"))
-        for item in containers
-    )
+    observed = next((item for item in containers
+                     if item.get("name") == "mock-workload"
+                     and all(key in item.get("usage", {}) for key in ("cpu", "memory"))), None)
+    usage_present = observed is not None
     fresh = False
     try:
         sampled = datetime.fromisoformat(metrics.get("timestamp", "").replace("Z", "+00:00"))
@@ -91,22 +92,37 @@ def _metrics_snapshot(lab):
         fresh = -5 <= age <= 90
     except (TypeError, ValueError):
         pass
-    return {
+    uid_match_key = ("uid_matches_original_fixture" if pod_name == HEALTH_POD
+                     else "uid_matches_expected_companion_uid")
+    normalized = {
         "api_read_succeeded": result.returncode == 0,
         "exact_podmetrics_identity": exact,
         "cpu_memory_usage_present": usage_present,
         "sample_fresh_within_90s": fresh,
         "same_pod_uid_around_sample": bool(uid_before) and uid_before == uid_after,
-        "uid_matches_original_fixture": bool(uid_before) and uid_before == lab.health_fixture_uid,
+        uid_match_key: bool(uid_before) and uid_before == (expected_uid or lab.health_fixture_uid),
     }
+    if retain_usage:
+        return {**normalized, "usage": observed.get("usage", {}) if observed else {},
+                "timestamp": metrics.get("timestamp"), "window": metrics.get("window")}
+    return normalized
 
 
-def _wait_metrics(lab, label):
+
+def _wait_metrics(lab, label, pod_name=HEALTH_POD, expected_uid=None, *, retain_usage=False, newer_than=None):
     deadline = time.monotonic() + 100
     latest = None
     while time.monotonic() < deadline:
-        latest = _metrics_snapshot(lab)
-        if all(latest.values()):
+        latest = _metrics_snapshot(lab, pod_name, expected_uid, retain_usage=retain_usage)
+        uid_match_key = ("uid_matches_original_fixture" if pod_name == HEALTH_POD
+                         else "uid_matches_expected_companion_uid")
+        valid = all(latest.get(key) is True for key in (
+            "api_read_succeeded", "exact_podmetrics_identity", "cpu_memory_usage_present",
+            "sample_fresh_within_90s", "same_pod_uid_around_sample", uid_match_key))
+        if valid and newer_than is not None:
+            observed_at = datetime.fromisoformat(latest["timestamp"].replace("Z", "+00:00"))
+            valid = observed_at > newer_than
+        if valid and (not retain_usage or all(latest.get("usage", {}).get(k) for k in ("cpu", "memory"))):
             return latest
         time.sleep(3)
     lab.block(f"{label} exact PodMetrics sample did not become current and ready")
@@ -426,3 +442,135 @@ def run(lab):
         "health_log_observations": logs_observed,
         "checks": lab.checks,
     }, indent=2, sort_keys=True) + "\n")
+
+    _observe_bounded_coexistence(lab)
+
+
+COEXIST_POD = "saf-1007-007-bounded-coexistence"
+COEXIST_SERVICE = "saf-1007-007-coexistence-health"
+COEXIST_CONFIG = "saf-1007-007-coexistence-marker"
+COEXIST_MARKER = "SYNTH-1007-007-COEXIST-OK\n"
+COEXIST_LABELS = {CASE_LABEL: CONTROL_ID, FIXTURE_LABEL: "bounded-coexistence"}
+
+
+def _pod_service_probe(lab, pod_name, service_name, expected_marker):
+    before = json.loads(lab.kubectl("get", "pod", pod_name, "-o", "json").stdout)
+    before_status = next((item for item in before.get("status", {}).get("containerStatuses", [])
+                          if item.get("name") == "mock-workload"), {})
+    ready = before.get("status", {}).get("phase") == "Running" and before_status.get("ready") is True
+    endpoints = json.loads(lab.kubectl("get", "endpoints", service_name, "-o", "json").stdout)
+    pod_ip = before.get("status", {}).get("podIP")
+    endpoint_matches = any(address.get("ip") == pod_ip
+                           for subset in endpoints.get("subsets", [])
+                           for address in subset.get("addresses", []))
+    path = f"/api/v1/namespaces/{NAMESPACE}/services/{service_name}:http/proxy/healthz"
+    deadline = time.monotonic() + 20
+    response_ok = False
+    while time.monotonic() < deadline:
+        response = lab.kubectl("get", "--raw", path, allow_failure=True)
+        if response.returncode == 0:
+            response_ok = response.stdout == expected_marker
+            break
+        if "no endpoints available" not in response.stderr and "ServiceUnavailable" not in response.stderr:
+            lab.block("Owned service proxy returned an unexpected response during coexistence")
+        time.sleep(0.3)
+    after = json.loads(lab.kubectl("get", "pod", pod_name, "-o", "json").stdout)
+    after_status = next((item for item in after.get("status", {}).get("containerStatuses", [])
+                         if item.get("name") == "mock-workload"), {})
+    return {"pod_uid": before.get("metadata", {}).get("uid"),
+            "same_uid_after_request": before.get("metadata", {}).get("uid") == after.get("metadata", {}).get("uid"),
+            "pod_ready": ready and after.get("status", {}).get("phase") == "Running" and after_status.get("ready") is True,
+            "service_endpoint_matches_pod": bool(pod_ip) and endpoint_matches,
+            "independent_service_response_matches": response_ok}
+
+
+def _observe_bounded_coexistence(lab):
+    config = {"apiVersion": "v1", "kind": "ConfigMap",
+              "metadata": {"name": COEXIST_CONFIG, "namespace": NAMESPACE, "labels": _labels()},
+              "immutable": True, "data": {"healthz": COEXIST_MARKER}}
+    workload = _pod(COEXIST_POD, "5m", "8Mi", TRAINING_CLASS)
+    workload["metadata"]["labels"] = COEXIST_LABELS
+    workload["spec"]["volumes"] = [{"name": "health-fixture", "configMap": {"name": COEXIST_CONFIG}}]
+    service = {"apiVersion": "v1", "kind": "Service",
+               "metadata": {"name": COEXIST_SERVICE, "namespace": NAMESPACE, "labels": _labels()},
+               "spec": {"selector": COEXIST_LABELS,
+                        "ports": [{"name": "http", "port": 80, "targetPort": 8080}]}}
+    lab.create(config)
+    lab.create(workload)
+    lab.create(service)
+    lab.kubectl("wait", "--for=condition=Ready", f"pod/{COEXIST_POD}", "--timeout=90s", timeout=100)
+    companion = json.loads(lab.kubectl("get", "pod", COEXIST_POD, "-o", "json").stdout)
+    companion_uid = companion["metadata"]["uid"]
+    coexist_quota_ready = False
+    for _ in range(25):
+        quota = json.loads(lab.kubectl("get", "resourcequota", QUOTA, "-o", "json").stdout)
+        used = quota.get("status", {}).get("used", {})
+        if used.get("requests.cpu") == "10m" and used.get("requests.memory") == "16Mi":
+            coexist_quota_ready = True
+            break
+        time.sleep(1)
+    if not coexist_quota_ready:
+        lab.block("The bounded coexistence Pod did not remain within the declared namespace quota")
+
+    health_before = json.loads(lab.kubectl("get", "pod", HEALTH_POD, "-o", "json").stdout)
+    coexist_before = _wait_metrics(lab, "bounded coexistence Pod", COEXIST_POD,
+                                   companion_uid, retain_usage=True)
+    health_during_metrics = json.loads(lab.kubectl("get", "pod", HEALTH_POD, "-o", "json").stdout)
+    before_sample_time = datetime.fromisoformat(coexist_before["timestamp"].replace("Z", "+00:00"))
+    coexist_after = _wait_metrics(lab, "bounded coexistence Pod after service probes", COEXIST_POD,
+                                  companion_uid, retain_usage=True, newer_than=before_sample_time)
+    health_after_metrics = json.loads(lab.kubectl("get", "pod", HEALTH_POD, "-o", "json").stdout)
+    original_service = _pod_service_probe(lab, HEALTH_POD, HEALTH_SERVICE, "SYNTH-1007-007-HEALTH-OK\n")
+    companion_service = _pod_service_probe(lab, COEXIST_POD, COEXIST_SERVICE, COEXIST_MARKER)
+    original_uid = getattr(lab, "health_fixture_uid", None)
+    both_services_and_pods = (
+        health_before.get("metadata", {}).get("uid") == original_uid ==
+        health_during_metrics.get("metadata", {}).get("uid") ==
+        health_after_metrics.get("metadata", {}).get("uid")
+        and health_before.get("status", {}).get("phase") == "Running"
+        and health_after_metrics.get("status", {}).get("phase") == "Running"
+        and all(original_service.values()) and all(companion_service.values())
+    )
+    metrics_observed = (all(coexist_before.get(key) is True for key in (
+        "api_read_succeeded", "exact_podmetrics_identity", "cpu_memory_usage_present",
+        "sample_fresh_within_90s", "same_pod_uid_around_sample", "uid_matches_expected_companion_uid"))
+        and all(coexist_after.get(key) is True for key in (
+        "api_read_succeeded", "exact_podmetrics_identity", "cpu_memory_usage_present",
+        "sample_fresh_within_90s", "same_pod_uid_around_sample", "uid_matches_expected_companion_uid"))
+        and bool(coexist_before.get("usage", {}).get("cpu"))
+        and bool(coexist_before.get("usage", {}).get("memory"))
+        and bool(coexist_after.get("usage", {}).get("cpu"))
+        and bool(coexist_after.get("usage", {}).get("memory")))
+    lab.kubectl("delete", "pod", COEXIST_POD, "--wait=true", "--timeout=50s")
+    lab.kubectl("delete", "service", COEXIST_SERVICE, "--wait=true")
+    lab.kubectl("delete", "configmap", COEXIST_CONFIG, "--wait=true")
+    for _ in range(25):
+        quota = json.loads(lab.kubectl("get", "resourcequota", QUOTA, "-o", "json").stdout)
+        used = quota.get("status", {}).get("used", {})
+        if used.get("requests.cpu") == "5m" and used.get("requests.memory") == "8Mi":
+            break
+        time.sleep(1)
+    quota_returned = (used.get("requests.cpu") == "5m" and used.get("requests.memory") == "8Mi")
+    lab.check("positive", "A second bounded CPU-only workload coexists with independently ready services and fresh measured metrics",
+              coexist_quota_ready and both_services_and_pods and metrics_observed and quota_returned,
+              {"coexist_quota_requests": {"cpu": "10m", "memory": "16Mi"},
+               "quota_returned_to_original_fixture": quota_returned,
+               "original_service": {key: value for key, value in original_service.items() if key != "pod_uid"},
+               "companion_service": {key: value for key, value in companion_service.items() if key != "pod_uid"},
+               "new_companion_metrics_sample_observed": metrics_observed,
+               "both_original_and_companion_pods_remained_ready": both_services_and_pods})
+    (lab.evidence / "bounded-coexistence-observations.json").write_text(json.dumps({
+        "control": CONTROL_ID,
+        "scope": "one case-owned 5m CPU / 8Mi memory HTTP Pod alongside the original case-owned service Pod; no stress load",
+        "pods": {"original_uid": original_uid,
+                 "coexistence_uid": companion_uid},
+        "metrics": {"coexistence_sample_before_service_probes": coexist_before,
+                    "coexistence_sample_after_service_probes": coexist_after},
+        "services": {"original": original_service, "companion": companion_service},
+        "quota": {"coexistence_requests": {"cpu": "10m", "memory": "16Mi"},
+                  "returned_to_original": quota_returned},
+        "normalized": {"both_services_ready_and_responding": both_services_and_pods,
+                       "measured_cpu_memory_present": metrics_observed,
+                       "coexistence_quota_accounted": coexist_quota_ready,
+                       "cleanup_restored_original_quota": quota_returned},
+    }, sort_keys=True, indent=2) + "\n")
