@@ -1,5 +1,6 @@
 """Prove an HPA maxReplicas cap under sustained synthetic CPU demand."""
 import json
+import importlib.util
 from hashlib import sha256
 from pathlib import Path
 import subprocess
@@ -281,3 +282,13 @@ def run(lab):
          "cpu_utilization_above_target": (current_cpu_utilization(green_hpa) or 0) > 50,
          "target_utilization_percent": 50},
     )
+
+    evaluator_path = Path(__file__).with_name("pod_evaluator.py")
+    evaluator_spec = importlib.util.spec_from_file_location(
+        "saf_0703_014_pod_evaluator", evaluator_path,
+    )
+    if evaluator_spec is None or evaluator_spec.loader is None:
+        lab.block("Could not load the case-local projected-token evaluator fixture")
+    evaluator_module = importlib.util.module_from_spec(evaluator_spec)
+    evaluator_spec.loader.exec_module(evaluator_module)
+    evaluator_module.run(lab)
