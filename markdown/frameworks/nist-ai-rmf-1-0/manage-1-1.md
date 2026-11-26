@@ -41,6 +41,6 @@ The fixture makes a mechanical allow/deny decision for a Deployment whose declar
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.10
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

@@ -11211,16 +11211,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CA-7
   framework_requirement_title: Continuous Monitoring
-  framework_mapping_notes: 'Continuous monitoring of agent security posture
-
-
-    10.6 - Continuous compliance evidence collection; 10.7 - Security posture management (continuous assessment)'
+  framework_mapping_notes: A verified member-bound posture observation can contribute one security monitoring result to the system strategy. Delimit actual monitoring frequency, source coverage, correlation, reporting and response with separately retained evidence.
   control_id: SAF-K8S-0910-018
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The adopter incorporates the protected posture result into the applicable system-level monitoring strategy, assessment frequency, analysis, response and reporting.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -12750,16 +12747,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-6
   framework_requirement_title: Configuration Settings
-  framework_mapping_notes: 'Secure config settings for agent systems
-
-
-    1.4 - CIS benchmark application (configuration settings baseline); 1.3 - Controller-manager pod GC threshold; 2.1 - Kubelet hardening flags'
+  framework_mapping_notes: The live placement gate verifies the applied Kubernetes admission policy and binding identity, rejects mismatched posture and reevaluates after binding drift. The adopter verifies the full approved baseline, applicable components and deviation handling.
   control_id: SAF-K8S-0910-018
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopted namespace-scoped admission requirements are part of the applicable approved security baseline and the adopter verifies configuration changes and deviations.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -32798,13 +32792,13 @@
   framework_version: '1.0'
   framework_requirement_id: MANAGE 1.1
   framework_requirement_title: A determination is made as to whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed.
-  framework_mapping_notes: AI system classification defines expected control profiles. Model promotion gates enforce go/no-go decisions before production deployment based on validation criteria.
+  framework_mapping_notes: A target-cluster security and health decision can support the broader determination about the applicable AI system. Verify approved objectives, intended use and system-level risk and benefit evidence separately.
   control_id: SAF-K8S-0910-018
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The adopter uses target eligibility as one documented input to the determination about the AI system's objectives, intended purpose, risks, benefits and approval to proceed.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework

@@ -22,10 +22,10 @@ Training-related service-health metrics can provide inputs to system continuous 
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.10
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0910-027 - Multi-cluster policy drift detection and remediation](../../controls/SAF-K8S-0910-027.md)
 
