@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1003-005",
-  "catalog_revision": "21a37bee11a2c8253acb514bd2f641d1c782a903",
-  "catalog_sha256": "e21df5ef6d7be8d3be548d48d3650f2dfc630a3e395f036b3e3eb0533fc68fe4",
+  "catalog_revision": "56d6555b74aa4e3c5026220011b3122669213c92",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "ec4d26b3ae76623533a3d4822d86de61b5df13bd2b586dbf1e0cb2f8135493f2",
-  "scope": "Kubernetes v1.36.1 Kind runs the pinned Prometheus 3.16.0 promtool rule evaluator on inert synthetic audit-event records. Two case-owned rules cover only privileged AI-namespace Pod creation (T1610) and Pod exec requests (T1609); unit-rule tests include positive matches, safe near misses, and a no-rule red comparator. A reviewed change record is checked against the rule IDs and versioned ATT&CK metadata. An additive case-owned runtime marker path checks live Prometheus scrape and alert state using only four fixed synthetic series. It does not test Kubernetes audit ingestion, event normalization, Alertmanager/SIEM delivery or analyst response.",
-  "cluster": "saf-lab-9e1c0fce5634",
+  "scope": "Kubernetes v1.36.1 Kind runs the pinned Prometheus 3.16.0 promtool rule evaluator on inert synthetic audit-event records. Two case-owned rules cover only privileged AI-namespace Pod creation (T1610) and Pod exec requests (T1609); unit-rule tests include positive matches, safe near misses, and a no-rule red comparator. A reviewed change record is checked against the rule IDs and versioned ATT&CK metadata. An additive case-owned runtime marker path checks live Prometheus scrape and alert state using only four fixed synthetic series. A pinned Alertmanager routes each firing alert with its expected rule, technique and runbook to the intended case-owned path. Native production ingestion, event normalization, external delivery and analyst response remain deployment evidence.",
+  "cluster": "saf-lab-5ce8cf8a5995",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -98,6 +98,15 @@
         "prometheus_api_success": true,
         "runtime_rule_sha256": "7594256492b50b858d8db3efed270129799d2f6683dee45f9eee4b3c672b3788",
         "runtime_rule_matches_reviewed_digest": true
+      }
+    },
+    {
+      "phase": "delivery",
+      "claim": "Pinned Alertmanager delivers both firing records to their exact fixture routes and runbooks",
+      "matched": true,
+      "observed": {
+        "distinct_delivered_alerts": 2,
+        "exact_route_and_record_matches": true
       }
     }
   ]

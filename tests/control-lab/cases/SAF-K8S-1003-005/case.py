@@ -10,6 +10,8 @@ PROMETHEUS_IMAGE = (
     "docker.io/prom/prometheus:v3.16.0@sha256:"
     "e04987641b57704f408e31f6373ba4138ecf27cb4a165d24aabb6c38fddd0f06"
 )
+ALERTMANAGER = ("docker.io/prom/alertmanager:v0.28.1@sha256:"
+                "27c475db5fb156cab31d5c18a4251ac7ed567746a2483ff264516437a39b15ba")
 PYTHON_IMAGE = (
     "docker.io/library/python:3.13.2-alpine@sha256:"
     "323a717dc4a010fee21e3f1aac738ee10bb485de4e7593ce242b36ee48d6b352"
@@ -24,8 +26,9 @@ SCOPE = (
     "include positive matches, safe near misses, and a no-rule red comparator. A reviewed "
     "change record is checked against the rule IDs and versioned ATT&CK metadata. An additive "
     "case-owned runtime marker path checks live Prometheus scrape and alert state using only four "
-    "fixed synthetic series. It does not test Kubernetes audit ingestion, event normalization, "
-    "Alertmanager/SIEM delivery or analyst response."
+    "fixed synthetic series. A pinned Alertmanager routes each firing alert with its expected "
+    "rule, technique and runbook to the intended case-owned path. Native production ingestion, "
+    "event normalization, external delivery and analyst response remain deployment evidence."
 )
 
 
@@ -113,7 +116,22 @@ def _runtime_marker_check(lab, reviewed_rule_digest):
             "rule_files:\n  - /etc/prometheus/rules.yml\n"
             "scrape_configs:\n  - job_name: saf-1003-005-fixture\n"
             "    static_configs:\n      - targets: [\"saf-1003-005-runtime-exporter:8080\"]\n"
+            "alerting:\n  alertmanagers:\n  - static_configs:\n"
+            "    - targets: [\"saf-1003-005-runtime-alertmanager:9093\"]\n"
         ),
+        "alertmanager.yml": json.dumps({
+            "route": {"receiver": "discard", "group_by": ["alertname"], "group_wait": "1s",
+                      "group_interval": "3s", "repeat_interval": "1h", "routes": [
+                          {"matchers": ['rule_id="SAF-K8S-RULE-1003-005-01"'], "receiver": "workload"},
+                          {"matchers": ['rule_id="SAF-K8S-RULE-1003-005-02"'], "receiver": "administration"},
+                      ]},
+            "receivers": [{"name": "discard"}] + [
+                {"name": route, "webhook_configs": [{
+                    "url": f"http://{RUNTIME_PREFIX}-exporter:8080/notify/{route}",
+                    "send_resolved": False,
+                }]} for route in ("workload", "administration")
+            ],
+        }),
     }
     lab.create({"apiVersion": "v1", "kind": "ConfigMap",
                 "metadata": {"name": RUNTIME_PREFIX + "-assets"},
@@ -156,6 +174,7 @@ def _runtime_marker_check(lab, reviewed_rule_digest):
                                       "command": ["/bin/prometheus", "--config.file=/etc/prometheus/prometheus.yml",
                                                   "--storage.tsdb.path=/prometheus",
                                                   "--storage.tsdb.retention.time=30m",
+                                                  "--rules.alert.resend-delay=5s",
                                                   "--web.listen-address=0.0.0.0:9090"],
                                       "ports": [{"containerPort": 9090}],
                                       "readinessProbe": {"httpGet": {"path": "/-/ready", "port": 9090},
@@ -171,6 +190,29 @@ def _runtime_marker_check(lab, reviewed_rule_digest):
                       "volumes": [{"name": "assets", "configMap": {"name": RUNTIME_PREFIX + "-assets"}},
                                   {"name": "storage", "emptyDir": {"sizeLimit": "64Mi"}},
                                   {"name": "tmp", "emptyDir": {"sizeLimit": "16Mi"}}]}
+    alertmanager = RUNTIME_PREFIX + "-alertmanager"
+    marker_selector = {"app": alertmanager}
+    lab.create({"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": alertmanager},
+                "spec": {"replicas": 1, "selector": {"matchLabels": marker_selector},
+                         "template": {"metadata": {"labels": marker_selector}, "spec": {
+                             "automountServiceAccountToken": False,
+                             "securityContext": prometheus_pod["securityContext"],
+                             "containers": [{"name": "alertmanager", "image": ALERTMANAGER,
+                                             "command": ["/bin/alertmanager", "--config.file=/fixture/alertmanager.yml",
+                                                         "--storage.path=/data", "--cluster.listen-address="],
+                                             "ports": [{"containerPort": 9093}],
+                                             "readinessProbe": {"httpGet": {"path": "/-/ready", "port": 9093},
+                                                                "periodSeconds": 1},
+                                             "securityContext": common_pod_security,
+                                             "volumeMounts": [{"name": "assets", "mountPath": "/fixture", "readOnly": True},
+                                                              {"name": "data", "mountPath": "/data"}]}],
+                             "volumes": [{"name": "assets", "configMap": {"name": RUNTIME_PREFIX + "-assets"}},
+                                         {"name": "data", "emptyDir": {"sizeLimit": "32Mi"}}],
+                         }}}})
+    lab.create({"apiVersion": "v1", "kind": "Service", "metadata": {"name": alertmanager},
+                "spec": {"selector": marker_selector, "ports": [{"port": 9093, "targetPort": 9093}]}})
+    _wait_runtime_ready(lab, RUNTIME_PREFIX + "-exporter")
+    _wait_runtime_ready(lab, alertmanager)
     lab.create({"apiVersion": "apps/v1", "kind": "Deployment",
                 "metadata": {"name": RUNTIME_PREFIX + "-prometheus"},
                 "spec": {"replicas": 1,
@@ -181,7 +223,6 @@ def _runtime_marker_check(lab, reviewed_rule_digest):
                 "metadata": {"name": RUNTIME_PREFIX + "-prometheus"},
                 "spec": {"selector": {"app": RUNTIME_PREFIX + "-prometheus"},
                          "ports": [{"port": 9090, "targetPort": 9090}]}})
-    _wait_runtime_ready(lab, RUNTIME_PREFIX + "-exporter")
     _wait_runtime_ready(lab, RUNTIME_PREFIX + "-prometheus")
 
     observer_config = RUNTIME_PREFIX + "-observer"
@@ -190,7 +231,7 @@ def _runtime_marker_check(lab, reviewed_rule_digest):
                 "data": {"observer.py": assets["observer.py"]}})
     observer_job = RUNTIME_PREFIX + "-observer"
     lab.create({"apiVersion": "batch/v1", "kind": "Job", "metadata": {"name": observer_job},
-                "spec": {"backoffLimit": 0, "activeDeadlineSeconds": 50,
+                "spec": {"backoffLimit": 0, "activeDeadlineSeconds": 80,
                          "template": {"metadata": {"labels": {"app": observer_job}},
                                       "spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,
                                                "securityContext": {"runAsNonRoot": True, "runAsUser": 1000,
@@ -205,7 +246,7 @@ def _runtime_marker_check(lab, reviewed_rule_digest):
                                                                "securityContext": common_pod_security}],
                                                "volumes": [{"name": "observer", "configMap":
                                                             {"name": observer_config}}]}}}})
-    deadline = time.monotonic() + 55
+    deadline = time.monotonic() + 85
     while time.monotonic() < deadline:
         job = json.loads(lab.kubectl("get", "job", observer_job, "-o", "json", timeout=15).stdout)
         conditions = {condition["type"] for condition in job.get("status", {}).get("conditions", [])
@@ -329,6 +370,7 @@ def run(lab):
     lab.check("positive", "Safe in-scope requests and identical outside-scope signals produce no alert",
               benign, {"safe_near_misses": 4, "unexpected_alerts": 0 if benign else None})
     live_marker = _runtime_marker_check(lab, rule_digest)
+    delivery = live_marker.pop("fixture_delivery")
     expected_runtime_predicates = {"prometheus_api_success", "exact_expected_alert_names",
                                    "expected_labels_match", "both_alerts_firing", "alert_count",
                                    "runtime_rule_sha256", "runtime_rule_matches_reviewed_digest"}
@@ -339,3 +381,5 @@ def run(lab):
                   "both_alerts_firing", "runtime_rule_matches_reviewed_digest"))
               and live_marker.get("alert_count") == 2,
               live_marker)
+    lab.check("delivery", "Pinned Alertmanager delivers both firing records to their exact fixture routes and runbooks",
+              delivery == {"exact_route_and_record_matches": True, "distinct_delivered_alerts": 2}, delivery)

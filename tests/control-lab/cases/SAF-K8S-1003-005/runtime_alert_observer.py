@@ -24,6 +24,15 @@ class NoRedirect(HTTPRedirectHandler):
         return None
 
 
+DELIVERY_URL = "http://saf-1003-005-runtime-exporter:8080/receipts"
+DELIVERIES = {
+    ("workload", "firing", "PrivilegedAIWorkloadRequest", "SAF-K8S-RULE-1003-005-01", "T1610",
+     "evt-synthetic-privileged-ai-pod", "RB-IR-K8S-AI-PRIVILEGED-WORKLOAD"),
+    ("administration", "firing", "AIContainerExecRequest", "SAF-K8S-RULE-1003-005-02", "T1609",
+     "evt-synthetic-ai-pod-exec", "RB-IR-K8S-AI-CONTAINER-ADMIN"),
+}
+
+
 opener = build_opener(ProxyHandler({}), NoRedirect())
 deadline = time.monotonic() + 35
 observed = None
@@ -58,4 +67,22 @@ while time.monotonic() < deadline:
 if observed is None:
     observed = {"prometheus_api_success": False, "exact_expected_alert_names": False,
                 "expected_labels_match": False, "both_alerts_firing": False, "alert_count": 0}
+delivery = set()
+deadline = time.monotonic() + 30
+while time.monotonic() < deadline:
+    try:
+        with opener.open(DELIVERY_URL, timeout=3) as response:
+            if response.geturl() != DELIVERY_URL:
+                raise RuntimeError("Alert receipt endpoint changed")
+            raw = response.read(16001)
+            if len(raw) > 16000:
+                raise RuntimeError("Alert receipt response exceeded bound")
+        delivery = {tuple(row) for row in json.loads(raw)}
+        if delivery == DELIVERIES:
+            break
+    except (HTTPError, OSError, TimeoutError):
+        pass
+    time.sleep(0.5)
+observed["fixture_delivery"] = {"exact_route_and_record_matches": delivery == DELIVERIES,
+                                "distinct_delivered_alerts": len(delivery)}
 print(json.dumps(observed, sort_keys=True))
