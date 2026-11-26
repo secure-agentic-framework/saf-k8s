@@ -3770,13 +3770,13 @@
   framework_version: '1.0'
   framework_requirement_id: MANAGE 3.1
   framework_requirement_title: AI risks and benefits from third-party resources are regularly monitored, and risk controls are applied and documented.
-  framework_mapping_notes: Dependency tracking with SLSA build provenance monitors third-party component risks. Vulnerability prioritization for AI workloads provides ongoing risk assessment. Restricted use policies govern external AI service consumption.
+  framework_mapping_notes: The four-check case provides a reusable prioritization, deadline, exception-expiry, and verified-resolution workflow for AI workload findings. It supports MANAGE 3.1 only when actual identified third-party AI resources are in scope and the organization regularly monitors their risks and applies/documents controls. The fixture does not establish third-party relationships, monitoring cadence, or operational controls.
   control_id: SAF-K8S-0604-009
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: compound-control-split-required
+  applicability: conditional
+  applicability_condition: Retain only where this policy is applied to identified third-party AI resources or components, and the organization regularly monitors those risks and applies and documents the relevant risk controls. The fictional case does not establish third-party scope, monitoring cadence, or deployed controls.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -42040,13 +42040,13 @@
   framework_version: '1.1'
   framework_requirement_id: RV.2.1
   framework_requirement_title: Analyze each vulnerability to gather sufficient information about risk to plan its remediation or other risk response.
-  framework_mapping_notes: SAF-K8S includes vulnerability prioritization for AI workloads that accounts for exploitability context, blast radius in the cluster, and AI-specific impact factors.
+  framework_mapping_notes: The four-check case models risk-context-sensitive priority, deadlines, exception expiry, and verified remediation for fictional findings. It can support RV.2.1 when the deployed process analyzes actual vulnerability risk sufficiently to plan a response and uses the evidenced context and policy inputs. The fixture does not prove actual risk analysis, sources, response decisions, or deployed findings.
   control_id: SAF-K8S-0604-009
-  relation_type: direct
+  relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  applicability: conditional
+  applicability_condition: Retain only when actual vulnerability findings are analyzed with sufficient evidence about risk and the resulting prioritization and response plan. The adopted process must supply approved severity, threat/exposure and workload-context inputs; the fictional fixture does not establish their quality or production use.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'

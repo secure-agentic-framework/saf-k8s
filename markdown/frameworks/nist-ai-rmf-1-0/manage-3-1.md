@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-Dependency tracking with SLSA build provenance monitors third-party component risks. Vulnerability prioritization for AI workloads provides ongoing risk assessment. Restricted use policies govern external AI service consumption.
+The four-check case provides a reusable prioritization, deadline, exception-expiry, and verified-resolution workflow for AI workload findings. It supports MANAGE 3.1 only when actual identified third-party AI resources are in scope and the organization regularly monitors their risks and applies/documents controls. The fixture does not establish third-party relationships, monitoring cadence, or operational controls.
 
 ## SAF-K8S Controls
 
@@ -15,8 +15,8 @@ Dependency tracking with SLSA build provenance monitors third-party component ri
 - Knowledge Area: 6.4
 - Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: compound-control-split-required
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0704-005 - Restricted use policies for non-organizationally owned systems and external AI services](../../controls/SAF-K8S-0704-005.md)
 
