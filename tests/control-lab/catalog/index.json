@@ -1629,7 +1629,7 @@
     "SAF-K8S-0604-010": {
       "catalog_status": "draft",
       "domain": "D06",
-      "sha256": "1810fc93399d1d80b8936348f48548c735f848803c2535efcf34ab7344b0223b",
+      "sha256": "f35654c4676cdb308e42ba5421d8162c17c3f4abe7e26f5f5ea59348b1956784",
       "title": "Automated AI workload rebuild and redeployment patch pipelines"
     },
     "SAF-K8S-0604-011": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "7007ee237ed349d96fde7ac4300cb415ccd39192",
-  "sha256": "f90c94c673d20660168dfaa86a14af064fc386b44cfe4af6b5263d264c1e59b3",
+  "revision": "c5bfed3dc8a88ecae6d0a0d0f9a1f41277c89651",
+  "sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
