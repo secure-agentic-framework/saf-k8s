@@ -49,3 +49,16 @@ placement before and after a `NoSchedule` taint, matching product affinity and
 toleration, and admission for complete/incomplete declarations. It provides
 no GPU hardware, production pool/driver, real label authority or capacity
 evidence.
+
+## Authority over the fixture pool label
+
+Two case-owned service accounts exercise actual Node patch authorization
+through the lab administrator's Kubernetes impersonation facility. The
+ordinary identity receives a denial. The operator's grant names only the
+fixture AI worker. The case confirms that changing the approved label leaves
+unrelated labels and node specifications intact. An affinity Pod requires the
+new value and selects that worker. The fixture uses no workload credentials
+outside the disposable cluster. Apply the real cluster's identity, node-label
+governance and accelerator checks when adopting this control.
+
+See [Kubernetes RBAC resource names](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#referring-to-resources).

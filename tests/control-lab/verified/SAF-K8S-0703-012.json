@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0703-012",
-  "catalog_revision": "d4328fde2e235c4d4a65baf2e08f7e45cfb81217",
-  "catalog_sha256": "e8d024860997c85e65dcb4d9a1c10c9e716416ecfea1f4d4479987609b4092f0",
+  "catalog_revision": "1c4c6cf76afc06783141311ae8a05be8c54f57cf",
+  "catalog_sha256": "3f6d0b09957f7ae05620954a6210b52df977b8cbc7dcdd43769137d72662c8bb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9cc82b4d0ef875f27e008b42ff073701acc31feac294a2999530667cfe44a860",
-  "scope": "Kubernetes v1.36.1 on a disposable three-node kind cluster. Synthetic worker labels and a NoSchedule taint exercise required node affinity, taint rejection, a matching toleration, and permitted general scheduling with inert Pods. A separate admission policy enforces the exact fields for labeled AI fixtures. Production label authority, hardware, device plugins and operator coverage require their own evidence.",
-  "cluster": "saf-lab-5d1489ee27d8",
+  "scope": "Actual API impersonation and scoped RBAC exercise authority over one synthetic pool label on the owned nodes. Kubernetes v1.36.1 on a disposable three-node kind cluster. Synthetic worker labels and a NoSchedule taint exercise required node affinity, taint rejection, a matching toleration, and permitted general scheduling with inert Pods. A separate admission policy enforces the exact fields for labeled AI fixtures. Production label authority, hardware, device plugins and operator coverage require their own evidence.",
+  "cluster": "saf-lab-47d2e25cdee8",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -114,6 +114,44 @@
       "matched": true,
       "observed": {
         "complete_declaration_admitted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The two owned workers begin with no fixture authority label",
+      "matched": true,
+      "observed": {
+        "ai_label_present": false,
+        "general_label_present": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The ordinary identity receives an actual authorization denial on the fixture AI Node",
+      "matched": true,
+      "observed": {
+        "explicit_forbidden": true,
+        "labels_and_spec_preserved": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The scoped operator assigns only the reviewed label on its named AI Node",
+      "matched": true,
+      "observed": {
+        "operator_patch_accepted": true,
+        "other_node_forbidden": true,
+        "only_reviewed_label_added": true,
+        "general_worker_preserved": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A benign affinity workload runs on the worker carrying the operator-assigned label",
+      "matched": true,
+      "observed": {
+        "assigned_to_authorized_worker": true,
+        "ready": true
       }
     }
   ]

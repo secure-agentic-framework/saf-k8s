@@ -11,6 +11,7 @@ AI_TOLERATION = {
     "key": TAINT, "operator": "Equal", "value": "reserved", "effect": "NoSchedule",
 }
 SCOPE = (
+    "Actual API impersonation and scoped RBAC exercise authority over one synthetic pool label on the owned nodes. "
     "Kubernetes v1.36.1 on a disposable three-node kind cluster. Synthetic worker labels and a "
     "NoSchedule taint exercise required node affinity, taint rejection, a matching toleration, "
     "and permitted general scheduling with inert Pods. A separate admission policy enforces "
@@ -114,6 +115,86 @@ def check_placement_admission(lab):
               permitted.returncode == 0, {"complete_declaration_admitted": permitted.returncode == 0})
 
 
+def check_node_label_authority(lab, ai_node, general_node):
+    namespace = "saf-test"
+    key, value = "saf.example/label-authority-fixture", "operator-assigned-ai"
+    ordinary = "saf-0703-012-pool-observer"
+    operator = "saf-0703-012-pool-labeler"
+    for account in (ordinary, operator):
+        lab.create({"apiVersion": "v1", "kind": "ServiceAccount",
+                    "metadata": {"name": account, "namespace": namespace},
+                    "automountServiceAccountToken": False})
+    lab.create({"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "ClusterRole",
+                "metadata": {"name": operator},
+                "rules": [{"apiGroups": [""], "resources": ["nodes"],
+                           "resourceNames": [ai_node], "verbs": ["patch"]}]})
+    lab.create({"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "ClusterRoleBinding",
+                "metadata": {"name": operator},
+                "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "ClusterRole",
+                            "name": operator},
+                "subjects": [{"kind": "ServiceAccount", "name": operator, "namespace": namespace}]})
+
+    reader = "saf-0703-012-pool-reader"
+    lab.create({"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "ClusterRole",
+                "metadata": {"name": reader},
+                "rules": [{"apiGroups": [""], "resources": ["nodes"],
+                           "resourceNames": [ai_node, general_node], "verbs": ["get"]}]})
+    lab.create({"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "ClusterRoleBinding",
+                "metadata": {"name": reader},
+                "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "ClusterRole",
+                            "name": reader},
+                "subjects": [{"kind": "ServiceAccount", "name": name, "namespace": namespace}
+                             for name in (ordinary, operator)]})
+
+    patch = json.dumps({"metadata": {"labels": {key: value}}})
+    def read(name):
+        node = json.loads(lab.kubectl("get", "node", name, "-o", "json").stdout)
+        return node["metadata"].get("labels", {}), node["spec"]
+
+    def change(account, name):
+        identity = f"system:serviceaccount:{namespace}:{account}"
+        response = lab.kubectl("--as=" + identity, "patch", "node", name, "--type=merge",
+                               "-p", patch, "-o", "json", allow_failure=True)
+        forbidden = (response.returncode != 0 and "Forbidden" in response.stderr
+                     and identity in response.stderr and 'cannot patch resource "nodes"' in response.stderr)
+        return response.returncode == 0, forbidden
+
+    initial_ai, initial_general = read(ai_node), read(general_node)
+    lab.check("positive", "The two owned workers begin with no fixture authority label",
+              key not in initial_ai[0] and key not in initial_general[0],
+              {"ai_label_present": key in initial_ai[0], "general_label_present": key in initial_general[0]})
+    _, ordinary_denied = change(ordinary, ai_node)
+    preserved = read(ai_node) == initial_ai
+    lab.check("red", "The ordinary identity receives an actual authorization denial on the fixture AI Node",
+              ordinary_denied and preserved,
+              {"explicit_forbidden": ordinary_denied, "labels_and_spec_preserved": preserved})
+    updated, _ = change(operator, ai_node)
+    _, other_denied = change(operator, general_node)
+    expected_ai = ({**initial_ai[0], key: value}, initial_ai[1])
+    selected_unchanged = read(ai_node) == expected_ai
+    general_unchanged = read(general_node) == initial_general
+    lab.check("green", "The scoped operator assigns only the reviewed label on its named AI Node",
+              updated and other_denied and selected_unchanged and general_unchanged,
+              {"operator_patch_accepted": updated, "other_node_forbidden": other_denied,
+               "only_reviewed_label_added": selected_unchanged,
+               "general_worker_preserved": general_unchanged})
+
+    name = "saf-0703-012-label-authority-probe"
+    workload = pod(name, pool="ai", product="synthetic", toleration=True)
+    selector = workload["spec"]["affinity"]["nodeAffinity"]["requiredDuringSchedulingIgnoredDuringExecution"]
+    for term in selector["nodeSelectorTerms"]:
+        term["matchExpressions"].append({"key": key, "operator": "In", "values": [value]})
+    lab.create(workload)
+    def ready(record):
+        return any(condition.get("type") == "Ready" and condition.get("status") == "True"
+                   for condition in record.get("status", {}).get("conditions", []))
+
+    found = wait_for(lab, name, ready, seconds=45)
+    target = found.get("spec", {}).get("nodeName") == ai_node
+    lab.check("positive", "A benign affinity workload runs on the worker carrying the operator-assigned label",
+              target and ready(found), {"assigned_to_authorized_worker": target, "ready": ready(found)})
+
+
 def run(lab):
     nodes = as_json(lab, "get", "nodes")["items"]
     by_pool = {}
@@ -173,3 +254,4 @@ def run(lab):
               {"assigned_to_general_pool": general_placed == general_node,
                "has_ai_toleration": False})
     check_placement_admission(lab)
+    check_node_label_authority(lab, ai_node, general_node)
