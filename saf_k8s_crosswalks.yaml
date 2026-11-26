@@ -6235,22 +6235,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AC-20(3)
-  framework_requirement_title: Non-organizationally Owned Systems -- Restricted Use
-  framework_mapping_notes: 'Agents interacting with third-party systems
-
-
-    7.4 - Restricted use policies for non-organizationally owned systems and external AI services; 9.5 - Registry federation security'
-  control_id: SAF-K8S-0905-054
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AC-21
   framework_requirement_title: Information Sharing
   framework_mapping_notes: 'Controlling how agents share information across boundaries
@@ -29791,10 +29775,7 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-7(5)
   framework_requirement_title: Deny by Default -- Allow by Exception
-  framework_mapping_notes: 'Deny-by-default network policy for agent communications enforces least privilege
-
-
-    5.1 - Default deny ingress and egress policies as namespace security baselines (deny by default)'
+  framework_mapping_notes: 'NIST SP 800-53 Rev. 5 SC-7(5) requires denying network communications by default and allowing by exception. This reference directly demonstrates one scoped IPv4/TCP flow: a protected namespace NetworkPolicy denies direct in-cluster and case-owned off-cluster hub paths while allowing DNS and the exact labeled proxy namespace/Pods on TCP/8080; the unselected control namespace remains able to reach the fixtures. Kubernetes NetworkPolicy selects Pods, namespaces, ports, and IP blocks; it does not identify a repository URL, DNS name, or model-source string. A separate application proxy test matches an exact configured source identifier to one fixed upstream and demonstrates that a separate source is refused. Production CNI, external destinations, IPv6, provider egress and other fetch paths remain adopter evidence.'
   control_id: SAF-K8S-0905-054
   relation_type: direct
   strength_level: strong
@@ -29825,22 +29806,6 @@
 
     5.1 - Egress controls (restricting threatening outbound traffic, DNS-based egress policies)'
   control_id: SAF-K8S-0501-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(9)
-  framework_requirement_title: Restrict Threatening Outgoing Communications Traffic
-  framework_mapping_notes: 'Restricting outbound agent traffic prevents data exfiltration and command-and-control
-
-
-    5.1 - Egress controls (restricting threatening outbound traffic, DNS-based egress policies)'
-  control_id: SAF-K8S-0905-054
   relation_type: direct
   strength_level: strong
   applicability: required
