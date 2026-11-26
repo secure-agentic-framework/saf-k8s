@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-005",
-  "catalog_revision": "61c485debb8b22aeae1bafec5dddeb3adec33d93",
-  "catalog_sha256": "637809ee915d1f3ed4451dd9d8256edcfd4ba9cb18559e7ee016de3f8a91c693",
+  "catalog_revision": "03197b5f34c07adf30de371cb78cb9f0dfb5587b",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "7465d9fd5d3c507373bbd19f18809a808ff41e72dce6df0e101344a420c64145",
-  "scope": "A disposable Kubernetes v1.36.1 cluster runs two copies of a case-owned HTTP promotion gate against the same inert model identity: one enforcement-disabled baseline and one enforcing gate. The enabled gate authenticates a short-lived reporter ServiceAccount token with authentication.k8s.io/v1 TokenReview, accepts evidence only from that exact principal and audience, persists the submitted fixed evidence in a namespace-scoped ConfigMap, reads it back, and requires pass results for security, bias, performance and robustness plus matching builder/model/predicate digests. It records signature verification as unverified. This proves the fixture API/RBAC/TokenReview and deterministic policy path for fixed synthetic records only; it does not prove evaluator efficacy, genuine model quality, cryptographic signature trust, report-writer audit attribution, or production promotion workflow coverage.",
-  "cluster": "saf-lab-ae96e3de4d08",
+  "scope": "A disposable Kubernetes v1.36.1 cluster runs two copies of a case-owned HTTP promotion gate against the same inert model identity: one enforcement-disabled baseline and one enforcing gate. The enabled gate authenticates a short-lived reporter ServiceAccount token with authentication.k8s.io/v1 TokenReview, accepts evidence only from that exact principal and audience, persists the submitted fixed evidence in a namespace-scoped ConfigMap, reads it back, and requires pass results for security, bias, performance and robustness plus matching builder/model/predicate digests and a valid Ed25519 signature under a case-pinned ephemeral public key. Wrong-key and signed-then-rebound envelopes are refused before evidence persistence. This proves only the fixture signature-verification decision over fixed synthetic records; it does not prove evaluator efficacy, real model quality, independently administered key custody, report-writer audit attribution, or a production promotion workflow.",
+  "cluster": "saf-lab-c5875f8e9aab",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -191,8 +191,36 @@
         "artifact_matches": true,
         "predicate_sha256_matches": true,
         "provenance_matches": true,
-        "signature_verification": "unverified",
+        "signature_verification": "verified",
+        "approved_key_id_matches": true,
         "evidence_read_back": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enforcing gate rejects a complete envelope signed by the unapproved fixture key before persistence",
+      "matched": true,
+      "observed": {
+        "http_status": 403,
+        "accepted": false,
+        "signature_verification": "failed",
+        "reason": "unapproved-signing-key",
+        "evidence_read_back": false,
+        "key_id_differs_from_approved": true,
+        "resource_version_unchanged": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enforcing gate rejects a signed evidence envelope rebound to a different inert model before persistence",
+      "matched": true,
+      "observed": {
+        "http_status": 403,
+        "accepted": false,
+        "signature_verification": "failed",
+        "reason": "invalid-signature",
+        "evidence_read_back": false,
+        "resource_version_unchanged": true
       }
     }
   ]

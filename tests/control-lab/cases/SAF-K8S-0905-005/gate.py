@@ -7,6 +7,10 @@ from pathlib import Path
 import ssl
 import urllib.error
 import urllib.request
+import base64
+
+from report_crypto import verify as verify_ed25519
+from signature_format import public_key_id, signing_payload
 
 
 TOKEN_PATH = Path("/var/run/secrets/kubernetes.io/serviceaccount/token")
@@ -19,6 +23,8 @@ REPORTER = os.environ["REPORTER_USERNAME"]
 MODEL_BYTES = b"SAF inert model fixture v1\n"
 MODEL_DIGEST = hashlib.sha256(MODEL_BYTES).hexdigest()
 GATES = ("security", "bias", "performance", "robustness")
+TRUST_PATH = Path("/trust/approved-public.pem")
+TRUST_ID_PATH = Path("/trust/approved-key-id")
 
 
 def _canonical(value):
@@ -78,6 +84,27 @@ def _store_and_read(name, evidence):
     return json.loads(stored["data"]["evidence.json"])
 
 
+def _verify_signature(evidence):
+    attestation = evidence.get("attestation", {})
+    claimed_key_id = attestation.get("signer_key_id")
+    try:
+        trusted_key_id = TRUST_ID_PATH.read_text().strip()
+    except OSError:
+        return False, "trust-policy-unavailable"
+    if not claimed_key_id or claimed_key_id != trusted_key_id:
+        return False, "unapproved-signing-key"
+    try:
+        signature = base64.b64decode(attestation.get("signature", ""), validate=True)
+        public_pem = TRUST_PATH.read_text()
+        if public_key_id(public_pem) != trusted_key_id:
+            return False, "trusted-key-pin-mismatch"
+        if not verify_ed25519(public_pem, signature, signing_payload(evidence)):
+            return False, "invalid-signature"
+    except (ValueError, OSError):
+        return False, "invalid-signature"
+    return True, "verified"
+
+
 def _evaluate(evidence):
     results = evidence.get("gates", {})
     gate_results = {gate: results.get(gate, {}).get("status", "missing")
@@ -92,14 +119,15 @@ def _evaluate(evidence):
         attestation.get("builder") == "fixture://saf-k8s/0905-005" and
         attestation.get("subject_sha256") == MODEL_DIGEST and
         attestation.get("predicate_sha256") == predicate_digest)
-    signature_verification = "unverified"
+    signature_verified, signature_reason = _verify_signature(evidence)
     allowed = (all(gate_results[name] == "pass" for name in GATES) and
-               artifact_matches and provenance_matches)
+               artifact_matches and provenance_matches and signature_verified)
     return {"accepted": allowed, "gate_results": gate_results,
             "model_sha256": MODEL_DIGEST, "artifact_matches": artifact_matches,
             "predicate_sha256": predicate_digest,
             "provenance_matches": provenance_matches,
-            "signature_verification": signature_verification}
+            "signature_verification": "verified" if signature_verified else "failed",
+            "signature_reason": signature_reason}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -150,7 +178,21 @@ class Handler(BaseHTTPRequestHandler):
                     AUDIENCE not in identity["audiences"]):
                 self._reply(403, {"accepted": False, "reason": "reporter-not-authorized"})
                 return
+            verified, reason = _verify_signature(evidence)
+            if not verified:
+                self._reply(403, {"accepted": False,
+                                  "signature_verification": "failed",
+                                  "reason": reason,
+                                  "evidence_read_back": False})
+                return
             stored = _store_and_read(evidence_name, evidence)
+            readback_verified, readback_reason = _verify_signature(stored)
+            if not readback_verified:
+                self._reply(403, {"accepted": False,
+                                  "signature_verification": "failed",
+                                  "reason": readback_reason,
+                                  "evidence_read_back": True})
+                return
             result = _evaluate(stored)
         except (RuntimeError, ValueError):
             self._reply(503, {"error": "evidence-processing-unavailable"})
