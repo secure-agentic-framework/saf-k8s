@@ -42,3 +42,25 @@ provider, DNS name, credential, contract, TLS session, or real data is used.
 3. Independently verify the effective production policy at the actual provider boundary: admitted workload identity and purpose/data authorization; DNS resolution; certificate chain/expected service identity; egress allow/deny; and that the provider is the approved endpoint. Record CNI/gateway version and policy ownership.
 4. Preserve provider terms/assurance and audit evidence: data processing/use restrictions, retention/training terms where applicable, incident obligations, credential issuance/scope/rotation, request/response audit controls and log retention. Redact secrets and sensitive payloads from evidence.
 5. Reconcile approved inventory against all deployed consumers and routes; review after provider, policy, data class, identity, DNS/TLS, contract or network changes. Record exceptions with owner, scope, expiry and approved compensating controls. Keep local five-check receipt labeled as portable local mechanism evidence.
+
+## Record provider enforcement and adopted scope
+
+Keep a dated service register with the actual provider, authorization
+reference, approved workloads, endpoint identity, information classes,
+allowed purpose, review trigger and exception expiry. Verify approval
+of any applicable processing, retention and secondary-use terms.
+
+Record the deployed CNI or gateway version, enabled policy feature,
+covered node pools, traffic interfaces and address families. Verify
+the documented enforcement boundary and independently observe the
+approved route and a refused route. Demonstrate requester or provider
+identity at its actual verifier, and correlate the decision with the
+destination's approved audit evidence. Kubernetes Pod service account
+selection, runtime egress and approval records each have their own
+evidence source. Revalidate after a policy, provider, route, identity,
+data-class or terms change.
+
+[Kubernetes NetworkPolicy](https://v1-36.docs.kubernetes.io/docs/concepts/services-networking/network-policies/),
+[Amazon EKS network policy](https://docs.aws.amazon.com/eks/latest/userguide/cni-network-policy.html),
+[GKE network policy](https://cloud.google.com/kubernetes-engine/docs/how-to/network-policy),
+and [AKS network policy](https://learn.microsoft.com/en-us/azure/aks/use-network-policies).
