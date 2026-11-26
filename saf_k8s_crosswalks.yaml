@@ -12042,16 +12042,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-6
   framework_requirement_title: Audit Record Review, Analysis, and Reporting
-  framework_mapping_notes: 'Reviewing agent audit trails
-
-
-    10.1 - SIEM integration (audit record review, analysis, correlation rule development)'
+  framework_mapping_notes: The reference case evaluates selected synthetic records and a sanitized audit record from one actual authenticated Zot publish. A case-local monitor routes scoped alerts and Kubernetes restricts an analyst disposition write. Independently verify the adopted source identities and transport, review frequency, criteria and impact findings, assigned reporting roles, human reviewer decisions, and retained outcomes.
   control_id: SAF-K8S-0905-041
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The deployed registry captures the covered event classes, and the organization defines review frequency, inappropriate or unusual activity criteria, impact analysis, assigned reporting roles, and risk-based review adjustment. Provider event completeness, authenticated forwarding, human review and retained findings are separately evidenced.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -35154,16 +35151,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-4(5)
   framework_requirement_title: System-generated Alerts
-  framework_mapping_notes: 'System-generated alerts for agent security events enable rapid incident response
-
-
-    10.2 - Alert design for AI-specific failure modes (system-generated alerts); 2.4 - Runtime detection alerts'
+  framework_mapping_notes: The reference fixture creates scoped alerts for fixed synthetic cases and one actual source publish. Its case-local receiver observes the matched alert and deduplication. Production thresholds, source and transport authentication, delivery to organization-defined personnel or roles, acknowledgments and response require separate evidence.
   control_id: SAF-K8S-0905-041
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization defines the covered registry activity as an indication requiring an alert and routes the alert to named personnel or roles through an authenticated deployed delivery path.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
