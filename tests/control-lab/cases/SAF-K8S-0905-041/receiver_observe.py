@@ -1,9 +1,17 @@
-"""Read the case-local receiver and emit only its bounded projection."""
+"""Read the authenticated case-local receiver and emit only a bounded projection."""
+import base64
 import json
+import ssl
 import sys
-from urllib.request import urlopen
+from pathlib import Path
+from urllib.request import Request, urlopen
 
-with urlopen(sys.argv[1] + "/alerts", timeout=5) as response:
+user = Path("/receiver-auth/username").read_text().strip()
+password = Path("/receiver-auth/password").read_text().strip()
+identity = base64.b64encode(f"{user}:{password}".encode()).decode()
+context = ssl.create_default_context(cafile="/receiver-ca/ca.pem")
+request = Request(sys.argv[1] + "/alerts", headers={"Authorization": "Basic " + identity})
+with urlopen(request, context=context, timeout=5) as response:
     value = json.load(response)
 alerts = value.get("alerts", [])
 print(json.dumps({"status": response.status,

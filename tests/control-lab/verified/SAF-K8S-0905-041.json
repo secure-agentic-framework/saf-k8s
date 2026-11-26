@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-041",
-  "catalog_revision": "6ba1085b632d37fd8cb095d833cafd1fcf75a271",
-  "catalog_sha256": "99dfcf4e7690631de3a5a538c5e0434405de93779ba25e0e5ce0cff09d9d7f38",
+  "catalog_revision": "40b5ddfd2381e15bcf4d986bedca71abf3b6c561",
+  "catalog_sha256": "d65a8ba2d999d0a60a83345dbfd6f5235d9cd11cac65fdb011fac1cb9051e634",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6770e418486a532ccff9a3942c34ee0b2db57981d3937e106cdd3dc407da8c0a",
-  "scope": "A disposable Kind cluster runs a case-owned monitor against fixed normalized events and one actual Zot v2.1.23 native audit event for a case-owned empty OCI marker. It evaluates bounded sensitive-operation and supplied anomaly rules, rejects wrong source labels, suppresses replay duplicates, and sends alert projections to an unauthenticated case-local HTTP receiver. Kubernetes RBAC restricts writing one named analyst disposition. This does not establish authenticated production event forwarding, provider completeness beyond this one Zot operation, general anomaly detection, named human notification/response, durable SIEM retention, or other registry provider behavior.",
-  "cluster": "saf-lab-2a71272af710",
+  "scope": "A disposable Kind cluster runs a case-owned monitor against fixed normalized events and one actual Zot v2.1.23 native audit event for a case-owned empty OCI marker. It evaluates bounded sensitive-operation and supplied anomaly rules, rejects wrong source labels, suppresses replay duplicates, and sends alert projections to an authenticated case-local HTTPS receiver using fixture-only Basic authentication. Kubernetes RBAC restricts writing one named analyst disposition. This does not establish authenticated production event forwarding, provider completeness beyond this one Zot operation, general anomaly detection, named human notification/response, durable SIEM retention, or other registry provider behavior.",
+  "cluster": "saf-lab-bd6d83a47997",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -388,6 +388,21 @@
           "status": 201
         },
         "ordinary_and_out_of_scope_events_delivered": false,
+        "external_alerts_sent": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Verified TLS receiver rejects wrong credentials without mutation and accepts the authorized Zot-derived alert exactly once",
+      "matched": true,
+      "observed": {
+        "wrong_credential_status": 401,
+        "unauthorized_state_unchanged": true,
+        "unauthorized_probe_absent": true,
+        "authorized_delivery_status": 201,
+        "authorized_zot_alert_present": true,
+        "authorized_tls_verification": true,
+        "authorized_replay_unchanged": true,
         "external_alerts_sent": false
       }
     }

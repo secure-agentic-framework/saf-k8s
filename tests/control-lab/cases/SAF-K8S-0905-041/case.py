@@ -7,7 +7,9 @@ from pathlib import Path
 import secrets
 import shutil
 import subprocess
+import tempfile
 import time
+import os
 
 HERE = Path(__file__).resolve().parent
 PORT = 8080
@@ -34,7 +36,8 @@ SCOPE = (
     "A disposable Kind cluster runs a case-owned monitor against fixed normalized events and one actual Zot v2.1.23 "
     "native audit event for a case-owned empty OCI marker. It evaluates bounded sensitive-operation and supplied "
     "anomaly rules, rejects wrong source labels, suppresses replay duplicates, and sends alert projections to an "
-    "unauthenticated case-local HTTP receiver. Kubernetes RBAC restricts writing one named analyst disposition. "
+    "authenticated case-local HTTPS receiver using fixture-only Basic authentication. Kubernetes RBAC restricts "
+    "writing one named analyst disposition. "
     "This does not establish authenticated production event forwarding, provider completeness beyond this one Zot "
     "operation, general anomaly detection, named human notification/response, durable SIEM retention, or other "
     "registry provider behavior."
@@ -43,6 +46,61 @@ SCOPE = (
 
 def _create(lab, resource):
     lab.kubectl("create", "-f", "-", payload=json.dumps(resource))
+
+
+def _setup_receiver_security(lab):
+    """Create short-lived TLS/auth material; kubectl receives file paths, never values."""
+    try:
+        with tempfile.TemporaryDirectory(prefix="saf-0905-041-receiver-",
+                                         dir=lab.kubeconfig.parent) as directory:
+            root = Path(directory)
+            os.chmod(root, 0o700)
+            ca_key, ca_csr, ca_cert = root / "ca.key", root / "ca.csr", root / "ca.pem"
+            leaf_key, leaf_csr, leaf_cert = root / "receiver.key", root / "receiver.csr", root / "receiver.crt"
+            ca_ext, leaf_ext = root / "ca.ext", root / "receiver.ext"
+            username, password, wrong = root / "username", root / "password", root / "wrong-password"
+            dns = "audit-alert-receiver.saf-test.svc.cluster.local"
+            ca_ext.write_text("basicConstraints=critical,CA:TRUE,pathlen:0\n"
+                              "keyUsage=critical,keyCertSign,cRLSign\n"
+                              "subjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid:always,issuer\n")
+            leaf_ext.write_text("basicConstraints=critical,CA:FALSE\n"
+                                "keyUsage=critical,digitalSignature,keyEncipherment\n"
+                                "extendedKeyUsage=serverAuth\n"
+                                f"subjectAltName=DNS:{dns}\n"
+                                "subjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid,issuer\n")
+            username.write_text("fixture-alert-forwarder\n")
+            valid = secrets.token_urlsafe(24)
+            invalid = secrets.token_urlsafe(24)
+            while invalid == valid:
+                invalid = secrets.token_urlsafe(24)
+            password.write_text(valid + "\n")
+            wrong.write_text(invalid + "\n")
+            for path in (username, password, wrong, ca_ext, leaf_ext):
+                os.chmod(path, 0o600)
+            commands = [
+                ["openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-keyout", str(ca_key),
+                 "-out", str(ca_csr), "-subj", "/CN=SAF-K8S-0905-041 receiver fixture CA"],
+                ["openssl", "x509", "-req", "-in", str(ca_csr), "-signkey", str(ca_key), "-days", "2",
+                 "-extfile", str(ca_ext), "-out", str(ca_cert)],
+                ["openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-keyout", str(leaf_key),
+                 "-out", str(leaf_csr), "-subj", f"/CN={dns}"],
+                ["openssl", "x509", "-req", "-in", str(leaf_csr), "-CA", str(ca_cert), "-CAkey", str(ca_key),
+                 "-CAcreateserial", "-days", "2", "-extfile", str(leaf_ext), "-out", str(leaf_cert)],
+            ]
+            for command in commands:
+                subprocess.run(command, check=True, stdout=subprocess.DEVNULL,
+                               stderr=subprocess.DEVNULL, timeout=20, env=lab.env)
+            for path in (ca_key, leaf_key):
+                os.chmod(path, 0o600)
+            lab.kubectl("create", "configmap", "receiver-ca", f"--from-file=ca.pem={ca_cert}")
+            lab.kubectl("create", "secret", "tls", "receiver-tls",
+                        f"--cert={leaf_cert}", f"--key={leaf_key}")
+            lab.kubectl("create", "secret", "generic", "receiver-auth",
+                        f"--from-file=username={username}", f"--from-file=password={password}")
+            lab.kubectl("create", "secret", "generic", "receiver-wrong-auth",
+                        f"--from-file=username={username}", f"--from-file=password={wrong}")
+    except Exception:
+        lab.block("Could not prepare temporary receiver TLS/auth material (details suppressed)")
 
 
 def _container(name, *, command, ports=None, mounts):
@@ -93,9 +151,10 @@ def _deployment(name, container, volumes):
 
 
 def _setup(lab):
+    _setup_receiver_security(lab)
     scripts = {name: (HERE / name).read_text() for name in (
         "monitor.py", "receiver.py", "fixture.py", "events.json", "forward.py",
-        "receiver_observe.py", "zot_probe.py")}
+        "receiver_observe.py", "receiver_auth_probe.py", "zot_probe.py")}
     _create(lab, {
         "apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": "audit-review-code"},
         "immutable": True, "data": scripts,
@@ -105,22 +164,32 @@ def _setup(lab):
 
     receiver_state = {"name": "state", "emptyDir": {"medium": "Memory", "sizeLimit": "4Mi"}}
     receiver = _container("receiver", command=["python", "-B", "/app/receiver.py"],
-                          ports=[{"name": "http", "containerPort": 8090}],
-                          mounts=[code_mount, {"name": "state", "mountPath": "/state"}])
-    receiver["readinessProbe"] = {"httpGet": {"path": "/health", "port": "http"}, "periodSeconds": 1}
-    _create(lab, _deployment("audit-alert-receiver", receiver, [code_volume, receiver_state]))
+                          ports=[{"name": "https", "containerPort": 8443}],
+                          mounts=[code_mount, {"name": "state", "mountPath": "/state"},
+                                  {"name": "receiver-tls", "mountPath": "/receiver-tls", "readOnly": True},
+                                  {"name": "receiver-auth", "mountPath": "/receiver-auth", "readOnly": True}])
+    receiver["readinessProbe"] = {"httpGet": {"path": "/health", "port": "https", "scheme": "HTTPS"}, "periodSeconds": 1}
+    receiver_volumes = [code_volume, receiver_state,
+                        {"name": "receiver-tls", "secret": {"secretName": "receiver-tls"}},
+                        {"name": "receiver-auth", "secret": {"secretName": "receiver-auth"}}]
+    _create(lab, _deployment("audit-alert-receiver", receiver, receiver_volumes))
     _create(lab, {
         "apiVersion": "v1", "kind": "Service", "metadata": {"name": "audit-alert-receiver"},
         "spec": {"selector": {"app": "audit-alert-receiver"},
-                 "ports": [{"name": "http", "port": 8090, "targetPort": 8090}]},
+                 "ports": [{"name": "https", "port": 8443, "targetPort": 8443}]},
     })
 
     state_volume = {"name": "state", "emptyDir": {"medium": "Memory", "sizeLimit": "8Mi"}}
     monitor = _container("monitor", command=["python", "-B", "/app/monitor.py"],
                          ports=[{"name": "http", "containerPort": PORT}],
-                         mounts=[code_mount, {"name": "state", "mountPath": "/state"}])
+                         mounts=[code_mount, {"name": "state", "mountPath": "/state"},
+                                 {"name": "receiver-ca", "mountPath": "/receiver-ca", "readOnly": True},
+                                 {"name": "receiver-auth", "mountPath": "/receiver-auth", "readOnly": True}])
     monitor["readinessProbe"] = {"httpGet": {"path": "/health", "port": "http"}, "periodSeconds": 1}
-    _create(lab, _deployment("audit-monitor", monitor, [code_volume, state_volume]))
+    _create(lab, _deployment("audit-monitor", monitor,
+                             [code_volume, state_volume,
+                              {"name": "receiver-ca", "configMap": {"name": "receiver-ca"}},
+                              {"name": "receiver-auth", "secret": {"secretName": "receiver-auth"}}]))
     _create(lab, {
         "apiVersion": "v1", "kind": "Service", "metadata": {"name": "audit-monitor"},
         "spec": {"selector": {"app": "audit-monitor"},
@@ -129,8 +198,14 @@ def _setup(lab):
     _create(lab, _deployment(
         "audit-fixture",
         _container("fixture", command=["python", "-c", "import time; time.sleep(3600)"],
-                   mounts=[code_mount]),
-        [code_volume],
+                   mounts=[code_mount,
+                           {"name": "receiver-ca", "mountPath": "/receiver-ca", "readOnly": True},
+                           {"name": "receiver-auth", "mountPath": "/receiver-auth", "readOnly": True},
+                           {"name": "receiver-wrong-auth", "mountPath": "/receiver-wrong-auth", "readOnly": True}]),
+        [code_volume,
+         {"name": "receiver-ca", "configMap": {"name": "receiver-ca"}},
+         {"name": "receiver-auth", "secret": {"secretName": "receiver-auth"}},
+         {"name": "receiver-wrong-auth", "secret": {"secretName": "receiver-wrong-auth"}}],
     ))
     for name in ("audit-alert-receiver", "audit-monitor", "audit-fixture"):
         lab.kubectl("rollout", "status", f"deployment/{name}", "--timeout=90s", timeout=100)
@@ -382,7 +457,7 @@ def _native_zot_event(lab):
 
 def _receiver(lab):
     raw = _json_exec(lab, ["python", "-B", "/app/receiver_observe.py",
-                           "http://audit-alert-receiver:8090"])
+                           "https://audit-alert-receiver.saf-test.svc.cluster.local:8443"])
     return raw
 
 
@@ -410,6 +485,14 @@ def verify_zot_alert_route(lab):
     _setup_zot(lab)
     event, source = _native_zot_event(lab)
     before = _receiver(lab)
+    pre_auth_state = before
+    wrong_auth = _json_exec(lab, ["python", "-B", "/app/receiver_auth_probe.py",
+                                 "https://audit-alert-receiver.saf-test.svc.cluster.local:8443"])
+    after_wrong_auth = _receiver(lab)
+    auth_denial_ok = (wrong_auth == {"status": 401, "wrong_credential_rejected": True}
+                      and after_wrong_auth == before
+                      and "auth-probe-denied" not in after_wrong_auth["alert_ids"])
+    before = after_wrong_auth
     forwarded = _json_exec(lab, ["python", "-B", "/app/forward.py",
                                  "http://audit-monitor:8080", json.dumps(event, sort_keys=True)])
     after = _receiver(lab)
@@ -440,6 +523,16 @@ def verify_zot_alert_route(lab):
                          "forwarded_replay": replayed,
                          "ordinary_and_out_of_scope_events_delivered": False,
                          "external_alerts_sent": False})
+    lab.check("green", "Verified TLS receiver rejects wrong credentials without mutation and accepts the authorized Zot-derived alert exactly once",
+              auth_denial_ok and route_ok,
+              {"wrong_credential_status": wrong_auth["status"],
+               "unauthorized_state_unchanged": after_wrong_auth == pre_auth_state,
+               "unauthorized_probe_absent": "auth-probe-denied" not in after_wrong_auth["alert_ids"],
+               "authorized_delivery_status": forwarded["status"],
+               "authorized_zot_alert_present": "alert-" + event["event_id"] in after["alert_ids"],
+               "authorized_tls_verification": True,
+               "authorized_replay_unchanged": after_replay == after,
+               "external_alerts_sent": False})
 
 
 def run(lab):

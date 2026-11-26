@@ -1,8 +1,10 @@
 """Normalize and classify only case-owned registry events."""
 import hashlib
 from http.server import BaseHTTPRequestHandler, HTTPServer
+import base64
 import json
 from pathlib import Path
+import ssl
 from urllib.request import Request, urlopen
 
 STORE = Path("/state/audit-events.json")
@@ -10,15 +12,20 @@ SOURCE = "fixture-forwarded-normalized-audit"
 ACTIONS = {"PUT": "publish", "GET": "pull", "DELETE": "delete",
            "PATCH": "permission-change", "POST": "administration"}
 SENSITIVE = {"publish", "delete", "permission-change", "administration"}
-ALERT_RECEIVER = "http://audit-alert-receiver:8090/alerts"
+ALERT_RECEIVER = "https://audit-alert-receiver.saf-test.svc.cluster.local:8443/alerts"
+RECEIVER_USER = Path("/receiver-auth/username").read_text().strip()
+RECEIVER_PASSWORD = Path("/receiver-auth/password").read_text().strip()
+RECEIVER_AUTH = base64.b64encode(f"{RECEIVER_USER}:{RECEIVER_PASSWORD}".encode()).decode()
+RECEIVER_TLS = ssl.create_default_context(cafile="/receiver-ca/ca.pem")
 
 
 def deliver_alert(alert):
     body = json.dumps(alert, sort_keys=True, separators=(",", ":")).encode()
     request = Request(ALERT_RECEIVER, data=body,
-                      headers={"Content-Type": "application/json"}, method="POST")
+                      headers={"Content-Type": "application/json",
+                               "Authorization": "Basic " + RECEIVER_AUTH}, method="POST")
     try:
-        with urlopen(request, timeout=3) as response:
+        with urlopen(request, context=RECEIVER_TLS, timeout=3) as response:
             if response.status not in (200, 201):
                 raise RuntimeError("alert receiver refused fixture alert")
     except Exception as exc:
