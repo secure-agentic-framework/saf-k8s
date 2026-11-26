@@ -37432,16 +37432,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SR-6
   framework_requirement_title: Supplier Assessments and Reviews
-  framework_mapping_notes: 'Supplier assessments for AI model providers and tool vendors validate security practices
-
-
-    6.4 - VEX (vendor vulnerability communication); 9.5 - ML dependency vulnerability management (supplier review)'
+  framework_mapping_notes: The case demonstrates a bounded pre-approval review record for fixed fictional publisher-maintenance and community signals, with a synthetic authenticated reviewer and digest-bound disposition in the scratch candidate. It does not assess supplier cybersecurity/SCRM practices, FOCI or broader supplier risk, nor establish the organization-defined review frequency.
   control_id: SAF-K8S-0905-057
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only when the externally sourced model's publisher/provider is in the organization's SR-6 supplier scope and the trust review is one documented assessment within its defined supplier review frequency. This fixture uses fictional signals and does not assess an actual supplier or establish recurring review.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -37634,13 +37631,13 @@
   framework_version: '1.0'
   framework_requirement_id: GOVERN 3.2
   framework_requirement_title: Policies and procedures are in place to define and differentiate roles and responsibilities for human-AI configurations and oversight of AI systems.
-  framework_mapping_notes: AI system classification assigns control profiles based on risk tier, implicitly defining human oversight requirements. Model promotion gates enforce approval workflows requiring human review before deployment.
+  framework_mapping_notes: The original fixture records a reviewer/approval-authority distinction and gates an inert digest; the scratch candidate additionally authenticates a synthetic OIDC reviewer, scopes write permission to one decision record, and binds that record to the digest consumed by an admission policy. Neither fixture establishes organization-wide oversight policies, role assignment, or a real human's authority.
   control_id: SAF-K8S-0905-057
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only when the organization has defined and differentiated reviewer, publisher and workload responsibilities for the applicable AI oversight workflow, and the deployed identity mapping and authorization implement those roles. The reference's OIDC reviewer and Role are synthetic examples, not organizational policy evidence.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -37725,13 +37722,13 @@
   framework_version: '1.0'
   framework_requirement_id: MANAGE 3.1
   framework_requirement_title: AI risks and benefits from third-party resources are regularly monitored, and risk controls are applied and documented.
-  framework_mapping_notes: Dependency tracking with SLSA build provenance monitors third-party component risks. Vulnerability prioritization for AI workloads provides ongoing risk assessment. Restricted use policies govern external AI service consumption.
+  framework_mapping_notes: The case demonstrates one documented pre-approval disposition based on fixed fictional third-party trust signals and a digest gate. It does not monitor external resources over time, validate signal sources, or demonstrate repeated review, risk-benefit assessment, or operational controls outside the fixture.
   control_id: SAF-K8S-0905-057
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only when the reviewed model is an in-scope third-party resource and the adopter's recurring monitoring evaluates current source risks and applies/document a linked control. The case is a one-time inert review and is not evidence of regular monitoring.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
