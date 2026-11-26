@@ -14,9 +14,9 @@ path to a directory missing from that same commit. Argo CD must report a
 live workload remains ready. Restoring the path clears the error and restores
 healthy reconciliation to the exact commit.
 
-The case demonstrates native Argo CD telemetry. Retention, alert delivery,
-failure freshness, Flux coverage, and controller integrity need separate
-evidence.
+The case demonstrates native Argo CD telemetry. The tests below cover
+retention, alert delivery, stale reconciliation, Flux behavior, and controller
+integrity in their stated scopes.
 
 [Argo CD v3.6.1 metrics documentation](https://github.com/argoproj/argo-cd/blob/v3.6.1/docs/operator-manual/metrics.md)
 
@@ -42,3 +42,19 @@ permits an approved service-account update to the designated ConfigMap entry.
 This validates the fixture's controller configuration and upstream image
 identity. Production signing authority and rollout gates require their own
 evidence.
+
+## Verify an adopting GitOps deployment
+
+The 14-check reference covers the scoped Argo CD and Flux reconciliation paths.
+The Argo release-integrity fixture verifies the approved signer, running
+release chain, and configuration guard. Its separate monitoring and freshness
+tests demonstrate delivered alerts, resolution and retained state history.
+Use these paths as examples when verifying the adopting deployment.
+
+### Monitoring and alert delivery
+
+For every in-scope production controller/application, record the cluster and environment, controller/version, enrolled application identity, approved Git repository and revision, and the owner of the reconciliation thresholds and polling cadence. Independently observe the controller-native status/revision/freshness signal and its monitoring export. Retain time-bounded history for the approved retention period. Demonstrate the approved alert route by observing a controlled failed or stale reconciliation, delivered notification, owner acknowledgement/resolution, and recovery notification. Include the actual alert rule, destination/receiver identity, timestamps, and reviewer-approved sanitized event evidence. State exclusions and any monitoring gaps per environment.
+
+### Release identity and configuration
+
+For each authorized environment, inventory the GitOps controller components and compare the actually running image digests (not only tags or desired manifests) with the release approved for that environment. Preserve independent signature/provenance verification output and verify the expected signer/workflow/source identity against the organization's approved trust policy at promotion. Show the promotion gate rejected an unapproved release or identity. Compare effective controller configuration with an independently approved baseline; show an unauthorized configuration change is rejected and an approved change is applied by its authorized principal. Record reviewer, approval, environment, deployed digest/config revision, observation time, and rollback/recovery evidence. Apply this to Flux separately if Flux is deployed; the portable controller-integrity checks in the current receipt cover Argo CD only.
