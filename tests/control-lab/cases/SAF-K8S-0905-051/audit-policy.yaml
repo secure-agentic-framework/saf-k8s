@@ -6,12 +6,12 @@ rules:
   resources:
   - group: ""
     resources: [serviceaccounts/token, secrets]
-- level: RequestResponse
-  users: ["system:serviceaccount:saf-test:saf-0905-051-approver"]
+- level: Metadata
+  users: ["system:serviceaccount:saf-test:saf-0905-051-approver", "oidc-fixture:human-probe"]
   verbs: [patch]
   namespaces: [saf-test]
   resources:
   - group: ""
     resources: [configmaps]
-    resourceNames: [synthetic-release-approval]
+    resourceNames: [@APPROVAL_NAME@]
 - level: None

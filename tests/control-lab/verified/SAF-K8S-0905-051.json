@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-051",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "8da75fc9da328eaca1f4f227c06c8b90f335a840",
+  "catalog_sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "bdfe0653a18c27714a75fa43d42a1241eac349ea614e56a0c7a1579136c1dda2",
-  "scope": "Two disposable Kubernetes v1.36.1 clusters compare API auditing off and on for the same scoped approval patch. A directly authenticated reviewer ServiceAccount persists a fixed approval. The targeted control-plane audit event binds the reviewer, decision, server time, and immutable model digest to the request and persisted response.",
-  "cluster": "saf-lab-b3ea1ad44eab",
+  "scope": "Two disposable Kubernetes v1.36.1 clusters compare API auditing off and on for the same scoped approval patch. The existing directly authenticated ServiceAccount path is preserved. In the audit-enabled cluster, a case-owned synthetic OIDC reviewer is authenticated by the native API server and writes the same fixed approval record. A metadata-only native API audit event binds the mapped reviewer username, server time, and approval object name encoding the immutable model digest; a separate readback verifies the fixed decision and exact digest. No credential, key, token, or request/response body is included in logs or retained evidence.",
+  "cluster": "saf-lab-b9c19530c3bd",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -62,6 +62,23 @@
       "matched": true,
       "observed": {
         "immutable_artifact_matches_approval_digest": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native OIDC reviewer identity is bound to the fixed approval and model digest in the API audit event",
+      "matched": true,
+      "observed": {
+        "scoped_approval_write_and_readback_succeeded": true,
+        "selected_event_found": true,
+        "api_audit_id_present": true,
+        "response_complete_stage": true,
+        "patch_verb": true,
+        "authenticated_actor_matches_expected": true,
+        "approval_object_matches_expected": true,
+        "approval_object_name_encodes_immutable_model_digest": true,
+        "response_code_is_200": true,
+        "server_timestamps_ordered": true
       }
     }
   ]
