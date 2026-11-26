@@ -28,9 +28,12 @@ SCOPE = (
     "One disposable Kind v1.36.1 cluster. Inert candidates carry equally verified provenance "
     "handoff records and separately supplied fictional trust evidence. A restricted Job "
     "persists disposition, rationale and reviewer data in Kubernetes. An admission policy "
-    "using that record allows the reviewed artifact digest and rejects the discrepant one. "
-    "This establishes the fixture decision path. Human review quality, real publisher or "
-    "community signals, independent provenance verification and production coverage are open."
+    "using that record allows the assessed artifact digest and rejects the discrepant one. "
+    "A supplemental native OIDC identity writes a separate digest-bound review disposition "
+    "through a narrowly authorized Kubernetes API path, and a second admission policy reads "
+    "that record for a distinct Pod label. This establishes fixture authentication, RBAC, "
+    "record binding and gate behavior only. Real human authority, substantive review quality, "
+    "publisher/community signals, independent provenance and production coverage remain adopter evidence."
 )
 
 
@@ -149,3 +152,10 @@ def run(lab):
               accepted.returncode == 0, {"admitted": accepted.returncode == 0})
     (lab.evidence / "model-trust-decisions.json").write_text(json.dumps(
         {"input": _dossier(), "decisions": decisions, "checks": lab.checks}, indent=2) + "\n")
+    import importlib.util
+    review_path = HERE / "review_binding.py"
+    spec = importlib.util.spec_from_file_location("saf_0905_057_review_binding", review_path)
+    review = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(review)
+    review.run(lab, _source("eligible")["digest"], _source("ineligible")["digest"],
+               decisions["eligible"])

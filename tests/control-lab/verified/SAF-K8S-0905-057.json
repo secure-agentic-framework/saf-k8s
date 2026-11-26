@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-057",
-  "catalog_revision": "9a5381f99eaf1d9f8b4d73edd71b80f1589aebcc",
-  "catalog_sha256": "756c26b78ba8a8bc34e315da04553f18f72d768e614a38f3594335a9cdf0a423",
+  "catalog_revision": "1d80f799fbb56b885aef04611a3559e677192704",
+  "catalog_sha256": "e670092688043f3873e5b141c9c9e45fa91bab5ff9c7a9419e33be9fd2978ef8",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "bf05c02f5b6f019337884702e9f83784d23b69338e8fcbf3a7ee58599c1aa83e",
-  "scope": "One disposable Kind v1.36.1 cluster. Inert candidates carry equally verified provenance handoff records and separately supplied fictional trust evidence. A restricted Job persists disposition, rationale and reviewer data in Kubernetes. An admission policy using that record allows the reviewed artifact digest and rejects the discrepant one. This establishes the fixture decision path. Human review quality, real publisher or community signals, independent provenance verification and production coverage are open.",
-  "cluster": "saf-lab-cb7c8f968297",
+  "scope": "One disposable Kind v1.36.1 cluster. Inert candidates carry equally verified provenance handoff records and separately supplied fictional trust evidence. A restricted Job persists disposition, rationale and reviewer data in Kubernetes. An admission policy using that record allows the assessed artifact digest and rejects the discrepant one. A supplemental native OIDC identity writes a separate digest-bound review disposition through a narrowly authorized Kubernetes API path, and a second admission policy reads that record for a distinct Pod label. This establishes fixture authentication, RBAC, record binding and gate behavior only. Real human authority, substantive review quality, publisher/community signals, independent provenance and production coverage remain adopter evidence.",
+  "cluster": "saf-lab-f23dd2ff1d85",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -85,6 +85,33 @@
       "matched": true,
       "observed": {
         "admitted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An authenticated OIDC identity outside the reviewer group cannot write a disposition",
+      "matched": true,
+      "observed": {
+        "unapproved_reviewer_write_denied": true
+      }
+    },
+    {
+      "phase": "identity",
+      "claim": "The native OIDC reviewer writes and reads back a disposition bound to the exact candidate digest",
+      "matched": true,
+      "observed": {
+        "reviewer_write_succeeded": true,
+        "exact_digest_bound_record_readback": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The active review policy admits only the digest approved by the authenticated reviewer",
+      "matched": true,
+      "observed": {
+        "approval_required_for_previously_eligible_digest": true,
+        "eligible_digest_admitted": true,
+        "unreviewed_digest_denied_by_trust_policy": true
       }
     }
   ]
