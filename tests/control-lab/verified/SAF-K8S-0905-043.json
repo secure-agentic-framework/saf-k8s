@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-043",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "298aa7cfbfeeab9a51cc0c00c260b2d07b790a84",
+  "catalog_sha256": "e670092688043f3873e5b141c9c9e45fa91bab5ff9c7a9419e33be9fd2978ef8",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "80d1c788b0fe97edf34d52c35bb31d0adf7fc74f9fcb4f674615a542eee21f5f",
-  "scope": "One disposable local Kubernetes v1.36.1 Kind cluster and the saf-test namespace. The case runs a digest-pinned Distribution 3.0.0 registry Pod behind an in-cluster Service, backed by a case-owned hostPath PersistentVolume/PersistentVolumeClaim. It publishes two inert synthetic OCI model manifests with distinct computed digests, attaches one synthetic ML-BOM as an OCI artifact to only the first digest, discovers and retrieves it, then deletes/recreates the registry Pod and repeats retrieval. Evidence is limited to allowlisted digests, status codes, sizes, Pod UIDs and booleans. It does not establish production retention, replication, backup, authorization, promotion workflow coverage, or ML-BOM generation quality.",
-  "review_timing": {
-    "queued_at": "2026-11-23T00:23:09.138063+00:00",
-    "cluster_ready_at": "2026-11-23T00:23:38.676273+00:00",
-    "approval_at": "2026-11-23T00:26:55.331168+00:00",
-    "case_loaded_at": "2026-11-23T00:26:55.571248+00:00"
-  },
-  "cluster": "saf-lab-2e06c0b49ef1",
+  "scope": "One disposable local Kubernetes v1.36.1 Kind cluster and the saf-test namespace. The case runs a digest-pinned Distribution 3.0.0 registry Pod behind an in-cluster Service, backed by a case-owned hostPath PersistentVolume/PersistentVolumeClaim. It publishes two inert synthetic OCI model manifests with distinct computed digests, attaches one synthetic ML-BOM as an OCI artifact to only the first digest, discovers and retrieves it. Copies the exact approved bytes to a separate case-owned registry and repeats retrieval after both source and destination Pods are replaced. Evidence is limited to allowlisted digests, status codes, sizes, Pod UIDs and booleans. It does not establish production retention, replication, backup, authorization, promotion workflow coverage, or ML-BOM generation quality.",
+  "cluster": "saf-lab-07f7bc365a24",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "706cde0997d2dd9844b7427befa46564b509be3c41432723ff887e0c268773f2",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
@@ -109,6 +102,18 @@
         "registry_pod_recreated": true,
         "persistent_volume_claim": "saf-registry-data",
         "artifact_digest_unchanged": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A separate promoted registry carries the exact ML-BOM and recovers it from its own claim",
+      "matched": true,
+      "observed": {
+        "destination_lacks_subject_before_promotion": true,
+        "destination_subject_matches_reviewed_digest": true,
+        "destination_attachment_identity_and_bytes_match": true,
+        "distinct_model_version_has_no_attachment": true,
+        "replacement_destination_pod_recovers_same_attachment": true
       }
     }
   ]

@@ -1,4 +1,5 @@
 """Exercise digest-scoped OCI ML-BOM attachment in an in-cluster registry."""
+from copy import deepcopy
 import hashlib
 import json
 import socket
@@ -24,13 +25,15 @@ EMPTY_DIGEST = "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61
 ARTIFACT_TYPE = "application/vnd.saf.ml-bom.v1+json"
 PAYLOAD_TYPE = "application/vnd.saf.ml-bom.payload.v1+json"
 REPOSITORY = "saf-fixture/models"
+PROMOTED = "saf-registry-promoted"
 SCOPE = (
     "One disposable local Kubernetes v1.36.1 Kind cluster and the saf-test namespace. "
     "The case runs a digest-pinned Distribution 3.0.0 registry Pod behind an in-cluster "
     "Service, backed by a case-owned hostPath PersistentVolume/PersistentVolumeClaim. It "
     "publishes two inert synthetic OCI model manifests with distinct computed digests, "
     "attaches one synthetic ML-BOM as an OCI artifact to only the first digest, discovers "
-    "and retrieves it, then deletes/recreates the registry Pod and repeats retrieval. "
+    "and retrieves it. Copies the exact approved bytes to a separate case-owned registry and "
+    "repeats retrieval after both source and destination Pods are replaced. "
     "Evidence is limited to allowlisted digests, status codes, sizes, Pod UIDs and booleans. "
     "It does not establish production retention, replication, backup, authorization, "
     "promotion workflow coverage, or ML-BOM generation quality."
@@ -141,14 +144,14 @@ class Registry:
         return json.loads(raw), "referrers-tag-fallback"
 
 
-def registry_pod(lab):
-    return json.loads(lab.kubectl("get", "pods", "-l", "app=saf-registry", "-o", "json").stdout)
+def registry_pod(lab, name):
+    return json.loads(lab.kubectl("get", "pods", "-l", f"app={name}", "-o", "json").stdout)
 
 
-def wait_registry(lab):
+def wait_registry(lab, name="saf-registry"):
     deadline = time.monotonic() + 100
     while time.monotonic() < deadline:
-        state = registry_pod(lab)
+        state = registry_pod(lab, name)
         ready = [item for item in state.get("items", [])
                  if item.get("status", {}).get("phase") == "Running"
                  and any(c.get("ready") for c in item.get("status", {}).get("containerStatuses", []))]
@@ -158,13 +161,13 @@ def wait_registry(lab):
     lab.block("In-cluster registry did not become Ready")
 
 
-def start_forward(lab):
+def start_forward(lab, name="saf-registry"):
     with socket.socket() as sock:
         sock.bind(("127.0.0.1", 0))
         port = sock.getsockname()[1]
     command = ["kubectl", "--kubeconfig", str(lab.kubeconfig), "--context",
                f"kind-{lab.cluster}", "--namespace", NAMESPACE,
-               "port-forward", "--address=127.0.0.1", "service/saf-registry",
+               "port-forward", "--address=127.0.0.1", f"service/{name}",
                f"{port}:5000"]
     process = subprocess.Popen(command, env=lab.env, stdout=subprocess.DEVNULL,
                                stderr=subprocess.DEVNULL)
@@ -204,6 +207,10 @@ def push_artifact(registry, subject, subject_manifest, bom):
         "layers": [descriptor(PAYLOAD_TYPE, bom)],
         "subject": descriptor(OCI_MANIFEST, subject_manifest),
     })
+    return artifact, store_attachment(registry, subject, artifact)
+
+
+def store_attachment(registry, subject, artifact):
     artifact_digest = digest(artifact)
     headers = registry.put_manifest(artifact_digest, artifact)
     acknowledged = headers.get("OCI-Subject")
@@ -219,7 +226,7 @@ def push_artifact(registry, subject, subject_manifest, bom):
             tag = subject.replace(":", "-", 1)
             registry.request(f"/v2/{REPOSITORY}/manifests/{tag}", "PUT", body=canonical(index),
                              content_type=OCI_INDEX, expected=(201,))
-    return artifact, artifact_digest
+    return artifact_digest
 
 
 def retrieve(registry, subject, expected_model, expected_bom):
@@ -250,6 +257,75 @@ def retrieve(registry, subject, expected_model, expected_bom):
             "payload_size": len(payload), "manifest_size": len(artifact),
             "subject_digest": subject, "discovery": method,
             "payload_matches_expected": True, "payload_subject_matches": True}
+
+
+def promote_manifest(source, destination, expected):
+    status, headers, raw = source.fetch_manifest(expected)
+    if status != 200 or digest(raw) != expected or headers.get("Docker-Content-Digest") != expected:
+        raise RuntimeError("Source did not retain the exact approved promotion manifest")
+    manifest = json.loads(raw)
+    for item in (manifest["config"], *manifest["layers"]):
+        blob = item["digest"]
+        _, _, payload = source.request(
+            f"/v2/{REPOSITORY}/blobs/{urllib.parse.quote(blob, safe=':')}")
+        if len(payload) != item["size"] or digest(payload) != blob:
+            raise RuntimeError("Source did not retain the exact approved promotion blob")
+        destination.upload(payload)
+    if manifest.get("artifactType") == ARTIFACT_TYPE:
+        store_attachment(destination, manifest["subject"]["digest"], raw)
+    else:
+        destination.put_manifest(expected, raw)
+
+
+def promoted_storage(lab, resources):
+    pv, pvc, deployment, service = deepcopy(resources)
+    pv["metadata"]["name"] = "saf-0905-043-promoted-data"
+    pv["spec"]["hostPath"]["path"] = "/var/lib/saf-0905-043-promoted"
+    pvc["metadata"]["name"] = "saf-promoted-data"
+    pvc["spec"]["volumeName"] = pv["metadata"]["name"]
+    deployment["metadata"]["name"] = service["metadata"]["name"] = PROMOTED
+    deployment["spec"]["selector"]["matchLabels"]["app"] = PROMOTED
+    deployment["spec"]["template"]["metadata"]["labels"]["app"] = PROMOTED
+    pod = deployment["spec"]["template"]["spec"]
+    pod["volumes"][0]["persistentVolumeClaim"]["claimName"] = pvc["metadata"]["name"]
+    service["spec"]["selector"]["app"] = PROMOTED
+    for resource in (pv, pvc, deployment, service):
+        lab.create(resource)
+    return wait_registry(lab, PROMOTED)
+
+
+def verify_promotion(lab, source, resources, version_one, version_two, bom, artifact_digest):
+    first = promoted_storage(lab, resources)
+    process, destination = start_forward(lab, PROMOTED)
+    try:
+        subject = version_one["digest"]
+        other = version_two["digest"]
+        initial = destination.fetch_manifest(subject)[0] == 404
+        for reference in (other, subject, artifact_digest):
+            promote_manifest(source, destination, reference)
+        moved = retrieve(destination, subject, version_one, bom)
+        untouched, _ = destination.referrers(other)
+        status, _, raw = destination.fetch_manifest(subject)
+        exact_destination = status == 200 and digest(raw) == subject
+        stop_forward(process)
+        lab.kubectl("delete", "pod", first["metadata"]["name"], "--wait=true", timeout=60)
+        replacement = wait_registry(lab, PROMOTED)
+        process, destination = start_forward(lab, PROMOTED)
+        recovered = retrieve(destination, subject, version_one, bom)
+        observed = {
+            "destination_lacks_subject_before_promotion": initial,
+            "destination_subject_matches_reviewed_digest": exact_destination,
+            "destination_attachment_identity_and_bytes_match": moved["artifact_digest"] == artifact_digest,
+            "distinct_model_version_has_no_attachment": not untouched.get("manifests"),
+            "replacement_destination_pod_recovers_same_attachment": (
+                first["metadata"]["uid"] != replacement["metadata"]["uid"] and recovered == moved
+            ),
+        }
+        lab.check("green", "A separate promoted registry carries the exact ML-BOM and recovers it from its own claim",
+                  all(observed.values()), observed)
+        return observed
+    finally:
+        stop_forward(process)
 
 
 def run(lab):
@@ -368,6 +444,8 @@ def run(lab):
                   {**after_restart, "registry_pod_recreated": True,
                    "persistent_volume_claim": "saf-registry-data",
                    "artifact_digest_unchanged": after_restart["artifact_digest"] == retrieved["artifact_digest"]})
+        promotion = verify_promotion(lab, registry, (pv, pvc, deployment, service),
+                                     version_one, version_two, bom, artifact_digest)
     finally:
         stop_forward(forward)
 
@@ -377,7 +455,7 @@ def run(lab):
                "attachment_digest": artifact_digest, "payload_digest": digest(bom),
                "pod_uids": {"before_restart": first_pod["metadata"]["uid"],
                             "after_restart": next_pod["metadata"]["uid"]},
-               "http_events": prior_events + registry.events,
+               "http_events": prior_events + registry.events, "promotion": promotion,
                "excluded": ["credentials", "request bodies", "response bodies", "registry logs"]}
     (lab.evidence / "registry-runtime.json").write_text(
         json.dumps(runtime, indent=2, sort_keys=True) + "\n", encoding="utf-8")
