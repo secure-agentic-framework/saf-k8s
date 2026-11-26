@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0703-007",
-  "catalog_revision": "235c61df1efd30e1ae349c374acca2553bfba87a",
-  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
+  "catalog_revision": "fedad873ceb9bc822e128c10626c3603b4151234",
+  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "5de6399d8efc138f2a9f36c76a526537296fde2f9ea0d0aa4a4f1522a3dd98bc",
-  "scope": "Kueue v0.20.6 controller with Fair Sharing and two single-unit quotas, on disposable kind Kubernetes v1.36.1. Three owned Kubernetes Jobs request only an unallocated synthetic resource. Kueue admission and reclamation are inspected, including the recovered nominal unit and queued overage. An additive two-Pod Job compares suspended quota shortage with full quota admission and creation of both unassigned Pods. This covers quota-based all-or-nothing admission. A separate tiny CPU-only two-Pod Job passes through its exact Kueue queue, reaches both Pod Ready and Workload PodsReady, then completes. This does not prove GPU placement or gang recovery. Actual devices, sustained fairness, access control and production integrations require separate evidence.",
-  "cluster": "saf-lab-876e2aa3ec13",
+  "scope": "Kueue v0.20.6 controller with Fair Sharing and two single-unit quotas, on disposable kind Kubernetes v1.36.1. Three owned Kubernetes Jobs request only an unallocated synthetic resource. Kueue admission and reclamation are inspected, including the recovered nominal unit and queued overage. An additive two-Pod Job compares suspended quota shortage with full quota admission and creation of both unassigned Pods. This covers quota-based all-or-nothing admission. A separate tiny CPU-only two-Pod Job passes through its exact Kueue queue, reaches both Pod Ready and Workload PodsReady, then completes. A separate same-cohort CPU and memory fixture captures exact cohort reclamation victim and preemptor UIDs and reasons, then verifies recovery of the same victim Job and Workload with a new Ready Pod after exact preemptor deletion. It observes the pinned controller reason InCohortReclamation. Weighted-share preemption, actual accelerator placement and gang recovery, sustained fairness, access control and production integrations require separate evidence.",
+  "cluster": "saf-lab-0b9b51e67f18",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -127,6 +127,54 @@
         "workload_finished_condition": true,
         "ready_state_observed_before_completion": true,
         "failed_pod_count": 0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact borrowed victim and baseline CPU/memory Jobs are Ready while the peer waits",
+      "matched": true,
+      "observed": {
+        "victim_ready": true,
+        "baseline_ready": true,
+        "baseline_priority_higher": true,
+        "baseline_pod_identity_fixed": true,
+        "peer_waiting": true,
+        "victim_borrows_100m_cpu_only": true,
+        "memory_remains_within_nominal": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Kueue cohort reclamation preempts the exact borrowed Workload for the exact peer Workload",
+      "matched": true,
+      "observed": {
+        "same_victim_job_and_workload": true,
+        "victim_reason_preempted": true,
+        "cohort_reclamation_reason": true,
+        "baseline_job_and_workload_unchanged": true,
+        "baseline_pod_stayed_ready": true,
+        "preemptor_admitted": true,
+        "preemptor_uids_in_victim_reason": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Removing the exact preemptor restores the same victim Job and Workload with a new Ready Pod",
+      "matched": true,
+      "observed": {
+        "same_victim_job_and_workload": true,
+        "preemptor_job_and_workload_absent": true,
+        "replacement_ready_pod": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The isolated fair-share recovery namespaces and queues are removed",
+      "matched": true,
+      "observed": {
+        "owned_namespaces_removed": true,
+        "owned_clusterqueues_removed": true,
+        "owned_priority_class_absent": true
       }
     }
   ]

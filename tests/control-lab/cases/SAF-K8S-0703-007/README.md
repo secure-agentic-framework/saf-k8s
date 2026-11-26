@@ -45,3 +45,22 @@ Workload's `Finished=True`. This comparison adds two checks. Each Pod requests
 10m CPU and 16 MiB and runs an idle bounded process. Actual device assignment,
 coordinated placement, failure recovery and long-run fairness remain adopter
 verification. See [Kueue v0.20 Workload API](https://kueue.sigs.k8s.io/v0.20/docs/reference/kueue.v1beta2/).
+
+## Cohort quota reclamation and recovery
+
+This phase uses two Kueue ClusterQueues in one cohort. Each Job requests 100m CPU and
+32Mi memory. Team A's first Job uses its nominal CPU quota and keeps the same Ready Pod
+through reclamation. Its second Job borrows 100m CPU and reaches Ready while team B's Job
+waits. The fixture checks that memory usage stays within nominal quota.
+
+Enabling team B's `reclaimWithinCohort: Any` setting makes the pinned controller record
+`Evicted=Preempted` and `Preempted=InCohortReclamation` for the borrowing Workload. The
+condition includes the exact preemptor Workload and Job UIDs. The peer becomes Ready.
+The fixture removes that Job using a UID precondition and independently verifies the
+preemptor Workload UID is gone. The original victim Job and Workload return to admission
+with a new Ready Pod UID.
+
+The recovery phase covers CPU-backed nominal quota reclamation. Weighted-share
+preemption, sustained fairness, actual accelerator placement and gang recovery require
+separate evidence. See [Kueue v0.20 preemption](https://kueue.sigs.k8s.io/v0.20/docs/concepts/preemption/)
+and the [pinned Workload API](https://kueue.sigs.k8s.io/v0.20/docs/reference/kueue.v1beta2/).
