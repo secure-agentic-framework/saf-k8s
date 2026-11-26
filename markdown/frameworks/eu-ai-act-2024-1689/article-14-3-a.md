@@ -11,15 +11,6 @@ Kubernetes admission policy (SAF-K8S-0605-001) and automated model promotion gat
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0605-001 - OPA/Gatekeeper policies for Kubernetes and AI workloads](../../controls/SAF-K8S-0605-001.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.5
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0905-005 - Automated model promotion gates](../../controls/SAF-K8S-0905-005.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines

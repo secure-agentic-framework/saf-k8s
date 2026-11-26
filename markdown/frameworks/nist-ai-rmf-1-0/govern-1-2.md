@@ -9,15 +9,6 @@ Policy-as-code engines enforce trustworthiness requirements (image provenance, r
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0605-001 - OPA/Gatekeeper policies for Kubernetes and AI workloads](../../controls/SAF-K8S-0605-001.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.5
-- Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
-
 ### [SAF-K8S-1006-001 - Regulatory compliance mapping for Kubernetes AI platforms](../../controls/SAF-K8S-1006-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance

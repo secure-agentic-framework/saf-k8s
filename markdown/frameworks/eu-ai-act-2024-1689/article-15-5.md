@@ -49,10 +49,10 @@ Verified runtime signal coverage supports the monitoring portion of defined cybe
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.5
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: partial
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0902-003 - Inference request validation and input sanitization](../../controls/SAF-K8S-0902-003.md)
 

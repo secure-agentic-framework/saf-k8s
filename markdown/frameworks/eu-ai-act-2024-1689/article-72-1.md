@@ -7,18 +7,9 @@
 
 Providers shall establish and document a post-market monitoring system in a manner that is proportionate to the nature of the AI technologies and the risks of the high-risk AI system.
 
-SAF-K8S deployment controls can enforce pre-deployment checklists through admission webhooks, requiring that monitoring and observability configurations are present before workloads are admitted. The organizational documentation obligation is outside infrastructure scope.
+SAF-K8S observability controls (D10) provide the monitoring infrastructure that is a critical component of any post-market monitoring system on Kubernetes: telemetry collection, anomaly detection, alerting, and audit logging. The system design, documentation, and organizational processes are out of scope.
 
 ## SAF-K8S Controls
-
-### [SAF-K8S-0605-001 - OPA/Gatekeeper policies for Kubernetes and AI workloads](../../controls/SAF-K8S-0605-001.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.5
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
 
 ### [SAF-K8S-1002-002 - Distributed tracing for ML pipelines](../../controls/SAF-K8S-1002-002.md)
 
