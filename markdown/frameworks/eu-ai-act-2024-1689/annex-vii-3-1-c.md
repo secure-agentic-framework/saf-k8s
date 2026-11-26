@@ -34,6 +34,6 @@ SAF-K8S generates technical documentation artifacts referenced in Annex IV (arch
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1
 - Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

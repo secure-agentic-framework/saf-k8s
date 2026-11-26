@@ -15,10 +15,10 @@ SAF-K8S observability and monitoring controls (D10) collect the operational data
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1002-002 - Distributed tracing for ML pipelines](../../controls/SAF-K8S-1002-002.md)
 

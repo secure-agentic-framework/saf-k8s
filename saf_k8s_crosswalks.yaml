@@ -335,15 +335,15 @@
   framework_version: 2024/1689
   framework_requirement_id: Annex-IV.2.f
   framework_requirement_title: Technical documentation referred to in Article 11(1)
-  framework_mapping_notes: |-
-    where applicable, a detailed description of pre-determined changes to the AI system and its performance, together with all the relevant information related to the technical solutions adopted to ensure continuous compliance of the AI system with the relevant requirements set out in Chapter III, Section 2;
+  framework_mapping_notes: 'where applicable, a detailed description of pre-determined changes to the AI system and its performance, together with all the relevant information related to the technical solutions adopted to ensure continuous compliance of the AI system with the relevant requirements set out in Chapter III, Section 2;
 
-    Audit policies that capture training/pipeline workflow changes, model serving object changes, and checkpoint/snapshot operations provide the evidentiary record that changes occurred and that compliance is maintained over time; this supports demonstrating continuous compliance but does not itself implement the change-control solution.
+
+    Audit policies that capture training/pipeline workflow changes, model serving object changes, and checkpoint/snapshot operations provide the evidentiary record that changes occurred and that compliance is maintained over time; this supports demonstrating continuous compliance but does not itself implement the change-control solution.'
   control_id: SAF-K8S-1001-016
   relation_type: partial
   strength_level: weak
-  applicability: required
-  applicability_condition:
+  applicability: conditional
+  applicability_condition: Only as a limited technical-evidence artifact for an applicable high-risk AI system when the policy and relevant captured change records are included in that system's documentation; the control does not itself implement continuous-compliance change controls.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
@@ -591,13 +591,16 @@
   framework_requirement_id: Annex-IV.6
   legacy_requirement_id: Annex-IV:IV(2)(e)
   framework_requirement_title: Technical documentation referred to in Article 11(1)
-  framework_mapping_notes: "A description of relevant changes made by the provider to the system through its lifecycle;\n\nSAF-K8S GitOps and supply chain controls (D6) track infrastructure-level changes via version control, container image tagging, deployment history, and audit logs. However, lifecycle changes also include application-layer changes (model architecture, training data, hyperparameters) that may not be captured by platform controls alone."
+  framework_mapping_notes: 'A description of relevant changes made by the provider to the system through its lifecycle;
+
+
+    SAF-K8S GitOps and supply chain controls (D6) track infrastructure-level changes via version control, container image tagging, deployment history, and audit logs. However, lifecycle changes also include application-layer changes (model architecture, training data, hyperparameters) that may not be captured by platform controls alone.'
   control_id: SAF-K8S-1001-016
   relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code: framework-language-interpretation
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only for Kubernetes object/API changes actually covered by the deployed policy and only as a subset of the provider's description of lifecycle changes; it does not record all application, model, data, or training changes.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -659,23 +662,6 @@
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
   framework_version: 2024/1689
-  framework_requirement_id: Annex-VI.2
-  legacy_requirement_id: Annex-VI:VI(2)
-  framework_requirement_title: Conformity assessment procedure based on internal control
-  framework_mapping_notes: |-
-    The provider verifies that the established quality management system is in compliance with the requirements of Article 17.
-
-    SAF-K8S provides infrastructure evidence for QMS compliance: CI/CD pipeline configurations (D6), change management audit trails, and automated security gate enforcement. The QMS itself is an organizational system, but SAF-K8S supplies verifiable technical artifacts.
-  control_id: SAF-K8S-1001-016
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code: framework-language-interpretation
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
   framework_requirement_id: Annex-VI.3
   legacy_requirement_id: Annex-VI:VI(3)
   framework_requirement_title: Conformity assessment procedure based on internal control
@@ -723,23 +709,6 @@
   applicability: required
   applicability_condition:
   strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Annex-VI.3
-  legacy_requirement_id: Annex-VI:VI(3)
-  framework_requirement_title: Conformity assessment procedure based on internal control
-  framework_mapping_notes: |-
-    The provider examines the information contained in the technical documentation in order to assess the compliance of the AI system with the relevant essential requirements set out in Chapter III, Section 2.
-
-    SAF-K8S controls map to several Chapter III Section 2 requirements (cybersecurity per Article 15, logging per Article 12, risk management infrastructure per Article 9). SAF-K8S provides technical evidence of conformity for platform-layer requirements.
-  control_id: SAF-K8S-1001-016
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code: framework-language-interpretation
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -832,16 +801,16 @@
   framework_requirement_id: Annex-VII.3.1.c
   legacy_requirement_id: Annex-VII:VII(3)
   framework_requirement_title: Conformity based on an assessment of the quality management system and an assessment of the technical documentation
-  framework_mapping_notes: |-
-    the technical documentation for each AI system covered under the same quality management system;
+  framework_mapping_notes: 'the technical documentation for each AI system covered under the same quality management system;
 
-    SAF-K8S generates technical documentation artifacts referenced in Annex IV (architecture records, cybersecurity controls, logging configurations, change tracking). These form a subset of the information package submitted with the application.
+
+    SAF-K8S generates technical documentation artifacts referenced in Annex IV (architecture records, cybersecurity controls, logging configurations, change tracking). These form a subset of the information package submitted with the application.'
   control_id: SAF-K8S-1001-016
   relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code: framework-language-interpretation
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only if this policy artifact and its scoped evidence are included in the technical documentation for the relevant AI system; this control does not supply the full technical-documentation application package.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -871,23 +840,6 @@
 
     SAF-K8S generates technical documentation artifacts referenced in Annex IV (architecture records, cybersecurity controls, logging configurations, change tracking). These form a subset of the information package submitted with the application.
   control_id: SAF-K8S-0604-002
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code: framework-language-interpretation
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Annex-VII.3.1.d
-  legacy_requirement_id: Annex-VII:VII(3)
-  framework_requirement_title: Conformity based on an assessment of the quality management system and an assessment of the technical documentation
-  framework_mapping_notes: |-
-    the documentation concerning the quality management system which shall cover all the aspects listed under Article 17;
-
-    SAF-K8S generates technical documentation artifacts referenced in Annex IV (architecture records, cybersecurity controls, logging configurations, change tracking). These form a subset of the information package submitted with the application.
-  control_id: SAF-K8S-1001-016
   relation_type: partial
   strength_level: moderate
   applicability: required
@@ -942,23 +894,6 @@
   applicability: required
   applicability_condition:
   strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Annex-VII.4.3
-  legacy_requirement_id: Annex-VII:VII(5)
-  framework_requirement_title: Conformity based on an assessment of the quality management system and an assessment of the technical documentation
-  framework_mapping_notes: |-
-    The technical documentation shall be examined by the notified body. Where relevant, and limited to what is necessary to fulfil its tasks, the notified body shall be granted full access to the training, validation, and testing data sets used, including, where appropriate and subject to security safeguards, through API or other relevant technical means and tools enabling remote access.
-
-    SAF-K8S-generated technical artifacts (system architecture, cybersecurity measures, logging capabilities, change tracking) form part of the Annex IV documentation examined by the notified body.
-  control_id: SAF-K8S-1001-016
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code: framework-language-interpretation
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -2085,23 +2020,6 @@
   applicability: required
   applicability_condition:
   strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Article-13.1
-  legacy_requirement_id: Art-13:13(1)
-  framework_requirement_title: Transparency and provision of information to deployers
-  framework_mapping_notes: |-
-    High-risk AI systems shall be designed and developed in such a way as to ensure that their operation is sufficiently transparent to enable deployers to interpret a system’s output and use it appropriately. An appropriate type and degree of transparency shall be ensured with a view to achieving compliance with the relevant obligations of the provider and deployer set out in Section 3.
-
-    SAF-K8S supports operational transparency through audit logging (D10), model provenance (D9 KA 9.5), and inference telemetry (D10 KA 10.2). The design of interpretable AI outputs is an application-layer concern.
-  control_id: SAF-K8S-1001-016
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code: framework-language-interpretation
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -3577,16 +3495,16 @@
   framework_requirement_id: Article-9.2.c
   legacy_requirement_id: Art-9:9(2)(c)
   framework_requirement_title: Risk management system
-  framework_mapping_notes: |-
-    the evaluation of other risks possibly arising, based on the analysis of data gathered from the post-market monitoring system referred to in Article 72;
+  framework_mapping_notes: 'the evaluation of other risks possibly arising, based on the analysis of data gathered from the post-market monitoring system referred to in Article 72;
 
-    SAF-K8S observability and monitoring controls (D10) collect the operational data that feeds risk evaluation: inference telemetry, anomaly detection, and audit trail analysis. However, the risk evaluation itself -- determining whether new risks have emerged from post-market findings -- is an organizational activity.
+
+    SAF-K8S observability and monitoring controls (D10) collect the operational data that feeds risk evaluation: inference telemetry, anomaly detection, and audit trail analysis. However, the risk evaluation itself -- determining whether new risks have emerged from post-market findings -- is an organizational activity.'
   control_id: SAF-K8S-1001-016
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code: framework-language-interpretation
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only where relevant audit events enter the deployed post-market monitoring and risk-evaluation process for an applicable high-risk AI system; the audit policy does not perform the evaluation.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -3756,23 +3674,6 @@
   applicability: required
   applicability_condition:
   strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Article-9.5.b
-  legacy_requirement_id: Art-9:9(5)(b)
-  framework_requirement_title: Risk management system
-  framework_mapping_notes: |-
-    where appropriate, implementation of adequate mitigation and control measures addressing risks that cannot be eliminated;
-
-    SAF-K8S controls serve as mitigation and control measures for residual risks: monitoring, detection, incident response, and containment controls address risks that cannot be eliminated by design.
-  control_id: SAF-K8S-1001-016
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition:
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -4475,10 +4376,10 @@
   framework_requirement_title: Post-deployment AI system monitoring plans are implemented, including mechanisms for capturing and evaluating input from users and other relevant AI actors, appeal and override, decommissioning, incident response, recovery, and change management.
   framework_mapping_notes: 'SAF-K8S provides comprehensive post-deployment infrastructure: audit policies for AI workload monitoring, metrics and tracing for performance evaluation, IR playbooks for incident response, ransomware response for recovery, and change management for controlled lifecycle transitions.'
   control_id: SAF-K8S-1001-016
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only as an audit-evidence input to an implemented post-deployment monitoring/incident/change-management plan; this policy does not implement user feedback, appeal/override, decommissioning, recovery, or the complete plan.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
@@ -4940,10 +4841,10 @@
   framework_mapping_notes: 'SAF-K8S mandates comprehensive production monitoring: audit policies capture AI-relevant CRD operations, SIEM integration detects AI-specific attack patterns, metrics endpoints monitor model performance, and distributed tracing tracks pipeline execution.'
   control_id: SAF-K8S-1001-016
   relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: depends-on-adjacent-control
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only for production monitoring of covered Kubernetes resource and workflow changes as one component signal; this case does not measure AI system functionality or behavior in production.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -59061,4 +58962,18 @@
   strength_level: moderate
   applicability: required
   applicability_condition: null
+  strength_reason_code: partial-control-coverage
+- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
+  framework_code: EU-AI-ACT
+  framework_name: EU AI Act
+  framework_version: 2024/1689
+  framework_requirement_id: Article-12.2
+  legacy_requirement_id: Art-12:12(2)
+  framework_requirement_title: Record-keeping
+  framework_mapping_notes: Persist attributable infrastructure events when they are relevant to an applicable logging purpose. Verify automatic lifecycle recording, event relevance and completeness separately.
+  control_id: SAF-K8S-1001-016
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: For an applicable high-risk AI system only where covered Kubernetes audit events are relevant to at least one Article 12(2) traceability purpose and are included in the provider-controlled logging path; the reference case uses synthetic fixture CRDs and does not prove deployed system logging or retention.
   strength_reason_code: partial-control-coverage

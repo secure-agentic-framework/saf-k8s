@@ -31,9 +31,9 @@ SAF-K8S provides comprehensive post-deployment infrastructure: audit policies fo
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
 - Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1005-001 - Kubernetes incident response lifecycle](../../controls/SAF-K8S-1005-001.md)

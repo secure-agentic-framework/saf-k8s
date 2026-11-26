@@ -25,9 +25,9 @@ SAF-K8S GitOps controls (D6), audit logging (D10), and deployment tracking provi
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1
 - Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1007-005 - Change management for production AI model deployments](../../controls/SAF-K8S-1007-005.md)
 

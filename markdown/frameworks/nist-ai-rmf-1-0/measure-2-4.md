@@ -23,9 +23,9 @@ SAF-K8S mandates comprehensive production monitoring: audit policies capture AI-
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1
 - Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: depends-on-adjacent-control
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1002-001 - Metric endpoint authentication](../../controls/SAF-K8S-1002-001.md)
 

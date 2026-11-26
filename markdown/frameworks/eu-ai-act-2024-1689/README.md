@@ -2,8 +2,8 @@
 
 - Framework Code: EU-AI-ACT
 - Version: 2024/1689
-- Total Reverse Mappings: 234
-- Distinct Requirements Mapped: 84
+- Total Reverse Mappings: 229
+- Distinct Requirements Mapped: 83
 
 ## Requirements
 
@@ -22,7 +22,6 @@
 - [Annex-IV.5 - Technical documentation referred to in Article 11(1)](annex-iv-5.md)
 - [Annex-IV.6 - Technical documentation referred to in Article 11(1)](annex-iv-6.md)
 - [Annex-IV.9 - Technical documentation referred to in Article 11(1)](annex-iv-9.md)
-- [Annex-VI.2 - Conformity assessment procedure based on internal control](annex-vi-2.md)
 - [Annex-VI.3 - Conformity assessment procedure based on internal control](annex-vi-3.md)
 - [Annex-VI.4 - Conformity assessment procedure based on internal control](annex-vi-4.md)
 - [Annex-VII.3.1.c - Conformity based on an assessment of the quality management system and an assessment of the technical documentation](annex-vii-3-1-c.md)

@@ -26,5 +26,5 @@ Its statement directly addresses pre-determined changes and continuous complianc
 - Knowledge Area: 10.1
 - Relation Type: partial
 - Strength: weak
-- Applicability: required
+- Applicability: conditional
 - Strength Reason Code: partial-control-coverage
