@@ -11,15 +11,6 @@ Security architecture is critical for agentic AI systems with complex trust boun
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0504-005 - Service mesh tuning for AI workloads](../../controls/SAF-K8S-0504-005.md)
-
-- Domain: D05 - Network Security and Communication
-- Knowledge Area: 5.4
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-1003-001 - STRIDE threat modeling for Kubernetes AI systems](../../controls/SAF-K8S-1003-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance

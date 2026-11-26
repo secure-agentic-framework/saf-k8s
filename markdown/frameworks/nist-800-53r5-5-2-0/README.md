@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 3266
-- Distinct Requirements Mapped: 728
+- Total Reverse Mappings: 3232
+- Distinct Requirements Mapped: 718
 
 ## Requirements
 
@@ -185,7 +185,6 @@
 - [CA-2(3) - Leveraging Results from External Organizations](ca-2-3.md)
 - [CA-3 - Information Exchange](ca-3.md)
 - [CA-3(6) - Transfer Authorizations](ca-3-6.md)
-- [CA-3(7) - Transitive Information Exchanges](ca-3-7.md)
 - [CA-5 - Plan of Action and Milestones](ca-5.md)
 - [CA-5(1) - Automation Support for Accuracy and Currency](ca-5-1.md)
 - [CA-6 - Authorization](ca-6.md)
@@ -260,7 +259,6 @@
 - [CP-10(6) - Component Protection](cp-10-6.md)
 - [CP-11 - Alternate Communications Protocols](cp-11.md)
 - [CP-12 - Safe Mode](cp-12.md)
-- [CP-13 - Alternative Security Mechanisms](cp-13.md)
 - [CP-2 - Contingency Plan](cp-2.md)
 - [CP-2(1) - Coordinate with Related Plans](cp-2-1.md)
 - [CP-2(2) - Capacity Planning](cp-2-2.md)
@@ -369,7 +367,6 @@
 - [PL-4 - Rules of Behavior](pl-4.md)
 - [PL-7 - Concept of Operations](pl-7.md)
 - [PL-8 - Security and Privacy Architectures](pl-8.md)
-- [PL-8(1) - Defense in Depth](pl-8-1.md)
 - [PL-8(2) - Supplier Diversity](pl-8-2.md)
 - [PL-9 - Central Management](pl-9.md)
 - [PM-1 - Information Security Program Plan](pm-1.md)
@@ -478,7 +475,6 @@
 - [SA-5 - System Documentation](sa-5.md)
 - [SA-8 - Security and Privacy Engineering Principles](sa-8.md)
 - [SA-8(1) - Clear Abstractions](sa-8-1.md)
-- [SA-8(10) - Hierarchical Trust](sa-8-10.md)
 - [SA-8(11) - Inverse Modification Threshold](sa-8-11.md)
 - [SA-8(12) - Hierarchical Protection](sa-8-12.md)
 - [SA-8(13) - Minimized Security Elements](sa-8-13.md)
@@ -499,7 +495,6 @@
 - [SA-8(27) - Human Factored Security](sa-8-27.md)
 - [SA-8(28) - Acceptable Security](sa-8-28.md)
 - [SA-8(29) - Repeatable and Documented Procedures](sa-8-29.md)
-- [SA-8(3) - Modularity and Layering](sa-8-3.md)
 - [SA-8(30) - Procedural Rigor](sa-8-30.md)
 - [SA-8(31) - Secure System Modification](sa-8-31.md)
 - [SA-8(32) - Sufficient Documentation](sa-8-32.md)
@@ -520,14 +515,11 @@
 - [SA-9(7) - Organization-controlled Integrity Checking](sa-9-7.md)
 - [SC-1 - Policy and Procedures](sc-1.md)
 - [SC-10 - Network Disconnect](sc-10.md)
-- [SC-11 - Trusted Path](sc-11.md)
-- [SC-11(1) - Irrefutable Communications Path](sc-11-1.md)
 - [SC-12 - Cryptographic Key Establishment and Management](sc-12.md)
 - [SC-12(2) - Symmetric Keys](sc-12-2.md)
 - [SC-12(3) - Asymmetric Keys](sc-12-3.md)
 - [SC-13 - Cryptographic Protection](sc-13.md)
 - [SC-15(4) - Explicitly Indicate Current Participants](sc-15-4.md)
-- [SC-16 - Transmission of Security and Privacy Attributes](sc-16.md)
 - [SC-16(1) - Integrity Verification](sc-16-1.md)
 - [SC-16(2) - Anti-spoofing Mechanisms](sc-16-2.md)
 - [SC-16(3) - Cryptographic Binding](sc-16-3.md)
@@ -558,7 +550,6 @@
 - [SC-3 - Security Function Isolation](sc-3.md)
 - [SC-3(2) - Access and Flow Control Functions](sc-3-2.md)
 - [SC-3(4) - Module Coupling and Cohesiveness](sc-3-4.md)
-- [SC-3(5) - Layered Structures](sc-3-5.md)
 - [SC-30(2) - Randomness](sc-30-2.md)
 - [SC-30(3) - Change Processing and Storage Locations](sc-30-3.md)
 - [SC-30(5) - Concealment of System Components](sc-30-5.md)
@@ -602,7 +593,6 @@
 - [SC-7(13) - Isolation of Security Tools, Mechanisms, and Support Components](sc-7-13.md)
 - [SC-7(15) - Networked Privileged Accesses](sc-7-15.md)
 - [SC-7(16) - Prevent Discovery of System Components](sc-7-16.md)
-- [SC-7(17) - Automated Enforcement of Protocol Formats](sc-7-17.md)
 - [SC-7(18) - Fail Secure](sc-7-18.md)
 - [SC-7(19) - Block Communication from Non-organizationally Configured Hosts](sc-7-19.md)
 - [SC-7(20) - Dynamic Isolation and Segregation](sc-7-20.md)

@@ -45,15 +45,6 @@ The actual API path verifies the expected certificate-backed identity of each se
 - Applicability: required
 - Strength Reason Code: partial-control-coverage
 
-### [SAF-K8S-0504-005 - Service mesh tuning for AI workloads](../../controls/SAF-K8S-0504-005.md)
-
-- Domain: D05 - Network Security and Communication
-- Knowledge Area: 5.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0910-004 - Federated learning cross-cluster coordination security](../../controls/SAF-K8S-0910-004.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
