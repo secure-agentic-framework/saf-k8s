@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0403-017",
-  "catalog_revision": "6f12d4d41c0e57fba4a348f02d5e82a3df00cd5f",
-  "catalog_sha256": "cb8505dc43d22cf5337db392487725a77a587ed59f1394f199046ac2651b3c5e",
+  "catalog_revision": "03197b5f34c07adf30de371cb78cb9f0dfb5587b",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "7a63512b4c789a3f48ca71ce395729fdcaf73dd6b48d2d8f203bf9cf0913be9e",
-  "scope": "Exercise actual Vault Transit key domains and AES-GCM application envelope storage for owned training and model markers, distinct Ed25519 signing, versioned rewrap and retirement. The fixture uses in-memory KMS storage. Deployed key custody, HSMs, volumes and backups need independent evidence.",
-  "cluster": "saf-lab-58b86cd89805",
+  "scope": "Exercise actual Vault Transit key domains and AES-GCM application envelope storage for owned training and model markers, distinct Ed25519 signing, versioned rewrap and retirement. An additive check authenticates three owned Kubernetes workload ServiceAccounts to separate Transit policies using mounted, short-lived audience-bound tokens. The fixture uses in-memory Vault storage and synthetic application records. Deployed key custody, HSMs, volumes, backups, product workloads and provider integrations need independent evidence.",
+  "cluster": "saf-lab-d914f489a064",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -54,6 +54,26 @@
         "ciphertext_only_persisted": true,
         "wrap_and_context_boundaries_enforced": true,
         "signing_domain_separate": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Mounted Kubernetes identities use only their bound Vault data or signing domain",
+      "matched": true,
+      "observed": {
+        "mounted_scoped_service_accounts": true,
+        "training_workload_reads_only_training_marker": true,
+        "model_workload_reads_only_model_marker": true,
+        "cross_domain_and_wrong_role_denials": {
+          "training_reads_model": 403,
+          "model_reads_training": 403,
+          "training_uses_signer": 403,
+          "signer_unwraps_training": 403
+        },
+        "wrong_role_login_denied": true,
+        "signing_workload_signature_valid": true,
+        "signing_workload_rejects_modified_marker": true,
+        "credential_values_recorded": false
       }
     },
     {
