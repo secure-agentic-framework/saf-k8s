@@ -1,4 +1,4 @@
-# SAF-K8S-0502-009 — Service address capacity and monitoring
+# SAF-K8S-0502-009 — Kubernetes IPAM capacity and monitoring
 
 Run from the framework repository.
 
@@ -12,8 +12,15 @@ The case checks a healthy baseline with no warning, consumes addresses through c
 
 The same case also tests Pod address exhaustion separately. The single owned Kind node gets a /28 range and kindnet uses host-local IPAM. The fixture verifies the rendered range, counts its actual leases, and checks the kubelet has spare Pod slots. It fills the verified range with small marker fixtures. The bound probe has no Pod IP and receives the matching native FailedCreatePodSandBox Event for address exhaustion. Deleting one owned holder lets the pending probe reuse that exact IP and answer through a fixture Service. The original marker remains reachable and cleanup restores the pre-test leases.
 
-For the Service address pool, the test harness emits the Events based on the live allocation inventory. Its threshold of two addresses is a fixture setting. In an adopter environment, inventory Service, CNI Pod and node-prefix pools for each configured address family, record capacity and utilization from each allocator, and verify a justified threshold, recovery and notification delivery for each applicable pool. Check the deployed CNI's Pod address exhaustion and the applicable node-prefix allocator separately in approved nonproduction. This case observes the node's assigned prefix, while node-prefix exhaustion and reassignment have separate evidence. Include all applicable provider-managed and secondary pools.
+For the Service address pool, the test harness emits the Events based on the live allocation inventory. Its threshold of two addresses is a fixture setting. In an adopter environment, inventory Service, CNI Pod and node-prefix pools for each configured address family, record capacity and utilization from each allocator, and verify a justified threshold, recovery and notification delivery for each applicable pool. Check the deployed CNI's Pod address exhaustion and the applicable node-prefix allocator separately in approved nonproduction. The controller-manager proof below exercises native Node prefix exhaustion and reassignment. Include all applicable provider-managed and secondary pools.
 
 [Kubernetes v1.36 ServiceCIDR expansion](https://v1-36.docs.kubernetes.io/docs/tasks/network/extend-service-ip-ranges/) · [Kubernetes v1.36 Events v1 API](https://v1-36.docs.kubernetes.io/docs/reference/kubernetes-api/events/event-v1/)
 
 [Kind networking configuration](https://kind.sigs.k8s.io/docs/user/configuration/#networking) · [CNI host-local IPAM](https://www.cni.dev/plugins/current/ipam/host-local/)
+
+
+The actual Kubernetes node-prefix allocator gets a range with two /28 slots. The real control-plane node consumes one slot. A fixture-owned unschedulable Node record consumes the other. A second unschedulable Node record remains without a prefix and receives the native Normal Event with reason `CIDRNotAvailable` for its exact UID. Deleting only the first fixture record lets the same waiting UID acquire the released prefix. The control-plane prefix, API, and original marker stay available. Nothing schedules onto either synthetic Node record.
+
+For deployed designs, record the node-prefix allocation mechanism, cluster range and per-node mask. Confirm applicable capacity arithmetic and expected growth, inventory the actual CIDRs and unassigned nodes, and correlate allocator events with the affected Node and cluster. Exercise approved exhaustion and release scenarios separately for Service addresses, Pod addresses, and node prefixes. Retain the selected warning/critical thresholds, effective alert routing and owner.
+
+[Kubernetes v1.36 controller-manager flags](https://v1-36.docs.kubernetes.io/docs/reference/command-line-tools-reference/kube-controller-manager/) · [Kubernetes v1.36.1 NodeIPAM range allocator](https://github.com/kubernetes/kubernetes/blob/v1.36.1/pkg/controller/nodeipam/ipam/range_allocator.go)

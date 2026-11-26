@@ -1,11 +1,22 @@
 """Measure the real Kubernetes ClusterIP allocation boundary and expansion."""
 from ipaddress import ip_address, ip_network
+import importlib.util
 import json
 import re
 import time
 from datetime import datetime, timezone
+from pathlib import Path
 
 from fixtures import container, pod, ready
+
+_NODE_PREFIX_PATH = Path(__file__).resolve().with_name("node_prefix.py")
+_NODE_PREFIX_SPEC = importlib.util.spec_from_file_location(
+    "saf_0502_009_node_prefix", _NODE_PREFIX_PATH)
+if _NODE_PREFIX_SPEC is None or _NODE_PREFIX_SPEC.loader is None:
+    raise RuntimeError("The scratch node-prefix allocator witness is unavailable")
+_NODE_PREFIX_MODULE = importlib.util.module_from_spec(_NODE_PREFIX_SPEC)
+_NODE_PREFIX_SPEC.loader.exec_module(_NODE_PREFIX_MODULE)
+run_node_prefix_allocator_recovery = _NODE_PREFIX_MODULE.run_node_prefix_allocator_recovery
 
 SCOPE = (
     "A single-node local Kind v0.32.0 and Kubernetes v1.36.1 cluster. The "
@@ -23,7 +34,7 @@ SCOPE = (
 )
 ORIGINAL = ip_network("10.96.0.0/28")
 ADDED = ip_network("10.96.1.0/28")
-PODS = ip_network("10.244.250.0/28")
+PODS = ip_network("10.244.250.0/27")
 PODCIDR = ip_network("10.244.250.0/28")
 MAX_CASE_OWNED_POD_ATTEMPTS = 13
 MARKER = "saf-0502-009-service-capacity"
@@ -606,3 +617,4 @@ def run(lab):
     # The Pod allocator check shares this exact disposable node. It runs only
     # after the original seven ServiceCIDR assertions have completed.
     run_pod_ipam_exhaustion(lab)
+    run_node_prefix_allocator_recovery(lab, route)

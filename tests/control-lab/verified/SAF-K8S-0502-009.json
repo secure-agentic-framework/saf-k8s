@@ -5,7 +5,7 @@
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "f85b269e4db761a9f1fef109aa59bef37489a131b3fcb623f6ef7ead75ee6c1c",
   "scope": "A single-node local Kind v0.32.0 and Kubernetes v1.36.1 cluster. The API server allocates addresses in deliberately small IPv4 ServiceCIDRs. The case reads native ServiceCIDR/IPAddress allocations, reports a synthetic two-address low-spare threshold, and creates case-owned events.events.k8s.io/v1 Warning/Normal records from the test harness. A second ServiceCIDR adds capacity, and both ClusterIP Services serve the same owned marker through cluster DNS. A dedicated IPv4 kindnet host-local /28 Pod range is filled with small owned Pods until one native sandbox event confirms IPAM exhaustion; freeing one holder restores one sentinel Pod. Node-prefix exhaustion is not tested. The Service capacity event producer is modeled, not a deployed monitoring controller. Pod alerting, production telemetry, and alert routing require separate evidence.",
-  "cluster": "saf-lab-455be4d49461",
+  "cluster": "saf-lab-057cec865e0b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -169,6 +169,52 @@
       "observed": {
         "owned_host_local_leases_returned_to_baseline": true,
         "case_marker_service_still_works": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Owned controller-manager is configured for a two-prefix IPv4 pool",
+      "matched": true,
+      "observed": {
+        "native_range_allocator_configured": true,
+        "control_plane_consumes_one_of_two_prefixes": true,
+        "api_and_original_marker_healthy": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Native NodeIPAM reports CIDRNotAvailable for the exact unschedulable sentinel Node",
+      "matched": true,
+      "observed": {
+        "two_distinct_node_prefixes_already_assigned": true,
+        "sentinel_podcidr_absent": true,
+        "native_event_uid_matches_sentinel": true,
+        "native_reason_is_CIDRNotAvailable": true,
+        "native_event_type_is_Normal": true,
+        "native_allocator_source_matches": true,
+        "no_pods_assigned_to_synthetic_nodes": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Deleting the owned filler releases the same /28 to the waiting sentinel Node",
+      "matched": true,
+      "observed": {
+        "same_node_uid_reused_released_prefix": true,
+        "released_prefix_reassigned": true,
+        "sentinel_remains_unschedulable": true,
+        "no_pods_assigned_to_sentinel": true,
+        "api_and_original_marker_healthy": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Synthetic NodeIPAM objects are removed and the owned control-plane prefix remains healthy",
+      "matched": true,
+      "observed": {
+        "synthetic_nodes_removed": true,
+        "control_plane_prefix_baseline_restored": true,
+        "api_and_original_marker_healthy": true
       }
     }
   ]
