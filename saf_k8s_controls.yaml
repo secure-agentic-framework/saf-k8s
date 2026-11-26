@@ -9405,7 +9405,7 @@
   domain_name: 'AI Workload Security: Training, Serving, and Pipelines'
   knowledge_area: '9.6'
   control_seq: '002'
-  control_title: Large-scale data integrity verification
+  control_title: Segmented dataset integrity verification
   control_statement: Verify the exact approved dataset version before training. Bind the expected inventory, immutable segment identifiers, lengths and digests to an independently trusted manifest. Use a canonical hierarchical commitment for distributed or incremental checks when it fits the verification model. Select and exercise recovery independently.
   objective: Detect missing, changed or substituted segments before training consumes the dataset and exercise the storage recovery policy.
   rationale: A validated streaming digest detects changed bytes relative to a trusted expectation. Partitioning and tree commitments support independent and incremental checks. Durability and agreement with an authorized dataset version require separate evidence.
