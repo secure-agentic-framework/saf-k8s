@@ -10927,22 +10927,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AU-10(3)
-  framework_requirement_title: Chain of Custody
-  framework_mapping_notes: 'Chain of custody for agent-processed data
-
-
-    10.5 - Forensic evidence collection (chain-of-custody procedures); 9.5 - Model provenance chain-of-custody'
-  control_id: SAF-K8S-0905-047
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AU-11
   framework_requirement_title: Audit Record Retention
   framework_mapping_notes: 'Agent audit log retention periods
@@ -36868,16 +36852,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SR-4
   framework_requirement_title: Provenance
-  framework_mapping_notes: 'Provenance tracking for AI models, training data, and agent tools verifies origin and integrity
-
-
-    6.3 - SLSA provenance, in-toto attestations; 9.5 - Model signing and provenance; 6.6 - Build attestation per NIST SP 800-204D'
+  framework_mapping_notes: NIST SP 800-53 Rev. 5 SR-4 requires documenting, monitoring, and maintaining valid provenance for organization-defined systems, system components, and associated data. This control makes a scoped technical contribution by generating signed in-toto/SLSA provenance for training and packaging steps and attaching the envelopes to the synthetic package in an OCI registry. The paired disposable-cluster receipts verify the fixture statements, expected material/subject digests, and OCI digest round-trip. They do not establish complete source/process/personnel identity, full lifecycle change monitoring, production workflow coverage, or provenance custody/transfer. Adoption must define the covered elements, bind statements to authenticated builder identities, and maintain and monitor the resulting provenance records.
   control_id: SAF-K8S-0905-047
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: For organization-defined systems, components, and associated data whose internal ML training/build provenance is in scope. This reference demonstrates two synthetic training/packaging steps and their attested inputs/outputs, not a complete production supply-chain provenance program.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -38175,13 +38156,13 @@
   framework_version: '1.1'
   framework_requirement_id: PS.2.1
   framework_requirement_title: Make software integrity verification information available to software acquirers.
-  framework_mapping_notes: SAF-K8S requires image signing (cosign/Sigstore, Notary v2), SLSA provenance, and transparency logging to provide integrity verification for container images, ML models, and deployment artifacts.
+  framework_mapping_notes: NIST SP 800-218 SSDF PS.2.1 calls for making software integrity-verification information available to software acquirers. This fixture publishes its synthetic in-toto/DSSE provenance as OCI attachments and retrieves those exact bytes by digest. It does not establish that covered ML artifacts are software releases made available to acquirers, that acquirers can retrieve verification information, or that they have an independent approved trust anchor and instructions. Apply only where the organization distributes these artifacts as software; adoption must provide an acquirer-usable verification method, trusted signer information, key lifecycle/revocation guidance, and authenticated artifact/attestation access.
   control_id: SAF-K8S-0905-047
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only when an organization distributes the covered ML artifact as software to acquirers and makes the integrity-verification information and trust instructions available to them. The reference proves fixture-local OCI attachment/retrieval, not acquirer availability or a production trust channel.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
