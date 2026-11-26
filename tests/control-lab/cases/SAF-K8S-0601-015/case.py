@@ -1,8 +1,12 @@
 """Exercise a native admission release gate against bounded synthetic inventory."""
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import re
+import shlex
+import tarfile
+import tempfile
 import time
 
 from fixtures import BUSYBOX_IMAGE, container, pod
@@ -17,8 +21,12 @@ SCOPE = (
     "uses the published OCI fixture's canonical JSON and digest helper and the published "
     "inference fixture's serving contract. It demonstrates declared-inventory release gating; "
     "the positive path runs the pinned fixture and checks its exact API metadata. "
-    "Actual image composition, hardware, CUDA/driver compatibility, production image qualification, "
-    "attestation provenance, registry promotion, and deployed gate adoption remain unverified."
+    "A separate fixture comparison builds two inert local OCI targets from the exact pinned base, "
+    "observes marker files inside their real filesystem layers, and records local config/layer digests, "
+    "per-Pod-node CRI config/diff-ID joins, and Kubernetes runtime image IDs. This proves only the fixture's "
+    "build-stage marker distinction; "
+    "actual production image composition, hardware, CUDA/driver compatibility, qualification, provenance, "
+    "registry promotion, and deployed gate adoption remain unverified."
 )
 
 NS = "saf-test"
@@ -28,6 +36,185 @@ DENIAL = "inference image is not the exact approved runtime-only composition"
 INVENTORY_ANNOTATION = "saf-k8s.example/package-inventory"
 INVENTORY_SHA_ANNOTATION = "saf-k8s.example/package-inventory-sha256"
 CASE_LABEL = "saf-k8s.example/case"
+IMAGE_SOURCE_LABEL = "saf-k8s.example/image-source-sha256"
+IMAGE_TARGET_LABEL = "saf-k8s.example/image-target"
+IMAGE_JOB_PREFIX = "fixture-image-content"
+
+
+def read_exported_config(lab, reference):
+    with tempfile.TemporaryDirectory(prefix="saf-oci-config-") as directory:
+        exported = Path(directory) / "image.tar"
+        lab.command("docker", "image", "save", "-o", str(exported), reference, timeout=60)
+        with tarfile.open(exported) as archive:
+            manifest_rows = json.load(archive.extractfile("manifest.json"))
+            if len(manifest_rows) != 1:
+                lab.block("The case image export did not resolve one platform config")
+            member = archive.getmember(manifest_rows[0]["Config"])
+            if not member.isfile() or member.size > 1048576:
+                lab.block("The exported image config is missing or exceeds the fixture bound")
+            config_bytes = archive.extractfile(member).read()
+    return "sha256:" + hashlib.sha256(config_bytes).hexdigest(), json.loads(config_bytes)
+
+
+def build_image_pair(lab):
+    dockerfile = HERE / "Dockerfile"
+    runtime_marker = HERE / "runtime-marker.txt"
+    build_marker = HERE / "build-only-marker.txt"
+    source_hash = hashlib.sha256(b"\0".join(
+        path.read_bytes() for path in (dockerfile, runtime_marker, build_marker)
+    )).hexdigest()
+    dockerfile_text = dockerfile.read_text()
+    if f"FROM {BUSYBOX_IMAGE} AS runtime-base" not in dockerfile_text:
+        lab.block("The image content fixture no longer uses the exact pinned base image")
+    expected_markers = {
+        "runtime": hashlib.sha256(runtime_marker.read_bytes()).hexdigest(),
+        "build": hashlib.sha256(build_marker.read_bytes()).hexdigest(),
+    }
+    specs = {
+        "with-build-marker": "image-with-build-marker",
+        "runtime-only": "image-runtime-only",
+    }
+    records = {}
+    for variant, target in specs.items():
+        image = f"docker.io/library/saf-0601-015:{source_hash[:16]}-{variant}"
+        inspected = lab.command("docker", "image", "inspect", image, allow_failure=True)
+        expected_labels = {IMAGE_SOURCE_LABEL: source_hash, IMAGE_TARGET_LABEL: target}
+        if inspected.returncode:
+            lab.command("docker", "build", "--network=none", "-t", image,
+                        "--label", f"{IMAGE_SOURCE_LABEL}={source_hash}",
+                        "--label", f"{IMAGE_TARGET_LABEL}={target}",
+                        "--target", target, "-f", str(dockerfile), str(HERE), timeout=420)
+            inspected = lab.command("docker", "image", "inspect", image)
+        record, = json.loads(inspected.stdout)
+        config = record.get("Config", {})
+        image_id = record.get("Id", "")
+        labels = config.get("Labels") or {}
+        if labels.get(IMAGE_SOURCE_LABEL) != source_hash or labels.get(IMAGE_TARGET_LABEL) != target:
+            lab.block("A local image tag is not bound to this exact fixture source and target")
+        if not re.fullmatch(r"sha256:[0-9a-f]{64}", image_id):
+            lab.block("The image engine did not return a digest-qualified descriptor")
+        layers = record.get("RootFS", {}).get("Layers", [])
+        if not layers or any(not re.fullmatch(r"sha256:[0-9a-f]{64}", item) for item in layers):
+            lab.block("The image engine did not return canonical root filesystem layer digests")
+        config_digest, exported_config = read_exported_config(lab, image)
+        if exported_config.get("rootfs", {}).get("diff_ids") != layers:
+            lab.block("The image export config diff IDs differ from the inspected local image layers")
+        exported_labels = exported_config.get("config", {}).get("Labels") or {}
+        if any(exported_labels.get(name) != value for name, value in expected_labels.items()):
+            lab.block("The exported image config labels do not identify the exact fixture target")
+        records[variant] = {"reference": image, "target": target, "config_digest": config_digest,
+                            "docker_image_id": image_id, "rootfs_layer_digests": layers,
+                            "source_sha256": source_hash, "expected_labels": expected_labels}
+    if records["with-build-marker"]["config_digest"] == records["runtime-only"]["config_digest"]:
+        lab.block("The two image targets unexpectedly resolved to the same image config digest")
+    for record in records.values():
+        lab.command("kind", "load", "docker-image", record["reference"], "--name", lab.cluster,
+                    timeout=210)
+    return {"source_sha256": source_hash, "expected_marker_sha256": expected_markers,
+            "images": records}
+
+
+def observe_image_job(lab, name, image_record, expect_build_marker, marker_hashes):
+    runtime_hash = marker_hashes["runtime"]
+    build_hash = marker_hashes["build"]
+    script = (
+        "set -eu; "
+        "runtime=$(/bin/busybox sha256sum /fixture/runtime-marker | /bin/busybox cut -d ' ' -f 1); "
+        f"test \"$runtime\" = {shlex.quote(runtime_hash)}; "
+        "if test -f /fixture/build-only-marker; then "
+        "build_present=true; "
+        "build=$(/bin/busybox sha256sum /fixture/build-only-marker | /bin/busybox cut -d ' ' -f 1); "
+        f"test \"$build\" = {shlex.quote(build_hash)}; "
+        "else build_present=false; build=; fi; "
+        f"test \"$build_present\" = {str(expect_build_marker).lower()}; "
+        "printf '{\"runtime_sha256\":\"%s\",\"build_marker_present\":%s,\"build_sha256\":\"%s\"}\\n' \"$runtime\" \"$build_present\" \"$build\""
+    )
+    pod_spec = pod(name, [container("inspect", image=image_record["reference"],
+        imagePullPolicy="Never", command=["/bin/busybox", "sh", "-c", script])],
+        automountServiceAccountToken=False)
+    pod_spec["spec"].update({
+        "restartPolicy": "Never",
+        "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
+                            "seccompProfile": {"type": "RuntimeDefault"}},
+    })
+    pod_spec["spec"]["containers"][0].update({
+        "securityContext": {"allowPrivilegeEscalation": False, "readOnlyRootFilesystem": True,
+                             "capabilities": {"drop": ["ALL"]}},
+        "resources": {"requests": {"cpu": "10m", "memory": "16Mi"},
+                      "limits": {"cpu": "50m", "memory": "32Mi"}},
+    })
+    lab.create({"apiVersion": "batch/v1", "kind": "Job",
+                "metadata": {"name": name},
+                "spec": {"backoffLimit": 0, "template": {"metadata": {"labels": {"app": name}},
+                    "spec": pod_spec["spec"]}}})
+    deadline = time.monotonic() + 100
+    conditions = set()
+    while time.monotonic() < deadline:
+        job = json.loads(lab.kubectl("get", f"job/{name}", "-o", "json").stdout)
+        conditions = {row["type"] for row in job.get("status", {}).get("conditions", [])
+                      if row.get("status") == "True"}
+        if conditions & {"Complete", "Failed", "FailureTarget"}:
+            break
+        time.sleep(1)
+    if "Complete" not in conditions:
+        lab.kubectl("logs", f"job/{name}", "--tail=4", allow_failure=True)
+        lab.block(f"The owned OCI marker Job {name} did not complete successfully")
+    pod_obj = json.loads(lab.kubectl("get", "pods", "-l", f"app={name}", "-o", "json").stdout)
+    items = pod_obj.get("items", [])
+    if len(items) != 1:
+        lab.block("Image content job did not produce exactly one owned Pod")
+    observed_pod = items[0]
+    logs = lab.kubectl("logs", f"pod/{observed_pod['metadata']['name']}").stdout.strip()
+    result = json.loads(logs)
+    status = observed_pod.get("status", {}).get("containerStatuses", [{}])[0]
+    if result.get("runtime_sha256") != marker_hashes["runtime"] or \
+       result.get("build_marker_present") is not expect_build_marker or \
+       (expect_build_marker and result.get("build_sha256") != marker_hashes["build"]) or \
+       (not expect_build_marker and result.get("build_sha256") != ""):
+        lab.block("The running image content did not match the expected inert marker comparison")
+    if not status.get("imageID") or not status.get("ready", False):
+        # Completed Jobs may not report ready after termination; imageID is the runtime binding.
+        if not status.get("imageID"):
+            lab.block("Kubernetes did not report the actual runtime image identifier")
+    return {"job": name, "job_uid": json.loads(lab.kubectl("get", "job", name, "-o", "json").stdout)["metadata"]["uid"],
+            "pod_uid": observed_pod["metadata"]["uid"], "requested_image": image_record["reference"],
+            "node_name": observed_pod.get("spec", {}).get("nodeName"),
+            "local_config_digest": image_record["config_digest"],
+            "runtime_image_id": status["imageID"], "runtime_marker_sha256": result["runtime_sha256"],
+            "build_marker_present": result["build_marker_present"],
+            "build_marker_sha256": result["build_sha256"]}
+
+
+def inspect_cri_image(lab, observation, image_record):
+    node = observation.get("node_name", "")
+    if not node or not node.startswith(lab.cluster + "-"):
+        lab.block("The image-content Pod was not scheduled to an owned Kind node")
+    result = lab.command("docker", "exec", node, "crictl", "inspecti",
+                         image_record["reference"], timeout=25)
+    try:
+        inspected = json.loads(result.stdout)
+        status = inspected["status"]
+        image_spec = inspected["info"]["imageSpec"]
+        if isinstance(image_spec, str):
+            image_spec = json.loads(image_spec)
+        diff_ids = image_spec["rootfs"]["diff_ids"]
+    except (json.JSONDecodeError, KeyError, TypeError) as error:
+        lab.block(f"CRI image inspection did not expose the required config/diff IDs ({type(error).__name__})")
+    repo_tags = status.get("repoTags", [])
+    cri_id = status.get("id", "")
+    if image_record["reference"] not in repo_tags:
+        lab.block("The selected Kind node CRI did not resolve the exact case-owned image reference")
+    if cri_id != image_record["config_digest"]:
+        lab.block("The CRI image config ID differs from the local image config digest")
+    if diff_ids != image_record["rootfs_layer_digests"]:
+        lab.block("The CRI rootfs diff IDs differ from the locally inspected image layers")
+    return {"node": node, "requested_reference": image_record["reference"],
+            "repo_tags": repo_tags, "cri_config_id": cri_id,
+            "local_config_id": image_record["config_digest"],
+            "cri_rootfs_diff_ids": diff_ids,
+            "local_rootfs_diff_ids": image_record["rootfs_layer_digests"],
+            "config_id_match": cri_id == image_record["config_digest"],
+            "diff_ids_match": diff_ids == image_record["rootfs_layer_digests"]}
 
 
 def published_module(path, name):
@@ -263,3 +450,80 @@ def run(lab):
     for filename, value in (("inference-image-composition-raw.json", raw),
                             ("inference-image-composition-normalized.json", normalized)):
         (lab.evidence / filename).write_text(json.dumps(value, sort_keys=True, indent=2) + "\n")
+
+    # Supplemental real-image content witness. Kept after the original three checks.
+    pair = build_image_pair(lab)
+    leaky_observation = observe_image_job(
+        lab, IMAGE_JOB_PREFIX + "-build-stage", pair["images"]["with-build-marker"], True,
+        pair["expected_marker_sha256"])
+    approved_observation = observe_image_job(
+        lab, IMAGE_JOB_PREFIX + "-runtime-only", pair["images"]["runtime-only"], False,
+        pair["expected_marker_sha256"])
+    leaky_cri = inspect_cri_image(lab, leaky_observation, pair["images"]["with-build-marker"])
+    approved_cri = inspect_cri_image(lab, approved_observation, pair["images"]["runtime-only"])
+    content_checks = {
+        "distinct_local_image_config_digests": (
+            pair["images"]["with-build-marker"]["config_digest"] !=
+            pair["images"]["runtime-only"]["config_digest"]
+        ),
+        "build_stage_image_contains_exact_synthetic_build_marker": (
+            leaky_observation["build_marker_present"] and
+            leaky_observation["build_marker_sha256"] == pair["expected_marker_sha256"]["build"]
+        ),
+        "runtime_only_image_contains_no_build_marker": (
+            not approved_observation["build_marker_present"] and
+            approved_observation["build_marker_sha256"] == ""
+        ),
+        "both_images_run_the_same_exact_runtime_marker": (
+            leaky_observation["runtime_marker_sha256"] ==
+            approved_observation["runtime_marker_sha256"] ==
+            pair["expected_marker_sha256"]["runtime"]
+        ),
+        "runtime_image_ids_observed_for_both_owned_jobs": (
+            bool(leaky_observation["runtime_image_id"]) and
+            bool(approved_observation["runtime_image_id"])
+        ),
+        "approved_runtime_only_job_uses_its_built_image_reference": (
+            approved_observation["requested_image"] == pair["images"]["runtime-only"]["reference"]
+        ),
+        "each_pod_node_cri_resolves_the_requested_case_image_tag": (
+            leaky_cri["requested_reference"] in leaky_cri["repo_tags"] and
+            approved_cri["requested_reference"] in approved_cri["repo_tags"]
+        ),
+        "cri_config_ids_equal_docker_image_config_ids": (
+            leaky_cri["config_id_match"] and approved_cri["config_id_match"]
+        ),
+        "cri_rootfs_diff_ids_equal_docker_rootfs_layers": (
+            leaky_cri["diff_ids_match"] and approved_cri["diff_ids_match"]
+        ),
+        "pod_runtime_image_ids_are_digest_qualified": (
+            bool(re.search(r"sha256:[0-9a-f]{64}$", leaky_observation["runtime_image_id"])) and
+            bool(re.search(r"sha256:[0-9a-f]{64}$", approved_observation["runtime_image_id"]))
+        ),
+    }
+    lab.check("positive", "Owned OCI targets show the approved runtime-only filesystem content",
+              all(content_checks.values()), content_checks)
+    (lab.evidence / "observed-image-content.json").write_text(json.dumps({
+        "control": "SAF-K8S-0601-015",
+        "scope": "synthetic local OCI content comparison only; no production image or hardware claim",
+        "source_sha256": pair["source_sha256"],
+        "expected_marker_sha256": pair["expected_marker_sha256"],
+        "images": pair["images"],
+        "observations": {"with_build_marker": leaky_observation,
+                         "runtime_only": approved_observation},
+        "cri_inspections": {"with_build_marker": leaky_cri, "runtime_only": approved_cri},
+        "raw_predicates": content_checks,
+        "normalized": {
+            "distinct_config_digests": content_checks["distinct_local_image_config_digests"],
+            "build_marker_content_observed": content_checks["build_stage_image_contains_exact_synthetic_build_marker"],
+            "runtime_only_marker_absence_observed": content_checks["runtime_only_image_contains_no_build_marker"],
+            "runtime_marker_equal": content_checks["both_images_run_the_same_exact_runtime_marker"],
+            "pod_runtime_ids_present": content_checks["runtime_image_ids_observed_for_both_owned_jobs"],
+            "cri_tag_config_and_diff_id_join": all((
+                content_checks["each_pod_node_cri_resolves_the_requested_case_image_tag"],
+                content_checks["cri_config_ids_equal_docker_image_config_ids"],
+                content_checks["cri_rootfs_diff_ids_equal_docker_rootfs_layers"],
+                content_checks["pod_runtime_image_ids_are_digest_qualified"],
+            )),
+        },
+    }, sort_keys=True, indent=2) + "\n")

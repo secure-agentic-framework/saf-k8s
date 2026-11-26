@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0601-015",
-  "catalog_revision": "a684e7e0d9d17ffa1ed8fc69bdb984eb012cae54",
-  "catalog_sha256": "f12ae6364344afb26f91116ad1ce2601988a84f4b414fcad71dc4bd9593b9951",
+  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
+  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9efca0841edb072206c471dec9c12a38f8cb0175aa6cd42960cd8fe446510012",
-  "scope": "One disposable Kind cluster and its default saf-test namespace. A Kubernetes-native ValidatingAdmissionPolicy gates server-side Pod dry-runs on an exact pinned inert image and an exact, bounded offline synthetic inference package inventory. The inventory uses the published OCI fixture's canonical JSON and digest helper and the published inference fixture's serving contract. It demonstrates declared-inventory release gating; the positive path runs the pinned fixture and checks its exact API metadata. Actual image composition, hardware, CUDA/driver compatibility, production image qualification, attestation provenance, registry promotion, and deployed gate adoption remain unverified.",
-  "cluster": "saf-lab-9b908204c89f",
+  "scope": "One disposable Kind cluster and its default saf-test namespace. A Kubernetes-native ValidatingAdmissionPolicy gates server-side Pod dry-runs on an exact pinned inert image and an exact, bounded offline synthetic inference package inventory. The inventory uses the published OCI fixture's canonical JSON and digest helper and the published inference fixture's serving contract. It demonstrates declared-inventory release gating; the positive path runs the pinned fixture and checks its exact API metadata. A separate fixture comparison builds two inert local OCI targets from the exact pinned base, observes marker files inside their real filesystem layers, and records local config/layer digests, per-Pod-node CRI config/diff-ID joins, and Kubernetes runtime image IDs. This proves only the fixture's build-stage marker distinction; actual production image composition, hardware, CUDA/driver compatibility, qualification, provenance, registry promotion, and deployed gate adoption remain unverified.",
+  "cluster": "saf-lab-3692f68a2b34",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -73,6 +73,23 @@
           "no_compiler_package_manager_build_tool_or_debugger_in_approved_inventory": true
         },
         "admitted_image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Owned OCI targets show the approved runtime-only filesystem content",
+      "matched": true,
+      "observed": {
+        "distinct_local_image_config_digests": true,
+        "build_stage_image_contains_exact_synthetic_build_marker": true,
+        "runtime_only_image_contains_no_build_marker": true,
+        "both_images_run_the_same_exact_runtime_marker": true,
+        "runtime_image_ids_observed_for_both_owned_jobs": true,
+        "approved_runtime_only_job_uses_its_built_image_reference": true,
+        "each_pod_node_cri_resolves_the_requested_case_image_tag": true,
+        "cri_config_ids_equal_docker_image_config_ids": true,
+        "cri_rootfs_diff_ids_equal_docker_rootfs_layers": true,
+        "pod_runtime_image_ids_are_digest_qualified": true
       }
     }
   ]
