@@ -2,6 +2,7 @@
 from datetime import date
 import hashlib
 import json
+from pathlib import Path
 from urllib.error import HTTPError
 from urllib.parse import parse_qsl, quote, urlencode, urljoin, urlsplit
 from urllib.request import Request, urlopen
@@ -77,13 +78,20 @@ def model_manifest():
 
 
 def scan():
-    model = json.loads(FIXTURE)
-    valid = model == {"kind": "inert-synthetic-model", "format": "fixture-v1"}
-    return {"scanner": SCAN_ID, "status": "pass" if valid else "fail", "source_digest": digest(FIXTURE)}
+    receipt = json.loads(Path("/scan/scan.json").read_text())
+    scan_result = receipt.get("scan_result", {})
+    if (set(receipt) != {"scan_result", "source_bytes_bounded"}
+            or receipt["source_bytes_bounded"] is not True
+            or set(scan_result) != {"scanner", "status", "source_digest"}
+            or scan_result.get("scanner") != SCAN_ID
+            or scan_result.get("status") != "pass"
+            or scan_result.get("source_digest") != digest(FIXTURE)):
+        raise ValueError("scanner_receipt_invalid")
+    return scan_result
 
 
 def expected_lineage(model):
-    return {"external_origin": "https://source.example.invalid/inert-model-fixture",
+    return {"external_origin": "http://model-source:8080/model.json",
             "source_digest": digest(FIXTURE), "scan_result": scan(), "internalization_date": MEASURED_DATE,
             "date_kind": "fixture-date", "decision": "approved", "decision_ref": "fixture-approval-001",
             "subject_digest": digest(model)}
