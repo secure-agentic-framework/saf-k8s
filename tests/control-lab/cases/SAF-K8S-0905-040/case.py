@@ -15,17 +15,19 @@ PYTHON = "docker.io/library/python:3.13.2-alpine@sha256:323a717dc4a010fee21e3f1a
 FLUENT_BIT = "cr.fluentbit.io/fluent/fluent-bit:5.1.2@sha256:d792375ca8e53be72fc25716c28f291f32c6fc6f4f31d12d0d14bc78cefe9226"
 BUSYBOX = "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
 ACTOR = "fixture-publisher"
+ADMIN_ACTOR = "fixture-registry-admin"
 SINK_ACTOR = "fixture-forwarder"
 REPO = "saf-test/audit-model"
 AUDIT = "/events/audit.jsonl"
 ACCESS = "/events/access.jsonl"
+ADMIN_PATH = "/v2/_zot/ext/cosign"
 SCOPE = (
     "One fresh Kind cluster runs two authenticated Zot v2.1.23 registries. The same "
     "inert OCI operations occur with forwarding off and on. Fluent Bit 5.1.2 ships "
-    "native audit and HTTP access events to an authenticated HTTPS receiver backed by a "
+    "native audit and HTTP access events to an independent HTTP receiver backed by a "
     "PVC. The receiver is replaced, retained events are compared, and a fresh event "
     "sequence is delivered. Covers model manifest publish, pull, retag and digest "
-    "deletion. Permission and administrative event sources, loss recovery during "
+    "deletion plus one permitted admin-only Cosign public-key upload. Other permission and administrative event sources, loss recovery during "
     "a receiver outage, production access controls, SIEM delivery and retention are open."
 )
 
@@ -144,17 +146,23 @@ def _wait(lab, name):
 def _fixture_identity(lab):
     auth = lab.kubeconfig.parent / "registry-auth"
     auth.mkdir(mode=0o700)
-    password = secrets.token_urlsafe(24)
-    result = subprocess.run(("htpasswd", "-Bni", ACTOR), input=password + "\n",
-                            text=True, capture_output=True, timeout=15, env=lab.env)
-    if result.returncode or not result.stdout.startswith(ACTOR + ":"):
-        lab.block("Could not prepare the disposable registry identity")
-    for name, value in (("htpasswd", result.stdout), ("password", password)):
-        path = auth / name
+    entries = []
+    for actor, filename in ((ACTOR, "password"), (ADMIN_ACTOR, "admin-password")):
+        password = secrets.token_urlsafe(24)
+        result = subprocess.run(("htpasswd", "-Bni", actor), input=password + "\n",
+                                text=True, capture_output=True, timeout=15, env=lab.env)
+        if result.returncode or not result.stdout.startswith(actor + ":"):
+            lab.block("Could not prepare the disposable registry identity")
+        entries.append(result.stdout)
+        path = auth / filename
         path.touch(mode=0o600, exist_ok=False)
-        path.write_text(value)
+        path.write_text(password)
+    htpasswd = auth / "htpasswd"
+    htpasswd.touch(mode=0o600, exist_ok=False)
+    htpasswd.write_text("".join(entries))
     lab.kubectl("create", "secret", "generic", "registry-auth",
-                f"--from-file=htpasswd={auth/'htpasswd'}", f"--from-file=password={auth/'password'}")
+                f"--from-file=htpasswd={htpasswd}", f"--from-file=password={auth/'password'}",
+                f"--from-file=admin-password={auth/'admin-password'}")
 
 
 def _setup(lab):
@@ -173,14 +181,19 @@ def _setup(lab):
                     f"--from-file=fluent-bit.yaml={material['forwarding_config']}")
     config = {"distSpecVersion": "1.1.0", "storage": {"rootDirectory": "/var/lib/registry"},
               "log": {"level": "info", "output": ACCESS, "audit": AUDIT},
+              "extensions": {"trust": {"enable": True, "cosign": True}},
               "http": {"address": "0.0.0.0", "port": "5000",
                        "auth": {"htpasswd": {"path": "/auth/htpasswd"}},
-                       "accessControl": {"repositories": {REPO: {"policies": [
+                       "accessControl": {"adminPolicy": {"users": [ADMIN_ACTOR], "actions": ["create"]},
+                                         "repositories": {REPO: {"policies": [
                            {"users": [ACTOR], "actions": ["read", "create", "update", "delete"]}
                        ]}}}}}
     _configmap(lab, "registry-config", {"config.json": json.dumps(config)})
+    lab.kubectl("create", "configmap", "cosign-public-key",
+                f"--from-file=public.pem={HERE / 'cosign-public.pem'}")
     _configmap(lab, "scripts", {name: (HERE / name).read_text() for name in
-                                 ("sink.py", "probe.py", "read_sink.py", "sink_auth_probe.py")})
+                                 ("sink.py", "probe.py", "read_sink.py", "sink_auth_probe.py",
+                                  "admin_event_probe.py")})
     _submit(lab, {"apiVersion": "v1", "kind": "PersistentVolumeClaim",
                   "metadata": {"name": "sink-data"},
                   "spec": {"accessModes": ["ReadWriteOnce"],
@@ -198,13 +211,16 @@ def _setup(lab):
                                           _mount("auth", "/auth", read_only=True),
                                           _mount("sink-auth", "/sink-auth", read_only=True),
                                           _mount("sink-wrong-auth", "/sink-wrong-auth", read_only=True),
-                                          _mount("sink-ca", "/sink-ca", read_only=True)],
+                                          _mount("sink-ca", "/sink-ca", read_only=True),
+                                          _mount("cosign-key", "/cosign", read_only=True)],
                                           command=["python", "-c", "import time; time.sleep(3600)"])],
                 [scripts, _volume("auth", secret={"secretName": "registry-auth",
-                                                  "items": [{"key": "password", "path": "password"}]}),
+                                                  "items": [{"key": "password", "path": "password"},
+                                                            {"key": "admin-password", "path": "admin-password"}]}),
                  _volume("sink-auth", secret={"secretName": "sink-auth", "defaultMode": 0o440}),
                  _volume("sink-wrong-auth", secret={"secretName": "sink-wrong-auth", "defaultMode": 0o440}),
-                 _volume("sink-ca", configMap={"name": "sink-ca"})])
+                 _volume("sink-ca", configMap={"name": "sink-ca"}),
+                 _volume("cosign-key", configMap={"name": "cosign-public-key"})])
     for registry in ("without-forwarding", "with-forwarding"):
         read_events = _mount("events", "/events", read_only=True)
         volumes = [_volume("config", configMap={"name": "registry-config"}),
@@ -297,6 +313,26 @@ def _await_corpus(lab, targets, expected):
     return delivered
 
 
+def _admin_event_records(rows):
+    return [row for row in rows if
+            (row["stream"] == "audit" and row["method"] == "POST" and row["path"] == ADMIN_PATH
+             and row["status"] == 200 and row["actor"] == ADMIN_ACTOR)
+            or (row["stream"] == "access" and row["method"] == "POST" and row["path"] == ADMIN_PATH
+                and ((row["status"] == 403 and row["actor"] == ACTOR)
+                     or (row["status"] == 200 and row["actor"] == ADMIN_ACTOR)))]
+
+
+def _await_admin_events(lab, expected):
+    targets = {("POST", ADMIN_PATH)}
+    start = time.monotonic()
+    while time.monotonic() - start < 35:
+        received = _admin_event_records(_read_sink(lab, targets))
+        if _count(received, timestamp=True) == _count(expected, timestamp=True):
+            return received
+        time.sleep(0.6)
+    return received
+
+
 def _sink_uid(lab):
     raw = lab.kubectl("get", "pods", "-l", "app=sink", "-o", "json")
     pod, = json.loads(raw.stdout)["items"]
@@ -348,3 +384,36 @@ def run(lab):
     auth_ok = auth_result == {"unauthorized_rejected": True, "status": 401}
     lab.check("identity", "The local central receiver requires its synthetic forwarding credential",
               auth_ok, auth_result)
+
+    admin_probe = lab.kubectl("exec", "deployment/probe", "--", "python", "/app/admin_event_probe.py")
+    admin_result = json.loads(admin_probe.stdout)
+    targets = {("POST", ADMIN_PATH)}
+    local_admin = _admin_event_records(_local(lab, "with-forwarding", targets))
+    expected_admin_shape = {
+        ("audit", "POST", ADMIN_PATH, 200, ADMIN_ACTOR): 1,
+        ("access", "POST", ADMIN_PATH, 403, ACTOR): 1,
+        ("access", "POST", ADMIN_PATH, 200, ADMIN_ACTOR): 1,
+    }
+    observed_admin_shape = Counter((row["stream"], row["method"], row["path"], row["status"], row["actor"])
+                                  for row in local_admin)
+    forwarded_admin = _await_admin_events(lab, local_admin)
+    admin_event_ok = (admin_result == {"admin_allowed": True, "admin_status": 200,
+                                      "non_admin_denied": True, "non_admin_status": 403}
+                      and all(row["time"] for row in local_admin)
+                      and observed_admin_shape == Counter(expected_admin_shape)
+                      and _count(forwarded_admin, timestamp=True) == _count(local_admin, timestamp=True))
+    safe_admin = {"probe": admin_result,
+                  "local_native_audit_admin_success_count": sum(
+                      row["stream"] == "audit" and row["actor"] == ADMIN_ACTOR and row["status"] == 200
+                      for row in local_admin),
+                  "local_access_denial_count": sum(
+                      row["stream"] == "access" and row["actor"] == ACTOR and row["status"] == 403
+                      for row in local_admin),
+                  "local_access_admin_success_count": sum(
+                      row["stream"] == "access" and row["actor"] == ADMIN_ACTOR and row["status"] == 200
+                      for row in local_admin),
+                  "forwarded_exactly": _count(forwarded_admin, timestamp=True)
+                  == _count(local_admin, timestamp=True)}
+    (lab.evidence / "admin-event-forwarding.json").write_text(json.dumps(safe_admin, indent=2, sort_keys=True) + "\n")
+    lab.check("admin-event", "The permitted Zot trust-key administration is attributed in native audit and access records and forwarded exactly",
+              admin_event_ok, safe_admin)
