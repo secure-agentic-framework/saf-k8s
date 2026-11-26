@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-034",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "8a16a17e7cf5379d98e0a9470a7f7b689b18d3cf",
+  "catalog_sha256": "d698015390a34692dc310f4f85662269b3bc5a136c135a2322c5a80a419522f8",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "4e5beaf335e6abbd4c41550c1814c6e80de943fda6767c3ccf0aca7336d4dfc4",
+  "control_sha256": "258943ca173bf0848d9f89b3f0cf85e37d7853e5cfcfc6fc3b81c927b98d31ca",
   "scope": "A fresh Kind v1.36.1 cluster with bundled kindnet. Separate stable and candidate workloads serve inert version markers from different namespaces. A fixture router reads an approved ConfigMap and routes a fixed request cohort. RBAC constrains policy changes and a native NetworkPolicy isolates the stable destination from direct requests by the candidate. The stable Service continues serving when the candidate is absent. Gateway API, service mesh behavior, production routing and availability, full resource isolation and GPU or MIG separation remain open.",
-  "cluster": "saf-lab-38f8973b90d4",
+  "cluster": "saf-lab-860e691e5690",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

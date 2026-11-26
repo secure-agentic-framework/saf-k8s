@@ -2661,7 +2661,7 @@
     "SAF-K8S-0905-034": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "4e5beaf335e6abbd4c41550c1814c6e80de943fda6767c3ccf0aca7336d4dfc4",
+      "sha256": "258943ca173bf0848d9f89b3f0cf85e37d7853e5cfcfc6fc3b81c927b98d31ca",
       "title": "Canary and A/B candidate version isolation and traffic-splitting integrity"
     },
     "SAF-K8S-0905-035": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "8b945a6081316c17b24eb6458624ff93361ed1bb",
-  "sha256": "b83ac9038446573762aca936c7046a45989069b1ebe83a7a085b1cabd514e9a3",
+  "revision": "7589cafa6b9af9d4a7ec3bebb0d6c91817542cdc",
+  "sha256": "d698015390a34692dc310f4f85662269b3bc5a136c135a2322c5a80a419522f8",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
