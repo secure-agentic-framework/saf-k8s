@@ -31,10 +31,10 @@ Scoped quotas, workload priorities, and service monitoring contribute to protect
 
 - Domain: D07 - Storage, Multi-tenancy, and Resource Governance
 - Knowledge Area: 7.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0703-008 - Idle GPU detection and resource reclamation](../../controls/SAF-K8S-0703-008.md)
 

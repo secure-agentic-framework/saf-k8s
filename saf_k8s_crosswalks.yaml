@@ -3551,22 +3551,6 @@
 
 
     9.4 - Notebook and experimentation environment resource limits including concurrent session controls; 7.3 - Resource governance and priority'
-  control_id: SAF-K8S-0703-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-10
-  framework_requirement_title: Concurrent Session Control
-  framework_mapping_notes: 'Limiting concurrent agent sessions to prevent abuse
-
-
-    9.4 - Notebook and experimentation environment resource limits including concurrent session controls; 7.3 - Resource governance and priority'
   control_id: SAF-K8S-0703-008
   relation_type: supports
   strength_level: strong
@@ -8382,22 +8366,6 @@
 
 
     4.5 - Detect identity abuse (insider threat awareness); 7.3 - Detection of GPU resource squatting and unauthorized usage'
-  control_id: SAF-K8S-0703-007
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AT-2(2)
-  framework_requirement_title: Insider Threat
-  framework_mapping_notes: 'Awareness of agent misuse/insider threat vectors
-
-
-    4.5 - Detect identity abuse (insider threat awareness); 7.3 - Detection of GPU resource squatting and unauthorized usage'
   control_id: SAF-K8S-0703-008
   relation_type: supports
   strength_level: moderate
@@ -8446,22 +8414,6 @@
 
     2.4 - Runtime threat detection (anomalous system behavior); 10.1 - Alert design for AI-specific failure modes'
   control_id: SAF-K8S-1001-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AT-3(3)
-  framework_requirement_title: Practical Exercises
-  framework_mapping_notes: 'Hands-on exercises for agent security roles
-
-
-    10.5 - IR practical exercises; 7.3 - Chaos engineering for GPU/AI resource controls'
-  control_id: SAF-K8S-0703-007
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -12305,22 +12257,6 @@
 
 
     7.3 - Resource governance (GPU capacity planning, security implications of GPU cluster scaling)'
-  control_id: SAF-K8S-0703-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-2(2)
-  framework_requirement_title: Capacity Planning
-  framework_mapping_notes: 'Capacity planning for agent failover
-
-
-    7.3 - Resource governance (GPU capacity planning, security implications of GPU cluster scaling)'
   control_id: SAF-K8S-0703-008
   relation_type: supports
   strength_level: strong
@@ -12369,22 +12305,6 @@
   applicability: conditional
   applicability_condition: The contingency planning process identifies the relevant business function and workload, specifies the required availability during planned maintenance, and verifies that the maintenance path uses the Eviction API.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-2(5)
-  framework_requirement_title: Continue Mission and Business Functions
-  framework_mapping_notes: 'Maintaining agent operations during disruption
-
-
-    9.3 - Autoscaling safety (maintaining inference availability); 7.3 - Pod disruption budgets'
-  control_id: SAF-K8S-0703-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -12507,22 +12427,6 @@
 
 
     7.3 - Chaos engineering for GPU/AI resource controls; 10.3 - IR simulated events'
-  control_id: SAF-K8S-0703-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-3(1)
-  framework_requirement_title: Simulated Events
-  framework_mapping_notes: 'Simulating agent system failures
-
-
-    7.3 - Chaos engineering for GPU/AI resource controls; 10.3 - IR simulated events'
   control_id: SAF-K8S-0703-008
   relation_type: supports
   strength_level: strong
@@ -12584,22 +12488,6 @@
 
 
     7.3 - Chaos engineering (automated resilience testing for GPU/AI resource controls)'
-  control_id: SAF-K8S-0703-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-4(3)
-  framework_requirement_title: Automated Testing
-  framework_mapping_notes: 'Automated agent contingency testing
-
-
-    7.3 - Chaos engineering (automated resilience testing for GPU/AI resource controls)'
   control_id: SAF-K8S-0703-008
   relation_type: supports
   strength_level: strong
@@ -12648,22 +12536,6 @@
   applicability: conditional
   applicability_condition: Only when the mock Deployment's mapped operational counterpart is included as one component of a full system recovery and reconstitution test that returns the system to a known state, and all remaining system components and operational capabilities are separately verified.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-4(5)
-  framework_requirement_title: Self-challenge
-  framework_mapping_notes: 'Self-testing agent resilience mechanisms
-
-
-    7.3 - Chaos engineering (self-challenge resilience testing for GPU/AI resource controls)'
-  control_id: SAF-K8S-0703-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -12799,22 +12671,6 @@
 
 
     7.3 - Priority classes (inference vs training vs notebooks priority ordering for service continuity)'
-  control_id: SAF-K8S-0703-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-7(3)
-  framework_requirement_title: Priority of Service
-  framework_mapping_notes: 'Service priority for agent workloads during failover
-
-
-    7.3 - Priority classes (inference vs training vs notebooks priority ordering for service continuity)'
   control_id: SAF-K8S-0703-008
   relation_type: direct
   strength_level: strong
@@ -12848,22 +12704,6 @@
 
     1.3 - HA configuration for control plane (eliminating single points of failure); 7.3 - Resource exhaustion resilience'
   control_id: SAF-K8S-0103-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-8(2)
-  framework_requirement_title: Single Points of Failure
-  framework_mapping_notes: 'Avoiding SPOFs applies to agent architecture
-
-
-    1.3 - HA configuration for control plane (eliminating single points of failure); 7.3 - Resource exhaustion resilience'
-  control_id: SAF-K8S-0703-007
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -14773,22 +14613,6 @@
 
 
     7.3 - Chaos engineering (automated IR training environments); 9.5 - Dev-to-prod environment separation'
-  control_id: SAF-K8S-0703-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-2(2)
-  framework_requirement_title: Automated Training Environments
-  framework_mapping_notes: 'Automated agent IR training environments
-
-
-    7.3 - Chaos engineering (automated IR training environments); 9.5 - Dev-to-prod environment separation'
   control_id: SAF-K8S-0703-008
   relation_type: supports
   strength_level: strong
@@ -14824,22 +14648,6 @@
   applicability: conditional
   applicability_condition: Only when this synthetic scenario is incorporated into an organization-approved incident response test or exercise at the defined frequency, and the organization evaluates the resulting test against its incident response capability.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-3(1)
-  framework_requirement_title: Automated Testing
-  framework_mapping_notes: 'Automated agent IR testing
-
-
-    7.3 - Chaos engineering (automated resilience testing); 10.3 - Automated IR plan testing'
-  control_id: SAF-K8S-0703-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -15086,22 +14894,6 @@
 
 
     10.5 - Recovery (workload recovery prioritization, continuity of operations); 7.3 - Pod disruption budgets'
-  control_id: SAF-K8S-0703-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-4(3)
-  framework_requirement_title: Continuity of Operations
-  framework_mapping_notes: 'Maintaining agent operations during incident response
-
-
-    10.5 - Recovery (workload recovery prioritization, continuity of operations); 7.3 - Pod disruption budgets'
   control_id: SAF-K8S-0703-008
   relation_type: supports
   strength_level: strong
@@ -15124,22 +14916,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-4(6)
-  framework_requirement_title: Insider Threats
-  framework_mapping_notes: 'Handling insider misuse of agent systems
-
-
-    4.5 - Detect identity abuse (insider threat detection); 7.3 - GPU resource squatting and unauthorized usage'
-  control_id: SAF-K8S-0703-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -15644,22 +15420,6 @@
 
     10.6 - Enforce compliance and governance (defining security requirements for K8s AI mission processes)'
   control_id: SAF-K8S-1006-005
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-12
-  framework_requirement_title: Insider Threat Program
-  framework_mapping_notes: 'Insider threat applies to agentic AI where privileged operators can manipulate agent behavior
-
-
-    4.5 - Detect identity abuse (insider threat program); 7.3 - Detection of resource squatting and unauthorized usage'
-  control_id: SAF-K8S-0703-007
   relation_type: supports
   strength_level: moderate
   applicability: required
@@ -16370,22 +16130,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: RA-2(1)
-  framework_requirement_title: Impact-level Prioritization
-  framework_mapping_notes: 'Impact-level prioritization helps focus security efforts on highest-risk agent systems
-
-
-    7.3 - Priority classes (impact-level prioritization: inference vs training vs development workloads)'
-  control_id: SAF-K8S-0703-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -17472,22 +17216,6 @@
 
 
     7.3 - Resource governance (GPU resource allocation, quota management, cost governance)'
-  control_id: SAF-K8S-0703-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-2
-  framework_requirement_title: Allocation of Resources
-  framework_mapping_notes: 'Resource allocation for agentic AI security must be planned in system development
-
-
-    7.3 - Resource governance (GPU resource allocation, quota management, cost governance)'
   control_id: SAF-K8S-0703-008
   relation_type: direct
   strength_level: strong
@@ -17745,22 +17473,6 @@
 
     8.1 - GPU device plugins (specialized hardware resource management); 2.2 - RuntimeClass specialization'
   control_id: SAF-K8S-0801-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-24
-  framework_requirement_title: Design For Cyber Resiliency
-  framework_mapping_notes: 'Cyber resiliency design enables agent systems to withstand and recover from attacks
-
-
-    7.3 - Resource exhaustion resilience (chaos engineering, cyber resiliency); 9.3 - Circuit breakers, graceful degradation'
-  control_id: SAF-K8S-0703-007
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -18911,22 +18623,6 @@
 
     9.3 - Circuit breakers, graceful degradation (secure failure); 6.5 - Webhook Fail mode (fail secure)'
   control_id: SAF-K8S-0903-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(25)
-  framework_requirement_title: Economic Security
-  framework_mapping_notes: 'Economic security prevents resource abuse and cost overruns in agent compute and API usage
-
-
-    7.3 - GPU cost governance (EDoS prevention, spending limits, budget alerts, economic security)'
-  control_id: SAF-K8S-0703-007
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -20804,22 +20500,6 @@
 
 
     7.3 - Topology-aware scheduling (changing processing locations); 9.5 - Multi-region deployment diversity'
-  control_id: SAF-K8S-0703-007
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-30(3)
-  framework_requirement_title: Change Processing and Storage Locations
-  framework_mapping_notes: 'Dynamic relocation of agent processing increases adversary difficulty in targeting
-
-
-    7.3 - Topology-aware scheduling (changing processing locations); 9.5 - Multi-region deployment diversity'
   control_id: SAF-K8S-0703-008
   relation_type: supports
   strength_level: strong
@@ -21519,22 +21199,6 @@
 
     10.5 - IR forensic evidence (ensuring delivery of security evidence); 1.2 - etcd backup integrity verification'
   control_id: SAF-K8S-0102-008
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-38
-  framework_requirement_title: Operations Security
-  framework_mapping_notes: 'OPSEC for agent systems prevents adversaries from learning about security posture
-
-
-    10.6 - Compliance and governance (operations security posture); 7.3 - GPU cost governance (protecting operational information)'
-  control_id: SAF-K8S-0703-007
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -22278,16 +21942,16 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-5
   framework_requirement_title: Denial-of-service Protection
-  framework_mapping_notes: 'DoS protection for agent endpoints and APIs prevents service disruption attacks
-
-
-    9.3 - Autoscaling safety, EDoS prevention; 7.3 - Resource exhaustion resilience (DoS protection)'
+  framework_mapping_notes: Verified queue limits can contribute to the capacity safeguard for the named event. The reference
+    exercises ordinary queue contention; validation of the named denial-of-service event and workload availability requires
+    separate evidence.
   control_id: SAF-K8S-0703-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The organization identifies a resource-exhaustion denial-of-service event and verifies that
+    the selected queue limits protect resources serving the affected workload.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -22448,16 +22112,15 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-5(2)
   framework_requirement_title: Capacity, Bandwidth, and Redundancy
-  framework_mapping_notes: 'Capacity planning for agent services prevents resource exhaustion denial-of-service
-
-
-    7.3 - Resource governance (GPU capacity, bandwidth, redundancy allocation); 9.2 - Inference queue management'
+  framework_mapping_notes: Queue limits can contribute to the capacity portion of this enhancement. Bandwidth, redundancy,
+    and effects of information flooding require separate evidence.
   control_id: SAF-K8S-0703-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The organization validates queue limits as one capacity safeguard for an identified information-flooding
+    event affecting the governed service.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -22645,16 +22308,15 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-6
   framework_requirement_title: Resource Availability
-  framework_mapping_notes: 'Resource availability controls prevent agent compute and API quota exhaustion
-
-
-    7.3 - Priority classes, resource quotas, GPU cost governance (resource availability management)'
+  framework_mapping_notes: The queue case demonstrates the configured quota, borrowing and priority mechanisms with
+    synthetic resources and CPU workloads. Verify their effectiveness for the actual protected resources.
   control_id: SAF-K8S-0703-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization applies documented queue quotas and priorities to the identified real GPU
+    or system resources whose availability it must protect.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -24615,22 +24277,6 @@
 
 
     9.1 - Training fault tolerance (corrupted data detection and recovery); 7.3 - Resource exhaustion resilience'
-  control_id: SAF-K8S-0703-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-13
-  framework_requirement_title: Predictable Failure Prevention
-  framework_mapping_notes: 'Predictable failure prevention for agent systems ensures graceful degradation under stress
-
-
-    9.1 - Training fault tolerance (corrupted data detection and recovery); 7.3 - Resource exhaustion resilience'
   control_id: SAF-K8S-0703-008
   relation_type: direct
   strength_level: strong
@@ -24840,22 +24486,6 @@
 
     10.5 - IR containment (manual containment actions -- draining nodes, suspending workloads); 9.3 - Autoscaling manual override'
   control_id: SAF-K8S-0903-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-13(4)
-  framework_requirement_title: Standby Component Installation and Notification
-  framework_mapping_notes: 'Standby agent components with automated activation ensure rapid recovery
-
-
-    10.5 - IR recovery (workload recovery prioritization); 7.3 - Pod Disruption Budgets (maintaining availability)'
-  control_id: SAF-K8S-0703-007
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -26919,22 +26549,6 @@
 
 
     2.4 - Detection rule development (testing detection efficacy); 7.3 - Chaos engineering for GPU controls'
-  control_id: SAF-K8S-0703-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(9)
-  framework_requirement_title: Testing of Monitoring Tools and Mechanisms
-  framework_mapping_notes: 'Testing monitoring tools validates detection capabilities against agent-specific threats
-
-
-    2.4 - Detection rule development (testing detection efficacy); 7.3 - Chaos engineering for GPU controls'
   control_id: SAF-K8S-0703-008
   relation_type: direct
   strength_level: strong
@@ -27009,22 +26623,6 @@
 
 
     10.7 - Security posture management (verifying security function effectiveness); 7.3 - Chaos engineering'
-  control_id: SAF-K8S-0703-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-6
-  framework_requirement_title: Security and Privacy Function Verification
-  framework_mapping_notes: 'Verification of agent security functions ensures controls operate as intended
-
-
-    10.7 - Security posture management (verifying security function effectiveness); 7.3 - Chaos engineering'
   control_id: SAF-K8S-0703-008
   relation_type: direct
   strength_level: strong
@@ -27074,22 +26672,6 @@
 
     10.7 - Security posture management (verifying security function effectiveness); 7.3 - Chaos engineering'
   control_id: SAF-K8S-1007-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-6(2)
-  framework_requirement_title: Automation Support for Distributed Testing
-  framework_mapping_notes: 'Distributed testing automation verifies agent security across deployment environments
-
-
-    7.3 - Chaos engineering for GPU controls (automated distributed testing); 10.7 - Continuous assessment'
-  control_id: SAF-K8S-0703-007
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -27506,22 +27088,6 @@
   applicability: conditional
   applicability_condition: Only where the organization defines a maximum duration for the tested class of unattended process and uses Kubernetes Job activeDeadlineSeconds for that purpose; the fixture is not a complete software-integrity control.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-7(16)
-  framework_requirement_title: Time Limit on Process Execution Without Supervision
-  framework_mapping_notes: 'Time limits on unsupervised agent execution prevent runaway or compromised processes
-
-
-    9.3 - Inference-time resource controls (multi-level timeouts per request); 7.3 - Idle GPU detection and reclamation'
-  control_id: SAF-K8S-0703-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -28487,22 +28053,6 @@
 
     8.1 - Device plugin framework (GPU acquisition/provisioning); 6.1 - Base image selection (image acquisition strategy)'
   control_id: SAF-K8S-0801-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-5(1)
-  framework_requirement_title: Adequate Supply
-  framework_mapping_notes: 'Adequate supply of AI models and tools ensures availability and prevents vendor lock-in
-
-
-    7.3 - Resource exhaustion resilience (ensuring adequate GPU/compute supply); 8.1 - GPU resource allocation'
-  control_id: SAF-K8S-0703-007
   relation_type: supports
   strength_level: strong
   applicability: required
