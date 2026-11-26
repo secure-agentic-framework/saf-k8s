@@ -65,3 +65,7 @@ For adopters, capture the real loader event and artifact identity, bind it to
 the workload's authenticated identity, and reconcile source and collector
 receipts. Treat GPU process and provider telemetry separately and validate it
 against supported device/runtime sources.
+
+## Native CPU model serving
+
+The native check confirms a successful model-load event, the pinned model bytes read inside the running server container, and a bounded completion from the same Pod. Pod, container and image identities are checked around the hash and request. Run from the complete control-lab checkout with the adjacent SAF-K8S-0903-004 case. See [the native event evidence and scope](NATIVE-EVENT-SCOPE.md) for the Docker/CRI config-ID distinction.

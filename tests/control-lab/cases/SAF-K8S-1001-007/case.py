@@ -27,8 +27,9 @@ SCOPE = (
     "on one local kind node, plus one isolated pinned-Istio synthetic access-log request. The case "
     "uses fictional model information, an inert prompt marker, and a pod-local collector. A separate "
     "harmless JSON artifact read is bound to a projected workload identity and an independent API receipt. "
-    "It does not establish a real model loader, GPU process accounting, production mesh rollout, forwarding, "
-    "alerting, or retention."
+    "The additive native fixture runs one pinned llama.cpp b9519 CPU model and observes its model-load "
+    "path, readiness, and one fixed bounded request. It does not establish GPU process accounting, "
+    "production mesh rollout, forwarding, alerting, or retention."
 )
 
 
@@ -354,6 +355,14 @@ def run(lab):
     _run_local_telemetry(lab)
     _run_mesh_access_log(lab)
     _run_model_artifact_load(lab)
+    import importlib.util
+    helper_path = CASE_DIR / "native_model_event.py"
+    spec = importlib.util.spec_from_file_location("saf_1001_007_native_model_event", helper_path)
+    if spec is None or spec.loader is None:
+        lab.block("Could not load the additive native model-event fixture")
+    helper = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(helper)
+    helper.run_native_model_event(lab, CASE_DIR)
 
 
 def _run_model_artifact_load(lab):
@@ -541,4 +550,4 @@ def _run_model_artifact_load(lab):
                "token_or_secret_emitted": False})
 
 
-SCOPE += " One additional Pod reads only a fictional metadata JSON descriptor and independently patches a named case receipt with a minimized event bound to its projected ServiceAccount identity; no real model or GPU is used."
+SCOPE += " One additional Pod reads only a fictional metadata JSON descriptor and independently patches a named case receipt with a minimized event bound to its projected ServiceAccount identity. The native server supplement uses CPU only and does not provide GPU process telemetry."

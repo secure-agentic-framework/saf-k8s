@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-007",
-  "catalog_revision": "a0a475a9b301089b0a8c957fbfbada4f6cc4f779",
-  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
+  "catalog_revision": "fff7bcbb8d37ceab7e9ae9e6884cff5725ae27cb",
+  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "fae14622a867ccba17728cfb10cd5188ab094099f8868c7492272538453e405e",
-  "scope": "Kubernetes Metadata audit versus scoped telemetry for synthetic HTTP workloads in two pods on one local kind node, plus one isolated pinned-Istio synthetic access-log request. The case uses fictional model information, an inert prompt marker, and a pod-local collector. A separate harmless JSON artifact read is bound to a projected workload identity and an independent API receipt. It does not establish a real model loader, GPU process accounting, production mesh rollout, forwarding, alerting, or retention. One additional Pod reads only a fictional metadata JSON descriptor and independently patches a named case receipt with a minimized event bound to its projected ServiceAccount identity; no real model or GPU is used.",
-  "cluster": "saf-lab-03bed174cf20",
+  "scope": "Kubernetes Metadata audit versus scoped telemetry for synthetic HTTP workloads in two pods on one local kind node, plus one isolated pinned-Istio synthetic access-log request. The case uses fictional model information, an inert prompt marker, and a pod-local collector. A separate harmless JSON artifact read is bound to a projected workload identity and an independent API receipt. The additive native fixture runs one pinned llama.cpp b9519 CPU model and observes its model-load path, readiness, and one fixed bounded request. It does not establish GPU process accounting, production mesh rollout, forwarding, alerting, or retention. One additional Pod reads only a fictional metadata JSON descriptor and independently patches a named case receipt with a minimized event bound to its projected ServiceAccount identity. The native server supplement uses CPU only and does not provide GPU process telemetry.",
+  "cluster": "saf-lab-86fbbe225049",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -144,6 +144,23 @@
         "api_audit_proves_exact_sa_patch": true,
         "receipt_was_pending_before_load": true,
         "token_or_secret_emitted": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The pinned CPU model reaches native loaded state and completes one fixed bounded request in the same owned Pod",
+      "matched": true,
+      "observed": {
+        "native_model_loaded_success_event_exactly_once": true,
+        "model_digest_matches_pin": true,
+        "pod_uid_container_and_manifest_identity_bound": true,
+        "cri_config_id_is_valid": true,
+        "in_container_model_bytes_match_pin": true,
+        "ready_http_model_identity_observed": true,
+        "fixed_bounded_completion_observed": true,
+        "native_completion_accounting_equals_four": true,
+        "native_startup_output_not_retained": true,
+        "prompt_or_response_text_not_retained": true
       }
     }
   ]

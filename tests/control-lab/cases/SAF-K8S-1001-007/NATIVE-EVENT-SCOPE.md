@@ -1,0 +1,13 @@
+# Native CPU model serving evidence
+
+The case runs one dedicated CPU serving Pod using the hash-pinned SAF-K8S-0903-004 llama.cpp b9519 helper, client, model digest, and Dockerfile. The runner must place the exact companion case at `cases/SAF-K8S-0903-004` beside this case; the supplement verifies SHA-256 for the three consumed companion files before use.
+
+The b9519 `tools/server/server.cpp` emits `model loaded` only after `load_model` succeeds ([pinned source](https://github.com/ggml-org/llama.cpp/blob/b9519/tools/server/server.cpp#L275-L286)); the supplement requires exactly one such success line from the owned server. It also requires the exact model path in the Pod arguments and verifies the bytes at that path from inside the running server container with the pinned SHA-256. The verification is bracketed by Pod observations: UID, container ID, and imageID must remain stable before and after the hash command, and again through the inference request.
+
+The runner invokes the absolute `/usr/bin/sha256sum` directly in the server container and retains only the strict parsed digest and path. The pinned arm64 b9519 image preflight confirmed this binary is present. A node CRI inspection must return a syntactically valid config ID and a repo digest that matches the Pod's runtime manifest digest. The host Docker-derived config ID and CRI config ID are both recorded with an explicit agreement boolean, but agreement is not a success condition: the v1 replay observed different config IDs across the Docker-to-Kind import boundary while the runtime manifest digest matched the CRI repo digest.
+
+The pinned client's one fixed request must pass native health and alias checks, return four token IDs, stop at the configured four-token limit, and report `tokens_predicted == 4`. In b9519 this field is the native `n_decoded` completion count (see [server context](https://github.com/ggml-org/llama.cpp/blob/b9519/tools/server/server-context.cpp#L1657-L1683) and the legacy completion response serializer in [server task source](https://github.com/ggml-org/llama.cpp/blob/b9519/tools/server/server-task.cpp#L2759-L2802)). The response is captured directly without writing raw client output to `commands.log`.
+
+Native startup logs are read as a bounded tail and scanned in memory; no raw lines are retained. The normalized check is booleans only. Local minimized evidence records Pod and image identifiers, hashes and counts, but no prompt text, response text, token IDs, credentials or unrelated startup output.
+
+This is one native CPU model-load/readiness event and a fixed request from an owned fixture. It does not establish GPU process telemetry, production telemetry forwarding, deployed coverage, retention, or content policy.
