@@ -11,15 +11,6 @@ SAF-K8S captures service mesh topology, API gateway configurations, and workload
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0504-002 - Service mesh mTLS and authorization policies](../../controls/SAF-K8S-0504-002.md)
-
-- Domain: D05 - Network Security and Communication
-- Knowledge Area: 5.4
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0702-005 - Label and annotation schema definition for AI workload classification](../../controls/SAF-K8S-0702-005.md)
 
 - Domain: D07 - Storage, Multi-tenancy, and Resource Governance

@@ -51,10 +51,10 @@ Agent communications must be protected for confidentiality and integrity in tran
 
 - Domain: D05 - Network Security and Communication
 - Knowledge Area: 5.4
-- Relation Type: direct
-- Strength: strong
+- Relation Type: supports
+- Strength: moderate
 - Applicability: required
-- Strength Reason Code: n/a
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0504-005 - Service mesh tuning for AI workloads](../../controls/SAF-K8S-0504-005.md)
 
