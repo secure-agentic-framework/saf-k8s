@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0902-003",
-  "catalog_revision": "1d28901a13172f0bbd965a664e9be4c4794ee8a1",
-  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
+  "catalog_revision": "441774723541a1308512fcb0152d148e94c5c0a6",
+  "catalog_sha256": "b83ac9038446573762aca936c7046a45989069b1ebe83a7a085b1cabd514e9a3",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "17dc2843caf5bda45734a88ebcec476c3d1d8cf66980796a4fd471a399eb613a",
+  "control_sha256": "80d96812fd6562fa377c475c63513062c135b317ff416a61f78f398e24848207",
   "scope": "One disposable Kind v1.36.1 cluster runs case-owned gateway, model, and backend mock processes from a digest-pinned official Python image. The gateway and mock model each enforce the exact two-field JSON object schema and a 128-byte request-body limit. Benign typed fixtures test one schema-invalid object and one otherwise-valid object exactly one byte over the limit; valid requests must return the exact mock marker. With checks disabled, both benign comparators reach the recorder. An independently queried backend counter and request ID establish which requests reached the local backend. No external targets, feeds, model, gateway product, injection content, adversarial input, exploit, or production workload is used. This does not establish adversarial detection, sanitization, injection prevention, model robustness, batch/gRPC/streaming coverage, or organization-wide deployment.",
-  "cluster": "saf-lab-00c32f850915",
+  "cluster": "saf-lab-b295bb64af6f",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -179,6 +179,44 @@
           "accepted_calls": 2,
           "last_request_id": "fixture-0902-003"
         }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A fresh running fixture Pod has gateway validation on and model validation off",
+      "matched": true,
+      "observed": {
+        "ready_pod_count": 1,
+        "gateway_enforcement": "true",
+        "model_enforcement": "false"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "With downstream model validation disabled, gateway rejects the fixed schema-invalid object before forwarding",
+      "matched": true,
+      "observed": {
+        "http_status": 422,
+        "schema_error": {
+          "status": "schema_invalid"
+        },
+        "backend_calls_before": 0,
+        "backend_calls_after": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "With downstream model validation disabled, gateway rejects the fixed 129-byte object before forwarding",
+      "matched": true,
+      "observed": {
+        "http_status": 413,
+        "size_error": {
+          "status": "body_too_large"
+        },
+        "body_bytes": 129,
+        "limit_bytes": 128,
+        "backend_calls_before": 0,
+        "backend_calls_after": 0
       }
     }
   ]

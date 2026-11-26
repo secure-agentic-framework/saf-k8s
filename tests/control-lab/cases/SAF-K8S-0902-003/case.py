@@ -262,6 +262,66 @@ def run(lab):
         json.dumps({"observations": lab.checks, "case_body_limit_bytes": policy["max_body_bytes"]},
                    indent=2, sort_keys=True) + "\n")
 
+    _gateway_only_attribution(lab, invalid_body, size_body)
+
+
+
+
+def _gateway_only_attribution(lab, invalid_body, size_body):
+    # Change both effective checks in one Deployment generation: gateway on, model off.
+    patch = {"spec": {"template": {"spec": {"containers": [
+        {"name": "gateway", "env": [{"name": "FIXTURE_ENFORCE", "value": "true"}]},
+        {"name": "model", "env": [{"name": "FIXTURE_ENFORCE", "value": "false"}]},
+    ]}}}}
+    lab.kubectl("patch", "deployment", APP, "--type=strategic", "-p", json.dumps(patch))
+    lab.kubectl("rollout", "status", f"deployment/{APP}", "--timeout=100s", timeout=110)
+    deployment = json.loads(lab.kubectl("get", "deployment", APP, "-o", "json").stdout)
+    pods = json.loads(lab.kubectl("get", "pods", "-l", f"app={APP}", "-o", "json").stdout)["items"]
+    running = [pod for pod in pods if pod.get("status", {}).get("phase") == "Running"
+               and any(c.get("type") == "Ready" and c.get("status") == "True"
+                       for c in pod.get("status", {}).get("conditions", []))]
+    if deployment.get("status", {}).get("observedGeneration") != deployment.get("metadata", {}).get("generation"):
+        lab.block("Gateway-only rollout generation was not observed")
+    if len(running) != 1:
+        lab.block("Expected one ready case-owned gateway/model/backend Pod after rollout")
+    containers = {item["name"]: {e["name"]: e["value"] for e in item.get("env", [])}
+                  for item in running[0].get("spec", {}).get("containers", [])}
+    isolated = (containers.get("gateway", {}).get("FIXTURE_ENFORCE") == "true"
+                and containers.get("model", {}).get("FIXTURE_ENFORCE") == "false")
+    lab.check("positive", "A fresh running fixture Pod has gateway validation on and model validation off",
+              isolated, {"ready_pod_count": len(running), "gateway_enforcement": containers.get("gateway", {}).get("FIXTURE_ENFORCE"),
+                         "model_enforcement": containers.get("model", {}).get("FIXTURE_ENFORCE")})
+    forwards = []
+    try:
+        gateway, gateway_port = _forward(lab, f"{APP}-gateway", 8080)
+        forwards.append(gateway)
+        backend, backend_port = _forward(lab, f"{APP}-backend", 9002)
+        forwards.append(backend)
+        initial = _backend_state(backend_port)
+        if initial != {"accepted_calls": 0, "last_request_id": None}:
+            lab.block("Unexpected backend state before gateway-only attribution requests")
+        schema_status, schema_body = _request(gateway_port, "POST", "/infer", invalid_body)
+        schema_state = _backend_state(backend_port)
+        schema_ok = (schema_status == 422 and json.loads(schema_body) == {"status": "schema_invalid"}
+                     and schema_state == initial)
+        lab.check("green", "With downstream model validation disabled, gateway rejects the fixed schema-invalid object before forwarding",
+                  schema_ok, {"http_status": schema_status, "schema_error": json.loads(schema_body),
+                              "backend_calls_before": initial["accepted_calls"], "backend_calls_after": schema_state["accepted_calls"]})
+        size_status, response_body = _request(gateway_port, "POST", "/infer", size_body)
+        size_state = _backend_state(backend_port)
+        size_ok = (size_status == 413 and json.loads(response_body) == {"status": "body_too_large"}
+                   and len(size_body) == 129 and size_state == initial)
+        lab.check("green", "With downstream model validation disabled, gateway rejects the fixed 129-byte object before forwarding",
+                  size_ok, {"http_status": size_status, "size_error": json.loads(response_body),
+                            "body_bytes": len(size_body), "limit_bytes": 128,
+                            "backend_calls_before": initial["accepted_calls"], "backend_calls_after": size_state["accepted_calls"]})
+    finally:
+        _stop_forwards(forwards)
+    (lab.evidence / "gateway-attribution.json").write_text(
+        json.dumps({"gateway_validation": "enabled", "model_validation": "disabled",
+                    "requests_are_fixed_benign_fixtures": True, "request_bodies_retained": False,
+                    "additional_checks": lab.checks[-3:]}, indent=2, sort_keys=True) + "\n")
+
 
 def _stop_forwards(forwards):
     for process in reversed(forwards):

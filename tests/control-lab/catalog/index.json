@@ -2439,7 +2439,7 @@
     "SAF-K8S-0902-003": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "17dc2843caf5bda45734a88ebcec476c3d1d8cf66980796a4fd471a399eb613a",
+      "sha256": "80d96812fd6562fa377c475c63513062c135b317ff416a61f78f398e24848207",
       "title": "Inference request validation and input sanitization"
     },
     "SAF-K8S-0902-004": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "e1e6607d45737832bcbf8eb8991bb7cbecabb852",
-  "sha256": "2603ead31a5e5877be28e9368d333c4c2343b49f4e9718b507c07fe67c3df1cc",
+  "revision": "8b945a6081316c17b24eb6458624ff93361ed1bb",
+  "sha256": "b83ac9038446573762aca936c7046a45989069b1ebe83a7a085b1cabd514e9a3",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
