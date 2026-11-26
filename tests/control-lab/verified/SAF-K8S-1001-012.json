@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-012",
-  "catalog_revision": "46094602e317666cb279fc4c2094efe99dc35b32",
-  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
+  "catalog_revision": "db670fe534b0fd55f1e1edf607da63c218160ecc",
+  "catalog_sha256": "b4bc486cbaf4d7095c392838351d3abb12ca503c75b7e8244bc767f035f02d16",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "dd81a93dbb12ba0176f9bb4b0ad204b0457cb04ec9b1d67ac33349c143c694ef",
   "scope": "One disposable single-node Kind Kubernetes v1.36.1 cluster. Reads metadata for the exact case-owned tokenless mock Pod, its case-owned ConfigMap, the assigned Node, and namespaced Kubernetes Events; captures the mock Pod's single fixed JSON log line. Exercises six explicitly specified decisions on static synthetic audit-shaped records and fabricated benign counters. No SIEM is connected, no AI/GPU runtime exists, no KServe/API extension is installed, and no live attack or external traffic is used. This validates deterministic rule logic and a bounded Kubernetes metadata read path only.",
-  "cluster": "saf-lab-18d722adcfa4",
+  "cluster": "saf-lab-fd85da075bd9",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -167,6 +167,21 @@
         "owned_pod_event_observed": true,
         "node_version": "v1.36.1",
         "workload_log_fixture": "SYNTH-SAF-K8S-1001-012-WORKLOAD-001"
+      }
+    },
+    {
+      "phase": "correlation",
+      "claim": "The owned Pod and Event metadata join on UID; an unmatched UID does not correlate",
+      "matched": true,
+      "observed": {
+        "rule": "owned_pod_event_uid_correlation",
+        "pod_source": "Kubernetes Pod metadata read",
+        "event_source": "Kubernetes Events API read",
+        "bound_native_events_observed": true,
+        "unmatched_uid_excluded": true,
+        "out_of_scope_pod_excluded": true,
+        "case_label_scoped": true,
+        "fixture_label_scoped": true
       }
     }
   ]

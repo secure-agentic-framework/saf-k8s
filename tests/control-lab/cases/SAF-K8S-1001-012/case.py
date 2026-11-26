@@ -87,6 +87,17 @@ def detect(record, thresholds, approved):
     return False
 
 
+def correlate_owned_pod_events(pod_signal, event_signals):
+    """Join the native Pod metadata and Event stream on the immutable Pod UID."""
+    labels = pod_signal.get("labels", {})
+    if (pod_signal.get("namespace") != NAMESPACE
+            or labels.get(CASE_LABEL) != CONTROL_ID
+            or labels.get(FIXTURE_LABEL) != "true"):
+        return []
+    return [event for event in event_signals
+            if event.get("regarding_uid") == pod_signal.get("uid")]
+
+
 def collect_native(lab, created_uid, config_uid):
     deadline = time.monotonic() + 100
     pod_data = None
@@ -137,7 +148,8 @@ def collect_native(lab, created_uid, config_uid):
         lab.block("Allowlisted Node metadata was incomplete")
     return {
         "source": "Kubernetes API read-only get events/pod/node plus pod log subresource",
-        "pod": {"name": POD, "uid": created_uid, "phase": phase,
+        "pod": {"name": POD, "namespace": NAMESPACE, "uid": created_uid, "phase": phase,
+                "labels": pod_data.get("metadata", {}).get("labels", {}),
                 "service_account_token_mounted": False, "image": PYTHON_IMAGE},
         "fixture_configmap": {"name": CONFIG, "uid": config_uid, "immutable": True},
         "node": node, "events": sorted(events, key=lambda item: (item.get("reason") or "", item.get("action") or "")),
@@ -187,6 +199,27 @@ def run(lab):
               {"pod_uid_matches_create": True, "owned_pod_event_observed": bool(actual["events"]),
                "node_version": actual["node"]["kubelet_version"],
                "workload_log_fixture": actual["workload_log"]["fixture_id"]})
+
+    pod_signal = actual["pod"]
+    unmatched_event = dict(actual["events"][0])
+    unmatched_event["regarding_uid"] = "SYNTH-UNMATCHED-POD-UID"
+    matched = correlate_owned_pod_events(pod_signal, [*actual["events"], unmatched_event])
+    wrong_scope = {**pod_signal, "namespace": "outside-fixture"}
+    excluded = correlate_owned_pod_events(wrong_scope, actual["events"])
+    correlation_ok = bool(matched) and matched == actual["events"] and not excluded
+    correlation_result = {
+        "rule": "owned_pod_event_uid_correlation",
+        "pod_source": "Kubernetes Pod metadata read",
+        "event_source": "Kubernetes Events API read",
+        "bound_native_events_observed": bool(matched),
+        "unmatched_uid_excluded": unmatched_event not in matched,
+        "out_of_scope_pod_excluded": not excluded,
+        "case_label_scoped": pod_signal["labels"].get(CASE_LABEL) == CONTROL_ID,
+        "fixture_label_scoped": pod_signal["labels"].get(FIXTURE_LABEL) == "true",
+    }
+    lab.check("correlation", "The owned Pod and Event metadata join on UID; an unmatched UID does not correlate",
+              correlation_ok, correlation_result)
+    actual["local_metadata_correlation"] = correlation_result
 
     evidence = {
         "control_id": CONTROL_ID, "scope": SCOPE,
