@@ -1,5 +1,6 @@
 """Bounded Istio sidecar resource tuning and local availability witness."""
 import json
+import importlib.util
 from pathlib import Path
 import time
 
@@ -23,8 +24,10 @@ TUNED = {
 }
 SCOPE = (
     "One fresh disposable Kind v1.36.1 cluster, the published adjacent case's "
-    "Istio 1.32.0 sidecar runtime, and two case-owned Python fixture Pods in the "
-    "runner-created saf-test namespace. Compares a small finite set of local GETs "
+    "Istio 1.32.0 sidecar runtime, two case-owned Python fixture Pods, and one "
+    "additional inert Pod with a per-Pod injection opt-out label in the "
+    "injection-enabled runner namespace. The opt-out Pod sends no requests. Compares "
+    "a small finite set of local GETs "
     "before and after applying documented Envoy proxy CPU/memory annotations to "
     "the backend. Reads the injected istio-proxy request/limit values from the Pod "
     "spec and checks bounded authenticated request availability. A server-side dry-run of a "
@@ -242,6 +245,19 @@ def run(lab):
     assert_check(lab, "positive", "Over-budget candidate is rejected and the exact known-good proxy and 3/3 connectivity remain in service",
                  all(rollback.values()), rollback)
 
+    selective_path = Path(__file__).with_name("selective_injection.py")
+    selective_spec = importlib.util.spec_from_file_location("saf_0504_005_selective_injection", selective_path)
+    if selective_spec is None or selective_spec.loader is None:
+        lab.block("Could not load the case-local selective-injection comparison")
+    selective_module = importlib.util.module_from_spec(selective_spec)
+    selective_spec.loader.exec_module(selective_module)
+    selective = selective_module.run(
+        lab, pod_factory=pod, resource=resource, wait_ready=wait_ready, snapshot=snapshot,
+        sidecar_resources=sidecar_resources, observed_requests=observed_requests,
+        assert_check=assert_check, pinned_proxy=pinned_proxy, client_sleep=CLIENT_SLEEP,
+        expected_resources=expected, kubectl=kubectl,
+    )
+
     normalized = {
         "control_id": CONTROL_ID,
         "runtime": {"istio_version": ISTIO_VERSION, "kubernetes_version": server_version,
@@ -253,6 +269,7 @@ def run(lab):
                       "exact_success_count": sum(
                           row == {"status": 200, "path": PATH, "fixture": "saf-0504-005-owned"} for row in green_rows)},
             "positive": rollback,
+            "selective_injection": selective,
         },
         "measured_guard": {"candidate_cpu_request_exceeds_limit": True,
                            "availability_threshold": "3 of 3 exact fixture GETs return HTTP 200",
