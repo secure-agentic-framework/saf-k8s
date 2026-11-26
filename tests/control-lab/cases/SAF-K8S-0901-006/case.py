@@ -20,18 +20,13 @@ NODE_IMAGE = (
 )
 QUOTA_NAME = "saf-0901-006-tenant-quota"
 SCOPE = (
-    "One fresh Kubernetes v1.36.1 kind cluster. The case compares admission of "
-    "one synthetic 600m CPU / 128Mi Pod request before and after an ordinary "
-    "500m CPU / 256Mi memory namespace ResourceQuota, verifies a low-request "
-    "Pod remains admissible, and checks projected ServiceAccount authorization "
-    "for creating Pods and ResourceQuota objects. A synthetic platform identity "
-    "gets only ResourceQuota create permission. A pinned Kueue v0.17.7 controller "
-    "also compares held and admitted two-Pod batches against a local queue's nominal CPU quota "
-    "and checks queue-admin authorization. Its readiness timeout also releases a reserved batch "
-    "when one of two workers remains unready. A separate native policy limits one tenant namespace "
-    "to a named Kueue workload priority and excludes Pod PriorityClass input. Volcano and production "
-    "fairness, priority ordering, preemption and "
-    "accelerator quotas require separate evidence."
+    "A disposable Kind v1.36.1 cluster verifies native namespace quota, selected tenant "
+    "and platform RBAC, and the pinned Kueue v0.17.7 controller's quota, readiness-timeout, "
+    "and named tenant workload-priority behavior. Separate case-owned CPU LocalQueues "
+    "demonstrate sampled historical-use ordering with Admission Fair Sharing enabled. "
+    "With equal live priorities and sufficient quota after release, the newer lower-use "
+    "Workload is admitted first and the older peer later. Mode-off FIFO comparison, "
+    "preemption, Volcano, accelerator quotas, and deployed behavior require separate evidence."
 )
 
 
@@ -194,3 +189,4 @@ def run(lab):
     }, indent=2) + "\n")
 
     runpy.run_path(str(HERE / "queue_admission.py"))["run"](lab)
+    runpy.run_path(str(HERE / "admission_fair_sharing.py"))["run"](lab)

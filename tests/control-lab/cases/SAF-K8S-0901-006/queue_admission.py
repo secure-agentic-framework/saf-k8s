@@ -144,7 +144,10 @@ def run(lab):
       blockAdmission: true
       requeuingStrategy:
         backoffBaseSeconds: 60
-        backoffMaxSeconds: 60"""
+        backoffMaxSeconds: 60
+    admissionFairSharing:
+      usageHalfLifeTime: 30s
+      usageSamplingInterval: 1s"""
     manifest = original.replace(KUEUE_TAG_IMAGE, CONTROLLER_IMAGE, 1)
     installed.write_text(manifest.replace(config_marker, readiness_config, 1))
     _kubectl(lab, "apply", "--server-side", "-f", str(installed), timeout=110)

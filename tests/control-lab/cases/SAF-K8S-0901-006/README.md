@@ -7,9 +7,10 @@ python3 lab.py test SAF-K8S-0901-006 --docker-context desktop-linux
 ```
 
 The lab runner creates a fresh disposable Kind Kubernetes v1.36.1 cluster with
-its digest-pinned node image. This case also pins its Python probe and mock
-workload image by digest. It does not contact an external registry manifest,
-install an operator, or use real tenant data.
+its digest-pinned node image. The disposable fixtures use digest-pinned Python,
+workload and Kueue controller images. The runner verifies the upstream Kueue
+manifest digest before installing the controller. All request data belongs to
+the fixture.
 
 ## Case behavior
 
@@ -42,8 +43,9 @@ quota objects cannot be changed or removed.
 
 The fixture installs pinned Kueue v0.17.7 and exercises its Job integration.
 The namespaced `LocalQueue` selects a cluster-scoped `ClusterQueue`, which
-provides quota and governs scheduling policy. The fixture selects one tenant,
-one LocalQueue, and finite CPU-only Jobs. Volcano uses its own Queue and
+provides quota and governs scheduling policy. The quota and priority checks use
+one synthetic tenant and LocalQueue. The fair-sharing check uses three
+case-owned LocalQueues with finite CPU-only Jobs. Volcano uses its own Queue and
 PodGroup model. Verify the scheduler actions and plugins for any adopted
 Volcano deployment, including capacity, deserved, and guarantee semantics.
 
@@ -98,3 +100,21 @@ Independent Kueue Workload reads verify `spec.priorityClassRef` group, kind,
 and name, the numeric `spec.priority`, and the exact LocalQueue. Both
 approved low-CPU workers complete. The scope is this named tenant policy,
 bounded quota and readiness handling. [Kueue v0.17 API reference](https://kueue.sigs.k8s.io/v0.17/docs/reference/kueue.v1beta2/).
+
+
+## Kueue historical-use admission
+
+The pinned Kueue controller samples a separate, case-owned CPU LocalQueue.
+One 100m seed Job creates observable usage history. The two competing Jobs
+have equal live Workload priorities and the same resource requests. A third
+Job holds quota until the seeded queue and unseeded queue are both waiting.
+The case checks their live history immediately before release, observes
+admission of the newer lower-use Workload, then observes admission of the
+older peer after the first reservation is released. Exact Workload and Job
+identities and queue accounting are retained in the raw evidence.
+
+This exercises the enabled mode for one controlled CPU workload profile. The
+mode-off FIFO comparator, separately configured preemption, Volcano, GPU and
+adopted fairness remain separate verification work.
+
+[Kueue Admission Fair Sharing](https://kueue.sigs.k8s.io/v0.17/docs/concepts/admission_fair_sharing/)
