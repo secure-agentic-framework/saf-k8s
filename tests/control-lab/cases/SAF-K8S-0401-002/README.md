@@ -123,3 +123,7 @@ The current reference has 50 checks, covering a scheduled recurring native RBAC 
 
 - [Kubernetes RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
 - [Kubernetes SubjectAccessReview](https://v1-36.docs.kubernetes.io/docs/reference/kubernetes-api/authorization-resources/subject-access-review-v1/)
+
+## Verify effective authorization in an adopted cluster
+
+Use the [deployed authorization review](adopter-authorization.md) to identify the configured authorizer chain, compare exact authenticated principals and named access decisions, and record which provider or DRA paths apply.
