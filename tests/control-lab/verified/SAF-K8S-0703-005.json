@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0703-005",
-  "catalog_revision": "f2674e0500dca03557ebfd73c54d5ce3cb49a3d5",
-  "catalog_sha256": "02dff3005821d2dba45b4f0e14410046c532f8cbc9b07d21c88a0612f88689e5",
+  "catalog_revision": "4c79834780061df50b667c94bee472aa367b6148",
+  "catalog_sha256": "9e06b319942c6734af90d7c5a8a864afa453f52032df740d201e5484c1b801c9",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "af079df34c0017c17d4a8664bcc9a63ec0c6dcce4b906f9ec4510c207c99acc7",
-  "scope": "Kubernetes v1.36.1 LimitRange and ResourceQuota admission, an owned Job's declared memory and Job-controller deadline, and a separate nonroot Job exercising synthetic queue and input bounds. Production queue integration, dataset size, aggregate memory and availability requirements require separate deployed evidence.",
-  "cluster": "saf-lab-72182273996f",
+  "control_sha256": "a9edff49dcdd5c5088feffc0bbbdb9e95593fd478b9382299b765bc5f1f32d38",
+  "scope": "Kubernetes v1.36.1 LimitRange and ResourceQuota admission, an owned Job's declared memory and Job-controller deadline, synthetic queue and input bounds, and an aggregate declared-memory ResourceQuota comparison. Production queue integration, dataset size, runtime memory and availability requirements require separate deployed evidence.",
+  "cluster": "saf-lab-322c3a279ae1",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -139,6 +139,36 @@
       "observed": {
         "reason": "DeadlineExceeded",
         "active_deadline_seconds": 20
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The exact 16Mi request and 32Mi limit aggregate is admitted before a memory quota",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "requested_memory_mib": 16,
+        "limited_memory_mib": 32
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The same otherwise valid aggregate request is refused by the namespace memory quota",
+      "matched": true,
+      "observed": {
+        "denied_by_memory_quota": true,
+        "requested_memory_mib": 16,
+        "limited_memory_mib": 32
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A lower 4Mi request and 8Mi limit remain admissible under the memory quota",
+      "matched": true,
+      "observed": {
+        "admitted": true,
+        "requested_memory_mib": 4,
+        "limited_memory_mib": 8
       }
     }
   ]

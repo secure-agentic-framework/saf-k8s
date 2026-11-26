@@ -1,32 +1,47 @@
-# SAF-K8S-0703-005 — AI workload resource exhaustion guardrails
+# SAF-K8S-0703-005 — Job, memory, storage and queue bounds
+
+From the framework checkout, run the disposable comparison.
 
 ```sh
-python3 lab.py test SAF-K8S-0703-005 --docker-context desktop-linux
-python3 -B cases/SAF-K8S-0703-005/test_static.py
+python3 tests/control-lab/lab.py test SAF-K8S-0703-005 --docker-context desktop-linux
 ```
 
-The Kubernetes v1.36.1 lab observes permissive baseline dry-runs and
-then separately verifies the resource policies below.
+From the lab checkout, invoke `python3 lab.py` with the same arguments.
+The native LimitRange and ResourceQuota comparisons demonstrate
+per-container memory defaults and ceilings, per-claim and aggregate PVC
+requested storage limits, and aggregate declared Pod memory across
+containers. The same 16 MiB request and 32 MiB limit pass server-dry-run
+before the memory quota and are refused after activation. A smaller Pod
+still passes. The original finite Job observes its configured resource
+declaration and reaches DeadlineExceeded. A separate queue model
+compares bounded inputs, backpressure and retry after capacity returns.
 
-- The LimitRange supplies a 16 MiB container memory request and a 32 MiB
-  default limit, rejects a declaration above 64 MiB, and permits a
-  declaration at the ceiling.
-- The same LimitRange caps requested storage at 8 MiB per PVC. Two 8 MiB
-  claims are persisted and accounted for in a 16 MiB namespace quota. A
-  third 1 MiB request is refused by the storage quota.
-- A bounded, nonroot fixture Job runs a synthetic two-item queue and
-  16-byte input limit. It rejects an oversized input without consuming
-  queue capacity, returns a retry delay at saturation, and accepts the
-  retry after FIFO completion frees a slot.
-- The Job controller observes an inert sleeper's declared resources and
-  returns `DeadlineExceeded` after its configured 20-second deadline.
-  The lab requires a Ready Job-owned Pod before observing expiry.
+## Verify the actual guardrails and recovery
 
-These are container admission bounds, requested storage, a synthetic
-queue model, and one Job lifecycle. Aggregate runtime memory, training
-dataset sizing and ingestion, actual queue controllers, throughput,
-failures and production recovery require separate evidence.
+1. Record the governed workload classes, queue and namespace owners,
+   supported CPU, memory and accelerator resources, resource and active
+   runtime bounds, ingress byte or object caps, and availability and
+   recovery objectives. Identify the enforcement component and
+   authorized policy writers at each boundary.
+2. Compare effective LimitRange, ResourceQuota and Job settings with
+   authorized small staging requests. Check an expected declaration,
+   the exact boundary, and a refused declaration. Observe actual
+   runtime behavior separately where the workload requires it.
+3. Test the deployed scheduler or application queue using bounded
+   synthetic work. Verify pending and approved admission, actual
+   saturation signaling, bounded retry, and that the same request
+   enters once after a slot becomes available. Where Kueue is used,
+   capture actual queue and Workload status.
+4. In an approved nonproduction path, send inert data at the configured
+   size boundary and just over. Independently verify accepted input
+   reaches the intended stage and rejected input is neither persisted
+   nor queued. Keep corpus, credentials and unrelated tenant details
+   outside the evidence.
+5. Compare service health and recovery time against the documented
+   objective for one bounded authorized exercise. Retain policy
+   fingerprints, identity, exact decisions, cleanup and corrective
+   actions.
 
-- [Kubernetes v1.36 LimitRange](https://v1-36.docs.kubernetes.io/docs/concepts/policy/limit-range/)
-- [Kubernetes v1.36 ResourceQuota](https://v1-36.docs.kubernetes.io/docs/concepts/policy/resource-quotas/)
-- [Kubernetes v1.36 Jobs](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/job/)
+[Kubernetes resource quotas](https://v1-36.docs.kubernetes.io/docs/concepts/policy/resource-quotas/),
+[Kubernetes Jobs](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/job/),
+and [Kueue Jobs](https://kueue.sigs.k8s.io/v0.20/docs/tasks/run/jobs/).

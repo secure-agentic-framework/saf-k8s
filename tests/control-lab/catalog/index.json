@@ -2007,7 +2007,7 @@
     "SAF-K8S-0703-005": {
       "catalog_status": "draft",
       "domain": "D07",
-      "sha256": "af079df34c0017c17d4a8664bcc9a63ec0c6dcce4b906f9ec4510c207c99acc7",
+      "sha256": "a9edff49dcdd5c5088feffc0bbbdb9e95593fd478b9382299b765bc5f1f32d38",
       "title": "AI workload resource exhaustion guardrails"
     },
     "SAF-K8S-0703-007": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "92d0e228702da110284f30e9b291a4a283675c84",
-  "sha256": "6e7ec0fd6ea4992497c1acc4efb6ebcc9c90161e9770ffde617fd21af136215b",
+  "revision": "d79e7d1b800e86df82ab6c6e66f7d18965cab19f",
+  "sha256": "9e06b319942c6734af90d7c5a8a864afa453f52032df740d201e5484c1b801c9",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

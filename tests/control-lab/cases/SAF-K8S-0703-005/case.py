@@ -13,9 +13,9 @@ from fixtures import BUSYBOX_IMAGE
 HERE = Path(__file__).parent
 SCOPE = (
     "Kubernetes v1.36.1 LimitRange and ResourceQuota admission, an owned Job's declared "
-    "memory and Job-controller deadline, and a separate nonroot Job exercising synthetic "
-    "queue and input bounds. Production queue integration, dataset size, aggregate "
-    "memory and availability requirements require separate deployed evidence."
+    "memory and Job-controller deadline, synthetic queue and input bounds, and an "
+    "aggregate declared-memory ResourceQuota comparison. Production queue integration, "
+    "dataset size, runtime memory and availability requirements require separate deployed evidence."
 )
 
 
@@ -99,6 +99,67 @@ def queue_job(lab):
     lab.check("green", "The Job rejects full-queue and oversized input and preserves FIFO recovery",
               data == {"queue_full_rejected": True, "oversize_rejected_without_enqueue": True,
                        "retry_after_seconds": 1, "retry_after_completion_accepted": True}, data)
+
+
+def memory_quota_checks(lab):
+    """Compare declared memory sums through API-server admission only."""
+    aggregate = pod("saf-0703-005-memory-aggregate", memory_limit="16Mi", request="8Mi")
+    first = aggregate["spec"]["containers"][0]
+    first["name"] = "bounded-a"
+    second = json.loads(json.dumps(first))
+    second["name"] = "bounded-b"
+    aggregate["spec"]["containers"].append(second)
+    baseline = server_dry_run(lab, aggregate)
+    admitted_aggregate = json.loads(baseline.stdout) if baseline.returncode == 0 else {}
+    requested_mib = sum(int(item["resources"]["requests"]["memory"][:-2])
+                        for item in admitted_aggregate.get("spec", {}).get("containers", []))
+    limited_mib = sum(int(item["resources"]["limits"]["memory"][:-2])
+                      for item in admitted_aggregate.get("spec", {}).get("containers", []))
+    lab.check(
+        "red", "The exact 16Mi request and 32Mi limit aggregate is admitted before a memory quota",
+        baseline.returncode == 0 and requested_mib == 16 and limited_mib == 32,
+        {"admitted": baseline.returncode == 0, "requested_memory_mib": requested_mib,
+         "limited_memory_mib": limited_mib},
+    )
+
+    lab.apply(HERE / "memory-quota.yaml")
+    quota_deadline = time.monotonic() + 20
+    while True:
+        quota = json.loads(lab.kubectl("get", "resourcequota", "saf-0703-005-memory-budget",
+                                       "-o", "json").stdout)
+        hard = quota.get("status", {}).get("hard", {})
+        if hard.get("requests.memory") == "8Mi" and hard.get("limits.memory") == "16Mi":
+            break
+        if time.monotonic() >= quota_deadline:
+            lab.block("The fixture memory ResourceQuota did not become active")
+        time.sleep(0.25)
+
+    denied = server_dry_run(lab, aggregate)
+    denied_by_quota = (
+        denied.returncode != 0
+        and "exceeded quota: saf-0703-005-memory-budget" in denied.stderr
+        and ("requests.memory" in denied.stderr or "limits.memory" in denied.stderr)
+    )
+    lab.check(
+        "green", "The same otherwise valid aggregate request is refused by the namespace memory quota",
+        denied_by_quota,
+        {"denied_by_memory_quota": denied_by_quota, "requested_memory_mib": requested_mib,
+         "limited_memory_mib": limited_mib},
+    )
+
+    lower = server_dry_run(lab, pod("saf-0703-005-memory-under-budget",
+                                   memory_limit="8Mi", request="4Mi"))
+    admitted_lower = json.loads(lower.stdout) if lower.returncode == 0 else {}
+    lower_requested_mib = sum(int(item["resources"]["requests"]["memory"][:-2])
+                               for item in admitted_lower.get("spec", {}).get("containers", []))
+    lower_limited_mib = sum(int(item["resources"]["limits"]["memory"][:-2])
+                            for item in admitted_lower.get("spec", {}).get("containers", []))
+    lab.check(
+        "positive", "A lower 4Mi request and 8Mi limit remain admissible under the memory quota",
+        lower.returncode == 0 and lower_requested_mib == 4 and lower_limited_mib == 8,
+        {"admitted": lower.returncode == 0, "requested_memory_mib": lower_requested_mib,
+         "limited_memory_mib": lower_limited_mib},
+    )
 
 
 def run(lab):
@@ -217,3 +278,5 @@ def run(lab):
     lab.check("green", "Job controller fails the inert sleeper at its active deadline",
               failed.get("reason") == "DeadlineExceeded" and job["spec"]["activeDeadlineSeconds"] == 20,
               {"reason": failed.get("reason"), "active_deadline_seconds": job["spec"]["activeDeadlineSeconds"]})
+
+    memory_quota_checks(lab)
