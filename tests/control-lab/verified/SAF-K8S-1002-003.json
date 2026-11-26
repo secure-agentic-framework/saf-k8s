@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1002-003",
-  "catalog_revision": "ffab15748408021a247696f5c5f116ad890c5bf5",
-  "catalog_sha256": "c11e20f1ec20d984db838c86fdb56b8f5655671774a59cb9d1cbc01f9889c3df",
+  "catalog_revision": "3f65185f2e64894c20d741e3d13c7c17e373022a",
+  "catalog_sha256": "63ca25b48ffb8f35202c5c4db9c599eb98e12d31aa18f4d0d69d91a9e3ec5423",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "19cbcfc550d34ef187e6e18bdada8dbfd56da69a016f646657c8c796630a2a4d",
-  "scope": "A disposable Kubernetes v1.36.1 Kind cluster reconciles native Prometheus Operator Prometheus, ServiceMonitor, and PodMonitor resources. Namespace-scoped discovery RBAC and selector labels limit scraping to two safe synthetic CPU workloads. Prometheus API queries prove no samples before monitor enrollment and exact per-workload stage, measured latency, and quality markers after enrollment. This does not prove NVIDIA hardware, DCGM exporter metrics, or instrumentation in native training or serving frameworks.",
-  "cluster": "saf-lab-a5aa06d97c26",
+  "scope": "A disposable Kubernetes v1.36.1 Kind cluster reconciles native Prometheus Operator Prometheus, ServiceMonitor, and PodMonitor resources. Namespace-scoped discovery RBAC and selector labels limit scraping to two safe synthetic CPU workloads. Prometheus API queries prove no samples before monitor enrollment and exact per-workload stage, measured latency, and quality markers after enrollment. A supplementary check runs the checksum-pinned llama.cpp b9519 CPU server with a tiny pinned model, enables its native Prometheus exporter, and compares a fixed four-token completion with the observed increase in its generation-token counter. This demonstrates one real CPU inference producer-to-Prometheus path in this disposable cluster; it does not prove GPU/DCGM telemetry, native training instrumentation, production attribution, or durable monitoring.",
+  "cluster": "saf-lab-b86f192a9353",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -79,6 +79,22 @@
         "fixture_endpointslices": "yes",
         "other_endpointslices": "no",
         "fixture_secrets": "no"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Prometheus observes the bounded native llama.cpp generation counter increase",
+      "matched": true,
+      "observed": {
+        "target_up": true,
+        "metric": "llamacpp:tokens_predicted_total",
+        "exact_zero_baseline": true,
+        "same_series": true,
+        "later_scrape": true,
+        "counter_increase": 4.0,
+        "completion_tokens": 4,
+        "llama_release": "b9519",
+        "gpu_layers": 0
       }
     }
   ]

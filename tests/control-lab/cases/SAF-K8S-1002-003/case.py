@@ -1,6 +1,7 @@
 """Exercise native Prometheus Operator discovery for synthetic AI workloads."""
 import hashlib
 import json
+from pathlib import Path
 import re
 import time
 import urllib.parse
@@ -17,8 +18,12 @@ SCOPE = (
     "Prometheus, ServiceMonitor, and PodMonitor resources. Namespace-scoped discovery RBAC "
     "and selector labels limit scraping to two safe synthetic CPU workloads. Prometheus API "
     "queries prove no samples before monitor enrollment and exact per-workload stage, measured "
-    "latency, and quality markers after enrollment. This does not prove NVIDIA hardware, "
-    "DCGM exporter metrics, or instrumentation in native training or serving frameworks."
+    "latency, and quality markers after enrollment. A supplementary check runs the "
+    "checksum-pinned llama.cpp b9519 CPU server with a tiny pinned model, enables its native "
+    "Prometheus exporter, and compares a fixed four-token completion with the observed "
+    "increase in its generation-token counter. This demonstrates one real CPU inference "
+    "producer-to-Prometheus path in this disposable cluster; it does not prove GPU/DCGM "
+    "telemetry, native training instrumentation, production attribution, or durable monitoring."
 )
 
 BUNDLE = "https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.85.0/bundle.yaml"
@@ -270,3 +275,11 @@ def run(lab):
            "first_targets": first_targets, "samples": results, "target_status": active,
            "unselected_samples": compare_rows, "discovery_rbac": decisions}
     (lab.evidence / "telemetry-observed.json").write_text(json.dumps(raw, indent=2, sort_keys=True) + "\n")
+
+    # Add one SHA-bound native inference producer observation after all four original checks.
+    from importlib.util import module_from_spec, spec_from_file_location
+    supplement_path = Path(__file__).resolve().parent / "llama_metrics.py"
+    supplement_spec = spec_from_file_location("saf_1002_003_llama_metrics", supplement_path)
+    supplement = module_from_spec(supplement_spec)
+    supplement_spec.loader.exec_module(supplement)
+    supplement.run(lab)

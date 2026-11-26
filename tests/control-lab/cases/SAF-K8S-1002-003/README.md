@@ -6,7 +6,15 @@ python3 lab.py test SAF-K8S-1002-003 --docker-context desktop-linux
 
 From the framework checkout, use `python3 tests/control-lab/lab.py` with the same arguments. The test uses the checksum-pinned Prometheus Operator v0.85.0 release bundle and digest-pinned images on a fresh Kubernetes v1.36.1 Kind cluster.
 
-The fixture's training service runs three small CPU training epochs. Its separate inference service measures a classification pass and reports the measured latency and exact seven-of-eight quality score. Both endpoints are healthy before enrollment, when Prometheus has zero fixture targets and zero samples. A ServiceMonitor enrolls the training service and a PodMonitor independently enrolls the inference Pod. The test checks four exact series, both active scrape pools, and a healthy unselected comparison endpoint.
+The original four checks remain: the synthetic CPU training service runs three epochs; the synthetic inference service measures a classification pass and reports latency and its seven-of-eight quality marker; both have no samples before enrollment; and the ServiceMonitor/PodMonitor, unselected comparison, and discovery RBAC are checked.
+
+An additive native producer check uses the published `SAF-K8S-0903-004` companion. It validates SHA-256 for `llama_runtime.py`, `Dockerfile.llama`, and `llama_client.py`, runs the exact b9519 CPU image and checksum-pinned tiny Stories model, enables `--metrics`, and enrolls the server with a ServiceMonitor. It observes `llamacpp:tokens_predicted_total` after target `up=1`, records a pre-completion baseline, sends the companion's fixed completion, and requires the Prometheus counter increase to equal the client-reported four generated tokens. It demonstrates one CPU inference producer-to-scrape path in this disposable cluster. GPU/DCGM telemetry, native training-framework signals, production identity attribution, and durable monitoring are outside the evidence.
+
+The server Pod Ready wait is 190 seconds, with a 200-second command ceiling. The pinned companion startup probe allows approximately 180 seconds (`failureThreshold: 90`, `periodSeconds: 2`), so this wait no longer ends before that probe allowance. Target discovery (100 seconds), client readiness (60 seconds), completion command (75 seconds), and post-request metric observation (90 seconds) retain their original bounds.
+
+The intended dependency is `HERE.parent / "SAF-K8S-0903-004"`, the published sibling under `tests/control-lab/cases`. A normal source-tree run resolves it directly. The control-lab approval loader copies only the selected case into a temporary directory; when loading this scratch copy through that path, set `SAF_CONTROL_CASES_ROOT` to the original published `tests/control-lab/cases` directory. The helper then validates all three companion hashes before using their bytes. The temporary build context receives only the already-validated Dockerfile bytes; the published companion files are not duplicated into this case.
+
+Raw outputs are written to `llama-metrics-client.raw.log` (bounded actual client receipt) and `llama-native-prometheus.raw.json` (baseline, target-up labels, completion response, after sample, and observed delta). The existing `telemetry-observed.json` remains for the original four checks.
 
 The scraper service account can list EndpointSlices in the fixture namespace. Kubernetes denies the same discovery request in another namespace and denies Secret reads. Check the retained observations for raw Prometheus query results, target states and discovery decisions.
 
@@ -18,3 +26,7 @@ For adoption, record the actual vendor, hardware, driver, exporter version and m
 
 - [NVIDIA DCGM Exporter installation and compatibility](https://docs.nvidia.com/datacenter/dcgm/latest/installation/install-dcgm-exporter.html)
 - [NVIDIA DCGM Exporter metric support](https://docs.nvidia.com/datacenter/dcgm/latest/reference/dcgm-exporter-metrics.html)
+
+The native counter proof requires a fresh zero-valued scrape and a later scrape
+from the same labeled series, with the two actual sample timestamps and values
+retained in raw evidence. The new monitor has a separate bounded convergence wait.
