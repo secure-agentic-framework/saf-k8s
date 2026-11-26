@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0504-005",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "cb607b3da8ae3238e933d0f5c3ceb12565e92e3f",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "4a405dcedc758e30b5293081af3f4723edb1d25d0e6db0ab68a0bf78ffe90c7e",
   "scope": "One fresh disposable Kind v1.36.1 cluster, the published adjacent case's Istio 1.32.0 sidecar runtime, and two case-owned Python fixture Pods in the runner-created saf-test namespace. Compares a small finite set of local GETs before and after applying documented Envoy proxy CPU/memory annotations to the backend. Reads the injected istio-proxy request/limit values from the Pod spec and checks bounded authenticated request availability. A server-side dry-run of a candidate whose proxy CPU request exceeds its limit exercises the admission rollback guard without mutating the known-good Pod. Throughput, GPU behavior, mTLS overhead, and production availability remain unverified.",
-  "cluster": "saf-lab-b549bc4cbff8",
+  "cluster": "saf-lab-ea2d1d912cbe",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
