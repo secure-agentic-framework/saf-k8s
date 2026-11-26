@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-019",
-  "catalog_revision": "89c1d87c09336eddc5d3609d181acc13a6b7172f",
-  "catalog_sha256": "52ad4a26afa92a2a279d8939b98ae3b3de9b252bc9564b999a1fb2bd9379c788",
+  "catalog_revision": "a671e086e4283c5de562b6743d83dd8fcea717d7",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "66b4d75d6335dbc0d45d2e4ecbb2072643c03ac58c72614d0c50c765d50595c7",
   "scope": "Helm package provenance for an owned chart that installs one inert ConfigMap.",
-  "cluster": "saf-lab-6dc3d0871e1c",
+  "cluster": "saf-lab-fba02593677b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
