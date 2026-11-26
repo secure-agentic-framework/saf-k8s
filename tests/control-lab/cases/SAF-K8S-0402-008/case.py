@@ -1,6 +1,7 @@
 """Review distinct AI-workload ServiceAccounts and named-read RBAC via SAR."""
 import json
 from pathlib import Path
+import time
 
 from fixtures import container
 
@@ -44,8 +45,9 @@ SCOPE = (
     "Inference, and Pipeline accounts. "
     "The case reviews named ConfigMap GET authorization using ephemeral "
     "authorization.k8s.io/v1 SubjectAccessReviews and does not use workload "
-    "credentials. External cloud IAM, federated identities, admission mapping "
-    "enforcement, Kubeflow, KServe, training operators, production resources, "
+    "credentials. A namespace-scoped native admission policy verifies exact type "
+    "and ServiceAccount mappings. External cloud IAM, federated identities, "
+    "Kubeflow, KServe, training operators, production resources, "
     "and actual model environments are outside this case."
 )
 
@@ -162,7 +164,7 @@ def create_workloads(lab, shared_account=None):
                     "--timeout=95s", timeout=105)
 
 
-def run(lab):
+def _run_rbac_checks(lab):
     lab.kubectl("create", "namespace", NAMESPACE)
     lab.kubectl("-n", NAMESPACE, "apply", "-f", str(HERE / "fixtures.yaml"))
     lab.kubectl("-n", NAMESPACE, "apply", "-f", str(HERE / "shared-binding.yaml"))
@@ -246,3 +248,217 @@ def run(lab):
         all(decision["allowed"] for decision in preserved.values()),
         preserved,
     )
+
+# Supplemental admission phase. This function is called after the original five
+# checks so the existing shared-identity and SAR evidence remains unchanged.
+VAP_NAME = "saf-0402-008-workload-serviceaccount"
+TYPE_LABEL = "saf-k8s.example/workload-type"
+SCOPE_LABEL = "saf-k8s.example/0402-008-vap-scope"
+ADMISSION_MESSAGE = "workload-type label must map to its assigned case ServiceAccount"
+COMPARATOR_NAMESPACE = "saf-0402-008-vap-outside"
+
+
+def admission_pod(name, namespace, workload_type, account):
+    pod = pod_for(workload_type, {"pod": name}, account)
+    pod["metadata"]["namespace"] = namespace
+    if workload_type is None:
+        del pod["metadata"]["labels"][TYPE_LABEL]
+    return pod
+
+
+def dry_run_create(lab, pod, namespace, timeout=15):
+    return lab.kubectl(
+        "-n", namespace, "create", "-f", "-", "-o", "json", "--dry-run=server",
+        payload=json.dumps(pod), timeout=timeout, allow_failure=True,
+    )
+
+
+def admission_denied(result):
+    text = result.stderr + result.stdout
+    return result.returncode != 0 and VAP_NAME in text and ADMISSION_MESSAGE in text
+
+
+def _run_vap_checks_body(lab):
+    # Establish the before-activation comparator: the API accepts this wrong
+    # mapping when the case-owned policy has not yet been installed.
+    baseline = dry_run_create(
+        lab, admission_pod("vap-policy-ready-training", NAMESPACE,
+                           "training", WORKLOADS["inference"]["service_account"]), NAMESPACE
+    )
+    lab.check(
+        "red", "Before policy activation the API admits the synthetic wrong type/account mapping",
+        baseline.returncode == 0,
+        {"request": "preactivation-training-to-inference-account", "accepted": baseline.returncode == 0},
+    )
+
+    lab.kubectl("label", "namespace", NAMESPACE, f"{SCOPE_LABEL}=enabled", "--overwrite")
+    lab.kubectl("apply", "-f", str(HERE / "policy.yaml"))
+    scope = json.loads(lab.kubectl("get", "namespace", NAMESPACE, "-o", "json").stdout)
+    scope_enabled = scope.get("metadata", {}).get("labels", {}).get(SCOPE_LABEL) == "enabled"
+    binding = json.loads(lab.kubectl(
+        "get", "validatingadmissionpolicybinding", VAP_NAME, "-o", "json"
+    ).stdout)
+    policy = json.loads(lab.kubectl(
+        "get", "validatingadmissionpolicy", VAP_NAME, "-o", "json"
+    ).stdout)
+    lab.check(
+        "positive", "The case VAP and Deny binding are installed with exact namespace scope",
+        scope_enabled
+        and binding.get("spec", {}).get("policyName") == VAP_NAME
+        and binding.get("spec", {}).get("validationActions") == ["Deny"]
+        and binding.get("spec", {}).get("matchResources", {}).get("namespaceSelector", {})
+            .get("matchLabels", {}).get(SCOPE_LABEL) == "enabled"
+        and policy.get("spec", {}).get("failurePolicy") == "Fail",
+        {"scope_label": scope_enabled,
+         "binding_policy_matches": binding.get("spec", {}).get("policyName") == VAP_NAME,
+         "binding_deny": binding.get("spec", {}).get("validationActions") == ["Deny"],
+         "namespace_selector_matches": binding.get("spec", {}).get("matchResources", {})
+            .get("namespaceSelector", {}).get("matchLabels", {}).get(SCOPE_LABEL) == "enabled",
+         "failure_policy_fail": policy.get("spec", {}).get("failurePolicy") == "Fail"},
+    )
+
+    # Wait for the named denial rather than treating admission propagation as
+    # an immediate invariant. Bound to 20 seconds, with 10-second API calls.
+    ready_probe = admission_pod(
+        "vap-policy-ready-training", NAMESPACE, "training",
+        WORKLOADS["inference"]["service_account"],
+    )
+    ready_result = None
+    deadline = time.monotonic() + 20
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining < 8:
+            break
+        ready_result = dry_run_create(lab, ready_probe, NAMESPACE, timeout=8)
+        if admission_denied(ready_result):
+            break
+        time.sleep(0.5)
+    ready = ready_result is not None and admission_denied(ready_result)
+    lab.check(
+        "green", "The active VAP reaches its exact named denial within the readiness bound",
+        ready,
+        {"request": "vap-policy-ready-training", "named_denial_observed": ready,
+         "within_seconds": 20},
+    )
+
+    correct = {}
+    for kind, values in WORKLOADS.items():
+        result = dry_run_create(
+            lab, admission_pod(f"vap-allowed-{kind}", NAMESPACE, kind,
+                               values["service_account"]), NAMESPACE
+        )
+        correct[kind] = result.returncode == 0
+        lab.check(
+            "positive", f"VAP admits the correct {kind} type-to-ServiceAccount mapping",
+            correct[kind], {"type": kind, "accepted": correct[kind]},
+        )
+
+    wrong = {}
+    kinds = list(WORKLOADS)
+    for index, kind in enumerate(kinds):
+        other = kinds[(index + 1) % len(kinds)]
+        result = dry_run_create(
+            lab, admission_pod(f"vap-denied-wrong-{kind}", NAMESPACE, kind,
+                               WORKLOADS[other]["service_account"]), NAMESPACE
+        )
+        wrong[kind] = admission_denied(result)
+        lab.check(
+            "green", f"VAP denies the wrong ServiceAccount for {kind}", wrong[kind],
+            {"type": kind, "wrong_account_type": other, "named_denial": wrong[kind]},
+        )
+
+    missing_result = dry_run_create(
+        lab, admission_pod("vap-denied-missing-type", NAMESPACE, None,
+                           WORKLOADS["training"]["service_account"]), NAMESPACE
+    )
+    missing_denied = admission_denied(missing_result)
+    lab.check(
+        "green", "VAP denies a Pod with no workload-type label", missing_denied,
+        {"request": "vap-denied-missing-type", "named_denial": missing_denied},
+    )
+    unknown_result = dry_run_create(
+        lab, admission_pod("vap-denied-unknown-type", NAMESPACE, "unknown",
+                           WORKLOADS["training"]["service_account"]), NAMESPACE
+    )
+    unknown_denied = admission_denied(unknown_result)
+    lab.check(
+        "green", "VAP denies an unknown workload-type label", unknown_denied,
+        {"request": "vap-denied-unknown-type", "named_denial": unknown_denied},
+    )
+
+    # Submit a real metadata-only update to the owned disposable Pod.
+    update_pod = WORKLOADS["training"]["pod"]
+    update = lab.kubectl(
+        "-n", NAMESPACE, "patch", "pod", update_pod, "--type=merge",
+        "-p", json.dumps({"metadata": {"labels": {TYPE_LABEL: "inference"}}}),
+        "-o", "json", timeout=15, allow_failure=True,
+    )
+    update_denied = admission_denied(update)
+    lab.check(
+        "green", "VAP denies changing a persisted Pod's workload type without matching its ServiceAccount",
+        update_denied,
+        {"pod": update_pod, "attempted_type": "inference", "named_denial": update_denied},
+    )
+    persisted = json.loads(lab.kubectl(
+        "-n", NAMESPACE, "get", "pod", update_pod, "-o", "json"
+    ).stdout)
+    persisted_type = persisted.get("metadata", {}).get("labels", {}).get(TYPE_LABEL)
+    persisted_account = persisted.get("spec", {}).get("serviceAccountName")
+    unchanged = (persisted_type == "training"
+                 and persisted_account == WORKLOADS["training"]["service_account"])
+    lab.check(
+        "positive", "The refused type-changing update leaves the persisted label and ServiceAccount unchanged",
+        unchanged,
+        {"pod": update_pod, "workload_type_unchanged": persisted_type == "training",
+         "service_account_unchanged": persisted_account == WORKLOADS["training"]["service_account"]},
+    )
+
+    # A wrong mapping is accepted outside the unique case namespace selector;
+    # only server-side dry-run is used, so no Pod is persisted or scheduled.
+    comparator_created = False
+    try:
+        lab.kubectl("create", "namespace", COMPARATOR_NAMESPACE, timeout=15)
+        account = {"apiVersion": "v1", "kind": "ServiceAccount",
+                   "metadata": {"name": WORKLOADS["inference"]["service_account"],
+                                "namespace": COMPARATOR_NAMESPACE},
+                   "automountServiceAccountToken": False}
+        lab.kubectl("-n", COMPARATOR_NAMESPACE, "create", "-f", "-",
+                    payload=json.dumps(account), timeout=15)
+        comparator = dry_run_create(
+            lab, admission_pod("vap-outside-scope-mismatch", COMPARATOR_NAMESPACE,
+                               "training", WORKLOADS["inference"]["service_account"]),
+            COMPARATOR_NAMESPACE,
+        )
+        comparator_created = comparator.returncode == 0
+        lab.check(
+            "positive", "An otherwise valid synthetic Pod outside the selected namespace is not evaluated by this binding",
+            comparator_created,
+            {"namespace": COMPARATOR_NAMESPACE, "mismatched_mapping_accepted": comparator_created},
+        )
+    finally:
+        lab.kubectl("delete", "namespace", COMPARATOR_NAMESPACE,
+                    "--ignore-not-found=true", timeout=20, allow_failure=True)
+        lab.kubectl("delete", "validatingadmissionpolicybinding", VAP_NAME,
+                    "--ignore-not-found=true", timeout=15, allow_failure=True)
+        lab.kubectl("delete", "validatingadmissionpolicy", VAP_NAME,
+                    "--ignore-not-found=true", timeout=15, allow_failure=True)
+
+
+def run_vap_checks(lab):
+    try:
+        _run_vap_checks_body(lab)
+    finally:
+        # Exact-name cleanup also runs if an assertion or API request fails.
+        lab.kubectl("delete", "namespace", COMPARATOR_NAMESPACE,
+                    "--ignore-not-found=true", timeout=20, allow_failure=True)
+        lab.kubectl("delete", "validatingadmissionpolicybinding", VAP_NAME,
+                    "--ignore-not-found=true", timeout=15, allow_failure=True)
+        lab.kubectl("delete", "validatingadmissionpolicy", VAP_NAME,
+                    "--ignore-not-found=true", timeout=15, allow_failure=True)
+
+
+# The original case.run body above remains intact; invoke additive admission
+# checks only after all five published checks have passed.
+def run(lab):
+    _run_rbac_checks(lab)
+    run_vap_checks(lab)

@@ -1,0 +1,33 @@
+# Candidate only; bind to the single disposable case namespace.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: saf-0402-008-workload-serviceaccount
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - apiGroups: [""]
+      apiVersions: ["v1"]
+      operations: ["CREATE", "UPDATE"]
+      resources: ["pods"]
+  validations:
+  - expression: >-
+      has(object.metadata.labels) &&
+      'saf-k8s.example/workload-type' in object.metadata.labels &&
+      ((object.metadata.labels['saf-k8s.example/workload-type'] == 'training' && object.spec.serviceAccountName == 'saf-0402-008-training') ||
+       (object.metadata.labels['saf-k8s.example/workload-type'] == 'inference' && object.spec.serviceAccountName == 'saf-0402-008-inference') ||
+       (object.metadata.labels['saf-k8s.example/workload-type'] == 'pipeline' && object.spec.serviceAccountName == 'saf-0402-008-pipeline'))
+    message: "workload-type label must map to its assigned case ServiceAccount"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: saf-0402-008-workload-serviceaccount
+spec:
+  policyName: saf-0402-008-workload-serviceaccount
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        saf-k8s.example/0402-008-vap-scope: enabled

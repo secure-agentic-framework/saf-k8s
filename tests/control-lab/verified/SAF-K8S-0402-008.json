@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0402-008",
-  "catalog_revision": "d34b502ac96accb45a26841dfa77094dc4a72d9e",
-  "catalog_sha256": "c3bdef2bfc0aae712ee2fcb1bfd47cebfcedc7415526acfb36b86be77042a93f",
+  "catalog_revision": "9269dad103762eacb2afc81547066aa10c5a7f35",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "53d56fec8fa31f01eaaf7e613848eda1231d0bc99041480c6a142fab12c94b95",
-  "scope": "Kubernetes v1.36.1 native ServiceAccounts, Pods, namespaced Roles and RoleBindings, and three case-owned ConfigMaps. Three ordinary synthetic Pods begin with a shared account and are recreated with distinct Training, Inference, and Pipeline accounts. The case reviews named ConfigMap GET authorization using ephemeral authorization.k8s.io/v1 SubjectAccessReviews and does not use workload credentials. External cloud IAM, federated identities, admission mapping enforcement, Kubeflow, KServe, training operators, production resources, and actual model environments are outside this case.",
-  "cluster": "saf-lab-8dee9fa35a3b",
+  "scope": "Kubernetes v1.36.1 native ServiceAccounts, Pods, namespaced Roles and RoleBindings, and three case-owned ConfigMaps. Three ordinary synthetic Pods begin with a shared account and are recreated with distinct Training, Inference, and Pipeline accounts. The case reviews named ConfigMap GET authorization using ephemeral authorization.k8s.io/v1 SubjectAccessReviews and does not use workload credentials. A namespace-scoped native admission policy verifies exact type and ServiceAccount mappings. External cloud IAM, federated identities, Kubeflow, KServe, training operators, production resources, and actual model environments are outside this case.",
+  "cluster": "saf-lab-5ca0fe57a4b5",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -195,6 +195,141 @@
           "denied": false,
           "reason": "RBAC: allowed by RoleBinding \"saf-0402-008-pipeline-reader/saf-0402-008\" of Role \"saf-0402-008-pipeline-reader\" to ServiceAccount \"saf-0402-008-pipeline/saf-0402-008\""
         }
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before policy activation the API admits the synthetic wrong type/account mapping",
+      "matched": true,
+      "observed": {
+        "request": "preactivation-training-to-inference-account",
+        "accepted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The case VAP and Deny binding are installed with exact namespace scope",
+      "matched": true,
+      "observed": {
+        "scope_label": true,
+        "binding_policy_matches": true,
+        "binding_deny": true,
+        "namespace_selector_matches": true,
+        "failure_policy_fail": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The active VAP reaches its exact named denial within the readiness bound",
+      "matched": true,
+      "observed": {
+        "request": "vap-policy-ready-training",
+        "named_denial_observed": true,
+        "within_seconds": 20
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "VAP admits the correct training type-to-ServiceAccount mapping",
+      "matched": true,
+      "observed": {
+        "type": "training",
+        "accepted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "VAP admits the correct inference type-to-ServiceAccount mapping",
+      "matched": true,
+      "observed": {
+        "type": "inference",
+        "accepted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "VAP admits the correct pipeline type-to-ServiceAccount mapping",
+      "matched": true,
+      "observed": {
+        "type": "pipeline",
+        "accepted": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "VAP denies the wrong ServiceAccount for training",
+      "matched": true,
+      "observed": {
+        "type": "training",
+        "wrong_account_type": "inference",
+        "named_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "VAP denies the wrong ServiceAccount for inference",
+      "matched": true,
+      "observed": {
+        "type": "inference",
+        "wrong_account_type": "pipeline",
+        "named_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "VAP denies the wrong ServiceAccount for pipeline",
+      "matched": true,
+      "observed": {
+        "type": "pipeline",
+        "wrong_account_type": "training",
+        "named_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "VAP denies a Pod with no workload-type label",
+      "matched": true,
+      "observed": {
+        "request": "vap-denied-missing-type",
+        "named_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "VAP denies an unknown workload-type label",
+      "matched": true,
+      "observed": {
+        "request": "vap-denied-unknown-type",
+        "named_denial": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "VAP denies changing a persisted Pod's workload type without matching its ServiceAccount",
+      "matched": true,
+      "observed": {
+        "pod": "saf-0402-008-training-workload",
+        "attempted_type": "inference",
+        "named_denial": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The refused type-changing update leaves the persisted label and ServiceAccount unchanged",
+      "matched": true,
+      "observed": {
+        "pod": "saf-0402-008-training-workload",
+        "workload_type_unchanged": true,
+        "service_account_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An otherwise valid synthetic Pod outside the selected namespace is not evaluated by this binding",
+      "matched": true,
+      "observed": {
+        "namespace": "saf-0402-008-vap-outside",
+        "mismatched_mapping_accepted": true
       }
     }
   ]
