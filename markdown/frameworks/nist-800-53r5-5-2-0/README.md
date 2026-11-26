@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 2132
-- Distinct Requirements Mapped: 656
+- Total Reverse Mappings: 2124
+- Distinct Requirements Mapped: 653
 
 ## Requirements
 
@@ -380,7 +380,6 @@
 - [SA-10(2) - Alternative Configuration Management Processes](sa-10-2.md)
 - [SA-10(4) - Trusted Generation](sa-10-4.md)
 - [SA-10(5) - Mapping Integrity for Version Control](sa-10-5.md)
-- [SA-10(6) - Trusted Distribution](sa-10-6.md)
 - [SA-10(7) - Security and Privacy Representatives](sa-10-7.md)
 - [SA-11 - Developer Testing and Evaluation](sa-11.md)
 - [SA-11(1) - Static Code Analysis](sa-11-1.md)
@@ -504,7 +503,6 @@
 - [SC-32 - System Partitioning](sc-32.md)
 - [SC-34 - Non-modifiable Executable Programs](sc-34.md)
 - [SC-34(1) - No Writable Storage](sc-34-1.md)
-- [SC-34(2) - Integrity Protection on Read-only Media](sc-34-2.md)
 - [SC-36 - Distributed Processing and Storage](sc-36.md)
 - [SC-36(1) - Polling Techniques](sc-36-1.md)
 - [SC-36(2) - Synchronization](sc-36-2.md)
@@ -641,7 +639,6 @@
 - [SR-11 - Component Authenticity](sr-11.md)
 - [SR-11(1) - Anti-counterfeit Training](sr-11-1.md)
 - [SR-11(2) - Configuration Control for Component Service and Repair](sr-11-2.md)
-- [SR-11(3) - Anti-counterfeit Scanning](sr-11-3.md)
 - [SR-12 - Component Disposal](sr-12.md)
 - [SR-2 - Supply Chain Risk Management Plan](sr-2.md)
 - [SR-2(1) - Establish SCRM Team](sr-2-1.md)

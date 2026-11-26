@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-The AI system trade name and any additional unambiguous reference allowing the identification and traceability of the AI system;
-
-SAF-K8S supply chain controls (D6) support identification through container image digests, model version tracking via ML-BOMs, workload labels, and cryptographic attestation. However, defining the identification scheme (serial numbers, model identifiers) for regulatory registration is an organizational decision.
+If this signed image digest is explicitly linked to the registered high-risk AI system as an unambiguous traceability reference. The fixture identifies one OCI image digest, not the AI system trade name, system-level registration identifier, model version, or model-to-system linkage. Those identifiers and relationships must be maintained separately.
 
 ## SAF-K8S Controls
 
@@ -17,8 +15,8 @@ SAF-K8S supply chain controls (D6) support identification through container imag
 - Knowledge Area: 6.2
 - Relation Type: partial
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0604-002 - ML-BOM (ML Bill of Materials) generation](../../controls/SAF-K8S-0604-002.md)
 

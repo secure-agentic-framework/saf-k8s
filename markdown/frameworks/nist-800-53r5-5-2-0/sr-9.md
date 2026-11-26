@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Tamper resistance and detection for AI models and agent components prevents manipulation
-
-8.2 - GPU firmware integrity (tamper detection); 6.2 - Image integrity (tamper detection via signing)
+Where pre-use signature verification is one control for detecting unauthorized changes to the covered software image. The fixture verifies the digest before use; it does not provide tamper resistance or detection during runtime, component inspection, or continuous integrity monitoring.
 
 ## SAF-K8S Controls
 
@@ -15,10 +13,10 @@ Tamper resistance and detection for AI models and agent components prevents mani
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.2
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0802-001 - GPU driver lifecycle and vulnerability management](../../controls/SAF-K8S-0802-001.md)
 

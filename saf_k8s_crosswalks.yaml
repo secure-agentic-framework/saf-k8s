@@ -834,16 +834,13 @@
   framework_requirement_id: Annex-VIII.A.4
   legacy_requirement_id: Annex-VIII:VIII(14)
   framework_requirement_title: Information to be submitted upon the registration of high-risk AI systems in accordance with Article 49
-  framework_mapping_notes: |-
-    The AI system trade name and any additional unambiguous reference allowing the identification and traceability of the AI system;
-
-    SAF-K8S supply chain controls (D6) support identification through container image digests, model version tracking via ML-BOMs, workload labels, and cryptographic attestation. However, defining the identification scheme (serial numbers, model identifiers) for regulatory registration is an organizational decision.
+  framework_mapping_notes: If this signed image digest is explicitly linked to the registered high-risk AI system as an unambiguous traceability reference. The fixture identifies one OCI image digest, not the AI system trade name, system-level registration identifier, model version, or model-to-system linkage. Those identifiers and relationships must be maintained separately.
   control_id: SAF-K8S-0602-001
   relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  applicability: conditional
+  applicability_condition: The image digest is used as an unambiguous traceability reference for the registered high-risk AI system and is linked to that system's registration identity.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -5197,16 +5194,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-16(8)
   framework_requirement_title: Association Techniques and Technologies
-  framework_mapping_notes: 'Technical mechanisms for agent data labeling
-
-
-    6.2 - Image signing (Sigstore cryptographic attribute binding); 9.5 - Model signing and provenance attestations'
+  framework_mapping_notes: Where the organization defines signer identity and image digest as security attributes and uses this keyless signature mechanism to associate those attributes with the image. The fixture demonstrates identity/digest binding for one OCI artifact; it does not define the organization's attribute policy or assure attribute association for other information.
   control_id: SAF-K8S-0602-001
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization defines signer identity and artifact digest as security attributes and uses this binding for the covered image.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -7886,22 +7880,6 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-4(19)
   framework_requirement_title: Validation of Metadata
-  framework_mapping_notes: 'Validating metadata in agent messages
-
-
-    9.5 - Model signing and provenance (validating attestation metadata); 6.2 - Image signing and verification (attestation validation)'
-  control_id: SAF-K8S-0602-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(19)
-  framework_requirement_title: Validation of Metadata
   framework_mapping_notes: The native policy validates that selected workload metadata (system ID, registry reference, lifecycle class and profile) agrees with one stored synthetic registry parameter before admission. It does not validate metadata for general information-flow decisions or other API resources and paths.
   control_id: SAF-K8S-0905-001
   relation_type: supports
@@ -10497,16 +10475,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-10
   framework_requirement_title: Non-repudiation
-  framework_mapping_notes: 'Non-repudiation for agent actions
-
-
-    6.2 - Image signing (Sigstore/cosign for non-repudiation); 9.4 - Model signing and provenance'
+  framework_mapping_notes: Where the organization defines the keyless image-signing action as an action requiring non-repudiation and binds the workload signer identity, signed digest, and verifiable log evidence to that action. The fixture provides evidence of one service-account signing event; it does not attribute an individual, cover other agent actions, or establish enterprise non-repudiation policy.
   control_id: SAF-K8S-0602-001
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization defines the image-signing action as a non-repudiation-covered action and retains the signed identity/digest/log evidence against an accountable workflow identity.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -10583,16 +10558,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-10(2)
   framework_requirement_title: Validate Binding of Information Producer Identity
-  framework_mapping_notes: 'Verifying which agent produced data
-
-
-    6.2 - Image signing verification (validating producer identity binding); 9.5 - Model origin verification'
+  framework_mapping_notes: Where the organization defines image-signature validation frequency and validation-error actions for the covered release path. The fixture verifies signer identity/digest before its release step and rejects wrong identity and issuer; it does not establish frequency or response actions for all releases.
   control_id: SAF-K8S-0602-001
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization defines a validation frequency and actions for verification errors for this image release path.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -13475,16 +13447,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-14
   framework_requirement_title: Signed Components
-  framework_mapping_notes: 'Cryptographic signing of agent components/models
-
-
-    6.2 - Image signing (Sigstore/cosign signed components); 9.4 - Model signing and provenance verification'
+  framework_mapping_notes: For designated software components whose installation is governed by this verification path. The case verifies the private keyless signature, records the approved image reference in a scoped immutable object, and shows native Pod admission consuming that reference. The deployment must establish coverage and trustworthy approval issuance.
   control_id: SAF-K8S-0602-001
   relation_type: direct
   strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  applicability: conditional
+  applicability_condition: This approved-certificate signature check is enforced before installation on every covered software-component path.
+  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -14723,16 +14692,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-7(4)
   framework_requirement_title: Unauthorized Software -- Deny-by-exception
-  framework_mapping_notes: 'Deny-by-default for agent tools/plugins
-
-
-    6.5 - Admission control (rejecting unsigned/unapproved images); 6.2 - Image signature verification (deny-by-exception)'
+  framework_mapping_notes: Only where this verified-identity policy is incorporated into an organization-defined deny-by-exception software policy and applied to every relevant execution path. The fixture checks one signed image and rejects mismatched identity/issuer during verification; it does not define the authorized software inventory or enforce a system-wide unauthorized-software deny policy.
   control_id: SAF-K8S-0602-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The image identity verification policy forms part of the organization's deny-by-exception authorized-software policy and is enforced across applicable execution paths.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -18316,22 +18282,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: IA-5(2)
-  framework_requirement_title: Public Key-based Authentication
-  framework_mapping_notes: 'PKI for agent authentication (mTLS, JWT signing)
-
-
-    4.4 - cert-manager (PKI-based authentication); 1.2 - etcd client certificate auth; 6.2 - Cosign key management'
-  control_id: SAF-K8S-0602-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: IA-5(5)
   framework_requirement_title: Change Authenticators Prior to Delivery
   framework_mapping_notes: 'Changing default agent credentials
@@ -19760,22 +19710,6 @@
 
     6.2 - Multiple signing tools (Sigstore, Notary diversity); 5.2 - CNI plugin selection (supplier diversity)'
   control_id: SAF-K8S-0502-005
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PL-8(2)
-  framework_requirement_title: Supplier Diversity
-  framework_mapping_notes: 'Supplier diversity for AI model providers and tool integrations reduces single-vendor risk
-
-
-    6.2 - Multiple signing tools (Sigstore, Notary diversity); 5.2 - CNI plugin selection (supplier diversity)'
-  control_id: SAF-K8S-0602-001
   relation_type: supports
   strength_level: moderate
   applicability: required
@@ -21483,16 +21417,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-10(1)
   framework_requirement_title: Software and Firmware Integrity Verification
-  framework_mapping_notes: 'Integrity verification of agent software components prevents supply chain tampering
-
-
-    6.2 - Image signing (Sigstore integrity verification); 8.2 - GPU firmware integrity monitoring'
+  framework_mapping_notes: Where the developer uses this keyless signature and verification process as developer-provided integrity verification for the covered software component. The fixture demonstrates an organization-operated verifier for one image; it does not establish developer configuration-management processes or enablement across delivered software/firmware.
   control_id: SAF-K8S-0602-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The developer uses the signature and verification process as its integrity-verification mechanism for the covered component.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -21599,22 +21530,6 @@
   applicability: conditional
   applicability_condition: Only where the protected approved tree is the designated current master for these Kubernetes policy files and the promoted API objects are their operational copy. The fixture verifies exact tree and file correspondence for this local set, not correspondence for all security-relevant master build data and operational copies.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-10(6)
-  framework_requirement_title: Trusted Distribution
-  framework_mapping_notes: 'Trusted distribution of agent components and model artifacts prevents tampering in transit
-
-
-    6.1 - Registry access controls (trusted distribution); 6.2 - TUF for secure software update distribution'
-  control_id: SAF-K8S-0602-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -24900,16 +24815,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-8(9)
   framework_requirement_title: Trusted Components
-  framework_mapping_notes: 'Trusted component identification is essential for agent systems relying on external models and tools
-
-
-    6.2 - Image signing (verifying trusted components); 8.4 - Remote attestation (hardware trust verification)'
+  framework_mapping_notes: Where this image verification mechanism is an explicitly selected application of the organization's trusted-components engineering principle. The fixture demonstrates a local trust chain for one image, not the system design rationale, trustworthiness metric, or assurance argument for system components.
   control_id: SAF-K8S-0602-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization identifies this verification chain as its selected trusted-components design principle and documents its trustworthiness rationale.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -25028,22 +24940,6 @@
   applicability: conditional
   applicability_condition: The selected external storage service demonstrably preserves exclusive organizational key
     control for its covered data
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-9(7)
-  framework_requirement_title: Organization-controlled Integrity Checking
-  framework_mapping_notes: 'Integrity verification of external AI models and tools used by agents prevents tampering
-
-
-    6.2 - Image signing (org-controlled signature verification); 9.5 - Model integrity verification at deploy time'
-  control_id: SAF-K8S-0602-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -25247,16 +25143,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-12(3)
   framework_requirement_title: Asymmetric Keys
-  framework_mapping_notes: 'Asymmetric key management for agent identity, code signing, and mutual authentication
-
-
-    4.4 - cert-manager (asymmetric key pairs for TLS); 6.2 - Cosign signing key management'
+  framework_mapping_notes: Where the organization-defined asymmetric key-management process includes the ephemeral Cosign key and Fulcio certificate path used for the covered image signatures. The fixture observes keyless signing and certificate verification but does not establish production key generation, distribution, storage, access, destruction, trust-store management, or rotation.
   control_id: SAF-K8S-0602-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The production asymmetric key/certificate path is operated under the organization's defined key generation, distribution, storage, access, destruction, and trust-store requirements.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -25413,16 +25306,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-16(1)
   framework_requirement_title: Integrity Verification
-  framework_mapping_notes: 'Integrity verification of security attributes in agent messages prevents tampering
-
-
-    6.2 - Image signing verification (attribute integrity); 9.4 - Model provenance integrity verification'
+  framework_mapping_notes: Where signer identity and digest are designated security attributes associated with the transmitted image. The fixture verifies those attributes through the signature/certificate and transparency material for one OCI digest; it does not cover other transmitted security/privacy attributes.
   control_id: SAF-K8S-0602-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization designates signer identity/digest as the security attributes associated with this image transfer.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -25477,16 +25367,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-16(3)
   framework_requirement_title: Cryptographic Binding
-  framework_mapping_notes: 'Cryptographic binding of security attributes to agent messages ensures authenticity
-
-
-    6.2 - Sigstore (cryptographic binding of signatures to artifacts); 9.5 - Model signing cryptographic binding'
+  framework_mapping_notes: For image transfers where the organization defines signer identity and digest as security attributes to be cryptographically bound to the OCI image. Cosign binds the signature and Fulcio identity to the exact digest and the verifier checks that binding before use. The fixture covers one image and does not establish other security/privacy attribute policies.
   control_id: SAF-K8S-0602-001
   relation_type: direct
   strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  applicability: conditional
+  applicability_condition: The organization designates signer identity/digest as the security attributes to be bound to this image transfer.
+  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -27117,22 +27004,6 @@
 
     3.2 - readOnlyRootFilesystem; 9.2 - Read-only model mounts for inference servers (no writable storage)'
   control_id: SAF-K8S-0902-009
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-34(2)
-  framework_requirement_title: Integrity Protection on Read-only Media
-  framework_mapping_notes: 'Integrity verification of immutable agent images ensures unmodified deployment artifacts
-
-
-    6.2 - Image signing (integrity protection on immutable, read-only container images and model artifacts)'
-  control_id: SAF-K8S-0602-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -34718,10 +34589,7 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-7
   framework_requirement_title: Software, Firmware, and Information Integrity
-  framework_mapping_notes: 'Software and information integrity for agent systems prevents unauthorized modifications
-
-
-    6.2 - Image signing and verification (software integrity); 8.2 - GPU firmware integrity; 9.5 - Model signing and provenance; 1.4 - Control plane configuration file integrity verification'
+  framework_mapping_notes: This control verifies the integrity of organization-defined production/staging container images by checking a digest-specific keyless signature, certificate identity/issuer, and transparency/time evidence before execution. The fixture covers one image and one private verification environment, not all organization-defined software, firmware, or information.
   control_id: SAF-K8S-0602-001
   relation_type: direct
   strength_level: strong
@@ -34834,16 +34702,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-7(1)
   framework_requirement_title: Integrity Checks
-  framework_mapping_notes: 'Integrity checks on agent software, models, and configurations detect tampering
-
-
-    6.2 - Image signature verification (integrity checks at admission); 9.5 - Model integrity verification at deploy time'
+  framework_mapping_notes: Where the organization defines pre-deployment image signature verification as an integrity-check schedule for the covered images. The fixture performs one check for one digest; it does not demonstrate repeated/periodic checks or post-deployment monitoring.
   control_id: SAF-K8S-0602-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization-defined integrity-check schedule for these images includes verification before each deployment.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -34902,10 +34767,7 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-7(12)
   framework_requirement_title: Integrity Verification
-  framework_mapping_notes: 'Integrity verification of agent components validates authenticity before execution
-
-
-    9.5 - Model origin verification at deploy time; 6.2 - Image signature verification; 9.6 - Data integrity at scale'
+  framework_mapping_notes: For the organization's defined production/staging software images, verify image integrity before execution using the exact digest, approved certificate chain, signer identity/issuer, and required transparency/time evidence. NIST SP 800-53 Release 5.2.0 applies SI-7(12) to all organization-defined software rather than only organization-defined user software. The fixture covers one image and private test trust services.
   control_id: SAF-K8S-0602-001
   relation_type: direct
   strength_level: strong
@@ -34973,10 +34835,7 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-7(15)
   framework_requirement_title: Code Authentication
-  framework_mapping_notes: 'Code authentication for agent software and plugins verifies provenance before loading
-
-
-    6.2 - Image signing (code/image authentication); 6.6 - Signed commits (code authentication in GitOps)'
+  framework_mapping_notes: The fixture verifies one signed OCI image before use and uses native Pod admission to require an immutable approval of its exact reference. The organizational conditions include designated software, effective verifier-to-approval trust, and complete deployed paths.
   control_id: SAF-K8S-0602-001
   relation_type: direct
   strength_level: strong
@@ -35144,16 +35003,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-7(3)
   framework_requirement_title: Centrally Managed Integrity Tools
-  framework_mapping_notes: 'Centrally managed integrity tools provide consistent protection across agent deployments
-
-
-    6.5 - Admission control (centrally managed policy enforcement); 6.2 - Sigstore (centralized signing infrastructure)'
+  framework_mapping_notes: Where the production organization centrally manages and deploys the verified Cosign/TUF trust policy and integrity-checking tools across the covered clusters. The fixture uses a private local Sigstore/TUF service for one disposable cluster and does not establish centralized enterprise management.
   control_id: SAF-K8S-0602-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization's central integrity tool and trust policy are deployed to and governed across the covered clusters.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -35218,10 +35074,7 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-7(6)
   framework_requirement_title: Cryptographic Protection
-  framework_mapping_notes: 'Cryptographic integrity protection for agent binaries and models prevents tampering
-
-
-    6.2 - Image signing with Sigstore/cosign (cryptographic integrity); 9.5 - Model signing; 6.3 - Cryptographic agility'
+  framework_mapping_notes: The control uses cryptographic signatures and digest verification to protect the integrity of defined container images before execution. The fixture covers one OCI image; it does not establish cryptographic protection for other binaries, models, or data.
   control_id: SAF-K8S-0602-001
   relation_type: direct
   strength_level: strong
@@ -35422,16 +35275,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SR-11
   framework_requirement_title: Component Authenticity
-  framework_mapping_notes: 'Component authenticity verification ensures AI models and tools are genuine and untampered
-
-
-    6.2 - Image signing and verification (component authenticity); 9.5 - Model signing and provenance (model authenticity)'
+  framework_mapping_notes: Where approved signer identities and verified signatures are adopted as one technical measure in the organization's anti-counterfeit policy for the covered software components. The fixture verifies one image signature and signer; it does not establish anti-counterfeit procedures, source-vendor authenticity, reporting, or counterfeit handling.
   control_id: SAF-K8S-0602-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: This signature-verification path is an adopted measure in the documented anti-counterfeit procedures for the covered components.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -35598,22 +35448,6 @@
     8.2 - GPU driver version management (configuration control for driver updates); 10.7 - Change management for model deployments'
   control_id: SAF-K8S-1007-006
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-11(3)
-  framework_requirement_title: Anti-counterfeit Scanning
-  framework_mapping_notes: 'Scanning for counterfeit AI components detects fake or tampered models and tools
-
-
-    6.1 - Vulnerability scanning (detecting counterfeit/malicious images); 6.2 - Image verification (detecting tampered artifacts)'
-  control_id: SAF-K8S-0602-001
-  relation_type: direct
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -36019,16 +35853,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SR-4(1)
   framework_requirement_title: Identity
-  framework_mapping_notes: 'Identity verification of AI component suppliers ensures legitimate sourcing
-
-
-    6.2 - Sigstore keyless signing with Fulcio (identity-based provenance); 4.2 - Workload identity'
+  framework_mapping_notes: Where the keyless signer identity is uniquely mapped to an organization-defined supply-chain element, process, or accountable personnel record for the covered image. The fixture verifies a Kubernetes service-account identity; it does not identify the external supplier or maintain organization-wide supply-chain identities.
   control_id: SAF-K8S-0602-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The verified signer identities are mapped to maintained unique supply-chain element, process, or personnel records for the covered components.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -36119,16 +35950,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SR-4(3)
   framework_requirement_title: Validate as Genuine and Not Altered
-  framework_mapping_notes: 'Validating AI components as genuine and unaltered prevents supply chain tampering
-
-
-    6.2 - Image signing verification (validate genuine and unaltered); 9.5 - Model integrity verification at deploy time'
+  framework_mapping_notes: Where the verified signing identity is an approved source/developer identity for the covered image and the image digest represents the expected component. The fixture verifies one image's digest and local signer identity; it does not independently establish the source component's genuineness or vendor/master-copy identity.
   control_id: SAF-K8S-0602-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The verifier checks signatures from approved source/developer identities and correlates each digest with the genuine expected component.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -36656,16 +36484,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SR-9
   framework_requirement_title: Tamper Resistance and Detection
-  framework_mapping_notes: 'Tamper resistance and detection for AI models and agent components prevents manipulation
-
-
-    8.2 - GPU firmware integrity (tamper detection); 6.2 - Image integrity (tamper detection via signing)'
+  framework_mapping_notes: Where pre-use signature verification is one control for detecting unauthorized changes to the covered software image. The fixture verifies the digest before use; it does not provide tamper resistance or detection during runtime, component inspection, or continuous integrity monitoring.
   control_id: SAF-K8S-0602-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization uses this pre-use check as one designated mechanism to detect unauthorized changes to these components.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -36709,22 +36534,6 @@
 
     8.2 - GPU firmware integrity (tamper detection); 6.2 - Image integrity (tamper detection via signing)'
   control_id: SAF-K8S-0802-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-9(1)
-  framework_requirement_title: Multiple Stages of System Development Life Cycle
-  framework_mapping_notes: 'Multi-stage tamper detection across SDLC catches supply chain attacks at each phase
-
-
-    6.6 - CNCF lifecycle security across Develop/Distribute/Deploy (multi-stage tamper detection); 6.2 - Build attestation per NIST SP 800-204D'
-  control_id: SAF-K8S-0602-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -37135,13 +36944,13 @@
   framework_version: '1.1'
   framework_requirement_id: PS.2.1
   framework_requirement_title: Make software integrity verification information available to software acquirers.
-  framework_mapping_notes: SAF-K8S requires image signing (cosign/Sigstore, Notary v2), SLSA provenance, and transparency logging to provide integrity verification for container images, ML models, and deployment artifacts.
+  framework_mapping_notes: Only where the release process makes the signed image-verification information (digest, certificate identity/issuer, and verifiable transparency/time evidence) available to the software acquirer. The fixture verifies a local bundle before workload creation but does not publish verification information to all software acquirers or require particular products such as Notary or transparency logging for every artifact.
   control_id: SAF-K8S-0602-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: This release path makes verification information available to the software acquirer for the covered images.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
