@@ -15,18 +15,10 @@ from fixtures import BUSYBOX_IMAGE, container, pod
 HERE = Path(__file__).resolve().parent
 PUBLISHED_CASES = HERE.parent
 SCOPE = (
-    "One disposable Kind cluster and its default saf-test namespace. A Kubernetes-native "
-    "ValidatingAdmissionPolicy gates server-side Pod dry-runs on an exact pinned inert image "
-    "and an exact, bounded offline synthetic inference package inventory. The inventory "
-    "uses the published OCI fixture's canonical JSON and digest helper and the published "
-    "inference fixture's serving contract. It demonstrates declared-inventory release gating; "
-    "the positive path runs the pinned fixture and checks its exact API metadata. "
-    "A separate fixture comparison builds two inert local OCI targets from the exact pinned base, "
-    "observes marker files inside their real filesystem layers, and records local config/layer digests, "
-    "per-Pod-node CRI config/diff-ID joins, and Kubernetes runtime image IDs. This proves only the fixture's "
-    "build-stage marker distinction; "
-    "actual production image composition, hardware, CUDA/driver compatibility, qualification, provenance, "
-    "registry promotion, and deployed gate adoption remain unverified."
+    "One disposable Kind cluster first tests a Kubernetes ValidatingAdmissionPolicy with an inert image and bounded synthetic inference package inventory, then compares two real local OCI fixtures with and without an inert build marker. "
+    "A separate actual pinned Go toolchain builds a self-contained CPU HTTP fixture offline. "
+    "The test verifies digest-linked OCI bytes and a single static executable, then observes the fixed health marker and actual numeric identity in an owned Kind Pod and matches its CRI config and filesystem digest. "
+    "Production inference packages, image qualification, accelerator and driver compatibility, signed provenance, registry promotion, and adoption need separate evidence."
 )
 
 NS = "saf-test"
