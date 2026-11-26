@@ -4,8 +4,8 @@
   "catalog_sha256": "cf19a49962609c22f0886329c893af3c85833208755ab9bf30be9142321e8f00",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "a01cdcc785c5adb0df81f316bfa8347d845009d39b44e9848c18f9274ddaa453",
-  "scope": "A real Keycloak verifier in a fresh local Kind cluster enforces minimum password length and a fixture-specific blocklist during password changes, accepts a long lowercase password with no character-class composition rules and authenticates the intended subject. This selected password-policy test does not exercise production federation, blocklist coverage, online attempt limits or non-password authenticators.",
-  "cluster": "saf-lab-4564b3ad39ab",
+  "scope": "A real Keycloak verifier in a fresh local Kind cluster enforces minimum password length and a fixture-specific blocklist during password changes, accepts a long lowercase password with no character-class composition rules and authenticates the intended subject. It also compares two fixed wrong-password submissions with Keycloak brute-force detection disabled and enabled for owned test identities, verifies the effective temporary lock, preserves a healthy comparator and performs an authorized reset. This bounded reference does not establish production federation, broader blocklist coverage, distributed/network rate limiting, production thresholds, or non-password authenticator policies.",
+  "cluster": "saf-lab-4bd7a89fb152",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -65,6 +65,38 @@
         "valid_lowercase_only_change_accepted": true,
         "provider_authenticates_selected_subject": true,
         "blocked_change_does_not_relax_policy": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Two fixed wrong samples without brute-force protection do not lock the owned identity",
+      "matched": true,
+      "observed": {
+        "protection_disabled_setting_is_live": true,
+        "two_fixed_wrong_samples_return_invalid_grant": true,
+        "target_correct_credential_still_works": true,
+        "healthy_comparator_works": true,
+        "provider_health_remains_available": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Enabled Keycloak protection locks only the thresholded fixture identity and authorized reset recovers it",
+      "matched": true,
+      "observed": {
+        "enabled_threshold_profile_is_live": true,
+        "previous_failures_cleared_before_test": true,
+        "target_credential_was_valid_before_samples": true,
+        "exactly_threshold_fixed_wrong_samples_rejected": true,
+        "effective_lock_is_independently_observed": true,
+        "correct_target_credential_is_blocked_during_lock": true,
+        "healthy_comparator_remains_usable": true,
+        "provider_health_remains_available": true,
+        "authorized_owner_clear_releases_temporary_lock": true,
+        "target_recovers_with_original_approved_credential": true,
+        "status_endpoint_succeeded": true,
+        "threshold_failures_observed": true,
+        "account_temporarily_disabled": true
       }
     }
   ]

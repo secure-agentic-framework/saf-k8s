@@ -1,19 +1,13 @@
-# SAF-K8S-0405-017 Password policy at an identity provider
+# Verify a human password policy at its verifier
 
-Run the test by ID on fresh Kind. The API server hosts a pinned,
-disposable Keycloak instance. Its native password policy is exercised
-before and after requiring a minimum length and a fixture blocklist.
-The case verifies a successful login and userinfo response for an
-accepted lowercase-only password. The provider is reachable through
-a temporary loopback port-forward and all credential values stay out
-of the retained evidence. The case imports the pinned image from Docker
-into every fresh cluster so only the first run needs the registry.
+Run from the framework repository.
 
-The local client uses a password grant solely to confirm the verifier
-accepts the chosen password. Real federation, broader blocklist coverage,
-rate limiting, storage and non-password authenticator policies require
-their own verification.
+```sh
+python3 tests/control-lab/lab.py test SAF-K8S-0405-017 --docker-context desktop-linux
+```
 
-- [NIST SP 800-63B-4 password verifier requirements](https://pages.nist.gov/800-63-4/sp800-63b.html#passwordver)
-- [Keycloak password policies](https://www.keycloak.org/docs/latest/server_admin/#_password-policies)
-- [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html)
+The disposable Keycloak 26.8.2 verifier compares candidate password changes with and without minimum-length and blocklist rules, and accepts a compliant lowercase password. A separate case uses two fixed failed attempts in each policy state. With the setting disabled, the correct password still works. With temporary lockout enabled, the administrator observes the threshold and lock independently, the correct password is refused for the selected identity, and the separate comparison identity remains usable. Authorized reset restores access. The recorded outcomes contain no credentials or tokens.
+
+For adoption, identify the actual human verifier, governing requirements and covered populations. Compare permitted and refused password changes against the applicable minimum length and blocklist. Use authorized test identities to evaluate the effective failed-attempt controls, availability and recovery at each governed sign-in path. Record the effective policy, version, observed control decisions and scope of any exceptions. Evaluate non-password credentials through their applicable lifecycle controls. The reference uses a disposable realm and local test client.
+
+[Keycloak Server Administration Guide](https://www.keycloak.org/docs/26.8.0/server_admin/) · [NIST SP 800-63B-4](https://pages.nist.gov/800-63-4/sp800-63b.html)

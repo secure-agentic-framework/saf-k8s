@@ -5,6 +5,7 @@ import secrets
 import selectors
 import string
 import subprocess
+import time
 from urllib.error import HTTPError
 from urllib.parse import urlencode
 from urllib.request import ProxyHandler, Request, build_opener
@@ -23,13 +24,20 @@ PLATFORMS = {
     "amd64": "75b5c435a83b530caba5923922f93d47b2e3f8b4ad9e79200581122996653e55",
 }
 BLOCKED = "fixture-do-not-accept-this-candidate"
+WRONG_SAMPLE = "fixture-known-wrong-password"
 BLOCKLIST = "fixture-password-denylist.txt"
+FAILURE_THRESHOLD = 2
+QUICK_LOGIN_CHECK_MS = 1000
+LOCK_SECONDS = 10
 SCOPE = (
     "A real Keycloak verifier in a fresh local Kind cluster enforces minimum password length "
     "and a fixture-specific blocklist during password changes, accepts a long lowercase "
     "password with no character-class composition rules and authenticates the intended subject. "
-    "This selected password-policy test does not exercise production federation, blocklist "
-    "coverage, online attempt limits or non-password authenticators."
+    "It also compares two fixed wrong-password submissions with Keycloak brute-force detection "
+    "disabled and enabled for owned test identities, verifies the effective temporary lock, "
+    "preserves a healthy comparator and performs an authorized reset. This bounded reference "
+    "does not establish production federation, broader blocklist coverage, distributed/network "
+    "rate limiting, production thresholds, or non-password authenticator policies."
 )
 
 
@@ -248,6 +256,127 @@ def audit(lab, idp, users):
         "identity_provider": "Keycloak 26.8.2",
         "before": baseline, "enforced": selection, "approved": positive,
     }, indent=2) + "\n")
+    return approved
+
+
+def auth_failure(result):
+    # Keycloak's token endpoint returns OAuth invalid_grant for the fixed bad sample
+    # and for a correct password rejected by lockout. Never retain the response text.
+    status, document = result
+    return status == 400 and document.get("error") == "invalid_grant"
+
+
+def realm_settings(idp, values):
+    updated, _ = idp.admin_request(f"/{REALM}", "PUT", values)
+    read_status, current = idp.admin_request(f"/{REALM}")
+    matches = all(current.get(name) == value for name, value in values.items())
+    return updated == 204 and read_status == 200 and matches
+
+
+def clear_failures(idp, user_id):
+    status, _ = idp.admin_request(
+        f"/{REALM}/attack-detection/brute-force/users/{user_id}", "DELETE")
+    return status == 204
+
+
+def failed_attempt_protection(lab, idp, users, approved):
+    target = users[USER]
+    healthy = users["fixture-blocklist-subject"]
+    healthy_password = "".join(secrets.choice(string.ascii_lowercase) for _ in range(24))
+    if reset_password(idp, target, approved) != 204 or reset_password(
+            idp, healthy, healthy_password) != 204:
+        lab.block("Could not set approved credentials for owned failed-attempt comparators")
+
+    # Baseline: the identical bounded wrong sample must not cause account lock while
+    # the native Keycloak brute-force control is disabled.
+    baseline_settings = {"bruteForceProtected": False, "permanentLockout": False}
+    baseline_live = realm_settings(idp, baseline_settings)
+    baseline_failures = [idp.sign_in(REALM, CLIENT, USER, WRONG_SAMPLE) for _ in range(2)]
+    baseline_target_ok = idp.sign_in(REALM, CLIENT, USER, approved)
+    baseline_healthy_ok = idp.sign_in(REALM, CLIENT, "fixture-blocklist-subject",
+                                      healthy_password)
+    health_status, _ = idp.request("/realms/master/.well-known/openid-configuration")
+    baseline = {
+        "protection_disabled_setting_is_live": baseline_live,
+        "two_fixed_wrong_samples_return_invalid_grant": all(auth_failure(x) for x in baseline_failures),
+        "target_correct_credential_still_works": baseline_target_ok[0] == 200,
+        "healthy_comparator_works": baseline_healthy_ok[0] == 200,
+        "provider_health_remains_available": health_status == 200,
+    }
+    lab.check("red", "Two fixed wrong samples without brute-force protection do not lock the owned identity",
+              all(baseline.values()), baseline)
+
+    # Threshold-only temporary lockout profile. The two attempts are separated by
+    # more than the configured quick-login interval, so the threshold (not velocity)
+    # is the cause of the observed lock.
+    settings = {
+        "bruteForceProtected": True,
+        "permanentLockout": False,
+        "failureFactor": FAILURE_THRESHOLD,
+        "maxDeltaTimeSeconds": 60,
+        "waitIncrementSeconds": LOCK_SECONDS,
+        "maxFailureWaitSeconds": LOCK_SECONDS,
+        "quickLoginCheckMilliSeconds": QUICK_LOGIN_CHECK_MS,
+        "minimumQuickLoginWaitSeconds": 1,
+    }
+    settings_live = realm_settings(idp, settings)
+    cleared_before = clear_failures(idp, target)
+    authorized_before = idp.sign_in(REALM, CLIENT, USER, approved)
+    failures = []
+    lock_observed = {"status_endpoint_succeeded": False,
+                     "threshold_failures_observed": False,
+                     "account_temporarily_disabled": False}
+    locked_correct = (0, {})
+    healthy_during_lock = (0, {})
+    provider_health = 0
+    owner_recovery = False
+    recovered_login = (0, {})
+    try:
+        if settings_live and cleared_before and authorized_before[0] == 200:
+            failures.append(idp.sign_in(REALM, CLIENT, USER, WRONG_SAMPLE))
+            time.sleep(QUICK_LOGIN_CHECK_MS / 1000 + 0.2)
+            failures.append(idp.sign_in(REALM, CLIENT, USER, WRONG_SAMPLE))
+            status_status, lock_state = idp.admin_request(
+                f"/{REALM}/attack-detection/brute-force/users/{target}")
+            lock_observed = {
+                "status_endpoint_succeeded": status_status == 200,
+                "threshold_failures_observed": lock_state.get("numFailures") == FAILURE_THRESHOLD,
+                "account_temporarily_disabled": lock_state.get("disabled") is True,
+            }
+            locked_correct = idp.sign_in(REALM, CLIENT, USER, approved)
+            healthy_during_lock = idp.sign_in(
+                REALM, CLIENT, "fixture-blocklist-subject", healthy_password)
+            provider_health, _ = idp.request("/realms/master/.well-known/openid-configuration")
+        # The Admin REST API's per-user clear operation releases a temporary lock.
+        owner_recovery = clear_failures(idp, target)
+        recovered_login = idp.sign_in(REALM, CLIENT, USER, approved)
+    finally:
+        # Also restore the disposable subject if any HTTP request above raises.
+        if not owner_recovery:
+            clear_failures(idp, target)
+    enabled = {
+        "enabled_threshold_profile_is_live": settings_live,
+        "previous_failures_cleared_before_test": cleared_before,
+        "target_credential_was_valid_before_samples": authorized_before[0] == 200,
+        "exactly_threshold_fixed_wrong_samples_rejected": len(failures) == FAILURE_THRESHOLD
+        and all(auth_failure(x) for x in failures),
+        "effective_lock_is_independently_observed": all(lock_observed.values()),
+        "correct_target_credential_is_blocked_during_lock": auth_failure(locked_correct),
+        "healthy_comparator_remains_usable": healthy_during_lock[0] == 200,
+        "provider_health_remains_available": provider_health == 200,
+        "authorized_owner_clear_releases_temporary_lock": owner_recovery,
+        "target_recovers_with_original_approved_credential": recovered_login[0] == 200,
+    }
+    lab.check("green", "Enabled Keycloak protection locks only the thresholded fixture identity and authorized reset recovers it",
+              all(enabled.values()), {**enabled, **lock_observed})
+    (lab.evidence / "failed-attempt-protection-observations.json").write_text(json.dumps({
+        "identity_provider": "Keycloak 26.8.2",
+        "sample_count_per_profile": FAILURE_THRESHOLD,
+        "wrong_sample_values_retained": False,
+        "credential_or_token_values_retained": False,
+        "protection_disabled": baseline,
+        "protection_enabled": {**enabled, **lock_observed},
+    }, indent=2) + "\n")
 
 
 def run(lab):
@@ -256,4 +385,5 @@ def run(lab):
     with forward(lab) as endpoint:
         idp = Idp(endpoint)
         users = setup(lab, idp, admin_password)
-        audit(lab, idp, users)
+        approved = audit(lab, idp, users)
+        failed_attempt_protection(lab, idp, users, approved)
