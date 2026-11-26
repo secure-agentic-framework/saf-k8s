@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-005",
-  "catalog_revision": "4a318895d4883a69b19848c831914c6eb3e5b442",
-  "catalog_sha256": "141559b7769339d63e7704ca30c28a6ab8e8d2fbbfefd87b9e9225f3feff5204",
+  "catalog_revision": "61c485debb8b22aeae1bafec5dddeb3adec33d93",
+  "catalog_sha256": "637809ee915d1f3ed4451dd9d8256edcfd4ba9cb18559e7ee016de3f8a91c693",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "7465d9fd5d3c507373bbd19f18809a808ff41e72dce6df0e101344a420c64145",
   "scope": "A disposable Kubernetes v1.36.1 cluster runs two copies of a case-owned HTTP promotion gate against the same inert model identity: one enforcement-disabled baseline and one enforcing gate. The enabled gate authenticates a short-lived reporter ServiceAccount token with authentication.k8s.io/v1 TokenReview, accepts evidence only from that exact principal and audience, persists the submitted fixed evidence in a namespace-scoped ConfigMap, reads it back, and requires pass results for security, bias, performance and robustness plus matching builder/model/predicate digests. It records signature verification as unverified. This proves the fixture API/RBAC/TokenReview and deterministic policy path for fixed synthetic records only; it does not prove evaluator efficacy, genuine model quality, cryptographic signature trust, report-writer audit attribution, or production promotion workflow coverage.",
-  "cluster": "saf-lab-ff53172da669",
+  "cluster": "saf-lab-ae96e3de4d08",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
