@@ -31786,22 +31786,6 @@
 
 
     7.3 - Topology-aware scheduling (changing processing locations); 9.5 - Multi-region deployment diversity'
-  control_id: SAF-K8S-0703-013
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-30(3)
-  framework_requirement_title: Change Processing and Storage Locations
-  framework_mapping_notes: 'Dynamic relocation of agent processing increases adversary difficulty in targeting
-
-
-    7.3 - Topology-aware scheduling (changing processing locations); 9.5 - Multi-region deployment diversity'
   control_id: SAF-K8S-0905-001
   relation_type: supports
   strength_level: strong
