@@ -6496,22 +6496,6 @@
 
 
     6.5 - Admission controllers make automated policy decisions on API requests; 9.5 - Model promotion gates automate security scan pass/fail decisions before production deployment'
-  control_id: SAF-K8S-0905-055
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-21(1)
-  framework_requirement_title: Automated Decision Support
-  framework_mapping_notes: 'Automated controls for agent information sharing decisions
-
-
-    6.5 - Admission controllers make automated policy decisions on API requests; 9.5 - Model promotion gates automate security scan pass/fail decisions before production deployment'
   control_id: SAF-K8S-0910-031
   relation_type: direct
   strength_level: strong
@@ -6999,16 +6983,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-25
   framework_requirement_title: Reference Monitor
-  framework_mapping_notes: 'Foundational -- tamperproof policy enforcement for agent actions
-
-
-    6.5 - Admission controllers (reference monitor for all API requests); 3.3 - Mandatory access controls (seccomp, AppArmor as enforcement)'
+  framework_mapping_notes: NIST SP 800-53 Rev. 5 AC-25 requires a reference monitor for organization-defined access-control policies that is tamperproof, always invoked, and small enough for analysis and testing with assured completeness. A Kubernetes ValidatingAdmissionPolicy can contribute a reference-validation point for selected Pod/workload admission requests. The paired v1.36.1 receipts exercise fail-closed policy decisions for selected built-in requests in one owned namespace, but do not show protection of the policy, binding, or allowlist ConfigMap from unauthorized edits; do not establish coverage for all ordinary or custom controller paths; and do not demonstrate identity-based access authorization. Treat as a conditional contribution only after adoption establishes the AC-25 properties for its defined policy and full request scope.
   control_id: SAF-K8S-0905-055
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only for an organization-defined access-control policy whose relevant Pod/workload admission requests are explicitly matched, whose policy/binding/parameter changes are separately protected, and whose covered workload routes are inventoried. The fixture demonstrates a namespaced VAP decision for selected built-in workload objects and explicit model-source environment fields; it does not demonstrate a tamperproof monitor or completeness across every Pod creation path.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -37936,19 +37917,6 @@
   applicability: conditional
   applicability_condition: Only for the one explicitly selected setting spec.automountServiceAccountToken in this synthetic Helm chart. The additive fixture constrains the merged value to false and verifies that false appears in the rendered Pod spec. It does not determine a secure baseline for every setting that can affect security or document why the value is the approved default.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-SSDF
-  framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
-  framework_version: '1.1'
-  framework_requirement_id: PW.9.2
-  framework_requirement_title: Implement the default settings (or groups of default settings) and document each setting for software administrators.
-  framework_mapping_notes: SAF-K8S enforces default settings through admission control policies, PSA enforcement, and policy-as-code engines that reject non-compliant configurations.
-  control_id: SAF-K8S-0905-055
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
