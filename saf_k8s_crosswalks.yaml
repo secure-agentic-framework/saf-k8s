@@ -7640,22 +7640,6 @@
 
 
     6.1 - Secure container images (approved base images including CUDA, ML framework images); 9.1 - AI operator security (approved solutions)'
-  control_id: SAF-K8S-0601-015
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(20)
-  framework_requirement_title: Approved Solutions
-  framework_mapping_notes: 'Using approved solutions for agent cross-domain flows
-
-
-    6.1 - Secure container images (approved base images including CUDA, ML framework images); 9.1 - AI operator security (approved solutions)'
   control_id: SAF-K8S-0901-002
   relation_type: supports
   strength_level: strong
@@ -33395,22 +33379,6 @@
     9.5 - ML-BOM (training data lineage, framework versions, training infrastructure identity); 6.4 - ML-BOM generation'
   control_id: SAF-K8S-0910-024
   relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-5
-  framework_requirement_title: Acquisition Strategies, Tools, and Methods
-  framework_mapping_notes: 'Acquisition strategies for AI components must address unique supply chain security needs
-
-
-    8.1 - Device plugin framework (GPU acquisition/provisioning); 6.1 - Base image selection (image acquisition strategy)'
-  control_id: SAF-K8S-0601-015
-  relation_type: supports
   strength_level: strong
   applicability: required
   applicability_condition: null

@@ -11,15 +11,6 @@ Acquisition strategies for AI components must address unique supply chain securi
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0601-015 - Inference image minimal composition with GPU runtime-only dependencies](../../controls/SAF-K8S-0601-015.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.1
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0801-001 - GPU device plugin security configuration and hardening](../../controls/SAF-K8S-0801-001.md)
 
 - Domain: D08 - GPU, Accelerator, and Confidential Computing
