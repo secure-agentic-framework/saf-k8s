@@ -28,7 +28,7 @@ The identical mismatched patch is submitted again with the same active-pointer `
 
 The approval parameter is synthetic test data, not proof of an organization’s approval authority, authentic approver identity, separation of duties, signing, or durable audit. The CEL policy compares the request to this parameter; it does not dereference another ConfigMap. The fixture runner verifies the retained v1 object and content before approval parameter creation and after rollback. A cluster administrator can alter policy, binding, parameter, RBAC, or the objects outside the fixture operator role. The case does not prove production storage retention, namespace governance, API audit retention, repository-owner controls, Argo/Kubeflow integration, workflow execution using the approved bytes, or recovery across clusters. ConfigMap immutability still permits deletion and recreation; the namespaced operator is separately denied delete only after the Role is narrowed. These privileged and persistence paths require production evidence.
 
-No live run was performed in this supervision pass. Fresh-cluster matching runs and independent supervisor review remain outstanding.
+The retained lab and independent framework replay each passed six checks on separate Kubernetes v1.36.1 Kind clusters. [Verified receipt](../../verified/SAF-K8S-0904-018.json).
 
 ## Primary references
 
@@ -40,3 +40,23 @@ No live run was performed in this supervision pass. Fresh-cluster matching runs 
 - [Kubernetes v1.36 object names and UIDs](https://v1-36.docs.kubernetes.io/docs/concepts/overview/working-with-objects/names/) documents name reuse after deletion and UID identity.
 - [Kubernetes v1.36 API concepts](https://v1-36.docs.kubernetes.io/docs/reference/using-api/api-concepts/) documents update/patch resourceVersion preconditions, lost-update detection, stale-version conflicts, and server dry-run authorization.
 - [kubectl v1.36 options](https://v1-36.docs.kubernetes.io/docs/reference/kubectl/generated/kubectl_options/) documents `--as` impersonation; the lab runner credential must be authorized to impersonate the fixture operator.
+
+## Verify actual definition history and rollback
+
+1. Inventory the workflow engine, immutable definition store, actual
+   version/identity keys, approval authority, retention and recovery
+   objectives, and every actor with permission to replace or delete
+   versions and change active references.
+2. Choose two inert versions in an approved environment. Record their
+   protected identities and digests. Use an ordinary governed actor to
+   compare a denied edit/delete and accepted read. Verify how administrators
+   and retained history are controlled independently.
+3. Compare an unapproved or stale rollback with an approved transition
+   for the exact current and retained target identifiers. Bind the
+   controlling authority, change identifier and evidence to that
+   decision. Read back the resulting active version, original target
+   identity and digest.
+4. In the actual workflow engine, verify a controlled inert execution
+   consumes the selected preserved definition and emits its matching
+   version receipt. Capture the authorization and execution evidence
+   from separate components, including cleanup and recovery timing.
