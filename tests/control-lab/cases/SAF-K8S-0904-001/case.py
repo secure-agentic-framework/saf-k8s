@@ -1,8 +1,10 @@
 """Check native Argo-definition authorization and a restricted marker Job."""
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 import time
+from types import SimpleNamespace
 
 from fixtures import BUSYBOX_IMAGE
 
@@ -22,7 +24,8 @@ SCOPE = (
     "and update access. The case verifies that the persisted narrow author template "
     "holds an exact approved fixture definition and submits its corresponding native "
     "Job. The Job is tokenless, non-root and uses a read-only Secret reference to "
-    "a public inert marker. Argo controller reconciliation, other orchestrator "
+    "a public inert marker. A pinned namespaced Argo controller also reconciles "
+    "one Workflow referencing that exact persisted template. Other orchestrator "
     "releases, deployed policy, Secret encryption and external stores require "
     "separate evidence."
 )
@@ -31,11 +34,12 @@ SCOPE = (
 def step_container():
     return {
         "name": "main", "image": BUSYBOX_IMAGE, "imagePullPolicy": "IfNotPresent",
-        "command": ["/bin/sh", "-ec", "test -s /run/marker/data; printf 'marker-mounted\\n'"],
+        "command": ["/bin/sh", "-ec", "test \"$(id -u)\" = 65534; test -s /run/marker/data; head -c 128 /run/marker/data >/dev/null; printf 'marker-mounted\\n'"],
         "resources": {"requests": {"cpu": "10m", "memory": "8Mi"},
                       "limits": {"cpu": "100m", "memory": "32Mi"}},
         "securityContext": {"allowPrivilegeEscalation": False, "readOnlyRootFilesystem": True,
-                            "capabilities": {"drop": ["ALL"]}},
+                            "capabilities": {"drop": ["ALL"]}, "runAsNonRoot": True,
+                            "runAsUser": 65534, "runAsGroup": 65534},
         "volumeMounts": [{"name": "marker", "mountPath": "/run/marker", "readOnly": True}],
     }
 
@@ -161,7 +165,9 @@ def run(lab):
                                     and spec["securityContext"]["seccompProfile"]["type"] == "RuntimeDefault"
                                     and security == {"allowPrivilegeEscalation": False,
                                                      "readOnlyRootFilesystem": True,
-                                                     "capabilities": {"drop": ["ALL"]}},
+                                                     "capabilities": {"drop": ["ALL"]},
+                                                     "runAsNonRoot": True, "runAsUser": 65534,
+                                                     "runAsGroup": 65534},
               "secret_volume_references_marker": any(volume.get("secret", {}).get("secretName") == SECRET
                                                      for volume in spec["volumes"]),
               "expected_marker_confirmation": logs == "marker-mounted",
@@ -171,3 +177,14 @@ def run(lab):
               bool(text) and all(actual.values()), actual)
     (lab.evidence / "workflow-authorization.raw.json").write_text(json.dumps(
         {"retained_template": persisted, "job": job, "pod": pod, "result": logs}, indent=2) + "\n")
+
+    helper_path = Path(__file__).resolve().parent / "controller_witness.py"
+    spec = importlib.util.spec_from_file_location("saf_0904_001_controller_witness", helper_path)
+    if spec is None or spec.loader is None:
+        lab.block("The pinned controller witness helper is unavailable")
+    controller = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(controller)
+    controller.run(lab, SimpleNamespace(namespace="saf-test", account=ACCOUNT,
+                                        template="saf-approved-template", marker=SECRET,
+                                        marker_text=text,
+                                        approved_spec=author_template["spec"]))
