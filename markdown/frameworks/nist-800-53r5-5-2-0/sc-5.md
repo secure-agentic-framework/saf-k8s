@@ -45,15 +45,6 @@ Scoped quotas, workload priorities, and service monitoring contribute to protect
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0703-010 - Host-level resource isolation for AI workload nodes](../../controls/SAF-K8S-0703-010.md)
-
-- Domain: D07 - Storage, Multi-tenancy, and Resource Governance
-- Knowledge Area: 7.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0703-012 - Node affinity rules, taints, and tolerations for AI workload isolation](../../controls/SAF-K8S-0703-012.md)
 
 - Domain: D07 - Storage, Multi-tenancy, and Resource Governance

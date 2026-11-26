@@ -6786,12 +6786,12 @@
   knowledge_area: '7.3'
   control_seq: '010'
   control_title: Host-level resource isolation for AI workload nodes
-  control_statement: Organizations must enforce host-level resource isolation (cgroup v2, CPU pinning, NUMA awareness) on nodes hosting AI workloads to prevent noisy-neighbor effects in mixed clusters.
-  objective: Prevent resource contention at the kernel level on nodes hosting AI workloads by enforcing cgroup, CPU, and memory topology controls.
-  rationale: Kubernetes scheduling controls (node affinity, taints) determine which nodes pods run on, but do not prevent resource contention between pods co-located on the same node. Without host-level cgroup v2 enforcement, CPU pinning, and NUMA-aware memory allocation, AI training workloads can cause cache thrashing, memory bandwidth saturation, and CPU contention that degrades co-located inference services. These kernel-level controls operate at a different enforcement layer than Kubernetes scheduling.
+  control_statement: Configure cgroup v2 CPU and memory controls for governed AI workloads. Assign exclusive CPUs or use NUMA-aware allocation where documented workload performance or isolation requirements call for those policies, and verify their effective enforcement.
+  objective: Apply and observe the intended kernel resource limits and CPU or memory placement for governed AI workloads on the node classes where they run.
+  rationale: Node affinity and taints govern placement between nodes. Runtime cgroup controls govern CPU and memory use on each node. When a workload qualifies, kubelet policies can assign exclusive CPUs and coordinate applicable resource-topology hints. Measure shared-cache, memory-bandwidth or interconnect behavior separately where it is material to the workload.
   scope: Applies to all Kubernetes nodes hosting AI workloads, particularly nodes running both training and inference workloads. Cgroup v2 must be enabled and configured for resource isolation. CPU pinning and NUMA awareness must be configured for workloads with performance-sensitive requirements. Dedicated single-purpose clusters may have simplified configurations with documented justification.
   primary_enforcement_point: Node-level cgroup v2, CPU Manager, Memory Manager, and NUMA policy configuration on Kubernetes nodes hosting AI workloads.
-  implementation_surface: Cgroup v2 configuration for per-container resource accounting, kubelet CPU Manager static policy for CPU pinning, kubelet Memory Manager for NUMA-aware memory allocation, Topology Manager policies (single-numa-node, best-effort), and InfiniBand interconnect configuration for multi-node distributed training.
+  implementation_surface: Verify the active cgroup v2 CPU and memory controllers and effective workload limits. Use the kubelet CPU Manager static policy for eligible exclusive CPU assignment. Where applicable, verify Memory Manager reservations and Topology Manager resource hints. Observe actual accelerator and interconnect behavior when required by the documented workload objectives.
   owner_primary: Platform Engineering
   owner_supporting: ML Engineering; SRE
   baseline_or_ai_specific: ai-specific
