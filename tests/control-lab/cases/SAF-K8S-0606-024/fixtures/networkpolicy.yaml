@@ -1,0 +1,14 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: saf0606024-approved-empty-selector
+  namespace: saf-test
+  labels:
+    saf-k8s.example/control: '0606-024'
+spec:
+  podSelector:
+    matchLabels:
+      saf-k8s.example/no-fixture-pod: 'selected'
+  policyTypes: [Ingress, Egress]
+  ingress: []
+  egress: []

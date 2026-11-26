@@ -16,9 +16,11 @@ SCOPE = (
     "Kubernetes v1.36.1 RBAC authorizes a fixture ServiceAccount to promote the exact committed policies. "
     "A scoped native ValidatingAdmissionPolicy denies a case-owned Role declaring Secret reads and "
     "admits a read-only Pod Role. No live credential, external Git host or other cluster is used. "
-    "Production approval, revision authorization and other governance families require separate evidence."
+    "The approved tree contains one inert Role, nonmatching NetworkPolicy, Pod Security namespace labels, "
+    "and the admission policy/binding. The Git hook checks every file as one exact tree. Production approval, "
+    "revision authorization, hosted Git and other policy families require separate evidence."
 )
-FILES = ("policy.yaml", "policy-binding.yaml")
+FILES = ("policy.yaml", "policy-binding.yaml", "role.yaml", "networkpolicy.yaml", "namespace.yaml")
 DENIAL = "fixture Roles may only read pods in the core API group"
 HOOK_DENIAL = "SAF policy gate: protected files differ from the approved tree"
 
@@ -53,6 +55,40 @@ def _promoter_rbac(lab):
         "subjects": [{"kind": "ServiceAccount", "name": "policy-promoter", "namespace": NAMESPACE}],
         "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "ClusterRole",
                     "name": "saf0606024-policy-promoter"},
+    })
+    # A namespaced Role limits namespaced policy promotion to this fixture namespace.
+    lab.create({
+        "apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role",
+        "metadata": {"name": "saf0606024-settings-promoter", "namespace": NAMESPACE},
+        "rules": [
+            {"apiGroups": ["rbac.authorization.k8s.io"], "resources": ["roles"], "verbs": ["create"]},
+            {"apiGroups": ["rbac.authorization.k8s.io"], "resources": ["roles"],
+             "verbs": ["get", "update"], "resourceNames": ["saf0606024-approved-empty-role"]},
+            {"apiGroups": ["networking.k8s.io"], "resources": ["networkpolicies"], "verbs": ["create"]},
+            {"apiGroups": ["networking.k8s.io"], "resources": ["networkpolicies"],
+             "verbs": ["get", "update"], "resourceNames": ["saf0606024-approved-empty-selector"]},
+        ],
+    })
+    lab.create({
+        "apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding",
+        "metadata": {"name": "saf0606024-settings-promoter", "namespace": NAMESPACE},
+        "subjects": [{"kind": "ServiceAccount", "name": "policy-promoter", "namespace": NAMESPACE}],
+        "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "Role",
+                    "name": "saf0606024-settings-promoter"},
+    })
+    # Namespace is cluster-scoped; restrict this authority to the one owned fixture namespace.
+    lab.create({
+        "apiVersion": "rbac.authorization.k8s.io/v1", "kind": "ClusterRole",
+        "metadata": {"name": "saf0606024-namespace-promoter"},
+        "rules": [{"apiGroups": [""], "resources": ["namespaces"],
+                   "verbs": ["get", "patch", "update"], "resourceNames": [NAMESPACE]}],
+    })
+    lab.create({
+        "apiVersion": "rbac.authorization.k8s.io/v1", "kind": "ClusterRoleBinding",
+        "metadata": {"name": "saf0606024-namespace-promoter"},
+        "subjects": [{"kind": "ServiceAccount", "name": "policy-promoter", "namespace": NAMESPACE}],
+        "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "ClusterRole",
+                    "name": "saf0606024-namespace-promoter"},
     })
     lab.kubectl("label", "namespace", NAMESPACE, "saf-k8s.example/control=0606-024", "--overwrite")
 
@@ -120,6 +156,36 @@ def _git_snapshot(lab, temporary):
     lab.check("green", "The protected ref rejects the same tree and keeps its exact previous commit",
               refused.returncode != 0 and HOOK_DENIAL in refused.stderr and unchanged,
               {"policy_denial": HOOK_DENIAL in refused.stderr, "ref_unchanged": unchanged})
+
+    # Each remaining file is altered independently in an inert candidate. None is applied to Kubernetes.
+    tamper_ops = {
+        "policy-binding.yaml": ("validationActions: [Deny]", "validationActions: [Warn]"),
+        "role.yaml": ("name: saf0606024-approved-empty-role", "name: saf0606024-unapproved-pod-read-role"),
+        "networkpolicy.yaml": ("saf-k8s.example/no-fixture-pod: 'selected'", "saf-k8s.example/no-fixture-pod: 'other'"),
+        "namespace.yaml": ("pod-security.kubernetes.io/warn: restricted", "pod-security.kubernetes.io/warn: baseline"),
+    }
+    for index, (filename, (before, after)) in enumerate(tamper_ops.items()):
+        branch = f"candidate-extra-{index}"
+        _git(lab, "-C", repo, "switch", "--force-create", branch, baseline)
+        for item in FILES:
+            shutil.copyfile(HERE / "fixtures" / item, repo / item)
+        candidate_file = repo / filename
+        original = candidate_file.read_text()
+        altered = original.replace(before, after, 1)
+        if altered == original:
+            lab.block(f"Could not create the bounded one-file candidate for {filename}")
+        candidate_file.write_text(altered)
+        _git(lab, "-C", repo, "add", "--", *FILES)
+        _git(lab, "-C", repo, "commit", "-m", f"unapproved isolated edit {index}")
+        refused_extra = _git(lab, "-C", repo, "push", protected.as_uri(), f"{branch}:refs/heads/main",
+                             allow_failure=True)
+        _raw(lab, f"git-protected-denial-{filename}.raw.json", refused_extra)
+        still_baseline = bare_ref(protected) == baseline
+        lab.check("green", f"Protected ref rejects an unapproved change to {filename}",
+                  refused_extra.returncode != 0 and HOOK_DENIAL in refused_extra.stderr and still_baseline,
+                  {"file": filename, "policy_denial": HOOK_DENIAL in refused_extra.stderr,
+                   "ref_unchanged": still_baseline, "single_file_candidate": True})
+
     promoted = _git(lab, "-C", repo, "push", protected.as_uri(), "main:refs/heads/main")
     _raw(lab, "git-protected-approval.raw.json", promoted)
     revision = bare_ref(protected)
@@ -221,6 +287,65 @@ def run(lab):
                        and "verb in ['get', 'list', 'watch']" in actual["policy_expression"])
         lab.check("positive", "The promoter applies the committed native policy and scoped Deny binding",
                   native_ready, actual)
+
+        # Require the fixture namespace to be empty before applying its Pod Security labels.
+        preexisting = json.loads(lab.kubectl("get", "pods", "-n", NAMESPACE, "-o", "json").stdout).get("items", [])
+        if preexisting:
+            lab.block("Refusing Pod Security label promotion while the fixture namespace contains Pods")
+        promoted_paths = {name: temporary / name for name in FILES}
+        namespace_result = _apply_as(lab, promoted_paths["namespace.yaml"], PROMOTER)
+        role_result = _apply_as(lab, promoted_paths["role.yaml"], PROMOTER)
+        network_result = _apply_as(lab, promoted_paths["networkpolicy.yaml"], PROMOTER)
+        for filename, result in (("namespace.yaml", namespace_result), ("role.yaml", role_result),
+                                 ("networkpolicy.yaml", network_result)):
+            _raw(lab, f"promotion-{filename}.raw.json", result)
+        observed_namespace = json.loads(lab.kubectl("get", "namespace", NAMESPACE, "-o", "json").stdout)
+        observed_role = json.loads(lab.kubectl("get", "role", "saf0606024-approved-empty-role",
+                                               "-n", NAMESPACE, "-o", "json").stdout)
+        observed_network = json.loads(lab.kubectl("get", "networkpolicy", "saf0606024-approved-empty-selector",
+                                                   "-n", NAMESPACE, "-o", "json").stdout)
+        network_selector = observed_network.get("spec", {}).get("podSelector", {}).get("matchLabels", {})
+        running_pods = json.loads(lab.kubectl("get", "pods", "-n", NAMESPACE, "-o", "json").stdout).get("items", [])
+        selected = [pod for pod in running_pods
+                    if all(pod.get("metadata", {}).get("labels", {}).get(k) == v
+                           for k, v in network_selector.items())]
+        role_bindings = json.loads(lab.kubectl("get", "rolebindings", "-n", NAMESPACE, "-o", "json").stdout).get("items", [])
+        role_is_unbound = not any(
+            binding.get("roleRef", {}).get("kind") == "Role"
+            and binding.get("roleRef", {}).get("name") == "saf0606024-approved-empty-role"
+            for binding in role_bindings)
+        namespace_labels = observed_namespace.get("metadata", {}).get("labels", {})
+        # The apiserver serializes a newly created empty Role's rules as null.
+        role_has_no_rules = observed_role.get("rules") in (None, [])
+        expected_network = {"saf-k8s.example/no-fixture-pod": "selected"}
+        promoted_settings_ok = (all(r.returncode == 0 for r in
+                                    (policy_result, binding_result, namespace_result, role_result, network_result))
+                                and namespace_labels.get("pod-security.kubernetes.io/warn") == "restricted"
+                                and namespace_labels.get("pod-security.kubernetes.io/warn-version") == "v1.36"
+                                and namespace_labels.get("saf-k8s.example/control") == "0606-024"
+                                and role_has_no_rules
+                                and observed_network.get("spec", {}).get("podSelector", {}).get("matchLabels") == expected_network
+                                and observed_network.get("spec", {}).get("policyTypes") == ["Ingress", "Egress"]
+                                and selected == [] and role_is_unbound)
+        (lab.evidence / "multi-file-policy-promotion.raw.json").write_text(json.dumps({
+            "namespace_labels": namespace_labels,
+            "role_rules": observed_role.get("rules"),
+            "network_policy": observed_network.get("spec"),
+            "matching_pods": [p.get("metadata", {}).get("name") for p in selected],
+            "role_has_no_subject_binding": role_is_unbound,
+            "promoter": PROMOTER,
+            "source_file_sha256": {name: snapshot["files"][name]["sha256"] for name in FILES},
+        }, indent=2, sort_keys=True) + "\n")
+        lab.check("positive", "One authorized promoter applies the exact approved Role, nonmatching NetworkPolicy, Pod Security namespace labels, and admission configuration",
+                  promoted_settings_ok,
+                  {"promoter": PROMOTER, "files": list(FILES), "namespace_labels": {
+                      "pod-security.kubernetes.io/warn": namespace_labels.get("pod-security.kubernetes.io/warn"),
+                      "pod-security.kubernetes.io/warn-version": namespace_labels.get("pod-security.kubernetes.io/warn-version")},
+                       "role_rules_match": role_has_no_rules,
+                   "network_policy_selector_match": observed_network.get("spec", {}).get("podSelector", {}).get("matchLabels") == expected_network,
+                   "selected_pods": len(selected), "role_has_no_subject_binding": role_is_unbound,
+                   "all_resource_apply_calls_succeeded": all(
+                       r.returncode == 0 for r in (policy_result, binding_result, namespace_result, role_result, network_result))})
 
         deadline = time.monotonic() + 12
         while time.monotonic() < deadline:

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-024",
-  "catalog_revision": "87ebf4d6e483c5ff70c33eb6b38b7ceebe64db17",
-  "catalog_sha256": "119723d33fc0fa432e9da9a56f9490f9f2b56cdeff77405a834a5690eb876c82",
+  "catalog_revision": "fa199d06333a7fcaeec9773a358f67f1d1362bb1",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6206d048f801ff4d5a7dc6837da9cc1ee3fee9fb54fe306367a88299315f2cbc",
-  "scope": "A local case-owned bare Git repository protects its main ref with a pinned approved policy tree. Kubernetes v1.36.1 RBAC authorizes a fixture ServiceAccount to promote the exact committed policies. A scoped native ValidatingAdmissionPolicy denies a case-owned Role declaring Secret reads and admits a read-only Pod Role. No live credential, external Git host or other cluster is used. Production approval, revision authorization and other governance families require separate evidence.",
-  "cluster": "saf-lab-e9f3c33bcf4d",
+  "scope": "A local case-owned bare Git repository protects its main ref with a pinned approved policy tree. Kubernetes v1.36.1 RBAC authorizes a fixture ServiceAccount to promote the exact committed policies. A scoped native ValidatingAdmissionPolicy denies a case-owned Role declaring Secret reads and admits a read-only Pod Role. No live credential, external Git host or other cluster is used. The approved tree contains one inert Role, nonmatching NetworkPolicy, Pod Security namespace labels, and the admission policy/binding. The Git hook checks every file as one exact tree. Production approval, revision authorization, hosted Git and other policy families require separate evidence.",
+  "cluster": "saf-lab-631b6ed529eb",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -64,8 +64,8 @@
       "claim": "The unprotected Git ref advances to the unapproved policy tree",
       "matched": true,
       "observed": {
-        "candidate_commit": "cbb682a4aace4d56abfbaf35b6ee835cabf5088f",
-        "remote_ref": "cbb682a4aace4d56abfbaf35b6ee835cabf5088f"
+        "candidate_commit": "9e6aee373d162b7b3e42593f25ae36df2ce0d0be",
+        "remote_ref": "9e6aee373d162b7b3e42593f25ae36df2ce0d0be"
       }
     },
     {
@@ -78,13 +78,57 @@
       }
     },
     {
+      "phase": "green",
+      "claim": "Protected ref rejects an unapproved change to policy-binding.yaml",
+      "matched": true,
+      "observed": {
+        "file": "policy-binding.yaml",
+        "policy_denial": true,
+        "ref_unchanged": true,
+        "single_file_candidate": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Protected ref rejects an unapproved change to role.yaml",
+      "matched": true,
+      "observed": {
+        "file": "role.yaml",
+        "policy_denial": true,
+        "ref_unchanged": true,
+        "single_file_candidate": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Protected ref rejects an unapproved change to networkpolicy.yaml",
+      "matched": true,
+      "observed": {
+        "file": "networkpolicy.yaml",
+        "policy_denial": true,
+        "ref_unchanged": true,
+        "single_file_candidate": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Protected ref rejects an unapproved change to namespace.yaml",
+      "matched": true,
+      "observed": {
+        "file": "namespace.yaml",
+        "policy_denial": true,
+        "ref_unchanged": true,
+        "single_file_candidate": true
+      }
+    },
+    {
       "phase": "positive",
       "claim": "The protected ref accepts the approved tree",
       "matched": true,
       "observed": {
-        "approved_commit": "fd201800cd51cc2a253cc3a9344090a75cdca541",
-        "remote_ref": "fd201800cd51cc2a253cc3a9344090a75cdca541",
-        "approved_tree": "a17620b0b5461e5f65e18247fd6d86877dbe8a9b"
+        "approved_commit": "b3f4d33967d8ad07beb9f12d899248625aa46267",
+        "remote_ref": "b3f4d33967d8ad07beb9f12d899248625aa46267",
+        "approved_tree": "ed3ec8256e726b1e7c641123d00d37a1b9b33154"
       }
     },
     {
@@ -92,10 +136,13 @@
       "claim": "The promoter receives exact files from the protected Git ref",
       "matched": true,
       "observed": {
-        "commit": "fd201800cd51cc2a253cc3a9344090a75cdca541",
+        "commit": "b3f4d33967d8ad07beb9f12d899248625aa46267",
         "files": {
           "policy.yaml": "57c617b1abfab1c027897a2f14850780cc68b96ca5df8fd818d14cc02a5c8bdd",
-          "policy-binding.yaml": "4d2f09e064b87eb5833dad6acd9ac15db4e8bf470dd6a72857ff15b5699cf6bc"
+          "policy-binding.yaml": "4d2f09e064b87eb5833dad6acd9ac15db4e8bf470dd6a72857ff15b5699cf6bc",
+          "role.yaml": "9554d053c68831c9c46977fb997b2e3458a12a917131c841455080c6db0a15aa",
+          "networkpolicy.yaml": "19989b20a255327860fd14ea9c82a9a457c167db7771bb0926120cbb4a6941c7",
+          "namespace.yaml": "ebddc4e9a0dd9b2a37f7b14182e30627eeef71a7b3a32ddc5f0c2b9766c0cb00"
         }
       }
     },
@@ -126,6 +173,30 @@
             "saf-k8s.example/control": "0606-024"
           }
         }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "One authorized promoter applies the exact approved Role, nonmatching NetworkPolicy, Pod Security namespace labels, and admission configuration",
+      "matched": true,
+      "observed": {
+        "promoter": "system:serviceaccount:saf-test:policy-promoter",
+        "files": [
+          "policy.yaml",
+          "policy-binding.yaml",
+          "role.yaml",
+          "networkpolicy.yaml",
+          "namespace.yaml"
+        ],
+        "namespace_labels": {
+          "pod-security.kubernetes.io/warn": "restricted",
+          "pod-security.kubernetes.io/warn-version": "v1.36"
+        },
+        "role_rules_match": true,
+        "network_policy_selector_match": true,
+        "selected_pods": 0,
+        "role_has_no_subject_binding": true,
+        "all_resource_apply_calls_succeeded": true
       }
     },
     {
