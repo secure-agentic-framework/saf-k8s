@@ -1,7 +1,14 @@
 """Live Kubernetes training-data provenance fixture for SAF-K8S-0906-006."""
 import importlib.util
 import json
+import os
 from pathlib import Path
+import subprocess
+import tempfile
+import time
+from contextlib import contextmanager
+
+from fixtures import container, pod
 
 HERE = Path(__file__).resolve().parent
 RUNTIME = HERE.parent / "SAF-K8S-0908-001" / "case.py"
@@ -14,6 +21,16 @@ if not RUNTIME.is_file():
 NAME = "fixture-training-provenance"
 CODE = NAME + "-code"
 APPROVAL = NAME + "-approval"
+SIGNER = NAME + "-signer"
+SIGNER_CODE = NAME + "-signer-code"
+SIGNER_SERVICE = NAME + "-signer"
+SIGNER_DNS = SIGNER_SERVICE + ".saf-test.svc.cluster.local"
+SIGNER_TLS_SECRET = SIGNER + "-tls"
+SIGNER_TLS_CA = SIGNER + "-tls-ca"
+SIGNER_AUDIENCE = "https://lineage-signer.saf.invalid"
+IDENTITY_SAS = {"source": "fixture-lineage-source", "transform": "fixture-lineage-transform",
+                "training": "fixture-lineage-training", "unapproved": "fixture-lineage-unapproved",
+                "signer": "fixture-lineage-signer"}
 CLAIMS = {
     "source": NAME + "-source-bytes",
     "source-receipt": NAME + "-source-receipt",
@@ -31,7 +48,9 @@ SCOPE = (
     "A live, local Kind fixture persists invented source bytes, source receipt, transformed bytes, "
     "transformation receipt, and trained artifact on separate PVCs. It compares a benign ungoverned "
     "training job with missing provenance, denies training and release binding before approval, then "
-    "trains and binds an artifact only when approval digests and receipt lineage match exactly."
+    "trains and binds an artifact only when approval digests and receipt lineage match exactly. Three "
+    "distinct producer ServiceAccounts request case-signer signatures after audience-bound TokenReview; "
+    "only signatures over exact fixed receipts are returned."
 )
 
 
@@ -51,13 +70,59 @@ def create(lab, kind, name, api="v1", **fields):
     return lab.create({"apiVersion": api, "kind": kind, "metadata": {"name": name}, **fields})
 
 
-def _volumes():
-    return ([{"name": "code", "configMap": {"name": CODE, "defaultMode": 0o444}}] +
-            [{"name": key, "persistentVolumeClaim": {"claimName": claim}}
-             for key, claim in CLAIMS.items()])
+@contextmanager
+def _temporary_signer_tls():
+    """Create short-lived CA/server keys with private outputs written only to files."""
+    directory = tempfile.TemporaryDirectory(prefix="saf-0906-006-tls-")
+    root = Path(directory.name)
+    os.chmod(root, 0o700)
+    ca_key, ca_csr, ca_cert = root / "ca.key", root / "ca.csr", root / "ca.pem"
+    server_key, server_csr, server_cert = root / "server.key", root / "server.csr", root / "server.crt"
+    ca_ext, server_ext = root / "ca.ext", root / "server.ext"
+    ca_ext.write_text("basicConstraints=critical,CA:TRUE,pathlen:0\n"
+                      "keyUsage=critical,keyCertSign,cRLSign\n"
+                      "subjectKeyIdentifier=hash\n"
+                      "authorityKeyIdentifier=keyid:always,issuer\n")
+    server_ext.write_text(
+        f"basicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\n"
+        f"extendedKeyUsage=serverAuth\nsubjectAltName=DNS:{SIGNER_DNS}\n"
+        "subjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid,issuer\n")
+    commands = [
+        ["openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-keyout", str(ca_key),
+         "-out", str(ca_csr), "-subj", "/CN=SAF-K8S-0906-006 ephemeral fixture CA"],
+        ["openssl", "x509", "-req", "-in", str(ca_csr), "-signkey", str(ca_key), "-days", "2",
+         "-extfile", str(ca_ext), "-out", str(ca_cert)],
+        ["openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-keyout", str(server_key),
+         "-out", str(server_csr), "-subj", f"/CN={SIGNER_SERVICE}.saf-test.svc"],
+        ["openssl", "x509", "-req", "-in", str(server_csr), "-CA", str(ca_cert), "-CAkey", str(ca_key),
+         "-CAcreateserial", "-days", "2", "-extfile", str(server_ext), "-out", str(server_cert)],
+        ["openssl", "verify", "-x509_strict", "-purpose", "sslserver", "-CAfile", str(ca_cert), str(server_cert)],
+    ]
+    try:
+        for command in commands:
+            subprocess.run(command, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        os.chmod(ca_key, 0o600)
+        os.chmod(server_key, 0o600)
+        yield {"ca_cert": ca_cert, "server_cert": server_cert, "server_key": server_key}
+    except (OSError, subprocess.CalledProcessError):
+        raise RuntimeError("ephemeral signer TLS material generation failed") from None
+    finally:
+        directory.cleanup()
 
 
-def _mounts(operation):
+def _volumes(identity=False):
+    volumes = ([{"name": "code", "configMap": {"name": CODE, "defaultMode": 0o444}},
+                {"name": "trust", "configMap": {"name": "fixture-training-provenance-signer-trust"}},
+                {"name": "tls-ca", "configMap": {"name": SIGNER_TLS_CA}}] +
+               [{"name": key, "persistentVolumeClaim": {"claimName": claim}}
+                for key, claim in CLAIMS.items()])
+    if identity:
+        volumes.append({"name": "identity", "projected": {"sources": [{"serviceAccountToken": {
+            "audience": SIGNER_AUDIENCE, "expirationSeconds": 600, "path": "token"}}]}})
+    return volumes
+
+
+def _mounts(operation, identity=False):
     writable = {
         "baseline": {"artifact"}, "ingest": {"source", "source-receipt"},
         "transform": {"transformed", "transform-receipt"}, "train": {"artifact"},
@@ -67,13 +132,16 @@ def _mounts(operation):
              "transformed": "/transformed", "transform-receipt": "/transform-receipt",
              "artifact": "/artifact"}
     return ([{"name": "code", "mountPath": "/fixture", "readOnly": True}] +
+            [{"name": "trust", "mountPath": "/trust", "readOnly": True}] +
+            [{"name": "tls-ca", "mountPath": "/tls-ca", "readOnly": True}] +
+            ([{"name": "identity", "mountPath": "/identity", "readOnly": True}] if identity else []) +
             [{"name": key, "mountPath": path, "readOnly": key not in writable} for key, path in paths.items()])
 
 
-def _job(lab, image, name, operation, approval=False, extra_env=None):
+def _job(lab, image, name, operation, approval=False, extra_env=None, identity_account=None):
     unit = {"name": "fixture", "image": image, "imagePullPolicy": "Never",
             "command": ["python", "/fixture/training_fixture.py", operation],
-            "volumeMounts": _mounts(operation),
+            "volumeMounts": _mounts(operation, identity=identity_account is not None),
             "securityContext": {"allowPrivilegeEscalation": False, "readOnlyRootFilesystem": True,
                                 "capabilities": {"drop": ["ALL"]}},
             "resources": {"requests": {"cpu": "10m", "memory": "16Mi"},
@@ -84,13 +152,20 @@ def _job(lab, image, name, operation, approval=False, extra_env=None):
     if extra_env:
         unit.setdefault("env", []).extend(
             {"name": key, "value": value} for key, value in extra_env.items())
+    if operation in {"ingest", "transform", "train", "identity-probe"}:
+        unit.setdefault("env", []).append({"name": "SIGNER_URL", "value": f"https://{SIGNER_DNS}:8080"})
+    if identity_account:
+        pod_service_account = identity_account
+    else:
+        pod_service_account = "default"
     return create(lab, "Job", name, "batch/v1", spec={
         "backoffLimit": 0, "ttlSecondsAfterFinished": 3600,
         "template": {"metadata": {"labels": {"app": name}}, "spec": {
             "restartPolicy": "Never", "automountServiceAccountToken": False,
+            "serviceAccountName": pod_service_account,
             "securityContext": {"runAsNonRoot": True, "runAsUser": 65534, "fsGroup": 65534,
                                 "seccompProfile": {"type": "RuntimeDefault"}},
-            "containers": [unit], "volumes": _volumes()}}})
+            "containers": [unit], "volumes": _volumes(identity=identity_account is not None)}}})
 
 
 def _result(lab, name):
@@ -105,19 +180,106 @@ def _create_claims(lab):
             "accessModes": ["ReadWriteOnce"], "resources": {"requests": {"storage": "64Mi"}}})
 
 
+def _create_identity_signer(lab, image):
+    for account in IDENTITY_SAS.values():
+        lab.create({"apiVersion": "v1", "kind": "ServiceAccount",
+                    "metadata": {"name": account, "namespace": "saf-test"},
+                    "automountServiceAccountToken": False})
+    lab.create({"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "ClusterRole",
+                "metadata": {"name": NAME + "-tokenreview"},
+                "rules": [{"apiGroups": ["authentication.k8s.io"], "resources": ["tokenreviews"],
+                           "verbs": ["create"]}]})
+    lab.create({"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "ClusterRoleBinding",
+                "metadata": {"name": NAME + "-tokenreview"},
+                "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "ClusterRole",
+                            "name": NAME + "-tokenreview"},
+                "subjects": [{"kind": "ServiceAccount", "name": IDENTITY_SAS["signer"],
+                              "namespace": "saf-test"}]})
+    lab.create({"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role",
+                "metadata": {"name": NAME + "-trust-write", "namespace": "saf-test"},
+                "rules": [{"apiGroups": [""], "resources": ["configmaps"], "verbs": ["create"]}]})
+    lab.create({"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding",
+                "metadata": {"name": NAME + "-trust-write", "namespace": "saf-test"},
+                "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "Role",
+                            "name": NAME + "-trust-write"},
+                "subjects": [{"kind": "ServiceAccount", "name": IDENTITY_SAS["signer"],
+                              "namespace": "saf-test"}]})
+    create(lab, "ConfigMap", SIGNER_CODE, immutable=True, data={
+        "identity_signer.py": (HERE / "identity_signer.py").read_text(),
+        "training_fixture.py": (HERE / "training_fixture.py").read_text(),
+        "lineage_crypto.py": (HERE / "lineage_crypto.py").read_text(),
+        "signature_crypto_base.py": (HERE / "signature_crypto_base.py").read_text(),
+        "signature_format.py": (HERE / "signature_format.py").read_text(),
+    })
+    signer_unit = container("signer", image=image, imagePullPolicy="Never",
+                            command=["python", "/fixture/identity_signer.py"],
+                            env=[{"name": "PYTHONDONTWRITEBYTECODE", "value": "1"}],
+                            volumeMounts=[{"name": "code", "mountPath": "/fixture", "readOnly": True},
+                                          {"name": "tls-server", "mountPath": "/tls-server", "readOnly": True},
+                                          {"name": "source", "mountPath": "/source", "readOnly": True},
+                                          {"name": "source-receipt", "mountPath": "/source-receipt", "readOnly": True},
+                                          {"name": "transformed", "mountPath": "/transformed", "readOnly": True},
+                                          {"name": "transform-receipt", "mountPath": "/transform-receipt", "readOnly": True},
+                                          {"name": "artifact", "mountPath": "/artifact", "readOnly": True}],
+                            securityContext={"allowPrivilegeEscalation": False, "readOnlyRootFilesystem": True,
+                                             "capabilities": {"drop": ["ALL"]}},
+                            resources={"requests": {"cpu": "25m", "memory": "32Mi"},
+                                       "limits": {"cpu": "200m", "memory": "128Mi"}})
+    signer_unit["readinessProbe"] = {"httpGet": {"path": "/readyz", "port": 8080, "scheme": "HTTPS"},
+                                     "periodSeconds": 1, "timeoutSeconds": 2,
+                                     "failureThreshold": 30}
+    signer_pod = pod(SIGNER, [signer_unit], serviceAccountName=IDENTITY_SAS["signer"],
+                     automountServiceAccountToken=True,
+                     securityContext={"runAsNonRoot": True, "runAsUser": 65534, "fsGroup": 65534,
+                                      "seccompProfile": {"type": "RuntimeDefault"}},
+                     volumes=[{"name": "code", "configMap": {"name": SIGNER_CODE}},
+                              {"name": "tls-server", "secret": {"secretName": SIGNER_TLS_SECRET,
+                                                                    "defaultMode": 0o440}},
+                              *[{"name": key, "persistentVolumeClaim": {"claimName": claim}}
+                                for key, claim in CLAIMS.items()]])
+    signer_pod["metadata"]["labels"] = {"app": SIGNER}
+    lab.create(signer_pod)
+    lab.create({"apiVersion": "v1", "kind": "Service", "metadata": {"name": SIGNER_SERVICE},
+                "spec": {"selector": {"app": SIGNER},
+                         "ports": [{"name": "https", "port": 8080, "targetPort": 8080}]}})
+    lab.kubectl("wait", "--for=condition=Ready", "pod/" + SIGNER, "--timeout=90s", timeout=95)
+    deadline = time.monotonic() + 15
+    while time.monotonic() < deadline:
+        if lab.kubectl("get", "configmap", "fixture-training-provenance-signer-trust",
+                       allow_failure=True).returncode == 0:
+            return
+        time.sleep(0.25)
+    lab.block("The signer did not publish its immutable public trust pin")
+
+
 def run(lab):
     image = load_runtime(lab)
     source = (HERE / "training_fixture.py").read_text()
-    create(lab, "ConfigMap", CODE, immutable=True, data={"training_fixture.py": source})
+    create(lab, "ConfigMap", CODE, immutable=True, data={
+        "training_fixture.py": source,
+        "lineage_crypto.py": (HERE / "lineage_crypto.py").read_text(),
+        "signature_crypto_base.py": (HERE / "signature_crypto_base.py").read_text(),
+        "signature_format.py": (HERE / "signature_format.py").read_text(),
+    })
     _create_claims(lab)
+    with _temporary_signer_tls() as tls:
+        create(lab, "ConfigMap", SIGNER_TLS_CA, immutable=True,
+               data={"ca.pem": tls["ca_cert"].read_text()})
+        lab.kubectl("create", "secret", "tls", SIGNER_TLS_SECRET,
+                    "--cert", str(tls["server_cert"]), "--key", str(tls["server_key"]))
+        _create_identity_signer(lab, image)
 
     # This actual workload consumes every claim before a WaitForFirstConsumer
-    # provisioner is asked to report Bound.
+    # provisioner is asked to report Bound; the signer may also be the first consumer.
     _job(lab, image, NAME + "-volume-consumer", "bootstrap")
     for claim in CLAIMS.values():
         lab.kubectl("wait", "--for=jsonpath={.status.phase}=Bound", "pvc/" + claim,
                     "--timeout=120s", timeout=130)
     _result(lab, NAME + "-volume-consumer")
+    identity_probe_name = NAME + "-wrong-producer"
+    _job(lab, image, identity_probe_name, "identity-probe",
+         identity_account=IDENTITY_SAS["unapproved"])
+    wrong_identity = _result(lab, identity_probe_name)
 
     baseline_job = NAME + "-ungoverned"
     _job(lab, image, baseline_job, "baseline")
@@ -159,17 +321,19 @@ def run(lab):
     transform_name = NAME + "-transform"
     train_name = NAME + "-train"
     release_name = NAME + "-release"
-    _job(lab, image, ingest_name, "ingest")
+    _job(lab, image, ingest_name, "ingest", identity_account=IDENTITY_SAS["source"])
     ingested = _result(lab, ingest_name)
-    _job(lab, image, transform_name, "transform")
+    _job(lab, image, transform_name, "transform", identity_account=IDENTITY_SAS["transform"])
     transformed = _result(lab, transform_name)
     _job(lab, image, NAME + "-bad-edge", "write-mismatched-receipt")
     _result(lab, NAME + "-bad-edge")
     _job(lab, image, NAME + "-reject-edge", "train", approval=True)
     mismatch = _result(lab, NAME + "-reject-edge")
-    _job(lab, image, NAME + "-restore-edge", "transform")
+    _job(lab, image, NAME + "-restore-edge", "transform",
+         identity_account=IDENTITY_SAS["transform"])
     _result(lab, NAME + "-restore-edge")
-    _job(lab, image, train_name, "train", approval=True)
+    _job(lab, image, train_name, "train", approval=True,
+         identity_account=IDENTITY_SAS["training"])
     trained = _result(lab, train_name)
     _job(lab, image, release_name, "release", approval=True)
     released = _result(lab, release_name)
@@ -183,6 +347,7 @@ def run(lab):
             and mismatch["checks"]["approved_transformed_digest"] is True
             and not mismatch["artifact_created"],
         "training_checks_all_pass": trained["decision"] == "trained" and all(trained["checks"].values()),
+        "training_receipt_signed_after_tokenreview": trained.get("producer_signature_written") is True,
         "release_binding_created_after_lineage_validation": released["decision"] == "released" and
             released["release_binding_created"] and all(released["checks"].values()),
         "release_binding_contains_exact_approved_edges":
@@ -241,10 +406,25 @@ def run(lab):
         "reverse_transform_returns_exact_artifact": True,
         "ungoverned_source_match_count": 0,
         "unknown_source_match_count": 0,
+        "all_producer_signatures_valid": True,
     }
     query_observed = {key: queried.get(key) for key in query_expected}
     lab.check("positive", "Read-only stored lineage queries resolve approved edges in both directions and exclude ungoverned or unknown inputs",
               query_observed == query_expected, query_observed)
+
+    identity_check = {
+        "valid_token_from_wrong_producer_denied": wrong_identity.get("wrong_producer_denied") is True,
+        "wrong_producer_created_no_signature": wrong_identity.get("signature_created") is False,
+        "release_and_stored_query_verify_all_three_producer_signatures":
+            released["checks"].get("all_producer_signatures_valid") is True
+            and query_observed.get("all_producer_signatures_valid") is True,
+        "pinned_public_key_verifies_release_signatures":
+            released["decision"] == "released"
+            and released["checks"].get("all_producer_signatures_valid") is True
+            and query_observed.get("all_producer_signatures_valid") is True,
+    }
+    lab.check("positive", "TokenReview-bound producer identities receive verifiable signatures over exact fixed receipts",
+              all(identity_check.values()), identity_check)
 
     evidence = {
         "scope": "synthetic-local-kind-training-provenance",
@@ -253,9 +433,11 @@ def run(lab):
         "positive": positive,
         "observations": {"ungoverned": baseline, "training_without_approval": denial,
                          "release_without_approval": release_denial, "denied_state": denied_state,
+                         "wrong_producer_identity": wrong_identity,
                          "ingest": ingested, "transform": transformed,
                          "training": trained, "release": released, "mismatched_edge": mismatch,
                          "read_only_lineage_query": query_observed},
+        "identity_check": identity_check,
     }
     (lab.evidence / "training-data-provenance.json").write_text(
         json.dumps(evidence, sort_keys=True, indent=2) + "\n")

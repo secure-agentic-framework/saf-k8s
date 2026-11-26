@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0906-006",
-  "catalog_revision": "7fb949b1cbcce8104e21d9e71b5d905740152a6a",
-  "catalog_sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
+  "catalog_revision": "a5173689ee3743ba328ab59b0cc92a80a649e2a1",
+  "catalog_sha256": "99dfcf4e7690631de3a5a538c5e0434405de93779ba25e0e5ce0cff09d9d7f38",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "7f010a0e230ac7767753b81bda449327ad4512b58bd3c219606d38261fb08ed7",
-  "scope": "A live, local Kind fixture persists invented source bytes, source receipt, transformed bytes, transformation receipt, and trained artifact on separate PVCs. It compares a benign ungoverned training job with missing provenance, denies training and release binding before approval, then trains and binds an artifact only when approval digests and receipt lineage match exactly.",
-  "cluster": "saf-lab-e7c986890c95",
+  "scope": "A live, local Kind fixture persists invented source bytes, source receipt, transformed bytes, transformation receipt, and trained artifact on separate PVCs. It compares a benign ungoverned training job with missing provenance, denies training and release binding before approval, then trains and binds an artifact only when approval digests and receipt lineage match exactly. Three distinct producer ServiceAccounts request case-signer signatures after audience-bound TokenReview; only signatures over exact fixed receipts are returned.",
+  "cluster": "saf-lab-e879051414db",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -59,6 +59,7 @@
         "transformation_receipt_matches_approved_digest": true,
         "valid_approval_still_rejects_mismatched_receipt": true,
         "training_checks_all_pass": true,
+        "training_receipt_signed_after_tokenreview": true,
         "release_binding_created_after_lineage_validation": true,
         "release_binding_contains_exact_approved_edges": true
       }
@@ -94,7 +95,19 @@
         "reverse_transform_match_count": 1,
         "reverse_transform_returns_exact_artifact": true,
         "ungoverned_source_match_count": 0,
-        "unknown_source_match_count": 0
+        "unknown_source_match_count": 0,
+        "all_producer_signatures_valid": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "TokenReview-bound producer identities receive verifiable signatures over exact fixed receipts",
+      "matched": true,
+      "observed": {
+        "valid_token_from_wrong_producer_denied": true,
+        "wrong_producer_created_no_signature": true,
+        "release_and_stored_query_verify_all_three_producer_signatures": true,
+        "pinned_public_key_verifies_release_signatures": true
       }
     }
   ]

@@ -1,14 +1,16 @@
-# SAF-K8S-0906-006 — Query exact stored training lineage
+# SAF-K8S-0906-006 — Authenticate producers and query stored training lineage
 
-Run `python3 tests/control-lab/lab.py test SAF-K8S-0906-006 --docker-context desktop-linux` from the framework checkout.
+Run `python3 tests/control-lab/lab.py test SAF-K8S-0906-006 --docker-context desktop-linux` from the framework checkout. This case uses the OpenSSL CLI for disposable TLS setup.
 
-Kubernetes Jobs work with synthetic source, transformation receipts and model bytes on case-owned volumes. The four checks observe an ungoverned baseline, deny missing and inconsistent exact receipt links, accept one linked approved artifact, and independently query the persisted lineage from a read-only Job. The query validates the approval edge and digests, resolves the approved artifact to its source and transformation, and resolves each approved input to the exact artifact. Ungoverned and unknown input lookups return no release records.
+The five checks run isolated Kubernetes Jobs over synthetic source, transform and model records on case-owned PersistentVolumeClaims. An owned HTTPS signer verifies projected producer tokens and audience through native TokenReview and signs canonical stage receipts. The release and separate read-only query verify all three signatures against the pinned public key and confirm the exact source, transform and artifact digests. The alternate producer is denied a signature. The retained records support forward and backward queries across separate Jobs, and ungoverned and unknown inputs yield no release matches.
 
-## Verify an adopted lineage store
+## Verify adopted producer authority and durable lineage
 
-1. Enumerate actual source, transformation, training and release producers and their identity authority. Protect receipt and manifest signing independently of the data and consuming process. Verify exact version identifiers, signer trust, content digests and parent links, including refused wrong or unapproved producer records.
-2. Follow an approved release from its exact source through transformations and output to the stored record. Trace actual artifact and source identifiers in both directions. Include incomplete records, superseded source versions and affected-artifact recall.
-3. Record access scope, retention and provenance integrity for the actual lineage and artifact stores. Retrieve historical records after a subsequent release and after an approved recovery, confirming old release, source and receipt references still resolve.
-4. Include all governed training and publishing entry points and document scope and ownership of coverage gaps. Record only necessary sanitized artifact and record identifiers in evidence.
+1. Inventory actual source, transform, training and release authorities and their authentication. Verify the signer, expected issuer and audience, private-key custody and rotation, receipt version and required identities. Use independently controlled trust to reject an unrelated or altered receipt.
+2. Follow an approved artifact through its actual parent versions and transformation records. Verify backward artifact lookup and forward affected-release lookup at the actual storage and release boundaries, including missing and superseded references.
+3. Test governed retention, authorized access, protected archive and recovery on the chosen lineage and artifact store. Retrieve the prior records after a later release and after an approved recovery. Verify restored identifiers, signatures and digests before using them to release or recall artifacts.
+4. Record actual path coverage, time and policy revisions, artifact and receipt identifiers, accountable owners and governed exceptions.
 
+- [Kubernetes ServiceAccounts](https://v1-36.docs.kubernetes.io/docs/concepts/security/service-accounts/)
+- [Kubernetes TokenReview](https://v1-36.docs.kubernetes.io/docs/reference/kubernetes-api/definitions/token-review-v1-authentication/)
 - [Kubernetes Persistent Volumes](https://v1-36.docs.kubernetes.io/docs/concepts/storage/persistent-volumes/)

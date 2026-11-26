@@ -4,7 +4,13 @@ from collections import Counter
 import json
 import os
 from pathlib import Path
+import ssl
 import sys
+import urllib.error
+import urllib.request
+
+from lineage_crypto import verify as verify_ed25519
+from signature_format import canonical, public_key_id
 
 SOURCE = b"cedar=amber\nmaple=blue\nbirch=green\n"
 MISMATCH = b"cedar=violet\nmaple=blue\nbirch=green\n"
@@ -14,6 +20,16 @@ TRANSFORMED_DIGEST = hashlib.sha256(TRANSFORMED).hexdigest()
 SOURCE_ID = "synthetic-source-v1"
 TRANSFORM_ID = "normalize-token-order-v1"
 TRAINER_ID = "deterministic-count-model-v1"
+PRODUCER_USERS = {
+    "source": "system:serviceaccount:saf-test:fixture-lineage-source",
+    "transform": "system:serviceaccount:saf-test:fixture-lineage-transform",
+    "training": "system:serviceaccount:saf-test:fixture-lineage-training",
+}
+SIGNATURE_PATHS = {
+    "source": "/source-receipt/source.signature.json",
+    "transform": "/transform-receipt/transformation.signature.json",
+    "training": "/artifact/governed/training.signature.json",
+}
 
 def digest(value):
     return hashlib.sha256(value).hexdigest()
@@ -31,6 +47,39 @@ def receipt(path, value):
 
 def load_json(path):
     return json.loads(read(path))
+
+def sign_receipt(stage):
+    token = Path("/identity/token").read_text().strip()
+    request = urllib.request.Request(
+        os.environ["SIGNER_URL"] + "/sign/" + stage,
+        data=b"{}", method="POST",
+        headers={"Authorization": "Bearer " + token, "Content-Type": "application/json"})
+    context = ssl.create_default_context(cafile="/tls-ca/ca.pem")
+    try:
+        with urllib.request.urlopen(request, context=context, timeout=8) as response:
+            signed = json.load(response)
+    except (OSError, urllib.error.URLError, urllib.error.HTTPError, json.JSONDecodeError):
+        raise RuntimeError("fixture identity signer denied or failed") from None
+    if signed.get("signed") is not True:
+        raise RuntimeError("fixture identity signer refused receipt")
+    write(SIGNATURE_PATHS[stage], (json.dumps(signed, sort_keys=True, separators=(",", ":")) + "\n").encode())
+    return True
+
+def verify_receipt(stage):
+    signed = load_json(SIGNATURE_PATHS[stage])
+    receipt_path = {"source": "/source-receipt/source.json",
+                    "transform": "/transform-receipt/transformation.json",
+                    "training": "/artifact/governed/training-receipt.json"}[stage]
+    public_pem = Path("/trust/public.pem").read_text()
+    expected = {"schema": "training-lineage-receipt/v1", "stage": stage,
+                "producer": PRODUCER_USERS[stage], "receipt": load_json(receipt_path)}
+    try:
+        return (signed.get("signed") is True and signed.get("envelope") == expected
+                and signed.get("key_id") == public_key_id(public_pem)
+                and verify_ed25519(public_pem, __import__("base64").b64decode(
+                    signed["signature"], validate=True), canonical(expected)))
+    except (KeyError, ValueError, TypeError):
+        return False
 
 def op(name):
     if name == "bootstrap":
@@ -51,7 +100,9 @@ def op(name):
         receipt("/source-receipt/source.json", {"source_id": SOURCE_ID,
             "source_sha256": digest(SOURCE), "bytes": len(SOURCE),
             "approval_ref": "synthetic-approval-v1"})
-        print(json.dumps({"source_sha256": digest(SOURCE), "source_receipt_persisted": True}, sort_keys=True)); return
+        signed = sign_receipt("source")
+        print(json.dumps({"source_sha256": digest(SOURCE), "source_receipt_persisted": True,
+                          "producer_signature_written": signed}, sort_keys=True)); return
     if name == "write-mismatched-receipt":
         path = "/transform-receipt/transformation.json"
         current = load_json(path)
@@ -72,7 +123,18 @@ def op(name):
         receipt("/transform-receipt/transformation.json", {
             "transform_id": TRANSFORM_ID, "source_sha256": digest(raw),
             "output_sha256": digest(output), "output_bytes": len(output)})
-        print(json.dumps({"transformed": True, "output_sha256": digest(output)}, sort_keys=True)); return
+        signed = sign_receipt("transform")
+        print(json.dumps({"transformed": True, "output_sha256": digest(output),
+                          "producer_signature_written": signed}, sort_keys=True)); return
+    if name == "identity-probe":
+        try:
+            sign_receipt("source")
+            denied = False
+        except RuntimeError:
+            denied = True
+        print(json.dumps({"wrong_producer_denied": denied,
+                          "signature_created": Path(SIGNATURE_PATHS["source"]).exists()}, sort_keys=True))
+        return
     if name == "train" and not os.environ.get("APPROVAL_JSON"):
         print(json.dumps({"decision": "denied", "reason": "approval-absent"}, sort_keys=True)); return
     if name == "train":
@@ -81,12 +143,16 @@ def op(name):
         source_receipt = load_json("/source-receipt/source.json")
         data = read("/transformed/dataset.bin")
         transform_receipt = load_json("/transform-receipt/transformation.json")
+        source_signature_ok = verify_receipt("source")
+        transform_signature_ok = verify_receipt("transform")
         checks = {
             "approved_source_digest": approval["source_sha256"] == digest(raw) == source_receipt["source_sha256"],
             "approved_transformed_digest": approval["transformed_sha256"] == digest(data) == transform_receipt["output_sha256"],
             "source_linked": transform_receipt["source_sha256"] == source_receipt["source_sha256"],
             "source_receipt_approval_matches": source_receipt["approval_ref"] == approval["approval_id"],
             "expected_transform": transform_receipt["transform_id"] == TRANSFORM_ID,
+            "source_producer_signature": source_signature_ok,
+            "transform_producer_signature": transform_signature_ok,
         }
         if not all(checks.values()):
             print(json.dumps({"decision": "denied", "checks": checks, "artifact_created": False}, sort_keys=True)); return
@@ -103,7 +169,9 @@ def op(name):
             "approval_id": approval["approval_id"], "artifact_sha256": digest(model_bytes),
         }
         receipt("/artifact/governed/training-receipt.json", training)
-        print(json.dumps({"decision": "trained", "checks": checks, **training}, sort_keys=True))
+        training_signature = sign_receipt("training")
+        print(json.dumps({"decision": "trained", "checks": checks, **training,
+                          "producer_signature_written": training_signature}, sort_keys=True))
         return
     if name == "release" and not os.environ.get("APPROVAL_JSON"):
         model_exists = Path("/artifact/governed/model.json").exists()
@@ -122,6 +190,7 @@ def op(name):
         trained = load_json("/artifact/governed/training-receipt.json")
         src = load_json("/source-receipt/source.json")
         trans = load_json("/transform-receipt/transformation.json")
+        signature_checks = {stage: verify_receipt(stage) for stage in ("source", "transform", "training")}
         checks = {
             "approval_matches_source": approval["source_sha256"] == src["source_sha256"] == trained["source_sha256"],
             "approval_matches_transformed": approval["transformed_sha256"] == trans["output_sha256"] == trained["transformed_sha256"],
@@ -129,6 +198,7 @@ def op(name):
                 and trained["transformation_receipt_sha256"] == digest(read("/transform-receipt/transformation.json")),
             "artifact_digest_matches": trained["artifact_sha256"] == digest(model),
             "approval_id_matches": trained["approval_id"] == approval["approval_id"],
+            "all_producer_signatures_valid": all(signature_checks.values()),
         }
         if not all(checks.values()):
             print(json.dumps({"decision": "denied", "checks": checks,
@@ -180,6 +250,7 @@ def op(name):
                 training.get("artifact_sha256") == digest(model_bytes),
                 training.get("approval_id") == binding.get("approval_id"),
                 binding.get("training_receipt_sha256") == digest(training_bytes),
+                verify_receipt("source"), verify_receipt("transform"), verify_receipt("training"),
             ))
             records.append({"valid": valid, "artifact_sha256": digest(model_bytes),
                             "source_sha256": source_receipt.get("source_sha256"),
@@ -205,6 +276,7 @@ def op(name):
         print(json.dumps({
             "stored_binding_count": len(records),
             "all_stored_records_validate": bool(records) and len(valid_records) == len(records),
+            "all_producer_signatures_valid": bool(records) and len(valid_records) == len(records),
             "forward_artifact_resolved": len(forward) == 1,
             "forward_source_edge_matches": len(forward) == 1
                 and forward[0]["source_sha256"] == source_query,
