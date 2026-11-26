@@ -1,5 +1,6 @@
 """Exercise namespace-wide ingress and egress NetworkPolicy enforcement."""
 import json
+import importlib.util
 from pathlib import Path
 import time
 
@@ -181,3 +182,11 @@ def run(lab):
     healthy = all(request(lab, "127.0.0.1", marker, client=name) for name, marker in MARKERS.items())
     lab.check("positive", "Both owned listeners remain healthy during the final denial",
               healthy, {"both_local_health_checks_passed": healthy})
+
+    path = Path(__file__).with_name("provisioning_extension.py")
+    spec = importlib.util.spec_from_file_location("saf_namespace_policy_provisioning", path)
+    if spec is None or spec.loader is None:
+        lab.block("Could not load the scoped namespace provisioning checks")
+    provisioning = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(provisioning)
+    provisioning.run_provisioning_checks(lab)

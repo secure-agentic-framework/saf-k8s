@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0501-001",
-  "catalog_revision": "cebd7ee630a25c40646155cefba526244539cb55",
-  "catalog_sha256": "43de94094630359221f83a05e4556881b2d53e76ac3923c7062b59a892f54314",
+  "catalog_revision": "77ddc7032f7441326705edb56c3bd4f90b2e7831",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "2a483af2eb348afa97fad9c7ef3c72f161f896e6be2b61291f4d1826216f6069",
   "scope": "One disposable kind v1.36.1 cluster with kind v0.32.0 bundled kindnet and one case-owned namespace. Three non-root BusyBox Pods provide one client and two fixed HTTP listeners; ordinary IPv4 TCP/8080 requests establish no-policy reachability, ingress-only denial, egress-only denial, and a joint namespace-wide default-deny policy with one explicit client-to-approved-listener allow path. No external targets, DNS, IPv6, other protocols, production CNI, system namespaces, hostNetwork/node paths, or admission/generation automation is tested.",
-  "cluster": "saf-lab-b87a8b12ca3f",
+  "cluster": "saf-lab-2d02f8aab819",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -165,6 +165,60 @@
       "matched": true,
       "observed": {
         "both_local_health_checks_passed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Pinned Kyverno v1.20.0 generator controllers are ready",
+      "matched": true,
+      "observed": {
+        "chart": "3.10.0",
+        "controller_images_pinned": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "GeneratingPolicy is Ready before namespace enrollment",
+      "matched": true,
+      "observed": {
+        "policy": "saf-0501-001-default-deny",
+        "ready": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Two enrolled namespaces each receive exact ingress and egress default deny",
+      "matched": true,
+      "observed": {
+        "managed_namespace_count": 2,
+        "both_exact_policy_pairs": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Unenrolled and out-of-scope namespaces receive no generated policy",
+      "matched": true,
+      "observed": {
+        "late_unenrolled_empty": true,
+        "outside_scope_empty": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A newly enrolled namespace receives the exact policy pair on label update",
+      "matched": true,
+      "observed": {
+        "namespace": "saf-0501-001-managed-late",
+        "newly_enrolled_exact_pair": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Deleting one generated policy is reconciled to the canonical pair",
+      "matched": true,
+      "observed": {
+        "deleted_ingress_policy_recreated": true,
+        "egress_policy_present": true
       }
     }
   ]
