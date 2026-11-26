@@ -1,0 +1,40 @@
+{
+  "commit": "a2543678633b4e30fda413f8ad386fc34e10f8ae",
+  "images": {
+    "docker.io/volcanosh/vc-controller-manager:v1.16.1": {
+      "config": {
+        "amd64": "sha256:9f24916ee63bd8bc956526c60c03bf27db2db2a5c98c207d85c0734b60c3812a",
+        "arm64": "sha256:76d7516c2439efe4b26b5bbb9016ca1f7864cc6d6b631c07011abcfa2a63d826"
+      },
+      "index": "sha256:1aabd4dc38f75f4549e9571c7f5dccd959d89dd04e02908b7ad4a49259455292",
+      "linux": {
+        "amd64": "sha256:d99ab4ebbd2c5b44e8cb24e74f15e26bcd952ece89a54d10527f4425be83b075",
+        "arm64": "sha256:afb878927fe77a498eeff868f8bbc0712b14a8ac48244b92c866814e35f101d9"
+      }
+    },
+    "docker.io/volcanosh/vc-scheduler:v1.16.1": {
+      "config": {
+        "amd64": "sha256:965b174d28610672fea3929b763356420021ebc8a3d9c6965ae3030304516aad",
+        "arm64": "sha256:a79c10a34c5962ded14a35752b4c282d51b24aeedca6bf869fe2ca4842739761"
+      },
+      "index": "sha256:e47ed26b079cc4312df23ffe95a9e392d3161e78a847bd0d3b7d1708f5c3f950",
+      "linux": {
+        "amd64": "sha256:6a82e33cd1f48b37318864b6bcb104edec14afdbe480d28a12cc79a1395c8a89",
+        "arm64": "sha256:7d58a3bda0c7a3b69a58475c2ddfacd12f01f12fc3376a3b117ac133ae6d8e3e"
+      }
+    },
+    "docker.io/volcanosh/vc-webhook-manager:v1.16.1": {
+      "config": {
+        "amd64": "sha256:bd89e2f31780818b7e5004802456a3dd437bd00338d6d96ba51f22c67d85e197",
+        "arm64": "sha256:f748a1822b6bb103fe83de3ac6254bdef8e48f72e6218e639fbb305834a7ace5"
+      },
+      "index": "sha256:42557997cb5bf50233e9785c0bb004894b368cecf014c698b85db0478ec35ccf",
+      "linux": {
+        "amd64": "sha256:8c4a6a535a5dd4af77765f46fbe3dcc737cb9188726be497b3d670aea605c82c",
+        "arm64": "sha256:81e01abcfb7911222bdd86d214055560d62f10a5e2772fbbbba150b28edeaaf5"
+      }
+    }
+  },
+  "manifest_sha256": "af984f3f7fdf4e765fc928b6c3cdf565537d0d137d42a028ef61f42c20a4fafd",
+  "ref": "v1.16.1"
+}

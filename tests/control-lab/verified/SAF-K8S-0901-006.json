@@ -4,8 +4,8 @@
   "catalog_sha256": "63ca25b48ffb8f35202c5c4db9c599eb98e12d31aa18f4d0d69d91a9e3ec5423",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "0b1d02acd0d623612be51764643d1d762fb5a4c57b2c257968cde0799925db4d",
-  "scope": "A disposable Kind v1.36.1 cluster verifies native namespace quota, selected tenant and platform RBAC, and the pinned Kueue v0.17.7 controller's quota, readiness-timeout, and named tenant workload-priority behavior. A case-owned timeout Job's exact Workload UID and raw requeue state are captured before foreground cleanup because the pinned controller has a global PodsReady gate. Separate CPU-only LocalQueues demonstrate sampled historical-use ordering with Admission Fair Sharing enabled: with equal live priorities and sufficient quota after release, the newer lower-use Workload is admitted first. A distinct ClusterQueue explicitly disables Admission Fair Sharing and uses StrictFIFO; it observes the exact 100m seed admitted, Ready, and completed in its queue while the peer remains unseeded, then observes the older of two equal-priority, seed-matched candidates admitted first after release. These are bounded CPU-only scheduler observations. A third isolated Kueue ClusterQueue enables only within-queue LowerPriority preemption; it observes a 100m victim's eviction by a higher-priority Job and recovery of the same victim Job with a replacement Ready Pod after exact preemptor Job, Workload and owned Pod cleanup. The case does not establish Volcano behavior, accelerator quotas, production demand behavior, or deployed configuration.",
-  "cluster": "saf-lab-efc91c7b683d",
+  "scope": "A disposable Kind v1.36.1 cluster verifies native namespace quota, selected tenant and platform RBAC, and the pinned Kueue v0.17.7 controller's quota, readiness-timeout, and named tenant workload-priority behavior. A case-owned timeout Job's exact Workload UID and raw requeue state are captured before foreground cleanup because the pinned controller has a global PodsReady gate. Separate CPU-only LocalQueues demonstrate sampled historical-use ordering with Admission Fair Sharing enabled: with equal live priorities and sufficient quota after release, the newer lower-use Workload is admitted first. A distinct ClusterQueue explicitly disables Admission Fair Sharing and uses StrictFIFO; it observes the exact 100m seed admitted, Ready, and completed in its queue while the peer remains unseeded, then observes the older of two equal-priority, seed-matched candidates admitted first after release. These are bounded CPU-only scheduler observations. A third isolated Kueue ClusterQueue enables only within-queue LowerPriority preemption; it observes a 100m victim's eviction by a higher-priority Job and recovery of the same victim Job with a replacement Ready Pod after exact preemptor Job, Workload and owned Pod cleanup. A separate Volcano v1.16.1 fixture verifies the exact controller and scheduler inputs, scoped authorization and a two-worker CPU group held below its Queue capacity requirement and admitted after capacity is raised. Accelerator quotas, representative workload demand and adopted deployments remain distinct evidence requirements.",
+  "cluster": "saf-lab-120bf66da5b6",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -401,6 +401,118 @@
         "new_pod_uid_after_recovery": true,
         "low_workload_priority_preserved": true,
         "queue_quota_recovered": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The pinned Volcano components run with the declared gang and capacity scheduler configuration",
+      "matched": true,
+      "observed": {
+        "release": "v1.16.1",
+        "established_api_versions_match": true,
+        "live_configuration_matches": true,
+        "component_image_ids_match": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The 200m two-member setup remains unbound while the Volcano Queue cap is 100m",
+      "matched": true,
+      "observed": {
+        "group_min_member_two": true,
+        "group_minresources_cpu_200m_when_present": true,
+        "live_job_two_workers_at_100m": true,
+        "queue_open_capability_and_deserved_100m": true,
+        "five_bounded_observations_unbound": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Tenant cannot create, patch, or delete the protected queue fixture",
+      "matched": true,
+      "observed": {
+        "create_patch_delete_all_forbidden": true,
+        "protected_uid_and_spec_unchanged": true,
+        "dry_run_create_left_no_probe_object": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Tenant cannot create, patch, or delete the protected podgroup fixture",
+      "matched": true,
+      "observed": {
+        "create_patch_delete_all_forbidden": true,
+        "protected_uid_and_spec_unchanged": true,
+        "dry_run_create_left_no_probe_object": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Tenant cannot create, patch, or delete the protected priorityclass fixture",
+      "matched": true,
+      "observed": {
+        "create_patch_delete_all_forbidden": true,
+        "protected_uid_and_spec_unchanged": true,
+        "dry_run_create_left_no_probe_object": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Tenant cannot create, patch, or delete the protected resourcequota fixture",
+      "matched": true,
+      "observed": {
+        "create_patch_delete_all_forbidden": true,
+        "protected_uid_and_spec_unchanged": true,
+        "dry_run_create_left_no_probe_object": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Tenant can create and run one fixed low-CPU Pod under its narrow pods:create Role",
+      "matched": true,
+      "observed": {
+        "tenant_create_http_201": true,
+        "exact_created_pod_uid_ready": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The tenant-created comparator Pod UID is retired before the group capacity change",
+      "matched": true,
+      "observed": {
+        "exact_positive_uid_absent": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Both CPU-only Volcano group members become bound and Ready after capacity is raised to 200m",
+      "matched": true,
+      "observed": {
+        "two_job_owned_members": true,
+        "podgroup_running_two": true,
+        "both_bound_and_ready": true,
+        "queue_allocated_200m": true,
+        "namespace_cpu_quota_300m": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Foreground cleanup removes the exact VolcanoJob, PodGroup and member Pods",
+      "matched": true,
+      "observed": {
+        "job_uid_absent": true,
+        "podgroup_uid_absent": true,
+        "owned_pods_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The case Queue, PriorityClasses and namespace are removed",
+      "matched": true,
+      "observed": {
+        "queue_uid_absent": true,
+        "priorityclass_uids_absent": true,
+        "namespace_absent": true
       }
     }
   ]

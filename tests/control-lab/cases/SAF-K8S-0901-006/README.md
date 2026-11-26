@@ -174,3 +174,25 @@ cross-queue preemption, other controller policies, Volcano, accelerator
 behavior, production demand behavior, or adopted-cluster configuration. The
 pinned policy and candidate logic are in the [Kueue v0.17.7 preemptor](https://github.com/kubernetes-sigs/kueue/blob/v0.17.7/pkg/scheduler/preemption/preemption.go)
 and [priority policy](https://github.com/kubernetes-sigs/kueue/blob/v0.17.7/pkg/scheduler/preemption/common/preemption_policy.go).
+
+## Bounded Volcano CPU group and authorization
+
+The case verifies the published Volcano v1.16.1 installer bytes from the exact
+release commit and uses digest-pinned controller, webhook and scheduler images.
+It checks the live gang and capacity plugin configuration and the Ready
+components and completed admission init Job. The case uses a separate namespace
+and Queue for the two inert 100m worker Pods. It observes their binding state
+under a 100m queue cap and after raising it to 200m. Separate dry-run requests
+from the fixture tenant check protected Queue, PodGroup, PriorityClass and
+ResourceQuota object mutations. A fixed Pod created by the same tenant is the
+permitted comparator. Raw results preserve the exact objects, status and owner
+identities. The controller-generated PodGroup is selected using the exact owning
+VolcanoJob UID, and its observed name and UID are retained.
+
+This demonstration covers the pinned CPU-only test and its case-owned API
+policy. Adopters need evidence for workload priority assignment, actual tenant
+entitlements, sustained fairness, accelerator scheduling and deployed settings.
+
+- [Volcano v1.16.1 release](https://github.com/volcano-sh/volcano/releases/tag/v1.16.1)
+- [Volcano Queue](https://volcano.sh/docs/v1.16.0/concepts/queue/)
+- [Volcano PodGroup](https://volcano.sh/docs/v1.16.0/concepts/podgroup/)
