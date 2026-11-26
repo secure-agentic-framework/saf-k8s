@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0910-025",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "6624a153269194e73ebd083452aa2534f42791f5",
+  "catalog_sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "5b75e947160ee041cea36d2750a7018c76e0897e01e34b25d8978e517a5ae62d",
-  "scope": "A pinned CNCF Distribution registry in the supervisor cluster is the source; two separately addressed pinned Distribution registries in the disposable owned-peer Kind cluster are the only candidate destinations. The exact source-to-unapproved-destination pair and one fixed tag are first copied without governance, then removed and refused by the governed path. The approved destination path is also exercised. Membership is a real ConfigMap managed by a least-privilege service account; a separate observer independently checks that resource and each registry manifest. Reconciliation is capped at four API read/repair passes.",
-  "cluster": "saf-lab-2f374162ae84",
+  "scope": "A pinned CNCF Distribution registry in the supervisor cluster is the source; two separately addressed pinned Distribution registries in the disposable owned-peer Kind cluster are the only candidate destinations. The exact source-to-unapproved-destination pair and one fixed tag are first copied without governance, then removed and refused by the governed path. The approved destination path is also exercised. Membership is a real ConfigMap managed by a least-privilege service account; a separate observer independently checks that resource and each registry manifest. Reconciliation is capped at four API read/repair passes. The scratch extension selects one new immutable approval snapshot, observes one native CronJob reconciliation invocation, and verifies refusal of the formerly approved pair; this is not evidence of sustained schedule reliability or production endpoint identity.",
+  "cluster": "saf-lab-ace9fba08570",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -105,6 +105,7 @@
             "destination_unapproved",
             "source"
           ],
+          "approval_revision": "fixture-approved-membership",
           "approved": [
             "destination_approved",
             "source"
@@ -123,6 +124,7 @@
             "destination_approved",
             "source"
           ],
+          "approval_revision": "fixture-approved-membership",
           "approved": [
             "destination_approved",
             "source"
@@ -146,6 +148,110 @@
         "registry_state": {
           "digest": "sha256:3dd663ed593725e5a8618acf739779335f5b2871e8ec78a0e865f1e9a7e7de69",
           "status": 200
+        }
+      }
+    },
+    {
+      "phase": "revocation",
+      "claim": "A versioned approval revocation is reconciled on schedule and blocks new replication",
+      "matched": true,
+      "observed": {
+        "reset_state": {
+          "digest": null,
+          "status": 404
+        },
+        "reset_empty": {
+          "all_fixture_content_absent": true
+        },
+        "before_revoke": {
+          "current": {
+            "active": [
+              "destination_approved",
+              "source"
+            ],
+            "approval_revision": "fixture-approved-membership",
+            "approved": [
+              "destination_approved",
+              "source"
+            ]
+          },
+          "v1": [
+            "destination_approved",
+            "source"
+          ],
+          "v2": [
+            "source"
+          ]
+        },
+        "manager_pointer_write": {
+          "http_status": 403
+        },
+        "authorized_revision": {
+          "http_status": 200,
+          "revision": "fixture-approved-membership-v2"
+        },
+        "revisions": {
+          "current": {
+            "active": [
+              "destination_approved",
+              "source"
+            ],
+            "approval_revision": "fixture-approved-membership-v2",
+            "approved": [
+              "source"
+            ]
+          },
+          "v1": [
+            "destination_approved",
+            "source"
+          ],
+          "v2": [
+            "source"
+          ]
+        },
+        "scheduled_reconciliation": {
+          "schedule_configured": true,
+          "scheduled": true,
+          "completed": true,
+          "result": {
+            "active": [
+              "source"
+            ],
+            "changed": true,
+            "passes": 2
+          }
+        },
+        "after_reconcile": {
+          "active": [
+            "source"
+          ],
+          "approval_revision": "fixture-approved-membership-v2",
+          "approved": [
+            "source"
+          ]
+        },
+        "revoked_copy": {
+          "decision": "denied-endpoint-pair"
+        },
+        "revoked_destination": {
+          "digest": null,
+          "status": 404
+        },
+        "revoked_empty": {
+          "all_fixture_content_absent": true
+        },
+        "source_unchanged": {
+          "digest": "sha256:3dd663ed593725e5a8618acf739779335f5b2871e8ec78a0e865f1e9a7e7de69",
+          "status": 200
+        },
+        "checks": {
+          "formerly_approved_destination_was_empty": true,
+          "manager_cannot_advance_approval_pointer": true,
+          "separate_approval_authority_advanced_version": true,
+          "immutable_revision_and_pre_reconcile_state_observed": true,
+          "scheduled_reconciler_removed_revoked_endpoint": true,
+          "revoked_pair_refused_without_new_destination_content": true,
+          "source_registry_content_remains_exact": true
         }
       }
     }

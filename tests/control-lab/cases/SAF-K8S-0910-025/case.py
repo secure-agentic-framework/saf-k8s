@@ -2,6 +2,7 @@
 import importlib.util
 import json
 from pathlib import Path
+import time
 
 from fixtures import container, pod, ready
 
@@ -9,9 +10,13 @@ HERE = Path(__file__).resolve().parent
 NS = "saf-test"
 CODE = "fixture-federation-code"
 APPROVAL = "fixture-approved-membership"
+APPROVAL_NEXT = "fixture-approved-membership-v2"
+APPROVAL_POINTER = "fixture-approved-membership-current"
 MEMBERSHIP = "fixture-federation-membership"
 MANAGER = "fixture-federation-manager"
 OBSERVER = "fixture-federation-observer"
+APPROVAL_AUTHORITY = "fixture-federation-approval-authority"
+RECONCILE_CRONJOB = "fixture-federation-reconcile"
 SOURCE_REGISTRY = "fixture-federation-source"
 APPROVED_REGISTRY = "fixture-federation-approved"
 UNAPPROVED_REGISTRY = "fixture-federation-unapproved"
@@ -27,7 +32,10 @@ SCOPE = (
     "tag are first copied without governance, then removed and refused by the governed path. The "
     "approved destination path is also exercised. Membership is a real ConfigMap managed by a "
     "least-privilege service account; a separate observer independently checks that resource "
-    "and each registry manifest. Reconciliation is capped at four API read/repair passes."
+    "and each registry manifest. Reconciliation is capped at four API read/repair passes. The "
+    "scratch extension selects one new immutable approval snapshot, observes one native CronJob "
+    "reconciliation invocation, and verifies refusal of the formerly approved pair; this is not "
+    "evidence of sustained schedule reliability or production endpoint identity."
 )
 
 
@@ -79,17 +87,87 @@ def runner(lab, image, actor, env):
 
 
 def accounts(lab):
-    for account in (MANAGER, OBSERVER):
+    for account in (MANAGER, OBSERVER, APPROVAL_AUTHORITY):
         create(lab, "ServiceAccount", account)
-        permissions = [{"apiGroups": [""], "resources": ["configmaps"],
-                        "resourceNames": [APPROVAL, MEMBERSHIP], "verbs": ["get"]}]
+        permissions = []
+        if account in (MANAGER, OBSERVER):
+            permissions.append({"apiGroups": [""], "resources": ["configmaps"],
+                                "resourceNames": [APPROVAL, APPROVAL_NEXT, APPROVAL_POINTER, MEMBERSHIP],
+                                "verbs": ["get"]})
         if account == MANAGER:
             permissions.append({"apiGroups": [""], "resources": ["configmaps"],
                                 "resourceNames": [MEMBERSHIP], "verbs": ["patch"]})
+        if account == APPROVAL_AUTHORITY:
+            permissions.extend([
+                {"apiGroups": [""], "resources": ["configmaps"],
+                 "resourceNames": [APPROVAL_POINTER], "verbs": ["get", "patch"]},
+            ])
         create(lab, "Role", account, RBAC, rules=permissions)
         create(lab, "RoleBinding", account, RBAC,
                roleRef={"apiGroup": "rbac.authorization.k8s.io", "kind": "Role", "name": account},
                subjects=[{"kind": "ServiceAccount", "name": account, "namespace": NS}])
+
+
+def scheduled_reconciliation(lab, image, env):
+    command = ["python", "/fixture/federation_fixture.py", "call", "reconcile"]
+    worker = container("reconcile", image=image, imagePullPolicy="Never", command=command,
+                       env=env,
+                       volumeMounts=[{"name": "code", "mountPath": "/fixture", "readOnly": True}],
+                       securityContext={"allowPrivilegeEscalation": False,
+                                        "capabilities": {"drop": ["ALL"]},
+                                        "runAsNonRoot": True, "runAsUser": 65534,
+                                        "seccompProfile": {"type": "RuntimeDefault"}})
+    cron = {"apiVersion": "batch/v1", "kind": "CronJob",
+            "metadata": {"name": RECONCILE_CRONJOB},
+            "spec": {"schedule": "* * * * *", "concurrencyPolicy": "Forbid",
+                     "startingDeadlineSeconds": 60, "successfulJobsHistoryLimit": 1,
+                     "failedJobsHistoryLimit": 1,
+                     "jobTemplate": {"spec": {"backoffLimit": 0, "activeDeadlineSeconds": 45,
+                         "template": {"spec": {"serviceAccountName": MANAGER,
+                             "restartPolicy": "Never", "automountServiceAccountToken": True,
+                             "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
+                                                  "fsGroup": 65534},
+                             "containers": [worker],
+                             "volumes": [{"name": "code", "configMap": {"name": CODE,
+                                                                             "defaultMode": 292}}]}}}}}}
+    created_cron = lab.create(cron)
+    cron_uid = created_cron["metadata"]["uid"]
+    schedule_configured = created_cron.get("spec", {}).get("schedule") == "* * * * *"
+    job_name = None
+    try:
+        deadline = time.monotonic() + 110
+        while time.monotonic() < deadline:
+            listing = json.loads(lab.kubectl("get", "jobs", "-o", "json", timeout=15).stdout)
+            owned = [
+                job for job in listing.get("items", [])
+                if job["metadata"].get("annotations", {}).get("batch.kubernetes.io/cronjob-scheduled-timestamp")
+                and any(owner.get("kind") == "CronJob" and owner.get("uid") == cron_uid
+                        and owner.get("controller") is True
+                        for owner in job["metadata"].get("ownerReferences", []))
+            ]
+            completed = next((job for job in owned if job.get("status", {}).get("succeeded") == 1), None)
+            failed = next((job for job in owned if job.get("status", {}).get("failed", 0) > 0), None)
+            if completed:
+                job_name = completed["metadata"]["name"]
+                output = lab.kubectl("logs", f"job/{job_name}", timeout=15).stdout.strip()
+                return {"schedule_configured": schedule_configured,
+                        "scheduled": bool(completed["status"].get("startTime")),
+                        "completed": True, "result": json.loads(output)}
+            if failed:
+                job_name = failed["metadata"]["name"]
+                output = lab.kubectl("logs", f"job/{job_name}", timeout=15, allow_failure=True).stdout.strip()
+                return {"schedule_configured": schedule_configured,
+                        "scheduled": bool(failed["status"].get("startTime")),
+                        "completed": False, "result": output[:160]}
+            time.sleep(1)
+        return {"schedule_configured": schedule_configured, "scheduled": False,
+                "completed": False, "result": "schedule-window-expired"}
+    finally:
+        lab.kubectl("delete", "cronjob", RECONCILE_CRONJOB, "--wait=true", "--timeout=20s",
+                    timeout=25, allow_failure=True)
+        if job_name:
+            lab.kubectl("delete", "job", job_name, "--wait=true", "--timeout=20s",
+                        timeout=25, allow_failure=True)
 
 
 def run(lab):
@@ -108,10 +186,14 @@ def run(lab):
         endpoints = fixture.endpoint_map(peer_ip, approved_port, rejected_port)
         allowed = [endpoints["source"], endpoints["destination_approved"]]
         create(lab, "ConfigMap", APPROVAL, immutable=True, data={"approved.json": json.dumps(allowed)})
+        create(lab, "ConfigMap", APPROVAL_NEXT, immutable=True,
+               data={"approved.json": json.dumps([endpoints["source"]])})
+        create(lab, "ConfigMap", APPROVAL_POINTER,
+               data={"current.json": json.dumps(APPROVAL)})
         create(lab, "ConfigMap", MEMBERSHIP, data={"active.json": json.dumps(allowed)})
         env = [{"name": name, "value": str(value)} for name, value in
                (("PEER_IP", peer_ip), ("APPROVED_PORT", approved_port), ("UNAPPROVED_PORT", rejected_port))]
-        for actor in (MANAGER, OBSERVER):
+        for actor in (MANAGER, OBSERVER, APPROVAL_AUTHORITY):
             runner(lab, image, actor, env)
 
         def invoke(actor, operation):
@@ -184,6 +266,64 @@ def run(lab):
                   and independently_read == {"digest": digest, "status": 200},
                   {"copy": active_copy, "registry_state": independently_read})
 
+        peer("delete", "pod", APPROVED_REGISTRY, "--wait=true", "--timeout=38s", timeout=45)
+        peer("create", "-f", "-", payload=json.dumps(registry_pod(APPROVED_REGISTRY)))
+        peer("wait", "--for=condition=Ready", f"pod/{APPROVED_REGISTRY}",
+             "--timeout=75s", timeout=85)
+        if invoke(OBSERVER, "wait-ready") != {"ready": True}:
+            lab.block("The replaced approved registry did not recover its private route")
+        reset_state = invoke(OBSERVER, "observe-approved")
+        reset_empty = invoke(OBSERVER, "observe-approved-empty")
+        before_revoke = invoke(OBSERVER, "observe-approval-revisions")
+        denied_revision = invoke(MANAGER, "manager-revision-write-denied")
+        authorized_revision = invoke(APPROVAL_AUTHORITY, "advance-approval-revision")
+        revisions = invoke(OBSERVER, "observe-approval-revisions")
+        scheduled = scheduled_reconciliation(lab, image, env)
+        after_reconcile = invoke(OBSERVER, "observe-membership")
+        revoked_copy = invoke(MANAGER, "governed-copy-approved")
+        revoked_destination = invoke(OBSERVER, "observe-approved")
+        revoked_empty = invoke(OBSERVER, "observe-approved-empty")
+        source_unchanged = invoke(OBSERVER, "observe-source")
+        revocation = {
+            "formerly_approved_destination_was_empty": (
+                reset_state.get("digest") is None and reset_empty.get("all_fixture_content_absent") is True),
+            "manager_cannot_advance_approval_pointer": denied_revision.get("http_status") == 403,
+            "separate_approval_authority_advanced_version": authorized_revision == {
+                "http_status": 200, "revision": APPROVAL_NEXT},
+            "immutable_revision_and_pre_reconcile_state_observed": (
+                before_revoke.get("current", {}).get("approval_revision") == APPROVAL
+                and before_revoke.get("current", {}).get("approved") == ["destination_approved", "source"]
+                and before_revoke.get("current", {}).get("active") == ["destination_approved", "source"]
+                and revisions.get("current", {}).get("approval_revision") == APPROVAL_NEXT
+                and revisions.get("v1") == ["destination_approved", "source"]
+                and revisions.get("v2") == ["source"]
+                and revisions.get("current", {}).get("active") == ["destination_approved", "source"]),
+            "scheduled_reconciler_removed_revoked_endpoint": (
+                scheduled.get("schedule_configured") is True
+                and scheduled.get("scheduled") is True and scheduled.get("completed") is True
+                and scheduled.get("result", {}).get("changed") is True
+                and scheduled.get("result", {}).get("passes", 99) <= 4
+                and scheduled.get("result", {}).get("active") == ["source"]
+                and after_reconcile.get("approval_revision") == APPROVAL_NEXT
+                and after_reconcile.get("approved") == ["source"]
+                and after_reconcile.get("active") == ["source"]),
+            "revoked_pair_refused_without_new_destination_content": (
+                revoked_copy.get("decision") == "denied-endpoint-pair"
+                and revoked_destination.get("digest") is None
+                and revoked_empty.get("all_fixture_content_absent") is True),
+            "source_registry_content_remains_exact": source_unchanged.get("digest") == digest,
+        }
+        lab.check("revocation", "A versioned approval revocation is reconciled on schedule and blocks new replication",
+                  all(revocation.values()),
+                  {"reset_state": reset_state, "reset_empty": reset_empty,
+                   "before_revoke": before_revoke,
+                   "manager_pointer_write": denied_revision,
+                   "authorized_revision": authorized_revision, "revisions": revisions,
+                   "scheduled_reconciliation": scheduled, "after_reconcile": after_reconcile,
+                   "revoked_copy": revoked_copy, "revoked_destination": revoked_destination,
+                   "revoked_empty": revoked_empty, "source_unchanged": source_unchanged,
+                   "checks": revocation})
+
         # Drop ephemeral bridge addresses and Kubernetes object metadata from the stable record.
         evidence = {
             "scope": SCOPE,
@@ -205,6 +345,15 @@ def run(lab):
                                 "passes": reconciliation.get("passes"),
                                 "changed": reconciliation.get("changed"),
                                 "after_active": after.get("active")},
+            "revocation": {"current_approval_revision": revisions.get("current", {}).get("approval_revision"),
+                           "old_snapshot_unchanged": revisions.get("v1") == ["destination_approved", "source"],
+                           "new_snapshot": revisions.get("v2"),
+                           "manager_pointer_write_status": denied_revision.get("http_status"),
+                           "approval_authority_status": authorized_revision.get("http_status"),
+                           "scheduled_reconcile": scheduled.get("scheduled") is True,
+                           "reconciled_active": after_reconcile.get("active"),
+                           "revoked_copy_decision": revoked_copy.get("decision"),
+                           "destination_fixture_content_absent": revoked_empty.get("all_fixture_content_absent")},
         }
         (lab.evidence / "registry-federation-observations.json").write_text(
             json.dumps(evidence, indent=2, sort_keys=True) + "\n")

@@ -53,6 +53,8 @@ MANIFEST = json.dumps({
 MANIFEST_DIGEST = "sha256:" + sha256(MANIFEST).hexdigest()
 CONFIGMAP = "/api/v1/namespaces/saf-test/configmaps/fixture-federation-membership"
 APPROVAL = "/api/v1/namespaces/saf-test/configmaps/fixture-approved-membership"
+APPROVAL_NEXT = "/api/v1/namespaces/saf-test/configmaps/fixture-approved-membership-v2"
+APPROVAL_POINTER = "/api/v1/namespaces/saf-test/configmaps/fixture-approved-membership-current"
 
 
 def endpoint_map(peer_ip=None, approved_port=None, unapproved_port=None):
@@ -74,8 +76,9 @@ def endpoint_map(peer_ip=None, approved_port=None, unapproved_port=None):
 
 def labels_for_membership(document, endpoints):
     reverse = {url: label for label, url in endpoints.items()}
-    return {key: sorted(reverse[value] for value in document.get(key, []) if value in reverse)
-            for key in ("approved", "active")}
+    return {"approval_revision": document.get("approval_name"),
+            **{key: sorted(reverse[value] for value in document.get(key, []) if value in reverse)
+               for key in ("approved", "active")}}
 
 
 def _endpoint(url, endpoints):
@@ -204,12 +207,30 @@ def _api_request(method, path, body=None):
 
 
 def _membership():
-    approved_status, approved = _api_request("GET", APPROVAL)
+    pointer_status, pointer = _api_request("GET", APPROVAL_POINTER)
     active_status, active = _api_request("GET", CONFIGMAP)
+    if pointer_status != 200 or active_status != 200:
+        raise RuntimeError("Could not read the approval revision pointer and active membership")
+    approval_name = json.loads(pointer["data"]["current.json"])
+    if approval_name not in {"fixture-approved-membership", "fixture-approved-membership-v2"}:
+        raise RuntimeError("Current approval revision is outside the fixed fixture set")
+    approval_path = APPROVAL if approval_name == "fixture-approved-membership" else APPROVAL_NEXT
+    approved_status, approved = _api_request("GET", approval_path)
     if approved_status != 200 or active_status != 200 or approved.get("immutable") is not True:
-        raise RuntimeError("Could not read the distinct approved and active membership objects")
-    return {"approved": json.loads(approved["data"]["approved.json"]),
+        raise RuntimeError("Could not read the selected immutable approval snapshot")
+    return {"approval_name": approval_name,
+            "approved": json.loads(approved["data"]["approved.json"]),
             "active": json.loads(active["data"]["active.json"])}
+
+
+def _approval_snapshot(name):
+    if name not in {"fixture-approved-membership", "fixture-approved-membership-v2"}:
+        raise RuntimeError("Approval snapshot is outside the fixed fixture set")
+    path = APPROVAL if name == "fixture-approved-membership" else APPROVAL_NEXT
+    status, snapshot = _api_request("GET", path)
+    if status != 200 or snapshot.get("immutable") is not True:
+        raise RuntimeError("Could not independently observe the immutable approval snapshot")
+    return json.loads(snapshot["data"]["approved.json"])
 
 
 def _patch_membership(value):
@@ -251,6 +272,14 @@ def _call(operation):
     if operation == "manager-approval-write-denied":
         status, _ = _api_request("PATCH", APPROVAL, {"data": {"approved.json": json.dumps([source, unapproved])}})
         return {"http_status": status}
+    if operation == "manager-revision-write-denied":
+        status, _ = _api_request("PATCH", APPROVAL_POINTER,
+                                 {"data": {"current.json": json.dumps("fixture-approved-membership-v2")}})
+        return {"http_status": status}
+    if operation == "advance-approval-revision":
+        status, _ = _api_request("PATCH", APPROVAL_POINTER,
+                                 {"data": {"current.json": json.dumps("fixture-approved-membership-v2")}})
+        return {"http_status": status, "revision": "fixture-approved-membership-v2"}
     if operation == "seed":
         for digest, blob in ((CONFIG_DIGEST, CONFIG), (LAYER_DIGEST, LAYER)):
             _push_blob(source, digest, blob, endpoints)
@@ -272,12 +301,23 @@ def _call(operation):
         return _registry_state(source, endpoints)
     if operation == "observe-approved":
         return _registry_state(approved, endpoints)
+    if operation == "observe-approved-empty":
+        return _registry_empty(approved, endpoints)
     if operation == "observe-unapproved":
         return _registry_state(unapproved, endpoints)
     if operation == "observe-unapproved-empty":
         return _registry_empty(unapproved, endpoints)
     if operation == "observe-membership":
         return labels_for_membership(_membership(), endpoints)
+    if operation == "observe-approval-revisions":
+        current = _membership()
+        return {"current": labels_for_membership(current, endpoints),
+                "v1": sorted({value: label for label, value in endpoints.items()}[url]
+                             for url in _approval_snapshot("fixture-approved-membership")
+                             if url in endpoints.values()),
+                "v2": sorted({value: label for label, value in endpoints.items()}[url]
+                             for url in _approval_snapshot("fixture-approved-membership-v2")
+                             if url in endpoints.values())}
     if operation == "observer-write-denied":
         current = _membership()
         changed = dict(current)
