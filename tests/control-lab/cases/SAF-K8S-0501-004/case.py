@@ -30,7 +30,8 @@ NODE_IMAGE = (
 SCOPE = (
     "Cilium 1.20.5 on kind v0.32.0 / Kubernetes v1.36.1. The retained L7 "
     "ingress claim is IPv4 TCP/8080 between owned Pods with direct Pod-IP "
-    "requests to /safe. Additional local claims cover toFQDNs against two "
+    "requests to /safe. A separate standard NetworkPolicy compares exact client and port "
+    "selection and preserves both reviewed HTTP methods. Additional local claims cover toFQDNs against two "
     "synthetic .test names on an internal Docker bridge, plus CiliumClusterwideNetworkPolicy "
     "selection and deny precedence across two selected namespaces and one unaffected namespace. "
     "No public endpoint, production policy, other CNI, or provider integration is exercised."

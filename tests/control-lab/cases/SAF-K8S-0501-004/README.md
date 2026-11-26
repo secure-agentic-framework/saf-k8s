@@ -47,3 +47,11 @@ other Cilium versions.
 With the pinned Cilium data plane running, the case applies a standard `networking.k8s.io/v1` ingress policy to the owned listener. Its selected client retains GET and POST on the approved TCP port. The unselected client reaches the listener before the policy, loses access after enforcement, and recovers after removal. The independent Cilium HTTP-method, DNS-name and cluster-wide policy checks then run on their own fixture paths.
 
 Verify the actual CNI and policy versions, label and namespace selectors, IP families, rule precedence, and coverage of each adopted ingress and egress path. Rehearse both authorized and denied cases on approved test workloads. Record provider limitations and equivalent compensating controls with their own tests and accountable owners.
+
+## Adopter verification
+
+Record the approved CNI version and effective configuration. Inventory standard and plugin-specific network policies, namespace and workload selectors, approved port and method rules, intended names and DNS paths, and cluster-wide policy precedence. Exercise each governed route and a neighboring unselected route against the same representative test service. Include alternate addresses, host or node traffic, private resolver behavior and exception paths where applicable. Retain the actual policy, source and destination identities, result, date and accountable approval.
+
+The revised catalog retains bounded supporting mappings for AC-4, AC-4(21), CA-9, SC-7, SC-7(5), and SC-7(11). Each applies at the tested information-flow, interface, or component boundary under its conditions. Record unverified paths and compensating measures in the adopter assessment.
+
+[Kubernetes v1.36 NetworkPolicy](https://v1-36.docs.kubernetes.io/docs/concepts/services-networking/network-policies/) · [Cilium v1.20 policy language](https://docs.cilium.io/en/v1.20/security/policy/language/)
