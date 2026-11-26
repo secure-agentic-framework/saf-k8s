@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0704-019",
-  "catalog_revision": "e2190e375f86930ca35431fd7b69b0f78f50fe84",
-  "catalog_sha256": "1325f9bad56735b647f630fbe7750324ae216e0f211f1a53663e971c9ec51c3d",
+  "catalog_revision": "302c910b204bc0838d8a8d8c3e0be8604be32411",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "a8b9f8aa902a7c96eba35333f03b0a306c018619082118663cda2d44175b34c7",
-  "scope": "Live Kubernetes admission and Pod API state for distinct fixture ServiceAccounts and an explicitly projected audience.",
-  "cluster": "saf-lab-4186c7d2eb03",
+  "scope": "Disposable Kind v1.36.1 admission and verified Pod identity. Two in-cluster TLS services submit TokenReviews for their exact audience and require their exact fixture ServiceAccount subject before a scoped read of one inert ConfigMap. Provider trust, IAM, cloud auditing and node credential isolation are outside this local relying-service fixture.",
+  "cluster": "saf-lab-89cff4b35bc3",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -64,6 +64,17 @@
           "fixture-workload-a": true,
           "fixture-workload-b": true
         }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Relying services verify projected subject and audience before scoped marker reads",
+      "matched": true,
+      "observed": {
+        "workload_a_exact_subject_allowed": true,
+        "workload_b_exact_subject_allowed": true,
+        "wrong_audience_denied": true,
+        "cross_subject_denied_without_data": true
       }
     }
   ]
