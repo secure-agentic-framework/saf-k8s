@@ -1,7 +1,10 @@
 """Validate scan evidence and write the exact bytes to the local test registry."""
 from datetime import datetime, timedelta
+import base64
 from http.client import HTTPConnection
+import hashlib
 import json
+from pathlib import Path
 import sys
 import time
 from urllib.parse import parse_qsl, urlencode, urlsplit
@@ -59,9 +62,40 @@ def exception_covers(exception, subject, findings):
         return False
 
 
+def canonical(value):
+    return json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+
+
+def verify_report_envelope(envelope):
+    """Verify the exact canonical report under the separately mounted case trust policy."""
+    if not isinstance(envelope, dict) or not isinstance(envelope.get("report"), dict):
+        return "report-malformed", None
+    try:
+        policy = json.loads(Path("/trust/report-policy.json").read_text())
+    except (OSError, ValueError):
+        return "report-trust-policy-unavailable", None
+    if envelope.get("signer_id") != policy["trusted_signer_id"]:
+        return "report-untrusted-signer", None
+    try:
+        signature = base64.b64decode(envelope["signature_b64"], validate=True)
+        payload = canonical(envelope["report"])
+        from report_crypto import verify
+        if not verify(Path(policy["trusted_public_key"]).read_text(), signature, payload):
+            return "report-signature-invalid", None
+        return None, {"signer_id": policy["trusted_signer_id"],
+                      "signature_verified": True,
+                      "payload_sha256": hashlib.sha256(payload).hexdigest()}
+    except (KeyError, TypeError, ValueError, OSError):
+        return "report-signature-invalid", None
+
+
 def decide(report, subject, exception):
     if report is None:
         return "report-absent"
+    envelope_error, _ = verify_report_envelope(report)
+    if envelope_error:
+        return envelope_error
+    report = report["report"]
     if not isinstance(report, dict):
         return "report-malformed"
     if report.get("state") != "completed":

@@ -1,13 +1,13 @@
-# SAF-K8S-0601-008 build-time image scanning
+# Verify scan evidence before image promotion
 
-Run `python3 lab.py test SAF-K8S-0601-008` from the control-lab directory.
+Run from the framework repository. Use an OpenSSL 3 executable on the host. If needed, set `SAF_OPENSSL` to its path.
 
-The pinned scanner opens two deterministic inert image archives with networking
-disabled. The local advisory database and package name are invented. A Kind
-workload makes promotion decisions for exact OCI image digests and pushes only
-permitted artifacts to the case-owned Distribution registry. A separate pod
-reads back the manifests and their referenced blobs.
+```sh
+python3 tests/control-lab/lab.py test SAF-K8S-0601-008 --docker-context desktop-linux
+```
 
-The fixture tests one package and a fixed clock. Deployment evidence should
-cover scanner coverage, advisory freshness and authenticity, report signing,
-privileged release paths, alternate architectures, and exception approval.
+Pinned OSV-Scanner scans two inert image archives offline against a synthetic advisory. The Kind promoter verifies the exact report using a separately mounted immutable Ed25519 trust policy. It refuses a valid report signed by an unapproved fixture key. The same signature also fails when the envelope claims the approved signer. Missing, stale or misbound reports, blocking findings, and out-of-scope exceptions each leave no release tag. A separate registry reader confirms approved exact digests and blobs are present.
+
+For adoption, inventory actual candidate paths, platform manifests and scan coverage. Verify the scanner identity, signature policy, advisory source and revision, exact scanned digest, completion and report age. Exercise approved and refused examples at the effective promotion path, verify the registry contents independently, and inventory alternate writers. Record the approving authority, exact exception scope, expiry and retained decision evidence. The reference uses synthetic advisory data, keys and an exception record.
+
+[OpenSSL 3 Ed25519 verification](https://docs.openssl.org/3.3/man7/EVP_SIGNATURE-ED25519/)

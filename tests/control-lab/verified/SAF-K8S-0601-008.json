@@ -4,8 +4,8 @@
   "catalog_sha256": "7eb592b88ccf2f175765d75cadab30cd514317057b7f6a74caddce4f22a4461d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "7d501ffd87a686604a9bab884a172a24bc85dae21d80588b2f40b8178b169f18",
-  "scope": "Pinned OSV-Scanner executes offline against deterministic inert image archives and a generated synthetic advisory. A Kubernetes promotion workload verifies exact candidate digests and records the decision. A separate reader checks the manifest and blobs in a pinned Distribution registry inside the lab. The test covers a single known package, trusted lab input, and a fixed clock.",
-  "cluster": "saf-lab-1cb7bdf9c708",
+  "scope": "Pinned OSV-Scanner executes offline against deterministic inert image archives and a generated synthetic advisory. A Kubernetes promotion workload verifies exact candidate digests and records the decision. A separately mounted Ed25519 public-key policy authenticates the exact canonical scan report before the promoter accepts it. A separate reader checks the manifest and blobs in a pinned Distribution registry inside the lab. The signer and advisory are synthetic; this does not establish production scanner identity, advisory-feed authenticity, or CI custody.",
+  "cluster": "saf-lab-bc1d41c48dbb",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -101,6 +101,19 @@
             "status": 200
           }
         }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A valid exact scan report from an unapproved fixture signer cannot be promoted",
+      "matched": true,
+      "observed": {
+        "unapproved_signer_rejected": true,
+        "signature_valid_under_unapproved_key": true,
+        "claimed_approved_identity_with_wrong_signature_rejected": true,
+        "manifest_written": false,
+        "registry_status": 404,
+        "fixture_signer_policy": "trusted public key pinned separately"
       }
     }
   ]
