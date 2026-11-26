@@ -20862,11 +20862,11 @@
 
     6.6 - GitOps (repository access controls, branch protection for change restrictions); 1.4 - Control plane configuration file permissions; 2.1 - Kubelet hostname override governance (change control for --hostname-override)'
   control_id: SAF-K8S-0606-024
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: 'Only for the Kubernetes policy-promotion access path represented here: one editor ServiceAccount is denied creation of the fixture admission policy and one promoter ServiceAccount applies the approved objects. The local Git hook gates the exact approved tree but does not test authenticated Git-user restrictions, organization approval identities, dual authorization, or access restrictions across production change paths.'
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -21386,10 +21386,10 @@
     6.6 - GitOps (automated configuration management and verification); 1.4 - Automated kube-bench assessment'
   control_id: SAF-K8S-0606-024
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only for an automated protected policy-repository deployment used to manage, apply, and verify the selected Kubernetes policy settings. The fixture verifies one exact approved policy tree, applies the scoped policy resources, and reads back one admission policy, Role, NetworkPolicy, and namespace configuration; it does not establish centralized automated management or verification of an organization's full configuration-setting scope.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -32732,11 +32732,11 @@
 
     6.6 - GitOps security (developer configuration management via Git source control)'
   control_id: SAF-K8S-0606-024
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only as evidence for integrity control and approval of changes to the five fixture Kubernetes policy/configuration items. The case does not establish developer configuration management across selected lifecycle phases, security/privacy-impact documentation for approved changes, security-flaw tracking and reporting, or all configuration items; retain SA-10(5) as the narrower version-control mapping.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -32917,15 +32917,12 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-10(5)
   framework_requirement_title: Mapping Integrity for Version Control
-  framework_mapping_notes: >-
-    Protecting the approved policy tree and promoting its exact files support integrity
-    for policy code in the release path. SA-10(5) also requires maintaining the verified
-    correspondence between current-version master build data and the operational master copy.
+  framework_mapping_notes: Protecting the approved policy tree and promoting its exact files support integrity for policy code in the release path. SA-10(5) also requires maintaining the verified correspondence between current-version master build data and the operational master copy.
   control_id: SAF-K8S-0606-024
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
+  applicability: conditional
+  applicability_condition: Only where the protected approved tree is the designated current master for these Kubernetes policy files and the promoted API objects are their operational copy. The fixture verifies exact tree and file correspondence for this local set, not correspondence for all security-relevant master build data and operational copies.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -37801,11 +37798,11 @@
 
     6.6 - GitOps (secure modification via signed commits, branch protection, PR review workflows)'
   control_id: SAF-K8S-0606-024
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only for secure modification of the selected Kubernetes policy/configuration tree through exact-approved-tree promotion and one scoped admission-policy change. The fixture does not define stakeholder security requirements or risk tolerance, perform or retain a security analysis of the proposed modification, or show that equivalent rigor is applied throughout system development and modification.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5

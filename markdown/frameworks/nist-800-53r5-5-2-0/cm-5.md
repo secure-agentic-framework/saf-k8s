@@ -67,7 +67,7 @@ Restrictive modes and ownership limit filesystem changes to these artifacts. Rec
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.6
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
