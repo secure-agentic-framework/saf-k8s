@@ -22,5 +22,29 @@ These tests exercise image metadata, the final built image and actual process
 behavior. An organization's registry and admission gates, exceptions, and
 production image and mount inventories need separate verification.
 
+The scratch candidate adds one namespaced native Kubernetes
+ValidatingAdmissionPolicy comparison. Five fixed proposals are server-side
+dry-run only: four omit or set false one of `runAsNonRoot` or
+`readOnlyRootFilesystem`, and one supplies both as true. The same proposals
+are admitted before policy activation; after the binding activates, the four
+incomplete proposals are denied and the compliant proposal remains
+admissible. The policy requires both fields on every regular and init
+container. It is bound only to a newly created fixture-labeled namespace. No
+Pod from this comparison is persisted or scheduled. The original six image
+and runtime assertions remain intact; the candidate has seven total.
+
+For adoption, inventory the exact released image digest and its final USER and
+file list in the build pipeline. Verify the deployed admission policy's
+effective failure behavior, namespace or workload coverage, and rejection of
+missing and false settings before persistence. Include init containers and
+all workload controllers in that review. Record the actual explicitly
+writable mounts and verify that applications still operate with the root
+filesystem read-only. Any exception should be owner-approved, restricted to
+non-production debugging, state a reason and expiry, and have a recorded
+removal check. These fixture checks do not establish registry coverage,
+third-party image inventory, production admission coverage, or exception
+governance.
+
 - [OCI image configuration](https://github.com/opencontainers/image-spec/blob/v1.1.1/config.md)
 - [Kubernetes v1.36 security contexts](https://v1-36.docs.kubernetes.io/docs/tasks/configure-pod-container/security-context/)
+- [Kubernetes v1.36 ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)

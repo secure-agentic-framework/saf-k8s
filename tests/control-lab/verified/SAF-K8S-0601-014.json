@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0601-014",
-  "catalog_revision": "3e55e75211d64e0b66762ad2930127f06d59fa0f",
-  "catalog_sha256": "aefc685b3b821305b42ce28f3c1614edc0bed7ccef3e0ffa1004fa9e0cfc902c",
+  "catalog_revision": "561af7247f1df1f2f2e9101fcc416fe81cf60986",
+  "catalog_sha256": "99dfcf4e7690631de3a5a538c5e0434405de93779ba25e0e5ce0cff09d9d7f38",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e4dc965e387cb747b237eab489ef048bec599a46a49ad5f90e5a2907099b4254",
-  "scope": "Two synthetic Linux FROM scratch images built from one static Go probe and a public marker with distinct USER defaults. One disposable kind v1.36.1 cluster executes each arm. Compare effective process UID, EROFS from the same root-file operation and a permitted emptyDir write. Inspect both image archives for the exact final file inventory. This case exercises image and runtime behavior. Deployed image acceptance policies, approved production mounts and inspection of third-party images need separate evidence.",
-  "cluster": "saf-lab-1ba9b54e7db4",
+  "scope": "Two synthetic Linux FROM scratch images built from one static Go probe and a public marker with distinct USER defaults. One disposable kind v1.36.1 cluster executes each arm. Compare effective process UID, EROFS from the same root-file operation and a permitted emptyDir write. Inspect both image archives for the exact final file inventory. This case exercises image inventory, runtime behavior and native Pod admission. Deployed image acceptance policies, approved production mounts and inspection of third-party images need separate evidence.",
+  "cluster": "saf-lab-e0c266aeeb8c",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -102,6 +102,18 @@
         "uid": 65534,
         "rootfs": "read-only",
         "scratch": "writable"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A namespaced native admission policy rejects missing or false process hardening before Pod persistence",
+      "matched": true,
+      "observed": {
+        "pre_policy_proposals_admitted": true,
+        "missing_or_false_run_as_non_root_denied": true,
+        "missing_or_false_read_only_rootfs_denied": true,
+        "hardened_proposal_admitted": true,
+        "scope": "one fixture-labeled namespace; server-side dry-run only"
       }
     }
   ]

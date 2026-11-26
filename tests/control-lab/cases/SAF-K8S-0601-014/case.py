@@ -12,12 +12,14 @@ import time
 
 HERE = Path(__file__).resolve().parent
 NONROOT = 65534
+ADMISSION_NAMESPACE = "saf-0601-014-admission"
+ADMISSION_LABEL = "saf.example/0601-014-process-hardening"
 SCOPE = (
     "Two synthetic Linux FROM scratch images built from one static Go probe and a public "
     "marker with distinct USER defaults. One disposable kind v1.36.1 cluster executes each "
     "arm. Compare effective process UID, EROFS from the same root-file operation and a "
     "permitted emptyDir write. Inspect both image archives for the exact final file inventory. "
-    "This case exercises image and runtime behavior. Deployed image acceptance policies, "
+    "This case exercises image inventory, runtime behavior and native Pod admission. Deployed image acceptance policies, "
     "approved production mounts and inspection of third-party images need separate evidence."
 )
 
@@ -106,6 +108,115 @@ def run_probe(lab, suffix, image, security):
     return {"uid": int(match[1]), "rootfs": match[2], "scratch": "writable"}
 
 
+def admission_pod(name, image, security):
+    return {
+        "apiVersion": "v1", "kind": "Pod",
+        "metadata": {"name": name, "namespace": ADMISSION_NAMESPACE},
+        "spec": {
+            "automountServiceAccountToken": False, "restartPolicy": "Never",
+            "securityContext": {"runAsUser": NONROOT, "runAsGroup": NONROOT},
+            "containers": [{
+                "name": "probe", "image": image, "imagePullPolicy": "Never",
+                "securityContext": security,
+                "volumeMounts": [{"name": "scratch", "mountPath": "/scratch"}],
+            }],
+            "volumes": [{"name": "scratch", "emptyDir": {}}],
+        },
+    }
+
+
+def admission_submit(lab, pod):
+    return lab.kubectl("-n", ADMISSION_NAMESPACE, "create", "-f", "-", "-o", "json",
+                       "--dry-run=server", payload=json.dumps(pod), allow_failure=True)
+
+
+def admission_gate(lab, image):
+    """Compare four intentionally incomplete Pod proposals with one compliant one."""
+    lab.create({"apiVersion": "v1", "kind": "Namespace",
+                "metadata": {"name": ADMISSION_NAMESPACE,
+                             "labels": {ADMISSION_LABEL: "true"}}})
+    hardened = {"runAsNonRoot": True, "readOnlyRootFilesystem": True,
+                "allowPrivilegeEscalation": False,
+                "capabilities": {"drop": ["ALL"]}}
+    proposals = {
+        "missing-nonroot": {key: value for key, value in hardened.items()
+                             if key != "runAsNonRoot"},
+        "false-nonroot": {**hardened, "runAsNonRoot": False},
+        "missing-readonly": {key: value for key, value in hardened.items()
+                              if key != "readOnlyRootFilesystem"},
+        "false-readonly": {**hardened, "readOnlyRootFilesystem": False},
+        "approved": hardened,
+    }
+    baseline = {name: admission_submit(
+        lab, admission_pod("baseline-" + name, image, security)).returncode == 0
+        for name, security in proposals.items()}
+    if not all(baseline.values()):
+        lab.block("The admission proposals did not reach a consistent pre-policy baseline")
+
+    policy_name = "saf-0601-014-process-hardening"
+    denial_message = "containers and init containers require runAsNonRoot and readOnlyRootFilesystem"
+    api = "admissionregistration.k8s.io/v1"
+    expression = (
+        "object.spec.containers.all(c, has(c.securityContext) && "
+        "has(c.securityContext.runAsNonRoot) && c.securityContext.runAsNonRoot == true && "
+        "has(c.securityContext.readOnlyRootFilesystem) && "
+        "c.securityContext.readOnlyRootFilesystem == true) && "
+        "(!has(object.spec.initContainers) || object.spec.initContainers.all(c, "
+        "has(c.securityContext) && has(c.securityContext.runAsNonRoot) && "
+        "c.securityContext.runAsNonRoot == true && "
+        "has(c.securityContext.readOnlyRootFilesystem) && "
+        "c.securityContext.readOnlyRootFilesystem == true))"
+    )
+    lab.create({"apiVersion": api, "kind": "ValidatingAdmissionPolicy",
+                "metadata": {"name": policy_name},
+                "spec": {
+                    "failurePolicy": "Fail",
+                    "matchConstraints": {"resourceRules": [{
+                        "apiGroups": [""], "apiVersions": ["v1"],
+                        "operations": ["CREATE"], "resources": ["pods"],
+                    }]},
+                    "validations": [{
+                        "expression": expression,
+                        "message": denial_message,
+                    }],
+                }})
+    lab.create({"apiVersion": api, "kind": "ValidatingAdmissionPolicyBinding",
+                "metadata": {"name": policy_name},
+                "spec": {"policyName": policy_name, "validationActions": ["Deny"],
+                         "matchResources": {"namespaceSelector": {
+                             "matchLabels": {ADMISSION_LABEL: "true"}}}}})
+
+    # Binding activation can lag the create response. Retry only these five
+    # fixed server-side dry-runs and stop within the short deadline.
+    deadline = time.monotonic() + 15
+    denied = {name: False for name in proposals if name != "approved"}
+    approved = False
+    while time.monotonic() < deadline:
+        for name in denied:
+            result = admission_submit(
+                lab, admission_pod("gated-" + name, image, proposals[name]))
+            denied[name] = denied[name] or (
+                result.returncode != 0 and denial_message in result.stderr)
+        result = admission_submit(lab, admission_pod("gated-approved", image, hardened))
+        approved = result.returncode == 0
+        if all(denied.values()) and approved:
+            break
+        time.sleep(0.25)
+
+    # Stable predicate-only output; kubectl diagnostics contain no fixture
+    # secrets, but are intentionally excluded from the result receipt.
+    lab.check(
+        "green",
+        "A namespaced native admission policy rejects missing or false process hardening before Pod persistence",
+        all(denied.values()) and approved and all(baseline.values()),
+        {"pre_policy_proposals_admitted": all(baseline.values()),
+         "missing_or_false_run_as_non_root_denied": denied["missing-nonroot"] and denied["false-nonroot"],
+         "missing_or_false_read_only_rootfs_denied": denied["missing-readonly"] and denied["false-readonly"],
+         "hardened_proposal_admitted": approved,
+         "scope": "one fixture-labeled namespace; server-side dry-run only"},
+    )
+
+
 def run(lab):
     tags = {uid: f"saf-0601-014-{lab.cluster}:uid-{uid}" for uid in (0, NONROOT)}
     with tempfile.TemporaryDirectory(prefix="saf-rootfs-build-") as temp:
@@ -122,6 +233,7 @@ def run(lab):
                 result = run_probe(lab, name, image, security)
                 lab.check(phase, f"{name} profile has UID {uid}, {root} rootfs and writable scratch",
                           result == {"uid": uid, "rootfs": root, "scratch": "writable"}, result)
+            admission_gate(lab, tags[NONROOT])
         finally:
             for image in tags.values():
                 info = lab.command("docker", "image", "inspect", "--format", "{{.Id}}", image, allow_failure=True)
