@@ -33,3 +33,18 @@ Argo image index digests are checked before apply. The UI/server component is
 excluded. The case has five checks. Run `python3 tests/control-lab/lab.py
 test SAF-K8S-0904-001 --docker-context desktop-linux` from the framework
 checkout to replay them.
+
+## Scoped definition admission check
+
+A server-side dry-run first admits the inert literal in the
+`SAF_PUBLIC_MARKER` environment field of an owned WorkflowTemplate.
+After the namespace-scoped ValidatingAdmissionPolicy becomes effective, the
+same proposal receives the exact denial. The approved `secretKeyRef` form
+passes and the harness independently checks the previously approved template
+and the absence of the rejected proposal. The six-check case also verifies
+native reconciliation of the original template.
+
+For an adoption review, inventory every definition writer and credential input
+field and confirm the configured policy handles each approved reference form.
+Check runtime Secret custody, store permissions and evidence across the adopted
+orchestrator and infrastructure. See [Kubernetes v1.36 admission policy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/).

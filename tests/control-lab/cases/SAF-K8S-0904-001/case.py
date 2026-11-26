@@ -18,6 +18,9 @@ ROLE = "saf-template-editor"
 ACCOUNT = "saf-pipeline-step"
 SECRET = "saf-pipeline-public-marker"
 JOB = "saf-restricted-pipeline-step"
+ADMISSION_POLICY = "saf-workflowtemplate-literal-env"
+ADMISSION_MESSAGE = "workflow template public marker must use the approved Secret reference"
+LITERAL_ENV_NAME = "SAF_PUBLIC_MARKER"
 SCOPE = (
     "One Kind v1.36.1 cluster uses the upstream Argo Workflows v3.7.6 minimal "
     "namespaced WorkflowTemplate CRD. Kubernetes API authorization controls create "
@@ -26,8 +29,9 @@ SCOPE = (
     "Job. The Job is tokenless, non-root and uses a read-only Secret reference to "
     "a public inert marker. A pinned namespaced Argo controller also reconciles "
     "one Workflow referencing that exact persisted template. Other orchestrator "
-    "releases, deployed policy, Secret encryption and external stores require "
-    "separate evidence."
+    "releases, deployed policy beyond one namespace-scoped CREATE check for a "
+    "literal public marker environment value, Secret encryption and external "
+    "stores require separate evidence."
 )
 
 
@@ -188,3 +192,77 @@ def run(lab):
                                         template="saf-approved-template", marker=SECRET,
                                         marker_text=text,
                                         approved_spec=author_template["spec"]))
+    verify_template_admission(lab, text, author_template["spec"])
+
+
+def verify_template_admission(lab, public_marker, approved_spec):
+    """Compare one literal field with the existing Secret-reference form."""
+    before_policy = definition("saf-literal-marker-before-policy")
+    before_policy["spec"]["templates"][0]["container"].setdefault("env", []).append(
+        {"name": LITERAL_ENV_NAME, "value": public_marker})
+    before = request(lab, AUTHOR, "create", before_policy, dry_run=True)
+    before_ok = False
+    if before.returncode == 0:
+        observed = json.loads(before.stdout)
+        before_ok = observed.get("metadata", {}).get("name") == before_policy["metadata"]["name"]
+
+    api = "admissionregistration.k8s.io/v1"
+    lab.create({"apiVersion": api, "kind": "ValidatingAdmissionPolicy",
+                "metadata": {"name": ADMISSION_POLICY},
+                "spec": {
+                    "failurePolicy": "Fail",
+                    "matchConstraints": {"resourceRules": [{
+                        "apiGroups": ["argoproj.io"], "apiVersions": ["v1alpha1"],
+                        "operations": ["CREATE"], "resources": ["workflowtemplates"]}]},
+                    "validations": [{
+                        "expression": (
+                            "object.spec.templates.all(t, !has(t.container.env) || "
+                            f"t.container.env.all(e, e.name != '{LITERAL_ENV_NAME}' || !has(e.value)))"),
+                        "message": ADMISSION_MESSAGE,
+                        "reason": "Forbidden"}],
+                }})
+    lab.create({"apiVersion": api, "kind": "ValidatingAdmissionPolicyBinding",
+                "metadata": {"name": ADMISSION_POLICY},
+                "spec": {"policyName": ADMISSION_POLICY, "validationActions": ["Deny"],
+                         "matchResources": {"namespaceSelector": {"matchLabels": {
+                             "kubernetes.io/metadata.name": "saf-test"}}}}})
+
+    deadline = time.monotonic() + 20
+    denied = False
+    while time.monotonic() < deadline:
+        rejected = request(lab, AUTHOR, "create", before_policy, dry_run=True)
+        denied = (rejected.returncode != 0 and ADMISSION_POLICY in rejected.stderr
+                  and ADMISSION_MESSAGE in rejected.stderr)
+        if denied:
+            break
+        time.sleep(0.25)
+
+    safe = definition("saf-policy-allowed-template")
+    allowed = request(lab, AUTHOR, "create", safe, dry_run=True)
+    allowed_ok = False
+    if allowed.returncode == 0:
+        observed = json.loads(allowed.stdout)
+        allowed_ok = (observed.get("metadata", {}).get("name") == safe["metadata"]["name"]
+                      and observed.get("spec") == approved_spec)
+
+    persisted = json.loads(lab.kubectl(
+        "get", CRD, "saf-approved-template", "-o", "json").stdout)
+    persisted_safe = (persisted.get("spec") == approved_spec
+                      and persisted.get("spec", {}).get("templates", [{}])[0]
+                      .get("container", {}).get("env") is None
+                      and persisted.get("spec", {}).get("volumes", [{}])[0]
+                      .get("secret", {}).get("secretName") == SECRET)
+    absent = lab.kubectl("get", CRD, before_policy["metadata"]["name"],
+                         "-o", "name", allow_failure=True)
+    not_persisted = (absent.returncode != 0
+                     and "notfound" in absent.stderr.lower()
+                     and before_policy["metadata"]["name"] in absent.stderr)
+    observations = {
+        "literal_proposal_admitted_before_policy_server_dry_run": before_ok,
+        "same_literal_proposal_denied_after_policy": denied,
+        "approved_secret_reference_admitted_after_policy": allowed_ok,
+        "persisted_approved_template_unchanged": persisted_safe,
+        "rejected_template_not_persisted": not_persisted,
+    }
+    lab.check("green", "Namespace-scoped admission refuses only the tested public literal env field before persistence",
+              all(observations.values()), observations)

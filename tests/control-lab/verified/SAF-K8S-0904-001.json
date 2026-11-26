@@ -4,8 +4,8 @@
   "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "3986315f82c3440f01f1fd3f0795fef8a3dcda6643ebf652b056229037b1654c",
-  "scope": "One Kind v1.36.1 cluster uses the upstream Argo Workflows v3.7.6 minimal namespaced WorkflowTemplate CRD. Kubernetes API authorization controls create and update access. The case verifies that the persisted narrow author template holds an exact approved fixture definition and submits its corresponding native Job. The Job is tokenless, non-root and uses a read-only Secret reference to a public inert marker. A pinned namespaced Argo controller also reconciles one Workflow referencing that exact persisted template. Other orchestrator releases, deployed policy, Secret encryption and external stores require separate evidence.",
-  "cluster": "saf-lab-efcfd55b443d",
+  "scope": "One Kind v1.36.1 cluster uses the upstream Argo Workflows v3.7.6 minimal namespaced WorkflowTemplate CRD. Kubernetes API authorization controls create and update access. The case verifies that the persisted narrow author template holds an exact approved fixture definition and submits its corresponding native Job. The Job is tokenless, non-root and uses a read-only Secret reference to a public inert marker. A pinned namespaced Argo controller also reconciles one Workflow referencing that exact persisted template. Other orchestrator releases, deployed policy beyond one namespace-scoped CREATE check for a literal public marker environment value, Secret encryption and external stores require separate evidence.",
+  "cluster": "saf-lab-1e4c31450828",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -104,6 +104,18 @@
         "step_has_no_service_account_token_mount": true,
         "marker_confirmation": true,
         "marker_literal_not_logged": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Namespace-scoped admission refuses only the tested public literal env field before persistence",
+      "matched": true,
+      "observed": {
+        "literal_proposal_admitted_before_policy_server_dry_run": true,
+        "same_literal_proposal_denied_after_policy": true,
+        "approved_secret_reference_admitted_after_policy": true,
+        "persisted_approved_template_unchanged": true,
+        "rejected_template_not_persisted": true
       }
     }
   ]
