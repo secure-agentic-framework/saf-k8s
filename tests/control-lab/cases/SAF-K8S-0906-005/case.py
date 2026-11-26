@@ -123,6 +123,28 @@ def run(lab):
     }
     lab.check("green", "Actor, version and QA checks hold the affected annotations",
               all(green.values()), green)
+    metric = decision["historical_distribution_priority"]
+    metric_check = {
+        "synthetic_historical_shift_prioritizes_independent_review": metric == {
+            "baseline_version": "v3", "current_version": fixture.EXPECTED_BATCH["version"],
+            "sample_count": 5, "max_absolute_share_shift": 0.4,
+            "fixture_threshold": 0.2, "priority": "independent_quality_review",
+            "decision_effect": "advisory_only",
+        },
+        "adjudication_and_release_authority_remain_unchanged": protected
+            and rows["card-02"]["authorized_correction"]
+            and rows["card-02"]["correction_audit"]["actor"] == "curator-1"
+            and {key: row["status"] for key, row in rows.items()} == {
+                "card-01": "approved", "card-02": "approved", "card-03": "held",
+                "card-04": "held", "card-05": "held",
+            }
+            and released["governed"] == {
+                "dataset": fixture.EXPECTED_BATCH,
+                "labels": {"card-01": "sprout", "card-02": "sprout"},
+            },
+    }
+    lab.check("positive", "Historical label shift prioritizes review without changing approval or release",
+              all(metric_check.values()), metric_check)
     positive = {
         "agreement_and_independent_adjudication_pass": rows["card-01"]["review_agreement"]
         and rows["card-02"]["authorized_correction"] and rows["card-02"]["correction_audit"]["actor"] == "curator-1",
@@ -135,5 +157,5 @@ def run(lab):
     (lab.evidence / "annotation-approval-observations.json").write_text(json.dumps({
         "sealed_reviews": count, "reviewer_cannot_patch_curator_record": protected,
         "decision": decision, "independent_reader": released,
-        "checks": {"red": red, "green": green, "positive": positive},
+        "checks": {"red": red, "green": green, "metric": metric_check, "positive": positive},
     }, indent=2, sort_keys=True) + "\n")

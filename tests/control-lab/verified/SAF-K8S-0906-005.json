@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0906-005",
-  "catalog_revision": "2d5d457ca63f19c2a7c54186fac0df0c2083dc53",
-  "catalog_sha256": "fc8f5b4a89186e84364f8182c34b50e803b2494bff7161fe549aaa8087b7827c",
+  "catalog_revision": "e8cb72dbd0c3bf662f3404b8f9be86ff7dcff9a4",
+  "catalog_sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "c775cc2f7c87b02606abf45ad3c585ab9e2e883667877582c8352c902cfd30c9",
   "scope": "Live Kubernetes service-account impersonation exercises named RBAC on benign synthetic reviewer and curator records. A workload compares an unchecked release with a governed decision for the exact dataset version. An independent read-only Pod confirms the persisted release and which rows are held.",
-  "cluster": "saf-lab-6a737f927b12",
+  "cluster": "saf-lab-de93eb747242",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -67,6 +67,15 @@
         "prior_dataset_version_is_held": true,
         "one_reviewer_cannot_fill_both_slots": true,
         "only_two_approved_rows_enter_the_release": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Historical label shift prioritizes review without changing approval or release",
+      "matched": true,
+      "observed": {
+        "synthetic_historical_shift_prioritizes_independent_review": true,
+        "adjudication_and_release_authority_remain_unchanged": true
       }
     },
     {

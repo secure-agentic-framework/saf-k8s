@@ -19,6 +19,13 @@ DATASET_DIGEST = hashlib.sha256(
 ).hexdigest()
 EXPECTED_BATCH = {"dataset_id": DATASET_ID, "version": DATASET_VERSION, "sha256": DATASET_DIGEST}
 AUTHORIZED_ADJUDICATORS = {"curator-1": "label-adjudicator"}
+HISTORICAL_LABEL_BASELINE = {
+    "dataset_id": DATASET_ID,
+    "version": "v3",
+    "label_counts": {"sprout": 4, "stone": 1},
+    "sample_count": 5,
+}
+MAX_FIXTURE_SHARE_SHIFT = 0.2
 
 
 def review(review_id, reviewer, asset_id, label):
@@ -161,6 +168,33 @@ def evaluate(records=None):
     }
 
 
+def historical_distribution_priority(records=None):
+    """Return an advisory-only synthetic histogram comparison."""
+    records = demo_records() if records is None else records
+    counts = {label: 0 for label in LABELS}
+    for row in records:
+        # Compare the initial, first-review label proposal; adjudication remains
+        # a separate authorized decision in evaluate().
+        if row["reviews"] and row["reviews"][0]["label"] in counts:
+            counts[row["reviews"][0]["label"]] += 1
+    total = sum(counts.values())
+    baseline = HISTORICAL_LABEL_BASELINE["label_counts"]
+    baseline_total = HISTORICAL_LABEL_BASELINE["sample_count"]
+    max_share_shift = max(
+        abs(counts[label] / total - baseline[label] / baseline_total)
+        for label in LABELS
+    ) if total else 0.0
+    return {
+        "baseline_version": HISTORICAL_LABEL_BASELINE["version"],
+        "current_version": EXPECTED_BATCH["version"],
+        "sample_count": total,
+        "max_absolute_share_shift": round(max_share_shift, 4),
+        "fixture_threshold": MAX_FIXTURE_SHARE_SHIFT,
+        "priority": "independent_quality_review" if max_share_shift > MAX_FIXTURE_SHARE_SHIFT else "routine",
+        "decision_effect": "advisory_only",
+    }
+
+
 def main():
     root = Path("/release")
     if sys.argv[1] == "inspect":
@@ -170,6 +204,7 @@ def main():
         return
     records = json.loads(Path("/reviews/records.json").read_text())
     decision = evaluate(records)
+    distribution_priority = historical_distribution_priority(records)
     baseline = {row["asset_id"]: row["reviews"][0]["label"] for row in records}
     governed = {row["asset_id"]: row["final_label"] for row in decision["rows"]
                 if row["status"] == "approved"}
@@ -177,7 +212,7 @@ def main():
         (root / (name + ".json")).write_text(json.dumps({
             "dataset": EXPECTED_BATCH, "labels": approved
         }, sort_keys=True) + "\n")
-    print(json.dumps(decision, sort_keys=True))
+    print(json.dumps({**decision, "historical_distribution_priority": distribution_priority}, sort_keys=True))
 
 
 if __name__ == "__main__":
