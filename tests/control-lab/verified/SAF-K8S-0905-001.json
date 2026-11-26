@@ -5,7 +5,7 @@
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "4429d9fbdf8de2a53d858ddda8afa0f44c9ca0c795e5c89825ed4aa2cffd30e4",
   "scope": "Kubernetes v1.36.1 native ValidatingAdmissionPolicy CREATE and UPDATE checks for Deployments in a dedicated case-labeled namespace. A case-owned cluster-scoped classification.saf-lab.example/v1 AISystemClassificationRegistry named saf-0905-001-classification-registry-v1 is the policy parameter and maps two synthetic system IDs to the standard lifecycle classifications and profile IDs. Admission compares the workload's classification label and explicit registry, system, and profile annotations with that stored record. One fixed incomplete AI Deployment is stored and dry-run admitted before policy, then the identical request is denied after policy; a registered system declaration without the AI marker is denied because every Deployment in the selected namespace is validated; matching train-verify-lock and continuous-learning Deployments and an unscoped benign Deployment in a separate namespace are stored. Human classification quality, real registry authority and change control, organization-wide policy enrollment, and efficacy of the assigned profiles are outside this fixture.",
-  "cluster": "saf-lab-d20a144e4f25",
+  "cluster": "saf-lab-091e40b4c7af",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -121,6 +121,52 @@
         },
         "benign_unscoped_admitted": true,
         "benign_stored": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Read-only API inventory reconciles the two approved synthetic matches and reports the known incomplete baseline",
+      "matched": true,
+      "observed": {
+        "governed_deployments": {
+          "saf-0905-001-continuous-learning": {
+            "system_id": "continuous-learning-synthetic",
+            "registry": "saf-0905-001-classification-registry-v1",
+            "classification": "continuous-learning",
+            "profile": "update-governed"
+          },
+          "saf-0905-001-fixed-incomplete": {
+            "system_id": "train-locked-synthetic",
+            "registry": "saf-0905-001-classification-registry-v1",
+            "classification": "train-verify-lock",
+            "profile": null
+          },
+          "saf-0905-001-train-locked": {
+            "system_id": "train-locked-synthetic",
+            "registry": "saf-0905-001-classification-registry-v1",
+            "classification": "train-verify-lock",
+            "profile": "integrity-locked"
+          }
+        },
+        "registry_system_ids": [
+          "continuous-learning-synthetic",
+          "train-locked-synthetic"
+        ],
+        "intentional_incomplete_baseline": {
+          "name": "saf-0905-001-fixed-incomplete",
+          "profile_absent": true,
+          "counted_as_compliant": false
+        },
+        "benign_namespace_inventory": [
+          {
+            "name": "saf-0905-001-benign-unscoped",
+            "ai_marker": null,
+            "system_id": null
+          }
+        ],
+        "duplicate_names": [],
+        "matches_expected_fixture_set": true,
+        "scope": "case-owned synthetic objects only; not organizational inventory attestation"
       }
     }
   ]

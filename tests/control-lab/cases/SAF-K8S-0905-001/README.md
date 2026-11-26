@@ -2,7 +2,9 @@
 
 Run `python3 tests/control-lab/lab.py test SAF-K8S-0905-001 --docker-context desktop-linux` from the framework checkout.
 
-Six grouped checks use native ValidatingAdmissionPolicy, a synthetic registry and zero-replica Deployments. The binding follows a case-selected namespace label and checks every Deployment in scope. The tests compare acceptance before the policy, exact rejections for incomplete or mismatched assignments, refusal when a declared registered system lacks the required marker, and allowed Deployments for the two approved profile assignments. A benign Deployment remains allowed in the separate unselected namespace.
+Seven grouped checks use native ValidatingAdmissionPolicy, a synthetic registry and zero-replica Deployments. The binding follows a case-selected namespace label and checks every Deployment in scope. The tests compare acceptance before the policy, exact rejections for incomplete or mismatched assignments, refusal when a declared registered system lacks the required marker, and allowed Deployments for the two approved profile assignments. A benign Deployment remains allowed in the separate unselected namespace.
+
+The independent API list and registry readback reconcile all three governed Deployments. Two exact matches are compliant, and the pre-policy incomplete object remains visible as a finding. The benign comparator remains outside the selected namespace.
 
 ## Verify an adopted scope and registry
 

@@ -330,3 +330,86 @@ def run(lab):
               all(accepted.values()) and benign_ok,
               {"profiles": accepted, "benign_unscoped_admitted": benign_ok,
                "benign_stored": benign_result.returncode == 0})
+
+    # Independently reconcile the persisted, case-owned Deployment set against
+    # the exact synthetic registry. This is a read-only API inventory check;
+    # the incomplete object is an intentional pre-policy baseline, not a
+    # compliant enrollment. It does not attest organizational inventory.
+    governed = json.loads(lab.kubectl(
+        "get", "deployments", "-n", NAMESPACE, "-o", "json").stdout)
+    benign_inventory = json.loads(lab.kubectl(
+        "get", "deployments", "-n", BENIGN_NAMESPACE, "-o", "json").stdout)
+    registry_inventory = json.loads(lab.kubectl(
+        "get", f"{PLURAL}.{GROUP}", REGISTRY_NAME, "-o", "json").stdout)
+    by_name = {}
+    duplicate_names = []
+    for item in governed.get("items", []):
+        metadata = item.get("metadata", {})
+        name = metadata.get("name")
+        labels = metadata.get("labels", {})
+        annotations = metadata.get("annotations", {})
+        normalized = {
+            "system_id": annotations.get(SYSTEM_ANNOTATION),
+            "registry": annotations.get(REGISTRY_ANNOTATION),
+            "classification": labels.get(CLASS_LABEL),
+            "profile": annotations.get(PROFILE_ANNOTATION),
+        }
+        if name in by_name:
+            duplicate_names.append(name)
+        by_name[name] = normalized
+
+    expected_governed = {
+        "saf-0905-001-fixed-incomplete": {
+            "system_id": "train-locked-synthetic", "registry": REGISTRY_NAME,
+            "classification": "train-verify-lock", "profile": None,
+        },
+        "saf-0905-001-train-locked": {
+            "system_id": "train-locked-synthetic", "registry": REGISTRY_NAME,
+            "classification": "train-verify-lock", "profile": "integrity-locked",
+        },
+        "saf-0905-001-continuous-learning": {
+            "system_id": "continuous-learning-synthetic", "registry": REGISTRY_NAME,
+            "classification": "continuous-learning", "profile": "update-governed",
+        },
+    }
+    actual_registry = registry_inventory.get("spec", {}).get("systems", {})
+    benign_items = benign_inventory.get("items", [])
+    benign_rows = []
+    for item in benign_items:
+        metadata = item.get("metadata", {})
+        benign_rows.append({
+            "name": metadata.get("name"),
+            "ai_marker": metadata.get("labels", {}).get(AI_MARKER),
+            "system_id": metadata.get("annotations", {}).get(SYSTEM_ANNOTATION),
+        })
+    benign_separate = (benign_rows == [{
+        "name": "saf-0905-001-benign-unscoped", "ai_marker": None, "system_id": None,
+    }])
+    inventory_reconciled = (
+        set(by_name) == set(expected_governed)
+        and not duplicate_names
+        and by_name == expected_governed
+        and actual_registry == RECORDS
+        and registry_inventory.get("spec", {}).get("registryVersion")
+        == REGISTRY_FIXTURE_DATA["registry_version"]
+        and set(actual_registry) == {"train-locked-synthetic", "continuous-learning-synthetic"}
+        and benign_separate
+    )
+    lab.check(
+        "positive",
+        "Read-only API inventory reconciles the two approved synthetic matches and reports the known incomplete baseline",
+        inventory_reconciled,
+        {
+            "governed_deployments": by_name,
+            "registry_system_ids": sorted(actual_registry),
+            "intentional_incomplete_baseline": {
+                "name": "saf-0905-001-fixed-incomplete",
+                "profile_absent": by_name.get("saf-0905-001-fixed-incomplete", {}).get("profile") is None,
+                "counted_as_compliant": False,
+            },
+            "benign_namespace_inventory": benign_rows,
+            "duplicate_names": sorted(duplicate_names),
+            "matches_expected_fixture_set": inventory_reconciled,
+            "scope": "case-owned synthetic objects only; not organizational inventory attestation",
+        },
+    )
