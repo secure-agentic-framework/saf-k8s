@@ -40,7 +40,7 @@ The SBOM can supply a maintained inventory for one documented release image. Ver
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5
-- Relation Type: partial
+- Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

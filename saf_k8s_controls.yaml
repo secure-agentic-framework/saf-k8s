@@ -8726,12 +8726,12 @@
   knowledge_area: '9.5'
   control_seq: 009
   control_title: Model provenance verification at deployment
-  control_statement: Model origin and integrity must be verified at deploy time using Kubernetes admission controllers or deployment pipeline hooks that validate cryptographic signatures, verify in-toto attestation chain completeness, and confirm OCI digest integrity before allowing model deployment to production inference endpoints.
-  objective: Ensure that only signed and verified models from known provenance reach production by enforcing verification at the deployment boundary.
+  control_statement: Before allowing an inference deployment, verify the provenance and integrity of the exact model artifact it references. Validate trusted signatures and required attestation stages, compare the actual deployment reference with the verified immutable digest, and block absent, invalid or mismatched evidence.
+  objective: Admit only model deployments whose exact artifact reference is bound to verified origin and integrity evidence.
   rationale: Build-time signing (SAF-K8S-0905-046) and training pipeline attestation generation (SAF-K8S-0905-047) create the cryptographic evidence, but without deploy-time enforcement an unsigned or tampered model can still be deployed by bypassing the signing pipeline. Admission controller verification provides an independent enforcement point that catches supply chain bypasses.
   scope: Applies to all model deployments to production inference endpoints on Kubernetes. Covers admission controller signature verification, attestation chain validation, and OCI digest confirmation. Excludes build-time signing (SAF-K8S-0905-046) and training pipeline attestation generation (SAF-K8S-0905-047).
   primary_enforcement_point: Kubernetes admission controllers (Kyverno, Gatekeeper) or deployment pipeline verification hooks.
-  implementation_surface: Admission controllers (Kyverno, Gatekeeper) verifying model signatures and attestation chain completeness at deploy time, deployment pipeline verification hooks, OCI digest validation against registry metadata, and verification failure alerting and blocking.
+  implementation_surface: Use an approved admission controller or deployment verification path for actual sources and artifact forms. Verify registry or storage digests, bind the verified digest to the admitted model reference, confirm required signatures and attestation stages, and collect refusal and deployment evidence.
   owner_primary: Security Engineering
   owner_supporting: ML Platform Engineering; DevOps Engineering
   baseline_or_ai_specific: ai-specific
