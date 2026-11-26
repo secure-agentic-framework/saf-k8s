@@ -16483,22 +16483,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: CM-7(5)
-  framework_requirement_title: Authorized Software -- Allow-by-exception
-  framework_mapping_notes: 'Allowlisting agent tools/plugins
-
-
-    6.5 - Admission control (allow-listing approved images); 6.1 - Approved base image registries'
-  control_id: SAF-K8S-0905-032
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: CM-7(6)
   framework_requirement_title: Confined Environments with Limited Privileges
   framework_mapping_notes: An approved sandbox runtime and separately verified workload privilege limits can support confined execution for the scoped workloads.
