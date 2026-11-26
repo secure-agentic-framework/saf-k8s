@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0902-001",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "9ff57158cade9ac81e50c55ad8dd8e6166f9b6f8",
+  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "66dcc21b763407314fd815b3b6394669f30cccb885aada0445060a39dd257234",
-  "scope": "One disposable Kind v1.36.1 cluster with a synthetic inference HTTP Pod and two owned HTTP sinks. An independent runtime probe verifies the effective nonroot identity, root filesystem and model mounts, exact synthetic model bytes, and permitted scratch writes. An egress allowlist keeps one Ready peer reachable and denies the other while an unselected peer still reaches it. A controlled setting change verifies the root filesystem write comparator. Actual serving stacks, production dependencies, network boundaries and patch cadence require separate evidence.",
-  "cluster": "saf-lab-c983f3213f33",
+  "scope": "One disposable Kind v1.36.1 cluster with a synthetic inference HTTP Pod and two owned HTTP sinks. An independent runtime probe verifies the effective nonroot identity, root filesystem and model mounts, exact synthetic model bytes, and permitted scratch writes. An egress allowlist keeps one Ready peer reachable and denies the other while an unselected peer still reaches it. A controlled setting change verifies the root filesystem write comparator. An additional restricted Pod demonstrates a kubelet liveness restart and verified recovery. Actual serving stacks, production dependencies, network boundaries and patch cadence require separate evidence.",
+  "cluster": "saf-lab-594b8b157a1e",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -99,6 +99,42 @@
         "root_mount_readonly": false,
         "root_probe_write_errno": null,
         "root_probe_readback": "synthetic"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The restricted Pod runs the reviewed liveness probe and starts Ready",
+      "matched": true,
+      "observed": {
+        "pod_uid_present": true,
+        "initial_ready": true,
+        "initial_restart_count": 0,
+        "liveness_probe_matches": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Changing only the fixed scratch marker produces an HTTP 503 on liveness",
+      "matched": true,
+      "observed": {
+        "live_route_status_before_restart": "503"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Kubelet restarts and recovers the same Pod after the local liveness failure",
+      "matched": true,
+      "observed": {
+        "same_pod_uid": true,
+        "restart_count_before": 0,
+        "restart_count_after": 1,
+        "container_id_changed": true,
+        "container_ready_after_restart": true,
+        "pod_ready_after_restart": true,
+        "kubelet_liveness_failure_event": true,
+        "last_exit_code_present": true,
+        "live_route_status_after_restart": "200",
+        "finite_marker_cleared": true
       }
     }
   ]

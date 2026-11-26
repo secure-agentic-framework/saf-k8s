@@ -1,5 +1,6 @@
 """Exercise a synthetic inference workload's hardened runtime contract."""
 import hashlib
+import importlib.util
 import ipaddress
 import json
 from pathlib import Path
@@ -26,6 +27,7 @@ SCOPE = (
     "mounts, exact synthetic model bytes, and permitted scratch writes. An egress allowlist keeps "
     "one Ready peer reachable and denies the other while an unselected peer still reaches it. "
     "A controlled setting change verifies the root filesystem write comparator. "
+    "An additional restricted Pod demonstrates a kubelet liveness restart and verified recovery. "
     "Actual serving stacks, production dependencies, network boundaries and patch cadence require "
     "separate evidence."
 )
@@ -388,3 +390,9 @@ def run(lab):
                "root_mount_readonly": comparator_runtime["rootfs_readonly"],
                "root_probe_write_errno": comparator_runtime["rootfs_write_errno"],
                "root_probe_readback": comparator_runtime["rootfs_write_readback"]})
+
+    path = HERE / "liveness_restart.py"
+    spec = importlib.util.spec_from_file_location("liveness_restart", path)
+    supplement = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(supplement)
+    supplement.run_liveness(lab)

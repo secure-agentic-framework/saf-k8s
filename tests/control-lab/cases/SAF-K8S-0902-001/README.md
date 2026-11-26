@@ -14,3 +14,11 @@ approved egress inventory, scanning, and patch cadence need separate evidence.
 
 - [Kubernetes Security Context](https://v1-36.docs.kubernetes.io/docs/tasks/configure-pod-container/security-context/)
 - [Kubernetes NetworkPolicy](https://v1-36.docs.kubernetes.io/docs/concepts/services-networking/network-policies/)
+
+The liveness check runs a separate restricted Pod using the same pinned Python
+image. Its unprivileged process gets a 1 MiB scratch volume. A fixed marker makes
+only the liveness route return HTTP 503. The case requires the matching kubelet
+liveness failure Event, exactly one container restart under the original Pod UID,
+a new container ID, and recovery to Ready with HTTP 200 and the marker cleared.
+Adopters should verify the deployed server's liveness contract and safe restart
+conditions under their actual serving configuration.
