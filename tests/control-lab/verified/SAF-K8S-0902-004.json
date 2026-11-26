@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0902-004",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "6bb50643940a247acedfa1788ab28d59f5f4dc53",
+  "catalog_sha256": "7d6937a06790309ec74e86d3906c8513fc47187daddcb0c143094e42f6369a7b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "0e8fc63bab083af033e7586d20f27c044220a46b8a88dcc0e966fa35ea5c1914",
-  "scope": "One disposable Kind v1.36.1 cluster and one case-owned namespace with two distinct mock model Pods. Each Pod gets a separate 8Mi memory-backed emptyDir mounted at /dev/shm and writes the same benign filename with a different fixed marker. The case reads each Pod's mount namespace and its own marker, verifies distinct Pod UIDs, stored memory requests/limits, and live memory usage/limit from the Python process's own cgroup. Model A makes one routine /healthz request to Model B over a ClusterIP Service using mutual TLS with ephemeral case-only certificates. No external network, real model, feed, target, GPU, ModelMesh, Triton, or deployed service mesh is used.",
-  "cluster": "saf-lab-cc55459481ae",
+  "control_sha256": "290b6a48c765fee9a1339008a81dfa370bbea2782179f2068107cf03883436cf",
+  "scope": "GPU-free disposable Kind fixture with two independent mock Pods: two per-Pod own-cgroup memory checks, distinct bounded tmpfs markers, bounded writer-versus-peer memory charge, synthetic missing-client-cert rejection, and one authenticated server/client TLS health request. It demonstrates Pod-scoped tmpfs and CPU/memory cgroup behavior plus one TLS path; it does not run ModelMesh, Triton, KServe, a model, GPU, MIG/vGPU, shared-process tenancy, or deployed service mesh. Actual runtime, accelerator-isolation, resource-attribution, and all-path mTLS claims require adopter verification on supported versions.",
+  "cluster": "saf-lab-41a5d137c5f5",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

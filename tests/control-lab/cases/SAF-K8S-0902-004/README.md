@@ -73,50 +73,30 @@ namespaces, not on the `emptyDir` declarations alone. Memory accounting is
 container cgroup accounting; it is not a per-model GPU utilization or GPU
 memory measurement.
 
-## Scope and unresolved source claims
+## Scope and adopter verification
 
-This case can provide evidence for only these behaviors in the observed
-disposable Kind v1.36.1 environment:
+This GPU-free fixture provides six checks in a disposable Kind v1.36.1 cluster:
 
-- two distinct Pods have separate, explicitly bounded Linux tmpfs mounts at
-  the same pathname, and their same-named benign files retain different
-  contents;
-- Kubernetes-stored memory requests and limits correspond to finite live
-  accounting values read from each fixture process's own Linux cgroup; and
-- one ordinary request between the case-owned mock Pods uses server
-  certificate validation and mandatory client-certificate authentication.
+1. Model A’s declared memory request/limit matches live accounting from A’s own cgroup.
+2. Model B’s declared memory request/limit matches live accounting from B’s own cgroup.
+3. Two distinct Pod mount namespaces expose separate bounded tmpfs mounts at `/dev/shm`; the same benign filename contains each Pod’s distinct fixed marker.
+4. A fixed 1 MiB tmpfs write is charged to the writing Pod’s memory cgroup while the peer’s charge remains stable and its marker remains unchanged.
+5. The mock Model B endpoint rejects the fixed request when Model A supplies no client certificate.
+6. The same fixed `/healthz` request succeeds with server certificate and hostname validation plus client-certificate authentication; Model B records the synthetic client identity.
 
-It does **not** run ModelMesh Serving, Triton, KServe, a model server, a model
-artifact, GPU workload, or a production service mesh. The label “model” is
-only fixture metadata. The two Pods are independent mock workloads, not
-co-located models inside a real multi-model serving runtime. Therefore this
-case does not prove ModelMesh tenancy/isolation, Triton multi-model behavior,
-or actual deployed mesh policy and coverage.
+These are fixture-only observations. The case uses separate mock Pods, a memory-backed `emptyDir`, cgroup counters, one case-owned ClusterIP Service, and temporary synthetic certificates. It does not run ModelMesh Serving, Triton, KServe, an inference server, model artifacts, a GPU, MIG/vGPU, or a production service mesh. The two Pods are not co-located models in a shared serving runtime. The case therefore demonstrates Pod-scoped tmpfs separation and CPU/memory cgroup accounting, not model-level memory isolation, shared-process isolation, GPU memory boundaries, GPU accounting, or model-serving behavior. A GPU scheduler or execution rate limit alone should not be described as per-model GPU-memory isolation.
 
-GPU memory allocation, MIG partitioning, vGPU isolation, GPU metrics, and
-interference between real inference models remain unverified. CPU/memory
-requests and limits plus host/container cgroup counters do not establish GPU
-memory boundaries or per-model GPU accounting. Kubernetes `emptyDir` on
-`medium: Memory` demonstrates a Pod-scoped tmpfs in this Linux fixture; it
-does not prove isolation for an application that deliberately mounts or
-shares memory through another mechanism. This is not an attempt to access
-another Pod's mount or process memory.
+The mTLS result is limited to one connection over the case-owned Service. It does not establish protection of external ingress, every internal call, service-mesh sidecars, every bypass path, certificate issuance/rotation/revocation, key custody, production identity mapping, or policy coverage. It does not validate traffic outside that one synthetic health request. There is no NetworkPolicy assertion and no attempt to access another Pod’s mount or process memory.
 
-The request checks one path and one case-owned Service in one cluster. It
-does not establish TLS on external inference ingress, every internal call,
-service-mesh sidecars, certificate issuance/rotation/revocation, policy
-coverage, key custody, traffic capture resistance outside the tested
-connection, or production identity mapping. There is no `NetworkPolicy`
-assertion, no deployed-mesh assertion, and no attempt to bypass controls.
-Only the fixed synthetic `/healthz` response is sent; no model input,
-inference output, credential, user data, feed, or external target is used.
+### Adopter verification for a real serving deployment
 
-The control rationale's general statement that a co-located process can read
-another model's shared memory is not validated by these separate-Pod fixtures.
-The case instead demonstrates separate Pod-owned tmpfs instances for two
-distinct mock workloads. Any broader source claim about shared-memory leakage,
-resource starvation, GPU memory, model mesh, or end-to-end TLS across all
-traffic paths requires separate evidence on the actual runtime and deployment.
+Before making deployment-level claims, identify the exact runtime, version, topology, and accelerator stack. ModelMesh Serving’s `ServingRuntime.spec.multiModel` identifies runtimes intended for ModelMesh multi-model use and its runtime contract communicates loaded-model capacity/consumption; that is not itself proof that models have separate processes or GPU memory. Triton can load multiple models into a server and schedule their execution; inspect the documented controls actually enabled for the deployed backend and do not equate scheduling or model-load thresholds with per-model memory isolation.
+
+Verify the configured boundary with supported observables for that runtime: determine whether each protected tenant/model has a separate process, Pod, or hardware-backed accelerator partition; confirm actual mounts and shared-memory ownership; and validate resource limits against live cgroup or vendor-supported accelerator telemetry at the granularity claimed. For accelerator isolation, check hardware, driver, device-plugin/runtime, and partition-mode support for the installed versions. Use MIG only on supported devices/configurations; NVIDIA documents time-slicing as sharing without memory/fault-domain isolation. Do not claim per-model GPU accounting from per-GPU metrics without validated model attribution. Keep verification to benign test workloads, synthetic markers, and documented observability; this case does not require reading a peer’s memory.
+
+For transport protection, inventory every inference ingress and service-to-service hop, including sidecar and direct/bypass routes. Verify server identity/hostname validation and peer authentication at each applicable hop using approved synthetic identities and health requests. Confirm that policy actually covers the inventoried paths, and separately verify certificate issuance, rotation, revocation, trust roots, and key custody where those are part of the deployment requirement. A successful request on one path is evidence only for that path.
+
+The control rationale’s shared-memory leakage scenario is not validated by these separate-Pod fixtures. Any broader claim about ModelMesh/Triton behavior, shared-process leakage, resource starvation, GPU memory, or end-to-end TLS requires evidence from the actual supported runtime and deployment configuration.
 
 ## Fixtures and image pins
 

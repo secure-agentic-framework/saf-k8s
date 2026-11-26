@@ -28,15 +28,12 @@ SCRATCH_NAME = "model-cache.marker"
 SCRATCH_BYTES = 8 * 1024 * 1024
 WORKLOAD = FIXTURES / "workload.py"
 SCOPE = (
-    "One disposable Kind v1.36.1 cluster and one case-owned namespace with two distinct "
-    "mock model Pods. Each Pod gets a separate 8Mi memory-backed emptyDir mounted at "
-    "/dev/shm and writes the same benign filename with a different fixed marker. The "
-    "case reads each Pod's mount namespace and its own marker, verifies distinct Pod "
-    "UIDs, stored memory requests/limits, and live memory usage/limit from the Python "
-    "process's own cgroup. Model A makes one routine /healthz request to Model B over "
-    "a ClusterIP Service using mutual TLS with ephemeral case-only certificates. No "
-    "external network, real model, feed, target, GPU, ModelMesh, Triton, or deployed "
-    "service mesh is used."
+    "GPU-free disposable Kind fixture with two independent mock Pods: two per-Pod own-cgroup memory checks, "
+    "distinct bounded tmpfs markers, bounded writer-versus-peer memory charge, synthetic missing-client-cert "
+    "rejection, and one authenticated server/client TLS health request. It demonstrates Pod-scoped tmpfs and "
+    "CPU/memory cgroup behavior plus one TLS path; it does not run ModelMesh, Triton, KServe, a model, GPU, "
+    "MIG/vGPU, shared-process tenancy, or deployed service mesh. Actual runtime, accelerator-isolation, "
+    "resource-attribution, and all-path mTLS claims require adopter verification on supported versions."
 )
 
 

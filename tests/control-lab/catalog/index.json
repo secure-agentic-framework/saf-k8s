@@ -2445,7 +2445,7 @@
     "SAF-K8S-0902-004": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "0e8fc63bab083af033e7586d20f27c044220a46b8a88dcc0e966fa35ea5c1914",
+      "sha256": "290b6a48c765fee9a1339008a81dfa370bbea2782179f2068107cf03883436cf",
       "title": "Multi-model serving isolation and encryption"
     },
     "SAF-K8S-0902-005": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6fdf92ccac3820fdd4191bc0babaa92ce89b6439",
-  "sha256": "e38420f524fb15e73e8ffca4c9a87efd965bcdc648e8f97243d8c301bc7ed21d",
+  "revision": "b71aa4cf5bd5e7bc5883909aaaf53a2e08754a39",
+  "sha256": "7d6937a06790309ec74e86d3906c8513fc47187daddcb0c143094e42f6369a7b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
