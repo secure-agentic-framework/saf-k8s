@@ -11149,16 +11149,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CA-7
   framework_requirement_title: Continuous Monitoring
-  framework_mapping_notes: 'Continuous monitoring of agent security posture
-
-
-    10.6 - Continuous compliance evidence collection; 10.7 - Security posture management (continuous assessment)'
+  framework_mapping_notes: One named admission-binding drift observation, scheduled repair and independently read receipt can support the documented monitoring program's selected configuration signal.
   control_id: SAF-K8S-0910-027
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only where the adopter's documented CA-7 strategy includes monitoring this selected admission binding and defines its frequency, correlation, analysis, response and reporting.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -11272,16 +11269,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CA-7(4)
   framework_requirement_title: Risk Monitoring
-  framework_mapping_notes: 'Ongoing risk monitoring for agent systems
-
-
-    10.7 - Security posture management (continuous risk monitoring for cluster drift and vulnerability exposure)'
+  framework_mapping_notes: A case-observed configuration divergence can inform the selected compliance and change signal in an adopted risk monitoring strategy. Evidence about risk tolerance and strategy effectiveness requires separate review.
   control_id: SAF-K8S-0910-027
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only where the adopter's risk-monitoring strategy includes this selected binding signal and separately defines risk tolerance, effectiveness monitoring, compliance/change monitoring, and response.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -11975,16 +11969,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-2(2)
   framework_requirement_title: Automation Support for Accuracy and Currency
-  framework_mapping_notes: 'Automated baseline verification for agent configs
-
-
-    6.6 - GitOps (Git as single source of truth, automated reconciliation); 1.4 - Automated kube-bench assessment'
+  framework_mapping_notes: The fixture compares a selected binding's actual revision, repairs its deviation and verifies the restored baseline on the enrolled member. Verify system baseline completeness and component coverage separately.
   control_id: SAF-K8S-0910-027
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only for an adopter-defined baseline whose selected admission binding is included in the automated mechanism and whose completeness, accuracy, currency, and availability are verified separately. This case covers one named binding on one owned member.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -12737,16 +12728,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-6(1)
   framework_requirement_title: Automated Management, Application, and Verification
-  framework_mapping_notes: 'Automated agent config management
-
-
-    6.6 - GitOps (automated configuration management and verification); 1.4 - Automated kube-bench assessment'
+  framework_mapping_notes: The scoped scheduled workload manages one approved setting, applies a bounded repair and verifies the resulting active state. The adopter defines the full applicable automated management scope.
   control_id: SAF-K8S-0910-027
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only when the adopter uses an automated mechanism to manage, apply, and verify this selected binding's configuration. This reference candidate is one CronJob in one owned member and does not cover other components or configuration settings.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
