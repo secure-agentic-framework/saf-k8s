@@ -10,15 +10,22 @@ PROMETHEUS_IMAGE = (
     "docker.io/prom/prometheus:v3.16.0@sha256:"
     "e04987641b57704f408e31f6373ba4138ecf27cb4a165d24aabb6c38fddd0f06"
 )
+PYTHON_IMAGE = (
+    "docker.io/library/python:3.13.2-alpine@sha256:"
+    "323a717dc4a010fee21e3f1aac738ee10bb485de4e7593ce242b36ee48d6b352"
+)
 CONFIG = "saf-1003-005-fixtures"
 JOB_PREFIX = "saf-1003-005-"
+RUNTIME_PREFIX = "saf-1003-005-runtime"
 SCOPE = (
     "Kubernetes v1.36.1 Kind runs the pinned Prometheus 3.16.0 promtool rule evaluator "
     "on inert synthetic audit-event records. Two case-owned rules cover only privileged "
     "AI-namespace Pod creation (T1610) and Pod exec requests (T1609); unit-rule tests "
     "include positive matches, safe near misses, and a no-rule red comparator. A reviewed "
-    "change record is checked against the rule IDs and versioned ATT&CK metadata. Production telemetry, "
-    "alert delivery and analyst response require deployment evidence."
+    "change record is checked against the rule IDs and versioned ATT&CK metadata. An additive "
+    "case-owned runtime marker path checks live Prometheus scrape and alert state using only four "
+    "fixed synthetic series. It does not test Kubernetes audit ingestion, event normalization, "
+    "Alertmanager/SIEM delivery or analyst response."
 )
 
 
@@ -84,6 +91,139 @@ def _job(lab, name, test_file):
     code = pod["status"]["containerStatuses"][0]["state"]["terminated"]["exitCode"]
     return {"pod_uid": pod["metadata"]["uid"], "exit_code": code,"job": name, "uid": state["metadata"]["uid"], "condition": terminal[0]["type"],
             "logs": logs, "passed": terminal[0]["type"] == "Complete"}
+
+
+def _wait_runtime_ready(lab, name):
+    deadline = time.monotonic() + 60
+    while time.monotonic() < deadline:
+        deployment = json.loads(lab.kubectl("get", "deployment", name, "-o", "json", timeout=15).stdout)
+        if deployment.get("status", {}).get("readyReplicas", 0) == 1:
+            return
+        time.sleep(.5)
+    lab.block("Runtime fixture Deployment did not become Ready: " + name)
+
+
+def _runtime_marker_check(lab, reviewed_rule_digest):
+    assets = {
+        "exporter.py": (HERE / "runtime_marker_exporter.py").read_text(),
+        "observer.py": (HERE / "runtime_alert_observer.py").read_text(),
+        "rules.yml": (HERE / "rules.yml").read_text(),
+        "prometheus.yml": (
+            "global:\n  scrape_interval: 1s\n  evaluation_interval: 1s\n"
+            "rule_files:\n  - /etc/prometheus/rules.yml\n"
+            "scrape_configs:\n  - job_name: saf-1003-005-fixture\n"
+            "    static_configs:\n      - targets: [\"saf-1003-005-runtime-exporter:8080\"]\n"
+        ),
+    }
+    lab.create({"apiVersion": "v1", "kind": "ConfigMap",
+                "metadata": {"name": RUNTIME_PREFIX + "-assets"},
+                "immutable": True, "data": assets})
+    stored_assets = json.loads(lab.kubectl("get", "configmap", RUNTIME_PREFIX + "-assets",
+                                            "-o", "json").stdout)["data"]
+    stored_rule_digest = hashlib.sha256(stored_assets["rules.yml"].encode()).hexdigest()
+    common_pod_security = {"allowPrivilegeEscalation": False,
+                           "readOnlyRootFilesystem": True,
+                           "capabilities": {"drop": ["ALL"]}}
+    lab.create({"apiVersion": "apps/v1", "kind": "Deployment",
+                "metadata": {"name": RUNTIME_PREFIX + "-exporter"},
+                "spec": {"replicas": 1,
+                         "selector": {"matchLabels": {"app": RUNTIME_PREFIX + "-exporter"}},
+                         "template": {"metadata": {"labels": {"app": RUNTIME_PREFIX + "-exporter"}},
+                                      "spec": {"automountServiceAccountToken": False,
+                                               "securityContext": {"runAsNonRoot": True, "runAsUser": 1000,
+                                                                    "seccompProfile": {"type": "RuntimeDefault"}},
+                                               "containers": [{"name": "exporter", "image": PYTHON_IMAGE,
+                                                               "imagePullPolicy": "IfNotPresent",
+                                                               "command": ["python", "-B", "/fixture/exporter.py"],
+                                                               "ports": [{"containerPort": 8080}],
+                                                               "volumeMounts": [{"name": "assets", "mountPath": "/fixture",
+                                                                                 "readOnly": True}],
+                                                               "resources": {"requests": {"cpu": "5m", "memory": "16Mi"},
+                                                                              "limits": {"cpu": "100m", "memory": "48Mi"}},
+                                                               "securityContext": common_pod_security}],
+                                               "volumes": [{"name": "assets", "configMap":
+                                                            {"name": RUNTIME_PREFIX + "-assets"}}]}}}})
+    lab.create({"apiVersion": "v1", "kind": "Service",
+                "metadata": {"name": RUNTIME_PREFIX + "-exporter"},
+                "spec": {"selector": {"app": RUNTIME_PREFIX + "-exporter"},
+                         "ports": [{"port": 8080, "targetPort": 8080}]}})
+    prometheus_pod = {"automountServiceAccountToken": False,
+                      "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
+                                           "fsGroup": 65534,
+                                           "seccompProfile": {"type": "RuntimeDefault"}},
+                      "containers": [{"name": "prometheus", "image": PROMETHEUS_IMAGE,
+                                      "imagePullPolicy": "IfNotPresent",
+                                      "command": ["/bin/prometheus", "--config.file=/etc/prometheus/prometheus.yml",
+                                                  "--storage.tsdb.path=/prometheus",
+                                                  "--storage.tsdb.retention.time=30m",
+                                                  "--web.listen-address=0.0.0.0:9090"],
+                                      "ports": [{"containerPort": 9090}],
+                                      "readinessProbe": {"httpGet": {"path": "/-/ready", "port": 9090},
+                                                         "periodSeconds": 1, "timeoutSeconds": 2,
+                                                         "failureThreshold": 60},
+                                      "volumeMounts": [{"name": "assets", "mountPath": "/etc/prometheus",
+                                                        "readOnly": True},
+                                                       {"name": "storage", "mountPath": "/prometheus"},
+                                                       {"name": "tmp", "mountPath": "/tmp"}],
+                                      "resources": {"requests": {"cpu": "50m", "memory": "96Mi"},
+                                                     "limits": {"cpu": "300m", "memory": "192Mi"}},
+                                      "securityContext": common_pod_security}],
+                      "volumes": [{"name": "assets", "configMap": {"name": RUNTIME_PREFIX + "-assets"}},
+                                  {"name": "storage", "emptyDir": {"sizeLimit": "64Mi"}},
+                                  {"name": "tmp", "emptyDir": {"sizeLimit": "16Mi"}}]}
+    lab.create({"apiVersion": "apps/v1", "kind": "Deployment",
+                "metadata": {"name": RUNTIME_PREFIX + "-prometheus"},
+                "spec": {"replicas": 1,
+                         "selector": {"matchLabels": {"app": RUNTIME_PREFIX + "-prometheus"}},
+                         "template": {"metadata": {"labels": {"app": RUNTIME_PREFIX + "-prometheus"}},
+                                      "spec": prometheus_pod}}})
+    lab.create({"apiVersion": "v1", "kind": "Service",
+                "metadata": {"name": RUNTIME_PREFIX + "-prometheus"},
+                "spec": {"selector": {"app": RUNTIME_PREFIX + "-prometheus"},
+                         "ports": [{"port": 9090, "targetPort": 9090}]}})
+    _wait_runtime_ready(lab, RUNTIME_PREFIX + "-exporter")
+    _wait_runtime_ready(lab, RUNTIME_PREFIX + "-prometheus")
+
+    observer_config = RUNTIME_PREFIX + "-observer"
+    lab.create({"apiVersion": "v1", "kind": "ConfigMap",
+                "metadata": {"name": observer_config}, "immutable": True,
+                "data": {"observer.py": assets["observer.py"]}})
+    observer_job = RUNTIME_PREFIX + "-observer"
+    lab.create({"apiVersion": "batch/v1", "kind": "Job", "metadata": {"name": observer_job},
+                "spec": {"backoffLimit": 0, "activeDeadlineSeconds": 50,
+                         "template": {"metadata": {"labels": {"app": observer_job}},
+                                      "spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,
+                                               "securityContext": {"runAsNonRoot": True, "runAsUser": 1000,
+                                                                    "seccompProfile": {"type": "RuntimeDefault"}},
+                                               "containers": [{"name": "observer", "image": PYTHON_IMAGE,
+                                                               "imagePullPolicy": "IfNotPresent",
+                                                               "command": ["python", "-B", "/fixture/observer.py"],
+                                                               "volumeMounts": [{"name": "observer", "mountPath": "/fixture",
+                                                                                 "readOnly": True}],
+                                                               "resources": {"requests": {"cpu": "5m", "memory": "16Mi"},
+                                                                              "limits": {"cpu": "100m", "memory": "64Mi"}},
+                                                               "securityContext": common_pod_security}],
+                                               "volumes": [{"name": "observer", "configMap":
+                                                            {"name": observer_config}}]}}}})
+    deadline = time.monotonic() + 55
+    while time.monotonic() < deadline:
+        job = json.loads(lab.kubectl("get", "job", observer_job, "-o", "json", timeout=15).stdout)
+        conditions = {condition["type"] for condition in job.get("status", {}).get("conditions", [])
+                      if condition.get("status") == "True"}
+        if "Failed" in conditions:
+            lab.kubectl("logs", "job/" + observer_job, allow_failure=True, timeout=15)
+            lab.block("Runtime alert observer Job failed")
+        if "Complete" in conditions:
+            output = json.loads(lab.kubectl("logs", "job/" + observer_job, timeout=15).stdout)
+            break
+        time.sleep(.5)
+    else:
+        lab.block("Runtime alert observer Job timed out")
+    output["runtime_rule_sha256"] = stored_rule_digest
+    output["runtime_rule_matches_reviewed_digest"] = stored_rule_digest == reviewed_rule_digest
+    (lab.evidence / "runtime-marker-alert-observation.json").write_text(
+        json.dumps(output, indent=2, sort_keys=True) + "\n")
+    return output
 
 
 def run(lab):
@@ -188,3 +328,14 @@ def run(lab):
     benign = "near-miss-safe-workload-and-read" in {group["name"] for group in groups} and green["passed"]
     lab.check("positive", "Safe in-scope requests and identical outside-scope signals produce no alert",
               benign, {"safe_near_misses": 4, "unexpected_alerts": 0 if benign else None})
+    live_marker = _runtime_marker_check(lab, rule_digest)
+    expected_runtime_predicates = {"prometheus_api_success", "exact_expected_alert_names",
+                                   "expected_labels_match", "both_alerts_firing", "alert_count",
+                                   "runtime_rule_sha256", "runtime_rule_matches_reviewed_digest"}
+    lab.check("positive", "The live owned Prometheus scrape evaluates fixed marker series into only the two expected alerts",
+              set(live_marker) == expected_runtime_predicates
+              and all(live_marker.get(key) is True for key in (
+                  "prometheus_api_success", "exact_expected_alert_names", "expected_labels_match",
+                  "both_alerts_firing", "runtime_rule_matches_reviewed_digest"))
+              and live_marker.get("alert_count") == 2,
+              live_marker)
