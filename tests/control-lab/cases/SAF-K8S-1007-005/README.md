@@ -36,3 +36,13 @@ post-rollback health and quality checks.
 - [Kubernetes v1.36 rolling update task](https://v1-36.docs.kubernetes.io/docs/tasks/run-application/update-deployment/) documents rollout status checks and rollback verification.
 - [Kind Quick Start](https://kind.sigs.k8s.io/docs/user/quick-start/) documents selecting the Kubernetes node image; the lab pins its v1.36.1 image by digest.
 - [Docker Official Images Python manifest](https://github.com/docker-library/official-images/blob/master/library/python) is the primary metadata source for the official Python image family. The pinned mock image reference is reused from a neighboring synthetic case; this case makes no claim about registry identity or image provenance beyond the reference being digest-shaped.
+
+## Crosswalk evidence
+
+The current crosswalk retains four conditional contributions. Bind actual
+release history to the applicable provider documentation, require evidence of
+separate authorized approval where dual approval applies, preserve the previous
+configuration and include the observed change and rollback in the applicable
+monitoring plan.
+
+[NIST SP 800-53](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final).
