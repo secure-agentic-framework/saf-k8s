@@ -1,8 +1,10 @@
 """Live Kubernetes fixture for classification-aware RAG chunking and isolation."""
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import json
+import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -28,7 +30,8 @@ SCOPE = (
     "classification metadata, isolated per-class tables, and retrieval authorization. Red shows "
     "one confidential marker visible from a shared collection without the guard; green rejects "
     "missing/misclassified labels and a wrong destination without changing storage; positive "
-    "checks each authorized principal's own classification output."
+    "checks each authorized principal's own classification output. The authenticated route "
+    "also compares exact source-bound writes and independent class-specific readback."
 )
 APPROVED = {
     "chunk_words": 2,
@@ -45,6 +48,16 @@ APPROVED = {
             {"id": "detail", "classification": "confidential", "text": "amber synthetic confidential marker"},
         ],
     }],
+    "write_contracts": [
+        {"id": "doc-pine-approved-write", "sections": [
+            {"id": "approved-public-write", "classification": "public",
+             "text": "pine synthetic public marker"},
+        ]},
+        {"id": "doc-amber-approved-write", "sections": [
+            {"id": "approved-confidential-write", "classification": "confidential",
+             "text": "amber neutral confidential marker"},
+        ]},
+    ],
 }
 
 
@@ -128,7 +141,7 @@ def setup(lab, image):
             container["volumeMounts"][-1]["mountPath"] = "/var/run/secrets/kubernetes.io/serviceaccount"
         spec = {"restartPolicy": "Never", "serviceAccountName": account,
                 "automountServiceAccountToken": server,
-                "securityContext": {"runAsNonRoot": True, "runAsUser": 65534, "fsGroup": 65534, "fsGroup": 65534,
+                "securityContext": {"runAsNonRoot": True, "runAsUser": 65534, "fsGroup": 65534,
                                     "seccompProfile": {"type": "RuntimeDefault"}},
                 "containers": [container], "volumes": volumes}
         if not server:
@@ -158,6 +171,13 @@ def call(lab, client, op, service=SERVICE):
 def run(lab):
     image = load_runtime(lab)
     setup(lab, image)
+    for service in (BASELINE, SERVICE):
+        for _ in range(12):
+            if call(lab, CLIENT_PUBLIC, "ready", service) == {"status": 200}:
+                break
+            time.sleep(1)
+        else:
+            lab.block(f"The isolated {service} HTTPS route is not ready")
     baseline = call(lab, CLIENT_PUBLIC, "retrieve/public", BASELINE)
     red = {"shared_baseline_returns_confidential_fixture_marker":
                baseline.get("status") == 200 and baseline.get("texts") == ["amber"]}
@@ -191,7 +211,70 @@ def run(lab):
     }
     lab.check("positive", "Each approved principal retrieves the exact section-local vectors for its class",
               all(positive.values()), positive)
+
+    verifier_subject = f"system:serviceaccount:{NS}:{VERIFIER}"
+    can_create_tokenreview = lab.kubectl("auth", "can-i", "create", "tokenreviews.authentication.k8s.io",
+                                         f"--as={verifier_subject}").stdout.strip() == "yes"
+    can_patch_approval = lab.kubectl("auth", "can-i", "patch", f"configmaps/{APPROVAL}",
+                                     f"--as={verifier_subject}", allow_failure=True)
+    approved_before = json.loads(lab.kubectl("get", "configmap", APPROVAL, "-o", "json").stdout)
+    patch_request = lab.kubectl("exec", "pod/" + APP, "--", "python",
+                                "/fixture/chunk_fixture.py", "probe-approval-patch", timeout=15)
+    patch_result = json.loads(patch_request.stdout)
+    approved_after = json.loads(lab.kubectl("get", "configmap", APPROVAL, "-o", "json").stdout)
+    authority = {
+        "tokenreview_verifier_can_create_tokenreviews": can_create_tokenreview,
+        "tokenreview_verifier_cannot_patch_approved_metadata": can_patch_approval.returncode == 1
+        and can_patch_approval.stdout.strip() == "no",
+        "actual_patch_was_forbidden": patch_result == {
+            "http_status": 403, "reason": "Forbidden", "patch_verb_was_denied": True,
+        },
+        "approved_metadata_is_immutable": approved_before.get("immutable") is True,
+        "approved_metadata_unchanged": approved_before == approved_after,
+        "approved_metadata_digest_unchanged": hashlib.sha256(
+            approved_before["data"]["approved.json"].encode()).hexdigest()
+            == hashlib.sha256(approved_after["data"]["approved.json"].encode()).hexdigest(),
+    }
+    allowed_write = call(lab, WRITER, "write-approved")
+    mismatched_label = call(lab, WRITER, "write-confidential-as-public")
+    wrong_destination = call(lab, WRITER, "write-public-to-confidential")
+    body_claim = call(lab, CLIENT_PUBLIC, "write-claimed-writer")
+    public_after = call(lab, CLIENT_PUBLIC, "retrieve/public")
+    confidential_after = call(lab, CLIENT_CONFIDENTIAL, "retrieve/confidential")
+    writes = {
+        "authenticated_writer_writes_exact_approved_public_chunk":
+            allowed_write == {"status": 200, "accepted": True, "collection": "public",
+                              "row": ["doc-pine-approved-write", "approved-public-write", 0,
+                                      "public", "pine synthetic", [2, 13]],
+                              "counts": {"public": 3, "confidential": 2}},
+        "classification_mismatch_is_denied_without_storage_change":
+            mismatched_label.get("status") == 403 and mismatched_label.get("reason") == "metadata_mismatch"
+            and mismatched_label.get("state_unchanged") is True,
+        "wrong_destination_is_denied_without_storage_change":
+            wrong_destination.get("status") == 403 and wrong_destination.get("reason") == "metadata_mismatch"
+            and wrong_destination.get("state_unchanged") is True,
+        "body_claimed_writer_does_not_elevate_public_reader":
+            body_claim.get("status") == 403 and body_claim.get("reason") == "writer_identity_required",
+        "public_retrieval_returns_exact_written_public_chunk":
+            public_after.get("status") == 200 and public_after.get("rows") == [
+                ["abstract", 0, "public", "cedar synthetic", [2, 14]],
+                ["abstract", 1, "public", "public summary", [2, 13]],
+                ["approved-public-write", 0, "public", "pine synthetic", [2, 13]],
+            ],
+        "confidential_retrieval_remains_exact_and_private":
+            confidential_after.get("status") == 200 and confidential_after.get("rows") == [
+                ["detail", 0, "confidential", "amber synthetic", [2, 14]],
+                ["detail", 1, "confidential", "confidential marker", [2, 18]],
+            ],
+    }
+    lab.check("positive", "Authenticated source contract controls mixed-class writes and preserves authorized retrieval separation",
+              all(authority.values()) and all(writes.values()),
+              {"metadata_authority": authority, "writes_and_retrieval": writes,
+               "denial_reasons": {"mismatched_label": mismatched_label.get("reason"),
+                                  "wrong_destination": wrong_destination.get("reason"),
+                                  "body_claim": body_claim.get("reason")}})
     (lab.evidence / "rag-classification-observations.json").write_text(json.dumps(
         {"red": red, "green": green, "positive": positive,
+         "metadata_authority": authority, "writes_and_retrieval": writes,
          "scope": "fixed owned document and two logical SQLite class collections"},
         sort_keys=True, indent=2) + "\n")

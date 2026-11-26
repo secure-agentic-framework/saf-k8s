@@ -4,8 +4,8 @@
   "catalog_sha256": "81cdfaf9b164ed973a39e36bafdf465f4c6975833862cc72a87b2abc84c6fd9a",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "bb19120efcc631b267ca5236978d59b4e7c785f49eb7c6164f474a8de55242e2",
-  "scope": "A temporary Kubernetes workload indexes only fixed approved synthetic documents in SQLite on separate PVCs. Kubernetes TokenReview authenticates three projected service-account tokens to an internal TLS service. Immutable trusted mappings drive deterministic section-local chunks, classification metadata, isolated per-class tables, and retrieval authorization. Red shows one confidential marker visible from a shared collection without the guard; green rejects missing/misclassified labels and a wrong destination without changing storage; positive checks each authorized principal's own classification output.",
-  "cluster": "saf-lab-43fcd9425549",
+  "scope": "A temporary Kubernetes workload indexes only fixed approved synthetic documents in SQLite on separate PVCs. Kubernetes TokenReview authenticates three projected service-account tokens to an internal TLS service. Immutable trusted mappings drive deterministic section-local chunks, classification metadata, isolated per-class tables, and retrieval authorization. Red shows one confidential marker visible from a shared collection without the guard; green rejects missing/misclassified labels and a wrong destination without changing storage; positive checks each authorized principal's own classification output. The authenticated route also compares exact source-bound writes and independent class-specific readback.",
+  "cluster": "saf-lab-b10c0ebfc23d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -66,6 +66,34 @@
       "observed": {
         "public_sections_are_exact": true,
         "confidential_sections_are_exact": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Authenticated source contract controls mixed-class writes and preserves authorized retrieval separation",
+      "matched": true,
+      "observed": {
+        "metadata_authority": {
+          "tokenreview_verifier_can_create_tokenreviews": true,
+          "tokenreview_verifier_cannot_patch_approved_metadata": true,
+          "actual_patch_was_forbidden": true,
+          "approved_metadata_is_immutable": true,
+          "approved_metadata_unchanged": true,
+          "approved_metadata_digest_unchanged": true
+        },
+        "writes_and_retrieval": {
+          "authenticated_writer_writes_exact_approved_public_chunk": true,
+          "classification_mismatch_is_denied_without_storage_change": true,
+          "wrong_destination_is_denied_without_storage_change": true,
+          "body_claimed_writer_does_not_elevate_public_reader": true,
+          "public_retrieval_returns_exact_written_public_chunk": true,
+          "confidential_retrieval_remains_exact_and_private": true
+        },
+        "denial_reasons": {
+          "mismatched_label": "metadata_mismatch",
+          "wrong_destination": "metadata_mismatch",
+          "body_claim": "writer_identity_required"
+        }
       }
     }
   ]
