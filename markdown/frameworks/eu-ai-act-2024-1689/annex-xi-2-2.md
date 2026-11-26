@@ -29,15 +29,6 @@ SAF-K8S provides infrastructure-level safety measures: workload isolation (D3), 
 - Applicability: required
 - Strength Reason Code: framework-language-interpretation
 
-### [SAF-K8S-0606-011 - CI build-time security gate enforcement](../../controls/SAF-K8S-0606-011.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.6
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0903-001 - Adversarial example defenses at the serving layer](../../controls/SAF-K8S-0903-001.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines

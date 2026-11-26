@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-A detailed description of the evaluation strategies, including evaluation results, on the basis of available public evaluation protocols and tools or otherwise of other evaluation methodologies. Evaluation strategies shall include evaluation criteria, metrics and the methodology on the identification of limitations.
-
-SAF-K8S CI/CD pipeline controls (D6) enforce security testing gates, vulnerability scanning, and automated evaluation pipelines. However, model evaluation processes (accuracy, fairness, robustness testing) go beyond security scanning and require application-layer test design and analysis.
+This promotion gate can contribute a release-control step if its required evidence includes the applicable Annex XI evaluation documentation and binds it to the exact model artifact and revisions. The reference fixture only demonstrates deny/allow decisions for fictional source-analysis, component-analysis, CI secret-detection, and artifact-check records. It does not produce or assess model evaluation strategies, evaluation results, criteria, metrics, or limitations.
 
 ## SAF-K8S Controls
 
@@ -16,9 +14,9 @@ SAF-K8S CI/CD pipeline controls (D6) enforce security testing gates, vulnerabili
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.6
 - Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAF-K8S-1002-003.md)
 

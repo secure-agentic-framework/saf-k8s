@@ -1135,16 +1135,13 @@
   framework_requirement_id: Annex-XI.2.1
   legacy_requirement_id: Annex-XI:XI(4)(a)
   framework_requirement_title: Technical documentation referred to in Article 53(1), point (a) — technical documentation for providers of general-purpose AI models
-  framework_mapping_notes: |-
-    A detailed description of the evaluation strategies, including evaluation results, on the basis of available public evaluation protocols and tools or otherwise of other evaluation methodologies. Evaluation strategies shall include evaluation criteria, metrics and the methodology on the identification of limitations.
-
-    SAF-K8S CI/CD pipeline controls (D6) enforce security testing gates, vulnerability scanning, and automated evaluation pipelines. However, model evaluation processes (accuracy, fairness, robustness testing) go beyond security scanning and require application-layer test design and analysis.
+  framework_mapping_notes: This promotion gate can contribute a release-control step if its required evidence includes the applicable Annex XI evaluation documentation and binds it to the exact model artifact and revisions. The reference fixture only demonstrates deny/allow decisions for fictional source-analysis, component-analysis, CI secret-detection, and artifact-check records. It does not produce or assess model evaluation strategies, evaluation results, criteria, metrics, or limitations.
   control_id: SAF-K8S-0606-011
   relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Applies only to a provider of a general-purpose AI model with systemic risk, and only when the deployed promotion policy requires the actual evaluation-strategy evidence and results described in Annex XI Section 2, point 1 for the artifact being promoted. The fixture checks four fictional security-check statuses; it does not collect or assess model evaluation protocols, criteria, metrics, results, or limitation methodology.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -1213,23 +1210,6 @@
   applicability: required
   applicability_condition:
   strength_reason_code: framework-language-interpretation
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Annex-XI.2.2
-  legacy_requirement_id: Annex-XI:XI(4)(a)
-  framework_requirement_title: Technical documentation referred to in Article 53(1), point (a) — technical documentation for providers of general-purpose AI models
-  framework_mapping_notes: |-
-    Where applicable, a detailed description of the measures put in place for the purpose of conducting internal and/or external adversarial testing (e.g. red teaming), model adaptations, including alignment and fine-tuning.
-
-    SAF-K8S CI/CD pipeline controls (D6) enforce security testing gates, vulnerability scanning, and automated evaluation pipelines. However, model evaluation processes (accuracy, fairness, robustness testing) go beyond security scanning and require application-layer test design and analysis.
-  control_id: SAF-K8S-0606-011
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -3600,16 +3580,13 @@
   framework_requirement_id: Article-9.6
   legacy_requirement_id: Art-9:9(6)
   framework_requirement_title: Risk management system
-  framework_mapping_notes: |-
-    High-risk AI systems shall be tested for the purpose of identifying the most appropriate and targeted risk management measures. Testing shall ensure that high-risk AI systems perform consistently for their intended purpose and that they are in compliance with the requirements set out in this Section.
-
-    SAF-K8S supports testing infrastructure through CI/CD pipeline security (D6 KA 6.6), model promotion gates (SAF-K8S-0905-005), and validation controls. The design of specific AI system tests is an application-layer concern.
+  framework_mapping_notes: The control can contribute a pre-promotion gate over applicable test evidence. Its fixture only enforces check statuses and artifact/source/test/policy revision equality for an inert record; it does not conduct Article 9 testing or show consistent intended-purpose performance.
   control_id: SAF-K8S-0606-011
   relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Applies only when the artifact is part of a high-risk AI system and the deployed promotion record contains the provider’s actual Article 9 testing evidence for that exact system and release. The case does not evaluate intended-purpose performance, risk-measure adequacy, or conformity with the requirements in Chapter III, Section 2.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -18259,16 +18236,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-3(2)
   framework_requirement_title: Testing, Validation, and Documentation of Changes
-  framework_mapping_notes: 'Validating agent config changes
-
-
-    6.6 - CI pipeline security gates (SAST, DAST, SCA -- testing and validation before deployment)'
+  framework_mapping_notes: The native fixture demonstrates a promotion decision that rejects failed, skipped, or missing required checks and rejects mismatched artifact digest, source revision, test revision, or policy revision, then admits and reads back one matching immutable record. This supports a pre-finalization check gate; it does not demonstrate change approval, test execution, the validity of evidence producers, or the organization’s change records.
   control_id: SAF-K8S-0606-011
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Retain when the governed artifact promotion is a system change covered by the organization’s configuration-change process, and the deployed gate requires approved test, validation, and change documentation before finalization. Verify the change record and actual evidence producers separately.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -28694,16 +28668,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-11
   framework_requirement_title: Developer Testing and Evaluation
-  framework_mapping_notes: 'Developer testing of agentic AI must include security, safety, and adversarial testing
-
-
-    6.6 - CI pipeline security gates (developer testing and evaluation: SAST, DAST, SCA)'
+  framework_mapping_notes: The fixture tests the admission decision for fictional check states and revision bindings. It does not execute developer testing, establish assessment-plan coverage or rigor, validate producer identity, prove remediation, or show that identified flaws were corrected.
   control_id: SAF-K8S-0606-011
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Retain only when the developer’s approved security and privacy assessment plan identifies the applicable checks, artifact coverage, depth/frequency, acceptance criteria, and flaw-remediation workflow, and the deployed gate consumes results from authorized producers bound to the promoted artifact.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -28742,16 +28713,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-11(1)
   framework_requirement_title: Static Code Analysis
-  framework_mapping_notes: 'Static analysis of agent code identifies vulnerabilities before deployment
-
-
-    6.6 - CI pipeline security gates (SAST -- static application security testing integration)'
+  framework_mapping_notes: The gate mechanism can block promotion on missing or unsuccessful static-analysis evidence when that evidence is an explicit required check. The fixture does not execute static code analysis, validate scanner output, or prove that a developer documented results.
   control_id: SAF-K8S-0606-011
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Retain only if the deployed required-check policy explicitly requires approved static-code-analysis tool results for the exact source/artifact and preserves the analysis results. The reference check named source-analysis is fictional and does not run a static analyzer.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -28998,16 +28966,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-11(8)
   framework_requirement_title: Dynamic Code Analysis
-  framework_mapping_notes: 'Dynamic analysis of running agent systems detects runtime vulnerabilities and anomalies
-
-
-    6.6 - CI pipeline security gates (DAST -- dynamic application security testing integration)'
+  framework_mapping_notes: The general promotion-gate mechanism could block promotion on absent or unsuccessful dynamic-analysis evidence if a deployment configures it as required. The four synthetic fixture checks do not run dynamic code analysis or demonstrate runtime flaw detection.
   control_id: SAF-K8S-0606-011
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Retain only if the deployed required-check policy explicitly requires approved dynamic-code-analysis results, identifies the tested build/runtime and coverage, and binds the results to the promoted artifact. The reference fixture has no dynamic-analysis check.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -29046,16 +29011,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-11(9)
   framework_requirement_title: Interactive Application Security Testing
-  framework_mapping_notes: 'IAST combines static and dynamic analysis for comprehensive agent security testing
-
-
-    6.6 - CI pipeline security gates (IAST -- interactive application security testing for runtime analysis)'
+  framework_mapping_notes: The promotion mechanism could contribute to enforcement of IAST evidence only when IAST is an explicit required check from an authorized producer. Generic artifact or dynamic-test status is not evidence that instrumentation-based application security testing ran or that results were documented.
   control_id: SAF-K8S-0606-011
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Retain only if the deployed policy separately requires an approved IAST tool result for the exact running test build, captures its findings, and binds that result to the candidate. The reference fixture does not identify or exercise IAST.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -30727,22 +30689,6 @@
 
     6.6 - CI pipeline security gates (SAST, DAST, SCA development methods and practices)'
   control_id: SAF-K8S-0606-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-4(3)
-  framework_requirement_title: Development Methods, Techniques, and Practices
-  framework_mapping_notes: 'Development practices for agentic AI must include secure coding and model safety
-
-
-    6.6 - CI pipeline security gates (SAST, DAST, SCA development methods and practices)'
-  control_id: SAF-K8S-0606-011
   relation_type: direct
   strength_level: strong
   applicability: required

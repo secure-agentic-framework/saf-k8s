@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-High-risk AI systems shall be tested for the purpose of identifying the most appropriate and targeted risk management measures. Testing shall ensure that high-risk AI systems perform consistently for their intended purpose and that they are in compliance with the requirements set out in this Section.
-
-SAF-K8S supports testing infrastructure through CI/CD pipeline security (D6 KA 6.6), model promotion gates (SAF-K8S-0905-005), and validation controls. The design of specific AI system tests is an application-layer concern.
+The control can contribute a pre-promotion gate over applicable test evidence. Its fixture only enforces check statuses and artifact/source/test/policy revision equality for an inert record; it does not conduct Article 9 testing or show consistent intended-purpose performance.
 
 ## SAF-K8S Controls
 
@@ -16,9 +14,9 @@ SAF-K8S supports testing infrastructure through CI/CD pipeline security (D6 KA 6
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.6
 - Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0905-005 - Automated model promotion gates](../../controls/SAF-K8S-0905-005.md)
 
