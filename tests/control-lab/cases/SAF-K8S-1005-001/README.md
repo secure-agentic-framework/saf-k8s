@@ -59,3 +59,23 @@ Primary sources:
 - [NIST SP 800-61 Rev. 3 final publication](https://csrc.nist.gov/pubs/sp/800/61/r3/final)
 - [NIST April 2025 announcement that Rev. 3 supersedes Rev. 2](https://csrc.nist.gov/News/2025/nist-revises-sp-800-61)
 - [Kubernetes v1.36 auditing documentation](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/)
+
+## Verify an adopting incident exercise
+
+Use an authorized scenario with harmless artifacts and the deployed incident
+process. Record incident ownership, trigger, scope and the exact authorized
+workload and evidence collectors.
+
+1. Preserve the actual detection signal, owning incident record, reporting
+   channel and notification or intake acknowledgement.
+2. Record effective responders, approvals and bounded containment. Capture
+   the intended workload revision, before/after state and rollback evidence
+   from the organization’s controlled environment.
+3. Retain timeline, evidence digest and custody chain, post-recovery checks,
+   and corrective action with an owner and due date.
+4. Preserve independent lessons-learned approval, exercise cadence,
+   actual notifications and the history of tracking or tool integrations.
+5. Link each adopted framework mapping to its applicable objective and
+   observed evidence. The disposable lifecycle example verifies selected
+   workflow steps. Separate contingency facilities, production standby
+   systems and broader process requirements have distinct evidence.

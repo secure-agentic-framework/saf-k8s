@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1005-001",
-  "catalog_revision": "ccb45bb68cd62b897cbea7c39e37a1b5e66a8fb5",
-  "catalog_sha256": "5865d848da5d242232e32d1647d47db4cab5f87717818648edc58405e54c0bda",
+  "catalog_revision": "0184b1ed880aa3a57c5992cacce8045eafc06e3b",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "34d63abdf5e7a313bb49872564bf87ec639afa12e655105ca641cb5264116951",
   "scope": "Synthetic defensive incident exercise in one fresh Kind v1.36.1 cluster. Checks role ownership, ordered timeline records, metadata-only Kubernetes audit evidence, pre-containment snapshot, namespace-scoped mock Deployment containment and recovery, and independent post-exercise review gates. The mock workload uses a digest-pinned public Python image and performs no network or application activity. All event, role, incident, and follow-up data is invented. This does not establish production policy completeness, external escalation or legal decisions, durable evidence retention, organization-wide readiness, AI-specific response sufficiency, or annual exercise cadence.",
-  "cluster": "saf-lab-5732f1875caf",
+  "cluster": "saf-lab-ffc4f082816d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
