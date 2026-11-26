@@ -4,8 +4,8 @@
   "catalog_sha256": "0bac9e0c97ccaf174b4670effacf87bef9c2c867073c90c42c73d4a2a61ffafe",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "abf657df886b47fe7757a76310327e35d474d43ef9bf0ff1a9725323aed99022",
-  "scope": "Fresh Kind v1.36.1. A digest-pinned Prometheus Adapter v0.12.0 serves real aggregated custom and external metrics APIs from synthetic Prometheus series. Two namespace-owned ServiceAccount tokens exercise live API-server authorization and compare exact synthetic samples, cross-namespace and cluster-scope denials, and the explicit external-rule exception. Prometheus Kubernetes pod discovery is separately scoped to the two fixture namespaces. A narrow API-server audit policy demonstrates that coverage depends on configured policy/backend. No production endpoint or identity is used.",
-  "cluster": "saf-lab-5ca86d95aeb6",
+  "scope": "Fresh Kind v1.36.1. A digest-pinned Prometheus Adapter v0.12.0 serves real aggregated custom and external metrics APIs from synthetic Prometheus series. Two namespace-owned ServiceAccount tokens exercise live API-server authorization and compare exact synthetic samples, cross-namespace and cluster-scope denials, and the explicit external-rule exception. Prometheus Kubernetes pod discovery is separately scoped to the two fixture namespaces. A narrow API-server audit policy demonstrates that coverage depends on configured policy/backend. A pinned Metrics Server and fixture kubelet certificate serve actual resource metrics. A namespaced reader receives its exact PodMetrics object, while unbound and wrong-namespace reads are denied.",
+  "cluster": "saf-lab-07c0691d0365",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -184,6 +184,42 @@
         "custom_event_seen": true,
         "external_event_seen": false,
         "policy_file_configured": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Pinned Metrics Server is registered through its trusted APIService certificate",
+      "matched": true,
+      "observed": {
+        "api": "v1beta1.metrics.k8s.io",
+        "image": "registry.k8s.io/metrics-server/metrics-server@sha256:b2d2efaf5ac3b366ed0f839d2412a2c4279d4fc2a2a733f12c52133faed36c41",
+        "tls_verified": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Authorized namespaced reader retrieves the exact native PodMetrics object",
+      "matched": true,
+      "observed": {
+        "status": 200,
+        "exact_object": true,
+        "usage_present": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Authenticated unbound comparator is denied the same metrics.k8s.io read",
+      "matched": true,
+      "observed": {
+        "http_status": 403
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Namespaced metrics reader is denied a PodMetrics request outside its RoleBinding namespace",
+      "matched": true,
+      "observed": {
+        "http_status": 403
       }
     }
   ]

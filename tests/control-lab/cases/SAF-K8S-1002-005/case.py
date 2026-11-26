@@ -25,7 +25,9 @@ SCOPE = (
     "exercise live API-server authorization and compare exact synthetic samples, cross-namespace and "
     "cluster-scope denials, and the explicit external-rule exception. Prometheus Kubernetes pod discovery "
     "is separately scoped to the two fixture namespaces. A narrow API-server audit policy demonstrates "
-    "that coverage depends on configured policy/backend. No production endpoint or identity is used."
+    "that coverage depends on configured policy/backend. A pinned Metrics Server and fixture kubelet "
+    "certificate serve actual resource metrics. A namespaced reader receives its exact PodMetrics "
+    "object, while unbound and wrong-namespace reads are denied."
 )
 
 
@@ -33,6 +35,11 @@ def _write(path, content, mode=0o600):
     path.write_text(content)
     path.chmod(mode)
 
+
+
+_METRICS_SPEC = importlib.util.spec_from_file_location("saf_1002_005_metrics_supplement", Path(__file__).with_name("metrics_server_supplement.py"))
+_METRICS_SUPPLEMENT = importlib.util.module_from_spec(_METRICS_SPEC)
+_METRICS_SPEC.loader.exec_module(_METRICS_SUPPLEMENT)
 
 def prepare_kind(lab, temporary):
     """Enable an intentionally selective audit policy and retain only metadata events."""
@@ -86,7 +93,7 @@ nodes:
         readOnly: false
         pathType: DirectoryOrCreate
 """)
-    return config
+    return _METRICS_SUPPLEMENT.configure_metrics_server_kind(lab, temporary, config)
 
 
 def _run(args, *, env=None, input_text=None, timeout=30):
@@ -304,12 +311,8 @@ def _prometheus(lab):
 
 
 def _serving_certificate(lab):
-    fixture = Path(__file__).resolve().parents[1] / "SAF-K8S-1001-017" / "case.py"
-    spec = importlib.util.spec_from_file_location("saf_adapter_tls_fixture", fixture)
-    helper = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(helper)
     directory = lab.kubeconfig.parent / "adapter-tls"
-    helper.create_fixture_tls(lab, directory, f"prometheus-adapter.{SYSTEM_NS}.svc")
+    _METRICS_SUPPLEMENT.create_fixture_tls(lab, directory, f"prometheus-adapter.{SYSTEM_NS}.svc")
     lab.kubectl("-n", SYSTEM_NS, "create", "secret", "tls", "saf-adapter-tls",
                 "--cert", str(directory / "tls.crt"), "--key", str(directory / "tls.key"))
     return base64.b64encode((directory / "ca.crt").read_bytes()).decode()
@@ -568,3 +571,4 @@ def run(lab):
     _grant_metric_reads(lab)
     runtime = _api_samples_and_authorization(lab)
     _audit_check(lab, runtime)
+    _METRICS_SUPPLEMENT.run_metrics_server_scope(lab)
