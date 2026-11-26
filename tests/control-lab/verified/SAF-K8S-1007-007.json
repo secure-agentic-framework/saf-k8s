@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1007-007",
-  "catalog_revision": "52e7d0d2bdfc13b5d0d961b6ab166546ca155832",
-  "catalog_sha256": "4f7af3c2af7e6e8328588332619ab92974ee465d086332fbb234c97049593db9",
+  "catalog_revision": "a0a475a9b301089b0a8c957fbfbada4f6cc4f779",
+  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "4cd30960a684800bed363d14247e132b2adb54a88f1aca2e3bd035568aaa23c4",
-  "scope": "One disposable Kind v1.36.1 cluster. A small server-side dry-run Pod request is compared before and after a namespace CPU/memory ResourceQuota; a second request at the remaining declared budget is admitted. Two case-owned PriorityClasses are read back and resolved onto dry-run Pods, with preemption disabled. One tokenless, low-resource HTTP fixture Pod is observed Ready and read through the Kubernetes API Service proxy before and after quota checks, and looks up the exact in-cluster Kubernetes Service via CoreDNS. This does not create pressure or simulate training. It does not demonstrate actual scheduler ordering under contention, protection of built-in control-plane components, CoreDNS resolution latency, real metrics scrape success, log forwarding lag, node/network capacity, or production service availability.",
-  "cluster": "saf-lab-a7f4528b466b",
+  "scope": "One disposable Kind v1.36.1 cluster. A small server-side dry-run Pod request is compared before and after a namespace CPU/memory ResourceQuota; a second request at the remaining declared budget is admitted. Two case-owned PriorityClasses are read back and resolved onto dry-run Pods, with preemption disabled. One tokenless, low-resource HTTP fixture Pod is observed Ready and read through the Kubernetes API Service proxy before and after quota checks, and looks up the exact in-cluster Kubernetes Service via CoreDNS. A pinned Metrics Server provides fresh native PodMetrics samples around those probes, and read-only container logs are checked for additional fixed health requests. This does not create pressure or simulate training. It does not demonstrate actual scheduler ordering under contention, protection of built-in control-plane components, CoreDNS resolution latency, production metrics or log pipelines, log forwarding lag, node/network capacity, or production service availability.",
+  "cluster": "saf-lab-e3bfb6463924",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -38,6 +38,16 @@
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
+    {
+      "phase": "positive",
+      "claim": "Pinned Metrics Server is registered through its trusted APIService certificate",
+      "matched": true,
+      "observed": {
+        "api": "v1beta1.metrics.k8s.io",
+        "image": "registry.k8s.io/metrics-server/metrics-server@sha256:b2d2efaf5ac3b366ed0f839d2412a2c4279d4fc2a2a733f12c52133faed36c41",
+        "tls_verified": true
+      }
+    },
     {
       "phase": "positive",
       "claim": "Case-owned priority metadata declares shared service above training, without preemption",
@@ -142,6 +152,44 @@
         "priority_class_matches": true,
         "resolved_priority_matches": true,
         "pod_uid_present": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The exact steady fixture has fresh native CPU and memory PodMetrics before and after quota probes",
+      "matched": true,
+      "observed": {
+        "before": {
+          "api_read_succeeded": true,
+          "exact_podmetrics_identity": true,
+          "cpu_memory_usage_present": true,
+          "sample_fresh_within_90s": true,
+          "same_pod_uid_around_sample": true,
+          "uid_matches_original_fixture": true
+        },
+        "after": {
+          "api_read_succeeded": true,
+          "exact_podmetrics_identity": true,
+          "cpu_memory_usage_present": true,
+          "sample_fresh_within_90s": true,
+          "same_pod_uid_around_sample": true,
+          "uid_matches_original_fixture": true
+        },
+        "same_fixture_uid_across_samples": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Read-only native container logs show additional harmless health probes after quota checks",
+      "matched": true,
+      "observed": {
+        "before_read_succeeded": true,
+        "after_read_succeeded": true,
+        "health_probe_present_before": true,
+        "health_probe_present_after": true,
+        "additional_health_probe_after_quota_probes": true,
+        "same_original_pod_uid_around_both_log_reads": true,
+        "raw_log_text_retained": false
       }
     }
   ]
