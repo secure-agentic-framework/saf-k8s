@@ -39,3 +39,16 @@ The case exercises local sequencing for a synthetic model and dimension migratio
 adopted rollout, record model compatibility, embedding quality, concurrent writer coordination,
 storage and engine compatibility, staged readback and rollback evidence. Verify sanitization
 with the provider and storage owners.
+
+## Named generation retirement
+
+During migration the fixture keeps a named v1 generation on the primary PVC
+and a copy on the backup PVC. It verifies the two fixture paths, validates
+their SQLite contents, and unlinks them only after the v2 activation and
+the preserved recovery snapshot pass their separate checks. Readback
+confirms both targets are absent. The exact migrated file and the separate
+approved recovery snapshot preserve their digests and known query results.
+
+In the adopted storage system, independently inventory replicas, snapshots,
+volumes and other retained copies. Verify the applicable approved disposal
+procedure and protect designated recovery copies.

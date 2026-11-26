@@ -35,7 +35,9 @@ SCOPE = (
     "It performs an approved-source rebuild and known-query check, unlinks one named retired fixture generation, "
     "then restores the approved snapshot after replacing the primary PVC from a second case-owned PVC in the same cluster."
     " A fifth bounded check rejects an incompatible model/dimension request without changing the restored bytes, "
-    "then validates a separately pinned migration plan's staged SQLite output and known query before activation."
+    "then validates a separately pinned migration plan's staged SQLite output and known query before activation. "
+    "A sixth grouped check logically unlinks only the explicitly named obsolete source-generation copies from the "
+    "two fixture PVCs while preserving the active migrated index and approved recovery copy."
 )
 
 
@@ -199,11 +201,32 @@ def run(lab):
         and migrated["active_model_version"] == "synthetic-hash-embed-v2"
         and migrated["active_dimension"] == "2"
         and migrated["active_bytes_changed_from_source"]
+        and migrated["obsolete_generation_primary_valid"]
+        and migrated["obsolete_generation_backup_valid"]
     )
     lab.check("migration", "Incompatible migration is non-mutating and approved staged index validates before activation",
               migration_ok, {"immutable_plan_observed": plan_immutable,
                              "incompatible_request": incompatible,
                              "approved_migration": migrated})
+
+    retired_migration_generation = exec_fixture(
+        lab, "retire-obsolete-migration-generation", backup_before["backup_sha256"],
+        str(backup_before["backup_bytes"]))
+    retirement_ok = (
+        retired_migration_generation.get("retirement_performed", False)
+        and retired_migration_generation.get("obsolete_primary_absent_after", False)
+        and retired_migration_generation.get("obsolete_backup_absent_after", False)
+        and retired_migration_generation.get("active_digest_unchanged", False)
+        and retired_migration_generation.get("active_migrated_checks_pass", False)
+        and retired_migration_generation.get("active_known_query_preserved", False)
+        and retired_migration_generation.get("approved_recovery_digest_unchanged", False)
+        and retired_migration_generation.get("approved_recovery_size_unchanged", False)
+        and retired_migration_generation.get("approved_recovery_checks_pass", False)
+        and retired_migration_generation.get("approved_recovery_known_query_preserved", False)
+        and retired_migration_generation.get("logical_fixture_unlink_only", False)
+    )
+    lab.check("retirement", "Only the named obsolete generation copies are logically unlinked; migrated and recovery state remain valid",
+              retirement_ok, retired_migration_generation)
 
     (lab.evidence / "vector-index-lifecycle.json").write_text(json.dumps({
         "scope": "owned-benign-synthetic-sqlite-index",
@@ -215,4 +238,5 @@ def run(lab):
                      "backup_after": backup_after, "restore": recovery},
         "migration": {"immutable_plan_observed": plan_immutable,
                       "incompatible_request": incompatible, "approved_migration": migrated},
+        "migration_retirement": retired_migration_generation,
     }, sort_keys=True, indent=2) + "\n")

@@ -15,6 +15,8 @@ ALTERED = ROOT / "snapshot-v2-benign-altered.sqlite3"
 RETIRED = ROOT / "generation-retired.sqlite3"
 STAGED = ROOT / "activation-stage.sqlite3"
 BACKUP_APPROVED = BACKUP_ROOT / "snapshot-v1-approved.sqlite3"
+MIGRATION_OBSOLETE = ROOT / "generation-v1-obsolete.sqlite3"
+MIGRATION_OBSOLETE_BACKUP = BACKUP_ROOT / "generation-v1-obsolete.sqlite3"
 APPROVAL = Path("/approval/approved.json")
 MIGRATION_PLAN = Path("/migration/plan.json")
 MIGRATION_PLAN_SHA256 = "67a6b2276e5544aea0365fcd804e3b94b98ea0c0ce5af296044fcf9e93a80b42"
@@ -333,6 +335,65 @@ def run(command):
         return {"fixture_generation_existed": before, "fixture_generation_absent_after_unlink": not RETIRED.exists(),
                 "active_generation_preserved": metadata(ACTIVE)[0]["generation"] == "v1-approved",
                 "active_query": top_id(ACTIVE, QUERY)}
+    if command == "retire-obsolete-migration-generation":
+        expected_backup_digest, expected_backup_bytes = sys.argv[2], int(sys.argv[3])
+        # Exact fixture paths only: delete the obsolete v1 copies, never the approved recovery copy.
+        if (MIGRATION_OBSOLETE.parent != ROOT
+                or MIGRATION_OBSOLETE.name != "generation-v1-obsolete.sqlite3"
+                or MIGRATION_OBSOLETE_BACKUP.parent != BACKUP_ROOT
+                or MIGRATION_OBSOLETE_BACKUP.name != "generation-v1-obsolete.sqlite3"):
+            raise RuntimeError("obsolete_generation_retirement_path_mismatch")
+        obsolete_before = MIGRATION_OBSOLETE.is_file()
+        obsolete_backup_before = MIGRATION_OBSOLETE_BACKUP.is_file()
+        obsolete_checks = approved_check(MIGRATION_OBSOLETE) if obsolete_before else {}
+        obsolete_backup_checks = (approved_check(MIGRATION_OBSOLETE_BACKUP)
+                                  if obsolete_backup_before else {})
+        obsolete_query = top_id(MIGRATION_OBSOLETE, QUERY) if obsolete_before else None
+        obsolete_backup_query = (top_id(MIGRATION_OBSOLETE_BACKUP, QUERY)
+                                 if obsolete_backup_before else None)
+        obsolete_generation_matches = (
+            obsolete_before and obsolete_backup_before
+            and all(obsolete_checks.values()) and all(obsolete_backup_checks.values())
+            and obsolete_query == "doc-cedar" and obsolete_backup_query == "doc-cedar"
+        )
+        active_before_digest = file_sha(ACTIVE)
+        active_before_checks, active_before_query = validate_migrated(ACTIVE, migration_plan())
+        backup_before_digest = file_sha(BACKUP_APPROVED) if BACKUP_APPROVED.is_file() else None
+        backup_before_bytes = BACKUP_APPROVED.stat().st_size if BACKUP_APPROVED.is_file() else 0
+        backup_before_checks = approved_check(BACKUP_APPROVED) if BACKUP_APPROVED.is_file() else {}
+        backup_before_query = top_id(BACKUP_APPROVED, QUERY) if BACKUP_APPROVED.is_file() else None
+        recovery_copy_matches = (
+            backup_before_digest == expected_backup_digest
+            and backup_before_bytes == expected_backup_bytes
+            and all(backup_before_checks.values())
+            and backup_before_query == "doc-cedar"
+        )
+        if not (obsolete_generation_matches and all(active_before_checks.values())
+                and active_before_query == "doc-cedar" and recovery_copy_matches):
+            return {"retirement_performed": False,
+                    "obsolete_pair_present_and_valid": obsolete_generation_matches,
+                    "active_migrated_state_valid": all(active_before_checks.values()),
+                    "approved_recovery_copy_valid": recovery_copy_matches}
+        MIGRATION_OBSOLETE.unlink()
+        MIGRATION_OBSOLETE_BACKUP.unlink()
+        active_after_checks, active_after_query = validate_migrated(ACTIVE, migration_plan())
+        backup_after_digest = file_sha(BACKUP_APPROVED) if BACKUP_APPROVED.is_file() else None
+        backup_after_bytes = BACKUP_APPROVED.stat().st_size if BACKUP_APPROVED.is_file() else 0
+        backup_after_checks = approved_check(BACKUP_APPROVED) if BACKUP_APPROVED.is_file() else {}
+        backup_after_query = top_id(BACKUP_APPROVED, QUERY) if BACKUP_APPROVED.is_file() else None
+        return {
+            "retirement_performed": True,
+            "obsolete_primary_absent_after": not MIGRATION_OBSOLETE.exists(),
+            "obsolete_backup_absent_after": not MIGRATION_OBSOLETE_BACKUP.exists(),
+            "active_digest_unchanged": file_sha(ACTIVE) == active_before_digest,
+            "active_migrated_checks_pass": all(active_after_checks.values()),
+            "active_known_query_preserved": active_after_query == "doc-cedar",
+            "approved_recovery_digest_unchanged": backup_after_digest == backup_before_digest,
+            "approved_recovery_size_unchanged": backup_after_bytes == backup_before_bytes,
+            "approved_recovery_checks_pass": all(backup_after_checks.values()),
+            "approved_recovery_known_query_preserved": backup_after_query == "doc-cedar",
+            "logical_fixture_unlink_only": True,
+        }
     if command == "export-approved-to-backup":
         checks = approved_check(APPROVED)
         query = top_id(APPROVED, QUERY)
@@ -414,6 +475,20 @@ def run(command):
             return {"plan_digest_matches_pin": True, "source_checks": source_checks,
                     "staged_validation_passed": False, "activation_performed": False,
                     "active_bytes_unchanged": file_sha(ACTIVE) == before_digest}
+        # Preserve one explicit obsolete source-generation copy on each owned PVC so the
+        # separate retirement operation can prove both copies are targeted precisely.
+        BACKUP_ROOT.mkdir(parents=True, exist_ok=True)
+        snapshot(ACTIVE, MIGRATION_OBSOLETE)
+        snapshot(ACTIVE, MIGRATION_OBSOLETE_BACKUP)
+        obsolete_primary_valid = (all(approved_check(MIGRATION_OBSOLETE).values())
+                                  and top_id(MIGRATION_OBSOLETE, QUERY) == "doc-cedar")
+        obsolete_backup_valid = (all(approved_check(MIGRATION_OBSOLETE_BACKUP).values())
+                                 and top_id(MIGRATION_OBSOLETE_BACKUP, QUERY) == "doc-cedar")
+        if not (obsolete_primary_valid and obsolete_backup_valid):
+            return {"plan_digest_matches_pin": True, "source_checks": source_checks,
+                    "obsolete_generation_copies_valid": False,
+                    "staged_validation_passed": False, "activation_performed": False,
+                    "active_bytes_unchanged": file_sha(ACTIVE) == before_digest}
         transformed = transform_for_migration(docs, plan)
         target = plan["target"]
         derived_digest = corpus_digest(transformed)
@@ -447,7 +522,9 @@ def run(command):
                 "active_query_after_activation": active_query,
                 "active_model_version": metadata(ACTIVE)[0].get("model_version"),
                 "active_dimension": metadata(ACTIVE)[0].get("dimension"),
-                "active_bytes_changed_from_source": file_sha(ACTIVE) != before_digest}
+                "active_bytes_changed_from_source": file_sha(ACTIVE) != before_digest,
+                "obsolete_generation_primary_valid": obsolete_primary_valid,
+                "obsolete_generation_backup_valid": obsolete_backup_valid}
     raise ValueError("unknown fixture operation")
 
 

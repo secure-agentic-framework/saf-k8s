@@ -4,8 +4,8 @@
   "catalog_sha256": "e21df5ef6d7be8d3be548d48d3650f2dfc630a3e395f036b3e3eb0533fc68fe4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "5487b62ecd7e7c3558d508cd31452ff835470db576ec8dc9a315a1ac9ac2405d",
-  "scope": "A temporary Kind pod stores an owned synthetic vector index in SQLite on a PVC. The case creates a versioned approved snapshot and a benign altered snapshot, observes an unsafe activation fail the known-vector query, then verifies activation blocking against separately mounted approved metadata while preserving the live index. The snapshot persists across Pod replacement. It performs an approved-source rebuild and known-query check, unlinks one named retired fixture generation, then restores the approved snapshot after replacing the primary PVC from a second case-owned PVC in the same cluster. A fifth bounded check rejects an incompatible model/dimension request without changing the restored bytes, then validates a separately pinned migration plan's staged SQLite output and known query before activation.",
-  "cluster": "saf-lab-d7ed3ae8c9fd",
+  "scope": "A temporary Kind pod stores an owned synthetic vector index in SQLite on a PVC. The case creates a versioned approved snapshot and a benign altered snapshot, observes an unsafe activation fail the known-vector query, then verifies activation blocking against separately mounted approved metadata while preserving the live index. The snapshot persists across Pod replacement. It performs an approved-source rebuild and known-query check, unlinks one named retired fixture generation, then restores the approved snapshot after replacing the primary PVC from a second case-owned PVC in the same cluster. A fifth bounded check rejects an incompatible model/dimension request without changing the restored bytes, then validates a separately pinned migration plan's staged SQLite output and known query before activation. A sixth grouped check logically unlinks only the explicitly named obsolete source-generation copies from the two fixture PVCs while preserving the active migrated index and approved recovery copy.",
+  "cluster": "saf-lab-1c858a1c9e02",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -232,6 +232,8 @@
           "active_model_version": "synthetic-hash-embed-v2",
           "active_query_after_activation": "doc-cedar",
           "derived_target_digest_matches_plan": true,
+          "obsolete_generation_backup_valid": true,
+          "obsolete_generation_primary_valid": true,
           "plan_digest_matches_pin": true,
           "source_checks": {
             "content_digest_matches": true,
@@ -251,6 +253,24 @@
           "staged_query_before_activation": "doc-cedar",
           "staged_validation_passed": true
         }
+      }
+    },
+    {
+      "phase": "retirement",
+      "claim": "Only the named obsolete generation copies are logically unlinked; migrated and recovery state remain valid",
+      "matched": true,
+      "observed": {
+        "active_digest_unchanged": true,
+        "active_known_query_preserved": true,
+        "active_migrated_checks_pass": true,
+        "approved_recovery_checks_pass": true,
+        "approved_recovery_digest_unchanged": true,
+        "approved_recovery_known_query_preserved": true,
+        "approved_recovery_size_unchanged": true,
+        "logical_fixture_unlink_only": true,
+        "obsolete_backup_absent_after": true,
+        "obsolete_primary_absent_after": true,
+        "retirement_performed": true
       }
     }
   ]
