@@ -20,4 +20,4 @@ The response is performed by a real in-cluster process presenting its projected 
 
 This proves a Kubernetes-native reference event evaluator and one bounded Job-suspension response. It does not connect to a provider billing feed, measure actual spend, enforce GPU/node-group ceilings, prove invoice semantics, or validate a deployed controller's operation. Actual provider event authentication, account/project scope, budget threshold semantics, freshness/missing-event behavior, response permissions, notification, rollback, and provider compute limits remain adopter verification in an approved nonproduction account.
 
-The six checks use pinned BusyBox and Python images and case-owned Kubernetes resources.
+The seventh check admits one scheduling-gated Pod with an extended resource request, then refuses the next request under the namespace quota. No device is allocated. All checks use pinned images and case-owned resources.

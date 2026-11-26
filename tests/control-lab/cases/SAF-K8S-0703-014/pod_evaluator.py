@@ -5,6 +5,8 @@ import json
 import time
 from pathlib import Path
 
+from fixtures import BUSYBOX_IMAGE
+
 
 HERE = Path(__file__).resolve().parent
 NAMESPACE = "saf-budget-0703-014"
@@ -245,3 +247,45 @@ def run(lab):
          "owned_pods": len(pods(lab, MANAGED_JOB)),
          "unrelated_active": len(pods(lab, OTHER_JOB)) == 1},
     )
+    verify_device_request_cap(lab)
+
+def verify_device_request_cap(lab):
+    device = "nvidia.com/gpu"
+    quota_resource = f"requests.{device}"
+    quota_name = "saf-fixture-device-requests"
+    create(lab, "v1", "ResourceQuota", quota_name, spec={"hard": {quota_resource: "1"}})
+    wait_for(lab, lambda: read(lab, "resourcequota", quota_name).get("status", {}).get(
+                 "hard", {}).get(quota_resource) == "1", "active extended resource quota")
+
+    def pod_request(name):
+        return {"apiVersion": "v1", "kind": "Pod",
+                "metadata": {"name": name, "namespace": NAMESPACE},
+                "spec": {"automountServiceAccountToken": False, "restartPolicy": "Never",
+                         "schedulingGates": [{"name": "saf-lab.example/device-request-only"}],
+                         "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
+                                             "seccompProfile": {"type": "RuntimeDefault"}},
+                         "containers": [{"name": "inert", "image": BUSYBOX_IMAGE,
+                                         "command": ["true"],
+                                         "resources": {"requests": {device: "1"}, "limits": {device: "1"}},
+                                         "securityContext": {"allowPrivilegeEscalation": False,
+                                                             "capabilities": {"drop": ["ALL"]}}}]}}
+
+    first_name, excess_name = "first-device-declaration", "excess-device-declaration"
+    lab.kubectl("-n", NAMESPACE, "create", "-f", "-", payload=json.dumps(pod_request(first_name)))
+    wait_for(lab, lambda: read(lab, "resourcequota", quota_name).get("status", {}).get(
+                 "used", {}).get(quota_resource) == "1", "accounted device request")
+    denied = lab.kubectl("-n", NAMESPACE, "create", "-f", "-", "--dry-run=server",
+                        payload=json.dumps(pod_request(excess_name)), allow_failure=True)
+    first = read(lab, "pod", first_name)
+    missing = lab.kubectl("-n", NAMESPACE, "get", "pod", excess_name, "--ignore-not-found")
+    resources = first["spec"]["containers"][0]["resources"]
+    state = {
+        "first_exact_request_persisted": resources.get("requests", {}).get(device) == "1",
+        "first_unscheduled": not first["spec"].get("nodeName") and bool(first["spec"].get("schedulingGates")),
+        "second_refused_by_exact_quota": denied.returncode != 0 and "exceeded quota:" in denied.stderr
+                                        and quota_name in denied.stderr and quota_resource in denied.stderr,
+        "second_object_absent": missing.stdout.strip() == "",
+        "one_request_counted": read(lab, "resourcequota", quota_name)["status"]["used"].get(quota_resource) == "1",
+    }
+    lab.check("green", "Native admission enforces the exact namespace accelerator request quota",
+              all(state.values()), state)
