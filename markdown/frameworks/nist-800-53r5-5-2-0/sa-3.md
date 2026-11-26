@@ -5,20 +5,9 @@
 
 ## Mapping Notes
 
-SDLC for agentic AI must integrate security at every phase including model training and deployment
-
-6.6 - CNCF lifecycle security (Develop-Distribute-Deploy); 10.4 - SSDF v1.1 alignment for SDLC
+For a selected governed Kubernetes delivery path, enforce and retain decisions at the defined Develop, Distribute, and Deploy checkpoints for the same artifact; assess Runtime separately. This is partial implementation evidence for lifecycle security checkpoints and does not establish the full SA-3 system development life cycle, roles, responsibilities, or risk-management integration.
 
 ## SAF-K8S Controls
-
-### [SAF-K8S-0606-007 - CI/CD build activity monitoring](../../controls/SAF-K8S-0606-007.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.6
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
 
 ### [SAF-K8S-0606-017 - CNCF lifecycle phase security coverage](../../controls/SAF-K8S-0606-017.md)
 

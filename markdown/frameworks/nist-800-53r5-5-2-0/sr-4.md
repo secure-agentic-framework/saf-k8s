@@ -5,20 +5,9 @@
 
 ## Mapping Notes
 
-Provenance tracking for AI models, training data, and agent tools verifies origin and integrity
-
-6.3 - SLSA provenance, in-toto attestations; 9.5 - Model signing and provenance; 6.6 - Build attestation per NIST SP 800-204D
+The control contributes one handoff record linking the authenticated producer/observer identity, artifact digest, signed evidence and receiving decision. It does not establish end-to-end provenance for AI models, training data, tools, dependencies, or all lifecycle stages. NIST SP 800-53 Rev. 5 SR-4 concerns documenting, monitoring and maintaining provenance of systems and system components; retain this conditional contribution only where this handoff is incorporated into that provenance record.
 
 ## SAF-K8S Controls
-
-### [SAF-K8S-0606-007 - CI/CD build activity monitoring](../../controls/SAF-K8S-0606-007.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.6
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
 
 ### [SAF-K8S-0606-018 - Zero-trust CI/CD handoff verification and independent evidence generation](../../controls/SAF-K8S-0606-018.md)
 

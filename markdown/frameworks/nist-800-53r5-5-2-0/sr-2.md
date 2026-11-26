@@ -11,15 +11,6 @@ SCRM plan for agentic AI addresses model provenance, tool integrity, and vendor 
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0606-007 - CI/CD build activity monitoring](../../controls/SAF-K8S-0606-007.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.6
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0904-001 - Pipeline orchestrator hardening](../../controls/SAF-K8S-0904-001.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines

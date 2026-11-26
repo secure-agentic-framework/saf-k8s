@@ -11,15 +11,6 @@ Supply chain risk management policy governs AI model, tool, and plugin acquisiti
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0606-007 - CI/CD build activity monitoring](../../controls/SAF-K8S-0606-007.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.6
-- Relation Type: supports
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-1006-001 - Regulatory compliance mapping for Kubernetes AI platforms](../../controls/SAF-K8S-1006-001.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
