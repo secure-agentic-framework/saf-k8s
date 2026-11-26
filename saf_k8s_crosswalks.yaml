@@ -35839,12 +35839,12 @@
   framework_version: '1.1'
   framework_requirement_id: PW.4.1
   framework_requirement_title: Acquire and maintain well-secured software components from commercial, open-source, and other third-party developers.
-  framework_mapping_notes: NIST SP 800-218 PW.4.1 calls for acquiring and maintaining well-secured third-party software components. This control supplies a limited preapproval/quarantine workflow contribution for externally sourced model packages only when the organization treats the relevant artifact as a software component. Its retained case accepts synthetic metadata and scan-decision records, not model bytes, and does not establish component security, provenance, vulnerability analysis, or maintenance. Actual artifact scanning, approved source inventory, provenance, and update maintenance remain adopter evidence.
+  framework_mapping_notes: The quarantine and digest-bound scan handoff contribute to vetting an in-scope third-party component under PW.4.1. The case inspects actual fixed inert artifact bytes with a limited format and marker check. Verify real malware and format detector coverage, approved sources, component assurance, provenance, inventory and update maintenance for the adopted components.
   control_id: SAF-K8S-0905-044
   relation_type: supports
   strength_level: moderate
   applicability: conditional
-  applicability_condition: Only when the acquired public model package or accompanying plugin/code is treated as a third-party software component within the organization SSDF scope and the actual artifact is bound to the intake scan record. Current portable evidence is metadata-only and does not inspect an artifact.
+  applicability_condition: When the acquired package or its accompanying plugin or code falls in the adopter’s third-party software scope and the approved intake process binds the checked artifact to its recorded scan. The reference binds the digest of one inert JSON fixture to the observed format and marker check and to the released record.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-SSDF
