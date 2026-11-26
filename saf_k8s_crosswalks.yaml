@@ -14932,16 +14932,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-8
   framework_requirement_title: System Component Inventory
-  framework_mapping_notes: 'Inventory of agent components (models, tools, plugins)
-
-
-    10.7 - AI infrastructure asset inventory (models, datasets, pipelines, inference endpoints, GPU allocations)'
+  framework_mapping_notes: Can contribute origin, immutable digest, internalization event and registry-location fields for an in-scope model artifact. It does not inventory all system components or establish organization-wide inventory completeness or update cadence.
   control_id: SAF-K8S-0905-059
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only when the organization defines model artifacts as components within the relevant system inventory and reconciles the lineage record to that inventory. The reference case records one synthetic artifact; it does not establish a complete or maintained inventory.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -36128,16 +36125,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SR-4(2)
   framework_requirement_title: Track and Trace
-  framework_mapping_notes: 'Track and trace of AI model and tool artifacts through the supply chain
-
-
-    9.6 - Training data provenance tracking (lineage from ingestion to training); 10.2 - Distributed tracing for ML pipelines'
+  framework_mapping_notes: The case demonstrates one OCI manifest digest carried into a lineage attachment and read back from the internal registry. It does not demonstrate unique identification across a real supply chain, training-data lineage, or distributed pipeline tracing.
   control_id: SAF-K8S-0905-059
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: When the selected model is an organization-defined critical system component and the origin and internal repository identities are authenticated and retained. The fixture's source URI and approval reference are synthetic values.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -36344,16 +36338,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SR-4(4)
   framework_requirement_title: Supply Chain Integrity -- Pedigree
-  framework_mapping_notes: 'Supply chain pedigree for AI models documents complete chain of custody
-
-
-    9.5 - ML-BOM (training data lineage, framework versions, training infrastructure identity); 6.4 - ML-BOM generation'
+  framework_mapping_notes: The case demonstrates digest-bound lineage metadata and registry readback for a synthetic model. It does not validate genuine model composition, scanner effectiveness, a complete pedigree, ML-BOM contents, training environment identity, or authoritative provenance.
   control_id: SAF-K8S-0905-059
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only where the organization selects these model artifacts and the actual source, scan, approval, internalization and registry records are independently attributable and bound to the same digest. This reference uses a local JSON-shape check and synthetic approval/date fields.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5

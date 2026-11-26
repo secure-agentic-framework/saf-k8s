@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Inventory of agent components (models, tools, plugins)
-
-10.7 - AI infrastructure asset inventory (models, datasets, pipelines, inference endpoints, GPU allocations)
+Can contribute origin, immutable digest, internalization event and registry-location fields for an in-scope model artifact. It does not inventory all system components or establish organization-wide inventory completeness or update cadence.
 
 ## SAF-K8S Controls
 
@@ -16,9 +14,9 @@ Inventory of agent components (models, tools, plugins)
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1007-004 - Continuous security posture management for AI clusters](../../controls/SAF-K8S-1007-004.md)
 
