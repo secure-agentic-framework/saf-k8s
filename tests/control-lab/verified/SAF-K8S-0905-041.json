@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-041",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "6ba1085b632d37fd8cb095d833cafd1fcf75a271",
+  "catalog_sha256": "99dfcf4e7690631de3a5a538c5e0434405de93779ba25e0e5ce0cff09d9d7f38",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6770e418486a532ccff9a3942c34ee0b2db57981d3937e106cdd3dc407da8c0a",
-  "scope": "A disposable Kind cluster runs a case-owned monitor after the normalized forwarded-event boundary. Fixed registry events exercise sensitive-operation rules, a reported anomalous pull, source-label validation, out-of-scope handling and replay deduplication. Kubernetes RBAC restricts writing the named analyst disposition. Provider event completeness, real anomaly detection, durable SIEM storage, analyst response and production roles require separate evidence.",
-  "cluster": "saf-lab-cea197b49aed",
+  "scope": "A disposable Kind cluster runs a case-owned monitor against fixed normalized events and one actual Zot v2.1.23 native audit event for a case-owned empty OCI marker. It evaluates bounded sensitive-operation and supplied anomaly rules, rejects wrong source labels, suppresses replay duplicates, and sends alert projections to an unauthenticated case-local HTTP receiver. Kubernetes RBAC restricts writing one named analyst disposition. This does not establish authenticated production event forwarding, provider completeness beyond this one Zot operation, general anomaly detection, named human notification/response, durable SIEM retention, or other registry provider behavior.",
+  "cluster": "saf-lab-2a71272af710",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -204,6 +204,191 @@
       "observed": {
         "alert_id": "alert-audit-003",
         "disposition": "reviewed-benign-fixture"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "One actual Zot audit publish maps to a routed case-local alert; quiet events stay absent and replay does not redeliver",
+      "matched": true,
+      "observed": {
+        "native_zot_source": {
+          "probe": {
+            "create_status": 201,
+            "manifest_digest_matches": true,
+            "payload_kind": "empty-config-no-layers",
+            "pull_status": 200
+          },
+          "matched_native_audit_rows": 1,
+          "method": "PUT",
+          "path_matches": true,
+          "status": 201,
+          "actor_matches": true,
+          "source_event_id": "zot-f77fc5dde78bba47a709",
+          "raw_event_recorded": false,
+          "credential_values_recorded": false
+        },
+        "receiver_before_zot": {
+          "alert_ids": [
+            "alert-audit-001",
+            "alert-audit-003",
+            "alert-audit-004",
+            "alert-audit-005",
+            "alert-audit-006"
+          ],
+          "duplicates": 0,
+          "events": [
+            "audit-001",
+            "audit-003",
+            "audit-004",
+            "audit-005",
+            "audit-006"
+          ],
+          "records": [
+            {
+              "actor": "fixture-publisher",
+              "alert_id": "alert-audit-001",
+              "event_id": "audit-001",
+              "repository": "saf-test/model-a",
+              "rule": "sensitive-publish"
+            },
+            {
+              "actor": "fixture-reader",
+              "alert_id": "alert-audit-003",
+              "event_id": "audit-003",
+              "repository": "saf-test/model-a",
+              "rule": "anomalous-pull"
+            },
+            {
+              "actor": "fixture-maintainer",
+              "alert_id": "alert-audit-004",
+              "event_id": "audit-004",
+              "repository": "saf-test/model-a",
+              "rule": "sensitive-delete"
+            },
+            {
+              "actor": "fixture-maintainer",
+              "alert_id": "alert-audit-005",
+              "event_id": "audit-005",
+              "repository": "saf-test/model-a",
+              "rule": "sensitive-permission-change"
+            },
+            {
+              "actor": "fixture-admin",
+              "alert_id": "alert-audit-006",
+              "event_id": "audit-006",
+              "repository": "saf-test/model-a",
+              "rule": "sensitive-administration"
+            }
+          ],
+          "rules": [
+            "anomalous-pull",
+            "sensitive-administration",
+            "sensitive-delete",
+            "sensitive-permission-change",
+            "sensitive-publish"
+          ],
+          "status": 200
+        },
+        "receiver_after_zot": {
+          "alert_ids": [
+            "alert-audit-001",
+            "alert-audit-003",
+            "alert-audit-004",
+            "alert-audit-005",
+            "alert-audit-006",
+            "alert-zot-f77fc5dde78bba47a709"
+          ],
+          "duplicates": 0,
+          "events": [
+            "audit-001",
+            "audit-003",
+            "audit-004",
+            "audit-005",
+            "audit-006",
+            "zot-f77fc5dde78bba47a709"
+          ],
+          "records": [
+            {
+              "actor": "fixture-publisher",
+              "alert_id": "alert-audit-001",
+              "event_id": "audit-001",
+              "repository": "saf-test/model-a",
+              "rule": "sensitive-publish"
+            },
+            {
+              "actor": "fixture-reader",
+              "alert_id": "alert-audit-003",
+              "event_id": "audit-003",
+              "repository": "saf-test/model-a",
+              "rule": "anomalous-pull"
+            },
+            {
+              "actor": "fixture-maintainer",
+              "alert_id": "alert-audit-004",
+              "event_id": "audit-004",
+              "repository": "saf-test/model-a",
+              "rule": "sensitive-delete"
+            },
+            {
+              "actor": "fixture-maintainer",
+              "alert_id": "alert-audit-005",
+              "event_id": "audit-005",
+              "repository": "saf-test/model-a",
+              "rule": "sensitive-permission-change"
+            },
+            {
+              "actor": "fixture-admin",
+              "alert_id": "alert-audit-006",
+              "event_id": "audit-006",
+              "repository": "saf-test/model-a",
+              "rule": "sensitive-administration"
+            },
+            {
+              "actor": "fixture-publisher",
+              "alert_id": "alert-zot-f77fc5dde78bba47a709",
+              "event_id": "zot-f77fc5dde78bba47a709",
+              "repository": "saf-test/model-a",
+              "rule": "sensitive-publish"
+            }
+          ],
+          "rules": [
+            "anomalous-pull",
+            "sensitive-administration",
+            "sensitive-delete",
+            "sensitive-permission-change",
+            "sensitive-publish",
+            "sensitive-publish"
+          ],
+          "status": 200
+        },
+        "forwarded": {
+          "alert_ids": [
+            "alert-audit-001",
+            "alert-audit-003",
+            "alert-audit-004",
+            "alert-audit-005",
+            "alert-audit-006",
+            "alert-zot-f77fc5dde78bba47a709"
+          ],
+          "duplicate_count": 8,
+          "event_count": 9,
+          "status": 201
+        },
+        "forwarded_replay": {
+          "alert_ids": [
+            "alert-audit-001",
+            "alert-audit-003",
+            "alert-audit-004",
+            "alert-audit-005",
+            "alert-audit-006",
+            "alert-zot-f77fc5dde78bba47a709"
+          ],
+          "duplicate_count": 9,
+          "event_count": 9,
+          "status": 201
+        },
+        "ordinary_and_out_of_scope_events_delivered": false,
+        "external_alerts_sent": false
       }
     }
   ]

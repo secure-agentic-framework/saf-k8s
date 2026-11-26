@@ -3,12 +3,26 @@ import hashlib
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 from pathlib import Path
+from urllib.request import Request, urlopen
 
 STORE = Path("/state/audit-events.json")
 SOURCE = "fixture-forwarded-normalized-audit"
 ACTIONS = {"PUT": "publish", "GET": "pull", "DELETE": "delete",
            "PATCH": "permission-change", "POST": "administration"}
 SENSITIVE = {"publish", "delete", "permission-change", "administration"}
+ALERT_RECEIVER = "http://audit-alert-receiver:8090/alerts"
+
+
+def deliver_alert(alert):
+    body = json.dumps(alert, sort_keys=True, separators=(",", ":")).encode()
+    request = Request(ALERT_RECEIVER, data=body,
+                      headers={"Content-Type": "application/json"}, method="POST")
+    try:
+        with urlopen(request, timeout=3) as response:
+            if response.status not in (200, 201):
+                raise RuntimeError("alert receiver refused fixture alert")
+    except Exception as exc:
+        raise RuntimeError("case-owned alert route unavailable") from exc
 
 
 def summarize(state):
@@ -44,6 +58,9 @@ def apply_batch(state, events, *, enforce):
             state["quiet"].append(identity)
         else:
             alert_id = "alert-" + identity
+            alert = {"alert_id": alert_id, "event_id": identity, "rule": rule,
+                     "actor": event["actor"], "repository": event["repository"]}
+            deliver_alert(alert)
             state["alerts"][alert_id] = {"event_id": identity, "rule": rule,
                                          "actor": event["actor"], "repository": event["repository"]}
 
@@ -51,8 +68,10 @@ def apply_batch(state, events, *, enforce):
 def valid_event(event):
     fields = ("event_id", "source", "provider", "provider_action",
               "normalized_action", "repository", "actor", "classification")
+    source_provider_pairs = {(SOURCE, "zot-fixture"),
+                             ("zot-native-audit", "zot-v2.1.23")}
     return (isinstance(event, dict) and all(isinstance(event.get(key), str) and event[key] for key in fields)
-            and event["source"] == SOURCE and event["provider"] == "zot-fixture"
+            and (event["source"], event["provider"]) in source_provider_pairs
             and ACTIONS.get(event["provider_action"]) == event["normalized_action"])
 
 
@@ -95,6 +114,8 @@ class Handler(BaseHTTPRequestHandler):
             apply_batch(current, events, enforce=phase == "enforce")
         except ValueError:
             return self.reply(409, {"error": "event-id-conflict"})
+        except RuntimeError:
+            return self.reply(503, {"error": "case-alert-route-unavailable"})
         temp = STORE.with_suffix(".tmp")
         temp.write_text(json.dumps(state, sort_keys=True))
         temp.replace(STORE)
