@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0910-031",
-  "catalog_revision": "5c35dd2a43235883edfca56e842a56e15209008d",
-  "catalog_sha256": "f90c94c673d20660168dfaa86a14af064fc386b44cfe4af6b5263d264c1e59b3",
+  "catalog_revision": "e3890a1381f3b529bfd1179b04e160b9818af7b1",
+  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "1cf561c57021f48af19895369e3fa4f0b8ef674634000f3b2b19b2cfe66f5166",
-  "scope": "An owned source Kind API server and a second owned peer Kind API server host a source registry and two fixed candidate destination registries. The same source-to-approved-destination pair first transfers the inert artifact through an open baseline. After destination reset, the governed copier reads an enrollment record from the source Kubernetes API and compares both exact endpoint strings. A distinct approver account is the only principal allowed to write that record. Separate scoped source and destination endpoint-owner identities publish exact fixture claims before activation; a separate observer verifies those records and the Distribution manifest digest. This does not validate third-party endpoint ownership.",
-  "cluster": "saf-lab-df54d7c86c45",
+  "scope": "An owned source Kind API server and a second owned peer Kind API server host a source registry and two fixed candidate destination registries. The same source-to-approved-destination pair first transfers the inert artifact through an open baseline. After destination reset, the governed copier reads enrollment records from the source Kubernetes API and compares the exact endpoint pair. A peer-cluster ServiceAccount with get access to only the approved destination Service provides a current UID observation over a case-owned TLS endpoint. A separate approver binds that UID to the pair; replacing the Service invalidates the approval until refreshed. This tests one governed copier path, not third-party endpoint ownership or all replication routes.",
+  "cluster": "saf-lab-08ad800a2aaf",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -77,6 +77,18 @@
       "observed": {
         "enroller_submitted_and_distinct_approver_approved_exact_pair": true,
         "trusted_pair_allows_real_distribution_transfer": true
+      }
+    },
+    {
+      "phase": "peer-binding",
+      "claim": "Peer workload identity and current Service UID gate destination reactivation",
+      "matched": true,
+      "observed": {
+        "peer_workload_read_exact_service_and_refused_other_service": true,
+        "same_registry_endpoint_now_has_a_new_peer_api_uid": true,
+        "old_uid_approval_denied_without_registry_write": true,
+        "fresh_peer_observation_requires_new_approval": true,
+        "refreshed_peer_approval_allows_expected_inert_transfer": true
       }
     }
   ]

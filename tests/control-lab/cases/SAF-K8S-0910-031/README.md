@@ -1,28 +1,19 @@
-# SAF-K8S-0910-031 initial registry endpoint approval
+# SAF-K8S-0910-031 — Peer registry endpoint ownership and enrollment
 
-Run `python3 lab.py test SAF-K8S-0910-031` from the lab directory.
+The case covers five checks, including one grouped `peer-binding` check. Run `python3 tests/control-lab/lab.py test SAF-K8S-0910-031 --docker-context desktop-linux` from the framework checkout. The runner provisions two isolated Kind v1.36.1 clusters and cleans up both.
 
-A case-owned source transfers an inert OCI image to a real peer Distribution
-registry before the enrollment gate. After resetting that disposable
-destination, the governed path refuses a missing approval, a different
-approved source, and a different approved destination. Kubernetes RBAC
-refuses the requester's attempt to write the approval. The separate approver
-then grants the exact pair, and the observer reads back the approved manifest
-and blobs. The case covers initial enrollment of one fixture pair.
+The preserved checks cover the open baseline transfer, missing and mismatched pair approval, a requester's denied approval write, source/destination claim separation, the wrong-Service-UID claim, and a successful exact-pair transfer/readback for one inert OCI artifact.
 
-- [Kubernetes RBAC named resource rules](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#referring-to-resources)
-- [OCI Distribution Specification](https://github.com/opencontainers/distribution-spec/blob/v1.1.1/spec.md)
+## Peer binding check
 
-## Owner claims before activation
+The new peer verifier runs in the owned destination Kind cluster under `fixture-destination-endpoint-owner`. Its namespaced Role permits `get` only on `fixture-enrollment-approved`; the verifier also confirms that reading the unapproved registry Service is denied. It reads the approved Service through its own projected Kubernetes token, checks its actual UID and NodePort, and serves that bounded observation over HTTPS using a case-generated certificate. The separate source-cluster `fixture-destination-claim-writer` can write only the source enrollment claim; it obtains the claim value from that TLS-verified peer observation and is not treated as the peer identity. Source-side actors pin the temporary CA and connect to the exact private peer NodePort with a checked DNS SAN.
 
-The source and destination owners each publish a claim for the selected
-endpoint and live Service UID using their separately scoped Kubernetes
-identity. An exact pair approval with missing owner claims leaves the
-destination empty. A valid owner claim bound to a different Service UID
-also leaves the destination empty. The request author cannot change an owner
-claim. After both correct claims and the independent approval are present,
-the local Distribution transfer produces the exact inert manifest and blobs.
+The enroller submits that live endpoint and UID as a separate request. The approver writes a separate approval record, then activates an immutable case policy latch. The fixture verifies a later disable attempt is rejected and the latch remains enabled. After that transition, the existing `governed-copy-approved` operation uses the peer UID gate and fails closed if the policy state is unreadable. The copier fetches the peer observation immediately before copying. The check then deletes and recreates only the approved inert registry Service with the same endpoint/NodePort and a new Kubernetes UID. The old claim/approval must fail before the destination receives a manifest. A fresh peer read, new request, and new approval must permit the same governed copier path to transfer the inert artifact and produce an exact observer readback.
 
-For an adoption, verify real endpoint ownership or the authorized tenant,
-protected claim and reviewer history, alternate transfer paths, and rollback,
-revocation, and destination-content evidence.
+This binds the endpoint observation to a case-owned peer-cluster API subject for the local reference. The ephemeral TLS certificate is provisioned into the exact verifier Pod, not issued by Kubernetes or a production workload identity provider; the binding therefore assumes the peer namespace's Pod creation and Secret-mount authority are protected. This does not establish ownership of third-party registries or prove every replication client is forced through the governed copier. The existing registries remain available as owned fixture services; the added result covers the copier path only. The source Service UID remains part of the original fixture's runner-supplied snapshot and is not refreshed by this delta. Actual client inventory, endpoint-owner authority, reviewer history, account governance, external registry TLS/authentication, and durable approval evidence remain adopter checks.
+
+## Secret handling and runtime
+
+The peer TLS private key is generated in a temporary directory, written into a mode-0600 temporary Secret manifest, and passed to kubectl by file path; the manifest and generated private files are removed after fixture setup. The Secret is not read back. The peer pod reads its own projected token from disk to call its Kubernetes API but never emits it. Stable check output contains only booleans and a deterministic artifact digest; API tokens, key material, dynamic UID values and registry response bodies are not included in normalized result evidence.
+
+The local source-to-peer route stays on the owned private Kind bridge. The TLS certificate is an ephemeral fixture trust root, not production issuer provenance. Runtime execution requires the ordinary isolated lab runner, its `fixtures` module, the pinned `SAF-K8S-0908-001` runtime helper beside this case in a staged `cases/` tree, the pinned Distribution image, and the pinned v1.36.1 Kind node image. The case uses its local `peer_activation.py` and `owned_peer.py` helpers.

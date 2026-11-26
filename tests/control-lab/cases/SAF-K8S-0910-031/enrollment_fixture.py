@@ -21,6 +21,9 @@ APPROVAL = "/api/v1/namespaces/saf-test/configmaps/fixture-endpoint-enrollment-a
 REQUEST = "/api/v1/namespaces/saf-test/configmaps/fixture-endpoint-enrollment-request"
 SOURCE_CLAIM = "/api/v1/namespaces/saf-test/configmaps/fixture-source-owner-claim"
 DESTINATION_CLAIM = "/api/v1/namespaces/saf-test/configmaps/fixture-destination-owner-claim"
+PEER_REQUEST = "/api/v1/namespaces/saf-test/configmaps/fixture-peer-service-request"
+PEER_APPROVAL = "/api/v1/namespaces/saf-test/configmaps/fixture-peer-service-approval"
+PEER_POLICY = "/api/v1/namespaces/saf-test/configmaps/fixture-peer-service-policy"
 REPOSITORY = "fixtures/saf-endpoint-enrollment"
 TAG = "inert-v1"
 MEDIA_TYPE = "application/vnd.docker.distribution.manifest.v2+json"
@@ -95,11 +98,12 @@ def _endpoint(url, values):
     return parsed
 
 
-def _registry(url, method, path, values, body=None, headers=None):
+def _registry(url, method, path, values, body=None, headers=None, timeout=8):
     parsed = _endpoint(url, values)
     if not path.startswith("/v2/") or ".." in PurePosixPath(path).parts:
         raise ValueError("Request is outside the fixed Distribution API")
-    connection = HTTPConnection(parsed.hostname, parsed.port, timeout=8)
+    request_timeout = timeout() if callable(timeout) else timeout
+    connection = HTTPConnection(parsed.hostname, parsed.port, timeout=request_timeout)
     try:
         connection.request(method, path, body=body,
                            headers={"Host": parsed.netloc, **(headers or {})})
@@ -193,13 +197,14 @@ def _copy(source, destination, values):
     return {"decision": "baseline-written", "digest": MANIFEST_DIGEST}
 
 
-def _observed(url, values):
+def _observed(url, values, timeout=8):
     status, data, headers = _registry(
         url, "GET", f"/v2/{REPOSITORY}/manifests/{TAG}", values,
-        headers={"Accept": MEDIA_TYPE})
+        headers={"Accept": MEDIA_TYPE}, timeout=timeout)
     if status == 404:
         refs = (f"manifests/{MANIFEST_DIGEST}", f"blobs/{CONFIG_DIGEST}", f"blobs/{LAYER_DIGEST}")
-        if any(_registry(url, "GET", f"/v2/{REPOSITORY}/{ref}", values)[0] != 404 for ref in refs):
+        if any(_registry(url, "GET", f"/v2/{REPOSITORY}/{ref}", values,
+                         timeout=timeout)[0] != 404 for ref in refs):
             raise RuntimeError("Destination unexpectedly contains untagged fixture content")
         return {"digest": None, "status": 404}
     digest = _digest(data)
@@ -207,10 +212,41 @@ def _observed(url, values):
     if status != 200 or digest != advertised:
         raise RuntimeError("Observer readback returned an invalid manifest digest")
     for blob_digest, expected in ((CONFIG_DIGEST, CONFIG), (LAYER_DIGEST, LAYER)):
-        blob_status, blob, _ = _registry(url, "GET", f"/v2/{REPOSITORY}/blobs/{blob_digest}", values)
+        blob_status, blob, _ = _registry(url, "GET", f"/v2/{REPOSITORY}/blobs/{blob_digest}",
+                                         values, timeout=timeout)
         if blob_status != 200 or blob != expected or _digest(blob) != blob_digest:
             raise RuntimeError("Observer could not verify the transferred config and layer blobs")
     return {"digest": digest, "status": 200}
+
+
+def _observe_recreated_approved(values):
+    """Readiness-gated, read-only check for the recreated approved registry."""
+    url = values["approved"]
+    deadline = time.monotonic() + 12
+    last_v2_status = None
+
+    def remaining_timeout():
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError("Recreated destination observation deadline expired")
+        return min(2.0, remaining)
+
+    while time.monotonic() < deadline:
+        try:
+            # Require the exact recreated endpoint to answer its harmless Distribution
+            # API ping, then verify that its known fixture references remain absent.
+            status, _, _ = _registry(url, "GET", "/v2/", values,
+                                     timeout=remaining_timeout)
+            last_v2_status = status
+            if status == 200:
+                return {**_observed(url, values, timeout=remaining_timeout),
+                        "registry_v2_status": status}
+        except (ConnectionRefusedError, ConnectionResetError, TimeoutError):
+            # NodePort forwarding can lag Pod readiness briefly after Service replacement.
+            # This loop only retries bounded GET observations; it never repeats a write.
+            pass
+        time.sleep(0.2)
+    return {"digest": None, "status": None, "registry_v2_status": last_v2_status}
 
 
 def _approve(pair):
@@ -233,7 +269,135 @@ def _owner_claim(path):
     return json.loads(raw) if raw else None
 
 
+def _peer_snapshot():
+    """Fetch one current peer Service observation over pinned local TLS."""
+    host = os.environ["PEER_OWNER_HOST"]
+    port = int(os.environ["PEER_OWNER_PORT"])
+    context = ssl.create_default_context(cafile="/peer-owner/ca.crt")
+    connection = HTTPSConnection(host, port, context=context, timeout=6)
+    try:
+        connection.request("GET", "/snapshot", headers={"Accept": "application/json"})
+        response = connection.getresponse()
+        data = response.read(2048)
+        if len(data) > 2048 or response.status != 200:
+            return None
+        value = json.loads(data)
+        expected = {"decision": "peer-service-current", "read_exact_service_allowed": True,
+                    "unapproved_service_read_denied": True}
+        if any(value.get(key) != required for key, required in expected.items()):
+            return None
+        if (value.get("endpoint") not in endpoints().values()
+                or not isinstance(value.get("service_uid"), str)
+                or not value["service_uid"]):
+            return None
+        return {"endpoint": value["endpoint"], "service_uid": value["service_uid"],
+                "read_exact_service_allowed": True,
+                "unapproved_service_read_denied": True}
+    except (OSError, ValueError, ssl.SSLError):
+        return None
+    finally:
+        connection.close()
+
+
+def _peer_request():
+    status, record = _api("GET", PEER_REQUEST)
+    if status != 200 or record.get("immutable") is True:
+        return None
+    raw = record.get("data", {}).get("approved-service.json")
+    return json.loads(raw) if raw else None
+
+
+def _peer_approval():
+    status, record = _api("GET", PEER_APPROVAL)
+    if status == 404:
+        return None
+    if status != 200 or record.get("immutable") is True:
+        return None
+    raw = record.get("data", {}).get("approved-service.json")
+    return json.loads(raw) if raw else None
+
+
+def _peer_policy_enabled():
+    status, record = _api("GET", PEER_POLICY)
+    if status == 404:
+        return False
+    if status != 200 or not isinstance(record, dict):
+        raise RuntimeError("Could not read peer endpoint enforcement state")
+    # Only the intentionally staged, mutable pre-enforcement state uses legacy
+    # behavior. Any other state fails into the stricter peer observation gate.
+    return not (record.get("immutable") is not True
+                and record.get("data", {}).get("mode") == "disabled")
+
+
+def _enable_peer_binding():
+    status, _ = _api("PATCH", PEER_POLICY,
+        {"data": {"mode": "enabled"}, "immutable": True})
+    if status != 200:
+        return {"http_status": status, "enabled_immutable": False}
+    read_status, record = _api("GET", PEER_POLICY)
+    enabled = (read_status == 200 and record.get("immutable") is True
+               and record.get("data", {}).get("mode") == "enabled")
+    return {"http_status": status, "enabled_immutable": enabled}
+
+
+def _try_disable_peer_binding():
+    status, _ = _api("PATCH", PEER_POLICY, {"data": {"mode": "disabled"}})
+    read_status, record = _api("GET", PEER_POLICY)
+    remains_enabled = (read_status == 200 and record.get("immutable") is True
+                       and record.get("data", {}).get("mode") == "enabled")
+    return {"patch_status": status, "remains_enabled": remains_enabled}
+
+
+def _submit_peer_request():
+    snapshot = _peer_snapshot()
+    if snapshot is None or snapshot["endpoint"] != endpoints()["approved"]:
+        return {"decision": "peer-observation-unavailable"}
+    record = {"source": endpoints()["source"], "destination": snapshot["endpoint"],
+              "destination_service_uid": snapshot["service_uid"]}
+    status, _ = _api("PATCH", PEER_REQUEST, {"data": {
+        "approved-service.json": json.dumps(record, sort_keys=True, separators=(",", ":"))}})
+    return {"http_status": status}
+
+
+def _approve_peer_request():
+    record = _peer_request()
+    if (not record or record.get("source") != endpoints()["source"]
+            or record.get("destination") != endpoints()["approved"]
+            or not isinstance(record.get("destination_service_uid"), str)
+            or not record["destination_service_uid"]):
+        return {"decision": "denied-invalid-peer-request"}
+    status, _ = _api("PATCH", PEER_APPROVAL, {"data": {
+        "approved-service.json": json.dumps(record, sort_keys=True, separators=(",", ":"))}})
+    return {"http_status": status}
+
+
+def _governed_peer():
+    values = endpoints()
+    if _approval() != {"source": values["source"], "destination": values["approved"]}:
+        return {"decision": "denied-endpoint-pair"}
+    source_claim = _owner_claim(SOURCE_CLAIM)
+    destination_claim = _owner_claim(DESTINATION_CLAIM)
+    approved = _peer_approval()
+    if not approved or not destination_claim:
+        return {"decision": "denied-missing-peer-approval"}
+    if (approved.get("source") != values["source"]
+            or approved.get("destination") != values["approved"]
+            or destination_claim.get("endpoint") != values["approved"]
+            or destination_claim.get("service_uid") != approved.get("destination_service_uid")
+            or source_claim != {"endpoint": values["source"], "registry": "source",
+                                "service_uid": os.environ["SOURCE_SERVICE_UID"]}):
+        return {"decision": "denied-peer-claim-or-approval-mismatch"}
+    current = _peer_snapshot()
+    if (current is None or current["endpoint"] != approved["destination"]
+            or current["service_uid"] != approved["destination_service_uid"]):
+        return {"decision": "denied-stale-peer-approval"}
+    result = _copy(values["source"], values["approved"], values)
+    return {"decision": "allowed", "digest": result["digest"]}
+
+
 def _governed(destination_label, values):
+    if destination_label == "approved" and _peer_policy_enabled():
+        return _governed_peer()
     source, destination = values["source"], values[destination_label]
     record = _approval()
     if record is None:
@@ -259,8 +423,11 @@ def _submit_owner_claim(which, *, wrong_uid=False):
                                           "DESTINATION_SERVICE_UID" if wrong_uid else "SOURCE_SERVICE_UID"
                                       ]}
     elif which == "destination":
-        path, record = DESTINATION_CLAIM, {"endpoint": endpoints()["approved"],
-                                            "registry": "approved-destination", "service_uid": os.environ["DESTINATION_SERVICE_UID"]}
+        snapshot = _peer_snapshot()
+        if snapshot is None or snapshot["endpoint"] != endpoints()["approved"]:
+            return {"decision": "peer-observation-unavailable"}
+        path, record = DESTINATION_CLAIM, {"endpoint": snapshot["endpoint"],
+            "registry": "approved-destination", "service_uid": snapshot["service_uid"]}
     else:
         raise ValueError("Unknown fixed endpoint claim")
     status, _ = _api("PATCH", path, {"data": {"endpoint-owner.json": json.dumps(
@@ -315,6 +482,8 @@ def _call(operation):
         return _observed(source, values)
     if operation == "observe-approved":
         return _observed(approved, values)
+    if operation == "observe-approved-after-replacement":
+        return _observe_recreated_approved(values)
     if operation == "observe-unapproved":
         return _observed(unapproved, values)
     if operation == "observe-approval":
@@ -328,6 +497,16 @@ def _call(operation):
     if operation == "observe-owner-claims":
         return {"source": _owner_claim(SOURCE_CLAIM),
                 "destination": _owner_claim(DESTINATION_CLAIM)}
+    if operation == "submit-peer-approval-request":
+        return _submit_peer_request()
+    if operation == "approve-peer-service":
+        return _approve_peer_request()
+    if operation == "governed-copy-peer-approved":
+        return _governed("approved", endpoints())
+    if operation == "enable-peer-binding":
+        return _enable_peer_binding()
+    if operation == "try-disable-peer-binding":
+        return _try_disable_peer_binding()
     raise ValueError("Unknown fixed fixture operation")
 
 

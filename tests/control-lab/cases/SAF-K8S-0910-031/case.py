@@ -2,6 +2,8 @@
 import importlib.util
 import json
 from pathlib import Path
+import tempfile
+import time
 
 from fixtures import container, pod, ready
 
@@ -15,7 +17,10 @@ APPROVER = "fixture-endpoint-approver"
 COPIER = "fixture-endpoint-copier"
 OBSERVER = "fixture-endpoint-observer"
 SOURCE_OWNER = "fixture-source-endpoint-owner"
-DESTINATION_OWNER = "fixture-destination-endpoint-owner"
+DESTINATION_CLAIM_WRITER = "fixture-destination-claim-writer"
+PEER_REQUEST = "fixture-peer-service-request"
+PEER_APPROVAL = "fixture-peer-service-approval"
+PEER_POLICY = "fixture-peer-service-policy"
 SOURCE_CLAIM = "fixture-source-owner-claim"
 DESTINATION_CLAIM = "fixture-destination-owner-claim"
 SOURCE = "fixture-enrollment-source"
@@ -30,11 +35,11 @@ SCOPE = (
     "An owned source Kind API server and a second owned peer Kind API server host a source registry "
     "and two fixed candidate destination registries. The same source-to-approved-destination pair "
     "first transfers the inert artifact through an open baseline. After destination reset, the "
-    "governed copier reads an enrollment record from the source Kubernetes API and compares both "
-    "exact endpoint strings. A distinct approver account is the only principal allowed to write "
-    "that record. Separate scoped source and destination endpoint-owner identities publish exact "
-    "fixture claims before activation; a separate observer verifies those records and the Distribution "
-    "manifest digest. This does not validate third-party endpoint ownership."
+    "governed copier reads enrollment records from the source Kubernetes API and compares the exact "
+    "endpoint pair. A peer-cluster ServiceAccount with get access to only the approved destination "
+    "Service provides a current UID observation over a case-owned TLS endpoint. A separate approver "
+    "binds that UID to the pair; replacing the Service invalidates the approval until refreshed. "
+    "This tests one governed copier path, not third-party endpoint ownership or all replication routes."
 )
 
 
@@ -81,16 +86,19 @@ def registry(lab, name, peer=None):
 
 
 def accounts(lab):
-    for actor in (ENROLLER, APPROVER, COPIER, OBSERVER, SOURCE_OWNER, DESTINATION_OWNER):
+    for actor in (ENROLLER, APPROVER, COPIER, OBSERVER, SOURCE_OWNER, DESTINATION_CLAIM_WRITER):
         create(lab, "ServiceAccount", actor)
     rules = {
-        ENROLLER: [(REQUEST, ["get", "patch"])],
-        APPROVER: [(REQUEST, ["get"]), (APPROVAL, ["get", "patch"])],
-        COPIER: [(APPROVAL, ["get"]), (SOURCE_CLAIM, ["get"]), (DESTINATION_CLAIM, ["get"])],
+        ENROLLER: [(REQUEST, ["get", "patch"]), (PEER_REQUEST, ["get", "patch"])],
+        APPROVER: [(REQUEST, ["get"]), (APPROVAL, ["get", "patch"]),
+                   (PEER_REQUEST, ["get"]), (PEER_APPROVAL, ["get", "patch"]),
+                   (PEER_POLICY, ["get", "patch"])],
+        COPIER: [(APPROVAL, ["get"]), (PEER_APPROVAL, ["get"]), (PEER_POLICY, ["get"]),
+                 (SOURCE_CLAIM, ["get"]), (DESTINATION_CLAIM, ["get"])],
         OBSERVER: [(REQUEST, ["get"]), (APPROVAL, ["get"]),
                    (SOURCE_CLAIM, ["get"]), (DESTINATION_CLAIM, ["get"])],
         SOURCE_OWNER: [(SOURCE_CLAIM, ["get", "patch"])],
-        DESTINATION_OWNER: [(DESTINATION_CLAIM, ["get", "patch"])],
+        DESTINATION_CLAIM_WRITER: [(DESTINATION_CLAIM, ["get", "patch"])],
     }
     for actor, grants in rules.items():
         permissions = [{"apiGroups": [""], "resources": ["configmaps"],
@@ -102,21 +110,52 @@ def accounts(lab):
                subjects=[{"kind": "ServiceAccount", "name": actor, "namespace": NS}])
 
 
-def runner(lab, image, actor, env):
+def runner(lab, image, actor, env, peer_route):
     unit = container(
         "fixture", image=image, imagePullPolicy="Never", command=["sleep", "360"],
-        volumeMounts=[{"name": "code", "mountPath": "/fixture", "readOnly": True}],
-        env=env,
+        volumeMounts=[{"name": "code", "mountPath": "/fixture", "readOnly": True},
+                      {"name": "peer-owner-ca", "mountPath": "/peer-owner", "readOnly": True}],
+        env=env + [
+            {"name": "PEER_OWNER_HOST", "value": peer_route["host"]},
+            {"name": "PEER_OWNER_PORT", "value": str(peer_route["port"])},
+        ],
     )
     lab.create(pod(actor, [unit], serviceAccountName=actor,
-                   volumes=[{"name": "code", "configMap": {"name": CODE}}]))
+                   hostAliases=[{"ip": peer_route["node_ip"], "hostnames": [peer_route["host"]]}],
+                   volumes=[{"name": "code", "configMap": {"name": CODE}},
+                            {"name": "peer-owner-ca", "configMap": {
+                                "name": "fixture-destination-owner-ca"}}]))
     ready(lab, actor)
+
+
+def replace_destination_service(peer, port):
+    """Replace only the enrolled destination Service and its inert registry Pod."""
+    peer("delete", "pod", APPROVED, "--ignore-not-found=true", "--wait=true",
+         "--timeout=35s", timeout=45)
+    peer("delete", "service", APPROVED, "--wait=true", "--timeout=30s", timeout=40)
+    deadline = time.monotonic() + 12
+    while time.monotonic() < deadline:
+        result = peer("get", "service", APPROVED, "-o", "json", allow_failure=True)
+        if result.returncode and "NotFound" in result.stderr:
+            break
+        time.sleep(0.2)
+    else:
+        raise RuntimeError("Owned destination Service did not clear before replacement")
+    service = {"apiVersion": "v1", "kind": "Service", "metadata": {"name": APPROVED},
+        "spec": {"type": "NodePort", "selector": {"app": APPROVED},
+                 "ports": [{"port": 5000, "targetPort": 5000, "nodePort": int(port)}]}}
+    peer("create", "-f", "-", payload=json.dumps(service))
+    peer("create", "-f", "-", payload=json.dumps(registry_pod(APPROVED)))
+    peer("wait", "--for=condition=Ready", f"pod/{APPROVED}", "--timeout=75s", timeout=85)
+    current = json.loads(peer("get", "service", APPROVED, "-o", "json").stdout)
+    return current["metadata"]["uid"], current["spec"]["ports"][0]["nodePort"]
 
 
 def run(lab):
     runtime = load(HERE.parent / "SAF-K8S-0908-001" / "case.py", "saf_enrollment_runtime")
-    bridge = load(HERE.parent / "SAF-K8S-0910-020" / "owned_peer.py", "saf_enrollment_owned_peer")
+    bridge = load(HERE / "owned_peer.py", "saf_enrollment_owned_peer")
     fixture = load(HERE / "enrollment_fixture.py", "saf_endpoint_enrollment_program")
+    peer_identity = load(HERE / "peer_activation.py", "saf_endpoint_peer_identity")
     image = runtime.load_runtime(lab)
     digest = fixture.MANIFEST_DIGEST
     with bridge.owned_peer(lab, image) as (peer, peer_ip):
@@ -127,19 +166,26 @@ def run(lab):
         create(lab, "ConfigMap", APPROVAL, data={})
         create(lab, "ConfigMap", SOURCE_CLAIM, data={})
         create(lab, "ConfigMap", DESTINATION_CLAIM, data={})
+        create(lab, "ConfigMap", PEER_REQUEST, data={})
+        create(lab, "ConfigMap", PEER_APPROVAL, data={})
+        create(lab, "ConfigMap", PEER_POLICY, data={"mode": "disabled"})
         registry(lab, SOURCE)
         approved_port = registry(lab, APPROVED, peer)
         unapproved_port = registry(lab, UNAPPROVED, peer)
+        with tempfile.TemporaryDirectory(prefix="saf-0910-031-peer-owner-") as temporary:
+            peer_route = peer_identity.install(lab, peer, image, peer_ip, approved_port,
+                                               Path(temporary))
         endpoint_map = fixture.endpoint_map(peer_ip, approved_port, unapproved_port)
         source_uid = lab.kubectl("get", "service", SOURCE, "-o", "jsonpath={.metadata.uid}").stdout.strip()
-        destination_uid = peer("get", "service", APPROVED, "-o", "jsonpath={.metadata.uid}").stdout.strip()
+        destination_uid = json.loads(peer("get", "service", APPROVED, "-o", "json").stdout)["metadata"]["uid"]
         if not source_uid or not destination_uid or source_uid == destination_uid:
             lab.block("The two approved registry Services must have distinct Kubernetes identities")
         env = [{"name": name, "value": str(value)} for name, value in
                (("PEER_IP", peer_ip), ("APPROVED_PORT", approved_port), ("UNAPPROVED_PORT", unapproved_port),
                 ("SOURCE_SERVICE_UID", source_uid), ("DESTINATION_SERVICE_UID", destination_uid))]
-        for actor in (ENROLLER, APPROVER, COPIER, OBSERVER, SOURCE_OWNER, DESTINATION_OWNER):
-            runner(lab, image, actor, env)
+        peer_route["node_ip"] = peer_ip
+        for actor in (ENROLLER, APPROVER, COPIER, OBSERVER, SOURCE_OWNER, DESTINATION_CLAIM_WRITER):
+            runner(lab, image, actor, env, peer_route)
 
         def invoke(actor, operation):
             result = lab.kubectl("exec", actor, "--", "python", "/fixture/enrollment_fixture.py",
@@ -217,13 +263,14 @@ def run(lab):
         exact_approval_before_claims = invoke(APPROVER, "approver-approve-request")
         before_claims = invoke(COPIER, "governed-copy-approved")
         empty_before_claims = invoke(OBSERVER, "observe-approved")
-        destination_claim = invoke(DESTINATION_OWNER, "claim-destination-endpoint")
+        destination_claim = invoke(DESTINATION_CLAIM_WRITER, "claim-destination-endpoint")
         wrong_uid_claim = invoke(SOURCE_OWNER, "claim-source-wrong-uid")
         wrong_uid_blocked = invoke(COPIER, "governed-copy-approved")
         still_empty = invoke(OBSERVER, "observe-approved")
         source_claim = invoke(SOURCE_OWNER, "claim-source-endpoint")
         unauthorized_claim = invoke(ENROLLER, "claim-source-endpoint")
         claims = invoke(OBSERVER, "observe-owner-claims")
+        destination_uid = json.loads(peer("get", "service", APPROVED, "-o", "json").stdout)["metadata"]["uid"]
         expected_claims = {
             "source": {"endpoint": endpoint_map["source"], "registry": "source", "service_uid": source_uid},
             "destination": {"endpoint": endpoint_map["approved"],
@@ -266,6 +313,54 @@ def run(lab):
         lab.check("positive", "The separately approved exact source and destination pair transfers the inert artifact",
                   all(positive.values()), positive)
 
+        # Recheck live destination ownership through the peer-cluster ServiceAccount.
+        initial_claim = invoke(DESTINATION_CLAIM_WRITER, "claim-destination-endpoint")
+        initial_request = invoke(ENROLLER, "submit-peer-approval-request")
+        initial_approval = invoke(APPROVER, "approve-peer-service")
+        peer_gate_enabled = invoke(APPROVER, "enable-peer-binding")
+        attempted_disable = invoke(APPROVER, "try-disable-peer-binding")
+        peer_old_uid = json.loads(peer("get", "service", APPROVED, "-o", "json").stdout)["metadata"]["uid"]
+        replacement_uid, replacement_port = replace_destination_service(peer, approved_port)
+        replacement = json.loads(peer("get", "service", APPROVED, "-o", "json").stdout)
+        replacement_uid = replacement["metadata"]["uid"]
+        empty_after_replacement = invoke(OBSERVER, "observe-approved-after-replacement")
+        stale_copy = invoke(COPIER, "governed-copy-approved")
+        empty_after_stale = invoke(OBSERVER, "observe-approved-after-replacement")
+        stale = {
+            "peer_workload_read_exact_service_and_refused_other_service":
+                initial_claim == {"http_status": 200}
+                and initial_request == {"http_status": 200}
+                and initial_approval == {"http_status": 200}
+                and peer_gate_enabled == {"http_status": 200, "enabled_immutable": True}
+                and attempted_disable == {"patch_status": 422, "remains_enabled": True},
+            "same_registry_endpoint_now_has_a_new_peer_api_uid":
+                bool(peer_old_uid) and replacement_uid != peer_old_uid
+                and replacement_port == approved_port
+                and replacement["spec"]["ports"][0]["nodePort"] == approved_port,
+            "old_uid_approval_denied_without_registry_write":
+                stale_copy == {"decision": "denied-stale-peer-approval"}
+                and empty_after_replacement == {"digest": None, "status": 404,
+                                                "registry_v2_status": 200}
+                and empty_after_stale == {"digest": None, "status": 404,
+                                          "registry_v2_status": 200},
+        }
+        refreshed_claim = invoke(DESTINATION_CLAIM_WRITER, "claim-destination-endpoint")
+        refreshed_request = invoke(ENROLLER, "submit-peer-approval-request")
+        refreshed_approval = invoke(APPROVER, "approve-peer-service")
+        refreshed_copy = invoke(COPIER, "governed-copy-approved")
+        refreshed_state = invoke(OBSERVER, "observe-approved")
+        refreshed = {
+            "fresh_peer_observation_requires_new_approval":
+                refreshed_claim == {"http_status": 200}
+                and refreshed_request == {"http_status": 200}
+                and refreshed_approval == {"http_status": 200},
+            "refreshed_peer_approval_allows_expected_inert_transfer":
+                refreshed_copy == {"decision": "allowed", "digest": digest}
+                and refreshed_state == {"digest": digest, "status": 200},
+        }
+        lab.check("peer-binding", "Peer workload identity and current Service UID gate destination reactivation",
+                  all(stale.values()) and all(refreshed.values()), {**stale, **refreshed})
+
         # Omit bridge addresses, NodePorts, Kubernetes UIDs, and API metadata from stable evidence.
         evidence = {
             "scope": SCOPE,
@@ -277,6 +372,7 @@ def run(lab):
             "green": green,
             "ownership": ownership,
             "positive": positive,
+            "peer_binding": {**stale, **refreshed},
         }
         (lab.evidence / "endpoint-enrollment-observations.json").write_text(
             json.dumps(evidence, sort_keys=True, indent=2) + "\n")
