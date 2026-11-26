@@ -2625,7 +2625,7 @@
     "SAF-K8S-0905-015": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "348cf339218a7f732e8084f8729a73fa8a357caf2f01120514fa727f106b1a61",
+      "sha256": "e527d3845a08d2e8755124322ed949fcd885e728ea2541dcc061d05e16d26388",
       "title": "AI system control profile enforcement"
     },
     "SAF-K8S-0905-025": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "96222b74affc4c19427746a648435f3c0b06d646",
-  "sha256": "d698015390a34692dc310f4f85662269b3bc5a136c135a2322c5a80a419522f8",
+  "revision": "e500ddae62d1eec00d5e0b91f457abaf8ba90b3c",
+  "sha256": "0c684a60a481d0f72cbdbdf6554f5c02f7d716f35b2c4db859aa99c54a378c4b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

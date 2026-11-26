@@ -1,5 +1,6 @@
 """Native admission enforcement for two administrator-assigned AI lifecycle profiles."""
 import hashlib
+import base64
 import json
 from pathlib import Path
 import subprocess
@@ -24,6 +25,8 @@ TRAIN_POLICY = "saf-0905-015-train-profile"
 LEARN_POLICY = "saf-0905-015-learning-profile"
 TRAIN_DENIAL = "train-verify-lock profile requires integrity baseline and monitor"
 LEARN_DENIAL = "continuous-learning profile requires authorized updater and drift monitor"
+SIGNED_WEBHOOK = "saf-0905-015-signed-verifier"
+VERIFY_NS = "saf-0905-015-unassigned"
 SCOPE = (
     "One fresh Kubernetes v1.36.1 kind cluster. Two administrator-labeled namespaces assign "
     "train-verify-lock and continuous-learning profiles. Kubernetes ValidatingAdmissionPolicies "
@@ -158,7 +161,9 @@ def _install(lab):
         "c.volumeMounts.exists(m, m.name == 'model-state' && m.mountPath == '/model')) && "
         f"object.spec.template.spec.containers.exists(c, c.name == 'drift-monitor' && c.image == '{IMAGE}' && "
         "c.volumeMounts.exists(m, m.name == 'model-state' && m.mountPath == '/model' && m.readOnly == true)) && "
-        f"(request.operation != 'UPDATE' || {update_value('object')} == {update_value('oldObject')} || request.userInfo.username == 'system:serviceaccount:{LEARN_NS}:saf-model-update-authorizer')"
+        f"(request.operation != 'UPDATE' || (object.spec.template == oldObject.spec.template && "
+        f"{update_value('object')} == {update_value('oldObject')}) || "
+        f"request.userInfo.username == 'system:serviceaccount:{LEARN_NS}:saf-model-update-authorizer')"
     )
     resources = [
         _policy(TRAIN_POLICY, "train-verify-lock", train_ok, TRAIN_DENIAL),
@@ -217,6 +222,263 @@ def _monitor_log(lab, namespace, pod, container, marker):
             return text
         time.sleep(0.2)
     return text
+
+
+def _signed_annotations(fixture):
+    return {
+        "saf.example.test/model-digest": "sha256:" + fixture["manifest_sha256"],
+        "saf.example.test/model-signature": fixture["manifest_signature_base64"],
+        "saf.example.test/attestations": json.dumps(
+            fixture["attestations"], separators=(",", ":"), sort_keys=True),
+    }
+
+
+def _signed_admission_configuration(ca_pem):
+    return {
+        "apiVersion": "admissionregistration.k8s.io/v1",
+        "kind": "ValidatingWebhookConfiguration",
+        "metadata": {"name": SIGNED_WEBHOOK},
+        "webhooks": [{
+            "name": "signed-model-marker.saf.example.test",
+            "admissionReviewVersions": ["v1"], "sideEffects": "None",
+            "failurePolicy": "Fail", "matchPolicy": "Equivalent", "timeoutSeconds": 5,
+            "clientConfig": {"service": {"namespace": VERIFY_NS, "name": SIGNED_WEBHOOK,
+                                            "path": "/validate", "port": 443},
+                             "caBundle": base64.b64encode(ca_pem).decode("ascii")},
+            "namespaceSelector": {"matchLabels": {"saf-k8s.example/lifecycle": "train-verify-lock"}},
+            "rules": [{"operations": ["CREATE"], "apiGroups": ["apps"],
+                       "apiVersions": ["v1"], "resources": ["deployments"], "scope": "Namespaced"}],
+        }],
+    }
+
+
+def _install_signed_verifier(lab, fixture):
+    def create(resource):
+        return lab.kubectl("-n", VERIFY_NS, "create", "-f", "-", payload=json.dumps(resource))
+
+    material_dir = lab.kubeconfig.parent / "0905-015-tls-material"
+    material_dir.mkdir(mode=0o700)
+    cert, key = material_dir / "tls.crt", material_dir / "tls.key"
+    lab.command("openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes",
+                "-keyout", str(key), "-out", str(cert), "-days", "2",
+                "-subj", f"/CN={SIGNED_WEBHOOK}.{VERIFY_NS}.svc",
+                "-addext", "basicConstraints=critical,CA:TRUE",
+                "-addext", "subjectKeyIdentifier=hash",
+                "-addext", f"subjectAltName=DNS:{SIGNED_WEBHOOK}.{VERIFY_NS}.svc,DNS:{SIGNED_WEBHOOK}.{VERIFY_NS}.svc.cluster.local")
+    try:
+        lab.kubectl("-n", VERIFY_NS, "create", "secret", "tls", SIGNED_WEBHOOK + "-tls",
+                    f"--cert={cert}", f"--key={key}")
+    finally:
+        key.unlink(missing_ok=True)
+    source_name = SIGNED_WEBHOOK + "-source"
+    create({"apiVersion": "v1", "kind": "ConfigMap",
+                "metadata": {"name": source_name, "namespace": VERIFY_NS},
+                "data": {"webhook.py": (HERE / "webhook.py").read_text(encoding="utf-8"),
+                         "fixtures.json": json.dumps(fixture, sort_keys=True)}})
+    labels = {"app": SIGNED_WEBHOOK}
+    create({
+        "apiVersion": "apps/v1", "kind": "Deployment",
+        "metadata": {"name": SIGNED_WEBHOOK, "namespace": VERIFY_NS},
+        "spec": {"replicas": 1, "selector": {"matchLabels": labels},
+                 "template": {"metadata": {"labels": labels}, "spec": {
+                     "automountServiceAccountToken": False,
+                     "securityContext": {"runAsNonRoot": True, "runAsUser": 10001,
+                                         "runAsGroup": 10001, "fsGroup": 10001,
+                                         "seccompProfile": {"type": "RuntimeDefault"}},
+                     "volumes": [{"name": "source", "configMap": {"name": source_name}},
+                                 {"name": "tls", "secret": {"secretName": SIGNED_WEBHOOK + "-tls"}}],
+                     "containers": [{"name": "verifier", "image": PYTHON_IMAGE,
+                                     "command": ["python", "/app/webhook.py"],
+                                     "imagePullPolicy": "IfNotPresent",
+                                     "ports": [{"name": "https", "containerPort": 8443}],
+                                     "readinessProbe": {"httpGet": {"scheme": "HTTPS", "path": "/healthz",
+                                                                      "port": "https"}, "periodSeconds": 1},
+                                     "resources": {"requests": {"cpu": "10m", "memory": "32Mi"},
+                                                   "limits": {"cpu": "100m", "memory": "96Mi"}},
+                                     "volumeMounts": [{"name": "source", "mountPath": "/app", "readOnly": True},
+                                                      {"name": "tls", "mountPath": "/tls", "readOnly": True}],
+                                     "securityContext": {"allowPrivilegeEscalation": False,
+                                                         "readOnlyRootFilesystem": True,
+                                                         "capabilities": {"drop": ["ALL"]}}}],
+                 }}}})
+    create({"apiVersion": "v1", "kind": "Service",
+                "metadata": {"name": SIGNED_WEBHOOK, "namespace": VERIFY_NS},
+                "spec": {"selector": labels, "ports": [{"name": "https", "port": 443,
+                                                            "targetPort": "https"}]}})
+    lab.kubectl("-n", VERIFY_NS, "rollout", "status", f"deployment/{SIGNED_WEBHOOK}",
+                "--timeout=60s", timeout=70)
+    lab.create(_signed_admission_configuration(cert.read_bytes()))
+    cert.unlink(missing_ok=True)
+    material_dir.rmdir()
+
+
+def _signed_marker_deployment(fixture, name, image_reference=None):
+    obj = deployment(name, "train-verify-lock")
+    obj["spec"]["replicas"] = 0
+    obj["metadata"]["annotations"] = _signed_annotations(fixture)
+    containers = obj["spec"]["template"]["spec"]["containers"]
+    containers.append({"name": "signed-model-marker",
+                       "image": image_reference or fixture["model_image_reference"],
+                       "imagePullPolicy": "Never"})
+    return obj
+
+
+def _signed_marker_boundary(lab):
+    fixture = json.loads((HERE / "fixtures.json").read_text(encoding="utf-8"))
+    fixture["namespace"] = TRAIN_NS
+    fixture["model_image_reference"] = (
+        "saf.example.test/models/inert-fixture@sha256:" + fixture["manifest_sha256"])
+    _install_signed_verifier(lab, fixture)
+
+    good_name = "signed-marker-approved"
+    good_obj = _signed_marker_deployment(fixture, good_name)
+    admitted = json.loads(lab.kubectl("-n", TRAIN_NS, "create", "-f", "-", "-o", "json",
+                                      payload=json.dumps(good_obj)).stdout)
+    persisted = json.loads(lab.kubectl("-n", TRAIN_NS, "get", "deployment", good_name,
+                                       "-o", "json").stdout)
+    exact_image = any(c.get("name") == "signed-model-marker"
+                      and c.get("image") == fixture["model_image_reference"]
+                      and c.get("imagePullPolicy") == "Never"
+                      for c in persisted["spec"]["template"]["spec"]["containers"])
+    labels = persisted["spec"]["selector"]["matchLabels"]
+    selector = ",".join(f"{key}={value}" for key, value in sorted(labels.items()))
+    no_pods = not json.loads(lab.kubectl("-n", TRAIN_NS, "get", "pods", "-l", selector,
+                                         "-o", "json").stdout)["items"]
+    good_ok = (admitted.get("metadata", {}).get("name") == good_name
+               and persisted.get("spec", {}).get("replicas") == 0 and exact_image and no_pods)
+    lab.kubectl("-n", TRAIN_NS, "delete", "deployment", good_name, "--wait=true")
+
+    bad_signature_obj = _signed_marker_deployment(fixture, "signed-marker-bad-signature")
+    bad_signature_obj["metadata"]["annotations"]["saf.example.test/model-signature"] = "AA=="
+    bad_signature = lab.kubectl("-n", TRAIN_NS, "create", "-f", "-", "--dry-run=server",
+                               payload=json.dumps(bad_signature_obj), allow_failure=True)
+    signature_denied = (bad_signature.returncode != 0
+                        and "SAF fixture verifier: model signature is absent or does not match the fixed signer"
+                        in bad_signature.stderr)
+
+    wrong_binding_obj = _signed_marker_deployment(
+        fixture, "signed-marker-wrong-binding",
+        "saf.example.test/models/inert-fixture@sha256:" + "0" * 64)
+    wrong_binding = lab.kubectl("-n", TRAIN_NS, "create", "-f", "-", "--dry-run=server",
+                               payload=json.dumps(wrong_binding_obj), allow_failure=True)
+    binding_denied = (wrong_binding.returncode != 0
+                      and "SAF fixture verifier: model image reference does not match signed marker"
+                      in wrong_binding.stderr)
+    lab.check("positive", "CREATE admission verifies the fixed signature and binds it to the exact zero-replica inert image reference",
+              good_ok and signature_denied and binding_denied,
+              {"approved_signature_and_digest_admitted": good_ok,
+               "approved_deployment_persisted": admitted.get("metadata", {}).get("name") == good_name,
+               "replicas_zero": persisted.get("spec", {}).get("replicas") == 0,
+               "image_reference_matches_signed_manifest": exact_image,
+               "no_pod_created_or_image_pulled": no_pods,
+               "wrong_signature_denied": signature_denied,
+               "image_digest_rebound_without_signature_denied": binding_denied})
+
+
+def _authorized_release_patch(lab, name):
+    base = ("kubectl", "--kubeconfig", str(lab.kubeconfig), "--context", f"kind-{lab.cluster}")
+    def private_call(*args):
+        result = subprocess.run((*base, *args), text=True, capture_output=True,
+                                env=lab.env, timeout=25)
+        if result.returncode or not result.stdout.strip():
+            lab.block("Could not prepare the fixture's short-lived release identity")
+        return result.stdout.strip()
+    token = private_call("-n", LEARN_NS, "create", "token", "saf-model-update-authorizer", "--duration=10m")
+    config = json.loads(private_call("config", "view", "--raw", "--minify", "-o", "json"))
+    config["users"] = [{"name": "fixture-release-identity", "user": {"token": token}}]
+    config["contexts"][0]["context"]["user"] = "fixture-release-identity"
+    path = lab.kubeconfig.parent / "fixture-release-identity.kubeconfig"
+    path.touch(mode=0o600, exist_ok=False)
+    patch = json.dumps([
+        {"op": "add", "path": "/metadata/annotations/saf-k8s.example~1update",
+         "value": "release-v2-approved-fixture"},
+        {"op": "add", "path": "/spec/template/spec/containers/0/env/-",
+         "value": {"name": "SAF_RELEASE_MARKER", "value": "v2-approved-fixture"}},
+    ], separators=(",", ":"))
+    try:
+        path.write_text(json.dumps(config))
+        return lab.command("kubectl", "--kubeconfig", str(path), "--context", f"kind-{lab.cluster}",
+                           "-n", LEARN_NS, "patch", "deployment", name, "--type=json", "-p", patch,
+                           allow_failure=True)
+    finally:
+        path.unlink(missing_ok=True)
+
+
+def _post_start_watcher_boundary(lab):
+    obj = deployment("runtime-train-post-start-change", "train-verify-lock")
+    monitor_code = (
+        "from pathlib import Path\nimport hashlib,time\n"
+        "p=Path('/model/payload.bin'); baseline=Path('/model/baseline.sha256').read_text()\n"
+        "current=hashlib.sha256(p.read_bytes()).hexdigest()\n"
+        "print('watcher_started=true baseline_matches='+str(current==baseline),flush=True)\n"
+        "Path('/watch/monitor-ready').write_text('ready\\n')\n"
+        "for _ in range(100):\n"
+        " current=hashlib.sha256(p.read_bytes()).hexdigest()\n"
+        " if current != baseline:\n"
+        "  print('post_start_change_detected=true observed_sha256='+current,flush=True); break\n"
+        " time.sleep(0.1)\n"
+        "time.sleep(3600)\n")
+    containers = obj["spec"]["template"]["spec"]["containers"]
+    containers[0]["command"] = ["python", "-u", "-c", monitor_code]
+    containers[0]["volumeMounts"].append({"name": "watch-control", "mountPath": "/watch"})
+    obj["spec"]["template"]["spec"]["volumes"].append({"name": "watch-control", "emptyDir": {}})
+    mutator_code = (
+        "import time,hashlib\nfrom pathlib import Path\n"
+        "ready=Path('/watch/monitor-ready'); deadline=time.time()+10\n"
+        "while not ready.is_file() and time.time()<deadline: time.sleep(0.1)\n"
+        "if not ready.is_file(): raise SystemExit('watcher readiness marker missing')\n"
+        "data=b'SAF synthetic inert model bytes after-start v2\\n'\n"
+        "Path('/model/payload.bin').write_bytes(data)\n"
+        "print('fixed_marker_written=true sha256='+hashlib.sha256(data).hexdigest(),flush=True)\n"
+        "time.sleep(3600)\n")
+    containers.append(_container("bounded-fixture-mutator", mutator_code,
+                                 [{"name": "model-state", "mountPath": "/model"},
+                                  {"name": "watch-control", "mountPath": "/watch", "readOnly": True}]))
+    lab.kubectl("create", "-f", "-", "-n", TRAIN_NS, payload=json.dumps(obj))
+    _wait_ready(lab, TRAIN_NS, obj["metadata"]["name"])
+    pod = _pod_name(lab, TRAIN_NS, obj["metadata"]["name"])
+    watcher = _monitor_log(lab, TRAIN_NS, pod, "integrity-monitor", "post_start_change_detected=")
+    marker = hashlib.sha256(b"SAF synthetic inert model bytes after-start v2\n").hexdigest()
+    detected = ("watcher_started=true baseline_matches=True" in watcher
+                and "post_start_change_detected=true" in watcher
+                and f"observed_sha256={marker}" in watcher)
+    lab.check("positive", "The running integrity watcher observes one later harmless marker change on its case-owned volume",
+              detected, {"started_from_baseline": "watcher_started=true baseline_matches=True" in watcher,
+                         "post_start_change_detected": "post_start_change_detected=true" in watcher,
+                         "expected_marker_digest_observed": f"observed_sha256={marker}" in watcher})
+
+
+def _release_identity_boundary(lab):
+    name = "authorized-release-marker-target"
+    target = deployment(name, "continuous-learning")
+    target["metadata"]["namespace"] = LEARN_NS
+    target["spec"]["replicas"] = 0
+    target["metadata"]["annotations"] = {"saf-k8s.example/update": "release-v1-fixture"}
+    target["spec"]["template"]["spec"]["containers"][0]["env"].append(
+        {"name": "SAF_RELEASE_MARKER", "value": "v1-fixture"})
+    lab.kubectl("create", "-f", "-", "-n", LEARN_NS, payload=json.dumps(target))
+    denied_patch = json.dumps([{"op": "replace",
+                                "path": "/spec/template/spec/containers/0/env/1/value",
+                                "value": "v2-unapproved-fixture"}], separators=(",", ":"))
+    denied = lab.kubectl("-n", LEARN_NS, "patch", "deployment", name, "--type=json", "-p", denied_patch,
+                         allow_failure=True)
+    unchanged = json.loads(lab.kubectl("-n", LEARN_NS, "get", "deployment", name, "-o", "json").stdout)
+    denied_without_mutation = (denied.returncode != 0 and "ValidatingAdmissionPolicy" in denied.stderr
+                               and unchanged["spec"]["template"]["spec"]["containers"][0]["env"][1]["value"] == "v1-fixture"
+                               and unchanged["metadata"]["annotations"].get("saf-k8s.example/update") == "release-v1-fixture")
+    approved = _authorized_release_patch(lab, name)
+    live = json.loads(lab.kubectl("-n", LEARN_NS, "get", "deployment", name, "-o", "json").stdout)
+    release_marker = live["metadata"]["annotations"].get("saf-k8s.example/update") == "release-v2-approved-fixture"
+    template_marker = any(env.get("name") == "SAF_RELEASE_MARKER" and env.get("value") == "v2-approved-fixture"
+                          for env in live["spec"]["template"]["spec"]["containers"][0].get("env", []))
+    lab.check("positive", "Only the authorized release identity can atomically update the inert workload release marker and Deployment template",
+              denied_without_mutation and approved.returncode == 0 and release_marker and template_marker
+              and live["spec"].get("replicas") == 0,
+              {"unapproved_template_only_update_denied_without_mutation": denied_without_mutation,
+               "authorized_release_identity_update_admitted": approved.returncode == 0,
+               "release_annotation_persisted": release_marker,
+               "template_release_marker_persisted": template_marker,
+               "replicas_remain_zero": live["spec"].get("replicas") == 0})
 
 
 def _authorized_update(lab):
@@ -355,3 +617,6 @@ def run(lab):
     lab.check("green", "The running integrity monitor detects changed fixture bytes against the fixed baseline",
               "integrity_ok=False" in actual and f"integrity_sha256={digest}" in actual,
               {"integrity_monitor_output": actual.strip()})
+    _post_start_watcher_boundary(lab)
+    _release_identity_boundary(lab)
+    _signed_marker_boundary(lab)

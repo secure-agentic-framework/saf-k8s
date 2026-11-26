@@ -1,0 +1,55 @@
+{
+  "artifact": "U0FGIGluZXJ0IG1vZGVsIGFydGlmYWN0IGZpeHR1cmUgdjEK",
+  "artifact_sha256": "c5542197fe8ee8c1943c7db38a3881f36490c14ab1e050b7908b52781bc6b927",
+  "attestations": [
+    {
+      "payload": "eyJfdHlwZSI6Imh0dHBzOi8vaW4tdG90by5pby9TdGF0ZW1lbnQvdjEiLCJwcmVkaWNhdGUiOnsiZGVjaXNpb24iOiJhcHByb3ZlZCIsInJldmlldyI6ImZpeGVkLWZpeHR1cmUifSwicHJlZGljYXRlVHlwZSI6Imh0dHBzOi8vc2FmLmV4YW1wbGUudGVzdC9hcHByb3ZhbC92MSIsInN1YmplY3QiOlt7ImRpZ2VzdCI6eyJzaGEyNTYiOiJjNTU0MjE5N2ZlOGVlOGMxOTQzYzdkYjM4YTM4ODFmMzY0OTBjMTRhYjFlMDUwYjc5MDhiNTI3ODFiYzZiOTI3In0sIm5hbWUiOiJvY2k6Ly9zYWYuZXhhbXBsZS50ZXN0L21vZGVscy9pbmVydC1maXh0dXJlIn1dfQ==",
+      "payloadType": "application/vnd.in-toto+json",
+      "signatures": [
+        {
+          "keyid": "saf-fixed-fixture-rsa-1",
+          "sig": "befidEBrxMbb4Aaq3/D0qzwDwDUgX5dIDwPhlBsieu6iGtmwivxSpM/HjJRV0+FgOUNSLmNUs1arIQGHCHk/zQenskpvIPG/21EvH8MeUDe3WZQRGlNo0sRlDR8FbBaQl0euxMWKy3HYLgI/QwVx/9lmG9fPN2qxKHnqVq+LvGYvQNRPmHMKt5eRY2uz0hwJJ0BaHIqSoG0EsNAe6ovjzcBKc/Mma+RTteLiJoNOoEVPeCeeAWXd4K82tlc5hfiaraCuSg1NzMDX+cd7mH7seovuY4tdjRD/pRfV8/xZFWP6qhGYevA7sQk5Qpz9xGkviaw1LGMfA5Xj7Whpd4Be6g=="
+        }
+      ]
+    },
+    {
+      "payload": "eyJfdHlwZSI6Imh0dHBzOi8vaW4tdG90by5pby9TdGF0ZW1lbnQvdjEiLCJwcmVkaWNhdGUiOnsiYnVpbGRlciI6ImZpeGVkLWZpeHR1cmUiLCJtYXRlcmlhbHMiOlsic291cmNlLWZpeHR1cmUtdjEiXX0sInByZWRpY2F0ZVR5cGUiOiJodHRwczovL3NhZi5leGFtcGxlLnRlc3QvcHJvdmVuYW5jZS92MSIsInN1YmplY3QiOlt7ImRpZ2VzdCI6eyJzaGEyNTYiOiJjNTU0MjE5N2ZlOGVlOGMxOTQzYzdkYjM4YTM4ODFmMzY0OTBjMTRhYjFlMDUwYjc5MDhiNTI3ODFiYzZiOTI3In0sIm5hbWUiOiJvY2k6Ly9zYWYuZXhhbXBsZS50ZXN0L21vZGVscy9pbmVydC1maXh0dXJlIn1dfQ==",
+      "payloadType": "application/vnd.in-toto+json",
+      "signatures": [
+        {
+          "keyid": "saf-fixed-fixture-rsa-1",
+          "sig": "ksAnjueL6NNinfpVOapZIx6n1yPh0XJBfqXusMosTkVKwcsgCF5LZM2k2umri2M7YhD811Sa+Qc1P8qJASVdT3cjSsEPLWsYmpn8H/PsIjLovoZeNWmYClmP//BdWRufISCNbBAdKD+vjJnJB5kaMrAODyebC+IoZDiMHeMCgRBlGI51ogHy1iJzQaqR0lYr9i1nEZlnSmyTIy8+IkS6Ljt9mv8WCpmsnH4yx4gffLLT1jEsUmliqGgMhcTEO0s6dGTkMWj0mWzZo8kSqfDqCKBaYc+GsB7uQ590lljXkf7XgBcoE+Q62FEt8tYYDPT8xuXdU6lV2Vk96XRwdThtmw=="
+        }
+      ]
+    }
+  ],
+  "config": "eyJhcmNoaXRlY3R1cmUiOiJmaXh0dXJlIiwib3MiOiJmaXh0dXJlIn0=",
+  "format": "SAF inert OCI and DSSE fixture v1",
+  "manifest": {
+    "annotations": {
+      "org.opencontainers.image.title": "inert-model-fixture.bin"
+    },
+    "config": {
+      "digest": "sha256:76a5982e1b1042edcc276a29c4fd90a2860a1a1300e7765615980c68a735eb85",
+      "mediaType": "application/vnd.oci.image.config.v1+json",
+      "size": 41
+    },
+    "layers": [
+      {
+        "digest": "sha256:c5542197fe8ee8c1943c7db38a3881f36490c14ab1e050b7908b52781bc6b927",
+        "mediaType": "application/vnd.saf.fixture.model.v1",
+        "size": 36
+      }
+    ],
+    "mediaType": "application/vnd.oci.image.manifest.v1+json",
+    "schemaVersion": 2
+  },
+  "manifest_canonical_json_base64": "eyJhbm5vdGF0aW9ucyI6eyJvcmcub3BlbmNvbnRhaW5lcnMuaW1hZ2UudGl0bGUiOiJpbmVydC1tb2RlbC1maXh0dXJlLmJpbiJ9LCJjb25maWciOnsiZGlnZXN0Ijoic2hhMjU2Ojc2YTU5ODJlMWIxMDQyZWRjYzI3NmEyOWM0ZmQ5MGEyODYwYTFhMTMwMGU3NzY1NjE1OTgwYzY4YTczNWViODUiLCJtZWRpYVR5cGUiOiJhcHBsaWNhdGlvbi92bmQub2NpLmltYWdlLmNvbmZpZy52MStqc29uIiwic2l6ZSI6NDF9LCJsYXllcnMiOlt7ImRpZ2VzdCI6InNoYTI1NjpjNTU0MjE5N2ZlOGVlOGMxOTQzYzdkYjM4YTM4ODFmMzY0OTBjMTRhYjFlMDUwYjc5MDhiNTI3ODFiYzZiOTI3IiwibWVkaWFUeXBlIjoiYXBwbGljYXRpb24vdm5kLnNhZi5maXh0dXJlLm1vZGVsLnYxIiwic2l6ZSI6MzZ9XSwibWVkaWFUeXBlIjoiYXBwbGljYXRpb24vdm5kLm9jaS5pbWFnZS5tYW5pZmVzdC52MStqc29uIiwic2NoZW1hVmVyc2lvbiI6Mn0=",
+  "manifest_sha256": "980f79ef01d474369ae9f4bbf5f4a45422ffe9190f873ce39f5563b9f7e54645",
+  "manifest_signature_base64": "j0qxXZGmsfpyR+0farI/kYKViln8UbL+KeQ/Y5Lkr4yFrhYIvY0KuylHZZywBSLBhXVVfSZQn+zoxDyFNytNUc9RAquP6DiO5RqxgC9KJJ7YJT9Z+kIO1zthMGaphttVw97ekF2JAXqopEPY8tmvAPW1gVWKuIJArB99xVcqXi3IT92TSZl5qT1kdMkavvvwPqfxUmwp/8p8QCyep3/jHWn2u664RmmNB75LvgRNYoO0MioVkkuZ1lklRjagrhY9FJictMQQIJy67oWN7k/9i8Gw+qweDE6DnVhAsBiANySBRTqq+Y1yZSDjlwqx5XtBYMpquT2FJznr/+id5Uto4w==",
+  "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0hPvkcJUC4ibJbwEub+/\nzmTK+rQFxkupSXNYJybfGwVp7MS2KnnYO4uOr/VakRMHsnmGAmbGzszG5DCXWR3N\nxnNJ3VJZrywbXm0tzGWfyb9oSAYgi36iD+d6dWdiLOZV+oOTHd270wImnzJWbuVz\nKR1Yy+vCLQIZziStraZEb75R1sqOQFIa2jnXTIdM8Hf7XjiEXeuW1GXesPpGrDIZ\ni4vcRj31Y/KkdAWDUPd0CLrlmqoYxUoWOi0RW9d0AUzlfXC9jJBwpEwYINn7F918\nZDwj5h+MEYnCwS7WN8x9WFXZh+BORpToLZOSnztpzt6joWOByd7Mb5WDG5cJuTRB\nWwIDAQAB\n-----END PUBLIC KEY-----\n",
+  "required_predicate_types": [
+    "https://saf.example.test/approval/v1",
+    "https://saf.example.test/provenance/v1"
+  ]
+}

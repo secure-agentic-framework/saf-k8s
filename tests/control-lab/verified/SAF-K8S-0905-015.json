@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-015",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "7b915928297515109576306cae4a9c87153fc0ec",
+  "catalog_sha256": "0c684a60a481d0f72cbdbdf6554f5c02f7d716f35b2c4db859aa99c54a378c4b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "348cf339218a7f732e8084f8729a73fa8a357caf2f01120514fa727f106b1a61",
+  "control_sha256": "e527d3845a08d2e8755124322ed949fcd885e728ea2541dcc061d05e16d26388",
   "scope": "One fresh Kubernetes v1.36.1 kind cluster. Two administrator-labeled namespaces assign train-verify-lock and continuous-learning profiles. Kubernetes ValidatingAdmissionPolicies and namespace-selected bindings validate Deployment pod templates on CREATE and UPDATE. Matched missing-profile probes and permitted non-AI Deployments are independently checked in both namespaces. Each valid profile Deployment executes a fixed, inert Python fixture: the train-lock init container writes fixed bytes and a SHA-256 baseline consumed by an integrity monitor; the continuous-learning init container writes one fixed synthetic before/after pair and its drift monitor measures the difference. No model, external service, network service, host port, or real authorization system is used.",
-  "cluster": "saf-lab-641f1600cad1",
+  "cluster": "saf-lab-40ca10712e05",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -145,6 +145,42 @@
       "matched": true,
       "observed": {
         "integrity_monitor_output": "integrity_ok=False\nintegrity_sha256=0273e8c354952532245b483ce5e98bbb183534fbf63a25f1cbbdb3838e4919c8\ntamper_counterfactual_detected=True"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The running integrity watcher observes one later harmless marker change on its case-owned volume",
+      "matched": true,
+      "observed": {
+        "started_from_baseline": true,
+        "post_start_change_detected": true,
+        "expected_marker_digest_observed": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Only the authorized release identity can atomically update the inert workload release marker and Deployment template",
+      "matched": true,
+      "observed": {
+        "unapproved_template_only_update_denied_without_mutation": true,
+        "authorized_release_identity_update_admitted": true,
+        "release_annotation_persisted": true,
+        "template_release_marker_persisted": true,
+        "replicas_remain_zero": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "CREATE admission verifies the fixed signature and binds it to the exact zero-replica inert image reference",
+      "matched": true,
+      "observed": {
+        "approved_signature_and_digest_admitted": true,
+        "approved_deployment_persisted": true,
+        "replicas_zero": true,
+        "image_reference_matches_signed_manifest": true,
+        "no_pod_created_or_image_pulled": true,
+        "wrong_signature_denied": true,
+        "image_digest_rebound_without_signature_denied": true
       }
     }
   ]
