@@ -14,10 +14,8 @@ adjacent namespace, list access, Secrets, and cluster-scoped Nodes remain
 denied. `kubectl auth can-i` independently checks the same namespace/resource
 boundaries. A control-plane read verifies that the permitted patch persisted.
 
-The ConfigMaps are inert synthetic workload descriptors, not Ray/Kubeflow or
-other operator custom resources. No real operator, GPU device, third-party
-controller, target, vulnerability feed, scanner, or vendor image is installed
-or contacted. Both the Kind node and the Python probe image are digest-pinned.
+The first comparison uses inert synthetic ConfigMaps. The separate KubeRay
+comparison below installs the official pinned controller. Both the Kind node and the Python probe image are digest-pinned.
 The `registry.example.invalid` image string and all-zero digest in the mock
 workload descriptor are reserved inert placeholders; they are never pulled.
 Raw evidence records the probe's verified service-account subject, API
@@ -65,3 +63,23 @@ installed and no exploit or vulnerability is reproduced.
 - [Kind releases](https://github.com/kubernetes-sigs/kind/releases) — v1.36.1 node image digest
 - [Python Official Image](https://hub.docker.com/_/python) — pinned probe image digest
 - [NVIDIA GPU Operator upgrade guide](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/upgrade.html) — vendor-specific procedure example
+
+## Namespace-scoped KubeRay 1.8.0
+
+With Helm installed, the case renders the exact official chart archive and
+inspects the namespace-scoped inventory. It installs four Ray CRDs, then the
+reviewed namespaced resources with the controller image pinned by digest.
+The Deployment uses its own ServiceAccount. Native authorization and an
+independent projected token probe compare RayCluster list, get and status
+dry-run requests inside and outside the watched namespace and list permission
+for cluster-scoped Nodes. One suspended RayCluster is reconciled in the watched
+namespace and gains a UID-linked internal ClusterIP Service. Its peer in the
+adjacent namespace remains untouched. No Ray compute Pod starts.
+
+The published Role grants broad powers within its namespace, including
+namespaced Secrets. Review required verbs, resources and mode-dependent
+settings for the adopted controller. Verify actual release acceptance,
+vulnerability triage, approved upgrades and rollback in the adopted cycle.
+[KubeRay 1.8.0 release](https://github.com/ray-project/kuberay/releases/tag/v1.8.0) ·
+[Official chart index](https://ray-project.github.io/kuberay-helm/index.yaml) ·
+[Official namespace-scoped Helm RBAC guide](https://docs.ray.io/en/master/kuberay/user-guides/helm-chart-rbac.html).

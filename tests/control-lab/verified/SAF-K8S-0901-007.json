@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-0901-007",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
+  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "05c37c86fb548a4aa59553ec79fc57a571ec469ec81a0f36069edfad2816fa6d",
-  "scope": "Disposable Kind Kubernetes v1.36.1 cluster with a digest-pinned node image. A named controller ServiceAccount in a synthetic operator namespace uses a projected token to GET and PATCH one named mock workload ConfigMap through a RoleBinding in a separate workload namespace. Before/after direct API calls and independent kubectl auth checks show the denied adjacent namespace, sibling resource, list/Secret access, and cluster-scoped access. No actual AI operator, CRD, GPU, external target, feed, scan, or vendor upgrade is exercised; operational applicability and version-specific vendor permissions remain unresolved.",
-  "review_timing": {
-    "queued_at": "2026-11-22T19:52:05.603402+00:00",
-    "cluster_ready_at": "2026-11-22T19:52:34.699382+00:00",
-    "approval_at": "2026-11-22T19:55:00.470343+00:00",
-    "case_loaded_at": "2026-11-22T19:55:00.511666+00:00"
-  },
-  "cluster": "saf-lab-42205242d424",
+  "scope": "One disposable Kind Kubernetes v1.36.1 cluster. The first case verifies exact named resource access for a synthetic controller identity. The second case renders the pinned official KubeRay 1.8.0 chart with its namespace-scoped Role and dedicated ServiceAccount. Native calls compare RayCluster access and status authorization in the watched and adjacent namespaces and for cluster-scoped Nodes. The real controller reports suspension and creates an internal Service only for the watched fixture. Review adopted vendor roles individually, including effective Secret grants and release/upgrade policy.",
+  "cluster": "saf-lab-196ebfa28cf0",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "bb5ba5a5af57400c96548a8cda89a3ac0f2d05ec13cf9cd3dca195603c356a82",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
@@ -186,6 +179,159 @@
         },
         "role_is_exact_named_get_patch": true,
         "binding_is_cross_namespace_controller_only": true
+      }
+    },
+    {
+      "phase": "kuberay_render",
+      "claim": "Official KubeRay 1.8.0 chart renders only the reviewed namespace-scoped objects and one digest-pinned controller image",
+      "matched": true,
+      "observed": {
+        "chart_sha256": "5a52af6c4781fb2e85404cda7c88c759a7dfd3697fa1246e59a46768f17da29f",
+        "operator_image": "quay.io/kuberay/operator:v1.8.0@sha256:3c3fa129852bdf8801e885189c0561d8848e73be5745f2204a49760216d42a58",
+        "cluster_scoped_objects": [
+          "Ray CRDs only"
+        ],
+        "namespace_scoped_object_count": 7
+      }
+    },
+    {
+      "phase": "kuberay_controller",
+      "claim": "The actual KubeRay Deployment uses its dedicated ServiceAccount and watches only its operator namespace",
+      "matched": true,
+      "observed": {
+        "deployment": "kuberay-operator",
+        "service_account": "kuberay-operator",
+        "image": [
+          "quay.io/kuberay/operator:v1.8.0@sha256:3c3fa129852bdf8801e885189c0561d8848e73be5745f2204a49760216d42a58"
+        ],
+        "watch_namespace_is_operator_namespace": true
+      }
+    },
+    {
+      "phase": "kuberay_rbac",
+      "claim": "The actual KubeRay ServiceAccount can get RayClusters and patch status only within its namespace, and is denied across namespace and node boundaries",
+      "matched": true,
+      "observed": {
+        "kubectl_auth_can_i": {
+          "list_watched_namespace": true,
+          "list_adjacent_namespace": false,
+          "get_watched_cluster": true,
+          "get_adjacent_cluster": false,
+          "patch_watched_status": true,
+          "patch_adjacent_status": false,
+          "list_nodes": false
+        },
+        "projected_service_account_probe": {
+          "identity": {
+            "subject": "system:serviceaccount:saf-0901-007-operator:kuberay-operator",
+            "status": null,
+            "contains_case_owned_cluster": null
+          },
+          "list_watched_namespace": {
+            "subject": null,
+            "status": 200,
+            "contains_case_owned_cluster": true
+          },
+          "list_adjacent_namespace": {
+            "subject": null,
+            "status": 403,
+            "contains_case_owned_cluster": null
+          },
+          "get_watched_cluster": {
+            "subject": null,
+            "status": 200,
+            "contains_case_owned_cluster": null
+          },
+          "get_adjacent_cluster": {
+            "subject": null,
+            "status": 403,
+            "contains_case_owned_cluster": null
+          },
+          "patch_watched_status": {
+            "subject": null,
+            "status": 200,
+            "contains_case_owned_cluster": null
+          },
+          "patch_adjacent_status": {
+            "subject": null,
+            "status": 403,
+            "contains_case_owned_cluster": null
+          },
+          "list_nodes": {
+            "subject": null,
+            "status": 403,
+            "contains_case_owned_cluster": null
+          }
+        },
+        "direct_operations_match_expected": {
+          "identity": true,
+          "list_watched_namespace": true,
+          "list_adjacent_namespace": true,
+          "get_watched_cluster": true,
+          "get_adjacent_cluster": true,
+          "patch_watched_status": true,
+          "patch_adjacent_status": true,
+          "list_nodes": true
+        },
+        "role_binding_is_dedicated_namespaced_role": true,
+        "role_resource_names": [
+          "certificates",
+          "certificates/status",
+          "endpointslices",
+          "events",
+          "gateways",
+          "httproutes",
+          "ingressclasses",
+          "ingresses",
+          "issuers",
+          "jobs",
+          "leases",
+          "networkpolicies",
+          "persistentvolumeclaims",
+          "pods",
+          "pods/proxy",
+          "pods/resize",
+          "pods/status",
+          "rayclusters",
+          "rayclusters/finalizers",
+          "rayclusters/status",
+          "raycronjobs",
+          "raycronjobs/finalizers",
+          "raycronjobs/status",
+          "rayjobs",
+          "rayjobs/finalizers",
+          "rayjobs/status",
+          "rayservices",
+          "rayservices/finalizers",
+          "rayservices/status",
+          "rolebindings",
+          "roles",
+          "routes",
+          "secrets",
+          "serviceaccounts",
+          "services",
+          "services/proxy",
+          "services/status"
+        ],
+        "vendor_default_role_has_namespaced_secret_permissions": true,
+        "scope_note": "The vendor default Role is broad within its namespace; this tests namespace isolation, not global least privilege.",
+        "adjacent_namespace": "saf-0901-007-adjacent"
+      }
+    },
+    {
+      "phase": "kuberay_watch_scope",
+      "claim": "KubeRay reconciles only the watched suspended RayCluster, creates its owned internal Service, and launches no Ray Pod",
+      "matched": true,
+      "observed": {
+        "watched_raycluster_state": "suspended",
+        "adjacent_raycluster_has_no_status": true,
+        "raycluster_owned_pods": [],
+        "watched_raycluster_has_exact_owned_clusterip_service": true,
+        "adjacent_raycluster_owned_resources_absent": true,
+        "raycluster_names": [
+          "saf-0901-007-kuberay-watched",
+          "saf-0901-007-kuberay-adjacent"
+        ]
       }
     }
   ]

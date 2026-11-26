@@ -1,4 +1,5 @@
 """Verify named, namespaced RBAC for an inert synthetic AI controller identity."""
+import importlib.util
 import json
 from pathlib import Path
 
@@ -30,14 +31,13 @@ PROBE_OPERATIONS = {
     "get_secret_collection": ("GET", WORKLOAD_NS, "secrets"),
 }
 SCOPE = (
-    "Disposable Kind Kubernetes v1.36.1 cluster with a digest-pinned node image. "
-    "A named controller ServiceAccount in a synthetic operator namespace uses a projected "
-    "token to GET and PATCH one named mock workload ConfigMap through a RoleBinding in a "
-    "separate workload namespace. Before/after direct API calls and independent kubectl auth "
-    "checks show the denied adjacent namespace, sibling resource, list/Secret access, and "
-    "cluster-scoped access. No actual AI operator, CRD, GPU, external target, feed, scan, or "
-    "vendor upgrade is exercised; operational applicability and version-specific vendor "
-    "permissions remain unresolved."
+    "One disposable Kind Kubernetes v1.36.1 cluster. The first case verifies exact named "
+    "resource access for a synthetic controller identity. The second case renders the pinned "
+    "official KubeRay 1.8.0 chart with its namespace-scoped Role and dedicated ServiceAccount. "
+    "Native calls compare RayCluster access and status authorization in the watched and "
+    "adjacent namespaces and for cluster-scoped Nodes. The real controller reports suspension "
+    "and creates an internal Service only for the watched fixture. Review adopted vendor "
+    "roles individually, including effective Secret grants and release/upgrade policy."
 )
 
 
@@ -241,3 +241,9 @@ def run(lab):
     }
     (lab.evidence / "operator-rbac-observations.json").write_text(
         json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    supplement_path = Path(__file__).resolve().with_name("kuberay_supplement.py")
+    spec = importlib.util.spec_from_file_location("saf_0901_007_kuberay", supplement_path)
+    supplement = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(supplement)
+    supplement.run_kuberay_supplement(lab)
