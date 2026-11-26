@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0703-013",
-  "catalog_revision": "d4328fde2e235c4d4a65baf2e08f7e45cfb81217",
-  "catalog_sha256": "e8d024860997c85e65dcb4d9a1c10c9e716416ecfea1f4d4479987609b4092f0",
+  "catalog_revision": "5025d51f8e5376ae08cf9e9ec67419c05299c384",
+  "catalog_sha256": "2d9ee748aef43609d9be38b0a9ebcc19019b6faa6b32c4acb2501c7241eebaee",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "e0deb30413804c064b1b2f450841d298a524d7e19b24d43c9bb8ec28fc72d43c",
+  "control_sha256": "dbd3451d3267e9fa170fd7de544fc06e0111fb2da79e24490ef9ece99e05f5a0",
   "scope": "Kubernetes v1.36.1 on a disposable three-node kind cluster. Synthetic worker labels exercise ordinary node-selector placement and Pod topology spread across two named failure domains. The fixture does not configure kubelet Topology Manager, expose NUMA hardware or GPU resources, install a device plugin/vendor operator, or measure NVLink/NVSwitch connectivity or bandwidth. Production labels, hardware topology, plugin behavior, and workload fault tolerance require separate evidence.",
-  "cluster": "saf-lab-c4f3723b3d46",
+  "cluster": "saf-lab-b4df061b2587",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

@@ -2043,7 +2043,7 @@
     "SAF-K8S-0703-013": {
       "catalog_status": "draft",
       "domain": "D07",
-      "sha256": "e0deb30413804c064b1b2f450841d298a524d7e19b24d43c9bb8ec28fc72d43c",
+      "sha256": "dbd3451d3267e9fa170fd7de544fc06e0111fb2da79e24490ef9ece99e05f5a0",
       "title": "Topology-aware scheduling for GPU locality with blast-radius containment"
     },
     "SAF-K8S-0703-014": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "87d17a0c554260070e334556299b1578b565b2ea",
-  "sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
+  "revision": "323fc128ed4f315f9127151b5c58a3b9111cd987",
+  "sha256": "2d9ee748aef43609d9be38b0a9ebcc19019b6faa6b32c4acb2501c7241eebaee",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
