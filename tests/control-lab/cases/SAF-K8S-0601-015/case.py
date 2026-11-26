@@ -527,3 +527,7 @@ def run(lab):
             )),
         },
     }, sort_keys=True, indent=2) + "\n")
+
+    # Additive real Go toolchain witness; the four existing checks above remain unchanged.
+    real_witness = published_module(HERE / "real_toolchain_witness.py", "saf_0601_015_real_toolchain")
+    real_witness.run(lab, BUSYBOX_IMAGE, NS)

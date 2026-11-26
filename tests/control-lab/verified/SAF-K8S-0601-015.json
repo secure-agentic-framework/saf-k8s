@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0601-015",
-  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
-  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
+  "catalog_revision": "d1b8447a22de8db36ec31676b53c34496d4d3f59",
+  "catalog_sha256": "63ca25b48ffb8f35202c5c4db9c599eb98e12d31aa18f4d0d69d91a9e3ec5423",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9efca0841edb072206c471dec9c12a38f8cb0175aa6cd42960cd8fe446510012",
   "scope": "One disposable Kind cluster and its default saf-test namespace. A Kubernetes-native ValidatingAdmissionPolicy gates server-side Pod dry-runs on an exact pinned inert image and an exact, bounded offline synthetic inference package inventory. The inventory uses the published OCI fixture's canonical JSON and digest helper and the published inference fixture's serving contract. It demonstrates declared-inventory release gating; the positive path runs the pinned fixture and checks its exact API metadata. A separate fixture comparison builds two inert local OCI targets from the exact pinned base, observes marker files inside their real filesystem layers, and records local config/layer digests, per-Pod-node CRI config/diff-ID joins, and Kubernetes runtime image IDs. This proves only the fixture's build-stage marker distinction; actual production image composition, hardware, CUDA/driver compatibility, qualification, provenance, registry promotion, and deployed gate adoption remain unverified.",
-  "cluster": "saf-lab-3692f68a2b34",
+  "cluster": "saf-lab-89ddfc1c5f74",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -90,6 +90,21 @@
         "cri_config_ids_equal_docker_image_config_ids": true,
         "cri_rootfs_diff_ids_equal_docker_rootfs_layers": true,
         "pod_runtime_image_ids_are_digest_qualified": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Pinned Go builder produces a minimal non-root image that serves its fixed marker",
+      "matched": true,
+      "observed": {
+        "pinned_multiplatform_real_go_builder_declared": true,
+        "builder_compiler_checks_and_offline_build_completed": true,
+        "final_scratch_rootfs_contains_only_executable_server": true,
+        "final_config_uses_numeric_nonroot_uid_and_server_entrypoint": true,
+        "final_binary_is_static_for_reported_architecture": true,
+        "owned_kind_runtime_serves_exact_health_marker_and_reports_actual_uid_gid": true,
+        "runtime_server_is_ready_and_cri_matches_config_and_layers": true,
+        "actual_uid_gid_match_numeric_oci_identity": true
       }
     }
   ]

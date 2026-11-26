@@ -37,3 +37,19 @@ are present. On the target hardware, record GPU model, driver and CUDA versions,
 and a bounded application compatibility result. Preserve the gate decision and
 deployment image ID as linked evidence; do not treat this synthetic BusyBox
 marker comparison as production qualification.
+
+
+## Additive pinned-toolchain witness (scratch candidate)
+
+The accompanying `Dockerfile.go`, `server.go`, and `real_toolchain_witness.py` add one positive witness after the four existing checks. The original `Dockerfile` and original check assertions are preserved byte-for-byte. The new Dockerfile uses the official multi-platform `golang:1.26.11-alpine` index digest `sha256:ecb67f987aa1a57794c91d19ade7ae0209f2f0f5496aaef9e6ae85ddf92d02ab`; the exact amd64 and arm64 child manifests were independently verified. Sources: [Docker Official Images Go metadata](https://github.com/docker-library/official-images/blob/master/library/golang) and [Docker Hub pinned Alpine image metadata](https://hub.docker.com/layers/library/golang/1.26.11-alpine/images/sha256-ecb67f987aa1a57794c91d19ade7ae0209f2f0f5496aaef9e6ae85ddf92d02ab).
+
+Every case run executes the exact pinned builder with networking disabled and observes Go, its platform compiler, and Alpine's package manager. It then runs a no-cache, network-disabled local build of a stdlib-only static HTTP server. The final image is `scratch` with a single `/server` layer, numeric image UID/GID 65532, and `/server` as entrypoint. The case saves that small final image once, validates its config and diff IDs, and inspects the exact layer tar to require only the executable server owned by UID/GID 65532 and no dynamic loader or libraries. It loads the image into the run-owned Kind cluster, runs it with an explicit non-root UID, and uses an inert BusyBox sidecar to check `/healthz` plus `/identity`. The Go process reports its actual `os.Getuid()` and `os.Getgid()`; the expected response is `65532:65532`. CRI config and layer diff IDs are joined to local Docker inspection, and the Pod is explicitly deleted before standard cluster cleanup.
+
+This validates only the synthetic static server and local toolchain/runtime boundary. It does not establish production package inventory, GPU/CUDA/driver compatibility, signed provenance, registry promotion, or deployed adoption. The original declared package inventory stays synthetic. No build or cluster execution has been performed by this scratch author.
+
+Docker's local reference ID can identify an OCI index. The test verifies that
+index and its native platform manifest before comparing the selected OCI image
+config digest and uncompressed filesystem diff ID to the running node's CRI.
+
+The module pins Go 1.26 language and HTTP routing semantics. It uses only the
+standard library and downloads no modules during the build.
