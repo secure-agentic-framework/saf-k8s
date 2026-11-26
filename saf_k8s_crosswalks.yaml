@@ -29770,16 +29770,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-4
   framework_requirement_title: System Monitoring
-  framework_mapping_notes: 'System monitoring of agent behavior, resource usage, and communications detects anomalies
-
-
-    10.1 - Logging and Audit (comprehensive system monitoring); 2.4 - Runtime security tools'
+  framework_mapping_notes: The fixture measures and correlates exact synthetic telemetry received over one owned cross-cluster route, with expected mTLS source identity, destination SNI, record IDs, payload digests, observed bytes, and bounded count/byte rules. It contributes a tested monitoring path for selected source, destination, and volume conditions; it does not monitor all cross-cluster AI communications, detect general traffic patterns, or provide a production dashboard.
   control_id: SAF-K8S-0910-032
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only where the adopter's deployed monitoring covers the identified cross-cluster AI communication paths and defines source/destination identity, volume thresholds, collection frequency, alert routing and response. The reference demonstrates one private mTLS route, fixed source/destination identities, bounded synthetic records, and count/byte threshold observations; it does not establish fleet-wide production coverage or a production dashboard.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -30395,16 +30392,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-4(5)
   framework_requirement_title: System-generated Alerts
-  framework_mapping_notes: 'System-generated alerts for agent security events enable rapid incident response
-
-
-    10.2 - Alert design for AI-specific failure modes (system-generated alerts); 2.4 - Runtime detection alerts'
+  framework_mapping_notes: The reference produces one threshold event from measured fixture traffic and an authenticated observer reads and correlates its record IDs, sizes, and digests. An additive source/destination/byte test is a scratch candidate, not yet executed. The current evidence does not establish production compromise indicators, alert delivery to assigned personnel or roles, acknowledgment, or incident response.
   control_id: SAF-K8S-0910-032
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only where the adopter defines covered source/destination/volume conditions as security indications, maps them to an appropriate alert, and delivers alerts through an authenticated mechanism to assigned personnel or roles. The fixture produces and independently reads a local synthetic event but does not notify an organizational role.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -32597,13 +32591,13 @@
   framework_version: '1.0'
   framework_requirement_id: MEASURE 2.4
   framework_requirement_title: The functionality and behavior of the AI system and its components - as identified in the MAP function - are monitored when in production.
-  framework_mapping_notes: 'SAF-K8S mandates comprehensive production monitoring: audit policies capture AI-relevant CRD operations, SIEM integration detects AI-specific attack patterns, metrics endpoints monitor model performance, and distributed tracing tracks pipeline execution.'
+  framework_mapping_notes: A bounded telemetry monitor can contribute one observable behavior signal for cross-cluster communication when that path is identified under MAP and included in production measurement. The fixture demonstrates only fixed synthetic traffic on one owned mTLS route; it does not establish production monitoring of AI functionality, lifecycle-wide component behavior, or comprehensive monitoring.
   control_id: SAF-K8S-0910-032
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only if an adopter identifies the covered cross-cluster telemetry as an AI system component behavior under MAP and monitors the corresponding production paths. Synthetic fixture records do not demonstrate production monitoring of an AI system or all mapped components.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
