@@ -1,5 +1,6 @@
 """Test namespace-local image pull Secret delivery and a private fixture pull."""
 import base64
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -14,7 +15,7 @@ from collections import Counter
 from http.client import HTTPConnection
 from urllib.parse import unquote
 
-from fixtures import container, pod
+from fixtures import container, pod, ready
 
 HERE = Path(__file__).resolve().parent
 ACCOUNT = "fixture-pull-account"
@@ -23,8 +24,28 @@ SCOPE = (
     "One disposable namespace, an empty dockerconfigjson Secret and normal ServiceAccount "
     "admission. Reference injection and an ordinary public-image workload are verified. "
     "A pinned owned registry separately checks wrong-credential refusal and a correct "
-    "same-namespace Secret pulling one exact inert digest. External Secret managers, CI "
+    "same-namespace Secret pulling one exact inert digest. The correct Secret is additionally "
+    "reconciled by pinned ESO from a case-owned HTTPS webhook provider. External Secret managers, CI "
     "delivery, rotation and production authorization need separate evidence."
+)
+
+ESO_NS = "fixture-eso"
+ESO_ACCOUNT = "fixture-eso-sync"
+ESO_SOURCE = "fixture-eso-registry-source"
+ESO_STORE = "fixture-eso-registry-store"
+ESO_EXTERNAL_SECRET = "fixture-eso-registry-target"
+ESO_SECRET = "fixture-external-pull-secret"
+ESO_DENIED_EXTERNAL_SECRET = "fixture-eso-denied-target"
+ESO_DENIED_SECRET = "fixture-external-denied-secret"
+ESO_POLICY = "fixture-external-pull-secret-controller.saf.example.org"
+ESO_LABEL = "saf.example.org/external-pull-policy"
+ESO_DENY = "the designated external pull Secret is managed by its approved controller"
+ESO_CHART_VERSION = "2.15.0"
+ESO_CHART_SHA = "ed94d41cc67e392ea45e370345eb491b0fdc21387f1aaaefcf8e2e6c85089e1d"
+ESO_IMAGE_TAG = "v2.15.0@sha256:6888f243e5f8f7592c6d7fae2a5547c9e33531441b47b53807b9093b25a00e31"
+ESO_PYTHON_IMAGE = (
+    "docker.io/library/python:3.13.2-alpine@sha256:"
+    "323a717dc4a010fee21e3f1aac738ee10bb485de4e7593ce242b36ee48d6b352"
 )
 
 
@@ -88,6 +109,221 @@ def _quiet(args, *, env, input_text=None, timeout=45, allow_failure=False):
     if result.returncode and not allow_failure:
         raise RuntimeError(f"{Path(args[0]).name} returned a failure")
     return result
+
+
+def _quiet_kubectl(lab, *args, input_text=None, timeout=45, allow_failure=False):
+    return _quiet([
+        "kubectl", "--kubeconfig", str(lab.kubeconfig), "--context", f"kind-{lab.cluster}",
+        "--namespace", "saf-test", f"--request-timeout={timeout - 5}s", *args,
+    ], env=lab.env, input_text=input_text, timeout=timeout, allow_failure=allow_failure)
+
+
+def _install_eso(lab, temp):
+    lab.command("helm", "pull", "external-secrets", "--repo", "https://charts.external-secrets.io",
+                "--version", ESO_CHART_VERSION, "--destination", str(temp), timeout=90)
+    chart = temp / f"external-secrets-{ESO_CHART_VERSION}.tgz"
+    if hashlib.sha256(chart.read_bytes()).hexdigest() != ESO_CHART_SHA:
+        lab.block("External Secrets Operator chart digest did not match the reviewed version")
+    lab.command("helm", "--kubeconfig", str(lab.kubeconfig), "--kube-context", f"kind-{lab.cluster}",
+                "upgrade", "--install", "fixture-eso", str(chart), "--namespace", ESO_NS,
+                "--create-namespace", "--set-string", f"serviceAccount.name={ESO_ACCOUNT}",
+                "--set-string", f"image.tag={ESO_IMAGE_TAG}",
+                "--set-string", f"webhook.image.tag={ESO_IMAGE_TAG}",
+                "--set-string", f"certController.image.tag={ESO_IMAGE_TAG}",
+                "--wait", "--timeout", "160s", timeout=175)
+
+
+def _start_eso_source(lab, temp, registry_config_json):
+    cert, key = temp / "eso-provider.pem", temp / "eso-provider-key.pem"
+    source_dns = f"{ESO_SOURCE}.saf-test.svc"
+    lab.command("openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "1",
+                "-subj", "/CN=" + source_dns, "-addext", "subjectAltName=DNS:" + source_dns,
+                "-addext", "basicConstraints=critical,CA:TRUE", "-keyout", str(key), "-out", str(cert))
+    lab.kubectl("create", "secret", "tls", ESO_SOURCE, "--cert=" + str(cert), "--key=" + str(key), "-o", "name")
+
+    source_code = {
+        "apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": ESO_SOURCE},
+        "data": {"server.py": (HERE / "provider.py").read_text(encoding="utf-8")},
+    }
+    created = _quiet_kubectl(lab, "create", "-f", "-", "-o", "name",
+                             input_text=json.dumps(source_code), timeout=20)
+    if created.returncode or created.stdout.strip() != f"configmap/{ESO_SOURCE}":
+        raise RuntimeError("case-owned external-secret provider code was not created")
+    source_data = {"apiVersion": "v1", "kind": "Secret",
+                   "metadata": {"name": ESO_SOURCE + "-data"},
+                   "stringData": {"registry-config.json": registry_config_json}}
+    created = _quiet_kubectl(lab, "create", "-f", "-", "-o", "name",
+                             input_text=json.dumps(source_data), timeout=20)
+    if created.returncode or created.stdout.strip() != f"secret/{ESO_SOURCE}-data":
+        raise RuntimeError("case-owned external-secret fixture data was not created")
+
+    provider = pod(ESO_SOURCE, [container("source", image=ESO_PYTHON_IMAGE,
+        command=["python3", "/source/server.py"], volumeMounts=[
+            {"name": "code", "mountPath": "/source", "readOnly": True},
+            {"name": "data", "mountPath": "/data", "readOnly": True},
+            {"name": "tls", "mountPath": "/tls", "readOnly": True},
+            {"name": "evidence", "mountPath": "/evidence"},
+        ])], automountServiceAccountToken=False,
+        securityContext={"fsGroup": 65534}, volumes=[
+            {"name": "code", "configMap": {"name": ESO_SOURCE}},
+            {"name": "data", "secret": {"secretName": ESO_SOURCE + "-data", "defaultMode": 0o440}},
+            {"name": "tls", "secret": {"secretName": ESO_SOURCE, "defaultMode": 0o440}},
+            {"name": "evidence", "emptyDir": {}},
+        ])
+    provider["metadata"]["labels"] = {"app": ESO_SOURCE}
+    lab.create(provider)
+    lab.create({"apiVersion": "v1", "kind": "Service", "metadata": {"name": ESO_SOURCE},
+                "spec": {"selector": {"app": ESO_SOURCE}, "ports": [{"port": 9443, "targetPort": 9443}]}})
+    ready(lab, ESO_SOURCE)
+    return base64.b64encode(cert.read_bytes()).decode("ascii")
+
+
+def _install_eso_target_policy(lab):
+    actor = f"system:serviceaccount:{ESO_NS}:{ESO_ACCOUNT}"
+    lab.kubectl("label", "namespace", "saf-test", f"{ESO_LABEL}=true")
+    lab.create({"apiVersion": "admissionregistration.k8s.io/v1", "kind": "ValidatingAdmissionPolicy",
+                "metadata": {"name": ESO_POLICY},
+                "spec": {"failurePolicy": "Fail", "matchConstraints": {"resourceRules": [{
+                    "apiGroups": [""], "apiVersions": ["v1"],
+                    "operations": ["CREATE", "UPDATE"], "resources": ["secrets"]}]},
+                    "validations": [{"expression": f"object.metadata.name != '{ESO_SECRET}' || request.userInfo.username == '{actor}'",
+                                     "message": ESO_DENY}]}})
+    lab.create({"apiVersion": "admissionregistration.k8s.io/v1", "kind": "ValidatingAdmissionPolicyBinding",
+                "metadata": {"name": ESO_POLICY},
+                "spec": {"policyName": ESO_POLICY, "validationActions": ["Deny"],
+                         "matchResources": {"namespaceSelector": {"matchLabels": {ESO_LABEL: "true"}}}}})
+
+
+def _external_secret(name, target, remote_key):
+    return {"apiVersion": "external-secrets.io/v1", "kind": "ExternalSecret",
+            "metadata": {"name": name},
+            "spec": {"refreshInterval": "1h", "refreshPolicy": "Periodic",
+                     "secretStoreRef": {"name": ESO_STORE, "kind": "SecretStore"},
+                     "target": {"name": target, "creationPolicy": "Owner", "deletionPolicy": "Retain",
+                                "template": {"type": "kubernetes.io/dockerconfigjson"}},
+                     "data": [{"secretKey": ".dockerconfigjson", "remoteRef": {"key": remote_key}}]}}
+
+
+def _create_eso_store(lab, ca_bundle):
+    server_dns = f"{ESO_SOURCE}.saf-test.svc"
+    lab.create({"apiVersion": "external-secrets.io/v1", "kind": "SecretStore",
+                "metadata": {"name": ESO_STORE},
+                "spec": {"provider": {"webhook": {
+                    "url": f"https://{server_dns}:9443/{{{{ .remoteRef.key }}}}", "method": "GET",
+                    "timeout": "3s", "result": {"jsonPath": "$.value"}, "caBundle": ca_bundle}}}})
+
+
+def _external_secret_condition(lab, name):
+    result = lab.kubectl("get", f"externalsecret/{name}",
+                         "-o", "jsonpath={.status.conditions[?(@.type=='Ready')].status}",
+                         allow_failure=True)
+    return result.stdout.strip() if result.returncode == 0 else ""
+
+
+def _quiet_secret(lab, name):
+    result = _quiet_kubectl(lab, "get", "secret", name, "-o", "json",
+                            timeout=15, allow_failure=True)
+    return json.loads(result.stdout) if result.returncode == 0 else None
+
+
+def _provider_rows(lab):
+    result = _quiet_kubectl(lab, "exec", ESO_SOURCE, "--", "cat",
+                            "/evidence/provider-access.jsonl", timeout=15, allow_failure=True)
+    if result.returncode:
+        return []
+    rows = []
+    for line in result.stdout.splitlines():
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if set(row) == {"path", "status"}:
+            rows.append(row)
+    return rows
+
+
+def _poll(lab, probe, expected, failure, seconds=70):
+    deadline = time.monotonic() + seconds
+    while time.monotonic() < deadline:
+        if probe() == expected:
+            return
+        time.sleep(1)
+    lab.block(failure)
+
+
+def _reconcile_external_pull_secret(lab, temp, alias, good_config):
+    """Use the pinned local ESO/Webhook fixture to create the exact pull Secret."""
+    _install_eso(lab, temp)
+    ca_bundle = _start_eso_source(lab, temp, json.dumps(good_config, sort_keys=True))
+    _install_eso_target_policy(lab)
+    _create_eso_store(lab, ca_bundle)
+
+    direct_candidate = {"apiVersion": "v1", "kind": "Secret",
+                        "metadata": {"name": ESO_SECRET},
+                        "type": "kubernetes.io/dockerconfigjson",
+                        "stringData": {".dockerconfigjson": json.dumps({"auths": {alias: {"auth": "fixture-only"}}})}}
+    def direct_write_denied():
+        direct = lab.create(direct_candidate, dry_run=True, allow_failure=True)
+        return direct.returncode != 0 and ESO_POLICY in direct.stderr and ESO_DENY in direct.stderr
+    _poll(lab, direct_write_denied, True,
+          "The target Secret admission rule did not become effective", seconds=30)
+    direct_denied = True
+
+    lab.create(_external_secret(ESO_DENIED_EXTERNAL_SECRET, ESO_DENIED_SECRET,
+                                "denied-registry-auth"))
+    def denied_provider_read():
+        rows = _provider_rows(lab)
+        return (_external_secret_condition(lab, ESO_DENIED_EXTERNAL_SECRET) == "False"
+                and any(row == {"path": "/denied-registry-auth", "status": 403} for row in rows))
+    _poll(lab, denied_provider_read, True,
+          "The denied external read did not produce its exact provider 403 and failed Ready state")
+    denied_target_absent = _quiet_secret(lab, ESO_DENIED_SECRET) is None
+    lab.check("red", "A denied provider read returns 403, fails reconciliation, and creates no target Secret",
+              denied_target_absent,
+              {"provider_403_observed": True, "external_secret_not_ready": True,
+               "denied_target_absent": denied_target_absent})
+
+    lab.create(_external_secret(ESO_EXTERNAL_SECRET, ESO_SECRET, "fixture-registry-auth"))
+    def target_matches():
+        row = _quiet_secret(lab, ESO_SECRET)
+        if not row or row.get("type") != "kubernetes.io/dockerconfigjson":
+            return False
+        encoded = row.get("data", {}).get(".dockerconfigjson", "")
+        try:
+            observed = json.loads(base64.b64decode(encoded, validate=True))
+        except (ValueError, json.JSONDecodeError):
+            return False
+        owner = any(ref.get("kind") == "ExternalSecret" and ref.get("name") == ESO_EXTERNAL_SECRET
+                    for ref in row.get("metadata", {}).get("ownerReferences", []))
+        provider_200 = any(event == {"path": "/fixture-registry-auth", "status": 200}
+                           for event in _provider_rows(lab))
+        return (_external_secret_condition(lab, ESO_EXTERNAL_SECRET) == "True"
+                and owner and observed == good_config and provider_200)
+    _poll(lab, target_matches, True,
+          "The approved ExternalSecret did not reconcile the exact owned dockerconfigjson target")
+    synced = _quiet_secret(lab, ESO_SECRET) or {}
+    encoded = synced.get("data", {}).get(".dockerconfigjson", "")
+    try:
+        synchronized_config = json.loads(base64.b64decode(encoded, validate=True))
+    except (ValueError, json.JSONDecodeError):
+        synchronized_config = None
+    owner_match = any(ref.get("kind") == "ExternalSecret" and ref.get("name") == ESO_EXTERNAL_SECRET
+                      for ref in synced.get("metadata", {}).get("ownerReferences", []))
+    provider_200 = any(event == {"path": "/fixture-registry-auth", "status": 200}
+                       for event in _provider_rows(lab))
+    target_matches_exactly = (synced.get("type") == "kubernetes.io/dockerconfigjson"
+                              and synchronized_config == good_config and owner_match
+                              and ".dockerconfigjson" in synced.get("data", {}) and provider_200
+                              and _external_secret_condition(lab, ESO_EXTERNAL_SECRET) == "True")
+    lab.check("green", "The approved controller owns the exact pull Secret while direct target writes are denied",
+              direct_denied and target_matches_exactly,
+              {"direct_target_write_denied": direct_denied,
+               "dockerconfigjson_type_match": synced.get("type") == "kubernetes.io/dockerconfigjson",
+               "dockerconfigjson_value_matches_in_memory": synchronized_config == good_config,
+               "dockerconfigjson_key_present": ".dockerconfigjson" in synced.get("data", {}),
+               "provider_200_observed": provider_200,
+               "external_secret_owner_match": owner_match,
+               "external_secret_ready": _external_secret_condition(lab, ESO_EXTERNAL_SECRET) == "True"})
 
 
 def _private_image_pod(name, image, secret):
@@ -232,7 +468,8 @@ def run_private_pull_checks(lab):
                        allow_failure=True).returncode == 0:
             lab.block("Generated private-pull container name already exists")
         for image in (REGISTRY_IMAGE, SKOPEO_IMAGE, "docker.io/library/busybox:1.37.0@sha256:"
-                      "a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"):
+                      "a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec",
+                      ESO_PYTHON_IMAGE):
             lab.command("docker", "image", "inspect", "--format", "{{.Id}}", image)
 
         if lab.command("docker", "network", "inspect", network, allow_failure=True).returncode == 0:
@@ -312,17 +549,15 @@ def run_private_pull_checks(lab):
             "username": username, "password": password,
             "auth": base64.b64encode(f"{username}:{password}".encode()).decode(),
         }}}
-        wrong_file, good_file = tmp / "wrong-config.json", tmp / "good-config.json"
+        wrong_file = tmp / "wrong-config.json"
         wrong_file.write_text(json.dumps(wrong_config), encoding="utf-8")
-        good_file.write_text(json.dumps(good_config), encoding="utf-8")
         wrong_file.chmod(0o600)
-        good_file.chmod(0o600)
-        del password, wrong_password, auth, authfile, wrong_config, good_config
-        wrong_secret, good_secret = "fixture-wrong-private-pull", "fixture-good-private-pull"
+        _reconcile_external_pull_secret(lab, tmp, f"{alias}:5000", good_config)
+        del username, password, wrong_password, auth, authfile, wrong_config
+        wrong_secret, good_secret = "fixture-wrong-private-pull", ESO_SECRET
         if not _create_pull_secret(lab, wrong_secret, wrong_file):
             lab.block("wrong-credential fixture Secret was not admitted")
-        if not _create_pull_secret(lab, good_secret, good_file):
-            lab.block("correct-credential fixture Secret was not admitted")
+        del good_config
 
         if _node_has_digest(lab, node, digest):
             lab.block("Unique private fixture digest unexpectedly exists in the node cache")
