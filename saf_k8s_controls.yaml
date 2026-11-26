@@ -6985,7 +6985,7 @@
   domain_name: Storage, Multi-tenancy, and Resource Governance
   knowledge_area: '7.3'
   control_seq: '22'
-  control_title: GPU abuse pattern monitoring and detection for Kubernetes AI workloads
+  control_title: Accelerator activity monitoring and policy-context triage
   control_statement: Monitor governed accelerator workloads using documented allocation and device telemetry. Correlate notable signals with workload identity, owners, operating policy and approval context. Route unexplained activity or policy mismatches for adjudication and record the disposition and evidence quality.
   objective: Surface actionable accelerator activity with enough evidence and context for an authorized reviewer to determine whether response is required.
   rationale: Intensive accelerator use can be expected for approved work. Activity and workload metadata are triage signals. Reliable attribution and authorization review are needed to establish a policy violation, and incomplete context should remain visible as uncertainty.

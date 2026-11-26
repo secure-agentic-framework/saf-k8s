@@ -970,7 +970,7 @@ This knowledge area focuses on: Pod Disruption Budgets for workload availability
 | [SAF-K8S-0703-018](markdown/controls/SAF-K8S-0703-018.md) | GPU cost attribution metering and billing correlation | Practitioner | ai-specific |
 | [SAF-K8S-0703-019](markdown/controls/SAF-K8S-0703-019.md) | GPU chargeback and showback reporting accountability | Practitioner | ai-specific |
 | [SAF-K8S-0703-021](markdown/controls/SAF-K8S-0703-021.md) | GPU admission enforcement against unauthorized access and quota bypass | Practitioner | ai-specific |
-| [SAF-K8S-0703-022](markdown/controls/SAF-K8S-0703-022.md) | GPU abuse pattern monitoring and detection for Kubernetes AI workloads | Practitioner | ai-specific |
+| [SAF-K8S-0703-022](markdown/controls/SAF-K8S-0703-022.md) | Accelerator activity monitoring and policy-context triage | Practitioner | ai-specific |
 | [SAF-K8S-0703-023](markdown/controls/SAF-K8S-0703-023.md) | Investigation and termination of confirmed unauthorized GPU workloads | Practitioner | ai-specific |
 
 <a id="knowledge-area-7-4"></a>
