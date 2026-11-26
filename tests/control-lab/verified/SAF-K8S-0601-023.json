@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0601-023",
-  "catalog_revision": "36d67fc68b5176566299ebffa1c448bea0a6dc2c",
-  "catalog_sha256": "957795ca0841a48dd97f65d6a691d642bc38d11bbf391056ec5ea9b34e1a131b",
+  "catalog_revision": "e704a1c89701cd0fa1c76a84124e13956b067316",
+  "catalog_sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "04cc778ba6819ddff6fcfc42bfb116483847023a8acbd316aeb46c631377fa2a",
-  "scope": "One disposable kind namespace. A real Kubernetes CronJob updates a synthetic version marker using a dedicated authorized ServiceAccount. Two running Pods observe the update through ConfigMap volume projection. Registry credentials, revocation and private image authentication require separate evidence.",
-  "cluster": "saf-lab-a16d0fb5ffa9",
+  "scope": "One disposable Kind namespace. Preserve 0601-023's scheduled CronJob marker and live ConfigMap propagation checks. Reuse 0601-022's case-owned registry, wrong and correct initial credential checks, and pinned ESO provider. Add one synthetic credential rotation, Periodic ESO Secret refresh, retired-value registry denial, and one new exact-digest Kubernetes image pull. No provider-wide expiry or production credential behavior is inferred.",
+  "cluster": "saf-lab-a0c72708f999",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -70,6 +70,82 @@
           "fixture-v2"
         ],
         "original_pods": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A denied provider read returns 403, fails reconciliation, and creates no target Secret",
+      "matched": true,
+      "observed": {
+        "provider_403_observed": true,
+        "external_secret_not_ready": true,
+        "denied_target_absent": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The approved controller owns the exact pull Secret while direct target writes are denied",
+      "matched": true,
+      "observed": {
+        "direct_target_write_denied": true,
+        "dockerconfigjson_type_match": true,
+        "dockerconfigjson_value_matches_in_memory": true,
+        "dockerconfigjson_key_present": true,
+        "provider_200_observed": true,
+        "external_secret_owner_match": true,
+        "external_secret_ready": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The wrong same-namespace pull credential is refused by the owned registry",
+      "matched": true,
+      "observed": {
+        "pod_refused": true,
+        "no_container_started": true,
+        "owned_registry_401_observed": true,
+        "exact_image_credential_error": true,
+        "digest_not_cached": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The correct same-namespace Secret authorizes an exact private-image pull",
+      "matched": true,
+      "observed": {
+        "pod_succeeded": true,
+        "command_succeeded": true,
+        "manifest_request_authorized": true,
+        "exact_digest_observed": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Periodic ESO reconciliation refreshes the scoped pull Secret and the registry retires the old fixture credential",
+      "matched": true,
+      "observed": {
+        "owner_match": true,
+        "ready": true,
+        "provider_200_after_rotation": true,
+        "refresh_time_after_rotation": true,
+        "target_fingerprint_changed": true,
+        "target_matches_new_fixture_value": true,
+        "retired_credential_http_status": 401,
+        "rotated_credential_http_status": 200,
+        "registry_401_and_200_access_records": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A new Pod pulls the exact image digest after cache removal using the refreshed Kubernetes Secret",
+      "matched": true,
+      "observed": {
+        "exact_fixture_digest_removed_before_pull": true,
+        "new_pod_succeeded": true,
+        "private_marker_observed": true,
+        "registry_manifest_200": true,
+        "exact_registry_digest_observed": true,
+        "refreshed_secret_remains_current": true
       }
     }
   ]
