@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1002-004",
-  "catalog_revision": "ae3bd4dc229a55a5bb84023613c1480920af4c85",
-  "catalog_sha256": "6031d6bce6e815656d2bdd19b4aded4a7daef10e76dfcd7bd8b7ceacceab129d",
+  "catalog_revision": "4f4dfde19325fb5689bb5c6a8aafc58c77c69508",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "c4e5c40da35a9bc80a1d5689dc30ebac3884eb9693ab14b696429308b3597b25",
   "scope": "Synthetic telemetry served by an owned fixture workload in Kubernetes v1.36.1; real Prometheus v3.5.0 rule evaluation and Alertmanager v0.28.1 route to two case-only webhook receiver identities. No NVIDIA exporter, GPU, model, or real inference/training system is exercised. Each failure is injected independently.",
-  "cluster": "saf-lab-3f805207d960",
+  "cluster": "saf-lab-6f3f15681f17",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
