@@ -33,8 +33,8 @@ The four-check case provides a reusable prioritization, deadline, exception-expi
 - Knowledge Area: 9.5
 - Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0905-053 - Approved external model source periodic review and allowlist update governance](../../controls/SAF-K8S-0905-053.md)
 

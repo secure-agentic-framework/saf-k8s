@@ -6401,22 +6401,6 @@
 
 
     7.4 - Restricted use policies for non-organizationally owned systems and external AI services; 9.5 - Registry federation security'
-  control_id: SAF-K8S-0905-052
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-20(3)
-  framework_requirement_title: Non-organizationally Owned Systems -- Restricted Use
-  framework_mapping_notes: 'Agents interacting with third-party systems
-
-
-    7.4 - Restricted use policies for non-organizationally owned systems and external AI services; 9.5 - Registry federation security'
   control_id: SAF-K8S-0905-054
   relation_type: supports
   strength_level: moderate
@@ -37796,13 +37780,13 @@
   framework_version: '1.0'
   framework_requirement_id: MANAGE 3.1
   framework_requirement_title: AI risks and benefits from third-party resources are regularly monitored, and risk controls are applied and documented.
-  framework_mapping_notes: Dependency tracking with SLSA build provenance monitors third-party component risks. Vulnerability prioritization for AI workloads provides ongoing risk assessment. Restricted use policies govern external AI service consumption.
+  framework_mapping_notes: A documented external-model source approval process contributes a third-party risk control. Monitoring requires separate evidence.
   control_id: SAF-K8S-0905-052
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  applicability: conditional
+  applicability_condition: The adopted risk management process applies and documents this approval control for covered third-party model sources and separately monitors their risks and benefits.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -37954,15 +37938,12 @@
   framework_version: '1.1'
   framework_requirement_id: PW.4.1
   framework_requirement_title: Acquire and maintain well-secured software components from commercial, open-source, and other third-party developers.
-  framework_mapping_notes: >-
-    A curated list of approved model sources supports selection and provenance review
-    for external models used as software components. PW.4.1 additionally covers
-    evaluation, acquisition and maintenance of the components themselves.
+  framework_mapping_notes: Approved sources constrain supplier selection. The adopted practice must separately evaluate, acquire, and maintain eligible components.
   control_id: SAF-K8S-0905-052
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
+  applicability: conditional
+  applicability_condition: The approved source process applies to third-party models treated as software components within the adopter’s component acquisition and maintenance practice.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-SSDF
