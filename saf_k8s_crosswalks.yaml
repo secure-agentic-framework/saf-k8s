@@ -16114,22 +16114,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AU-12(1)
-  framework_requirement_title: System-wide and Time-correlated Audit Trail
-  framework_mapping_notes: 'Correlated audit trail across agent ecosystem
-
-
-    10.2 - Distributed tracing for ML pipelines (system-wide, time-correlated audit trail)'
-  control_id: SAF-K8S-1002-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AU-12(2)
   framework_requirement_title: Standardized Formats
   framework_mapping_notes: 'Standard formats for agent audit logs
@@ -16904,22 +16888,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AU-3(1)
-  framework_requirement_title: Additional Audit Information
-  framework_mapping_notes: 'Extended agent audit fields (tool calls, prompts, etc.)
-
-
-    10.2 - AI workload telemetry (GPU metrics via DCGM, training job progress, inference latency as additional audit info)'
-  control_id: SAF-K8S-1002-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AU-3(3)
   framework_requirement_title: Limit Personally Identifiable Information Elements
   framework_mapping_notes: 'Minimizing PII in agent audit logs
@@ -17210,22 +17178,6 @@
 
     10.2 - Alert design for AI-specific failure modes (real-time alerting); 2.4 - Runtime threat detection alerts'
   control_id: SAF-K8S-1002-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-5(2)
-  framework_requirement_title: Real-time Alerts
-  framework_mapping_notes: 'Real-time alerting on agent audit events
-
-
-    10.2 - Alert design for AI-specific failure modes (real-time alerting); 2.4 - Runtime threat detection alerts'
-  control_id: SAF-K8S-1002-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -17670,22 +17622,6 @@
 
     7.4 - Cloud audit log integration (correlating cloud and K8s audit events); 10.2 - Distributed tracing for ML pipelines'
   control_id: SAF-K8S-1002-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-6(3)
-  framework_requirement_title: Correlate Audit Record Repositories
-  framework_mapping_notes: 'Correlating logs across multi-agent systems
-
-
-    7.4 - Cloud audit log integration (correlating cloud and K8s audit events); 10.2 - Distributed tracing for ML pipelines'
-  control_id: SAF-K8S-1002-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -19071,22 +19007,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: CA-7(3)
-  framework_requirement_title: Trend Analyses
-  framework_mapping_notes: 'Trend analysis of agent security metrics
-
-
-    10.2 - AI workload telemetry (trend analysis for training divergence, inference accuracy degradation)'
-  control_id: SAF-K8S-1002-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: CA-7(4)
   framework_requirement_title: Risk Monitoring
   framework_mapping_notes: 'Ongoing risk monitoring for agent systems
@@ -20033,22 +19953,6 @@
 
     9.6 - Training data provenance (data action mapping from ingestion through feature engineering); 10.2 - Distributed tracing'
   control_id: SAF-K8S-1002-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-13
-  framework_requirement_title: Data Action Mapping
-  framework_mapping_notes: 'Mapping agent data actions for privacy
-
-
-    9.6 - Training data provenance (data action mapping from ingestion through feature engineering); 10.2 - Distributed tracing'
-  control_id: SAF-K8S-1002-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -29771,22 +29675,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: IR-4(4)
-  framework_requirement_title: Information Correlation
-  framework_mapping_notes: 'Correlating agent telemetry during incident triage
-
-
-    10.2 - SIEM integration (correlating audit logs, AI telemetry, and security events for incident analysis)'
-  control_id: SAF-K8S-1002-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: IR-4(5)
   framework_requirement_title: Automatic Disabling of System
   framework_mapping_notes: 'Auto-disabling compromised agents
@@ -30306,22 +30194,6 @@
 
     10.2 - Monitoring, Metrics, and Tracing (automated support for IR information availability and analysis)'
   control_id: SAF-K8S-1002-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-7(1)
-  framework_requirement_title: Automation Support for Availability of Information and Support
-  framework_mapping_notes: 'Automated IR knowledge base for agent incidents
-
-
-    10.2 - Monitoring, Metrics, and Tracing (automated support for IR information availability and analysis)'
-  control_id: SAF-K8S-1002-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -31191,22 +31063,6 @@
 
 
     10.5 - IR exercises; 10.2 - Continuous monitoring; 10.6 - Compliance testing and training'
-  control_id: SAF-K8S-1002-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-14
-  framework_requirement_title: Testing, Training, and Monitoring
-  framework_mapping_notes: 'Testing and monitoring of agentic AI security controls is essential for ongoing assurance
-
-
-    10.5 - IR exercises; 10.2 - Continuous monitoring; 10.6 - Compliance testing and training'
   control_id: SAF-K8S-1005-001
   relation_type: supports
   strength_level: strong
@@ -32005,22 +31861,6 @@
 
     10.2 - Metrics security (security performance metrics and KPIs for K8s AI infrastructure)'
   control_id: SAF-K8S-1002-003
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-6
-  framework_requirement_title: Measures of Performance
-  framework_mapping_notes: 'Security performance metrics track effectiveness of agentic AI security controls
-
-
-    10.2 - Metrics security (security performance metrics and KPIs for K8s AI infrastructure)'
-  control_id: SAF-K8S-1002-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -53032,22 +52872,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-4(12)
-  framework_requirement_title: Automated Organization-generated Alerts
-  framework_mapping_notes: 'Automated alert generation for agent security events reduces detection latency
-
-
-    10.1 - SIEM integration (automated alert generation); 10.2 - Alert design for AI failure modes'
-  control_id: SAF-K8S-1002-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-4(13)
   framework_requirement_title: Analyze Traffic and Event Patterns
   framework_mapping_notes: 'Analyzing agent traffic and event patterns identifies sophisticated multi-stage attacks
@@ -53254,22 +53078,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-4(16)
-  framework_requirement_title: Correlate Monitoring Information
-  framework_mapping_notes: 'Correlating monitoring data across agent components reveals coordinated attacks
-
-
-    10.1 - SIEM integration (correlation rule development); 10.2 - Distributed tracing for ML pipelines'
-  control_id: SAF-K8S-1002-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-4(17)
   framework_requirement_title: Integrated Situational Awareness
   framework_mapping_notes: 'Integrated situational awareness of agent security posture enables informed decision-making
@@ -53277,22 +53085,6 @@
 
     10.2 - AI workload telemetry integration (integrated situational awareness); 10.3 - Threat modeling'
   control_id: SAF-K8S-1002-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(17)
-  framework_requirement_title: Integrated Situational Awareness
-  framework_mapping_notes: 'Integrated situational awareness of agent security posture enables informed decision-making
-
-
-    10.2 - AI workload telemetry integration (integrated situational awareness); 10.3 - Threat modeling'
-  control_id: SAF-K8S-1002-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -53480,16 +53272,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-4(2)
   framework_requirement_title: Automated Tools and Mechanisms for Real-time Analysis
-  framework_mapping_notes: 'Real-time analysis of agent behavior enables immediate detection of compromise and anomalies
-
-
-    2.4 - Runtime threat detection (real-time syscall/network monitoring); 10.2 - AI workload telemetry integration'
+  framework_mapping_notes: 'Conditional partial support for near-real-time analysis: the reference case exercises six synthetic AI workload signals and verifies local Prometheus/Alertmanager routing. It does not observe production workload telemetry or establish production timing.'
   control_id: SAF-K8S-1002-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Applies when the organization monitors AI workloads and evaluates defined system behaviors in near real time. The portable case validates six synthetic signal-to-alert paths and local delivery; deployment evidence must show production telemetry, thresholds, timing, and destinations.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -53936,22 +53725,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-4(3)
-  framework_requirement_title: Automated Tool and Mechanism Integration
-  framework_mapping_notes: 'Integrating monitoring tools across agent infrastructure provides correlated threat visibility
-
-
-    10.2 - SIEM integration (integrating monitoring tools); 2.4 - Runtime security tools integration'
-  control_id: SAF-K8S-1002-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-4(4)
   framework_requirement_title: Inbound and Outbound Communications Traffic
   framework_mapping_notes: 'Monitoring inbound and outbound agent communications detects data exfiltration and C2 traffic
@@ -54141,16 +53914,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-4(5)
   framework_requirement_title: System-generated Alerts
-  framework_mapping_notes: 'System-generated alerts for agent security events enable rapid incident response
-
-
-    10.2 - Alert design for AI-specific failure modes (system-generated alerts); 2.4 - Runtime detection alerts'
+  framework_mapping_notes: 'Conditional partial support for system-generated alerts: the reference case validates synthetic signal rules and delivery to a named local receiver. It does not establish production compromise indicators, external delivery, or human acknowledgment.'
   control_id: SAF-K8S-1002-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Applies when system-generated indicators of compromise or potential compromise are defined for monitored AI workloads and routed to assigned roles. The portable case verifies delivery to a case-owned local receiver; adopter evidence must establish deployed indicators, receiver ownership, authenticated external delivery, and response ownership.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -54343,22 +54113,6 @@
 
     1.4 - CVE response (monitoring security announcements); 10.2 - Threat intelligence (consuming advisories)'
   control_id: SAF-K8S-1002-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-5
-  framework_requirement_title: Security Alerts, Advisories, and Directives
-  framework_mapping_notes: 'Security alerts and advisories inform operators of threats to agentic AI systems
-
-
-    1.4 - CVE response (monitoring security announcements); 10.2 - Threat intelligence (consuming advisories)'
-  control_id: SAF-K8S-1002-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -57707,22 +57461,6 @@
 
     9.6 - Training data provenance tracking (lineage from ingestion to training); 10.2 - Distributed tracing for ML pipelines'
   control_id: SAF-K8S-1002-003
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-4(2)
-  framework_requirement_title: Track and Trace
-  framework_mapping_notes: 'Track and trace of AI model and tool artifacts through the supply chain
-
-
-    9.6 - Training data provenance tracking (lineage from ingestion to training); 10.2 - Distributed tracing for ML pipelines'
-  control_id: SAF-K8S-1002-004
   relation_type: direct
   strength_level: strong
   applicability: required
