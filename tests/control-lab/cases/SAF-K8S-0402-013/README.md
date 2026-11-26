@@ -1,17 +1,45 @@
-# SAF-K8S-0402-013 — Ephemeral training job credential rotation
+# SAF-K8S-0402-013 — Credential rotation in a continuing Job
 
-From the framework repository, run:
+Run from the lab checkout.
 
 ```sh
-python3 tests/control-lab/lab.py test SAF-K8S-0402-013 --docker-context desktop-linux
+python3 lab.py test SAF-K8S-0402-013 --docker-context desktop-linux
 ```
 
-Allow about 12 minutes after the Kubernetes v1.36.1 cluster starts. The case gives a Job Pod one explicit projected token with a 600-second requested lifetime and a synthetic audience. It checks the expected audience, ServiceAccount, and bound Pod through the Kubernetes TokenReview API.
+From the framework checkout, invoke `python3 tests/control-lab/lab.py`.
+The disposable Job mounts an explicit 600-second projected credential
+for one synthetic audience. Its unprivileged client reopens the file while
+the same Pod and ServiceAccount stay active. A private observer verifies
+that the client saw the same replacement read independently by the test.
+The Kubernetes TokenReview API authenticates the live credential for its
+intended audience and refuses the unrelated one. The result retains only
+the observed predicates.
 
-- **Red.** A client that caches the first read still holds the original after the kubelet replaces the mounted file. TokenReview rejects the cached credential after expiration and the configured clock leeway.
-- **Green.** Reopening the file obtains a kubelet-issued token with later expiration before the original expires. The current token still authenticates after the original expires. The Job, Pod, and ServiceAccount identities remain the same.
-- **Permitted.** The original token initially authenticates for its named audience. A check for an unrelated audience is rejected.
+The cached initial credential continues to refer to the old value. The
+file-based client observes its replacement before the initial expiry.
+After the fixture's expiry and leeway window, Kubernetes refuses the
+cached credential and still accepts the current one for the same Pod
+identity. This case takes about 12 minutes because it waits for the actual
+credential lifecycle.
 
-The case holds token bytes only in process memory and retains sanitized issue and expiration timestamps separately in `rotation-timing.json`. Verify each deployed application reopens its token file and continues to work during refresh. Cloud SDKs, Vault, and training-controller integrations require their own evidence.
+## Verify the adopted credential path
 
-[Kubernetes v1.36 service account projection](https://v1-36.docs.kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#serviceaccount-token-volume-projection) · [v1.36.1 kubelet token manager](https://github.com/kubernetes/kubernetes/blob/v1.36.1/pkg/kubelet/token/token_manager.go)
+1. Identify each training or pipeline workload, accepting service,
+   issuer, audience, credential lifetime, expected job duration and
+   permitted scopes. Verify actual Kubernetes projection, Vault lease
+   semantics or cloud SDK refresh as applicable to each workload.
+2. Observe the continuing real client obtaining the replacement before
+   the previous credential becomes unusable. Compare a client with
+   refreshed credentials and a deliberately stale cached fixture. Verify
+   the accepted requests and expected denial independently through the
+   actual accepting service.
+3. Exercise an approved refresh failure and recovery scenario. Measure
+   the retry and expiry window, verify the workload's approved failure
+   behavior and resume access after authority recovery. Keep actual
+   Job and Pod ownership and controller behavior in the evidence.
+4. Retain audience, expiry and replacement observations, the effective
+   policy, actual identity continuity, issuer and client versions and
+   recovery outcomes without raw credentials or fingerprints.
+
+[Kubernetes service account token projection](https://v1-36.docs.kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/)
+and [TokenReview](https://v1-36.docs.kubernetes.io/docs/reference/kubernetes-api/authentication-resources/token-review-v1/).

@@ -1,6 +1,8 @@
 """Exercise kubelet rotation of a synthetic projected service account token."""
 import base64
+import hashlib
 import json
+from pathlib import Path
 import subprocess
 import time
 
@@ -9,6 +11,8 @@ NAMESPACE = "saf-test"
 JOB = "saf-0402-013"
 SERVICE_ACCOUNT = "saf-0402-013"
 CONTAINER = "trainer"
+CLIENT_CONTAINER = "token-client"
+CLIENT_CONFIG = "saf-0402-013-token-client"
 TOKEN_PATH = "/var/run/saf-token/token"
 AUDIENCE = "saf-0402-013.synthetic"
 OTHER_AUDIENCE = "saf-0402-013.unrelated"
@@ -22,6 +26,10 @@ BUSYBOX_IMAGE = (
     "docker.io/library/busybox:1.37.0@sha256:"
     "a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
 )
+PYTHON_IMAGE = (
+    "docker.io/library/python:3.13.2-alpine@sha256:"
+    "323a717dc4a010fee21e3f1aac738ee10bb485de4e7593ce242b36ee48d6b352"
+)
 
 SCOPE = (
     "One disposable kind Job runs a synthetic non-root BusyBox workload for up to 30 minutes. "
@@ -32,8 +40,11 @@ SCOPE = (
     "enter command arguments, logs, stdout, or evidence. Checks cover initial authentication, "
     "rejection for an unrelated audience, kubelet file refresh, stale-client expiry, a reopened "
     "file's valid token after old-token expiry, and continuity of Job/Pod/ServiceAccount identity. "
+    "A second unprivileged container in the same Job independently reopens the projected file, "
+    "writing only token fingerprints and expiry metadata to its private temporary filesystem; "
+    "the harness matches that fingerprint to the exact token it separately TokenReviews. "
     "This does not test Vault, cloud SDKs, other training controllers, production outages, or "
-    "application-specific reload implementations."
+    "the behavior of different application credential clients."
 )
 
 
@@ -66,6 +77,35 @@ def _read_token(lab, pod_name):
     if token.count(".") != 2 or len(token) < 100:
         raise RuntimeError("projected token did not have the expected opaque JWT shape")
     return token
+
+
+def _client_state(lab, pod_name):
+    raw = _private_kubectl(
+        lab,
+        ["--namespace", NAMESPACE, "exec", pod_name, "-c", CLIENT_CONTAINER,
+         "--", "cat", "/tmp/saf-0402-013-client.json"],
+        timeout=20,
+    )
+    try:
+        state = json.loads(raw)
+        if state.get("ok") is not True:
+            raise ValueError("client state unavailable")
+        return state
+    except (ValueError, TypeError, json.JSONDecodeError) as error:
+        raise RuntimeError("in-Pod token client state was invalid") from error
+
+
+def _wait_client_state(lab, pod_name, predicate, *, timeout=30):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        try:
+            state = _client_state(lab, pod_name)
+            if predicate(state):
+                return state
+        except RuntimeError:
+            pass
+        time.sleep(1)
+    lab.block("In-Pod client did not report the expected projected-token state")
 
 
 def _claims(token):
@@ -179,6 +219,23 @@ def _job_manifest():
                             "seccompProfile": {"type": "RuntimeDefault"},
                         },
                         "volumeMounts": [{"name": "workload-token", "mountPath": "/var/run/saf-token", "readOnly": True}],
+                    }, {
+                        "name": CLIENT_CONTAINER,
+                        "image": PYTHON_IMAGE,
+                        "command": ["python", "-B", "/fixture/token_client.py"],
+                        "securityContext": {
+                            "allowPrivilegeEscalation": False,
+                            "capabilities": {"drop": ["ALL"]},
+                            "runAsNonRoot": True,
+                            "runAsUser": 65534,
+                            "seccompProfile": {"type": "RuntimeDefault"},
+                        },
+                        "resources": {"requests": {"cpu": "20m", "memory": "40Mi"},
+                                      "limits": {"cpu": "100m", "memory": "96Mi"}},
+                        "volumeMounts": [
+                            {"name": "workload-token", "mountPath": "/var/run/saf-token", "readOnly": True},
+                            {"name": "client-code", "mountPath": "/fixture", "readOnly": True},
+                        ],
                     }],
                     "volumes": [{
                         "name": "workload-token",
@@ -187,7 +244,7 @@ def _job_manifest():
                             "expirationSeconds": EXPIRATION_SECONDS,
                             "path": "token",
                         }}]},
-                    }],
+                    }, {"name": "client-code", "configMap": {"name": CLIENT_CONFIG}}],
                 },
             },
         },
@@ -208,6 +265,9 @@ def run(lab):
         "metadata": {"name": SERVICE_ACCOUNT},
         "automountServiceAccountToken": False,
     })
+    lab.create({"apiVersion": "v1", "kind": "ConfigMap",
+                "metadata": {"name": CLIENT_CONFIG},
+                "data": {"token_client.py": Path(__file__).with_name("token_client.py").read_text()}})
     lab.create(_job_manifest())
     lab.kubectl("wait", "--for=create", "pod", "-l", f"job-name={JOB}",
                 "--timeout=90s", timeout=100)
@@ -256,6 +316,27 @@ def run(lab):
     stale_client_cache = original
     reopened = _read_token(lab, pod_name)
     fresh_claims = _claims(reopened)
+    original_fingerprint = hashlib.sha256(original.encode("ascii")).hexdigest()
+    reopened_fingerprint = hashlib.sha256(reopened.encode("ascii")).hexdigest()
+    client_state = _wait_client_state(
+        lab, pod_name,
+        lambda state: state.get("first_sha256") == original_fingerprint and
+        state.get("current_sha256") == reopened_fingerprint and
+        state.get("refresh_count", 0) >= 1,
+    )
+    lab.check(
+        "green", "The owned Job client reopens the projected token file and observes the same refreshed credential",
+        client_state.get("first_exp") == original_claims["exp"] and
+        client_state.get("current_exp") == fresh_claims["exp"] and
+        client_state.get("current_audiences") == [AUDIENCE] and
+        client_state.get("read_count", 0) >= 2,
+        {"client_reloaded": True, "client_saw_a_replacement": client_state.get("refresh_count", 0) >= 1,
+         "client_repeatedly_reopened_the_file": client_state.get("read_count", 0) >= 2,
+         "initial_exp_matches": client_state.get("first_exp") == original_claims["exp"],
+         "refreshed_exp_matches": client_state.get("current_exp") == fresh_claims["exp"],
+         "audience_match": client_state.get("current_audiences") == [AUDIENCE],
+         "token_value_recorded": False},
+    )
     lab.check(
         "red", "A client that caches the original token does not follow the mounted-file replacement",
         stale_client_cache == original and stale_client_cache != reopened,
