@@ -16,3 +16,7 @@ detection changes and exposure handling require separate evidence.
 - [Kubernetes official CVE feed](https://kubernetes.io/docs/reference/issues-security/official-cve-feed/)
 - [NIST NVD data feeds](https://nvd.nist.gov/vuln/data-feeds)
 - [NVIDIA Product Security](https://www.nvidia.com/en-us/security/)
+
+For a deployment, identify the actual approved feed endpoints and owner, provenance and trust, refresh interval and failure behavior. Independently connect a real advisory to the exact governed component version and observed asset, and retain the approved exposure decision or downstream rule revision. Keep actual source-level coverage and privacy constraints with deployment evidence.
+
+The same evaluator also consumes approved and changed public fixture bytes from an owned ClusterIP HTTPS service. The runner generates a short-lived local CA and serving key outside the case tree. The independent client validates the expected hostname and pinned CA, rejects an unrelated CA, and applies the same byte-integrity, expiry and enrichment decisions.

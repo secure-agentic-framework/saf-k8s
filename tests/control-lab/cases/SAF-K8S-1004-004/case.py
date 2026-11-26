@@ -1,6 +1,9 @@
 """Exercise offline advisory integrity, expiry quarantine, and exact enrichment."""
+import hashlib
 import json
 from pathlib import Path
+import subprocess
+from tempfile import TemporaryDirectory
 
 from lab import NAMESPACE
 
@@ -18,9 +21,9 @@ AS_OF = "2026-11-21T12:00:00Z"
 SCOPE = (
     "Offline, synthetic threat-intelligence fixture processing in a disposable Kubernetes v1.36.1 Kind cluster. "
     "Verifies SHA-256 pin quarantine, expiry quarantine, exact advisory enrichment for one approved mock "
-    "observation, and quiet package-version/image-digest near misses. This does not exercise external feed "
-    "connectivity, source authenticity, production ingestion freshness/completeness, threat-sharing participation, "
-    "or deployed SIEM/SOAR rule operation."
+    "observation, quiet package-version/image-digest near misses, and one case-owned HTTPS source with pinned local "
+    "trust and fixed public synthetic bytes. This does not exercise external feed authenticity, production ingestion "
+    "freshness/completeness, threat-sharing participation, or deployed SIEM/SOAR rule operation."
 )
 
 
@@ -45,18 +48,97 @@ def expected_enrichment():
     }
 
 
+def establish_transport_fixture(lab):
+    host = f"saf-1004-004-feed.{NAMESPACE}.svc.cluster.local"
+    with TemporaryDirectory(prefix="saf-feed-tls-", dir=lab.kubeconfig.parent) as workdir:
+        root = Path(workdir)
+        ca_key, ca, other_key, other = (root / name for name in ("ca.key", "ca.crt", "wrong.key", "wrong.crt"))
+        key, csr, cert, extensions = (root / name for name in ("server.key", "server.csr", "server.crt", "server.ext"))
+        extensions.write_text(f"subjectAltName=DNS:{host}\n"
+                              "basicConstraints=critical,CA:FALSE\n"
+                              "keyUsage=critical,digitalSignature,keyEncipherment\n"
+                              "extendedKeyUsage=serverAuth\n"
+                              "authorityKeyIdentifier=keyid,issuer\n")
+        ca_defaults = ("openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "2",
+                       "-addext", "basicConstraints=critical,CA:TRUE", "-addext", "keyUsage=critical,keyCertSign,cRLSign",
+                       "-addext", "subjectKeyIdentifier=hash")
+        commands = (
+            (*ca_defaults, "-subj", "/CN=SAF fixture feed CA", "-keyout", str(ca_key), "-out", str(ca)),
+            (*ca_defaults, "-subj", "/CN=SAF unrelated fixture CA", "-keyout", str(other_key), "-out", str(other)),
+            ("openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-subj", f"/CN={host}",
+             "-keyout", str(key), "-out", str(csr)),
+            ("openssl", "x509", "-req", "-in", str(csr), "-CA", str(ca), "-CAkey", str(ca_key),
+             "-CAcreateserial", "-days", "2", "-sha256", "-extfile", str(extensions), "-out", str(cert)),
+        )
+        try:
+            for command in commands:
+                subprocess.run(command, env=lab.env, capture_output=True, check=True, timeout=20)
+        except (OSError, subprocess.SubprocessError):
+            lab.block("Could not generate the case-owned HTTPS trust fixture")
+        for private in (key, ca_key, other_key):
+            private.chmod(0o600)
+        lab.kubectl("create", "secret", "tls", "saf-1004-004-feed-tls",
+                    "--cert=" + str(cert), "--key=" + str(key), "-o", "name")
+        return ca.read_text(), other.read_text()
+
+
 def run(lab):
+    trusted_ca, unrelated_ca = establish_transport_fixture(lab)
+    ca_sha256 = hashlib.sha256(trusted_ca.encode()).hexdigest()
     lab.create({
         "apiVersion": "v1", "kind": "ConfigMap",
         "metadata": {"name": CONFIG_NAME, "namespace": NAMESPACE,
                      "labels": {"saf-k8s.example/control-1004-004": "synthetic-fixture"}},
         "data": {
             "worker.py": load("worker.py").decode(),
+            "feed_server.py": load("feed_server.py").decode(),
+            "https_worker.py": load("https_worker.py").decode(),
             "approved-bundle.json": load("approved-bundle.json").decode(),
             "damaged-bundle.json": load("damaged-bundle.json").decode(),
             "observations.json": load("observations.json").decode(),
+            "tls-ca.crt": trusted_ca,
+            "wrong-ca.crt": unrelated_ca,
         },
     })
+    lab.create({
+        "apiVersion": "v1", "kind": "Pod",
+        "metadata": {"name": "saf-1004-004-feed", "namespace": NAMESPACE,
+                     "labels": {"app": "saf-1004-004-feed",
+                                "saf-k8s.example/control-1004-004": "synthetic-fixture"}},
+        "spec": {
+            "automountServiceAccountToken": False,
+            "securityContext": {"runAsNonRoot": True, "runAsUser": 65532, "fsGroup": 65532,
+                                "seccompProfile": {"type": "RuntimeDefault"}},
+            "containers": [{
+                "name": "feed", "image": WORKER_IMAGE, "imagePullPolicy": "IfNotPresent",
+                "command": ["python", "/case/feed_server.py"],
+                "securityContext": {"allowPrivilegeEscalation": False,
+                                    "readOnlyRootFilesystem": True,
+                                    "capabilities": {"drop": ["ALL"]}},
+                "ports": [{"name": "https", "containerPort": 8443}],
+                "readinessProbe": {"tcpSocket": {"port": 8443}, "periodSeconds": 1,
+                                   "timeoutSeconds": 1, "failureThreshold": 30},
+                "volumeMounts": [
+                    {"name": "fixture", "mountPath": "/case", "readOnly": True},
+                    {"name": "tls", "mountPath": "/tls", "readOnly": True},
+                ],
+                "resources": {"requests": {"cpu": "10m", "memory": "16Mi"},
+                              "limits": {"cpu": "100m", "memory": "48Mi"}},
+            }],
+            "volumes": [
+                {"name": "fixture", "configMap": {"name": CONFIG_NAME, "defaultMode": 292}},
+                {"name": "tls", "secret": {"secretName": "saf-1004-004-feed-tls", "defaultMode": 288}},
+            ],
+        },
+    })
+    lab.create({
+        "apiVersion": "v1", "kind": "Service",
+        "metadata": {"name": "saf-1004-004-feed", "namespace": NAMESPACE,
+                     "labels": {"saf-k8s.example/control-1004-004": "synthetic-fixture"}},
+        "spec": {"type": "ClusterIP", "selector": {"app": "saf-1004-004-feed"},
+                 "ports": [{"name": "https", "port": 443, "targetPort": 8443}]},
+    })
+    lab.kubectl("wait", "pod/saf-1004-004-feed", "--for=condition=Ready", "--timeout=90s", timeout=100)
     lab.create({
         "apiVersion": "batch/v1", "kind": "Job",
         "metadata": {"name": JOB_NAME, "namespace": NAMESPACE,
@@ -92,6 +174,67 @@ def run(lab):
             },
         },
     })
+    lab.create({
+        "apiVersion": "batch/v1", "kind": "Job",
+        "metadata": {"name": "saf-1004-004-https-intake", "namespace": NAMESPACE,
+                     "labels": {"saf-k8s.example/control-1004-004": "synthetic-fixture"}},
+        "spec": {
+            "backoffLimit": 0,
+            "activeDeadlineSeconds": 60,
+            "template": {
+                "metadata": {"labels": {"saf-k8s.example/control-1004-004": "synthetic-fixture"}},
+                "spec": {
+                    "restartPolicy": "Never",
+                    "automountServiceAccountToken": False,
+                    "securityContext": {"runAsNonRoot": True, "runAsUser": 65532,
+                                        "seccompProfile": {"type": "RuntimeDefault"}},
+                    "containers": [{
+                        "name": "https-intake", "image": WORKER_IMAGE,
+                        "imagePullPolicy": "IfNotPresent",
+                        "command": ["python", "/case/https_worker.py"],
+                        "env": [{"name": "PYTHONDONTWRITEBYTECODE", "value": "1"},
+                                {"name": "EXPECTED_CA_SHA256", "value": ca_sha256}],
+                        "securityContext": {"allowPrivilegeEscalation": False,
+                                             "readOnlyRootFilesystem": True,
+                                             "capabilities": {"drop": ["ALL"]}},
+                        "volumeMounts": [{"name": "fixture", "mountPath": "/case", "readOnly": True}],
+                        "resources": {"requests": {"cpu": "10m", "memory": "16Mi"},
+                                      "limits": {"cpu": "100m", "memory": "48Mi"}},
+                    }],
+                    "volumes": [{"name": "fixture", "configMap": {"name": CONFIG_NAME,
+                                                                          "defaultMode": 292}}],
+                },
+            },
+        },
+    })
+    lab.kubectl("wait", "job/saf-1004-004-https-intake", "--for=condition=complete",
+                "--timeout=90s", timeout=100)
+    intake_raw = lab.kubectl("logs", "job/saf-1004-004-https-intake").stdout.strip()
+    (lab.evidence / "https-intake.raw.json").write_text(intake_raw + "\n")
+    try:
+        intake = json.loads(intake_raw)
+    except json.JSONDecodeError as error:
+        lab.block(f"HTTPS intake worker returned no machine-readable result ({error})")
+    approved_http = intake["approved_fetch"]
+    approved_eval = intake["approved_evaluator"]
+    modified_eval = intake["modified_evaluator"]
+    expired_eval = intake["expired_evaluator"]
+    lab.check(
+        "green",
+        "Pinned in-cluster HTTPS source feeds the existing evaluator; changed and expired bytes quarantine and wrong trust fails closed",
+        intake["ready"] is True and intake["ca_sha256_matches_independent_pin"] is True
+        and approved_http["tls_verified"] is True and approved_http["status"] == 200
+        and approved_http["sha256"] == BUNDLE_SHA256
+        and approved_eval["accepted"] is True and approved_eval["enrichment_count"] == 1
+        and approved_eval["quiet_ids"] == ["OBS-SYNTH-NEARMISS-VERSION", "OBS-SYNTH-NEARMISS-IMAGE"]
+        and modified_eval == {"accepted": False, "reason": "digest_mismatch", "enrichment_count": 0}
+        and expired_eval == {"accepted": False, "reason": "expired"}
+        and intake["wrong_ca_certificate_rejected"] is True,
+        {"ca_sha256_matches_independent_pin": intake["ca_sha256_matches_independent_pin"],
+         "approved_fetch": approved_http, "approved_evaluator": approved_eval,
+         "modified_evaluator": modified_eval, "expired_evaluator": expired_eval,
+         "wrong_ca_certificate_rejected": intake["wrong_ca_certificate_rejected"]},
+    )
     lab.kubectl("wait", f"job/{JOB_NAME}", "--for=condition=complete", "--timeout=120s", timeout=130)
     raw = lab.kubectl("logs", f"job/{JOB_NAME}").stdout.strip()
     (lab.evidence / "ingestion.raw.json").write_text(raw + "\n")

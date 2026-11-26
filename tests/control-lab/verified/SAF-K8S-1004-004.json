@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1004-004",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "7975236b9e119c63c8eb2209943df544bad5e20a",
+  "catalog_sha256": "c11e20f1ec20d984db838c86fdb56b8f5655671774a59cb9d1cbc01f9889c3df",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d0e46e023c64d95531509ff58f3604bd478b08d6166fd2b923b5c0b400d7dfd8",
-  "scope": "Offline, synthetic threat-intelligence fixture processing in a disposable Kubernetes v1.36.1 Kind cluster. Verifies SHA-256 pin quarantine, expiry quarantine, exact advisory enrichment for one approved mock observation, and quiet package-version/image-digest near misses. This does not exercise external feed connectivity, source authenticity, production ingestion freshness/completeness, threat-sharing participation, or deployed SIEM/SOAR rule operation.",
-  "cluster": "saf-lab-3b887325e8ec",
+  "scope": "Offline, synthetic threat-intelligence fixture processing in a disposable Kubernetes v1.36.1 Kind cluster. Verifies SHA-256 pin quarantine, expiry quarantine, exact advisory enrichment for one approved mock observation, quiet package-version/image-digest near misses, and one case-owned HTTPS source with pinned local trust and fixed public synthetic bytes. This does not exercise external feed authenticity, production ingestion freshness/completeness, threat-sharing participation, or deployed SIEM/SOAR rule operation.",
+  "cluster": "saf-lab-91ad279a3ea6",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -38,6 +38,38 @@
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
+    {
+      "phase": "green",
+      "claim": "Pinned in-cluster HTTPS source feeds the existing evaluator; changed and expired bytes quarantine and wrong trust fails closed",
+      "matched": true,
+      "observed": {
+        "ca_sha256_matches_independent_pin": true,
+        "approved_fetch": {
+          "byte_count": 618,
+          "sha256": "99b0a2d0515a4551e9038413265e1c0b972ccf20f294e6ed38c03327cc29917b",
+          "status": 200,
+          "tls_verified": true
+        },
+        "approved_evaluator": {
+          "accepted": true,
+          "enrichment_count": 1,
+          "quiet_ids": [
+            "OBS-SYNTH-NEARMISS-VERSION",
+            "OBS-SYNTH-NEARMISS-IMAGE"
+          ]
+        },
+        "modified_evaluator": {
+          "accepted": false,
+          "enrichment_count": 0,
+          "reason": "digest_mismatch"
+        },
+        "expired_evaluator": {
+          "accepted": false,
+          "reason": "expired"
+        },
+        "wrong_ca_certificate_rejected": true
+      }
+    },
     {
       "phase": "red",
       "claim": "An unpinned bundle is quarantined with no enrichment",
