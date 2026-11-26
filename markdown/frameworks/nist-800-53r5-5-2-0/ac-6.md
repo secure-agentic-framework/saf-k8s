@@ -67,10 +67,10 @@ The actual accepting services verify least privilege over approved resources and
 
 - Domain: D04 - Identity, Access, and Secrets Management
 - Knowledge Area: 4.2
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0402-003 - Service account identifier exposure prevention](../../controls/SAF-K8S-0402-003.md)
 

@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Agent/service account lifecycle management
-
-4.2 - Secure service accounts and workload identity (account management and lifecycle)
+This control supports the inactivity, monitoring and retirement portions of account management. Verify the remaining organization-defined account lifecycle requirements separately.
 
 ## SAF-K8S Controls
 
@@ -15,10 +13,10 @@ Agent/service account lifecycle management
 
 - Domain: D04 - Identity, Access, and Secrets Management
 - Knowledge Area: 4.2
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0402-003 - Service account identifier exposure prevention](../../controls/SAF-K8S-0402-003.md)
 

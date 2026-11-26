@@ -44,3 +44,12 @@ Governed external authenticator storage, distribution and scoped recipient ident
 - Strength: moderate
 - Applicability: conditional
 - Strength Reason Code: n/a
+
+### [SAF-K8S-0402-002 - Inactive service account and stale credential remediation](../../controls/SAF-K8S-0402-002.md)
+
+- Domain: D04 - Identity, Access, and Secrets Management
+- Knowledge Area: 4.2
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
