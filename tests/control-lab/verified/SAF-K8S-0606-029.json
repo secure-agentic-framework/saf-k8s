@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-029",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "fc1578d517267b890a723f569f04737810d6495a",
+  "catalog_sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6916f9e9d11135b125473a4bba78e9ca49fb2043d935089d772f5b5e71d40e1d",
   "scope": "One disposable kind cluster and saf-test namespace; Argo CD v3.6.1 renders two valid Helm v2 charts (1.0.0 and 1.1.0) from a case-owned, read-only Git source. The case observes the tagged Argo CD controller, resolved Git commit, Deployment, and Ready Pod, then compares those observations with independent immutable release records containing chart version, Git chart-tree identity, runtime image digest, cluster, and namespace. The fixture covers source Helm charts rendered by Argo CD.",
-  "cluster": "saf-lab-ee03471e6613",
+  "cluster": "saf-lab-448a40048b1d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

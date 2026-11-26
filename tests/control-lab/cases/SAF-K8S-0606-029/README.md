@@ -1,25 +1,16 @@
-# SAF-K8S-0606-029 GitOps release metadata
+# SAF-K8S-0606-029 — Retain GitOps package and version metadata
 
-Run from the lab root.
+Run `python3 tests/control-lab/lab.py test SAF-K8S-0606-029 --docker-context desktop-linux` from the framework checkout.
 
-```sh
-python3 lab.py test SAF-K8S-0606-029 --docker-context desktop-linux
-```
+Pinned Argo CD deploys two exact Git commits containing successive versions of a fixture Helm chart. The seven checks compare the resolved revisions, chart and workload versions, Ready Pods and runtime image digests. The test runner writes each immutable record after observing successful reconciliation. Both records remain readable after promotion. Kubernetes refuses a change to the earlier record. The retained run evidence includes the chart source identity, workload image and target namespace.
 
-Argo CD deploys two exact Git commits containing successive versions of a
-fixture Helm chart. Before recording either version, the test observes the
-resolved Argo CD revision, version on the Deployment and Ready Pod, and the
-Pod runtime image digest. It checks that Argo CD's manifest rendering produces
-a live workload without a Helm release Secret.
+## Verify an adopted release ledger
 
-The runner writes an immutable release record for each version and reads both
-back after promotion. Each record binds the package version to the source chart
-tree, the observed workload image and the exact Kind cluster and namespace.
-A write check verifies that Kubernetes refuses to change the earlier record.
-The complete per-cluster records also appear in local run evidence.
+1. Inventory every target cluster, environment, release path and package format. Record the controller and release-system versions, source commit or registry digest, chart or package version, deployed workload identity and the record owner. Include direct manifests, operators, Helm, OCI and model deployment formats where used.
+2. Trace authoritative collection for each successful release. Match the controller's resolved revision or package digest to the deployed package or workload digest and exact environment. Inspect record-writer identity, access scope, retries and gaps.
+3. Reconcile at least two successive releases, retrieving the first record after the second and checking both against observed sources and workloads. Include rollback and re-promotion where applicable.
+4. Verify effective permissions, retention and pruning rules, backup and restore and independent retrieval during recovery. Identify any manual paths or unsupported environments and packages.
+5. Where Annex IV technical documentation applies, reconcile relevant software or firmware records to the actual AI system and include its applicable version-update requirements.
 
-This models retaining source chart and deployment identities. Registry
-package digests, production retention and access policy, automation and
-inventory coverage require separate evidence.
-
-[Argo CD 3.6.1 Helm documentation](https://github.com/argoproj/argo-cd/blob/v3.6.1/docs/user-guide/helm.md)
+- [Argo CD 3.6.1 Helm integration](https://github.com/argoproj/argo-cd/blob/v3.6.1/docs/user-guide/helm.md)
+- [Regulation (EU) 2024/1689, Annex IV](https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng/pdf)
