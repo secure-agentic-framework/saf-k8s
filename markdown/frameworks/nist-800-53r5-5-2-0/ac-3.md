@@ -73,3 +73,12 @@ Core to agent authorization -- enforcing what agents can do
 - Strength: moderate
 - Applicability: conditional
 - Strength Reason Code: partial-control-coverage
+
+### [SAF-K8S-0402-008 - Distinct identity assignment for AI workload types](../../controls/SAF-K8S-0402-008.md)
+
+- Domain: D04 - Identity, Access, and Secrets Management
+- Knowledge Area: 4.2
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

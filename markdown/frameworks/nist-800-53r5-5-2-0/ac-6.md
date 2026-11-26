@@ -112,10 +112,10 @@ The actual accepting services verify least privilege over approved resources and
 
 - Domain: D04 - Identity, Access, and Secrets Management
 - Knowledge Area: 4.2
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0402-010 - Cross-cluster and cross-cloud cryptographic identity federation](../../controls/SAF-K8S-0402-010.md)
 
