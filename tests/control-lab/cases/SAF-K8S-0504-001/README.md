@@ -33,3 +33,21 @@ Use this checklist for an owner-approved review of one deployed Istio mesh and r
 - [Istio 1.32 AuthorizationPolicy](https://istio.io/v1.32/docs/reference/config/security/authorization-policy/): peer principals derive from mTLS certificates; identity and request operations are policy inputs.
 - [Istio 1.32 `istioctl proxy-status`](https://istio.io/v1.32/docs/ops/diagnostic-tools/proxy-cmd/): last-sent/last-acknowledged xDS state and meanings of `SYNCED`, `STALE`, and a missing proxy.
 - [Istio 1.32 `istioctl` reference](https://istio.io/v1.32/docs/reference/commands/istioctl/): version-matched CLI reference, including effective authorization-policy inspection where supported by that release.
+
+## Approved connection continuation and replacement
+
+The approved HTTP/1.1 request is repeated over the same application socket
+after policy reconciliation. The raw fixture record preserves the destination
+Envoy connection IDs and any change independently. Continued use of the
+application socket permits a different destination connection. The owner
+then deletes the exact client Pod using a 20-second grace period. Both Pod
+specs carry the pinned native-sidecar lifecycle hook. The approved
+replacement has a distinct UID and returns the fixed marker using the same
+approved identity over a new destination connection.
+
+The pinned Istio 1.32.0 `istioctl proxy-status --output json` output provides
+structured status for the exact case-owned source and destination proxies.
+The test checks CDS, LDS, EDS, and RDS status after policy activation and
+after reconnection. The scope is the approved route and named client
+replacement. Fleet deployment coverage, existing in-flight streams, and
+actual pooled connections require adopter evidence.

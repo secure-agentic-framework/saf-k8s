@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0504-001",
-  "catalog_revision": "2a2c673c977024e894297e148a59763770575cb1",
-  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
+  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
+  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "741d6736c68e18e1ac7f84995b551cb983a879ab04bda31155afda202c564e5f",
-  "scope": "A fresh local Kind Kubernetes v1.36.1 cluster with Istio 1.32.0 sidecars and namespace-owned ServiceAccounts. Two workload identities reach the same two owned HTTP routes before workload policy activation. The destination proxy authenticates exact SPIFFE URI SANs. Requests from fresh client proxies after a scoped authorization change distinguish the approved identity and path from independent denied controls. Existing streams and production mesh policy coverage need further evidence.",
-  "cluster": "saf-lab-d98804ec9ea2",
+  "scope": "A fresh local Kind Kubernetes v1.36.1 cluster with Istio 1.32.0 sidecars and namespace-owned ServiceAccounts. Two workload identities reach the same two owned HTTP routes before workload policy activation. The destination proxy authenticates exact SPIFFE URI SANs. Requests from fresh client proxies after a scoped authorization change distinguish the approved identity and path from independent denied controls. A separate approved identity reuses one owned HTTP/1.1 client socket for an allowed request across policy activation, then the owner gracefully replaces that exact fixture Pod and reconnects with the same identity. Application-socket reuse, destination-proxy connection IDs, injected drain hook, and version-pinned xDS acknowledgement are captured separately. Existing in-flight streams and production mesh policy coverage need further evidence.",
+  "cluster": "saf-lab-49efe024b2ef",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -186,6 +186,94 @@
         "http_status": 200,
         "exact_body_matched": true,
         "destination_proxy_confirmed_mtls_peer": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An approved request continues over its authenticated session, then reconnects after the owner replaces the exact Pod",
+      "matched": true,
+      "observed": {
+        "session_pod_uses_approved_service_account_and_pinned_proxy": true,
+        "old_session_owner_state": {
+          "pod_uid_observed": true,
+          "approved_service_account": true,
+          "pinned_proxy_and_prestop_drain": true,
+          "bounded_grace_period": true
+        },
+        "same_application_socket_reused": true,
+        "destination_proxy_connection_ids_observed": true,
+        "owner_initiated_graceful_pod_replacement_completed": true,
+        "reconnected_pod_identity_and_proxy": {
+          "new_pod_uid": true,
+          "new_pod_uid_differs_from_drained_pod": true,
+          "approved_service_account": true,
+          "pinned_proxy": true,
+          "pinned_proxy_prestop_drain": true
+        },
+        "other_identity_denied_before_approved_session_reuse": true,
+        "expected_http_outcomes": true,
+        "replacement_has_new_destination_connection": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Istio 1.32.0 structured proxy-status independently confirms exact core xDS ACKs for the named source and destination proxies",
+      "matched": true,
+      "observed": {
+        "observations": {
+          "destination_after_policy": {
+            "target_proxy_id": "saf-identity-target.saf-test",
+            "target_row_seen": true,
+            "statuses": {
+              "CDS": "SYNCED",
+              "EDS": "SYNCED",
+              "LDS": "SYNCED",
+              "RDS": "SYNCED"
+            },
+            "all_xds_types_synced": true
+          },
+          "established_source_after_policy": {
+            "target_proxy_id": "approved-session.saf-test",
+            "target_row_seen": true,
+            "statuses": {
+              "CDS": "SYNCED",
+              "EDS": "SYNCED",
+              "LDS": "SYNCED",
+              "RDS": "SYNCED"
+            },
+            "all_xds_types_synced": true
+          },
+          "replacement_source_after_reconnect": {
+            "target_proxy_id": "approved-reconnected.saf-test",
+            "target_row_seen": true,
+            "statuses": {
+              "CDS": "SYNCED",
+              "EDS": "SYNCED",
+              "LDS": "SYNCED",
+              "RDS": "SYNCED"
+            },
+            "all_xds_types_synced": true
+          },
+          "destination_after_reconnect": {
+            "target_proxy_id": "saf-identity-target.saf-test",
+            "target_row_seen": true,
+            "statuses": {
+              "CDS": "SYNCED",
+              "EDS": "SYNCED",
+              "LDS": "SYNCED",
+              "RDS": "SYNCED"
+            },
+            "all_xds_types_synced": true
+          }
+        },
+        "required_types": [
+          "CDS",
+          "LDS",
+          "EDS",
+          "RDS"
+        ],
+        "parsed_from": "istioctl proxy-status --output json",
+        "all_exact_acknowledgements": true
       }
     }
   ]
